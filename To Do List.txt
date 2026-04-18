@@ -1,101 +1,1142 @@
-Für Phase 1 sehr sinnvoll
+WELLFIT – MASTER ROADMAP & TO-DO LIST
+Version: 1.0
+Status: Arbeitsgrundlage für Entwicklung, Investorengespräche, Pilot, Agentur-Briefing und weitere Umsetzung
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
 
-Wenn dein Ziel jetzt ist:
+============================================================
+0. ZIEL DIESER DATEI
+============================================================
 
-echte User statt localStorage
-echte History
-echte Favoriten
-erste produktive Version
-Tracking-Daten sicher speichern
-schnell online gehen
+Diese Datei ist die zentrale Arbeitsliste für WellFit.
+Sie verbindet:
+- das gesamte WellFit-Konzept,
+- die Businessplan-Logik,
+- den MVP-/Clickdummy-Stand,
+- die Firebase-/Firestore-Entscheidung,
+- die spätere Solana-/Token-Roadmap,
+- die Investorentranchierung,
+- die Pilotstrategie,
+- offene technische Aufgaben,
+- Produkt-, UX-, Marketing-, Partner- und Compliance-Themen.
+
+Wichtig:
+WellFit soll zuerst als funktionierender, verständlicher und pilotfähiger Health-Gamification-MVP validiert werden.
+Der Token ist eine spätere Erweiterung und nicht die Voraussetzung für den ersten Start.
+
+Kernlogik:
+1. Erst echte Nutzer und echte Nutzung beweisen.
+2. Dann Pilotdaten, LOIs und Partnerinteresse sichern.
+3. Dann Investoren mit belastbaren Nachweisen ansprechen.
+4. Danach Token, Solana, AR, KI und Marketplace sauber ausbauen.
+
+============================================================
+1. STRATEGISCHE GRUNDENTSCHEIDUNG
+============================================================
+
+[ ] WellFit nicht als reine Krypto-App positionieren.
+[ ] WellFit als Health-, Bewegung-, Lern-, Gamification- und Engagement-Plattform positionieren.
+[ ] Token erst als spätere Ökosystem- und Belohnungskomponente darstellen.
+[ ] MVP zunächst mit Punkten, Leveln, Missionen, Badges und Rewards starten.
+[ ] Blockchain/Token nur dort erwähnen, wo es strategisch sinnvoll und rechtlich sauber ist.
+[ ] Alle alten SUI-Verweise prüfen und auf Solana korrigieren, weil WellFit Solana verwenden soll.
+[ ] Keine Renditeversprechen verwenden.
+[ ] Keine medizinischen Heilversprechen verwenden.
+[ ] Keine Aussagen machen, die WellFit unnötig in Richtung Finanzprodukt oder Medizinprodukt schieben.
+
+Kurzpositionierung:
+WellFit ist eine gamifizierte Gesundheits- und Bewegungsplattform, die reale Aktivität, Aufgaben, Lernen, soziale Interaktion und digitale Belohnungen verbindet. In der ersten Phase sammeln Nutzer Punkte, Level und Status durch Bewegung und Challenges. In späteren Phasen werden diese Mechaniken mit Token, AR-Erlebnissen, KI-Buddy, Partnerangeboten und einem digitalen Marktplatz erweitert.
+
+============================================================
+2. PHASENPLAN GESAMT
+============================================================
+
+PHASE 0 – Konzept, Struktur, Demo, Klarheit
+Ziel: Alles so aufbereiten, dass Entwickler, Investoren und Partner WellFit sofort verstehen.
+
+[ ] Businessplan strukturieren.
+[ ] Pitchdeck strukturieren.
+[ ] Website/Clickdummy auf Präsentationsreife bringen.
+[ ] To-do-Liste als Master-Roadmap führen.
+[ ] MVP-Scope fixieren.
+[ ] Token-Themen sauber abgrenzen.
+[ ] Solana als finale Blockchain festhalten.
+[ ] Investor-Storyline schreiben.
+[ ] Pilot-Storyline schreiben.
+[ ] Partner-Storyline schreiben.
+
+PHASE 1 – MVP / Pilotfähige Version
+Ziel: Echte Registrierung, echte Nutzerprofile, echte Missionen, echte Punkte, echte History.
+
+[ ] Firebase Auth einrichten.
+[ ] Firestore einrichten.
+[ ] User-Profile speichern.
+[ ] Missionen speichern.
+[ ] Missionstatus speichern.
+[ ] History speichern.
+[ ] Favoriten speichern.
+[ ] Tracking-Sessions speichern.
+[ ] Punkte und Rewards serverseitig beziehungsweise in Firebase speichern.
+[ ] localStorage nur noch für UI-Zustände verwenden.
+[ ] MVP online deployen.
+[ ] erste Pilotnutzer onboarden.
+
+PHASE 2 – Pilot & Datenvalidierung
+Ziel: Beweisen, dass Nutzer WellFit verstehen, nutzen und wiederkommen.
+
+[ ] Pilot mit 100 bis 500 Nutzern planen.
+[ ] Pilotgebiet definieren: Wien, Mödling, Niederösterreich oder erste Firmen-/Community-Gruppe.
+[ ] Pilotdauer definieren: 2 bis 3 Wochen.
+[ ] Pilotmissionen definieren.
+[ ] Feedbackformular erstellen.
+[ ] KPIs messen.
+[ ] Nutzerfeedback sammeln.
+[ ] Bugs dokumentieren.
+[ ] Pilotbericht erstellen.
+[ ] Partnerfeedback einholen.
+
+PHASE 3 – Partner, LOIs, Investorenvorbereitung
+Ziel: Nachweise schaffen, damit WellFit investierbar wird.
+
+[ ] 2 LOIs vorbereiten.
+[ ] 1 Firmen-/BGM-Partner ansprechen.
+[ ] 1 Location-/Event-/Gemeindepartner ansprechen.
+[ ] Optional 1 Brand-/Sponsorpartner ansprechen.
+[ ] Investor-One-Pager erstellen.
+[ ] Pitchdeck finalisieren.
+[ ] Finanzmodell finalisieren.
+[ ] Tranchiertes Investmentmodell darstellen.
+[ ] Demo-Video erstellen.
+
+PHASE 4 – Tranche 1 / Produktaufbau
+Ziel: Mit Kapital MVP professionell ausbauen und größere Pilotphase vorbereiten.
+
+[ ] Entwicklungsagentur oder Tech Lead auswählen.
+[ ] Lastenheft finalisieren.
+[ ] Backend stabilisieren.
+[ ] App/PWA produktionsreif machen.
+[ ] Adminbereich bauen.
+[ ] Partnerbereich bauen.
+[ ] Analytics aufbauen.
+[ ] Datenschutz professionell prüfen lassen.
+[ ] Security-Basics umsetzen.
+
+PHASE 5 – Token, Solana, AR, KI, Marketplace
+Ziel: Nach Produktvalidierung das größere WellFit-Ökosystem aufbauen.
+
+[ ] Solana-Token-Konzept finalisieren.
+[ ] MiCAR-Prüfung starten.
+[ ] Tokenomics ausarbeiten.
+[ ] Marketplace-Konzept bauen.
+[ ] AR-Features planen.
+[ ] KI-Buddy erweitern.
+[ ] Store-Safe-Architecture finalisieren.
+[ ] Security Audit vorbereiten.
+
+============================================================
+3. MVP-SCOPE – WAS MUSS ZUERST FUNKTIONIEREN?
+============================================================
+
+MVP MUSS enthalten:
+[ ] Landingpage / Startseite.
+[ ] Login / Registrierung.
+[ ] User-Profil.
+[ ] Dashboard.
+[ ] Missionen.
+[ ] Punkte.
+[ ] Level.
+[ ] History.
+[ ] Favoriten.
+[ ] einfache Rewards.
+[ ] Leaderboard light.
+[ ] Feedbackfunktion.
+[ ] Datenschutz / Impressum / AGB.
+[ ] Admin-Möglichkeit, Missionen zu ändern oder zu pflegen.
+
+MVP MUSS NICHT enthalten:
+[ ] echter Token.
+[ ] echte Wallet mit Kryptowert.
+[ ] NFT-System.
+[ ] vollständiger Marketplace.
+[ ] komplexe AR-Welt.
+[ ] vollwertige KI.
+[ ] komplexe DePIN-Mechanik.
+[ ] umfangreiche medizinische Funktionen.
+
+MVP-Ziel:
+Der Nutzer muss innerhalb von 60 Sekunden verstehen:
+1. Was ist WellFit?
+2. Was soll ich tun?
+3. Welche Mission kann ich starten?
+4. Welche Punkte bekomme ich?
+5. Warum macht es Spaß, wiederzukommen?
+
+============================================================
+4. AKTUELLE TECHNISCHE ENTSCHEIDUNG: FIREBASE / FIRESTORE
+============================================================
+
+Für Phase 1 sehr sinnvoll.
+
+Wenn das Ziel jetzt ist:
+- echte User statt localStorage,
+- echte History,
+- echte Favoriten,
+- erste produktive Version,
+- Tracking-Daten sicher speichern,
+- schnell online gehen,
 
 dann ist Firebase absolut sinnvoll.
 
-Für Phase 2/3 vielleicht nicht ideal
-
-Wenn dein Ziel später ist:
-
-skalierbare Game Engine
-komplexe Rewards
-Anti-Cheat
-KI-gesteuerte Missionserzeugung
-starke Datenanalyse
-hohe Regelkontrolle
-viele Tracking-Events
-
-
+Für Phase 2/3 vielleicht nicht ideal, wenn das Ziel später ist:
+- skalierbare Game Engine,
+- komplexe Rewards,
+- Anti-Cheat,
+- KI-gesteuerte Missionserzeugung,
+- starke Datenanalyse,
+- hohe Regelkontrolle,
+- viele Tracking-Events.
 
 Plan:
-Firebase Auth + Firestore jetzt
-echte Registrierung/Login
-User-Profile
-Missionen
-Favoriten
-History
-Tracking-Sessions
-GPS-/Event-Daten zunächst schlank speichern
-Server in Singapur nur für die App
-Next.js dort deployen
-keine eigene DB-Administration am Anfang
-weniger DevOps, weniger Fehlerquellen
-Regel: keine Game-Logik mehr im localStorage
-localStorage nur noch für UI-Dinge
-Punkte, Rewards, Missionstatus, History immer in Firebase
-Firebase-Datenmodell bewusst einfach halten
-nicht jeden GPS-Punkt endlos speichern
-Sessions und aggregierte Events speichern
-Reads/Writes im Blick behalten, weil Firestore nach Operationen abrechnet
-Später migrieren, wenn nötig
-Wenn WellFit groß wird, könnt ihr Teile später auf ein eigenes Backend + SQL ziehen
-Das ist ein späteres Skalierungsproblem, kein Startproblem
+[ ] Firebase Auth + Firestore jetzt verwenden.
+[ ] echte Registrierung/Login umsetzen.
+[ ] User-Profile in Firebase speichern.
+[ ] Missionen in Firestore speichern.
+[ ] Favoriten in Firestore speichern.
+[ ] History in Firestore speichern.
+[ ] Tracking-Sessions in Firestore speichern.
+[ ] GPS-/Event-Daten zunächst schlank speichern.
+[ ] Server in Singapur nur für die App verwenden, falls bereits so geplant.
+[ ] Next.js dort deployen, falls Next.js verwendet wird.
+[ ] keine eigene DB-Administration am Anfang.
+[ ] weniger DevOps, weniger Fehlerquellen.
+[ ] Regel: keine Game-Logik mehr im localStorage.
+[ ] localStorage nur noch für UI-Dinge verwenden.
+[ ] Punkte, Rewards, Missionstatus und History immer in Firebase speichern.
+[ ] Firebase-Datenmodell bewusst einfach halten.
+[ ] nicht jeden GPS-Punkt endlos speichern.
+[ ] Sessions und aggregierte Events speichern.
+[ ] Reads/Writes im Blick behalten, weil Firestore nach Operationen abrechnet.
+[ ] Später migrieren, wenn nötig.
+[ ] Wenn WellFit groß wird, Teile später auf eigenes Backend + SQL ziehen.
 
+Merksatz:
+Firebase ist ein gutes Startproblem-Lösungsmittel. Skalierung ist ein späteres Problem.
 
-Dein GitHub-Konto ist verbunden, aber aktuell werden mir keine zugänglichen Repositories zurückgegeben. Das heißt: Verbindung ja, Repo-Zugriff derzeit offenbar noch nein.
+============================================================
+5. DATENMODELL FIREBASE / FIRESTORE
+============================================================
 
-Was wir mit GitHub machen können, sobald ein Repo verfügbar ist:
+Collection: users
+[ ] userId
+[ ] email
+[ ] displayName
+[ ] username
+[ ] photoURL optional
+[ ] role: user/admin/companyAdmin/partner
+[ ] language
+[ ] country
+[ ] pointsTotal
+[ ] level
+[ ] streak
+[ ] createdAt
+[ ] lastLoginAt
+[ ] onboardingCompleted
+[ ] privacyConsent
+[ ] marketingConsent
 
-Repository durchsuchen und Struktur erklären
-Dateien lesen und analysieren
-Fehler in Code, Konfiguration und Logik finden
-README, Doku, Aufgabenlisten und technische Konzepte erstellen
-neue Dateien anlegen oder bestehende ändern
-Branches erstellen
-Commits vorbereiten
-Pull Requests anlegen und prüfen
-Issues erstellen und strukturieren
-PR-Kommentare und Code-Review machen
-Unterschiede zwischen zwei Ständen vergleichen
-einfache GitHub-Workflow-/CI-Probleme prüfen
+Collection: missions
+[ ] missionId
+[ ] title
+[ ] description
+[ ] type: movement/learning/location/team/company/event/partner
+[ ] difficulty: easy/medium/hard
+[ ] pointsReward
+[ ] startDate
+[ ] endDate
+[ ] targetValue
+[ ] unit: steps/minutes/questions/checkin
+[ ] sponsorId optional
+[ ] active
+[ ] createdAt
 
-Für WellFit wäre das konkret sehr stark. Zum Beispiel könnten wir:
+Collection: userMissionProgress
+[ ] userId
+[ ] missionId
+[ ] progressValue
+[ ] status: open/active/completed/expired
+[ ] completedAt
+[ ] pointsGranted
+[ ] proofType: manual/steps/gps/question/event
 
-dein Repo strukturieren
-Frontend-Dateien prüfen
-Landingpage, Dashboard, Presale-Bereich und Navigation analysieren
-Texte, Platzhalter, Menülogik und UX prüfen
-technische To-do-Liste als Issues anlegen
-eine saubere Roadmap im Repo aufbauen
-PR-Beschreibungen und Entwicklerbriefings erzeugen
-Dateien direkt im Repo erstellen oder anpassen
+Collection: trackingSessions
+[ ] sessionId
+[ ] userId
+[ ] startTime
+[ ] endTime
+[ ] stepsAggregated
+[ ] distanceAggregated optional
+[ ] gpsStart optional
+[ ] gpsEnd optional
+[ ] eventsCount
+[ ] source: manual/mobile/googleFit/appleHealth/later
 
-Der Engpass im Moment:
-Ich sehe dein GitHub-Profil Bernds-tech, aber keine freigegebenen Repositories. Das passiert meist, wenn:
+Collection: favorites
+[ ] userId
+[ ] itemType: mission/reward/location/partner
+[ ] itemId
+[ ] createdAt
 
-das richtige Repo noch nicht mit ChatGPT/GitHub-App freigegeben wurde
-die GitHub-App nur mit dem Account verbunden ist, aber nicht mit dem Repo
-das Repo privat ist und die Installation dort noch fehlt
+Collection: history
+[ ] userId
+[ ] eventType: missionCompleted/pointsEarned/rewardRedeemed/levelUp/login
+[ ] pointsDelta
+[ ] referenceId
+[ ] createdAt
 
-Was du jetzt machen solltest:
+Collection: rewards
+[ ] rewardId
+[ ] title
+[ ] description
+[ ] category
+[ ] pointsCost
+[ ] partnerId optional
+[ ] stock optional
+[ ] validUntil optional
+[ ] active
 
-Öffne GitHub.
-Gehe zu den App-/Installations-Einstellungen der verbundenen GitHub-App.
-Prüfe, ob das gewünschte Repo für die App freigegeben ist.
-Gib idealerweise das WellFit-Repo explizit frei.
-Danach kann ich direkt mit dem Repo arbeiten.
+Collection: leaderboard
+[ ] period: daily/weekly/monthly/event
+[ ] userId
+[ ] username
+[ ] points
+[ ] rank
+[ ] teamId optional
 
-Sobald das Repo sichtbar ist, können wir sofort loslegen, zum Beispiel mit:
-„Analysiere mein WellFit-Repo und sag mir die 10 wichtigsten Baustellen“
-oder
-„Lies die Startseite und das Dashboard im Repo und gib mir konkrete Verbesserungen.“
+Collection: companies
+[ ] companyId
+[ ] name
+[ ] industry
+[ ] adminUserId
+[ ] active
+[ ] createdAt
 
-Wenn du willst, gehen wir jetzt direkt den nächsten Schritt: Du schickst mir entweder den Repo-Namen oder ich helfe dir dabei, die GitHub-Freigabe richtig zu setzen.
+Collection: teams
+[ ] teamId
+[ ] companyId optional
+[ ] name
+[ ] memberUserIds
+[ ] points
+
+Collection: partners
+[ ] partnerId
+[ ] name
+[ ] type: brand/location/event/health/fitness/education
+[ ] contactEmail
+[ ] active
+
+Collection: feedback
+[ ] feedbackId
+[ ] userId optional
+[ ] rating
+[ ] message
+[ ] page
+[ ] createdAt
+
+============================================================
+6. WEBSITE / LANDINGPAGE TO-DOS
+============================================================
+
+[ ] Startseite klarer machen.
+[ ] Hero-Text schärfen.
+[ ] Problem erklären: Menschen bewegen sich zu wenig, Motivation fehlt, Gesundheitsprogramme sind oft langweilig.
+[ ] Lösung erklären: WellFit macht Bewegung spielerisch, sozial und belohnend.
+[ ] Zielgruppen darstellen: Nutzer, Familien, Firmen, Städte, Marken, Investoren.
+[ ] Demo-/App-Screens einbauen.
+[ ] Roadmap anzeigen.
+[ ] Investor-Bereich einbauen.
+[ ] Pilotpartner-Bereich einbauen.
+[ ] Warteliste einbauen.
+[ ] Kontaktformular einbauen.
+[ ] Impressum vollständig machen.
+[ ] Datenschutzseite vollständig machen.
+[ ] AGB vorbereiten.
+[ ] Mobile Ansicht prüfen.
+[ ] Ladezeiten prüfen.
+[ ] Menüführung prüfen.
+[ ] Tote Links entfernen.
+[ ] Rechtschreibfehler korrigieren.
+[ ] Token nicht zu dominant auf Startseite platzieren.
+[ ] Keine unrealistischen Versprechen machen.
+
+Möglicher Hero:
+WellFit verwandelt Bewegung, Lernen und Gesundheit in ein spielerisches Belohnungssystem.
+Starte Missionen, sammle Punkte, steig im Level auf und werde Teil einer aktiven Community.
+
+CTA:
+[ ] Warteliste starten.
+[ ] Pilotpartner werden.
+[ ] Investorengespräch anfragen.
+
+============================================================
+7. APP / DASHBOARD TO-DOS
+============================================================
+
+Sidebar / Navigation:
+[ ] Dashboard
+[ ] Missionen
+[ ] Mein KI-Buddy
+[ ] Marktplatz
+[ ] Leaderboard
+[ ] Wallet oder Reward Center
+[ ] Analytics & Stats
+[ ] Company
+[ ] Einstellungen
+[ ] Helligkeit
+[ ] Datenschutz
+[ ] AGB
+[ ] Impressum
+[ ] FAQ
+[ ] Hilfe
+[ ] Abmelden
+
+Dashboard muss zeigen:
+[ ] Tagespunkte.
+[ ] Wochenpunkte.
+[ ] Gesamtpunkte.
+[ ] Level.
+[ ] Fortschrittsbalken.
+[ ] Streak.
+[ ] aktuelle Mission.
+[ ] nächste empfohlene Mission.
+[ ] abgeschlossene Missionen.
+[ ] Avatar-/Buddy-Status.
+[ ] nächste Belohnung.
+[ ] Leaderboard-Position.
+[ ] kurze Motivation.
+
+Zusätzliche UX-To-dos:
+[ ] Dummy-Daten realistisch machen.
+[ ] Buttons eindeutig beschriften.
+[ ] Fortschritt visuell stärker machen.
+[ ] Nutzer sofort zur ersten Aktion führen.
+[ ] Keine überladenen Screens.
+[ ] Mobile Bedienbarkeit prüfen.
+[ ] Einheitliche Karten-Komponenten verwenden.
+
+============================================================
+8. MISSIONEN-MODUL
+============================================================
+
+Missionstypen:
+[ ] Bewegungsmissionen.
+[ ] Lernmissionen.
+[ ] Ortsmissionen.
+[ ] Teammissionen.
+[ ] Familienmissionen.
+[ ] Firmenmissionen.
+[ ] Eventmissionen.
+[ ] Partner-/Brand-Missionen.
+
+Beispiele:
+[ ] Gehe heute 3.000 Schritte.
+[ ] Beantworte 3 Gesundheitsfragen.
+[ ] Besuche einen Park in deiner Nähe.
+[ ] Sammle mit deinem Team 100.000 Schritte.
+[ ] Schließe 3 Missionen diese Woche ab.
+[ ] Halte eine 7-Tage-Streak.
+
+Missionslogik:
+[ ] Status: offen, aktiv, abgeschlossen, verpasst.
+[ ] Schwierigkeitsgrad: leicht, mittel, schwer.
+[ ] Punktewerte definieren.
+[ ] Zeitfenster definieren.
+[ ] Wiederholbarkeit definieren.
+[ ] Sponsor optional.
+[ ] Nachweislogik definieren.
+[ ] Anti-Cheat-Grundregeln definieren.
+
+============================================================
+9. GAMIFICATION
+============================================================
+
+Elemente:
+[ ] Punkte.
+[ ] Level.
+[ ] Badges.
+[ ] Streaks.
+[ ] Leaderboards.
+[ ] Teams.
+[ ] Ligen.
+[ ] Avatar-Energie.
+[ ] Rewards.
+[ ] saisonale Challenges.
+[ ] Founding Member Status.
+[ ] WellFit OG Badge.
+
+To-dos:
+[ ] Punkteformel definieren.
+[ ] Levelstufen definieren.
+[ ] 10 erste Badges definieren.
+[ ] 20 erste Missionen definieren.
+[ ] 10 erste Rewards definieren.
+[ ] Wochen-Challenges definieren.
+[ ] Anfänger sollen nicht demotiviert werden.
+[ ] persönliche Bestleistungen einbauen.
+[ ] Teambeitrag wichtiger machen als reine Schrittzahl.
+
+============================================================
+10. KI-BUDDY / AURA
+============================================================
+
+Rolle:
+[ ] motiviert Nutzer.
+[ ] schlägt Missionen vor.
+[ ] erklärt Fortschritt.
+[ ] beantwortet einfache Fragen.
+[ ] gibt Tagesimpulse.
+[ ] begleitet Avatar-/Level-Fortschritt.
+
+MVP-Version:
+[ ] zunächst statische Antworten möglich.
+[ ] einfache Regel-Logik möglich.
+[ ] später echte KI integrieren.
+
+Sicherheitsgrenzen:
+[ ] keine medizinischen Diagnosen.
+[ ] keine Therapieempfehlungen.
+[ ] bei Beschwerden Arzt empfehlen.
+[ ] Datenschutz transparent erklären.
+[ ] keine manipulativen Aussagen.
+
+To-dos:
+[ ] Name final entscheiden: Aura, WellFit Buddy, FitAura, Coach oder anderer Name.
+[ ] Persönlichkeit definieren.
+[ ] Beispieltexte schreiben.
+[ ] Chat-UI bauen.
+[ ] Tagesimpuls-Komponente bauen.
+
+============================================================
+11. WALLET / REWARD CENTER / TOKEN SPÄTER
+============================================================
+
+MVP:
+[ ] Punkte anzeigen.
+[ ] Badges anzeigen.
+[ ] Level anzeigen.
+[ ] Rewards anzeigen.
+[ ] digitale Items anzeigen.
+[ ] keine echte Kryptowallet notwendig.
+
+Wichtig:
+[ ] Begriff Wallet eventuell vermeiden, solange kein echter Token aktiv ist.
+[ ] Alternative: Reward Center oder Meine Punkte.
+[ ] Token als Coming Soon darstellen.
+[ ] Keine Renditeversprechen.
+[ ] Keine Investment-Sprache im Nutzerbereich.
+
+Später:
+[ ] Solana Wallet prüfen.
+[ ] Custodial vs. non-custodial prüfen.
+[ ] Token Utility definieren.
+[ ] KYC/AML prüfen.
+[ ] MiCAR prüfen.
+[ ] Apple/Google Store-Regeln prüfen.
+
+============================================================
+12. MARKTPLATZ
+============================================================
+
+MVP-Marktplatz:
+[ ] Dummy-Rewards.
+[ ] Gutscheine.
+[ ] Partnerangebote.
+[ ] digitale Items.
+[ ] Avatar-Skins.
+[ ] Eventtickets.
+
+Kategorien:
+[ ] Gesundheit.
+[ ] Sport.
+[ ] Ernährung.
+[ ] Wellness.
+[ ] Bildung.
+[ ] Events.
+[ ] digitale Items.
+
+To-dos:
+[ ] Reward-Karten gestalten.
+[ ] Punkte-Einlösung simulieren.
+[ ] Partnerflächen vorbereiten.
+[ ] Sponsored Mission Logik vorbereiten.
+[ ] Marketplace-Provisionsmodell später definieren.
+
+============================================================
+13. LEADERBOARD
+============================================================
+
+Varianten:
+[ ] global.
+[ ] Freunde.
+[ ] Familie.
+[ ] Firma.
+[ ] Stadt.
+[ ] Event.
+[ ] Altersgruppe.
+[ ] Team.
+
+MVP:
+[ ] Top 10.
+[ ] eigene Platzierung.
+[ ] Wochenranking.
+[ ] Teamranking optional.
+
+Datenschutz:
+[ ] Nutzername statt echter Name.
+[ ] öffentliches Ranking nur mit Opt-in.
+[ ] sensible Daten nicht anzeigen.
+
+============================================================
+14. ANALYTICS & STATS
+============================================================
+
+Nutzeransicht:
+[ ] Schritte.
+[ ] aktive Minuten.
+[ ] Missionen abgeschlossen.
+[ ] Punkte.
+[ ] Streak.
+[ ] Fortschritt.
+[ ] persönliche Ziele.
+
+Firmenansicht später:
+[ ] anonymisierte Teilnahmequote.
+[ ] Teamaktivität.
+[ ] Challenge-Fortschritt.
+[ ] Durchschnittsaktivität.
+[ ] keine personenbezogenen Gesundheitsdaten ohne Zustimmung.
+
+Investor-KPIs:
+[ ] Registrierungen.
+[ ] Aktivierungsrate.
+[ ] DAU.
+[ ] WAU.
+[ ] MAU.
+[ ] Retention D1/D7/D30.
+[ ] Mission Completion Rate.
+[ ] Referral Rate.
+[ ] Feedbackscore.
+[ ] CAC-Schätzung.
+
+============================================================
+15. PILOT-ROADMAP
+============================================================
+
+Pilotziel:
+[ ] Nutzer verstehen WellFit.
+[ ] Nutzer machen Missionen.
+[ ] Nutzer kommen wieder.
+[ ] Punkte motivieren auch ohne Token.
+[ ] Partner sehen Nutzen.
+[ ] Investoren sehen echte Daten.
+
+Minimalpilot:
+[ ] 100 Nutzer.
+[ ] 2 Wochen.
+[ ] 5 bis 10 Missionen.
+[ ] Punkte.
+[ ] Leaderboard light.
+[ ] Feedbackformular.
+
+Stärkerer Pilot:
+[ ] 500 Nutzer.
+[ ] 3 Wochen.
+[ ] Firmenchallenge oder Stadtchallenge.
+[ ] 20 Missionen.
+[ ] Teamfunktion.
+[ ] Partnerreward.
+[ ] Ergebnisbericht.
+
+Pilot-To-dos:
+[ ] Pilotziel definieren.
+[ ] Pilotgebiet definieren.
+[ ] Zielgruppe auswählen.
+[ ] Landingpage für Pilot erstellen.
+[ ] Registrierung aktivieren.
+[ ] Datenschutz-Einwilligung vorbereiten.
+[ ] Missionen definieren.
+[ ] Punktewerte definieren.
+[ ] Rewards definieren.
+[ ] Supportkanal einrichten.
+[ ] tägliche Aktivität messen.
+[ ] Bugs dokumentieren.
+[ ] Nutzerfragen sammeln.
+[ ] Drop-off beobachten.
+[ ] Feedback auswerten.
+[ ] Ergebnisbericht erstellen.
+
+Pilot-KPIs:
+[ ] 100 bis 500 Registrierungen.
+[ ] Aktivierungsrate mindestens 50 Prozent.
+[ ] D7 Retention mindestens 20 Prozent, Ziel 35 Prozent.
+[ ] Mission Completion mindestens 30 Prozent, Ziel 50 Prozent.
+[ ] Feedbackscore mindestens 3,8 von 5, Ziel 4,3 von 5.
+[ ] Weiterempfehlung mindestens 20 Prozent.
+
+============================================================
+16. BUSINESSPLAN
+============================================================
+
+Kapitelstruktur:
+[ ] Executive Summary.
+[ ] Problem.
+[ ] Lösung.
+[ ] Markt.
+[ ] Zielgruppen.
+[ ] Produkt.
+[ ] Geschäftsmodell.
+[ ] Technologie.
+[ ] Tokenomics später.
+[ ] Go-to-Market.
+[ ] Pilotstrategie.
+[ ] Wettbewerb.
+[ ] Finanzplanung.
+[ ] Tranchiertes Investmentmodell.
+[ ] Risiken & Gegenmaßnahmen.
+[ ] Roadmap.
+[ ] Team.
+[ ] Exit-Potenzial.
+
+Geschäftsmodell Phase 1:
+[ ] B2B Firmenlizenzen.
+[ ] BGM-Challenges.
+[ ] Sponsored Missions.
+[ ] Partner-Rewards.
+[ ] White-Label-Challenges.
+[ ] Event-Challenges.
+[ ] Premium Accounts.
+
+Geschäftsmodell Phase 2:
+[ ] Stadt-/Tourismus-Challenges.
+[ ] Versicherungskooperationen.
+[ ] Gesundheitsprogramme.
+[ ] Marketplace-Provisionen.
+[ ] Brand Campaigns.
+[ ] anonymisierte Reports, DSGVO-konform.
+
+Geschäftsmodell Phase 3:
+[ ] Token Marketplace.
+[ ] Digital Items.
+[ ] AR-Skins.
+[ ] International Licensing.
+[ ] API-/Platform Fees.
+
+============================================================
+17. FINANZMODELL
+============================================================
+
+Kostenblöcke:
+[ ] Entwicklung.
+[ ] Design.
+[ ] Backend.
+[ ] App.
+[ ] Cloud.
+[ ] Firebase-Kosten.
+[ ] Legal.
+[ ] Datenschutz.
+[ ] Marketing.
+[ ] Pilot.
+[ ] Team.
+[ ] Security.
+[ ] Audit.
+
+Umsatzblöcke:
+[ ] Firmenlizenzen.
+[ ] Sponsored Missions.
+[ ] Marketplace Fees.
+[ ] Premium.
+[ ] Städte/Events.
+[ ] Partnerkampagnen.
+
+Szenarien:
+[ ] konservativ.
+[ ] realistisch.
+[ ] aggressiv.
+
+Berechnungen:
+[ ] 18-Monatsplanung.
+[ ] 36-Monatsplanung.
+[ ] Cash Burn.
+[ ] Runway.
+[ ] Break-even-Szenario.
+[ ] Tranche 1.
+[ ] Tranche 2.
+
+============================================================
+18. INVESTOREN-ROADMAP
+============================================================
+
+Investorendeck Slides:
+[ ] Titel.
+[ ] Vision.
+[ ] Problem.
+[ ] Lösung.
+[ ] Warum jetzt?
+[ ] Zielgruppen.
+[ ] Produktdemo.
+[ ] Gamification Loop.
+[ ] Pilotplan.
+[ ] Markt.
+[ ] Geschäftsmodell.
+[ ] Go-to-Market.
+[ ] Technology Architecture.
+[ ] Token später.
+[ ] Traction / bisheriger Stand.
+[ ] Finanzplanung.
+[ ] Investment Ask.
+[ ] Roadmap.
+[ ] Team.
+[ ] Abschluss / Call to Action.
+
+Investmentlogik:
+[ ] Tranche 0: Konzept, Clickdummy, Pilotvorbereitung, LOIs.
+[ ] Tranche 1: ca. 1,5 Mio. EUR für MVP, Pilot, Kernteam/Agentur, Compliance-Basis.
+[ ] Tranche 2: ca. 3,5 Mio. EUR für DACH-Skalierung, Token-Vorbereitung, AR/KI-Ausbau.
+
+Einwände vorbereiten:
+[ ] Warum braucht WellFit Blockchain?
+[ ] Warum nicht einfach Strava?
+[ ] Wie verhindert WellFit Betrug?
+[ ] Wie verdient WellFit Geld?
+[ ] Warum investieren, wenn das Produkt noch nicht fertig ist?
+[ ] Was ist regulatorisch erlaubt?
+[ ] Wie gewinnt WellFit Nutzer?
+[ ] Warum kann das groß werden?
+
+============================================================
+19. PARTNER / LOIs
+============================================================
+
+Benötigte LOIs:
+[ ] 1 Corporate-/BGM-Partner.
+[ ] 1 Location-/Event-/Gemeindepartner.
+[ ] Optional 1 Brand-/Sponsorpartner.
+
+LOI-Inhalt:
+[ ] Interesse am Pilot.
+[ ] Zielgruppe.
+[ ] Zeitraum.
+[ ] grober Umfang.
+[ ] keine harte Zahlungsverpflichtung notwendig.
+[ ] Option auf spätere Kooperation.
+[ ] Logo-Nutzung nur mit Freigabe.
+
+To-dos:
+[ ] LOI-Vorlage erstellen.
+[ ] Partner-Mail erstellen.
+[ ] Partner-One-Pager erstellen.
+[ ] Liste mit 20 potenziellen Partnern erstellen.
+[ ] 20 Partner anschreiben.
+[ ] 5 Gespräche führen.
+[ ] 2 LOIs sichern.
+
+============================================================
+20. MARKETING / COMMUNITY
+============================================================
+
+Kanäle:
+[ ] LinkedIn.
+[ ] Instagram.
+[ ] TikTok.
+[ ] Facebook.
+[ ] YouTube Shorts optional.
+[ ] X optional.
+
+Content-Säulen:
+[ ] Bewegung.
+[ ] Gesundheit.
+[ ] Gamification.
+[ ] Missionen.
+[ ] Founder Story.
+[ ] App-Screenshots.
+[ ] Pilotaufruf.
+[ ] Investor Updates.
+[ ] Partneraufrufe.
+[ ] KI/AR/Token-Zukunft.
+
+To-dos:
+[ ] 30-Tage-Contentplan erstellen.
+[ ] 10 LinkedIn-Posts erstellen.
+[ ] 10 Instagram-Posts erstellen.
+[ ] 10 TikTok-Ideen erstellen.
+[ ] 5 Investor-Posts erstellen.
+[ ] 5 Pilot-Posts erstellen.
+[ ] 5 Partner-Posts erstellen.
+[ ] Warteliste bewerben.
+[ ] Founding Member Kampagne erstellen.
+[ ] WellFit OG Badge definieren.
+
+============================================================
+21. RECHT / DATENSCHUTZ / COMPLIANCE
+============================================================
+
+DSGVO:
+[ ] Datenschutzerklärung erstellen.
+[ ] Einwilligung für Bewegungsdaten.
+[ ] Einwilligung für Standortdaten.
+[ ] Altersfreigabe prüfen.
+[ ] Elternzustimmung bei Minderjährigen prüfen.
+[ ] Datenminimierung.
+[ ] Löschfunktion.
+[ ] Exportfunktion.
+[ ] Pseudonymisierung.
+[ ] Auftragsverarbeiterverträge.
+[ ] Hosting in EU prüfen.
+
+Medizinische Abgrenzung:
+[ ] keine Heilversprechen.
+[ ] keine Diagnosen.
+[ ] keine Therapieempfehlungen.
+[ ] Disclaimer: WellFit ersetzt keine medizinische Beratung.
+[ ] KI-Buddy entsprechend begrenzen.
+[ ] Health Claims prüfen.
+
+Token / MiCAR:
+[ ] Juristische Prüfung.
+[ ] Token-Klassifikation.
+[ ] Whitepaper-Anforderungen.
+[ ] Pre-Sale-Struktur.
+[ ] KYC/AML.
+[ ] steuerliche Behandlung.
+[ ] Risikoaufklärung.
+[ ] keine Renditeversprechen.
+
+============================================================
+22. STORE-SAFE ARCHITECTURE
+============================================================
+
+Grundsatz:
+Keine Mining- oder DePIN-Rechenlast auf dem Handy.
+Die App macht Interface, Missionen, GPS, Gamification und lokale KI-Elemente.
+Rechenintensive Prozesse laufen extern.
+
+Mobile App:
+[ ] AR Interface.
+[ ] GPS Checkpoints.
+[ ] Missionen.
+[ ] Punkte.
+[ ] KI-Buddy.
+[ ] Rewards.
+
+Off-device:
+[ ] Blockchain.
+[ ] DePIN.
+[ ] AI Training.
+[ ] Treasury.
+[ ] Analytics.
+[ ] Token-Logik.
+
+To-dos:
+[ ] Store-Safe-Diagramm erstellen.
+[ ] Apple Policy prüfen.
+[ ] Google Play Policy prüfen.
+[ ] sichere Bridge definieren.
+[ ] keine unzulässigen Tokenmechaniken im Store.
+
+============================================================
+23. AGENTUR / ENTWICKLER-BRIEFING
+============================================================
+
+Da vorerst keine Mitarbeiter eingestellt werden sollen, braucht WellFit ein vollständiges Aufgabenheft für eine externe Agentur.
+
+Lastenheft muss enthalten:
+[ ] Projektbeschreibung.
+[ ] Ziel.
+[ ] MVP-Umfang.
+[ ] Nicht-MVP-Umfang.
+[ ] Nutzerrollen.
+[ ] Screens.
+[ ] User Stories.
+[ ] Datenmodell.
+[ ] APIs.
+[ ] Designvorgaben.
+[ ] Datenschutzanforderungen.
+[ ] Sicherheitsanforderungen.
+[ ] Testanforderungen.
+[ ] Milestones.
+[ ] Abnahmekriterien.
+[ ] Budgetrahmen.
+[ ] Zeitplan.
+
+Agentur-Auswahl:
+[ ] 5 bis 10 Agenturen identifizieren.
+[ ] NDA vorbereiten.
+[ ] Kurzbriefing versenden.
+[ ] Angebote vergleichen.
+[ ] Referenzen prüfen.
+[ ] Festpreis vs. Time & Material entscheiden.
+[ ] IP-Rechte vertraglich sichern.
+[ ] Quellcode-Eigentum sichern.
+[ ] GitHub-Zugriff regeln.
+[ ] Dokumentationspflicht festlegen.
+[ ] Wartung & Support definieren.
+
+============================================================
+24. GITHUB / ENTWICKLUNGSARBEIT
+============================================================
+
+Aktueller Stand:
+Das Repository Bernds-tech/WellFit-now ist sichtbar und bearbeitbar.
+
+Was mit GitHub gemacht werden kann:
+[ ] Repository durchsuchen und Struktur erklären.
+[ ] Dateien lesen und analysieren.
+[ ] Fehler in Code, Konfiguration und Logik finden.
+[ ] README erstellen.
+[ ] Dokumentation erstellen.
+[ ] Aufgabenlisten erstellen.
+[ ] technische Konzepte erstellen.
+[ ] neue Dateien anlegen.
+[ ] bestehende Dateien ändern.
+[ ] Branches erstellen.
+[ ] Commits vorbereiten.
+[ ] Pull Requests anlegen und prüfen.
+[ ] Issues erstellen und strukturieren.
+[ ] PR-Kommentare und Code-Review machen.
+[ ] Unterschiede zwischen zwei Ständen vergleichen.
+[ ] einfache GitHub-Workflow-/CI-Probleme prüfen.
+
+Konkrete WellFit-GitHub-To-dos:
+[ ] README.md erstellen oder verbessern.
+[ ] Projektstruktur dokumentieren.
+[ ] Setup-Anleitung schreiben.
+[ ] Firebase-Konfiguration dokumentieren.
+[ ] Environment Variables definieren.
+[ ] Deployment-Anleitung schreiben.
+[ ] Roadmap-Datei aktuell halten.
+[ ] Issues aus dieser To-do-Liste erzeugen.
+[ ] Code-Qualität prüfen.
+[ ] Sicherheitslücken prüfen.
+[ ] Secrets niemals ins Repo committen.
+
+============================================================
+25. PRIORITÄTENPLAN
+============================================================
+
+SOFORT – nächste 7 Tage:
+[ ] MVP-Scope final festlegen.
+[ ] Alle SUI-Verweise suchen und auf Solana korrigieren.
+[ ] Firebase Auth planen.
+[ ] Firestore Datenmodell finalisieren.
+[ ] Website komplett durchklicken.
+[ ] Dashboard-Screens finalisieren.
+[ ] Missionen-Modul konkretisieren.
+[ ] Punktesystem definieren.
+[ ] Pilot-Konzept 100 bis 500 Nutzer schreiben.
+[ ] Investor-One-Pager erstellen.
+[ ] LOI-Vorlage erstellen.
+[ ] Datenschutz-Basistext erstellen.
+[ ] Businessplan-Kapitelstruktur finalisieren.
+
+NÄCHSTE 14 TAGE:
+[ ] 20 Missionen definieren.
+[ ] 10 Badges definieren.
+[ ] 10 Rewards definieren.
+[ ] 3 Nutzer-Personas schreiben.
+[ ] 3 Partner-Personas schreiben.
+[ ] Firmenpilot skizzieren.
+[ ] Stadt-/Gemeindepilot skizzieren.
+[ ] Familien-/Seniorenpilot skizzieren.
+[ ] Warteliste vorbereiten.
+[ ] Feedbackformular erstellen.
+[ ] LinkedIn-Seite optimieren.
+[ ] 30-Tage-Contentplan erstellen.
+[ ] erste Partnerliste erstellen.
+[ ] erste Investorenliste erstellen.
+[ ] Förderstellen prüfen.
+
+NÄCHSTE 30 TAGE:
+[ ] Clickdummy präsentationsreif machen.
+[ ] Investorendeck v1 finalisieren.
+[ ] Businessplan v1 finalisieren.
+[ ] Finanzmodell v1 finalisieren.
+[ ] LOIs aktiv einholen.
+[ ] Pilotgruppe vorbereiten.
+[ ] Demo-Video aufnehmen.
+[ ] Produkt-One-Pager erstellen.
+[ ] Partner-One-Pager erstellen.
+[ ] Investor-One-Pager erstellen.
+[ ] Agenturangebote einholen.
+[ ] MVP-Kosten schätzen lassen.
+[ ] Datenschutzprüfung starten.
+[ ] Solana-Architektur grob skizzieren.
+[ ] Store-Safe Architecture visualisieren.
+
+NÄCHSTE 60 BIS 90 TAGE:
+[ ] MVP bauen oder erweitern lassen.
+[ ] Backend produktionsnah aufsetzen.
+[ ] Nutzerregistrierung aktivieren.
+[ ] Missionssystem funktionsfähig machen.
+[ ] Punktesystem speichern.
+[ ] Leaderboard aktivieren.
+[ ] Pilot starten.
+[ ] Feedback sammeln.
+[ ] KPIs messen.
+[ ] Bugs beheben.
+[ ] Partnerfeedback sichern.
+[ ] Pilotbericht erstellen.
+[ ] Investorentermine führen.
+[ ] Tranche-1-Gespräche starten.
+[ ] Förderanträge einreichen.
+[ ] rechtliche Tokenprüfung beginnen.
+[ ] B2B-Pipeline aufbauen.
+
+============================================================
+26. OFFENE ENTSCHEIDUNGEN
+============================================================
+
+[ ] PWA, React Native oder Flutter?
+[ ] Firebase langfristig behalten oder später eigenes Backend?
+[ ] Wallet-Begriff im MVP verwenden oder durch Reward Center ersetzen?
+[ ] Name des KI-Buddys: Aura oder anderer Name?
+[ ] Erste Pilotzielgruppe: Firma, öffentliche Community, Familie/Senioren oder Stadt?
+[ ] Erste Region: Wien, Mödling, Niederösterreich oder online?
+[ ] Punkteformel final?
+[ ] Welche Daten dürfen im Pilot erhoben werden?
+[ ] Welche Partner zuerst ansprechen?
+[ ] Welche Förderstelle zuerst prüfen?
+[ ] Welche Agentur oder welcher Tech Lead kommt infrage?
+
+============================================================
+27. MERKSÄTZE FÜR DAS PROJEKT
+============================================================
+
+WellFit startet nicht mit Spekulation, sondern mit Motivation.
+WellFit braucht zuerst echte Nutzung, dann Token.
+Punkte validieren Verhalten, Token skaliert später das Ökosystem.
+Firebase löst das Startproblem, nicht zwingend das Endproblem.
+Der MVP muss einfach, schnell und verständlich sein.
+Investoren kaufen nicht nur Idee, sondern Nachweise.
+LOIs, Pilotdaten und Retention sind stärker als reine Vision.
+Solana ist die geplante Blockchain.
+Keine Renditeversprechen.
+Keine medizinischen Versprechen.
+Keine unnötige Komplexität vor dem Pilot.
+
+============================================================
+28. NÄCHSTER KONKRETER SCHRITT
+============================================================
+
+Als nächstes sollte aus dieser Masterliste eine strukturierte Issue-Liste entstehen:
+
+1. Epic: MVP Foundation
+2. Epic: Firebase Auth & Firestore
+3. Epic: Dashboard UX
+4. Epic: Mission System
+5. Epic: Gamification
+6. Epic: Pilot Preparation
+7. Epic: Investor Materials
+8. Epic: Partner & LOIs
+9. Epic: Legal & Compliance
+10. Epic: Solana / Token Later
+
+Danach kann jede Aufgabe als GitHub Issue mit Priorität, Status und Abnahmekriterium angelegt werden.
