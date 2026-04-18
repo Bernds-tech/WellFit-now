@@ -2,13 +2,32 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+const requiredFirebaseEnv = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+
+const missingFirebaseEnv = Object.entries(requiredFirebaseEnv)
+  .filter(([, value]) => !value)
+  .map(([key]) => key);
+
+if (missingFirebaseEnv.length > 0) {
+  throw new Error(
+    `Missing Firebase environment variables: ${missingFirebaseEnv.join(", ")}`
+  );
+}
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDG-5lPLZCTN4sPfSgCeRzSbvWmziDEcjU",
-  authDomain: "wellfit-b7d27.firebaseapp.com",
-  projectId: "wellfit-b7d27",
-  storageBucket: "wellfit-b7d27.firebasestorage.app",
-  messagingSenderId: "990165044511",
-  appId: "1:990165044511:web:06e95751040f16079a742a",
+  apiKey: requiredFirebaseEnv.apiKey,
+  authDomain: requiredFirebaseEnv.authDomain,
+  projectId: requiredFirebaseEnv.projectId,
+  storageBucket: requiredFirebaseEnv.storageBucket,
+  messagingSenderId: requiredFirebaseEnv.messagingSenderId,
+  appId: requiredFirebaseEnv.appId,
 };
 
 const app = initializeApp(firebaseConfig);
