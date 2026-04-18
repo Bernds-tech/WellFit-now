@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.2
+Version: 1.3
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -67,12 +67,65 @@ AKTUELLER ARBEITSSTAND SETTINGS / USERPROFIL:
 [x] KI-Buddy & Avatar-Verhalten speicherbar in Firestore.
 [x] Privatsphäre speicherbar in Firestore.
 [x] App-Berechtigungen speicherbar in Firestore/localStorage-Hybrid.
-[~] Sicherheit-Karte noch final umzusetzen.
+[x] Sicherheit-Karte mit Firebase Passwort-Reset umgesetzt.
 [~] Account Verwaltung / DSGVO Export / Account löschen noch final umzusetzen.
 
 NÄCHSTER ARBEITSSCHRITT:
-[~] WF-SETTINGS-009 – Sicherheit: Passwort-Reset, Sicherheitsstatus, spätere 2FA/Sessions dokumentieren.
 [ ] WF-SETTINGS-010 – Account Verwaltung: DSGVO-Datenexport, Logout, Account-Löschung vorbereiten.
+[ ] WF-AUTH-002 – Registrierung: Passwortstärke live prüfen und User beim Eingeben informieren, ob das Passwort stark genug ist.
+[ ] WF-NAV-001 – Rechtliche Links nach Login prüfen: AGB, Datenschutz, Impressum, FAQ. Wenn User eingeloggt ist und auf Zurück klickt, darf er nicht ausgeloggt werden oder ungewollt auf Login landen.
+[ ] WF-HELP-001 – Hilfeseite fertigstellen: Inhalt, Navigation, eingeloggter Zustand, Zurück-Verhalten und Support-Struktur.
+
+============================================================
+0.2 NEU AUFGENOMMENE OFFENE AUFGABEN
+============================================================
+
+TASK-ID: WF-AUTH-002
+STATUS: [ ] Offen
+ZIEL:
+Bereits während der Registrierung soll beim Eingeben des Passworts live angezeigt werden, ob das Passwort stark genug und sicher genug ist.
+UMSETZUNG:
+- Registrierungsseite prüfen.
+- Passwortfeld erweitern.
+- Live-Check für Mindestlänge, Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen und Sicherheitsstärke.
+- Visuelles Feedback anzeigen, z. B. schwach / mittel / stark.
+- Registrierung erst erlauben, wenn Sicherheitsminimum erfüllt ist.
+AKZEPTANZKRITERIEN:
+- User sieht beim Tippen die Passwortstärke.
+- Schwaches Passwort wird erklärt.
+- Starkes Passwort wird bestätigt.
+- Registrierung verhindert unsichere Passwörter oder warnt mindestens klar.
+
+TASK-ID: WF-NAV-001
+STATUS: [ ] Offen
+ZIEL:
+Links zu AGB, Datenschutz, Impressum und FAQ müssen im eingeloggten Zustand korrekt funktionieren. Wenn ein eingeloggter User dort auf Zurück klickt, darf er nicht ausgeloggt werden und nicht ungewollt auf der Login-Seite landen.
+UMSETZUNG:
+- Routen /agb, /datenschutz, /impressum, /faq prüfen.
+- Prüfen, ob diese Seiten Auth-State korrekt respektieren.
+- Zurück-Button / Browser-History Verhalten prüfen.
+- Wenn nötig: Zurück zur Einstellungen- oder Dashboard-Seite statt Login.
+- Alle Legal-Links in Sidebar und Footer prüfen.
+AKZEPTANZKRITERIEN:
+- Eingeloggter User bleibt eingeloggt.
+- Zurück führt zurück zur vorherigen App-Seite.
+- Kein ungewollter Logout.
+- Kein Redirect auf Login, wenn Auth-State noch aktiv ist.
+
+TASK-ID: WF-HELP-001
+STATUS: [ ] Offen
+ZIEL:
+Die Hilfeseite muss fertiggestellt werden und darf nicht als leerer oder unfertiger Bereich bleiben.
+UMSETZUNG:
+- Route /hilfe oder passende Hilfeseite anlegen/prüfen.
+- Sidebar-Link "Hilfe" korrekt verlinken.
+- Inhalte ergänzen: Erste Schritte, Registrierung, Punkte, Missionen, KI-Buddy, Datenschutz, Support.
+- Zurück-Verhalten für eingeloggte User prüfen.
+AKZEPTANZKRITERIEN:
+- Hilfe ist erreichbar.
+- Hilfe hat echten Inhalt.
+- Navigation funktioniert aus Dashboard und Einstellungen.
+- Eingeloggter User bleibt eingeloggt.
 
 ============================================================
 0. ZIEL DIESER DATEI
