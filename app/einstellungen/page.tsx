@@ -20,6 +20,20 @@ type ProfileForm = {
   units: string;
 };
 
+type BiometricsForm = {
+  height: string;
+  weight: string;
+  targetWeightEnabled: boolean;
+  targetWeight: string;
+  bodyType: string;
+  fitnessLevel: string;
+  limitations: string;
+  missionReminder: boolean;
+  sleepReminder: boolean;
+  weeklyReport: boolean;
+  glitchAlert: boolean;
+};
+
 const defaultPermissions = {
   location: false,
   camera: true,
@@ -38,6 +52,20 @@ const defaultProfile: ProfileForm = {
   units: "kg / km",
 };
 
+const defaultBiometrics: BiometricsForm = {
+  height: "180",
+  weight: "82",
+  targetWeightEnabled: false,
+  targetWeight: "78",
+  bodyType: "Schlank",
+  fitnessLevel: "Anfänger",
+  limitations: "Keine",
+  missionReminder: true,
+  sleepReminder: true,
+  weeklyReport: true,
+  glitchAlert: true,
+};
+
 const genderToDisplay = (gender?: string) => {
   if (gender === "female") return "Weiblich";
   if (gender === "diverse") return "Divers";
@@ -50,6 +78,52 @@ const genderToStorage = (gender: string) => {
   return "male";
 };
 
+const bodyTypeToDisplay = (bodyType?: string) => {
+  if (bodyType === "athletic") return "Normal";
+  if (bodyType === "strong") return "Kräftig";
+  return "Schlank";
+};
+
+const bodyTypeToStorage = (bodyType: string) => {
+  if (bodyType === "Normal") return "athletic";
+  if (bodyType === "Kräftig") return "strong";
+  return "slim";
+};
+
+const fitnessLevelToDisplay = (fitnessLevel?: string) => {
+  if (fitnessLevel === "medium") return "Fortgeschritten";
+  if (fitnessLevel === "pro") return "Aktiv";
+  return "Anfänger";
+};
+
+const fitnessLevelToStorage = (fitnessLevel: string) => {
+  if (fitnessLevel === "Fortgeschritten") return "medium";
+  if (fitnessLevel === "Aktiv") return "pro";
+  return "beginner";
+};
+
+const ToggleButton = ({
+  enabled,
+  onClick,
+  toggleBase,
+}: {
+  enabled: boolean;
+  onClick: () => void;
+  toggleBase: string;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`${toggleBase} ${enabled ? "bg-cyan-400" : "bg-white/20"}`}
+  >
+    <span
+      className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
+        enabled ? "translate-x-8" : "translate-x-1"
+      }`}
+    />
+  </button>
+);
+
 export default function SettingsPage() {
   const [brightness, setBrightness] = useState(100);
   const [userId, setUserId] = useState<string | null>(null);
@@ -57,6 +131,7 @@ export default function SettingsPage() {
   const [saveMessage, setSaveMessage] = useState("");
   const [permissions, setPermissions] = useState(defaultPermissions);
   const [profile, setProfile] = useState<ProfileForm>(defaultProfile);
+  const [biometrics, setBiometrics] = useState<BiometricsForm>(defaultBiometrics);
 
   useEffect(() => {
     const savedPermissions = localStorage.getItem("wellfit-permissions");
@@ -80,6 +155,7 @@ export default function SettingsPage() {
       if (!firebaseUser) {
         setUserId(null);
         setProfile(defaultProfile);
+        setBiometrics(defaultBiometrics);
         setIsLoadingUser(false);
         setSaveMessage("Nicht eingeloggt.");
         return;
@@ -119,10 +195,23 @@ export default function SettingsPage() {
               profile: {
                 birthdate: "",
                 gender: "male",
+                height: Number(defaultBiometrics.height),
+                weight: Number(defaultBiometrics.weight),
+                targetWeight: defaultBiometrics.targetWeightEnabled,
+                targetWeightValue: Number(defaultBiometrics.targetWeight),
+                bodyType: bodyTypeToStorage(defaultBiometrics.bodyType),
+                fitnessLevel: fitnessLevelToStorage(defaultBiometrics.fitnessLevel),
+                otherRestriction: defaultBiometrics.limitations,
               },
               settings: {
                 ...fallbackProfile,
                 permissions: defaultPermissions,
+                reminders: {
+                  missionReminder: defaultBiometrics.missionReminder,
+                  sleepReminder: defaultBiometrics.sleepReminder,
+                  weeklyReport: defaultBiometrics.weeklyReport,
+                  glitchAlert: defaultBiometrics.glitchAlert,
+                },
               },
               createdAt: new Date().toISOString(),
             },
@@ -130,6 +219,7 @@ export default function SettingsPage() {
           );
 
           setProfile(fallbackProfile);
+          setBiometrics(defaultBiometrics);
           setSaveMessage("Profil wurde neu angelegt.");
           setIsLoadingUser(false);
           return;
@@ -138,6 +228,7 @@ export default function SettingsPage() {
         const data = userSnap.data();
         const storedProfile = (data.profile ?? {}) as Record<string, any>;
         const storedSettings = (data.settings ?? {}) as Record<string, any>;
+        const storedReminders = (storedSettings.reminders ?? {}) as Record<string, any>;
         const storedPermissions =
           (storedSettings.permissions as Partial<typeof defaultPermissions> | undefined) ??
           undefined;
@@ -168,6 +259,38 @@ export default function SettingsPage() {
           units: (storedSettings.units as string | undefined) ?? "kg / km",
         });
 
+        setBiometrics({
+          height: String(storedProfile.height ?? defaultBiometrics.height),
+          weight: String(storedProfile.weight ?? defaultBiometrics.weight),
+          targetWeightEnabled:
+            (storedProfile.targetWeight as boolean | undefined) ??
+            defaultBiometrics.targetWeightEnabled,
+          targetWeight: String(
+            storedProfile.targetWeightValue ??
+              storedSettings.targetWeight ??
+              defaultBiometrics.targetWeight
+          ),
+          bodyType: bodyTypeToDisplay(storedProfile.bodyType as string | undefined),
+          fitnessLevel: fitnessLevelToDisplay(storedProfile.fitnessLevel as string | undefined),
+          limitations:
+            (storedProfile.otherRestriction as string | undefined) ??
+            (Array.isArray(storedProfile.limitations)
+              ? storedProfile.limitations.join(", ")
+              : defaultBiometrics.limitations),
+          missionReminder:
+            (storedReminders.missionReminder as boolean | undefined) ??
+            defaultBiometrics.missionReminder,
+          sleepReminder:
+            (storedReminders.sleepReminder as boolean | undefined) ??
+            defaultBiometrics.sleepReminder,
+          weeklyReport:
+            (storedReminders.weeklyReport as boolean | undefined) ??
+            defaultBiometrics.weeklyReport,
+          glitchAlert:
+            (storedReminders.glitchAlert as boolean | undefined) ??
+            defaultBiometrics.glitchAlert,
+        });
+
         if (storedPermissions) {
           const mergedPermissions = {
             ...defaultPermissions,
@@ -194,6 +317,16 @@ export default function SettingsPage() {
 
   const updateProfileField = (key: keyof ProfileForm, value: string) => {
     setProfile((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const updateBiometricsField = (
+    key: keyof BiometricsForm,
+    value: string | boolean
+  ) => {
+    setBiometrics((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -238,6 +371,45 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Fehler beim Speichern des Profils", error);
       setSaveMessage("Profil konnte nicht gespeichert werden.");
+    }
+  };
+
+  const saveBiometrics = async () => {
+    if (!userId) {
+      setSaveMessage("Bitte melde dich an, um Körperdaten zu speichern.");
+      return;
+    }
+
+    try {
+      await setDoc(
+        doc(db, "users", userId),
+        {
+          profile: {
+            height: Number(biometrics.height) || 0,
+            weight: Number(biometrics.weight) || 0,
+            targetWeight: biometrics.targetWeightEnabled,
+            targetWeightValue: Number(biometrics.targetWeight) || 0,
+            bodyType: bodyTypeToStorage(biometrics.bodyType),
+            fitnessLevel: fitnessLevelToStorage(biometrics.fitnessLevel),
+            otherRestriction: biometrics.limitations,
+          },
+          settings: {
+            reminders: {
+              missionReminder: biometrics.missionReminder,
+              sleepReminder: biometrics.sleepReminder,
+              weeklyReport: biometrics.weeklyReport,
+              glitchAlert: biometrics.glitchAlert,
+            },
+          },
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+
+      setSaveMessage("Biometrie & Körper gespeichert.");
+    } catch (error) {
+      console.error("Fehler beim Speichern der Körperdaten", error);
+      setSaveMessage("Körperdaten konnten nicht gespeichert werden.");
     }
   };
 
@@ -528,8 +700,101 @@ export default function SettingsPage() {
 
             <div className={cardClass}>
               <h2 className="mb-5 text-3xl font-bold text-cyan-300">Biometrie & Körper</h2>
-              <p className="text-white/70">Diese Karte wird im nächsten Schritt mit den Registrierungsdaten verbunden.</p>
-              <button className={saveButtonClass} disabled>Änderungen speichern</button>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-[1fr_120px_60px_120px_40px] items-center gap-3">
+                  <label className="text-sm text-white/70">Größe & Gewicht</label>
+                  <input
+                    className={inputClass}
+                    value={biometrics.height}
+                    onChange={(e) => updateBiometricsField("height", e.target.value)}
+                  />
+                  <span className="text-white/70">cm</span>
+                  <input
+                    className={inputClass}
+                    value={biometrics.weight}
+                    onChange={(e) => updateBiometricsField("weight", e.target.value)}
+                  />
+                  <span className="text-white/70">kg</span>
+                </div>
+
+                {[
+                  { key: "targetWeightEnabled" as keyof BiometricsForm, label: "Zielgewicht anstreben" },
+                  { key: "missionReminder" as keyof BiometricsForm, label: "Missions-Erinnerung" },
+                  { key: "sleepReminder" as keyof BiometricsForm, label: "Schlaf-Erinnerung" },
+                  { key: "weeklyReport" as keyof BiometricsForm, label: "Wochenreport" },
+                  { key: "glitchAlert" as keyof BiometricsForm, label: "Glitch-Alarm" },
+                ].map((item) => (
+                  <div
+                    key={item.key}
+                    className="flex items-center justify-between rounded-xl border border-cyan-300/10 bg-[#0a3d46] px-4 py-3"
+                  >
+                    <span className="text-white/85">{item.label}</span>
+                    <ToggleButton
+                      enabled={Boolean(biometrics[item.key])}
+                      onClick={() =>
+                        updateBiometricsField(item.key, !Boolean(biometrics[item.key]))
+                      }
+                      toggleBase={toggleBase}
+                    />
+                  </div>
+                ))}
+
+                <div className="grid grid-cols-[1fr_120px_40px] items-center gap-3">
+                  <label className="text-sm text-white/70">Zielgewicht</label>
+                  <input
+                    className={inputClass}
+                    value={biometrics.targetWeight}
+                    onChange={(e) => updateBiometricsField("targetWeight", e.target.value)}
+                  />
+                  <span className="text-white/70">kg</span>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Körperbau</label>
+                  <select
+                    className={selectClass}
+                    value={biometrics.bodyType}
+                    onChange={(e) => updateBiometricsField("bodyType", e.target.value)}
+                  >
+                    <option>Schlank</option>
+                    <option>Normal</option>
+                    <option>Kräftig</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Fitnesslevel</label>
+                  <select
+                    className={selectClass}
+                    value={biometrics.fitnessLevel}
+                    onChange={(e) => updateBiometricsField("fitnessLevel", e.target.value)}
+                  >
+                    <option>Anfänger</option>
+                    <option>Fortgeschritten</option>
+                    <option>Aktiv</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">
+                    Einschränkungen / Verletzungen
+                  </label>
+                  <input
+                    className={inputClass}
+                    value={biometrics.limitations}
+                    onChange={(e) => updateBiometricsField("limitations", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <button
+                className={saveButtonClass}
+                onClick={saveBiometrics}
+                disabled={isLoadingUser}
+              >
+                Änderungen speichern
+              </button>
             </div>
 
             <div className={cardClass}>
