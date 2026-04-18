@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.4
+Version: 1.5
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -73,8 +73,9 @@ AKTUELLER ARBEITSSTAND SETTINGS / USERPROFIL:
 VERBINDLICHE NÄCHSTE PRIORITÄT / REIHENFOLGE:
 1. [~] WF-NAV-001 – ZUERST: Navigation-/Zurück-/Logout-Bug bei AGB, Datenschutz, Impressum, FAQ und Hilfe fixen.
 2. [ ] WF-AUTH-002 – DANACH: Passwort-Stärke live bei Registrierung prüfen.
-3. [ ] WF-HELP-001 – DANACH: Hilfeseite fertigstellen.
-4. [ ] WF-SETTINGS-010 – Danach: Account Verwaltung / DSGVO Export / Account löschen finalisieren.
+3. [ ] WF-REGISTER-002 – DANACH: Registrierungsdaten an Settings-Datenmodell angleichen.
+4. [ ] WF-HELP-001 – DANACH: Hilfeseite fertigstellen.
+5. [ ] WF-SETTINGS-010 – Danach: Account Verwaltung / DSGVO Export / Account löschen finalisieren.
 
 ============================================================
 0.2 NEU AUFGENOMMENE OFFENE AUFGABEN
@@ -116,9 +117,29 @@ AKZEPTANZKRITERIEN:
 - Starkes Passwort wird bestätigt.
 - Registrierung verhindert unsichere Passwörter oder warnt mindestens klar.
 
-TASK-ID: WF-HELP-001
+TASK-ID: WF-REGISTER-002
 STATUS: [ ] Offen
 PRIORITÄT: 3 – direkt nach WF-AUTH-002
+ZIEL:
+Alle Informationen, die während der Registrierung abgefragt werden, müssen exakt zur Struktur der Einstellungen passen und nach erfolgreicher Registrierung automatisch in den entsprechenden Einstellungs-Karten sichtbar sein.
+UMSETZUNG:
+- Registrierungsformular und Firestore-Schreiblogik prüfen.
+- Registrierungsfelder mit Settings-Struktur abgleichen.
+- Registrierung darf keine abweichenden oder doppelten Feldnamen erzeugen, wenn die Daten später in Einstellungen benötigt werden.
+- Daten müssen in diese Zielstruktur geschrieben werden:
+  profile: Profilbasis, Biometrie, Vitalwerte, Lifestyle, Aktivität, KI-Buddy
+  settings: Benachrichtigungen, Privatsphäre, App-Berechtigungen
+- Bereits bestehende Fallback-Kompatibilität aus den Settings berücksichtigen.
+- Wenn Registrierungsdaten fehlen, sinnvolle Defaults setzen.
+AKZEPTANZKRITERIEN:
+- Nach Registrierung sind alle eingegebenen Daten direkt in den Einstellungen sichtbar.
+- Änderungen in Einstellungen überschreiben dieselbe Struktur und keine zweite Parallelstruktur.
+- Kein erneutes Eingeben derselben Daten nötig.
+- Firestore-Userdokument ist sauber strukturiert und konsistent.
+
+TASK-ID: WF-HELP-001
+STATUS: [ ] Offen
+PRIORITÄT: 4 – direkt nach WF-REGISTER-002
 ZIEL:
 Die Hilfeseite muss fertiggestellt werden und darf nicht als leerer oder unfertiger Bereich bleiben.
 UMSETZUNG:
@@ -134,7 +155,7 @@ AKZEPTANZKRITERIEN:
 
 TASK-ID: WF-SETTINGS-010
 STATUS: [ ] Offen
-PRIORITÄT: 4 – nach Navigation, Passwortstärke und Hilfe
+PRIORITÄT: 5 – nach Navigation, Passwortstärke, Registrierung und Hilfe
 ZIEL:
 Account Verwaltung finalisieren: DSGVO-Datenexport, Logout auf allen Geräten und Account-Löschung vorbereiten.
 UMSETZUNG:
