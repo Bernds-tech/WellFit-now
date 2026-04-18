@@ -10,6 +10,75 @@ import { doc, setDoc } from "firebase/firestore";
 
 type Language = "de" | "en";
 type Step = 1 | 2 | 3 | 4;
+type PasswordStrength = {
+  score: number;
+  label: string;
+  colorClass: string;
+  barClass: string;
+  isStrongEnough: boolean;
+  checks: {
+    length: boolean;
+    uppercase: boolean;
+    lowercase: boolean;
+    number: boolean;
+    special: boolean;
+  };
+};
+
+const getPasswordStrength = (password: string, language: Language): PasswordStrength => {
+  const checks = {
+    length: password.length >= 8,
+    uppercase: /[A-ZÄÖÜ]/.test(password),
+    lowercase: /[a-zäöüß]/.test(password),
+    number: /\d/.test(password),
+    special: /[^A-Za-zÄÖÜäöüß0-9]/.test(password),
+  };
+
+  const score = Object.values(checks).filter(Boolean).length;
+  const isStrongEnough = checks.length && checks.uppercase && checks.lowercase && checks.number && checks.special;
+
+  if (!password) {
+    return {
+      score: 0,
+      label: language === "de" ? "Noch kein Passwort" : "No password yet",
+      colorClass: "text-white/70",
+      barClass: "bg-white/20",
+      isStrongEnough: false,
+      checks,
+    };
+  }
+
+  if (score <= 2) {
+    return {
+      score,
+      label: language === "de" ? "Schwach" : "Weak",
+      colorClass: "text-red-200",
+      barClass: "bg-red-400",
+      isStrongEnough: false,
+      checks,
+    };
+  }
+
+  if (score <= 4) {
+    return {
+      score,
+      label: language === "de" ? "Mittel" : "Medium",
+      colorClass: "text-yellow-200",
+      barClass: "bg-yellow-300",
+      isStrongEnough: false,
+      checks,
+    };
+  }
+
+  return {
+    score,
+    label: language === "de" ? "Stark" : "Strong",
+    colorClass: "text-green-200",
+    barClass: "bg-green-400",
+    isStrongEnough,
+    checks,
+  };
+};
 
 const content = {
   de: {
@@ -287,6 +356,22 @@ export default function RegisterPage() {
 
   const [awakeningProgress, setAwakeningProgress] = useState(0);
 
+  const passwordStrength = useMemo(
+    () => getPasswordStrength(password, language),
+    [password, language]
+  );
+
+  const passwordCheckLabels = useMemo(
+    () => [
+      { key: "length", label: language === "de" ? "mindestens 8 Zeichen" : "at least 8 characters" },
+      { key: "uppercase", label: language === "de" ? "Großbuchstabe" : "uppercase letter" },
+      { key: "lowercase", label: language === "de" ? "Kleinbuchstabe" : "lowercase letter" },
+      { key: "number", label: language === "de" ? "Zahl" : "number" },
+      { key: "special", label: language === "de" ? "Sonderzeichen" : "special character" },
+    ] as const,
+    [language]
+  );
+
   useEffect(() => {
     if (step !== 4) return;
 
@@ -337,6 +422,14 @@ export default function RegisterPage() {
   const handleStep1 = () => {
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       alert(language === "de" ? "Bitte fülle alle Felder aus." : "Please fill in all fields.");
+      return;
+    }
+    if (!passwordStrength.isStrongEnough) {
+      alert(
+        language === "de"
+          ? "Bitte verwende ein stärkeres Passwort mit mindestens 8 Zeichen, Groß- und Kleinbuchstaben, Zahl und Sonderzeichen."
+          : "Please use a stronger password with at least 8 characters, uppercase and lowercase letters, a number and a special character."
+      );
       return;
     }
     if (password !== confirmPassword) {
@@ -481,7 +574,6 @@ export default function RegisterPage() {
       <div className="absolute inset-0 bg-cyan-900/10" />
 
       <div className="relative h-full w-full">
-        {/* Logo */}
         <div className="absolute left-8 top-8 h-28 w-36 lg:h-36 lg:w-44">
           <Image
             src="/logo.png"
@@ -492,7 +584,6 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* Sprache */}
         <div className="absolute right-12 top-10 z-20">
           <button
             type="button"
@@ -545,7 +636,6 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* STEP 1 */}
         {step === 1 && (
           <>
             <div className="absolute left-16 top-[30%] max-w-[560px] text-left">
@@ -628,6 +718,28 @@ export default function RegisterPage() {
           </button>
         </div>
 
+        {password && (
+          <div className="rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white backdrop-blur-sm">
+            <div className="mb-2 flex items-center justify-between">
+              <span>{language === "de" ? "Passwort-Sicherheit" : "Password security"}</span>
+              <span className={`font-bold ${passwordStrength.colorClass}`}>{passwordStrength.label}</span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
+              <div className={`h-full rounded-full ${passwordStrength.barClass}`} style={{ width: `${Math.max(passwordStrength.score, 1) * 20}%` }} />
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-1 text-xs text-white/80">
+              {passwordCheckLabels.map((item) => (
+                <div key={item.key} className="flex items-center gap-2">
+                  <span className={passwordStrength.checks[item.key] ? "text-green-300" : "text-white/45"}>
+                    {passwordStrength.checks[item.key] ? "✓" : "○"}
+                  </span>
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <input
           type={showPassword ? "text" : "password"}
           placeholder={t.confirmPassword}
@@ -659,7 +771,8 @@ export default function RegisterPage() {
       <button
         type="button"
         onClick={handleStep1}
-        className="mt-4 h-[52px] w-full rounded-lg bg-[#156fd1] text-[1.08rem] font-medium transition hover:bg-[#0f63bb]"
+        disabled={!passwordStrength.isStrongEnough}
+        className="mt-4 h-[52px] w-full rounded-lg bg-[#156fd1] text-[1.08rem] font-medium transition hover:bg-[#0f63bb] disabled:cursor-not-allowed disabled:bg-gray-500 disabled:opacity-70"
       >
         {t.registerNow}
       </button>
@@ -674,7 +787,6 @@ export default function RegisterPage() {
   </>
 )}
 
-        {/* STEP 2 */}
         {step === 2 && (
           <>
             <div className="absolute right-14 top-8 text-[1.35rem] tracking-[0.16em] text-white/50">
@@ -986,7 +1098,6 @@ export default function RegisterPage() {
           </>
         )}
 
-        {/* STEP 3 */}
         {step === 3 && (
           <>
             <div className="absolute right-14 top-8 text-[1.35rem] tracking-[0.16em] text-white/50">
@@ -1169,25 +1280,17 @@ export default function RegisterPage() {
           </>
         )}
 
-        {/* STEP 4 */}
         {step === 4 && (
   <div className="absolute inset-0 overflow-hidden">
-    {/* Hintergrund-Glow */}
     <div className="absolute inset-0 bg-black/20" />
     <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300/10 blur-3xl" />
     <div className="absolute left-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-400/10 blur-2xl" />
 
-    {/* Content */}
     <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
       <div className="relative mb-8 h-72 w-72">
-        {/* äußerer Ring */}
         <div className="absolute inset-0 animate-spin rounded-full border border-cyan-300/20 border-t-cyan-300/80" style={{ animationDuration: "10s" }} />
         <div className="absolute inset-[14px] animate-spin rounded-full border border-white/10 border-b-blue-300/60" style={{ animationDuration: "6s", animationDirection: "reverse" }} />
-
-        {/* Puls-Glow */}
         <div className="absolute inset-[42px] animate-pulse rounded-full bg-cyan-300/10 blur-2xl" />
-
-        {/* Avatar */}
         <div className="absolute inset-[36px]">
           <Image
             src="/Mascottchen rechts.png"
@@ -1198,246 +1301,28 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <div className="max-w-[900px]">
-        <h1 className="text-5xl font-bold tracking-tight lg:text-6xl">
-          {t.awakenTitle}
-        </h1>
+      <div className="max-w-[900px]"><h1 className="text-5xl font-bold tracking-tight lg:text-6xl">{t.awakenTitle}</h1><p className="mx-auto mt-5 max-w-[760px] text-xl leading-relaxed text-white/85 lg:text-2xl">{t.awakenText}</p></div>
 
-        <p className="mx-auto mt-5 max-w-[760px] text-xl leading-relaxed text-white/85 lg:text-2xl">
-          {t.awakenText}
-        </p>
-      </div>
-
-      {/* Statusbox */}
-      <div className="mt-10 w-full max-w-[760px] rounded-[28px] border border-white/10 bg-black/20 px-8 py-7 backdrop-blur-md">
-        <div className="mb-4 text-lg uppercase tracking-[0.25em] text-cyan-200/80">
-          WellFit AI Sequence
-        </div>
-
-        <div className="mb-5 text-2xl font-semibold text-white">
-          {phaseText}
-        </div>
-
-        <div className="h-5 w-full overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-blue-400 to-green-400 transition-all duration-200"
-            style={{ width: `${awakeningProgress}%` }}
-          />
-        </div>
-
-        <div className="mt-4 flex items-center justify-between text-sm text-white/70 lg:text-base">
-          <span>
-            {language === "de" ? "Systeminitialisierung" : "System initialization"}
-          </span>
-          <span>{awakeningProgress}%</span>
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-3 text-left lg:grid-cols-3">
-          <StatusLine
-            active={awakeningProgress >= 8}
-            done={awakeningProgress >= 34}
-            text={t.awakenSub1}
-          />
-          <StatusLine
-            active={awakeningProgress >= 35}
-            done={awakeningProgress >= 68}
-            text={t.awakenSub2}
-          />
-          <StatusLine
-            active={awakeningProgress >= 69}
-            done={awakeningProgress >= 100}
-            text={t.awakenSub3}
-          />
-        </div>
-
-        {awakeningProgress >= 100 && (
-          <div className="mt-6 text-lg font-medium text-green-300">
-            {t.awakenDone}
-          </div>
-        )}
-      </div>
+      <div className="mt-10 w-full max-w-[760px] rounded-[28px] border border-white/10 bg-black/20 px-8 py-7 backdrop-blur-md"><div className="mb-4 text-lg uppercase tracking-[0.25em] text-cyan-200/80">WellFit AI Sequence</div><div className="mb-5 text-2xl font-semibold text-white">{phaseText}</div><div className="h-5 w-full overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-blue-400 to-green-400 transition-all duration-200" style={{ width: `${awakeningProgress}%` }} /></div><div className="mt-4 flex items-center justify-between text-sm text-white/70 lg:text-base"><span>{language === "de" ? "Systeminitialisierung" : "System initialization"}</span><span>{awakeningProgress}%</span></div><div className="mt-6 grid grid-cols-1 gap-3 text-left lg:grid-cols-3"><StatusLine active={awakeningProgress >= 8} done={awakeningProgress >= 34} text={t.awakenSub1} /><StatusLine active={awakeningProgress >= 35} done={awakeningProgress >= 68} text={t.awakenSub2} /><StatusLine active={awakeningProgress >= 69} done={awakeningProgress >= 100} text={t.awakenSub3} /></div>{awakeningProgress >= 100 && (<div className="mt-6 text-lg font-medium text-green-300">{t.awakenDone}</div>)}</div>
     </div>
   </div>
 )}
 
-        {/* Coin */}
         {step === 1 && (
-          <div className="pointer-events-none absolute bottom-10 left-1/2 h-[90px] w-[90px] -translate-x-1/2 lg:h-[115px] lg:w-[115px]">
-    <Image
-      src="/coin.png"
-      alt="WellFit Coin"
-      fill
-      className="object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,0.28)]"
-    />
-  </div>
+          <div className="pointer-events-none absolute bottom-10 left-1/2 h-[90px] w-[90px] -translate-x-1/2 lg:h-[115px] lg:w-[115px]"><Image src="/coin.png" alt="WellFit Coin" fill className="object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,0.28)]" /></div>
         )}
 
-        {/* Footer nur in Step 1 */}
         {step === 1 && (
-          <footer className="absolute bottom-6 left-8 right-8 flex items-center justify-between text-[17px] text-white/90">
-            <div className="flex gap-8">
-              <Link href="/datenschutz">{t.footerPrivacy}</Link>
-              <Link href="/impressum">{t.footerImprint}</Link>
-              <Link href="/agb">{t.footerTerms}</Link>
-              <Link href="/faq">{t.footerFaq}</Link>
-            </div>
-
-            <div className="flex items-center gap-6 text-[26px] font-bold">
-              <span>f</span>
-              <span>in</span>
-              <span>x</span>
-            </div>
-          </footer>
+          <footer className="absolute bottom-6 left-8 right-8 flex items-center justify-between text-[17px] text-white/90"><div className="flex gap-8"><Link href="/datenschutz">{t.footerPrivacy}</Link><Link href="/impressum">{t.footerImprint}</Link><Link href="/agb">{t.footerTerms}</Link><Link href="/faq">{t.footerFaq}</Link></div><div className="flex items-center gap-6 text-[26px] font-bold"><span>f</span><span>in</span><span>x</span></div></footer>
         )}
       </div>
     </main>
   );
 }
 
-function Panel({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-[#0a5d66]/95 p-3 shadow-lg">
-      <div className="mb-2 border-b border-white/10 pb-2 text-[1rem] font-bold uppercase tracking-wide text-cyan-200">
-        {title}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function Choice({
-  active,
-  onClick,
-  label,
-  tall = false,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  tall?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-xl border px-3 text-center text-[0.95rem] transition ${
-        tall ? "h-24" : "h-12"
-      } ${
-        active
-          ? "border-cyan-300 bg-cyan-500/20 text-white"
-          : "border-white/10 bg-white/5 text-white/85 hover:bg-white/10"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-function ChoiceRow({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex h-12 w-full items-center gap-3 rounded-xl border px-4 text-left transition ${
-        active
-          ? "border-cyan-300 bg-cyan-500/20 text-cyan-100"
-          : "border-white/10 bg-white/5 text-white/90 hover:bg-white/10"
-      }`}
-    >
-      <span className="text-base">{active ? "◉" : "○"}</span>
-      <span className="text-[1rem] font-medium">{label}</span>
-    </button>
-  );
-}
-
-function CheckRow({
-  checked,
-  onClick,
-  label,
-}: {
-  checked: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex h-14 w-full items-center gap-3 rounded-xl border px-5 text-left transition ${
-        checked
-          ? "border-cyan-300 bg-cyan-500/20 text-cyan-100"
-          : "border-white/10 bg-white/5 text-white/90 hover:bg-white/10"
-      }`}
-    >
-      <span className="text-xl">{checked ? "☑" : "☐"}</span>
-      <span className="text-xl font-medium">{label}</span>
-    </button>
-  );
-}
-
-function CheckTile({
-  checked,
-  onClick,
-  label,
-}: {
-  checked: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex h-24 items-center gap-3 rounded-xl border px-4 text-left transition ${
-        checked
-          ? "border-cyan-300 bg-cyan-500/20 text-cyan-100"
-          : "border-white/10 bg-white/5 text-white/90 hover:bg-white/10"
-      }`}
-    >
-      <span className="text-base">{checked ? "☑" : "☐"}</span>
-      <span className="text-[1.05rem] font-medium">{label}</span>
-    </button>
-  );
-}
-function StatusLine({
-  active,
-  done,
-  text,
-}: {
-  active: boolean;
-  done: boolean;
-  text: string;
-}) {
-  return (
-    <div
-      className={`rounded-2xl border px-4 py-4 transition ${
-        done
-          ? "border-green-300/40 bg-green-400/10 text-green-200"
-          : active
-            ? "border-cyan-300/40 bg-cyan-400/10 text-cyan-100"
-            : "border-white/10 bg-white/5 text-white/55"
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        <span className="text-lg">
-          {done ? "●" : active ? "◉" : "○"}
-        </span>
-        <span className="text-[0.95rem] font-medium lg:text-base">{text}</span>
-      </div>
-    </div>
-  );
-}
+function Panel({ title, children }: { title: string; children: React.ReactNode }) { return (<div className="rounded-2xl border border-white/10 bg-[#0a5d66]/95 p-3 shadow-lg"><div className="mb-2 border-b border-white/10 pb-2 text-[1rem] font-bold uppercase tracking-wide text-cyan-200">{title}</div>{children}</div>); }
+function Choice({ active, onClick, label, tall = false }: { active: boolean; onClick: () => void; label: string; tall?: boolean }) { return (<button type="button" onClick={onClick} className={`rounded-xl border px-3 text-center text-[0.95rem] transition ${tall ? "h-24" : "h-12"} ${active ? "border-cyan-300 bg-cyan-500/20 text-white" : "border-white/10 bg-white/5 text-white/85 hover:bg-white/10"}`}>{label}</button>); }
+function ChoiceRow({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) { return (<button type="button" onClick={onClick} className={`flex h-12 w-full items-center gap-3 rounded-xl border px-4 text-left transition ${active ? "border-cyan-300 bg-cyan-500/20 text-cyan-100" : "border-white/10 bg-white/5 text-white/90 hover:bg-white/10"}`}><span className="text-base">{active ? "◉" : "○"}</span><span className="text-[1rem] font-medium">{label}</span></button>); }
+function CheckRow({ checked, onClick, label }: { checked: boolean; onClick: () => void; label: string }) { return (<button type="button" onClick={onClick} className={`flex h-14 w-full items-center gap-3 rounded-xl border px-5 text-left transition ${checked ? "border-cyan-300 bg-cyan-500/20 text-cyan-100" : "border-white/10 bg-white/5 text-white/90 hover:bg-white/10"}`}><span className="text-xl">{checked ? "☑" : "☐"}</span><span className="text-xl font-medium">{label}</span></button>); }
+function CheckTile({ checked, onClick, label }: { checked: boolean; onClick: () => void; label: string }) { return (<button type="button" onClick={onClick} className={`flex h-24 items-center gap-3 rounded-xl border px-4 text-left transition ${checked ? "border-cyan-300 bg-cyan-500/20 text-cyan-100" : "border-white/10 bg-white/5 text-white/90 hover:bg-white/10"}`}><span className="text-base">{checked ? "☑" : "☐"}</span><span className="text-[1.05rem] font-medium">{label}</span></button>); }
+function StatusLine({ active, done, text }: { active: boolean; done: boolean; text: string }) { return (<div className={`rounded-2xl border px-4 py-4 transition ${done ? "border-green-300/40 bg-green-400/10 text-green-200" : active ? "border-cyan-300/40 bg-cyan-400/10 text-cyan-100" : "border-white/10 bg-white/5 text-white/55"}`}><div className="flex items-center gap-3"><span className="text-lg">{done ? "●" : active ? "◉" : "○"}</span><span className="text-[0.95rem] font-medium lg:text-base">{text}</span></div></div>); }
