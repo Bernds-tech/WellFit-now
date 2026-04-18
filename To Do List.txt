@@ -1,0 +1,101 @@
+Für Phase 1 sehr sinnvoll
+
+Wenn dein Ziel jetzt ist:
+
+echte User statt localStorage
+echte History
+echte Favoriten
+erste produktive Version
+Tracking-Daten sicher speichern
+schnell online gehen
+
+dann ist Firebase absolut sinnvoll.
+
+Für Phase 2/3 vielleicht nicht ideal
+
+Wenn dein Ziel später ist:
+
+skalierbare Game Engine
+komplexe Rewards
+Anti-Cheat
+KI-gesteuerte Missionserzeugung
+starke Datenanalyse
+hohe Regelkontrolle
+viele Tracking-Events
+
+
+
+Plan:
+Firebase Auth + Firestore jetzt
+echte Registrierung/Login
+User-Profile
+Missionen
+Favoriten
+History
+Tracking-Sessions
+GPS-/Event-Daten zunächst schlank speichern
+Server in Singapur nur für die App
+Next.js dort deployen
+keine eigene DB-Administration am Anfang
+weniger DevOps, weniger Fehlerquellen
+Regel: keine Game-Logik mehr im localStorage
+localStorage nur noch für UI-Dinge
+Punkte, Rewards, Missionstatus, History immer in Firebase
+Firebase-Datenmodell bewusst einfach halten
+nicht jeden GPS-Punkt endlos speichern
+Sessions und aggregierte Events speichern
+Reads/Writes im Blick behalten, weil Firestore nach Operationen abrechnet
+Später migrieren, wenn nötig
+Wenn WellFit groß wird, könnt ihr Teile später auf ein eigenes Backend + SQL ziehen
+Das ist ein späteres Skalierungsproblem, kein Startproblem
+
+
+Dein GitHub-Konto ist verbunden, aber aktuell werden mir keine zugänglichen Repositories zurückgegeben. Das heißt: Verbindung ja, Repo-Zugriff derzeit offenbar noch nein.
+
+Was wir mit GitHub machen können, sobald ein Repo verfügbar ist:
+
+Repository durchsuchen und Struktur erklären
+Dateien lesen und analysieren
+Fehler in Code, Konfiguration und Logik finden
+README, Doku, Aufgabenlisten und technische Konzepte erstellen
+neue Dateien anlegen oder bestehende ändern
+Branches erstellen
+Commits vorbereiten
+Pull Requests anlegen und prüfen
+Issues erstellen und strukturieren
+PR-Kommentare und Code-Review machen
+Unterschiede zwischen zwei Ständen vergleichen
+einfache GitHub-Workflow-/CI-Probleme prüfen
+
+Für WellFit wäre das konkret sehr stark. Zum Beispiel könnten wir:
+
+dein Repo strukturieren
+Frontend-Dateien prüfen
+Landingpage, Dashboard, Presale-Bereich und Navigation analysieren
+Texte, Platzhalter, Menülogik und UX prüfen
+technische To-do-Liste als Issues anlegen
+eine saubere Roadmap im Repo aufbauen
+PR-Beschreibungen und Entwicklerbriefings erzeugen
+Dateien direkt im Repo erstellen oder anpassen
+
+Der Engpass im Moment:
+Ich sehe dein GitHub-Profil Bernds-tech, aber keine freigegebenen Repositories. Das passiert meist, wenn:
+
+das richtige Repo noch nicht mit ChatGPT/GitHub-App freigegeben wurde
+die GitHub-App nur mit dem Account verbunden ist, aber nicht mit dem Repo
+das Repo privat ist und die Installation dort noch fehlt
+
+Was du jetzt machen solltest:
+
+Öffne GitHub.
+Gehe zu den App-/Installations-Einstellungen der verbundenen GitHub-App.
+Prüfe, ob das gewünschte Repo für die App freigegeben ist.
+Gib idealerweise das WellFit-Repo explizit frei.
+Danach kann ich direkt mit dem Repo arbeiten.
+
+Sobald das Repo sichtbar ist, können wir sofort loslegen, zum Beispiel mit:
+„Analysiere mein WellFit-Repo und sag mir die 10 wichtigsten Baustellen“
+oder
+„Lies die Startseite und das Dashboard im Repo und gib mir konkrete Verbesserungen.“
+
+Wenn du willst, gehen wir jetzt direkt den nächsten Schritt: Du schickst mir entweder den Repo-Namen oder ich helfe dir dabei, die GitHub-Freigabe richtig zu setzen.
