@@ -217,7 +217,7 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
         <aside className="flex h-full w-[250px] flex-col border-r border-cyan-400/10 bg-[#042f35]/95 px-5 py-6">
           <div className="mb-8 flex justify-center">
             <Image
-              src="/Logo.png"
+              src="/logo.png"
               alt="WellFit Logo"
               width={150}
               height={150}
