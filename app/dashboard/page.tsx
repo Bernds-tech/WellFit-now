@@ -225,7 +225,7 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
               priority
             />
           </div>
-
+<h1>Test Deployment</h1>
           <nav className="space-y-2 text-[14px]">
             <div className="font-bold text-orange-400">Dashboard</div>
             <Link
