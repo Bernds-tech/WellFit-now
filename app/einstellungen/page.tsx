@@ -37,6 +37,20 @@ type NotificationsForm = {
   glitchAlert: boolean;
 };
 
+type VitalValuesForm = {
+  bodyFat: string;
+  restingPulse: string;
+  averagePulse: string;
+  bloodPressure: string;
+  sleepHours: string;
+  sleepQuality: string;
+  stressLevel: string;
+  energyLevel: string;
+  painLevel: string;
+  medicationNote: string;
+  healthNotes: string;
+};
+
 const defaultPermissions = {
   location: false,
   camera: true,
@@ -70,6 +84,20 @@ const defaultNotifications: NotificationsForm = {
   sleepReminder: true,
   weeklyReport: true,
   glitchAlert: true,
+};
+
+const defaultVitalValues: VitalValuesForm = {
+  bodyFat: "",
+  restingPulse: "",
+  averagePulse: "",
+  bloodPressure: "",
+  sleepHours: "",
+  sleepQuality: "Mittel",
+  stressLevel: "Mittel",
+  energyLevel: "Mittel",
+  painLevel: "Keine",
+  medicationNote: "",
+  healthNotes: "",
 };
 
 const genderToDisplay = (gender?: string) => {
@@ -140,6 +168,8 @@ export default function SettingsPage() {
   const [biometrics, setBiometrics] = useState<BiometricsForm>(defaultBiometrics);
   const [notifications, setNotifications] =
     useState<NotificationsForm>(defaultNotifications);
+  const [vitalValues, setVitalValues] =
+    useState<VitalValuesForm>(defaultVitalValues);
 
   useEffect(() => {
     const savedPermissions = localStorage.getItem("wellfit-permissions");
@@ -165,6 +195,7 @@ export default function SettingsPage() {
         setProfile(defaultProfile);
         setBiometrics(defaultBiometrics);
         setNotifications(defaultNotifications);
+        setVitalValues(defaultVitalValues);
         setIsLoadingUser(false);
         setSaveMessage("Nicht eingeloggt.");
         return;
@@ -211,6 +242,7 @@ export default function SettingsPage() {
                 bodyType: bodyTypeToStorage(defaultBiometrics.bodyType),
                 fitnessLevel: fitnessLevelToStorage(defaultBiometrics.fitnessLevel),
                 otherRestriction: defaultBiometrics.limitations,
+                vitals: defaultVitalValues,
               },
               settings: {
                 ...fallbackProfile,
@@ -225,6 +257,7 @@ export default function SettingsPage() {
           setProfile(fallbackProfile);
           setBiometrics(defaultBiometrics);
           setNotifications(defaultNotifications);
+          setVitalValues(defaultVitalValues);
           setSaveMessage("Profil wurde neu angelegt.");
           setIsLoadingUser(false);
           return;
@@ -232,6 +265,7 @@ export default function SettingsPage() {
 
         const data = userSnap.data();
         const storedProfile = (data.profile ?? {}) as Record<string, any>;
+        const storedVitals = (storedProfile.vitals ?? {}) as Record<string, any>;
         const storedSettings = (data.settings ?? {}) as Record<string, any>;
         const storedReminders = (storedSettings.reminders ?? {}) as Record<string, any>;
         const storedPermissions =
@@ -282,6 +316,32 @@ export default function SettingsPage() {
             (Array.isArray(storedProfile.limitations)
               ? storedProfile.limitations.join(", ")
               : defaultBiometrics.limitations),
+        });
+
+        setVitalValues({
+          bodyFat: String(storedVitals.bodyFat ?? ""),
+          restingPulse: String(storedVitals.restingPulse ?? ""),
+          averagePulse: String(storedVitals.averagePulse ?? ""),
+          bloodPressure: String(storedVitals.bloodPressure ?? ""),
+          sleepHours: String(storedVitals.sleepHours ?? ""),
+          sleepQuality:
+            (storedVitals.sleepQuality as string | undefined) ??
+            defaultVitalValues.sleepQuality,
+          stressLevel:
+            (storedVitals.stressLevel as string | undefined) ??
+            defaultVitalValues.stressLevel,
+          energyLevel:
+            (storedVitals.energyLevel as string | undefined) ??
+            defaultVitalValues.energyLevel,
+          painLevel:
+            (storedVitals.painLevel as string | undefined) ??
+            defaultVitalValues.painLevel,
+          medicationNote:
+            (storedVitals.medicationNote as string | undefined) ??
+            defaultVitalValues.medicationNote,
+          healthNotes:
+            (storedVitals.healthNotes as string | undefined) ??
+            defaultVitalValues.healthNotes,
         });
 
         setNotifications({
@@ -345,6 +405,13 @@ export default function SettingsPage() {
     value: boolean
   ) => {
     setNotifications((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const updateVitalValuesField = (key: keyof VitalValuesForm, value: string) => {
+    setVitalValues((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -445,6 +512,31 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Fehler beim Speichern der Benachrichtigungen", error);
       setSaveMessage("Benachrichtigungen konnten nicht gespeichert werden.");
+    }
+  };
+
+  const saveVitalValues = async () => {
+    if (!userId) {
+      setSaveMessage("Bitte melde dich an, um Vitalwerte zu speichern.");
+      return;
+    }
+
+    try {
+      await setDoc(
+        doc(db, "users", userId),
+        {
+          profile: {
+            vitals: vitalValues,
+          },
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+
+      setSaveMessage("Erweiterte Vitalwerte gespeichert.");
+    } catch (error) {
+      console.error("Fehler beim Speichern der Vitalwerte", error);
+      setSaveMessage("Vitalwerte konnten nicht gespeichert werden.");
     }
   };
 
@@ -859,8 +951,145 @@ export default function SettingsPage() {
 
             <div className={cardClass}>
               <h2 className="mb-5 text-3xl font-bold text-cyan-300">Erweiterte Vitalwerte</h2>
-              <p className="text-white/70">Vitalwerte werden als eigene Profilsektion gespeichert.</p>
-              <button className={saveButtonClass} disabled>Änderungen speichern</button>
+              <p className="mb-4 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-sm text-yellow-100">
+                Diese Angaben dienen nur zur Personalisierung deines KI-Buddys und ersetzen keine medizinische Beratung.
+              </p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-[1fr_100px_40px] items-center gap-3">
+                  <label className="text-white/85">Körperfettanteil</label>
+                  <input
+                    className={inputClass}
+                    value={vitalValues.bodyFat}
+                    onChange={(e) => updateVitalValuesField("bodyFat", e.target.value)}
+                    placeholder="--"
+                  />
+                  <span>%</span>
+                </div>
+
+                <div className="grid grid-cols-[1fr_100px_60px] items-center gap-3">
+                  <label className="text-white/85">Ruhepuls</label>
+                  <input
+                    className={inputClass}
+                    value={vitalValues.restingPulse}
+                    onChange={(e) => updateVitalValuesField("restingPulse", e.target.value)}
+                    placeholder="--"
+                  />
+                  <span>bpm</span>
+                </div>
+
+                <div className="grid grid-cols-[1fr_100px_60px] items-center gap-3">
+                  <label className="text-white/85">Durchschnittspuls</label>
+                  <input
+                    className={inputClass}
+                    value={vitalValues.averagePulse}
+                    onChange={(e) => updateVitalValuesField("averagePulse", e.target.value)}
+                    placeholder="--"
+                  />
+                  <span>bpm</span>
+                </div>
+
+                <div className="grid grid-cols-[1fr_100px_70px] items-center gap-3">
+                  <label className="text-white/85">Blutdruck</label>
+                  <input
+                    className={inputClass}
+                    value={vitalValues.bloodPressure}
+                    onChange={(e) => updateVitalValuesField("bloodPressure", e.target.value)}
+                    placeholder="--/--"
+                  />
+                  <span>mmHg</span>
+                </div>
+
+                <div className="grid grid-cols-[1fr_100px_80px] items-center gap-3">
+                  <label className="text-white/85">Schlafdauer</label>
+                  <input
+                    className={inputClass}
+                    value={vitalValues.sleepHours}
+                    onChange={(e) => updateVitalValuesField("sleepHours", e.target.value)}
+                    placeholder="--"
+                  />
+                  <span>Std.</span>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Schlafqualität</label>
+                  <select
+                    className={selectClass}
+                    value={vitalValues.sleepQuality}
+                    onChange={(e) => updateVitalValuesField("sleepQuality", e.target.value)}
+                  >
+                    <option>Niedrig</option>
+                    <option>Mittel</option>
+                    <option>Hoch</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Stresslevel</label>
+                  <select
+                    className={selectClass}
+                    value={vitalValues.stressLevel}
+                    onChange={(e) => updateVitalValuesField("stressLevel", e.target.value)}
+                  >
+                    <option>Niedrig</option>
+                    <option>Mittel</option>
+                    <option>Hoch</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Energielevel</label>
+                  <select
+                    className={selectClass}
+                    value={vitalValues.energyLevel}
+                    onChange={(e) => updateVitalValuesField("energyLevel", e.target.value)}
+                  >
+                    <option>Niedrig</option>
+                    <option>Mittel</option>
+                    <option>Hoch</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Schmerzlevel</label>
+                  <select
+                    className={selectClass}
+                    value={vitalValues.painLevel}
+                    onChange={(e) => updateVitalValuesField("painLevel", e.target.value)}
+                  >
+                    <option>Keine</option>
+                    <option>Leicht</option>
+                    <option>Mittel</option>
+                    <option>Stark</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Medikamentenhinweis</label>
+                  <input
+                    className={inputClass}
+                    value={vitalValues.medicationNote}
+                    onChange={(e) => updateVitalValuesField("medicationNote", e.target.value)}
+                    placeholder="Optional"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Gesundheitliche Hinweise</label>
+                  <textarea
+                    className={`${inputClass} min-h-[110px] resize-none`}
+                    value={vitalValues.healthNotes}
+                    onChange={(e) => updateVitalValuesField("healthNotes", e.target.value)}
+                    placeholder="Optional: Hinweise, die der KI-Buddy berücksichtigen soll"
+                  />
+                </div>
+              </div>
+              <button
+                className={saveButtonClass}
+                onClick={saveVitalValues}
+                disabled={isLoadingUser}
+              >
+                Änderungen speichern
+              </button>
             </div>
 
             <div className={cardClass}>
