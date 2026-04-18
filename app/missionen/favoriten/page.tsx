@@ -1,0 +1,416 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+
+type FavoriteMission = {
+  id: number;
+  title: string;
+  description: string;
+  rewardLabel: string;
+  icon: string;
+  type: "daily" | "weekly";
+};
+
+const dailyMissionsData: FavoriteMission[] = [
+  {
+    id: 1,
+    title: "Tägliche Bewegungsmission",
+    description: "Erreiche 10.000 Schritte",
+    rewardLabel: "+10 WFT",
+    icon: "👟",
+    type: "daily",
+  },
+  {
+    id: 2,
+    title: "Tägliche Fitnessmission",
+    description: "Absolviere 20 Minuten Training",
+    rewardLabel: "+15 WFT",
+    icon: "🏋️",
+    type: "daily",
+  },
+  {
+    id: 3,
+    title: "Tägliche Wissensmission",
+    description: "Löse 3 Quizfragen",
+    rewardLabel: "+10 WFT",
+    icon: "🧠",
+    type: "daily",
+  },
+];
+
+const weeklyMissionsData: FavoriteMission[] = [
+  {
+    id: 1,
+    title: "Wöchentliche Bewegungsmission",
+    description: "Sammle 50.000 Schritte",
+    rewardLabel: "+25 WFT",
+    icon: "👟",
+    type: "weekly",
+  },
+  {
+    id: 2,
+    title: "Wöchentliche Fitnessmission",
+    description: "3× Ganzkörper-Training pro Woche",
+    rewardLabel: "+1 Wochen-NFT",
+    icon: "🏃",
+    type: "weekly",
+  },
+  {
+    id: 3,
+    title: "Wöchentliche Wissensmission",
+    description: "Schließe 5 Lernmodule ab",
+    rewardLabel: "+25 WFT",
+    icon: "🧠",
+    type: "weekly",
+  },
+];
+
+export default function FavoritenPage() {
+  const [brightness, setBrightness] = useState(100);
+  const [dailyFavoriteIds, setDailyFavoriteIds] = useState<number[]>([]);
+  const [weeklyFavoriteIds, setWeeklyFavoriteIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    const savedDailyFavorites = localStorage.getItem(
+      "wellfit-favorite-daily-missions"
+    );
+    const savedWeeklyFavorites = localStorage.getItem(
+      "wellfit-favorite-weekly-missions"
+    );
+
+    if (savedDailyFavorites) {
+      try {
+        setDailyFavoriteIds(JSON.parse(savedDailyFavorites));
+      } catch (error) {
+        console.error("Fehler beim Laden der Tages-Favoriten", error);
+      }
+    }
+
+    if (savedWeeklyFavorites) {
+      try {
+        setWeeklyFavoriteIds(JSON.parse(savedWeeklyFavorites));
+      } catch (error) {
+        console.error("Fehler beim Laden der Wochen-Favoriten", error);
+      }
+    }
+  }, []);
+
+  const favoriteDailyMissions = useMemo(() => {
+    return dailyMissionsData.filter((mission) =>
+      dailyFavoriteIds.includes(mission.id)
+    );
+  }, [dailyFavoriteIds]);
+
+  const favoriteWeeklyMissions = useMemo(() => {
+    return weeklyMissionsData.filter((mission) =>
+      weeklyFavoriteIds.includes(mission.id)
+    );
+  }, [weeklyFavoriteIds]);
+
+  const allFavorites = [...favoriteDailyMissions, ...favoriteWeeklyMissions];
+
+  return (
+    <main
+      className="h-screen w-screen overflow-hidden text-white"
+      style={{
+        background: `linear-gradient(to bottom right, rgba(0,170,190,${
+          brightness / 100
+        }), rgba(0,80,90,1))`,
+      }}
+    >
+      <div className="flex h-full">
+        <aside className="flex h-full w-[250px] flex-col border-r border-cyan-400/10 bg-[#042f35]/95 px-5 py-6">
+          <div className="mb-8 flex justify-center">
+            <Image
+              src="/Logo.png"
+              alt="WellFit Logo"
+              width={150}
+              height={150}
+              className="object-contain"
+              priority
+            />
+          </div>
+
+          <nav className="space-y-2 text-[14px]">
+            <Link href="/dashboard" className="block text-white/80">
+              Dashboard
+            </Link>
+            <div className="font-bold text-orange-400">Missionen</div>
+            <div className="text-white/80">Mein KI-Buddy</div>
+            <div className="text-white/80">Marktplatz</div>
+            <div className="text-white/80">Leaderboard</div>
+            <div className="text-white/80">Wallet</div>
+            <div className="text-white/80">Analytics & Stats</div>
+          </nav>
+
+          <div className="mt-10 border-t border-cyan-400/10 pt-8">
+            <div className="mb-3 text-xl font-bold text-green-400">
+              App aufs Handy laden
+            </div>
+
+            <label className="mb-2 block text-lg">Helligkeit</label>
+            <input
+              type="range"
+              min="5"
+              max="100"
+              value={brightness}
+              onChange={(e) => setBrightness(Number(e.target.value))}
+              className="w-full"
+            />
+            <div className="mt-2 text-right text-sm text-white/70">
+              {brightness}%
+            </div>
+          </div>
+
+          <div className="mt-auto pt-8">
+            <div className="space-y-2 text-[14px]">
+              <Link href="/einstellungen" className="block text-white/80">
+                Einstellungen
+              </Link>
+              <Link href="/datenschutz" className="block text-white/80">
+                Datenschutz
+              </Link>
+              <Link href="/agb" className="block text-white/80">
+                AGB
+              </Link>
+              <Link href="/impressum" className="block text-white/80">
+                Impressum
+              </Link>
+              <Link href="/faq" className="block text-white/80">
+                FAQ
+              </Link>
+              <div className="block text-white/80">Hilfe</div>
+            </div>
+
+            <div className="mt-6 border-t border-cyan-400/10 pt-4">
+              <button className="text-[14px] font-bold text-red-400 hover:text-red-300">
+                Abmelden
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <section className="relative flex h-full flex-1 flex-col overflow-hidden px-10 py-7 pb-0">
+          <div className="mb-6 flex justify-between">
+            <div>
+              <h1 className="text-5xl font-bold">Favoriten</h1>
+              <p className="text-cyan-200">
+                Hier findest du deine markierten Lieblingsmissionen
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Link
+                href="/missionen/tagesmissionen"
+                className="rounded-full bg-orange-500 px-5 py-2 font-bold"
+              >
+                Zu Missionen
+              </Link>
+              <div className="rounded-full bg-[#073b44] px-4 py-2">
+                Meine Auswahl
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-6 flex justify-center">
+            <div className="flex items-center gap-8 rounded-full border border-white/10 bg-[#0b6d79]/35 px-8 py-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm">
+              <Link
+                href="/missionen/tagesmissionen"
+                className="pb-1 text-2xl text-white/85 hover:text-white"
+              >
+                Tagesmissionen
+              </Link>
+
+              <Link
+                href="/missionen/wochenmissionen"
+                className="pb-1 text-2xl text-white/85 hover:text-white"
+              >
+                Wochenmissionen
+              </Link>
+
+              <Link
+                href="/missionen/abenteuer"
+                className="pb-1 text-2xl text-white/85 hover:text-white"
+              >
+                Abenteuer
+              </Link>
+
+              <Link
+                href="/missionen/challenge"
+                className="pb-1 text-2xl text-white/85 hover:text-white"
+              >
+                Challenge
+              </Link>
+
+              <Link
+                href="/missionen/wettkaempfe"
+                className="pb-1 text-2xl text-white/85 hover:text-white"
+              >
+                Wettkämpfe
+              </Link>
+
+              <div className="relative pb-1 text-2xl font-semibold text-orange-400">
+                Favoriten
+                <span className="absolute left-0 right-0 -bottom-2 h-[3px] rounded-full bg-orange-400" />
+              </div>
+
+              <Link
+                href="/missionen/history"
+                className="pb-1 text-2xl text-white/85 hover:text-white"
+              >
+                History
+              </Link>
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto pb-28 pr-2">
+            {allFavorites.length === 0 ? (
+              <div className="rounded-[30px] bg-[#053841]/90 p-10 text-center shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
+                <div className="text-7xl">⭐</div>
+                <h2 className="mt-4 text-4xl font-bold">Noch keine Favoriten</h2>
+                <p className="mt-3 text-2xl text-white/75">
+                  Markiere Missionen mit dem Stern, damit sie hier erscheinen.
+                </p>
+                <Link
+                  href="/missionen/tagesmissionen"
+                  className="mt-6 inline-block rounded-2xl bg-blue-600 px-6 py-4 text-2xl font-bold text-white transition hover:bg-blue-700"
+                >
+                  Zu den Missionen
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                <div>
+                  <h2 className="mb-4 text-3xl font-bold text-cyan-300">
+                    Tagesmissionen
+                  </h2>
+
+                  {favoriteDailyMissions.length === 0 ? (
+                    <div className="rounded-[24px] bg-[#053841]/80 p-6 text-xl text-white/70">
+                      Keine Tagesmissionen als Favorit markiert.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-5">
+                      {favoriteDailyMissions.map((mission) => (
+                        <div
+                          key={`daily-${mission.id}`}
+                          className="rounded-[28px] border border-cyan-300/10 bg-[#053841]/90 p-5"
+                        >
+                          <div className="mb-4 flex items-start justify-between">
+                            <div className="text-5xl">{mission.icon}</div>
+                            <div className="text-2xl text-yellow-400">★</div>
+                          </div>
+
+                          <h3 className="text-2xl font-bold leading-tight text-white">
+                            {mission.title}
+                          </h3>
+
+                          <p className="mt-3 text-lg text-white/80">
+                            {mission.description}
+                          </p>
+
+                          <div className="mt-4 text-lg font-semibold text-yellow-400">
+                            {mission.rewardLabel}
+                          </div>
+
+                          <Link
+                            href="/missionen/tagesmissionen"
+                            className="mt-5 block w-full rounded-xl border border-yellow-400/40 bg-[#0a3d46] px-4 py-3 text-center text-xl font-bold text-white transition hover:bg-[#0e4c57]"
+                          >
+                            Öffnen
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <h2 className="mb-4 text-3xl font-bold text-cyan-300">
+                    Wochenmissionen
+                  </h2>
+
+                  {favoriteWeeklyMissions.length === 0 ? (
+                    <div className="rounded-[24px] bg-[#053841]/80 p-6 text-xl text-white/70">
+                      Keine Wochenmissionen als Favorit markiert.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-5">
+                      {favoriteWeeklyMissions.map((mission) => (
+                        <div
+                          key={`weekly-${mission.id}`}
+                          className="rounded-[28px] border border-cyan-300/10 bg-[#053841]/90 p-5"
+                        >
+                          <div className="mb-4 flex items-start justify-between">
+                            <div className="text-5xl">{mission.icon}</div>
+                            <div className="text-2xl text-yellow-400">★</div>
+                          </div>
+
+                          <h3 className="text-2xl font-bold leading-tight text-white">
+                            {mission.title}
+                          </h3>
+
+                          <p className="mt-3 text-lg text-white/80">
+                            {mission.description}
+                          </p>
+
+                          <div className="mt-4 text-lg font-semibold text-yellow-400">
+                            {mission.rewardLabel}
+                          </div>
+
+                          <Link
+                            href="/missionen/wochenmissionen"
+                            className="mt-5 block w-full rounded-xl border border-yellow-400/40 bg-[#0a3d46] px-4 py-3 text-center text-xl font-bold text-white transition hover:bg-[#0e4c57]"
+                          >
+                            Öffnen
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-6 py-4">
+            <div className="flex items-center gap-4">
+              <div className="min-w-[190px] rounded-2xl border border-cyan-400/10 bg-[#041f24] px-4 py-3">
+                <p className="text-xs uppercase text-white/50">
+                  Favoriten gesamt
+                </p>
+                <p className="mt-1 text-xl font-semibold text-white">
+                  {allFavorites.length}
+                </p>
+              </div>
+
+              <div className="min-w-[190px] rounded-2xl border border-yellow-500/60 bg-[#041f24] px-4 py-3 text-center">
+                <p className="text-xs uppercase text-white/50">Tagesfavoriten</p>
+                <p className="mt-1 text-2xl font-bold text-white">
+                  {favoriteDailyMissions.length}
+                </p>
+              </div>
+
+              <div className="min-w-[190px] rounded-2xl border border-cyan-400/10 bg-[#041f24] px-4 py-3 text-center">
+                <p className="text-xs uppercase text-white/50">
+                  Wochenfavoriten
+                </p>
+                <p className="mt-1 text-2xl font-bold text-white">
+                  {favoriteWeeklyMissions.length}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 text-3xl text-white/80">
+              <span>f</span>
+              <span>𝕏</span>
+              <span>in</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
