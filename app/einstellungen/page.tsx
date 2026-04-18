@@ -28,6 +28,9 @@ type BiometricsForm = {
   bodyType: string;
   fitnessLevel: string;
   limitations: string;
+};
+
+type NotificationsForm = {
   missionReminder: boolean;
   sleepReminder: boolean;
   weeklyReport: boolean;
@@ -60,6 +63,9 @@ const defaultBiometrics: BiometricsForm = {
   bodyType: "Schlank",
   fitnessLevel: "Anfänger",
   limitations: "Keine",
+};
+
+const defaultNotifications: NotificationsForm = {
   missionReminder: true,
   sleepReminder: true,
   weeklyReport: true,
@@ -132,6 +138,8 @@ export default function SettingsPage() {
   const [permissions, setPermissions] = useState(defaultPermissions);
   const [profile, setProfile] = useState<ProfileForm>(defaultProfile);
   const [biometrics, setBiometrics] = useState<BiometricsForm>(defaultBiometrics);
+  const [notifications, setNotifications] =
+    useState<NotificationsForm>(defaultNotifications);
 
   useEffect(() => {
     const savedPermissions = localStorage.getItem("wellfit-permissions");
@@ -156,6 +164,7 @@ export default function SettingsPage() {
         setUserId(null);
         setProfile(defaultProfile);
         setBiometrics(defaultBiometrics);
+        setNotifications(defaultNotifications);
         setIsLoadingUser(false);
         setSaveMessage("Nicht eingeloggt.");
         return;
@@ -206,12 +215,7 @@ export default function SettingsPage() {
               settings: {
                 ...fallbackProfile,
                 permissions: defaultPermissions,
-                reminders: {
-                  missionReminder: defaultBiometrics.missionReminder,
-                  sleepReminder: defaultBiometrics.sleepReminder,
-                  weeklyReport: defaultBiometrics.weeklyReport,
-                  glitchAlert: defaultBiometrics.glitchAlert,
-                },
+                reminders: defaultNotifications,
               },
               createdAt: new Date().toISOString(),
             },
@@ -220,6 +224,7 @@ export default function SettingsPage() {
 
           setProfile(fallbackProfile);
           setBiometrics(defaultBiometrics);
+          setNotifications(defaultNotifications);
           setSaveMessage("Profil wurde neu angelegt.");
           setIsLoadingUser(false);
           return;
@@ -277,18 +282,21 @@ export default function SettingsPage() {
             (Array.isArray(storedProfile.limitations)
               ? storedProfile.limitations.join(", ")
               : defaultBiometrics.limitations),
+        });
+
+        setNotifications({
           missionReminder:
             (storedReminders.missionReminder as boolean | undefined) ??
-            defaultBiometrics.missionReminder,
+            defaultNotifications.missionReminder,
           sleepReminder:
             (storedReminders.sleepReminder as boolean | undefined) ??
-            defaultBiometrics.sleepReminder,
+            defaultNotifications.sleepReminder,
           weeklyReport:
             (storedReminders.weeklyReport as boolean | undefined) ??
-            defaultBiometrics.weeklyReport,
+            defaultNotifications.weeklyReport,
           glitchAlert:
             (storedReminders.glitchAlert as boolean | undefined) ??
-            defaultBiometrics.glitchAlert,
+            defaultNotifications.glitchAlert,
         });
 
         if (storedPermissions) {
@@ -327,6 +335,16 @@ export default function SettingsPage() {
     value: string | boolean
   ) => {
     setBiometrics((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const updateNotificationField = (
+    key: keyof NotificationsForm,
+    value: boolean
+  ) => {
+    setNotifications((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -393,14 +411,6 @@ export default function SettingsPage() {
             fitnessLevel: fitnessLevelToStorage(biometrics.fitnessLevel),
             otherRestriction: biometrics.limitations,
           },
-          settings: {
-            reminders: {
-              missionReminder: biometrics.missionReminder,
-              sleepReminder: biometrics.sleepReminder,
-              weeklyReport: biometrics.weeklyReport,
-              glitchAlert: biometrics.glitchAlert,
-            },
-          },
           updatedAt: new Date().toISOString(),
         },
         { merge: true }
@@ -410,6 +420,31 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Fehler beim Speichern der Körperdaten", error);
       setSaveMessage("Körperdaten konnten nicht gespeichert werden.");
+    }
+  };
+
+  const saveNotifications = async () => {
+    if (!userId) {
+      setSaveMessage("Bitte melde dich an, um Benachrichtigungen zu speichern.");
+      return;
+    }
+
+    try {
+      await setDoc(
+        doc(db, "users", userId),
+        {
+          settings: {
+            reminders: notifications,
+          },
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+
+      setSaveMessage("Benachrichtigungen gespeichert.");
+    } catch (error) {
+      console.error("Fehler beim Speichern der Benachrichtigungen", error);
+      setSaveMessage("Benachrichtigungen konnten nicht gespeichert werden.");
     }
   };
 
@@ -718,27 +753,19 @@ export default function SettingsPage() {
                   <span className="text-white/70">kg</span>
                 </div>
 
-                {[
-                  { key: "targetWeightEnabled" as keyof BiometricsForm, label: "Zielgewicht anstreben" },
-                  { key: "missionReminder" as keyof BiometricsForm, label: "Missions-Erinnerung" },
-                  { key: "sleepReminder" as keyof BiometricsForm, label: "Schlaf-Erinnerung" },
-                  { key: "weeklyReport" as keyof BiometricsForm, label: "Wochenreport" },
-                  { key: "glitchAlert" as keyof BiometricsForm, label: "Glitch-Alarm" },
-                ].map((item) => (
-                  <div
-                    key={item.key}
-                    className="flex items-center justify-between rounded-xl border border-cyan-300/10 bg-[#0a3d46] px-4 py-3"
-                  >
-                    <span className="text-white/85">{item.label}</span>
-                    <ToggleButton
-                      enabled={Boolean(biometrics[item.key])}
-                      onClick={() =>
-                        updateBiometricsField(item.key, !Boolean(biometrics[item.key]))
-                      }
-                      toggleBase={toggleBase}
-                    />
-                  </div>
-                ))}
+                <div className="flex items-center justify-between rounded-xl border border-cyan-300/10 bg-[#0a3d46] px-4 py-3">
+                  <span className="text-white/85">Zielgewicht anstreben</span>
+                  <ToggleButton
+                    enabled={biometrics.targetWeightEnabled}
+                    onClick={() =>
+                      updateBiometricsField(
+                        "targetWeightEnabled",
+                        !biometrics.targetWeightEnabled
+                      )
+                    }
+                    toggleBase={toggleBase}
+                  />
+                </div>
 
                 <div className="grid grid-cols-[1fr_120px_40px] items-center gap-3">
                   <label className="text-sm text-white/70">Zielgewicht</label>
@@ -791,6 +818,39 @@ export default function SettingsPage() {
               <button
                 className={saveButtonClass}
                 onClick={saveBiometrics}
+                disabled={isLoadingUser}
+              >
+                Änderungen speichern
+              </button>
+            </div>
+
+            <div className={cardClass}>
+              <h2 className="mb-5 text-3xl font-bold text-cyan-300">Benachrichtigungen</h2>
+              <div className="space-y-4">
+                {[
+                  { key: "missionReminder" as keyof NotificationsForm, label: "Missions-Erinnerung" },
+                  { key: "sleepReminder" as keyof NotificationsForm, label: "Schlaf-Erinnerung" },
+                  { key: "weeklyReport" as keyof NotificationsForm, label: "Wochenreport" },
+                  { key: "glitchAlert" as keyof NotificationsForm, label: "Glitch-Alarm" },
+                ].map((item) => (
+                  <div
+                    key={item.key}
+                    className="flex items-center justify-between rounded-xl border border-cyan-300/10 bg-[#0a3d46] px-4 py-3"
+                  >
+                    <span className="text-white/85">{item.label}</span>
+                    <ToggleButton
+                      enabled={notifications[item.key]}
+                      onClick={() =>
+                        updateNotificationField(item.key, !notifications[item.key])
+                      }
+                      toggleBase={toggleBase}
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                className={saveButtonClass}
+                onClick={saveNotifications}
                 disabled={isLoadingUser}
               >
                 Änderungen speichern
