@@ -55,13 +55,14 @@ const normalizeUser = (rawUser: Partial<User>, userId: string): User => ({
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [brightness, setBrightness] = useState(100);
   const [pointsBalance, setPointsBalance] = useState(0);
   const [buddyLevel, setBuddyLevel] = useState(1);
   const [stepsToday, setStepsToday] = useState(0);
   const [buddyEnergy, setBuddyEnergy] = useState(100);
   const [buddyHunger, setBuddyHunger] = useState(100);
-  const [message, setMessage] = useState("Bereit für neue Quests?");
+  const [message, setMessage] = useState("WellFit Profil wird geladen...");
   const [trackingActive, setTrackingActive] = useState(false);
   const [permissions, setPermissions] = useState({
     location: false,
@@ -83,9 +84,12 @@ export default function DashboardPage() {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setIsLoadingUser(true);
+
       if (!firebaseUser) {
         setUser(null);
         setMessage("Nicht eingeloggt.");
+        setIsLoadingUser(false);
         return;
       }
 
@@ -101,6 +105,7 @@ export default function DashboardPage() {
 
           setUser(normalizedUser);
           setMessage("Willkommen zurück!");
+          setIsLoadingUser(false);
           return;
         }
 
@@ -122,6 +127,8 @@ export default function DashboardPage() {
       } catch (error) {
         console.error("Fehler beim Laden oder Anlegen des Users:", error);
         setMessage("User konnte nicht geladen oder angelegt werden.");
+      } finally {
+        setIsLoadingUser(false);
       }
     });
 
@@ -200,6 +207,11 @@ export default function DashboardPage() {
   };
 
   const startChallenge = async () => {
+    if (isLoadingUser) {
+      setMessage("Bitte warte, bis dein WellFit Profil geladen ist.");
+      return;
+    }
+
     if (!permissions.location) {
       setMessage("Bitte aktiviere Standort in den Einstellungen.");
       return;
@@ -278,6 +290,11 @@ export default function DashboardPage() {
   };
 
   const feedBuddy = async () => {
+    if (isLoadingUser) {
+      setMessage("Bitte warte, bis dein WellFit Profil geladen ist.");
+      return;
+    }
+
     if (!user) {
       setMessage("Bitte melde dich an, um Flammi zu füttern.");
       return;
@@ -405,6 +422,12 @@ export default function DashboardPage() {
               <h1 className="text-7xl font-extrabold leading-none">Dashboard</h1>
               <p className="mt-2 text-2xl text-cyan-100/90">{message}</p>
 
+              {isLoadingUser && (
+                <div className="mt-3 inline-flex items-center rounded-full border border-cyan-300/30 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100">
+                  WellFit Profil wird geladen...
+                </div>
+              )}
+
               <div className="mt-2">
                 <span
                   className={`inline-block rounded-full px-4 py-1 text-sm font-bold ${
@@ -443,9 +466,9 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={startChallenge}
-                disabled={!permissions.location}
+                disabled={!permissions.location || isLoadingUser}
                 className={`rounded-[22px] px-7 py-4 font-bold text-white transition ${
-                  permissions.location
+                  permissions.location && !isLoadingUser
                     ? "bg-orange-500 hover:bg-orange-600"
                     : "cursor-not-allowed bg-gray-500"
                 }`}
@@ -454,7 +477,7 @@ export default function DashboardPage() {
               </button>
 
               <div className="rounded-full bg-[#073b44] px-5 py-3 font-semibold text-cyan-100">
-                Flammi LVL {buddyLevel}
+                Flammi LVL {isLoadingUser ? "..." : buddyLevel}
               </div>
             </div>
           </header>
@@ -470,20 +493,22 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex h-28 w-28 items-center justify-center rounded-full border-8 border-cyan-300/30 text-3xl font-extrabold text-white">
-                  {Math.min(Math.round((stepsToday / 10000) * 100), 100)}%
+                  {isLoadingUser ? "..." : `${Math.min(Math.round((stepsToday / 10000) * 100), 100)}%`}
                 </div>
               </div>
 
               <div className="mt-8">
                 <p className="text-2xl font-bold text-white">
-                  {stepsToday} / 10.000 Schritte
+                  {isLoadingUser ? "Lade Schritte..." : `${stepsToday} / 10.000 Schritte`}
                 </p>
 
                 <div className="mt-4 h-4 w-full overflow-hidden rounded-full bg-black/25">
                   <div
                     className="h-full rounded-full bg-cyan-300 transition-all"
                     style={{
-                      width: `${Math.min((stepsToday / 10000) * 100, 100)}%`,
+                      width: isLoadingUser
+                        ? "0%"
+                        : `${Math.min((stepsToday / 10000) * 100, 100)}%`,
                     }}
                   />
                 </div>
@@ -506,7 +531,7 @@ export default function DashboardPage() {
             <div className="rounded-[30px] bg-[#053841]/85 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
               <h2 className="mb-4 text-3xl font-bold text-cyan-300">Punkte</h2>
               <p className="text-6xl font-extrabold leading-tight">
-                {pointsBalance} Punkte
+                {isLoadingUser ? "..." : `${pointsBalance} Punkte`}
               </p>
               <p className="mt-4 text-2xl text-white/70">Dein Fortschritt</p>
             </div>
@@ -516,8 +541,12 @@ export default function DashboardPage() {
                 Mein Begleiter
               </h2>
               <div className="text-6xl">🐉</div>
-              <p className="mt-4 text-2xl">Energie: {buddyEnergy}%</p>
-              <p className="mt-2 text-2xl">Hunger: {buddyHunger}%</p>
+              <p className="mt-4 text-2xl">
+                Energie: {isLoadingUser ? "..." : `${buddyEnergy}%`}
+              </p>
+              <p className="mt-2 text-2xl">
+                Hunger: {isLoadingUser ? "..." : `${buddyHunger}%`}
+              </p>
               <p className="mt-2 text-xl text-white/70">
                 Futter kostet: {foodPrice} Punkte
               </p>
@@ -525,7 +554,12 @@ export default function DashboardPage() {
               <button
                 type="button"
                 onClick={feedBuddy}
-                className="mt-4 rounded-xl bg-cyan-600 px-4 py-3 font-bold hover:bg-cyan-700"
+                disabled={isLoadingUser}
+                className={`mt-4 rounded-xl px-4 py-3 font-bold ${
+                  isLoadingUser
+                    ? "cursor-not-allowed bg-gray-500"
+                    : "bg-cyan-600 hover:bg-cyan-700"
+                }`}
               >
                 Flammi füttern
               </button>
@@ -574,7 +608,7 @@ export default function DashboardPage() {
               <div className="min-w-[190px] rounded-2xl border border-yellow-500/60 bg-[#041f24] px-4 py-3 text-center">
                 <p className="text-xs uppercase text-white/50">WellFit Punkte</p>
                 <p className="mt-1 text-2xl font-bold text-white">
-                  {pointsBalance.toFixed(2)}
+                  {isLoadingUser ? "..." : pointsBalance.toFixed(2)}
                 </p>
               </div>
 
