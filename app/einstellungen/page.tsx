@@ -51,6 +51,18 @@ type VitalValuesForm = {
   healthNotes: string;
 };
 
+type AiBuddyForm = {
+  avatarType: string;
+  personality: string;
+  relationshipMode: string;
+  behaviorDynamics: string;
+  motivationStyle: string;
+  reactsToStress: boolean;
+  reactsToSleep: boolean;
+  reactsToActivity: boolean;
+  reactsToMood: boolean;
+};
+
 const sensitiveDataNotice =
   "Diese Angaben dienen nur zur Personalisierung deines KI-Buddys, damit er sich besser auf deine Verfassung einstellen kann, und ersetzen keine medizinische Beratung.";
 
@@ -101,6 +113,18 @@ const defaultVitalValues: VitalValuesForm = {
   painLevel: "Keine",
   medicationNote: "",
   healthNotes: "",
+};
+
+const defaultAiBuddy: AiBuddyForm = {
+  avatarType: "Tierischer Begleiter",
+  personality: "Spielerisch & lustig",
+  relationshipMode: "Begleiter",
+  behaviorDynamics: "Adaptiv",
+  motivationStyle: "Ausgewogen",
+  reactsToStress: true,
+  reactsToSleep: true,
+  reactsToActivity: true,
+  reactsToMood: true,
 };
 
 const genderToDisplay = (gender?: string) => {
@@ -179,6 +203,7 @@ export default function SettingsPage() {
     useState<NotificationsForm>(defaultNotifications);
   const [vitalValues, setVitalValues] =
     useState<VitalValuesForm>(defaultVitalValues);
+  const [aiBuddy, setAiBuddy] = useState<AiBuddyForm>(defaultAiBuddy);
 
   useEffect(() => {
     const savedPermissions = localStorage.getItem("wellfit-permissions");
@@ -205,6 +230,7 @@ export default function SettingsPage() {
         setBiometrics(defaultBiometrics);
         setNotifications(defaultNotifications);
         setVitalValues(defaultVitalValues);
+        setAiBuddy(defaultAiBuddy);
         setIsLoadingUser(false);
         setSaveMessage("Nicht eingeloggt.");
         return;
@@ -252,6 +278,7 @@ export default function SettingsPage() {
                 fitnessLevel: fitnessLevelToStorage(defaultBiometrics.fitnessLevel),
                 otherRestriction: defaultBiometrics.limitations,
                 vitals: defaultVitalValues,
+                aiBuddy: defaultAiBuddy,
               },
               settings: {
                 ...fallbackProfile,
@@ -267,6 +294,7 @@ export default function SettingsPage() {
           setBiometrics(defaultBiometrics);
           setNotifications(defaultNotifications);
           setVitalValues(defaultVitalValues);
+          setAiBuddy(defaultAiBuddy);
           setSaveMessage("Profil wurde neu angelegt.");
           setIsLoadingUser(false);
           return;
@@ -275,6 +303,7 @@ export default function SettingsPage() {
         const data = userSnap.data();
         const storedProfile = (data.profile ?? {}) as Record<string, any>;
         const storedVitals = (storedProfile.vitals ?? {}) as Record<string, any>;
+        const storedAiBuddy = (storedProfile.aiBuddy ?? {}) as Record<string, any>;
         const storedSettings = (data.settings ?? {}) as Record<string, any>;
         const storedReminders = (storedSettings.reminders ?? {}) as Record<string, any>;
         const storedPermissions =
@@ -353,6 +382,36 @@ export default function SettingsPage() {
             defaultVitalValues.healthNotes,
         });
 
+        setAiBuddy({
+          avatarType:
+            (storedAiBuddy.avatarType as string | undefined) ??
+            defaultAiBuddy.avatarType,
+          personality:
+            (storedAiBuddy.personality as string | undefined) ??
+            defaultAiBuddy.personality,
+          relationshipMode:
+            (storedAiBuddy.relationshipMode as string | undefined) ??
+            defaultAiBuddy.relationshipMode,
+          behaviorDynamics:
+            (storedAiBuddy.behaviorDynamics as string | undefined) ??
+            defaultAiBuddy.behaviorDynamics,
+          motivationStyle:
+            (storedAiBuddy.motivationStyle as string | undefined) ??
+            defaultAiBuddy.motivationStyle,
+          reactsToStress:
+            (storedAiBuddy.reactsToStress as boolean | undefined) ??
+            defaultAiBuddy.reactsToStress,
+          reactsToSleep:
+            (storedAiBuddy.reactsToSleep as boolean | undefined) ??
+            defaultAiBuddy.reactsToSleep,
+          reactsToActivity:
+            (storedAiBuddy.reactsToActivity as boolean | undefined) ??
+            defaultAiBuddy.reactsToActivity,
+          reactsToMood:
+            (storedAiBuddy.reactsToMood as boolean | undefined) ??
+            defaultAiBuddy.reactsToMood,
+        });
+
         setNotifications({
           missionReminder:
             (storedReminders.missionReminder as boolean | undefined) ??
@@ -421,6 +480,13 @@ export default function SettingsPage() {
 
   const updateVitalValuesField = (key: keyof VitalValuesForm, value: string) => {
     setVitalValues((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const updateAiBuddyField = (key: keyof AiBuddyForm, value: string | boolean) => {
+    setAiBuddy((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -546,6 +612,31 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Fehler beim Speichern der Vitalwerte", error);
       setSaveMessage("Vitalwerte konnten nicht gespeichert werden.");
+    }
+  };
+
+  const saveAiBuddy = async () => {
+    if (!userId) {
+      setSaveMessage("Bitte melde dich an, um deinen KI-Buddy zu speichern.");
+      return;
+    }
+
+    try {
+      await setDoc(
+        doc(db, "users", userId),
+        {
+          profile: {
+            aiBuddy,
+          },
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+
+      setSaveMessage("KI-Buddy & Avatar-Verhalten gespeichert.");
+    } catch (error) {
+      console.error("Fehler beim Speichern des KI-Buddys", error);
+      setSaveMessage("KI-Buddy konnte nicht gespeichert werden.");
     }
   };
 
@@ -1117,8 +1208,110 @@ export default function SettingsPage() {
             <div className={cardClass}>
               <h2 className="mb-5 text-3xl font-bold text-cyan-300">KI-Tuning & Ziele</h2>
               <SensitiveNotice />
-              <p className="text-white/70">Buddy-Tonalität, Ziele und Erinnerungsintensität werden im nächsten Schritt ergänzt.</p>
-              <button className={saveButtonClass} disabled>Änderungen speichern</button>
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Avatar-Typ</label>
+                  <select
+                    className={selectClass}
+                    value={aiBuddy.avatarType}
+                    onChange={(e) => updateAiBuddyField("avatarType", e.target.value)}
+                  >
+                    <option>Tierischer Begleiter</option>
+                    <option>Roboter / Cyborg</option>
+                    <option>Magisches Wesen</option>
+                    <option>Abenteuer-Begleiter</option>
+                    <option>Lese-Freund / Lern-Buddy</option>
+                    <option>Social Buddy</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Buddy-Charakter</label>
+                  <select
+                    className={selectClass}
+                    value={aiBuddy.personality}
+                    onChange={(e) => updateAiBuddyField("personality", e.target.value)}
+                  >
+                    <option>Sanft & motivierend</option>
+                    <option>Direkt & fordernd</option>
+                    <option>Spielerisch & lustig</option>
+                    <option>Ruhig & achtsam</option>
+                    <option>Wettbewerbsorientiert</option>
+                    <option>Beschützend / fürsorglich</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Beziehungsmodus</label>
+                  <select
+                    className={selectClass}
+                    value={aiBuddy.relationshipMode}
+                    onChange={(e) => updateAiBuddyField("relationshipMode", e.target.value)}
+                  >
+                    <option>Begleiter</option>
+                    <option>Coach</option>
+                    <option>Haustier / Pflegewesen</option>
+                    <option>Mentor</option>
+                    <option>Freund</option>
+                    <option>Abenteuerpartner</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Verhaltensdynamik</label>
+                  <select
+                    className={selectClass}
+                    value={aiBuddy.behaviorDynamics}
+                    onChange={(e) => updateAiBuddyField("behaviorDynamics", e.target.value)}
+                  >
+                    <option>Stabil</option>
+                    <option>Adaptiv</option>
+                    <option>Emotional reagierend</option>
+                    <option>Herausfordernd</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-white/70">Motivationsstil</label>
+                  <select
+                    className={selectClass}
+                    value={aiBuddy.motivationStyle}
+                    onChange={(e) => updateAiBuddyField("motivationStyle", e.target.value)}
+                  >
+                    <option>Sanft</option>
+                    <option>Ausgewogen</option>
+                    <option>Stärker antreibend</option>
+                  </select>
+                </div>
+
+                {[
+                  { key: "reactsToStress" as keyof AiBuddyForm, label: "Auf Stress reagieren" },
+                  { key: "reactsToSleep" as keyof AiBuddyForm, label: "Auf Schlafqualität reagieren" },
+                  { key: "reactsToActivity" as keyof AiBuddyForm, label: "Auf Aktivität reagieren" },
+                  { key: "reactsToMood" as keyof AiBuddyForm, label: "Auf Stimmung reagieren" },
+                ].map((item) => (
+                  <div
+                    key={item.key}
+                    className="flex items-center justify-between rounded-xl border border-cyan-300/10 bg-[#0a3d46] px-4 py-3"
+                  >
+                    <span className="text-white/85">{item.label}</span>
+                    <ToggleButton
+                      enabled={Boolean(aiBuddy[item.key])}
+                      onClick={() =>
+                        updateAiBuddyField(item.key, !Boolean(aiBuddy[item.key]))
+                      }
+                      toggleBase={toggleBase}
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                className={saveButtonClass}
+                onClick={saveAiBuddy}
+                disabled={isLoadingUser}
+              >
+                Änderungen speichern
+              </button>
             </div>
 
             <div className={cardClass}>
