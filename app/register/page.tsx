@@ -27,12 +27,10 @@ const mapSleepHoursToSettings = (value: string) => value === "lt6" ? "5.5" : val
 const mapSleepQualityToSettings = (value: string) => value === "good" ? "Hoch" : value === "bad" ? "Niedrig" : "Mittel";
 const mapStressToSettings = (value: number) => value <= 2 ? "Niedrig" : value >= 4 ? "Hoch" : "Mittel";
 const mapEnergyToSettings = (value: number) => value <= 2 ? "Niedrig" : value >= 4 ? "Hoch" : "Mittel";
-const mapNatureMoveToSettings = (value: string) => value === "15" ? "Gelegentlich" : value === "90" ? "Häufig" : "Gelegentlich";
+const mapNatureMoveToSettings = (value: string) => value === "90" ? "Häufig" : "Gelegentlich";
 const mapActivityLevelToSettings = (value: string) => value === "low" ? "Kaum aktiv" : value === "sometimes" ? "Gelegentlich aktiv" : value === "regular" ? "Regelmäßig aktiv" : "Sehr aktiv";
 const mapTrainingTimeToSettings = (value: string) => value === "noon" ? "Mittags" : value === "evening" ? "Abends" : "Morgens";
 const mapCommunityModeToSettings = (value: string) => value === "solo" ? "Alleine" : value === "private" ? "Freunde & kleine Gruppen" : "Community & Events";
-const mapBodyTypeToSettings = (value: string) => value === "athletic" ? "Normal" : value === "strong" ? "Kräftig" : "Schlank";
-const mapFitnessLevelToSettings = (value: string) => value === "medium" ? "Fortgeschritten" : value === "pro" ? "Aktiv" : "Anfänger";
 
 const content = {
   de: {
@@ -79,8 +77,7 @@ export default function RegisterPage() {
       const firebaseUser = userCredential.user;
       const now = new Date().toISOString();
       const displayName = `${firstName} ${lastName}`.trim();
-      const fitnessLevelDisplay = mapFitnessLevelToSettings(fitnessLevel);
-      const bodyTypeDisplay = mapBodyTypeToSettings(bodyType);
+      const targetWeightValue = targetWeight ? weight : 0;
       const lifestyle = { nutrition: mapNutritionToSettings(nutrition), mealRhythm: "Regelmäßig", drinkReminder: mapDrinkReminderToSettings(drinkReminder), drinkAmount, caffeineIntake: "Mittel", alcoholFrequency: "Selten", sleepRoutine: "Unregelmäßig", natureMove: mapNatureMoveToSettings(natureMove), stressCoping: "Spaziergang / Bewegung", screenTime: "Mittel", notes: "" };
       const activity = { activityLevel: mapActivityLevelToSettings(activityLevel), trainingTime: mapTrainingTimeToSettings(trainingTime), communityMode: mapCommunityModeToSettings(communityMode), interests, activities, goals, preferredMissionTypes: ["Bewegung", "Alltag", "Natur"], socialPreference: communityMode === "solo" ? "Alleine" : "Freunde & kleine Gruppen", competitionMode: communityMode === "public" ? "Locker" : "Aus", notes: "" };
       const vitals = { bodyFat: "", restingPulse: "", averagePulse: "", bloodPressure: "", sleepHours: mapSleepHoursToSettings(sleepHours), sleepQuality: mapSleepQualityToSettings(sleepQuality), stressLevel: mapStressToSettings(stressLevel), energyLevel: mapEnergyToSettings(6 - stressLevel), painLevel: limitations.length > 0 ? "Leicht" : "Keine", medicationNote: medication === "yes" ? "Medikamenteneinnahme angegeben" : "", healthNotes: otherRestriction };
@@ -93,7 +90,7 @@ export default function RegisterPage() {
         firstName, lastName, email, points: 0, xp: 0, energy: 100, level: 1, stepsToday: 0, currency: "points",
         avatar: { hunger: 100, mood: 100, energy: 100, level: 1 }, inventory: [],
         profile: {
-          birthdate, gender, height, weight, bodyType, targetWeight, targetWeightValue: weight, fitnessLevel, medication, limitations, otherRestriction, sleepHours, sleepQuality, nutrition, drinkReminder, drinkAmount, stressLevel, natureMove, activityLevel, interests, communityMode, trainingTime, goals, activities, enableBiometrics,
+          birthdate, gender, height, weight, bodyType, targetWeight, targetWeightValue, fitnessLevel, medication, limitations, otherRestriction, sleepHours, sleepQuality, nutrition, drinkReminder, drinkAmount, stressLevel, natureMove, activityLevel, interests, communityMode, trainingTime, goals, activities, enableBiometrics,
           vitals, lifestyle, activity, aiBuddy
         },
         settings: { displayName, email, phone: "", language: language === "de" ? "Deutsch" : "English", birthDate: birthdate, gender: gender === "female" ? "Weiblich" : gender === "diverse" ? "Divers" : "Männlich", timezone: "Europe/Vienna", units: "kg / km", reminders, privacy, permissions },
