@@ -7,7 +7,51 @@ import type { User } from "@/types/user";
 import { economyConfig, getPriceRate, getRewardRate } from "@/config/economy";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
+const createDefaultUser = (firebaseUser: {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+}): User => ({
+  id: firebaseUser.uid,
+  firstName: firebaseUser.displayName?.split(" ")[0] ?? "",
+  lastName: firebaseUser.displayName?.split(" ").slice(1).join(" ") ?? "",
+  email: firebaseUser.email ?? "",
+  points: 0,
+  xp: 0,
+  energy: 100,
+  level: 1,
+  stepsToday: 0,
+  currency: "points",
+  avatar: {
+    hunger: 100,
+    mood: 100,
+    energy: 100,
+    level: 1,
+  },
+  inventory: [],
+});
+
+const normalizeUser = (rawUser: Partial<User>, userId: string): User => ({
+  id: userId,
+  firstName: rawUser.firstName ?? "",
+  lastName: rawUser.lastName ?? "",
+  email: rawUser.email ?? "",
+  points: rawUser.points ?? 0,
+  xp: rawUser.xp ?? 0,
+  energy: rawUser.energy ?? 100,
+  level: rawUser.level ?? 1,
+  stepsToday: rawUser.stepsToday ?? 0,
+  currency: rawUser.currency ?? "points",
+  avatar: {
+    hunger: rawUser.avatar?.hunger ?? 100,
+    mood: rawUser.avatar?.mood ?? 100,
+    energy: rawUser.avatar?.energy ?? 100,
+    level: rawUser.avatar?.level ?? rawUser.level ?? 1,
+  },
+  inventory: rawUser.inventory ?? [],
+});
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -50,20 +94,34 @@ export default function DashboardPage() {
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
-          const userData = userSnap.data() as User;
+          const normalizedUser = normalizeUser(
+            userSnap.data() as Partial<User>,
+            firebaseUser.uid
+          );
 
-          setUser({
-            ...userData,
-            id: firebaseUser.uid,
-          });
-
+          setUser(normalizedUser);
           setMessage("Willkommen zurück!");
-        } else {
-          setMessage("Kein User-Profil in Firestore gefunden.");
+          return;
         }
+
+        const defaultUser = createDefaultUser(firebaseUser);
+
+        await setDoc(
+          userRef,
+          {
+            ...defaultUser,
+            createdAt: new Date().toISOString(),
+            lastLoginAt: new Date().toISOString(),
+            onboardingCompleted: false,
+          },
+          { merge: true }
+        );
+
+        setUser(defaultUser);
+        setMessage("Willkommen! Dein WellFit-Profil wurde angelegt.");
       } catch (error) {
-        console.error("Fehler beim Laden des Users:", error);
-        setMessage("User konnte nicht geladen werden.");
+        console.error("Fehler beim Laden oder Anlegen des Users:", error);
+        setMessage("User konnte nicht geladen oder angelegt werden.");
       }
     });
 
@@ -122,11 +180,17 @@ export default function DashboardPage() {
     setUser(updatedUser);
 
     try {
-      await updateDoc(doc(db, "users", updatedUser.id), {
-        points: updatedUser.points,
-        stepsToday: updatedUser.stepsToday,
-        avatar: updatedUser.avatar,
-      });
+      await setDoc(
+        doc(db, "users", updatedUser.id),
+        {
+          points: updatedUser.points,
+          stepsToday: updatedUser.stepsToday,
+          level: updatedUser.level,
+          avatar: updatedUser.avatar,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
 
       setMessage(successMessage);
     } catch (error) {
