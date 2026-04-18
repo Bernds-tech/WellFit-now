@@ -51,6 +51,9 @@ type VitalValuesForm = {
   healthNotes: string;
 };
 
+const sensitiveDataNotice =
+  "Diese Angaben dienen nur zur Personalisierung deines KI-Buddys, damit er sich besser auf deine Verfassung einstellen kann, und ersetzen keine medizinische Beratung.";
+
 const defaultPermissions = {
   location: false,
   camera: true,
@@ -156,6 +159,12 @@ const ToggleButton = ({
       }`}
     />
   </button>
+);
+
+const SensitiveNotice = () => (
+  <p className="mb-4 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-sm text-yellow-100">
+    {sensitiveDataNotice}
+  </p>
 );
 
 export default function SettingsPage() {
@@ -827,6 +836,7 @@ export default function SettingsPage() {
 
             <div className={cardClass}>
               <h2 className="mb-5 text-3xl font-bold text-cyan-300">Biometrie & Körper</h2>
+              <SensitiveNotice />
 
               <div className="space-y-4">
                 <div className="grid grid-cols-[1fr_120px_60px_120px_40px] items-center gap-3">
@@ -951,9 +961,7 @@ export default function SettingsPage() {
 
             <div className={cardClass}>
               <h2 className="mb-5 text-3xl font-bold text-cyan-300">Erweiterte Vitalwerte</h2>
-              <p className="mb-4 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-sm text-yellow-100">
-                Diese Angaben dienen nur zur Personalisierung deines KI-Buddys und ersetzen keine medizinische Beratung.
-              </p>
+              <SensitiveNotice />
               <div className="space-y-4">
                 <div className="grid grid-cols-[1fr_100px_40px] items-center gap-3">
                   <label className="text-white/85">Körperfettanteil</label>
@@ -1094,18 +1102,21 @@ export default function SettingsPage() {
 
             <div className={cardClass}>
               <h2 className="mb-5 text-3xl font-bold text-cyan-300">Lebensstil & Ernährung</h2>
+              <SensitiveNotice />
               <p className="text-white/70">Diese Karte wird im nächsten Schritt mit Firestore verbunden.</p>
               <button className={saveButtonClass} disabled>Änderungen speichern</button>
             </div>
 
             <div className={cardClass}>
               <h2 className="mb-5 text-3xl font-bold text-cyan-300">Aktivität & Interessen</h2>
+              <SensitiveNotice />
               <p className="text-white/70">Aktivitätslevel, Interessen und Aktivitäten werden aus der Registrierung übernommen.</p>
               <button className={saveButtonClass} disabled>Änderungen speichern</button>
             </div>
 
             <div className={cardClass}>
               <h2 className="mb-5 text-3xl font-bold text-cyan-300">KI-Tuning & Ziele</h2>
+              <SensitiveNotice />
               <p className="text-white/70">Buddy-Tonalität, Ziele und Erinnerungsintensität werden im nächsten Schritt ergänzt.</p>
               <button className={saveButtonClass} disabled>Änderungen speichern</button>
             </div>
