@@ -25,50 +25,50 @@ export default function DashboardPage() {
   const [foodPrice, setFoodPrice] = useState(5);
 
   useEffect(() => {
-  const savedPermissions = localStorage.getItem("wellfit-permissions");
+    const savedPermissions = localStorage.getItem("wellfit-permissions");
 
-  if (savedPermissions) {
-    try {
-      const parsed = JSON.parse(savedPermissions);
-      setPermissions({
-        location: !!parsed.location,
-      });
-    } catch (error) {
-      console.error("Fehler beim Lesen der Permissions", error);
-    }
-  }
-
-  const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-    if (!firebaseUser) {
-      setUser(null);
-      setMessage("Nicht eingeloggt.");
-      return;
-    }
-
-    try {
-      const userRef = doc(db, "users", firebaseUser.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const userData = userSnap.data() as User;
-
-        setUser({
-          ...userData,
-          id: firebaseUser.uid,
+    if (savedPermissions) {
+      try {
+        const parsed = JSON.parse(savedPermissions);
+        setPermissions({
+          location: !!parsed.location,
         });
-
-        setMessage("Willkommen zurück!");
-      } else {
-        setMessage("Kein User-Profil in Firestore gefunden.");
+      } catch (error) {
+        console.error("Fehler beim Lesen der Permissions", error);
       }
-    } catch (error) {
-      console.error("Fehler beim Laden des Users:", error);
-      setMessage("User konnte nicht geladen werden.");
     }
-  });
 
-  return () => unsubscribe();
-}, []);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        setUser(null);
+        setMessage("Nicht eingeloggt.");
+        return;
+      }
+
+      try {
+        const userRef = doc(db, "users", firebaseUser.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const userData = userSnap.data() as User;
+
+          setUser({
+            ...userData,
+            id: firebaseUser.uid,
+          });
+
+          setMessage("Willkommen zurück!");
+        } else {
+          setMessage("Kein User-Profil in Firestore gefunden.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Laden des Users:", error);
+        setMessage("User konnte nicht geladen werden.");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleFocus = () => {
@@ -94,14 +94,14 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-  if (!user) return;
+    if (!user) return;
 
-  setPointsBalance(user.points ?? 0);
-  setBuddyEnergy(user.avatar?.energy ?? 100);
-  setBuddyHunger(user.avatar?.hunger ?? 100);
-  setBuddyLevel(user.avatar?.level ?? user.level ?? 1);
-  setStepsToday((user as any).stepsToday ?? 0);
-}, [user]);
+    setPointsBalance(user.points ?? 0);
+    setBuddyEnergy(user.avatar?.energy ?? 100);
+    setBuddyHunger(user.avatar?.hunger ?? 100);
+    setBuddyLevel(user.avatar?.level ?? user.level ?? 1);
+    setStepsToday(user.stepsToday ?? 0);
+  }, [user]);
 
   useEffect(() => {
     const priceRate = getPriceRate(
@@ -114,7 +114,28 @@ export default function DashboardPage() {
     setFoodPrice(calculatedFoodPrice);
   }, []);
 
-    const startChallenge = async () => {
+  const updateUserProgress = async (
+    updatedUser: User,
+    successMessage: string,
+    errorMessage: string
+  ) => {
+    setUser(updatedUser);
+
+    try {
+      await updateDoc(doc(db, "users", updatedUser.id), {
+        points: updatedUser.points,
+        stepsToday: updatedUser.stepsToday,
+        avatar: updatedUser.avatar,
+      });
+
+      setMessage(successMessage);
+    } catch (error) {
+      console.error(errorMessage, error);
+      setMessage(errorMessage);
+    }
+  };
+
+  const startChallenge = async () => {
     if (!permissions.location) {
       setMessage("Bitte aktiviere Standort in den Einstellungen.");
       return;
@@ -139,60 +160,48 @@ export default function DashboardPage() {
 
         setTrackingActive(true);
 
-const newSteps = stepsToday + 500;
-const rewardRate = getRewardRate(
-  economyConfig.reserve,
-  economyConfig.totalSupply
-);
-const reward = Math.round(economyConfig.baseReward * rewardRate);
-const newPoints = pointsBalance + reward;
-
-setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`);
+        const newSteps = stepsToday + 500;
+        const rewardRate = getRewardRate(
+          economyConfig.reserve,
+          economyConfig.totalSupply
+        );
+        const reward = Math.round(economyConfig.baseReward * rewardRate);
+        const newPoints = pointsBalance + reward;
 
         economyConfig.reserve -= reward;
         economyConfig.circulating += reward;
 
         const newEnergy = Math.max(buddyEnergy - 5, 0);
         const newHunger = Math.max(buddyHunger - 3, 0);
+        const nextBuddyLevel = newPoints >= 150 && buddyLevel === 1 ? 2 : buddyLevel;
 
         setBuddyEnergy(newEnergy);
         setBuddyHunger(newHunger);
         setStepsToday(newSteps);
         setPointsBalance(newPoints);
+        setBuddyLevel(nextBuddyLevel);
 
         if (user) {
-  const updatedUser: User = {
-    ...user,
-    points: newPoints,
-    stepsToday: newSteps,
-    avatar: {
-      ...user.avatar,
-      energy: newEnergy,
-      hunger: newHunger,
-    },
-  };
+          const updatedUser: User = {
+            ...user,
+            points: newPoints,
+            stepsToday: newSteps,
+            level: Math.max(user.level ?? 1, nextBuddyLevel),
+            avatar: {
+              ...user.avatar,
+              level: nextBuddyLevel,
+              energy: newEnergy,
+              hunger: newHunger,
+            },
+          };
 
-  setUser(updatedUser);
-
-  try {
-    await updateDoc(doc(db, "users", user.id), {
-      points: newPoints,
-      stepsToday: newSteps,
-      avatar: {
-        ...user.avatar,
-        energy: newEnergy,
-        hunger: newHunger,
-      },
-    });
-  } catch (error) {
-    console.error("Fehler beim Speichern des Trackings:", error);
-    setMessage("Tracking gespeichert lokal, aber Firebase-Update fehlgeschlagen.");
-  }
-}
-
-        if (newPoints >= 150 && buddyLevel === 1) {
-          setBuddyLevel(2);
-          setMessage("Flammi ist auf Level 2 gestiegen.");
+          await updateUserProgress(
+            updatedUser,
+            nextBuddyLevel > buddyLevel
+              ? "Flammi ist auf Level 2 gestiegen."
+              : `GPS aktiv: +500 Schritte, +${reward} Punkte`,
+            "Tracking konnte nicht in Firebase gespeichert werden."
+          );
         } else {
           setMessage(`GPS aktiv: +500 Schritte, +${reward} Punkte`);
         }
@@ -201,6 +210,44 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
         console.error(error);
         setMessage("Standort konnte nicht abgerufen werden.");
       }
+    );
+  };
+
+  const feedBuddy = async () => {
+    if (!user) {
+      setMessage("Bitte melde dich an, um Flammi zu füttern.");
+      return;
+    }
+
+    if (pointsBalance < foodPrice) {
+      setMessage("Nicht genug Punkte für Futter.");
+      return;
+    }
+
+    const newPoints = pointsBalance - foodPrice;
+    const fee = Math.round(foodPrice * economyConfig.transactionFee);
+    const toReserve = foodPrice - fee;
+    const newHunger = Math.min(buddyHunger + 15, 100);
+
+    economyConfig.reserve += toReserve;
+    economyConfig.circulating -= foodPrice;
+
+    setPointsBalance(newPoints);
+    setBuddyHunger(newHunger);
+
+    const updatedUser: User = {
+      ...user,
+      points: newPoints,
+      avatar: {
+        ...user.avatar,
+        hunger: newHunger,
+      },
+    };
+
+    await updateUserProgress(
+      updatedUser,
+      `Flammi wurde gefüttert. -${foodPrice} Punkte`,
+      "Flammi wurde lokal aktualisiert, aber Firebase konnte nicht gespeichert werden."
     );
   };
 
@@ -225,7 +272,7 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
               priority
             />
           </div>
-<h1>Test Deployment</h1>
+
           <nav className="space-y-2 text-[14px]">
             <div className="font-bold text-orange-400">Dashboard</div>
             <Link
@@ -252,7 +299,7 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
               min="5"
               max="100"
               value={brightness}
-              onChange={(e) => setBrightness(Number(e.target.value))}
+              onChange={(event) => setBrightness(Number(event.target.value))}
               className="w-full"
             />
             <div className="mt-2 text-right text-sm text-white/70">
@@ -295,16 +342,16 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
               <p className="mt-2 text-2xl text-cyan-100/90">{message}</p>
 
               <div className="mt-2">
-  <span
-    className={`inline-block rounded-full px-4 py-1 text-sm font-bold ${
-      trackingActive
-        ? "bg-green-500/20 text-green-400"
-        : "bg-red-500/20 text-red-400"
-    }`}
-  >
-    {trackingActive ? "● Tracking aktiv" : "● Tracking inaktiv"}
-  </span>
-</div>
+                <span
+                  className={`inline-block rounded-full px-4 py-1 text-sm font-bold ${
+                    trackingActive
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-red-500/20 text-red-400"
+                  }`}
+                >
+                  {trackingActive ? "● Tracking aktiv" : "● Tracking inaktiv"}
+                </span>
+              </div>
 
               <p
                 className={`mt-1 text-lg font-semibold ${
@@ -330,18 +377,17 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
             </div>
 
             <div className="flex items-center gap-2 pt-1">
-              
               <button
-  onClick={startChallenge}
-  disabled={!permissions.location}
-  className={`rounded-[22px] px-7 py-4 font-bold text-white transition ${
-    permissions.location
-      ? "bg-orange-500 hover:bg-orange-600"
-      : "cursor-not-allowed bg-gray-500"
-  }`}
->
-  {trackingActive ? "Tracking stoppen" : "Tracking starten"}
-</button>
+                onClick={startChallenge}
+                disabled={!permissions.location}
+                className={`rounded-[22px] px-7 py-4 font-bold text-white transition ${
+                  permissions.location
+                    ? "bg-orange-500 hover:bg-orange-600"
+                    : "cursor-not-allowed bg-gray-500"
+                }`}
+              >
+                {trackingActive ? "Tracking stoppen" : "Tracking starten"}
+              </button>
 
               <div className="rounded-full bg-[#073b44] px-5 py-3 font-semibold text-cyan-100">
                 Flammi LVL {buddyLevel}
@@ -414,40 +460,7 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
 
               <button
                 type="button"
-                onClick={() => {
-                  if (!user) return;
-
-                  if (pointsBalance < foodPrice) {
-                    setMessage("Nicht genug Punkte für Futter.");
-                    return;
-                  }
-
-                  const newPoints = pointsBalance - foodPrice;
-
-                  const fee = Math.round(foodPrice * economyConfig.transactionFee);
-                  const toReserve = foodPrice - fee;
-
-                  economyConfig.reserve += toReserve;
-                  economyConfig.circulating -= foodPrice;
-
-                  const newHunger = Math.min(buddyHunger + 15, 100);
-
-                  setPointsBalance(newPoints);
-                  setBuddyHunger(newHunger);
-
-                  const updatedUser: User = {
-                    ...user,
-                    points: newPoints,
-                    avatar: {
-                      ...user.avatar,
-                      hunger: newHunger,
-                    },
-                  };
-
-                  setUser(updatedUser);
-                  localStorage.setItem("wellfit-user", JSON.stringify(updatedUser));
-                  setMessage(`Flammi wurde gefüttert. -${foodPrice} Punkte`);
-                }}
+                onClick={feedBuddy}
                 className="mt-4 rounded-xl bg-cyan-600 px-4 py-3 font-bold hover:bg-cyan-700"
               >
                 Flammi füttern
@@ -490,12 +503,12 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
                   Letzter Login: Heute 9:43
                 </p>
                 <p className="mt-1 text-xl font-semibold text-white">
-                  3 WFT erhalten
+                  Punkte erhalten
                 </p>
               </div>
 
               <div className="min-w-[190px] rounded-2xl border border-yellow-500/60 bg-[#041f24] px-4 py-3 text-center">
-                <p className="text-xs uppercase text-white/50">WFT-Punkte</p>
+                <p className="text-xs uppercase text-white/50">WellFit Punkte</p>
                 <p className="mt-1 text-2xl font-bold text-white">
                   {pointsBalance.toFixed(2)}
                 </p>
@@ -503,7 +516,7 @@ setMessage(`Tracking aktiv • GPS erkannt • +500 Schritte, +${reward} Punkte`
 
               <div className="min-w-[190px] rounded-2xl border border-cyan-400/10 bg-[#041f24] px-4 py-3 text-center">
                 <p className="text-xs uppercase text-white/50">
-                  Gehortet: 0.00 WFT
+                  Bonus verfügbar: 0 Punkte
                 </p>
                 <button className="mt-2 w-full rounded-lg bg-blue-700/80 px-4 py-2 font-semibold text-white/70">
                   Abholen
