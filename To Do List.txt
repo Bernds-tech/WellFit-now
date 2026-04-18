@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.3
+Version: 1.4
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -70,18 +70,38 @@ AKTUELLER ARBEITSSTAND SETTINGS / USERPROFIL:
 [x] Sicherheit-Karte mit Firebase Passwort-Reset umgesetzt.
 [~] Account Verwaltung / DSGVO Export / Account löschen noch final umzusetzen.
 
-NÄCHSTER ARBEITSSCHRITT:
-[ ] WF-SETTINGS-010 – Account Verwaltung: DSGVO-Datenexport, Logout, Account-Löschung vorbereiten.
-[ ] WF-AUTH-002 – Registrierung: Passwortstärke live prüfen und User beim Eingeben informieren, ob das Passwort stark genug ist.
-[ ] WF-NAV-001 – Rechtliche Links nach Login prüfen: AGB, Datenschutz, Impressum, FAQ. Wenn User eingeloggt ist und auf Zurück klickt, darf er nicht ausgeloggt werden oder ungewollt auf Login landen.
-[ ] WF-HELP-001 – Hilfeseite fertigstellen: Inhalt, Navigation, eingeloggter Zustand, Zurück-Verhalten und Support-Struktur.
+VERBINDLICHE NÄCHSTE PRIORITÄT / REIHENFOLGE:
+1. [~] WF-NAV-001 – ZUERST: Navigation-/Zurück-/Logout-Bug bei AGB, Datenschutz, Impressum, FAQ und Hilfe fixen.
+2. [ ] WF-AUTH-002 – DANACH: Passwort-Stärke live bei Registrierung prüfen.
+3. [ ] WF-HELP-001 – DANACH: Hilfeseite fertigstellen.
+4. [ ] WF-SETTINGS-010 – Danach: Account Verwaltung / DSGVO Export / Account löschen finalisieren.
 
 ============================================================
 0.2 NEU AUFGENOMMENE OFFENE AUFGABEN
 ============================================================
 
+TASK-ID: WF-NAV-001
+STATUS: [~] In Arbeit
+PRIORITÄT: 1 – sofort als nächstes umsetzen
+ZIEL:
+Links zu AGB, Datenschutz, Impressum, FAQ und Hilfe müssen im eingeloggten Zustand korrekt funktionieren. Wenn ein eingeloggter User dort auf Zurück klickt, darf er nicht ausgeloggt werden und nicht ungewollt auf der Login-Seite landen.
+UMSETZUNG:
+- Routen /agb, /datenschutz, /impressum, /faq und /hilfe prüfen.
+- Prüfen, ob diese Seiten Auth-State korrekt respektieren.
+- Zurück-Button / Browser-History Verhalten prüfen.
+- Wenn nötig: Zurück zur Einstellungen- oder Dashboard-Seite statt Login.
+- Alle Legal-Links in Sidebar und Footer prüfen.
+- Hilfe-Link darf kein toter Text bleiben, sondern muss verlinkt werden.
+AKZEPTANZKRITERIEN:
+- Eingeloggter User bleibt eingeloggt.
+- Zurück führt zurück zur vorherigen App-Seite oder sauber zur App zurück.
+- Kein ungewollter Logout.
+- Kein Redirect auf Login, wenn Auth-State noch aktiv ist.
+- AGB, Datenschutz, Impressum, FAQ und Hilfe funktionieren aus dem eingeloggten Bereich.
+
 TASK-ID: WF-AUTH-002
 STATUS: [ ] Offen
+PRIORITÄT: 2 – direkt nach WF-NAV-001
 ZIEL:
 Bereits während der Registrierung soll beim Eingeben des Passworts live angezeigt werden, ob das Passwort stark genug und sicher genug ist.
 UMSETZUNG:
@@ -96,24 +116,9 @@ AKZEPTANZKRITERIEN:
 - Starkes Passwort wird bestätigt.
 - Registrierung verhindert unsichere Passwörter oder warnt mindestens klar.
 
-TASK-ID: WF-NAV-001
-STATUS: [ ] Offen
-ZIEL:
-Links zu AGB, Datenschutz, Impressum und FAQ müssen im eingeloggten Zustand korrekt funktionieren. Wenn ein eingeloggter User dort auf Zurück klickt, darf er nicht ausgeloggt werden und nicht ungewollt auf der Login-Seite landen.
-UMSETZUNG:
-- Routen /agb, /datenschutz, /impressum, /faq prüfen.
-- Prüfen, ob diese Seiten Auth-State korrekt respektieren.
-- Zurück-Button / Browser-History Verhalten prüfen.
-- Wenn nötig: Zurück zur Einstellungen- oder Dashboard-Seite statt Login.
-- Alle Legal-Links in Sidebar und Footer prüfen.
-AKZEPTANZKRITERIEN:
-- Eingeloggter User bleibt eingeloggt.
-- Zurück führt zurück zur vorherigen App-Seite.
-- Kein ungewollter Logout.
-- Kein Redirect auf Login, wenn Auth-State noch aktiv ist.
-
 TASK-ID: WF-HELP-001
 STATUS: [ ] Offen
+PRIORITÄT: 3 – direkt nach WF-AUTH-002
 ZIEL:
 Die Hilfeseite muss fertiggestellt werden und darf nicht als leerer oder unfertiger Bereich bleiben.
 UMSETZUNG:
@@ -126,6 +131,20 @@ AKZEPTANZKRITERIEN:
 - Hilfe hat echten Inhalt.
 - Navigation funktioniert aus Dashboard und Einstellungen.
 - Eingeloggter User bleibt eingeloggt.
+
+TASK-ID: WF-SETTINGS-010
+STATUS: [ ] Offen
+PRIORITÄT: 4 – nach Navigation, Passwortstärke und Hilfe
+ZIEL:
+Account Verwaltung finalisieren: DSGVO-Datenexport, Logout auf allen Geräten und Account-Löschung vorbereiten.
+UMSETZUNG:
+- Datenexport-Konzept definieren.
+- Logout-Verhalten prüfen.
+- Account-Löschung nur sicher mit Reauthentifizierung und Firestore/Auth-Löschung umsetzen.
+AKZEPTANZKRITERIEN:
+- Kein halber Datenlöschzustand.
+- User bekommt klare Warnung.
+- Funktion ist DSGVO-konform vorbereitet.
 
 ============================================================
 0. ZIEL DIESER DATEI
