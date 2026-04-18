@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.5
+Version: 1.6
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -72,10 +72,11 @@ AKTUELLER ARBEITSSTAND SETTINGS / USERPROFIL:
 
 VERBINDLICHE NÄCHSTE PRIORITÄT / REIHENFOLGE:
 1. [~] WF-NAV-001 – ZUERST: Navigation-/Zurück-/Logout-Bug bei AGB, Datenschutz, Impressum, FAQ und Hilfe fixen.
-2. [ ] WF-AUTH-002 – DANACH: Passwort-Stärke live bei Registrierung prüfen.
-3. [ ] WF-REGISTER-002 – DANACH: Registrierungsdaten an Settings-Datenmodell angleichen.
-4. [ ] WF-HELP-001 – DANACH: Hilfeseite fertigstellen.
-5. [ ] WF-SETTINGS-010 – Danach: Account Verwaltung / DSGVO Export / Account löschen finalisieren.
+2. [~] WF-AUTH-002 – Passwort-Stärke live bei Registrierung ist umgesetzt, Test und Statusabschluss offen.
+3. [~] WF-REGISTER-002 – Registrierungsdaten an Settings-Datenmodell angeglichen, Codebereinigung/Test offen.
+4. [ ] WF-REGISTER-003 – Codebereinigung Registrierung: tote Variablen, Zielgewicht-Logik und spätere Mapper-Auslagerung.
+5. [ ] WF-HELP-001 – Hilfeseite fertigstellen.
+6. [ ] WF-SETTINGS-010 – Danach: Account Verwaltung / DSGVO Export / Account löschen finalisieren.
 
 ============================================================
 0.2 NEU AUFGENOMMENE OFFENE AUFGABEN
@@ -83,7 +84,7 @@ VERBINDLICHE NÄCHSTE PRIORITÄT / REIHENFOLGE:
 
 TASK-ID: WF-NAV-001
 STATUS: [~] In Arbeit
-PRIORITÄT: 1 – sofort als nächstes umsetzen
+PRIORITÄT: 1 – sofort als nächstes umsetzen / nach User-Test abschließen
 ZIEL:
 Links zu AGB, Datenschutz, Impressum, FAQ und Hilfe müssen im eingeloggten Zustand korrekt funktionieren. Wenn ein eingeloggter User dort auf Zurück klickt, darf er nicht ausgeloggt werden und nicht ungewollt auf der Login-Seite landen.
 UMSETZUNG:
@@ -101,8 +102,8 @@ AKZEPTANZKRITERIEN:
 - AGB, Datenschutz, Impressum, FAQ und Hilfe funktionieren aus dem eingeloggten Bereich.
 
 TASK-ID: WF-AUTH-002
-STATUS: [ ] Offen
-PRIORITÄT: 2 – direkt nach WF-NAV-001
+STATUS: [~] In Arbeit
+PRIORITÄT: 2 – umgesetzt, Test und Abschluss offen
 ZIEL:
 Bereits während der Registrierung soll beim Eingeben des Passworts live angezeigt werden, ob das Passwort stark genug und sicher genug ist.
 UMSETZUNG:
@@ -116,10 +117,11 @@ AKZEPTANZKRITERIEN:
 - Schwaches Passwort wird erklärt.
 - Starkes Passwort wird bestätigt.
 - Registrierung verhindert unsichere Passwörter oder warnt mindestens klar.
+- Test mit schwach/mittel/stark erfolgreich.
 
 TASK-ID: WF-REGISTER-002
-STATUS: [ ] Offen
-PRIORITÄT: 3 – direkt nach WF-AUTH-002
+STATUS: [~] In Arbeit
+PRIORITÄT: 3 – umgesetzt, Test und Codebereinigung offen
 ZIEL:
 Alle Informationen, die während der Registrierung abgefragt werden, müssen exakt zur Struktur der Einstellungen passen und nach erfolgreicher Registrierung automatisch in den entsprechenden Einstellungs-Karten sichtbar sein.
 UMSETZUNG:
@@ -136,10 +138,48 @@ AKZEPTANZKRITERIEN:
 - Änderungen in Einstellungen überschreiben dieselbe Struktur und keine zweite Parallelstruktur.
 - Kein erneutes Eingeben derselben Daten nötig.
 - Firestore-Userdokument ist sauber strukturiert und konsistent.
+- Neue Registrierung wurde komplett getestet.
+
+TASK-ID: WF-REGISTER-003
+STATUS: [ ] Offen
+PRIORITÄT: 4 – direkt nach Register-Codeprüfung / vor größerem Ausbau
+ZIEL:
+Die Registrierungsdatei technisch bereinigen und wartbarer machen, ohne die aktuell funktionierende Logik zu zerstören.
+UMSETZUNG:
+- Tote Variablen entfernen oder korrekt nutzen: fitnessLevelDisplay und bodyTypeDisplay.
+- Zielgewicht-Logik prüfen: targetWeightValue darf nicht automatisch immer dem aktuellen Gewicht entsprechen, wenn kein echtes Zielgewicht abgefragt wird.
+- Entscheidung treffen: Zielgewicht-Feld in Registrierung ergänzen oder targetWeightValue nur setzen, wenn targetWeight aktiv ist.
+- Registrierung später in Komponenten aufteilen:
+  RegisterStepAccount.tsx
+  RegisterStepBiometrics.tsx
+  RegisterStepPsychography.tsx
+  PasswordStrengthMeter.tsx
+- Zentrale Mapping-Datei vorbereiten:
+  registrationMapper.ts oder userProfileMapper.ts
+AKZEPTANZKRITERIEN:
+- Keine toten Variablen mehr.
+- Zielgewicht ist fachlich korrekt gespeichert.
+- Mapping-Logik ist nachvollziehbar und später auslagerbar.
+- Build bleibt erfolgreich.
+- Registrierung funktioniert unverändert oder besser.
+
+TASK-ID: WF-DATA-001
+STATUS: [ ] Offen
+PRIORITÄT: 5 – Architektur-Backlog, vor KI-/Dashboard-Ausbau prüfen
+ZIEL:
+Ein zentrales Userdaten-Mapping schaffen, damit Dashboard, Einstellungen, Registrierung und KI-Buddy nicht unterschiedliche Rohwerte interpretieren.
+UMSETZUNG:
+- Datei userProfileMapper.ts oder ähnliches anlegen.
+- Mapping für Registration-Rohwerte, Settings-Werte und Firestore-Zielstruktur zentral definieren.
+- Dashboard und Settings später nur noch über dieses Mapping lesen/schreiben lassen.
+AKZEPTANZKRITERIEN:
+- Keine doppelte Mapping-Logik in mehreren Dateien.
+- Settings, Dashboard und Registrierung zeigen konsistente Werte.
+- Alte Userdaten bleiben durch Fallbacks kompatibel.
 
 TASK-ID: WF-HELP-001
 STATUS: [ ] Offen
-PRIORITÄT: 4 – direkt nach WF-REGISTER-002
+PRIORITÄT: 6 – direkt nach Register-Bereinigung oder parallel als kleiner UI-Fix
 ZIEL:
 Die Hilfeseite muss fertiggestellt werden und darf nicht als leerer oder unfertiger Bereich bleiben.
 UMSETZUNG:
@@ -155,7 +195,7 @@ AKZEPTANZKRITERIEN:
 
 TASK-ID: WF-SETTINGS-010
 STATUS: [ ] Offen
-PRIORITÄT: 5 – nach Navigation, Passwortstärke, Registrierung und Hilfe
+PRIORITÄT: 7 – nach Navigation, Passwortstärke, Registrierung und Hilfe
 ZIEL:
 Account Verwaltung finalisieren: DSGVO-Datenexport, Logout auf allen Geräten und Account-Löschung vorbereiten.
 UMSETZUNG:
