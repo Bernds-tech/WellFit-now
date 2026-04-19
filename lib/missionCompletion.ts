@@ -2,6 +2,7 @@ import { economyConfig, getRewardRate } from "@/config/economy";
 import { auth, db } from "@/lib/firebase";
 import { addDoc, collection, doc, getDoc, increment, serverTimestamp, setDoc } from "firebase/firestore";
 import { calculateRewardMultipliers } from "@/lib/avatarMultiplier";
+import { calculateDynamicRewardScore } from "@/lib/rewardScore";
 
 export type MissionStartInput = {
   missionId: string;
@@ -11,20 +12,16 @@ export type MissionStartInput = {
   missionKind?: string;
   icon?: string;
   proofType?: "manual" | "steps" | "gps" | "question" | "event" | "competition" | "adventure";
+  precisionFactor?: number;
+  socialMultiplier?: number;
+  streakMultiplier?: number;
+  sponsorMultiplier?: number;
+  validationRisk?: number;
 };
 
 export type MissionCompletionInput = MissionStartInput & { rewardLabel?: string };
 
 const normalizeMissionKind = (input: MissionStartInput) => input.missionKind ?? `${input.category}_${input.proofType ?? "manual"}_${input.title.toLowerCase().replace(/[^a-z0-9äöüß]+/gi, "_")}`;
-
-function calculateSystemReward(baseReward: number) {
-  const rewardRate = getRewardRate(economyConfig.reserve, economyConfig.totalSupply);
-  return {
-    base: baseReward,
-    systemReward: Math.max(1, Math.round(baseReward * rewardRate)),
-    rewardRate,
-  };
-}
 
 export async function startMission(input: MissionStartInput) {
   const currentUser = auth.currentUser;
@@ -47,10 +44,19 @@ export async function startMission(input: MissionStartInput) {
   if (existing?.status === "completed") return { userId: currentUser.uid, missionId: input.missionId, lockedReward: Number(existing.pointsGranted ?? 0), alreadyCompleted: true };
   if (existing?.lockedRewardPoints) return { userId: currentUser.uid, missionId: input.missionId, lockedReward: Number(existing.lockedRewardPoints), alreadyStarted: true };
 
-  const system = calculateSystemReward(input.rewardPoints);
+  const systemRewardRate = getRewardRate(economyConfig.reserve, economyConfig.totalSupply);
   const multipliers = await calculateRewardMultipliers(currentUser.uid);
-
-  const finalReward = Math.round(system.systemReward * multipliers.finalMultiplier);
+  const score = calculateDynamicRewardScore({
+    baseReward: input.rewardPoints,
+    systemRewardRate,
+    avatarMultiplier: multipliers.avatarMultiplier,
+    userEconomyMultiplier: multipliers.userEconomyMultiplier,
+    precisionFactor: input.precisionFactor,
+    socialMultiplier: input.socialMultiplier,
+    streakMultiplier: input.streakMultiplier,
+    sponsorMultiplier: input.sponsorMultiplier,
+    validationRisk: input.validationRisk,
+  });
 
   const payload = {
     userId: currentUser.uid,
@@ -63,16 +69,20 @@ export async function startMission(input: MissionStartInput) {
     startedAt: serverTimestamp(),
 
     baseRewardPoints: input.rewardPoints,
-    systemRewardPoints: system.systemReward,
-    lockedRewardPoints: finalReward,
+    lockedRewardPoints: score.finalReward,
 
+    systemRewardRate,
     avatarMultiplier: multipliers.avatarMultiplier,
     userEconomyMultiplier: multipliers.userEconomyMultiplier,
-    finalMultiplier: multipliers.finalMultiplier,
+    precisionFactor: score.precisionFactor,
+    socialMultiplier: score.socialMultiplier,
+    streakMultiplier: score.streakMultiplier,
+    sponsorMultiplier: score.sponsorMultiplier,
+    integrityMultiplier: score.integrityMultiplier,
+    validationRisk: score.validationRisk,
     multiplierReasons: multipliers.reasons,
 
-    rewardPolicy: "dynamic_reserve_avatar_user_locked_on_start",
-    rewardRateAtStart: system.rewardRate,
+    rewardPolicy: "dynamic_reward_score_locked_on_start",
     reserveAtStart: economyConfig.reserve,
 
     icon: input.icon ?? "✅",
@@ -91,12 +101,13 @@ export async function startMission(input: MissionStartInput) {
     title: input.title,
     category: input.category,
     baseRewardPoints: input.rewardPoints,
-    finalReward,
-    multiplierReasons: multipliers.reasons,
+    finalReward: score.finalReward,
+    rewardPolicy: "dynamic_reward_score_locked_on_start",
+    rewardBreakdown: payload,
     createdAt: serverTimestamp(),
   });
 
-  return { userId: currentUser.uid, missionId: input.missionId, lockedReward: finalReward };
+  return { userId: currentUser.uid, missionId: input.missionId, lockedReward: score.finalReward };
 }
 
 export async function completeMission(input: MissionCompletionInput) {
@@ -124,7 +135,6 @@ export async function completeMission(input: MissionCompletionInput) {
   }, { merge: true });
 
   await setDoc(activeKindRef, { status: "completed", completedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
-
   await setDoc(userRef, { points: increment(lockedRewardPoints), pointsTotal: increment(lockedRewardPoints), updatedAt: serverTimestamp() }, { merge: true });
 
   await addDoc(collection(db, "history"), {
