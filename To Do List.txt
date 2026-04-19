@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 2.0
+Version: 2.1 – MASTER RESTORED & MERGED
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -60,21 +60,60 @@ npm run build
 pm2 restart wellfit-now
 
 ============================================================
-0.1 PRODUKTGRUNDSATZ
+0. ZIEL DIESER DATEI
 ============================================================
 
-WellFit befindet sich nicht mehr in einer reinen Clickdummy-Phase.
-Ziel ist eine funktionsfähige, testbare und pilotfähige Produktversion mit echten Userdaten, echten Punkten, echten Missionen, echtem Fortschritt und stabiler Firebase-/Firestore-Datenhaltung.
+Diese Datei ist die zentrale Arbeitsliste für die laufende WellFit-Entwicklung.
+Sie ist nicht als Clickdummy-Plan gedacht.
+WellFit befindet sich bereits in der Umsetzung.
 
-Kernprinzip:
-- Web-App = Steuerzentrale
-- Mobile App = täglicher AR-Begleiter
+Diese Datei soll so genau sein, dass ein externer Programmierer, eine Agentur oder ein KI-gestützter Coding-Assistent direkt erkennen kann:
+- was bereits vorhanden ist,
+- was noch gebaut werden muss,
+- in welcher Reihenfolge weiterprogrammiert werden soll,
+- wann eine Aufgabe als fertig gilt,
+- welche Datenmodelle, Funktionen und Screens zu berücksichtigen sind,
+- welche Punkte später ergänzt werden sollen,
+- welche Punkte aktuell bewusst nicht umgesetzt werden.
 
-Der Token ist eine spätere Erweiterung und nicht Voraussetzung für die erste produktiv testbare Version.
-Solana/Token/Marketplace werden vorbereitet, aber die erste Nutzerversion funktioniert über Punkte, Missionen, Buddy, Tracking und Pilotdaten.
+Diese Datei verbindet:
+- das gesamte WellFit-Konzept,
+- den aktuellen Produktumsetzungsstand,
+- die Firebase-/Firestore-Entscheidung,
+- die spätere Solana-/Token-Roadmap,
+- Pilotstrategie,
+- Businessplan-Logik,
+- Investorentranchierung,
+- Produkt-, UX-, Marketing-, Partner- und Compliance-Themen,
+- konkrete technische Aufgaben für Entwickler und KI-Coding-Tools.
+
+Wichtig:
+WellFit soll jetzt zu einer funktionsfähigen, testbaren und pilotfähigen Produktversion weiterentwickelt werden.
+Der Fokus liegt nicht mehr auf einem Clickdummy.
+Der Fokus liegt auf echter Funktionalität:
+- echte User,
+- echte Registrierung,
+- echte Profile,
+- echte Missionen,
+- echte Punkte,
+- echte History,
+- echte Favoriten,
+- echte Tracking-Sessions,
+- echte Datenhaltung in Firebase/Firestore.
+
+Der Token ist eine spätere Erweiterung und nicht die Voraussetzung für die erste produktiv testbare Version.
+
+Kernlogik:
+1. Jetzt Produktfunktionalität fertigstellen.
+2. localStorage als Hauptspeicher ablösen.
+3. Firebase Auth und Firestore als Startarchitektur nutzen.
+4. Pilotfähige Version online bringen.
+5. Echte Nutzungsdaten und Feedback sammeln.
+6. Danach Partner, LOIs und Investorennachweise weiter ausbauen.
+7. Danach Solana, Token, AR, KI und Marketplace sauber erweitern.
 
 ============================================================
-0.2 AKTUELLER TECHNISCHER STAND / BEREITS VORHANDEN
+0.1 AKTUELLER TECHNISCHER STAND / BEREITS VORHANDEN
 ============================================================
 
 [x] Next.js App läuft und baut erfolgreich auf dem Server.
@@ -108,7 +147,7 @@ Solana/Token/Marketplace werden vorbereitet, aber die erste Nutzerversion funkti
 [x] Hilfe-Link wurde im Dashboard auf /hilfe verlinkt.
 
 ============================================================
-0.3 AKTUELLE NÄCHSTE PRIORITÄT
+0.2 AKTUELLE NÄCHSTE PRIORITÄT
 ============================================================
 
 1. [ ] WF-DASH-004 – Realtime Sync statt getDoc: Dashboard lebendig machen.
@@ -121,556 +160,1675 @@ Solana/Token/Marketplace werden vorbereitet, aber die erste Nutzerversion funkti
 8. [>] WF-AI-EMOTION-001 – Mimik-/Stimmungsanalyse.
 
 ============================================================
-1. AUTH / REGISTRIERUNG / LOGIN
+1. STRATEGISCHE GRUNDENTSCHEIDUNG
 ============================================================
 
-TASK-ID: WF-AUTH-001
-STATUS: [x] Fertig
-ZIEL:
-Firebase Auth als Basis für echte User verwenden.
-UMSETZUNG:
-- Registrierung/Login mit Firebase Auth.
-- User-Dokument in Firestore anlegen.
-AKZEPTANZKRITERIEN:
-- User kann sich registrieren.
-- User kann sich anmelden.
-- Userdaten liegen in users/{uid}.
+[ ] WellFit nicht als reine Krypto-App positionieren.
+[x] WellFit als Health-, Bewegung-, Lern-, Gamification- und Engagement-Plattform positionieren.
+[x] Token erst als spätere Ökosystem- und Belohnungskomponente darstellen.
+[x] Erste Version mit Punkten, Leveln, Missionen, Badges, History, Favoriten und Rewards weiterentwickeln.
+[ ] Blockchain/Token nur dort erwähnen, wo es strategisch sinnvoll und rechtlich sauber ist.
+[ ] Alle alten SUI-Verweise prüfen und auf Solana korrigieren, weil WellFit Solana verwenden soll.
+[x] Keine Renditeversprechen verwenden.
+[x] Keine medizinischen Heilversprechen verwenden.
+[x] Keine Aussagen machen, die WellFit unnötig in Richtung Finanzprodukt oder Medizinprodukt schieben.
 
-TASK-ID: WF-AUTH-002
-STATUS: [x] Fertig
-ZIEL:
-Bereits während der Registrierung soll beim Eingeben des Passworts live angezeigt werden, ob das Passwort stark genug und sicher genug ist.
-UMSETZUNG:
-- Live-Check für Mindestlänge, Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen.
-- Anzeige schwach/mittel/stark.
-- Registrierung blockiert unsichere Passwörter.
-AKZEPTANZKRITERIEN:
-- User sieht beim Tippen die Passwortstärke.
-- Starkes Passwort wird bestätigt.
-- Schwaches Passwort wird blockiert.
+Kurzpositionierung:
+WellFit ist eine gamifizierte Gesundheits- und Bewegungsplattform, die reale Aktivität, Aufgaben, Lernen, soziale Interaktion und digitale Belohnungen verbindet. In der ersten funktionsfähigen Version sammeln Nutzer Punkte, Level und Status durch Bewegung und Challenges. In späteren Phasen werden diese Mechaniken mit Token, AR-Erlebnissen, KI-Buddy, Partnerangeboten und einem digitalen Marktplatz erweitert.
 
-TASK-ID: WF-REGISTER-002
-STATUS: [x] Fertig
-ZIEL:
-Alle Informationen, die während der Registrierung abgefragt werden, müssen zur Struktur der Einstellungen passen und nach erfolgreicher Registrierung automatisch in den entsprechenden Einstellungs-Karten sichtbar sein.
-UMSETZUNG:
-- Registrierung schreibt profile und settings sauber.
-- profile enthält vitals, lifestyle, activity, aiBuddy.
-- settings enthält reminders, privacy, permissions und Basisdaten.
-AKZEPTANZKRITERIEN:
-- Nach Registrierung sind Daten in Einstellungen sichtbar.
-- Kein erneutes Eingeben derselben Daten nötig.
+============================================================
+2. PHASENPLAN GESAMT
+============================================================
 
-TASK-ID: WF-REGISTER-003
-STATUS: [x] Fertig
-ZIEL:
-Registrierungsdatei technisch bereinigen und Zielgewicht-Logik korrigieren.
-UMSETZUNG:
-- Tote Variablen entfernt.
-- targetWeightValue nur gesetzt, wenn Zielgewicht aktiv ist, sonst 0.
-AKZEPTANZKRITERIEN:
-- Keine toten Variablen mehr.
-- Zielgewicht wird fachlich sauber gespeichert.
+PHASE 0 – Bestandsaufnahme, Struktur, technische Ordnung
+Ziel: Bestehenden Code analysieren, Projekt strukturieren und klare Weiterentwicklung ermöglichen.
 
-TASK-ID: WF-REGISTER-004
+[~] Repo-Struktur analysieren.
+[ ] vorhandene Seiten und Komponenten dokumentieren.
+[ ] vorhandene localStorage-Nutzung finden.
+[x] vorhandene Login-/Profil-/Dashboard-Logik geprüft und teilweise angebunden.
+[ ] vorhandene Mission-Logik prüfen.
+[ ] technische Schulden dokumentieren.
+[ ] README.md aktualisieren.
+[ ] Setup-Anleitung aktualisieren.
+[x] To Do List.txt als Master-Roadmap führen.
+[x] Solana als finale Blockchain festhalten.
+[x] Token-Themen sauber als spätere Erweiterung abgrenzen.
+
+PHASE 1 – Funktionsfähige MVP-Version / Pilotfähige Produktversion
+Ziel: Echte Registrierung, echte Nutzerprofile, echte Missionen, echte Punkte, echte History.
+
+[x] Firebase Auth einrichten.
+[x] Firestore einrichten.
+[x] User-Profile speichern.
+[ ] Missionen speichern.
+[ ] Missionstatus speichern.
+[ ] History speichern.
+[ ] Favoriten speichern.
+[ ] Tracking-Sessions speichern.
+[x] Punkte und Rewards grundlegend in Firebase speichern.
+[~] localStorage nur noch für UI-Zustände verwenden; Produktdaten werden weiter migriert.
+[x] Produktversion online deployen.
+[ ] erste Pilotnutzer onboarden.
+
+PHASE 2 – Pilot & Datenvalidierung
+Ziel: Beweisen, dass Nutzer WellFit verstehen, nutzen und wiederkommen.
+
+[ ] Pilot mit 100 bis 500 Nutzern planen.
+[ ] Pilotgebiet definieren: Wien, Mödling, Niederösterreich oder erste Firmen-/Community-Gruppe.
+[ ] Pilotdauer definieren: 2 bis 3 Wochen.
+[ ] Pilotmissionen definieren.
+[ ] Feedbackformular erstellen.
+[ ] KPIs messen.
+[ ] Nutzerfeedback sammeln.
+[ ] Bugs dokumentieren.
+[ ] Pilotbericht erstellen.
+[ ] Partnerfeedback einholen.
+
+PHASE 3 – Partner, LOIs, Investorenvorbereitung
+Ziel: Nachweise schaffen, damit WellFit investierbar wird.
+
+[ ] 2 LOIs vorbereiten.
+[ ] 1 Firmen-/BGM-Partner ansprechen.
+[ ] 1 Location-/Event-/Gemeindepartner ansprechen.
+[ ] Optional 1 Brand-/Sponsorpartner ansprechen.
+[ ] Investor-One-Pager erstellen.
+[ ] Pitchdeck finalisieren.
+[ ] Finanzmodell finalisieren.
+[ ] Tranchiertes Investmentmodell darstellen.
+[ ] Produktvideo oder Walkthrough erstellen.
+
+PHASE 4 – Tranche 1 / Produktaufbau
+Ziel: Mit Kapital die Produktversion professionell ausbauen und größere Pilotphase vorbereiten.
+
+[ ] Entwicklungsagentur oder Tech Lead auswählen.
+[ ] Lastenheft finalisieren.
+[ ] Backend stabilisieren.
+[ ] App/PWA produktionsreif machen.
+[ ] Adminbereich bauen.
+[ ] Partnerbereich bauen.
+[ ] Analytics aufbauen.
+[ ] Datenschutz professionell prüfen lassen.
+[ ] Security-Basics umsetzen.
+
+PHASE 5 – Token, Solana, AR, KI, Marketplace
+Ziel: Nach Produktvalidierung das größere WellFit-Ökosystem aufbauen.
+
+[ ] Solana-Token-Konzept finalisieren.
+[ ] MiCAR-Prüfung starten.
+[ ] Tokenomics ausarbeiten.
+[ ] Marketplace-Konzept bauen.
+[>] AR-Features planen.
+[>] KI-Buddy erweitern.
+[>] Store-Safe-Architecture finalisieren.
+[ ] Security Audit vorbereiten.
+
+============================================================
+3. TECHNISCHE EPICS FÜR DIE DIREKTE UMSETZUNG
+============================================================
+
+------------------------------------------------------------
+EPIC WF-CORE – Projektbasis und technische Ordnung
+------------------------------------------------------------
+
+TASK WF-CORE-001 – Projektstruktur dokumentieren
 STATUS: [ ] Offen
-ZIEL:
-Registrierung in wartbare Komponenten aufteilen.
+ZIEL: Jeder Entwickler soll verstehen, welche Dateien wofür zuständig sind.
 UMSETZUNG:
-- RegisterStepAccount.tsx
-- RegisterStepBiometrics.tsx
-- RegisterStepPsychography.tsx
-- PasswordStrengthMeter.tsx
+[ ] Hauptseiten dokumentieren.
+[ ] Komponenten dokumentieren.
+[ ] Assets dokumentieren.
+[ ] Firebase-Dateien dokumentieren.
+[ ] Deployment-Dateien dokumentieren.
 AKZEPTANZKRITERIEN:
-- Register-Code ist lesbarer.
-- Funktion bleibt unverändert.
+[ ] README.md enthält Setup-Anleitung.
+[ ] README.md enthält Projektstruktur.
+[ ] README.md enthält Startbefehle.
+[ ] README.md enthält Hinweis auf To Do List.txt.
 
-TASK-ID: WF-NAV-001
+TASK WF-CORE-002 – localStorage-Nutzung finden und bewerten
 STATUS: [~] In Arbeit
-ZIEL:
-AGB, Datenschutz, Impressum, FAQ und Hilfe müssen im eingeloggten Zustand korrekt funktionieren. Zurück darf nicht zu ungewolltem Login/Logout führen.
+ZIEL: Produktrelevante Daten dürfen nicht mehr nur lokal gespeichert werden.
 UMSETZUNG:
-- LegalPageLayout nutzt Smart Back Navigation.
-- Auth-State wird berücksichtigt.
-- Hilfe-Link muss auf allen Seiten korrekt verlinkt sein.
+[ ] Alle localStorage-Zugriffe suchen.
+[~] Einteilen in UI-Daten und Produktdaten.
+[~] Produktdaten für Migration nach Firestore markieren.
 AKZEPTANZKRITERIEN:
-- Eingeloggter User bleibt eingeloggt.
-- Zurück führt sauber zur App zurück.
-- Kein ungewollter Logout.
+[ ] Liste aller localStorage-Zugriffe dokumentiert.
+[ ] Entscheidung je Zugriff: behalten, ersetzen oder migrieren.
 
-============================================================
-2. SETTINGS / USERPROFIL
-============================================================
+TASK WF-CORE-003 – Environment Variables vorbereiten
+STATUS: [~] In Arbeit
+ZIEL: Keine Secrets im Code.
+UMSETZUNG:
+[ ] .env.example erstellen.
+[x] Firebase-Konfigurationswerte als Umgebungsvariablen auf Server vorbereitet.
+[ ] README mit Einrichtungshinweis ergänzen.
+AKZEPTANZKRITERIEN:
+[ ] .env.example vorhanden.
+[x] echte Secrets nicht bewusst in neuen Code committen.
+[x] App startet mit korrekt gesetzten Variablen am Server.
 
-TASK-ID: WF-SETTINGS-001
+------------------------------------------------------------
+EPIC WF-AUTH – Registrierung, Login und User-Profil
+------------------------------------------------------------
+
+TASK WF-AUTH-001 – Firebase Auth integrieren
 STATUS: [x] Fertig
-ZIEL:
-Profil & Account Karte speicherbar machen.
+ZIEL: Nutzer können sich registrieren und anmelden.
 UMSETZUNG:
-- Anzeigename, E-Mail, Telefon, Sprache, Geburtsdatum, Geschlecht, Zeitzone, Einheiten.
-- Speicherung in Firestore.
+[x] Firebase Projekt verbinden.
+[x] E-Mail/Passwort Login aktivieren.
+[x] Auth-State in der App verwalten.
+[ ] Logout ermöglichen.
 AKZEPTANZKRITERIEN:
-- Werte bleiben nach Reload erhalten.
+[x] neuer Nutzer kann sich registrieren.
+[x] bestehender Nutzer kann sich anmelden.
+[ ] Nutzer kann sich abmelden.
+[x] Loginstatus bleibt nach Reload erhalten.
+[x] Fehler werden verständlich angezeigt.
 
-TASK-ID: WF-SETTINGS-002
+TASK WF-AUTH-002 – User-Profil in Firestore anlegen
 STATUS: [x] Fertig
-ZIEL:
-Biometrie & Körper Karte speicherbar machen.
+ZIEL: Nach Registrierung wird ein User-Dokument erstellt.
 UMSETZUNG:
-- Größe, Gewicht, Zielgewicht, Körperbau, Fitnesslevel, Einschränkungen.
-- Sensibler Hinweistext integriert.
+Collection: users
+[x] userId / uid
+[x] email
+[x] displayName / firstName / lastName
+[ ] username
+[ ] role
+[x] pointsTotal / points
+[x] level
+[ ] streak
+[x] createdAt
+[x] lastLoginAt im Dashboard aktualisiert
+[ ] onboardingCompleted final nutzen
 AKZEPTANZKRITERIEN:
-- Werte bleiben nach Reload erhalten.
+[x] Nach Registrierung existiert ein users/{userId}-Dokument.
+[x] Bei erneutem Login wird kein doppeltes Profil erzeugt.
+[x] lastLoginAt wird im Dashboard aktualisiert.
 
-TASK-ID: WF-SETTINGS-003
+TASK WF-AUTH-003 – Profilseite mit echten Daten verbinden
 STATUS: [x] Fertig
-ZIEL:
-Benachrichtigungen als eigene Karte führen.
+ZIEL: Profil-/Einstellungen-Seite zeigt Daten aus Firestore, nicht aus Dummy/localStorage.
 UMSETZUNG:
-- Missions-Erinnerung, Schlaf-Erinnerung, Wochenreport, Glitch-Alarm.
+[x] Profil laden.
+[x] Profil bearbeiten.
+[ ] username speichern.
+[x] Sprache/Land/Einheiten optional speichern.
 AKZEPTANZKRITERIEN:
-- Werte werden separat gespeichert.
+[x] Profiländerung bleibt nach Reload erhalten.
+[x] Daten sind in Firestore sichtbar.
 
-TASK-ID: WF-SETTINGS-004
+TASK WF-AUTH-004 – Passwortstärke bei Registrierung
 STATUS: [x] Fertig
-ZIEL:
-Erweiterte Vitalwerte speichern.
+ZIEL: User sieht bei Registrierung, ob Passwort stark genug ist.
 UMSETZUNG:
-- Körperfett, Puls, Blutdruck, Schlaf, Stress, Energie, Schmerz, Hinweise.
-- Medizinischer Hinweistext.
+[x] Live-Prüfung.
+[x] Stark/Mittel/Schwach Anzeige.
+[x] Schwache Passwörter blockieren.
 AKZEPTANZKRITERIEN:
-- Werte bleiben erhalten.
-- Keine medizinische Diagnose-Sprache.
+[x] Passwort Test 123 schwach.
+[x] Passwort Test123 mittel.
+[x] Passwort Test123! stark.
 
-TASK-ID: WF-SETTINGS-005
+TASK WF-AUTH-005 – Registrierungsdaten an Settings angleichen
 STATUS: [x] Fertig
-ZIEL:
-Lebensstil & Ernährung speichern.
+ZIEL: Registrierungsdaten erscheinen später in den Einstellungen.
 UMSETZUNG:
-- Ernährung, Trinken, Koffein, Alkohol, Schlafroutine, Naturbewegung, Stressausgleich.
+[x] profile und settings Struktur schreiben.
+[x] vitals/lifestyle/activity/aiBuddy anlegen.
 AKZEPTANZKRITERIEN:
-- Werte bleiben erhalten.
+[x] Kein erneutes Eingeben gleicher Daten nötig.
 
-TASK-ID: WF-SETTINGS-006
-STATUS: [x] Fertig
-ZIEL:
-Aktivität & Interessen speichern.
-UMSETZUNG:
-- Aktivitätslevel, Trainingszeit, Community-Modus, Interessen, Aktivitäten, Ziele.
-AKZEPTANZKRITERIEN:
-- Werte bleiben erhalten.
+------------------------------------------------------------
+EPIC WF-MISSIONS – Missionen und Fortschritt
+------------------------------------------------------------
 
-TASK-ID: WF-SETTINGS-007
-STATUS: [x] Fertig
-ZIEL:
-KI-Buddy & Avatar-Verhalten speichern.
-UMSETZUNG:
-- Avatar-Typ, Charakter, Beziehungsmodus, Verhaltensdynamik, Motivation, Reaktionen.
-AKZEPTANZKRITERIEN:
-- Buddy kann später anhand dieser Werte reagieren.
-
-TASK-ID: WF-SETTINGS-008
-STATUS: [x] Fertig
-ZIEL:
-Privatsphäre speichern.
-UMSETZUNG:
-- Leaderboard, Buddy-Sharing, Analytics, Freundschaftsanfragen, Teams, PvP, Sichtbarkeit.
-AKZEPTANZKRITERIEN:
-- Werte bleiben erhalten.
-
-TASK-ID: WF-SETTINGS-009
-STATUS: [x] Fertig
-ZIEL:
-Sicherheit-Karte mit Passwort-Reset.
-UMSETZUNG:
-- Firebase sendPasswordResetEmail.
-- UI-Feedback.
-AKZEPTANZKRITERIEN:
-- User erhält Passwort-Reset-Mail.
-
-TASK-ID: WF-SETTINGS-010
+TASK WF-MISS-001 – Firestore Collection missions anlegen
 STATUS: [ ] Offen
-ZIEL:
-Account Verwaltung finalisieren: DSGVO-Datenexport, Logout auf allen Geräten, Account löschen.
+ZIEL: Missionen zentral aus Firestore laden.
 UMSETZUNG:
-- Datenexport-Konzept.
-- Reauthentifizierung für Löschung.
-- Firestore/Auth-Löschung sicher planen.
+Collection: missions
+[ ] missionId
+[ ] title
+[ ] description
+[ ] type
+[ ] difficulty
+[ ] pointsReward
+[ ] startDate
+[ ] endDate
+[ ] targetValue
+[ ] unit
+[ ] sponsorId optional
+[ ] active
+[ ] createdAt
 AKZEPTANZKRITERIEN:
-- Kein halber Löschzustand.
-- User bekommt klare Warnung.
+[ ] Missionen werden aus Firestore geladen.
+[ ] Nur active Missionen werden im Userbereich angezeigt.
+[ ] Fehlende Missionen zeigen eine leere, saubere UI.
 
-============================================================
-3. DASHBOARD / CORE LOOP
-============================================================
-
-TASK-ID: WF-DASH-001
-STATUS: [x] Fertig
-ZIEL:
-Dashboard mit echten Userdaten verbinden.
-UMSETZUNG:
-- Firebase Auth lesen.
-- Firestore users/{uid} lesen.
-- Punkte, Schritte, Level, Flammi-Grundwerte anzeigen.
-AKZEPTANZKRITERIEN:
-- Dashboard zeigt Userdaten.
-
-TASK-ID: WF-DASH-002
-STATUS: [x] Fertig
-ZIEL:
-Dashboard schneller und stabiler laden.
-UMSETZUNG:
-- Local Dashboard Cache.
-- Firebase Sync danach.
-- lastLoginAt aktualisieren.
-AKZEPTANZKRITERIEN:
-- Dashboard zeigt schnell Daten.
-- Firebase überschreibt Cache nach Sync.
-
-TASK-ID: WF-DASH-003
+TASK WF-MISS-002 – Missionsliste im UI anbinden
 STATUS: [ ] Offen
-ZIEL:
-Echten Logout implementieren.
+ZIEL: Der Nutzer sieht echte Missionen aus Firestore.
 UMSETZUNG:
-- signOut(auth).
-- Redirect auf Login.
+[ ] Missionskarten mit Titel, Beschreibung, Punkten, Schwierigkeit.
+[ ] Filter nach Typ.
+[ ] Statusanzeige.
 AKZEPTANZKRITERIEN:
-- User wird sauber ausgeloggt.
+[ ] Missionen erscheinen dynamisch.
+[ ] Neue Mission in Firestore erscheint ohne Codeänderung.
+[ ] Mobile Darstellung funktioniert.
 
-TASK-ID: WF-DASH-004
+TASK WF-MISS-003 – Mission starten
 STATUS: [ ] Offen
-PRIORITÄT: Nächster technischer Schritt
-ZIEL:
-Realtime Sync statt getDoc.
+ZIEL: Nutzer kann eine Mission aktivieren.
 UMSETZUNG:
-- onSnapshot für User verwenden.
-- Dashboard reagiert live auf Firestore-Änderungen.
+Collection: userMissionProgress
+[ ] userId
+[ ] missionId
+[ ] progressValue
+[ ] status = active
+[ ] startedAt
 AKZEPTANZKRITERIEN:
-- Änderungen erscheinen ohne Reload.
-- Dashboard wirkt lebendig.
+[ ] Klick auf Mission starten erzeugt Progress-Dokument.
+[ ] Mission wird als aktiv angezeigt.
+[ ] Reload behält Status.
 
-TASK-ID: WF-DASH-005
+TASK WF-MISS-004 – Mission abschließen und Punkte vergeben
 STATUS: [ ] Offen
-ZIEL:
-Global User Store einführen.
+ZIEL: Beim Abschluss erhält der Nutzer Punkte.
 UMSETZUNG:
-- Zustand zentralisieren über Context oder Zustand.
-- Mehrfaches Laden vermeiden.
+[ ] status auf completed setzen.
+[ ] completedAt setzen.
+[ ] pointsGranted speichern.
+[ ] users.pointsTotal erhöhen.
+[ ] History-Eintrag erzeugen.
 AKZEPTANZKRITERIEN:
-- Schnellere Navigation.
-- Kein doppelter Firestore-Code.
+[ ] Punkte steigen korrekt.
+[ ] Mission kann nicht doppelt beliebig Punkte vergeben.
+[ ] Abschluss erscheint in History.
 
-TASK-ID: WF-DASH-006
+TASK WF-MISS-005 – Tages-/Wochen-/Challenge-/Abenteuerseiten final anbinden
 STATUS: [ ] Offen
-ZIEL:
-Dashboard-Core-Loop mit echten Missionen verbinden.
+ZIEL: Bestehende Missionsseiten werden echte Funktionsbereiche.
 UMSETZUNG:
-- Tagesmissionen aus Firestore laden.
-- Punkte aus Missionen vergeben.
-- Aktivitäten/Tracking in History speichern.
+[ ] /missionen/tagesmissionen
+[ ] /missionen/wochenmissionen
+[ ] /missionen/challenge
+[ ] /missionen/abenteuer
+[ ] /missionen/wettkaempfe
+[ ] /missionen/favoriten
+[ ] /missionen/history
 AKZEPTANZKRITERIEN:
-- Dashboard zeigt echte aktive Missionen.
+[ ] Keine reinen Dummybereiche mehr.
 
-============================================================
-4. MISSIONEN / GAMEPLAY
-============================================================
+------------------------------------------------------------
+EPIC WF-POINTS – Punkte, Level, Badges, Streaks
+------------------------------------------------------------
 
-TASK-ID: WF-MISSION-001
+TASK WF-POINTS-001 – Punkteformel definieren und implementieren
 STATUS: [ ] Offen
-ZIEL:
-Missionen vollständig mit Firestore verbinden.
+ZIEL: Punkte werden konsistent vergeben.
 UMSETZUNG:
-- Tagesmissionen, Wochenmissionen, Challenge, Abenteuer, Wettkämpfe.
-- Status offen/aktiv/erledigt.
+[ ] Punkte aus mission.pointsReward verwenden.
+[ ] Bonusregeln optional vorbereiten.
+[ ] doppelte Vergabe verhindern.
 AKZEPTANZKRITERIEN:
-- Missionen bleiben nach Reload erhalten.
+[ ] Punkte ändern sich nur durch gültige Events.
+[x] Punkte bleiben nach Reload erhalten.
 
-TASK-ID: WF-MISSION-002
+TASK WF-POINTS-002 – Levelsystem implementieren
+STATUS: [~] In Arbeit
+ZIEL: Nutzer steigt bei bestimmten Punkteschwellen auf.
+UMSETZUNG:
+[x] Basis-Level wird angezeigt/gespeichert.
+[ ] Levelschwellen final definieren.
+Beispiel:
+[ ] Level 1: 0 Punkte
+[ ] Level 2: 500 Punkte
+[ ] Level 3: 1.500 Punkte
+[ ] Level 4: 3.000 Punkte
+[ ] Level 5: 5.000 Punkte
+AKZEPTANZKRITERIEN:
+[ ] Level wird aus Punkten berechnet oder sauber gespeichert.
+[x] Dashboard zeigt Level grundsätzlich.
+[ ] Fortschrittsbalken bis nächstes Level funktioniert.
+
+TASK WF-POINTS-003 – History für Punkteereignisse
 STATUS: [ ] Offen
-ZIEL:
-Favoriten und History speichern.
+ZIEL: Nutzer sieht, wofür er Punkte erhalten hat.
 UMSETZUNG:
-- Mission-Favoriten je User.
-- Mission-History je User.
+Collection: history
+[ ] userId
+[ ] eventType
+[ ] pointsDelta
+[ ] referenceId
+[ ] createdAt
 AKZEPTANZKRITERIEN:
-- Favoriten und History bleiben erhalten.
+[ ] Missionabschluss erzeugt History-Eintrag.
+[ ] History-Seite zeigt Einträge chronologisch.
 
-TASK-ID: WF-MISSION-003
+------------------------------------------------------------
+EPIC WF-FAVORITES – Favoriten
+------------------------------------------------------------
+
+TASK WF-FAV-001 – Favoriten in Firestore speichern
 STATUS: [ ] Offen
-ZIEL:
-Belohnungslogik für Missionen sauber definieren.
+ZIEL: Favoriten bleiben geräteübergreifend erhalten.
 UMSETZUNG:
-- Punkte statt Token in Phase 1.
-- Anti-Cheat-Regeln.
-- Daily Limits.
+Collection: favorites
+[ ] userId
+[ ] itemType
+[ ] itemId
+[ ] createdAt
 AKZEPTANZKRITERIEN:
-- Keine unkontrollierte Punktevergabe.
+[ ] Nutzer kann Mission/Reward favorisieren.
+[ ] Favorit bleibt nach Reload erhalten.
+[ ] Nutzer kann Favorit entfernen.
 
-============================================================
-5. TRACKING / HEALTH / SMARTWATCH
-============================================================
+------------------------------------------------------------
+EPIC WF-TRACKING – Tracking Sessions
+------------------------------------------------------------
 
-TASK-ID: WF-TRACKING-001
+TASK WF-TRACK-001 – Tracking-Session Datenmodell vorbereiten
+STATUS: [ ] Offen
+ZIEL: Bewegungs-/Aktivitätssessions werden schlank gespeichert.
+UMSETZUNG:
+Collection: trackingSessions
+[ ] sessionId
+[ ] userId
+[ ] startTime
+[ ] endTime
+[ ] stepsAggregated
+[ ] distanceAggregated optional
+[ ] gpsStart optional
+[ ] gpsEnd optional
+[ ] eventsCount
+[ ] source
+AKZEPTANZKRITERIEN:
+[ ] Session kann gestartet werden.
+[ ] Session kann beendet werden.
+[ ] Aggregierte Werte werden gespeichert.
+[ ] Keine endlose Speicherung jedes GPS-Punktes.
+
+TASK WF-TRACK-002 – Manuelles Tracking für MVP
+STATUS: [~] In Arbeit
+ZIEL: Solange keine native Health-Integration aktiv ist, kann Tracking simuliert oder manuell getestet werden.
+UMSETZUNG:
+[x] Start/Stop Button.
+[x] Test-Schritte/Punkte werden erzeugt.
+[ ] Speicherung als trackingSessions.
+AKZEPTANZKRITERIEN:
+[ ] Testsession erscheint in Firestore.
+[x] Dashboard kann aggregierte Basisdaten anzeigen.
+
+TASK WF-TRACKING-001 – Echtes Aktivitäts-Tracking
 STATUS: [>] Später / Backlog
-PRIORITÄT: Grundgerüst / Echtes Aktivitäts-Tracking
 ZIEL:
 WellFit muss echte Schritte und echte Aktivitätsdaten aus zuverlässigen Gerätequellen verwenden. GPS alleine reicht nicht als Schrittzähler.
-GRUNDPRINZIP:
-Keine Fantasie-Schritte. Schritte, aktive Minuten, Workouts und Smartwatch-Daten müssen aus echten Sensoren oder Health-Plattformen kommen und nur nach Zustimmung verarbeitet werden.
 UMSETZUNG:
-- Handy-Schrittzähler / Pedometer prüfen.
-- Beschleunigungssensor / Motion Sensor prüfen.
-- Google Fit / Health Connect für Android prüfen.
-- Apple HealthKit für iOS prüfen.
-- Smartwatch-Daten prüfen: Apple Watch, Pixel Watch, Samsung Watch, Garmin.
-- Mögliche Datenpunkte: Schritte, aktive Minuten, Distanz, Herzfrequenz, Kalorien, Workouttyp, Trainingsdauer.
-- Datenquelle sichtbar speichern, z. B. source: phone_pedometer, health_connect, apple_health, smartwatch.
-- Nur Ergebnisdaten speichern, keine unnötigen Rohdaten.
-- Firestore-Struktur für trackingSessions und dailyActivity vorbereiten.
-- PWA-Grenzen dokumentieren; native App für vollständige Health-/Watch-Integration einplanen.
+[ ] Handy-Schrittzähler / Pedometer prüfen.
+[ ] Beschleunigungssensor / Motion Sensor prüfen.
+[ ] Google Fit / Health Connect prüfen.
+[ ] Apple HealthKit prüfen.
+[ ] Smartwatch-Daten prüfen: Apple Watch, Pixel Watch, Samsung Watch, Garmin.
+[ ] Datenquelle sichtbar speichern.
+[ ] PWA-Grenzen dokumentieren; native App für Health/Watch einplanen.
 AKZEPTANZKRITERIEN:
-- Schritte kommen aus echten Gerätesensoren oder Health APIs.
-- User erteilt explizite Zustimmung.
-- Datenquelle wird angezeigt.
-- Keine manuell erfundenen Schritte.
-- Daten können für Punkte, Missionen und Tagesfortschritt genutzt werden.
+[ ] Schritte kommen aus echten Gerätesensoren oder Health APIs.
+[ ] Keine Fantasie-Schritte.
 
-TASK-ID: WF-TRACKING-002
+------------------------------------------------------------
+EPIC WF-DASH – Dashboard
+------------------------------------------------------------
+
+TASK WF-DASH-001 – Dashboard mit Firestore-Daten verbinden
+STATUS: [x] Fertig
+ZIEL: Dashboard zeigt echte Nutzerdaten.
+UMSETZUNG:
+[x] pointsTotal/points laden.
+[x] level laden/berechnen.
+[ ] streak laden.
+[ ] aktive Missionen laden.
+[ ] abgeschlossene Missionen laden.
+[ ] History kurz anzeigen.
+AKZEPTANZKRITERIEN:
+[x] Keine reinen Dummywerte für User/Punkte/Avatar.
+[ ] Dashboard aktualisiert sich nach Missionabschluss.
+[x] Reload zeigt korrekten Stand.
+
+TASK WF-DASH-002 – Dashboard UX finalisieren
+STATUS: [~] In Arbeit
+ZIEL: Nutzer erkennt sofort seinen Fortschritt und die nächste Aktion.
+UMSETZUNG:
+[ ] Tagespunkte.
+[ ] Wochenpunkte.
+[x] Gesamtpunkte.
+[x] Level.
+[x] Fortschrittsbalken.
+[ ] Streak.
+[ ] aktuelle Mission.
+[ ] nächste empfohlene Mission.
+[x] Avatar-/Buddy-Status.
+AKZEPTANZKRITERIEN:
+[~] Wichtigste Aktion ist sichtbar.
+[ ] Mobile Ansicht ist sauber.
+[ ] Keine überladenen Cards.
+
+TASK WF-DASH-003 – Echter Logout / Session
 STATUS: [ ] Offen
-ZIEL:
-Firestore-Datenmodell für Tracking definieren.
+ZIEL: User kann sich sauber abmelden.
 UMSETZUNG:
-- dailyActivity/{uid}/{date}
-- trackingSessions
-- steps, source, confidence, activeMinutes, calories, workoutType.
+[ ] signOut(auth).
+[ ] Redirect auf Login.
 AKZEPTANZKRITERIEN:
-- Dashboard und Mobile können dieselben Aktivitätsdaten nutzen.
+[ ] User wird sauber ausgeloggt.
 
-============================================================
-6. MOBILE / APP / AR
-============================================================
-
-TASK-ID: WF-MOBILE-001
-STATUS: [>] Später / Backlog
-PRIORITÄT: Grundgerüst / Mobile Roadmap
-ZIEL:
-Mobile WellFit Companion App als täglichen AR-Begleiter definieren. Die Web-App bleibt die Steuerzentrale, die Mobile App ist für tägliche Bewegung, Kamera/AR, Missionen, Buddy und Fortschritt gedacht.
-GRUNDPRINZIP:
-Die Mobile App darf keine vollständige Kopie der Web-App werden. Die Startseite ist ein AR-Kamera-Screen.
-STRATEGIE:
-- PWA/Web-Prototyp nur für schnelle interne technische Validierung.
-- Für echte Testphase App-Store-Testkanäle einplanen.
-- Danach native oder Hybrid-App bauen.
-UMSETZUNG:
-- Kamera startet nicht automatisch beim Öffnen.
-- User klickt auf "AR starten" oder gibt bewusst Kamera-Permission.
-- Oben links: Hamburger-Menü.
-- Oben daneben: Buddy-Level.
-- Oben rechts: kleines Nutzerbild.
-- Unten: nur Tagesfortschritt-Balken.
-- AR-Objekte räumlich einbetten, nicht flach überlagern.
-AKZEPTANZKRITERIEN:
-- AR/Kamera steht im Mittelpunkt.
-- Mobile App bleibt schlank.
-
-TASK-ID: WF-MOBILE-002
-STATUS: [>] Später / Backlog
-ZIEL:
-App-Store-Teststrategie definieren.
-UMSETZUNG:
-- PWA nur als schneller interner Prototyp.
-- iOS-Testphase über TestFlight planen.
-- Android-Testphase über Google Play Internal/Closed Testing planen.
-- Prüfen: React Native / Expo, Capacitor oder native Swift/Kotlin.
-- HealthKit, Health Connect, Kamera, ARKit/ARCore und Watch-Daten berücksichtigen.
-- Store-Compliance für Kamera, Gesundheitsdaten, Tracking und KI-Hinweise vorbereiten.
-AKZEPTANZKRITERIEN:
-- Klarer Weg zu App Store / Play Store Testphase.
-
-TASK-ID: WF-MOBILE-003
+TASK WF-DASH-004 – Realtime Sync statt getDoc
 STATUS: [ ] Offen
-ZIEL:
-Mobile Menüstruktur definieren.
+PRIORITÄT: nächster technischer Schritt
+ZIEL: Dashboard reagiert live auf Firestore-Änderungen.
 UMSETZUNG:
-- Home/AR
-- Missionen
-- Buddy
-- Profil Light
-- Einstellungen Light
-- Hilfe
-- Logout
+[ ] onSnapshot für User verwenden.
+[ ] Cache + Realtime sauber kombinieren.
 AKZEPTANZKRITERIEN:
-- Mobile App ist nicht überladen.
+[ ] Änderungen erscheinen ohne Reload.
 
-TASK-ID: WF-AR-001
-STATUS: [>] Später / Backlog
-ZIEL:
-Räumliche AR-Objekte in realer Umgebung platzieren.
-UMSETZUNG:
-- Plane Detection.
-- Anchors.
-- Perspektive/Skalierung.
-- Schatten/Licht.
-- spätere Occlusion.
-AKZEPTANZKRITERIEN:
-- Objekte wirken real platziert.
-
-============================================================
-7. KI / POSE / EMOTION / BUDDY INTELLIGENCE
-============================================================
-
-TASK-ID: WF-AI-POSE-001
-STATUS: [>] Später / Backlog
-PRIORITÄT: Grundgerüst / Mobile KI / Fitnesskern
-ZIEL:
-WellFit soll über Kamera und Pose Estimation/Skeleton Tracking erkennen, ob User Übungen wie Liegestütze oder Kniebeugen wirklich durchführen und ob die Bewegung grob korrekt ist.
-GRUNDPRINZIP:
-Schlechte Wiederholungen werden nicht gezählt.
-UMSETZUNG:
-- TensorFlow.js und MediaPipe als Kandidaten prüfen.
-- Erste Übungen: Liegestütze und Kniebeugen.
-- Bewegungsphasen erkennen.
-- Nur gültige Wiederholungen belohnen.
-- Ungültige Wiederholungen separat erfassen.
-- Buddy erklärt, warum nicht gezählt wurde.
-AKZEPTANZKRITERIEN:
-- Gültige Reps zählen.
-- Schlechte Reps zählen nicht.
-
-TASK-ID: WF-AI-EMOTION-001
-STATUS: [>] Später / Backlog
-ZIEL:
-Buddy erkennt optional grobe Stimmung/Mimik und passt Reaktion an.
-UMSETZUNG:
-- Nur nach Zustimmung.
-- Kategorien: gut, müde, gestresst, genervt, traurig, motiviert, konzentriert, überfordert.
-- Keine medizinischen Diagnosen.
-- Keine Kamerabilder speichern.
-AKZEPTANZKRITERIEN:
-- Buddy reagiert vorsichtig und passend.
-
-TASK-ID: WF-AI-BUDDY-001
+TASK WF-DASH-005 – Global User Store
 STATUS: [ ] Offen
-ZIEL:
-Buddy-Reaktionslogik aus gespeicherten Userdaten entwickeln.
+ZIEL: Kein mehrfaches Laden auf verschiedenen Seiten.
 UMSETZUNG:
-- Profil, Vitalwerte, Lifestyle, Aktivität, Stimmung, Trackingdaten nutzen.
-- Charaktere und Verhaltensdynamik berücksichtigen.
+[ ] Context/Zustand prüfen.
+[ ] zentraler User-State.
 AKZEPTANZKRITERIEN:
-- Buddy reagiert personalisiert.
+[ ] Schnellere Navigation.
 
-============================================================
-8. DATEN / ARCHITEKTUR / MAPPER
-============================================================
+------------------------------------------------------------
+EPIC WF-REWARDS – Rewards / Reward Center
+------------------------------------------------------------
 
-TASK-ID: WF-DATA-001
+TASK WF-REW-001 – Reward Center statt echter Wallet vorbereiten
 STATUS: [ ] Offen
-ZIEL:
-Zentrales Userdaten-Mapping schaffen.
+ZIEL: Punkte, Badges, Level und Rewards anzeigen, ohne echte Kryptowallet.
 UMSETZUNG:
-- userProfileMapper.ts oder registrationMapper.ts.
-- Registration-Rohwerte, Settings-Werte und Firestore-Zielstruktur zentral definieren.
+[ ] Menüpunkt prüfen: Wallet oder Reward Center.
+[ ] Punkte anzeigen.
+[ ] Rewards anzeigen.
+[ ] Badges anzeigen.
+[ ] Token als später kennzeichnen.
 AKZEPTANZKRITERIEN:
-- Keine doppelte Mapping-Logik in mehreren Dateien.
+[ ] Keine Investment-Sprache.
+[ ] Keine echte Kryptowert-Darstellung.
+[ ] Nutzer versteht: Punkte jetzt, Token später.
 
-TASK-ID: WF-DATA-002
+TASK WF-REW-002 – Rewards aus Firestore laden
 STATUS: [ ] Offen
-ZIEL:
-Firestore-Struktur final dokumentieren.
+ZIEL: Rewards zentral verwalten.
 UMSETZUNG:
-- users/{uid}
-- settings
-- profile
-- avatar
-- dailyActivity
-- trackingSessions
-- missions
-- history
+Collection: rewards
+[ ] rewardId
+[ ] title
+[ ] description
+[ ] category
+[ ] pointsCost
+[ ] partnerId optional
+[ ] active
 AKZEPTANZKRITERIEN:
-- Entwickler wissen, wo welche Daten liegen.
+[ ] Rewardliste lädt aus Firestore.
+[ ] Nur aktive Rewards sichtbar.
+[ ] Punktepreis wird angezeigt.
 
-============================================================
-9. HILFE / RECHTLICH / SUPPORT
-============================================================
+------------------------------------------------------------
+EPIC WF-LEADERBOARD – Leaderboard
+------------------------------------------------------------
 
-TASK-ID: WF-HELP-001
+TASK WF-LB-001 – Einfaches Leaderboard bauen
 STATUS: [ ] Offen
-ZIEL:
-Hilfeseite fertigstellen.
+ZIEL: Nutzer sehen Rangliste auf Punktebasis.
 UMSETZUNG:
-- Route /hilfe anlegen.
-- Inhalte: Erste Schritte, Registrierung, Punkte, Missionen, KI-Buddy, Datenschutz, Support.
-- Zurück-Verhalten prüfen.
+[ ] Top 10 anzeigen.
+[ ] eigenen Rang anzeigen.
+[ ] username statt echtem Namen.
 AKZEPTANZKRITERIEN:
-- Hilfe ist erreichbar und hat echten Inhalt.
+[ ] Leaderboard zeigt Punkte sortiert absteigend.
+[ ] Datenschutz: keine E-Mail sichtbar.
+[ ] Reload funktioniert.
 
-TASK-ID: WF-LEGAL-001
+------------------------------------------------------------
+EPIC WF-FEEDBACK – Feedback und Bugmeldungen
+------------------------------------------------------------
+
+TASK WF-FB-001 – Feedbackformular bauen
 STATUS: [ ] Offen
-ZIEL:
-Rechtliche Seiten für App-Funktionen prüfen.
+ZIEL: Pilotnutzer können Feedback geben.
 UMSETZUNG:
-- Datenschutz für Kamera, Health-Daten, Tracking, KI, Pose, Emotion, Smartwatch.
-- AGB um Punkte/Missionen/kein Investmentversprechen ergänzen.
+Collection: feedback
+[ ] userId optional
+[ ] rating
+[ ] message
+[ ] page
+[ ] createdAt
 AKZEPTANZKRITERIEN:
-- Rechtliche Texte passen zum Produkt.
+[ ] Feedback wird in Firestore gespeichert.
+[ ] Rating und Text sind Pflicht oder sauber validiert.
+[ ] Erfolgsmeldung nach Absenden.
+
+------------------------------------------------------------
+EPIC WF-ADMIN – Adminbereich
+------------------------------------------------------------
+
+TASK WF-ADMIN-001 – Adminrolle vorbereiten
+STATUS: [ ] Offen
+ZIEL: Nur Admins können Missionen/Rewards verwalten.
+UMSETZUNG:
+[ ] users.role verwenden.
+[ ] Adminroute schützen.
+[ ] Nicht-Admins blockieren.
+AKZEPTANZKRITERIEN:
+[ ] User ohne Adminrolle sieht Adminbereich nicht.
+[ ] Admin kann Bereich öffnen.
+
+TASK WF-ADMIN-002 – Missionen im Adminbereich erstellen/bearbeiten
+STATUS: [ ] Offen
+ZIEL: Missionen ohne Codeänderung pflegen.
+UMSETZUNG:
+[ ] Mission erstellen.
+[ ] Mission bearbeiten.
+[ ] Mission aktiv/inaktiv setzen.
+AKZEPTANZKRITERIEN:
+[ ] neue Mission erscheint im Userbereich.
+[ ] deaktivierte Mission verschwindet im Userbereich.
 
 ============================================================
-10. TOKEN / SOLANA / MARKETPLACE / ECONOMY
+4. FIREBASE / FIRESTORE ENTSCHEIDUNG
 ============================================================
 
-TASK-ID: WF-TOKEN-001
+Für Phase 1 sehr sinnvoll.
+
+Wenn das Ziel jetzt ist:
+- echte User statt localStorage,
+- echte History,
+- echte Favoriten,
+- erste produktive Version,
+- Tracking-Daten sicher speichern,
+- schnell online gehen,
+
+dann ist Firebase absolut sinnvoll.
+
+Für Phase 2/3 vielleicht nicht ideal, wenn das Ziel später ist:
+- skalierbare Game Engine,
+- komplexe Rewards,
+- Anti-Cheat,
+- KI-gesteuerte Missionserzeugung,
+- starke Datenanalyse,
+- hohe Regelkontrolle,
+- viele Tracking-Events.
+
+Plan:
+[x] Firebase Auth + Firestore jetzt verwenden.
+[x] echte Registrierung/Login umsetzen.
+[x] User-Profile in Firebase speichern.
+[ ] Missionen in Firestore speichern.
+[ ] Favoriten in Firestore speichern.
+[ ] History in Firestore speichern.
+[ ] Tracking-Sessions in Firestore speichern.
+[ ] GPS-/Event-Daten zunächst schlank speichern.
+[x] Server in Singapur für die App verwendet.
+[x] Next.js dort deployen.
+[x] keine eigene DB-Administration am Anfang.
+[x] weniger DevOps, weniger Fehlerquellen.
+[~] Regel: keine Game-Logik mehr im localStorage.
+[~] localStorage nur noch für UI-Dinge verwenden.
+[x] Punkte, Avatarstatus und Basiswerte in Firebase speichern.
+[ ] Missionstatus und History immer in Firebase speichern.
+[ ] Firebase-Datenmodell bewusst einfach halten.
+[ ] nicht jeden GPS-Punkt endlos speichern.
+[ ] Sessions und aggregierte Events speichern.
+[ ] Reads/Writes im Blick behalten, weil Firestore nach Operationen abrechnet.
+[ ] Später migrieren, wenn nötig.
+[ ] Wenn WellFit groß wird, Teile später auf eigenes Backend + SQL ziehen.
+
+Merksatz:
+Firebase ist ein gutes Startproblem-Lösungsmittel. Skalierung ist ein späteres Problem.
+
+============================================================
+5. DATENMODELL FIREBASE / FIRESTORE
+============================================================
+
+Collection: users
+[x] userId
+[x] email
+[x] displayName / firstName / lastName
+[ ] username
+[ ] photoURL optional
+[ ] role: user/admin/companyAdmin/partner
+[x] language
+[ ] country
+[x] pointsTotal / points
+[x] level
+[ ] streak
+[x] createdAt
+[x] lastLoginAt
+[ ] onboardingCompleted final verwenden
+[ ] privacyConsent
+[ ] marketingConsent
+[x] profile
+[x] settings
+[x] avatar
+
+Collection: missions
+[ ] missionId
+[ ] title
+[ ] description
+[ ] type: movement/learning/location/team/company/event/partner
+[ ] difficulty: easy/medium/hard
+[ ] pointsReward
+[ ] startDate
+[ ] endDate
+[ ] targetValue
+[ ] unit: steps/minutes/questions/checkin
+[ ] sponsorId optional
+[ ] active
+[ ] createdAt
+
+Collection: userMissionProgress
+[ ] userId
+[ ] missionId
+[ ] progressValue
+[ ] status: open/active/completed/expired
+[ ] completedAt
+[ ] pointsGranted
+[ ] proofType: manual/steps/gps/question/event/pose/health
+
+Collection: trackingSessions
+[ ] sessionId
+[ ] userId
+[ ] startTime
+[ ] endTime
+[ ] stepsAggregated
+[ ] distanceAggregated optional
+[ ] gpsStart optional
+[ ] gpsEnd optional
+[ ] eventsCount
+[ ] source: manual/mobile/googleFit/appleHealth/healthConnect/smartwatch/pose
+
+Collection: dailyActivity
+[ ] userId
+[ ] date
+[ ] steps
+[ ] activeMinutes
+[ ] calories optional
+[ ] distance optional
+[ ] source
+[ ] confidence
+[ ] updatedAt
+
+Collection: poseSessions
+[ ] sessionId
+[ ] userId
+[ ] exerciseType: pushup/squat/plank/later
+[ ] validReps
+[ ] invalidReps
+[ ] qualityScore
+[ ] confidence
+[ ] feedbackSummary
+[ ] startedAt
+[ ] endedAt
+[ ] source
+
+Collection: favorites
+[ ] userId
+[ ] itemType: mission/reward/location/partner
+[ ] itemId
+[ ] createdAt
+
+Collection: history
+[ ] userId
+[ ] eventType: missionCompleted/pointsEarned/rewardRedeemed/levelUp/login/buddyFed/poseCompleted
+[ ] pointsDelta
+[ ] referenceId
+[ ] createdAt
+
+Collection: rewards
+[ ] rewardId
+[ ] title
+[ ] description
+[ ] category
+[ ] pointsCost
+[ ] partnerId optional
+[ ] stock optional
+[ ] validUntil optional
+[ ] active
+
+Collection: leaderboard
+[ ] period: daily/weekly/monthly/event
+[ ] userId
+[ ] username
+[ ] points
+[ ] rank
+[ ] teamId optional
+
+Collection: companies
+[ ] companyId
+[ ] name
+[ ] industry
+[ ] adminUserId
+[ ] active
+[ ] createdAt
+
+Collection: teams
+[ ] teamId
+[ ] companyId optional
+[ ] name
+[ ] memberUserIds
+[ ] points
+
+Collection: partners
+[ ] partnerId
+[ ] name
+[ ] type: brand/location/event/health/fitness/education
+[ ] contactEmail
+[ ] active
+
+Collection: feedback
+[ ] feedbackId
+[ ] userId optional
+[ ] rating
+[ ] message
+[ ] page
+[ ] createdAt
+
+============================================================
+6. WEBSITE / LANDINGPAGE TO-DOS
+============================================================
+
+[ ] Startseite klarer machen.
+[ ] Hero-Text schärfen.
+[ ] Problem erklären: Menschen bewegen sich zu wenig, Motivation fehlt, Gesundheitsprogramme sind oft langweilig.
+[ ] Lösung erklären: WellFit macht Bewegung spielerisch, sozial und belohnend.
+[ ] Zielgruppen darstellen: Nutzer, Familien, Firmen, Städte, Marken, Investoren.
+[ ] echte App-Screens / Produkt-Screens einbauen, keine Clickdummy-Sprache.
+[ ] Roadmap anzeigen.
+[ ] Investor-Bereich einbauen.
+[ ] Pilotpartner-Bereich einbauen.
+[ ] Warteliste oder Registrierung einbauen.
+[ ] Kontaktformular einbauen.
+[ ] Impressum vollständig machen.
+[ ] Datenschutzseite vollständig machen.
+[ ] AGB vorbereiten.
+[ ] Mobile Ansicht prüfen.
+[ ] Ladezeiten prüfen.
+[ ] Menüführung prüfen.
+[ ] Tote Links entfernen.
+[ ] Rechtschreibfehler korrigieren.
+[ ] Token nicht zu dominant auf Startseite platzieren.
+[ ] Keine unrealistischen Versprechen machen.
+
+Möglicher Hero:
+WellFit verwandelt Bewegung, Lernen und Gesundheit in ein spielerisches Belohnungssystem.
+Starte Missionen, sammle Punkte, steig im Level auf und werde Teil einer aktiven Community.
+
+CTA:
+[ ] Registrieren / Beta testen.
+[ ] Pilotpartner werden.
+[ ] Investorengespräch anfragen.
+
+============================================================
+7. APP / DASHBOARD TO-DOS
+============================================================
+
+Sidebar / Navigation:
+[x] Dashboard
+[x] Missionen
+[ ] Mein KI-Buddy
+[ ] Marktplatz
+[ ] Leaderboard
+[ ] Wallet oder Reward Center
+[ ] Analytics & Stats
+[ ] Company
+[x] Einstellungen
+[x] Helligkeit
+[x] Datenschutz
+[x] AGB
+[x] Impressum
+[x] FAQ
+[~] Hilfe
+[ ] Abmelden
+
+Dashboard muss zeigen:
+[ ] Tagespunkte.
+[ ] Wochenpunkte.
+[x] Gesamtpunkte.
+[x] Level.
+[x] Fortschrittsbalken.
+[ ] Streak.
+[ ] aktuelle Mission.
+[ ] nächste empfohlene Mission.
+[ ] abgeschlossene Missionen.
+[x] Avatar-/Buddy-Status.
+[ ] nächste Belohnung.
+[ ] Leaderboard-Position.
+[x] kurze Motivation.
+
+Zusätzliche UX-To-dos:
+[~] Dummy-Daten durch echte Firestore-Daten ersetzen, sobald produktrelevant.
+[x] Buttons eindeutig beschriften.
+[x] Fortschritt visuell stärker machen.
+[~] Nutzer sofort zur ersten Aktion führen.
+[ ] Keine überladenen Screens.
+[ ] Mobile Bedienbarkeit prüfen.
+[ ] Einheitliche Karten-Komponenten verwenden.
+
+============================================================
+8. MISSIONEN-MODUL
+============================================================
+
+Missionstypen:
+[ ] Bewegungsmissionen.
+[ ] Lernmissionen.
+[ ] Ortsmissionen.
+[ ] Teammissionen.
+[ ] Familienmissionen.
+[ ] Firmenmissionen.
+[ ] Eventmissionen.
+[ ] Partner-/Brand-Missionen.
+
+Beispiele:
+[ ] Gehe heute 3.000 Schritte.
+[ ] Beantworte 3 Gesundheitsfragen.
+[ ] Besuche einen Park in deiner Nähe.
+[ ] Sammle mit deinem Team 100.000 Schritte.
+[ ] Schließe 3 Missionen diese Woche ab.
+[ ] Halte eine 7-Tage-Streak.
+[ ] Mache 10 gültige Liegestütze.
+[ ] Mache 20 gültige Kniebeugen.
+
+Missionslogik:
+[ ] Status: offen, aktiv, abgeschlossen, verpasst.
+[ ] Schwierigkeitsgrad: leicht, mittel, schwer.
+[ ] Punktewerte definieren.
+[ ] Zeitfenster definieren.
+[ ] Wiederholbarkeit definieren.
+[ ] Sponsor optional.
+[ ] Nachweislogik definieren.
+[ ] Anti-Cheat-Grundregeln definieren.
+[ ] Schlechte Pose-Wiederholungen nicht zählen.
+
+============================================================
+9. GAMIFICATION
+============================================================
+
+Elemente:
+[x] Punkte.
+[~] Level.
+[ ] Badges.
+[ ] Streaks.
+[ ] Leaderboards.
+[ ] Teams.
+[ ] Ligen.
+[x] Avatar-Energie.
+[x] Avatar-Hunger.
+[ ] Rewards.
+[ ] saisonale Challenges.
+[ ] Founding Member Status.
+[ ] WellFit OG Badge.
+
+To-dos:
+[ ] Punkteformel definieren.
+[ ] Levelstufen definieren.
+[ ] 10 erste Badges definieren.
+[ ] 20 erste Missionen definieren.
+[ ] 10 erste Rewards definieren.
+[ ] Wochen-Challenges definieren.
+[ ] Anfänger sollen nicht demotiviert werden.
+[ ] persönliche Bestleistungen einbauen.
+[ ] Teambeitrag wichtiger machen als reine Schrittzahl.
+
+============================================================
+10. KI-BUDDY / AURA
+============================================================
+
+Rolle:
+[ ] motiviert Nutzer.
+[ ] schlägt Missionen vor.
+[ ] erklärt Fortschritt.
+[ ] beantwortet einfache Fragen.
+[ ] gibt Tagesimpulse.
+[x] begleitet Avatar-/Level-Fortschritt in Grundform.
+
+Erste Produktversion:
+[x] zunächst statische Antworten möglich.
+[ ] einfache Regel-Logik möglich.
+[ ] später echte KI integrieren.
+
+Sicherheitsgrenzen:
+[x] keine medizinischen Diagnosen.
+[x] keine Therapieempfehlungen.
+[x] bei Beschwerden Arzt empfehlen.
+[x] Datenschutz transparent erklären.
+[x] keine manipulativen Aussagen.
+
+To-dos:
+[ ] Name final entscheiden: Aura, WellFit Buddy, FitAura, Coach oder anderer Name.
+[ ] Persönlichkeit definieren.
+[ ] Beispieltexte schreiben.
+[ ] Chat-UI bauen.
+[ ] Tagesimpuls-Komponente bauen.
+[>] Mimik/Stimmungserkennung optional vorbereiten.
+[>] Pose-Feedback für gültige/ungültige Wiederholungen vorbereiten.
+
+TASK WF-AI-POSE-001 – Pose Tracking / Skeleton Tracking
 STATUS: [>] Später / Backlog
-ZIEL:
-Token-Integration später vorbereiten, aber nicht für Phase-1-Pilot erzwingen.
+ZIEL: Kamera erkennt Liegestütze und Kniebeugen und zählt nur gültige Wiederholungen.
 UMSETZUNG:
-- Punkte als Phase-1-Währung.
-- Später Solana-Wallet/Token.
-- Keine Investmentversprechen in Nutzerbereichen.
+[ ] TensorFlow.js prüfen.
+[ ] MediaPipe prüfen.
+[ ] Körperpunkte erkennen.
+[ ] Bewegungsphasen erkennen.
+[ ] schlechte Wiederholungen nicht zählen.
+[ ] Buddy-Feedback bei Fehlern.
 AKZEPTANZKRITERIEN:
-- App funktioniert ohne Token.
+[ ] gültige Reps zählen.
+[ ] ungültige Reps zählen nicht.
 
-TASK-ID: WF-ECON-001
-STATUS: [ ] Offen
-ZIEL:
-Punkte-Economy balancieren.
-UMSETZUNG:
-- Rewards.
-- Kosten für Futter/Items.
-- Daily Caps.
-- Anti-Cheat.
-AKZEPTANZKRITERIEN:
-- Punkte werden kontrolliert vergeben.
-
-============================================================
-11. PILOT / BUSINESSPLAN / INVESTOREN
-============================================================
-
-TASK-ID: WF-PILOT-001
+TASK WF-AI-EMOTION-001 – Mimik/Stimmungsanalyse
 STATUS: [>] Später / Backlog
-ZIEL:
-Pilot mit echten Usern vorbereiten.
+ZIEL: Buddy erkennt optional grobe Stimmung, z. B. gut, müde, genervt, gestresst, motiviert.
 UMSETZUNG:
-- 100–500 User in Wien.
-- 2–3 Wochen Nutzungsdaten.
-- Retention, Aktivität, Mission Completion, Feedback.
+[ ] nur nach Zustimmung.
+[ ] keine Diagnose-Sprache.
+[ ] keine Kamerabilder speichern.
 AKZEPTANZKRITERIEN:
-- echte Daten für Investoren.
-
-TASK-ID: WF-BIZ-001
-STATUS: [>] Später / Backlog
-ZIEL:
-Businessplan/Investorennachweise mit Produktdaten verbinden.
-UMSETZUNG:
-- Tranche-Modell.
-- Pilotdaten.
-- LOIs.
-- Partner.
-- B2B Revenue-Säulen.
-AKZEPTANZKRITERIEN:
-- Investor Story basiert auf Produktfortschritt.
+[ ] Buddy reagiert vorsichtig und passend.
 
 ============================================================
-12. OFFENE TESTS VOR NÄCHSTEM DEPLOY
+11. WALLET / REWARD CENTER / TOKEN SPÄTER
+============================================================
+
+Erste Produktversion:
+[x] Punkte anzeigen.
+[ ] Badges anzeigen.
+[x] Level anzeigen.
+[ ] Rewards anzeigen.
+[ ] digitale Items anzeigen.
+[x] keine echte Kryptowallet notwendig.
+
+Wichtig:
+[ ] Begriff Wallet eventuell vermeiden, solange kein echter Token aktiv ist.
+[ ] Alternative: Reward Center oder Meine Punkte.
+[x] Token als Coming Soon/später darstellen.
+[x] Keine Renditeversprechen.
+[x] Keine Investment-Sprache im Nutzerbereich.
+
+Später:
+[ ] Solana Wallet prüfen.
+[ ] Custodial vs. non-custodial prüfen.
+[ ] Token Utility definieren.
+[ ] KYC/AML prüfen.
+[ ] MiCAR prüfen.
+[ ] Apple/Google Store-Regeln prüfen.
+
+============================================================
+12. MARKTPLATZ
+============================================================
+
+Erste Produktversion:
+[ ] Rewards.
+[ ] Gutscheine.
+[ ] Partnerangebote.
+[ ] digitale Items.
+[ ] Avatar-Skins.
+[ ] Eventtickets später.
+
+Kategorien:
+[ ] Gesundheit.
+[ ] Sport.
+[ ] Ernährung.
+[ ] Wellness.
+[ ] Bildung.
+[ ] Events.
+[ ] digitale Items.
+
+To-dos:
+[ ] Reward-Karten gestalten.
+[ ] Punkte-Einlösung vorbereiten.
+[ ] Partnerflächen vorbereiten.
+[ ] Sponsored Mission Logik vorbereiten.
+[ ] Marketplace-Provisionsmodell später definieren.
+
+============================================================
+13. LEADERBOARD
+============================================================
+
+Varianten:
+[ ] global.
+[ ] Freunde.
+[ ] Familie.
+[ ] Firma.
+[ ] Stadt.
+[ ] Event.
+[ ] Altersgruppe.
+[ ] Team.
+
+Erste Produktversion:
+[ ] Top 10.
+[ ] eigene Platzierung.
+[ ] Wochenranking.
+[ ] Teamranking optional.
+
+Datenschutz:
+[ ] Nutzername statt echter Name.
+[ ] öffentliches Ranking nur mit Opt-in.
+[ ] sensible Daten nicht anzeigen.
+
+============================================================
+14. ANALYTICS & STATS
+============================================================
+
+Nutzeransicht:
+[ ] Schritte.
+[ ] aktive Minuten.
+[ ] Missionen abgeschlossen.
+[x] Punkte.
+[ ] Streak.
+[ ] Fortschritt.
+[ ] persönliche Ziele.
+
+Firmenansicht später:
+[ ] anonymisierte Teilnahmequote.
+[ ] Teamaktivität.
+[ ] Challenge-Fortschritt.
+[ ] Durchschnittsaktivität.
+[ ] keine personenbezogenen Gesundheitsdaten ohne Zustimmung.
+
+Investor-KPIs:
+[ ] Registrierungen.
+[ ] Aktivierungsrate.
+[ ] DAU.
+[ ] WAU.
+[ ] MAU.
+[ ] Retention D1/D7/D30.
+[ ] Mission Completion Rate.
+[ ] Referral Rate.
+[ ] Feedbackscore.
+[ ] CAC-Schätzung.
+
+============================================================
+15. MOBILE / APP / AR / STORE-TESTPHASE
+============================================================
+
+Grundsatz:
+Web-App = Steuerzentrale.
+Mobile App = täglicher AR-Begleiter.
+
+[>] PWA/Web-Prototyp nur als schnelle interne technische Validierung verwenden.
+[>] Für echte Testphase App-Store-Testkanäle einplanen.
+[>] iOS-Testphase über TestFlight planen.
+[>] Android-Testphase über Google Play Internal/Closed Testing planen.
+[>] Prüfen: React Native / Expo, Capacitor oder native Swift/Kotlin.
+[>] HealthKit, Health Connect, Kamera, ARKit/ARCore und Watch-Daten berücksichtigen.
+[>] Store-Compliance für Kamera, Gesundheitsdaten, Tracking und KI-Hinweise vorbereiten.
+
+Mobile Startscreen:
+[>] Kamera startet nicht automatisch.
+[>] User klickt auf "AR starten" oder gibt bewusst Kamera-Permission.
+[>] Oben links: Hamburger-Menü.
+[>] Oben daneben: Buddy-Level.
+[>] Oben rechts: kleines Nutzerbild.
+[>] Unten: nur Tagesfortschritt-Balken.
+[>] AR-Objekte räumlich einbetten, nicht flach überlagern.
+[>] Plane Detection / Anchors / Perspektive / Schatten / später Occlusion.
+
+Mobile Menüstruktur:
+[ ] Home/AR.
+[ ] Missionen.
+[ ] Buddy.
+[ ] Profil Light.
+[ ] Einstellungen Light.
+[ ] Hilfe.
+[ ] Logout.
+
+============================================================
+16. PILOT-ROADMAP
+============================================================
+
+Pilotziel:
+[ ] Nutzer verstehen WellFit.
+[ ] Nutzer machen Missionen.
+[ ] Nutzer kommen wieder.
+[ ] Punkte motivieren auch ohne Token.
+[ ] Partner sehen Nutzen.
+[ ] Investoren sehen echte Daten.
+
+Minimalpilot:
+[ ] 100 Nutzer.
+[ ] 2 Wochen.
+[ ] 5 bis 10 Missionen.
+[ ] Punkte.
+[ ] Leaderboard light.
+[ ] Feedbackformular.
+
+Stärkerer Pilot:
+[ ] 500 Nutzer.
+[ ] 3 Wochen.
+[ ] Firmenchallenge oder Stadtchallenge.
+[ ] 20 Missionen.
+[ ] Teamfunktion.
+[ ] Partnerreward.
+[ ] Ergebnisbericht.
+
+Pilot-To-dos:
+[ ] Pilotziel definieren.
+[ ] Pilotgebiet definieren.
+[ ] Zielgruppe auswählen.
+[ ] Landingpage oder Registrierungsseite für Pilot erstellen.
+[ ] Registrierung aktivieren.
+[ ] Datenschutz-Einwilligung vorbereiten.
+[ ] Missionen definieren.
+[ ] Punktewerte definieren.
+[ ] Rewards definieren.
+[ ] Supportkanal einrichten.
+[ ] tägliche Aktivität messen.
+[ ] Bugs dokumentieren.
+[ ] Nutzerfragen sammeln.
+[ ] Drop-off beobachten.
+[ ] Feedback auswerten.
+[ ] Ergebnisbericht erstellen.
+
+Pilot-KPIs:
+[ ] 100 bis 500 Registrierungen.
+[ ] Aktivierungsrate mindestens 50 Prozent.
+[ ] D7 Retention mindestens 20 Prozent, Ziel 35 Prozent.
+[ ] Mission Completion mindestens 30 Prozent, Ziel 50 Prozent.
+[ ] Feedbackscore mindestens 3,8 von 5, Ziel 4,3 von 5.
+[ ] Weiterempfehlung mindestens 20 Prozent.
+
+============================================================
+17. BUSINESSPLAN
+============================================================
+
+Kapitelstruktur:
+[ ] Executive Summary.
+[ ] Problem.
+[ ] Lösung.
+[ ] Markt.
+[ ] Zielgruppen.
+[ ] Produkt.
+[ ] Geschäftsmodell.
+[ ] Technologie.
+[ ] Tokenomics später.
+[ ] Go-to-Market.
+[ ] Pilotstrategie.
+[ ] Wettbewerb.
+[ ] Finanzplanung.
+[ ] Tranchiertes Investmentmodell.
+[ ] Risiken & Gegenmaßnahmen.
+[ ] Roadmap.
+[ ] Team.
+[ ] Exit-Potenzial.
+
+Geschäftsmodell Phase 1:
+[ ] B2B Firmenlizenzen.
+[ ] BGM-Challenges.
+[ ] Sponsored Missions.
+[ ] Partner-Rewards.
+[ ] White-Label-Challenges.
+[ ] Event-Challenges.
+[ ] Premium Accounts.
+
+Geschäftsmodell Phase 2:
+[ ] Stadt-/Tourismus-Challenges.
+[ ] Versicherungskooperationen.
+[ ] Gesundheitsprogramme.
+[ ] Marketplace-Provisionen.
+[ ] Brand Campaigns.
+[ ] anonymisierte Reports, DSGVO-konform.
+
+Geschäftsmodell Phase 3:
+[ ] Token Marketplace.
+[ ] Digital Items.
+[ ] AR-Skins.
+[ ] International Licensing.
+[ ] API-/Platform Fees.
+
+============================================================
+18. FINANZMODELL
+============================================================
+
+Kostenblöcke:
+[ ] Entwicklung.
+[ ] Design.
+[ ] Backend.
+[ ] App.
+[ ] Cloud.
+[ ] Firebase-Kosten.
+[ ] Legal.
+[ ] Datenschutz.
+[ ] Marketing.
+[ ] Pilot.
+[ ] Team.
+[ ] Security.
+[ ] Audit.
+
+Umsatzblöcke:
+[ ] Firmenlizenzen.
+[ ] Sponsored Missions.
+[ ] Marketplace Fees.
+[ ] Premium.
+[ ] Städte/Events.
+[ ] Partnerkampagnen.
+
+Szenarien:
+[ ] konservativ.
+[ ] realistisch.
+[ ] aggressiv.
+
+Berechnungen:
+[ ] 18-Monatsplanung.
+[ ] 36-Monatsplanung.
+[ ] Cash Burn.
+[ ] Runway.
+[ ] Break-even-Szenario.
+[ ] Tranche 1.
+[ ] Tranche 2.
+
+============================================================
+19. INVESTOREN-ROADMAP
+============================================================
+
+Investorendeck Slides:
+[ ] Titel.
+[ ] Vision.
+[ ] Problem.
+[ ] Lösung.
+[ ] Warum jetzt?
+[ ] Zielgruppen.
+[ ] Produktstand.
+[ ] Gamification Loop.
+[ ] Pilotplan.
+[ ] Markt.
+[ ] Geschäftsmodell.
+[ ] Go-to-Market.
+[ ] Technology Architecture.
+[ ] Token später.
+[ ] Traction / bisheriger Stand.
+[ ] Finanzplanung.
+[ ] Investment Ask.
+[ ] Roadmap.
+[ ] Team.
+[ ] Abschluss / Call to Action.
+
+Investmentlogik:
+[ ] Tranche 0: Produktumsetzung, Pilotvorbereitung, LOIs, erste Nutzerdaten.
+[ ] Tranche 1: ca. 1,5 Mio. EUR für Produktversion, Pilot, Kernteam/Agentur, Compliance-Basis.
+[ ] Tranche 2: ca. 3,5 Mio. EUR für DACH-Skalierung, Token-Vorbereitung, AR/KI-Ausbau.
+
+Einwände vorbereiten:
+[ ] Warum braucht WellFit Blockchain?
+[ ] Warum nicht einfach Strava?
+[ ] Wie verhindert WellFit Betrug?
+[ ] Wie verdient WellFit Geld?
+[ ] Warum investieren, wenn das Produkt noch nicht vollständig skaliert ist?
+[ ] Was ist regulatorisch erlaubt?
+[ ] Wie gewinnt WellFit Nutzer?
+[ ] Warum kann das groß werden?
+
+============================================================
+20. PARTNER / LOIs
+============================================================
+
+Benötigte LOIs:
+[ ] 1 Corporate-/BGM-Partner.
+[ ] 1 Location-/Event-/Gemeindepartner.
+[ ] Optional 1 Brand-/Sponsorpartner.
+
+LOI-Inhalt:
+[ ] Interesse am Pilot.
+[ ] Zielgruppe.
+[ ] Zeitraum.
+[ ] grober Umfang.
+[ ] keine harte Zahlungsverpflichtung notwendig.
+[ ] Option auf spätere Kooperation.
+[ ] Logo-Nutzung nur mit Freigabe.
+
+To-dos:
+[ ] LOI-Vorlage erstellen.
+[ ] Partner-Mail erstellen.
+[ ] Partner-One-Pager erstellen.
+[ ] Liste mit 20 potenziellen Partnern erstellen.
+[ ] 20 Partner anschreiben.
+[ ] 5 Gespräche führen.
+[ ] 2 LOIs sichern.
+
+============================================================
+21. MARKETING / COMMUNITY
+============================================================
+
+Kanäle:
+[ ] LinkedIn.
+[ ] Instagram.
+[ ] TikTok.
+[ ] Facebook.
+[ ] YouTube Shorts optional.
+[ ] X optional.
+
+Content-Säulen:
+[ ] Bewegung.
+[ ] Gesundheit.
+[ ] Gamification.
+[ ] Missionen.
+[ ] Founder Story.
+[ ] App-Screenshots.
+[ ] Pilotaufruf.
+[ ] Investor Updates.
+[ ] Partneraufrufe.
+[ ] KI/AR/Token-Zukunft.
+
+To-dos:
+[ ] 30-Tage-Contentplan erstellen.
+[ ] 10 LinkedIn-Posts erstellen.
+[ ] 10 Instagram-Posts erstellen.
+[ ] 10 TikTok-Ideen erstellen.
+[ ] 5 Investor-Posts erstellen.
+[ ] 5 Pilot-Posts erstellen.
+[ ] 5 Partner-Posts erstellen.
+[ ] Warteliste/Beta-Zugang bewerben.
+[ ] Founding Member Kampagne erstellen.
+[ ] WellFit OG Badge definieren.
+
+============================================================
+22. RECHT / DATENSCHUTZ / COMPLIANCE
+============================================================
+
+DSGVO:
+[ ] Datenschutzerklärung erstellen.
+[ ] Einwilligung für Bewegungsdaten.
+[ ] Einwilligung für Standortdaten.
+[ ] Einwilligung für Kamera/AR.
+[ ] Einwilligung für Pose Tracking.
+[ ] Einwilligung für Mimik/Stimmung optional.
+[ ] Altersfreigabe prüfen.
+[ ] Elternzustimmung bei Minderjährigen prüfen.
+[ ] Datenminimierung.
+[ ] Löschfunktion.
+[ ] Exportfunktion.
+[ ] Pseudonymisierung.
+[ ] Auftragsverarbeiterverträge.
+[ ] Hosting in EU prüfen.
+
+Medizinische Abgrenzung:
+[x] keine Heilversprechen.
+[x] keine Diagnosen.
+[x] keine Therapieempfehlungen.
+[x] Disclaimer: WellFit ersetzt keine medizinische Beratung.
+[x] KI-Buddy entsprechend begrenzen.
+[ ] Health Claims prüfen.
+
+Token / MiCAR:
+[ ] Juristische Prüfung.
+[ ] Token-Klassifikation.
+[ ] Whitepaper-Anforderungen.
+[ ] Pre-Sale-Struktur.
+[ ] KYC/AML.
+[ ] steuerliche Behandlung.
+[ ] Risikoaufklärung.
+[x] keine Renditeversprechen.
+
+============================================================
+23. STORE-SAFE ARCHITECTURE
+============================================================
+
+Grundsatz:
+Keine Mining- oder DePIN-Rechenlast auf dem Handy.
+Die App macht Interface, Missionen, GPS, Gamification und lokale KI-Elemente.
+Rechenintensive Prozesse laufen extern.
+
+Mobile App:
+[>] AR Interface.
+[>] GPS Checkpoints.
+[ ] Missionen.
+[x] Punkte.
+[>] KI-Buddy.
+[ ] Rewards.
+
+Off-device:
+[ ] Blockchain.
+[ ] DePIN.
+[ ] AI Training.
+[ ] Treasury.
+[ ] Analytics.
+[ ] Token-Logik.
+
+To-dos:
+[ ] Store-Safe-Diagramm erstellen.
+[ ] Apple Policy prüfen.
+[ ] Google Play Policy prüfen.
+[ ] sichere Bridge definieren.
+[ ] keine unzulässigen Tokenmechaniken im Store.
+
+============================================================
+24. AGENTUR / ENTWICKLER-BRIEFING
+============================================================
+
+Da vorerst keine Mitarbeiter eingestellt werden sollen, braucht WellFit ein vollständiges Aufgabenheft für eine externe Agentur oder einzelne Entwickler.
+
+Lastenheft muss enthalten:
+[ ] Projektbeschreibung.
+[ ] Ziel.
+[ ] aktueller Produktstand.
+[ ] Umfang der nächsten Produktversion.
+[ ] Nicht-Umfang der nächsten Produktversion.
+[ ] Nutzerrollen.
+[ ] Screens.
+[ ] User Stories.
+[ ] Datenmodell.
+[ ] APIs.
+[ ] Designvorgaben.
+[ ] Datenschutzanforderungen.
+[ ] Sicherheitsanforderungen.
+[ ] Testanforderungen.
+[ ] Milestones.
+[ ] Abnahmekriterien.
+[ ] Budgetrahmen.
+[ ] Zeitplan.
+
+Agentur-Auswahl:
+[ ] 5 bis 10 Agenturen identifizieren.
+[ ] NDA vorbereiten.
+[ ] Kurzbriefing versenden.
+[ ] Angebote vergleichen.
+[ ] Referenzen prüfen.
+[ ] Festpreis vs. Time & Material entscheiden.
+[ ] IP-Rechte vertraglich sichern.
+[ ] Quellcode-Eigentum sichern.
+[ ] GitHub-Zugriff regeln.
+[ ] Dokumentationspflicht festlegen.
+[ ] Wartung & Support definieren.
+
+============================================================
+25. GITHUB / ENTWICKLUNGSARBEIT
+============================================================
+
+Aktueller Stand:
+Das Repository Bernds-tech/WellFit-now ist sichtbar und bearbeitbar.
+
+Was mit GitHub gemacht werden kann:
+[x] Repository durchsuchen und Struktur erklären.
+[x] Dateien lesen und analysieren.
+[x] Fehler in Code, Konfiguration und Logik finden.
+[ ] README erstellen.
+[x] Dokumentation erstellen.
+[x] Aufgabenlisten erstellen.
+[x] technische Konzepte erstellen.
+[x] neue Dateien anlegen / vorbereiten.
+[x] bestehende Dateien ändern.
+[ ] Branches erstellen.
+[x] Commits vorbereiten.
+[ ] Pull Requests anlegen und prüfen.
+[ ] Issues erstellen und strukturieren.
+[ ] PR-Kommentare und Code-Review machen.
+[ ] Unterschiede zwischen zwei Ständen vergleichen.
+[ ] einfache GitHub-Workflow-/CI-Probleme prüfen.
+
+Konkrete WellFit-GitHub-To-dos:
+[ ] README.md erstellen oder verbessern.
+[ ] Projektstruktur dokumentieren.
+[ ] Setup-Anleitung schreiben.
+[ ] Firebase-Konfiguration dokumentieren.
+[ ] Environment Variables definieren.
+[ ] Deployment-Anleitung schreiben.
+[x] Roadmap-Datei aktuell halten.
+[ ] Issues aus dieser To-do-Liste erzeugen.
+[ ] Code-Qualität prüfen.
+[ ] Sicherheitslücken prüfen.
+[x] Secrets niemals ins Repo committen.
+
+============================================================
+26. PRIORITÄTENPLAN
+============================================================
+
+SOFORT – nächste 7 Tage:
+[ ] WF-DASH-004 Realtime Sync bauen.
+[ ] WF-HELP-001 Hilfeseite bauen.
+[ ] WF-DASH-003 Logout bauen.
+[ ] Repo-Struktur weiter analysieren.
+[ ] vorhandene localStorage-Nutzung vollständig finden.
+[ ] MVP-/Produktumfang der nächsten Version final festlegen.
+[ ] Alle SUI-Verweise suchen und auf Solana korrigieren.
+[x] Firebase Auth anbinden.
+[~] Firestore Datenmodell finalisieren.
+[ ] Website und App komplett durchklicken.
+[x] Dashboard mit echten Daten verbinden.
+[ ] Missionen-Modul mit Firestore verbinden.
+[ ] Punktesystem definieren und speichern.
+[ ] Pilot-Konzept 100 bis 500 Nutzer schreiben.
+[ ] Datenschutz-Basistext erstellen.
+
+NÄCHSTE 14 TAGE:
+[ ] 20 Missionen definieren und in Firestore anlegen.
+[ ] 10 Badges definieren.
+[ ] 10 Rewards definieren und in Firestore anlegen.
+[ ] 3 Nutzer-Personas schreiben.
+[ ] 3 Partner-Personas schreiben.
+[ ] Firmenpilot skizzieren.
+[ ] Stadt-/Gemeindepilot skizzieren.
+[ ] Familien-/Seniorenpilot skizzieren.
+[ ] Beta-/Registrierungsseite vorbereiten.
+[ ] Feedbackformular bauen.
+[ ] LinkedIn-Seite optimieren.
+[ ] 30-Tage-Contentplan erstellen.
+[ ] erste Partnerliste erstellen.
+[ ] erste Investorenliste erstellen.
+[ ] Förderstellen prüfen.
+
+NÄCHSTE 30 TAGE:
+[ ] Produktversion pilotfähig machen.
+[ ] Investorendeck v1 finalisieren.
+[ ] Businessplan v1 finalisieren.
+[ ] Finanzmodell v1 finalisieren.
+[ ] LOIs aktiv einholen.
+[ ] Pilotgruppe vorbereiten.
+[ ] Produkt-Walkthrough-Video aufnehmen.
+[ ] Produkt-One-Pager erstellen.
+[ ] Partner-One-Pager erstellen.
+[ ] Investor-One-Pager erstellen.
+[ ] Agenturangebote einholen.
+[ ] MVP-Kosten schätzen lassen.
+[ ] Datenschutzprüfung starten.
+[ ] Solana-Architektur grob skizzieren.
+[ ] Store-Safe Architecture visualisieren.
+
+NÄCHSTE 60 BIS 90 TAGE:
+[ ] Produktversion erweitern und stabilisieren.
+[ ] Backend/Firebase produktionsnah aufsetzen.
+[ ] Nutzerregistrierung aktivieren.
+[ ] Missionssystem funktionsfähig machen.
+[ ] Punktesystem speichern.
+[ ] Leaderboard aktivieren.
+[ ] Pilot starten.
+[ ] Feedback sammeln.
+[ ] KPIs messen.
+[ ] Bugs beheben.
+[ ] Partnerfeedback sichern.
+[ ] Pilotbericht erstellen.
+[ ] Investorentermine führen.
+[ ] Tranche-1-Gespräche starten.
+[ ] Förderanträge einreichen.
+[ ] rechtliche Tokenprüfung beginnen.
+[ ] B2B-Pipeline aufbauen.
+
+============================================================
+27. OFFENE ENTSCHEIDUNGEN
+============================================================
+
+[ ] PWA, React Native, Flutter, Capacitor oder native App?
+[ ] App-Store-Testphase: TestFlight + Google Play Closed Testing konkret planen.
+[ ] Firebase langfristig behalten oder später eigenes Backend?
+[ ] Wallet-Begriff im ersten Produkt verwenden oder durch Reward Center ersetzen?
+[ ] Name des KI-Buddys: Aura oder anderer Name?
+[ ] Erste Pilotzielgruppe: Firma, öffentliche Community, Familie/Senioren oder Stadt?
+[ ] Erste Region: Wien, Mödling, Niederösterreich oder online?
+[ ] Punkteformel final?
+[ ] Welche Daten dürfen im Pilot erhoben werden?
+[ ] Welche Partner zuerst ansprechen?
+[ ] Welche Förderstelle zuerst prüfen?
+[ ] Welche Agentur oder welcher Tech Lead kommt infrage?
+[ ] Welche echte Trackingquelle zuerst: Health Connect, Apple Health, Pedometer oder Watch?
+
+============================================================
+28. MERKSÄTZE FÜR DAS PROJEKT
+============================================================
+
+WellFit ist bereits in der Umsetzung und wird jetzt funktional fertiggestellt.
+WellFit startet nicht mit Spekulation, sondern mit Motivation.
+WellFit braucht zuerst echte Nutzung, dann Token.
+Punkte validieren Verhalten, Token skaliert später das Ökosystem.
+Firebase löst das Startproblem, nicht zwingend das Endproblem.
+Die erste Produktversion muss einfach, schnell und verständlich sein.
+Investoren kaufen nicht nur Idee, sondern Nachweise.
+LOIs, Pilotdaten und Retention sind stärker als reine Vision.
+Solana ist die geplante Blockchain.
+Keine Renditeversprechen.
+Keine medizinischen Versprechen.
+Keine unnötige Komplexität vor dem Pilot.
+Web-App ist die Steuerzentrale.
+Mobile App ist der tägliche AR-Begleiter.
+Schlechte Wiederholungen zählen nicht.
+Keine Fantasie-Schritte.
+
+============================================================
+29. NÄCHSTER KONKRETER SCHRITT
+============================================================
+
+Als nächstes sollte technisch umgesetzt werden:
+
+1. WF-DASH-004 – Realtime Sync statt getDoc.
+2. WF-HELP-001 – Hilfeseite fertigstellen.
+3. WF-DASH-003 – echter Logout.
+4. Danach Missionssystem mit Firestore verbinden.
+
+Parallel später aus dieser Masterliste eine strukturierte GitHub-Issue-Liste erzeugen:
+
+1. Epic: WF-CORE – Projektbasis und technische Ordnung
+2. Epic: WF-AUTH – Registrierung, Login und User-Profil
+3. Epic: WF-MISSIONS – Missionen und Fortschritt
+4. Epic: WF-POINTS – Punkte, Level, Badges, Streaks
+5. Epic: WF-FAVORITES – Favoriten
+6. Epic: WF-TRACKING – Tracking Sessions
+7. Epic: WF-DASH – Dashboard
+8. Epic: WF-REWARDS – Rewards / Reward Center
+9. Epic: WF-LEADERBOARD – Leaderboard
+10. Epic: WF-FEEDBACK – Feedback und Bugmeldungen
+11. Epic: WF-ADMIN – Adminbereich
+12. Epic: WF-LEGAL – Datenschutz und Compliance
+13. Epic: WF-SOLANA – Token später
+14. Epic: WF-MOBILE – Mobile App / AR / Store Testing
+15. Epic: WF-AI – Buddy / Pose / Emotion
+
+============================================================
+30. OFFENE TESTS VOR NÄCHSTEM DEPLOY
 ============================================================
 
 [ ] Registrierung mit starkem Passwort testen.
