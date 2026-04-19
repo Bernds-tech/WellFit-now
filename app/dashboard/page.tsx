@@ -7,7 +7,7 @@ import type { User } from "@/types/user";
 import { economyConfig, getPriceRate, getRewardRate } from "@/config/economy";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 
 const getDashboardCacheKey = (uid: string) => `wellfit-dashboard-user-${uid}`;
 
@@ -88,6 +88,7 @@ export default function DashboardPage() {
   const [permissions, setPermissions] = useState({ location: false });
   const [foodPrice, setFoodPrice] = useState(5);
   const [loadedFromCache, setLoadedFromCache] = useState(false);
+  const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
 
   useEffect(() => {
     const savedPermissions = localStorage.getItem("wellfit-permissions");
@@ -100,9 +101,17 @@ export default function DashboardPage() {
       }
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let unsubscribeSnapshot: (() => void) | undefined;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = undefined;
+      }
+
       setIsLoadingUser(true);
       setLoadedFromCache(false);
+      setIsRealtimeConnected(false);
 
       if (!firebaseUser) {
         setUser(null);
@@ -115,47 +124,63 @@ export default function DashboardPage() {
       if (cachedUser) {
         setUser(cachedUser);
         setLoadedFromCache(true);
-        setMessage("Dashboard wird synchronisiert...");
+        setMessage("Dashboard wird live synchronisiert...");
       }
+
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const now = new Date().toISOString();
 
       try {
-        const userRef = doc(db, "users", firebaseUser.uid);
-        const userSnap = await getDoc(userRef);
-        const now = new Date().toISOString();
-
-        if (userSnap.exists()) {
-          const normalizedUser = normalizeUser(userSnap.data() as Partial<User>, firebaseUser.uid);
-          await setDoc(userRef, { lastLoginAt: now, updatedAt: now }, { merge: true });
-          setUser(normalizedUser);
-          writeCachedUser(normalizedUser);
-          setMessage(cachedUser ? "Dashboard synchronisiert." : "Willkommen zurück!");
-          setIsLoadingUser(false);
-          return;
-        }
-
-        const defaultUser = createDefaultUser(firebaseUser);
-        await setDoc(
-          userRef,
-          {
-            ...defaultUser,
-            createdAt: now,
-            lastLoginAt: now,
-            onboardingCompleted: false,
-          },
-          { merge: true }
-        );
-        setUser(defaultUser);
-        writeCachedUser(defaultUser);
-        setMessage("Willkommen! Dein WellFit-Profil wurde angelegt.");
+        await setDoc(userRef, { lastLoginAt: now, updatedAt: now }, { merge: true });
       } catch (error) {
-        console.error("Fehler beim Laden oder Anlegen des Users:", error);
-        setMessage(cachedUser ? "Offline/Cache aktiv – Firebase konnte nicht aktualisiert werden." : "User konnte nicht geladen oder angelegt werden.");
-      } finally {
-        setIsLoadingUser(false);
+        console.error("lastLoginAt konnte nicht aktualisiert werden:", error);
       }
+
+      unsubscribeSnapshot = onSnapshot(
+        userRef,
+        async (userSnap) => {
+          if (userSnap.exists()) {
+            const normalizedUser = normalizeUser(userSnap.data() as Partial<User>, firebaseUser.uid);
+            setUser(normalizedUser);
+            writeCachedUser(normalizedUser);
+            setLoadedFromCache(false);
+            setIsRealtimeConnected(true);
+            setMessage("Dashboard live synchronisiert.");
+            setIsLoadingUser(false);
+            return;
+          }
+
+          const defaultUser = createDefaultUser(firebaseUser);
+          await setDoc(
+            userRef,
+            {
+              ...defaultUser,
+              createdAt: now,
+              lastLoginAt: now,
+              updatedAt: now,
+              onboardingCompleted: false,
+            },
+            { merge: true }
+          );
+          setUser(defaultUser);
+          writeCachedUser(defaultUser);
+          setIsRealtimeConnected(true);
+          setMessage("Willkommen! Dein WellFit-Profil wurde angelegt.");
+          setIsLoadingUser(false);
+        },
+        (error) => {
+          console.error("Realtime Dashboard Sync fehlgeschlagen:", error);
+          setIsRealtimeConnected(false);
+          setMessage(cachedUser ? "Offline/Cache aktiv – Realtime Sync nicht verfügbar." : "User konnte nicht live geladen werden.");
+          setIsLoadingUser(false);
+        }
+      );
     });
 
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+      unsubscribeAuth();
+    };
   }, []);
 
   useEffect(() => {
@@ -312,7 +337,7 @@ export default function DashboardPage() {
         </aside>
 
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-10 py-7 pb-0">
-          <header className="mb-6 flex items-start justify-between"><div><h1 className="text-7xl font-extrabold leading-none">Dashboard</h1><p className="mt-2 text-2xl text-cyan-100/90">{message}</p>{isLoadingUser && (<div className="mt-3 inline-flex items-center rounded-full border border-cyan-300/30 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100">{loadedFromCache ? "Synchronisiere mit Firebase..." : "WellFit Profil wird geladen..."}</div>)}<div className="mt-2"><span className={`inline-block rounded-full px-4 py-1 text-sm font-bold ${trackingActive ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>{trackingActive ? "● Tracking aktiv" : "● Tracking inaktiv"}</span></div><p className={`mt-1 text-lg font-semibold ${permissions.location ? "text-green-400" : "text-red-400"}`}>Standort: {permissions.location ? "erlaubt" : "nicht erlaubt"}</p>{!permissions.location && (<div className="mt-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3"><p className="font-semibold text-red-300">Standort ist deaktiviert – Tracking nicht möglich</p><Link href="/einstellungen" className="mt-2 inline-block text-sm text-cyan-300 underline">Jetzt aktivieren</Link></div>)}</div><div className="flex items-center gap-2 pt-1"><button onClick={startChallenge} disabled={!permissions.location || (isLoadingUser && !user)} className={`rounded-[22px] px-7 py-4 font-bold text-white transition ${permissions.location && !(isLoadingUser && !user) ? "bg-orange-500 hover:bg-orange-600" : "cursor-not-allowed bg-gray-500"}`}>{trackingActive ? "Tracking stoppen" : "Tracking starten"}</button><div className="rounded-full bg-[#073b44] px-5 py-3 font-semibold text-cyan-100">Flammi LVL {(isLoadingUser && !user) ? "..." : buddyLevel}</div></div></header>
+          <header className="mb-6 flex items-start justify-between"><div><h1 className="text-7xl font-extrabold leading-none">Dashboard</h1><p className="mt-2 text-2xl text-cyan-100/90">{message}</p>{isLoadingUser && (<div className="mt-3 inline-flex items-center rounded-full border border-cyan-300/30 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100">{loadedFromCache ? "Synchronisiere live mit Firebase..." : "WellFit Profil wird geladen..."}</div>)}<div className="mt-2"><span className={`inline-block rounded-full px-4 py-1 text-sm font-bold ${trackingActive ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>{trackingActive ? "● Tracking aktiv" : "● Tracking inaktiv"}</span></div><p className={`mt-1 text-lg font-semibold ${permissions.location ? "text-green-400" : "text-red-400"}`}>Standort: {permissions.location ? "erlaubt" : "nicht erlaubt"}</p><p className={`mt-1 text-sm font-semibold ${isRealtimeConnected ? "text-green-300" : "text-yellow-200"}`}>Realtime: {isRealtimeConnected ? "verbunden" : loadedFromCache ? "Cache aktiv" : "wird verbunden"}</p>{!permissions.location && (<div className="mt-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3"><p className="font-semibold text-red-300">Standort ist deaktiviert – Tracking nicht möglich</p><Link href="/einstellungen" className="mt-2 inline-block text-sm text-cyan-300 underline">Jetzt aktivieren</Link></div>)}</div><div className="flex items-center gap-2 pt-1"><button onClick={startChallenge} disabled={!permissions.location || (isLoadingUser && !user)} className={`rounded-[22px] px-7 py-4 font-bold text-white transition ${permissions.location && !(isLoadingUser && !user) ? "bg-orange-500 hover:bg-orange-600" : "cursor-not-allowed bg-gray-500"}`}>{trackingActive ? "Tracking stoppen" : "Tracking starten"}</button><div className="rounded-full bg-[#073b44] px-5 py-3 font-semibold text-cyan-100">Flammi LVL {(isLoadingUser && !user) ? "..." : buddyLevel}</div></div></header>
 
           <div className="grid flex-1 grid-cols-3 gap-6 overflow-y-auto pb-28 pr-2">
             <div className="rounded-[30px] bg-[#053841]/85 p-7 shadow-[0_10px_30px_rgba(0,0,0,0.12)]"><div className="flex items-start justify-between"><div><h2 className="text-3xl font-bold text-cyan-300">Deine Gesundheit</h2><p className="mt-2 text-lg text-white/70">Tagesfortschritt</p></div><div className="flex h-28 w-28 items-center justify-center rounded-full border-8 border-cyan-300/30 text-3xl font-extrabold text-white">{(isLoadingUser && !user) ? "..." : `${Math.min(Math.round((stepsToday / 10000) * 100), 100)}%`}</div></div><div className="mt-8"><p className="text-2xl font-bold text-white">{(isLoadingUser && !user) ? "Lade Schritte..." : `${stepsToday} / 10.000 Schritte`}</p><div className="mt-4 h-4 w-full overflow-hidden rounded-full bg-black/25"><div className="h-full rounded-full bg-cyan-300 transition-all" style={{ width: (isLoadingUser && !user) ? "0%" : `${Math.min((stepsToday / 10000) * 100, 100)}%` }} /></div><p className="mt-4 text-lg text-white/75">Bleib dran – jeder Schritt bringt dich weiter.</p></div></div>
@@ -323,7 +348,7 @@ export default function DashboardPage() {
             <div className="rounded-[30px] bg-[#053841]/85 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.12)]"><h2 className="mb-4 text-3xl font-bold text-cyan-300">Heutige Belohnungen</h2><p className="text-2xl text-yellow-400">Heute: +{Math.round(economyConfig.baseReward * getRewardRate(economyConfig.reserve, economyConfig.totalSupply))} Punkte</p><p className="text-2xl">Aktivserie: 1 Tage 🔥</p></div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-6 py-4"><div className="flex items-center gap-4"><div className="min-w-[190px] rounded-2xl border border-cyan-400/10 bg-[#041f24] px-4 py-3"><p className="text-xs uppercase text-white/50">Status: {loadedFromCache ? "Cache + Firebase" : "Firebase"}</p><p className="mt-1 text-xl font-semibold text-white">Punkte erhalten</p></div><div className="min-w-[190px] rounded-2xl border border-yellow-500/60 bg-[#041f24] px-4 py-3 text-center"><p className="text-xs uppercase text-white/50">WellFit Punkte</p><p className="mt-1 text-2xl font-bold text-white">{(isLoadingUser && !user) ? "..." : pointsBalance.toFixed(2)}</p></div><div className="min-w-[190px] rounded-2xl border border-cyan-400/10 bg-[#041f24] px-4 py-3 text-center"><p className="text-xs uppercase text-white/50">Bonus verfügbar: 0 Punkte</p><button className="mt-2 w-full rounded-lg bg-blue-700/80 px-4 py-2 font-semibold text-white/70">Abholen</button></div></div><div className="flex items-center gap-4 text-3xl text-white/80"><span>f</span><span>𝕏</span><span>in</span></div></div>
+          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-6 py-4"><div className="flex items-center gap-4"><div className="min-w-[190px] rounded-2xl border border-cyan-400/10 bg-[#041f24] px-4 py-3"><p className="text-xs uppercase text-white/50">Status: {isRealtimeConnected ? "Realtime + Firebase" : loadedFromCache ? "Cache + Firebase" : "Firebase"}</p><p className="mt-1 text-xl font-semibold text-white">Punkte erhalten</p></div><div className="min-w-[190px] rounded-2xl border border-yellow-500/60 bg-[#041f24] px-4 py-3 text-center"><p className="text-xs uppercase text-white/50">WellFit Punkte</p><p className="mt-1 text-2xl font-bold text-white">{(isLoadingUser && !user) ? "..." : pointsBalance.toFixed(2)}</p></div><div className="min-w-[190px] rounded-2xl border border-cyan-400/10 bg-[#041f24] px-4 py-3 text-center"><p className="text-xs uppercase text-white/50">Bonus verfügbar: 0 Punkte</p><button className="mt-2 w-full rounded-lg bg-blue-700/80 px-4 py-2 font-semibold text-white/70">Abholen</button></div></div><div className="flex items-center gap-4 text-3xl text-white/80"><span>f</span><span>𝕏</span><span>in</span></div></div>
         </section>
       </div>
     </main>
