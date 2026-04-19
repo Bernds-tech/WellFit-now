@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 2.5 – MERGED MASTER ROADMAP / FULL CONTEXT RESTORE
+Version: 2.6 – MERGED MASTER ROADMAP / FULL CONTEXT RESTORE + FIRESTORE / TRACKING UPDATE
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -7,7 +7,7 @@ Datei: To Do List.txt
 WICHTIGER HINWEIS:
 Diese Version führt die vorhandene To-do-Liste mit der wieder eingebrachten Version 2.2 – FULL CONTEXT COMPLETION zusammen.
 Sie darf nicht als gekürzte Ersatzliste verstanden werden.
-Version 2.1, Version 2.2, Version 2.3 und Version 2.4 bleiben inhaltlich gültig.
+Version 2.1, Version 2.2, Version 2.3, Version 2.4 und Version 2.5 bleiben inhaltlich gültig.
 Alle bestehenden Punkte bleiben gültig und dürfen nicht gelöscht werden.
 Neue Erkenntnisse werden ergänzt, nicht ersetzt.
 
@@ -73,6 +73,16 @@ B. AKTUELLER UMSETZUNGSSTAND / WAS BEREITS VORHANDEN IST
 [x] Hilfe ist auf den umgebauten App-Seiten als Link zu /hilfe gesetzt.
 [x] Punkte-Shop statt Wallet in der MVP-Sidebar auf den umgebauten Seiten.
 [x] App-Content wurde auf den Hauptseiten ca. 30 Prozent kompakter gemacht.
+[x] Tagesmissionen laden Missionen dynamisch aus Firestore.
+[x] Tagesmissionen nutzen Fallback-Missionen, wenn Firestore leer oder nicht erreichbar ist.
+[x] Mission Completion Helper für Firestore existiert.
+[x] History-Seite nutzt Firestore-Realtime via onSnapshot.
+[x] userMissionProgress wird in Tagesmissionen live aus Firestore geladen.
+[x] Tracking Session Helper für Firestore existiert.
+[x] Browser-basierter Step Counter für Android-/PWA-nahe Tests vorbereitet.
+[x] Schritte können in Tagesmissionen live gezählt werden.
+[x] Schrittbasierte Missionen können automatisch abgeschlossen werden.
+[x] Health Connect Vorbereitungsadapter / Architekturhinweis existiert.
 
 ============================================================
 C. UI-KONSISTENZ / KOMPAKTER APP-STANDARD
@@ -216,17 +226,17 @@ AKTUELL ERKANNT:
 [x] Challenge besitzt Kategorie-/Routenlogik.
 [x] Wettkämpfe besitzen PvP-/Einsatz-/Jackpot-/Burn-Simulationslogik.
 [x] Favoriten werden aktuell lokal gespeichert.
-[x] History wird aktuell lokal gespeichert.
-[x] Aktive Missionen werden aktuell lokal gespeichert.
+[x] History wurde bereits auf Firestore-Realtime umgestellt, aber lokale Restlogik existiert noch an anderen Stellen.
+[x] Aktive Missionen werden aktuell teilweise lokal gespeichert.
 [x] Punkte werden teilweise lokal über wellfit-user verändert.
 RISIKO:
-[!] Daten sind nicht geräteübergreifend.
-[!] Daten sind nicht zuverlässig für Pilot/Investoren-KPIs.
-[!] Daten können durch Browserwechsel/Cache gelöscht werden.
+[!] Daten sind nicht überall geräteübergreifend.
+[!] Daten sind nicht überall zuverlässig für Pilot/Investoren-KPIs.
+[!] Daten können durch Browserwechsel/Cache gelöscht werden, wenn sie noch lokal gehalten werden.
 [!] Einsätze/Jackpot/Burn dürfen nicht clientseitig manipulierbar bleiben.
 UMSETZUNG SPÄTER:
 [ ] Favoriten nach Firestore migrieren.
-[ ] History nach Firestore migrieren.
+[x] History nach Firestore migrieren.
 [ ] aktive Missionen nach Firestore migrieren.
 [ ] Punktevergabe über Firestore/Backend-Regeln absichern.
 [ ] Wettkampf-Einsätze serverseitig absichern.
@@ -235,23 +245,25 @@ UMSETZUNG SPÄTER:
 AKZEPTANZKRITERIEN:
 [ ] Missionen bleiben nach Reload/Gerätewechsel erhalten.
 [ ] Punkte werden nicht doppelt vergeben.
-[ ] Mission-History ist in Firestore sichtbar.
+[x] Mission-History ist in Firestore sichtbar.
 [ ] Jackpot/Burn sind nicht clientseitig manipulierbar.
 
 TASK-ID: WF-MISS-REALTIME-001
-STATUS: [ ] Offen
+STATUS: [~] In Arbeit
 ZIEL:
 Missionen live mit Firebase/Firestore synchronisieren.
 UMSETZUNG:
-[ ] userMissionProgress Collection nutzen.
+[x] userMissionProgress Collection wird genutzt.
 [ ] favorites Collection nutzen oder users/{uid}/favorites Subcollection definieren.
-[ ] history Collection/Subcollection definieren.
-[ ] Missionsstatus per onSnapshot laden.
+[x] history Collection wird genutzt.
+[x] Missionsstatus wird per onSnapshot geladen.
 [ ] Punkteänderung nach Mission live im Dashboard anzeigen.
+[x] Tagesmissionen laden Missionen dynamisch aus Firestore.
+[x] Fallback-Missionen schützen das UI bei leerer Datenbasis.
 AKZEPTANZKRITERIEN:
-[ ] Mission starten erscheint ohne Reload.
+[x] Missionstatus erscheint ohne Reload.
 [ ] Favorit setzen erscheint ohne Reload.
-[ ] History aktualisiert live.
+[x] History aktualisiert live.
 [ ] Dashboard Punkte aktualisieren live.
 
 TASK-ID: WF-MISS-HISTORY-001
@@ -260,21 +272,20 @@ ZIEL:
 Alle erledigten Missionen sollen in History abgelegt werden.
 AKTUELL:
 [x] History-Seite existiert.
-[x] History liest aktuell wellfit-history aus localStorage.
-[x] History sortiert Einträge nach completedAt.
+[x] History nutzt Firestore-Realtime via onSnapshot.
 [x] History zeigt Titel, Kategorie, Belohnung, Icon und Abschlussdatum.
+[x] Tagesmissionen schreiben bei Abschluss in History.
 [ ] Alle Missionsarten schreiben noch nicht einheitlich in die History.
-[ ] History ist noch nicht Firestore-basiert.
 UMSETZUNG:
-[ ] Tagesmissionen bei Abschluss in History schreiben.
+[x] Tagesmissionen bei Abschluss in History schreiben.
 [ ] Wochenmissionen bei Abschluss in History schreiben.
 [ ] Abenteuer bei Abschluss in History schreiben.
 [ ] Challenge bei Abschluss in History schreiben.
 [ ] Wettkämpfe bei Abschluss/Sieg/Teilnahme in History schreiben.
-[ ] Später: Firestore History Collection/Subcollection.
+[x] Firestore History Collection/Subcollection nutzen.
 AKZEPTANZKRITERIEN:
 [ ] Jede erledigte Mission erscheint in History.
-[ ] History bleibt nach Reload/Gerätewechsel erhalten.
+[x] History bleibt nach Reload/Gerätewechsel erhalten.
 
 TASK-ID: WF-MISS-COMP-001
 STATUS: [~] In Arbeit / MVP-Simulation umgesetzt
@@ -303,6 +314,63 @@ AKZEPTANZKRITERIEN:
 [ ] Nutzer können echte Duelle starten.
 [ ] Einsätze sind nicht manipulierbar.
 [ ] Jackpot/Burn sind transparent und korrekt.
+
+TASK-ID: WF-MISS-ENGINE-001
+STATUS: [x] Fertig / Basis umgesetzt
+ZIEL:
+Missionen dynamisch aus Firestore laden, statt sie nur hart im Frontend zu definieren.
+UMSETZUNG:
+[x] Tagesmissionen lesen aktive Missionen aus der missions Collection.
+[x] Missionen werden per onSnapshot live geladen.
+[x] Fallback-Missionen für leere / fehlerhafte Firestore-Situationen sind vorhanden.
+[x] Feldnormalisierung für reward / pointsReward / category / difficulty / type / duration / targetValue / unit ist vorbereitet.
+[x] Kennzeichnung der Quelle: firestore / fallback / ai ist im UI vorgesehen.
+AKZEPTANZKRITERIEN:
+[x] Neue Tagesmissionen können in Firestore erscheinen, ohne Codeänderung.
+[x] UI bricht bei leerer Collection nicht.
+[x] KI-generierte Missionen sind architektonisch vorbereitet.
+
+TASK-ID: WF-MISS-COMPLETE-002
+STATUS: [x] Fertig / Basis umgesetzt
+ZIEL:
+Zentrale Mission-Completion-Logik für Firestore schaffen.
+UMSETZUNG:
+[x] lib/missionCompletion.ts erstellt.
+[x] userMissionProgress wird bei Abschluss geschrieben.
+[x] users.points / pointsTotal werden erhöht.
+[x] history Eintrag wird erstellt.
+AKZEPTANZKRITERIEN:
+[x] Ein Mission-Abschluss kann zentral gespeichert werden.
+[x] Punkte und History werden zusammen verarbeitet.
+
+TASK-ID: WF-MISS-PROGRESS-001
+STATUS: [x] Fertig / Basis-Realtime umgesetzt
+ZIEL:
+userMissionProgress live aus Firestore laden und im UI nutzen.
+UMSETZUNG:
+[x] onAuthStateChanged für aktuellen User.
+[x] userMissionProgress Query mit userId Filter.
+[x] onSnapshot lädt Status und progressValue live.
+[x] completedMissionIds werden aus Firestore abgeleitet.
+[x] activeMissionIds werden aus Firestore abgeleitet.
+[x] Fortschrittsbalken in Tagesmissionen basiert auf Firestore-Daten.
+AKZEPTANZKRITERIEN:
+[x] Missionstatus ist geräteübergreifend sichtbar.
+[x] Erledigt-Status kommt aus Firestore statt nur aus localStorage.
+
+TASK-ID: WF-MISS-AI-001
+STATUS: [~] In Arbeit / Architektur vorbereitet
+ZIEL:
+Missionen künftig KI-personalisiert pro Nutzer generieren.
+UMSETZUNG:
+[x] Missionsmodell enthält aiPersonalized.
+[x] Missionsquelle firestore / fallback / ai ist vorgesehen.
+[x] UI kommuniziert KI-personalisierte Quests.
+[ ] Nutzerprofil, Aktivität, Schlaf, Stress, Stimmung und Ziele als Inputs final definieren.
+[ ] KI-Generierungslogik für individuelle Tagesmissionen aufbauen.
+[ ] Generierte Missionen in Firestore speichern.
+AKZEPTANZKRITERIEN:
+[ ] Nutzer erhält personalisierte Missionen statt statischer Standardlisten.
 
 ============================================================
 F. WEITERE GRUNDGERÜST-PUNKTE AUS GESAMTKONZEPT
@@ -542,6 +610,111 @@ UMSETZUNG:
 AKZEPTANZKRITERIEN:
 [ ] Schritte und Gesundheitsdaten können seriös für Missionen verwendet werden.
 
+TASK-ID: WF-TRACK-001
+STATUS: [x] Fertig / Basis umgesetzt
+ZIEL:
+Tracking-Session Datenmodell vorbereiten und in Firestore speichern.
+UMSETZUNG:
+[x] lib/tracking.ts erstellt.
+[x] startTrackingSession vorhanden.
+[x] finishTrackingSession vorhanden.
+[x] trackingSessions Collection wird beschrieben.
+[x] source / missionId / missionTitle / activityType / startTime / endTime / stepsAggregated / eventsCount / validReps / invalidReps sind berücksichtigt.
+AKZEPTANZKRITERIEN:
+[x] Tracking-Session kann gestartet werden.
+[x] Tracking-Session kann beendet werden.
+[x] Firestore kann aggregierte Trackingdaten speichern.
+
+TASK-ID: WF-TRACK-002
+STATUS: [x] Fertig / Browser-Basis umgesetzt
+ZIEL:
+Echten Browser-Step-Counter für Android-/PWA-nahe Tests vorbereiten.
+UMSETZUNG:
+[x] lib/stepCounter.ts erstellt.
+[x] DeviceMotionEvent wird verwendet.
+[x] Schritt-Peaks werden erkannt.
+[x] Min-/Max-Intervall als Basis-Anti-Cheat integriert.
+[x] Permission-Request für Motion-Sensor ist vorgesehen.
+AKZEPTANZKRITERIEN:
+[x] Browser kann Live-Schritte zählen, wenn Sensoren verfügbar sind.
+[x] WellFit kann Schrittupdates im UI anzeigen.
+
+TASK-ID: WF-TRACK-003
+STATUS: [x] Fertig / Basis umgesetzt
+ZIEL:
+Schritte live mit der Tagesmission verknüpfen.
+UMSETZUNG:
+[x] liveSteps State existiert.
+[x] Schrittbasierte Tagesmissionen besitzen targetValue und unit=steps.
+[x] DeviceMotion Step Counter speist Live-Schritte ins UI.
+[x] Schrittfortschritt wird als Prozent und Live-Wert angezeigt.
+AKZEPTANZKRITERIEN:
+[x] Nutzer sieht Live-Schritte innerhalb der Mission.
+[x] Fortschritt basiert auf echten Schritten.
+
+TASK-ID: WF-TRACK-004
+STATUS: [x] Fertig / Basis umgesetzt
+ZIEL:
+Schritte automatisch mit Mission Completion verknüpfen.
+UMSETZUNG:
+[x] Bei Erreichen von targetValue wird completeMission automatisch ausgelöst.
+[x] Tracking-Session kann für Schrittmissionen gestartet / gestoppt werden.
+[x] Schrittbasierte Missionen schließen sich nicht nur manuell, sondern automatisch ab.
+AKZEPTANZKRITERIEN:
+[x] Schrittziel kann automatische Mission Completion auslösen.
+[x] History / userMissionProgress / Punkte werden dabei geschrieben.
+
+TASK-ID: WF-TRACK-005
+STATUS: [ ] Offen / Architektur vorbereitet
+ZIEL:
+Google Health Connect für systemweite Android-Schrittdaten integrieren.
+UMSETZUNG:
+[x] healthConnect Adapter / Planungsdatei vorbereitet.
+[ ] Android App / Native Bridge vorbereiten.
+[ ] Health Connect SDK integrieren.
+[ ] User Consent Screen bauen.
+[ ] Tages-/Wochen-Schritte aus Health Connect lesen.
+[ ] Aggregierte Tageswerte in Firestore trackingSessions oder Daily Activity Collection speichern.
+[ ] Plausibilitätsprüfung / Anti-Cheat ergänzen.
+AKZEPTANZKRITERIEN:
+[ ] Android-Nutzer können systemweite Schritte nutzen, auch wenn WellFit nicht permanent offen ist.
+
+TASK-ID: WF-TRACK-006
+STATUS: [ ] Offen
+ZIEL:
+Apple HealthKit als iOS-Pendant vorbereiten.
+UMSETZUNG:
+[ ] Native iOS/App-Layer definieren.
+[ ] HealthKit Berechtigungen und Consent planen.
+[ ] Schritt- und Aktivitätsdaten in Firestore synchronisieren.
+AKZEPTANZKRITERIEN:
+[ ] iOS-Nutzer können systemweite Aktivitätsdaten einbinden.
+
+TASK-ID: WF-TRACK-007
+STATUS: [ ] Offen
+ZIEL:
+Hybrid-Tracking-Engine schaffen: Browser/PWA + Health Connect + HealthKit + Watch.
+UMSETZUNG:
+[ ] Prioritätslogik definieren: Systemdaten vor Browserdaten.
+[ ] Doppelte Zählung verhindern.
+[ ] Trackingquellen transparent im UI anzeigen.
+[ ] Firestore Datenmodell für Quellenharmonisierung definieren.
+AKZEPTANZKRITERIEN:
+[ ] Nutzer erhält einen konsistenten Aktivitätswert, unabhängig von Quelle.
+
+TASK-ID: WF-ANTI-CHEAT-001
+STATUS: [ ] Offen
+ZIEL:
+Cheat-Schutz für Schritte, Tracking und Wettbewerbe ausbauen.
+UMSETZUNG:
+[ ] Schrittmuster validieren.
+[ ] Geschwindigkeit / Distanz / Zeitfenster plausibilisieren.
+[ ] Browser DeviceMotion gegen Systemdaten querprüfen.
+[ ] Unplausible Tracking-Sessions markieren.
+[ ] Wettbewerbe serverseitig validieren.
+AKZEPTANZKRITERIEN:
+[ ] Offensichtliche Fake-Bewegungen werden nicht voll gewertet.
+
 ============================================================
 H. WEBSITE / LANDINGPAGE / BUSINESS / INVESTOREN / PILOT
 ============================================================
@@ -573,16 +746,21 @@ I. AKTUALISIERTE NÄCHSTE REIHENFOLGE
 ============================================================
 
 1. [!] WF-MISS-LOCALSTORAGE-001 – kritische produktrelevante Daten aus localStorage herausführen.
-2. [ ] WF-MISS-REALTIME-001 – Missionen live mit Firestore verbinden.
-3. [~] WF-MISS-HISTORY-001 – alle erledigten Missionen einheitlich in History schreiben.
+2. [~] WF-MISS-REALTIME-001 – Missionen live mit Firestore verbinden und Restlücken schließen.
+3. [~] WF-MISS-HISTORY-001 – alle Missionsarten einheitlich in History schreiben.
 4. [ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
 5. [ ] WF-DOC-001 – README/.env.example/Deployment dokumentieren.
 6. [ ] WF-LEGAL-002 – Datenschutz für AR/Kamera/Pose/Health/Watch erweitern.
-7. [>] WF-APPSTORE-001 – App-Store-Teststrategie konkretisieren.
-8. [>] WF-AI-POSE-001 – Pose Tracking Prototyp.
+7. [ ] WF-TRACK-005 – Google Health Connect Integration.
+8. [ ] WF-TRACK-006 – Apple HealthKit vorbereiten.
+9. [ ] WF-TRACK-007 – Hybrid-Tracking-Engine.
+10. [ ] WF-ANTI-CHEAT-001 – Anti-Cheat für Tracking und Schritte.
+11. [>] WF-APPSTORE-001 – App-Store-Teststrategie konkretisieren.
+12. [>] WF-AI-POSE-001 – Pose Tracking Prototyp.
+13. [~] WF-MISS-AI-001 – KI-personalisierte Missionen weiter aufbauen.
 
 ============================================================
-J. HINWEIS ZUR VERSION 2.1 / 2.2 / 2.3 / 2.4
+J. HINWEIS ZUR VERSION 2.1 / 2.2 / 2.3 / 2.4 / 2.5
 ============================================================
 
 Version 2.1 enthält weiterhin die komplette wiederhergestellte Master-Roadmap mit den Kapiteln:
