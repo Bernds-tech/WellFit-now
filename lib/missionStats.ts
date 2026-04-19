@@ -1,5 +1,5 @@
 import { auth, db } from "@/lib/firebase";
-import { doc, increment, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc, increment, serverTimestamp, setDoc } from "firebase/firestore";
 
 export type MissionStatsEvent = "view" | "favorite" | "unfavorite" | "completion" | "start" | "abort";
 
@@ -36,6 +36,8 @@ export async function recordMissionStatsEvent(input: MissionStatsInput) {
     },
     { merge: true }
   );
+
+  await evaluateMissionQuality(input.missionId);
 }
 
 export type MissionRatingInput = {
@@ -73,6 +75,45 @@ export async function saveMissionRating(input: MissionRatingInput) {
     },
     { merge: true }
   );
+}
+
+export async function evaluateMissionQuality(missionId: string) {
+  const statsRef = doc(db, "missionStats", missionId);
+  const statsSnap = await getDoc(statsRef);
+
+  if (!statsSnap.exists()) return null;
+
+  const stats = statsSnap.data();
+  const viewCount = Number(stats.viewCount ?? 0);
+  const usageCount = Number(stats.usageCount ?? 0);
+  const completionCount = Number(stats.completionCount ?? 0);
+  const favoriteCount = Number(stats.favoriteCount ?? 0);
+  const abortCount = Number(stats.abortCount ?? 0);
+  const unfavoriteCount = Number(stats.unfavoriteCount ?? 0);
+
+  const completionRate = usageCount > 0 ? completionCount / usageCount : 0;
+  const favoriteRate = viewCount > 0 ? favoriteCount / viewCount : 0;
+  const abortRate = usageCount > 0 ? abortCount / usageCount : 0;
+  const dislikeRate = favoriteCount > 0 ? unfavoriteCount / favoriteCount : 0;
+  const qualityScore = Math.round(Math.max(0, Math.min(100, completionRate * 45 + favoriteRate * 35 + (1 - abortRate) * 15 + (1 - dislikeRate) * 5)));
+  const shouldPromote = (stats.source === "ai" || stats.source === "ai_promoted") && usageCount >= 10 && completionRate >= 0.6 && favoriteRate >= 0.2 && abortRate <= 0.25;
+
+  await setDoc(
+    statsRef,
+    {
+      completionRate,
+      favoriteRate,
+      abortRate,
+      dislikeRate,
+      qualityScore,
+      aiDecision: shouldPromote ? "promote_candidate" : qualityScore < 35 && usageCount >= 10 ? "needs_revision" : "collect_more_data",
+      evaluatedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+
+  return { qualityScore, completionRate, favoriteRate, abortRate, shouldPromote };
 }
 
 export async function promoteAiMissionToGlobal(input: {
