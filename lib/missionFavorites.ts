@@ -1,5 +1,5 @@
 import { auth, db } from "@/lib/firebase";
-import { deleteDoc, doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 
 export type MissionFavoriteInput = {
   missionId: string;
@@ -27,6 +27,22 @@ export type MissionFavorite = Required<Omit<MissionFavoriteInput, "rewardPoints"
 };
 
 const getFavoriteDocId = (userId: string, missionId: string) => `${userId}_${missionId}`;
+
+const normalizeFavorite = (id: string, data: Record<string, any>): MissionFavorite => ({
+  id,
+  userId: String(data.userId ?? ""),
+  missionId: String(data.missionId ?? ""),
+  title: String(data.title ?? "Mission"),
+  category: String(data.category ?? "Mission"),
+  description: String(data.description ?? ""),
+  rewardLabel: String(data.rewardLabel ?? `+${Number(data.rewardPoints ?? 0)} WFT`),
+  rewardPoints: Number(data.rewardPoints ?? 0),
+  icon: String(data.icon ?? "⭐"),
+  sourcePath: String(data.sourcePath ?? "/missionen/tagesmissionen"),
+  source: String(data.source ?? "prefab"),
+  createdAt: data.createdAt,
+  updatedAt: data.updatedAt,
+});
 
 export async function setMissionFavorite(input: MissionFavoriteInput) {
   const currentUser = auth.currentUser;
@@ -78,11 +94,15 @@ export async function toggleMissionFavorite(input: MissionFavoriteInput, isFavor
 }
 
 export function listenUserFavorites(userId: string, onChange: (favorites: MissionFavorite[]) => void, onError?: (error: Error) => void) {
+  const favoritesQuery = query(collection(db, "favorites"), where("userId", "==", userId), orderBy("createdAt", "desc"));
+
   return onSnapshot(
-    doc(db, "favoriteIndexes", userId),
-    () => {
-      // Reserved for later aggregated indexes. Kept intentionally empty so callers do not depend on this placeholder.
+    favoritesQuery,
+    (snapshot) => {
+      onChange(snapshot.docs.map((docSnap) => normalizeFavorite(docSnap.id, docSnap.data())));
     },
-    () => undefined
+    (error) => {
+      if (onError) onError(error as Error);
+    }
   );
 }
