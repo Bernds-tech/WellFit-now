@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.6
+Version: 1.7
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -40,150 +40,90 @@ Statussystem:
 [!] Blockiert
 [>] Später / Backlog
 
-Entwicklungsstrategie:
-- Karte für Karte beziehungsweise Feature für Feature umsetzen.
-- Nicht zu viele große Änderungen gleichzeitig machen.
-- Firestore als produktiven Speicher verwenden.
-- localStorage nur für UI-Zustände verwenden.
-- Sensible Gesundheits-, Verfassungs- und KI-Personalisierungsdaten müssen mit Hinweistext versehen werden.
-- Keine medizinischen Diagnosen oder Heilversprechen.
-- Keine Token-, Rendite- oder Investmentversprechen in Nutzerbereichen.
-- Neue Ideen werden aufgenommen, aber erst nach Priorität umgesetzt.
-- Jede Änderung muss so dokumentiert sein, dass ein anderer Chat oder Entwickler nahtlos fortfahren kann.
-
 Server-Deployment erst nach gesammelten Änderungen:
 cd /var/www/WellFit-now
 git pull origin main
 npm run build
 pm2 restart wellfit-now
 
-AKTUELLER ARBEITSSTAND SETTINGS / USERPROFIL:
-[x] Profil & Account speicherbar in Firestore.
-[x] Biometrie & Körper speicherbar in Firestore.
-[x] Benachrichtigungen speicherbar in Firestore.
-[x] Erweiterte Vitalwerte speicherbar in Firestore.
-[x] Lebensstil & Ernährung speicherbar in Firestore.
-[x] Aktivität & Interessen speicherbar in Firestore.
-[x] KI-Buddy & Avatar-Verhalten speicherbar in Firestore.
-[x] Privatsphäre speicherbar in Firestore.
-[x] App-Berechtigungen speicherbar in Firestore/localStorage-Hybrid.
-[x] Sicherheit-Karte mit Firebase Passwort-Reset umgesetzt.
-[~] Account Verwaltung / DSGVO Export / Account löschen noch final umzusetzen.
-
-VERBINDLICHE NÄCHSTE PRIORITÄT / REIHENFOLGE:
-1. [~] WF-NAV-001 – ZUERST: Navigation-/Zurück-/Logout-Bug bei AGB, Datenschutz, Impressum, FAQ und Hilfe fixen.
-2. [~] WF-AUTH-002 – Passwort-Stärke live bei Registrierung ist umgesetzt, Test und Statusabschluss offen.
-3. [~] WF-REGISTER-002 – Registrierungsdaten an Settings-Datenmodell angeglichen, Codebereinigung/Test offen.
-4. [ ] WF-REGISTER-003 – Codebereinigung Registrierung: tote Variablen, Zielgewicht-Logik und spätere Mapper-Auslagerung.
-5. [ ] WF-HELP-001 – Hilfeseite fertigstellen.
-6. [ ] WF-SETTINGS-010 – Danach: Account Verwaltung / DSGVO Export / Account löschen finalisieren.
-
 ============================================================
-0.2 NEU AUFGENOMMENE OFFENE AUFGABEN
+0.2 AKTUELLE PRIORITÄTEN UND NEUE AUFGABEN
 ============================================================
 
-TASK-ID: WF-NAV-001
-STATUS: [~] In Arbeit
-PRIORITÄT: 1 – sofort als nächstes umsetzen / nach User-Test abschließen
+TASK-ID: WF-MOBILE-001
+STATUS: [>] Später / Backlog
+PRIORITÄT: Grundgerüst / Mobile Roadmap
 ZIEL:
-Links zu AGB, Datenschutz, Impressum, FAQ und Hilfe müssen im eingeloggten Zustand korrekt funktionieren. Wenn ein eingeloggter User dort auf Zurück klickt, darf er nicht ausgeloggt werden und nicht ungewollt auf der Login-Seite landen.
+Mobile WellFit Companion App als täglichen AR-Begleiter definieren. Die Web-App bleibt die Steuerzentrale, die Mobile App ist für tägliche Bewegung, Kamera/AR, Missionen, Buddy und Fortschritt gedacht.
+GRUNDPRINZIP:
+Die Mobile App darf keine vollständige Kopie der Web-App werden. Sie zeigt nur die notwendigsten Informationen. Die Startseite ist ein AR-Kamera-Screen, nicht ein klassisches Dashboard.
+AR-Elemente dürfen nicht nur flach über das Kamerabild gelegt werden. Sie müssen räumlich in die reale Umgebung eingebettet wirken, so als würden sie sich wirklich dort befinden.
 UMSETZUNG:
-- Routen /agb, /datenschutz, /impressum, /faq und /hilfe prüfen.
-- Prüfen, ob diese Seiten Auth-State korrekt respektieren.
-- Zurück-Button / Browser-History Verhalten prüfen.
-- Wenn nötig: Zurück zur Einstellungen- oder Dashboard-Seite statt Login.
-- Alle Legal-Links in Sidebar und Footer prüfen.
-- Hilfe-Link darf kein toter Text bleiben, sondern muss verlinkt werden.
+- Kamera startet nicht automatisch beim Öffnen.
+- User klickt zuerst auf Button "AR starten" oder gibt bewusst Kamera-Permission.
+- Mobile Startscreen als AR-Kamera-Screen konzipieren.
+- Oben links: Hamburger-Menü mit drei Strichen.
+- Oben links/mittig neben dem Menü: Buddy-Level anzeigen.
+- Oben rechts: kleines Nutzerbild / Profilbild.
+- Unten: nur ein Tagesfortschritt-Balken, keine großen Zahlen oder überladene Statistik.
+- AR-Objekte räumlich platzieren statt nur als Overlay anzeigen.
+- Plane Detection / Flächenerkennung berücksichtigen.
+- Anchors / Raumanker berücksichtigen.
+- Perspektive, Skalierung und Abstand korrekt darstellen.
+- Schatten / Lichtwirkung für digitale Objekte berücksichtigen.
+- Objektposition muss beim Bewegen des Smartphones stabil bleiben.
+- Später Occlusion prüfen: digitale Objekte können teilweise hinter realen Objekten verschwinden.
+- Nur notwendige Informationen anzeigen.
+- Web-App bleibt Steuerzentrale, Mobile App bleibt täglicher Begleiter.
 AKZEPTANZKRITERIEN:
-- Eingeloggter User bleibt eingeloggt.
-- Zurück führt zurück zur vorherigen App-Seite oder sauber zur App zurück.
-- Kein ungewollter Logout.
-- Kein Redirect auf Login, wenn Auth-State noch aktiv ist.
-- AGB, Datenschutz, Impressum, FAQ und Hilfe funktionieren aus dem eingeloggten Bereich.
+- Mobile App hat klares eigenes UX-Konzept.
+- AR/Kamera steht im Mittelpunkt.
+- Kamera startet erst nach bewusster User-Aktion/Permission.
+- User sieht Buddy-Level, Profilbild und unten nur den Tagesfortschritt-Balken.
+- Digitale Objekte wirken in der realen Umgebung platziert.
+- Objekte bleiben im Raum stabil.
+- Mobile App bleibt schlank und auf tägliche Nutzung fokussiert.
+TECHNISCHE HINWEISE:
+- Für echte native AR später ARKit/ARCore prüfen.
+- Für PWA/Web-Prototyp WebXR/Three.js prüfen.
+- Für Pilot zuerst einfacher AR-Modus möglich, aber Ziel bleibt echte räumliche Einbettung.
 
-TASK-ID: WF-AUTH-002
-STATUS: [~] In Arbeit
-PRIORITÄT: 2 – umgesetzt, Test und Abschluss offen
-ZIEL:
-Bereits während der Registrierung soll beim Eingeben des Passworts live angezeigt werden, ob das Passwort stark genug und sicher genug ist.
-UMSETZUNG:
-- Registrierungsseite prüfen.
-- Passwortfeld erweitern.
-- Live-Check für Mindestlänge, Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen und Sicherheitsstärke.
-- Visuelles Feedback anzeigen, z. B. schwach / mittel / stark.
-- Registrierung erst erlauben, wenn Sicherheitsminimum erfüllt ist.
-AKZEPTANZKRITERIEN:
-- User sieht beim Tippen die Passwortstärke.
-- Schwaches Passwort wird erklärt.
-- Starkes Passwort wird bestätigt.
-- Registrierung verhindert unsichere Passwörter oder warnt mindestens klar.
-- Test mit schwach/mittel/stark erfolgreich.
-
-TASK-ID: WF-REGISTER-002
-STATUS: [~] In Arbeit
-PRIORITÄT: 3 – umgesetzt, Test und Codebereinigung offen
-ZIEL:
-Alle Informationen, die während der Registrierung abgefragt werden, müssen exakt zur Struktur der Einstellungen passen und nach erfolgreicher Registrierung automatisch in den entsprechenden Einstellungs-Karten sichtbar sein.
-UMSETZUNG:
-- Registrierungsformular und Firestore-Schreiblogik prüfen.
-- Registrierungsfelder mit Settings-Struktur abgleichen.
-- Registrierung darf keine abweichenden oder doppelten Feldnamen erzeugen, wenn die Daten später in Einstellungen benötigt werden.
-- Daten müssen in diese Zielstruktur geschrieben werden:
-  profile: Profilbasis, Biometrie, Vitalwerte, Lifestyle, Aktivität, KI-Buddy
-  settings: Benachrichtigungen, Privatsphäre, App-Berechtigungen
-- Bereits bestehende Fallback-Kompatibilität aus den Settings berücksichtigen.
-- Wenn Registrierungsdaten fehlen, sinnvolle Defaults setzen.
-AKZEPTANZKRITERIEN:
-- Nach Registrierung sind alle eingegebenen Daten direkt in den Einstellungen sichtbar.
-- Änderungen in Einstellungen überschreiben dieselbe Struktur und keine zweite Parallelstruktur.
-- Kein erneutes Eingeben derselben Daten nötig.
-- Firestore-Userdokument ist sauber strukturiert und konsistent.
-- Neue Registrierung wurde komplett getestet.
-
-TASK-ID: WF-REGISTER-003
+TASK-ID: WF-DASH-003
 STATUS: [ ] Offen
-PRIORITÄT: 4 – direkt nach Register-Codeprüfung / vor größerem Ausbau
 ZIEL:
-Die Registrierungsdatei technisch bereinigen und wartbarer machen, ohne die aktuell funktionierende Logik zu zerstören.
+Echten Logout implementieren (Firebase signOut).
 UMSETZUNG:
-- Tote Variablen entfernen oder korrekt nutzen: fitnessLevelDisplay und bodyTypeDisplay.
-- Zielgewicht-Logik prüfen: targetWeightValue darf nicht automatisch immer dem aktuellen Gewicht entsprechen, wenn kein echtes Zielgewicht abgefragt wird.
-- Entscheidung treffen: Zielgewicht-Feld in Registrierung ergänzen oder targetWeightValue nur setzen, wenn targetWeight aktiv ist.
-- Registrierung später in Komponenten aufteilen:
-  RegisterStepAccount.tsx
-  RegisterStepBiometrics.tsx
-  RegisterStepPsychography.tsx
-  PasswordStrengthMeter.tsx
-- Zentrale Mapping-Datei vorbereiten:
-  registrationMapper.ts oder userProfileMapper.ts
+- signOut(auth) einbauen.
+- Redirect auf Login-Seite.
 AKZEPTANZKRITERIEN:
-- Keine toten Variablen mehr.
-- Zielgewicht ist fachlich korrekt gespeichert.
-- Mapping-Logik ist nachvollziehbar und später auslagerbar.
-- Build bleibt erfolgreich.
-- Registrierung funktioniert unverändert oder besser.
+- User wird sauber ausgeloggt.
+- Session wird beendet.
 
-TASK-ID: WF-DATA-001
+TASK-ID: WF-DASH-004
 STATUS: [ ] Offen
-PRIORITÄT: 5 – Architektur-Backlog, vor KI-/Dashboard-Ausbau prüfen
 ZIEL:
-Ein zentrales Userdaten-Mapping schaffen, damit Dashboard, Einstellungen, Registrierung und KI-Buddy nicht unterschiedliche Rohwerte interpretieren.
+Realtime Sync statt getDoc.
 UMSETZUNG:
-- Datei userProfileMapper.ts oder ähnliches anlegen.
-- Mapping für Registration-Rohwerte, Settings-Werte und Firestore-Zielstruktur zentral definieren.
-- Dashboard und Settings später nur noch über dieses Mapping lesen/schreiben lassen.
+- onSnapshot für User verwenden.
 AKZEPTANZKRITERIEN:
-- Keine doppelte Mapping-Logik in mehreren Dateien.
-- Settings, Dashboard und Registrierung zeigen konsistente Werte.
-- Alte Userdaten bleiben durch Fallbacks kompatibel.
+- Änderungen erscheinen sofort ohne Reload.
+
+TASK-ID: WF-DASH-005
+STATUS: [ ] Offen
+ZIEL:
+Global User Store.
+UMSETZUNG:
+- Zustand zentralisieren (Context / Zustand).
+AKZEPTANZKRITERIEN:
+- Kein mehrfaches Laden.
+- Schnellere Navigation.
 
 TASK-ID: WF-HELP-001
 STATUS: [ ] Offen
-PRIORITÄT: 6 – direkt nach Register-Bereinigung oder parallel als kleiner UI-Fix
 ZIEL:
 Die Hilfeseite muss fertiggestellt werden und darf nicht als leerer oder unfertiger Bereich bleiben.
 UMSETZUNG:
-- Route /hilfe oder passende Hilfeseite anlegen/prüfen.
+- Route /hilfe anlegen/prüfen.
 - Sidebar-Link "Hilfe" korrekt verlinken.
 - Inhalte ergänzen: Erste Schritte, Registrierung, Punkte, Missionen, KI-Buddy, Datenschutz, Support.
 - Zurück-Verhalten für eingeloggte User prüfen.
@@ -193,124 +133,8 @@ AKZEPTANZKRITERIEN:
 - Navigation funktioniert aus Dashboard und Einstellungen.
 - Eingeloggter User bleibt eingeloggt.
 
-TASK-ID: WF-SETTINGS-010
-STATUS: [ ] Offen
-PRIORITÄT: 7 – nach Navigation, Passwortstärke, Registrierung und Hilfe
-ZIEL:
-Account Verwaltung finalisieren: DSGVO-Datenexport, Logout auf allen Geräten und Account-Löschung vorbereiten.
-UMSETZUNG:
-- Datenexport-Konzept definieren.
-- Logout-Verhalten prüfen.
-- Account-Löschung nur sicher mit Reauthentifizierung und Firestore/Auth-Löschung umsetzen.
-AKZEPTANZKRITERIEN:
-- Kein halber Datenlöschzustand.
-- User bekommt klare Warnung.
-- Funktion ist DSGVO-konform vorbereitet.
-
-============================================================
-0. ZIEL DIESER DATEI
-============================================================
-
-Diese Datei ist die zentrale Arbeitsliste für die laufende WellFit-Entwicklung.
-Sie ist nicht als Clickdummy-Plan gedacht.
-WellFit befindet sich bereits in der Umsetzung.
-
-Diese Datei soll so genau sein, dass ein externer Programmierer, eine Agentur oder ein KI-gestützter Coding-Assistent direkt erkennen kann:
-- was bereits vorhanden ist,
-- was noch gebaut werden muss,
-- in welcher Reihenfolge weiterprogrammiert werden soll,
-- wann eine Aufgabe als fertig gilt,
-- welche Datenmodelle, Funktionen und Screens zu berücksichtigen sind,
-- welche Punkte später ergänzt werden sollen,
-- welche Punkte aktuell bewusst nicht umgesetzt werden.
-
-Diese Datei verbindet:
-- das gesamte WellFit-Konzept,
-- den aktuellen Produktumsetzungsstand,
-- die Firebase-/Firestore-Entscheidung,
-- die spätere Solana-/Token-Roadmap,
-- Pilotstrategie,
-- Businessplan-Logik,
-- Investorentranchierung,
-- Produkt-, UX-, Marketing-, Partner- und Compliance-Themen,
-- konkrete technische Aufgaben für Entwickler und KI-Coding-Tools.
-
-Wichtig:
-WellFit soll jetzt zu einer funktionsfähigen, testbaren und pilotfähigen Produktversion weiterentwickelt werden.
-Der Fokus liegt nicht mehr auf einem Clickdummy.
-Der Fokus liegt auf echter Funktionalität:
-- echte User,
-- echte Registrierung,
-- echte Profile,
-- echte Missionen,
-- echte Punkte,
-- echte History,
-- echte Favoriten,
-- echte Tracking-Sessions,
-- echte Datenhaltung in Firebase/Firestore.
-
-Der Token ist eine spätere Erweiterung und nicht die Voraussetzung für die erste produktiv testbare Version.
-
-Kernlogik:
-1. Jetzt Produktfunktionalität fertigstellen.
-2. localStorage als Hauptspeicher ablösen.
-3. Firebase Auth und Firestore als Startarchitektur nutzen.
-4. Pilotfähige Version online bringen.
-5. Echte Nutzungsdaten und Feedback sammeln.
-6. Danach Partner, LOIs und Investorennachweise weiter ausbauen.
-7. Danach Solana, Token, AR, KI und Marketplace sauber erweitern.
-
-============================================================
-0.1 ARBEITSREGELN FÜR PROGRAMMIERER UND KI-CODING-ASSISTENTEN
-============================================================
-
-Jede Aufgabe muss nach diesem Muster bearbeitet werden:
-
-TASK-ID:
-Kurzer eindeutiger Name, z. B. WF-AUTH-001.
-
-ZIEL:
-Was soll nach der Umsetzung funktionieren?
-
-UMSETZUNG:
-Welche Dateien, Komponenten, Collections, Funktionen oder Screens sind betroffen?
-
-AKZEPTANZKRITERIEN:
-Wann gilt die Aufgabe als fertig?
-
-STATUS:
-[ ] Offen
-[x] Fertig
-[~] In Arbeit
-[!] Blockiert
-
-REGELN:
-[ ] Keine neue Logik mehr nur in localStorage speichern, wenn sie produktrelevant ist.
-[ ] Userdaten, Punkte, Missionstatus, Favoriten, History und Tracking immer in Firebase/Firestore speichern.
-[ ] localStorage nur für UI-Zustände verwenden, z. B. Theme, Sidebar offen/geschlossen, temporäre Filter.
-[ ] Keine Secrets, API Keys oder private Tokens sichtbar ins Repository committen.
-[ ] Jede neue Funktion muss mobil und desktopfähig sein.
-[ ] Jede neue Funktion muss mindestens manuell getestet werden.
-[ ] Jede neue Funktion braucht klare Fehlermeldungen.
-[ ] Jede neue Funktion muss so geschrieben werden, dass sie später leichter in eine App/PWA überführt werden kann.
-[ ] Keine Token-/Investment-Versprechen in Nutzerbereichen.
-[ ] Keine medizinischen Diagnosen oder Heilversprechen.
-
-Definition of Done für technische Tasks:
-[ ] Feature ist implementiert.
-[ ] Feature ist im UI erreichbar.
-[ ] Daten werden korrekt gespeichert oder gelesen.
-[ ] Fehlerfälle sind behandelt.
-[ ] Mobile Ansicht wurde geprüft.
-[ ] Desktop Ansicht wurde geprüft.
-[ ] Keine Konsolenfehler.
-[ ] Keine offensichtlichen toten Links.
-[ ] Code ist verständlich benannt.
-[ ] Aufgabe wurde in dieser Liste auf [x] gesetzt oder als erledigt dokumentiert.
-
 ============================================================
 FORTSETZUNG
 ============================================================
 
-Der bisherige vollständige Masterplan ab Abschnitt 1 bleibt gültig und wird fortlaufend gepflegt.
-Bei Bedarf aus Git-History Version 1.1 vergleichen und inhaltlich nachziehen.
+Der bisherige vollständige Masterplan bleibt gültig und wird fortlaufend gepflegt.
