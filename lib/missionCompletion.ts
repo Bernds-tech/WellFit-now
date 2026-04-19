@@ -1,49 +1,151 @@
-// ADD BELOW IMPORTS
+import { economyConfig, getRewardRate } from "@/config/economy";
+import { auth, db } from "@/lib/firebase";
+import { addDoc, collection, doc, getDoc, increment, serverTimestamp, setDoc } from "firebase/firestore";
+import { calculateRewardMultipliers } from "@/lib/avatarMultiplier";
+import { calculateDynamicRewardScore } from "@/lib/rewardScore";
 
-function calculateDiversityMultiplier(todayMissions: string[]) {
-  const unique = new Set(todayMissions).size;
+export type MissionStartInput = {
+  missionId: string;
+  title: string;
+  category: string;
+  rewardPoints: number;
+  missionKind?: string;
+  icon?: string;
+  proofType?: "manual" | "steps" | "gps" | "question" | "event" | "competition" | "adventure";
+  precisionFactor?: number;
+  socialMultiplier?: number;
+  streakMultiplier?: number;
+  sponsorMultiplier?: number;
+  validationRisk?: number;
+};
+
+export type MissionCompletionInput = MissionStartInput & { rewardLabel?: string };
+
+const normalizeMissionKind = (input: MissionStartInput) => input.missionKind ?? `${input.category}_${input.proofType ?? "manual"}_${input.title.toLowerCase().replace(/[^a-z0-9äöüß]+/gi, "_")}`;
+const todayKey = () => new Date().toISOString().slice(0, 10);
+const yesterdayKey = () => { const date = new Date(); date.setDate(date.getDate() - 1); return date.toISOString().slice(0, 10); };
+const daysBetween = (from: string, to: string) => { if (!from || !to) return 999; const a = new Date(`${from}T00:00:00`); const b = new Date(`${to}T00:00:00`); return Math.round((b.getTime() - a.getTime()) / 86400000); };
+
+function calculateDiversityMultiplier(todayMissionTypes: string[], currentType: string) {
+  const unique = new Set([...todayMissionTypes, currentType]).size;
   if (unique >= 3) return 1.2;
   if (unique === 2) return 1.1;
   return 1;
 }
 
-function calculateAntiFarmingMultiplier(todayMissions: string[], currentMission: string) {
-  const sameCount = todayMissions.filter((m) => m === currentMission).length;
+function calculateAntiFarmingMultiplier(todayMissionTypes: string[], currentType: string) {
+  const sameCount = todayMissionTypes.filter((type) => type === currentType).length;
   if (sameCount >= 3) return 0.6;
   if (sameCount === 2) return 0.8;
   return 1;
 }
 
-// INSIDE startMission BEFORE calculateDynamicRewardScore
+async function getDailyRewardData(userId: string) {
+  const dailySnap = await getDoc(doc(db, "userDailyRewards", `${userId}_${todayKey()}`));
+  return dailySnap.exists() ? dailySnap.data() : {};
+}
 
-const historyRef = collection(db, "history");
-const historySnap = await getDoc(doc(db, "userDailyRewards", `${currentUser.uid}_${todayKey()}`));
-const todayData = historySnap.exists() ? historySnap.data() : {};
-const todayMissions: string[] = todayData.missions ?? [];
+async function updateDailyLoop(userId: string, pointsGranted: number, missionId: string, missionType: string) {
+  const key = todayKey();
+  const dailyRef = doc(db, "userDailyRewards", `${userId}_${key}`);
+  const streakRef = doc(db, "userStreaks", userId);
+  const userRef = doc(db, "users", userId);
+  const dailySnap = await getDoc(dailyRef);
+  const streakSnap = await getDoc(streakRef);
+  const daily = dailySnap.exists() ? dailySnap.data() : {};
+  const streak = streakSnap.exists() ? streakSnap.data() : {};
+  const missionIds = Array.isArray(daily.missionIds) ? daily.missionIds.map(String) : [];
+  const missionTypes = Array.isArray(daily.missionTypes) ? daily.missionTypes.map(String) : [];
+  const completedCount = Number(daily.completedCount ?? 0) + 1;
+  const rewardEarnedToday = Number(daily.rewardEarnedToday ?? 0) + pointsGranted;
+  const dailyGoal = Number(daily.dailyGoal ?? 3);
+  const wasGoalCompleted = Boolean(daily.goalCompleted);
+  const goalCompleted = completedCount >= dailyGoal;
+  const lastCompletedDate = String(streak.lastCompletedDate ?? "");
+  const currentStreak = Number(streak.currentStreak ?? 0);
+  const longestStreak = Number(streak.longestStreak ?? 0);
+  const gap = daysBetween(lastCompletedDate, key);
+  const streakAtRisk = lastCompletedDate !== key && gap === 1 && !goalCompleted;
+  const streakLost = lastCompletedDate !== key && gap > 1 && currentStreak > 0;
+  let nextStreak = streakLost ? 0 : currentStreak;
+  let streakBonus = Number(daily.streakBonus ?? 0);
 
-const diversityMultiplier = calculateDiversityMultiplier(todayMissions);
-const antiFarmingMultiplier = calculateAntiFarmingMultiplier(todayMissions, input.missionId);
+  if (goalCompleted && !wasGoalCompleted) {
+    nextStreak = lastCompletedDate === yesterdayKey() ? currentStreak + 1 : lastCompletedDate === key ? currentStreak : 1;
+    streakBonus = Math.min(25, 5 + Math.floor(nextStreak / 3) * 2);
+    await setDoc(userRef, { points: increment(streakBonus), pointsTotal: increment(streakBonus), updatedAt: serverTimestamp() }, { merge: true });
+    await addDoc(collection(db, "history"), { userId, eventType: "dailyRewardClaimed", dateKey: key, streak: nextStreak, pointsDelta: streakBonus, createdAt: serverTimestamp() });
+  }
 
-// UPDATE SCORE CALL
-const score = calculateDynamicRewardScore({
-  baseReward: input.rewardPoints,
-  systemRewardRate,
-  avatarMultiplier: multipliers.avatarMultiplier,
-  userEconomyMultiplier: multipliers.userEconomyMultiplier,
-  precisionFactor: input.precisionFactor,
-  socialMultiplier: input.socialMultiplier,
-  streakMultiplier: input.streakMultiplier,
-  sponsorMultiplier: input.sponsorMultiplier,
-  validationRisk: input.validationRisk,
-  diversityMultiplier,
-  antiFarmingMultiplier,
-});
+  const updatedMissionIds = [...missionIds, missionId];
+  const updatedMissionTypes = [...missionTypes, missionType];
+  const uniqueMissionTypes = Array.from(new Set(updatedMissionTypes));
 
-// INSIDE completeMission AFTER updateDailyLoop
+  await setDoc(dailyRef, { userId, dateKey: key, dailyGoal, completedCount, rewardEarnedToday, goalCompleted, streakBonus, missionIds: updatedMissionIds, missionTypes: updatedMissionTypes, uniqueMissionTypes, diversityCount: uniqueMissionTypes.length, streakAtRisk, streakLost, updatedAt: serverTimestamp() }, { merge: true });
+  await setDoc(streakRef, { userId, currentStreak: nextStreak, longestStreak: Math.max(longestStreak, nextStreak), lastCompletedDate: goalCompleted ? key : lastCompletedDate, streakAtRisk, streakLost, updatedAt: serverTimestamp() }, { merge: true });
 
-const dailyRef = doc(db, "userDailyRewards", `${currentUser.uid}_${todayKey()}`);
-const dailySnap = await getDoc(dailyRef);
-const dailyData = dailySnap.exists() ? dailySnap.data() : {};
-const updatedMissions = [...(dailyData.missions ?? []), input.missionId];
+  return { dateKey: key, completedCount, dailyGoal, goalCompleted, streak: nextStreak, streakBonus, diversityCount: uniqueMissionTypes.length, streakAtRisk, streakLost };
+}
 
-await setDoc(dailyRef, { missions: updatedMissions }, { merge: true });
+export async function startMission(input: MissionStartInput) {
+  const currentUser = auth.currentUser;
+  if (!currentUser) throw new Error("Bitte zuerst registrieren oder einloggen.");
+
+  const missionKind = normalizeMissionKind(input);
+  const activeKindRef = doc(db, "userActiveMissionKinds", `${currentUser.uid}_${missionKind}`);
+  const activeKindSnap = await getDoc(activeKindRef);
+  const activeKind = activeKindSnap.exists() ? activeKindSnap.data() : null;
+
+  if (activeKind?.status === "active" && activeKind?.missionId !== input.missionId) {
+    throw new Error(`Du hast bereits eine aktive Mission dieser Art: ${activeKind.title ?? "aktive Mission"}. Schließe sie zuerst ab.`);
+  }
+
+  const progressId = `${currentUser.uid}_${input.missionId}`;
+  const progressRef = doc(db, "userMissionProgress", progressId);
+  const existingSnap = await getDoc(progressRef);
+  const existing = existingSnap.exists() ? existingSnap.data() : null;
+
+  if (existing?.status === "completed") return { userId: currentUser.uid, missionId: input.missionId, lockedReward: Number(existing.pointsGranted ?? 0), alreadyCompleted: true };
+  if (existing?.lockedRewardPoints) return { userId: currentUser.uid, missionId: input.missionId, lockedReward: Number(existing.lockedRewardPoints), alreadyStarted: true };
+
+  const systemRewardRate = getRewardRate(economyConfig.reserve, economyConfig.totalSupply);
+  const multipliers = await calculateRewardMultipliers(currentUser.uid);
+  const dailyData = await getDailyRewardData(currentUser.uid);
+  const todayMissionTypes = Array.isArray(dailyData.missionTypes) ? dailyData.missionTypes.map(String) : [];
+  const diversityMultiplier = calculateDiversityMultiplier(todayMissionTypes, input.category);
+  const antiFarmingMultiplier = calculateAntiFarmingMultiplier(todayMissionTypes, input.category);
+  const score = calculateDynamicRewardScore({ baseReward: input.rewardPoints, systemRewardRate, avatarMultiplier: multipliers.avatarMultiplier, userEconomyMultiplier: multipliers.userEconomyMultiplier, precisionFactor: input.precisionFactor, socialMultiplier: input.socialMultiplier, streakMultiplier: input.streakMultiplier, sponsorMultiplier: input.sponsorMultiplier, validationRisk: input.validationRisk, diversityMultiplier, antiFarmingMultiplier });
+
+  const payload = { userId: currentUser.uid, missionId: input.missionId, missionKind, title: input.title, category: input.category, progressValue: 0, status: "active", startedAt: serverTimestamp(), baseRewardPoints: input.rewardPoints, lockedRewardPoints: score.finalReward, systemRewardRate, avatarMultiplier: multipliers.avatarMultiplier, userEconomyMultiplier: multipliers.userEconomyMultiplier, precisionFactor: score.precisionFactor, socialMultiplier: score.socialMultiplier, streakMultiplier: score.streakMultiplier, sponsorMultiplier: score.sponsorMultiplier, diversityMultiplier: score.diversityMultiplier, antiFarmingMultiplier: score.antiFarmingMultiplier, integrityMultiplier: score.integrityMultiplier, validationRisk: score.validationRisk, multiplierReasons: multipliers.reasons, rewardPolicy: "dynamic_reward_score_locked_on_start", reserveAtStart: economyConfig.reserve, icon: input.icon ?? "✅", proofType: input.proofType ?? "manual", updatedAt: serverTimestamp() };
+
+  await setDoc(progressRef, payload, { merge: true });
+  await setDoc(activeKindRef, { ...payload, activeMissionProgressId: progressId }, { merge: true });
+  await addDoc(collection(db, "history"), { userId: currentUser.uid, eventType: "missionStarted", missionId: input.missionId, missionKind, title: input.title, category: input.category, baseRewardPoints: input.rewardPoints, finalReward: score.finalReward, rewardPolicy: "dynamic_reward_score_locked_on_start", rewardBreakdown: payload, createdAt: serverTimestamp() });
+  return { userId: currentUser.uid, missionId: input.missionId, lockedReward: score.finalReward };
+}
+
+export async function completeMission(input: MissionCompletionInput) {
+  const currentUser = auth.currentUser;
+  if (!currentUser) throw new Error("Bitte zuerst registrieren oder einloggen.");
+
+  const missionKind = normalizeMissionKind(input);
+  const progressId = `${currentUser.uid}_${input.missionId}`;
+  const progressRef = doc(db, "userMissionProgress", progressId);
+  const userRef = doc(db, "users", currentUser.uid);
+  const activeKindRef = doc(db, "userActiveMissionKinds", `${currentUser.uid}_${missionKind}`);
+  const progressSnap = await getDoc(progressRef);
+  const progressData = progressSnap.exists() ? progressSnap.data() : null;
+
+  if (progressData?.status === "completed") return { userId: currentUser.uid, missionId: input.missionId, pointsGranted: Number(progressData.pointsGranted ?? 0), alreadyCompleted: true };
+
+  const startResult = progressData?.lockedRewardPoints ? null : await startMission(input);
+  const lockedRewardPoints = Number(progressData?.lockedRewardPoints ?? startResult?.lockedReward ?? 0);
+
+  await setDoc(progressRef, { status: "completed", completedAt: serverTimestamp(), pointsGranted: lockedRewardPoints, updatedAt: serverTimestamp() }, { merge: true });
+  await setDoc(activeKindRef, { status: "completed", completedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+  await setDoc(userRef, { points: increment(lockedRewardPoints), pointsTotal: increment(lockedRewardPoints), updatedAt: serverTimestamp() }, { merge: true });
+  const dailyLoop = await updateDailyLoop(currentUser.uid, lockedRewardPoints, input.missionId, input.category);
+
+  await addDoc(collection(db, "history"), { userId: currentUser.uid, eventType: "missionCompleted", missionId: input.missionId, missionKind, title: input.title, category: input.category, pointsDelta: lockedRewardPoints, dailyLoop, createdAt: serverTimestamp() });
+  return { userId: currentUser.uid, missionId: input.missionId, pointsGranted: lockedRewardPoints, dailyLoop };
+}
