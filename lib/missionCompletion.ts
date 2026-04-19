@@ -1,3 +1,4 @@
+import { economyConfig, getRewardRate } from "@/config/economy";
 import { auth, db } from "@/lib/firebase";
 import { addDoc, collection, doc, increment, serverTimestamp, setDoc } from "firebase/firestore";
 
@@ -11,6 +12,18 @@ export type MissionCompletionInput = {
   proofType?: "manual" | "steps" | "gps" | "question" | "event" | "competition" | "adventure";
 };
 
+function calculateDynamicReward(baseReward: number) {
+  const rewardRate = getRewardRate(economyConfig.reserve, economyConfig.totalSupply);
+  const pointsGranted = Math.max(1, Math.round(baseReward * rewardRate));
+
+  return {
+    pointsGranted,
+    rewardRate,
+    reserveAtCompletion: economyConfig.reserve,
+    totalSupplyAtCompletion: economyConfig.totalSupply,
+  };
+}
+
 export async function completeMission(input: MissionCompletionInput) {
   const currentUser = auth.currentUser;
 
@@ -18,6 +31,8 @@ export async function completeMission(input: MissionCompletionInput) {
     throw new Error("Bitte zuerst registrieren oder einloggen.");
   }
 
+  const dynamicReward = calculateDynamicReward(input.rewardPoints);
+  const rewardLabel = `+${dynamicReward.pointsGranted} Punkte`;
   const progressId = `${currentUser.uid}_${input.missionId}`;
   const progressRef = doc(db, "userMissionProgress", progressId);
   const userRef = doc(db, "users", currentUser.uid);
@@ -32,8 +47,13 @@ export async function completeMission(input: MissionCompletionInput) {
       progressValue: 100,
       status: "completed",
       completedAt: serverTimestamp(),
-      pointsGranted: input.rewardPoints,
-      rewardLabel: input.rewardLabel ?? `+${input.rewardPoints} Punkte`,
+      baseRewardPoints: input.rewardPoints,
+      pointsGranted: dynamicReward.pointsGranted,
+      rewardLabel,
+      rewardPolicy: "dynamic_reserve_based_at_completion",
+      rewardRateAtCompletion: dynamicReward.rewardRate,
+      reserveAtCompletion: dynamicReward.reserveAtCompletion,
+      totalSupplyAtCompletion: dynamicReward.totalSupplyAtCompletion,
       icon: input.icon ?? "✅",
       proofType: input.proofType ?? "manual",
       updatedAt: serverTimestamp(),
@@ -44,8 +64,8 @@ export async function completeMission(input: MissionCompletionInput) {
   await setDoc(
     userRef,
     {
-      points: increment(input.rewardPoints),
-      pointsTotal: increment(input.rewardPoints),
+      points: increment(dynamicReward.pointsGranted),
+      pointsTotal: increment(dynamicReward.pointsGranted),
       updatedAt: serverTimestamp(),
     },
     { merge: true }
@@ -57,8 +77,12 @@ export async function completeMission(input: MissionCompletionInput) {
     missionId: input.missionId,
     title: input.title,
     category: input.category,
-    pointsDelta: input.rewardPoints,
-    rewardLabel: input.rewardLabel ?? `+${input.rewardPoints} Punkte`,
+    baseRewardPoints: input.rewardPoints,
+    pointsDelta: dynamicReward.pointsGranted,
+    rewardLabel,
+    rewardPolicy: "dynamic_reserve_based_at_completion",
+    rewardRateAtCompletion: dynamicReward.rewardRate,
+    reserveAtCompletion: dynamicReward.reserveAtCompletion,
     icon: input.icon ?? "✅",
     createdAt: serverTimestamp(),
   });
@@ -66,6 +90,6 @@ export async function completeMission(input: MissionCompletionInput) {
   return {
     userId: currentUser.uid,
     missionId: input.missionId,
-    pointsGranted: input.rewardPoints,
+    pointsGranted: dynamicReward.pointsGranted,
   };
 }
