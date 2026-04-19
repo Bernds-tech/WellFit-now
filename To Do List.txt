@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.8
+Version: 1.9
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -93,29 +93,60 @@ TECHNISCHE HINWEISE:
 - Für echte native AR später ARKit/ARCore prüfen.
 - Für Pilot zuerst einfacher AR-Modus möglich, aber Ziel bleibt echte räumliche Einbettung.
 
+TASK-ID: WF-TRACKING-001
+STATUS: [>] Später / Backlog
+PRIORITÄT: Grundgerüst / Echtes Aktivitäts-Tracking
+ZIEL:
+WellFit muss echte Schritte und echte Aktivitätsdaten aus zuverlässigen Gerätequellen verwenden. GPS alleine reicht nicht als Schrittzähler.
+GRUNDPRINZIP:
+Keine Fantasie-Schritte. Schritte, aktive Minuten, Workouts und Smartwatch-Daten müssen aus echten Sensoren oder Health-Plattformen kommen und nur nach Zustimmung verarbeitet werden.
+UMSETZUNG:
+- Handy-Schrittzähler / Pedometer prüfen.
+- Beschleunigungssensor / Motion Sensor prüfen.
+- Google Fit / Health Connect für Android prüfen.
+- Apple HealthKit für iOS prüfen.
+- Smartwatch-Daten prüfen: Apple Watch, Pixel Watch, Samsung Watch, Garmin.
+- Mögliche Datenpunkte: Schritte, aktive Minuten, Distanz, Herzfrequenz, Kalorien, Workouttyp, Trainingsdauer.
+- Datenquelle sichtbar speichern, z. B. source: phone_pedometer, health_connect, apple_health, smartwatch.
+- Nur Ergebnisdaten speichern, keine unnötigen Rohdaten.
+- Firestore-Struktur für trackingSessions und dailyActivity vorbereiten.
+- PWA-Grenzen dokumentieren; native App für vollständige Health-/Watch-Integration einplanen.
+AKZEPTANZKRITERIEN:
+- Schritte kommen aus echten Gerätesensoren oder Health APIs.
+- User erteilt explizite Zustimmung.
+- Datenquelle wird angezeigt.
+- Keine manuell erfundenen Schritte.
+- Daten können für Punkte, Missionen und Tagesfortschritt genutzt werden.
+
 TASK-ID: WF-AI-POSE-001
 STATUS: [>] Später / Backlog
 PRIORITÄT: Grundgerüst / Mobile KI / Fitnesskern
 ZIEL:
 WellFit soll über Kamera und Pose Estimation/Skeleton Tracking erkennen, ob User Übungen wie Liegestütze oder Kniebeugen wirklich durchführen und ob die Bewegung grob korrekt ist.
 GRUNDPRINZIP:
-Die Kamera wird nur nach bewusster Zustimmung genutzt. Es werden keine Videos dauerhaft gespeichert. Es werden nur Ergebnisdaten wie Übung, Wiederholungen, Qualitätssignal und Confidence gespeichert.
+Die Kamera wird nur nach bewusster Zustimmung genutzt. Es werden keine Videos dauerhaft gespeichert. Es werden nur Ergebnisdaten wie Übung, gültige Wiederholungen, ungültige Wiederholungen, Qualitätssignal und Confidence gespeichert.
+Wichtig: Schlechte Wiederholungen werden nicht gezählt.
 UMSETZUNG:
 - Pose Estimation / Skeleton Tracking im PWA-Prototyp prüfen.
+- TensorFlow.js und MediaPipe als Kandidaten prüfen.
 - Erste Übungen: Liegestütze und Kniebeugen.
 - Körperpunkte erkennen: Kopf, Schultern, Ellbogen, Handgelenke, Hüfte, Knie, Füße.
 - Bewegungsphasen erkennen: Startposition, Abwärtsbewegung, Endpunkt, Aufwärtsbewegung, Wiederholung abgeschlossen.
-- Wiederholungen zählen.
+- Liegestütz zählt nur, wenn Bewegungsradius, Körperhaltung und Phasen stimmen.
+- Kniebeuge zählt nur, wenn Tiefe, Knie-/Hüftbewegung und Rückkehr in Standposition stimmen.
+- Wiederholungen zählen, aber nur gültige Wiederholungen belohnen.
+- Ungültige Wiederholungen separat erfassen und nicht vergüten.
 - Grobe Bewegungsqualität prüfen: z. B. Rückenhaltung, Bewegungstiefe, zu schnelle/unsaubere Ausführung.
+- Buddy gibt kurzes Feedback, warum eine Wiederholung nicht gezählt wurde.
 - Buddy gibt motivierendes Feedback, aber keine medizinische Diagnose.
 - Nur Ergebnisse speichern, keine Kamerabilder/Videos.
 - On-device Verarbeitung bevorzugen.
 AKZEPTANZKRITERIEN:
 - User stimmt Kamera/Tracking aktiv zu.
 - Liegestütz oder Kniebeuge wird erkannt.
-- Wiederholungen werden gezählt.
-- Grobe Fehlbewegungen werden vorsichtig erkannt.
-- Buddy gibt motivierendes, nicht-medizinisches Feedback.
+- Gültige Wiederholungen werden gezählt.
+- Schlechte Wiederholungen werden nicht gezählt.
+- Ungültige Wiederholungen erhalten kurzes Buddy-Feedback.
 - Ergebnisse können für Punkte/Missionen genutzt werden.
 
 TASK-ID: WF-AI-EMOTION-001
