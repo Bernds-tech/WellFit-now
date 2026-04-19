@@ -22,13 +22,15 @@ export type GeneratedMission = {
   difficulty: "Leicht" | "Mittel" | "Schwer";
   type: "Bewegung" | "Ernährung" | "Workout" | "Community" | "Abenteuer";
   duration: string;
+  baseReward: number;
   reward: number;
   targetValue: number;
   unit: "steps" | "minutes" | "questions" | "checkin" | string;
 };
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
-const getEconomyReward = (baseReward: number) => Math.round(clamp(baseReward * getRewardRate(economyConfig.reserve, economyConfig.totalSupply), 3, 80));
+export const calculateAvailabilityReward = (baseReward: number) => Math.round(clamp(baseReward * getRewardRate(economyConfig.reserve, economyConfig.totalSupply), 3, 80));
+const withAvailabilityReward = (mission: Omit<GeneratedMission, "reward">): GeneratedMission => ({ ...mission, reward: calculateAvailabilityReward(mission.baseReward) });
 
 function computeAdaptiveTarget(profile: AiMissionProfile) {
   const lastTarget = Math.max(10, Math.round(profile.lastTargetValue ?? 10));
@@ -59,18 +61,18 @@ export function generateLocalAiMission(profile: AiMissionProfile = {}): Generate
   if (goal === "lernen") {
     const questionTarget = Math.max(3, Math.min(8, 3 + Math.floor((profile.progressIndex ?? 0) / 3) + slotIndex));
     const difficulty = questionTarget >= 6 || level > 3 ? "Mittel" : "Leicht";
-    return { title: `KI Wissens-Sprint ${slotIndex + 1}`, category: "Tagesmissionen", description: `Löse ${questionTarget} kurze Wissensfragen. Bei stabilen Erfolgen wird die Schwierigkeit Schritt für Schritt erhöht.`, difficulty, type: "Community", duration: "10 Minuten", reward: getEconomyReward(15 + level * 2 + slotIndex * 2), targetValue: questionTarget, unit: "questions" };
+    return withAvailabilityReward({ title: `KI Wissens-Sprint ${slotIndex + 1}`, category: "Tagesmissionen", description: `Löse ${questionTarget} kurze Wissensfragen. Bei stabilen Erfolgen wird die Schwierigkeit Schritt für Schritt erhöht.`, difficulty, type: "Community", duration: "10 Minuten", baseReward: 15 + level * 2 + slotIndex * 2, targetValue: questionTarget, unit: "questions" });
   }
 
   if (goal === "abnehmen") {
     const baseTarget = lowActivity ? Math.max(500, adaptive.nextTarget * 100) : Math.max(1500, adaptive.nextTarget * 220);
     const difficulty = adaptive.nearLimit ? "Mittel" : lowActivity ? "Leicht" : "Mittel";
-    return { title: lowActivity ? `KI Sanfter Fettstoffwechsel-Start ${slotIndex + 1}` : `KI Aktiv-Burn Mission ${slotIndex + 1}`, category: "Tagesmissionen", description: adaptive.nearLimit ? `Du bist nahe an deinem aktuellen Belastungslimit. Wir halten das Ziel bei rund ${baseTarget.toLocaleString("de-DE")} Schritten und erhöhen danach wieder langsam.` : `Dein Ziel steigt kontrolliert: erst kleine Schritte, dann etwas stärker. Heute: ${baseTarget.toLocaleString("de-DE")} echte Schritte.`, difficulty, type: "Bewegung", duration: "1 Tag", reward: getEconomyReward(20 + slotIndex * 4 + Math.round(baseTarget / 1000) * 2), targetValue: baseTarget, unit: "steps" };
+    return withAvailabilityReward({ title: lowActivity ? `KI Sanfter Fettstoffwechsel-Start ${slotIndex + 1}` : `KI Aktiv-Burn Mission ${slotIndex + 1}`, category: "Tagesmissionen", description: adaptive.nearLimit ? `Du bist nahe an deinem aktuellen Belastungslimit. Wir halten das Ziel bei rund ${baseTarget.toLocaleString("de-DE")} Schritten und erhöhen danach wieder langsam.` : `Dein Ziel steigt kontrolliert: erst kleine Schritte, dann etwas stärker. Heute: ${baseTarget.toLocaleString("de-DE")} echte Schritte.`, difficulty, type: "Bewegung", duration: "1 Tag", baseReward: 20 + slotIndex * 4 + Math.round(baseTarget / 1000) * 2, targetValue: baseTarget, unit: "steps" });
   }
 
   const movementTarget = lowActivity ? Math.max(300, adaptive.nextTarget * 80) : Math.max(800, adaptive.nextTarget * 180);
   const difficulty = adaptive.nearLimit ? "Mittel" : lowActivity ? "Leicht" : "Mittel";
-  return { title: lowActivity ? `KI Tagesstart Bewegung ${slotIndex + 1}` : `KI Fortschrittsrunde ${slotIndex + 1}`, category: "Tagesmissionen", description: adaptive.nearLimit ? `Du näherst dich deiner persönlichen Grenze. Das System stabilisiert dein Ziel bei etwa ${movementTarget.toLocaleString("de-DE")} Schritten und steigert danach langsamer weiter.` : `Das Ziel wächst in kleinen Schritten mit dir: zuerst ${adaptive.lastTarget}, dann ${adaptive.nextTarget}. Heute entspricht das etwa ${movementTarget.toLocaleString("de-DE")} Schritten.`, difficulty, type: "Bewegung", duration: "1 Tag", reward: getEconomyReward(18 + slotIndex * 3 + Math.round(movementTarget / 1000) * 2), targetValue: movementTarget, unit: "steps" };
+  return withAvailabilityReward({ title: lowActivity ? `KI Tagesstart Bewegung ${slotIndex + 1}` : `KI Fortschrittsrunde ${slotIndex + 1}`, category: "Tagesmissionen", description: adaptive.nearLimit ? `Du näherst dich deiner persönlichen Grenze. Das System stabilisiert dein Ziel bei etwa ${movementTarget.toLocaleString("de-DE")} Schritten und steigert danach langsamer weiter.` : `Das Ziel wächst in kleinen Schritten mit dir: zuerst ${adaptive.lastTarget}, dann ${adaptive.nextTarget}. Heute entspricht das etwa ${movementTarget.toLocaleString("de-DE")} Schritten.`, difficulty, type: "Bewegung", duration: "1 Tag", baseReward: 18 + slotIndex * 3 + Math.round(movementTarget / 1000) * 2, targetValue: movementTarget, unit: "steps" });
 }
 
 export async function createAiMissionForCurrentUser(profile: AiMissionProfile = {}) {
@@ -81,8 +83,9 @@ export async function createAiMissionForCurrentUser(profile: AiMissionProfile = 
   const dateKey = new Date().toISOString().slice(0, 10);
   const missionId = `${currentUser.uid}_${dateKey}_ai_slot_${slotIndex + 1}`;
   const mission = generateLocalAiMission(profile);
+  const rewardRate = getRewardRate(economyConfig.reserve, economyConfig.totalSupply);
 
-  const payload = { ...mission, pointsReward: mission.reward, rewardPolicy: "dynamic_reserve_based", reserveAtGeneration: economyConfig.reserve, rewardRateAtGeneration: getRewardRate(economyConfig.reserve, economyConfig.totalSupply), userId: currentUser.uid, source: "ai", generatedByAi: true, active: true, status: "testing", dateKey, slotIndex, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+  const payload = { ...mission, baseRewardPoints: mission.baseReward, pointsReward: mission.reward, rewardPolicy: "dynamic_reserve_based_at_availability_and_locked_on_start", reserveAtAvailability: economyConfig.reserve, rewardRateAtAvailability: rewardRate, userId: currentUser.uid, source: "ai", generatedByAi: true, active: true, status: "testing", dateKey, slotIndex, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
 
   await setDoc(doc(db, "aiGeneratedMissions", missionId), payload, { merge: true });
   await setDoc(doc(db, "missions", missionId), { ...payload, sortOrder: 100 + slotIndex, originCollection: "aiGeneratedMissions", originId: missionId }, { merge: true });
