@@ -45,7 +45,7 @@ export default function HilfePage() {
         <div className="relative flex min-h-[420px] items-center justify-center">
           <div className="absolute h-80 w-80 animate-pulse rounded-full bg-cyan-300/10 blur-3xl" />
           <div className="rudi-float relative h-[360px] w-[360px] lg:h-[460px] lg:w-[460px]">
-            <Image src="/Mascottchen rechts.png" alt="Rudi Rastlos WellFit Mascottchen" fill priority className="object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.45)]" />
+            <Image src="/mascottchen.png" alt="Rudi Rastlos WellFit Mascottchen" fill priority className="object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.45)]" />
           </div>
           <div className="rudi-bubble absolute right-2 top-4 max-w-[260px] rounded-[24px] border border-white/20 bg-white/95 px-5 py-4 text-[#053841] shadow-2xl">
             <p className="font-bold">Bereit?</p>
