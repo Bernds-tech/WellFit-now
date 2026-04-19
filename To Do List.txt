@@ -1,12 +1,15 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 2.4 – UI CONSISTENCY & MISSION FINDINGS
+Version: 2.5 – MERGED MASTER ROADMAP / FULL CONTEXT RESTORE
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
 
 WICHTIGER HINWEIS:
-Diese Version ergänzt die bisherigen Versionen 2.1, 2.2 und 2.3. Sie darf nicht als gekürzte Ersatzliste verstanden werden.
+Diese Version führt die vorhandene To-do-Liste mit der wieder eingebrachten Version 2.2 – FULL CONTEXT COMPLETION zusammen.
+Sie darf nicht als gekürzte Ersatzliste verstanden werden.
+Version 2.1, Version 2.2, Version 2.3 und Version 2.4 bleiben inhaltlich gültig.
 Alle bestehenden Punkte bleiben gültig und dürfen nicht gelöscht werden.
+Neue Erkenntnisse werden ergänzt, nicht ersetzt.
 
 ============================================================
 A. NICHT-LÖSCHEN-REGEL / MASTER-LISTEN-REGEL
@@ -20,6 +23,8 @@ A. NICHT-LÖSCHEN-REGEL / MASTER-LISTEN-REGEL
 [!] Wenn Inhalte zusammengeführt werden, muss der Inhalt erhalten bleiben.
 [!] Neue Erkenntnisse werden ergänzt, nicht ersetzt.
 [!] Die Reihenfolge darf geändert werden, aber der Inhalt muss erhalten bleiben.
+[!] Kein produktrelevanter Punkt darf nur im Chat stehen bleiben.
+[!] Bei jeder neuen Umsetzung muss diese Datei aktualisiert werden.
 
 Statussystem:
 [ ] Offen
@@ -28,28 +33,177 @@ Statussystem:
 [!] Blockiert
 [>] Später / Backlog
 
+Server-Deployment erst nach gesammelten Änderungen:
+cd /var/www/WellFit-now
+git pull origin main
+npm run build
+pm2 restart wellfit-now
+
 ============================================================
-B. WICHTIGE ERKANNTE PUNKTE AUS MISSIONEN-CODE
+B. AKTUELLER UMSETZUNGSSTAND / WAS BEREITS VORHANDEN IST
 ============================================================
 
+[x] Dashboard existiert.
+[x] Einstellungen existieren.
+[x] Hilfe-Seite existiert.
+[x] Tagesmissionen existieren.
+[x] Wochenmissionen existieren.
+[x] Abenteuer existieren.
+[x] Challenge existiert.
+[x] Wettkämpfe existieren.
+[x] Favoriten existieren.
+[x] History existiert.
+[x] Rechtliche Seiten / Basislinks vorhanden: Datenschutz, AGB, Impressum, FAQ.
+[x] Register-Seite vorhanden.
+[x] Firebase Auth wird bereits in Dashboard/Einstellungen verwendet.
+[x] Dashboard nutzt onAuthStateChanged.
+[x] Dashboard nutzt onSnapshot / Live Sync für Userdaten.
+[x] Dashboard nutzt lokalen Cache als schnelle Anzeige.
+[x] Dashboard schreibt Fortschritt über setDoc mit merge.
+[x] Punkte, Schritte, Level und Avatarwerte bleiben über Firebase/Cache nach Reload erhalten.
+[x] lastLoginAt / updatedAt werden aktualisiert.
+[x] Einstellungen speichern viele Userdaten in Firestore.
+[x] Logout im Dashboard funktional.
+[x] Logout in Einstellungen funktional.
+[x] Hilfe-Seite mit Rudi Rastlos / Mascottchen vorbereitet.
+[x] Rudi Rastlos Datei: mascottchen.png.
+[x] Hilfe-Seite wurde kompakter/animierter vorbereitet.
+[x] Sidebar wurde auf Dashboard-Standard gebracht.
+[x] App aufs Handy laden steht einzeilig.
+[x] Hilfe ist auf den umgebauten App-Seiten als Link zu /hilfe gesetzt.
+[x] Punkte-Shop statt Wallet in der MVP-Sidebar auf den umgebauten Seiten.
+[x] App-Content wurde auf den Hauptseiten ca. 30 Prozent kompakter gemacht.
+
+============================================================
+C. UI-KONSISTENZ / KOMPAKTER APP-STANDARD
+============================================================
+
+TASK-ID: WF-UI-001
+STATUS: [x] Fertig
+ZIEL:
+App-UI vereinheitlichen und Inhaltsbereiche kompakter machen, ohne Sidebar-Breite zu verändern.
+UMSETZUNG:
+[x] Dashboard rechter Bereich kompakter.
+[x] Dashboard Sidebar-Abstände korrigiert.
+[x] Einstellungen rechter Bereich kompakter.
+[x] Einstellungen Sidebar angeglichen.
+[x] Hilfe-Seite ca. 30 Prozent kleiner.
+[x] Tagesmissionen kompakter.
+[x] Wochenmissionen kompakter.
+[x] Abenteuer kompakter.
+[x] Challenge kompakter.
+[x] Wettkämpfe kompakter und inhaltlich neu strukturiert.
+[x] Favoriten kompakter.
+[x] History kompakter.
+AKZEPTANZKRITERIEN:
+[x] Alle App-Seiten wirken wie ein einheitliches Produkt.
+[x] Sidebar bleibt 250px breit.
+[x] Hauptcontent ist dichter und professioneller.
+[x] App aufs Handy laden ist einzeilig.
+[x] Hilfe ist als Link eingebunden.
+
 TASK-ID: WF-MISS-UI-001
-STATUS: [~] In Arbeit
+STATUS: [x] Fertig
 ZIEL:
 Alle Missionsseiten optisch an Dashboard/Einstellungen angleichen: gleiche Sidebar, kompakter rechter Bereich, einheitliche Cards, einheitliche Bottom-Bar.
 UMSETZUNG:
 [x] Tagesmissionen kompakter gemacht.
-[ ] Wochenmissionen kompakter machen.
-[ ] Abenteuer kompakter machen.
-[ ] Challenge kompakter machen.
-[ ] Wettkämpfe kompakter machen.
-[ ] Favoriten kompakter machen.
-[ ] History kompakter machen.
+[x] Wochenmissionen kompakter gemacht.
+[x] Abenteuer kompakter gemacht.
+[x] Challenge kompakter gemacht.
+[x] Wettkämpfe kompakter gemacht.
+[x] Favoriten kompakter gemacht.
+[x] History kompakter gemacht.
 AKZEPTANZKRITERIEN:
-[ ] Sidebar sieht auf allen App-Seiten gleich aus.
-[ ] Rechter Content ist ca. 30 Prozent kompakter.
-[ ] Hilfelink ist überall echter Link zu /hilfe.
-[ ] App aufs Handy laden steht überall in einer Zeile.
-[ ] Keine Inhalte werden abgeschnitten.
+[x] Sidebar sieht auf allen App-Seiten gleich aus.
+[x] Rechter Content ist ca. 30 Prozent kompakter.
+[x] Hilfelink ist überall echter Link zu /hilfe.
+[x] App aufs Handy laden steht überall in einer Zeile.
+[x] Keine Inhalte werden absichtlich abgeschnitten.
+
+TASK-ID: WF-HELP-001
+STATUS: [x] Fertig / Basis umgesetzt
+ZIEL:
+Hilfeseite als Nutzerunterstützung aufbauen.
+UMSETZUNG:
+[x] Hilfe-Seite vorhanden.
+[x] Hilfe-Link in Sidebar eingebunden.
+[x] Layout kompakter gemacht.
+[x] Rudi Rastlos / Mascottchen als Hilfebegleiter vorgesehen.
+AKZEPTANZKRITERIEN:
+[x] Hilfe ist erreichbar.
+[ ] Inhalte der Hilfe-Seite später fachlich erweitern.
+[ ] FAQ-/Supportstruktur später verknüpfen.
+
+TASK-ID: WF-HELP-002
+STATUS: [~] In Arbeit
+ZIEL:
+Rudi Rastlos als animiertes Mascottchen / Hilfebegleiter vorbereiten.
+UMSETZUNG:
+[x] Mascottchen-Dateiname festgelegt: mascottchen.png.
+[x] Hilfeseite soll Rudi Rastlos nutzen.
+[ ] Rudi später animieren: gehen, springen, winken, reagieren.
+[ ] Später 3D/Avatar-Darstellung vorbereiten.
+[ ] Später Interaktion mit KI-Buddy/Chat verbinden.
+AKZEPTANZKRITERIEN:
+[ ] Rudi wirkt als lebendiger App-Helfer, nicht nur als statisches Bild.
+
+============================================================
+D. DASHBOARD / REALTIME / FIREBASE
+============================================================
+
+TASK-ID: WF-DASH-004
+STATUS: [x] Fertig / Basis-Realtime umgesetzt
+PRIORITÄT: erledigt, aber weiter ausbaubar
+ZIEL:
+Dashboard soll live mit Firebase synchronisieren, ohne dass User neu laden müssen.
+AKTUELLER CODE-STAND:
+[x] Dashboard nutzt Firebase Auth mit onAuthStateChanged.
+[x] Dashboard nutzt lokalen Cache, dadurch sind Daten schneller sichtbar.
+[x] Dashboard nutzt Firestore onSnapshot für echte Live-Synchronisation.
+[x] Dashboard schreibt Fortschritt über setDoc mit merge.
+[x] Punkte, Schritte, Level und Avatarwerte bleiben nach Reload erhalten.
+[x] lastLoginAt / updatedAt werden beim Dashboard-Laden aktualisiert.
+[x] Cache + Realtime werden kombiniert.
+[x] Listener werden beim Verlassen sauber unsubscribed.
+[ ] Realtime-Verhalten in Mehrtab-/Mehrgerät-Test noch manuell prüfen.
+AKZEPTANZKRITERIEN:
+[x] Änderung in Firestore kann im Dashboard ohne Reload erscheinen.
+[x] Cache zeigt Daten sofort, Snapshot korrigiert danach.
+[x] Keine Endlos-Loading-Anzeige vorgesehen.
+[ ] Mehrtab-Test dokumentieren.
+
+TASK-ID: WF-DASH-003
+STATUS: [x] Fertig / Basis umgesetzt
+ZIEL:
+Echter Logout statt Fake-Link.
+UMSETZUNG:
+[x] Dashboard nutzt Firebase signOut.
+[x] Einstellungen nutzt Firebase signOut.
+[x] Redirect auf Startseite nach Logout.
+[ ] Logout auf allen Geräten später ergänzen.
+AKZEPTANZKRITERIEN:
+[x] Nutzer kann sich abmelden.
+[x] Nutzer wird nach Logout umgeleitet.
+
+TASK-ID: WF-SETTINGS-REALTIME-001
+STATUS: [ ] Offen
+ZIEL:
+Einstellungen ebenfalls vollständig live mit Firestore synchronisieren.
+AKTUELL:
+[x] Einstellungen laden und speichern Userdaten in Firestore.
+[ ] Einstellungen verwenden noch getDoc-basierte Lade-Logik.
+[ ] Einstellungen sollen später onSnapshot nutzen.
+UMSETZUNG:
+[ ] getDoc in Einstellungen durch onSnapshot ergänzen/ersetzen.
+[ ] Cache/Loading-State sauber kombinieren.
+[ ] Listener sauber unsubscriben.
+AKZEPTANZKRITERIEN:
+[ ] Änderungen an Einstellungen erscheinen live ohne Reload.
+
+============================================================
+E. MISSIONEN / LOCALSTORAGE / FIRESTORE
+============================================================
 
 TASK-ID: WF-MISS-LOCALSTORAGE-001
 STATUS: [!] Kritisch / Offen
@@ -57,6 +211,10 @@ ZIEL:
 Missionen dürfen langfristig nicht mehr localStorage als Hauptspeicher verwenden.
 AKTUELL ERKANNT:
 [x] Tagesmissionen besitzen bereits Missionslogik.
+[x] Wochenmissionen besitzen Missionslogik.
+[x] Abenteuer besitzen Reise-/Kostenlogik.
+[x] Challenge besitzt Kategorie-/Routenlogik.
+[x] Wettkämpfe besitzen PvP-/Einsatz-/Jackpot-/Burn-Simulationslogik.
 [x] Favoriten werden aktuell lokal gespeichert.
 [x] History wird aktuell lokal gespeichert.
 [x] Aktive Missionen werden aktuell lokal gespeichert.
@@ -65,16 +223,20 @@ RISIKO:
 [!] Daten sind nicht geräteübergreifend.
 [!] Daten sind nicht zuverlässig für Pilot/Investoren-KPIs.
 [!] Daten können durch Browserwechsel/Cache gelöscht werden.
+[!] Einsätze/Jackpot/Burn dürfen nicht clientseitig manipulierbar bleiben.
 UMSETZUNG SPÄTER:
 [ ] Favoriten nach Firestore migrieren.
 [ ] History nach Firestore migrieren.
 [ ] aktive Missionen nach Firestore migrieren.
 [ ] Punktevergabe über Firestore/Backend-Regeln absichern.
+[ ] Wettkampf-Einsätze serverseitig absichern.
+[ ] Jackpot/Burn nur serverseitig oder per Smart Contract/Backend berechnen.
 [ ] localStorage nur noch für UI-Zustände nutzen.
 AKZEPTANZKRITERIEN:
 [ ] Missionen bleiben nach Reload/Gerätewechsel erhalten.
 [ ] Punkte werden nicht doppelt vergeben.
 [ ] Mission-History ist in Firestore sichtbar.
+[ ] Jackpot/Burn sind nicht clientseitig manipulierbar.
 
 TASK-ID: WF-MISS-REALTIME-001
 STATUS: [ ] Offen
@@ -92,41 +254,368 @@ AKZEPTANZKRITERIEN:
 [ ] History aktualisiert live.
 [ ] Dashboard Punkte aktualisieren live.
 
-TASK-ID: WF-UI-001
+TASK-ID: WF-MISS-HISTORY-001
 STATUS: [~] In Arbeit
 ZIEL:
-App-UI vereinheitlichen und Inhaltsbereiche kompakter machen, ohne Sidebar-Breite zu verändern.
+Alle erledigten Missionen sollen in History abgelegt werden.
+AKTUELL:
+[x] History-Seite existiert.
+[x] History liest aktuell wellfit-history aus localStorage.
+[x] History sortiert Einträge nach completedAt.
+[x] History zeigt Titel, Kategorie, Belohnung, Icon und Abschlussdatum.
+[ ] Alle Missionsarten schreiben noch nicht einheitlich in die History.
+[ ] History ist noch nicht Firestore-basiert.
 UMSETZUNG:
-[x] Dashboard rechter Bereich kompakter.
-[x] Dashboard Sidebar-Abstände korrigiert.
-[x] Einstellungen rechter Bereich kompakter.
-[x] Einstellungen Sidebar angeglichen.
-[x] Hilfe-Seite ca. 30 Prozent kleiner.
-[x] Tagesmissionen kompakter.
-[ ] Wochenmissionen kompakter.
-[ ] Abenteuer kompakter.
-[ ] Challenge kompakter.
-[ ] Wettkämpfe kompakter.
-[ ] Favoriten kompakter.
-[ ] History kompakter.
+[ ] Tagesmissionen bei Abschluss in History schreiben.
+[ ] Wochenmissionen bei Abschluss in History schreiben.
+[ ] Abenteuer bei Abschluss in History schreiben.
+[ ] Challenge bei Abschluss in History schreiben.
+[ ] Wettkämpfe bei Abschluss/Sieg/Teilnahme in History schreiben.
+[ ] Später: Firestore History Collection/Subcollection.
 AKZEPTANZKRITERIEN:
-[ ] Alle App-Seiten wirken wie ein einheitliches Produkt.
-[ ] Sidebar bleibt 250px breit.
-[ ] Hauptcontent ist dichter und professioneller.
+[ ] Jede erledigte Mission erscheint in History.
+[ ] History bleibt nach Reload/Gerätewechsel erhalten.
+
+TASK-ID: WF-MISS-COMP-001
+STATUS: [~] In Arbeit / MVP-Simulation umgesetzt
+ZIEL:
+Wettkämpfe als Duell-/Einsatz-/Jackpot-Modul vorbereiten.
+UMSETZUNG:
+[x] Checkpoint-Duelle vorgesehen: Mathe, Buchstabieren, Rätsel.
+[x] Wochen-Challenges vorgesehen: Wochenaufgabe schneller erreichen, mehr Schritte pro Woche.
+[x] Avatar-Arena vorgesehen: z. B. Schwertkampf, Drachenkampf, Zauberduell.
+[x] Einsatzlogik UI-seitig vorbereitet.
+[x] 10 Prozent Jackpot-Anteil vorgesehen.
+[x] Light Burn 1 bis 10 Prozent als MVP-Simulation vorgesehen.
+[x] Jackpot-Anzeige vorhanden.
+RISIKO:
+[!] Aktuell nur clientseitige Simulation.
+[!] Später rechtlich, serverseitig und tokenökonomisch prüfen.
+UMSETZUNG SPÄTER:
+[ ] Matchmaking.
+[ ] Servervalidierte Einsätze.
+[ ] Anti-Cheat.
+[ ] Ergebniserfassung.
+[ ] Jackpot-Settlement.
+[ ] Burn-Mechanik rechtlich/technisch prüfen.
+[ ] Avatar-Kampfregeln definieren.
+AKZEPTANZKRITERIEN:
+[ ] Nutzer können echte Duelle starten.
+[ ] Einsätze sind nicht manipulierbar.
+[ ] Jackpot/Burn sind transparent und korrekt.
 
 ============================================================
-C. NÄCHSTE REIHENFOLGE
+F. WEITERE GRUNDGERÜST-PUNKTE AUS GESAMTKONZEPT
 ============================================================
 
-1. [~] WF-MISS-UI-001 – restliche Missionsseiten optisch angleichen.
-2. [!] WF-MISS-LOCALSTORAGE-001 – als kritischen Architekturpunkt für nächste technische Phase berücksichtigen.
-3. [ ] WF-MISS-REALTIME-001 – Missionen live mit Firestore verbinden.
-4. [ ] WF-DOC-001 – README/.env.example/Deployment dokumentieren.
-5. [>] WF-APPSTORE-001 – App-Store-Teststrategie konkretisieren.
+TASK-ID: WF-FAMILY-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Generationenübergreifenden WellFit-Modus vorbereiten: Kinder/Enkel motivieren Eltern/Großeltern zu Bewegung, gemeinsame Missionen und Belohnungen.
+UMSETZUNG:
+[ ] Familiengruppen definieren.
+[ ] Enkel-/Kind-zu-Großeltern-Missionen definieren.
+[ ] Silver-Economy-Use-Cases definieren.
+[ ] Gemeinsame Familienziele definieren.
+[ ] Datenschutz/Einwilligung für Familiengruppen prüfen.
+AKZEPTANZKRITERIEN:
+[ ] Familienmodus ist als eigener Business-/Produktpfad dokumentiert.
+[ ] Keine sensiblen Gesundheitsdaten werden unkontrolliert geteilt.
+
+TASK-ID: WF-CORP-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Corporate-/BGM-Modus für Firmenkunden vorbereiten.
+UMSETZUNG:
+[ ] Firmen-Challenges.
+[ ] Teamranglisten.
+[ ] anonymisierte Firmen-Analytics.
+[ ] Company Admin Rolle.
+[ ] Datenschutz für Arbeitgeberdaten streng abgrenzen.
+AKZEPTANZKRITERIEN:
+[ ] Firmen sehen nur aggregierte/anonymisierte Daten.
+[ ] Userdaten bleiben geschützt.
+
+TASK-ID: WF-CITY-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Stadt-, Gemeinde-, Tourismus- und Event-Challenges vorbereiten.
+UMSETZUNG:
+[ ] Ortsmissionen.
+[ ] Checkpoints.
+[ ] Parks/Sehenswürdigkeiten.
+[ ] Stadt-/Tourismus-Partner.
+[ ] Eventmissionen.
+AKZEPTANZKRITERIEN:
+[ ] WellFit kann als Stadt-/Tourismus-Aktivierungsplattform erklärt werden.
+
+TASK-ID: WF-REVENUE-001
+STATUS: [>] Später / Backlog
+ZIEL:
+18 B2B-Revenue-Säulen aus Businessplan in Produkt-/Investor-Roadmap sauber dokumentieren.
+UMSETZUNG:
+[ ] Firmenlizenzen.
+[ ] BGM-Challenges.
+[ ] Sponsored Missions.
+[ ] Brand Campaigns.
+[ ] Versicherungen/Prävention.
+[ ] Städte/Tourismus.
+[ ] Eventpartner.
+[ ] Marketplace Fees.
+[ ] Premium Accounts.
+[ ] White-Label-Challenges.
+[ ] Partner-Rewards.
+[ ] anonymisierte Reports DSGVO-konform.
+[ ] AR-Skins / digitale Items später.
+[ ] API-/Platform Fees später.
+[ ] Bildungs-/Lernmissionen.
+[ ] Gesundheitsprogramme.
+[ ] Corporate Team Challenges.
+[ ] International Licensing.
+AKZEPTANZKRITERIEN:
+[ ] Investorendeck und Businessplan greifen dieselben Umsatzsäulen auf.
+
+TASK-ID: WF-INVEST-002
+STATUS: [>] Später / Backlog
+ZIEL:
+Fiat-to-Token / Treasury / Buyback / Burn-Logik als spätere Investor-Architektur dokumentieren, ohne sie in Nutzerbereichen als Versprechen zu verwenden.
+UMSETZUNG:
+[ ] Externe Fiat-Umsätze in WellFit Treasury erklären.
+[ ] Spätere Token-Buybacks nur als optionales Ökosystemmodell darstellen.
+[ ] Burn-Mechanik nur rechtlich geprüft verwenden.
+[ ] Keine Rendite- oder Preisversprechen.
+[ ] MiCAR-Prüfung vor Veröffentlichung.
+AKZEPTANZKRITERIEN:
+[ ] Investorlogik ist dokumentiert.
+[ ] Nutzerbereich bleibt frei von Investmentversprechen.
+
+TASK-ID: WF-PILOT-002
+STATUS: [>] Später / Backlog
+ZIEL:
+Pilotbeweise für Investoren strukturieren.
+UMSETZUNG:
+[ ] 100-500 echte User.
+[ ] 2-3 Wochen Pilotdaten.
+[ ] 2 LOIs: Corporate/BGM + Location/Event/Gemeinde.
+[ ] 1 Tech Lead oder Agentur-Nachweis.
+[ ] Retention, Aktivierung, Mission Completion, Feedbackscore messen.
+AKZEPTANZKRITERIEN:
+[ ] Pilot liefert echte Investorenbeweise.
+
+TASK-ID: WF-APPSTORE-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Mobile Testphase über offizielle App-Store-Testkanäle ermöglichen.
+UMSETZUNG:
+[ ] PWA/Web-Prototyp nur als interne technische Validierung nutzen.
+[ ] iOS TestFlight vorbereiten.
+[ ] Google Play Internal/Closed Testing vorbereiten.
+[ ] Technologieentscheidung: React Native/Expo, Capacitor, Flutter oder native Swift/Kotlin.
+[ ] Kamera, AR, HealthKit, Health Connect, Smartwatch-Daten und Datenschutztexte store-konform planen.
+AKZEPTANZKRITERIEN:
+[ ] Es gibt einen realistischen Weg zur App-Store-Testphase.
+
+TASK-ID: WF-BUDDY-CHAR-001
+STATUS: [ ] Offen
+ZIEL:
+KI-Buddy-Charaktere und veränderbares Verhalten definieren.
+UMSETZUNG:
+[ ] Mehrere Buddy-Charaktere definieren.
+[ ] Verhalten abhängig von Userdaten, Aktivität, Schlaf, Stress, Stimmung, Fortschritt.
+[ ] Charakter kann sich entwickeln.
+[ ] Reaktionen bleiben motivierend und nicht manipulierend.
+AKZEPTANZKRITERIEN:
+[ ] Buddy hat klare Persönlichkeit.
+[ ] Buddy kann später personalisiert reagieren.
+
+TASK-ID: WF-BUDDY-SAFETY-001
+STATUS: [ ] Offen
+ZIEL:
+Sicherheits- und Formulierungsregeln für KI-Buddy festlegen.
+UMSETZUNG:
+[ ] Keine Diagnosen.
+[ ] Keine Therapieempfehlungen.
+[ ] Keine Scham-/Drucksprache.
+[ ] Motivation positiv formulieren.
+[ ] Bei Beschwerden Arzt/Expertin empfehlen.
+[ ] Hinweis: ersetzt keine medizinische Beratung.
+AKZEPTANZKRITERIEN:
+[ ] Buddy-Texte bleiben rechtlich und ethisch sauber.
+
+TASK-ID: WF-STORE-SAFE-002
+STATUS: [>] Später / Backlog
+ZIEL:
+Store-Safe Architecture weiter konkretisieren.
+UMSETZUNG:
+[ ] Keine Mining-/DePIN-Last am Handy.
+[ ] Mobile App macht Interface, Kamera, AR, GPS, Missionen, Gamification und lokale KI-Inferenz.
+[ ] Rechenintensive Prozesse laufen off-device.
+[ ] Apple/Google Policies prüfen.
+[ ] Tokenmechaniken aus App-Store-kritischen Bereichen heraushalten.
+AKZEPTANZKRITERIEN:
+[ ] App kann Store-Review bestehen.
+
+TASK-ID: WF-DOC-001
+STATUS: [ ] Offen
+ZIEL:
+README, Setup, Deployment und Entwicklerübergabe finalisieren.
+UMSETZUNG:
+[ ] README.md aktualisieren.
+[ ] Projektstruktur dokumentieren.
+[ ] .env.example erstellen.
+[ ] Firebase Setup dokumentieren.
+[ ] Server Deploy dokumentieren.
+[ ] PM2 Start/Restart dokumentieren.
+[ ] Hinweis auf To Do List.txt einbauen.
+AKZEPTANZKRITERIEN:
+[ ] Externer Entwickler kann Projekt lokal und am Server nachvollziehen.
+
+TASK-ID: WF-LEGAL-002
+STATUS: [ ] Offen
+ZIEL:
+Rechtstexte für Kamera, AR, Pose Tracking, Emotion/Mimik, Health-/Watch-Daten erweitern.
+UMSETZUNG:
+[ ] Datenschutz um Kamera/AR erweitern.
+[ ] Datenschutz um Pose Tracking erweitern.
+[ ] Datenschutz um HealthKit/Health Connect/Watch-Daten erweitern.
+[ ] Optionale Emotion/Mimik-Analyse gesondert zustimmungspflichtig machen.
+[ ] Keine Speicherung von Bildern/Videos als Standard.
+AKZEPTANZKRITERIEN:
+[ ] Rechts-/Datenschutzgrundlage passt zu geplanter Mobile-App.
 
 ============================================================
-D. HINWEIS ZU FRÜHEREN VERSIONEN
+G. MOBILE / AR / TRACKING / KI
 ============================================================
 
-Die vollständigen Inhalte aus Version 2.1, 2.2 und 2.3 bleiben gültig und dürfen nicht gelöscht werden.
-Diese Datei ist eine fortlaufende Masterliste. Neue Erkenntnisse werden ergänzt, nicht ersetzt.
+TASK-ID: WF-MOBILE-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Mobile Companion App definieren.
+ENTSCHEIDUNG:
+[x] Web-App = Steuerzentrale.
+[x] Mobile App = täglicher Begleiter.
+UMSETZUNG:
+[ ] Startscreen mit AR-Startbutton, nicht automatisch Kamera starten.
+[ ] Rechts oben Nutzerbild.
+[ ] Daneben Buddy-Level.
+[ ] Links Hamburger-Menü.
+[ ] Unten Tagesfortschritt nur als Balken.
+[ ] AR-Elemente realistisch in Umgebung einbetten, nicht nur overlayen.
+AKZEPTANZKRITERIEN:
+[ ] Mobile App Konzept ist für App-Store-Testphase nutzbar.
+
+TASK-ID: WF-AI-POSE-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Pose Tracking für Übungen wie Liegestütz/Kniebeugen vorbereiten.
+UMSETZUNG:
+[ ] TensorFlow / MediaPipe / vergleichbare Technologie prüfen.
+[ ] Skeleton Tracking definieren.
+[ ] Saubere Wiederholungen zählen.
+[ ] Schlechte Wiederholungen nicht zählen.
+[ ] Edge AI / On-Device Verarbeitung prüfen.
+AKZEPTANZKRITERIEN:
+[ ] App kann Übungen technisch bewerten, ohne medizinische Diagnose zu geben.
+
+TASK-ID: WF-AI-MOOD-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Avatar/Buddy soll erkennen können, wie Nutzer drauf ist, sofern Nutzer zustimmt.
+UMSETZUNG:
+[ ] Mimik-/Stimmungszustände definieren: gut, schlecht, mies, genervt, müde, motiviert, gestresst.
+[ ] Consent für Kamera/Mimik-Erkennung.
+[ ] Keine Speicherung von Bildern/Videos als Standard.
+[ ] Nur lokale Analyse prüfen.
+AKZEPTANZKRITERIEN:
+[ ] Buddy kann Stimmung berücksichtigen, ohne Datenschutzrisiko zu erzeugen.
+
+TASK-ID: WF-WATCH-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Schritte, Smartwatch- und Health-Daten anbinden.
+UMSETZUNG:
+[ ] Schrittzähler vom Handy nutzen.
+[ ] HealthKit prüfen.
+[ ] Google Health Connect prüfen.
+[ ] Smartwatch-Daten anbinden.
+[ ] Datenminimierung und Consent festlegen.
+AKZEPTANZKRITERIEN:
+[ ] Schritte und Gesundheitsdaten können seriös für Missionen verwendet werden.
+
+============================================================
+H. WEBSITE / LANDINGPAGE / BUSINESS / INVESTOREN / PILOT
+============================================================
+
+[ ] Startseite klarer machen.
+[ ] Hero-Text schärfen.
+[ ] Problem erklären: Menschen bewegen sich zu wenig, Motivation fehlt, Gesundheitsprogramme sind oft langweilig.
+[ ] Lösung erklären: WellFit macht Bewegung spielerisch, sozial und belohnend.
+[ ] Zielgruppen darstellen: Nutzer, Familien, Firmen, Städte, Marken, Investoren.
+[ ] echte App-Screens / Produkt-Screens einbauen.
+[ ] Roadmap anzeigen.
+[ ] Investor-Bereich einbauen.
+[ ] Pilotpartner-Bereich einbauen.
+[ ] Warteliste oder Registrierung einbauen.
+[ ] Kontaktformular einbauen.
+[ ] Impressum vollständig machen.
+[ ] Datenschutzseite vollständig machen.
+[ ] AGB vorbereiten.
+[ ] Mobile Ansicht prüfen.
+[ ] Ladezeiten prüfen.
+[ ] Menüführung prüfen.
+[ ] Tote Links entfernen.
+[ ] Rechtschreibfehler korrigieren.
+[ ] Token nicht zu dominant auf Startseite platzieren.
+[ ] Keine unrealistischen Versprechen machen.
+
+============================================================
+I. AKTUALISIERTE NÄCHSTE REIHENFOLGE
+============================================================
+
+1. [!] WF-MISS-LOCALSTORAGE-001 – kritische produktrelevante Daten aus localStorage herausführen.
+2. [ ] WF-MISS-REALTIME-001 – Missionen live mit Firestore verbinden.
+3. [~] WF-MISS-HISTORY-001 – alle erledigten Missionen einheitlich in History schreiben.
+4. [ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
+5. [ ] WF-DOC-001 – README/.env.example/Deployment dokumentieren.
+6. [ ] WF-LEGAL-002 – Datenschutz für AR/Kamera/Pose/Health/Watch erweitern.
+7. [>] WF-APPSTORE-001 – App-Store-Teststrategie konkretisieren.
+8. [>] WF-AI-POSE-001 – Pose Tracking Prototyp.
+
+============================================================
+J. HINWEIS ZUR VERSION 2.1 / 2.2 / 2.3 / 2.4
+============================================================
+
+Version 2.1 enthält weiterhin die komplette wiederhergestellte Master-Roadmap mit den Kapiteln:
+- Ziel dieser Datei
+- aktueller technischer Stand
+- strategische Grundentscheidung
+- Phasenplan
+- technische Epics
+- Firebase/Firestore
+- Datenmodell
+- Website/Landingpage
+- App/Dashboard
+- Missionen
+- Gamification
+- KI-Buddy
+- Reward Center/Token
+- Marktplatz
+- Leaderboard
+- Analytics
+- Mobile/App/AR
+- Pilot
+- Businessplan
+- Finanzmodell
+- Investoren
+- Partner/LOIs
+- Marketing
+- Recht/Compliance
+- Store-Safe Architecture
+- Agentur/Entwickler-Briefing
+- GitHub
+- Prioritäten
+- offene Entscheidungen
+- Merksätze
+- Tests
+
+Diese Ergänzung darf nicht genutzt werden, um frühere Versionen zu ersetzen oder zu kürzen.
