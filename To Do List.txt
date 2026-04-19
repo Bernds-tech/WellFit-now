@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.9
+Version: 2.0
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -10,6 +10,17 @@ Datei: To Do List.txt
 
 Diese Datei ist die zentrale Wahrheit für die laufende WellFit-Entwicklung.
 Jeder Programmierer, jede Agentur und jeder KI-gestützte Coding-Assistent muss diese Datei zuerst lesen, bevor neue Aufgaben umgesetzt werden.
+
+WICHTIGSTE REGEL:
+Diese To-do-Liste darf niemals kleiner werden.
+Es dürfen keine bestehenden Punkte gelöscht werden, nur weil sie erledigt, verschoben oder aktuell nicht priorisiert sind.
+Erlaubt ist nur:
+- Status ändern,
+- Reihenfolge/Priorität ändern,
+- Aufgabe präzisieren,
+- neue Aufgaben ergänzen,
+- erledigte Punkte in den Abschnitt "Abgeschlossen" verschieben,
+- doppelte Punkte zusammenführen, aber nur wenn der Inhalt erhalten bleibt.
 
 Arbeitsregel:
 Jede neue Idee, jede umgesetzte Karte, jede technische Änderung, jede offene Aufgabe und jede bewusst verschobene Funktion muss in dieser To-do-Liste dokumentiert werden.
@@ -32,6 +43,8 @@ Vorgehensweise beim Weiterbauen:
 8. Wenn eine Funktion fachlich verschoben wird, nicht löschen, sondern als späteren Task dokumentieren.
 9. Keine produktrelevanten Funktionen nur im Chat besprechen, ohne sie hier festzuhalten.
 10. Deployments können gesammelt werden: mehrere Commits sind möglich, danach erst git pull / build / pm2 restart am Server.
+11. Wenn diese Datei überarbeitet wird, muss der bestehende Inhalt erhalten bleiben und erweitert werden.
+12. Bei Unsicherheit zuerst alten Stand erhalten und darunter neue Version/Ergänzung hinzufügen.
 
 Statussystem:
 [ ] Offen
@@ -47,51 +60,355 @@ npm run build
 pm2 restart wellfit-now
 
 ============================================================
-0.2 AKTUELLE PRIORITÄTEN UND NEUE AUFGABEN
+0.1 PRODUKTGRUNDSATZ
 ============================================================
 
-TASK-ID: WF-MOBILE-001
-STATUS: [>] Später / Backlog
-PRIORITÄT: Grundgerüst / Mobile Roadmap
+WellFit befindet sich nicht mehr in einer reinen Clickdummy-Phase.
+Ziel ist eine funktionsfähige, testbare und pilotfähige Produktversion mit echten Userdaten, echten Punkten, echten Missionen, echtem Fortschritt und stabiler Firebase-/Firestore-Datenhaltung.
+
+Kernprinzip:
+- Web-App = Steuerzentrale
+- Mobile App = täglicher AR-Begleiter
+
+Der Token ist eine spätere Erweiterung und nicht Voraussetzung für die erste produktiv testbare Version.
+Solana/Token/Marketplace werden vorbereitet, aber die erste Nutzerversion funktioniert über Punkte, Missionen, Buddy, Tracking und Pilotdaten.
+
+============================================================
+0.2 AKTUELLER TECHNISCHER STAND / BEREITS VORHANDEN
+============================================================
+
+[x] Next.js App läuft und baut erfolgreich auf dem Server.
+[x] Firebase-Konfiguration über .env auf dem Server eingerichtet.
+[x] Firebase Auth ist integriert.
+[x] Firestore wird als produktiver Speicher genutzt.
+[x] Registrierung existiert mit mehrstufigem Onboarding.
+[x] Registrierung enthält Passwortstärke-Prüfung.
+[x] Schwache Passwörter werden blockiert.
+[x] Registrierung schreibt Userdaten in Firestore.
+[x] Registrierung wurde an Settings-Datenmodell angeglichen.
+[x] Profilbasis wird gespeichert: Vorname, Nachname, E-Mail, Geburtsdatum, Geschlecht.
+[x] Biometrie wird gespeichert: Größe, Gewicht, Körperbau, Fitnesslevel, Einschränkungen.
+[x] Vitalwerte-Grunddaten werden gespeichert: Schlaf, Stress, Energie, Hinweise.
+[x] Lifestyle-Daten werden gespeichert: Ernährung, Trinken, Naturbewegung.
+[x] Aktivität/Interessen/Ziele werden gespeichert.
+[x] KI-Buddy-Grundprofil wird gespeichert.
+[x] Benachrichtigungen werden gespeichert.
+[x] Privatsphäre wird gespeichert.
+[x] App-Berechtigungen werden gespeichert.
+[x] Dashboard lädt Userdaten aus Firebase.
+[x] Dashboard verwendet lokalen Cache für schnelleres Laden.
+[x] Dashboard synchronisiert danach mit Firebase.
+[x] Dashboard speichert Punkte, Schritte, Level und Avatar-Grundwerte.
+[x] Flammi-Füttern aktualisiert Punkte und Hunger.
+[x] Tracking-Button erhöht aktuell Test-Schritte/Punkte und speichert sie.
+[x] Legal-Page Zurück-Navigation wurde verbessert, damit eingeloggte User nicht auf Login zurückfallen.
+[x] Sicherheit-Karte in Einstellungen enthält Passwort-Reset per Firebase.
+[x] Einstellungen-Seite enthält mehrere speicherbare Karten.
+[x] App-Berechtigungen Karte existiert.
+[x] Hilfe-Link wurde im Dashboard auf /hilfe verlinkt.
+
+============================================================
+0.3 AKTUELLE NÄCHSTE PRIORITÄT
+============================================================
+
+1. [ ] WF-DASH-004 – Realtime Sync statt getDoc: Dashboard lebendig machen.
+2. [ ] WF-HELP-001 – Hilfeseite fertigstellen.
+3. [ ] WF-DASH-003 – Echter Logout / Session sauber implementieren.
+4. [ ] WF-SETTINGS-010 – Account Verwaltung / DSGVO Export / Account löschen.
+5. [>] WF-MOBILE-002 – App-Store-Teststrategie definieren.
+6. [>] WF-TRACKING-001 – echtes Schritt-/Health-/Watch-Tracking.
+7. [>] WF-AI-POSE-001 – Pose Tracking / Liegestütz / Kniebeuge.
+8. [>] WF-AI-EMOTION-001 – Mimik-/Stimmungsanalyse.
+
+============================================================
+1. AUTH / REGISTRIERUNG / LOGIN
+============================================================
+
+TASK-ID: WF-AUTH-001
+STATUS: [x] Fertig
 ZIEL:
-Mobile WellFit Companion App als täglichen AR-Begleiter definieren. Die Web-App bleibt die Steuerzentrale, die Mobile App ist für tägliche Bewegung, Kamera/AR, Missionen, Buddy und Fortschritt gedacht.
-GRUNDPRINZIP:
-Die Mobile App darf keine vollständige Kopie der Web-App werden. Sie zeigt nur die notwendigsten Informationen. Die Startseite ist ein AR-Kamera-Screen, nicht ein klassisches Dashboard.
-AR-Elemente dürfen nicht nur flach über das Kamerabild gelegt werden. Sie müssen räumlich in die reale Umgebung eingebettet wirken, so als würden sie sich wirklich dort befinden.
-STRATEGIE:
-- Zuerst PWA AR-Prototyp bauen.
-- Mit echten Usern testen.
-- Danach native App prüfen/bauen.
+Firebase Auth als Basis für echte User verwenden.
 UMSETZUNG:
-- Kamera startet nicht automatisch beim Öffnen.
-- User klickt zuerst auf Button "AR starten" oder gibt bewusst Kamera-Permission.
-- Mobile Startscreen als AR-Kamera-Screen konzipieren.
-- Oben links: Hamburger-Menü mit drei Strichen.
-- Oben links/mittig neben dem Menü: Buddy-Level anzeigen.
-- Oben rechts: kleines Nutzerbild / Profilbild.
-- Unten: nur ein Tagesfortschritt-Balken, keine großen Zahlen oder überladene Statistik.
-- AR-Objekte räumlich platzieren statt nur als Overlay anzeigen.
-- Plane Detection / Flächenerkennung berücksichtigen.
-- Anchors / Raumanker berücksichtigen.
-- Perspektive, Skalierung und Abstand korrekt darstellen.
-- Schatten / Lichtwirkung für digitale Objekte berücksichtigen.
-- Objektposition muss beim Bewegen des Smartphones stabil bleiben.
-- Später Occlusion prüfen: digitale Objekte können teilweise hinter realen Objekten verschwinden.
-- Nur notwendige Informationen anzeigen.
-- Web-App bleibt Steuerzentrale, Mobile App bleibt täglicher Begleiter.
+- Registrierung/Login mit Firebase Auth.
+- User-Dokument in Firestore anlegen.
 AKZEPTANZKRITERIEN:
-- Mobile App hat klares eigenes UX-Konzept.
-- AR/Kamera steht im Mittelpunkt.
-- Kamera startet erst nach bewusster User-Aktion/Permission.
-- User sieht Buddy-Level, Profilbild und unten nur den Tagesfortschritt-Balken.
-- Digitale Objekte wirken in der realen Umgebung platziert.
-- Objekte bleiben im Raum stabil.
-- Mobile App bleibt schlank und auf tägliche Nutzung fokussiert.
-TECHNISCHE HINWEISE:
-- Für PWA/Web-Prototyp WebXR/Three.js prüfen.
-- Für Pose Tracking im PWA-Prototyp MediaPipe / TensorFlow.js prüfen.
-- Für echte native AR später ARKit/ARCore prüfen.
-- Für Pilot zuerst einfacher AR-Modus möglich, aber Ziel bleibt echte räumliche Einbettung.
+- User kann sich registrieren.
+- User kann sich anmelden.
+- Userdaten liegen in users/{uid}.
+
+TASK-ID: WF-AUTH-002
+STATUS: [x] Fertig
+ZIEL:
+Bereits während der Registrierung soll beim Eingeben des Passworts live angezeigt werden, ob das Passwort stark genug und sicher genug ist.
+UMSETZUNG:
+- Live-Check für Mindestlänge, Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen.
+- Anzeige schwach/mittel/stark.
+- Registrierung blockiert unsichere Passwörter.
+AKZEPTANZKRITERIEN:
+- User sieht beim Tippen die Passwortstärke.
+- Starkes Passwort wird bestätigt.
+- Schwaches Passwort wird blockiert.
+
+TASK-ID: WF-REGISTER-002
+STATUS: [x] Fertig
+ZIEL:
+Alle Informationen, die während der Registrierung abgefragt werden, müssen zur Struktur der Einstellungen passen und nach erfolgreicher Registrierung automatisch in den entsprechenden Einstellungs-Karten sichtbar sein.
+UMSETZUNG:
+- Registrierung schreibt profile und settings sauber.
+- profile enthält vitals, lifestyle, activity, aiBuddy.
+- settings enthält reminders, privacy, permissions und Basisdaten.
+AKZEPTANZKRITERIEN:
+- Nach Registrierung sind Daten in Einstellungen sichtbar.
+- Kein erneutes Eingeben derselben Daten nötig.
+
+TASK-ID: WF-REGISTER-003
+STATUS: [x] Fertig
+ZIEL:
+Registrierungsdatei technisch bereinigen und Zielgewicht-Logik korrigieren.
+UMSETZUNG:
+- Tote Variablen entfernt.
+- targetWeightValue nur gesetzt, wenn Zielgewicht aktiv ist, sonst 0.
+AKZEPTANZKRITERIEN:
+- Keine toten Variablen mehr.
+- Zielgewicht wird fachlich sauber gespeichert.
+
+TASK-ID: WF-REGISTER-004
+STATUS: [ ] Offen
+ZIEL:
+Registrierung in wartbare Komponenten aufteilen.
+UMSETZUNG:
+- RegisterStepAccount.tsx
+- RegisterStepBiometrics.tsx
+- RegisterStepPsychography.tsx
+- PasswordStrengthMeter.tsx
+AKZEPTANZKRITERIEN:
+- Register-Code ist lesbarer.
+- Funktion bleibt unverändert.
+
+TASK-ID: WF-NAV-001
+STATUS: [~] In Arbeit
+ZIEL:
+AGB, Datenschutz, Impressum, FAQ und Hilfe müssen im eingeloggten Zustand korrekt funktionieren. Zurück darf nicht zu ungewolltem Login/Logout führen.
+UMSETZUNG:
+- LegalPageLayout nutzt Smart Back Navigation.
+- Auth-State wird berücksichtigt.
+- Hilfe-Link muss auf allen Seiten korrekt verlinkt sein.
+AKZEPTANZKRITERIEN:
+- Eingeloggter User bleibt eingeloggt.
+- Zurück führt sauber zur App zurück.
+- Kein ungewollter Logout.
+
+============================================================
+2. SETTINGS / USERPROFIL
+============================================================
+
+TASK-ID: WF-SETTINGS-001
+STATUS: [x] Fertig
+ZIEL:
+Profil & Account Karte speicherbar machen.
+UMSETZUNG:
+- Anzeigename, E-Mail, Telefon, Sprache, Geburtsdatum, Geschlecht, Zeitzone, Einheiten.
+- Speicherung in Firestore.
+AKZEPTANZKRITERIEN:
+- Werte bleiben nach Reload erhalten.
+
+TASK-ID: WF-SETTINGS-002
+STATUS: [x] Fertig
+ZIEL:
+Biometrie & Körper Karte speicherbar machen.
+UMSETZUNG:
+- Größe, Gewicht, Zielgewicht, Körperbau, Fitnesslevel, Einschränkungen.
+- Sensibler Hinweistext integriert.
+AKZEPTANZKRITERIEN:
+- Werte bleiben nach Reload erhalten.
+
+TASK-ID: WF-SETTINGS-003
+STATUS: [x] Fertig
+ZIEL:
+Benachrichtigungen als eigene Karte führen.
+UMSETZUNG:
+- Missions-Erinnerung, Schlaf-Erinnerung, Wochenreport, Glitch-Alarm.
+AKZEPTANZKRITERIEN:
+- Werte werden separat gespeichert.
+
+TASK-ID: WF-SETTINGS-004
+STATUS: [x] Fertig
+ZIEL:
+Erweiterte Vitalwerte speichern.
+UMSETZUNG:
+- Körperfett, Puls, Blutdruck, Schlaf, Stress, Energie, Schmerz, Hinweise.
+- Medizinischer Hinweistext.
+AKZEPTANZKRITERIEN:
+- Werte bleiben erhalten.
+- Keine medizinische Diagnose-Sprache.
+
+TASK-ID: WF-SETTINGS-005
+STATUS: [x] Fertig
+ZIEL:
+Lebensstil & Ernährung speichern.
+UMSETZUNG:
+- Ernährung, Trinken, Koffein, Alkohol, Schlafroutine, Naturbewegung, Stressausgleich.
+AKZEPTANZKRITERIEN:
+- Werte bleiben erhalten.
+
+TASK-ID: WF-SETTINGS-006
+STATUS: [x] Fertig
+ZIEL:
+Aktivität & Interessen speichern.
+UMSETZUNG:
+- Aktivitätslevel, Trainingszeit, Community-Modus, Interessen, Aktivitäten, Ziele.
+AKZEPTANZKRITERIEN:
+- Werte bleiben erhalten.
+
+TASK-ID: WF-SETTINGS-007
+STATUS: [x] Fertig
+ZIEL:
+KI-Buddy & Avatar-Verhalten speichern.
+UMSETZUNG:
+- Avatar-Typ, Charakter, Beziehungsmodus, Verhaltensdynamik, Motivation, Reaktionen.
+AKZEPTANZKRITERIEN:
+- Buddy kann später anhand dieser Werte reagieren.
+
+TASK-ID: WF-SETTINGS-008
+STATUS: [x] Fertig
+ZIEL:
+Privatsphäre speichern.
+UMSETZUNG:
+- Leaderboard, Buddy-Sharing, Analytics, Freundschaftsanfragen, Teams, PvP, Sichtbarkeit.
+AKZEPTANZKRITERIEN:
+- Werte bleiben erhalten.
+
+TASK-ID: WF-SETTINGS-009
+STATUS: [x] Fertig
+ZIEL:
+Sicherheit-Karte mit Passwort-Reset.
+UMSETZUNG:
+- Firebase sendPasswordResetEmail.
+- UI-Feedback.
+AKZEPTANZKRITERIEN:
+- User erhält Passwort-Reset-Mail.
+
+TASK-ID: WF-SETTINGS-010
+STATUS: [ ] Offen
+ZIEL:
+Account Verwaltung finalisieren: DSGVO-Datenexport, Logout auf allen Geräten, Account löschen.
+UMSETZUNG:
+- Datenexport-Konzept.
+- Reauthentifizierung für Löschung.
+- Firestore/Auth-Löschung sicher planen.
+AKZEPTANZKRITERIEN:
+- Kein halber Löschzustand.
+- User bekommt klare Warnung.
+
+============================================================
+3. DASHBOARD / CORE LOOP
+============================================================
+
+TASK-ID: WF-DASH-001
+STATUS: [x] Fertig
+ZIEL:
+Dashboard mit echten Userdaten verbinden.
+UMSETZUNG:
+- Firebase Auth lesen.
+- Firestore users/{uid} lesen.
+- Punkte, Schritte, Level, Flammi-Grundwerte anzeigen.
+AKZEPTANZKRITERIEN:
+- Dashboard zeigt Userdaten.
+
+TASK-ID: WF-DASH-002
+STATUS: [x] Fertig
+ZIEL:
+Dashboard schneller und stabiler laden.
+UMSETZUNG:
+- Local Dashboard Cache.
+- Firebase Sync danach.
+- lastLoginAt aktualisieren.
+AKZEPTANZKRITERIEN:
+- Dashboard zeigt schnell Daten.
+- Firebase überschreibt Cache nach Sync.
+
+TASK-ID: WF-DASH-003
+STATUS: [ ] Offen
+ZIEL:
+Echten Logout implementieren.
+UMSETZUNG:
+- signOut(auth).
+- Redirect auf Login.
+AKZEPTANZKRITERIEN:
+- User wird sauber ausgeloggt.
+
+TASK-ID: WF-DASH-004
+STATUS: [ ] Offen
+PRIORITÄT: Nächster technischer Schritt
+ZIEL:
+Realtime Sync statt getDoc.
+UMSETZUNG:
+- onSnapshot für User verwenden.
+- Dashboard reagiert live auf Firestore-Änderungen.
+AKZEPTANZKRITERIEN:
+- Änderungen erscheinen ohne Reload.
+- Dashboard wirkt lebendig.
+
+TASK-ID: WF-DASH-005
+STATUS: [ ] Offen
+ZIEL:
+Global User Store einführen.
+UMSETZUNG:
+- Zustand zentralisieren über Context oder Zustand.
+- Mehrfaches Laden vermeiden.
+AKZEPTANZKRITERIEN:
+- Schnellere Navigation.
+- Kein doppelter Firestore-Code.
+
+TASK-ID: WF-DASH-006
+STATUS: [ ] Offen
+ZIEL:
+Dashboard-Core-Loop mit echten Missionen verbinden.
+UMSETZUNG:
+- Tagesmissionen aus Firestore laden.
+- Punkte aus Missionen vergeben.
+- Aktivitäten/Tracking in History speichern.
+AKZEPTANZKRITERIEN:
+- Dashboard zeigt echte aktive Missionen.
+
+============================================================
+4. MISSIONEN / GAMEPLAY
+============================================================
+
+TASK-ID: WF-MISSION-001
+STATUS: [ ] Offen
+ZIEL:
+Missionen vollständig mit Firestore verbinden.
+UMSETZUNG:
+- Tagesmissionen, Wochenmissionen, Challenge, Abenteuer, Wettkämpfe.
+- Status offen/aktiv/erledigt.
+AKZEPTANZKRITERIEN:
+- Missionen bleiben nach Reload erhalten.
+
+TASK-ID: WF-MISSION-002
+STATUS: [ ] Offen
+ZIEL:
+Favoriten und History speichern.
+UMSETZUNG:
+- Mission-Favoriten je User.
+- Mission-History je User.
+AKZEPTANZKRITERIEN:
+- Favoriten und History bleiben erhalten.
+
+TASK-ID: WF-MISSION-003
+STATUS: [ ] Offen
+ZIEL:
+Belohnungslogik für Missionen sauber definieren.
+UMSETZUNG:
+- Punkte statt Token in Phase 1.
+- Anti-Cheat-Regeln.
+- Daily Limits.
+AKZEPTANZKRITERIEN:
+- Keine unkontrollierte Punktevergabe.
+
+============================================================
+5. TRACKING / HEALTH / SMARTWATCH
+============================================================
 
 TASK-ID: WF-TRACKING-001
 STATUS: [>] Später / Backlog
@@ -118,102 +435,249 @@ AKZEPTANZKRITERIEN:
 - Keine manuell erfundenen Schritte.
 - Daten können für Punkte, Missionen und Tagesfortschritt genutzt werden.
 
+TASK-ID: WF-TRACKING-002
+STATUS: [ ] Offen
+ZIEL:
+Firestore-Datenmodell für Tracking definieren.
+UMSETZUNG:
+- dailyActivity/{uid}/{date}
+- trackingSessions
+- steps, source, confidence, activeMinutes, calories, workoutType.
+AKZEPTANZKRITERIEN:
+- Dashboard und Mobile können dieselben Aktivitätsdaten nutzen.
+
+============================================================
+6. MOBILE / APP / AR
+============================================================
+
+TASK-ID: WF-MOBILE-001
+STATUS: [>] Später / Backlog
+PRIORITÄT: Grundgerüst / Mobile Roadmap
+ZIEL:
+Mobile WellFit Companion App als täglichen AR-Begleiter definieren. Die Web-App bleibt die Steuerzentrale, die Mobile App ist für tägliche Bewegung, Kamera/AR, Missionen, Buddy und Fortschritt gedacht.
+GRUNDPRINZIP:
+Die Mobile App darf keine vollständige Kopie der Web-App werden. Die Startseite ist ein AR-Kamera-Screen.
+STRATEGIE:
+- PWA/Web-Prototyp nur für schnelle interne technische Validierung.
+- Für echte Testphase App-Store-Testkanäle einplanen.
+- Danach native oder Hybrid-App bauen.
+UMSETZUNG:
+- Kamera startet nicht automatisch beim Öffnen.
+- User klickt auf "AR starten" oder gibt bewusst Kamera-Permission.
+- Oben links: Hamburger-Menü.
+- Oben daneben: Buddy-Level.
+- Oben rechts: kleines Nutzerbild.
+- Unten: nur Tagesfortschritt-Balken.
+- AR-Objekte räumlich einbetten, nicht flach überlagern.
+AKZEPTANZKRITERIEN:
+- AR/Kamera steht im Mittelpunkt.
+- Mobile App bleibt schlank.
+
+TASK-ID: WF-MOBILE-002
+STATUS: [>] Später / Backlog
+ZIEL:
+App-Store-Teststrategie definieren.
+UMSETZUNG:
+- PWA nur als schneller interner Prototyp.
+- iOS-Testphase über TestFlight planen.
+- Android-Testphase über Google Play Internal/Closed Testing planen.
+- Prüfen: React Native / Expo, Capacitor oder native Swift/Kotlin.
+- HealthKit, Health Connect, Kamera, ARKit/ARCore und Watch-Daten berücksichtigen.
+- Store-Compliance für Kamera, Gesundheitsdaten, Tracking und KI-Hinweise vorbereiten.
+AKZEPTANZKRITERIEN:
+- Klarer Weg zu App Store / Play Store Testphase.
+
+TASK-ID: WF-MOBILE-003
+STATUS: [ ] Offen
+ZIEL:
+Mobile Menüstruktur definieren.
+UMSETZUNG:
+- Home/AR
+- Missionen
+- Buddy
+- Profil Light
+- Einstellungen Light
+- Hilfe
+- Logout
+AKZEPTANZKRITERIEN:
+- Mobile App ist nicht überladen.
+
+TASK-ID: WF-AR-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Räumliche AR-Objekte in realer Umgebung platzieren.
+UMSETZUNG:
+- Plane Detection.
+- Anchors.
+- Perspektive/Skalierung.
+- Schatten/Licht.
+- spätere Occlusion.
+AKZEPTANZKRITERIEN:
+- Objekte wirken real platziert.
+
+============================================================
+7. KI / POSE / EMOTION / BUDDY INTELLIGENCE
+============================================================
+
 TASK-ID: WF-AI-POSE-001
 STATUS: [>] Später / Backlog
 PRIORITÄT: Grundgerüst / Mobile KI / Fitnesskern
 ZIEL:
 WellFit soll über Kamera und Pose Estimation/Skeleton Tracking erkennen, ob User Übungen wie Liegestütze oder Kniebeugen wirklich durchführen und ob die Bewegung grob korrekt ist.
 GRUNDPRINZIP:
-Die Kamera wird nur nach bewusster Zustimmung genutzt. Es werden keine Videos dauerhaft gespeichert. Es werden nur Ergebnisdaten wie Übung, gültige Wiederholungen, ungültige Wiederholungen, Qualitätssignal und Confidence gespeichert.
-Wichtig: Schlechte Wiederholungen werden nicht gezählt.
+Schlechte Wiederholungen werden nicht gezählt.
 UMSETZUNG:
-- Pose Estimation / Skeleton Tracking im PWA-Prototyp prüfen.
 - TensorFlow.js und MediaPipe als Kandidaten prüfen.
 - Erste Übungen: Liegestütze und Kniebeugen.
-- Körperpunkte erkennen: Kopf, Schultern, Ellbogen, Handgelenke, Hüfte, Knie, Füße.
-- Bewegungsphasen erkennen: Startposition, Abwärtsbewegung, Endpunkt, Aufwärtsbewegung, Wiederholung abgeschlossen.
-- Liegestütz zählt nur, wenn Bewegungsradius, Körperhaltung und Phasen stimmen.
-- Kniebeuge zählt nur, wenn Tiefe, Knie-/Hüftbewegung und Rückkehr in Standposition stimmen.
-- Wiederholungen zählen, aber nur gültige Wiederholungen belohnen.
-- Ungültige Wiederholungen separat erfassen und nicht vergüten.
-- Grobe Bewegungsqualität prüfen: z. B. Rückenhaltung, Bewegungstiefe, zu schnelle/unsaubere Ausführung.
-- Buddy gibt kurzes Feedback, warum eine Wiederholung nicht gezählt wurde.
-- Buddy gibt motivierendes Feedback, aber keine medizinische Diagnose.
-- Nur Ergebnisse speichern, keine Kamerabilder/Videos.
-- On-device Verarbeitung bevorzugen.
+- Bewegungsphasen erkennen.
+- Nur gültige Wiederholungen belohnen.
+- Ungültige Wiederholungen separat erfassen.
+- Buddy erklärt, warum nicht gezählt wurde.
 AKZEPTANZKRITERIEN:
-- User stimmt Kamera/Tracking aktiv zu.
-- Liegestütz oder Kniebeuge wird erkannt.
-- Gültige Wiederholungen werden gezählt.
-- Schlechte Wiederholungen werden nicht gezählt.
-- Ungültige Wiederholungen erhalten kurzes Buddy-Feedback.
-- Ergebnisse können für Punkte/Missionen genutzt werden.
+- Gültige Reps zählen.
+- Schlechte Reps zählen nicht.
 
 TASK-ID: WF-AI-EMOTION-001
 STATUS: [>] Später / Backlog
-PRIORITÄT: Nach Pose Tracking / Datenschutzsensibel
 ZIEL:
-Der KI-Buddy soll optional über Kamera/Mimik grob erkennen können, wie der User gerade drauf ist, und seine Reaktion daran anpassen.
+Buddy erkennt optional grobe Stimmung/Mimik und passt Reaktion an.
 UMSETZUNG:
-- Kamera nur nach ausdrücklicher Zustimmung verwenden.
-- Mimik-/Stimmungsanalyse als optionales Feature.
+- Nur nach Zustimmung.
 - Kategorien: gut, müde, gestresst, genervt, traurig, motiviert, konzentriert, überfordert.
 - Keine medizinischen Diagnosen.
-- Nur Ergebnisdaten speichern, keine Kamerabilder.
-- Buddy-Reaktion an Stimmung anpassen.
+- Keine Kamerabilder speichern.
 AKZEPTANZKRITERIEN:
-- User stimmt aktiv zu.
-- Buddy reagiert passend, aber vorsichtig.
-- Keine Diagnose-Sprache.
-- Feature kann deaktiviert werden.
+- Buddy reagiert vorsichtig und passend.
 
-TASK-ID: WF-DASH-003
+TASK-ID: WF-AI-BUDDY-001
 STATUS: [ ] Offen
 ZIEL:
-Echten Logout implementieren (Firebase signOut).
+Buddy-Reaktionslogik aus gespeicherten Userdaten entwickeln.
 UMSETZUNG:
-- signOut(auth) einbauen.
-- Redirect auf Login-Seite.
+- Profil, Vitalwerte, Lifestyle, Aktivität, Stimmung, Trackingdaten nutzen.
+- Charaktere und Verhaltensdynamik berücksichtigen.
 AKZEPTANZKRITERIEN:
-- User wird sauber ausgeloggt.
-- Session wird beendet.
+- Buddy reagiert personalisiert.
 
-TASK-ID: WF-DASH-004
+============================================================
+8. DATEN / ARCHITEKTUR / MAPPER
+============================================================
+
+TASK-ID: WF-DATA-001
 STATUS: [ ] Offen
 ZIEL:
-Realtime Sync statt getDoc.
+Zentrales Userdaten-Mapping schaffen.
 UMSETZUNG:
-- onSnapshot für User verwenden.
+- userProfileMapper.ts oder registrationMapper.ts.
+- Registration-Rohwerte, Settings-Werte und Firestore-Zielstruktur zentral definieren.
 AKZEPTANZKRITERIEN:
-- Änderungen erscheinen sofort ohne Reload.
+- Keine doppelte Mapping-Logik in mehreren Dateien.
 
-TASK-ID: WF-DASH-005
+TASK-ID: WF-DATA-002
 STATUS: [ ] Offen
 ZIEL:
-Global User Store.
+Firestore-Struktur final dokumentieren.
 UMSETZUNG:
-- Zustand zentralisieren (Context / Zustand).
+- users/{uid}
+- settings
+- profile
+- avatar
+- dailyActivity
+- trackingSessions
+- missions
+- history
 AKZEPTANZKRITERIEN:
-- Kein mehrfaches Laden.
-- Schnellere Navigation.
+- Entwickler wissen, wo welche Daten liegen.
+
+============================================================
+9. HILFE / RECHTLICH / SUPPORT
+============================================================
 
 TASK-ID: WF-HELP-001
 STATUS: [ ] Offen
 ZIEL:
-Die Hilfeseite muss fertiggestellt werden und darf nicht als leerer oder unfertiger Bereich bleiben.
+Hilfeseite fertigstellen.
 UMSETZUNG:
-- Route /hilfe anlegen/prüfen.
-- Sidebar-Link "Hilfe" korrekt verlinken.
-- Inhalte ergänzen: Erste Schritte, Registrierung, Punkte, Missionen, KI-Buddy, Datenschutz, Support.
-- Zurück-Verhalten für eingeloggte User prüfen.
+- Route /hilfe anlegen.
+- Inhalte: Erste Schritte, Registrierung, Punkte, Missionen, KI-Buddy, Datenschutz, Support.
+- Zurück-Verhalten prüfen.
 AKZEPTANZKRITERIEN:
-- Hilfe ist erreichbar.
-- Hilfe hat echten Inhalt.
-- Navigation funktioniert aus Dashboard und Einstellungen.
-- Eingeloggter User bleibt eingeloggt.
+- Hilfe ist erreichbar und hat echten Inhalt.
+
+TASK-ID: WF-LEGAL-001
+STATUS: [ ] Offen
+ZIEL:
+Rechtliche Seiten für App-Funktionen prüfen.
+UMSETZUNG:
+- Datenschutz für Kamera, Health-Daten, Tracking, KI, Pose, Emotion, Smartwatch.
+- AGB um Punkte/Missionen/kein Investmentversprechen ergänzen.
+AKZEPTANZKRITERIEN:
+- Rechtliche Texte passen zum Produkt.
 
 ============================================================
-FORTSETZUNG
+10. TOKEN / SOLANA / MARKETPLACE / ECONOMY
 ============================================================
 
-Der bisherige vollständige Masterplan bleibt gültig und wird fortlaufend gepflegt.
+TASK-ID: WF-TOKEN-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Token-Integration später vorbereiten, aber nicht für Phase-1-Pilot erzwingen.
+UMSETZUNG:
+- Punkte als Phase-1-Währung.
+- Später Solana-Wallet/Token.
+- Keine Investmentversprechen in Nutzerbereichen.
+AKZEPTANZKRITERIEN:
+- App funktioniert ohne Token.
+
+TASK-ID: WF-ECON-001
+STATUS: [ ] Offen
+ZIEL:
+Punkte-Economy balancieren.
+UMSETZUNG:
+- Rewards.
+- Kosten für Futter/Items.
+- Daily Caps.
+- Anti-Cheat.
+AKZEPTANZKRITERIEN:
+- Punkte werden kontrolliert vergeben.
+
+============================================================
+11. PILOT / BUSINESSPLAN / INVESTOREN
+============================================================
+
+TASK-ID: WF-PILOT-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Pilot mit echten Usern vorbereiten.
+UMSETZUNG:
+- 100–500 User in Wien.
+- 2–3 Wochen Nutzungsdaten.
+- Retention, Aktivität, Mission Completion, Feedback.
+AKZEPTANZKRITERIEN:
+- echte Daten für Investoren.
+
+TASK-ID: WF-BIZ-001
+STATUS: [>] Später / Backlog
+ZIEL:
+Businessplan/Investorennachweise mit Produktdaten verbinden.
+UMSETZUNG:
+- Tranche-Modell.
+- Pilotdaten.
+- LOIs.
+- Partner.
+- B2B Revenue-Säulen.
+AKZEPTANZKRITERIEN:
+- Investor Story basiert auf Produktfortschritt.
+
+============================================================
+12. OFFENE TESTS VOR NÄCHSTEM DEPLOY
+============================================================
+
+[ ] Registrierung mit starkem Passwort testen.
+[ ] Firebase Userdokument nach Registrierung prüfen.
+[ ] Einstellungen nach neuer Registrierung prüfen.
+[ ] Dashboard Cache + Firebase Sync testen.
+[ ] Tracking starten/stoppen testen.
+[ ] Flammi füttern testen.
+[ ] Legal Zurück-Navigation testen.
+[ ] Build am Server nach gesammelt mehreren Änderungen durchführen.
