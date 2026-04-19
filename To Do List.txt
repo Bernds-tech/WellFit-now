@@ -5,47 +5,47 @@ WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
 K. REWARD SYSTEM / SYSTEM HEALTH / NEXT-GEN MECHANICS
 ============================================================
 
-[ ] Social Multiplier
-[ ] Missions-Diversität
+STAND: 2026-04-19
+Letzter Abgleich: Tagesmissionen UI, Favoriten, Drag & Drop, KI-Empfehlungen, Reward-Transparenz.
+
+[x] Social Multiplier – Basisfeld im Reward-System/UI vorhanden
+Status: technisch vorbereitet, echte soziale Logik noch offen
+
+[x] Missions-Diversität – Basis umgesetzt
+Status: mehrere Kategorien vorhanden (Move, Workout, Ernährung, Mind, Abenteuer)
+
 [ ] Completion Trends
+Status: History vorhanden, echte Trendanalyse fehlt
+
 [ ] Skeletal Tracking
+Status: nicht integriert
+
 [ ] Biometric Validation
+Status: nicht integriert
+
 [ ] DePIN Compute
+Status: nicht integriert
+
 [ ] Brain Timing
-
-GRUNDPRINZIP:
-Reward darf NICHT nur Aktivität belohnen
-→ sondern auch Systemgesundheit schützen
-
-MISSIONS-DIVERSITÄT:
-Nicht nur Schritte
-→ sondern Balance:
-Move / Learn / Social
-
-ZIEL:
-👉 verhindert Farming
-👉 verhindert Monotonie
-
-QUALITÄT STATT QUANTITÄT:
-nicht:
-"100 Liegestütze"
-sondern:
-"100 gute Liegestütze"
-
-SOZIALE BELOHNUNG:
-Senior + Enkel → Bonus
+Status: nicht integriert
 
 STATUS BASIS:
 [x] Reward Score Basis
 [x] Avatar + Economy
-[x] Analytics
+[x] Analytics Basis
+[x] Drag & Drop Tagesmissionen
+[x] Favoriten-System (UI + Local + Firebase vorbereitet)
+[x] KI-Empfehlungen sichtbar (gelb)
+[x] Reward Breakdown im UI
+[x] Missionsdetails UX fertig
+[x] Game Feel / Microinteractions
 
 ERWEITERUNGEN:
-[ ] Adaptive Missionen
+[x] Adaptive Missionen (Basis KI vorhanden)
 [ ] Streak System
 [ ] Diversity Bonus
-[ ] Social Bonus
-[ ] Precision (Workout Qualität)
+[x] Social Bonus (technisch vorbereitet)
+[ ] Precision / Qualität
 [ ] Sensor Fusion
 [ ] Anti-Cheat AI
 [ ] DePIN Compute
@@ -53,16 +53,7 @@ ERWEITERUNGEN:
 [ ] External Economy
 
 UI / TRANSPARENZ:
-Reward Breakdown im UI anzeigen
-
-Beispiel:
-Basis: 20
-System: ×0.9
-Avatar: ×1.1
-Streak: ×1.05
---------------
-= 21 Punkte
-
-👉 Nutzer muss das System verstehen können
+[x] Reward Breakdown sichtbar
+[x] einklappbar + animiert
 
 ============================================================
