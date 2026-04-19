@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.7
+Version: 1.8
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -58,6 +58,10 @@ Mobile WellFit Companion App als täglichen AR-Begleiter definieren. Die Web-App
 GRUNDPRINZIP:
 Die Mobile App darf keine vollständige Kopie der Web-App werden. Sie zeigt nur die notwendigsten Informationen. Die Startseite ist ein AR-Kamera-Screen, nicht ein klassisches Dashboard.
 AR-Elemente dürfen nicht nur flach über das Kamerabild gelegt werden. Sie müssen räumlich in die reale Umgebung eingebettet wirken, so als würden sie sich wirklich dort befinden.
+STRATEGIE:
+- Zuerst PWA AR-Prototyp bauen.
+- Mit echten Usern testen.
+- Danach native App prüfen/bauen.
 UMSETZUNG:
 - Kamera startet nicht automatisch beim Öffnen.
 - User klickt zuerst auf Button "AR starten" oder gibt bewusst Kamera-Permission.
@@ -84,9 +88,53 @@ AKZEPTANZKRITERIEN:
 - Objekte bleiben im Raum stabil.
 - Mobile App bleibt schlank und auf tägliche Nutzung fokussiert.
 TECHNISCHE HINWEISE:
-- Für echte native AR später ARKit/ARCore prüfen.
 - Für PWA/Web-Prototyp WebXR/Three.js prüfen.
+- Für Pose Tracking im PWA-Prototyp MediaPipe / TensorFlow.js prüfen.
+- Für echte native AR später ARKit/ARCore prüfen.
 - Für Pilot zuerst einfacher AR-Modus möglich, aber Ziel bleibt echte räumliche Einbettung.
+
+TASK-ID: WF-AI-POSE-001
+STATUS: [>] Später / Backlog
+PRIORITÄT: Grundgerüst / Mobile KI / Fitnesskern
+ZIEL:
+WellFit soll über Kamera und Pose Estimation/Skeleton Tracking erkennen, ob User Übungen wie Liegestütze oder Kniebeugen wirklich durchführen und ob die Bewegung grob korrekt ist.
+GRUNDPRINZIP:
+Die Kamera wird nur nach bewusster Zustimmung genutzt. Es werden keine Videos dauerhaft gespeichert. Es werden nur Ergebnisdaten wie Übung, Wiederholungen, Qualitätssignal und Confidence gespeichert.
+UMSETZUNG:
+- Pose Estimation / Skeleton Tracking im PWA-Prototyp prüfen.
+- Erste Übungen: Liegestütze und Kniebeugen.
+- Körperpunkte erkennen: Kopf, Schultern, Ellbogen, Handgelenke, Hüfte, Knie, Füße.
+- Bewegungsphasen erkennen: Startposition, Abwärtsbewegung, Endpunkt, Aufwärtsbewegung, Wiederholung abgeschlossen.
+- Wiederholungen zählen.
+- Grobe Bewegungsqualität prüfen: z. B. Rückenhaltung, Bewegungstiefe, zu schnelle/unsaubere Ausführung.
+- Buddy gibt motivierendes Feedback, aber keine medizinische Diagnose.
+- Nur Ergebnisse speichern, keine Kamerabilder/Videos.
+- On-device Verarbeitung bevorzugen.
+AKZEPTANZKRITERIEN:
+- User stimmt Kamera/Tracking aktiv zu.
+- Liegestütz oder Kniebeuge wird erkannt.
+- Wiederholungen werden gezählt.
+- Grobe Fehlbewegungen werden vorsichtig erkannt.
+- Buddy gibt motivierendes, nicht-medizinisches Feedback.
+- Ergebnisse können für Punkte/Missionen genutzt werden.
+
+TASK-ID: WF-AI-EMOTION-001
+STATUS: [>] Später / Backlog
+PRIORITÄT: Nach Pose Tracking / Datenschutzsensibel
+ZIEL:
+Der KI-Buddy soll optional über Kamera/Mimik grob erkennen können, wie der User gerade drauf ist, und seine Reaktion daran anpassen.
+UMSETZUNG:
+- Kamera nur nach ausdrücklicher Zustimmung verwenden.
+- Mimik-/Stimmungsanalyse als optionales Feature.
+- Kategorien: gut, müde, gestresst, genervt, traurig, motiviert, konzentriert, überfordert.
+- Keine medizinischen Diagnosen.
+- Nur Ergebnisdaten speichern, keine Kamerabilder.
+- Buddy-Reaktion an Stimmung anpassen.
+AKZEPTANZKRITERIEN:
+- User stimmt aktiv zu.
+- Buddy reagiert passend, aber vorsichtig.
+- Keine Diagnose-Sprache.
+- Feature kann deaktiviert werden.
 
 TASK-ID: WF-DASH-003
 STATUS: [ ] Offen
