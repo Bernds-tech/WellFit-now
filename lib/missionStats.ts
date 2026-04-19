@@ -7,7 +7,14 @@ export type MissionStatsInput = {
   missionId: string;
   title?: string;
   category?: string;
-  source?: "prefab" | "ai" | "fallback" | "firestore" | string;
+  description?: string;
+  reward?: number;
+  difficulty?: string;
+  type?: string;
+  duration?: string;
+  targetValue?: number;
+  unit?: string;
+  source?: "prefab" | "ai" | "fallback" | "firestore" | "ai_promoted" | string;
   event: MissionStatsEvent;
 };
 
@@ -30,6 +37,13 @@ export async function recordMissionStatsEvent(input: MissionStatsInput) {
       missionId: input.missionId,
       title: input.title ?? "",
       category: input.category ?? "",
+      description: input.description ?? "",
+      reward: input.reward ?? 0,
+      difficulty: input.difficulty ?? "Leicht",
+      type: input.type ?? "Bewegung",
+      duration: input.duration ?? "1 Tag",
+      targetValue: input.targetValue ?? null,
+      unit: input.unit ?? "checkin",
       source: input.source ?? "prefab",
       [eventField]: increment(1),
       updatedAt: serverTimestamp(),
@@ -96,7 +110,9 @@ export async function evaluateMissionQuality(missionId: string) {
   const abortRate = usageCount > 0 ? abortCount / usageCount : 0;
   const dislikeRate = favoriteCount > 0 ? unfavoriteCount / favoriteCount : 0;
   const qualityScore = Math.round(Math.max(0, Math.min(100, completionRate * 45 + favoriteRate * 35 + (1 - abortRate) * 15 + (1 - dislikeRate) * 5)));
-  const shouldPromote = (stats.source === "ai" || stats.source === "ai_promoted") && usageCount >= 10 && completionRate >= 0.6 && favoriteRate >= 0.2 && abortRate <= 0.25;
+  const isAiMission = stats.source === "ai" || stats.source === "ai_promoted";
+  const shouldPromote = isAiMission && usageCount >= 20 && qualityScore >= 70 && completionRate >= 0.6 && favoriteRate >= 0.2 && abortRate <= 0.25;
+  const aiDecision = shouldPromote ? "auto_promoted" : qualityScore < 35 && usageCount >= 10 ? "needs_revision" : "collect_more_data";
 
   await setDoc(
     statsRef,
@@ -106,12 +122,29 @@ export async function evaluateMissionQuality(missionId: string) {
       abortRate,
       dislikeRate,
       qualityScore,
-      aiDecision: shouldPromote ? "promote_candidate" : qualityScore < 35 && usageCount >= 10 ? "needs_revision" : "collect_more_data",
+      aiDecision,
       evaluatedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     },
     { merge: true }
   );
+
+  if (shouldPromote && !stats.promotedAt) {
+    await promoteAiMissionToGlobal({
+      missionId,
+      title: String(stats.title ?? "KI Mission"),
+      category: String(stats.category ?? "Tagesmissionen"),
+      description: String(stats.description ?? "Diese Mission wurde durch Nutzerverhalten als gute KI-Mission erkannt."),
+      reward: Number(stats.reward ?? 0),
+      difficulty: String(stats.difficulty ?? "Leicht"),
+      type: String(stats.type ?? "Bewegung"),
+      duration: String(stats.duration ?? "1 Tag"),
+      targetValue: stats.targetValue === null || stats.targetValue === undefined ? undefined : Number(stats.targetValue),
+      unit: String(stats.unit ?? "checkin"),
+    });
+
+    await setDoc(statsRef, { promotedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+  }
 
   return { qualityScore, completionRate, favoriteRate, abortRate, shouldPromote };
 }
