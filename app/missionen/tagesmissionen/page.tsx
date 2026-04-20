@@ -14,16 +14,8 @@ import { calculateDailyReward } from "./rewardEngine";
 import { useDailyMissionFirebase } from "./useDailyMissionFirebase";
 
 type MissionTab = "Tagesmissionen" | "Wochenmissionen" | "Abenteuer" | "Challenge" | "Wettkämpfe" | "Favoriten" | "History";
-
 const tabs: MissionTab[] = ["Tagesmissionen", "Wochenmissionen", "Abenteuer", "Challenge", "Wettkämpfe", "Favoriten", "History"];
-
-const tabHref = (tab: MissionTab) =>
-  tab === "Tagesmissionen" ? "/missionen/tagesmissionen" :
-  tab === "Wochenmissionen" ? "/missionen/wochenmissionen" :
-  tab === "Abenteuer" ? "/missionen/abenteuer" :
-  tab === "Challenge" ? "/missionen/challenge" :
-  tab === "Wettkämpfe" ? "/missionen/wettkaempfe" :
-  tab === "Favoriten" ? "/missionen/favoriten" : "/missionen/history";
+const tabHref = (tab: MissionTab) => tab === "Tagesmissionen" ? "/missionen/tagesmissionen" : tab === "Wochenmissionen" ? "/missionen/wochenmissionen" : tab === "Abenteuer" ? "/missionen/abenteuer" : tab === "Challenge" ? "/missionen/challenge" : tab === "Wettkämpfe" ? "/missionen/wettkaempfe" : tab === "Favoriten" ? "/missionen/favoriten" : "/missionen/history";
 
 export default function MissionenPage() {
   const [brightness, setBrightness] = useState(100);
@@ -32,7 +24,7 @@ export default function MissionenPage() {
   const [rewardDetailsOpen, setRewardDetailsOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Ziehe Missionen in deine 3 Tagesfelder.");
 
-  const { favoriteIds, dailySlotIds, startedMissionIds, completedMissionIds, setFavoriteIds, setDailySlotIds, startMission: persistStartMission, completeMission: persistCompleteMission, ready, userId } = useDailyMissionFirebase();
+  const { favoriteIds, dailySlotIds, startedMissionIds, completedMissionIds, setFavoriteIds, setDailySlotIds, startMission: persistStartMission, completeMission: persistCompleteMission, ready, userId, dailyGoal, goalCompleted, currentStreak, longestStreak, streakBonus } = useDailyMissionFirebase();
 
   const selectedMission = dailyMissions.find((mission) => mission.id === selectedMissionId) ?? dailyMissions[0];
   const isStarted = startedMissionIds.includes(selectedMission.id);
@@ -81,7 +73,7 @@ export default function MissionenPage() {
       <div className="flex h-full">
         <AppSidebar brightness={brightness} onBrightnessChange={setBrightness} />
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
-          <DailyHeader diversityCount={reward.diversityCount} />
+          <DailyHeader diversityCount={reward.diversityCount} completedCount={completedMissionIds.length} dailyGoal={dailyGoal} goalCompleted={goalCompleted} currentStreak={currentStreak} longestStreak={longestStreak} streakBonus={streakBonus} />
           <p className="-mt-3 mb-3 text-sm font-semibold text-cyan-100/80">{!ready ? "Lade Tagesmissionen..." : isCompleted ? `${selectedMission.title} ist abgeschlossen.` : isStarted ? `${selectedMission.title} läuft bereits.` : statusMessage}</p>
           <div className="mb-4 flex justify-center">
             <div className="flex items-center gap-5 rounded-full border border-white/10 bg-[#0b6d79]/35 px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm">
