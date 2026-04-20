@@ -8,6 +8,9 @@ type DailyHeaderProps = {
   currentStreak: number;
   longestStreak: number;
   streakBonus: number;
+  level: number;
+  xpForCurrentLevel: number;
+  xpForNextLevel: number;
 };
 
 export default function DailyHeader({
@@ -18,9 +21,13 @@ export default function DailyHeader({
   currentStreak,
   longestStreak,
   streakBonus,
+  level,
+  xpForCurrentLevel,
+  xpForNextLevel,
 }: DailyHeaderProps) {
   const remaining = Math.max(0, dailyGoal - completedCount);
   const dailyProgress = Math.min(100, Math.round((completedCount / Math.max(1, dailyGoal)) * 100));
+  const xpProgress = Math.min(100, Math.round((xpForCurrentLevel / Math.max(1, xpForNextLevel)) * 100));
 
   return (
     <div className="mb-4 flex justify-between gap-4">
@@ -39,12 +46,23 @@ export default function DailyHeader({
         <div className="min-w-[155px] rounded-2xl border border-cyan-300/30 bg-[#073b44] px-4 py-2 shadow-[0_0_16px_rgba(34,211,238,0.10)]">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-bold text-cyan-100">🎯 Heute {completedCount}/{dailyGoal}</p>
-            <span className="text-xs font-bold text-yellow-200">+{streakBonus}</span>
+            <span className="text-xs font-bold text-yellow-200">+{streakBonus}%</span>
           </div>
           <div className="mt-1 h-2 overflow-hidden rounded-full bg-black/25">
             <div className="h-full rounded-full bg-cyan-300 transition-all duration-700" style={{ width: `${dailyProgress}%` }} />
           </div>
           <p className="mt-1 text-[10px] text-white/55">{goalCompleted ? "Tagesziel erfüllt" : `Noch ${remaining} bis Bonus`}</p>
+        </div>
+
+        <div className="min-w-[165px] rounded-2xl border border-purple-300/35 bg-[#073b44] px-4 py-2 shadow-[0_0_16px_rgba(216,180,254,0.10)]">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-bold text-purple-200">⭐ Level {level}</p>
+            <span className="text-[10px] font-bold text-white/70">{xpForCurrentLevel}/{xpForNextLevel} XP</span>
+          </div>
+          <div className="mt-1 h-2 overflow-hidden rounded-full bg-black/25">
+            <div className="h-full rounded-full bg-purple-300 transition-all duration-700" style={{ width: `${xpProgress}%` }} />
+          </div>
+          <p className="mt-1 text-[10px] text-white/55">Noch {Math.max(0, xpForNextLevel - xpForCurrentLevel)} XP bis Level {level + 1}</p>
         </div>
 
         <div className="min-w-[125px] rounded-2xl border border-green-300/30 bg-[#073b44] px-4 py-2">
