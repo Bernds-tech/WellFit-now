@@ -11,6 +11,7 @@ import MissionPool from "./MissionPool";
 import MissionDetails from "./MissionDetails";
 import { dailyMissions } from "./missions";
 import { calculateDailyReward } from "./rewardEngine";
+import { useDailyMissionFirebase } from "./useDailyMissionFirebase";
 
 type MissionTab = "Tagesmissionen" | "Wochenmissionen" | "Abenteuer" | "Challenge" | "Wettkämpfe" | "Favoriten" | "History";
 
@@ -27,11 +28,20 @@ const tabHref = (tab: MissionTab) =>
 export default function MissionenPage() {
   const [brightness, setBrightness] = useState(100);
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(dailyMissions[0].id);
-  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-  const [dailySlotIds, setDailySlotIds] = useState<(string | null)[]>([null, null, null]);
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
   const [rewardDetailsOpen, setRewardDetailsOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Ziehe Missionen in deine 3 Tagesfelder.");
+
+  const {
+    favoriteIds,
+    dailySlotIds,
+    startedMissionIds,
+    setFavoriteIds,
+    setDailySlotIds,
+    startMission: persistStartMission,
+    ready,
+    userId,
+  } = useDailyMissionFirebase();
 
   const selectedMission = dailyMissions.find((mission) => mission.id === selectedMissionId) ?? dailyMissions[0];
   const recommendedIds = useMemo(() => ["daily-plank-60", "daily-8000-steps", "daily-healthy-meal"], []);
@@ -40,29 +50,31 @@ export default function MissionenPage() {
     .filter(Boolean) as string[];
   const reward = calculateDailyReward(selectedMission, selectedTypes);
 
-  const toggleFavorite = (missionId: string) => {
-    setFavoriteIds((current) => current.includes(missionId) ? current.filter((id) => id !== missionId) : [...current, missionId]);
+  const toggleFavorite = async (missionId: string) => {
+    const next = favoriteIds.includes(missionId) ? favoriteIds.filter((id) => id !== missionId) : [...favoriteIds, missionId];
+    await setFavoriteIds(next);
+    setStatusMessage(next.includes(missionId) ? "Mission wurde zu Favoriten hinzugefügt." : "Mission wurde aus Favoriten entfernt.");
   };
 
-  const assignSlot = (slotIndex: number, missionId: string) => {
-    setDailySlotIds((current) => {
-      const next = current.map((id) => id === missionId ? null : id);
-      next[slotIndex] = missionId;
-      return next;
-    });
+  const assignSlot = async (slotIndex: number, missionId: string) => {
+    const next = dailySlotIds.map((id) => id === missionId ? null : id);
+    next[slotIndex] = missionId;
+    await setDailySlotIds(next);
     setSelectedMissionId(missionId);
     setDragOverSlot(null);
-    setStatusMessage("Mission wurde in deine Tagesauswahl gelegt.");
+    setStatusMessage(userId ? "Mission wurde gespeichert und in deine Tagesauswahl gelegt." : "Mission wurde lokal in deine Tagesauswahl gelegt. Für Sync bitte einloggen.");
   };
 
-  const clearSlot = (slotIndex: number) => {
-    setDailySlotIds((current) => current.map((id, index) => index === slotIndex ? null : id));
+  const clearSlot = async (slotIndex: number) => {
+    const next = dailySlotIds.map((id, index) => index === slotIndex ? null : id);
+    await setDailySlotIds(next);
     setStatusMessage("Tagesfeld wurde geleert.");
   };
 
-  const startMission = (missionId: string) => {
+  const startMission = async (missionId: string) => {
     const mission = dailyMissions.find((item) => item.id === missionId);
     if (!mission) return;
+    await persistStartMission(missionId);
     setStatusMessage(`${mission.title} gestartet. Reward ist aktuell mit ${reward.finalReward} Punkten vorgemerkt.`);
   };
 
@@ -73,7 +85,9 @@ export default function MissionenPage() {
 
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
           <DailyHeader diversityCount={reward.diversityCount} />
-          <p className="-mt-3 mb-3 text-sm font-semibold text-cyan-100/80">{statusMessage}</p>
+          <p className="-mt-3 mb-3 text-sm font-semibold text-cyan-100/80">
+            {!ready ? "Lade Tagesmissionen..." : startedMissionIds.includes(selectedMission.id) ? `${selectedMission.title} ist gestartet.` : statusMessage}
+          </p>
 
           <div className="mb-4 flex justify-center">
             <div className="flex items-center gap-5 rounded-full border border-white/10 bg-[#0b6d79]/35 px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm">
