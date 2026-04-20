@@ -32,10 +32,11 @@ export default function MissionenPage() {
   const [rewardDetailsOpen, setRewardDetailsOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Ziehe Missionen in deine 3 Tagesfelder.");
 
-  const { favoriteIds, dailySlotIds, startedMissionIds, setFavoriteIds, setDailySlotIds, startMission: persistStartMission, ready, userId } = useDailyMissionFirebase();
+  const { favoriteIds, dailySlotIds, startedMissionIds, completedMissionIds, setFavoriteIds, setDailySlotIds, startMission: persistStartMission, completeMission: persistCompleteMission, ready, userId } = useDailyMissionFirebase();
 
   const selectedMission = dailyMissions.find((mission) => mission.id === selectedMissionId) ?? dailyMissions[0];
   const isStarted = startedMissionIds.includes(selectedMission.id);
+  const isCompleted = completedMissionIds.includes(selectedMission.id);
   const recommendedIds = useMemo(() => ["daily-plank-60", "daily-8000-steps", "daily-healthy-meal"], []);
   const selectedTypes = dailySlotIds.map((id) => dailyMissions.find((mission) => mission.id === id)?.type).filter(Boolean) as string[];
   const reward = calculateDailyReward(selectedMission, selectedTypes);
@@ -68,13 +69,20 @@ export default function MissionenPage() {
     setStatusMessage(`${mission.title} gestartet. Reward ist aktuell mit ${reward.finalReward} Punkten vorgemerkt.`);
   };
 
+  const completeMission = async (missionId: string) => {
+    const mission = dailyMissions.find((item) => item.id === missionId);
+    if (!mission) return;
+    await persistCompleteMission(missionId);
+    setStatusMessage(`${mission.title} abgeschlossen. +${reward.finalReward} Punkte.`);
+  };
+
   return (
     <main className="h-screen w-screen overflow-hidden text-white" style={{ background: `linear-gradient(to bottom right, rgba(0,170,190,${brightness / 100}), rgba(0,80,90,1))` }}>
       <div className="flex h-full">
         <AppSidebar brightness={brightness} onBrightnessChange={setBrightness} />
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
           <DailyHeader diversityCount={reward.diversityCount} />
-          <p className="-mt-3 mb-3 text-sm font-semibold text-cyan-100/80">{!ready ? "Lade Tagesmissionen..." : isStarted ? `${selectedMission.title} läuft bereits.` : statusMessage}</p>
+          <p className="-mt-3 mb-3 text-sm font-semibold text-cyan-100/80">{!ready ? "Lade Tagesmissionen..." : isCompleted ? `${selectedMission.title} ist abgeschlossen.` : isStarted ? `${selectedMission.title} läuft bereits.` : statusMessage}</p>
           <div className="mb-4 flex justify-center">
             <div className="flex items-center gap-5 rounded-full border border-white/10 bg-[#0b6d79]/35 px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm">
               {tabs.map((tab) => tab === "Tagesmissionen" ? <div key={tab} className="relative pb-1 text-base font-semibold text-orange-400">{tab}<span className="absolute left-0 right-0 -bottom-2 h-[2px] rounded-full bg-orange-400" /></div> : <Link key={tab} href={tabHref(tab)} className="pb-1 text-base text-white/85 hover:text-white">{tab}</Link>)}
@@ -88,7 +96,7 @@ export default function MissionenPage() {
                 <MissionPool missions={dailyMissions} selectedMissionId={selectedMissionId} favoriteIds={favoriteIds} recommendedIds={recommendedIds} onSelect={setSelectedMissionId} onToggleFavorite={toggleFavorite} />
               </div>
             </div>
-            <MissionDetails mission={selectedMission} reward={reward.finalReward} diversityMultiplier={reward.diversityMultiplier} antiFarmingMultiplier={reward.antiFarmingMultiplier} isFavorite={favoriteIds.includes(selectedMission.id)} isStarted={isStarted} rewardDetailsOpen={rewardDetailsOpen} onToggleFavorite={toggleFavorite} onToggleRewardDetails={() => setRewardDetailsOpen((open) => !open)} onStartMission={startMission} />
+            <MissionDetails mission={selectedMission} reward={reward.finalReward} diversityMultiplier={reward.diversityMultiplier} antiFarmingMultiplier={reward.antiFarmingMultiplier} isFavorite={favoriteIds.includes(selectedMission.id)} isStarted={isStarted} isCompleted={isCompleted} rewardDetailsOpen={rewardDetailsOpen} onToggleFavorite={toggleFavorite} onToggleRewardDetails={() => setRewardDetailsOpen((open) => !open)} onStartMission={startMission} onCompleteMission={completeMission} />
           </div>
           <AppFooter reward={reward.finalReward} />
         </section>
