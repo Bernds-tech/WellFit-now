@@ -31,6 +31,7 @@ export default function MissionenPage() {
   const [dailySlotIds, setDailySlotIds] = useState<(string | null)[]>([null, null, null]);
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
   const [rewardDetailsOpen, setRewardDetailsOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("Ziehe Missionen in deine 3 Tagesfelder.");
 
   const selectedMission = dailyMissions.find((mission) => mission.id === selectedMissionId) ?? dailyMissions[0];
   const recommendedIds = useMemo(() => ["daily-plank-60", "daily-8000-steps", "daily-healthy-meal"], []);
@@ -51,10 +52,18 @@ export default function MissionenPage() {
     });
     setSelectedMissionId(missionId);
     setDragOverSlot(null);
+    setStatusMessage("Mission wurde in deine Tagesauswahl gelegt.");
   };
 
   const clearSlot = (slotIndex: number) => {
     setDailySlotIds((current) => current.map((id, index) => index === slotIndex ? null : id));
+    setStatusMessage("Tagesfeld wurde geleert.");
+  };
+
+  const startMission = (missionId: string) => {
+    const mission = dailyMissions.find((item) => item.id === missionId);
+    if (!mission) return;
+    setStatusMessage(`${mission.title} gestartet. Reward ist aktuell mit ${reward.finalReward} Punkten vorgemerkt.`);
   };
 
   return (
@@ -64,6 +73,7 @@ export default function MissionenPage() {
 
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
           <DailyHeader diversityCount={reward.diversityCount} />
+          <p className="-mt-3 mb-3 text-sm font-semibold text-cyan-100/80">{statusMessage}</p>
 
           <div className="mb-4 flex justify-center">
             <div className="flex items-center gap-5 rounded-full border border-white/10 bg-[#0b6d79]/35 px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm">
@@ -128,6 +138,7 @@ export default function MissionenPage() {
               rewardDetailsOpen={rewardDetailsOpen}
               onToggleFavorite={toggleFavorite}
               onToggleRewardDetails={() => setRewardDetailsOpen((open) => !open)}
+              onStartMission={startMission}
             />
           </div>
 
