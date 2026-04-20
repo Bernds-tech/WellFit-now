@@ -64,7 +64,7 @@ export default function MissionenPage() {
   const completeMission = async (missionId: string) => {
     const mission = dailyMissions.find((item) => item.id === missionId);
     if (!mission) return;
-    await persistCompleteMission(missionId);
+    await persistCompleteMission(missionId, reward.finalReward);
     setStatusMessage(`${mission.title} abgeschlossen. +${reward.finalReward} Punkte.`);
   };
 
