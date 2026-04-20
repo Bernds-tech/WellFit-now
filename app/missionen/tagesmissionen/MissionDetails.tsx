@@ -9,6 +9,7 @@ type MissionDetailsProps = {
   diversityMultiplier: number;
   antiFarmingMultiplier: number;
   isFavorite: boolean;
+  isStarted: boolean;
   rewardDetailsOpen: boolean;
   onToggleFavorite: (missionId: string) => void;
   onToggleRewardDetails: () => void;
@@ -21,6 +22,7 @@ export default function MissionDetails({
   diversityMultiplier,
   antiFarmingMultiplier,
   isFavorite,
+  isStarted,
   rewardDetailsOpen,
   onToggleFavorite,
   onToggleRewardDetails,
@@ -34,6 +36,12 @@ export default function MissionDetails({
           <button onClick={() => onToggleFavorite(mission.id)} className={`text-5xl leading-none transition hover:scale-125 ${isFavorite ? "text-yellow-400" : "text-white/25 hover:text-yellow-300"}`}>★</button>
         </div>
 
+        {isStarted && (
+          <div className="mb-3 rounded-xl border border-green-400/50 bg-green-500/15 px-3 py-2 text-center text-sm font-bold text-green-200">
+            ✅ Mission gestartet
+          </div>
+        )}
+
         <div className="flex justify-center text-6xl text-cyan-300">{missionIcon(mission.type)}</div>
         <h3 className="mt-3 text-center text-3xl font-extrabold leading-tight">{mission.title}</h3>
         <p className="mt-3 text-center text-base leading-tight text-white/90">{mission.description}</p>
@@ -41,10 +49,10 @@ export default function MissionDetails({
         <div className="mt-4">
           <div className="mb-1 flex justify-between text-sm text-white/75">
             <span>Fortschritt</span>
-            <span className="font-bold">0%</span>
+            <span className="font-bold">{isStarted ? "10%" : "0%"}</span>
           </div>
           <div className="h-5 overflow-hidden rounded bg-[#062e34]">
-            <div className="h-full rounded bg-cyan-300 transition-all duration-700" style={{ width: "0%" }} />
+            <div className="h-full rounded bg-cyan-300 transition-all duration-700" style={{ width: isStarted ? "10%" : "0%" }} />
           </div>
         </div>
 
@@ -78,7 +86,9 @@ export default function MissionDetails({
           )}
         </div>
 
-        <button onClick={() => onStartMission(mission.id)} className="mt-4 w-full rounded-[16px] bg-blue-600 px-4 py-3 text-lg font-extrabold transition hover:bg-blue-700 active:scale-95">Mission starten</button>
+        <button onClick={() => onStartMission(mission.id)} className={`mt-4 w-full rounded-[16px] px-4 py-3 text-lg font-extrabold transition active:scale-95 ${isStarted ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}`}>
+          {isStarted ? "Mission läuft" : "Mission starten"}
+        </button>
       </div>
     </aside>
   );
