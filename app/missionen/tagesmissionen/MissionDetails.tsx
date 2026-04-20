@@ -12,6 +12,7 @@ type MissionDetailsProps = {
   rewardDetailsOpen: boolean;
   onToggleFavorite: (missionId: string) => void;
   onToggleRewardDetails: () => void;
+  onStartMission: (missionId: string) => void;
 };
 
 export default function MissionDetails({
@@ -23,6 +24,7 @@ export default function MissionDetails({
   rewardDetailsOpen,
   onToggleFavorite,
   onToggleRewardDetails,
+  onStartMission,
 }: MissionDetailsProps) {
   return (
     <aside className="h-full overflow-hidden rounded-[6px] bg-[#003d46]/95 p-5 shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
@@ -76,7 +78,7 @@ export default function MissionDetails({
           )}
         </div>
 
-        <button className="mt-4 w-full rounded-[16px] bg-blue-600 px-4 py-3 text-lg font-extrabold transition hover:bg-blue-700 active:scale-95">Mission starten</button>
+        <button onClick={() => onStartMission(mission.id)} className="mt-4 w-full rounded-[16px] bg-blue-600 px-4 py-3 text-lg font-extrabold transition hover:bg-blue-700 active:scale-95">Mission starten</button>
       </div>
     </aside>
   );
