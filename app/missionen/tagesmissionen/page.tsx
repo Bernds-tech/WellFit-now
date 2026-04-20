@@ -31,7 +31,7 @@ export default function MissionenPage() {
   const isCompleted = completedMissionIds.includes(selectedMission.id);
   const recommendedIds = useMemo(() => ["daily-plank-60", "daily-8000-steps", "daily-healthy-meal"], []);
   const selectedTypes = dailySlotIds.map((id) => dailyMissions.find((mission) => mission.id === id)?.type).filter(Boolean) as string[];
-  const reward = calculateDailyReward(selectedMission, selectedTypes);
+  const reward = calculateDailyReward(selectedMission, selectedTypes, streakBonus);
 
   const toggleFavorite = async (missionId: string) => {
     const next = favoriteIds.includes(missionId) ? favoriteIds.filter((id) => id !== missionId) : [...favoriteIds, missionId];
