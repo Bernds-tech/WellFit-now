@@ -31,23 +31,8 @@ export default function RegisterPageClient() {
     if (savedLanguage === "de" || savedLanguage === "en") setLanguage(savedLanguage);
   }, []);
 
-  const changeLanguage = (lang: Language) => {
-    setLanguage(lang);
-    localStorage.setItem("wellfit-language", lang);
-    setShowLanguageMenu(false);
-  };
-
-  const handleStep1 = () => {
-    if (!form.firstName || !form.lastName || !form.email || !form.password) {
-      alert(language === "de" ? "Bitte fülle alle Felder aus." : "Please fill in all fields.");
-      return;
-    }
-    if (!passwordStrength.isStrongEnough) {
-      alert(language === "de" ? "Bitte verwende ein stärkeres Passwort." : "Please use a stronger password.");
-      return;
-    }
-    setStep(2);
-  };
+  const changeLanguage = (lang: Language) => { setLanguage(lang); localStorage.setItem("wellfit-language", lang); setShowLanguageMenu(false); };
+  const handleStep1 = () => { if (!form.firstName || !form.lastName || !form.email || !form.password) { alert(language === "de" ? "Bitte fülle alle Felder aus." : "Please fill in all fields."); return; } if (!passwordStrength.isStrongEnough) { alert(language === "de" ? "Bitte verwende ein stärkeres Passwort." : "Please use a stronger password."); return; } setStep(2); };
 
   const handleRegister = async () => {
     try {
@@ -66,11 +51,7 @@ export default function RegisterPageClient() {
       const permissions = { location: false, camera: true, microphone: true, backgroundTracking: true };
       await setDoc(doc(db, "users", firebaseUser.uid), { firstName: form.firstName, lastName: form.lastName, email: form.email, points: 0, xp: 0, energy: 100, level: 1, stepsToday: 0, currency: "points", avatar: { hunger: 100, mood: 100, energy: 100, level: 1 }, inventory: [], profile: { ...biometrics, ...psychography, targetWeightValue, vitals, lifestyle, activity, aiBuddy }, settings: { displayName, email: form.email, phone: "", language: language === "de" ? "Deutsch" : "English", birthDate: biometrics.birthdate, gender: biometrics.gender === "female" ? "Weiblich" : biometrics.gender === "diverse" ? "Divers" : "Männlich", timezone: "Europe/Vienna", units: "kg / km", reminders, privacy, permissions }, createdAt: now, updatedAt: now });
       setTimeout(() => { window.location.href = "/dashboard"; }, 900);
-    } catch (error: any) {
-      console.error("Registrierung fehlgeschlagen:", error);
-      setIsCreating(false);
-      alert(language === "de" ? "Registrierung fehlgeschlagen. Bitte versuche es erneut." : "Registration failed. Please try again.");
-    }
+    } catch (error: any) { console.error("Registrierung fehlgeschlagen:", error); setIsCreating(false); alert(language === "de" ? "Registrierung fehlgeschlagen. Bitte versuche es erneut." : "Registration failed. Please try again."); }
   };
 
   return (
@@ -80,13 +61,7 @@ export default function RegisterPageClient() {
       <div className="relative h-full w-full">
         <div className="absolute left-8 top-8 z-20 h-28 w-36 lg:h-36 lg:w-44"><Image src="/logo.png" alt="WellFit Logo" fill priority className="object-contain object-left-top" /></div>
         <RegisterLanguageMenu language={language} showLanguageMenu={showLanguageMenu} onToggle={() => setShowLanguageMenu((prev) => !prev)} onChangeLanguage={changeLanguage} />
-        {step === 1 && <><div className="absolute left-1/2 top-16 z-20 w-[760px] -translate-x-1/2 text-center"><div className="mx-auto mb-3 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.22em] text-cyan-100 backdrop-blur-sm">WellFit Earn Wellness</div><h1 className="text-[3.4rem] font-black leading-[0.95] tracking-tight text-white drop-shadow-[0_10px_28px_rgba(0,0,0,0.22)]">{t.step1Title}</h1><div className="mx-auto mt-4 flex max-w-[680px] items-center justify-center gap-4">
-  <div className="h-[2px] flex-1 rounded-full bg-white/25" />
-  <p className="shrink-0 text-center text-base font-semibold text-white/90 drop-shadow-[0_4px_14px_rgba(0,0,0,0.18)]">
-    {t.step1Subtitle}
-  </p>
-  <div className="h-[2px] flex-1 rounded-full bg-white/25" />
-</div><div className="mx-auto mt-5 h-1 w-56 overflow-hidden rounded-full bg-white/20"><div className="h-full w-2/3 rounded-full bg-gradient-to-r from-emerald-300 via-cyan-300 to-sky-400" /></div></div><div className="absolute left-16 top-[30%] max-w-[560px] text-left"><div className="mb-12"><h2 className="text-[2rem] font-bold leading-tight">{t.benefit1Title}</h2><p className="mt-2 text-[1.75rem] leading-[1.28]">{t.benefit1Text}</p></div><div className="mb-12"><h2 className="text-[2rem] font-bold leading-tight">{t.benefit2Title}</h2><p className="mt-2 text-[1.75rem] leading-[1.28]">{t.benefit2Text}</p></div><div><h2 className="text-[2rem] font-bold leading-tight">{t.benefit3Title}</h2><p className="mt-2 text-[1.75rem] leading-[1.28]">{t.benefit3Text}</p></div></div><Step1Account language={language} form={form} setForm={setForm} onNext={handleStep1} /><div className="absolute bottom-8 right-16 text-center text-[0.95rem]">{t.alreadyAccount} <Link href="/" className="font-semibold underline underline-offset-4">{t.login}</Link></div></>}
+        {step === 1 && <><div className="absolute left-1/2 top-16 z-20 w-[760px] -translate-x-1/2 text-center"><div className="mx-auto mb-3 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.22em] text-cyan-100 backdrop-blur-sm">WellFit Earn Wellness</div><h1 className="text-[3.4rem] font-black leading-[0.95] tracking-tight text-white drop-shadow-[0_10px_28px_rgba(0,0,0,0.22)]">{t.step1Title}</h1><div className="mx-auto mt-4 flex max-w-[760px] items-center justify-center gap-5"><div className="h-[2px] flex-1 rounded-full bg-gradient-to-r from-transparent via-white/35 to-cyan-200/40" /><p className="max-w-[520px] text-center text-base font-semibold leading-snug text-white/90 drop-shadow-[0_4px_14px_rgba(0,0,0,0.18)]">{t.step1Subtitle}</p><div className="h-[2px] flex-1 rounded-full bg-gradient-to-l from-transparent via-white/35 to-cyan-200/40" /></div></div><div className="absolute left-16 top-[30%] max-w-[560px] text-left"><div className="mb-12"><h2 className="text-[2rem] font-bold leading-tight">{t.benefit1Title}</h2><p className="mt-2 text-[1.75rem] leading-[1.28]">{t.benefit1Text}</p></div><div className="mb-12"><h2 className="text-[2rem] font-bold leading-tight">{t.benefit2Title}</h2><p className="mt-2 text-[1.75rem] leading-[1.28]">{t.benefit2Text}</p></div><div><h2 className="text-[2rem] font-bold leading-tight">{t.benefit3Title}</h2><p className="mt-2 text-[1.75rem] leading-[1.28]">{t.benefit3Text}</p></div></div><Step1Account language={language} form={form} setForm={setForm} onNext={handleStep1} /><div className="absolute bottom-8 right-16 text-center text-[0.95rem]">{t.alreadyAccount} <Link href="/" className="font-semibold underline underline-offset-4">{t.login}</Link></div></>}
         {step === 2 && <Step2Biometrics language={language} biometrics={biometrics} setBiometrics={setBiometrics} onNext={() => setStep(3)} />}
         {step === 3 && <Step3Psychography language={language} psychography={psychography} setPsychography={setPsychography} onNext={() => setStep(4)} />}
         {step === 4 && <Step4Awakening language={language} isCreating={isCreating} onFinish={handleRegister} />}
