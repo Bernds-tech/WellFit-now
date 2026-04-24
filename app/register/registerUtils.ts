@@ -49,14 +49,20 @@ export const getPasswordStrength = (password: string, language: Language): Passw
   };
 };
 
-// Mapping helpers
-export const mapNutritionToSettings = (value: string) => value === "veggie" ? "Vegetarisch" : value === "vegan" ? "Vegan" : "Ausgewogen";
+// Mapping helpers: kept tolerant because registration, settings and future mobile clients may use slightly different option ids.
+export const mapNutritionToSettings = (value: string) => {
+  if (["vegetarian", "veggie"].includes(value)) return "Vegetarisch";
+  if (value === "vegan") return "Vegan";
+  if (value === "light") return "Leicht / gesundheitsbewusst";
+  return "Ausgewogen";
+};
+
 export const mapDrinkReminderToSettings = (value: string) => value === "yes" ? "Normal" : "Niedrig";
-export const mapSleepHoursToSettings = (value: string) => value === "lt6" ? "5.5" : value === "gt8" ? "8.5" : "7";
+export const mapSleepHoursToSettings = (value: string) => value === "<6" || value === "lt6" ? "5.5" : value === ">8" || value === "gt8" ? "8.5" : "7";
 export const mapSleepQualityToSettings = (value: string) => value === "good" ? "Hoch" : value === "bad" ? "Niedrig" : "Mittel";
 export const mapStressToSettings = (value: number) => value <= 2 ? "Niedrig" : value >= 4 ? "Hoch" : "Mittel";
 export const mapEnergyToSettings = (value: number) => value <= 2 ? "Niedrig" : value >= 4 ? "Hoch" : "Mittel";
-export const mapNatureMoveToSettings = (value: string) => value === "90" ? "Häufig" : "Gelegentlich";
+export const mapNatureMoveToSettings = (value: string) => value === "60" || value === "90" || value === ">60" ? "Häufig" : value === "30" ? "Regelmäßig" : "Gelegentlich";
 export const mapActivityLevelToSettings = (value: string) => value === "low" ? "Kaum aktiv" : value === "sometimes" ? "Gelegentlich aktiv" : value === "regular" ? "Regelmäßig aktiv" : "Sehr aktiv";
 export const mapTrainingTimeToSettings = (value: string) => value === "noon" ? "Mittags" : value === "evening" ? "Abends" : "Morgens";
 export const mapCommunityModeToSettings = (value: string) => value === "solo" ? "Alleine" : value === "private" ? "Freunde & kleine Gruppen" : "Community & Events";
