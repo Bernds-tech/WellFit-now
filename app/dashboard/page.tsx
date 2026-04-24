@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 import { economyConfig, getPriceRate } from "@/config/economy";
 import { signOut } from "firebase/auth";
 
+import AppSidebar from "@/app/AppSidebar";
+import DashboardHeader from "./components/DashboardHeader";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { getPersonalMission } from "./lib/personalMission";
 
@@ -56,12 +56,25 @@ export default function DashboardPage() {
     }
   };
 
-  const cardClass = "rounded-[22px] bg-[#053841]/85 p-4 shadow-[0_8px_22px_rgba(0,0,0,0.12)]";
-
   return (
     <main className="h-screen w-screen overflow-hidden text-white">
-      <div className="flex h-full items-center justify-center text-xl">
-        Dashboard Refactor Schritt 1 erfolgreich
+      <div className="flex h-full">
+        <AppSidebar brightness={brightness} onBrightnessChange={setBrightness} />
+
+        <section className="flex flex-1 flex-col px-7 py-5">
+          <DashboardHeader
+            message={message}
+            isRealtimeConnected={isRealtimeConnected}
+            loadedFromCache={loadedFromCache}
+            isLoadingUser={isLoadingUser}
+            hasUser={!!user}
+            buddyLevel={buddyLevel}
+          />
+
+          <div className="flex flex-1 items-center justify-center text-xl">
+            Dashboard Refactor Schritt 2
+          </div>
+        </section>
       </div>
     </main>
   );
