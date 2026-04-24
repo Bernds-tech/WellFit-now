@@ -10,17 +10,17 @@ type Props = { language: Language; biometrics: any; setBiometrics: (value: any) 
 type Buddy = { id: string; label: string; file: string };
 
 const buddies: Buddy[] = [
-  { id: "flammi", label: "Flammi", file: "bud.flammi.png" },
-  { id: "luma", label: "Luma", file: "bud.luma.png" },
-  { id: "turt", label: "Turt", file: "bud.turt.png" },
-  { id: "ghost", label: "Ghost", file: "bud.gohst.png" },
-  { id: "wizard", label: "Zauberer", file: "bud.zauberer.png" },
-  { id: "king", label: "King", file: "bud.king.png" },
-  { id: "queen", label: "Königin", file: "bud.königin.png" },
-  { id: "princess", label: "Prinzessin", file: "bud.prinzessin.png" },
-  { id: "dragonPrincess", label: "Drachen-Prinzessin", file: "bud.drachen-prinzessin.png" },
-  { id: "dragonQueen", label: "Drachen-Königin", file: "bud.drachen-königin.png" },
-  { id: "royalDragon", label: "Königlicher Drache", file: "bud.königlicher-drache.png" },
+  { id: "flammi", label: "Flammi", file: "flammi.png" },
+  { id: "luma", label: "Luma", file: "luma.png" },
+  { id: "turt", label: "Turt", file: "turt.png" },
+  { id: "ghost", label: "Ghost", file: "ghost.png" },
+  { id: "wizard", label: "Zauberer", file: "wizard.png" },
+  { id: "king", label: "King", file: "king.png" },
+  { id: "queen", label: "Queen", file: "queen.png" },
+  { id: "princess", label: "Princess", file: "princess.png" },
+  { id: "dragonPrincess", label: "Dragon Princess", file: "dragon_princess.png" },
+  { id: "dragonQueen", label: "Dragon Queen", file: "dragon_queen.png" },
+  { id: "royalDragon", label: "Royal Dragon", file: "royal_dragon.png" },
 ];
 
 const inputClass = "h-9 w-full rounded-xl border border-white/10 bg-white/10 px-3 text-xs text-white outline-none transition focus:border-cyan-300 focus:ring-4 focus:ring-cyan-300/20";
@@ -61,12 +61,13 @@ export default function Step2Biometrics({ language, biometrics, setBiometrics, o
             <RegisterPanel title="Ernährung"><div className="grid grid-cols-3 gap-1.5"><button type="button" onClick={() => setBiometrics({ ...biometrics, nutrition: "all" })} className={chipClass((biometrics.nutrition ?? "all") === "all")}>Alles</button><button type="button" onClick={() => setBiometrics({ ...biometrics, nutrition: "vegetarian" })} className={chipClass((biometrics.nutrition ?? "all") === "vegetarian")}>Veggie</button><button type="button" onClick={() => setBiometrics({ ...biometrics, nutrition: "light" })} className={chipClass((biometrics.nutrition ?? "all") === "light")}>Leicht</button></div></RegisterPanel>
             <RegisterPanel title="Bewegung/Tag"><div className="grid grid-cols-3 gap-1.5"><button type="button" onClick={() => setBiometrics({ ...biometrics, natureMove: "15" })} className={chipClass((biometrics.natureMove ?? "60") === "15")}>{"<15"}</button><button type="button" onClick={() => setBiometrics({ ...biometrics, natureMove: "30" })} className={chipClass((biometrics.natureMove ?? "60") === "30")}>15-30</button><button type="button" onClick={() => setBiometrics({ ...biometrics, natureMove: "60" })} className={chipClass((biometrics.natureMove ?? "60") === "60")}>60+</button></div></RegisterPanel>
             <RegisterPanel title="Trinken"><div className="grid grid-cols-[1fr_70px] gap-2"><button type="button" onClick={() => setBiometrics({ ...biometrics, drinkReminder: (biometrics.drinkReminder ?? "yes") === "yes" ? "no" : "yes" })} className={chipClass((biometrics.drinkReminder ?? "yes") === "yes")}>Reminder</button><input type="number" step="0.1" value={biometrics.drinkAmount ?? 2.5} onChange={(e) => setBiometrics({ ...biometrics, drinkAmount: Number(e.target.value) })} className={inputClass} /></div></RegisterPanel>
+            <RegisterPanel title={t.medication}><div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "yes" })} className={chipClass((biometrics.medication ?? "no") === "yes")}>{t.yes}</button><button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "no" })} className={chipClass((biometrics.medication ?? "no") === "no")}>{t.no}</button></div></RegisterPanel>
           </div>
         </div>
 
         <aside className="flex min-h-0 flex-col gap-3">
           <div className="relative flex-1 overflow-hidden rounded-[28px] border border-white/15 bg-white/10 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.12)] backdrop-blur-sm"><div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl" /><div className="pointer-events-none absolute -bottom-20 left-1/4 h-56 w-56 rounded-full bg-emerald-300/15 blur-3xl" /><div className="relative mb-2 flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-100/70">Buddy-Auswahl</p><p className="text-xs text-white/70">{selectedBuddy.label} | {fitnessText} | BMI {bmi.toFixed(1)} {bmiLabel}</p></div><button type="button" className="rounded-xl bg-black/20 px-4 py-2 text-xs font-bold text-cyan-100 transition hover:bg-black/30">{t.scan}</button></div><div className="relative flex h-[calc(100%-54px)] flex-col items-center justify-center text-center"><div className="mb-3 grid h-48 w-48 place-items-center rounded-full border border-white/20 bg-cyan-100/15 shadow-[0_0_50px_rgba(103,232,249,0.2)]"><img src={`/buddy/${selectedBuddy.file}`} alt={selectedBuddy.label} className="max-h-[180px] max-w-[180px] object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.3)]" /></div><div className="text-3xl font-black text-cyan-100 drop-shadow-[0_0_14px_rgba(103,232,249,0.25)]">{selectedBuddy.label}</div><div className="mt-1 text-xs text-white/65">Wähle deinen persönlichen WellFit Buddy</div><div className="mt-3 grid w-full grid-cols-4 gap-2 overflow-hidden">{buddies.map((buddy) => { const active = buddy.id === selectedBuddy.id; return <button key={buddy.id} type="button" onClick={() => setBiometrics({ ...biometrics, buddyId: buddy.id, buddyFile: buddy.file, buddyName: buddy.label })} className={`rounded-2xl border p-1.5 transition ${active ? "border-cyan-200 bg-cyan-300/25 shadow-[0_0_18px_rgba(103,232,249,0.35)]" : "border-white/10 bg-black/15 hover:bg-white/15"}`} title={buddy.label}><img src={`/buddy/${buddy.file}`} alt={buddy.label} className="mx-auto h-12 w-12 object-contain" /></button>; })}</div></div></div>
-          <div className="grid grid-cols-[1fr_220px] gap-3"><RegisterPanel title={t.medication}><div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "yes" })} className={chipClass((biometrics.medication ?? "no") === "yes")}>{t.yes}</button><button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "no" })} className={chipClass((biometrics.medication ?? "no") === "no")}>{t.no}</button></div></RegisterPanel><div className="flex items-end"><PrimaryButton onClick={onNext}>{t.next}</PrimaryButton></div></div>
+          <div className="flex justify-end"><div className="w-[220px]"><PrimaryButton onClick={onNext}>{t.next}</PrimaryButton></div></div>
         </aside>
       </div>
     </section>
