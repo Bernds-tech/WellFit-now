@@ -7,6 +7,22 @@ import { getRegisterContent } from "../registerContent";
 
 type Props = { language: Language; biometrics: any; setBiometrics: (value: any) => void; onNext: () => void; };
 
+type Buddy = { id: string; label: string; file: string };
+
+const buddies: Buddy[] = [
+  { id: "flammi", label: "Flammi", file: "bud.flammi.png" },
+  { id: "luma", label: "Luma", file: "bud.luma.png" },
+  { id: "turt", label: "Turt", file: "bud.turt.png" },
+  { id: "ghost", label: "Ghost", file: "bud.gohst.png" },
+  { id: "wizard", label: "Zauberer", file: "bud.zauberer.png" },
+  { id: "king", label: "King", file: "bud.king.png" },
+  { id: "queen", label: "Königin", file: "bud.königin.png" },
+  { id: "princess", label: "Prinzessin", file: "bud.prinzessin.png" },
+  { id: "dragonPrincess", label: "Drachen-Prinzessin", file: "bud.drachen-prinzessin.png" },
+  { id: "dragonQueen", label: "Drachen-Königin", file: "bud.drachen-königin.png" },
+  { id: "royalDragon", label: "Königlicher Drache", file: "bud.königlicher-drache.png" },
+];
+
 const inputClass = "h-9 w-full rounded-xl border border-white/10 bg-white/10 px-3 text-xs text-white outline-none transition focus:border-cyan-300 focus:ring-4 focus:ring-cyan-300/20";
 const rangeClass = "w-full accent-cyan-300";
 const chipClass = (active: boolean) => `rounded-xl px-2 py-1.5 text-xs font-semibold transition ${active ? "bg-cyan-300 text-[#053841] shadow-[0_0_18px_rgba(103,232,249,0.35)]" : "bg-white/10 text-white hover:bg-white/15"}`;
@@ -15,11 +31,10 @@ export default function Step2Biometrics({ language, biometrics, setBiometrics, o
   const t = getRegisterContent(language);
   const height = biometrics.height ?? 180;
   const weight = biometrics.weight ?? 82;
+  const selectedBuddy = buddies.find((buddy) => buddy.id === (biometrics.buddyId ?? "flammi")) ?? buddies[0];
   const bmi = weight / Math.pow(height / 100, 2);
   const bmiLabel = bmi < 18.5 ? "Leicht" : bmi < 25 ? "Balance" : bmi < 30 ? "Kraft" : "Power";
-  const avatarScale = Math.min(1.18, Math.max(0.88, height / 180));
-  const avatarWidth = biometrics.bodyType === "strong" ? "w-44" : biometrics.bodyType === "athletic" ? "w-36" : "w-32";
-  const extraScore = (biometrics.sleepHours ? 5 : 0) + (biometrics.nutrition ? 5 : 0) + (biometrics.natureMove ? 5 : 0) + (biometrics.drinkReminder ? 5 : 0);
+  const extraScore = (biometrics.sleepHours ? 5 : 0) + (biometrics.nutrition ? 5 : 0) + (biometrics.natureMove ? 5 : 0) + (biometrics.drinkReminder ? 5 : 0) + (biometrics.buddyId ? 10 : 0);
   const setupScore = Math.min(100, 35 + Math.round(((height - 140) / 80) * 20) + Math.round(((weight - 35) / 145) * 15) + ((biometrics.limitations ?? []).length > 0 ? 10 : 0) + ((biometrics.medication ?? "no") === "yes" ? 10 : 20) + extraScore);
   const fitnessText = biometrics.fitnessLevel === "pro" ? "Pro-Modus" : biometrics.fitnessLevel === "medium" ? "Aktiv-Modus" : "Einsteiger-Modus";
   const otherText = language === "de" ? "Sonstiges / Hinweis" : "Other / note";
@@ -30,7 +45,7 @@ export default function Step2Biometrics({ language, biometrics, setBiometrics, o
 
       <div className="grid h-[calc(100%-60px)] grid-cols-[1.15fr_0.95fr] gap-5">
         <div className="min-h-0 overflow-hidden pr-1">
-          <div className="mb-2 rounded-[20px] border border-white/15 bg-black/15 p-3 shadow-[0_10px_30px_rgba(0,0,0,0.12)] backdrop-blur-sm"><div className="flex items-center justify-between text-xs text-white/80"><span className="font-bold">Avatar-Synchronisation</span><span className="font-black text-cyan-100">{setupScore}%</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-cyan-300 to-sky-400 transition-all duration-500" style={{ width: `${setupScore}%` }} /></div></div>
+          <div className="mb-2 rounded-[20px] border border-white/15 bg-black/15 p-3 shadow-[0_10px_30px_rgba(0,0,0,0.12)] backdrop-blur-sm"><div className="flex items-center justify-between text-xs text-white/80"><span className="font-bold">Profil-Setup</span><span className="font-black text-cyan-100">{setupScore}%</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-cyan-300 to-sky-400 transition-all duration-500" style={{ width: `${setupScore}%` }} /></div></div>
 
           <div className="grid grid-cols-3 gap-2.5">
             <RegisterPanel title={t.birthdate}><input type="date" value={biometrics.birthdate ?? ""} onChange={(e) => setBiometrics({ ...biometrics, birthdate: e.target.value })} className={inputClass} /></RegisterPanel>
@@ -50,7 +65,7 @@ export default function Step2Biometrics({ language, biometrics, setBiometrics, o
         </div>
 
         <aside className="flex min-h-0 flex-col gap-3">
-          <div className="relative flex-1 overflow-hidden rounded-[28px] border border-white/15 bg-white/10 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.12)] backdrop-blur-sm"><div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl" /><div className="pointer-events-none absolute -bottom-20 left-1/4 h-56 w-56 rounded-full bg-emerald-300/15 blur-3xl" /><div className="relative mb-1.5 flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-100/70">Live Morphing</p><p className="text-xs text-white/70">{fitnessText} | BMI {bmi.toFixed(1)} {bmiLabel}</p></div><button type="button" className="rounded-xl bg-black/20 px-4 py-2 text-xs font-bold text-cyan-100 transition hover:bg-black/30">{t.scan}</button></div><div className="relative flex h-[calc(100%-50px)] flex-col items-center justify-center text-center"><div className="mb-4 grid h-44 w-44 place-items-center rounded-full border border-white/20 bg-cyan-100/15 shadow-[0_0_50px_rgba(103,232,249,0.2)]"><div className={`${avatarWidth} grid aspect-square place-items-center rounded-full bg-gradient-to-br from-cyan-200/20 to-emerald-200/10 text-7xl transition-all duration-500`} style={{ transform: `scale(${avatarScale})` }}>🐉</div></div><div className="text-4xl font-black text-cyan-100 drop-shadow-[0_0_14px_rgba(103,232,249,0.25)]">FLAMMI</div><div className="mt-1.5 text-sm text-white/70">Drachen-Klasse | Feuer-Element</div><div className="mt-3 grid w-full max-w-md grid-cols-3 gap-2 text-[11px]"><div className="rounded-2xl bg-black/20 px-3 py-1.5"><div className="text-white/55">Größe</div><div className="font-black text-cyan-100">{height} cm</div></div><div className="rounded-2xl bg-black/20 px-3 py-1.5"><div className="text-white/55">Gewicht</div><div className="font-black text-cyan-100">{weight} kg</div></div><div className="rounded-2xl bg-black/20 px-3 py-1.5"><div className="text-white/55">Status</div><div className="font-black text-cyan-100">{bmiLabel}</div></div></div></div></div>
+          <div className="relative flex-1 overflow-hidden rounded-[28px] border border-white/15 bg-white/10 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.12)] backdrop-blur-sm"><div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl" /><div className="pointer-events-none absolute -bottom-20 left-1/4 h-56 w-56 rounded-full bg-emerald-300/15 blur-3xl" /><div className="relative mb-2 flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-100/70">Buddy-Auswahl</p><p className="text-xs text-white/70">{selectedBuddy.label} | {fitnessText} | BMI {bmi.toFixed(1)} {bmiLabel}</p></div><button type="button" className="rounded-xl bg-black/20 px-4 py-2 text-xs font-bold text-cyan-100 transition hover:bg-black/30">{t.scan}</button></div><div className="relative flex h-[calc(100%-54px)] flex-col items-center justify-center text-center"><div className="mb-3 grid h-48 w-48 place-items-center rounded-full border border-white/20 bg-cyan-100/15 shadow-[0_0_50px_rgba(103,232,249,0.2)]"><img src={`/buddy/${selectedBuddy.file}`} alt={selectedBuddy.label} className="max-h-[180px] max-w-[180px] object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.3)]" /></div><div className="text-3xl font-black text-cyan-100 drop-shadow-[0_0_14px_rgba(103,232,249,0.25)]">{selectedBuddy.label}</div><div className="mt-1 text-xs text-white/65">Wähle deinen persönlichen WellFit Buddy</div><div className="mt-3 grid w-full grid-cols-4 gap-2 overflow-hidden">{buddies.map((buddy) => { const active = buddy.id === selectedBuddy.id; return <button key={buddy.id} type="button" onClick={() => setBiometrics({ ...biometrics, buddyId: buddy.id, buddyFile: buddy.file, buddyName: buddy.label })} className={`rounded-2xl border p-1.5 transition ${active ? "border-cyan-200 bg-cyan-300/25 shadow-[0_0_18px_rgba(103,232,249,0.35)]" : "border-white/10 bg-black/15 hover:bg-white/15"}`} title={buddy.label}><img src={`/buddy/${buddy.file}`} alt={buddy.label} className="mx-auto h-12 w-12 object-contain" /></button>; })}</div></div></div>
           <div className="grid grid-cols-[1fr_220px] gap-3"><RegisterPanel title={t.medication}><div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "yes" })} className={chipClass((biometrics.medication ?? "no") === "yes")}>{t.yes}</button><button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "no" })} className={chipClass((biometrics.medication ?? "no") === "no")}>{t.no}</button></div></RegisterPanel><div className="flex items-end"><PrimaryButton onClick={onNext}>{t.next}</PrimaryButton></div></div>
         </aside>
       </div>
