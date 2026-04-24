@@ -6,6 +6,7 @@ import { signOut } from "firebase/auth";
 
 import AppSidebar from "@/app/AppSidebar";
 import DashboardHeader from "./components/DashboardHeader";
+import DashboardMissionPanel from "./components/DashboardMissionPanel";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { getPersonalMission } from "./lib/personalMission";
 
@@ -61,7 +62,7 @@ export default function DashboardPage() {
       <div className="flex h-full">
         <AppSidebar brightness={brightness} onBrightnessChange={setBrightness} />
 
-        <section className="flex flex-1 flex-col px-7 py-5">
+        <section className="flex flex-1 flex-col px-7 py-5 gap-4">
           <DashboardHeader
             message={message}
             isRealtimeConnected={isRealtimeConnected}
@@ -71,9 +72,12 @@ export default function DashboardPage() {
             buddyLevel={buddyLevel}
           />
 
-          <div className="flex flex-1 items-center justify-center text-xl">
-            Dashboard Refactor Schritt 2
-          </div>
+          {mission && (
+            <DashboardMissionPanel
+              mission={mission}
+              stepsToday={stepsToday}
+            />
+          )}
         </section>
       </div>
     </main>
