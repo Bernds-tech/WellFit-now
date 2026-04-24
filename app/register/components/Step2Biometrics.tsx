@@ -13,6 +13,7 @@ const buddies: Buddy[] = [
   { id: "luma", label: "Luma", file: "luma.png", description: "Ruhiger Licht-Buddy für Balance und gesunde Routinen." },
   { id: "turt", label: "Turt", file: "turt.png", description: "Geduldiger Buddy für Ausdauer und langfristige Ziele." },
   { id: "king", label: "King", file: "king.png", description: "Power-Buddy für Wettkämpfe und starke Ziele." },
+  { id: "ghost", label: "Ghost", file: "gohst.png", description: "Geheimnisvoller Buddy für stille Stärke, Fokus und Abenteuer." },
 ];
 
 const inputClass = "h-9 w-full rounded-xl border border-white/10 bg-white/10 px-3 text-xs text-white outline-none transition focus:border-cyan-300 focus:ring-4 focus:ring-cyan-300/20";
