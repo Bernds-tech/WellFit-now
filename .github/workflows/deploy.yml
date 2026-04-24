@@ -18,9 +18,25 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
+          script_stop: true
           script: |
+            set -e
             cd /var/www/WellFit-now
-            git pull origin main
+
+            git fetch origin
+            git reset --hard origin/main
+
+            if ! swapon --show | grep -q '/swapfile'; then
+              if [ ! -f /swapfile ]; then
+                fallocate -l 2G /swapfile
+                chmod 600 /swapfile
+                mkswap /swapfile
+              fi
+              swapon /swapfile || true
+            fi
+            grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
             npm install
-            npm run build
-            pm2 restart wellfit-now
+            NODE_OPTIONS='--max-old-space-size=768' npm run build
+            pm2 restart wellfit-now --update-env
+            pm2 status
