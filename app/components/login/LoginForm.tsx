@@ -98,7 +98,6 @@ export default function LoginForm({ language }: { language: Language }) {
       </button>
 
       <div className="mt-4 text-center text-[15px] text-white/90"><span>{t.noAccount} </span><Link href="/register" className="font-bold text-cyan-100 underline underline-offset-4 hover:text-white">{t.registerNow}</Link></div>
-      <div className="mt-4 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-center text-xs font-semibold text-white/65">{language === "de" ? "Sicherer Firebase Login · WFT Punkte bleiben intern" : "Secure Firebase login · WFT points stay internal"}</div>
     </div>
   );
 }
