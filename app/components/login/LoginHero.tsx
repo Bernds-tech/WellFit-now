@@ -25,7 +25,7 @@ export default function LoginHero({ language }: { language: Language }) {
   const t = copy[language];
 
   return (
-    <section className="mx-auto max-w-[1180px] pt-24 lg:absolute lg:left-1/2 lg:top-[26%] lg:z-20 lg:w-[1180px] lg:-translate-x-1/2 lg:pt-0">
+    <section className="mx-auto max-w-[1180px] pt-20 lg:absolute lg:left-1/2 lg:top-[21%] lg:z-20 lg:w-[1180px] lg:-translate-x-1/2 lg:pt-0">
       <div className="grid items-start gap-16 lg:grid-cols-[470px_450px] lg:justify-center">
         <div className="w-full max-w-[470px] text-left">
           <div className="mb-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100 shadow-[0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-md">
