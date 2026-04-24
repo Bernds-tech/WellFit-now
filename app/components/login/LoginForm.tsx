@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginContent, Language } from "./loginContent";
@@ -52,6 +53,13 @@ export default function LoginForm({ language }: { language: Language }) {
       >
         {t.loginButton}
       </button>
+
+      <div className="mt-4 text-center text-[16px] text-white/90">
+        <span>{t.noAccount} </span>
+        <Link href="/register" className="font-bold text-cyan-200 underline underline-offset-4 hover:text-white">
+          {t.registerNow}
+        </Link>
+      </div>
     </div>
   );
 }
