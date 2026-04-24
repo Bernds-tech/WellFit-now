@@ -34,7 +34,7 @@ export default function Step3Psychography({ language, psychography, setPsychogra
       </div>
 
       <div className="grid h-[calc(100%-112px)] grid-cols-[1fr_1fr_1fr] gap-5">
-        <div className="flex min-h-0 flex-col gap-4">
+        <div className="flex min-h-0 flex-col gap-4 pt-9">
           <div className={panelClass}>
             <h2 className="mb-3 text-lg font-black text-white">Wie aktiv bist du aktuell?</h2>
             <div className="grid gap-2">
@@ -49,7 +49,7 @@ export default function Step3Psychography({ language, psychography, setPsychogra
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-col gap-4">
+        <div className="flex min-h-0 flex-col gap-4 pt-9">
           <div className={panelClass}>
             <h2 className="mb-3 text-lg font-black text-white">Was interessiert dich am meisten?</h2>
             <div className="grid gap-2">
