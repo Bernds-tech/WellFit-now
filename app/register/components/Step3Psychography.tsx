@@ -1,168 +1,89 @@
 "use client";
 
-import RegisterPanel from "./RegisterPanel";
 import PrimaryButton from "@/app/components/PrimaryButton";
 import { Language } from "../registerTypes";
 import { getRegisterContent } from "../registerContent";
 
-type Props = {
-  language: Language;
-  psychography: any;
-  setPsychography: (value: any) => void;
-  onNext: () => void;
-};
+type Props = { language: Language; psychography: any; setPsychography: (value: any) => void; onNext: () => void };
 
-const selectClass = "h-12 w-full rounded-xl border border-white/10 bg-white/10 px-3 text-white outline-none transition focus:border-cyan-300 focus:ring-4 focus:ring-cyan-300/20";
+const panelClass = "rounded-[28px] border border-white/15 bg-white/10 p-5 shadow-[0_12px_34px_rgba(0,0,0,0.13)] backdrop-blur-sm";
+const optionClass = (active: boolean) => `flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-base font-semibold transition ${active ? "bg-cyan-300 text-[#053841] shadow-[0_0_18px_rgba(103,232,249,0.35)]" : "bg-black/15 text-white hover:bg-white/15"}`;
+const smallOptionClass = (active: boolean) => `flex items-center gap-2 rounded-xl px-3 py-2 text-base font-semibold transition ${active ? "bg-cyan-300 text-[#053841] shadow-[0_0_18px_rgba(103,232,249,0.35)]" : "bg-black/15 text-white hover:bg-white/15"}`;
 
 export default function Step3Psychography({ language, psychography, setPsychography, onNext }: Props) {
   const t = getRegisterContent(language);
   const goals = psychography.goals ?? [];
+  const interests = psychography.interests ?? [];
+  const activities = psychography.activities ?? [];
   const activityLevel = psychography.activityLevel ?? "low";
-  const communityMode = psychography.communityMode ?? "private";
-  const trainingTime = psychography.trainingTime ?? "morning";
-  const activityType = psychography.activityType ?? "walking";
+  const communityMode = psychography.communityMode ?? "public";
+  const companionType = psychography.companionType ?? "magical";
 
-  const toggleGoal = (goal: string) => {
-    const nextGoals = goals.includes(goal) ? goals.filter((item: string) => item !== goal) : [...goals, goal];
-    setPsychography({ ...psychography, goals: nextGoals });
+  const toggleList = (key: "goals" | "interests" | "activities", value: string) => {
+    const current = key === "goals" ? goals : key === "interests" ? interests : activities;
+    const next = current.includes(value) ? current.filter((item: string) => item !== value) : [...current, value];
+    setPsychography({ ...psychography, [key]: next, activityType: key === "activities" && next[0] ? next[0] : psychography.activityType });
   };
 
-  const activityScore = { low: 20, sometimes: 45, regular: 70, very: 95 }[activityLevel as "low" | "sometimes" | "regular" | "very"] ?? 20;
-  const socialScore = communityMode === "public" ? 95 : communityMode === "private" ? 65 : 25;
-  const missionScore = Math.min(100, 30 + goals.length * 18 + (activityType !== "walking" ? 10 : 0));
-  const aiProfile = goals.includes("adventure") ? "Explorer" : goals.includes("fitness") ? "Athlet" : goals.includes("health") ? "Balance-Coach" : goals.includes("loseWeight") ? "Transformation" : "Starter";
-  const communityLabel = communityMode === "public" ? t.publicBoard : communityMode === "solo" ? t.soloMode : t.privateSquads;
-  const timeLabel = trainingTime === "evening" ? t.evening : trainingTime === "noon" ? t.noon : t.morning;
-
-  const activityCards = [
-    ["low", t.almostInactive, "🌱"],
-    ["sometimes", t.sometimes, "🚶"],
-    ["regular", t.regular, "🏃"],
-    ["very", t.veryActive, "⚡"],
-  ];
-  const goalCards = [
-    ["loseWeight", t.loseWeight, "🔥"],
-    ["fitness", t.improveFitness, "💪"],
-    ["health", t.stayHealthy, "💚"],
-    ["adventure", t.adventure, "🗺️"],
-  ];
-
   return (
-    <section className="absolute inset-x-8 top-24 bottom-8 overflow-hidden">
-      <div className="mb-4 text-center">
-        <div className="text-xs font-bold tracking-[0.22em] text-cyan-100/55">Phase 03</div>
-        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-white">Mind & Mission System</h1>
+    <section className="absolute inset-x-8 top-12 bottom-8 overflow-hidden">
+      <div className="mb-7 text-center">
+        <div className="text-[10px] font-bold tracking-[0.22em] text-cyan-100/55">Phase 03</div>
+        <h1 className="mt-1 text-5xl font-black tracking-tight text-white drop-shadow-[0_10px_28px_rgba(0,0,0,0.18)]">Grundeinstellungen</h1>
+        <p className="mt-3 text-xl font-medium text-white/88">Deine Angaben helfen der KI, dir passende Missionen und Belohnungen zu generieren.</p>
       </div>
 
-      <div className="grid h-[calc(100%-78px)] grid-cols-[1.05fr_0.95fr] gap-6">
-        <div className="min-h-0 overflow-y-auto pr-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="grid gap-3">
-            <RegisterPanel title={t.activeNow}>
-              <div className="grid grid-cols-4 gap-2">
-                {activityCards.map(([value, label, icon]) => (
-                  <button key={value} type="button" onClick={() => setPsychography({ ...psychography, activityLevel: value })} className={`rounded-2xl border px-3 py-3 text-center text-sm font-semibold transition ${activityLevel === value ? "border-cyan-200 bg-cyan-300 text-[#053841] shadow-[0_0_18px_rgba(103,232,249,0.35)]" : "border-white/10 bg-white/10 text-white hover:bg-white/15"}`}>
-                    <div className="text-2xl">{icon}</div>
-                    <div className="mt-1 leading-tight">{label}</div>
-                  </button>
-                ))}
-              </div>
-            </RegisterPanel>
-
-            <RegisterPanel title={t.goals}>
-              <div className="grid grid-cols-4 gap-2">
-                {goalCards.map(([value, label, icon]) => (
-                  <button key={value} type="button" onClick={() => toggleGoal(value)} className={`rounded-2xl border px-3 py-3 text-center text-sm font-semibold transition ${goals.includes(value) ? "border-emerald-200 bg-green-300 text-[#053841] shadow-[0_0_18px_rgba(134,239,172,0.35)]" : "border-white/10 bg-white/10 text-white hover:bg-white/15"}`}>
-                    <div className="text-2xl">{icon}</div>
-                    <div className="mt-1 leading-tight">{label}</div>
-                  </button>
-                ))}
-              </div>
-            </RegisterPanel>
-
-            <div className="grid grid-cols-2 gap-3">
-              <RegisterPanel title={t.communityMode}>
-                <div className="grid gap-2">
-                  {[["public", t.publicBoard, "🌍"], ["private", t.privateSquads, "🛡️"], ["solo", t.soloMode, "🧘"]].map(([value, label, icon]) => (
-                    <button key={value} type="button" onClick={() => setPsychography({ ...psychography, communityMode: value })} className={`flex items-center gap-3 rounded-2xl border px-3 py-2 text-left text-sm font-semibold transition ${communityMode === value ? "border-cyan-200 bg-cyan-300 text-[#053841]" : "border-white/10 bg-white/10 text-white hover:bg-white/15"}`}>
-                      <span className="text-xl">{icon}</span><span>{label}</span>
-                    </button>
-                  ))}
-                </div>
-              </RegisterPanel>
-
-              <RegisterPanel title={t.trainingTime}>
-                <select value={trainingTime} onChange={(e) => setPsychography({ ...psychography, trainingTime: e.target.value })} className={selectClass}>
-                  <option value="morning">{t.morning}</option>
-                  <option value="noon">{t.noon}</option>
-                  <option value="evening">{t.evening}</option>
-                </select>
-                <div className="mt-3 rounded-2xl bg-black/20 px-3 py-3 text-sm text-white/80">⏱️ {timeLabel}</div>
-              </RegisterPanel>
+      <div className="grid h-[calc(100%-136px)] grid-cols-[1fr_1fr_1fr] gap-5">
+        <div className="flex min-h-0 flex-col gap-5">
+          <div className={panelClass}>
+            <h2 className="mb-4 text-xl font-black text-white">Wie aktiv bist du aktuell?</h2>
+            <div className="grid gap-2">
+              {[["low", "Kaum aktiv"], ["sometimes", "Gehe gelegentlich"], ["regular", "Trainiere regelmäßig"], ["very", "Treibe ausreichend Sport"]].map(([value, label]) => <button key={value} type="button" onClick={() => setPsychography({ ...psychography, activityLevel: value })} className={optionClass(activityLevel === value)}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
             </div>
-
-            <RegisterPanel title={t.activities}>
-              <select value={activityType} onChange={(e) => setPsychography({ ...psychography, activityType: e.target.value })} className={selectClass}>
-                <option value="walking">{t.walking}</option>
-                <option value="running">{t.running}</option>
-                <option value="cycling">{t.cycling}</option>
-                <option value="dancing">{t.dancing}</option>
-                <option value="workout">{t.workout}</option>
-                <option value="relax">{t.relax}</option>
-              </select>
-            </RegisterPanel>
+          </div>
+          <div className={panelClass}>
+            <h2 className="mb-4 text-xl font-black text-white">Was sind deine Ziele?</h2>
+            <div className="grid gap-2">
+              {[["loseWeight", "Abnehmen"], ["fitness", "Fitness steigern"], ["health", "Gesund bleiben"], ["adventure", "Abenteuer erleben"]].map(([value, label]) => <button key={value} type="button" onClick={() => toggleList("goals", value)} className={optionClass(goals.includes(value))}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
+            </div>
           </div>
         </div>
 
-        <aside className="flex min-h-0 flex-col gap-4">
-          <div className="relative flex-1 overflow-hidden rounded-[32px] border border-white/15 bg-white/10 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.12)] backdrop-blur-sm">
-            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-20 left-1/4 h-56 w-56 rounded-full bg-emerald-300/15 blur-3xl" />
-            <div className="relative">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-100/70">KI-Analyse</p>
-              <h2 className="mt-1 text-3xl font-black text-white">{aiProfile}</h2>
-              <p className="mt-1 text-sm text-white/70">{language === "de" ? "Dein Buddy erkennt Motivation, Rhythmus und soziale Spielweise." : "Your buddy reads motivation, rhythm and social playstyle."}</p>
-            </div>
-
-            <div className="relative mt-6 grid gap-3">
-              {[[language === "de" ? "Aktivitätsenergie" : "Activity energy", activityScore, "⚡"], [language === "de" ? "Mission-Fokus" : "Mission focus", missionScore, "🎯"], [language === "de" ? "Community-Signal" : "Community signal", socialScore, "🌐"]].map(([label, value, icon]) => (
-                <div key={label as string} className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-                  <div className="mb-2 flex items-center justify-between text-sm"><span className="font-semibold text-white/85">{icon} {label}</span><span className="font-black text-cyan-100">{value}%</span></div>
-                  <div className="h-2 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-cyan-300 to-sky-400 transition-all duration-500" style={{ width: `${value}%` }} /></div>
-                </div>
-              ))}
-            </div>
-
-            <div className="relative mt-6 rounded-3xl border border-white/10 bg-white/10 p-4 text-sm text-white/85">
-              <div className="mb-2 text-lg font-black text-cyan-100">🐉 Flammi empfiehlt</div>
-              <p>{language === "de" ? `Starte im ${fitnessTextFromActivity(activityLevel)} mit ${communityLabel}. Deine erste Mission sollte ${activityTypeLabel(activityType)} nutzen.` : `Start with ${communityLabel}. Your first mission should use ${activityType}.`}</p>
+        <div className="flex min-h-0 flex-col gap-5">
+          <div className={panelClass}>
+            <h2 className="mb-4 text-xl font-black text-white">Was interessiert dich am meisten?</h2>
+            <div className="grid gap-2">
+              {[["game", "Spiel & Erfahrung"], ["fitness", "Fitness & Gesundheit"], ["nutrition", "Ernährung & Wissen"], ["nature", "Natur & Entdecken"]].map(([value, label]) => <button key={value} type="button" onClick={() => toggleList("interests", value)} className={optionClass(interests.includes(value))}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
             </div>
           </div>
-
-          <div className="grid grid-cols-[1fr_220px] gap-4">
-            <div className="rounded-[24px] border border-white/15 bg-black/15 p-4 text-sm text-white/80">
-              <div className="font-black text-cyan-100">Mission Blueprint</div>
-              <div className="mt-1">{goals.length || 0} Ziele | {communityLabel} | {timeLabel}</div>
+          <div className={panelClass}>
+            <h2 className="mb-4 text-xl font-black text-white">Wähle deinen Start-Tamagotchi</h2>
+            <div className="grid gap-2">
+              {[["animal", "Tierischer Begleiter"], ["magical", "Magisches Wesen"], ["robot", "Digitaler Roboter"], ["hero", "Junger Held (mittelalterlich)"]].map(([value, label]) => <button key={value} type="button" onClick={() => setPsychography({ ...psychography, companionType: value })} className={optionClass(companionType === value)}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
             </div>
-            <div className="flex items-end"><PrimaryButton onClick={onNext}>{t.createAvatar}</PrimaryButton></div>
           </div>
-        </aside>
+        </div>
+
+        <div className="flex min-h-0 flex-col gap-5">
+          <div className={panelClass}>
+            <h2 className="mb-4 text-xl font-black text-white">Bevorzugte Aktivität</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {[["walking", "Gehen"], ["running", "Laufen"], ["cycling", "Radfahren"], ["dancing", "Tanzen"], ["workout", "Workout"], ["relax", "Yoga"]].map(([value, label]) => <button key={value} type="button" onClick={() => toggleList("activities", value)} className={smallOptionClass(activities.includes(value))}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
+            </div>
+          </div>
+          <div className={`${panelClass} flex-1`}>
+            <h2 className="mb-4 text-xl font-black text-white">Community-Modus</h2>
+            <div className="grid gap-2">
+              {[["public", t.publicBoard], ["private", t.privateSquads], ["solo", t.soloMode]].map(([value, label]) => <button key={value} type="button" onClick={() => setPsychography({ ...psychography, communityMode: value })} className={optionClass(communityMode === value)}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
+            </div>
+            <div className="mt-5 rounded-[24px] border border-white/10 bg-black/15 p-4 text-center">
+              <div className="text-lg font-black text-cyan-100">Dein KI-Profil</div>
+              <p className="mt-2 text-sm text-white/75">{goals.length} Ziele · {interests.length} Interessen · {activities.length} Aktivitäten</p>
+            </div>
+          </div>
+          <div className="flex justify-end"><div className="w-[290px]"><PrimaryButton onClick={onNext}>Speichern / Weiter</PrimaryButton></div></div>
+        </div>
       </div>
     </section>
   );
-}
-
-function fitnessTextFromActivity(value: string) {
-  if (value === "very") return "Power-Modus";
-  if (value === "regular") return "Aktiv-Modus";
-  if (value === "sometimes") return "Aufbau-Modus";
-  return "Starter-Modus";
-}
-
-function activityTypeLabel(value: string) {
-  if (value === "running") return "Laufen";
-  if (value === "cycling") return "Radfahren";
-  if (value === "dancing") return "Tanzen";
-  if (value === "workout") return "Workout";
-  if (value === "relax") return "Entspannung";
-  return "Gehen";
 }
