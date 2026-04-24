@@ -7,6 +7,7 @@ import { signOut } from "firebase/auth";
 import AppSidebar from "@/app/AppSidebar";
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardMissionPanel from "./components/DashboardMissionPanel";
+import DashboardCards from "./components/DashboardCards";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { getPersonalMission } from "./lib/personalMission";
 
@@ -62,7 +63,7 @@ export default function DashboardPage() {
       <div className="flex h-full">
         <AppSidebar brightness={brightness} onBrightnessChange={setBrightness} />
 
-        <section className="flex flex-1 flex-col px-7 py-5 gap-4">
+        <section className="flex flex-1 flex-col px-7 py-5 gap-4 overflow-y-auto">
           <DashboardHeader
             message={message}
             isRealtimeConnected={isRealtimeConnected}
@@ -73,9 +74,17 @@ export default function DashboardPage() {
           />
 
           {mission && (
-            <DashboardMissionPanel
+            <DashboardMissionPanel mission={mission} stepsToday={stepsToday} />
+          )}
+
+          {mission && (
+            <DashboardCards
               mission={mission}
+              pointsBalance={pointsBalance}
+              buddyEnergy={buddyEnergy}
+              buddyHunger={buddyHunger}
               stepsToday={stepsToday}
+              foodPrice={foodPrice}
             />
           )}
         </section>
