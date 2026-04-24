@@ -75,7 +75,7 @@ export default function LoginForm({ language }: { language: Language }) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[450px] rounded-[28px] border border-white/15 bg-cyan-500/20 p-5 shadow-[0_18px_50px_rgba(0,0,0,0.22)] backdrop-blur-md lg:absolute lg:left-1/2 lg:top-[34%] lg:translate-x-[110px]">
+    <div className="mx-auto w-full max-w-[450px] rounded-[28px] border border-white/15 bg-cyan-500/20 p-5 shadow-[0_18px_50px_rgba(0,0,0,0.22)] backdrop-blur-md lg:absolute lg:left-1/2 lg:top-[30%] lg:translate-x-[110px]">
       <div className="mb-5">
         <div className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100">Login</div>
         <p className="mt-3 text-[22px] font-black leading-snug text-white">{t.loginTitle}</p>
