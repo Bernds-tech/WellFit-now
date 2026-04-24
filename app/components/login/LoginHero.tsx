@@ -2,8 +2,8 @@ import { Language, loginContent } from "./loginContent";
 
 export default function LoginHero({ language }: { language: Language }) {
   const t = loginContent[language];
-  const headline = (t.headline ?? "Willkommen bei WellFit").replace(/\n/g, " ");
-  const intro = (t.intro ?? "Melde dich an und setze deine WellFit-Reise fort.").replace("mit WFT-Tokens belohnt.", "mit Punkten belohnt.");
+  const headline = String(t.headline ?? "Willkommen bei WellFit").replace(/\n/g, " ");
+  const intro = String(t.intro ?? "Melde dich an und setze deine WellFit-Reise fort.").replace("mit WFT-Tokens belohnt.", "mit Punkten belohnt.");
 
   return (
     <section className="mx-auto max-w-[920px] text-center lg:absolute lg:left-1/2 lg:top-16 lg:z-20 lg:w-[920px] lg:-translate-x-1/2">
