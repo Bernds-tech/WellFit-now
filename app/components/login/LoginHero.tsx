@@ -2,7 +2,7 @@ import { Language } from "./loginContent";
 
 const copy = {
   de: {
-    headline: "Willkommen bei WellFit auf deinem Abenteuer für Körper & Geist.",
+    headline: "Willkommen bei WellFit. Deinem Abenteuer für Körper & Geist.",
     intro: "Bewege dich im Alltag, sammle Punkte und entwickle deinen Buddy Schritt für Schritt weiter.",
     benefits: [
       ["Bewege dich im Alltag", "Deine Schritte, Workouts & Aktivitäten zählen."],
