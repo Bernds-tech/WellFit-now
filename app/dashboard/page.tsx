@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { economyConfig, getPriceRate } from "@/config/economy";
+import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 
 import AppSidebar from "@/app/AppSidebar";
@@ -14,7 +15,6 @@ import { getPersonalMission } from "./lib/personalMission";
 export default function DashboardPage() {
   const {
     user,
-    setUser,
     isLoadingUser,
     message,
     setMessage,
@@ -28,8 +28,6 @@ export default function DashboardPage() {
   const [stepsToday, setStepsToday] = useState(0);
   const [buddyEnergy, setBuddyEnergy] = useState(100);
   const [buddyHunger, setBuddyHunger] = useState(100);
-  const [trackingActive, setTrackingActive] = useState(false);
-  const [permissions, setPermissions] = useState({ location: false });
   const [foodPrice, setFoodPrice] = useState(5);
 
   const mission = useMemo(() => getPersonalMission(user), [user]);
@@ -51,7 +49,7 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     try {
       setMessage("Du wirst abgemeldet...");
-      await signOut();
+      await signOut(auth);
       window.location.href = "/";
     } catch {
       setMessage("Abmelden fehlgeschlagen. Bitte erneut versuchen.");
@@ -59,11 +57,16 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="h-screen w-screen overflow-hidden text-white">
+    <main
+      className="h-screen w-screen overflow-hidden text-white"
+      style={{
+        background: `linear-gradient(to bottom right, rgba(0,170,190,${brightness / 100}), rgba(0,80,90,1))`,
+      }}
+    >
       <div className="flex h-full">
         <AppSidebar brightness={brightness} onBrightnessChange={setBrightness} />
 
-        <section className="flex flex-1 flex-col px-7 py-5 gap-4 overflow-y-auto">
+        <section className="flex flex-1 flex-col gap-4 overflow-y-auto px-7 py-5">
           <DashboardHeader
             message={message}
             isRealtimeConnected={isRealtimeConnected}
@@ -73,9 +76,7 @@ export default function DashboardPage() {
             buddyLevel={buddyLevel}
           />
 
-          {mission && (
-            <DashboardMissionPanel mission={mission} stepsToday={stepsToday} />
-          )}
+          {mission && <DashboardMissionPanel mission={mission} stepsToday={stepsToday} />}
 
           {mission && (
             <DashboardCards
