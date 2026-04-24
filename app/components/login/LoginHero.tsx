@@ -4,19 +4,33 @@ export default function LoginHero({ language }: { language: Language }) {
   const t = loginContent[language];
 
   return (
-    <>
-      <div className="absolute left-1/2 top-[20%] w-[72%] -translate-x-1/2 text-center">
-        <h1 className="text-5xl font-bold leading-[1.18] tracking-tight xl:text-6xl 2xl:text-[5.8rem]">
+    <div className="mx-auto flex w-full max-w-[1180px] flex-col justify-center gap-16 px-6 pt-28 lg:flex-row lg:items-center lg:gap-20">
+      <div className="max-w-[520px] text-left">
+        <h1 className="text-4xl font-bold leading-tight tracking-tight xl:text-5xl">
           {t.headline}
         </h1>
-      </div>
 
-      <div className="absolute bottom-40 left-20 max-w-[520px] text-left">
-        <p className="text-[2.15rem] leading-[1.45] xl:text-[2.35rem]">
+        <p className="mt-6 text-xl leading-relaxed text-white/90">
           {t.intro}
         </p>
-        <p className="mt-6 text-lg text-white/55">{t.comingSoon}</p>
+
+        <div className="mt-8 space-y-4">
+          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
+            <p className="text-lg font-semibold">Bewege dich im Alltag</p>
+            <p className="text-white/70">Deine Schritte, Workouts & Aktivitäten zählen.</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
+            <p className="text-lg font-semibold">Sammle Punkte</p>
+            <p className="text-white/70">Verdiene Belohnungen für jede Bewegung.</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
+            <p className="text-lg font-semibold">Level dein Tamagotchi</p>
+            <p className="text-white/70">Wachse mit deinem Avatar und erreiche neue Level.</p>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
