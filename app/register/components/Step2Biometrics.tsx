@@ -24,7 +24,7 @@ export default function Step2Biometrics({ language, biometrics, setBiometrics, o
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-white">{t.setupTitle}</h1>
       </div>
 
-      <div className="grid h-[calc(100%-78px)] grid-cols-[1.25fr_0.9fr] gap-5">
+      <div className="grid h-[calc(100%-78px)] grid-cols-[0.95fr_1fr] gap-6">
         <div className="min-h-0 overflow-y-auto pr-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="grid grid-cols-2 gap-3">
             <RegisterPanel title={t.birthdate}>
@@ -86,26 +86,30 @@ export default function Step2Biometrics({ language, biometrics, setBiometrics, o
           </div>
         </div>
 
-        <aside className="flex min-h-0 flex-col gap-3">
-          <div className="flex-1 rounded-[28px] border border-white/15 bg-white/10 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
+        <aside className="flex min-h-0 flex-col gap-4">
+          <div className="flex-1 rounded-[32px] border border-white/15 bg-white/10 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
             <div className="mb-2 flex justify-end">
               <button type="button" className="rounded-xl bg-black/20 px-4 py-2 text-xs font-bold text-cyan-100">{t.scan}</button>
             </div>
             <div className="flex h-[calc(100%-54px)] flex-col items-center justify-center text-center">
-              <div className="mb-5 h-28 w-28 rounded-full bg-cyan-100/15" />
-              <div className="text-3xl font-extrabold text-cyan-100">FLAMMI</div>
-              <div className="mt-2 text-sm text-white/70">Drachen-Klasse | Feuer-Element</div>
+              <div className="mb-5 flex h-36 w-36 items-center justify-center rounded-full bg-cyan-100/15 text-6xl">🐉</div>
+              <div className="text-4xl font-extrabold text-cyan-100">FLAMMI</div>
+              <div className="mt-2 text-base text-white/70">Drachen-Klasse | Feuer-Element</div>
             </div>
           </div>
 
-          <RegisterPanel title={t.medication}>
-            <div className="grid grid-cols-2 gap-3">
-              <button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "yes" })} className={`rounded-xl px-3 py-2 font-semibold transition ${(biometrics.medication ?? "no") === "yes" ? "bg-cyan-300 text-[#053841]" : "bg-white/10 text-white hover:bg-white/15"}`}>{t.yes}</button>
-              <button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "no" })} className={`rounded-xl px-3 py-2 font-semibold transition ${(biometrics.medication ?? "no") === "no" ? "bg-cyan-300 text-[#053841]" : "bg-white/10 text-white hover:bg-white/15"}`}>{t.no}</button>
-            </div>
-          </RegisterPanel>
+          <div className="grid grid-cols-[1fr_220px] gap-4">
+            <RegisterPanel title={t.medication}>
+              <div className="grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "yes" })} className={`rounded-xl px-3 py-2 font-semibold transition ${(biometrics.medication ?? "no") === "yes" ? "bg-cyan-300 text-[#053841]" : "bg-white/10 text-white hover:bg-white/15"}`}>{t.yes}</button>
+                <button type="button" onClick={() => setBiometrics({ ...biometrics, medication: "no" })} className={`rounded-xl px-3 py-2 font-semibold transition ${(biometrics.medication ?? "no") === "no" ? "bg-cyan-300 text-[#053841]" : "bg-white/10 text-white hover:bg-white/15"}`}>{t.no}</button>
+              </div>
+            </RegisterPanel>
 
-          <PrimaryButton onClick={onNext}>{t.next}</PrimaryButton>
+            <div className="flex items-end">
+              <PrimaryButton onClick={onNext}>{t.next}</PrimaryButton>
+            </div>
+          </div>
         </aside>
       </div>
     </section>
