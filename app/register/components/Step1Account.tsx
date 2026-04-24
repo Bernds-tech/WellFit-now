@@ -28,13 +28,11 @@ export default function Step1Account({ language, form, setForm, onNext }: Props)
   const checks = [["length", language === "de" ? "mindestens 8 Zeichen" : "at least 8 characters"], ["uppercase", language === "de" ? "Grossbuchstabe" : "uppercase letter"], ["lowercase", language === "de" ? "Kleinbuchstabe" : "lowercase letter"], ["number", language === "de" ? "Zahl" : "number"], ["special", language === "de" ? "Sonderzeichen" : "special character"]] as const;
 
   return (
-    <div className="absolute right-16 top-[8%] z-20 flex h-[760px] w-[520px] flex-col overflow-hidden rounded-[34px] border border-white/20 bg-cyan-500/25 px-7 py-5 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur-md">
+    <div className="absolute right-16 top-[20%] z-20 flex h-[620px] w-[520px] flex-col overflow-hidden rounded-[34px] border border-white/20 bg-cyan-500/25 px-7 py-5 shadow-[0_18px_50px_rgba(0,0,0,0.24)] backdrop-blur-md">
       <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-cyan-300/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-emerald-300/20 blur-3xl" />
       <div className="relative mb-4 flex items-center justify-between gap-4 rounded-2xl border border-white/15 bg-black/15 px-4 py-3"><div><p className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-100/80">Phase 01</p><p className="mt-1 text-sm font-semibold text-white/90">{language === "de" ? "Account-Erstellung" : "Account creation"}</p></div><div className="flex items-center gap-3"><div className="text-right"><p className="text-xs text-white/70">{buddyMood}</p><p className="text-lg font-black text-white">{setupProgress}%</p></div><div className="grid h-12 w-12 place-items-center rounded-full bg-white/20 text-2xl shadow-[0_0_20px_rgba(103,232,249,0.35)]">🐉</div></div></div>
-      <h1 className="relative whitespace-pre-line text-[2.2rem] font-black leading-[1.05] text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.2)]">{t.step1Title}</h1>
-      <p className="relative mt-2 text-[0.98rem] leading-[1.3] text-white/85">{t.step1Subtitle}</p>
-      <div className="relative mt-4 h-2 overflow-hidden rounded-full bg-white/20"><div className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-cyan-300 to-sky-400 transition-all duration-500" style={{ width: `${setupProgress}%` }} /></div>
+      <div className="relative h-2 overflow-hidden rounded-full bg-white/20"><div className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-cyan-300 to-sky-400 transition-all duration-500" style={{ width: `${setupProgress}%` }} /></div>
       <div className="relative mt-4 space-y-2.5">
         <div className={fieldWrapClass}><input placeholder={t.firstName} value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className={inputClass} /></div>
         <div className={fieldWrapClass}><input placeholder={t.lastName} value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className={inputClass} /></div>
