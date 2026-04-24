@@ -25,23 +25,23 @@ export default function LoginHero({ language }: { language: Language }) {
   const t = copy[language];
 
   return (
-    <section className="mx-auto max-w-[1180px] pt-28 lg:absolute lg:left-1/2 lg:top-[33%] lg:z-20 lg:w-[1180px] lg:-translate-x-1/2 lg:pt-0">
+    <section className="mx-auto max-w-[1180px] pt-24 lg:absolute lg:left-1/2 lg:top-[26%] lg:z-20 lg:w-[1180px] lg:-translate-x-1/2 lg:pt-0">
       <div className="grid items-start gap-16 lg:grid-cols-[470px_450px] lg:justify-center">
         <div className="w-full max-w-[470px] text-left">
-          <div className="mb-5 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100 shadow-[0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-md">
+          <div className="mb-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100 shadow-[0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-md">
             WellFit Earn Wellness
           </div>
-          <h1 className="text-[2.35rem] font-black leading-[1.06] tracking-tight text-white drop-shadow-[0_10px_28px_rgba(0,0,0,0.24)] sm:text-[3rem] lg:text-[3.05rem]">
+          <h1 className="text-[2.25rem] font-black leading-[1.04] tracking-tight text-white drop-shadow-[0_10px_28px_rgba(0,0,0,0.24)] sm:text-[2.85rem] lg:text-[2.9rem]">
             {t.headline}
           </h1>
-          <p className="mt-5 text-[1.18rem] font-semibold leading-snug text-white/90 drop-shadow-[0_4px_14px_rgba(0,0,0,0.18)]">
+          <p className="mt-4 text-[1.12rem] font-semibold leading-snug text-white/90 drop-shadow-[0_4px_14px_rgba(0,0,0,0.18)]">
             {t.intro}
           </p>
-          <div className="mt-7 space-y-5">
+          <div className="mt-6 space-y-4">
             {t.benefits.map(([title, text]) => (
-              <div key={title} className="rounded-[26px] border border-white/10 bg-white/[0.06] px-5 py-4 shadow-[0_14px_40px_rgba(0,0,0,0.08)] backdrop-blur-[2px]">
-                <h2 className="text-[1.35rem] font-black leading-tight text-white">{title}</h2>
-                <p className="mt-2 text-[1.05rem] leading-[1.28] text-white/88">{text}</p>
+              <div key={title} className="rounded-[24px] border border-white/10 bg-white/[0.06] px-5 py-3.5 shadow-[0_14px_40px_rgba(0,0,0,0.08)] backdrop-blur-[2px]">
+                <h2 className="text-[1.28rem] font-black leading-tight text-white">{title}</h2>
+                <p className="mt-1.5 text-[1rem] leading-[1.25] text-white/88">{text}</p>
               </div>
             ))}
           </div>
