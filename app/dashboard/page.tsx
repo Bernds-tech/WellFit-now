@@ -56,6 +56,15 @@ export default function DashboardPage() {
     }
   };
 
+  const handleStartMission = () => {
+    setMessage("Mission gestartet 🚀");
+  };
+
+  const handleFeedBuddy = () => {
+    setBuddyHunger((prev) => Math.min(100, prev + 10));
+    setPointsBalance((prev) => Math.max(0, prev - foodPrice));
+  };
+
   return (
     <main
       className="h-screen w-screen overflow-hidden text-white"
@@ -64,7 +73,11 @@ export default function DashboardPage() {
       }}
     >
       <div className="flex h-full">
-        <AppSidebar brightness={brightness} onBrightnessChange={setBrightness} />
+        <AppSidebar
+          brightness={brightness}
+          onBrightnessChange={setBrightness}
+          onLogout={handleLogout}
+        />
 
         <section className="flex flex-1 flex-col gap-4 overflow-y-auto px-7 py-5">
           <DashboardHeader
@@ -76,7 +89,13 @@ export default function DashboardPage() {
             buddyLevel={buddyLevel}
           />
 
-          {mission && <DashboardMissionPanel mission={mission} stepsToday={stepsToday} />}
+          {mission && (
+            <DashboardMissionPanel
+              mission={mission}
+              stepsToday={stepsToday}
+              onStartMission={handleStartMission}
+            />
+          )}
 
           {mission && (
             <DashboardCards
@@ -86,6 +105,7 @@ export default function DashboardPage() {
               buddyHunger={buddyHunger}
               stepsToday={stepsToday}
               foodPrice={foodPrice}
+              onFeedBuddy={handleFeedBuddy}
             />
           )}
         </section>
