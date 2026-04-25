@@ -1,5 +1,5 @@
 import { auth, db } from "@/lib/firebase";
-import { doc, runTransaction, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, runTransaction, serverTimestamp } from "firebase/firestore";
 import type { DailyMission, DailyMissionType } from "../tagesmissionen/missions";
 
 type MissionBuddyEffect = {
@@ -17,6 +17,20 @@ type ApplyMissionBuddyBridgeInput = {
   rewardPoints: number;
   source?: "dailyMission" | "mobile" | "ar" | "pose";
 };
+
+type BridgeResult =
+  | {
+      ok: true;
+      alreadyApplied: boolean;
+      rewardPoints: number;
+      effect: MissionBuddyEffect;
+      message: string;
+    }
+  | {
+      ok: false;
+      reason: "not-authenticated" | "bridge-failed";
+      message: string;
+    };
 
 const clamp = (value: number, min = 0, max = 100) => Math.min(Math.max(value, min), max);
 
@@ -121,7 +135,7 @@ export async function applyMissionBuddyBridge({
   mission,
   rewardPoints,
   source = "dailyMission",
-}: ApplyMissionBuddyBridgeInput) {
+}: ApplyMissionBuddyBridgeInput): Promise<BridgeResult> {
   const currentUser = auth.currentUser;
   if (!currentUser) {
     return {
@@ -131,55 +145,76 @@ export async function applyMissionBuddyBridge({
     };
   }
 
+  const today = new Date().toISOString().slice(0, 10);
   const safeReward = Math.max(0, Math.round(Number(rewardPoints) || 0));
   const effect = effectsByType[mission.type] ?? defaultEffect;
   const userRef = doc(db, "users", currentUser.uid);
-  const eventId = `${currentUser.uid}_${new Date().toISOString().slice(0, 10)}_${mission.id}`;
+  const eventId = `${currentUser.uid}_${today}_${mission.id}`;
   const eventRef = doc(db, "missionBuddyEvents", eventId);
 
   try {
-    await runTransaction(db, async (transaction) => {
+    const transactionResult = await runTransaction(db, async (transaction) => {
+      const eventSnap = await transaction.get(eventRef);
+
+      if (eventSnap.exists()) {
+        return {
+          alreadyApplied: true,
+          pointsApplied: Number(eventSnap.data().rewardPoints ?? safeReward),
+        };
+      }
+
       const userSnap = await transaction.get(userRef);
       const userData = userSnap.exists() ? userSnap.data() : {};
       const currentPoints = Number(userData.points ?? 0);
       const currentAvatar = (userData.avatar ?? {}) as Record<string, unknown>;
       const nextAvatar = applyEffect(currentAvatar, effect);
+      const appliedAt = new Date().toISOString();
 
       transaction.set(
         userRef,
         {
           points: currentPoints + safeReward,
           avatar: nextAvatar,
-          lastMissionCompletedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          lastMissionCompletedAt: appliedAt,
+          updatedAt: appliedAt,
         },
         { merge: true }
       );
-    });
 
-    await setDoc(
-      eventRef,
-      {
-        userId: currentUser.uid,
-        missionId: mission.id,
-        missionTitle: mission.title,
-        missionType: mission.type,
-        rewardPoints: safeReward,
-        source,
-        effect,
-        status: "applied",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        note: "MVP bridge: later move reward, points, buddy effects and anti-cheat validation to backend/cloud functions.",
-      },
-      { merge: true }
-    );
+      transaction.set(
+        eventRef,
+        {
+          userId: currentUser.uid,
+          missionId: mission.id,
+          missionTitle: mission.title,
+          missionType: mission.type,
+          rewardPoints: safeReward,
+          source,
+          effect,
+          status: "applied",
+          appliedAt,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          productNote:
+            "Mission-Buddy-Bridge ist produktrelevante Logik. Client-Aufruf ist aktuell der Integrationspfad; serverseitige Validierung/Cloud Functions sind der nächste Sicherheitsausbau.",
+        },
+        { merge: true }
+      );
+
+      return {
+        alreadyApplied: false,
+        pointsApplied: safeReward,
+      };
+    });
 
     return {
       ok: true,
-      rewardPoints: safeReward,
+      alreadyApplied: transactionResult.alreadyApplied,
+      rewardPoints: transactionResult.pointsApplied,
       effect,
-      message: "Mission wurde mit Punkten und Buddy-Effekt verbunden.",
+      message: transactionResult.alreadyApplied
+        ? "Mission-Buddy-Effekt war bereits angewendet. Keine doppelte Punktevergabe."
+        : "Mission wurde mit Punkten und Buddy-Effekt verbunden.",
     };
   } catch (error) {
     return {
