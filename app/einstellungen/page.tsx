@@ -8,6 +8,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import SettingsHeader from "./components/SettingsHeader";
 import { useSettingsData } from "./hooks/useSettingsData";
 import AppSidebar from "@/app/AppSidebar";
+import { useSettingsActions } from "./hooks/useSettingsActions";
 
 import ToggleButton from "./components/ToggleButton";
 import SensitiveNotice from "./components/SensitiveNotice";
@@ -64,6 +65,16 @@ export default function SettingsPage() {
   const [activity, setActivity] = useState<ActivityForm>(defaultActivity);
   const [privacy, setPrivacy] = useState<PrivacyForm>(defaultPrivacy);
 
+  const {
+  handleLogout,
+} = useSettingsActions({
+  userId,
+  setSaveMessage,
+  setSecurityMessage,
+  setIsSendingPasswordReset,
+  setPermissions,
+});
+
   useSettingsData({
     setUserId,
     setIsLoadingUser,
@@ -104,17 +115,7 @@ export default function SettingsPage() {
     value: string | boolean,
   ) => setPrivacy((prev) => ({ ...prev, [key]: value }));
 
-  const handleLogout = async () => {
-    try {
-      setSaveMessage("Du wirst abgemeldet...");
-      await signOut(auth);
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Logout fehlgeschlagen", error);
-      setSaveMessage("Abmelden fehlgeschlagen. Bitte erneut versuchen.");
-    }
-  };
-  const saveProfile = async () => {
+    const saveProfile = async () => {
     if (!userId) {
       setSaveMessage("Bitte melde dich an, um dein Profil zu speichern.");
       return;
