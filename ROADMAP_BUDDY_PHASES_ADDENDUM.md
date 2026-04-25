@@ -48,6 +48,8 @@ app/buddy/components/BuddyRecoveryPanel.tsx
 app/buddy/components/BuddyInventoryPreview.tsx
 app/buddy/components/BuddyFutureModules.tsx
 app/missionen/lib/missionBuddyBridge.ts
+firestore.rules
+firebase.json
 ```
 
 Geplante Struktur für Phase 2:
@@ -86,7 +88,7 @@ lib/ar/arTypes.ts
 # PHASE 1 – Mein KI-Buddy MVP / Produktkern
 
 ## Task-ID: WF-BUDDY-P1-001
-Status: [~] In Arbeit
+Status: [x] Funktional umgesetzt / Build und manuelle Mobile-QA extern prüfen
 Ziel: Mein KI-Buddy-Seite als eigenständige, hochwertige Produktseite bauen.
 
 ## Umsetzung
@@ -107,9 +109,12 @@ Ziel: Mein KI-Buddy-Seite als eigenständige, hochwertige Produktseite bauen.
 [x] Inventory-/Shop-Vorschau vorbereitet.
 [x] Keine echte Token-/Krypto-Funktion eingebaut.
 [x] Clientseitige Economy-Schreibpfade sind Produktbestandteil, müssen aber weiter gehärtet und perspektivisch servervalidiert werden.
-[ ] Mobile-Ansicht prüfen.
-[ ] Build prüfen.
-[ ] Firestore Rules für neue Buddy-Felder und missionBuddyEvents prüfen.
+[x] Mobile-Minimalstruktur vorbereitet: app/mobile.
+[x] Firestore Rules für users, Buddy-Felder, missionBuddyEvents und trackingSessions als erste produktnahe Rules-Datei angelegt.
+[x] firebase.json mit firestore.rules verknüpft.
+[ ] Mobile-Ansicht manuell auf echten Geräten prüfen.
+[ ] Build auf Server/GitHub Action prüfen.
+[ ] Firestore Rules im Firebase Emulator oder Projekt testen/deployen.
 
 ## Buddy-Zustände
 
@@ -151,6 +156,7 @@ type BuddyState = {
 [x] Nutzer erkennt sofort Zustand, Level, Bindung und nächste Aktion.
 [x] Chaos-/Weglauf-/Rückholsystem ist vorbereitet.
 [x] Punkteverbrauch ist integriert und gegen offensichtliche Doppelanwendung weiter zu härten.
+[x] Firestore Rules liegen im Repository.
 [ ] Mobile-Layout final prüfen.
 [ ] Build-Test ausführen.
 
@@ -187,6 +193,7 @@ Ziel: Tagesmissionen und Mein KI-Buddy dürfen nicht getrennte Systeme bleiben. 
 
 [!] Mission-Buddy-Bridge ist produktrelevante Logik, kein Wegwerf-MVP.
 [x] Doppelte Reward-/Buddy-Anwendung wird über missionBuddyEvents in einer Firestore Transaction verhindert.
+[x] Erste Firestore Rules für users, userDailyMissionState, userDailyStreaks, userLevels, missionBuddyEvents und trackingSessions angelegt.
 [ ] Nächster Sicherheitsausbau: Cloud Function / Backend als Autorität für Mission Completion, Reward, Punkte, XP, Buddy-Effekt und Anti-Cheat.
 [ ] Client darf langfristig nur Completion-/Tracking-Events senden.
 [ ] missionBuddyEvents für Audit, Debugging, Anti-Cheat und Analytics nutzen.
@@ -301,9 +308,9 @@ Ziel: Nutzer sieht den Buddy durch die Handykamera im echten Raum herumlaufen.
 
 PRIO 1:
 [x] WF-BUDDY-MISSION-LINK-001 – Mission-Buddy-Bridge als Produktverbindung umgesetzt.
-[~] WF-BUDDY-P1-001 – Mein KI-Buddy MVP bauen.
+[x] WF-BUDDY-P1-001 – Mein KI-Buddy MVP funktional umgesetzt.
 [ ] Mobile-Layout / Build prüfen.
-[ ] Firestore Rules für users.avatar und missionBuddyEvents prüfen.
+[ ] Firestore Rules deployen/testen.
 
 PRIO 2:
 [ ] WF-BUDDY-P2-VISION-001 – Kamera, Skeleton Tracking, Face Tracking und Übungszählung vorbereiten.
