@@ -23,14 +23,20 @@ Keine endgültige clientseitige Autorität für Punkte, Rewards, Pflegezustand, 
 
 Alles wird wie beim Dashboard in kleine Dateien aufgeteilt.
 
-Geplante Struktur für Phase 1:
+Geplante und teilweise umgesetzte Struktur für Phase 1:
 
 ```txt
 app/buddy/page.tsx
 app/buddy/types.ts
+app/buddy/hooks/useBuddyState.ts
 app/buddy/lib/buddyState.ts
 app/buddy/lib/buddyEconomy.ts
 app/buddy/lib/buddyCopy.ts
+app/buddy/lib/buddyCare.ts
+app/buddy/lib/buddyRecovery.ts
+app/buddy/lib/buddyInventoryPreview.ts
+app/buddy/components/BuddyPageHeader.tsx
+app/buddy/components/BuddyMainGrid.tsx
 app/buddy/components/BuddyHero.tsx
 app/buddy/components/BuddyStats.tsx
 app/buddy/components/BuddyActions.tsx
@@ -38,7 +44,10 @@ app/buddy/components/BuddyCarePanel.tsx
 app/buddy/components/BuddyEvolution.tsx
 app/buddy/components/BuddyStoryBox.tsx
 app/buddy/components/BuddyHomePanel.tsx
+app/buddy/components/BuddyRecoveryPanel.tsx
+app/buddy/components/BuddyInventoryPreview.tsx
 app/buddy/components/BuddyFutureModules.tsx
+app/missionen/lib/missionBuddyBridge.ts
 ```
 
 Geplante Struktur für Phase 2:
@@ -77,24 +86,30 @@ lib/ar/arTypes.ts
 # PHASE 1 – Mein KI-Buddy MVP / Produktkern
 
 ## Task-ID: WF-BUDDY-P1-001
-Status: [ ] Offen
+Status: [~] In Arbeit
 Ziel: Mein KI-Buddy-Seite als eigenständige, hochwertige Produktseite bauen.
 
 ## Umsetzung
 
-[ ] Route prüfen und anlegen: app/buddy/page.tsx oder app/mein-ki-buddy/page.tsx.
-[ ] Layout an Dashboard-Stil anpassen: Sidebar, Farbwelt, Premium-Optik.
-[ ] Buddy-Hero bauen: Name, Avatar, Level, Titel, Status, Stimmung.
-[ ] Buddy-Werte anzeigen: XP, Energie, Hunger, Stimmung, Sauberkeit, Bindung, Loyalität, Neugier.
-[ ] Buddy-Aktionen bauen: Füttern, Pflegen, Spielen, Aufräumen, Rufen, Suchen.
-[ ] Buddy-Storybox bauen: Tagesmodus, emotionale Beschreibung, kleine Ereignisse.
-[ ] Buddy-Evolution bauen: Entwicklungspfad, nächste Stufe, Spezialfähigkeiten später.
-[ ] Buddy-Heimat vorbereiten: Höhle, Zimmer, Labor, Baumhaus oder Drachenhorst.
-[ ] Weglauf-/Rückholmechanik visuell vorbereiten.
-[ ] Punkte-Ausgaben vorbereiten: Futter, Pflege, Spielzeug, Reinigungsset, Rückhol-Köder.
-[ ] Keine echte Token-/Krypto-Funktion einbauen.
-[ ] Keine serverkritische Economy-Logik als endgültige Client-Wahrheit behandeln.
+[x] Route angelegt: app/buddy/page.tsx.
+[x] Sidebar-Link zu Mein KI-Buddy ergänzt.
+[x] Layout an Dashboard-Stil angepasst: Sidebar, Farbwelt, Premium-Optik.
+[x] Buddy-Hero gebaut: Name, Avatar, Level, Titel, Status, Stimmung.
+[x] Buddy-Werte anzeigen: XP, Energie, Hunger, Stimmung, Sauberkeit, Bindung, Loyalität, Neugier.
+[x] Buddy-Aktionen gebaut: Füttern, Pflegen, Spielen, Aufräumen, Rufen, Suchen.
+[x] Buddy-Aktionslogik in useBuddyState ausgelagert.
+[x] MVP-Firestore-Speicherung für Buddy-Aktionen vorbereitet.
+[x] Buddy-Storybox gebaut: Tagesmodus, emotionale Beschreibung, kleine Ereignisse.
+[x] Buddy-Evolution gebaut: Entwicklungspfad, nächste Stufe, Spezialfähigkeiten später.
+[x] Buddy-Heimat vorbereitet: Drachenhorst.
+[x] Weglauf-/Rückholmechanik visuell vorbereitet.
+[x] Punkte-Ausgaben vorbereitet: Futter, Pflege, Spielzeug, Reinigungsset, Rückhol-Köder.
+[x] Inventory-/Shop-Vorschau vorbereitet.
+[x] Keine echte Token-/Krypto-Funktion eingebaut.
+[x] Keine serverkritische Economy-Logik als endgültige Client-Wahrheit behandeln.
 [ ] Mobile-Ansicht prüfen.
+[ ] Build prüfen.
+[ ] Firestore Rules für neue Buddy-Felder und missionBuddyEvents prüfen.
 
 ## Buddy-Zustände
 
@@ -130,12 +145,55 @@ type BuddyState = {
 
 ## Akzeptanzkriterien
 
-[ ] Seite existiert und ist erreichbar.
-[ ] Seite ist in kleine Komponenten aufgeteilt.
-[ ] Buddy wirkt lebendig und hochwertig.
-[ ] Nutzer erkennt sofort Zustand, Level, Bindung und nächste Aktion.
-[ ] Chaos-/Weglauf-/Rückholsystem ist vorbereitet.
-[ ] Punkteverbrauch ist nur MVP/Frontend vorbereitet und später serverseitig abzusichern.
+[x] Seite existiert und ist erreichbar.
+[x] Seite ist in kleine Komponenten aufgeteilt.
+[x] Buddy wirkt lebendig und hochwertig.
+[x] Nutzer erkennt sofort Zustand, Level, Bindung und nächste Aktion.
+[x] Chaos-/Weglauf-/Rückholsystem ist vorbereitet.
+[x] Punkteverbrauch ist nur MVP/Frontend vorbereitet und später serverseitig abzusichern.
+[ ] Mobile-Layout final prüfen.
+[ ] Build-Test ausführen.
+
+---
+
+# PHASE 1.1 – Missionen mit KI-Buddy verbinden
+
+## Task-ID: WF-BUDDY-MISSION-LINK-001
+Status: [x] MVP umgesetzt / später serverseitig absichern
+Ziel: Tagesmissionen und Mein KI-Buddy dürfen nicht getrennte Systeme bleiben. Mission Completion soll Punkte, Buddy-Reaktion und Event-Log auslösen.
+
+## Umsetzung
+
+[x] Mission-Buddy-Bridge angelegt: app/missionen/lib/missionBuddyBridge.ts.
+[x] Bridge nutzt Firestore Transaction auf users/{userId}.
+[x] Mission Reward erhöht users.points.
+[x] Buddy-Werte reagieren je nach Missionstyp: Energie, Hunger, Stimmung, Sauberkeit, Bindung, Loyalität, Neugier.
+[x] Buddy status und dailyMode werden nach Effekt neu berechnet.
+[x] Event-Log wird in missionBuddyEvents geschrieben.
+[x] Tagesmission-Abschluss ruft applyMissionBuddyBridge auf.
+[x] UI-Meldung zeigt, dass Flammi auf Missionsfortschritt reagiert.
+
+## Missionstypen und Buddy-Effekt
+
+[ ] Effekte später balancen.
+[ ] Workout: Energie sinkt stärker, Stimmung/Bindung steigen.
+[ ] Bewegung: Neugier und Stimmung steigen.
+[ ] Ernährung: Hunger/Energie/Stimmung steigen.
+[ ] Abenteuer: Neugier und Bindung steigen stark.
+[ ] Community/Ruhe: Stimmung und Loyalität steigen.
+
+## Sicherheit
+
+[!] Aktuell MVP-clientseitig.
+[!] Später Cloud Function / Backend als Autorität für Mission Completion, Reward, Punkte, XP, Buddy-Effekt, Anti-Cheat.
+[!] Client darf langfristig nur Completion-/Tracking-Events senden.
+[!] missionBuddyEvents später für Audit, Debugging, Anti-Cheat und Analytics nutzen.
+
+## Mobile-Entscheidung
+
+[x] Handy-App wird bewusst schlank gehalten.
+[x] Handy-App Fokus: Missionen spielen, Buddy sehen/füttern, Nutzer analysieren, AR starten, wenige Einstellungen.
+[x] PC-Web-Dashboard bleibt Steuerzentrale für Marktplatz, Leaderboard, Punkte-Shop, Analytics, Web3/Token später.
 
 ---
 
@@ -240,7 +298,9 @@ Ziel: Nutzer sieht den Buddy durch die Handykamera im echten Raum herumlaufen.
 # Neue Roadmap-Reihenfolge
 
 PRIO 1:
-[ ] WF-BUDDY-P1-001 – Mein KI-Buddy MVP bauen.
+[x] WF-BUDDY-MISSION-LINK-001 – Mission-Buddy-Bridge MVP umgesetzt.
+[~] WF-BUDDY-P1-001 – Mein KI-Buddy MVP bauen.
+[ ] Mobile-Layout / Build prüfen.
 
 PRIO 2:
 [ ] WF-BUDDY-P2-VISION-001 – Kamera, Skeleton Tracking, Face Tracking und Übungszählung vorbereiten.
