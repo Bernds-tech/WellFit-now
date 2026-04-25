@@ -5,16 +5,11 @@ import { signOut } from "firebase/auth";
 import AppSidebar from "@/app/AppSidebar";
 import { auth } from "@/lib/firebase";
 import { useDashboardUser } from "@/app/dashboard/hooks/useDashboardUser";
-import BuddyActions from "./components/BuddyActions";
-import BuddyCarePanel from "./components/BuddyCarePanel";
 import BuddyEvolution from "./components/BuddyEvolution";
-import BuddyFutureModules from "./components/BuddyFutureModules";
 import BuddyHero from "./components/BuddyHero";
-import BuddyHomePanel from "./components/BuddyHomePanel";
-import BuddyInventoryPreview from "./components/BuddyInventoryPreview";
-import BuddyRecoveryPanel from "./components/BuddyRecoveryPanel";
+import BuddyMainGrid from "./components/BuddyMainGrid";
+import BuddyPageHeader from "./components/BuddyPageHeader";
 import BuddyStats from "./components/BuddyStats";
-import BuddyStoryBox from "./components/BuddyStoryBox";
 import { getBuddyStory } from "./lib/buddyCopy";
 import { useBuddyState } from "./hooks/useBuddyState";
 
@@ -45,37 +40,24 @@ export default function BuddyPage() {
       <div className="flex h-full">
         <AppSidebar brightness={brightness} onBrightnessChange={setBrightness} onLogout={handleLogout} />
 
-        <section className="flex flex-1 flex-col gap-4 overflow-y-auto px-7 py-5">
-          <header className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-5xl font-extrabold leading-none">Mein KI-Buddy</h1>
-              <p className="mt-2 text-lg text-cyan-100/90">{user ? "Dein lebendiger WellFit-Begleiter" : message}</p>
-              <p className={`mt-1 text-xs font-semibold ${isRealtimeConnected ? "text-green-300" : "text-yellow-200"}`}>
-                Realtime: {isRealtimeConnected ? "verbunden" : loadedFromCache ? "Cache aktiv" : "wird verbunden"}
-              </p>
-            </div>
-            <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm font-semibold text-cyan-100">
-              {isSavingBuddy ? "Speichert..." : "Phase 1 MVP"}
-            </div>
-          </header>
+        <section className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-5 md:px-7">
+          <BuddyPageHeader
+            hasUser={!!user}
+            fallbackMessage={message}
+            isRealtimeConnected={isRealtimeConnected}
+            loadedFromCache={loadedFromCache}
+            isSavingBuddy={isSavingBuddy}
+          />
 
           <BuddyHero buddy={buddy} />
           <BuddyStats buddy={buddy} />
-
-          <div className="grid grid-cols-[1.25fr_0.75fr] gap-4">
-            <div className="space-y-4">
-              <BuddyStoryBox story={story} message={buddyMessage} />
-              <BuddyCarePanel buddy={buddy} />
-              <BuddyRecoveryPanel buddy={buddy} />
-              <BuddyInventoryPreview />
-              <BuddyFutureModules />
-            </div>
-            <div className="space-y-4">
-              <BuddyActions actions={actions} onAction={handleBuddyAction} />
-              <BuddyHomePanel buddy={buddy} />
-            </div>
-          </div>
-
+          <BuddyMainGrid
+            buddy={buddy}
+            actions={actions}
+            story={story}
+            buddyMessage={buddyMessage}
+            onAction={handleBuddyAction}
+          />
           <BuddyEvolution buddy={buddy} />
         </section>
       </div>
