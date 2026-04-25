@@ -98,7 +98,7 @@ Ziel: Mein KI-Buddy-Seite als eigenständige, hochwertige Produktseite bauen.
 [x] Buddy-Werte anzeigen: XP, Energie, Hunger, Stimmung, Sauberkeit, Bindung, Loyalität, Neugier.
 [x] Buddy-Aktionen gebaut: Füttern, Pflegen, Spielen, Aufräumen, Rufen, Suchen.
 [x] Buddy-Aktionslogik in useBuddyState ausgelagert.
-[x] MVP-Firestore-Speicherung für Buddy-Aktionen vorbereitet.
+[x] Firestore-Speicherung für Buddy-Aktionen vorbereitet.
 [x] Buddy-Storybox gebaut: Tagesmodus, emotionale Beschreibung, kleine Ereignisse.
 [x] Buddy-Evolution gebaut: Entwicklungspfad, nächste Stufe, Spezialfähigkeiten später.
 [x] Buddy-Heimat vorbereitet: Drachenhorst.
@@ -106,7 +106,7 @@ Ziel: Mein KI-Buddy-Seite als eigenständige, hochwertige Produktseite bauen.
 [x] Punkte-Ausgaben vorbereitet: Futter, Pflege, Spielzeug, Reinigungsset, Rückhol-Köder.
 [x] Inventory-/Shop-Vorschau vorbereitet.
 [x] Keine echte Token-/Krypto-Funktion eingebaut.
-[x] Keine serverkritische Economy-Logik als endgültige Client-Wahrheit behandeln.
+[x] Clientseitige Economy-Schreibpfade sind Produktbestandteil, müssen aber weiter gehärtet und perspektivisch servervalidiert werden.
 [ ] Mobile-Ansicht prüfen.
 [ ] Build prüfen.
 [ ] Firestore Rules für neue Buddy-Felder und missionBuddyEvents prüfen.
@@ -150,7 +150,7 @@ type BuddyState = {
 [x] Buddy wirkt lebendig und hochwertig.
 [x] Nutzer erkennt sofort Zustand, Level, Bindung und nächste Aktion.
 [x] Chaos-/Weglauf-/Rückholsystem ist vorbereitet.
-[x] Punkteverbrauch ist nur MVP/Frontend vorbereitet und später serverseitig abzusichern.
+[x] Punkteverbrauch ist integriert und gegen offensichtliche Doppelanwendung weiter zu härten.
 [ ] Mobile-Layout final prüfen.
 [ ] Build-Test ausführen.
 
@@ -159,23 +159,24 @@ type BuddyState = {
 # PHASE 1.1 – Missionen mit KI-Buddy verbinden
 
 ## Task-ID: WF-BUDDY-MISSION-LINK-001
-Status: [x] MVP umgesetzt / später serverseitig absichern
-Ziel: Tagesmissionen und Mein KI-Buddy dürfen nicht getrennte Systeme bleiben. Mission Completion soll Punkte, Buddy-Reaktion und Event-Log auslösen.
+Status: [x] Produktverbindung umgesetzt / nächster Schritt serverseitige Validierung
+Ziel: Tagesmissionen und Mein KI-Buddy dürfen nicht getrennte Systeme bleiben. Mission Completion löst Punkte, Buddy-Reaktion und Event-Log aus.
 
 ## Umsetzung
 
 [x] Mission-Buddy-Bridge angelegt: app/missionen/lib/missionBuddyBridge.ts.
 [x] Bridge nutzt Firestore Transaction auf users/{userId}.
+[x] Bridge prüft missionBuddyEvents vor Anwendung und verhindert doppelte Punkte-/Buddy-Effekte pro Nutzer, Tag und Mission.
 [x] Mission Reward erhöht users.points.
 [x] Buddy-Werte reagieren je nach Missionstyp: Energie, Hunger, Stimmung, Sauberkeit, Bindung, Loyalität, Neugier.
 [x] Buddy status und dailyMode werden nach Effekt neu berechnet.
 [x] Event-Log wird in missionBuddyEvents geschrieben.
 [x] Tagesmission-Abschluss ruft applyMissionBuddyBridge auf.
-[x] UI-Meldung zeigt, dass Flammi auf Missionsfortschritt reagiert.
+[x] UI-Meldung zeigt, ob Effekt neu angewendet oder bereits angewendet wurde.
 
 ## Missionstypen und Buddy-Effekt
 
-[ ] Effekte später balancen.
+[ ] Effekte weiter balancen.
 [ ] Workout: Energie sinkt stärker, Stimmung/Bindung steigen.
 [ ] Bewegung: Neugier und Stimmung steigen.
 [ ] Ernährung: Hunger/Energie/Stimmung steigen.
@@ -184,10 +185,11 @@ Ziel: Tagesmissionen und Mein KI-Buddy dürfen nicht getrennte Systeme bleiben. 
 
 ## Sicherheit
 
-[!] Aktuell MVP-clientseitig.
-[!] Später Cloud Function / Backend als Autorität für Mission Completion, Reward, Punkte, XP, Buddy-Effekt, Anti-Cheat.
-[!] Client darf langfristig nur Completion-/Tracking-Events senden.
-[!] missionBuddyEvents später für Audit, Debugging, Anti-Cheat und Analytics nutzen.
+[!] Mission-Buddy-Bridge ist produktrelevante Logik, kein Wegwerf-MVP.
+[x] Doppelte Reward-/Buddy-Anwendung wird über missionBuddyEvents in einer Firestore Transaction verhindert.
+[ ] Nächster Sicherheitsausbau: Cloud Function / Backend als Autorität für Mission Completion, Reward, Punkte, XP, Buddy-Effekt und Anti-Cheat.
+[ ] Client darf langfristig nur Completion-/Tracking-Events senden.
+[ ] missionBuddyEvents für Audit, Debugging, Anti-Cheat und Analytics nutzen.
 
 ## Mobile-Entscheidung
 
@@ -298,9 +300,10 @@ Ziel: Nutzer sieht den Buddy durch die Handykamera im echten Raum herumlaufen.
 # Neue Roadmap-Reihenfolge
 
 PRIO 1:
-[x] WF-BUDDY-MISSION-LINK-001 – Mission-Buddy-Bridge MVP umgesetzt.
+[x] WF-BUDDY-MISSION-LINK-001 – Mission-Buddy-Bridge als Produktverbindung umgesetzt.
 [~] WF-BUDDY-P1-001 – Mein KI-Buddy MVP bauen.
 [ ] Mobile-Layout / Build prüfen.
+[ ] Firestore Rules für users.avatar und missionBuddyEvents prüfen.
 
 PRIO 2:
 [ ] WF-BUDDY-P2-VISION-001 – Kamera, Skeleton Tracking, Face Tracking und Übungszählung vorbereiten.
