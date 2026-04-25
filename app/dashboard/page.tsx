@@ -9,6 +9,7 @@ import AppSidebar from "@/app/AppSidebar";
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardMissionPanel from "./components/DashboardMissionPanel";
 import DashboardCards from "./components/DashboardCards";
+import DashboardAvatarPanel from "./components/DashboardAvatarPanel";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { getPersonalMission } from "./lib/personalMission";
 
@@ -97,6 +98,15 @@ export default function DashboardPage() {
             />
           )}
 
+          <DashboardAvatarPanel
+            buddyLevel={buddyLevel}
+            buddyEnergy={buddyEnergy}
+            buddyHunger={buddyHunger}
+            pointsBalance={pointsBalance}
+            foodPrice={foodPrice}
+            onFeedBuddy={handleFeedBuddy}
+          />
+
           {mission && (
             <DashboardCards
               mission={mission}
@@ -105,7 +115,6 @@ export default function DashboardPage() {
               buddyHunger={buddyHunger}
               stepsToday={stepsToday}
               foodPrice={foodPrice}
-              onFeedBuddy={handleFeedBuddy}
             />
           )}
         </section>
