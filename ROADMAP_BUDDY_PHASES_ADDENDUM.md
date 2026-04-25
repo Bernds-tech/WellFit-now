@@ -52,20 +52,26 @@ firestore.rules
 firebase.json
 ```
 
-Geplante Struktur für Phase 2:
+Umgesetzte Basisstruktur für Phase 2:
 
 ```txt
-app/buddy/training/page.tsx
-app/buddy/training/components/CameraPermissionPanel.tsx
-app/buddy/training/components/CameraPreview.tsx
-app/buddy/training/components/SkeletonOverlay.tsx
-app/buddy/training/components/FaceStatusPanel.tsx
-app/buddy/training/components/ExerciseCounterPanel.tsx
+app/mobile/analyse/page.tsx
+app/mobile/analyse/hooks/useCameraPreview.ts
+app/mobile/analyse/components/CameraPermissionPanel.tsx
+app/mobile/analyse/components/CameraPreview.tsx
+app/mobile/analyse/components/VisionCapabilityList.tsx
+app/mobile/analyse/components/ExerciseCounterPanel.tsx
+lib/vision/visionTypes.ts
+lib/vision/visionCapabilities.ts
+```
+
+Geplante nächste Struktur für Phase 2:
+
+```txt
 lib/vision/poseTracker.ts
 lib/vision/faceTracker.ts
 lib/vision/exerciseCounter.ts
 lib/vision/exerciseRules.ts
-lib/vision/visionTypes.ts
 ```
 
 Geplante Struktur für Phase 3:
@@ -116,50 +122,6 @@ Ziel: Mein KI-Buddy-Seite als eigenständige, hochwertige Produktseite bauen.
 [ ] Build auf Server/GitHub Action prüfen.
 [ ] Firestore Rules im Firebase Emulator oder Projekt testen/deployen.
 
-## Buddy-Zustände
-
-```ts
-type BuddyStatus =
-  | "active"
-  | "tired"
-  | "needsCare"
-  | "messy"
-  | "ranAway"
-  | "foundByOther"
-  | "recovered";
-```
-
-## Buddy-Werte
-
-```ts
-type BuddyState = {
-  name: string;
-  level: number;
-  xp: number;
-  energy: number;
-  hunger: number;
-  mood: number;
-  cleanliness: number;
-  bond: number;
-  loyalty: number;
-  curiosity: number;
-  status: BuddyStatus;
-  dailyMode: string;
-};
-```
-
-## Akzeptanzkriterien
-
-[x] Seite existiert und ist erreichbar.
-[x] Seite ist in kleine Komponenten aufgeteilt.
-[x] Buddy wirkt lebendig und hochwertig.
-[x] Nutzer erkennt sofort Zustand, Level, Bindung und nächste Aktion.
-[x] Chaos-/Weglauf-/Rückholsystem ist vorbereitet.
-[x] Punkteverbrauch ist integriert und gegen offensichtliche Doppelanwendung weiter zu härten.
-[x] Firestore Rules liegen im Repository.
-[ ] Mobile-Layout final prüfen.
-[ ] Build-Test ausführen.
-
 ---
 
 # PHASE 1.1 – Missionen mit KI-Buddy verbinden
@@ -179,15 +141,6 @@ Ziel: Tagesmissionen und Mein KI-Buddy dürfen nicht getrennte Systeme bleiben. 
 [x] Event-Log wird in missionBuddyEvents geschrieben.
 [x] Tagesmission-Abschluss ruft applyMissionBuddyBridge auf.
 [x] UI-Meldung zeigt, ob Effekt neu angewendet oder bereits angewendet wurde.
-
-## Missionstypen und Buddy-Effekt
-
-[ ] Effekte weiter balancen.
-[ ] Workout: Energie sinkt stärker, Stimmung/Bindung steigen.
-[ ] Bewegung: Neugier und Stimmung steigen.
-[ ] Ernährung: Hunger/Energie/Stimmung steigen.
-[ ] Abenteuer: Neugier und Bindung steigen stark.
-[ ] Community/Ruhe: Stimmung und Loyalität steigen.
 
 ## Sicherheit
 
@@ -209,20 +162,27 @@ Ziel: Tagesmissionen und Mein KI-Buddy dürfen nicht getrennte Systeme bleiben. 
 # PHASE 2 – Skeleton Tracking, Face Tracking, Übungszählung
 
 ## Task-ID: WF-BUDDY-P2-VISION-001
-Status: [ ] Offen / Wichtig
+Status: [~] In Arbeit / Kamera-Basis umgesetzt
 Ziel: Der Buddy kann den Nutzer über die Kamera analysieren, Übungen mitzählen und Feedback geben.
 
 ## Umsetzung
 
-[ ] Kamera-Modul mit expliziter Zustimmung bauen.
-[ ] Kamera darf nicht automatisch starten.
-[ ] Skeleton Tracking vorbereiten.
-[ ] Face Tracking vorbereiten.
-[ ] Übungszählung vorbereiten.
-[ ] Erste Übung auswählen: Kniebeuge oder Liegestütz.
+[x] Mobile-Analyse-Route angelegt: app/mobile/analyse/page.tsx.
+[x] Kamera-Modul mit expliziter Zustimmung gebaut.
+[x] Kamera startet nicht automatisch.
+[x] Kamera-Preview mit getUserMedia vorbereitet.
+[x] Kamera-Stop und Cleanup beim Verlassen umgesetzt.
+[x] Vision-Typen ausgelagert: lib/vision/visionTypes.ts.
+[x] Capability-Liste ausgelagert: lib/vision/visionCapabilities.ts.
+[x] Skeleton Tracking als nächster Modulschritt vorbereitet.
+[x] Face Tracking als nächster Modulschritt vorbereitet.
+[x] Übungszählung als Panel vorbereitet.
+[ ] Echte Pose/Skeleton-Library anbinden.
+[ ] Face Tracking anbinden.
+[ ] Erste Übung auswählen und wirklich zählen: Kniebeuge.
 [ ] Gültige und ungültige Wiederholungen unterscheiden.
-[ ] Buddy-Coach-Feedback anzeigen.
-[ ] Tracking-Ergebnis als strukturierte Daten vorbereiten.
+[ ] Buddy-Coach-Feedback dynamisch anzeigen.
+[ ] Tracking-Ergebnis in trackingSessions schreiben.
 [ ] Keine Bilder/Videos standardmäßig speichern.
 [ ] Keine medizinischen Diagnosen anzeigen.
 
@@ -236,26 +196,15 @@ Ziel: Der Buddy kann den Nutzer über die Kamera analysieren, Übungen mitzähle
 [ ] Face Tracking für Blickrichtung/Mimik vorbereiten.
 [ ] Feedback neutral und motivierend formulieren.
 
-## Beispiel-Datenmodell
-
-```ts
-type ExerciseRep = {
-  exercise: "squat" | "pushup" | "jumpingJack" | "plank";
-  validReps: number;
-  invalidReps: number;
-  confidence: number;
-  feedback: string;
-};
-```
-
 ## Akzeptanzkriterien
 
-[ ] Kamera-Start funktioniert nach Zustimmung.
+[x] Kamera-Start funktioniert technisch über Browser-API, muss auf echten Geräten getestet werden.
+[x] Analyse-Seite ist über /mobile/analyse erreichbar.
+[x] Datenschutz- und Consent-Text ist vorbereitet.
 [ ] Skeleton kann testweise angezeigt werden.
 [ ] Gesicht kann testweise erkannt werden.
 [ ] Mindestens eine Übung wird gezählt.
 [ ] Buddy gibt Feedback.
-[ ] Datenschutz- und Consent-Text ist vorbereitet.
 
 ## Sicherheit / Datenschutz
 
@@ -269,7 +218,7 @@ type ExerciseRep = {
 # PHASE 3 – AR-Buddy im realen Raum
 
 ## Task-ID: WF-BUDDY-P3-AR-001
-Status: [ ] Offen / Später nach Phase 1 und 2
+Status: [ ] Offen / Später nach Phase 2-Basis
 Ziel: Nutzer sieht den Buddy durch die Handykamera im echten Raum herumlaufen.
 
 ## Umsetzung
@@ -285,23 +234,6 @@ Ziel: Nutzer sieht den Buddy durch die Handykamera im echten Raum herumlaufen.
 [ ] Weglauf-/Rückholmechanik mit AR verbinden.
 [ ] Training mit Buddy später mit Skeleton Tracking verbinden.
 
-## AR-Verhalten
-
-[ ] Buddy läuft im Raum herum.
-[ ] Buddy schaut zum Nutzer.
-[ ] Buddy reagiert auf Antippen.
-[ ] Buddy kann sich freuen, schlafen, traurig sein, Chaos machen oder weglaufen.
-[ ] Buddy kann Übungen vormachen.
-[ ] Nutzer kann ihn in AR suchen.
-
-## Akzeptanzkriterien
-
-[ ] AR-Seite ist vorbereitet.
-[ ] Buddy kann perspektivisch im echten Raum erscheinen.
-[ ] AR-Suche ist als Mechanik vorgesehen.
-[ ] 3D-/Animationsbedarf ist dokumentiert.
-[ ] Integration mit Phase-2-Tracking ist vorbereitet.
-
 ---
 
 # Neue Roadmap-Reihenfolge
@@ -309,11 +241,14 @@ Ziel: Nutzer sieht den Buddy durch die Handykamera im echten Raum herumlaufen.
 PRIO 1:
 [x] WF-BUDDY-MISSION-LINK-001 – Mission-Buddy-Bridge als Produktverbindung umgesetzt.
 [x] WF-BUDDY-P1-001 – Mein KI-Buddy MVP funktional umgesetzt.
+[~] WF-BUDDY-P2-VISION-001 – Kamera-Basis umgesetzt; Skeleton/Face/Rep-Counting als nächster Schritt.
 [ ] Mobile-Layout / Build prüfen.
 [ ] Firestore Rules deployen/testen.
 
 PRIO 2:
-[ ] WF-BUDDY-P2-VISION-001 – Kamera, Skeleton Tracking, Face Tracking und Übungszählung vorbereiten.
+[ ] Echte Pose/Skeleton-Library anbinden.
+[ ] Erste Übung Kniebeuge zählen.
+[ ] TrackingSessions mit validReps/invalidReps beschreiben.
 
 PRIO 3:
 [ ] WF-BUDDY-P3-AR-001 – AR-Buddy im realen Raum vorbereiten.
