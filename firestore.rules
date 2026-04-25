@@ -1,0 +1,70 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function hasOnlyUserWritableKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'points',
+        'avatar',
+        'updatedAt',
+        'lastLoginAt',
+        'lastMissionCompletedAt',
+        'profile',
+        'settings',
+        'consent',
+        'inventory',
+        'xp',
+        'level',
+        'stepsToday',
+        'energy'
+      ]);
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && hasOnlyUserWritableKeys();
+      allow delete: if false;
+    }
+
+    match /userDailyMissionState/{stateId} {
+      allow read, write: if isSignedIn() && stateId.matches(request.auth.uid + '_.*');
+    }
+
+    match /userDailyStreaks/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /userLevels/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /missionBuddyEvents/{eventId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && eventId.matches(request.auth.uid + '_.*')
+        && request.resource.data.status == 'applied';
+      allow update, delete: if false;
+    }
+
+    match /trackingSessions/{sessionId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
