@@ -9,13 +9,14 @@ import SettingsHeader from "./components/SettingsHeader";
 import { useSettingsData } from "./hooks/useSettingsData";
 import AppSidebar from "@/app/AppSidebar";
 import { useSettingsActions } from "./hooks/useSettingsActions";
-import ProfileCard from "./components/ProfileCard";
 
+import ProfileCard from "./components/ProfileCard";
 import VitalValuesCard from "./components/VitalValuesCard";
 import BiometricsCard from "./components/BiometricsCard";
 import NotificationsCard from "./components/NotificationsCard";
-
+import LifestyleCard from "./components/LifestyleCard";
 import SecurityCard from "./components/SecurityCard";
+
 import ToggleButton from "./components/ToggleButton";
 import SensitiveNotice from "./components/SensitiveNotice";
 import type {
@@ -470,201 +471,18 @@ export default function SettingsPage() {
   saveVitalValues={saveVitalValues}
 />            
 
-
+<LifestyleCard
+  lifestyle={lifestyle}
+  inputClass={inputClass}
+  selectClass={selectClass}
+  saveButtonClass={saveButtonClass}
+  isLoadingUser={isLoadingUser}
+  updateLifestyleField={updateLifestyleField}
+  saveLifestyle={saveLifestyle}
+/>
 
             
-            <div className={cardClass}>
-              <h2 className="mb-3 text-2xl font-bold text-cyan-300">
-                Lebensstil & Ernährung
-              </h2>
-              <SensitiveNotice />
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Ernährungsstil
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={lifestyle.nutrition}
-                    onChange={(e) =>
-                      updateLifestyleField("nutrition", e.target.value)
-                    }
-                  >
-                    <option>Ausgewogen</option>
-                    <option>Vegetarisch</option>
-                    <option>Vegan</option>
-                    <option>Low Carb</option>
-                    <option>High Protein</option>
-                    <option>Unregelmäßig</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Mahlzeitenrhythmus
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={lifestyle.mealRhythm}
-                    onChange={(e) =>
-                      updateLifestyleField("mealRhythm", e.target.value)
-                    }
-                  >
-                    <option>Regelmäßig</option>
-                    <option>Unregelmäßig</option>
-                    <option>Intervallfasten</option>
-                    <option>Viele kleine Mahlzeiten</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Trinkerinnerung
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={lifestyle.drinkReminder}
-                    onChange={(e) =>
-                      updateLifestyleField("drinkReminder", e.target.value)
-                    }
-                  >
-                    <option>Niedrig</option>
-                    <option>Normal</option>
-                    <option>Hoch</option>
-                  </select>
-                </div>
-                <div className="grid grid-cols-[1fr_80px_45px] items-center gap-2">
-                  <label className="text-white/85">Trinkziel pro Tag</label>
-                  <input
-                    className={inputClass}
-                    value={lifestyle.drinkAmount}
-                    onChange={(e) =>
-                      updateLifestyleField("drinkAmount", e.target.value)
-                    }
-                  />
-                  <span>Liter</span>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Koffein
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={lifestyle.caffeineIntake}
-                    onChange={(e) =>
-                      updateLifestyleField("caffeineIntake", e.target.value)
-                    }
-                  >
-                    <option>Niedrig</option>
-                    <option>Mittel</option>
-                    <option>Hoch</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Alkohol
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={lifestyle.alcoholFrequency}
-                    onChange={(e) =>
-                      updateLifestyleField("alcoholFrequency", e.target.value)
-                    }
-                  >
-                    <option>Nie</option>
-                    <option>Selten</option>
-                    <option>Gelegentlich</option>
-                    <option>Regelmäßig</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Schlafroutine
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={lifestyle.sleepRoutine}
-                    onChange={(e) =>
-                      updateLifestyleField("sleepRoutine", e.target.value)
-                    }
-                  >
-                    <option>Regelmäßig</option>
-                    <option>Unregelmäßig</option>
-                    <option>Schicht / wechselnd</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Bewegung in der Natur
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={lifestyle.natureMove}
-                    onChange={(e) =>
-                      updateLifestyleField("natureMove", e.target.value)
-                    }
-                  >
-                    <option>Selten</option>
-                    <option>Gelegentlich</option>
-                    <option>Häufig</option>
-                    <option>Täglich</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Stress-Ausgleich
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={lifestyle.stressCoping}
-                    onChange={(e) =>
-                      updateLifestyleField("stressCoping", e.target.value)
-                    }
-                  >
-                    <option>Spaziergang / Bewegung</option>
-                    <option>Musik</option>
-                    <option>Meditation / Atmung</option>
-                    <option>Gaming</option>
-                    <option>Freunde / Familie</option>
-                    <option>Noch keine Routine</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Screen-Time Gefühl
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={lifestyle.screenTime}
-                    onChange={(e) =>
-                      updateLifestyleField("screenTime", e.target.value)
-                    }
-                  >
-                    <option>Niedrig</option>
-                    <option>Mittel</option>
-                    <option>Hoch</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Notizen für den KI-Buddy
-                  </label>
-                  <textarea
-                    className={`${inputClass} min-h-[80px] resize-none`}
-                    value={lifestyle.notes}
-                    onChange={(e) =>
-                      updateLifestyleField("notes", e.target.value)
-                    }
-                    placeholder="Optional: Gewohnheiten, Vorlieben oder Alltagshinweise"
-                  />
-                </div>
-              </div>
-              <button
-                className={saveButtonClass}
-                onClick={saveLifestyle}
-                disabled={isLoadingUser}
-              >
-                Änderungen speichern
-              </button>
-            </div>
+            
             <div className={cardClass}>
               <h2 className="mb-3 text-2xl font-bold text-cyan-300">
                 Aktivität & Interessen
