@@ -12,6 +12,7 @@ import MissionDetails from "./MissionDetails";
 import { dailyMissions } from "./missions";
 import { calculateDailyReward } from "./rewardEngine";
 import { useDailyMissionFirebase } from "./useDailyMissionFirebase";
+import { applyMissionBuddyBridge } from "../lib/missionBuddyBridge";
 
 type MissionTab = "Tagesmissionen" | "Wochenmissionen" | "Abenteuer" | "Challenge" | "Wettkämpfe" | "Favoriten" | "History";
 const tabs: MissionTab[] = ["Tagesmissionen", "Wochenmissionen", "Abenteuer", "Challenge", "Wettkämpfe", "Favoriten", "History"];
@@ -65,7 +66,12 @@ export default function MissionenPage() {
     const mission = dailyMissions.find((item) => item.id === missionId);
     if (!mission) return;
     await persistCompleteMission(missionId, reward.finalReward);
-    setStatusMessage(`${mission.title} abgeschlossen. +${reward.finalReward} Punkte.`);
+    const bridgeResult = await applyMissionBuddyBridge({ mission, rewardPoints: reward.finalReward, source: "dailyMission" });
+    setStatusMessage(
+      bridgeResult.ok
+        ? `${mission.title} abgeschlossen. +${reward.finalReward} Punkte. Flammi reagiert auf deinen Fortschritt.`
+        : `${mission.title} abgeschlossen. +${reward.finalReward} XP. Buddy-Sync konnte gerade nicht abgeschlossen werden.`
+    );
   };
 
   return (
