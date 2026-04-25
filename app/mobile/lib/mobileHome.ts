@@ -33,7 +33,6 @@ export const mobileQuickActions: MobileQuickAction[] = [
     label: "Nutzer analysieren",
     description: "Kamera-, Pose- und Face-Tracking für Phase 2.",
     href: "/mobile/analyse",
-    disabled: true,
   },
   {
     label: "AR starten",
