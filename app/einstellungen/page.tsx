@@ -11,6 +11,7 @@ import AppSidebar from "@/app/AppSidebar";
 import { useSettingsActions } from "./hooks/useSettingsActions";
 import ProfileCard from "./components/ProfileCard";
 
+import VitalValuesCard from "./components/VitalValuesCard";
 import BiometricsCard from "./components/BiometricsCard";
 import NotificationsCard from "./components/NotificationsCard";
 
@@ -459,174 +460,19 @@ export default function SettingsPage() {
   toggleBase={toggleBase}
 />
 
+<VitalValuesCard
+  vitalValues={vitalValues}
+  inputClass={inputClass}
+  selectClass={selectClass}
+  saveButtonClass={saveButtonClass}
+  isLoadingUser={isLoadingUser}
+  updateVitalValuesField={updateVitalValuesField}
+  saveVitalValues={saveVitalValues}
+/>            
+
+
+
             
-            
-            <div className={cardClass}>
-              <h2 className="mb-3 text-2xl font-bold text-cyan-300">
-                Erweiterte Vitalwerte
-              </h2>
-              <SensitiveNotice />
-              <div className="space-y-3">
-                <div className="grid grid-cols-[1fr_80px_30px] items-center gap-2">
-                  <label className="text-white/85">Körperfettanteil</label>
-                  <input
-                    className={inputClass}
-                    value={vitalValues.bodyFat}
-                    onChange={(e) =>
-                      updateVitalValuesField("bodyFat", e.target.value)
-                    }
-                    placeholder="--"
-                  />
-                  <span>%</span>
-                </div>
-                <div className="grid grid-cols-[1fr_80px_45px] items-center gap-2">
-                  <label className="text-white/85">Ruhepuls</label>
-                  <input
-                    className={inputClass}
-                    value={vitalValues.restingPulse}
-                    onChange={(e) =>
-                      updateVitalValuesField("restingPulse", e.target.value)
-                    }
-                    placeholder="--"
-                  />
-                  <span>bpm</span>
-                </div>
-                <div className="grid grid-cols-[1fr_80px_45px] items-center gap-2">
-                  <label className="text-white/85">Durchschnittspuls</label>
-                  <input
-                    className={inputClass}
-                    value={vitalValues.averagePulse}
-                    onChange={(e) =>
-                      updateVitalValuesField("averagePulse", e.target.value)
-                    }
-                    placeholder="--"
-                  />
-                  <span>bpm</span>
-                </div>
-                <div className="grid grid-cols-[1fr_80px_55px] items-center gap-2">
-                  <label className="text-white/85">Blutdruck</label>
-                  <input
-                    className={inputClass}
-                    value={vitalValues.bloodPressure}
-                    onChange={(e) =>
-                      updateVitalValuesField("bloodPressure", e.target.value)
-                    }
-                    placeholder="--/--"
-                  />
-                  <span>mmHg</span>
-                </div>
-                <div className="grid grid-cols-[1fr_80px_45px] items-center gap-2">
-                  <label className="text-white/85">Schlafdauer</label>
-                  <input
-                    className={inputClass}
-                    value={vitalValues.sleepHours}
-                    onChange={(e) =>
-                      updateVitalValuesField("sleepHours", e.target.value)
-                    }
-                    placeholder="--"
-                  />
-                  <span>Std.</span>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Schlafqualität
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={vitalValues.sleepQuality}
-                    onChange={(e) =>
-                      updateVitalValuesField("sleepQuality", e.target.value)
-                    }
-                  >
-                    <option>Niedrig</option>
-                    <option>Mittel</option>
-                    <option>Hoch</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Stresslevel
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={vitalValues.stressLevel}
-                    onChange={(e) =>
-                      updateVitalValuesField("stressLevel", e.target.value)
-                    }
-                  >
-                    <option>Niedrig</option>
-                    <option>Mittel</option>
-                    <option>Hoch</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Energielevel
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={vitalValues.energyLevel}
-                    onChange={(e) =>
-                      updateVitalValuesField("energyLevel", e.target.value)
-                    }
-                  >
-                    <option>Niedrig</option>
-                    <option>Mittel</option>
-                    <option>Hoch</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Schmerzlevel
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={vitalValues.painLevel}
-                    onChange={(e) =>
-                      updateVitalValuesField("painLevel", e.target.value)
-                    }
-                  >
-                    <option>Keine</option>
-                    <option>Leicht</option>
-                    <option>Mittel</option>
-                    <option>Stark</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Medikamentenhinweis
-                  </label>
-                  <input
-                    className={inputClass}
-                    value={vitalValues.medicationNote}
-                    onChange={(e) =>
-                      updateVitalValuesField("medicationNote", e.target.value)
-                    }
-                    placeholder="Optional"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Gesundheitliche Hinweise
-                  </label>
-                  <textarea
-                    className={`${inputClass} min-h-[80px] resize-none`}
-                    value={vitalValues.healthNotes}
-                    onChange={(e) =>
-                      updateVitalValuesField("healthNotes", e.target.value)
-                    }
-                    placeholder="Optional: Hinweise, die der KI-Buddy berücksichtigen soll"
-                  />
-                </div>
-              </div>
-              <button
-                className={saveButtonClass}
-                onClick={saveVitalValues}
-                disabled={isLoadingUser}
-              >
-                Änderungen speichern
-              </button>
-            </div>
             <div className={cardClass}>
               <h2 className="mb-3 text-2xl font-bold text-cyan-300">
                 Lebensstil & Ernährung
