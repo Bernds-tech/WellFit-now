@@ -9,6 +9,7 @@ import SettingsHeader from "./components/SettingsHeader";
 import { useSettingsData } from "./hooks/useSettingsData";
 import AppSidebar from "@/app/AppSidebar";
 import { useSettingsActions } from "./hooks/useSettingsActions";
+import ProfileCard from "./components/ProfileCard";
 
 import ToggleButton from "./components/ToggleButton";
 import SensitiveNotice from "./components/SensitiveNotice";
@@ -412,10 +413,15 @@ export default function SettingsPage() {
             </button>
           </div>
           <div className="grid flex-1 grid-cols-3 gap-4 overflow-y-auto pr-2 pb-8 text-sm">
-            <div className={cardClass}>
-              <h2 className="mb-3 text-2xl font-bold text-cyan-300">
-                Profil & Account
-              </h2>
+            <ProfileCard
+  profile={profile}
+  inputClass={inputClass}
+  selectClass={selectClass}
+  saveButtonClass={saveButtonClass}
+  isLoadingUser={isLoadingUser}
+  updateProfileField={updateProfileField}
+  saveProfile={saveProfile}
+/>
               <div className="space-y-3">
                 <div>
                   <label className="mb-1 block text-xs text-white/70">
