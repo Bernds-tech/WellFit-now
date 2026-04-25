@@ -13,11 +13,10 @@ import { useSettingsActions } from "./hooks/useSettingsActions";
 import ProfileCard from "./components/ProfileCard";
 import SecurityCard from "./components/SecurityCard";
 import BiometricsCard from "./components/BiometricsCard";
-import VitalValuesCard from "./components/VitalValuesCard";
-
 import NotificationsCard from "./components/NotificationsCard";
+import VitalValuesCard from "./components/VitalValuesCard";
 import LifestyleCard from "./components/LifestyleCard";
-
+import ActivityCard from "./components/ActivityCard";
 import AiBuddyCard from "./components/AiBuddyCard";
 import PrivacyCard from "./components/PrivacyCard";
 import PermissionsCard from "./components/PermissionsCard";
@@ -475,7 +474,7 @@ export default function SettingsPage() {
   isLoadingUser={isLoadingUser}
   updateVitalValuesField={updateVitalValuesField}
   saveVitalValues={saveVitalValues}
-/>            
+/>
 
 <LifestyleCard
   lifestyle={lifestyle}
@@ -485,6 +484,16 @@ export default function SettingsPage() {
   isLoadingUser={isLoadingUser}
   updateLifestyleField={updateLifestyleField}
   saveLifestyle={saveLifestyle}
+/>
+
+<ActivityCard
+  activity={activity}
+  inputClass={inputClass}
+  selectClass={selectClass}
+  saveButtonClass={saveButtonClass}
+  isLoadingUser={isLoadingUser}
+  updateActivityField={updateActivityField}
+  saveActivity={saveActivity}
 />
 
 <AiBuddyCard
@@ -519,8 +528,7 @@ export default function SettingsPage() {
   toggleBase={toggleBase}
 />
 
-<AccountManagementCard />
-      
+<AccountManagementCard />      
           </div>
         </section>
       </div>
