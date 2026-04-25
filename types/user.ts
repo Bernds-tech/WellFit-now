@@ -3,6 +3,12 @@ export type AvatarState = {
   mood: number;
   energy: number;
   level: number;
+  cleanliness?: number;
+  bond?: number;
+  loyalty?: number;
+  curiosity?: number;
+  status?: string;
+  dailyMode?: string;
 };
 
 export type InventoryItem = {
