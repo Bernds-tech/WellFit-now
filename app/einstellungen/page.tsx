@@ -12,6 +12,7 @@ import { useSettingsActions } from "./hooks/useSettingsActions";
 import ProfileCard from "./components/ProfileCard";
 
 import BiometricsCard from "./components/BiometricsCard";
+import NotificationsCard from "./components/NotificationsCard";
 
 import SecurityCard from "./components/SecurityCard";
 import ToggleButton from "./components/ToggleButton";
@@ -448,56 +449,18 @@ export default function SettingsPage() {
   toggleBase={toggleBase}
 />
 
+<NotificationsCard
+  notifications={notifications}
+  saveButtonClass={saveButtonClass}
+  isLoadingUser={isLoadingUser}
+  updateNotificationField={updateNotificationField}
+  saveNotifications={saveNotifications}
+  ToggleButton={ToggleButton}
+  toggleBase={toggleBase}
+/>
+
             
-            <div className={cardClass}>
-              <h2 className="mb-3 text-2xl font-bold text-cyan-300">
-                Benachrichtigungen
-              </h2>
-              <div className="space-y-3">
-                {[
-                  {
-                    key: "missionReminder" as keyof NotificationsForm,
-                    label: "Missions-Erinnerung",
-                  },
-                  {
-                    key: "sleepReminder" as keyof NotificationsForm,
-                    label: "Schlaf-Erinnerung",
-                  },
-                  {
-                    key: "weeklyReport" as keyof NotificationsForm,
-                    label: "Wochenreport",
-                  },
-                  {
-                    key: "glitchAlert" as keyof NotificationsForm,
-                    label: "Glitch-Alarm",
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.key}
-                    className="flex items-center justify-between rounded-lg border border-cyan-300/10 bg-[#0a3d46] px-3 py-2"
-                  >
-                    <span className="text-white/85">{item.label}</span>
-                    <ToggleButton
-                      enabled={notifications[item.key]}
-                      onClick={() =>
-                        updateNotificationField(
-                          item.key,
-                          !notifications[item.key],
-                        )
-                      }
-                      toggleBase={toggleBase}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button
-                className={saveButtonClass}
-                onClick={saveNotifications}
-                disabled={isLoadingUser}
-              >
-                Änderungen speichern
-              </button>
-            </div>
+            
             <div className={cardClass}>
               <h2 className="mb-3 text-2xl font-bold text-cyan-300">
                 Erweiterte Vitalwerte
