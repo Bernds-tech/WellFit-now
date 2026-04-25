@@ -69,8 +69,10 @@ export default function MissionenPage() {
     const bridgeResult = await applyMissionBuddyBridge({ mission, rewardPoints: reward.finalReward, source: "dailyMission" });
     setStatusMessage(
       bridgeResult.ok
-        ? `${mission.title} abgeschlossen. +${reward.finalReward} Punkte. Flammi reagiert auf deinen Fortschritt.`
-        : `${mission.title} abgeschlossen. +${reward.finalReward} XP. Buddy-Sync konnte gerade nicht abgeschlossen werden.`
+        ? bridgeResult.alreadyApplied
+          ? `${mission.title} war bereits verbunden. Keine doppelte Punktevergabe. Flammi bleibt synchron.`
+          : `${mission.title} abgeschlossen. +${reward.finalReward} Punkte. Flammi reagiert auf deinen Fortschritt.`
+        : `${mission.title} abgeschlossen. Buddy-Sync braucht eine erneute Verbindung.`
     );
   };
 
