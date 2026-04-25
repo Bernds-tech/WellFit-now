@@ -12,18 +12,14 @@ import BuddyHero from "./components/BuddyHero";
 import BuddyHomePanel from "./components/BuddyHomePanel";
 import BuddyStats from "./components/BuddyStats";
 import BuddyStoryBox from "./components/BuddyStoryBox";
-import { buddyEconomyNotice } from "./lib/buddyEconomy";
-import { getBuddyActions, getBuddyStory } from "./lib/buddyCopy";
-import { createBuddyStateFromUser } from "./lib/buddyState";
-import type { BuddyAction } from "./types";
+import { getBuddyStory } from "./lib/buddyCopy";
+import { useBuddyState } from "./hooks/useBuddyState";
 
 export default function BuddyPage() {
   const { user, message, setMessage, isRealtimeConnected, loadedFromCache } = useDashboardUser();
   const [brightness, setBrightness] = useState(100);
-  const [localMessage, setLocalMessage] = useState("Flammi wird vorbereitet...");
+  const { buddy, actions, buddyMessage, isSavingBuddy, handleBuddyAction } = useBuddyState(user);
 
-  const buddy = useMemo(() => createBuddyStateFromUser(user), [user]);
-  const actions = useMemo(() => getBuddyActions(buddy), [buddy]);
   const story = useMemo(() => getBuddyStory(buddy), [buddy]);
 
   const handleLogout = async () => {
@@ -34,20 +30,6 @@ export default function BuddyPage() {
     } catch {
       setMessage("Abmelden fehlgeschlagen. Bitte erneut versuchen.");
     }
-  };
-
-  const handleBuddyAction = (action: BuddyAction) => {
-    if (action.disabled) {
-      setLocalMessage(`${action.label} ist gerade nicht möglich.`);
-      return;
-    }
-
-    if (action.type === "search") {
-      setLocalMessage("Die AR-Rückholsuche wird in Phase 3 aktiviert. Die Mechanik ist vorbereitet.");
-      return;
-    }
-
-    setLocalMessage(`${action.label} ausgeführt. ${buddyEconomyNotice}`);
   };
 
   return (
@@ -70,7 +52,7 @@ export default function BuddyPage() {
               </p>
             </div>
             <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm font-semibold text-cyan-100">
-              Phase 1 MVP
+              {isSavingBuddy ? "Speichert..." : "Phase 1 MVP"}
             </div>
           </header>
 
@@ -79,7 +61,7 @@ export default function BuddyPage() {
 
           <div className="grid grid-cols-[1.25fr_0.75fr] gap-4">
             <div className="space-y-4">
-              <BuddyStoryBox story={story} message={localMessage} />
+              <BuddyStoryBox story={story} message={buddyMessage} />
               <BuddyFutureModules />
             </div>
             <div className="space-y-4">
