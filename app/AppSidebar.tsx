@@ -17,6 +17,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
   const pathname = usePathname();
   const isDashboard = pathname === "/dashboard";
   const isMissionen = pathname.startsWith("/missionen");
+  const isBuddy = pathname.startsWith("/buddy");
 
   return (
     <aside className="flex h-full w-[250px] flex-col border-r border-cyan-400/10 bg-[#042f35]/95 px-5 py-6">
@@ -27,7 +28,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
       <nav className="space-y-2 text-[14px]">
         <Link href="/dashboard" className={isDashboard ? activeClass : inactiveClass}>Dashboard</Link>
         <Link href="/missionen/tagesmissionen" className={isMissionen ? activeClass : inactiveClass}>Missionen</Link>
-        <div className="text-white/80">Mein KI-Buddy</div>
+        <Link href="/buddy" className={isBuddy ? activeClass : inactiveClass}>Mein KI-Buddy</Link>
         <div className="text-white/80">Marktplatz</div>
         <div className="text-white/80">Leaderboard</div>
         <div className="text-white/80">Punkte-Shop</div>
