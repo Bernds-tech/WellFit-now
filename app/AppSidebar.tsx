@@ -7,12 +7,13 @@ import { usePathname } from "next/navigation";
 type AppSidebarProps = {
   brightness: number;
   onBrightnessChange: (value: number) => void;
+  onLogout?: () => void;
 };
 
 const activeClass = "block font-bold text-orange-400";
 const inactiveClass = "block text-white/80 hover:text-cyan-100";
 
-export default function AppSidebar({ brightness, onBrightnessChange }: AppSidebarProps) {
+export default function AppSidebar({ brightness, onBrightnessChange, onLogout }: AppSidebarProps) {
   const pathname = usePathname();
   const isDashboard = pathname === "/dashboard";
   const isMissionen = pathname.startsWith("/missionen");
@@ -47,7 +48,7 @@ export default function AppSidebar({ brightness, onBrightnessChange }: AppSideba
         <Link href="/impressum" className={pathname === "/impressum" ? activeClass : inactiveClass}>Impressum</Link>
         <Link href="/faq" className={pathname === "/faq" ? activeClass : inactiveClass}>FAQ</Link>
         <Link href="/hilfe" className={pathname === "/hilfe" ? activeClass : inactiveClass}>Hilfe</Link>
-        <button className="pt-3 text-[14px] font-bold text-red-400 hover:text-red-300">Abmelden</button>
+        <button type="button" onClick={onLogout} className="pt-3 text-[14px] font-bold text-red-400 hover:text-red-300">Abmelden</button>
       </div>
     </aside>
   );
