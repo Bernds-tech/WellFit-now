@@ -11,11 +11,13 @@ import AppSidebar from "@/app/AppSidebar";
 import { useSettingsActions } from "./hooks/useSettingsActions";
 
 import ProfileCard from "./components/ProfileCard";
-import VitalValuesCard from "./components/VitalValuesCard";
+import SecurityCard from "./components/SecurityCard";
 import BiometricsCard from "./components/BiometricsCard";
+import VitalValuesCard from "./components/VitalValuesCard";
+
 import NotificationsCard from "./components/NotificationsCard";
 import LifestyleCard from "./components/LifestyleCard";
-import SecurityCard from "./components/SecurityCard";
+
 import AiBuddyCard from "./components/AiBuddyCard";
 import PrivacyCard from "./components/PrivacyCard";
 import PermissionsCard from "./components/PermissionsCard";
@@ -518,28 +520,7 @@ export default function SettingsPage() {
 />
 
 <AccountManagementCard />
-            
-            
-            <div className={cardClass}>
-              <h2 className="mb-3 text-2xl font-bold text-red-400">
-                Account Verwaltung
-              </h2>
-              <p className="mb-3 text-sm text-white/70">
-                Aktionen in diesem Bereich können nicht rückgängig gemacht
-                werden.
-              </p>
-              <div className="space-y-3">
-                <button className="w-full rounded-lg border border-cyan-300/20 bg-[#0a3d46] px-4 py-3 text-sm font-bold text-white">
-                  Meine Daten anfordern (DSGVO)
-                </button>
-                <button className="w-full rounded-lg border border-cyan-300/20 bg-[#0a3d46] px-4 py-3 text-sm font-bold text-white">
-                  Logout auf allen Geräten
-                </button>
-                <button className="w-full rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-300">
-                  Account & Wallet unwiderruflich löschen
-                </button>
-              </div>
-            </div>
+      
           </div>
         </section>
       </div>
