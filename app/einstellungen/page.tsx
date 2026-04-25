@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import {
@@ -10,6 +8,8 @@ import {
   signOut,
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+
+import AppSidebar from "@/app/AppSidebar";
 
 import ToggleButton from "./components/ToggleButton";
 import SensitiveNotice from "./components/SensitiveNotice";
@@ -754,79 +754,11 @@ export default function SettingsPage() {
       }}
     >
       <div className="flex h-full">
-        <aside className="flex h-full w-[250px] flex-col border-r border-cyan-400/10 bg-[#042f35]/95 px-5 py-6">
-          <div className="mb-8 flex justify-center">
-            <Image
-              src="/logo.png"
-              alt="WellFit Logo"
-              width={150}
-              height={150}
-              className="object-contain"
-              priority
-            />
-          </div>
-          <nav className="space-y-2 text-[14px]">
-            <Link href="/dashboard" className="block text-white/80">
-              Dashboard
-            </Link>
-            <Link
-              href="/missionen/tagesmissionen"
-              className="block text-white/80"
-            >
-              Missionen
-            </Link>
-            <div className="text-white/80">Mein KI-Buddy</div>
-            <div className="text-white/80">Marktplatz</div>
-            <div className="text-white/80">Leaderboard</div>
-            <div className="text-white/80">Punkte-Shop</div>
-            <div className="text-white/80">Analytics & Stats</div>
-          </nav>
-          <div className="mt-5 border-t border-cyan-400/10 pt-4">
-            <div className="mb-2 whitespace-nowrap text-base font-bold text-green-400">
-              App aufs Handy laden
-            </div>
-            <label className="mb-1 block text-lg">Helligkeit</label>
-            <input
-              type="range"
-              min="5"
-              max="100"
-              value={brightness}
-              onChange={(e) => setBrightness(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="mt-1 text-right text-sm text-white/70">
-              {brightness}%
-            </div>
-          </div>
-          <div className="mt-auto pt-4">
-            <div className="space-y-2 text-[14px]">
-              <div className="block font-bold text-cyan-300">Einstellungen</div>
-              <Link href="/datenschutz" className="block text-white/80">
-                Datenschutz
-              </Link>
-              <Link href="/agb" className="block text-white/80">
-                AGB
-              </Link>
-              <Link href="/impressum" className="block text-white/80">
-                Impressum
-              </Link>
-              <Link href="/faq" className="block text-white/80">
-                FAQ
-              </Link>
-              <Link href="/hilfe" className="block text-white/80">
-                Hilfe
-              </Link>
-            </div>
-            <div className="mt-4 border-t border-cyan-400/10 pt-3">
-              <button
-                onClick={handleLogout}
-                className="text-[14px] font-bold text-red-400 hover:text-red-300"
-              >
-                Abmelden
-              </button>
-            </div>
-          </div>
-        </aside>
+        <AppSidebar
+          brightness={brightness}
+          onBrightnessChange={setBrightness}
+          onLogout={handleLogout}
+        />
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
           <header className="mb-4 flex items-start justify-between">
             <div>
