@@ -11,6 +11,7 @@ import AppSidebar from "@/app/AppSidebar";
 import { useSettingsActions } from "./hooks/useSettingsActions";
 import ProfileCard from "./components/ProfileCard";
 
+import SecurityCard from "./components/SecurityCard";
 import ToggleButton from "./components/ToggleButton";
 import SensitiveNotice from "./components/SensitiveNotice";
 import type {
@@ -421,6 +422,15 @@ export default function SettingsPage() {
   isLoadingUser={isLoadingUser}
   updateProfileField={updateProfileField}
   saveProfile={saveProfile}
+/>
+
+            <SecurityCard
+  email={profile.email}
+  securityMessage={securityMessage}
+  isLoadingUser={isLoadingUser}
+  isSendingPasswordReset={isSendingPasswordReset}
+  saveButtonClass={saveButtonClass}
+  sendSecurityPasswordReset={sendSecurityPasswordReset}
 />
             
             <div className={cardClass}>
