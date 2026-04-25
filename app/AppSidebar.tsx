@@ -2,13 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type AppSidebarProps = {
   brightness: number;
   onBrightnessChange: (value: number) => void;
 };
 
+const activeClass = "block font-bold text-orange-400";
+const inactiveClass = "block text-white/80 hover:text-cyan-100";
+
 export default function AppSidebar({ brightness, onBrightnessChange }: AppSidebarProps) {
+  const pathname = usePathname();
+  const isDashboard = pathname === "/dashboard";
+  const isMissionen = pathname.startsWith("/missionen");
+
   return (
     <aside className="flex h-full w-[250px] flex-col border-r border-cyan-400/10 bg-[#042f35]/95 px-5 py-6">
       <div className="mb-8 flex justify-center">
@@ -16,8 +24,8 @@ export default function AppSidebar({ brightness, onBrightnessChange }: AppSideba
       </div>
 
       <nav className="space-y-2 text-[14px]">
-        <Link href="/dashboard" className="block text-white/80">Dashboard</Link>
-        <div className="font-bold text-orange-400">Missionen</div>
+        <Link href="/dashboard" className={isDashboard ? activeClass : inactiveClass}>Dashboard</Link>
+        <Link href="/missionen/tagesmissionen" className={isMissionen ? activeClass : inactiveClass}>Missionen</Link>
         <div className="text-white/80">Mein KI-Buddy</div>
         <div className="text-white/80">Marktplatz</div>
         <div className="text-white/80">Leaderboard</div>
@@ -33,13 +41,13 @@ export default function AppSidebar({ brightness, onBrightnessChange }: AppSideba
       </div>
 
       <div className="mt-auto space-y-2 pt-4 text-[14px]">
-        <Link href="/einstellungen" className="block text-white/80">Einstellungen</Link>
-        <Link href="/datenschutz" className="block text-white/80">Datenschutz</Link>
-        <Link href="/agb" className="block text-white/80">AGB</Link>
-        <Link href="/impressum" className="block text-white/80">Impressum</Link>
-        <Link href="/faq" className="block text-white/80">FAQ</Link>
-        <Link href="/hilfe" className="block text-white/80">Hilfe</Link>
-        <button className="pt-3 text-[14px] font-bold text-red-400">Abmelden</button>
+        <Link href="/einstellungen" className={pathname === "/einstellungen" ? activeClass : inactiveClass}>Einstellungen</Link>
+        <Link href="/datenschutz" className={pathname === "/datenschutz" ? activeClass : inactiveClass}>Datenschutz</Link>
+        <Link href="/agb" className={pathname === "/agb" ? activeClass : inactiveClass}>AGB</Link>
+        <Link href="/impressum" className={pathname === "/impressum" ? activeClass : inactiveClass}>Impressum</Link>
+        <Link href="/faq" className={pathname === "/faq" ? activeClass : inactiveClass}>FAQ</Link>
+        <Link href="/hilfe" className={pathname === "/hilfe" ? activeClass : inactiveClass}>Hilfe</Link>
+        <button className="pt-3 text-[14px] font-bold text-red-400 hover:text-red-300">Abmelden</button>
       </div>
     </aside>
   );
