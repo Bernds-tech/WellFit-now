@@ -11,6 +11,8 @@ import AppSidebar from "@/app/AppSidebar";
 import { useSettingsActions } from "./hooks/useSettingsActions";
 import ProfileCard from "./components/ProfileCard";
 
+import BiometricsCard from "./components/BiometricsCard";
+
 import SecurityCard from "./components/SecurityCard";
 import ToggleButton from "./components/ToggleButton";
 import SensitiveNotice from "./components/SensitiveNotice";
@@ -414,7 +416,8 @@ export default function SettingsPage() {
             </button>
           </div>
           <div className="grid flex-1 grid-cols-3 gap-4 overflow-y-auto pr-2 pb-8 text-sm">
-            <ProfileCard
+
+<ProfileCard
   profile={profile}
   inputClass={inputClass}
   selectClass={selectClass}
@@ -424,7 +427,7 @@ export default function SettingsPage() {
   saveProfile={saveProfile}
 />
 
-            <SecurityCard
+<SecurityCard
   email={profile.email}
   securityMessage={securityMessage}
   isLoadingUser={isLoadingUser}
@@ -432,111 +435,20 @@ export default function SettingsPage() {
   saveButtonClass={saveButtonClass}
   sendSecurityPasswordReset={sendSecurityPasswordReset}
 />
+
+<BiometricsCard
+  biometrics={biometrics}
+  inputClass={inputClass}
+  selectClass={selectClass}
+  saveButtonClass={saveButtonClass}
+  isLoadingUser={isLoadingUser}
+  updateBiometricsField={updateBiometricsField}
+  saveBiometrics={saveBiometrics}
+  ToggleButton={ToggleButton}
+  toggleBase={toggleBase}
+/>
+
             
-            <div className={cardClass}>
-              <h2 className="mb-3 text-2xl font-bold text-cyan-300">
-                Biometrie & Körper
-              </h2>
-              <SensitiveNotice />
-              <div className="space-y-3">
-                <div className="grid grid-cols-[1fr_85px_35px_85px_28px] items-center gap-2">
-                  <label className="text-xs text-white/70">
-                    Größe & Gewicht
-                  </label>
-                  <input
-                    className={inputClass}
-                    value={biometrics.height}
-                    onChange={(e) =>
-                      updateBiometricsField("height", e.target.value)
-                    }
-                  />
-                  <span className="text-xs text-white/70">cm</span>
-                  <input
-                    className={inputClass}
-                    value={biometrics.weight}
-                    onChange={(e) =>
-                      updateBiometricsField("weight", e.target.value)
-                    }
-                  />
-                  <span className="text-xs text-white/70">kg</span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-cyan-300/10 bg-[#0a3d46] px-3 py-2">
-                  <span className="text-white/85">Zielgewicht anstreben</span>
-                  <ToggleButton
-                    enabled={biometrics.targetWeightEnabled}
-                    onClick={() =>
-                      updateBiometricsField(
-                        "targetWeightEnabled",
-                        !biometrics.targetWeightEnabled,
-                      )
-                    }
-                    toggleBase={toggleBase}
-                  />
-                </div>
-                <div className="grid grid-cols-[1fr_85px_28px] items-center gap-2">
-                  <label className="text-xs text-white/70">Zielgewicht</label>
-                  <input
-                    className={inputClass}
-                    value={biometrics.targetWeight}
-                    onChange={(e) =>
-                      updateBiometricsField("targetWeight", e.target.value)
-                    }
-                  />
-                  <span className="text-xs text-white/70">kg</span>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Körperbau
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={biometrics.bodyType}
-                    onChange={(e) =>
-                      updateBiometricsField("bodyType", e.target.value)
-                    }
-                  >
-                    <option>Schlank</option>
-                    <option>Normal</option>
-                    <option>Kräftig</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Fitnesslevel
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={biometrics.fitnessLevel}
-                    onChange={(e) =>
-                      updateBiometricsField("fitnessLevel", e.target.value)
-                    }
-                  >
-                    <option>Anfänger</option>
-                    <option>Fortgeschritten</option>
-                    <option>Aktiv</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-white/70">
-                    Einschränkungen / Verletzungen
-                  </label>
-                  <input
-                    className={inputClass}
-                    value={biometrics.limitations}
-                    onChange={(e) =>
-                      updateBiometricsField("limitations", e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-              <button
-                className={saveButtonClass}
-                onClick={saveBiometrics}
-                disabled={isLoadingUser}
-              >
-                Änderungen speichern
-              </button>
-            </div>
             <div className={cardClass}>
               <h2 className="mb-3 text-2xl font-bold text-cyan-300">
                 Benachrichtigungen
