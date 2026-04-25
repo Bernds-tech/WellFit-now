@@ -6,6 +6,7 @@ import AppSidebar from "@/app/AppSidebar";
 import { auth } from "@/lib/firebase";
 import { useDashboardUser } from "@/app/dashboard/hooks/useDashboardUser";
 import BuddyActions from "./components/BuddyActions";
+import BuddyCarePanel from "./components/BuddyCarePanel";
 import BuddyEvolution from "./components/BuddyEvolution";
 import BuddyFutureModules from "./components/BuddyFutureModules";
 import BuddyHero from "./components/BuddyHero";
@@ -62,6 +63,7 @@ export default function BuddyPage() {
           <div className="grid grid-cols-[1.25fr_0.75fr] gap-4">
             <div className="space-y-4">
               <BuddyStoryBox story={story} message={buddyMessage} />
+              <BuddyCarePanel buddy={buddy} />
               <BuddyFutureModules />
             </div>
             <div className="space-y-4">
