@@ -11,262 +11,40 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
-type PermissionKey =
-  | "location"
-  | "camera"
-  | "microphone"
-  | "backgroundTracking";
-
-type ProfileForm = {
-  displayName: string;
-  email: string;
-  phone: string;
-  language: string;
-  birthDate: string;
-  gender: string;
-  timezone: string;
-  units: string;
-};
-type BiometricsForm = {
-  height: string;
-  weight: string;
-  targetWeightEnabled: boolean;
-  targetWeight: string;
-  bodyType: string;
-  fitnessLevel: string;
-  limitations: string;
-};
-type NotificationsForm = {
-  missionReminder: boolean;
-  sleepReminder: boolean;
-  weeklyReport: boolean;
-  glitchAlert: boolean;
-};
-type VitalValuesForm = {
-  bodyFat: string;
-  restingPulse: string;
-  averagePulse: string;
-  bloodPressure: string;
-  sleepHours: string;
-  sleepQuality: string;
-  stressLevel: string;
-  energyLevel: string;
-  painLevel: string;
-  medicationNote: string;
-  healthNotes: string;
-};
-type AiBuddyForm = {
-  avatarType: string;
-  personality: string;
-  relationshipMode: string;
-  behaviorDynamics: string;
-  motivationStyle: string;
-  reactsToStress: boolean;
-  reactsToSleep: boolean;
-  reactsToActivity: boolean;
-  reactsToMood: boolean;
-};
-type LifestyleForm = {
-  nutrition: string;
-  mealRhythm: string;
-  drinkReminder: string;
-  drinkAmount: string;
-  caffeineIntake: string;
-  alcoholFrequency: string;
-  sleepRoutine: string;
-  natureMove: string;
-  stressCoping: string;
-  screenTime: string;
-  notes: string;
-};
-type ActivityForm = {
-  activityLevel: string;
-  trainingTime: string;
-  communityMode: string;
-  interests: string;
-  activities: string;
-  goals: string;
-  preferredMissionTypes: string;
-  socialPreference: string;
-  competitionMode: string;
-  notes: string;
-};
-type PrivacyForm = {
-  leaderboardVisible: boolean;
-  buddySharing: boolean;
-  anonymousAnalytics: boolean;
-  friendRequests: boolean;
-  teamInvitations: boolean;
-  localUsersVisible: boolean;
-  pvpAllowed: boolean;
-  profileVisibility: string;
-  healthDataUsage: string;
-  locationSharing: string;
-};
-
-const sensitiveDataNotice =
-  "Diese Angaben dienen nur zur Personalisierung deines KI-Buddys, damit er sich besser auf deine Verfassung einstellen kann, und ersetzen keine medizinische Beratung.";
-const defaultPermissions = {
-  location: false,
-  camera: true,
-  microphone: true,
-  backgroundTracking: true,
-};
-const defaultProfile: ProfileForm = {
-  displayName: "",
-  email: "",
-  phone: "",
-  language: "Deutsch",
-  birthDate: "",
-  gender: "Männlich",
-  timezone: "Europe/Vienna",
-  units: "kg / km",
-};
-const defaultBiometrics: BiometricsForm = {
-  height: "180",
-  weight: "82",
-  targetWeightEnabled: false,
-  targetWeight: "78",
-  bodyType: "Schlank",
-  fitnessLevel: "Anfänger",
-  limitations: "Keine",
-};
-const defaultNotifications: NotificationsForm = {
-  missionReminder: true,
-  sleepReminder: true,
-  weeklyReport: true,
-  glitchAlert: true,
-};
-const defaultVitalValues: VitalValuesForm = {
-  bodyFat: "",
-  restingPulse: "",
-  averagePulse: "",
-  bloodPressure: "",
-  sleepHours: "",
-  sleepQuality: "Mittel",
-  stressLevel: "Mittel",
-  energyLevel: "Mittel",
-  painLevel: "Keine",
-  medicationNote: "",
-  healthNotes: "",
-};
-const defaultAiBuddy: AiBuddyForm = {
-  avatarType: "Tierischer Begleiter",
-  personality: "Spielerisch & lustig",
-  relationshipMode: "Begleiter",
-  behaviorDynamics: "Adaptiv",
-  motivationStyle: "Ausgewogen",
-  reactsToStress: true,
-  reactsToSleep: true,
-  reactsToActivity: true,
-  reactsToMood: true,
-};
-const defaultLifestyle: LifestyleForm = {
-  nutrition: "Ausgewogen",
-  mealRhythm: "Regelmäßig",
-  drinkReminder: "Normal",
-  drinkAmount: "2.0",
-  caffeineIntake: "Mittel",
-  alcoholFrequency: "Selten",
-  sleepRoutine: "Unregelmäßig",
-  natureMove: "Gelegentlich",
-  stressCoping: "Spaziergang / Bewegung",
-  screenTime: "Mittel",
-  notes: "",
-};
-const defaultActivity: ActivityForm = {
-  activityLevel: "Gelegentlich aktiv",
-  trainingTime: "Abends",
-  communityMode: "Alleine & gelegentlich gemeinsam",
-  interests: "Fitness, Spazieren, Abenteuer",
-  activities: "Gehen, Radfahren, leichte Workouts",
-  goals: "Fitter werden, mehr Energie, gesünder leben",
-  preferredMissionTypes: "Bewegung, Alltag, Natur, Challenges",
-  socialPreference: "Freunde & kleine Gruppen",
-  competitionMode: "Locker",
-  notes: "",
-};
-const defaultPrivacy: PrivacyForm = {
-  leaderboardVisible: true,
-  buddySharing: false,
-  anonymousAnalytics: true,
-  friendRequests: true,
-  teamInvitations: true,
-  localUsersVisible: true,
-  pvpAllowed: true,
-  profileVisibility: "Freunde",
-  healthDataUsage: "Nur Personalisierung",
-  locationSharing: "Nie",
-};
-
-const genderToDisplay = (gender?: string) =>
-  gender === "female"
-    ? "Weiblich"
-    : gender === "diverse"
-      ? "Divers"
-      : "Männlich";
-const genderToStorage = (gender: string) =>
-  gender === "Weiblich" ? "female" : gender === "Divers" ? "diverse" : "male";
-const bodyTypeToDisplay = (bodyType?: string) =>
-  bodyType === "athletic"
-    ? "Normal"
-    : bodyType === "strong"
-      ? "Kräftig"
-      : "Schlank";
-const bodyTypeToStorage = (bodyType: string) =>
-  bodyType === "Normal"
-    ? "athletic"
-    : bodyType === "Kräftig"
-      ? "strong"
-      : "slim";
-const fitnessLevelToDisplay = (fitnessLevel?: string) =>
-  fitnessLevel === "medium"
-    ? "Fortgeschritten"
-    : fitnessLevel === "pro"
-      ? "Aktiv"
-      : "Anfänger";
-const fitnessLevelToStorage = (fitnessLevel: string) =>
-  fitnessLevel === "Fortgeschritten"
-    ? "medium"
-    : fitnessLevel === "Aktiv"
-      ? "pro"
-      : "beginner";
-const arrayToText = (value: unknown, fallback = "") =>
-  Array.isArray(value)
-    ? value.join(", ")
-    : typeof value === "string"
-      ? value
-      : fallback;
-const textToArray = (value: string) =>
-  value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-const ToggleButton = ({
-  enabled,
-  onClick,
-  toggleBase,
-}: {
-  enabled: boolean;
-  onClick: () => void;
-  toggleBase: string;
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={`${toggleBase} ${enabled ? "bg-cyan-400" : "bg-white/20"}`}
-  >
-    <span
-      className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${enabled ? "translate-x-7" : "translate-x-1"}`}
-    />
-  </button>
-);
-const SensitiveNotice = () => (
-  <p className="mb-3 rounded-lg border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 text-xs text-yellow-100">
-    {sensitiveDataNotice}
-  </p>
-);
+import ToggleButton from "./components/ToggleButton";
+import SensitiveNotice from "./components/SensitiveNotice";
+import type {
+  PermissionKey,
+  ProfileForm,
+  BiometricsForm,
+  NotificationsForm,
+  VitalValuesForm,
+  AiBuddyForm,
+  LifestyleForm,
+  ActivityForm,
+  PrivacyForm,
+} from "./types";
+import {
+  defaultPermissions,
+  defaultProfile,
+  defaultBiometrics,
+  defaultNotifications,
+  defaultVitalValues,
+  defaultAiBuddy,
+  defaultLifestyle,
+  defaultActivity,
+  defaultPrivacy,
+} from "./lib/settingsDefaults";
+import {
+  genderToDisplay,
+  genderToStorage,
+  bodyTypeToDisplay,
+  bodyTypeToStorage,
+  fitnessLevelToDisplay,
+  fitnessLevelToStorage,
+  arrayToText,
+  textToArray,
+} from "./lib/settingsMappers";
 
 export default function SettingsPage() {
   const [brightness, setBrightness] = useState(100);
