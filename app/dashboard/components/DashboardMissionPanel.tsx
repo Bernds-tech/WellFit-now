@@ -3,9 +3,10 @@ import type { PersonalMission } from "../types";
 type Props = {
   mission: PersonalMission;
   stepsToday: number;
+  onStartMission?: () => void;
 };
 
-export default function DashboardMissionPanel({ mission, stepsToday }: Props) {
+export default function DashboardMissionPanel({ mission, stepsToday, onStartMission }: Props) {
   const progress = Math.min(100, Math.round((stepsToday / mission.steps) * 100));
 
   return (
@@ -31,7 +32,10 @@ export default function DashboardMissionPanel({ mission, stepsToday }: Props) {
 
       <div className="flex items-center justify-between">
         <span className="text-sm text-green-300">+{mission.reward} Punkte</span>
-        <button className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-bold hover:bg-orange-400">
+        <button
+          onClick={onStartMission}
+          className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-bold hover:bg-orange-400"
+        >
           Mission starten
         </button>
       </div>
