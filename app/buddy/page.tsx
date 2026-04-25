@@ -11,6 +11,8 @@ import BuddyEvolution from "./components/BuddyEvolution";
 import BuddyFutureModules from "./components/BuddyFutureModules";
 import BuddyHero from "./components/BuddyHero";
 import BuddyHomePanel from "./components/BuddyHomePanel";
+import BuddyInventoryPreview from "./components/BuddyInventoryPreview";
+import BuddyRecoveryPanel from "./components/BuddyRecoveryPanel";
 import BuddyStats from "./components/BuddyStats";
 import BuddyStoryBox from "./components/BuddyStoryBox";
 import { getBuddyStory } from "./lib/buddyCopy";
@@ -64,6 +66,8 @@ export default function BuddyPage() {
             <div className="space-y-4">
               <BuddyStoryBox story={story} message={buddyMessage} />
               <BuddyCarePanel buddy={buddy} />
+              <BuddyRecoveryPanel buddy={buddy} />
+              <BuddyInventoryPreview />
               <BuddyFutureModules />
             </div>
             <div className="space-y-4">
