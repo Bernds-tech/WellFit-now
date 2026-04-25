@@ -2,60 +2,53 @@
 
 import { useState } from "react";
 import { auth, db } from "@/lib/firebase";
-import { sendPasswordResetEmail, signOut } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
-import SettingsHeader from "./components/SettingsHeader";
-import { useSettingsData } from "./hooks/useSettingsData";
 import AppSidebar from "@/app/AppSidebar";
-import { useSettingsActions } from "./hooks/useSettingsActions";
-
-import ProfileCard from "./components/ProfileCard";
-import SecurityCard from "./components/SecurityCard";
-import BiometricsCard from "./components/BiometricsCard";
-import NotificationsCard from "./components/NotificationsCard";
-import VitalValuesCard from "./components/VitalValuesCard";
-import LifestyleCard from "./components/LifestyleCard";
+import AccountManagementCard from "./components/AccountManagementCard";
 import ActivityCard from "./components/ActivityCard";
 import AiBuddyCard from "./components/AiBuddyCard";
-import PrivacyCard from "./components/PrivacyCard";
+import BiometricsCard from "./components/BiometricsCard";
+import LifestyleCard from "./components/LifestyleCard";
+import NotificationsCard from "./components/NotificationsCard";
 import PermissionsCard from "./components/PermissionsCard";
-import AccountManagementCard from "./components/AccountManagementCard";
-
+import PrivacyCard from "./components/PrivacyCard";
+import ProfileCard from "./components/ProfileCard";
+import SecurityCard from "./components/SecurityCard";
+import SettingsHeader from "./components/SettingsHeader";
 import ToggleButton from "./components/ToggleButton";
-import SensitiveNotice from "./components/SensitiveNotice";
-import type {
-  PermissionKey,
-  ProfileForm,
-  BiometricsForm,
-  NotificationsForm,
-  VitalValuesForm,
-  AiBuddyForm,
-  LifestyleForm,
-  ActivityForm,
-  PrivacyForm,
-} from "./types";
+import VitalValuesCard from "./components/VitalValuesCard";
+import { useSettingsActions } from "./hooks/useSettingsActions";
+import { useSettingsData } from "./hooks/useSettingsData";
 import {
-  defaultPermissions,
-  defaultProfile,
-  defaultBiometrics,
-  defaultNotifications,
-  defaultVitalValues,
-  defaultAiBuddy,
-  defaultLifestyle,
   defaultActivity,
+  defaultAiBuddy,
+  defaultBiometrics,
+  defaultLifestyle,
+  defaultNotifications,
+  defaultPermissions,
   defaultPrivacy,
+  defaultProfile,
+  defaultVitalValues,
 } from "./lib/settingsDefaults";
 import {
-  genderToDisplay,
-  genderToStorage,
-  bodyTypeToDisplay,
   bodyTypeToStorage,
-  fitnessLevelToDisplay,
   fitnessLevelToStorage,
-  arrayToText,
+  genderToStorage,
   textToArray,
 } from "./lib/settingsMappers";
+import type {
+  ActivityForm,
+  AiBuddyForm,
+  BiometricsForm,
+  LifestyleForm,
+  NotificationsForm,
+  PermissionKey,
+  PrivacyForm,
+  ProfileForm,
+  VitalValuesForm,
+} from "./types";
 
 export default function SettingsPage() {
   const [brightness, setBrightness] = useState(100);
@@ -77,15 +70,13 @@ export default function SettingsPage() {
   const [activity, setActivity] = useState<ActivityForm>(defaultActivity);
   const [privacy, setPrivacy] = useState<PrivacyForm>(defaultPrivacy);
 
-  const {
-  handleLogout,
-} = useSettingsActions({
-  userId,
-  setSaveMessage,
-  setSecurityMessage,
-  setIsSendingPasswordReset,
-  setPermissions,
-});
+  const { handleLogout } = useSettingsActions({
+    userId,
+    setSaveMessage,
+    setSecurityMessage,
+    setIsSendingPasswordReset,
+    setPermissions,
+  });
 
   useSettingsData({
     setUserId,
@@ -104,38 +95,47 @@ export default function SettingsPage() {
 
   const updateProfileField = (key: keyof ProfileForm, value: string) =>
     setProfile((prev) => ({ ...prev, [key]: value }));
+
   const updateBiometricsField = (
     key: keyof BiometricsForm,
     value: string | boolean,
   ) => setBiometrics((prev) => ({ ...prev, [key]: value }));
+
   const updateNotificationField = (
     key: keyof NotificationsForm,
     value: boolean,
   ) => setNotifications((prev) => ({ ...prev, [key]: value }));
+
   const updateVitalValuesField = (key: keyof VitalValuesForm, value: string) =>
     setVitalValues((prev) => ({ ...prev, [key]: value }));
+
   const updateAiBuddyField = (
     key: keyof AiBuddyForm,
     value: string | boolean,
   ) => setAiBuddy((prev) => ({ ...prev, [key]: value }));
+
   const updateLifestyleField = (key: keyof LifestyleForm, value: string) =>
     setLifestyle((prev) => ({ ...prev, [key]: value }));
+
   const updateActivityField = (key: keyof ActivityForm, value: string) =>
     setActivity((prev) => ({ ...prev, [key]: value }));
+
   const updatePrivacyField = (
     key: keyof PrivacyForm,
     value: string | boolean,
   ) => setPrivacy((prev) => ({ ...prev, [key]: value }));
 
-    const saveProfile = async () => {
+  const saveProfile = async () => {
     if (!userId) {
       setSaveMessage("Bitte melde dich an, um dein Profil zu speichern.");
       return;
     }
+
     try {
       const [firstName, ...lastNameParts] = profile.displayName
         .trim()
         .split(" ");
+
       await setDoc(
         doc(db, "users", userId),
         {
@@ -161,17 +161,20 @@ export default function SettingsPage() {
         },
         { merge: true },
       );
+
       setSaveMessage("Profil & Account gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern des Profils", error);
       setSaveMessage("Profil konnte nicht gespeichert werden.");
     }
   };
+
   const saveBiometrics = async () => {
     if (!userId) {
       setSaveMessage("Bitte melde dich an, um Körperdaten zu speichern.");
       return;
     }
+
     try {
       await setDoc(
         doc(db, "users", userId),
@@ -189,12 +192,14 @@ export default function SettingsPage() {
         },
         { merge: true },
       );
+
       setSaveMessage("Biometrie & Körper gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern der Körperdaten", error);
       setSaveMessage("Körperdaten konnten nicht gespeichert werden.");
     }
   };
+
   const saveNotifications = async () => {
     if (!userId) {
       setSaveMessage(
@@ -202,6 +207,7 @@ export default function SettingsPage() {
       );
       return;
     }
+
     try {
       await setDoc(
         doc(db, "users", userId),
@@ -211,17 +217,20 @@ export default function SettingsPage() {
         },
         { merge: true },
       );
+
       setSaveMessage("Benachrichtigungen gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern der Benachrichtigungen", error);
       setSaveMessage("Benachrichtigungen konnten nicht gespeichert werden.");
     }
   };
+
   const saveVitalValues = async () => {
     if (!userId) {
       setSaveMessage("Bitte melde dich an, um Vitalwerte zu speichern.");
       return;
     }
+
     try {
       await setDoc(
         doc(db, "users", userId),
@@ -231,29 +240,34 @@ export default function SettingsPage() {
         },
         { merge: true },
       );
+
       setSaveMessage("Erweiterte Vitalwerte gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern der Vitalwerte", error);
       setSaveMessage("Vitalwerte konnten nicht gespeichert werden.");
     }
   };
+
   const saveAiBuddy = async () => {
     if (!userId) {
       setSaveMessage("Bitte melde dich an, um deinen KI-Buddy zu speichern.");
       return;
     }
+
     try {
       await setDoc(
         doc(db, "users", userId),
         { profile: { aiBuddy }, updatedAt: new Date().toISOString() },
         { merge: true },
       );
+
       setSaveMessage("KI-Buddy & Avatar-Verhalten gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern des KI-Buddys", error);
       setSaveMessage("KI-Buddy konnte nicht gespeichert werden.");
     }
   };
+
   const saveLifestyle = async () => {
     if (!userId) {
       setSaveMessage(
@@ -261,6 +275,7 @@ export default function SettingsPage() {
       );
       return;
     }
+
     try {
       await setDoc(
         doc(db, "users", userId),
@@ -279,12 +294,14 @@ export default function SettingsPage() {
         },
         { merge: true },
       );
+
       setSaveMessage("Lebensstil & Ernährung gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern von Lebensstil & Ernährung", error);
       setSaveMessage("Lebensstil & Ernährung konnte nicht gespeichert werden.");
     }
   };
+
   const saveActivity = async () => {
     if (!userId) {
       setSaveMessage(
@@ -292,6 +309,7 @@ export default function SettingsPage() {
       );
       return;
     }
+
     try {
       const activityPayload = {
         ...activity,
@@ -300,6 +318,7 @@ export default function SettingsPage() {
         goals: textToArray(activity.goals),
         preferredMissionTypes: textToArray(activity.preferredMissionTypes),
       };
+
       await setDoc(
         doc(db, "users", userId),
         {
@@ -316,6 +335,7 @@ export default function SettingsPage() {
         },
         { merge: true },
       );
+
       setSaveMessage("Aktivität & Interessen gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern von Aktivität & Interessen", error);
@@ -324,28 +344,33 @@ export default function SettingsPage() {
       );
     }
   };
+
   const savePrivacy = async () => {
     if (!userId) {
       setSaveMessage("Bitte melde dich an, um Privatsphäre zu speichern.");
       return;
     }
+
     try {
       await setDoc(
         doc(db, "users", userId),
         { settings: { privacy }, updatedAt: new Date().toISOString() },
         { merge: true },
       );
+
       setSaveMessage("Privatsphäre gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern der Privatsphäre", error);
       setSaveMessage("Privatsphäre konnte nicht gespeichert werden.");
     }
   };
+
   const sendSecurityPasswordReset = async () => {
     if (!profile.email) {
       setSecurityMessage("Keine E-Mail-Adresse für diesen Account gefunden.");
       return;
     }
+
     try {
       setIsSendingPasswordReset(true);
       setSecurityMessage("Passwort-Link wird gesendet...");
@@ -363,11 +388,13 @@ export default function SettingsPage() {
       setIsSendingPasswordReset(false);
     }
   };
+
   const savePermissions = async (updatedPermissions = permissions) => {
     if (!userId) {
       setSaveMessage("Bitte melde dich an, um Berechtigungen zu speichern.");
       return;
     }
+
     try {
       await setDoc(
         doc(db, "users", userId),
@@ -377,20 +404,20 @@ export default function SettingsPage() {
         },
         { merge: true },
       );
+
       setSaveMessage("App-Berechtigungen gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern der Berechtigungen", error);
       setSaveMessage("Berechtigungen konnten nicht gespeichert werden.");
     }
   };
+
   const updatePermission = (key: PermissionKey, value: boolean) => {
     const updated = { ...permissions, [key]: value };
     setPermissions(updated);
     localStorage.setItem("wellfit-permissions", JSON.stringify(updated));
   };
 
-  const cardClass =
-    "rounded-[22px] bg-[#053841]/85 p-4 shadow-[0_8px_22px_rgba(0,0,0,0.12)]";
   const inputClass =
     "w-full rounded-lg border border-cyan-300/10 bg-[#0a3d46] px-3 py-2 text-sm text-white outline-none placeholder:text-white/35";
   const selectClass =
@@ -418,117 +445,118 @@ export default function SettingsPage() {
             isLoadingUser={isLoadingUser}
             saveMessage={saveMessage}
           />
+
           <div className="mt-2 flex justify-end">
             <button className="rounded-lg border border-cyan-300/20 bg-[#0a3d46] px-4 py-2 text-sm font-semibold text-cyan-100 hover:bg-[#0d4b56]">
               Generationen-Tandem
             </button>
           </div>
+
           <div className="grid flex-1 grid-cols-3 gap-4 overflow-y-auto pr-2 pb-8 text-sm">
+            <ProfileCard
+              profile={profile}
+              inputClass={inputClass}
+              selectClass={selectClass}
+              saveButtonClass={saveButtonClass}
+              isLoadingUser={isLoadingUser}
+              updateProfileField={updateProfileField}
+              saveProfile={saveProfile}
+            />
 
-<ProfileCard
-  profile={profile}
-  inputClass={inputClass}
-  selectClass={selectClass}
-  saveButtonClass={saveButtonClass}
-  isLoadingUser={isLoadingUser}
-  updateProfileField={updateProfileField}
-  saveProfile={saveProfile}
-/>
+            <SecurityCard
+              email={profile.email}
+              securityMessage={securityMessage}
+              isLoadingUser={isLoadingUser}
+              isSendingPasswordReset={isSendingPasswordReset}
+              saveButtonClass={saveButtonClass}
+              sendSecurityPasswordReset={sendSecurityPasswordReset}
+            />
 
-<SecurityCard
-  email={profile.email}
-  securityMessage={securityMessage}
-  isLoadingUser={isLoadingUser}
-  isSendingPasswordReset={isSendingPasswordReset}
-  saveButtonClass={saveButtonClass}
-  sendSecurityPasswordReset={sendSecurityPasswordReset}
-/>
+            <BiometricsCard
+              biometrics={biometrics}
+              inputClass={inputClass}
+              selectClass={selectClass}
+              saveButtonClass={saveButtonClass}
+              isLoadingUser={isLoadingUser}
+              updateBiometricsField={updateBiometricsField}
+              saveBiometrics={saveBiometrics}
+              ToggleButton={ToggleButton}
+              toggleBase={toggleBase}
+            />
 
-<BiometricsCard
-  biometrics={biometrics}
-  inputClass={inputClass}
-  selectClass={selectClass}
-  saveButtonClass={saveButtonClass}
-  isLoadingUser={isLoadingUser}
-  updateBiometricsField={updateBiometricsField}
-  saveBiometrics={saveBiometrics}
-  ToggleButton={ToggleButton}
-  toggleBase={toggleBase}
-/>
+            <NotificationsCard
+              notifications={notifications}
+              saveButtonClass={saveButtonClass}
+              isLoadingUser={isLoadingUser}
+              updateNotificationField={updateNotificationField}
+              saveNotifications={saveNotifications}
+              ToggleButton={ToggleButton}
+              toggleBase={toggleBase}
+            />
 
-<NotificationsCard
-  notifications={notifications}
-  saveButtonClass={saveButtonClass}
-  isLoadingUser={isLoadingUser}
-  updateNotificationField={updateNotificationField}
-  saveNotifications={saveNotifications}
-  ToggleButton={ToggleButton}
-  toggleBase={toggleBase}
-/>
+            <VitalValuesCard
+              vitalValues={vitalValues}
+              inputClass={inputClass}
+              selectClass={selectClass}
+              saveButtonClass={saveButtonClass}
+              isLoadingUser={isLoadingUser}
+              updateVitalValuesField={updateVitalValuesField}
+              saveVitalValues={saveVitalValues}
+            />
 
-<VitalValuesCard
-  vitalValues={vitalValues}
-  inputClass={inputClass}
-  selectClass={selectClass}
-  saveButtonClass={saveButtonClass}
-  isLoadingUser={isLoadingUser}
-  updateVitalValuesField={updateVitalValuesField}
-  saveVitalValues={saveVitalValues}
-/>
+            <LifestyleCard
+              lifestyle={lifestyle}
+              inputClass={inputClass}
+              selectClass={selectClass}
+              saveButtonClass={saveButtonClass}
+              isLoadingUser={isLoadingUser}
+              updateLifestyleField={updateLifestyleField}
+              saveLifestyle={saveLifestyle}
+            />
 
-<LifestyleCard
-  lifestyle={lifestyle}
-  inputClass={inputClass}
-  selectClass={selectClass}
-  saveButtonClass={saveButtonClass}
-  isLoadingUser={isLoadingUser}
-  updateLifestyleField={updateLifestyleField}
-  saveLifestyle={saveLifestyle}
-/>
+            <ActivityCard
+              activity={activity}
+              inputClass={inputClass}
+              selectClass={selectClass}
+              saveButtonClass={saveButtonClass}
+              isLoadingUser={isLoadingUser}
+              updateActivityField={updateActivityField}
+              saveActivity={saveActivity}
+            />
 
-<ActivityCard
-  activity={activity}
-  inputClass={inputClass}
-  selectClass={selectClass}
-  saveButtonClass={saveButtonClass}
-  isLoadingUser={isLoadingUser}
-  updateActivityField={updateActivityField}
-  saveActivity={saveActivity}
-/>
+            <AiBuddyCard
+              aiBuddy={aiBuddy}
+              selectClass={selectClass}
+              saveButtonClass={saveButtonClass}
+              isLoadingUser={isLoadingUser}
+              updateAiBuddyField={updateAiBuddyField}
+              saveAiBuddy={saveAiBuddy}
+              ToggleButton={ToggleButton}
+              toggleBase={toggleBase}
+            />
 
-<AiBuddyCard
-  aiBuddy={aiBuddy}
-  selectClass={selectClass}
-  saveButtonClass={saveButtonClass}
-  isLoadingUser={isLoadingUser}
-  updateAiBuddyField={updateAiBuddyField}
-  saveAiBuddy={saveAiBuddy}
-  ToggleButton={ToggleButton}
-  toggleBase={toggleBase}
-/>
+            <PrivacyCard
+              privacy={privacy}
+              selectClass={selectClass}
+              saveButtonClass={saveButtonClass}
+              isLoadingUser={isLoadingUser}
+              updatePrivacyField={updatePrivacyField}
+              savePrivacy={savePrivacy}
+              ToggleButton={ToggleButton}
+              toggleBase={toggleBase}
+            />
 
-<PrivacyCard
-  privacy={privacy}
-  selectClass={selectClass}
-  saveButtonClass={saveButtonClass}
-  isLoadingUser={isLoadingUser}
-  updatePrivacyField={updatePrivacyField}
-  savePrivacy={savePrivacy}
-  ToggleButton={ToggleButton}
-  toggleBase={toggleBase}
-/>
+            <PermissionsCard
+              permissions={permissions}
+              selectClass={selectClass}
+              saveButtonClass={saveButtonClass}
+              isLoadingUser={isLoadingUser}
+              updatePermission={updatePermission}
+              savePermissions={() => savePermissions()}
+              toggleBase={toggleBase}
+            />
 
-<PermissionsCard
-  permissions={permissions}
-  selectClass={selectClass}
-  saveButtonClass={saveButtonClass}
-  isLoadingUser={isLoadingUser}
-  updatePermission={updatePermission}
-  savePermissions={() => savePermissions()}
-  toggleBase={toggleBase}
-/>
-
-<AccountManagementCard />      
+            <AccountManagementCard />
           </div>
         </section>
       </div>
