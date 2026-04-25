@@ -1,11 +1,11 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.0 – NEW MERGED MASTER ROADMAP / AUTH-REGISTER-DEPLOYMENT / REFACTOR-FIRST / AR-FIRST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
 
 WICHTIGER HINWEIS:
-Diese Version führt die bisherige Master-Roadmap 2.8, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
 Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
 
 ============================================================
@@ -168,6 +168,7 @@ C. STRATEGISCHE GRUNDENTSCHEIDUNGEN
 [x] Keine echte Token-Ausschüttung vor Testphase mit ca. 2.000–3.000 Testern.
 [x] Aktuell alles über interne Punkte und XP abbilden.
 [x] Punkte-System so halten, dass Token/WFT später austauschbar oder ergänzbar sind.
+[x] Dashboard-Produktmodule Mein KI-Buddy, Marktplatz, Leaderboard, Punkte-Shop sowie Analytics & Stats werden vor weiterem Missionsausbau priorisiert.
 
 ============================================================
 D. VERBINDLICHE REIHENFOLGE
@@ -202,18 +203,27 @@ OFFEN:
 [ ] Types ggf. in types.ts auslagern.
 [ ] Hooks ggf. weiter teilen: persistence, level, streak, reward.
 
-[ ] WF-REFACTOR-002 – Dashboard modularisieren
+[x] WF-REFACTOR-002 – Dashboard modularisieren
+STATUS: [x] Fertig / Basis abgeschlossen
 ZIEL:
 Dashboard wie Tagesmissionen in kleinere Dateien aufteilen.
-UMSETZUNG:
-[ ] Dashboard Header auslagern.
-[ ] Avatar-/User-Karte auslagern.
-[ ] Fortschritts-/Punktekarte auslagern.
-[ ] Firebase-/Realtime-Logik in Hook auslagern.
-[ ] Dashboard Types auslagern.
+ERLEDIGT:
+[x] Dashboard Header ausgelagert.
+[x] Mission Panel ausgelagert.
+[x] Avatar-/User-Karte ausgelagert.
+[x] Fortschritts-/Punktekarte ausgelagert.
+[x] Dashboard Cards in einzelne Card-Komponenten zerlegt.
+[x] Firebase-/Realtime-Logik in useDashboardUser ausgelagert.
+[x] Dashboard Actions in useDashboardActions ausgelagert.
+[x] Dashboard Types in app/dashboard/types.ts ausgelagert.
+[x] Dashboard User Helper in app/dashboard/lib/dashboardUser.ts ausgelagert.
 AKZEPTANZKRITERIEN:
-[ ] Dashboard page.tsx ist deutlich kleiner und übersichtlich.
-[ ] Keine Firebase-Logik direkt tief im JSX.
+[x] Dashboard page.tsx ist deutlich kleiner und übersichtlich.
+[x] Keine Firebase-Logik direkt tief im JSX.
+OFFEN / NACHLAUF:
+[ ] Build nach Roadmap-/Refactor-Push kontrollieren.
+[ ] Dashboard Mobile-Layout manuell prüfen.
+[ ] Clientseitige Punkte-/Fortschrittslogik später backendseitig absichern.
 
 [ ] WF-REFACTOR-003 – Einstellungen modularisieren.
 [ ] WF-REFACTOR-004 – Wochenmissionen modularisieren.
@@ -232,7 +242,81 @@ OFFEN:
 [ ] Footer als eigene zentrale Komponente finalisieren.
 [ ] Header/Sidebar/Footer auf allen eingeloggten Seiten konsistent halten.
 
-PHASE 2 – STABILISIERUNG NACH REFACTOR
+PHASE 1.5 – DASHBOARD ALS PRODUKTZENTRALE FERTIGSTELLEN, VOR WEITEREM MISSIONS-AUSBAU
+
+[~] WF-DASH-NEXT-000 – Dashboard-Produktmodule vor Missionen
+ZIEL:
+Bevor Tagesmissionen, Wochenmissionen, Abenteuer, Challenge und Wettkämpfe inhaltlich weiter ausgebaut werden, werden die zentralen Dashboard-Module als Produktzentrale vorbereitet.
+GRUND:
+Dashboard ist der tägliche Einstiegspunkt. Mein KI-Buddy, Marktplatz, Leaderboard, Punkte-Shop und Analytics & Stats sind Kernbereiche für Avatar-Bindung, Economy, Progression, Motivation und spätere Monetarisierung.
+AKZEPTANZKRITERIEN:
+[ ] Dashboard zeigt konsistente Einstiege zu allen fünf Modulen.
+[ ] Keine neuen produktkritischen Economy-Funktionen werden rein clientseitig autorisiert.
+[ ] Punkte, Shop-Käufe, Marketplace-Transaktionen und Leaderboard-Wertungen werden später backend-/regelbasiert vorbereitet.
+[ ] Module bleiben MVP-tauglich, aber architektonisch erweiterbar.
+
+[ ] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul ausbauen
+ZIEL:
+Mein KI-Buddy als eigene Dashboard-nahe Detailansicht oder starke Dashboard-Sektion ausbauen.
+UMSETZUNG:
+[ ] Aktuellen Buddy aus Userdaten laden.
+[ ] Buddy-Level, Energie, Hunger, Stimmung und Entwicklung anzeigen.
+[ ] Buddy-Zustände ethisch formulieren: motivierend, nicht beschämend.
+[ ] Buddy-Aktionen wie Füttern/Pflegen nur als MVP-Punkteaktion, später serverseitig absichern.
+[ ] Vorbereitung für Avatar-Entwicklung, Inventory, Skins und spätere KI-Personalisierung.
+[ ] Mobile-Layout prüfen.
+SICHERHEIT:
+[!] Keine endgültige clientseitige Autorität für Level, Punkte, Pflege, Rewards oder Inventory.
+
+[ ] WF-MARKET-001 – Marktplatz MVP vorbereiten
+ZIEL:
+Marktplatz als späteren Ort für digitale Items, Skins, Avatar-Upgrades, Partnerinhalte und AR-Erlebnisse vorbereiten.
+UMSETZUNG:
+[ ] Marktplatz-Seite oder Dashboard-Modul prüfen/erstellen.
+[ ] Kategorien definieren: Skins, Items, Booster, AR-Erlebnisse, Partnerinhalte.
+[ ] Nur Mock-/MVP-Daten oder Firestore-read-only Produkte verwenden.
+[ ] Kauf-Buttons zunächst als vorbereitet/deaktiviert oder sichere Punkte-MVP-Aktion kennzeichnen.
+[ ] Keine echte Token-, Presale-, Wallet- oder Krypto-Handelsfunktion in App-Store-kritischen Bereichen.
+SICHERHEIT:
+[!] Marketplace-Transaktionen später nur serverseitig/regelbasiert bzw. über geprüfte Payment-/Contract-Logik.
+
+[ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten
+ZIEL:
+Leaderboard als Motivations- und Vergleichsmodul aufbauen, ohne unfaire oder manipulierbare Wertungen.
+UMSETZUNG:
+[ ] Leaderboard-Seite oder Dashboard-Modul prüfen/erstellen.
+[ ] Metriken definieren: XP, Level, Streak, abgeschlossene Missionen, Buddy-Level.
+[ ] Datenschutzfreundliche Anzeige: Nickname/Avatar statt sensibler Klardaten.
+[ ] Alters-/Familien-/Schulmodus später berücksichtigen.
+[ ] Manipulationsrisiko markieren: Wertungen später nur aus validierten Events.
+SICHERHEIT:
+[!] Keine clientseitig erzeugten Leaderboard-Scores als endgültige Wahrheit verwenden.
+
+[ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten
+ZIEL:
+Punkte-Shop für interne Punkte und spätere WFT-Kompatibilität vorbereiten.
+UMSETZUNG:
+[ ] Shop-Seite oder Dashboard-Modul prüfen/erstellen.
+[ ] Shop-Kategorien definieren: Buddy-Futter, kosmetische Items, kleine Booster, AR-Tickets später.
+[ ] Interne Punkte als aktuelle MVP-Währung verwenden.
+[ ] Preise zentral konfigurierbar halten.
+[ ] Keine echte Token-Ausschüttung und kein echter Krypto-Kauf.
+SICHERHEIT:
+[!] Punkte-Abzug und Item-Vergabe später serverseitig absichern.
+
+[ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten
+ZIEL:
+Nutzerfreundliche Statistikseite für persönlichen Fortschritt, Motivation und Selbstwirksamkeit schaffen.
+UMSETZUNG:
+[ ] Analytics-/Stats-Seite oder Dashboard-Modul prüfen/erstellen.
+[ ] Werte definieren: XP, Punkte, Streak, Missionen, Aktivität, Buddy-Entwicklung.
+[ ] Keine medizinischen Diagnosen oder Heilversprechen anzeigen.
+[ ] Positive, neutrale Sprache verwenden.
+[ ] Später Trends über Wochen/Monate und KI-Empfehlungen vorbereiten.
+DATENSCHUTZ:
+[!] Gesundheits-, Tracking- und Sensordaten nur mit Consent und Datenminimierung.
+
+PHASE 2 – STABILISIERUNG NACH REFACTOR UND DASHBOARD-PRODUKTMODULEN
 [ ] WF-QA-001 – Build und UI nach Refactor testen.
 [ ] WF-DOC-001 – README, Setup, Deployment und Entwicklerübergabe finalisieren.
 [ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
@@ -288,12 +372,16 @@ PHASE 7 – MISSIONEN ZULETZT WEITER AUSBAUEN
 [>] WF-MISS-FUTURE-005 – Wettkämpfe inhaltlich auf AR-/Avatar-/PvP-Logik umbauen.
 [>] WF-MISS-FUTURE-006 – 10 finale hochwertige Tagesmissionen erst nach AR-Regeln ersetzen.
 [>] WF-MISS-FUTURE-007 – Punktewerte final balancen erst nach AR-/Avatar-/Reward-Modell.
+[>] Missionen werden erst nach Dashboard-Produktmodulen, Sicherheitsgrundlagen und Datenmodell-Stabilisierung weiter inhaltlich ausgebaut.
 
 ============================================================
 E. AKTUELLER UMSETZUNGSSTAND / VORHANDEN
 ============================================================
 
 [x] Dashboard existiert.
+[x] Dashboard ist modularisiert: Header, MissionPanel, AvatarPanel, Cards, Hooks, Types und Helper sind getrennt.
+[x] Dashboard Cards sind in einzelne Komponenten unter app/dashboard/components/cards/ zerlegt.
+[x] Dashboard page.tsx ist deutlich kleiner und enthält keine tief eingebettete Firebase-Realtime-Logik mehr.
 [x] Einstellungen existieren.
 [x] Hilfe-Seite existiert.
 [x] Tagesmissionen existieren.
@@ -539,14 +627,26 @@ J. NÄCHSTE EMPFOHLENE ARBEIT
 ============================================================
 
 PRIO 1:
-[ ] WF-REFACTOR-002 – Dashboard modularisieren.
+[~] WF-DASH-NEXT-000 – Dashboard-Produktmodule vor Missionen.
+[ ] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul ausbauen.
+[ ] WF-MARKET-001 – Marktplatz MVP vorbereiten.
+[ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten.
+[ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten.
+[ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
 
 PRIO 2:
+[ ] WF-QA-001 – Build und UI nach Dashboard-Refactor testen.
 [ ] WF-REGISTER-SCHEMA-001 – Firestore User-/Profile-/Settings-Schema dokumentieren.
 [ ] WF-QA-LOGIN-REGISTER-001 – Login/Register Desktop und Mobile testen.
+[ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
 
 PRIO 3:
 [ ] WF-BUDDY-CHAR-001 – Buddy-Charaktere definieren.
+[ ] WF-AVATAR-INV-001 – Avatar-Inventar anlegen.
 [ ] WF-AI-MISSIONS-001 – KI-Missionen vorbereiten.
 
-ENDE VERSION 3.0
+SPÄTER / NACH DASHBOARD-PRODUKTMODULEN:
+[>] WF-REFACTOR-004 bis WF-REFACTOR-009 – Missions- und Missionsnebenbereiche weiter modularisieren.
+[>] Missionen inhaltlich erst nach Dashboard-Produktzentrale, Datenmodell und Sicherheitsbasis weiter ausbauen.
+
+ENDE VERSION 3.1
