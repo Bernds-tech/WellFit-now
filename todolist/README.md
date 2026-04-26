@@ -12,7 +12,7 @@ B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT
 C - STRATEGISCHE GRUNDENTSCHEIDUNGEN
 D - VERBINDLICHE REIHENFOLGE
 E - AKTUELLER UMSETZUNGSSTAND - VORHANDEN
-F - FIREBASE - REALTIME - MISSIONEN
+F - FIREBASE  - REALTIME - MISSIONEN
 G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS
 H - MOBILE - AR - TRACKING - KI
 I - BUSINESS - WEBSITE - PARTNER - LEGAL
@@ -36,7 +36,7 @@ Historische/ergänzende Addenda bleiben sichtbar. Inhalte daraus wurden in die A
 
 ## Aktueller konsolidierter Stand
 
-Stand: Version 5.6 aus `J - NÄCHSTE EMPFOHLENE ARBEIT`.
+Stand: Version 6.0 aus `J - NÄCHSTE EMPFOHLENE ARBEIT`.
 
 ### Mobile / AR / Buddy
 
@@ -58,11 +58,14 @@ Stand: Version 5.6 aus `J - NÄCHSTE EMPFOHLENE ARBEIT`.
 ```txt
 [x] Firestore Rules, Indexes, Functions und Emulator-Grundlage angelegt.
 [x] validateNfcScan, auditItemUse und seedDemoItemsAndNfc angelegt/getestet.
+[x] createTrackingSession, recordTrackingProof und createMissionBuddyEvent angelegt/getestet.
+[x] evaluateMissionContext und evaluateMissionCompletion angelegt/getestet.
 [x] Demo Items und NFC-Tags angelegt: rope_001, magnifier_001, small_backpack_001.
 [x] Java 17 installiert und Firebase Emulator erfolgreich gestartet.
-[x] Gesamt-Emulator-Test erfolgreich: smoke:nfc + rules:firestore + callable:emulator.
-[x] Direkte Client-Writes auf Item-/NFC-/Capability-/Audit-Collections werden blockiert.
+[x] Erweiterter Gesamt-Emulator-Test umfasst smoke:nfc + rules:firestore + callable:emulator + mission:emulator.
+[x] Direkte Client-Writes auf Item-/NFC-/Capability-/Tracking-/Buddy-/Evaluation-Collections werden blockiert.
 [x] Echte Callable Functions im Emulator erfolgreich getestet.
+[!] Nach aktuellem Stand muss der erweiterte Server-Test erneut ausgeführt werden.
 ```
 
 ### NFC / Items / Buddy-Fähigkeiten
@@ -72,8 +75,25 @@ Stand: Version 5.6 aus `J - NÄCHSTE EMPFOHLENE ARBEIT`.
 [x] Items/Gadgets = Ausrüstung/Fähigkeiten für Buddy/Avatar/KI-Body.
 [x] NFTs = spätere digitale Besitzobjekte/Sammlerobjekte/besondere Ausrüstung.
 [x] Kletterseil-Demo: WF-DEMO-ROPE-TREE-001 -> rope_001 -> climbUp.
-[x] Lupe-Demo vorbereitet: WF-DEMO-MAGNIFIER-LEAF-001 -> magnifier_001 -> scanObject.
+[x] Lupe-Demo: WF-DEMO-MAGNIFIER-LEAF-001 -> magnifier_001 -> scanObject.
+[x] Duplicate-Scan-Schutz pro Nutzer/Tag/Mission ergänzt.
 [!] NFC-Scan darf niemals direkt Reward/Item final freischalten; Backend bleibt Autorität.
+```
+
+### Serverautorisierte Proof-/Audit-/Evaluation-Pfade
+
+```txt
+[x] trackingSessions: Owner-Read, keine Client-Writes.
+[x] trackingProofEvents: Owner-Read, keine Client-Writes.
+[x] missionBuddyEvents: Owner-Read, keine Client-Writes.
+[x] missionContextEvaluations: Owner-Read, keine Client-Writes.
+[x] missionCompletionEvaluations: Owner-Read, keine Client-Writes.
+[x] createTrackingSession schreibt serverseitige Tracking-Session ohne Reward-Autorität.
+[x] recordTrackingProof schreibt serverseitige Proof-Events ohne Reward-Autorität.
+[x] createMissionBuddyEvent schreibt serverseitige Buddy-/Mission-Events ohne Reward-Autorität.
+[x] evaluateMissionContext bewertet Alter, Parent-Mode, Tageszeit, Radius/GPS, Dauer und Proof-Qualität.
+[x] evaluateMissionCompletion sammelt Evidence-Referenzen und erstellt Review-Evaluation.
+[!] Alle Evaluation-Flows setzen rewardAuthorized=false und missionCompletionAuthorized=false.
 ```
 
 ### KI-Dimensionen / Quest Chains / Item-Detours
@@ -94,7 +114,9 @@ Stand: Version 5.6 aus `J - NÄCHSTE EMPFOHLENE ARBEIT`.
 [x] Tagesmissionsdateien analysiert: missions.ts, rewardEngine.ts, MissionDetails.tsx, useDailyMissionFirebase.ts, page.tsx.
 [x] Bestehende MVP-Formel erkannt: baseReward × diversityMultiplier × antiFarmingMultiplier × streakMultiplier.
 [x] Clientseitige Tagesmissions-Rewards sind MVP/UI-Logik, nicht langfristige Autorität.
-[x] Mission Reward / Context / Payout Engine Architekturdatei angelegt.
+[x] Mission Reward / Context / Payout Engine Architekturdatei angelegt und aktualisiert.
+[x] Context Evaluation Stub angelegt: ageBand, parentMode, timeWindow, dayType, gpsSafetyStatus, proofQuality, radiusMeters, estimatedMinutes.
+[x] Completion Evaluation Stub angelegt: Evidence-Referenzen, Ownership-Prüfung, Mission-Zugehörigkeit, Review-Ergebnis.
 [x] Auszahlung muss später Alter, GPS-/Radius-Sicherheit, Elternmodus, Tageszeit, Schultag/Wochenende, Beweisqualität, Anti-Cheat und WellFit-Systemreserve berücksichtigen.
 [x] Spätere Token-nahe Bewertung hängt an WellFit-Systemreserve / WellFit-Wallet / Emissions- und Burn-Rhythmus, nicht nur an Einzelmission.
 [x] Mobile bleibt bei internen Punkten/XP; echte Token-/NFT-/Trading-/Presale-Funktionen bleiben Web-/PC-Dashboard und nach Testphase.
@@ -105,6 +127,7 @@ Stand: Version 5.6 aus `J - NÄCHSTE EMPFOHLENE ARBEIT`.
 ```txt
 docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md
 docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md
+docs/architecture/TRACKING_BUDDY_SERVER_EVENTS.md
 functions/EMULATOR_TEST_PLAN.md
 ```
 
@@ -116,7 +139,7 @@ Root:
 cd /var/www/WellFit-now
 git fetch origin
 git reset --hard origin/main
-npm install --no-audit --no-fund
+npm install --include=dev --no-audit --no-fund
 NODE_OPTIONS="--max-old-space-size=768" npm run build
 pm2 restart wellfit-now --update-env
 pm2 status
@@ -144,6 +167,15 @@ Terminal 2:
 ```bash
 cd /var/www/WellFit-now/functions
 npm run test:emulator
+```
+
+## Bekannte Server-Hinweise
+
+```txt
+[!] Wenn npm install mit ENOTEMPTY bei firebase-tools abbricht, Root-node_modules bereinigen und sauber neu installieren.
+[!] Wenn Build `three` nicht findet, ist die Root-Installation unvollständig; `three` steht in package.json und muss installiert sein.
+[!] Wenn `firebase: not found` erscheint, fehlt Root-devDependency firebase-tools wegen fehlgeschlagenem install.
+[!] T2-Emulator-Tests brauchen laufenden Firestore/Auth/Functions Emulator in T1.
 ```
 
 ## Arbeitsregel
@@ -189,7 +221,7 @@ H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
 Bei Missionen, Rewards, Auszahlungen und KI-Quest-Chains zusätzlich prüfen:
 
 ```txt
-F - FIREBASE - REALTIME - MISSIONEN
+F - FIREBASE  - REALTIME - MISSIONEN
 G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS
 docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md
 docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md
