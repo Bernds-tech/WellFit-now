@@ -35,6 +35,11 @@ export const mobileQuickActions: MobileQuickAction[] = [
     href: "/mobile/analyse",
   },
   {
+    label: "Bewegung testen",
+    description: "Testet Schritte und grobe Aktivität über Handy-Bewegungssensoren.",
+    href: "/mobile/bewegung",
+  },
+  {
     label: "AR starten",
     description: "Buddy und Missionen später im echten Raum erleben.",
     href: "/mobile/ar",
