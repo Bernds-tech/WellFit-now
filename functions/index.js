@@ -1,5 +1,6 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
+const { FieldValue } = require("firebase-admin/firestore");
 const { seedDemoItemsAndNfc: runDemoItemsAndNfcSeed } = require("./seed/demoItemsAndNfc");
 
 admin.initializeApp();
@@ -21,7 +22,11 @@ function requireAdmin(request) {
 }
 
 function now() {
-  return admin.firestore.FieldValue.serverTimestamp();
+  return FieldValue.serverTimestamp();
+}
+
+function incrementBy(value) {
+  return FieldValue.increment(value);
 }
 
 function toErrorMessage(error) {
@@ -108,7 +113,7 @@ exports.validateNfcScan = onCall(async (request) => {
   });
 
   batch.update(tagDoc.ref, {
-    usageCount: admin.firestore.FieldValue.increment(1),
+    usageCount: incrementBy(1),
     updatedAt: now(),
   });
 
