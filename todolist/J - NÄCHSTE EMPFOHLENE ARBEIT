@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 5.5 – AI DIMENSIONS / ITEMS / NFT ECONOMY IN ROADMAP AUFGENOMMEN
+Version: 5.6 – MISSION REWARD CONTEXT / SYSTEMRESERVE IN NÄCHSTE ARBEIT AUFGENOMMEN
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -25,6 +25,10 @@ AKTUELLER FOKUS:
 [x] NFC-Tags sind reale physische Trigger und keine NFTs.
 [x] NFTs sind spätere digitale Besitzobjekte/Sammlerobjekte/besondere Ausrüstung.
 [x] Unity rendert und steuert die AR-Welt, aber finale Rewards, Mission Completion und Anti-Cheat bleiben serverseitig.
+[x] Missions-/Tagesmissionsdateien analysiert: MVP-Rewardlogik vorhanden, aber langfristig serverseitige Autorität nötig.
+[x] Mission Reward / Context / Payout Engine Architekturdatei angelegt.
+[x] Auszahlung muss später Alter, GPS-/Radius-Sicherheit, Elternmodus, Tageszeit, Schultag/Wochenende, Beweisqualität, Anti-Cheat und WellFit-Systemreserve berücksichtigen.
+[x] Spätere Token-nahe Bewertung hängt an WellFit-Systemreserve / WellFit-Wallet / Emissions- und Burn-Rhythmus, nicht nur an Einzelmission.
 [x] Unity-Projektstruktur unter native/unity/WellFitBuddyAR angelegt.
 [x] Buddy-Item-/Ausrüstungs-/NFC-/Capability-Erweiterung in H2 aufgenommen.
 [x] Erweiterung mit J und G zusammengeführt.
@@ -66,6 +70,7 @@ AKTUELLER FOKUS:
 [x] Gesamt-Emulator-Test erfolgreich ausgeführt.
 [x] AI Dimensions / Items / NFT Economy Architekturdatei angelegt.
 [x] Reward-/Economy-Roadmap um KI-Dimensionen, Item-Angebote, NFT-/Ownership-Abgrenzung ergänzt.
+[x] Quest-Chain-/Item-Detour-Regeln in Architektur und G aufgenommen.
 
 PRIO 1 – BESTÄTIGTER GESAMT-EMULATOR-TEST
 [x] Java installiert und geprüft:
@@ -117,6 +122,7 @@ HINWEISE:
 [!] Produktionsdeployment bleibt blockiert, bis erweiterte Emulator-/Security-Tests abgeschlossen sind.
 [!] KI-generierte Preise, Item-Angebote, Token-/WFT-Bezüge und NFT-/Ownership-Records müssen backendvalidiert sein.
 [!] Mobile-App darf keine App-Store-kritischen Token-/NFT-/Trading-Funktionen enthalten.
+[!] Clientseitige Tagesmissions-Rewards sind MVP/UI-Logik, nicht langfristige Autorität.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -165,20 +171,74 @@ PRIO 2 – NÄCHSTE TESTSTUFE: EDGE CASES UND ERWEITERTE SECURITY
 [ ] Produktionsdeployment erst nach erweiterten Emulator-Tests.
 
 ============================================================
-PRIO 3 – AI DIMENSIONS / ITEM OFFERS / NFT-OWNERSHIP BACKEND-DESIGN
+PRIO 3 – MISSION REWARD / CONTEXT / PAYOUT BACKEND-DESIGN
+============================================================
+
+[x] Tagesmissionsdateien analysiert:
+    - app/missionen/tagesmissionen/missions.ts
+    - app/missionen/tagesmissionen/rewardEngine.ts
+    - app/missionen/tagesmissionen/MissionDetails.tsx
+    - app/missionen/tagesmissionen/useDailyMissionFirebase.ts
+    - app/missionen/tagesmissionen/page.tsx
+[x] todolist/F Missionen-Abrechnungsregeln analysiert.
+[x] docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md angelegt.
+[x] todolist/F um WF-MISS-REWARD-CONTEXT-001 ergänzt.
+[x] todolist/G um Mission Reward / Context / Payout Engine ergänzt.
+[ ] TypeScript-Datenmodelle planen/anlegen:
+    - MissionRewardPolicy
+    - MissionContextEvaluation
+    - MissionRewardEvent
+    - SystemReserveSnapshot
+[ ] Firestore Collections planen:
+    - missionRewardPolicies
+    - missionContextEvaluations
+    - missionRewardEvents
+    - systemReserveSnapshots
+[ ] Cloud Functions planen:
+    - validateMissionCompletion
+    - calculateMissionReward
+    - createMissionRewardEvent
+    - evaluateMissionContext
+    - getSystemReserveSnapshot
+[ ] Kontextregeln technisch ausarbeiten:
+    - Alter / Altersgruppe
+    - Eltern-/Familienmodus
+    - GPS-/Radius-Sicherheit
+    - Tageszeit
+    - Schultag/Wochenende
+    - sichere Indoor-/Outdoor-Alternative
+[ ] Rewardformel serverseitig vorbereiten:
+    - baseReward
+    - diversityMultiplier
+    - antiFarmingMultiplier
+    - streakMultiplier
+    - ageSafetyMultiplier
+    - contextFitMultiplier
+    - proofQualityMultiplier
+    - systemReserveMultiplier
+    - questDepthLimiter
+    - userDailyCap
+    - systemDailyEmissionCap
+    - missionTypeCap
+
+============================================================
+PRIO 4 – AI DIMENSIONS / ITEM OFFERS / NFT-OWNERSHIP BACKEND-DESIGN
 ============================================================
 
 [x] docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md angelegt.
-[x] G-Roadmap um G7 KI-generierte Dimensionen / Item-Angebote / spätere NFT-Ownership erweitert.
+[x] G-Roadmap um KI-generierte Dimensionen / Item-Angebote / spätere NFT-Ownership erweitert.
+[x] Quest-Chain-/Item-Detour-Regeln ergänzt.
 [ ] TypeScript-Datenmodelle planen/anlegen:
     - AiDimension
     - AiGeneratedItemOffer
+    - AiQuestChain
     - DigitalOwnershipRecord
     - EconomyPricePolicy
     - RewardPolicyVersion
 [ ] Firestore Collections planen:
     - aiDimensions
     - aiGeneratedItemOffers
+    - aiQuestChains
     - digitalOwnershipRecords
     - economyPricePolicies
     - rewardPolicyVersions
@@ -193,7 +253,7 @@ PRIO 3 – AI DIMENSIONS / ITEM OFFERS / NFT-OWNERSHIP BACKEND-DESIGN
     - Web-Dashboard zeigt später Token/WFT/NFT/Ownership.
 
 ============================================================
-PRIO 4 – UNITY AR FOUNDATION LOKAL ERZEUGEN
+PRIO 5 – UNITY AR FOUNDATION LOKAL ERZEUGEN
 ============================================================
 
 [ ] Unity Hub installieren/öffnen.
@@ -210,7 +270,7 @@ PRIO 4 – UNITY AR FOUNDATION LOKAL ERZEUGEN
 [ ] Ersten Android ARCore Build testen.
 
 ============================================================
-PRIO 5 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
+PRIO 6 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
 ============================================================
 
 [ ] Buddy-KI-Guide Datenmodell entwerfen:
@@ -247,7 +307,7 @@ PRIO 5 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
     - NFC/Item/Fähigkeit darf nicht clientseitig Reward-Autorität sein.
 
 ============================================================
-PRIO 6 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
+PRIO 7 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
 ============================================================
 
 [x] Inventar-/Item-Datenmodell als TypeScript-Grundlage entworfen.
@@ -284,7 +344,7 @@ PRIO 6 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
 [x] Erstes Demo-Szenario definiert: Kletterseil schaltet climbUp/fetchClue frei.
 
 ============================================================
-PRIO 7 – FIRESTORE / SECURITY HÄRTEN
+PRIO 8 – FIRESTORE / SECURITY HÄRTEN
 ============================================================
 
 [x] Rules für userInventory, itemDefinitions, buddyCapabilities, nfcTags und nfcScanEvents im Smoke-Test geprüft.
