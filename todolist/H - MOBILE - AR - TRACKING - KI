@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.4 – MOBILE / BUDDY / VISION / AR ALS AKTUELLER HAUPTFOKUS
+Version: 3.5 – MOBILE / ACTIVITY RECOGNITION / AR-BUDDY FOKUS
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -10,6 +10,8 @@ H. MOBILE / AR / TRACKING / KI
 
 AKTUELLER FOKUS:
 [x] Nutzerentscheidung übernommen: Handy / AR / Avatar / Buddy wird vor Desktop-Marktplatz, Leaderboard, Shop und weiteren Produktmodulen priorisiert.
+[x] PC/Web-App dient primär als Steuerzentrale und Einstellungsbereich.
+[x] Gespielt wird perspektivisch am Handy.
 [x] Keine Token-, Presale-, Trading- oder produktkritische Reward-Logik in Mobile.
 [x] Mobile AR bleibt vorerst ein sicherer PWA-/Kamera-Prototyp, bis echte AR-Technologieentscheidung getroffen ist.
 
@@ -97,6 +99,7 @@ ERLEDIGT:
 [x] qualityScore berechnen.
 [x] Buddy-Coach-Feedback eingebaut.
 [x] Tracking-Ergebnis in Firestore über trackingSessions vorbereitet/umgesetzt.
+[x] Analyse-Modul-Texte aktualisiert: Skeleton Tracking und Übungszählung stehen nicht mehr fälschlich nur auf geplant.
 
 OFFEN:
 [ ] Gerätetest Android/iPhone.
@@ -114,6 +117,7 @@ ERLEDIGT:
 [x] moodSignal vorsichtig umgesetzt: unknown, focused, motivated, strained, uneasy, tired, calm.
 [x] Keine medizinische Diagnose.
 [x] Keine Speicherung von Rohbildern/Videos als Standard.
+[x] Analyse-Modul-Texte aktualisiert: Face Signals technisch vorbereitet, aber weiterhin mit Datenschutz-Hinweis.
 
 OFFEN:
 [ ] Consent für Kamera/Mimik-Erkennung fachlich und rechtlich sauber erweitern.
@@ -157,10 +161,13 @@ ERLEDIGT:
 [x] Sprechblase für kleine Handy-Displays kompakter gemacht.
 [x] Buddy-Charakter für kleine Handy-Displays kompakter gemacht.
 [x] Visuelle Glow-Reaktionen je Buddy-Zustand ergänzt.
+[x] Gerätetest-Feedback aufgenommen: Rufen/Laufen muss sichtbarer reagieren.
+[x] Sichtbare Ruf-Sequenz und zusätzliche sichere Positionen ergänzt: nearLeft, center, farRight, nearRight, farLeft.
+[x] Bewegungswechsel beschleunigt und Action-Key für sichtbares Re-Rendering ergänzt.
 
 OFFEN / NÄCHSTER MOBILE-AR-SCHRITT:
-[ ] Build nach V2 ausführen.
-[ ] Gerätetest Android/iPhone für /mobile/ar durchführen.
+[ ] Build nach sichtbarer Ruf-/Laufen-Korrektur ausführen.
+[ ] Gerätetest Android/iPhone für /mobile/ar wiederholen.
 [ ] Prüfen, ob Overlay, Sprechblase und Buttons auf kleinen Displays nicht kollidieren.
 [ ] AR-Buddy visuell hochwertiger machen: eigenes Flammi-Asset statt Emoji.
 [ ] AR-Rückholmechanik bei Bildschirmrand-/Safe-Area-Konflikten weiter härten.
@@ -193,7 +200,7 @@ STATUS: [x] Fertig / Basis umgesetzt
 [x] qualityScore / confidence / moodSignal / exercise sind ergänzt.
 
 TASK-ID: WF-MOBILE-MOTION-001
-STATUS: [~] Browser-Prototyp umgesetzt / Gerätetest bewusst später
+STATUS: [~] Browser-Prototyp umgesetzt / native Chip-Daten vorbereitet
 [x] /mobile/bewegung angelegt.
 [x] DeviceMotion-Permission vorbereitet.
 [x] iOS-requestPermission berücksichtigt.
@@ -203,7 +210,13 @@ STATUS: [~] Browser-Prototyp umgesetzt / Gerätetest bewusst später
 [x] Einfache Schrittzählung über Beschleunigungspeaks eingebaut.
 [x] Cadence Schritte/min berechnet.
 [x] Grobe Aktivitätsklassifikation eingebaut: still, walking, running, vehicle, motorbike, unknown.
-[ ] Gerätetest Android Browser / PWA später.
+[x] Activity Recognition erweitert: Browserdaten klassifizieren Bewegung, aber sind nicht finale Reward-Autorität.
+[x] Plausibilitätsstatus ergänzt: collecting, valid, weak, suspicious, native-required.
+[x] UI zeigt Datenquelle an: browser-devicemotion vs. später native-health-connect/native-healthkit/native-core-motion.
+[x] UI zeigt, dass native Schritt-Chip-Daten in PWA noch nicht verfügbar sind.
+[x] Schritt-Erkennung für Browser-Prototyp etwas sensitiver gemacht.
+[ ] Build nach Activity-Recognition-Erweiterung ausführen.
+[ ] Gerätetest Android Browser / PWA wiederholen.
 [ ] Gerätetest iPhone Safari / PWA später.
 [ ] Schrittzählung gegen echte Gehstrecke vergleichen.
 [ ] Fahrzeug-/Motorrad-Erkennung nur als Plausibilitätssignal nutzen.
@@ -219,6 +232,7 @@ STATUS: [>] Später / Backlog
 TASK-ID: WF-TRACK-005
 STATUS: [ ] Offen / Architektur vorbereitet
 [x] healthConnect Adapter / Planungsdatei vorbereitet.
+[x] Architekturentscheidung ergänzt: echte Handy-Chip-Schritte benötigen native Android/iOS-Schicht, nicht reine Web-PWA.
 [ ] Android App / Native Bridge vorbereiten.
 [ ] Health Connect SDK integrieren.
 [ ] User Consent Screen bauen.
@@ -228,12 +242,13 @@ STATUS: [ ] Offen / Architektur vorbereitet
 
 TASK-ID: WF-TRACK-006
 STATUS: [ ] Offen
+[x] Architekturentscheidung ergänzt: iPhone-Schritte benötigen HealthKit/CoreMotion/CMPedometer in nativer iOS-Schicht.
 [ ] Native iOS/App-Layer definieren.
 [ ] HealthKit Berechtigungen und Consent planen.
 [ ] Schritt- und Aktivitätsdaten in Firestore synchronisieren.
 
 TASK-ID: WF-TRACK-007
-STATUS: [ ] Offen
+STATUS: [~] Architektur vorbereitet
 [ ] Hybrid-Tracking-Engine schaffen: Browser/PWA + Health Connect + HealthKit + Watch.
 [ ] Prioritätslogik definieren: Systemdaten vor Browserdaten.
 [ ] Doppelte Zählung verhindern.
@@ -245,7 +260,9 @@ H5. ANTI-CHEAT
 ============================================================
 
 TASK-ID: WF-ANTI-CHEAT-001
-STATUS: [ ] Offen
+STATUS: [~] Plausibilitätsbasis im Browser-Prototyp begonnen
+[x] Erste clientseitige Plausibilitätsstatus für Bewegung ergänzt.
+[x] Fahrzeug-/Motorrad-/unplausible Bewegung wird als suspicious/weak/native-required markiert.
 [ ] Cheat-Schutz für AR, Tracking und Wettbewerbe ausbauen.
 [ ] Standort / Zeit / Aufgabe plausibilisieren.
 [ ] Schrittmuster validieren.
@@ -253,3 +270,4 @@ STATUS: [ ] Offen
 [ ] Unplausible Tracking-Sessions markieren.
 [ ] Wettbewerbe serverseitig validieren.
 [ ] Pose-basierte Completion serverseitig plausibilisieren.
+[ ] Cloud Function für finale Mission Completion und Reward-Entscheidung planen.
