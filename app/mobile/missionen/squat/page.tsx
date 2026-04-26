@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { applyMissionBuddyBridge } from "@/app/missionen/lib/missionBuddyBridge";
+import type { DailyMission } from "@/app/missionen/tagesmissionen/missions";
 import { finishTrackingSession, startTrackingSession } from "@/lib/tracking";
 import CameraPreview from "../../analyse/components/CameraPreview";
 import CameraPermissionPanel from "../../analyse/components/CameraPermissionPanel";
@@ -11,6 +13,15 @@ import ArBuddyPreview from "./components/ArBuddyPreview";
 import MissionRunHud from "./components/MissionRunHud";
 
 const TARGET_REPS = 10;
+const MOBILE_SQUAT_MISSION: DailyMission = {
+  id: "mobile-squat-test",
+  title: "10 saubere Kniebeugen",
+  reward: 9,
+  difficulty: "Mittel",
+  description: "Mache 10 kontrollierte Kniebeugen vor der Handykamera. Saubere Ausführung zählt mehr als Geschwindigkeit.",
+  duration: "3 Minuten",
+  type: "Workout",
+};
 
 export default function MobileSquatMissionPage() {
   const { videoRef, permissionState, errorMessage, startCamera, stopCamera } = useCameraPreview();
@@ -18,6 +29,7 @@ export default function MobileSquatMissionPage() {
   const [countdown, setCountdown] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isSavingMission, setIsSavingMission] = useState(false);
   const [sessionMessage, setSessionMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -66,12 +78,14 @@ export default function MobileSquatMissionPage() {
   };
 
   const completeMission = async () => {
+    setIsSavingMission(true);
+
     try {
       const sessionId = await startTrackingSession({
         source: "pose",
         activityType: "pose",
-        missionId: "mobile-squat-test",
-        missionTitle: "10 saubere Kniebeugen",
+        missionId: MOBILE_SQUAT_MISSION.id,
+        missionTitle: MOBILE_SQUAT_MISSION.title,
       });
 
       await finishTrackingSession({
@@ -86,11 +100,25 @@ export default function MobileSquatMissionPage() {
         notes: "Mobile Mission Run: 10 saubere Kniebeugen. Rohbilder und Videos werden nicht gespeichert.",
       });
 
+      const bridgeResult = await applyMissionBuddyBridge({
+        mission: MOBILE_SQUAT_MISSION,
+        rewardPoints: MOBILE_SQUAT_MISSION.reward,
+        source: "pose",
+      });
+
       setIsCompleted(true);
       setIsRunning(false);
-      setSessionMessage("Mission gespeichert. Als nächstes verbinden wir diese Completion mit Flammi und Rewards.");
+      setSessionMessage(
+        bridgeResult.ok
+          ? bridgeResult.alreadyApplied
+            ? "Mission war heute bereits mit Flammi verbunden. Keine doppelte Punktevergabe."
+            : `Mission gespeichert. +${MOBILE_SQUAT_MISSION.reward} Punkte. Flammi reagiert auf deine saubere Bewegung.`
+          : "Mission gespeichert, aber Flammi-/Punkte-Sync konnte nicht abgeschlossen werden."
+      );
     } catch (error) {
       setSessionMessage(error instanceof Error ? error.message : "Mission konnte nicht gespeichert werden.");
+    } finally {
+      setIsSavingMission(false);
     }
   };
 
@@ -113,7 +141,7 @@ export default function MobileSquatMissionPage() {
       )}
 
       <div className="absolute left-3 top-3 z-20 rounded-2xl bg-[#042f35]/82 px-3 py-2 text-xs font-black text-cyan-100 backdrop-blur-md">
-        {trackerStatus}
+        {isSavingMission ? "Mission wird gespeichert..." : trackerStatus}
       </div>
 
       {sessionMessage && (
