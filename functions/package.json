@@ -6,13 +6,15 @@
     "node": "20"
   },
   "scripts": {
-    "check": "node -c index.js && node -c seed/demoItemsAndNfc.js && node -c test/emulatorNfcSmokeTest.js",
+    "check": "node -c index.js && node -c seed/demoItemsAndNfc.js && node -c test/emulatorNfcSmokeTest.js && node -c test/firestoreRulesSmokeTest.js",
     "smoke:nfc": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node test/emulatorNfcSmokeTest.js",
+    "rules:firestore": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node test/firestoreRulesSmokeTest.js",
     "lint": "echo \"functions lint placeholder\"",
     "serve": "firebase emulators:start --only functions,firestore,auth",
     "deploy": "firebase deploy --only functions"
   },
   "dependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
     "firebase-admin": "^13.6.0",
     "firebase-functions": "^6.4.0"
   }
