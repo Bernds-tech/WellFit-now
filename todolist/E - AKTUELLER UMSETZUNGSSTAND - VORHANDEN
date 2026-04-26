@@ -1,12 +1,11 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Version: 3.2 – BACKEND-EVALUATION-STUBS UND SERVERAUTORISIERTE EVENT-PFADE ERGÄNZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
 
 WICHTIGER HINWEIS:
-Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
-Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+Diese Datei beschreibt den aktuellen vorhandenen Umsetzungsstand. Neue Arbeiten werden zusätzlich in den passenden Roadmap-Dateien F, G, H und J gepflegt.
 
 ============================================================
 E. AKTUELLER UMSETZUNGSSTAND / VORHANDEN
@@ -50,3 +49,76 @@ E. AKTUELLER UMSETZUNGSSTAND / VORHANDEN
 [x] Browser-basierter Step Counter für Android-/PWA-nahe Tests vorbereitet.
 [>] Schritte können technisch gezählt werden, sind aber nicht mehr Kernmission.
 [x] Health Connect Vorbereitungsadapter / Architekturhinweis existiert.
+
+============================================================
+E1. FIREBASE / FUNCTIONS / SERVERAUTORISIERTE BACKEND-GRUNDLAGE
+============================================================
+
+[x] Firebase config vorhanden.
+[x] Firestore Rules vorhanden.
+[x] Firestore Indexes vorhanden.
+[x] Functions-Projekt vorhanden.
+[x] Emulator-Skripte vorhanden.
+[x] functions/EMULATOR_TEST_PLAN.md vorhanden.
+[x] functions/test/emulatorNfcSmokeTest.js vorhanden.
+[x] functions/test/firestoreRulesSmokeTest.js vorhanden.
+[x] functions/test/callableFunctionsEmulatorTest.js vorhanden.
+[x] functions/test/missionCompletionEmulatorTest.js vorhanden.
+[x] functions/lib/missionContext.js vorhanden.
+[x] functions/package.json enthält check, smoke:nfc, rules:firestore, callable:emulator, mission:emulator und test:emulator.
+
+============================================================
+E2. SERVERAUTORISIERTE COLLECTIONS / RULES
+============================================================
+
+[x] itemDefinitions: Read für eingeloggte Nutzer, keine Client-Writes.
+[x] userInventory: Owner-Read, keine Client-Writes.
+[x] buddyCapabilities: Owner-Read, keine Client-Writes.
+[x] nfcTags: kein Client-Read/Write.
+[x] nfcScanEvents: Owner-Read, keine Client-Writes.
+[x] capabilityUnlockEvents: Owner-Read, keine Client-Writes.
+[x] buddyItemUseEvents: Owner-Read, keine Client-Writes.
+[x] trackingSessions: Owner-Read, keine Client-Writes.
+[x] trackingProofEvents: Owner-Read, keine Client-Writes.
+[x] missionBuddyEvents: Owner-Read, keine Client-Writes.
+[x] missionContextEvaluations: Owner-Read, keine Client-Writes.
+[x] missionCompletionEvaluations: Owner-Read, keine Client-Writes.
+
+============================================================
+E3. SERVERAUTORISIERTE CALLABLE FUNCTIONS
+============================================================
+
+[x] seedDemoItemsAndNfc: Admin-only Seed Function.
+[x] validateNfcScan: NFC-Scan validiert Tag, Nutzer, Mission, Status, usageLimit und Duplicate-Scan.
+[x] auditItemUse: schreibt serverseitige Buddy-Item-Use-Events.
+[x] createTrackingSession: startet serverseitige Tracking-Session ohne Reward-Autorität.
+[x] recordTrackingProof: schreibt serverseitige Tracking-Proof-Events ohne Reward-Autorität.
+[x] createMissionBuddyEvent: schreibt serverseitige Buddy-/Mission-Events ohne Reward-Autorität.
+[x] evaluateMissionContext: bewertet Alter, Elternmodus, Tageszeit, Radius/GPS, Dauer und Proof-Qualität ohne Reward-/Completion-Autorität.
+[x] evaluateMissionCompletion: sammelt Evidence-Referenzen und schreibt Review-Evaluation ohne Reward-/Completion-Autorität.
+[x] grantItemOrCapability: Guard-Stub vorhanden, noch nicht produktiv aktiv.
+[x] validateMissionCompletionWithItem: Guard-Stub vorhanden, noch nicht produktiv aktiv.
+
+============================================================
+E4. DEMO-DATEN / TESTFÄLLE
+============================================================
+
+[x] Demo Items: rope_001, magnifier_001, small_backpack_001.
+[x] Demo NFC Tags: WF-DEMO-ROPE-TREE-001, WF-DEMO-MAGNIFIER-LEAF-001.
+[x] Kletterseil-Demo: rope_001 -> climbUp.
+[x] Lupe-Demo: magnifier_001 -> scanObject.
+[x] Tests prüfen missing-public-code, tag-not-found, tag-revoked, tag-not-active, user-not-allowed, usage-limit-reached und duplicate-scan.
+[x] Tests prüfen Magnifier Flow und scanObject Capability.
+[x] Tests prüfen Tracking-/Buddy-/Proof-Flows.
+[x] Tests prüfen Context-Evaluation für sicheren und riskanten Child-Kontext.
+[x] Tests prüfen Mission-Completion-Evaluation ohne finale Reward-/Completion-Autorität.
+
+============================================================
+E5. AKTUELLE SERVER-HINWEISE
+============================================================
+
+[!] Produktionsdeployment erst nach erfolgreichem erweitertem Emulator-Gesamttest nach aktuellem Stand.
+[!] Wenn npm install mit ENOTEMPTY bei firebase-tools abbricht, Root-node_modules bereinigen und sauber neu installieren.
+[!] Wenn Build `three` nicht findet, ist Root-installation unvollständig; `three` ist in package.json vorhanden und muss neu installiert werden.
+[!] Wenn `firebase: not found` erscheint, fehlt Root-devDependency firebase-tools wegen fehlgeschlagenem install.
+[!] T2-Emulator-Tests brauchen laufenden Firestore/Auth/Functions Emulator in T1.
