@@ -28,6 +28,7 @@ export default function AppInstallPrompt() {
   }, []);
 
   const mobileUrl = useMemo(() => `${origin || ""}/mobile`, [origin]);
+  const isSecure = useMemo(() => mobileUrl.startsWith("https://") || mobileUrl.startsWith("http://localhost"), [mobileUrl]);
   const qrUrl = useMemo(() => {
     if (!mobileUrl) return "";
     return `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=12&data=${encodeURIComponent(mobileUrl)}`;
@@ -43,8 +44,13 @@ export default function AppInstallPrompt() {
   };
 
   const installPwa = async () => {
+    if (!isSecure) {
+      setCopyMessage("Installation, Kamera und Sensoren brauchen HTTPS. Bitte die https-Adresse scannen/öffnen.");
+      return;
+    }
+
     if (!deferredPrompt) {
-      setCopyMessage("Öffne den QR-Link am Handy und nutze dort 'Zum Home-Bildschirm hinzufügen'.");
+      setCopyMessage("Am Handy öffnen: Android/Chrome Menü → App installieren. iPhone/Safari Teilen → Zum Home-Bildschirm.");
       return;
     }
 
@@ -77,8 +83,14 @@ export default function AppInstallPrompt() {
             </div>
 
             <p className="mt-4 text-sm leading-relaxed text-cyan-100/75">
-              Scanne den QR-Code mit deinem Handy. Die Test-App öffnet die reduzierte Mobile-Oberfläche für Missionen, Buddy, Analyse und später AR.
+              Scanne den QR-Code mit deinem Handy. Die Test-App öffnet nur die reduzierte Mobile-Oberfläche: Missionen, Buddy, Analyse und Bewegungstest.
             </p>
+
+            {!isSecure && (
+              <p className="mt-3 rounded-2xl bg-red-400/15 p-3 text-xs font-bold leading-relaxed text-red-100">
+                Achtung: Du bist nicht über HTTPS verbunden. Kamera, Sensoren und Installation funktionieren auf Handys meist nur über HTTPS.
+              </p>
+            )}
 
             <div className="mt-5 grid place-items-center rounded-[24px] bg-white p-4">
               {qrUrl ? <img src={qrUrl} alt="WellFit Mobile QR Code" width={260} height={260} /> : <div className="h-[260px] w-[260px] bg-white" />}
@@ -95,6 +107,13 @@ export default function AppInstallPrompt() {
               <button type="button" onClick={installPwa} className="rounded-2xl bg-orange-400 px-4 py-3 text-sm font-black text-[#042f35]">
                 Installieren
               </button>
+            </div>
+
+            <div className="mt-4 rounded-2xl bg-black/18 p-3 text-xs leading-relaxed text-cyan-100/72">
+              <p className="font-black text-cyan-100">Android/Chrome:</p>
+              <p>QR öffnen → ⋮ Menü → App installieren oder Zum Startbildschirm hinzufügen.</p>
+              <p className="mt-2 font-black text-cyan-100">iPhone/Safari:</p>
+              <p>QR öffnen → Teilen-Symbol → Zum Home-Bildschirm.</p>
             </div>
 
             {copyMessage && <p className="mt-3 rounded-2xl bg-black/18 p-3 text-xs font-semibold text-cyan-100/75">{copyMessage}</p>}
