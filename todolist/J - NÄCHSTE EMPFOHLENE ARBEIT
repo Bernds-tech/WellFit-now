@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.9 – EMULATOR-TESTPLAN BUILD UND FUNCTIONS CHECK BESTÄTIGT
+Version: 5.0 – NFC EMULATOR SMOKE TEST SCRIPT ANGELEGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -42,29 +42,16 @@ AKTUELLER FOKUS:
 [x] Build nach Emulator-Testplan erfolgreich.
 [x] PM2 nach Emulator-Testplan erfolgreich neu gestartet.
 [x] functions npm run check erfolgreich.
+[x] functions/test/emulatorNfcSmokeTest.js angelegt.
+[x] functions/package.json um smoke:nfc erweitert.
+[x] functions/EMULATOR_TEST_PLAN.md um smoke:nfc Ablauf ergänzt.
 
-PRIO 1 – BESTÄTIGTER SERVER-BUILD
-[x] Build nach Emulator-Testplan ausgeführt:
-    - functions/package.json enthält npm run check
-    - functions/EMULATOR_TEST_PLAN.md angelegt
-    - functions/seed/demoItemsAndNfc.js
-    - functions/index.js erweitert um seedDemoItemsAndNfc
-
-BESTÄTIGTER SERVER-STAND:
-[x] git fetch origin ausgeführt.
-[x] git reset --hard origin/main ausgeführt.
-[x] HEAD bestätigt: 8d6c140 Document emulator test plan and functions check script.
-[x] npm install --no-audit --no-fund erfolgreich.
-[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
-[x] Next.js 16.2.3 Build erfolgreich kompiliert.
-[x] TypeScript erfolgreich abgeschlossen.
-[x] Static Pages erfolgreich generiert: 29/29.
-[x] /mobile/ar im Build enthalten.
-[x] /mobile/missionen/squat im Build enthalten.
-[x] pm2 restart wellfit-now --update-env erfolgreich.
-[x] pm2 status geprüft: wellfit-now online.
-[x] cd functions && npm install --no-audit --no-fund erfolgreich.
-[x] cd functions && npm run check erfolgreich.
+PRIO 1 – BUILD UND CHECK NACH NFC SMOKE TEST SCRIPT
+[ ] Build nach NFC Smoke Test Script ausführen:
+    - functions/test/emulatorNfcSmokeTest.js
+    - functions/package.json: check enthält Smoke-Test Syntaxprüfung
+    - functions/package.json: smoke:nfc startet Emulator-Smoke-Test
+    - functions/EMULATOR_TEST_PLAN.md erweitert
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -80,16 +67,26 @@ cd /var/www/WellFit-now/functions
 npm install --no-audit --no-fund
 npm run check
 
+Optionaler Emulator-Smoke-Test, wenn Firestore Emulator läuft:
+cd /var/www/WellFit-now/functions
+npm run smoke:nfc
+
 ============================================================
 PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
 ============================================================
 
 [x] functions npm install ausgeführt.
 [x] Emulator-Testplan dokumentiert.
-[ ] Firebase Emulator lokal vorbereiten.
+[x] NFC Smoke Test Script angelegt.
+[ ] Firebase Emulator lokal starten:
+    cd /var/www/WellFit-now
+    npx firebase emulators:start --only auth,firestore,functions
+[ ] In zweitem Terminal ausführen:
+    cd /var/www/WellFit-now/functions
+    npm run smoke:nfc
 [ ] firestore.rules im Emulator testen.
-[ ] validateNfcScan Emulator-Test schreiben.
-[ ] auditItemUse Emulator-Test schreiben.
+[ ] validateNfcScan Callable Function im Emulator testen.
+[ ] auditItemUse Callable Function im Emulator testen.
 [ ] seedDemoItemsAndNfc nur mit Admin-Claim testen.
 [ ] Testszenarien prüfen:
     - Admin Seed erfolgreich
