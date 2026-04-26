@@ -8,17 +8,17 @@ import ArBuddyControls from "./components/ArBuddyControls";
 import ArBuddyOverlay, { type ArBuddyMood, type ArBuddyPosition } from "./components/ArBuddyOverlay";
 import ArStatusCard from "./components/ArStatusCard";
 
-const safePositions: ArBuddyPosition[] = ["near", "center", "far"];
+const safePositions: ArBuddyPosition[] = ["nearLeft", "center", "farRight", "nearRight", "farLeft"];
 const tapMoods: ArBuddyMood[] = ["happy", "listening", "curious", "playful"];
 
 const buddyMessages: Record<ArBuddyMood, string> = {
   idle: "Starte die Kamera und rufe Flammi in deinen Raum.",
-  called: "Flammi kommt zu dir. Richte dein Handy ruhig auf den Boden oder freien Raum.",
-  happy: "Flammi freut sich. Tippe ihn an, damit er reagiert.",
+  called: "Flammi ist da. Du kannst ihn antippen oder laufen lassen.",
+  happy: "Flammi freut sich. Tippe ihn an, damit er weiter reagiert.",
   listening: "Flammi hört dir zu und wartet auf deine nächste Aktion.",
   curious: "Flammi schaut sich deinen Raum neugierig an.",
-  playful: "Flammi will spielen und hüpft durch den sicheren Bereich.",
-  returning: "Flammi kommt zurück in deine Nähe.",
+  playful: "Flammi hüpft sichtbar durch den sicheren Bereich.",
+  returning: "Flammi kommt sichtbar zu dir zurück.",
 };
 
 function getNextPosition(current: ArBuddyPosition): ArBuddyPosition {
@@ -29,9 +29,10 @@ function getNextPosition(current: ArBuddyPosition): ArBuddyPosition {
 export default function MobileArPage() {
   const { videoRef, permissionState, errorMessage, startCamera, stopCamera } = useCameraPreview();
   const [buddyMood, setBuddyMood] = useState<ArBuddyMood>("idle");
-  const [buddyPosition, setBuddyPosition] = useState<ArBuddyPosition>("near");
+  const [buddyPosition, setBuddyPosition] = useState<ArBuddyPosition>("nearLeft");
   const [tapCount, setTapCount] = useState(0);
   const [autoWalkEnabled, setAutoWalkEnabled] = useState(false);
+  const [actionCount, setActionCount] = useState(0);
   const isCameraActive = permissionState === "granted";
 
   useEffect(() => {
@@ -41,8 +42,9 @@ export default function MobileArPage() {
 
     const walkTimer = window.setInterval(() => {
       setBuddyPosition((current) => getNextPosition(current));
-      setBuddyMood((current) => (current === "returning" ? "called" : "playful"));
-    }, 2800);
+      setBuddyMood("playful");
+      setActionCount((current) => current + 1);
+    }, 1400);
 
     return () => window.clearInterval(walkTimer);
   }, [autoWalkEnabled, isCameraActive]);
@@ -53,11 +55,11 @@ export default function MobileArPage() {
     }
 
     if (autoWalkEnabled) {
-      return `${buddyMessages[buddyMood]} Automatische sichere Bewegung ist aktiv.`;
+      return `${buddyMessages[buddyMood]} Automatische Bewegung aktiv. Wechsel: ${actionCount}`;
     }
 
     return buddyMessages[buddyMood];
-  }, [autoWalkEnabled, buddyMood, errorMessage, isCameraActive]);
+  }, [actionCount, autoWalkEnabled, buddyMood, errorMessage, isCameraActive]);
 
   const callBuddy = () => {
     if (!isCameraActive) {
@@ -66,7 +68,14 @@ export default function MobileArPage() {
 
     setAutoWalkEnabled(false);
     setBuddyMood("returning");
-    setBuddyPosition("near");
+    setActionCount((current) => current + 1);
+    setBuddyPosition((current) => (current === "nearLeft" ? "farRight" : "center"));
+
+    window.setTimeout(() => {
+      setBuddyPosition("nearLeft");
+      setBuddyMood("called");
+      setActionCount((current) => current + 1);
+    }, 520);
   };
 
   const startBuddyWalk = () => {
@@ -76,7 +85,13 @@ export default function MobileArPage() {
 
     setBuddyMood("playful");
     setAutoWalkEnabled(true);
+    setActionCount((current) => current + 1);
     setBuddyPosition((current) => getNextPosition(current));
+  };
+
+  const stopBuddyWalk = () => {
+    setAutoWalkEnabled(false);
+    setBuddyMood("listening");
   };
 
   const handleBuddyTap = () => {
@@ -86,15 +101,17 @@ export default function MobileArPage() {
 
     const nextTapCount = tapCount + 1;
     setTapCount(nextTapCount);
+    setActionCount((current) => current + 1);
     setBuddyMood(tapMoods[nextTapCount % tapMoods.length]);
-    setBuddyPosition((current) => (nextTapCount % 2 === 0 ? getNextPosition(current) : current));
+    setBuddyPosition((current) => getNextPosition(current));
   };
 
   const resetBuddy = () => {
     setAutoWalkEnabled(false);
     setBuddyMood("idle");
-    setBuddyPosition("near");
+    setBuddyPosition("nearLeft");
     setTapCount(0);
+    setActionCount(0);
   };
 
   const handleStopCamera = () => {
@@ -109,6 +126,7 @@ export default function MobileArPage() {
           isCameraActive={isCameraActive}
           mood={buddyMood}
           position={buddyPosition}
+          actionCount={actionCount}
           onBuddyTap={handleBuddyTap}
         />
       </CameraPreview>
@@ -131,7 +149,7 @@ export default function MobileArPage() {
           autoWalkEnabled={autoWalkEnabled}
           onStopCamera={handleStopCamera}
           onCallBuddy={callBuddy}
-          onToggleWalk={autoWalkEnabled ? () => setAutoWalkEnabled(false) : startBuddyWalk}
+          onToggleWalk={autoWalkEnabled ? stopBuddyWalk : startBuddyWalk}
         />
       )}
     </main>
