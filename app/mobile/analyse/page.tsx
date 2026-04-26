@@ -2,34 +2,17 @@
 
 import MobileBottomNav from "../components/MobileBottomNav";
 import { visionCapabilities } from "@/lib/vision/visionCapabilities";
-import type { ExerciseCounterState } from "@/lib/vision/visionTypes";
 import CameraPermissionPanel from "./components/CameraPermissionPanel";
 import CameraPreview from "./components/CameraPreview";
 import ExerciseCounterPanel from "./components/ExerciseCounterPanel";
+import SkeletonOverlay from "./components/SkeletonOverlay";
 import VisionCapabilityList from "./components/VisionCapabilityList";
 import { useCameraPreview } from "./hooks/useCameraPreview";
-
-const initialCounter: ExerciseCounterState = {
-  exercise: "squat",
-  validReps: 0,
-  invalidReps: 0,
-  confidence: 0,
-  feedback: "Starte die Kamera. Skeleton Tracking und echte Wiederholungszählung werden als nächster Schritt angebunden.",
-  isTracking: false,
-};
+import { usePoseExerciseTracking } from "./hooks/usePoseExerciseTracking";
 
 export default function MobileAnalysePage() {
   const { videoRef, permissionState, errorMessage, startCamera, stopCamera } = useCameraPreview();
-
-  const counter: ExerciseCounterState = {
-    ...initialCounter,
-    confidence: permissionState === "granted" ? 15 : 0,
-    feedback:
-      permissionState === "granted"
-        ? "Kamera läuft. Als nächstes wird Pose/Skeleton Tracking angebunden, damit saubere Kniebeugen gezählt werden können."
-        : initialCounter.feedback,
-    isTracking: permissionState === "granted",
-  };
+  const { counter, landmarks, trackerStatus, trackerError } = usePoseExerciseTracking({ videoRef, permissionState });
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-24 text-white">
@@ -41,11 +24,13 @@ export default function MobileAnalysePage() {
             onStartCamera={startCamera}
             onStopCamera={stopCamera}
           />
-          <ExerciseCounterPanel counter={counter} />
+          <ExerciseCounterPanel counter={counter} trackerStatus={trackerStatus} trackerError={trackerError} />
           <VisionCapabilityList capabilities={visionCapabilities} />
         </div>
 
-        <CameraPreview videoRef={videoRef} permissionState={permissionState} />
+        <CameraPreview videoRef={videoRef} permissionState={permissionState}>
+          <SkeletonOverlay landmarks={landmarks} />
+        </CameraPreview>
       </section>
 
       <MobileBottomNav activeTab="scan" />
