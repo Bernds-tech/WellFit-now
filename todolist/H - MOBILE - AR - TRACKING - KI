@@ -1,42 +1,181 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Version: 3.2 – MOBILE / BUDDY / VISION / AR KONSOLIDIERT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
-Datei: To Do List.txt
-
-WICHTIGER HINWEIS:
-Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
-Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+Ordner: todolist/
 
 ============================================================
 H. MOBILE / AR / TRACKING / KI
 ============================================================
 
 TASK-ID: WF-MOBILE-001
-STATUS: [>] Später / Backlog
+STATUS: [~] In Arbeit / PWA-Test-App umgesetzt
+ZIEL:
+Mobile App = täglicher Begleiter. Web-/Desktop-App = Steuerzentrale.
+
+ERLEDIGT:
 [x] Web-App = Steuerzentrale.
 [x] Mobile App = täglicher Begleiter.
-[ ] Startscreen mit AR-Startbutton, nicht automatisch Kamera starten.
-[ ] Rechts oben Nutzerbild.
-[ ] Daneben Buddy-Level.
-[ ] Links Hamburger-Menü.
-[ ] Unten Tagesfortschritt nur als Balken.
-[ ] AR-Elemente realistisch in Umgebung einbetten, nicht nur overlayen.
+[x] /mobile Startseite umgesetzt.
+[x] Mobile-only Flow aufgebaut.
+[x] Bottom Navigation umgesetzt: Missionen, Buddy, Analyse, Setup.
+[x] Mobile-Buttons führen nicht mehr auf Desktop-Seiten.
+[x] /mobile/missionen umgesetzt.
+[x] /mobile/buddy umgesetzt.
+[x] /mobile/analyse umgesetzt.
+[x] /mobile/bewegung umgesetzt.
+[x] /mobile/einstellungen umgesetzt.
+[x] /mobile/ar umgesetzt.
+[x] Mobile-Seiten scrollbar gemacht: /mobile, /mobile/missionen, /mobile/analyse, /mobile/buddy, /mobile/bewegung, /mobile/einstellungen.
+[x] App aufs Handy laden Button öffnet QR-/Install-Dialog.
+[x] PWA manifest erstellt: public/manifest.webmanifest.
+[x] Service Worker erstellt: public/sw.js.
+[x] Service Worker Registrierung erstellt: app/components/PwaInstaller.tsx.
+[x] HTTPS-Warnung und Android/iPhone Installationshinweise ergänzt.
+
+OFFEN:
+[ ] Gerätetest Android/iPhone: QR, PWA-Installation, Mobile Navigation.
+[ ] Startscreen weiter verbessern: rechts Nutzerbild, daneben Buddy-Level, links Hamburger-Menü.
+[ ] Unten Tagesfortschritt als Balken ergänzen.
+[ ] PWA-Icons finalisieren.
+[ ] Eigenen QR-Code-Generator statt externem QR-Bilddienst verwenden.
+[ ] App-Store-Technologieentscheidung später treffen: React Native/Expo, Capacitor, Flutter oder nativ.
+
+============================================================
+H1. MOBILE MISSION RUN / KAMERA-MISSION
+============================================================
+
+TASK-ID: WF-MOBILE-MISSION-RUN-001
+STATUS: [x] Basis umgesetzt / Gerätetest offen
+ZIEL:
+Wenn eine mobile Mission gestartet wird, soll die Kamera aufgehen. Nutzer sieht sich selbst, richtet das Handy aus und sieht nur das Missions-HUD.
+
+ERLEDIGT:
+[x] /mobile/missionen/squat umgesetzt.
+[x] Kamera öffnet im Missionsmodus.
+[x] Nutzer sieht Kamerabild zur Handy-Ausrichtung.
+[x] Countdown-Zähler eingebaut.
+[x] Aufgabe sichtbar: 10 saubere Kniebeugen.
+[x] Stop-Button vorhanden.
+[x] Fertig-/Abgeschlossen-Button vorhanden.
+[x] Rest der Mobile-App im Missionsmodus ausgeblendet.
+[x] Skeleton Overlay im Missionsmodus vorbereitet.
+[x] AR-Buddy-Platzhalter im Kamerabild sichtbar.
+[x] TrackingSession wird nach Abschluss gespeichert.
+[x] Mission-Buddy-Bridge wird nach Abschluss ausgelöst.
+[x] Punkte-/Buddy-Reaktion nach mobiler Kniebeugen-Mission umgesetzt.
+[x] Doppelklick/Mehrfachspeichern während Speichern blockiert.
+
+OFFEN:
+[ ] Gerätetest auf Handy durchführen.
+[ ] Prüfen, ob HUD auf kleinen Displays zu groß ist.
+[ ] Nach Abschluss optional Zurück-Button zu /mobile/missionen ergänzen.
+[ ] Fehlerfälle verbessern: nicht eingeloggt, Kamera abgelehnt, MediaPipe lädt nicht, Firestore nicht erreichbar.
+
+============================================================
+H2. KAMERA / KI-TRAINING / POSE / FACE
+============================================================
 
 TASK-ID: WF-AI-POSE-001
-STATUS: [>] Später / Backlog
-[ ] TensorFlow / MediaPipe / vergleichbare Technologie prüfen.
-[ ] Skeleton Tracking definieren.
-[ ] Saubere Wiederholungen zählen.
-[ ] Schlechte Wiederholungen nicht zählen.
-[ ] Edge AI / On-Device Verarbeitung prüfen.
+STATUS: [x] Technische Basis umgesetzt / Gerätetest offen
+
+ERLEDIGT:
+[x] MediaPipe Pose Landmarker angebunden.
+[x] Kamera-Permission umgesetzt.
+[x] Kamera-Preview umgesetzt.
+[x] Skeleton Tracking definiert.
+[x] Skeleton Overlay gebaut.
+[x] Erste Übung umgesetzt: Kniebeuge.
+[x] Wiederholungsphasen erkannt: standing, descending, bottom, ascending.
+[x] Saubere Wiederholungen zählen.
+[x] Schlechte Wiederholungen zählen.
+[x] qualityScore berechnen.
+[x] Buddy-Coach-Feedback eingebaut.
+[x] Tracking-Ergebnis in Firestore über trackingSessions vorbereitet/umgesetzt.
+
+OFFEN:
+[ ] Gerätetest Android/iPhone.
+[ ] MediaPipe Performance auf Zielgeräten prüfen.
+[ ] Web Worker prüfen, falls MediaPipe auf Handy ruckelt.
+[ ] Weitere Übungen vorbereiten: Liegestütz, Plank, Hampelmann.
+[ ] Edge AI / On-Device Verarbeitung vertiefen.
 
 TASK-ID: WF-AI-MOOD-001
-STATUS: [>] Später / Backlog
-[ ] Mimik-/Stimmungszustände definieren: gut, schlecht, mies, genervt, müde, motiviert, gestresst.
-[ ] Consent für Kamera/Mimik-Erkennung.
-[ ] Keine Speicherung von Bildern/Videos als Standard.
+STATUS: [~] In Arbeit / vorsichtige Basis umgesetzt
+
+ERLEDIGT:
+[x] MediaPipe Face Landmarker angebunden.
+[x] Face Signals technisch vorbereitet.
+[x] moodSignal vorsichtig umgesetzt: unknown, focused, motivated, strained, uneasy, tired, calm.
+[x] Keine medizinische Diagnose.
+[x] Keine Speicherung von Rohbildern/Videos als Standard.
+
+OFFEN:
+[ ] Consent für Kamera/Mimik-Erkennung fachlich und rechtlich sauber erweitern.
+[ ] Mimik-/Stimmungszustände final definieren.
 [ ] Nur lokale Analyse prüfen.
+[ ] Datenschutztext für Face Tracking ergänzen.
+
+============================================================
+H3. AR-BUDDY
+============================================================
+
+TASK-ID: WF-BUDDY-P3-AR-001
+STATUS: [~] AR-Overlay-Prototyp umgesetzt / echte AR-Technikentscheidung offen
+
+ZIEL:
+Buddy läuft sichtbar im echten Raum herum.
+
+ERLEDIGT:
+[x] /mobile/ar umgesetzt.
+[x] Kamera-AR-Testmodus umgesetzt.
+[x] Flammi als Kamera-Overlay sichtbar.
+[x] AR-Statuskarte umgesetzt.
+[x] Kamera stoppen / Flammi rufen UI vorbereitet.
+[x] AR-Buddy-Platzhalter auch in Kamera-Mission sichtbar.
+
+OFFEN / ECHTE AR:
+[ ] AR-Technikentscheidung treffen: WebAR-Prototyp vs. native App / Unity / ARKit / ARCore.
+[ ] 3D-Buddy-Modell auswählen/erstellen.
+[ ] Fläche/Boden erkennen.
+[ ] Buddy mit Raumanker platzieren.
+[ ] Buddy laufen lassen.
+[ ] Tap-/Interaktion.
+[ ] AR-Rückholmechanik.
+[ ] AR-Training mit Skeleton Tracking verbinden.
+[ ] AR-Elemente realistisch in Umgebung einbetten, nicht nur overlayen.
+
+EMPFEHLUNG:
+[ ] Erst Mobile/Kamera-Gerätetest abschließen, dann AR-Technikentscheidung treffen.
+
+============================================================
+H4. TRACKING / BEWEGUNG / HEALTH / WATCH
+============================================================
+
+TASK-ID: WF-TRACK-001
+STATUS: [x] Fertig / Basis umgesetzt
+[x] lib/tracking.ts erstellt.
+[x] startTrackingSession vorhanden.
+[x] finishTrackingSession vorhanden.
+[x] trackingSessions Collection wird beschrieben.
+[x] source / missionId / missionTitle / activityType / startTime / endTime / stepsAggregated / eventsCount / validReps / invalidReps sind berücksichtigt.
+[x] qualityScore / confidence / moodSignal / exercise sind ergänzt.
+
+TASK-ID: WF-MOBILE-MOTION-001
+STATUS: [~] Browser-Prototyp umgesetzt / Gerätetest bewusst später
+[x] /mobile/bewegung angelegt.
+[x] DeviceMotion-Permission vorbereitet.
+[x] iOS-requestPermission berücksichtigt.
+[x] Start/Stop/Reset eingebaut.
+[x] Beschleunigungsmagnitude aus DeviceMotion berechnet.
+[x] Rotationsmagnitude aus DeviceMotion berechnet.
+[x] Einfache Schrittzählung über Beschleunigungspeaks eingebaut.
+[x] Cadence Schritte/min berechnet.
+[x] Grobe Aktivitätsklassifikation eingebaut: still, walking, running, vehicle, motorbike, unknown.
+[ ] Gerätetest Android Browser / PWA später.
+[ ] Gerätetest iPhone Safari / PWA später.
+[ ] Schrittzählung gegen echte Gehstrecke vergleichen.
+[ ] Fahrzeug-/Motorrad-Erkennung nur als Plausibilitätssignal nutzen.
 
 TASK-ID: WF-WATCH-001
 STATUS: [>] Später / Backlog
@@ -46,13 +185,33 @@ STATUS: [>] Später / Backlog
 [ ] Smartwatch-Daten anbinden.
 [ ] Datenminimierung und Consent festlegen.
 
-TASK-ID: WF-TRACK-001
-STATUS: [x] Fertig / Basis umgesetzt
-[x] lib/tracking.ts erstellt.
-[x] startTrackingSession vorhanden.
-[x] finishTrackingSession vorhanden.
-[x] trackingSessions Collection wird beschrieben.
-[x] source / missionId / missionTitle / activityType / startTime / endTime / stepsAggregated / eventsCount / validReps / invalidReps sind berücksichtigt.
+TASK-ID: WF-TRACK-005
+STATUS: [ ] Offen / Architektur vorbereitet
+[x] healthConnect Adapter / Planungsdatei vorbereitet.
+[ ] Android App / Native Bridge vorbereiten.
+[ ] Health Connect SDK integrieren.
+[ ] User Consent Screen bauen.
+[ ] Tages-/Wochen-Schritte aus Health Connect lesen.
+[ ] Aggregierte Tageswerte in Firestore trackingSessions oder Daily Activity Collection speichern.
+[ ] Plausibilitätsprüfung / Anti-Cheat ergänzen.
+
+TASK-ID: WF-TRACK-006
+STATUS: [ ] Offen
+[ ] Native iOS/App-Layer definieren.
+[ ] HealthKit Berechtigungen und Consent planen.
+[ ] Schritt- und Aktivitätsdaten in Firestore synchronisieren.
+
+TASK-ID: WF-TRACK-007
+STATUS: [ ] Offen
+[ ] Hybrid-Tracking-Engine schaffen: Browser/PWA + Health Connect + HealthKit + Watch.
+[ ] Prioritätslogik definieren: Systemdaten vor Browserdaten.
+[ ] Doppelte Zählung verhindern.
+[ ] Trackingquellen transparent im UI anzeigen.
+[ ] Firestore Datenmodell für Quellenharmonisierung definieren.
+
+============================================================
+H5. ANTI-CHEAT
+============================================================
 
 TASK-ID: WF-ANTI-CHEAT-001
 STATUS: [ ] Offen
@@ -62,4 +221,4 @@ STATUS: [ ] Offen
 [ ] Geschwindigkeit / Distanz / Zeitfenster plausibilisieren.
 [ ] Unplausible Tracking-Sessions markieren.
 [ ] Wettbewerbe serverseitig validieren.
-
+[ ] Pose-basierte Completion serverseitig plausibilisieren.
