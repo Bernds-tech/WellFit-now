@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 5.7 – NFC EDGE CASES UND DUPLICATE-SCAN-SCHUTZ ERGÄNZT
+Version: 5.8 – ERWEITERTER EMULATOR-GESAMTTEST AUF SERVER BESTÄTIGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -76,6 +76,11 @@ AKTUELLER FOKUS:
 [x] firestore.indexes.json um Composite Index für Duplicate-Scan-Prüfung auf nfcScanEvents ergänzt.
 [x] Callable Functions Emulator Test um missing/unknown/revoked/inactive/user-not-allowed/usage-limit/duplicate/Magnifier erweitert.
 [x] functions/EMULATOR_TEST_PLAN.md um erweiterte NFC-Edge-Case-Testfälle ergänzt.
+[x] Build auf Server nach Version 5.7 erfolgreich: Next.js Build, TypeScript und Static Generation erfolgreich.
+[x] functions npm run check auf Server erfolgreich.
+[x] Firebase CLI lokal wiederhergestellt: firebase-tools 14.26.0.
+[x] Erweiterter Emulator-Gesamttest auf Server erfolgreich ausgeführt: smoke:nfc + rules:firestore + callable:emulator.
+[x] Erweiterter Callable-Test bestätigt: missing/unknown/revoked/inactive/user-not-allowed/usage-limit/duplicate/Magnifier/auditItemUse/mission-mismatch erfolgreich.
 
 PRIO 1 – BESTÄTIGTER GESAMT-EMULATOR-TEST
 [x] Java installiert und geprüft:
@@ -117,6 +122,18 @@ PRIO 1 – BESTÄTIGTER GESAMT-EMULATOR-TEST
     - climbUp wird per Callable Flow freigeschaltet.
     - auditItemUse funktioniert über echten Callable-Endpunkt.
     - falsche Mission wird per Callable Flow mit mission-mismatch abgelehnt.
+[x] Erweiterte Edge-Case-Tests auf Server erfolgreich:
+    - missing-public-code
+    - tag-not-found
+    - tag-revoked
+    - tag-not-active
+    - user-not-allowed
+    - usage-limit-reached
+    - duplicate-scan
+    - Magnifier Flow mit magnifier_001
+    - scanObject Capability
+    - auditItemUse
+    - mission-mismatch
 
 HINWEISE:
 [!] Die PERMISSION_DENIED-Meldungen im Rules-Test sind erwartet und positiv. Sie zeigen, dass direkte Client-Writes blockiert werden.
@@ -134,7 +151,7 @@ Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
 git fetch origin
 git reset --hard origin/main
-npm install --no-audit --no-fund
+npm install --include=dev --no-audit --no-fund
 NODE_OPTIONS="--max-old-space-size=768" npm run build
 pm2 restart wellfit-now --update-env
 pm2 status
@@ -173,6 +190,7 @@ PRIO 2 – NÄCHSTE TESTSTUFE: EDGE CASES UND ERWEITERTE SECURITY
     - usageLimit erreicht
     - Magnifier Flow vollständig als Callable testen
     - scanObject Capability prüfen
+[x] Erweiterter Emulator-Gesamttest auf Server bestätigt.
 [ ] revealHint Capability als eigener Flow ergänzen, sobald Magnifier/Quest-Design mehrere Capability Unlocks pro Tag produktiv nutzt.
 [ ] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch prüfen.
 [ ] Produktionsdeployment erst nach erweiterten Emulator-Tests.
