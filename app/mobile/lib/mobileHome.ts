@@ -41,8 +41,7 @@ export const mobileQuickActions: MobileQuickAction[] = [
   },
   {
     label: "AR starten",
-    description: "Buddy und Missionen später im echten Raum erleben.",
+    description: "Öffnet den AR-Testmodus mit Kamera und Flammi-Overlay.",
     href: "/mobile/ar",
-    disabled: true,
   },
 ];
