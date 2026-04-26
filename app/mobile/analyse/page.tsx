@@ -51,7 +51,7 @@ export default function MobileAnalysePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-24 text-white">
+    <main className="h-screen overflow-y-auto bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-32 text-white">
       <section className="grid gap-4 px-4 pt-4 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="space-y-4">
           <CameraPermissionPanel
@@ -76,6 +76,7 @@ export default function MobileAnalysePage() {
         </CameraPreview>
       </section>
 
+      <div className="h-8" />
       <MobileBottomNav activeTab="scan" />
     </main>
   );
