@@ -1,7 +1,14 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { classifyActivity, estimateCadence, getAccelerationMagnitude, getRotationMagnitude, shouldCountStep } from "@/lib/mobileMotion/motionClassifier";
+import {
+  classifyActivity,
+  estimateCadence,
+  getAccelerationMagnitude,
+  getRotationMagnitude,
+  shouldCountStep,
+  validateMotionPlausibility,
+} from "@/lib/mobileMotion/motionClassifier";
 import type { MotionAnalysisState, MotionPermissionState, MotionSample } from "@/lib/mobileMotion/motionTypes";
 
 const initialState: MotionAnalysisState = {
@@ -13,6 +20,10 @@ const initialState: MotionAnalysisState = {
   rotationMagnitude: 0,
   confidence: 0,
   feedback: "Starte den Bewegungstest am Handy. Der Browser nutzt Bewegungssensoren, wenn das Gerät sie freigibt.",
+  sensorSource: "browser-devicemotion",
+  validationStatus: "collecting",
+  validationFeedback: "Noch keine Bewegungsdaten gesammelt.",
+  nativeStepAccessAvailable: false,
 };
 
 type DeviceMotionEventWithPermission = typeof DeviceMotionEvent & {
@@ -48,9 +59,16 @@ export function useMotionActivity() {
     previousMagnitudeRef.current = accelerationMagnitude;
 
     const sample: MotionSample = { timestamp, accelerationMagnitude, rotationMagnitude };
-    samplesRef.current = [...samplesRef.current.slice(-79), sample];
+    samplesRef.current = [...samplesRef.current.slice(-119), sample];
     const cadence = estimateCadence(stepsRef.current, startedAtRef.current, timestamp);
     const classification = classifyActivity(samplesRef.current, cadence);
+    const validation = validateMotionPlausibility({
+      samplesCount: samplesRef.current.length,
+      steps: stepsRef.current,
+      cadence,
+      activityType: classification.activityType,
+      confidence: classification.confidence,
+    });
 
     setState({
       permissionState: "granted",
@@ -61,6 +79,10 @@ export function useMotionActivity() {
       rotationMagnitude: Math.round(rotationMagnitude * 10) / 10,
       confidence: classification.confidence,
       feedback: classification.feedback,
+      sensorSource: "browser-devicemotion",
+      validationStatus: validation.validationStatus,
+      validationFeedback: validation.validationFeedback,
+      nativeStepAccessAvailable: false,
     });
   }, []);
 
