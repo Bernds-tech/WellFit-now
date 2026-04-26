@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.6 – FIREBASE FUNCTIONS BUILD UND FUNCTIONS INSTALL BESTÄTIGT
+Version: 4.7 – DEMO ITEMS UND NFC SEED FÜR KLETTERSEIL-SZENARIO ANGELEGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -35,38 +35,15 @@ AKTUELLER FOKUS:
 [x] Build nach Firebase-/Functions-Grundlage erfolgreich.
 [x] PM2 nach Firebase-/Functions-Grundlage erfolgreich neu gestartet.
 [x] functions npm install erfolgreich.
+[x] Demo Seed-Daten für Items und NFC-Tags angelegt.
+[x] Admin-gated seedDemoItemsAndNfc Callable Function angelegt.
 
-PRIO 1 – BESTÄTIGTER SERVER-BUILD
-[x] Build nach Firebase-/Functions-Grundlage ausgeführt:
-    - firebase.json erweitert
-    - firestore.rules erweitert
-    - firestore.indexes.json angelegt
-    - functions/package.json angelegt
-    - functions/index.js angelegt
-    - lib/buddyItems/buddyItemTypes.ts
-    - lib/buddyItems/nfcItemTypes.ts
-    - docs/architecture/BUDDY_ITEMS_NFC_CAPABILITIES.md
-    - docs/architecture/FIRESTORE_ITEMS_NFC_CAPABILITIES_SCHEMA.md
-    - docs/architecture/CLOUD_FUNCTIONS_ITEMS_NFC_CAPABILITIES.md
-    - docs/security/FIRESTORE_RULES_ITEMS_NFC_CAPABILITIES_DRAFT.md
-    - native/unity/WellFitBuddyAR/docs/BRIDGE_CONTRACT.md erweitert
-
-BESTÄTIGTER SERVER-STAND:
-[x] git fetch origin ausgeführt.
-[x] git reset --hard origin/main ausgeführt.
-[x] HEAD bestätigt: 5df172d Document real Firebase Functions rules indexes groundwork.
-[x] npm install --no-audit --no-fund erfolgreich.
-[x] Hängender Next-Build-Prozess beendet.
-[x] rm -rf .next ausgeführt.
-[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
-[x] Next.js 16.2.3 Build erfolgreich kompiliert.
-[x] TypeScript erfolgreich abgeschlossen.
-[x] Static Pages erfolgreich generiert: 29/29.
-[x] /mobile/ar im Build enthalten.
-[x] /mobile/missionen/squat im Build enthalten.
-[x] pm2 restart wellfit-now --update-env erfolgreich.
-[x] pm2 status geprüft: wellfit-now online.
-[x] cd functions && npm install --no-audit --no-fund erfolgreich.
+PRIO 1 – BUILD NACH DEMO-SEED-GRUNDLAGE
+[ ] Build nach Demo-Seed-Grundlage ausführen:
+    - functions/seed/demoItemsAndNfc.js
+    - functions/index.js erweitert um seedDemoItemsAndNfc
+    - Demo-Items: rope_001, magnifier_001, small_backpack_001
+    - Demo-NFC-Tags: WF-DEMO-ROPE-TREE-001, WF-DEMO-MAGNIFIER-LEAF-001
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -77,6 +54,12 @@ NODE_OPTIONS="--max-old-space-size=768" npm run build
 pm2 restart wellfit-now --update-env
 pm2 status
 
+Functions-Check:
+cd /var/www/WellFit-now/functions
+npm install --no-audit --no-fund
+node -c index.js
+node -c seed/demoItemsAndNfc.js
+
 ============================================================
 PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
 ============================================================
@@ -86,8 +69,15 @@ PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
 [ ] firestore.rules im Emulator testen.
 [ ] validateNfcScan Emulator-Test schreiben.
 [ ] auditItemUse Emulator-Test schreiben.
+[ ] seedDemoItemsAndNfc nur mit Admin-Claim testen.
 [ ] Testszenarien prüfen:
-    - gültiger NFC Scan
+    - gültiger NFC Scan: WF-DEMO-ROPE-TREE-001
+    - Rope Item Grant: rope_001
+    - Capability Unlock: climbUp
+    - linkedMissionId: demo_tree_clue_001
+    - gültiger NFC Scan: WF-DEMO-MAGNIFIER-LEAF-001
+    - Magnifier Item Grant: magnifier_001
+    - Capability Unlock: scanObject
     - revoked NFC Tag
     - inactive NFC Tag
     - duplicate scan
@@ -170,6 +160,7 @@ PRIO 5 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
 [x] Cloud Functions angelegt/geplant:
     - validateNfcScan
     - auditItemUse
+    - seedDemoItemsAndNfc admin-only
     - grantItemOrCapability als Guard-Stub
     - validateMissionCompletionWithItem als Guard-Stub
 [x] Unity-Bridge erweitert:
@@ -179,9 +170,14 @@ PRIO 5 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
     - requestCapabilityAction
     - onBuddyItemUsed
     - onBuddyCapabilityActionCompleted
-[ ] Erste Beispiel-ItemDefinitions erstellen.
-[ ] Erste Beispiel-NFC-Tags als Seed-Daten definieren.
-[ ] Erstes Demo-Szenario definieren: Kletterseil schaltet climbUp/fetchClue frei.
+[x] Erste Beispiel-ItemDefinitions erstellt:
+    - rope_001
+    - magnifier_001
+    - small_backpack_001
+[x] Erste Beispiel-NFC-Tags als Seed-Daten definiert:
+    - demo_nfc_rope_tree_001
+    - demo_nfc_magnifier_leaf_001
+[x] Erstes Demo-Szenario definiert: Kletterseil schaltet climbUp/fetchClue frei.
 
 ============================================================
 PRIO 6 – FIRESTORE / SECURITY HÄRTEN
