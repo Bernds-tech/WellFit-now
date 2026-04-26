@@ -53,6 +53,60 @@ Die Auszahlung orientiert sich nicht nur an der Mission selbst, sondern an einem
 - Tageslimit
 - Quest-Chain-Tiefe
 
+## Aktueller technischer Zwischenstand: Mission Context Evaluation
+
+`evaluateMissionContext` ist als serverseitiger Context-Evaluation-Stub angelegt.
+
+Die Bewertungslogik liegt bewusst ausgelagert in:
+
+```txt
+functions/lib/missionContext.js
+```
+
+Die Callable Function:
+
+- verlangt Auth,
+- verlangt `missionId`,
+- bewertet Altersband, Tagesart, Tageszeit, Elternmodus, GPS-/Radius-Kontext, Proof-Qualitaet, Dauer und Radius,
+- schreibt `missionContextEvaluations`,
+- setzt `rewardAuthorized = false`,
+- setzt `missionCompletionAuthorized = false`,
+- gibt eine Empfehlung wie `context-ok-for-review`, `needs-review` oder `reject-or-parent-review` aus.
+
+Sie entscheidet noch nicht final ueber Mission Completion, Reward, XP oder Punkte.
+
+### missionContextEvaluations
+
+- evaluationId
+- userId
+- missionId
+- ageBand
+- dayType
+- timeWindow
+- parentMode
+- gpsSafetyStatus
+- proofQuality
+- allowedRadiusMeters
+- radiusMeters
+- estimatedMinutes
+- requiresParentMode
+- safetyScore
+- contextFitScore
+- proofQualityScore
+- recommendation
+- flags
+- serverValidationStatus
+- rewardAuthorized
+- missionCompletionAuthorized
+- createdAt
+- updatedAt
+
+Firestore Rules:
+
+- Nutzer duerfen eigene Context-Evaluationen lesen.
+- Fremde Context-Evaluationen sind blockiert.
+- Client darf keine Context-Evaluation direkt erstellen, updaten oder loeschen.
+
 ## Aktueller technischer Zwischenstand: Mission Completion Evaluation Stub
 
 `evaluateMissionCompletion` ist als sicherer serverseitiger Evaluation-Stub angelegt.
@@ -218,23 +272,6 @@ finalReward = min(validatedReward, userDailyCap, systemDailyEmissionCap, mission
 - antiFarmingRules
 - systemReserveWeight
 - version
-
-### missionContextEvaluations
-
-- evaluationId
-- userId
-- missionId
-- ageBand
-- dayType
-- timeWindow
-- parentMode
-- gpsSafetyStatus
-- allowedRadiusMeters
-- estimatedMinutes
-- proofQualityScore
-- antiCheatScore
-- contextFitScore
-- serverValidationStatus
 
 ### missionRewardEvents
 
