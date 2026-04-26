@@ -2,6 +2,10 @@ export type MotionPermissionState = "idle" | "requesting" | "granted" | "denied"
 
 export type ActivityType = "unknown" | "still" | "walking" | "running" | "vehicle" | "motorbike";
 
+export type MotionSensorSource = "browser-devicemotion" | "native-health-connect" | "native-healthkit" | "native-core-motion";
+
+export type MotionValidationStatus = "collecting" | "valid" | "weak" | "suspicious" | "native-required";
+
 export type MotionSample = {
   timestamp: number;
   accelerationMagnitude: number;
@@ -17,4 +21,8 @@ export type MotionAnalysisState = {
   rotationMagnitude: number;
   confidence: number;
   feedback: string;
+  sensorSource: MotionSensorSource;
+  validationStatus: MotionValidationStatus;
+  validationFeedback: string;
+  nativeStepAccessAvailable: boolean;
 };
