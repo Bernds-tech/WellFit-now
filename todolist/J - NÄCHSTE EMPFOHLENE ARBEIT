@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.8 – 3D-FLAMMI / ECHTES AR-ZIEL AKTIVIERT
+Version: 3.9 – 3D-FLAMMI + SIMULIERTER AR-ANKER BUILD/PM2 BESTÄTIGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -19,17 +19,38 @@ AKTUELLER FOKUS:
 [x] Nutzerfeedback aufgenommen: 2D-Emoji/Overlay reicht nicht; Ziel ist ein echter kleiner animierter 3D-Drache im AR-Erlebnis.
 [x] Flammi 3D / echte AR Pipeline dokumentiert.
 [x] Three.js / React Three Fiber / Drei Abhängigkeiten ergänzt.
+[x] 3D-Flammi-WebGL-Prototyp umgesetzt.
+[x] Simulierter AR-Anker umgesetzt.
+[x] Build nach 3D-Flammi + AR-Anker erfolgreich.
+[x] PM2 nach 3D-Flammi + AR-Anker erfolgreich neu gestartet.
 
-PRIO 1 – STABILISIERUNG SOFORT
-[ ] Build nach AR-Rückkamera, Native-Start und 3D-Abhängigkeiten ausführen:
+PRIO 1 – BESTÄTIGTER SERVER-BUILD
+[x] Build nach AR-Rückkamera, Native-Start, 3D-Abhängigkeiten und simuliertem AR-Anker ausgeführt:
     - useCameraPreview mit facingMode Option
     - /mobile/ar nutzt facingMode environment
     - Capacitor-Abhängigkeiten ergänzt
-    - capacitor.config.ts ergänzt
+    - capacitor.config.ts ohne Build-blockierenden CLI-Type-Import
     - nativeActivityBridge Typen/Fallback ergänzt
     - native Android/iOS Pläne ergänzt
     - Three.js / React Three Fiber / Drei ergänzt
     - native/ar/FLAMMI_3D_AR_PIPELINE.md ergänzt
+    - ArDragonScene.tsx mit 3D-Flammi und simuliertem Anker
+    - ArBuddyControls.tsx mit Anker-Button
+    - ArBuddyOverlay.tsx mit Anchor-Mode-Hinweis
+
+BESTÄTIGTER SERVER-BUILD NACH 3D-FLAMMI + AR-ANKER:
+[x] git fetch origin ausgeführt.
+[x] git reset --hard origin/main ausgeführt.
+[x] HEAD bestätigt: e9450b6 Fix AR anchor pointer event coordinate handling.
+[x] npm install --no-audit --no-fund erfolgreich nach node_modules/glob Bereinigung.
+[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
+[x] Next.js 16.2.3 Build erfolgreich kompiliert.
+[x] TypeScript erfolgreich abgeschlossen.
+[x] Static Pages erfolgreich generiert: 29/29.
+[x] /mobile/ar im Build enthalten.
+[x] /mobile/missionen/squat im Build enthalten.
+[x] pm2 restart wellfit-now --update-env erfolgreich.
+[x] pm2 status geprüft: wellfit-now online.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -40,42 +61,36 @@ NODE_OPTIONS="--max-old-space-size=768" npm run build
 pm2 restart wellfit-now --update-env
 pm2 status
 
-BISHER BESTÄTIGTER SERVER-BUILD NACH V2:
-[x] git fetch origin ausgeführt.
-[x] git reset --hard origin/main ausgeführt.
-[x] HEAD bestätigt: 6252dfa Document mobile AR buddy movement V2 as next build target.
-[x] npm install --no-audit --no-fund erfolgreich / up to date.
-[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
-[x] Next.js 16.2.3 Build erfolgreich kompiliert.
-[x] TypeScript erfolgreich abgeschlossen.
-[x] Static Pages erfolgreich generiert: 29/29.
-[x] /mobile/ar im Build enthalten.
-[x] /mobile/missionen/squat im Build enthalten.
-[x] pm2 restart wellfit-now --update-env erfolgreich.
-[x] pm2 status geprüft: wellfit-now online.
-
 [ ] Gerätetest Android/iPhone: QR, Mobile, Kamera, Pose, Face, Scroll, Mission Run.
-[ ] HTTPS/Kamera/Sensor-Berechtigungen prüfen.
-[ ] Prüfen, ob /mobile wirklich nicht mehr auf Desktop-Seiten springt.
-[ ] PWA nach Service-Worker-Update prüfen: /mobile/einstellungen, /mobile/ar und /mobile/missionen/squat erreichbar.
-[ ] /mobile/ar auf echtem Handy prüfen: Rückkamera, Rufen, Laufen/Pause, Tap-Reaktionen, Sprechblase, Platzierungshinweis, Button-Kollisionen.
+[ ] /mobile/ar auf echtem Handy prüfen: Rückkamera, 3D-Flammi, Anker, Laufen um Anker, Rufen, Tap-Reaktionen, Sprechblase, Button-Kollisionen.
+[ ] Prüfen: WebGL auf Samsung Internet / Chrome Mobile stabil.
+[ ] Prüfen: Performance, Akku, FPS, Hitze.
+[ ] Prüfen: PWA nach Service-Worker-Update lädt wirklich neuen Stand.
 
 ============================================================
 PRIO 2 – 3D-FLAMMI / ECHTES AR-ERLEBNIS
 ============================================================
 
-[ ] 2D-Emoji-Flammi nur noch als Fallback behandeln.
-[ ] 3D-Flammi-Komponente bauen:
+[x] 2D-Emoji-Flammi nicht mehr Hauptdarstellung.
+[x] 3D-Flammi-Komponente gebaut:
     - WebGL/Three.js Canvas über Rückkamera.
     - Low-Poly-Drachenform als erste Code-/Primitive-Version, bis GLB-Asset vorhanden ist.
-    - Idle-Animation: Atmen, Kopf, Flügel.
+    - Idle-Animation: Kopf, Flügel, Schwanz, leichtes Atmen/Hüpfen.
     - Hop/Walk-Animation.
     - Tap-Reaktion.
     - Schatten unter Flammi.
     - Perspektivische Skalierung für Raumgefühl.
+[x] Simulierter Anker-Modus gebaut:
+    - Button „Anker“.
+    - Tap im Kamerabild setzt simulierten Anker.
+    - Ring markiert gesetzten Punkt.
+    - Flammi bleibt am gesetzten Punkt.
+    - Laufen bewegt Flammi um den gesetzten Punkt.
+    - Rufen löst den Anker und holt Flammi zurück.
 [ ] Später echtes GLB/GLTF-Flammi-Asset erstellen oder importieren.
 [ ] Fallback beibehalten, falls WebGL nicht verfügbar ist.
 [ ] Danach WebXR/native AR-Anker prüfen.
+[ ] Für echten Bodenanker native ARCore/ARKit Plane Detection / Raycast planen.
 
 ============================================================
 PRIO 3 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
@@ -99,22 +114,7 @@ PRIO 3 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
 [ ] Server/Cloud Function für Mission Completion und Reward-Entscheidung planen.
 
 ============================================================
-PRIO 4 – MOBILE AR / AVATAR / BUDDY WEITER AUSBAUEN
-============================================================
-
-[x] Flammi-Bewegungslogik V2 bauen:
-    - Flammi läuft/hüpft automatisch zwischen 2–3 sicheren Bildschirmpositionen.
-    - Button „Flammi rufen“ holt ihn zurück.
-    - Tap auf Flammi erzeugt mehrere Reaktionen.
-    - UI bleibt auf kleinen Handys kompakt.
-[x] ArBuddyControls.tsx ergänzt.
-[x] AR-Testmodus nutzt Rückkamera statt Selfie-Kamera.
-[>] Eigenes 2D-Flammi-Asset statt Emoji nur als Fallback relevant.
-[ ] AR-Rückholmechanik bei Safe-Area-/Rand-Konflikten weiter härten.
-[ ] AR-Training mit Skeleton Tracking verbinden.
-
-============================================================
-PRIO 5 – MOBILE MISSION STABILISIEREN
+PRIO 4 – MOBILE MISSION STABILISIEREN
 ============================================================
 
 [ ] Kamera-Mission UX auf echtem Handy testen.
@@ -133,7 +133,7 @@ PRIO 5 – MOBILE MISSION STABILISIEREN
 [ ] Nach erfolgreichem Abschluss optional Zurück-Button zu /mobile/missionen ergänzen.
 
 ============================================================
-PRIO 6 – FIRESTORE / SECURITY HÄRTEN
+PRIO 5 – FIRESTORE / SECURITY HÄRTEN
 ============================================================
 
 [ ] firestore.rules lokal oder im Firebase Emulator testen.
@@ -144,7 +144,7 @@ PRIO 6 – FIRESTORE / SECURITY HÄRTEN
 [ ] Reward-/Punkte-Events auditierbar speichern.
 
 ============================================================
-PRIO 7 – AR-TECHNIKENTSCHEIDUNG
+PRIO 6 – AR-TECHNIKENTSCHEIDUNG
 ============================================================
 
 [ ] WebAR vs. native App bewerten.
@@ -154,7 +154,7 @@ PRIO 7 – AR-TECHNIKENTSCHEIDUNG
 [ ] Entscheidung dokumentieren, bevor echte AR-Missionen gebaut werden.
 
 ============================================================
-PRIO 8 – TOKENOMICS / CHAIN-STRATEGIE KLÄREN, ABER NICHT UMSETZEN
+PRIO 7 – TOKENOMICS / CHAIN-STRATEGIE KLÄREN, ABER NICHT UMSETZEN
 ============================================================
 
 [ ] Historische Solana/SPL-Unterlagen und neuere SUI/Dynamic-Object-Strategie sauber versionieren.
@@ -163,7 +163,7 @@ PRIO 8 – TOKENOMICS / CHAIN-STRATEGIE KLÄREN, ABER NICHT UMSETZEN
 [ ] App-Store-kritische Bereiche tokenfrei halten.
 
 ============================================================
-PRIO 9 – DANACH DESKTOP-PRODUKTMODULE
+PRIO 8 – DANACH DESKTOP-PRODUKTMODULE
 ============================================================
 
 [>] WF-DASH-NEXT-000 – Dashboard-Produktmodule nach Mobile/AR/Avatar-Fokus fortsetzen.
