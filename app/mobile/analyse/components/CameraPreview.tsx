@@ -1,12 +1,13 @@
-import type { RefObject } from "react";
+import type { ReactNode, RefObject } from "react";
 import type { CameraPermissionState } from "@/lib/vision/visionTypes";
 
 type CameraPreviewProps = {
   videoRef: RefObject<HTMLVideoElement | null>;
   permissionState: CameraPermissionState;
+  children?: ReactNode;
 };
 
-export default function CameraPreview({ videoRef, permissionState }: CameraPreviewProps) {
+export default function CameraPreview({ videoRef, permissionState, children }: CameraPreviewProps) {
   const isActive = permissionState === "granted";
 
   return (
@@ -18,6 +19,8 @@ export default function CameraPreview({ videoRef, permissionState }: CameraPrevi
           muted
           playsInline
         />
+
+        {isActive && children}
 
         {!isActive && (
           <div className="absolute inset-0 grid place-items-center p-6 text-center">
@@ -32,7 +35,7 @@ export default function CameraPreview({ videoRef, permissionState }: CameraPrevi
         )}
 
         <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-[#042f35]/80 px-3 py-1 text-xs font-black text-cyan-100">
-          {isActive ? "Live Preview" : "Preview"}
+          {isActive ? "Live Preview + Skeleton" : "Preview"}
         </div>
       </div>
     </section>
