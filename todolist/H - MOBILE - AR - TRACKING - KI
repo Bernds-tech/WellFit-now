@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.2 – MOBILE / BUDDY / VISION / AR KONSOLIDIERT
+Version: 3.3 – MOBILE / BUDDY / VISION / AR ALS AKTUELLER HAUPTFOKUS
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -7,6 +7,11 @@ Ordner: todolist/
 ============================================================
 H. MOBILE / AR / TRACKING / KI
 ============================================================
+
+AKTUELLER FOKUS:
+[x] Nutzerentscheidung übernommen: Handy / AR / Avatar / Buddy wird vor Desktop-Marktplatz, Leaderboard, Shop und weiteren Produktmodulen priorisiert.
+[x] Keine Token-, Presale-, Trading- oder produktkritische Reward-Logik in Mobile.
+[x] Mobile AR bleibt vorerst ein sicherer PWA-/Kamera-Prototyp, bis echte AR-Technologieentscheidung getroffen ist.
 
 TASK-ID: WF-MOBILE-001
 STATUS: [~] In Arbeit / PWA-Test-App umgesetzt
@@ -121,7 +126,7 @@ H3. AR-BUDDY
 ============================================================
 
 TASK-ID: WF-BUDDY-P3-AR-001
-STATUS: [~] AR-Overlay-Prototyp umgesetzt / echte AR-Technikentscheidung offen
+STATUS: [~] Interaktiver AR-Overlay-Prototyp umgesetzt / echte AR-Technikentscheidung offen
 
 ZIEL:
 Buddy läuft sichtbar im echten Raum herum.
@@ -133,6 +138,24 @@ ERLEDIGT:
 [x] AR-Statuskarte umgesetzt.
 [x] Kamera stoppen / Flammi rufen UI vorbereitet.
 [x] AR-Buddy-Platzhalter auch in Kamera-Mission sichtbar.
+[x] /mobile/ar/page.tsx mit Buddy-Zuständen erweitert: idle, called, happy, listening.
+[x] Flammi rufen steuert jetzt Position und Buddy-Zustand.
+[x] Tap auf Flammi löst sichtbare Buddy-Reaktion aus.
+[x] AR-Buddy-Overlay modularisiert.
+[x] ArBuddyCharacter.tsx erstellt.
+[x] ArBuddySpeechBubble.tsx erstellt.
+[x] ArPlacementHint.tsx erstellt.
+[x] Simulierter Boden-/Raumhinweis im Kamera-Prototyp ergänzt.
+[x] Mobile AR enthält weiterhin keine Reward-, Token-, Presale- oder produktkritische Client-Autorität.
+
+OFFEN / NÄCHSTER MOBILE-AR-SCHRITT:
+[ ] Gerätetest Android/iPhone für /mobile/ar durchführen.
+[ ] Prüfen, ob Overlay, Sprechblase und Buttons auf kleinen Displays nicht kollidieren.
+[ ] AR-Buddy visuell hochwertiger machen: eigenes Flammi-Asset statt Emoji.
+[ ] Kleine Bewegungslogik ergänzen: Flammi läuft/hüpft zwischen 2–3 sicheren Bildschirmpositionen.
+[ ] ArBuddyControls.tsx ergänzen, falls weitere Aktionen hinzukommen.
+[ ] AR-Rückholmechanik ausbauen: Flammi kommt zurück in den sicheren Bereich.
+[ ] AR-Training mit Skeleton Tracking verbinden.
 
 OFFEN / ECHTE AR:
 [ ] AR-Technikentscheidung treffen: WebAR-Prototyp vs. native App / Unity / ARKit / ARCore.
@@ -140,12 +163,11 @@ OFFEN / ECHTE AR:
 [ ] Fläche/Boden erkennen.
 [ ] Buddy mit Raumanker platzieren.
 [ ] Buddy laufen lassen.
-[ ] Tap-/Interaktion.
-[ ] AR-Rückholmechanik.
-[ ] AR-Training mit Skeleton Tracking verbinden.
+[ ] Tap-/Interaktion in echter AR.
 [ ] AR-Elemente realistisch in Umgebung einbetten, nicht nur overlayen.
 
 EMPFEHLUNG:
+[x] Handy / AR / Avatar zuerst priorisieren.
 [ ] Erst Mobile/Kamera-Gerätetest abschließen, dann AR-Technikentscheidung treffen.
 
 ============================================================
