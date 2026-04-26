@@ -87,6 +87,13 @@ async function run() {
         publicCode: "WF-DEMO-ROPE-TREE-001",
         status: "validated",
       });
+      await adminDb.collection("nfcScanClaims").doc("claim_demo_nfc_rope_tree_001_alice_demo_tree_clue_001").set({
+        claimId: "claim_demo_nfc_rope_tree_001_alice_demo_tree_clue_001",
+        userId: "alice",
+        tagId: "demo_nfc_rope_tree_001",
+        missionId: "demo_tree_clue_001",
+        status: "claimed",
+      });
       await adminDb.collection("capabilityUnlockEvents").doc("unlock_alice_001").set({
         eventId: "unlock_alice_001",
         userId: "alice",
@@ -175,6 +182,15 @@ async function run() {
       userId: "alice",
       publicCode: "WF-DEMO-ROPE-TREE-001",
       status: "validated",
+    }));
+
+    await assertFails(aliceDb.collection("nfcScanClaims").doc("claim_demo_nfc_rope_tree_001_alice_demo_tree_clue_001").get());
+    await assertFails(aliceDb.collection("nfcScanClaims").doc("claim_hack").set({
+      claimId: "claim_hack",
+      userId: "alice",
+      tagId: "demo_nfc_rope_tree_001",
+      missionId: "demo_tree_clue_001",
+      status: "claimed",
     }));
 
     await assertSucceeds(aliceDb.collection("capabilityUnlockEvents").doc("unlock_alice_001").get());
