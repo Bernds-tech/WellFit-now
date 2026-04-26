@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.2 – REWARD / SYSTEM HEALTH / NEXT-GEN MECHANICS KONSOLIDIERT
+Version: 3.3 – REWARD / ITEMS / NFC / CAPABILITIES / SYSTEM HEALTH KONSOLIDIERT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -21,6 +21,7 @@ G. REWARD SYSTEM / SYSTEM HEALTH / NEXT-GEN MECHANICS
 [x] XP-/Level-System.
 [x] Precision / Workout Qualität technisch in Basis umgesetzt: Kamera-Mission, Pose Tracking, validReps, invalidReps, qualityScore.
 [x] Buddy-Reaktion nach Mission über Mission-Buddy-Bridge technisch vorbereitet.
+[x] Buddy-Items, Ausrüstung, NFC und Fähigkeiten als strategische Reward-/Gameplay-Erweiterung aufgenommen.
 [~] Sensor Fusion technisch begonnen: Pose/Face/DeviceMotion als getrennte Prototypen vorhanden, Fusion noch offen.
 [ ] Anti-Cheat AI.
 [ ] Completion Trends über mehrere Tage/Wochen.
@@ -43,9 +44,11 @@ STATUS: [~] In Arbeit
 [x] Mobile Kamera-Mission vergibt aktuell interne Punkte über Mission-Buddy-Bridge.
 [!] Produktkritische Punktevergabe ist langfristig nicht clientseitig autorisiert.
 [!] Mission Completion, Punkte, XP, Buddy-Effekte und Leaderboards müssen später über Cloud Functions / Backend / Firestore Rules validiert werden.
+[!] Items, NFC-Scans, Fähigkeitsfreischaltungen und Buddy-Aktionen dürfen keine clientseitige Reward-Autorität sein.
 [ ] Reward-Engine als serverseitige Autorität planen.
 [ ] Reward-Events auditierbar speichern.
 [ ] Punkte-Abzug und Item-Vergabe für Shop später serverseitig absichern.
+[ ] Item-/Capability-Reward-Events auditierbar speichern.
 
 ============================================================
 G2. Tokenomics / WFT – bewusst verschoben
@@ -95,6 +98,8 @@ STATUS: [~] Basis vorhanden / Ausbau offen
 [ ] Unplausible Sessions markieren.
 [ ] Belohnungen drosseln, wenn Daten unsicher sind.
 [ ] Wiederholtes Fake-/Pattern-Verhalten erkennen.
+[ ] NFC-Farming und mehrfaches Tag-Scannen erkennen.
+[ ] Item-/Capability-Missbrauch erkennen.
 [ ] Reward-Balancing für Kinder, Senioren, Erwachsene und Firmenkontexte getrennt prüfen.
 
 ============================================================
@@ -110,3 +115,59 @@ STATUS: [>] Später / nur strategisches Zielbild
 [ ] Datenschutz, Akku, Hitze, App-Store-Policies und Sicherheit vor Umsetzung prüfen.
 [ ] Pharma-/Forschungsdaten nur anonymisiert, opt-in, DSGVO-konform und ethisch geprüft.
 [ ] Keine gesundheitsbezogenen Rohdaten ohne Rechtsgrundlage monetarisieren.
+
+============================================================
+G6. Items / Inventar / NFC / Buddy-Fähigkeiten
+============================================================
+
+TASK-ID: WF-ITEM-NFC-001
+STATUS: [~] Konzept in H2 aufgenommen / Datenmodell offen
+
+ZIEL:
+Items, NFC-/Real-World-Objekte und Buddy-Fähigkeiten werden Gameplay-Bestandteil. Sie können Missionen, Rätselrallyes und AR-Buddy-Aktionen ermöglichen, aber Rewards nie clientseitig final auslösen.
+
+ITEM-TYPEN:
+[ ] Kosmetik: Kleidung, Farben, Rüstung, Accessoires.
+[ ] Werkzeug: Lupe, Seil, Greifhaken, Rucksack, Laterne, Kompass.
+[ ] Schutz: Schild, Helm, Rüstung.
+[ ] Bewegungsfähigkeit: Kletterschuhe, Sprungfeder, Flügel-Upgrade, Seil.
+[ ] Rätselwerkzeug: Scanner, magische Linse, Karte, Schlüssel.
+[ ] Event-/NFC-Item: echter Tag, Karte, Sticker, Spielplatzpunkt, Partnerobjekt.
+
+BUDDY-FÄHIGKEITEN:
+[ ] climbUp.
+[ ] jumpDown.
+[ ] jumpBoost.
+[ ] fetchClue.
+[ ] scanObject.
+[ ] revealHint.
+[ ] protect.
+[ ] carry.
+
+NFC-/REAL-WORLD-ITEM-REGELN:
+[!] NFC-Tag darf niemals direkt Reward oder Item final freischalten.
+[!] NFC-Scan sendet nur Beweis/Event an Backend.
+[!] Backend prüft Tag-ID, Nutzer, Mission, Zeitfenster und Missbrauch.
+[!] Erst Backend schaltet Item/Fähigkeit/Reward frei.
+[!] Rare Items und Partner-Items brauchen Audit-Log.
+[ ] Tags müssen rotierbar, sperrbar und serverseitig widerrufbar sein.
+[ ] NFC-Scan-Events müssen auditierbar gespeichert werden.
+
+FIRESTORE-/BACKEND-PLANUNG:
+[ ] userInventory Collection planen.
+[ ] itemDefinitions Collection planen.
+[ ] buddyCapabilities Collection planen.
+[ ] nfcTags Collection planen.
+[ ] nfcScanEvents Collection planen.
+[ ] capabilityUnlockEvents Collection planen.
+[ ] Cloud Function validateNfcScan planen.
+[ ] Cloud Function grantItemOrCapability planen.
+[ ] Cloud Function auditItemUse planen.
+[ ] Cloud Function validateMissionCompletionWithItem planen.
+
+UNITY-/AR-ANBINDUNG:
+[ ] Unity bekommt nur validierte Item-/Capability-Zustände.
+[ ] Unity visualisiert Ausrüstung am Buddy.
+[ ] Unity spielt Buddy-Aktion ab: climbUp, jumpDown, fetchClue, scanObject, carry.
+[ ] Unity meldet Aktion abgeschlossen an App/Backend.
+[ ] Backend entscheidet Mission Completion und Rewards.
