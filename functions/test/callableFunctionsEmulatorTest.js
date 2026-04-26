@@ -41,6 +41,11 @@ function assert(condition, message) {
   }
 }
 
+function decodeJwtPayload(token) {
+  const [, payload] = token.split(".");
+  return JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+}
+
 async function safeDeleteUser(uid) {
   try {
     await auth.deleteUser(uid);
@@ -76,7 +81,7 @@ async function createAuthUser(uid, adminClaim) {
   if (adminClaim) {
     await auth.setCustomUserClaims(uid, { admin: true });
   }
-  const customToken = await auth.createCustomToken(uid);
+  const customToken = await auth.createCustomToken(uid, adminClaim ? { admin: true } : undefined);
   const response = await fetch(`http://${AUTH_EMULATOR_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=fake-api-key`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -85,6 +90,10 @@ async function createAuthUser(uid, adminClaim) {
   const json = await response.json();
   if (!response.ok || !json.idToken) {
     throw new Error(`Auth Emulator signInWithCustomToken failed: ${JSON.stringify(json)}`);
+  }
+  const decoded = decodeJwtPayload(json.idToken);
+  if (adminClaim) {
+    assert(decoded.admin === true, `Admin ID token enthaelt keinen admin Claim: ${JSON.stringify(decoded)}`);
   }
   return json.idToken;
 }
@@ -99,8 +108,14 @@ async function callCallable(functionName, idToken, data) {
     body: JSON.stringify({ data: data || {} }),
   });
 
-  const json = await response.json().catch(() => ({}));
-  return { status: response.status, ok: response.ok, json };
+  const rawText = await response.text();
+  let json = {};
+  try {
+    json = rawText ? JSON.parse(rawText) : {};
+  } catch (error) {
+    json = { parseError: error.message, rawText };
+  }
+  return { status: response.status, ok: response.ok, json, rawText };
 }
 
 function getCallableResult(callResponse) {
@@ -108,6 +123,15 @@ function getCallableResult(callResponse) {
     return callResponse.json.result;
   }
   return null;
+}
+
+function describeCall(callResponse) {
+  return JSON.stringify({
+    status: callResponse.status,
+    ok: callResponse.ok,
+    json: callResponse.json,
+    rawText: callResponse.rawText,
+  });
 }
 
 async function run() {
@@ -122,7 +146,7 @@ async function run() {
 
   const adminSeed = await callCallable("seedDemoItemsAndNfc", adminToken, {});
   const adminSeedResult = getCallableResult(adminSeed);
-  assert(adminSeed.ok, `Admin Seed muss HTTP OK sein: ${JSON.stringify(adminSeed.json)}`);
+  assert(adminSeed.ok, `Admin Seed muss HTTP OK sein: ${describeCall(adminSeed)}`);
   assert(adminSeedResult && adminSeedResult.accepted === true, "Admin Seed muss accepted=true liefern.");
   assert(adminSeedResult.itemDefinitions === 3, "Admin Seed muss 3 Item-Definitionen anlegen.");
   assert(adminSeedResult.nfcTags === 2, "Admin Seed muss 2 NFC-Tags anlegen.");
@@ -134,7 +158,7 @@ async function run() {
     appSessionId: "callable-test-session-001",
   });
   const nfcResult = getCallableResult(nfcScan);
-  assert(nfcScan.ok, `validateNfcScan muss HTTP OK sein: ${JSON.stringify(nfcScan.json)}`);
+  assert(nfcScan.ok, `validateNfcScan muss HTTP OK sein: ${describeCall(nfcScan)}`);
   assert(nfcResult.accepted === true, "validateNfcScan muss accepted=true liefern.");
   assert(nfcResult.grantedItemId === "rope_001", "validateNfcScan muss rope_001 vergeben.");
   assert(nfcResult.grantedCapabilityId === "climbUp", "validateNfcScan muss climbUp freischalten.");
@@ -159,7 +183,7 @@ async function run() {
     status: "completed",
   });
   const auditResult = getCallableResult(audit);
-  assert(audit.ok, `auditItemUse muss HTTP OK sein: ${JSON.stringify(audit.json)}`);
+  assert(audit.ok, `auditItemUse muss HTTP OK sein: ${describeCall(audit)}`);
   assert(auditResult.accepted === true, "auditItemUse muss accepted=true liefern.");
   assert(auditResult.eventId, "auditItemUse muss eventId liefern.");
 
@@ -168,7 +192,7 @@ async function run() {
     missionId: "wrong_mission",
   });
   const wrongMissionResult = getCallableResult(wrongMission);
-  assert(wrongMission.ok, "wrong mission response soll technisch HTTP OK sein, aber accepted=false liefern.");
+  assert(wrongMission.ok, `wrong mission response soll HTTP OK sein: ${describeCall(wrongMission)}`);
   assert(wrongMissionResult.accepted === false, "Falsche Mission muss accepted=false liefern.");
   assert(wrongMissionResult.rejectionReason === "mission-mismatch", "Falsche Mission muss mission-mismatch liefern.");
 
