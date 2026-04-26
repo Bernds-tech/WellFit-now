@@ -1,0 +1,243 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
+
+WICHTIGER HINWEIS:
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+
+============================================================
+F. FIREBASE / REALTIME / MISSIONEN
+============================================================
+
+TASK-ID: WF-DASH-004
+STATUS: [x] Fertig / Basis-Realtime umgesetzt
+[x] Dashboard nutzt Firebase Auth mit onAuthStateChanged.
+[x] Dashboard nutzt lokalen Cache, dadurch sind Daten schneller sichtbar.
+[x] Dashboard nutzt Firestore onSnapshot für echte Live-Synchronisation.
+[x] Dashboard schreibt Fortschritt über setDoc mit merge.
+[x] Listener werden beim Verlassen sauber unsubscribed.
+[ ] Realtime-Verhalten in Mehrtab-/Mehrgerät-Test noch manuell prüfen.
+
+TASK-ID: WF-DASH-003
+STATUS: [x] Fertig / Basis umgesetzt
+[x] Dashboard nutzt Firebase signOut.
+[x] Einstellungen nutzt Firebase signOut.
+[x] Redirect auf Startseite nach Logout.
+[ ] Logout auf allen Geräten später ergänzen.
+
+TASK-ID: WF-SETTINGS-REALTIME-001
+STATUS: [ ] Offen
+[ ] Einstellungen von getDoc-basierter Lade-Logik auf onSnapshot umstellen.
+[ ] Cache/Loading-State sauber kombinieren.
+[ ] Listener sauber unsubscriben.
+
+TASK-ID: WF-MISS-LOCALSTORAGE-001
+STATUS: [!] Kritisch / Offen
+[!] Missionen dürfen langfristig nicht mehr localStorage als Hauptspeicher verwenden.
+[ ] Favoriten vollständig nach Firestore migrieren.
+[ ] Aktive Missionen vollständig nach Firestore migrieren.
+[ ] Punktevergabe über Firestore/Backend-Regeln absichern.
+[ ] Wettkampf-Einsätze serverseitig absichern.
+[ ] Jackpot/Burn nur serverseitig oder per Smart Contract/Backend berechnen.
+[ ] localStorage nur noch für UI-Zustände nutzen.
+
+TASK-ID: WF-MISS-HISTORY-001
+STATUS: [~] In Arbeit
+[x] History-Seite existiert.
+[x] History nutzt Firestore-Realtime via onSnapshot.
+[x] Tagesmissionen schreiben bei Abschluss in History.
+[ ] Wochenmissionen bei Abschluss in History schreiben.
+[ ] Abenteuer bei Abschluss in History schreiben.
+[ ] Challenge bei Abschluss in History schreiben.
+[ ] Wettkämpfe bei Abschluss/Sieg/Teilnahme in History schreiben.
+
+TASK-ID: WF-MISS-COMP-001
+STATUS: [~] In Arbeit / MVP-Simulation umgesetzt
+[x] Wettkämpfe als Duell-/Einsatz-/Jackpot-Modul vorbereitet.
+[!] Aktuell nur clientseitige Simulation.
+[ ] Matchmaking.
+[ ] Servervalidierte Einsätze.
+[ ] Anti-Cheat.
+[ ] Ergebniserfassung.
+[ ] Jackpot-Settlement.
+[ ] Burn-Mechanik rechtlich/technisch prüfen.
+[ ] Avatar-Kampfregeln definieren.
+
+============================================================
+G. REWARD SYSTEM / SYSTEM HEALTH / NEXT-GEN MECHANICS
+============================================================
+
+[x] Vorerst KEINE echte Token-Ausschüttung.
+[x] Interne Punkte-Ausschüttung.
+[x] Persönliche Wallet-/Economy-Logik vorbereitet.
+[x] Systemreserve-Logik vorbereitet.
+[x] Reward Score Basis vorhanden.
+[x] Avatar + Economy beeinflussen Reward konzeptionell/teilweise.
+[x] Reward Breakdown im UI sichtbar.
+[x] Daily Reward Loop.
+[x] Tagesziel 3 Missionen.
+[x] Streak System.
+[x] XP-/Level-System.
+[ ] Precision / Workout Qualität.
+[ ] Sensor Fusion.
+[ ] Anti-Cheat AI.
+[ ] Completion Trends über mehrere Tage/Wochen.
+[ ] Streak-Risiko/Verlust visuell stärker darstellen.
+[ ] DePIN Compute.
+[ ] Pharma Simulation.
+[ ] External Economy.
+[>] Echte Token-/WFT-Anbindung bewusst verschoben bis nach Testphase.
+
+============================================================
+H. MOBILE / AR / TRACKING / KI
+============================================================
+
+TASK-ID: WF-MOBILE-001
+STATUS: [>] Später / Backlog
+[x] Web-App = Steuerzentrale.
+[x] Mobile App = täglicher Begleiter.
+[ ] Startscreen mit AR-Startbutton, nicht automatisch Kamera starten.
+[ ] Rechts oben Nutzerbild.
+[ ] Daneben Buddy-Level.
+[ ] Links Hamburger-Menü.
+[ ] Unten Tagesfortschritt nur als Balken.
+[ ] AR-Elemente realistisch in Umgebung einbetten, nicht nur overlayen.
+
+TASK-ID: WF-AI-POSE-001
+STATUS: [>] Später / Backlog
+[ ] TensorFlow / MediaPipe / vergleichbare Technologie prüfen.
+[ ] Skeleton Tracking definieren.
+[ ] Saubere Wiederholungen zählen.
+[ ] Schlechte Wiederholungen nicht zählen.
+[ ] Edge AI / On-Device Verarbeitung prüfen.
+
+TASK-ID: WF-AI-MOOD-001
+STATUS: [>] Später / Backlog
+[ ] Mimik-/Stimmungszustände definieren: gut, schlecht, mies, genervt, müde, motiviert, gestresst.
+[ ] Consent für Kamera/Mimik-Erkennung.
+[ ] Keine Speicherung von Bildern/Videos als Standard.
+[ ] Nur lokale Analyse prüfen.
+
+TASK-ID: WF-WATCH-001
+STATUS: [>] Später / Backlog
+[>] Schritte, Smartwatch- und Health-Daten sind Kontextdaten, nicht Kernmission.
+[ ] HealthKit prüfen.
+[ ] Google Health Connect prüfen.
+[ ] Smartwatch-Daten anbinden.
+[ ] Datenminimierung und Consent festlegen.
+
+TASK-ID: WF-TRACK-001
+STATUS: [x] Fertig / Basis umgesetzt
+[x] lib/tracking.ts erstellt.
+[x] startTrackingSession vorhanden.
+[x] finishTrackingSession vorhanden.
+[x] trackingSessions Collection wird beschrieben.
+[x] source / missionId / missionTitle / activityType / startTime / endTime / stepsAggregated / eventsCount / validReps / invalidReps sind berücksichtigt.
+
+TASK-ID: WF-ANTI-CHEAT-001
+STATUS: [ ] Offen
+[ ] Cheat-Schutz für AR, Tracking und Wettbewerbe ausbauen.
+[ ] Standort / Zeit / Aufgabe plausibilisieren.
+[ ] Schrittmuster validieren.
+[ ] Geschwindigkeit / Distanz / Zeitfenster plausibilisieren.
+[ ] Unplausible Tracking-Sessions markieren.
+[ ] Wettbewerbe serverseitig validieren.
+
+============================================================
+I. BUSINESS / WEBSITE / PARTNER / LEGAL
+============================================================
+
+TASK-ID: WF-FAMILY-001
+STATUS: [>] Später / Backlog
+[ ] Familiengruppen definieren.
+[ ] Enkel-/Kind-zu-Großeltern-Missionen definieren.
+[ ] Silver-Economy-Use-Cases definieren.
+[ ] Gemeinsame Familienziele definieren.
+[ ] Datenschutz/Einwilligung für Familiengruppen prüfen.
+
+TASK-ID: WF-CORP-001
+STATUS: [>] Später / Backlog
+[ ] Firmen-Challenges.
+[ ] Teamranglisten.
+[ ] anonymisierte Firmen-Analytics.
+[ ] Company Admin Rolle.
+[ ] Datenschutz für Arbeitgeberdaten streng abgrenzen.
+
+TASK-ID: WF-CITY-001
+STATUS: [>] Später / Backlog
+[ ] Ortsmissionen.
+[ ] Checkpoints.
+[ ] Parks/Sehenswürdigkeiten.
+[ ] Stadt-/Tourismus-Partner.
+[ ] Eventmissionen.
+
+TASK-ID: WF-REVENUE-001
+STATUS: [>] Später / Backlog
+[ ] Firmenlizenzen.
+[ ] BGM-Challenges.
+[ ] Sponsored Missions.
+[ ] Brand Campaigns.
+[ ] Versicherungen/Prävention.
+[ ] Städte/Tourismus.
+[ ] Eventpartner.
+[ ] Marketplace Fees.
+[ ] Premium Accounts.
+[ ] White-Label-Challenges.
+[ ] Partner-Rewards.
+[ ] anonymisierte Reports DSGVO-konform.
+[ ] AR-Skins / digitale Items später.
+[ ] API-/Platform Fees später.
+[ ] Bildungs-/Lernmissionen.
+[ ] Gesundheitsprogramme.
+[ ] Corporate Team Challenges.
+[ ] International Licensing.
+
+TASK-ID: WF-DOC-001
+STATUS: [ ] Offen
+[ ] README.md aktualisieren.
+[ ] Projektstruktur dokumentieren.
+[ ] .env.example erstellen.
+[ ] Firebase Setup dokumentieren.
+[ ] Server Deploy dokumentieren.
+[ ] PM2 Start/Restart dokumentieren.
+[ ] Hinweis auf To Do List.txt einbauen.
+
+TASK-ID: WF-LEGAL-002
+STATUS: [ ] Offen
+[ ] Datenschutz um Kamera/AR erweitern.
+[ ] Datenschutz um Pose Tracking erweitern.
+[ ] Datenschutz um HealthKit/Health Connect/Watch-Daten erweitern.
+[ ] Optionale Emotion/Mimik-Analyse gesondert zustimmungspflichtig machen.
+[ ] Keine Speicherung von Bildern/Videos als Standard.
+
+============================================================
+J. NÄCHSTE EMPFOHLENE ARBEIT
+============================================================
+
+PRIO 1:
+[~] WF-DASH-NEXT-000 – Dashboard-Produktmodule vor Missionen.
+[ ] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul ausbauen.
+[ ] WF-MARKET-001 – Marktplatz MVP vorbereiten.
+[ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten.
+[ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten.
+[ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
+
+PRIO 2:
+[ ] WF-QA-001 – Build und UI nach Dashboard-Refactor testen.
+[ ] WF-REGISTER-SCHEMA-001 – Firestore User-/Profile-/Settings-Schema dokumentieren.
+[ ] WF-QA-LOGIN-REGISTER-001 – Login/Register Desktop und Mobile testen.
+[ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
+
+PRIO 3:
+[ ] WF-BUDDY-CHAR-001 – Buddy-Charaktere definieren.
+[ ] WF-AVATAR-INV-001 – Avatar-Inventar anlegen.
+[ ] WF-AI-MISSIONS-001 – KI-Missionen vorbereiten.
+
+SPÄTER / NACH DASHBOARD-PRODUKTMODULEN:
+[>] WF-REFACTOR-004 bis WF-REFACTOR-009 – Missions- und Missionsnebenbereiche weiter modularisieren.
+[>] Missionen inhaltlich erst nach Dashboard-Produktzentrale, Datenmodell und Sicherheitsbasis weiter ausbauen.
+
+ENDE VERSION 3.1
