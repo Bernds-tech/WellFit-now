@@ -3,19 +3,22 @@ import ArBuddySpeechBubble from "./ArBuddySpeechBubble";
 import ArPlacementHint from "./ArPlacementHint";
 
 export type ArBuddyMood = "idle" | "called" | "happy" | "listening" | "curious" | "playful" | "returning";
-export type ArBuddyPosition = "near" | "center" | "far";
+export type ArBuddyPosition = "nearLeft" | "center" | "farRight" | "nearRight" | "farLeft";
 
 type ArBuddyOverlayProps = {
   isCameraActive: boolean;
   mood: ArBuddyMood;
   position: ArBuddyPosition;
+  actionCount: number;
   onBuddyTap: () => void;
 };
 
 const positionClass: Record<ArBuddyPosition, string> = {
-  near: "bottom-[23%] left-[8%] scale-105",
+  nearLeft: "bottom-[22%] left-[6%] scale-105",
   center: "bottom-[31%] left-1/2 -translate-x-1/2 scale-95",
-  far: "bottom-[39%] right-[8%] scale-85",
+  farRight: "bottom-[41%] right-[6%] scale-85",
+  nearRight: "bottom-[23%] right-[9%] scale-105",
+  farLeft: "bottom-[40%] left-[10%] scale-85",
 };
 
 const moodMessage: Record<ArBuddyMood, string> = {
@@ -28,13 +31,14 @@ const moodMessage: Record<ArBuddyMood, string> = {
   returning: "Ich komme zurück zu dir.",
 };
 
-export default function ArBuddyOverlay({ isCameraActive, mood, position, onBuddyTap }: ArBuddyOverlayProps) {
+export default function ArBuddyOverlay({ isCameraActive, mood, position, actionCount, onBuddyTap }: ArBuddyOverlayProps) {
   return (
     <div className="absolute inset-0 z-20">
       <ArPlacementHint isCameraActive={isCameraActive} mood={mood} />
 
       <div
-        className={`absolute transition-all duration-700 ease-out ${positionClass[position]} ${
+        key={`${position}-${mood}-${actionCount}`}
+        className={`absolute transition-all duration-500 ease-out ${positionClass[position]} ${
           isCameraActive ? "opacity-100" : "opacity-55"
         }`}
       >
