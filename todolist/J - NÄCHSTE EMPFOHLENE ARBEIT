@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.0 – NATIVE AR HAUPTPFAD / WEBGL NUR FALLBACK
+Version: 4.1 – UNITY AR FOUNDATION PROJEKTSTRUKTUR ANGELEGT / BUILD OFFEN
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -11,35 +11,31 @@ J. NÄCHSTE EMPFOHLENE ARBEIT
 AKTUELLER FOKUS:
 [x] Nutzerentscheidung übernommen: Handy / AR / Avatar / Buddy wird vor Desktop-Marktplatz, Leaderboard, Shop und weiteren Produktmodulen priorisiert.
 [x] PC/Web-App dient primär als Steuerzentrale und Einstellungsbereich.
-[x] Interaktiver Mobile-AR-Buddy-Prototyp wurde umgesetzt und erfolgreich gebaut.
-[x] Flammi-Bewegungslogik V2 wurde umgesetzt.
-[x] Mobile-AR-Buddy V2 wurde erfolgreich gebaut und per PM2 neu gestartet.
-[x] AR-Testmodus wurde auf Rückkamera / Umgebungskamera umgestellt.
-[x] Native Activity Recognition wird ab jetzt aktiv begonnen, nicht nur später vorbereitet.
-[x] Nutzerfeedback aufgenommen: 2D-Emoji/Overlay reicht nicht; Ziel ist ein echter kleiner animierter 3D-Drache im AR-Erlebnis.
-[x] Flammi 3D / echte AR Pipeline dokumentiert.
-[x] Three.js / React Three Fiber / Drei Abhängigkeiten ergänzt.
-[x] 3D-Flammi-WebGL-Prototyp umgesetzt.
-[x] Simulierter AR-Anker umgesetzt.
-[x] Build nach 3D-Flammi + AR-Anker erfolgreich.
-[x] PM2 nach 3D-Flammi + AR-Anker erfolgreich neu gestartet.
-[x] Nach Gerätetest entschieden: Browser/WebGL bleibt nur Fallback, echter AR-Hauptpfad ist native ARCore/ARKit oder Unity AR Foundation.
-[x] Native AR Bridge Types ergänzt.
-[x] Native AR Web-Fallback ergänzt.
-[x] Unity AR Foundation Implementierungsplan ergänzt.
-[x] Native ARCore/ARKit Implementierungsplan ergänzt.
-[x] /mobile/ar UI als AR-Fallback-Demo markiert.
-[x] Native AR Mode Card ergänzt.
+[x] Browser/WebGL bleibt Demo und Fallback.
+[x] Echtes Buddy-AR braucht World Tracking, Plane Detection, Hit Test/Raycast und Anchor-System.
+[x] Android-Ziel: ARCore.
+[x] iOS-Ziel: ARKit.
+[x] Unity AR Foundation ist verbindlicher Hauptpfad.
+[x] Direkte ARCore/ARKit-Implementierung bleibt Plan B.
+[x] Buddy-KI, Missionsempfehlungen, Rätselgenerierung und Reward-Bewertung bleiben außerhalb von Unity in WellFit-Backend/App-Logik.
+[x] Unity rendert und steuert die AR-Welt, aber finale Rewards, Mission Completion und Anti-Cheat bleiben serverseitig.
+[x] Unity-Projektstruktur unter native/unity/WellFitBuddyAR angelegt.
+[x] Unity Scene Setup dokumentiert.
+[x] Unity Bridge Contract dokumentiert.
+[x] Unity Script-Platzhalter und erste C#-Vorlagen angelegt.
 
-PRIO 1 – BUILD NACH NATIVE-AR-UMSTELLUNG
-[ ] Build nach Native-AR-Umstellung ausführen:
-    - lib/nativeAr/nativeArTypes.ts
-    - lib/nativeAr/nativeArBridge.ts
-    - native/ar/UNITY_AR_FOUNDATION_IMPLEMENTATION.md
-    - native/ar/NATIVE_ARCORE_ARKIT_IMPLEMENTATION.md
-    - app/mobile/ar/components/NativeArModeCard.tsx
-    - app/mobile/ar/components/ArStatusCard.tsx als Fallback-Demo markiert
-    - app/mobile/ar/page.tsx mit NativeArModeCard und klarer Fallback-Sprache
+PRIO 1 – BUILD NACH UNITY-ROADMAP-STRUKTUR
+[ ] Build nach Unity-Struktur ausführen:
+    - native/unity/WellFitBuddyAR/README.md
+    - native/unity/WellFitBuddyAR/.gitignore
+    - native/unity/WellFitBuddyAR/docs/SCENE_SETUP.md
+    - native/unity/WellFitBuddyAR/docs/BRIDGE_CONTRACT.md
+    - native/unity/WellFitBuddyAR/Scripts/README.md
+    - native/unity/WellFitBuddyAR/Scripts/WellFitNativeBridge.cs.txt
+    - native/unity/WellFitBuddyAR/Scripts/BuddyController.cs.txt
+    - native/unity/WellFitBuddyAR/Scripts/BuddyAnchorController.cs.txt
+    - todolist/H1 aktualisiert auf Unity-Hauptpfad
+    - todolist/H2 Produktvision bereits ergänzt
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -51,46 +47,57 @@ pm2 restart wellfit-now --update-env
 pm2 status
 
 ============================================================
-PRIO 2 – ECHTE NATIVE AR UMSETZEN
+PRIO 2 – UNITY AR FOUNDATION LOKAL ERZEUGEN
 ============================================================
 
-ENTSCHEIDUNG:
-[x] PWA/Three.js ist Demo und Fallback.
-[x] Echtes AR braucht World Tracking, Plane Detection, Hit Test/Raycast und Anchor-System.
-[x] Android-Ziel: ARCore.
-[x] iOS-Ziel: ARKit.
-[x] Unity AR Foundation ist bevorzugter Hauptpfad, falls Build-Komplexität und App-Größe akzeptabel bleiben.
-
-NÄCHSTE AUFGABEN:
-[ ] Entscheidung finalisieren: Unity AR Foundation vs. direkt ARCore/ARKit.
-[ ] Wenn Unity:
-    [ ] Unity-Version fixieren.
-    [ ] Unity-Projekt unter native/unity/WellFitFlammiAR anlegen.
-    [ ] AR Foundation installieren.
-    [ ] ARCore XR Plugin installieren.
-    [ ] ARKit XR Plugin installieren.
-    [ ] XR Origin, AR Plane Manager, AR Raycast Manager, AR Anchor Manager einrichten.
-    [ ] Flammi-Platzhaltermodell und Animator Controller einrichten.
-    [ ] Native Bridge Events definieren.
-[ ] Wenn direkt nativ:
-    [ ] Android ARCore Plugin/Activity entwerfen.
-    [ ] iOS ARKit Plugin/View entwerfen.
-    [ ] Gemeinsame NativeArBridge anbinden.
-[ ] Echten Hit-Test auf Flächen implementieren.
-[ ] Echte World Anchor erzeugen.
-[ ] Flammi an Anchor platzieren.
-[ ] Flammi schaut zur Kamera.
-[ ] Flammi läuft in kleinem Radius um Anchor.
-[ ] Flächenwechsel: Boden, Couch, Tisch/Kastl später.
+[ ] Unity Hub installieren/öffnen.
+[ ] Unity 2022.3 LTS als Startversion verwenden, sofern keine harte Inkompatibilität auftritt.
+[ ] Projekt `WellFitBuddyAR` unter `native/unity/WellFitBuddyAR` erzeugen.
+[ ] AR Foundation installieren.
+[ ] ARCore XR Plugin installieren.
+[ ] ARKit XR Plugin installieren.
+[ ] XR Plugin Management aktivieren.
+[ ] Szene `WellFitBuddyAR` anlegen.
+[ ] AR Session, XR Origin, AR Camera, AR Plane Manager, AR Raycast Manager, AR Anchor Manager anlegen.
+[ ] Buddy Placeholder anlegen.
+[ ] C#-Vorlagen aus Scripts/*.txt in Assets/Scripts/*.cs übernehmen.
+[ ] Ersten Android ARCore Build testen.
 
 ============================================================
-PRIO 3 – 3D-FLAMMI / ASSETPIPELINE
+PRIO 3 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
 ============================================================
 
-[x] 2D-Emoji-Flammi nicht mehr Hauptdarstellung.
-[x] 3D-Flammi-WebGL-Fallback gebaut.
-[x] Simulierter Anker-Modus gebaut.
-[ ] Echtes GLB/GLTF/FBX-Flammi-Asset erstellen oder beschaffen.
+[ ] Buddy-KI-Guide Datenmodell entwerfen:
+    - aktuelle Mission
+    - nächste Empfehlung
+    - Dialogzustand
+    - Alter/Nutzerkontext
+    - Missionstyp
+    - Rewardstatus
+[ ] Rätselrallye-Datenmodell entwerfen:
+    - Story
+    - Hinweise
+    - Orte
+    - Aufgaben
+    - Auswahlantworten
+    - Belohnungen
+[ ] Buddy-Menüführung definieren:
+    - Mission empfehlen
+    - Tagesmission starten
+    - Wochenmission starten
+    - Fortschritt erklären
+    - Nutzer altersgerecht motivieren
+[ ] Sicherheitsgrenze definieren:
+    - Buddy darf empfehlen und erklären.
+    - Backend entscheidet Rewards und Mission Completion.
+    - Keine medizinischen Diagnosen.
+
+============================================================
+PRIO 4 – 3D-BUDDY / ASSETPIPELINE
+============================================================
+
+[ ] Erstes echtes Buddy-Asset definieren: Drache, Ritter, Zwerg oder anderer Prototyp.
+[ ] GLB/GLTF/FBX-Pipeline festlegen.
 [ ] Animationen definieren:
     - idle
     - walk
@@ -101,11 +108,17 @@ PRIO 3 – 3D-FLAMMI / ASSETPIPELINE
     - happy
     - lookAround
     - return
-[ ] LOD und Mobile-Optimierung definieren.
-[ ] Farb-/Designsystem finalisieren: freundlich, kind-/familientauglich, WellFit Türkis/Orange.
+    - pointAtObject
+[ ] Ausrüstungssystem vorbereiten:
+    - Schwert
+    - Schild
+    - Rüstung
+    - Kleidung
+    - Accessoires
+[ ] Mobile-Optimierung: LOD, Texturgrößen, Polygonbudget.
 
 ============================================================
-PRIO 4 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
+PRIO 5 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
 ============================================================
 
 [x] Capacitor-Abhängigkeiten ergänzt.
@@ -126,7 +139,7 @@ PRIO 4 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
 [ ] Server/Cloud Function für Mission Completion und Reward-Entscheidung planen.
 
 ============================================================
-PRIO 5 – MOBILE MISSION STABILISIEREN
+PRIO 6 – MOBILE MISSION STABILISIEREN
 ============================================================
 
 [ ] Kamera-Mission UX auf echtem Handy testen.
@@ -145,7 +158,7 @@ PRIO 5 – MOBILE MISSION STABILISIEREN
 [ ] Nach erfolgreichem Abschluss optional Zurück-Button zu /mobile/missionen ergänzen.
 
 ============================================================
-PRIO 6 – FIRESTORE / SECURITY HÄRTEN
+PRIO 7 – FIRESTORE / SECURITY HÄRTEN
 ============================================================
 
 [ ] firestore.rules lokal oder im Firebase Emulator testen.
@@ -154,23 +167,3 @@ PRIO 6 – FIRESTORE / SECURITY HÄRTEN
 [ ] Client darf langfristig nur Beweise/Events senden, nicht Rewards final vergeben.
 [ ] Anti-Cheat-Konzept für Pose, Bewegung und AR starten.
 [ ] Reward-/Punkte-Events auditierbar speichern.
-
-============================================================
-PRIO 7 – TOKENOMICS / CHAIN-STRATEGIE KLÄREN, ABER NICHT UMSETZEN
-============================================================
-
-[ ] Historische Solana/SPL-Unterlagen und neuere SUI/Dynamic-Object-Strategie sauber versionieren.
-[ ] Keine echte WFT-Ausschüttung vor 2.000–3.000 Testern.
-[ ] MiCA/MiCAR, Steuer, KYC/AML, Utility-/Security-Token-Einordnung vor Veröffentlichung prüfen.
-[ ] App-Store-kritische Bereiche tokenfrei halten.
-
-============================================================
-PRIO 8 – DANACH DESKTOP-PRODUKTMODULE
-============================================================
-
-[>] WF-DASH-NEXT-000 – Dashboard-Produktmodule nach Mobile/AR/Avatar-Fokus fortsetzen.
-[x] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul als Produktbasis gebaut.
-[ ] WF-MARKET-001 – Marktplatz MVP vorbereiten.
-[ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten.
-[ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten.
-[ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
