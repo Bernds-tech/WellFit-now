@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.6 – MISSION REWARD CONTEXT / SYSTEMRESERVE / ALTERSSICHERHEIT VERKNÜPFT
+Version: 3.7 – MISSION CONTEXT / COMPLETION EVALUATION TECHNISCH VERKNÜPFT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -25,6 +25,9 @@ G. REWARD SYSTEM / SYSTEM HEALTH / NEXT-GEN MECHANICS
 [x] KI-generierte Dimensionen, Item-Bedarfe und spätere NFT-/Ownership-Logik als separater Architekturpfad aufgenommen.
 [x] Quest Chains / Item-Detours als Alternative zu Kaufdruck aufgenommen.
 [x] Mission Reward / Context / Payout Engine als Architekturpfad aufgenommen.
+[x] Serverautorisierte Tracking-/Buddy-Event-Pfade angelegt.
+[x] Mission Context Evaluation technisch begonnen.
+[x] Mission Completion Evaluation technisch begonnen.
 [~] Sensor Fusion technisch begonnen: Pose/Face/DeviceMotion als getrennte Prototypen vorhanden, Fusion noch offen.
 [ ] Anti-Cheat AI.
 [ ] Completion Trends über mehrere Tage/Wochen.
@@ -45,6 +48,9 @@ STATUS: [~] In Arbeit
 [x] Punkte-System ist so vorbereitet, dass WFT später ergänzbar oder austauschbar ist.
 [x] Mobile App enthält keine echte Token-/Presale-/Trading-/NFT-Marktplatz-Funktion.
 [x] Mobile Kamera-Mission vergibt aktuell interne Punkte über Mission-Buddy-Bridge.
+[x] Erste serverautorisierte Proof-/Audit-Pfade angelegt, ohne Rewards freizugeben.
+[x] Context Evaluation setzt rewardAuthorized=false und missionCompletionAuthorized=false.
+[x] Completion Evaluation setzt accepted=false, rewardAuthorized=false, xpAuthorized=false und pointsAuthorized=false.
 [!] Produktkritische Punktevergabe ist langfristig nicht clientseitig autorisiert.
 [!] Mission Completion, Punkte, XP, Buddy-Effekte und Leaderboards müssen später über Cloud Functions / Backend / Firestore Rules validiert werden.
 [!] Items, NFC-Scans, Fähigkeitsfreischaltungen, KI-generierte Angebote und Buddy-Aktionen dürfen keine clientseitige Reward-Autorität sein.
@@ -85,7 +91,7 @@ G3. Mission Reward / Context / Payout Engine
 ============================================================
 
 TASK-ID: WF-MISSION-REWARD-CONTEXT-001
-STATUS: [~] Architektur ergänzt / technische Umsetzung offen
+STATUS: [~] Erste sichere Backend-Stubs umgesetzt / finale Reward-Engine offen
 
 ZIEL:
 Die bestehende Tagesmissions-Rechnung wird serverseitig erweitert und gegen Kontext, Sicherheit, Beweise und Systemreserve geprüft.
@@ -97,14 +103,28 @@ AKTUELLE MVP-BASIS:
 [x] Streak Multiplier.
 [x] Reward Breakdown im UI.
 
+SERVERSEITIG BEREITS ANGELEGT:
+[x] createTrackingSession.
+[x] recordTrackingProof.
+[x] createMissionBuddyEvent.
+[x] evaluateMissionContext.
+[x] evaluateMissionCompletion.
+[x] trackingSessions als serverautorisierte Collection.
+[x] trackingProofEvents als serverautorisierte Collection.
+[x] missionBuddyEvents als serverautorisierte Collection.
+[x] missionContextEvaluations als serverautorisierte Collection.
+[x] missionCompletionEvaluations als serverautorisierte Collection.
+[x] Firestore Rules: Owner-Read, keine direkten Client-Writes.
+[x] Emulator-Test: Context-/Completion-Evaluation, Rules und Callable-Flows.
+
 SPÄTERE SERVERFORMEL:
 [ ] baseReward.
 [ ] diversityMultiplier.
 [ ] antiFarmingMultiplier.
 [ ] streakMultiplier.
-[ ] ageSafetyMultiplier.
-[ ] contextFitMultiplier.
-[ ] proofQualityMultiplier.
+[x] ageSafetyMultiplier als Context-Bewertungsgrundlage begonnen.
+[x] contextFitMultiplier als Context-Bewertungsgrundlage begonnen.
+[x] proofQualityMultiplier als Context-Bewertungsgrundlage begonnen.
 [ ] systemReserveMultiplier.
 [ ] questDepthLimiter.
 [ ] userDailyCap.
@@ -112,24 +132,35 @@ SPÄTERE SERVERFORMEL:
 [ ] missionTypeCap.
 
 KONTEXTREGELN:
-[ ] Alter / Altersgruppe berücksichtigen.
-[ ] Eltern-/Familienmodus berücksichtigen.
-[ ] GPS-/Radius-Sicherheit berücksichtigen.
-[ ] Tageszeit berücksichtigen.
-[ ] Wochentag / Schultag / Wochenende berücksichtigen.
-[ ] 4-jähriges Kind: nur sehr kurze, sichere, elternnahe Missionen; kein alleiniger Straßenwechsel.
-[ ] Sonntagvormittag + Elternmodus: längere Familien-/Wander-/Outdoor-Mission möglich.
-[ ] Schultag 16:00 Uhr: eher kurze, sichere, schnell abschließbare Mission.
-[ ] Abend/Nacht: keine weiten Outdoor-Kinder-Missionen.
+[x] Alter / Altersgruppe als ageBand technisch begonnen.
+[x] Eltern-/Familienmodus als parentMode technisch begonnen.
+[x] GPS-/Radius-Sicherheit als gpsSafetyStatus und radiusMeters technisch begonnen.
+[x] Tageszeit als timeWindow technisch begonnen.
+[x] Wochentag / Schultag / Wochenende als dayType technisch begonnen.
+[x] 4-jähriges Kind / Kleinkind über ageBand toddler als strengere Radius-/ParentMode-Logik vorbereitet.
+[x] Schultag + Dauer-Risiko wird bewertet.
+[x] Abend/Nacht bei Kindern wird als Risiko geflaggt.
+[x] Proof-Qualität wird als Score bewertet.
+[ ] Context Evaluation später mit echten User-Profilen, Consent und Elternmodus verbinden.
+[ ] Wetter/Umgebung später optional einbeziehen.
 
 GEPLANTE COLLECTIONS:
 [ ] missionRewardPolicies.
-[ ] missionContextEvaluations.
+[x] missionContextEvaluations.
 [ ] missionRewardEvents.
 [ ] systemReserveSnapshots.
+[x] missionCompletionEvaluations.
 
-DOKUMENT:
-[x] docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md angelegt.
+DOKUMENTE:
+[x] docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md angelegt und aktualisiert.
+[x] docs/architecture/TRACKING_BUDDY_SERVER_EVENTS.md angelegt.
+[x] functions/EMULATOR_TEST_PLAN.md aktualisiert.
+
+NÄCHSTER SCHRITT:
+[ ] missionRewardPolicies als reine Policy-Datenstruktur vorbereiten.
+[ ] missionRewardPreview als sicheren Stub planen: nur Simulation, keine XP/Punkte/Reward-Gutschrift.
+[ ] systemReserveSnapshots als Lesemodell für spätere Systemgesundheit planen.
+[ ] Danach echte validateMissionCompletion Engine erst nach Anti-Cheat-/Policy-Regeln produktiv aktivieren.
 
 ============================================================
 G4. Mini-Games / PvP / Wettbewerbe
@@ -160,11 +191,14 @@ STATUS: [~] Basis vorhanden / Ausbau offen
 [x] Diversity Multiplier konzeptionell vorhanden.
 [x] Anti-Farming Multiplier konzeptionell vorhanden.
 [x] Social Multiplier als Basisfeld technisch vorbereitet.
+[x] NFC Duplicate-Scan-Schutz pro Nutzer/Tag/Mission umgesetzt.
+[x] Context Evaluation prüft Radius-/Zeit-/Elternmodus-Risiken.
+[x] Completion Evaluation prüft Ownership und Mission-Zugehörigkeit von Evidence-Referenzen.
 [ ] Sensor Fusion aus Pose, Face, Motion, HealthKit/Health Connect und Watch-Daten entwerfen.
 [ ] Unplausible Sessions markieren.
 [ ] Belohnungen drosseln, wenn Daten unsicher sind.
 [ ] Wiederholtes Fake-/Pattern-Verhalten erkennen.
-[ ] NFC-Farming und mehrfaches Tag-Scannen erkennen.
+[ ] NFC-Farming und mehrfaches Tag-Scannen erweitern: Race-Condition-Schutz per Transaktion/deterministischem Claim-Dokument.
 [ ] Item-/Capability-Missbrauch erkennen.
 [ ] KI-generierte Dimensionen gegen Reward-Farming, Überbelohnung und manipulierbare Missionen prüfen.
 [ ] Quest Chains gegen Endlosketten, Paywall-Ketten und Frustrationsspiralen prüfen.
@@ -201,39 +235,15 @@ WICHTIGE TRENNUNG:
 [x] NFTs = spätere digitale Besitzobjekte / Sammlerstücke / besondere Ausrüstung.
 [!] NFC-Tags sind keine NFTs.
 
-ITEM-TYPEN:
-[ ] Kosmetik: Kleidung, Farben, Rüstung, Accessoires.
-[ ] Werkzeug: Lupe, Seil, Greifhaken, Rucksack, Laterne, Kompass.
-[ ] Schutz: Schild, Helm, Rüstung.
-[ ] Bewegungsfähigkeit: Kletterschuhe, Sprungfeder, Flügel-Upgrade, Seil.
-[ ] Rätselwerkzeug: Scanner, magische Linse, Karte, Schlüssel.
-[ ] Event-/NFC-Item: echter Tag, Karte, Sticker, Spielplatzpunkt, Partnerobjekt.
-
 BUDDY-FÄHIGKEITEN:
-[ ] climbUp.
+[x] climbUp als Demo-Capability über NFC/Backend vorbereitet.
 [ ] jumpDown.
 [ ] jumpBoost.
 [ ] fetchClue.
-[ ] scanObject.
+[x] scanObject als Demo-Capability über Magnifier/NFC vorbereitet.
 [ ] revealHint.
 [ ] protect.
 [ ] carry.
-
-NFC-/REAL-WORLD-ITEM-REGELN:
-[!] NFC-Tag darf niemals direkt Reward oder Item final freischalten.
-[!] NFC-Scan sendet nur Beweis/Event an Backend.
-[!] Backend prüft Tag-ID, Nutzer, Mission, Zeitfenster und Missbrauch.
-[!] Erst Backend schaltet Item/Fähigkeit/Reward frei.
-[!] Rare Items und Partner-Items brauchen Audit-Log.
-[ ] Tags müssen rotierbar, sperrbar und serverseitig widerrufbar sein.
-[ ] NFC-Scan-Events müssen auditierbar gespeichert werden.
-
-ITEM-DETOUR-REGEL:
-[!] Fehlendes oder zu teures Item soll zuerst eine spielerische Alternative anbieten.
-[!] Nutzer kann Item durch Nebenrätsel, Bewegung, AR-Hinweis, NFC-Station oder Tagesmission finden/verdienen.
-[!] Danach kehrt der Nutzer zur Hauptmission zurück.
-[!] Keine endlosen Item-Ketten.
-[!] Keine Paywall-Ketten.
 
 FIRESTORE-/BACKEND-PLANUNG:
 [x] userInventory Collection geplant/Rules-Test vorhanden.
@@ -242,8 +252,19 @@ FIRESTORE-/BACKEND-PLANUNG:
 [x] nfcTags Collection geplant/Rules-Test vorhanden.
 [x] nfcScanEvents Collection geplant/Rules-Test vorhanden.
 [x] capabilityUnlockEvents Collection geplant/Rules-Test vorhanden.
+[x] buddyItemUseEvents Collection geplant/Rules-Test vorhanden.
+[x] trackingSessions Collection geplant/Rules-Test vorhanden.
+[x] trackingProofEvents Collection geplant/Rules-Test vorhanden.
+[x] missionBuddyEvents Collection geplant/Rules-Test vorhanden.
+[x] missionContextEvaluations Collection geplant/Rules-Test vorhanden.
+[x] missionCompletionEvaluations Collection geplant/Rules-Test vorhanden.
 [x] Cloud Function validateNfcScan angelegt/getestet.
 [x] Cloud Function auditItemUse angelegt/getestet.
+[x] Cloud Function createTrackingSession angelegt/getestet.
+[x] Cloud Function recordTrackingProof angelegt/getestet.
+[x] Cloud Function createMissionBuddyEvent angelegt/getestet.
+[x] Cloud Function evaluateMissionContext angelegt/getestet.
+[x] Cloud Function evaluateMissionCompletion angelegt/getestet.
 [ ] Cloud Function grantItemOrCapability produktionsreif implementieren.
 [ ] Cloud Function validateMissionCompletionWithItem produktionsreif implementieren.
 
@@ -279,17 +300,6 @@ GEPLANTE COLLECTIONS:
 [ ] digitalOwnershipRecords.
 [ ] economyPricePolicies.
 [ ] rewardPolicyVersions.
-
-BEISPIEL:
-[ ] KI erzeugt Wald-Rätselrallye.
-[ ] Buddy erkennt Hinweis oben am Baum.
-[ ] Backend erkennt: rope_001 oder climbUp nötig.
-[ ] KI/Buddy empfiehlt Item, kostenlose Alternative oder Nebenrätsel.
-[ ] Nutzer findet/verdient Item über Nebenmission.
-[ ] Nutzer kehrt zur Hauptmission zurück.
-[ ] Backend berechnet erlaubten Preis/Reward.
-[ ] Mobile zeigt Item nur als Ausrüstung/Fähigkeit.
-[ ] Web-Dashboard kann später WFT/NFT/Ownership anzeigen.
 
 DOKUMENT:
 [x] docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md angelegt.
