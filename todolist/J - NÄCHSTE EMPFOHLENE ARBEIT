@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.2 – NÄCHSTE ARBEIT NACH MOBILE/BUDDY/VISION/AR-KONSOLIDIERUNG
+Version: 3.3 – NÄCHSTE ARBEIT NACH SOURCE-ANALYSE / TODO-KONSOLIDIERUNG
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -16,6 +16,10 @@ PRIO 1 – STABILISIERUNG SOFORT
     - /mobile/missionen/squat Bridge
     - Scroll-Fixes
     - H-Datei Mobile/Vision/AR Aktualisierung
+    - G-Datei Reward/System Health Aktualisierung
+    - I-Datei Business/Legal/App Store Aktualisierung
+    - D-Datei Verbindliche Reihenfolge Aktualisierung
+    - Service Worker Cache v2 mit allen Mobile-Routen
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -30,6 +34,7 @@ pm2 status
 [ ] Gerätetest Android/iPhone: QR, Mobile, Kamera, Pose, Face, Scroll, Mission Run.
 [ ] HTTPS/Kamera/Sensor-Berechtigungen prüfen.
 [ ] Prüfen, ob /mobile wirklich nicht mehr auf Desktop-Seiten springt.
+[ ] PWA nach Service-Worker-Update prüfen: /mobile/einstellungen, /mobile/ar und /mobile/missionen/squat erreichbar.
 
 ============================================================
 PRIO 2 – MOBILE MISSION STABILISIEREN
@@ -59,6 +64,7 @@ PRIO 3 – PWA / TESTINSTALLATION SAUBERER MACHEN
 [ ] Offline-/Cache-Strategie härten.
 [ ] Native Sensorstrategie für spätere App-Store-Version dokumentieren.
 [ ] Prüfen, ob Manifest scope /mobile für alle Testfälle passt.
+[ ] Prüfen, ob Service Worker alte Caches sauber ersetzt.
 
 ============================================================
 PRIO 4 – FIRESTORE / SECURITY HÄRTEN
@@ -69,6 +75,7 @@ PRIO 4 – FIRESTORE / SECURITY HÄRTEN
 [ ] Cloud Function für Mission Completion planen.
 [ ] Client darf langfristig nur Beweise/Events senden, nicht Rewards final vergeben.
 [ ] Anti-Cheat-Konzept für Pose, Bewegung und AR starten.
+[ ] Reward-/Punkte-Events auditierbar speichern.
 
 ============================================================
 PRIO 5 – AR-TECHNIKENTSCHEIDUNG
@@ -81,7 +88,16 @@ PRIO 5 – AR-TECHNIKENTSCHEIDUNG
 [ ] Entscheidung dokumentieren, bevor echte AR-Missionen gebaut werden.
 
 ============================================================
-PRIO 6 – DANACH DESKTOP-PRODUKTMODULE
+PRIO 6 – TOKENOMICS / CHAIN-STRATEGIE KLÄREN, ABER NICHT UMSETZEN
+============================================================
+
+[ ] Historische Solana/SPL-Unterlagen und neuere SUI/Dynamic-Object-Strategie sauber versionieren.
+[ ] Keine echte WFT-Ausschüttung vor 2.000–3.000 Testern.
+[ ] MiCA/MiCAR, Steuer, KYC/AML, Utility-/Security-Token-Einordnung vor Veröffentlichung prüfen.
+[ ] App-Store-kritische Bereiche tokenfrei halten.
+
+============================================================
+PRIO 7 – DANACH DESKTOP-PRODUKTMODULE
 ============================================================
 
 [~] WF-DASH-NEXT-000 – Dashboard-Produktmodule vor breitem Missionsausbau.
@@ -92,7 +108,7 @@ PRIO 6 – DANACH DESKTOP-PRODUKTMODULE
 [ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
 
 ============================================================
-PRIO 7 – SPÄTER / NACH PRODUKTZENTRALE
+PRIO 8 – SPÄTER / NACH PRODUKTZENTRALE
 ============================================================
 
 [>] WF-REFACTOR-004 bis WF-REFACTOR-009 – Missions- und Missionsnebenbereiche weiter modularisieren.
