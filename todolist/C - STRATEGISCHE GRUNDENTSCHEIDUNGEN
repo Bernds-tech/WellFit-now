@@ -1,0 +1,24 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
+
+WICHTIGER HINWEIS:
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+
+============================================================
+C. STRATEGISCHE GRUNDENTSCHEIDUNGEN
+============================================================
+
+[x] Alle Missionen sollen perspektivisch über AR laufen.
+[x] Schritte zählen nicht mehr als Kernmission.
+[>] Schritt-/Health-/Watch-Daten können später als unterstützende Validierungs-, Kontext- oder Plausibilitätsdaten dienen, aber nicht als Hauptmechanik.
+[x] Tagesmissionen bleiben aktuell technischer Prototyp für Game Loop, Reward, Streak, XP und UI.
+[!] Missionen egal ob Tagesmissionen, Wochenmissionen, Abenteuer, Challenge oder Wettkämpfe werden erst später inhaltlich weiter ausgebaut.
+[!] Vor dem weiteren Missionsausbau werden zuerst große Dateien sauber modularisiert.
+[x] Keine echte Token-Ausschüttung vor Testphase mit ca. 2.000–3.000 Testern.
+[x] Aktuell alles über interne Punkte und XP abbilden.
+[x] Punkte-System so halten, dass Token/WFT später austauschbar oder ergänzbar sind.
+[x] Dashboard-Produktmodule Mein KI-Buddy, Marktplatz, Leaderboard, Punkte-Shop sowie Analytics & Stats werden vor weiterem Missionsausbau priorisiert.
