@@ -1,0 +1,36 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
+
+WICHTIGER HINWEIS:
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+
+============================================================
+J. NÄCHSTE EMPFOHLENE ARBEIT
+============================================================
+
+PRIO 1:
+[~] WF-DASH-NEXT-000 – Dashboard-Produktmodule vor Missionen.
+[ ] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul ausbauen.
+[ ] WF-MARKET-001 – Marktplatz MVP vorbereiten.
+[ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten.
+[ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten.
+[ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
+
+PRIO 2:
+[ ] WF-QA-001 – Build und UI nach Dashboard-Refactor testen.
+[ ] WF-REGISTER-SCHEMA-001 – Firestore User-/Profile-/Settings-Schema dokumentieren.
+[ ] WF-QA-LOGIN-REGISTER-001 – Login/Register Desktop und Mobile testen.
+[ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
+
+PRIO 3:
+[ ] WF-BUDDY-CHAR-001 – Buddy-Charaktere definieren.
+[ ] WF-AVATAR-INV-001 – Avatar-Inventar anlegen.
+[ ] WF-AI-MISSIONS-001 – KI-Missionen vorbereiten.
+
+SPÄTER / NACH DASHBOARD-PRODUKTMODULEN:
+[>] WF-REFACTOR-004 bis WF-REFACTOR-009 – Missions- und Missionsnebenbereiche weiter modularisieren.
+[>] Missionen inhaltlich erst nach Dashboard-Produktzentrale, Datenmodell und Sicherheitsbasis weiter ausbauen.
