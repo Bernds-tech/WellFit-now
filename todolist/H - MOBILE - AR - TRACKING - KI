@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.5 – MOBILE / ACTIVITY RECOGNITION / AR-BUDDY FOKUS
+Version: 3.6 – 3D-FLAMMI PROTOTYP UMGESETZT / BUILD OFFEN
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -14,6 +14,7 @@ AKTUELLER FOKUS:
 [x] Gespielt wird perspektivisch am Handy.
 [x] Keine Token-, Presale-, Trading- oder produktkritische Reward-Logik in Mobile.
 [x] Mobile AR bleibt vorerst ein sicherer PWA-/Kamera-Prototyp, bis echte AR-Technologieentscheidung getroffen ist.
+[x] Nutzerfeedback aufgenommen: Ziel ist kein 2D-Emoji, sondern ein kleiner animierter 3D-Drache im AR-Erlebnis.
 
 TASK-ID: WF-MOBILE-001
 STATUS: [~] In Arbeit / PWA-Test-App umgesetzt
@@ -126,11 +127,11 @@ OFFEN:
 [ ] Datenschutztext für Face Tracking ergänzen.
 
 ============================================================
-H3. AR-BUDDY
+H3. AR-BUDDY / 3D-FLAMMI
 ============================================================
 
 TASK-ID: WF-BUDDY-P3-AR-001
-STATUS: [~] Interaktiver AR-Overlay-Prototyp V2 umgesetzt / echte AR-Technikentscheidung offen
+STATUS: [~] 3D-Flammi WebGL-Prototyp umgesetzt / echter AR-Raumanker offen
 
 ZIEL:
 Buddy läuft sichtbar im echten Raum herum.
@@ -138,53 +139,57 @@ Buddy läuft sichtbar im echten Raum herum.
 ERLEDIGT:
 [x] /mobile/ar umgesetzt.
 [x] Kamera-AR-Testmodus umgesetzt.
-[x] Flammi als Kamera-Overlay sichtbar.
+[x] Rückkamera / Umgebungskamera für AR-Testmodus aktiviert.
 [x] AR-Statuskarte umgesetzt.
 [x] Kamera stoppen / Flammi rufen UI vorbereitet.
 [x] AR-Buddy-Platzhalter auch in Kamera-Mission sichtbar.
-[x] /mobile/ar/page.tsx mit Buddy-Zuständen erweitert: idle, called, happy, listening.
-[x] Flammi rufen steuert jetzt Position und Buddy-Zustand.
+[x] /mobile/ar/page.tsx mit Buddy-Zuständen erweitert: idle, called, happy, listening, curious, playful, returning.
+[x] Flammi rufen steuert Position und Buddy-Zustand.
 [x] Tap auf Flammi löst sichtbare Buddy-Reaktion aus.
 [x] AR-Buddy-Overlay modularisiert.
-[x] ArBuddyCharacter.tsx erstellt.
 [x] ArBuddySpeechBubble.tsx erstellt.
 [x] ArPlacementHint.tsx erstellt.
 [x] Simulierter Boden-/Raumhinweis im Kamera-Prototyp ergänzt.
 [x] Mobile AR enthält weiterhin keine Reward-, Token-, Presale- oder produktkritische Client-Autorität.
 [x] Flammi-Bewegungslogik V2 umgesetzt.
-[x] Automatische sichere Bildschirmbewegung zwischen near, center und far umgesetzt.
-[x] Button „Rufen“ holt Flammi zurück in den sicheren Nahbereich.
+[x] Automatische sichere Bildschirmbewegung ergänzt.
+[x] Button „Rufen“ holt Flammi zurück.
 [x] Button „Laufen/Pause“ startet und stoppt die automatische Bewegung.
-[x] Mehrere Tap-Reaktionen ergänzt: happy, listening, curious, playful.
-[x] Zustand returning ergänzt.
-[x] ArBuddyControls.tsx erstellt.
 [x] Sprechblase für kleine Handy-Displays kompakter gemacht.
-[x] Buddy-Charakter für kleine Handy-Displays kompakter gemacht.
-[x] Visuelle Glow-Reaktionen je Buddy-Zustand ergänzt.
-[x] Gerätetest-Feedback aufgenommen: Rufen/Laufen muss sichtbarer reagieren.
 [x] Sichtbare Ruf-Sequenz und zusätzliche sichere Positionen ergänzt: nearLeft, center, farRight, nearRight, farLeft.
-[x] Bewegungswechsel beschleunigt und Action-Key für sichtbares Re-Rendering ergänzt.
+[x] Three.js / React Three Fiber / Drei Abhängigkeiten ergänzt.
+[x] native/ar/FLAMMI_3D_AR_PIPELINE.md erstellt.
+[x] ArDragonScene.tsx erstellt.
+[x] Erster 3D-Flammi aus WebGL-Primitives gebaut: Körper, Kopf, Augen, Hörner, Flügel, Schwanz, Füße, Schatten.
+[x] Idle-/Flügel-/Schwanz-/Kopfbewegung ergänzt.
+[x] Hop-/Playful-Bewegung ergänzt.
+[x] Tap-Reaktion über 3D-Dragon-Click angebunden.
+[x] 2D-Emoji-Hauptdarstellung aus AR-Overlay entfernt; 3D-Drache ist Hauptdarstellung.
+[x] AR-Statuskarte auf 3D-Flammi aktualisiert.
 
 OFFEN / NÄCHSTER MOBILE-AR-SCHRITT:
-[ ] Build nach sichtbarer Ruf-/Laufen-Korrektur ausführen.
+[ ] Build nach 3D-Flammi ausführen.
 [ ] Gerätetest Android/iPhone für /mobile/ar wiederholen.
-[ ] Prüfen, ob Overlay, Sprechblase und Buttons auf kleinen Displays nicht kollidieren.
-[ ] AR-Buddy visuell hochwertiger machen: eigenes Flammi-Asset statt Emoji.
+[ ] Prüfen: WebGL lädt auf Samsung Internet / Chrome Mobile stabil.
+[ ] Prüfen: Rückkamera + 3D-Canvas liegen korrekt übereinander.
+[ ] Prüfen: Tap auf 3D-Flammi funktioniert zuverlässig.
+[ ] Prüfen: Performance, Akku, FPS, Hitze.
+[ ] Echtes GLB/GLTF-Flammi-Asset erstellen oder importieren.
+[ ] Fallback anzeigen, falls WebGL nicht verfügbar ist.
 [ ] AR-Rückholmechanik bei Bildschirmrand-/Safe-Area-Konflikten weiter härten.
 [ ] AR-Training mit Skeleton Tracking verbinden.
 
 OFFEN / ECHTE AR:
 [ ] AR-Technikentscheidung treffen: WebAR-Prototyp vs. native App / Unity / ARKit / ARCore.
-[ ] 3D-Buddy-Modell auswählen/erstellen.
+[ ] 3D-Buddy-Modell final auswählen/erstellen.
 [ ] Fläche/Boden erkennen.
 [ ] Buddy mit Raumanker platzieren.
-[ ] Buddy laufen lassen.
 [ ] Tap-/Interaktion in echter AR.
 [ ] AR-Elemente realistisch in Umgebung einbetten, nicht nur overlayen.
 
 EMPFEHLUNG:
 [x] Handy / AR / Avatar zuerst priorisieren.
-[ ] Erst Mobile/Kamera-Gerätetest abschließen, dann AR-Technikentscheidung treffen.
+[ ] Erst 3D-Flammi-Gerätetest abschließen, dann WebXR/native AR-Anker entscheiden.
 
 ============================================================
 H4. TRACKING / BEWEGUNG / HEALTH / WATCH
