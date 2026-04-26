@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.7 – NATIVE ACTIVITY START / AR RÜCKKAMERA / BUILD OFFEN
+Version: 3.8 – 3D-FLAMMI / ECHTES AR-ZIEL AKTIVIERT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -16,15 +16,20 @@ AKTUELLER FOKUS:
 [x] Mobile-AR-Buddy V2 wurde erfolgreich gebaut und per PM2 neu gestartet.
 [x] AR-Testmodus wurde auf Rückkamera / Umgebungskamera umgestellt.
 [x] Native Activity Recognition wird ab jetzt aktiv begonnen, nicht nur später vorbereitet.
+[x] Nutzerfeedback aufgenommen: 2D-Emoji/Overlay reicht nicht; Ziel ist ein echter kleiner animierter 3D-Drache im AR-Erlebnis.
+[x] Flammi 3D / echte AR Pipeline dokumentiert.
+[x] Three.js / React Three Fiber / Drei Abhängigkeiten ergänzt.
 
 PRIO 1 – STABILISIERUNG SOFORT
-[ ] Build nach AR-Rückkamera und Native-Start ausführen:
+[ ] Build nach AR-Rückkamera, Native-Start und 3D-Abhängigkeiten ausführen:
     - useCameraPreview mit facingMode Option
     - /mobile/ar nutzt facingMode environment
     - Capacitor-Abhängigkeiten ergänzt
     - capacitor.config.ts ergänzt
     - nativeActivityBridge Typen/Fallback ergänzt
     - native Android/iOS Pläne ergänzt
+    - Three.js / React Three Fiber / Drei ergänzt
+    - native/ar/FLAMMI_3D_AR_PIPELINE.md ergänzt
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -56,7 +61,24 @@ BISHER BESTÄTIGTER SERVER-BUILD NACH V2:
 [ ] /mobile/ar auf echtem Handy prüfen: Rückkamera, Rufen, Laufen/Pause, Tap-Reaktionen, Sprechblase, Platzierungshinweis, Button-Kollisionen.
 
 ============================================================
-PRIO 2 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
+PRIO 2 – 3D-FLAMMI / ECHTES AR-ERLEBNIS
+============================================================
+
+[ ] 2D-Emoji-Flammi nur noch als Fallback behandeln.
+[ ] 3D-Flammi-Komponente bauen:
+    - WebGL/Three.js Canvas über Rückkamera.
+    - Low-Poly-Drachenform als erste Code-/Primitive-Version, bis GLB-Asset vorhanden ist.
+    - Idle-Animation: Atmen, Kopf, Flügel.
+    - Hop/Walk-Animation.
+    - Tap-Reaktion.
+    - Schatten unter Flammi.
+    - Perspektivische Skalierung für Raumgefühl.
+[ ] Später echtes GLB/GLTF-Flammi-Asset erstellen oder importieren.
+[ ] Fallback beibehalten, falls WebGL nicht verfügbar ist.
+[ ] Danach WebXR/native AR-Anker prüfen.
+
+============================================================
+PRIO 3 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
 ============================================================
 
 [x] Capacitor-Abhängigkeiten ergänzt.
@@ -77,7 +99,7 @@ PRIO 2 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
 [ ] Server/Cloud Function für Mission Completion und Reward-Entscheidung planen.
 
 ============================================================
-PRIO 3 – MOBILE AR / AVATAR / BUDDY WEITER AUSBAUEN
+PRIO 4 – MOBILE AR / AVATAR / BUDDY WEITER AUSBAUEN
 ============================================================
 
 [x] Flammi-Bewegungslogik V2 bauen:
@@ -87,13 +109,12 @@ PRIO 3 – MOBILE AR / AVATAR / BUDDY WEITER AUSBAUEN
     - UI bleibt auf kleinen Handys kompakt.
 [x] ArBuddyControls.tsx ergänzt.
 [x] AR-Testmodus nutzt Rückkamera statt Selfie-Kamera.
-[ ] Eigenes Flammi-Asset statt Emoji vorbereiten.
-[ ] AR-Buddy visuell hochwertiger machen.
+[>] Eigenes 2D-Flammi-Asset statt Emoji nur als Fallback relevant.
 [ ] AR-Rückholmechanik bei Safe-Area-/Rand-Konflikten weiter härten.
 [ ] AR-Training mit Skeleton Tracking verbinden.
 
 ============================================================
-PRIO 4 – MOBILE MISSION STABILISIEREN
+PRIO 5 – MOBILE MISSION STABILISIEREN
 ============================================================
 
 [ ] Kamera-Mission UX auf echtem Handy testen.
@@ -110,17 +131,6 @@ PRIO 4 – MOBILE MISSION STABILISIEREN
     - Firestore nicht erreichbar
     - Mission bereits heute angewendet
 [ ] Nach erfolgreichem Abschluss optional Zurück-Button zu /mobile/missionen ergänzen.
-
-============================================================
-PRIO 5 – PWA / TESTINSTALLATION SAUBERER MACHEN
-============================================================
-
-[ ] Eigenen QR-Code-Generator statt externem QR-Bilddienst.
-[ ] PWA-Icons finalisieren.
-[ ] Offline-/Cache-Strategie härten.
-[ ] Native Sensorstrategie für App-Store-Version weiter konkretisieren.
-[ ] Prüfen, ob Manifest scope /mobile für alle Testfälle passt.
-[ ] Prüfen, ob Service Worker alte Caches sauber ersetzt.
 
 ============================================================
 PRIO 6 – FIRESTORE / SECURITY HÄRTEN
@@ -162,13 +172,3 @@ PRIO 9 – DANACH DESKTOP-PRODUKTMODULE
 [ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten.
 [ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten.
 [ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
-
-============================================================
-PRIO 10 – SPÄTER / NACH PRODUKTZENTRALE
-============================================================
-
-[>] WF-REFACTOR-004 bis WF-REFACTOR-009 – Missions- und Missionsnebenbereiche weiter modularisieren.
-[>] Missionen inhaltlich erst nach Mobile/AR/Avatar-Fokus, Datenmodell und Sicherheitsbasis weiter ausbauen.
-[>] Keine echte Token-/WFT-Ausschüttung vor 2.000–3.000 Testern.
-[>] Keine App-Store-kritischen Web3-Funktionen in Mobile.
-[!] Keine medizinischen Diagnosen durch Buddy, Face Tracking oder MoodSignal.
