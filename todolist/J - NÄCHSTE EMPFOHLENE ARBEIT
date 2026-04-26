@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 5.8 – ERWEITERTER EMULATOR-GESAMTTEST AUF SERVER BESTÄTIGT
+Version: 5.9 – TRACKINGSESSIONS UND MISSIONBUDDYEVENTS GEHÄRTET
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -81,6 +81,11 @@ AKTUELLER FOKUS:
 [x] Firebase CLI lokal wiederhergestellt: firebase-tools 14.26.0.
 [x] Erweiterter Emulator-Gesamttest auf Server erfolgreich ausgeführt: smoke:nfc + rules:firestore + callable:emulator.
 [x] Erweiterter Callable-Test bestätigt: missing/unknown/revoked/inactive/user-not-allowed/usage-limit/duplicate/Magnifier/auditItemUse/mission-mismatch erfolgreich.
+[x] Code-Suche ergab keine produktive direkte Nutzung von trackingSessions oder missionBuddyEvents.
+[x] firestore.rules gehärtet: trackingSessions erlaubt nur noch Owner-Read, keine Client-Create/Update/Delete.
+[x] firestore.rules gehärtet: missionBuddyEvents erlaubt nur noch Owner-Read, keine Client-Create/Update/Delete.
+[x] Firestore Rules Smoke Test um trackingSessions und missionBuddyEvents erweitert.
+[x] Tests prüfen jetzt: Owner darf eigene trackingSessions/missionBuddyEvents lesen, fremde nicht lesen, direkte Client-Create/Update werden blockiert.
 
 PRIO 1 – BESTÄTIGTER GESAMT-EMULATOR-TEST
 [x] Java installiert und geprüft:
@@ -146,6 +151,7 @@ HINWEISE:
 [!] Mobile-App darf keine App-Store-kritischen Token-/NFT-/Trading-Funktionen enthalten.
 [!] Clientseitige Tagesmissions-Rewards sind MVP/UI-Logik, nicht langfristige Autorität.
 [!] Duplicate-Scan-Schutz ist ein MVP-Schutz auf Nutzer/Tag/Mission-Basis; hochparallele Race Conditions sollten später zusätzlich per Transaktion oder deterministischem Claim-Dokument abgesichert werden.
+[!] trackingSessions und missionBuddyEvents sind jetzt serverautorisierte Collections. Falls Frontend-Code diese später direkt schreibt, muss stattdessen eine Callable Function eingeführt werden.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -191,9 +197,9 @@ PRIO 2 – NÄCHSTE TESTSTUFE: EDGE CASES UND ERWEITERTE SECURITY
     - Magnifier Flow vollständig als Callable testen
     - scanObject Capability prüfen
 [x] Erweiterter Emulator-Gesamttest auf Server bestätigt.
+[x] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch gehärtet.
 [ ] revealHint Capability als eigener Flow ergänzen, sobald Magnifier/Quest-Design mehrere Capability Unlocks pro Tag produktiv nutzt.
-[ ] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch prüfen.
-[ ] Produktionsdeployment erst nach erweiterten Emulator-Tests.
+[ ] Produktionsdeployment erst nach erweitertem Emulator-Test der gehärteten tracking-/buddy-rules.
 
 ============================================================
 PRIO 3 – MISSION REWARD / CONTEXT / PAYOUT BACKEND-DESIGN
@@ -373,8 +379,9 @@ PRIO 8 – FIRESTORE / SECURITY HÄRTEN
 ============================================================
 
 [x] Rules für userInventory, itemDefinitions, buddyCapabilities, nfcTags und nfcScanEvents im Smoke-Test geprüft.
-[ ] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch prüfen.
+[x] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch gehärtet und im Smoke-Test ergänzt.
 [ ] Cloud Function für Mission Completion planen.
+[ ] Cloud Function für serverautorisierte Tracking-/Buddy-Events planen.
 [ ] Cloud Function für NFC-/Item-/Capability-Validierung weiter testen.
 [ ] Client darf langfristig nur Beweise/Events senden, nicht Rewards final vergeben.
 [ ] Anti-Cheat-Konzept für Pose, Bewegung, AR, NFC, KI-Angebote und Items starten.
