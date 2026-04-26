@@ -63,6 +63,40 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /itemDefinitions/{itemId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if false;
+    }
+
+    match /userInventory/{inventoryItemId} {
+      allow read: if isSignedIn() && resource.data.ownerUserId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    match /buddyCapabilities/{capabilityDocId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    match /nfcTags/{tagId} {
+      allow read, write: if false;
+    }
+
+    match /nfcScanEvents/{scanEventId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    match /capabilityUnlockEvents/{eventId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    match /buddyItemUseEvents/{eventId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
