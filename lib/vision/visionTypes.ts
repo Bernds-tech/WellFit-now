@@ -49,6 +49,7 @@ export type ExerciseCounterState = {
   phase: ExercisePhase;
   feedback: string;
   isTracking: boolean;
+  repCandidateValid: boolean;
 };
 
 export type ExerciseEvaluation = ExerciseCounterState & {
