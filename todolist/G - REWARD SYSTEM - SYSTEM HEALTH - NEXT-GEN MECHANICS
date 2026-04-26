@@ -1,0 +1,35 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
+
+WICHTIGER HINWEIS:
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+
+============================================================
+G. REWARD SYSTEM / SYSTEM HEALTH / NEXT-GEN MECHANICS
+============================================================
+
+[x] Vorerst KEINE echte Token-Ausschüttung.
+[x] Interne Punkte-Ausschüttung.
+[x] Persönliche Wallet-/Economy-Logik vorbereitet.
+[x] Systemreserve-Logik vorbereitet.
+[x] Reward Score Basis vorhanden.
+[x] Avatar + Economy beeinflussen Reward konzeptionell/teilweise.
+[x] Reward Breakdown im UI sichtbar.
+[x] Daily Reward Loop.
+[x] Tagesziel 3 Missionen.
+[x] Streak System.
+[x] XP-/Level-System.
+[ ] Precision / Workout Qualität.
+[ ] Sensor Fusion.
+[ ] Anti-Cheat AI.
+[ ] Completion Trends über mehrere Tage/Wochen.
+[ ] Streak-Risiko/Verlust visuell stärker darstellen.
+[ ] DePIN Compute.
+[ ] Pharma Simulation.
+[ ] External Economy.
+[>] Echte Token-/WFT-Anbindung bewusst verschoben bis nach Testphase.
+
