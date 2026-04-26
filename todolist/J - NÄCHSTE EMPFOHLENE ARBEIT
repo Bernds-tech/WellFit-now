@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.6 – MOBILE-AR-BUDDY V2 BUILD/PM2 BESTÄTIGT
+Version: 3.7 – NATIVE ACTIVITY START / AR RÜCKKAMERA / BUILD OFFEN
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -10,20 +10,32 @@ J. NÄCHSTE EMPFOHLENE ARBEIT
 
 AKTUELLER FOKUS:
 [x] Nutzerentscheidung übernommen: Handy / AR / Avatar / Buddy wird vor Desktop-Marktplatz, Leaderboard, Shop und weiteren Produktmodulen priorisiert.
+[x] PC/Web-App dient primär als Steuerzentrale und Einstellungsbereich.
 [x] Interaktiver Mobile-AR-Buddy-Prototyp wurde umgesetzt und erfolgreich gebaut.
 [x] Flammi-Bewegungslogik V2 wurde umgesetzt.
 [x] Mobile-AR-Buddy V2 wurde erfolgreich gebaut und per PM2 neu gestartet.
+[x] AR-Testmodus wurde auf Rückkamera / Umgebungskamera umgestellt.
+[x] Native Activity Recognition wird ab jetzt aktiv begonnen, nicht nur später vorbereitet.
 
 PRIO 1 – STABILISIERUNG SOFORT
-[x] Build nach Mobile-AR-Buddy V2 ausgeführt:
-    - /mobile/ar Bewegungslogik V2
-    - ArBuddyControls.tsx neu
-    - ArBuddyOverlay.tsx mit erweiterten Zuständen
-    - ArBuddyCharacter.tsx mit mehreren Reaktionszuständen
-    - ArBuddySpeechBubble.tsx kompakter
-    - H-Datei Mobile/Vision/AR Aktualisierung
+[ ] Build nach AR-Rückkamera und Native-Start ausführen:
+    - useCameraPreview mit facingMode Option
+    - /mobile/ar nutzt facingMode environment
+    - Capacitor-Abhängigkeiten ergänzt
+    - capacitor.config.ts ergänzt
+    - nativeActivityBridge Typen/Fallback ergänzt
+    - native Android/iOS Pläne ergänzt
 
-BESTÄTIGTER SERVER-BUILD NACH V2:
+Sichere Server-Reihenfolge:
+cd /var/www/WellFit-now
+git fetch origin
+git reset --hard origin/main
+npm install --no-audit --no-fund
+NODE_OPTIONS="--max-old-space-size=768" npm run build
+pm2 restart wellfit-now --update-env
+pm2 status
+
+BISHER BESTÄTIGTER SERVER-BUILD NACH V2:
 [x] git fetch origin ausgeführt.
 [x] git reset --hard origin/main ausgeführt.
 [x] HEAD bestätigt: 6252dfa Document mobile AR buddy movement V2 as next build target.
@@ -37,23 +49,35 @@ BESTÄTIGTER SERVER-BUILD NACH V2:
 [x] pm2 restart wellfit-now --update-env erfolgreich.
 [x] pm2 status geprüft: wellfit-now online.
 
-Sichere Server-Reihenfolge:
-cd /var/www/WellFit-now
-git fetch origin
-git reset --hard origin/main
-npm install --no-audit --no-fund
-NODE_OPTIONS="--max-old-space-size=768" npm run build
-pm2 restart wellfit-now --update-env
-pm2 status
-
 [ ] Gerätetest Android/iPhone: QR, Mobile, Kamera, Pose, Face, Scroll, Mission Run.
 [ ] HTTPS/Kamera/Sensor-Berechtigungen prüfen.
 [ ] Prüfen, ob /mobile wirklich nicht mehr auf Desktop-Seiten springt.
 [ ] PWA nach Service-Worker-Update prüfen: /mobile/einstellungen, /mobile/ar und /mobile/missionen/squat erreichbar.
-[ ] /mobile/ar auf echtem Handy prüfen: Kamera, Rufen, Laufen/Pause, Tap-Reaktionen, Sprechblase, Platzierungshinweis, Button-Kollisionen.
+[ ] /mobile/ar auf echtem Handy prüfen: Rückkamera, Rufen, Laufen/Pause, Tap-Reaktionen, Sprechblase, Platzierungshinweis, Button-Kollisionen.
 
 ============================================================
-PRIO 2 – MOBILE AR / AVATAR / BUDDY WEITER AUSBAUEN
+PRIO 2 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
+============================================================
+
+[x] Capacitor-Abhängigkeiten ergänzt.
+[x] capacitor.config.ts ergänzt.
+[x] Native Activity Bridge Types ergänzt.
+[x] Web-Fallback für nativeActivityBridge ergänzt.
+[x] native/README.md ergänzt.
+[x] Android Health Connect / Step Counter Plan ergänzt.
+[x] iOS CoreMotion / HealthKit Plan ergänzt.
+[ ] Capacitor Plattformen erzeugen: Android und iOS.
+[ ] Android Kotlin Plugin WellFitActivityPlugin erstellen.
+[ ] Android Health Connect Permissions und getTodaySnapshot bauen.
+[ ] Android Step Counter Sensor Live-/Snapshot-Logik bauen.
+[ ] iOS Swift Plugin WellFitActivityPlugin erstellen.
+[ ] iOS CoreMotion/CMPedometer und HealthKit Consent bauen.
+[ ] Native Snapshot in Web-Bridge integrieren.
+[ ] Firestore DailyActivity / TrackingSession Datenmodell für native Quellen ergänzen.
+[ ] Server/Cloud Function für Mission Completion und Reward-Entscheidung planen.
+
+============================================================
+PRIO 3 – MOBILE AR / AVATAR / BUDDY WEITER AUSBAUEN
 ============================================================
 
 [x] Flammi-Bewegungslogik V2 bauen:
@@ -62,13 +86,14 @@ PRIO 2 – MOBILE AR / AVATAR / BUDDY WEITER AUSBAUEN
     - Tap auf Flammi erzeugt mehrere Reaktionen.
     - UI bleibt auf kleinen Handys kompakt.
 [x] ArBuddyControls.tsx ergänzt.
+[x] AR-Testmodus nutzt Rückkamera statt Selfie-Kamera.
 [ ] Eigenes Flammi-Asset statt Emoji vorbereiten.
 [ ] AR-Buddy visuell hochwertiger machen.
 [ ] AR-Rückholmechanik bei Safe-Area-/Rand-Konflikten weiter härten.
 [ ] AR-Training mit Skeleton Tracking verbinden.
 
 ============================================================
-PRIO 3 – MOBILE MISSION STABILISIEREN
+PRIO 4 – MOBILE MISSION STABILISIEREN
 ============================================================
 
 [ ] Kamera-Mission UX auf echtem Handy testen.
@@ -87,18 +112,18 @@ PRIO 3 – MOBILE MISSION STABILISIEREN
 [ ] Nach erfolgreichem Abschluss optional Zurück-Button zu /mobile/missionen ergänzen.
 
 ============================================================
-PRIO 4 – PWA / TESTINSTALLATION SAUBERER MACHEN
+PRIO 5 – PWA / TESTINSTALLATION SAUBERER MACHEN
 ============================================================
 
 [ ] Eigenen QR-Code-Generator statt externem QR-Bilddienst.
 [ ] PWA-Icons finalisieren.
 [ ] Offline-/Cache-Strategie härten.
-[ ] Native Sensorstrategie für spätere App-Store-Version dokumentieren.
+[ ] Native Sensorstrategie für App-Store-Version weiter konkretisieren.
 [ ] Prüfen, ob Manifest scope /mobile für alle Testfälle passt.
 [ ] Prüfen, ob Service Worker alte Caches sauber ersetzt.
 
 ============================================================
-PRIO 5 – FIRESTORE / SECURITY HÄRTEN
+PRIO 6 – FIRESTORE / SECURITY HÄRTEN
 ============================================================
 
 [ ] firestore.rules lokal oder im Firebase Emulator testen.
@@ -109,7 +134,7 @@ PRIO 5 – FIRESTORE / SECURITY HÄRTEN
 [ ] Reward-/Punkte-Events auditierbar speichern.
 
 ============================================================
-PRIO 6 – AR-TECHNIKENTSCHEIDUNG
+PRIO 7 – AR-TECHNIKENTSCHEIDUNG
 ============================================================
 
 [ ] WebAR vs. native App bewerten.
@@ -119,7 +144,7 @@ PRIO 6 – AR-TECHNIKENTSCHEIDUNG
 [ ] Entscheidung dokumentieren, bevor echte AR-Missionen gebaut werden.
 
 ============================================================
-PRIO 7 – TOKENOMICS / CHAIN-STRATEGIE KLÄREN, ABER NICHT UMSETZEN
+PRIO 8 – TOKENOMICS / CHAIN-STRATEGIE KLÄREN, ABER NICHT UMSETZEN
 ============================================================
 
 [ ] Historische Solana/SPL-Unterlagen und neuere SUI/Dynamic-Object-Strategie sauber versionieren.
@@ -128,7 +153,7 @@ PRIO 7 – TOKENOMICS / CHAIN-STRATEGIE KLÄREN, ABER NICHT UMSETZEN
 [ ] App-Store-kritische Bereiche tokenfrei halten.
 
 ============================================================
-PRIO 8 – DANACH DESKTOP-PRODUKTMODULE
+PRIO 9 – DANACH DESKTOP-PRODUKTMODULE
 ============================================================
 
 [>] WF-DASH-NEXT-000 – Dashboard-Produktmodule nach Mobile/AR/Avatar-Fokus fortsetzen.
@@ -139,12 +164,11 @@ PRIO 8 – DANACH DESKTOP-PRODUKTMODULE
 [ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
 
 ============================================================
-PRIO 9 – SPÄTER / NACH PRODUKTZENTRALE
+PRIO 10 – SPÄTER / NACH PRODUKTZENTRALE
 ============================================================
 
 [>] WF-REFACTOR-004 bis WF-REFACTOR-009 – Missions- und Missionsnebenbereiche weiter modularisieren.
 [>] Missionen inhaltlich erst nach Mobile/AR/Avatar-Fokus, Datenmodell und Sicherheitsbasis weiter ausbauen.
-[>] Bewegungs-/Schritt-Test bewusst später auf echten Geräten testen.
 [>] Keine echte Token-/WFT-Ausschüttung vor 2.000–3.000 Testern.
 [>] Keine App-Store-kritischen Web3-Funktionen in Mobile.
 [!] Keine medizinischen Diagnosen durch Buddy, Face Tracking oder MoodSignal.
