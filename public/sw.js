@@ -1,5 +1,14 @@
-const CACHE_NAME = "wellfit-mobile-test-v1";
-const OFFLINE_URLS = ["/mobile", "/mobile/missionen", "/mobile/buddy", "/mobile/analyse", "/mobile/bewegung"];
+const CACHE_NAME = "wellfit-mobile-test-v2";
+const OFFLINE_URLS = [
+  "/mobile",
+  "/mobile/missionen",
+  "/mobile/missionen/squat",
+  "/mobile/buddy",
+  "/mobile/analyse",
+  "/mobile/bewegung",
+  "/mobile/einstellungen",
+  "/mobile/ar",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_URLS)).catch(() => undefined));
