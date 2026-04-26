@@ -12,7 +12,7 @@ const safePositions: ArBuddyPosition[] = ["nearLeft", "center", "farRight", "nea
 const tapMoods: ArBuddyMood[] = ["happy", "listening", "curious", "playful"];
 
 const buddyMessages: Record<ArBuddyMood, string> = {
-  idle: "Starte die Kamera und rufe Flammi in deinen Raum.",
+  idle: "Starte die Rückkamera und rufe Flammi in deinen Raum.",
   called: "Flammi ist da. Du kannst ihn antippen oder laufen lassen.",
   happy: "Flammi freut sich. Tippe ihn an, damit er weiter reagiert.",
   listening: "Flammi hört dir zu und wartet auf deine nächste Aktion.",
@@ -27,7 +27,7 @@ function getNextPosition(current: ArBuddyPosition): ArBuddyPosition {
 }
 
 export default function MobileArPage() {
-  const { videoRef, permissionState, errorMessage, startCamera, stopCamera } = useCameraPreview();
+  const { videoRef, permissionState, errorMessage, startCamera, stopCamera } = useCameraPreview({ facingMode: "environment" });
   const [buddyMood, setBuddyMood] = useState<ArBuddyMood>("idle");
   const [buddyPosition, setBuddyPosition] = useState<ArBuddyPosition>("nearLeft");
   const [tapCount, setTapCount] = useState(0);
@@ -51,7 +51,7 @@ export default function MobileArPage() {
 
   const statusMessage = useMemo(() => {
     if (!isCameraActive) {
-      return errorMessage || "Starte die Kamera, um den AR-Testmodus zu sehen.";
+      return errorMessage || "Starte die Rückkamera, um den AR-Testmodus zu sehen.";
     }
 
     if (autoWalkEnabled) {
