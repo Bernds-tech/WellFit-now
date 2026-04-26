@@ -1,36 +1,103 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Version: 3.2 – NÄCHSTE ARBEIT NACH MOBILE/BUDDY/VISION/AR-KONSOLIDIERUNG
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
-Datei: To Do List.txt
-
-WICHTIGER HINWEIS:
-Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
-Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+Ordner: todolist/
 
 ============================================================
 J. NÄCHSTE EMPFOHLENE ARBEIT
 ============================================================
 
-PRIO 1:
-[~] WF-DASH-NEXT-000 – Dashboard-Produktmodule vor Missionen.
-[ ] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul ausbauen.
+PRIO 1 – STABILISIERUNG SOFORT
+[ ] Build nach letzten Änderungen ausführen:
+    - todolist Konsolidierung
+    - /mobile/einstellungen
+    - /mobile/ar
+    - /mobile/missionen/squat Bridge
+    - Scroll-Fixes
+    - H-Datei Mobile/Vision/AR Aktualisierung
+
+Sichere Server-Reihenfolge:
+cd /var/www/WellFit-now
+git fetch origin
+git reset --hard origin/main
+npm install --no-audit --no-fund
+NODE_OPTIONS="--max-old-space-size=768" npm run build
+pm2 restart wellfit-now --update-env
+pm2 status
+
+[ ] PM2 restart prüfen.
+[ ] Gerätetest Android/iPhone: QR, Mobile, Kamera, Pose, Face, Scroll, Mission Run.
+[ ] HTTPS/Kamera/Sensor-Berechtigungen prüfen.
+[ ] Prüfen, ob /mobile wirklich nicht mehr auf Desktop-Seiten springt.
+
+============================================================
+PRIO 2 – MOBILE MISSION STABILISIEREN
+============================================================
+
+[ ] Kamera-Mission UX auf echtem Handy testen.
+[ ] Wenn Kamera-Preview/HUD Höhe problematisch ist: Missions-HUD kompakter machen.
+[ ] Mission Completion in Firestore prüfen:
+    - trackingSessions
+    - missionBuddyEvents
+    - users.points
+    - users.avatar / buddy state
+[ ] Fehlerfälle sauberer anzeigen:
+    - nicht eingeloggt
+    - Kamera abgelehnt
+    - MediaPipe lädt nicht
+    - Firestore nicht erreichbar
+    - Mission bereits heute angewendet
+[ ] Nach erfolgreichem Abschluss optional Zurück-Button zu /mobile/missionen ergänzen.
+
+============================================================
+PRIO 3 – PWA / TESTINSTALLATION SAUBERER MACHEN
+============================================================
+
+[ ] Eigenen QR-Code-Generator statt externem QR-Bilddienst.
+[ ] PWA-Icons finalisieren.
+[ ] Offline-/Cache-Strategie härten.
+[ ] Native Sensorstrategie für spätere App-Store-Version dokumentieren.
+[ ] Prüfen, ob Manifest scope /mobile für alle Testfälle passt.
+
+============================================================
+PRIO 4 – FIRESTORE / SECURITY HÄRTEN
+============================================================
+
+[ ] firestore.rules lokal oder im Firebase Emulator testen.
+[ ] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch prüfen.
+[ ] Cloud Function für Mission Completion planen.
+[ ] Client darf langfristig nur Beweise/Events senden, nicht Rewards final vergeben.
+[ ] Anti-Cheat-Konzept für Pose, Bewegung und AR starten.
+
+============================================================
+PRIO 5 – AR-TECHNIKENTSCHEIDUNG
+============================================================
+
+[ ] WebAR vs. native App bewerten.
+[ ] 3D-/Asset-Pipeline für Flammi definieren.
+[ ] Bodenanker-/Raumverständnis-Konzept erstellen.
+[ ] Prüfen: WebXR, Three.js, 8th Wall, Capacitor + native ARKit/ARCore, React Native/Expo, Unity.
+[ ] Entscheidung dokumentieren, bevor echte AR-Missionen gebaut werden.
+
+============================================================
+PRIO 6 – DANACH DESKTOP-PRODUKTMODULE
+============================================================
+
+[~] WF-DASH-NEXT-000 – Dashboard-Produktmodule vor breitem Missionsausbau.
+[x] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul als Produktbasis gebaut.
 [ ] WF-MARKET-001 – Marktplatz MVP vorbereiten.
 [ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten.
 [ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten.
 [ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
 
-PRIO 2:
-[ ] WF-QA-001 – Build und UI nach Dashboard-Refactor testen.
-[ ] WF-REGISTER-SCHEMA-001 – Firestore User-/Profile-/Settings-Schema dokumentieren.
-[ ] WF-QA-LOGIN-REGISTER-001 – Login/Register Desktop und Mobile testen.
-[ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
+============================================================
+PRIO 7 – SPÄTER / NACH PRODUKTZENTRALE
+============================================================
 
-PRIO 3:
-[ ] WF-BUDDY-CHAR-001 – Buddy-Charaktere definieren.
-[ ] WF-AVATAR-INV-001 – Avatar-Inventar anlegen.
-[ ] WF-AI-MISSIONS-001 – KI-Missionen vorbereiten.
-
-SPÄTER / NACH DASHBOARD-PRODUKTMODULEN:
 [>] WF-REFACTOR-004 bis WF-REFACTOR-009 – Missions- und Missionsnebenbereiche weiter modularisieren.
 [>] Missionen inhaltlich erst nach Dashboard-Produktzentrale, Datenmodell und Sicherheitsbasis weiter ausbauen.
+[>] Bewegungs-/Schritt-Test bewusst später auf echten Geräten testen.
+[>] Keine echte Token-/WFT-Ausschüttung vor 2.000–3.000 Testern.
+[>] Keine App-Store-kritischen Web3-Funktionen in Mobile.
+[!] Keine medizinischen Diagnosen durch Buddy, Face Tracking oder MoodSignal.
