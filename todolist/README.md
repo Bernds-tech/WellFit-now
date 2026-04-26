@@ -25,9 +25,12 @@ J - NÄCHSTE EMPFOHLENE ARBEIT
 ROADMAP_BUDDY_PHASES_ADDENDUM
 CHAT_START_PROMPT.md
 H1 - NATIVE AR - ARCORE - ARKIT - UNITY
+H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
 ```
 
 `H1 - NATIVE AR - ARCORE - ARKIT - UNITY` ist die verbindliche Detail-Roadmap für echtes Flammi-AR mit World Tracking, Plane Detection, ARCore, ARKit und Unity AR Foundation. Sie ergänzt `H - MOBILE - AR - TRACKING - KI` und wird bei allen AR-/Avatar-/Native-Mobile-Aufgaben mitgelesen.
+
+`H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE` ist die verbindliche Produktvision für den Buddy als echten AR-Begleiter, KI-Guide, Missionsführer, Rätselrallye-Begleiter und natürliche Navigations-/Interaktionsschicht.
 
 Historische/ergänzende Addenda bleiben sichtbar. Inhalte daraus wurden in die A–J-Struktur übernommen oder werden dort weitergeführt.
 
@@ -41,6 +44,7 @@ Historische/ergänzende Addenda bleiben sichtbar. Inhalte daraus wurden in die A
 - Produktrelevante Punkte dürfen nicht nur im Chat stehen bleiben.
 - Änderungen werden künftig in den passenden A–J-Dateien gepflegt.
 - Echte AR-Entscheidungen müssen zusätzlich in `H1 - NATIVE AR - ARCORE - ARKIT - UNITY` gepflegt werden.
+- Buddy-/KI-Guide-/Rätselrallye-Entscheidungen müssen zusätzlich in `H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE` gepflegt werden.
 
 ## Statussystem
 
@@ -65,4 +69,5 @@ Bei Mobile/AR/Avatar zusätzlich prüfen:
 ```txt
 H - MOBILE - AR - TRACKING - KI
 H1 - NATIVE AR - ARCORE - ARKIT - UNITY
+H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
 ```
