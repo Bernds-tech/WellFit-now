@@ -72,6 +72,8 @@ lib/vision/poseTracker.ts
 lib/vision/faceTracker.ts
 lib/vision/exerciseCounter.ts
 lib/vision/exerciseRules.ts
+lib/vision/moodSignalEngine.ts
+lib/vision/buddyCoachFeedback.ts
 ```
 
 Geplante Struktur für Phase 3:
@@ -88,6 +90,117 @@ lib/ar/buddyMovement.ts
 lib/ar/arAnchors.ts
 lib/ar/arTypes.ts
 ```
+
+---
+
+# VERBINDLICHE IDEALE PIPELINE – BUDDY VISION / ÜBUNGSQUALITÄT / STIMMUNG
+
+Diese Pipeline ist ab jetzt die verbindliche technische und produktlogische Reihenfolge für Phase 2 und alle späteren AR-/Mission-Verbindungen.
+
+## Task-ID: WF-BUDDY-VISION-PIPELINE-001
+Status: [~] In Arbeit / Pipeline verbindlich festgelegt
+Ziel: Der Avatar soll erkennen, ob der Nutzer Übungen sauber und ordentlich macht, wie die Übungsqualität ist und welche groben Stimmungssignale sichtbar sind, ohne medizinische Diagnosen zu erzeugen.
+
+## Idealer Ablauf
+
+```txt
+Handykamera startet nach Zustimmung
+↓
+MediaPipe Pose Landmarker erkennt Körperpunkte
+↓
+MediaPipe Face Landmarker erkennt Gesichtssignale
+↓
+WellFit berechnet:
+- Gelenkwinkel
+- Bewegungstiefe
+- Bewegungsumfang
+- Tempo
+- Stabilität
+- Wiederholungsphasen
+- grobe Stimmungssignale
+↓
+Exercise Counter entscheidet:
+- gültige Wiederholung
+- ungültige Wiederholung
+- Qualitätsscore
+- Feedback
+↓
+Buddy Coach erzeugt Feedback:
+- sauber
+- langsamer
+- tiefer
+- stabiler Rücken
+- kurze Pause
+- motivierender Kommentar
+↓
+trackingSessions speichert:
+- exercise
+- validReps
+- invalidReps
+- confidence
+- qualityScore
+- moodSignal
+- duration
+- source: pose
+↓
+Mission wird abgeschlossen oder fortgesetzt
+↓
+Mission-Buddy-Bridge vergibt Punkte und Buddy-Effekt
+↓
+Flammi reagiert sichtbar:
+- Lob
+- Sorge
+- Motivation
+- Bindung steigt
+- Energie/Hunger/Stimmung verändern sich
+```
+
+## Technische Entscheidung
+
+[x] Primärtechnologie für Körperanalyse: MediaPipe Pose Landmarker.
+[x] Primärtechnologie für Gesichtssignale: MediaPipe Face Landmarker.
+[>] TensorFlow.js / MoveNet bleibt Plan B, falls MediaPipe auf Zielgeräten unzureichend läuft.
+
+## Warum MediaPipe zuerst
+
+[x] Gut geeignet für Echtzeit-Kamera und Landmark-Erkennung.
+[x] Passend für Web/PWA-nahe Tests.
+[x] Pose und Face können mit einer gemeinsamen Vision-Architektur vorbereitet werden.
+[x] Erlaubt Gelenkwinkel-, Wiederholungs- und Haltungsauswertung.
+
+## Grenzen bei Stimmungserkennung
+
+Erlaubt:
+[x] Gesicht sichtbar / nicht sichtbar.
+[x] Blickrichtung grob.
+[x] Konzentration grob.
+[x] Anstrengung grob.
+[x] Unruhe / Unsicherheit als vorsichtiges Signal.
+[x] Buddy darf empathisch reagieren: „Mach kurz langsamer“, „Atme durch“, „Du wirkst konzentriert“.
+
+Nicht erlaubt:
+[!] Keine medizinische Diagnose.
+[!] Keine psychologische Diagnose.
+[!] Keine Aussagen wie depressiv, krank, Angststörung, Panik, Trauma.
+[!] Keine Speicherung von Rohbildern oder Videos als Standard.
+[!] Keine Face-/Mood-Analyse ohne explizite Zustimmung.
+
+## Umsetzungsschritte nach Pipeline
+
+[ ] WF-BUDDY-POSE-001 – MediaPipe Pose Landmarker Dependency prüfen und anbinden.
+[ ] WF-BUDDY-POSE-002 – poseTracker.ts erstellen und Körperlandmarks aus Video lesen.
+[ ] WF-BUDDY-POSE-003 – SkeletonOverlay bauen: erkannte Körperpunkte visuell anzeigen.
+[ ] WF-BUDDY-EXERCISE-001 – exerciseRules.ts bauen: Kniebeuge als erste Übung.
+[ ] WF-BUDDY-EXERCISE-002 – Gelenkwinkel für Kniebeuge berechnen: Hüfte/Knie/Fuß.
+[ ] WF-BUDDY-EXERCISE-003 – Wiederholungsphasen erkennen: oben -> runter -> tief genug -> hoch.
+[ ] WF-BUDDY-EXERCISE-004 – validReps und invalidReps zählen.
+[ ] WF-BUDDY-EXERCISE-005 – qualityScore berechnen.
+[ ] WF-BUDDY-FACE-001 – MediaPipe Face Landmarker anbinden.
+[ ] WF-BUDDY-FACE-002 – faceTracker.ts erstellen: Gesicht sichtbar, Blickrichtung, grobe Mimiksignale.
+[ ] WF-BUDDY-MOOD-001 – moodSignalEngine.ts bauen: gut, konzentriert, angestrengt, unruhig, müde, motiviert.
+[ ] WF-BUDDY-COACH-001 – buddyCoachFeedback.ts bauen: Buddy-Kommentare aus Übungsqualität + MoodSignal.
+[ ] WF-BUDDY-TRACKING-001 – TrackingSession mit validReps, invalidReps, qualityScore, moodSignal speichern.
+[ ] WF-BUDDY-MISSION-001 – Pose-basierte Mission Completion mit Mission-Buddy-Bridge verbinden.
 
 ---
 
@@ -174,11 +287,12 @@ Ziel: Der Buddy kann den Nutzer über die Kamera analysieren, Übungen mitzähle
 [x] Kamera-Stop und Cleanup beim Verlassen umgesetzt.
 [x] Vision-Typen ausgelagert: lib/vision/visionTypes.ts.
 [x] Capability-Liste ausgelagert: lib/vision/visionCapabilities.ts.
+[x] Ideale Pipeline als verbindliche Reihenfolge dokumentiert.
 [x] Skeleton Tracking als nächster Modulschritt vorbereitet.
 [x] Face Tracking als nächster Modulschritt vorbereitet.
 [x] Übungszählung als Panel vorbereitet.
-[ ] Echte Pose/Skeleton-Library anbinden.
-[ ] Face Tracking anbinden.
+[ ] MediaPipe Pose Landmarker anbinden.
+[ ] MediaPipe Face Landmarker anbinden.
 [ ] Erste Übung auswählen und wirklich zählen: Kniebeuge.
 [ ] Gültige und ungültige Wiederholungen unterscheiden.
 [ ] Buddy-Coach-Feedback dynamisch anzeigen.
@@ -194,6 +308,7 @@ Ziel: Der Buddy kann den Nutzer über die Kamera analysieren, Übungen mitzähle
 [ ] Saubere Bewegung validieren.
 [ ] Schlechte Wiederholungen nicht zählen.
 [ ] Face Tracking für Blickrichtung/Mimik vorbereiten.
+[ ] MoodSignal vorsichtig berechnen: gut, konzentriert, angestrengt, unruhig, müde, motiviert.
 [ ] Feedback neutral und motivierend formulieren.
 
 ## Akzeptanzkriterien
@@ -201,10 +316,13 @@ Ziel: Der Buddy kann den Nutzer über die Kamera analysieren, Übungen mitzähle
 [x] Kamera-Start funktioniert technisch über Browser-API, muss auf echten Geräten getestet werden.
 [x] Analyse-Seite ist über /mobile/analyse erreichbar.
 [x] Datenschutz- und Consent-Text ist vorbereitet.
+[x] Ideale Pipeline ist in der Roadmap festgelegt.
 [ ] Skeleton kann testweise angezeigt werden.
 [ ] Gesicht kann testweise erkannt werden.
 [ ] Mindestens eine Übung wird gezählt.
 [ ] Buddy gibt Feedback.
+[ ] TrackingSession wird geschrieben.
+[ ] Mission-Buddy-Bridge wird bei pose-validierter Completion ausgelöst.
 
 ## Sicherheit / Datenschutz
 
@@ -241,14 +359,17 @@ Ziel: Nutzer sieht den Buddy durch die Handykamera im echten Raum herumlaufen.
 PRIO 1:
 [x] WF-BUDDY-MISSION-LINK-001 – Mission-Buddy-Bridge als Produktverbindung umgesetzt.
 [x] WF-BUDDY-P1-001 – Mein KI-Buddy MVP funktional umgesetzt.
-[~] WF-BUDDY-P2-VISION-001 – Kamera-Basis umgesetzt; Skeleton/Face/Rep-Counting als nächster Schritt.
+[x] WF-BUDDY-VISION-PIPELINE-001 – Ideale Vision-Pipeline verbindlich festgelegt.
+[~] WF-BUDDY-P2-VISION-001 – Kamera-Basis umgesetzt; Pose/Face/Rep-Counting als nächster Schritt.
 [ ] Mobile-Layout / Build prüfen.
 [ ] Firestore Rules deployen/testen.
 
 PRIO 2:
-[ ] Echte Pose/Skeleton-Library anbinden.
+[ ] MediaPipe Pose Landmarker anbinden.
 [ ] Erste Übung Kniebeuge zählen.
-[ ] TrackingSessions mit validReps/invalidReps beschreiben.
+[ ] MediaPipe Face Landmarker anbinden.
+[ ] MoodSignalEngine bauen.
+[ ] TrackingSessions mit validReps/invalidReps/qualityScore/moodSignal beschreiben.
 
 PRIO 3:
 [ ] WF-BUDDY-P3-AR-001 – AR-Buddy im realen Raum vorbereiten.
@@ -262,4 +383,4 @@ Danach:
 
 # Hinweis zur To Do List.txt
 
-Dieses Addendum muss bei der nächsten sicheren Roadmap-Dateiaktualisierung in To Do List.txt übernommen werden. Ein direkter Schreibversuch auf To Do List.txt wurde durch einen GitHub-Blob-SHA-Konflikt blockiert, daher wird dieses Addendum vorerst als versionierte Roadmap-Ergänzung im Repository abgelegt.
+Dieses Addendum muss bei der nächsten sicheren Roadmap-Dateiaktualisierung in To Do List.txt übernommen werden. Die zentrale To Do List.txt ist sehr groß und wurde vom GitHub-Connector nur gekürzt angezeigt; daher wird dieses Addendum weiterhin als sichere versionierte Roadmap-Ergänzung gepflegt und später vollständig übernommen.
