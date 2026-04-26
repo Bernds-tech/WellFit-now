@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 5.6 – MISSION REWARD CONTEXT / SYSTEMRESERVE IN NÄCHSTE ARBEIT AUFGENOMMEN
+Version: 5.7 – NFC EDGE CASES UND DUPLICATE-SCAN-SCHUTZ ERGÄNZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -71,6 +71,11 @@ AKTUELLER FOKUS:
 [x] AI Dimensions / Items / NFT Economy Architekturdatei angelegt.
 [x] Reward-/Economy-Roadmap um KI-Dimensionen, Item-Angebote, NFT-/Ownership-Abgrenzung ergänzt.
 [x] Quest-Chain-/Item-Detour-Regeln in Architektur und G aufgenommen.
+[x] validateNfcScan unterscheidet revoked NFC Tags jetzt als tag-revoked von sonstigen inaktiven Tags.
+[x] validateNfcScan blockiert Duplicate Scans pro Nutzer, Tag und Mission mit duplicate-scan.
+[x] firestore.indexes.json um Composite Index für Duplicate-Scan-Prüfung auf nfcScanEvents ergänzt.
+[x] Callable Functions Emulator Test um missing/unknown/revoked/inactive/user-not-allowed/usage-limit/duplicate/Magnifier erweitert.
+[x] functions/EMULATOR_TEST_PLAN.md um erweiterte NFC-Edge-Case-Testfälle ergänzt.
 
 PRIO 1 – BESTÄTIGTER GESAMT-EMULATOR-TEST
 [x] Java installiert und geprüft:
@@ -123,6 +128,7 @@ HINWEISE:
 [!] KI-generierte Preise, Item-Angebote, Token-/WFT-Bezüge und NFT-/Ownership-Records müssen backendvalidiert sein.
 [!] Mobile-App darf keine App-Store-kritischen Token-/NFT-/Trading-Funktionen enthalten.
 [!] Clientseitige Tagesmissions-Rewards sind MVP/UI-Logik, nicht langfristige Autorität.
+[!] Duplicate-Scan-Schutz ist ein MVP-Schutz auf Nutzer/Tag/Mission-Basis; hochparallele Race Conditions sollten später zusätzlich per Transaktion oder deterministischem Claim-Dokument abgesichert werden.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -159,14 +165,15 @@ PRIO 2 – NÄCHSTE TESTSTUFE: EDGE CASES UND ERWEITERTE SECURITY
 [x] Firestore Rules Smoke Test erfolgreich.
 [x] Callable Functions Emulator Test erfolgreich.
 [x] Gesamt-Emulator-Test erfolgreich.
-[ ] Testszenarien weiter ausbauen:
+[x] Testszenarien weiter ausgebaut:
     - revoked NFC Tag
     - inactive NFC Tag
     - duplicate scan
     - falscher Nutzer
     - usageLimit erreicht
     - Magnifier Flow vollständig als Callable testen
-    - scanObject/revealHint Capability prüfen
+    - scanObject Capability prüfen
+[ ] revealHint Capability als eigener Flow ergänzen, sobald Magnifier/Quest-Design mehrere Capability Unlocks pro Tag produktiv nutzt.
 [ ] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch prüfen.
 [ ] Produktionsdeployment erst nach erweiterten Emulator-Tests.
 
