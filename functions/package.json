@@ -6,6 +6,7 @@
     "node": "20"
   },
   "scripts": {
+    "check": "node -c index.js && node -c seed/demoItemsAndNfc.js",
     "lint": "echo \"functions lint placeholder\"",
     "serve": "firebase emulators:start --only functions,firestore,auth",
     "deploy": "firebase deploy --only functions"
