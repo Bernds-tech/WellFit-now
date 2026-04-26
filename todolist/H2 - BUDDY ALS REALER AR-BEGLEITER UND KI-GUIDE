@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.0 – BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
+Version: 1.1 – BUDDY ALS REALER AR-BEGLEITER, KI-GUIDE UND ITEM-FÄHIGKEITS-SYSTEM
 Status: Produktvision / verbindliche Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -23,6 +23,7 @@ H2.1 PRODUKTZIEL
 [x] Der Buddy soll Kinder, Erwachsene und Familien motivieren, sich zu bewegen.
 [x] Der Buddy soll Aufgaben, Hinweise, Rätsel und nächste Schritte vorschlagen.
 [x] Die Bedienung soll langfristig weniger über Buttons und mehr über natürliche Buddy-Interaktion laufen.
+[x] Buddy-Ausrüstung, Gegenstände und Fähigkeiten werden Teil des echten AR-Erlebnisses.
 
 BEISPIELE:
 [ ] Buddy fragt: Wollen wir die nächste Tagesmission starten?
@@ -33,6 +34,8 @@ BEISPIELE:
 [ ] Buddy führt Kinder von Hinweis zu Hinweis.
 [ ] Buddy kann später durch Sprache/Chat Fragen beantworten.
 [ ] Buddy leitet durch Menüs, statt dass Nutzer viele Buttons suchen muss.
+[ ] Buddy erkennt: Da oben ist etwas am Baum / auf einer erhöhten Fläche.
+[ ] Buddy sagt: Dort oben ist ein Hinweis. Ich kann ihn holen, aber dafür brauche ich die passende Ausrüstung.
 
 ============================================================
 H2.2 AR-BUDDY VERHALTEN IN DER REALEN WELT
@@ -51,6 +54,7 @@ MUSS-KRITERIEN:
 [ ] Buddy schaut zur Kamera beziehungsweise zum Nutzer.
 [ ] Buddy kann auf Objekte oder Orte in der Umgebung aufmerksam machen.
 [ ] Buddy wirkt glaubwürdig durch Schatten, Skalierung, Perspektive und später Verdeckung/Occlusion.
+[ ] Buddy kann Fähigkeiten abhängig von Ausrüstung einsetzen: klettern, springen, holen, scannen, markieren, tragen.
 
 NICHT AUSREICHEND:
 [!] 2D-Bild über Kamera.
@@ -58,6 +62,7 @@ NICHT AUSREICHEND:
 [!] 3D-Objekt, das nur am Display klebt.
 [!] Simulierter Anker ohne World Tracking.
 [!] Bewegung nur von Bildschirmposition zu Bildschirmposition.
+[!] Ausrüstung nur als kosmetisches Bild ohne Gameplay-Funktion.
 
 ============================================================
 H2.3 BUDDY ALS KI-GUIDE
@@ -75,6 +80,8 @@ DER BUDDY SOLL:
 [ ] Familien- und Kinderkontext berücksichtigen.
 [ ] Keine medizinischen Diagnosen geben.
 [ ] Keine Scham-/Drucksprache als Standard verwenden.
+[ ] Auf fehlende Ausrüstung hinweisen.
+[ ] Erklären, warum ein Gegenstand gebraucht wird: z. B. Kletterseil, Greifhaken, Lupe, Schild, Rucksack.
 
 INTERAKTIONEN:
 [ ] Text-Chat mit Buddy.
@@ -82,6 +89,8 @@ INTERAKTIONEN:
 [ ] Auswahlfelder bei Lern-/Rätselaufgaben.
 [ ] Kontextabhängige Empfehlungen.
 [ ] Buddy-gestützte Navigation statt reiner Button-Navigation.
+[ ] Buddy fragt, ob er eine Fähigkeit einsetzen soll.
+[ ] Nutzer kann Buddy mit Ausrüstung losschicken.
 
 ============================================================
 H2.4 RÄTSELRALLYE UND REAL-WORLD-MISSIONEN
@@ -94,6 +103,8 @@ MISSIONSTYPEN:
 [ ] Lernmissionen: Mathe, Sprache, Naturkunde, Allgemeinwissen in Bewegung.
 [ ] Fitness-Missionen: Pose/Kamera-Übungen kombiniert mit AR-Hinweisen.
 [ ] Abenteuerpfade: Buddy führt durch eine Geschichte.
+[ ] Ausrüstungsmissionen: Buddy braucht Gegenstand/Fähigkeit, um Ziel zu erreichen.
+[ ] NFC-/Real-World-Item-Missionen: echter Gegenstand oder NFC-Tag schaltet Fähigkeit, Hinweis oder Mission frei.
 
 BEISPIEL BLATT-MISSION:
 [ ] Buddy erkennt oder markiert ein Blatt.
@@ -104,8 +115,57 @@ BEISPIEL BLATT-MISSION:
 [ ] Reward-/XP-Logik läuft serverseitig nach bestehendem WellFit-Algorithmus.
 [ ] Buddy reagiert emotional und erklärt kurz.
 
+BEISPIEL KLETTER-/ITEM-MISSION:
+[ ] Buddy erkennt oder behauptet erzählerisch: Da oben am Baum / Regal / Spielgerät ist ein Hinweis.
+[ ] Buddy sagt: Ich kann dort hoch, aber dafür brauche ich den passenden Gegenstand.
+[ ] Nutzer öffnet Inventar oder scannt einen NFC-/Real-World-Item-Tag.
+[ ] Item wird serverseitig geprüft.
+[ ] Buddy erhält Fähigkeit: climbUp, jumpBoost, ropeClimb, scanHighObject oder fetchClue.
+[ ] Unity AR spielt Kletter-/Sprung-/Hol-Animation ab.
+[ ] Buddy bringt Hinweis zurück oder öffnet neues Rätsel.
+[ ] Backend entscheidet Mission Completion und Reward.
+
 ============================================================
-H2.5 TECHNISCHE KONSEQUENZ
+H2.5 AUSRÜSTUNG / INVENTAR / NFC / FÄHIGKEITEN
+============================================================
+
+PRODUKTIDEE:
+Ausrüstung ist nicht nur kosmetisch. Sie kann Fähigkeiten freischalten, die der Buddy in echten AR-Missionen nutzt.
+
+ITEM-TYPEN:
+[ ] Kosmetik: Kleidung, Farben, Rüstung, Accessoires.
+[ ] Werkzeug: Lupe, Seil, Greifhaken, Rucksack, Laterne, Kompass.
+[ ] Schutz: Schild, Helm, Rüstung.
+[ ] Bewegungsfähigkeit: Kletterschuhe, Sprungfeder, Flügel-Upgrade, Seil.
+[ ] Rätselwerkzeug: Scanner, magische Linse, Karte, Schlüssel.
+[ ] Event-/NFC-Item: echter Tag, Karte, Sticker, Spielplatzpunkt, Partnerobjekt.
+
+FÄHIGKEITEN:
+[ ] climbUp: Buddy kann hochklettern.
+[ ] jumpDown: Buddy springt herunter.
+[ ] jumpBoost: Buddy erreicht höhere Flächen.
+[ ] fetchClue: Buddy holt Hinweis von erhöhter Stelle.
+[ ] scanObject: Buddy scannt/markiert Objekt.
+[ ] revealHint: Buddy macht Hinweis sichtbar.
+[ ] protect: Buddy kann in Abenteuerlogik schützen.
+[ ] carry: Buddy trägt gefundenen Gegenstand zurück.
+
+NFC-/REAL-WORLD-ITEM-LOGIK:
+[ ] NFC-Tag kann Item, Mission, Hinweis oder Fähigkeit auslösen.
+[ ] NFC-Tag darf nicht clientseitig Reward-Autorität sein.
+[ ] NFC-Scan sendet nur Beweis/Event an Backend.
+[ ] Backend prüft Tag-ID, Nutzer, Mission, Zeitfenster und Missbrauch.
+[ ] Erst Backend schaltet Item/Fähigkeit/Reward frei.
+[ ] App/Unity zeigt danach die Buddy-Aktion an.
+
+SICHERHEIT:
+[!] Keine Rewards nur durch ungeprüften NFC-Scan.
+[!] Keine clientseitige Freischaltung produktkritischer Items.
+[!] NFC-Tags müssen serverseitig validiert, rotierbar und sperrbar sein.
+[!] Rare Items und Partner-Items brauchen Audit-Log.
+
+============================================================
+H2.6 TECHNISCHE KONSEQUENZ
 ============================================================
 
 [!] Dieses Produktziel kann nicht mit reinem Browser/PWA-Kameraoverlay erreicht werden.
@@ -113,7 +173,9 @@ H2.5 TECHNISCHE KONSEQUENZ
 [x] Echtes Erlebnis braucht native AR mit World Tracking, Plane Detection, Hit Test/Raycast, Anchors und 3D-Charakteranimation.
 [x] Android: ARCore.
 [x] iOS: ARKit.
-[x] Empfohlener Hauptpfad: Unity AR Foundation, wenn App-Größe und Build-Komplexität akzeptabel bleiben.
+[x] Empfohlener Hauptpfad: Unity AR Foundation.
+[x] Für Ausrüstung/Fähigkeiten braucht WellFit ein Inventar-, Item- und Capability-System.
+[x] Für NFC/Real-World-Items braucht WellFit eine sichere Backend-Validierung.
 
 WARUM UNITY AR FOUNDATION:
 [x] Gemeinsamer AR-Pfad für Android und iOS.
@@ -121,6 +183,7 @@ WARUM UNITY AR FOUNDATION:
 [x] 3D-Assetpipeline besser geeignet.
 [x] Bewegungslogik, Animator Controller und spätere Navigation besser umsetzbar.
 [x] ARCore und ARKit werden über eine gemeinsame Schicht angesprochen.
+[x] Ausrüstung am Buddy kann visuell und funktional in einer 3D-/AR-Pipeline dargestellt werden.
 
 RISIKEN UNITY:
 [!] Größere App.
@@ -136,7 +199,7 @@ ALTERNATIVE DIREKT ARCORE/ARKIT:
 [!] Für den lebendigen Buddy langfristig weniger effizient.
 
 ============================================================
-H2.6 STRATEGISCHE ENTSCHEIDUNG
+H2.7 STRATEGISCHE ENTSCHEIDUNG
 ============================================================
 
 EMPFEHLUNG:
@@ -145,20 +208,22 @@ EMPFEHLUNG:
 [x] Browser/WebGL bleibt nur Demo/Fallback.
 [x] Buddy-KI, Missionsempfehlungen, Rätselgenerierung und Reward-Bewertung bleiben außerhalb von Unity in WellFit-Backend/App-Logik.
 [x] Unity rendert und steuert die AR-Welt, aber finale Rewards, Mission Completion und Anti-Cheat bleiben serverseitig.
+[x] Items, NFC, Fähigkeiten und Ausrüstung werden in WellFit Backend/App modelliert und in Unity visualisiert.
 
 ============================================================
-H2.7 NÄCHSTE EMPFOHLENE ARBEIT
+H2.8 NÄCHSTE EMPFOHLENE ARBEIT
 ============================================================
 
-[ ] Unity-Hauptpfad in J übernehmen.
+[x] Unity-Hauptpfad in J übernommen.
+[x] Unity-Projektstruktur vorbereitet.
 [ ] Unity-Version festlegen.
-[ ] native/unity/WellFitFlammiAR Projektstruktur anlegen.
+[ ] native/unity/WellFitBuddyAR lokal mit Unity Hub erzeugen.
 [ ] Minimalen Unity AR Foundation Prototyp planen:
     - AR Session
     - Plane Detection
     - Raycast Tap
     - Anchor
-    - Flammi Placeholder
+    - Buddy Placeholder
     - Idle Animation
     - Look at Camera
 [ ] Bridge zwischen WellFit Mobile und Unity AR definieren.
@@ -170,3 +235,6 @@ H2.7 NÄCHSTE EMPFOHLENE ARBEIT
     - Missionstyp
     - Rewardstatus
 [ ] Rätselrallye-Datenmodell entwerfen.
+[ ] Inventar-/Item-Datenmodell entwerfen.
+[ ] Buddy-Fähigkeits-/Capability-Datenmodell entwerfen.
+[ ] NFC-/Real-World-Item-Validierung entwerfen.
