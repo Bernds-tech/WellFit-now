@@ -29,6 +29,31 @@ cd /var/www/WellFit-now
 npx firebase emulators:start --only auth,firestore,functions
 ```
 
+## Smoke-Test fuer NFC / Item / Capability
+
+Dieses Skript prueft die Kernkette im Firestore Emulator:
+
+```bash
+cd /var/www/WellFit-now/functions
+npm run smoke:nfc
+```
+
+Voraussetzung:
+
+```txt
+FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
+```
+
+Das Script `test/emulatorNfcSmokeTest.js` prueft:
+
+- Demo Items werden geseedet.
+- Demo NFC Tags werden geseedet.
+- rope_001 existiert.
+- WF-DEMO-ROPE-TREE-001 wird validiert.
+- userInventory bekommt rope_001.
+- buddyCapabilities bekommt climbUp.
+- falsche Mission wird mit mission-mismatch abgelehnt.
+
 ## Testnutzer
 
 ### Admin-Nutzer
@@ -227,4 +252,4 @@ Direkte Writes muessen abgelehnt werden fuer:
 
 ## Naechste technische Aufgabe
 
-Automatisierte Emulator-Tests mit `firebase-functions-test` oder einer Emulator-Testumgebung anlegen.
+Automatisierte Callable-Function-Tests und Firestore-Rules-Tests ergaenzen. Der Smoke-Test ist ein erster pruefbarer Zwischenschritt, ersetzt aber noch nicht die vollstaendigen Security-Rule-Tests.
