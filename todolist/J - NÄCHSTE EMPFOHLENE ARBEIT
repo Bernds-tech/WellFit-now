@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.1 – UNITY AR FOUNDATION PROJEKTSTRUKTUR ANGELEGT / BUILD OFFEN
+Version: 4.2 – UNITY AR FOUNDATION PROJEKTSTRUKTUR BUILD/PM2 BESTÄTIGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -23,9 +23,11 @@ AKTUELLER FOKUS:
 [x] Unity Scene Setup dokumentiert.
 [x] Unity Bridge Contract dokumentiert.
 [x] Unity Script-Platzhalter und erste C#-Vorlagen angelegt.
+[x] Build nach Unity-Struktur erfolgreich ausgeführt.
+[x] PM2 nach Unity-Struktur erfolgreich neu gestartet.
 
-PRIO 1 – BUILD NACH UNITY-ROADMAP-STRUKTUR
-[ ] Build nach Unity-Struktur ausführen:
+PRIO 1 – BESTÄTIGTER SERVER-BUILD
+[x] Build nach Unity-Struktur ausgeführt:
     - native/unity/WellFitBuddyAR/README.md
     - native/unity/WellFitBuddyAR/.gitignore
     - native/unity/WellFitBuddyAR/docs/SCENE_SETUP.md
@@ -35,7 +37,21 @@ PRIO 1 – BUILD NACH UNITY-ROADMAP-STRUKTUR
     - native/unity/WellFitBuddyAR/Scripts/BuddyController.cs.txt
     - native/unity/WellFitBuddyAR/Scripts/BuddyAnchorController.cs.txt
     - todolist/H1 aktualisiert auf Unity-Hauptpfad
-    - todolist/H2 Produktvision bereits ergänzt
+    - todolist/H2 Produktvision ergänzt
+
+BESTÄTIGTER SERVER-BUILD NACH UNITY-STRUKTUR:
+[x] git fetch origin ausgeführt.
+[x] git reset --hard origin/main ausgeführt.
+[x] HEAD bestätigt: 633a927 Document Unity AR project structure as next work item.
+[x] npm install --no-audit --no-fund erfolgreich.
+[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
+[x] Next.js 16.2.3 Build erfolgreich kompiliert.
+[x] TypeScript erfolgreich abgeschlossen.
+[x] Static Pages erfolgreich generiert: 29/29.
+[x] /mobile/ar im Build enthalten.
+[x] /mobile/missionen/squat im Build enthalten.
+[x] pm2 restart wellfit-now --update-env erfolgreich.
+[x] pm2 status geprüft: wellfit-now online.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
