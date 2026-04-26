@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.5 – MOBILE-AR-BUDDY V2 UMGESETZT / BUILD OFFEN
+Version: 3.6 – MOBILE-AR-BUDDY V2 BUILD/PM2 BESTÄTIGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -12,16 +12,30 @@ AKTUELLER FOKUS:
 [x] Nutzerentscheidung übernommen: Handy / AR / Avatar / Buddy wird vor Desktop-Marktplatz, Leaderboard, Shop und weiteren Produktmodulen priorisiert.
 [x] Interaktiver Mobile-AR-Buddy-Prototyp wurde umgesetzt und erfolgreich gebaut.
 [x] Flammi-Bewegungslogik V2 wurde umgesetzt.
-[!] Nach V2 ist ein neuer Server-Build erforderlich.
+[x] Mobile-AR-Buddy V2 wurde erfolgreich gebaut und per PM2 neu gestartet.
 
 PRIO 1 – STABILISIERUNG SOFORT
-[ ] Build nach Mobile-AR-Buddy V2 ausführen:
+[x] Build nach Mobile-AR-Buddy V2 ausgeführt:
     - /mobile/ar Bewegungslogik V2
     - ArBuddyControls.tsx neu
     - ArBuddyOverlay.tsx mit erweiterten Zuständen
     - ArBuddyCharacter.tsx mit mehreren Reaktionszuständen
     - ArBuddySpeechBubble.tsx kompakter
     - H-Datei Mobile/Vision/AR Aktualisierung
+
+BESTÄTIGTER SERVER-BUILD NACH V2:
+[x] git fetch origin ausgeführt.
+[x] git reset --hard origin/main ausgeführt.
+[x] HEAD bestätigt: 6252dfa Document mobile AR buddy movement V2 as next build target.
+[x] npm install --no-audit --no-fund erfolgreich / up to date.
+[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
+[x] Next.js 16.2.3 Build erfolgreich kompiliert.
+[x] TypeScript erfolgreich abgeschlossen.
+[x] Static Pages erfolgreich generiert: 29/29.
+[x] /mobile/ar im Build enthalten.
+[x] /mobile/missionen/squat im Build enthalten.
+[x] pm2 restart wellfit-now --update-env erfolgreich.
+[x] pm2 status geprüft: wellfit-now online.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -31,19 +45,6 @@ npm install --no-audit --no-fund
 NODE_OPTIONS="--max-old-space-size=768" npm run build
 pm2 restart wellfit-now --update-env
 pm2 status
-
-BISHER BESTÄTIGTER SERVER-BUILD VOR V2:
-[x] git fetch origin ausgeführt.
-[x] git reset --hard origin/main ausgeführt.
-[x] npm install --no-audit --no-fund erfolgreich / up to date.
-[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
-[x] Next.js Build erfolgreich kompiliert.
-[x] TypeScript erfolgreich abgeschlossen.
-[x] Static Pages erfolgreich generiert: 29/29.
-[x] /mobile/ar im Build enthalten.
-[x] /mobile/missionen/squat im Build enthalten.
-[x] pm2 restart wellfit-now --update-env erfolgreich.
-[x] pm2 status geprüft: wellfit-now online.
 
 [ ] Gerätetest Android/iPhone: QR, Mobile, Kamera, Pose, Face, Scroll, Mission Run.
 [ ] HTTPS/Kamera/Sensor-Berechtigungen prüfen.
