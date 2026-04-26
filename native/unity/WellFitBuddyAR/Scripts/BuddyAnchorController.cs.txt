@@ -1,0 +1,59 @@
+// Vorlage fuer Assets/Scripts/BuddyAnchorController.cs
+// Nach Unity-Projekterzeugung als .cs Datei uebernehmen.
+
+using UnityEngine;
+#if UNITY_XR_ARFOUNDATION
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
+#endif
+using System.Collections.Generic;
+
+public class BuddyAnchorController : MonoBehaviour
+{
+    [SerializeField] private GameObject buddyPrefab;
+    [SerializeField] private WellFitNativeBridge bridge;
+
+#if UNITY_XR_ARFOUNDATION
+    [SerializeField] private ARRaycastManager raycastManager;
+    [SerializeField] private ARAnchorManager anchorManager;
+    private static readonly List<ARRaycastHit> hits = new List<ARRaycastHit>();
+#endif
+
+    private GameObject currentBuddy;
+
+    public void PlaceBuddyAtScreenPoint(Vector2 screenPoint)
+    {
+#if UNITY_XR_ARFOUNDATION
+        if (raycastManager == null || anchorManager == null || buddyPrefab == null) return;
+
+        if (!raycastManager.Raycast(screenPoint, hits, TrackableType.PlaneWithinPolygon))
+        {
+            bridge?.SendEventToWellFit("onArError", "{\"message\":\"No plane hit\"}");
+            return;
+        }
+
+        Pose pose = hits[0].pose;
+        ARAnchor anchor = anchorManager.AddAnchor(pose);
+        if (anchor == null)
+        {
+            bridge?.SendEventToWellFit("onArError", "{\"message\":\"Anchor creation failed\"}");
+            return;
+        }
+
+        if (currentBuddy == null)
+        {
+            currentBuddy = Instantiate(buddyPrefab, anchor.transform);
+        }
+        else
+        {
+            currentBuddy.transform.SetParent(anchor.transform);
+            currentBuddy.transform.localPosition = Vector3.zero;
+            currentBuddy.transform.localRotation = Quaternion.identity;
+        }
+
+        bridge?.SendEventToWellFit("onBuddyPlaced", "{\"status\":\"placed\"}");
+#else
+        bridge?.SendEventToWellFit("onArError", "{\"message\":\"AR Foundation not enabled\"}");
+#endif
+    }
+}
