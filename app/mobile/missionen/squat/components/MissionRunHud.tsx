@@ -4,6 +4,7 @@ type MissionRunHudProps = {
   countdown: number;
   isRunning: boolean;
   isCompleted: boolean;
+  isSavingMission?: boolean;
   counter: ExerciseCounterState;
   targetReps: number;
   onStart: () => void;
@@ -15,6 +16,7 @@ export default function MissionRunHud({
   countdown,
   isRunning,
   isCompleted,
+  isSavingMission = false,
   counter,
   targetReps,
   onStart,
@@ -55,28 +57,28 @@ export default function MissionRunHud({
       </div>
 
       <p className="mt-3 rounded-2xl bg-black/20 p-3 text-xs font-semibold leading-relaxed text-cyan-100/78">
-        {isCompleted ? "Mission abgeschlossen. Flammi ist stolz auf dich." : countdown > 0 ? "Stelle dein Handy so auf, dass dein ganzer Körper sichtbar ist." : counter.feedback}
+        {isSavingMission ? "Mission wird gespeichert. Bitte kurz warten." : isCompleted ? "Mission abgeschlossen. Flammi ist stolz auf dich." : countdown > 0 ? "Stelle dein Handy so auf, dass dein ganzer Körper sichtbar ist." : counter.feedback}
       </p>
 
       <div className="mt-3 grid grid-cols-3 gap-2">
         <button
           type="button"
           onClick={onStart}
-          disabled={isRunning || countdown > 0 || isCompleted}
+          disabled={isRunning || countdown > 0 || isCompleted || isSavingMission}
           className="rounded-2xl bg-orange-400 px-3 py-3 text-sm font-black text-[#042f35] disabled:opacity-45"
         >
           Start
         </button>
-        <button type="button" onClick={onStop} className="rounded-2xl bg-white/10 px-3 py-3 text-sm font-black text-white">
+        <button type="button" onClick={onStop} disabled={isSavingMission} className="rounded-2xl bg-white/10 px-3 py-3 text-sm font-black text-white disabled:opacity-45">
           Stop
         </button>
         <button
           type="button"
           onClick={onComplete}
-          disabled={isCompleted || counter.validReps < targetReps}
+          disabled={isCompleted || counter.validReps < targetReps || isSavingMission}
           className="rounded-2xl bg-green-300 px-3 py-3 text-sm font-black text-[#042f35] disabled:opacity-45"
         >
-          Fertig
+          {isSavingMission ? "..." : "Fertig"}
         </button>
       </div>
     </div>
