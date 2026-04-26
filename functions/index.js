@@ -6,6 +6,21 @@ const { seedDemoItemsAndNfc: runDemoItemsAndNfcSeed } = require("./seed/demoItem
 admin.initializeApp();
 const db = admin.firestore();
 
+const ALLOWED_TRACKING_SOURCES = ["mobile", "ar", "buddy", "nfc", "manual-test"];
+const ALLOWED_TRACKING_STATUSES = ["started", "proof-submitted", "completed", "rejected"];
+const ALLOWED_PROOF_TYPES = ["pose", "motion", "ar", "nfc", "gps-context", "manual-test"];
+const ALLOWED_BUDDY_EVENT_TYPES = [
+  "recommendationShown",
+  "missionStarted",
+  "buddyActionRequested",
+  "buddyActionCompleted",
+  "hintShown",
+  "itemNeeded",
+  "itemUsed",
+  "missionExplained",
+];
+const ALLOWED_BUDDY_EVENT_STATUSES = ["recorded", "requested", "completed", "rejected"];
+
 function requireAuth(request) {
   if (!request.auth || !request.auth.uid) {
     throw new HttpsError("unauthenticated", "Login erforderlich.");
@@ -33,6 +48,35 @@ function toErrorMessage(error) {
   if (!error) return "Unbekannter Fehler";
   if (error instanceof Error) return error.message;
   return String(error);
+}
+
+function optionalString(value, maxLength = 160) {
+  if (value === undefined || value === null) return null;
+  const normalized = String(value).trim();
+  if (!normalized) return null;
+  return normalized.slice(0, maxLength);
+}
+
+function requiredString(value, fieldName, maxLength = 160) {
+  const normalized = optionalString(value, maxLength);
+  if (!normalized) {
+    throw new HttpsError("invalid-argument", `${fieldName} fehlt.`);
+  }
+  return normalized;
+}
+
+function enumValue(value, allowed, fallback) {
+  const normalized = optionalString(value, 80) || fallback;
+  return allowed.includes(normalized) ? normalized : fallback;
+}
+
+function minimalClientContext(data) {
+  return {
+    deviceId: optionalString(data.deviceId, 120),
+    appSessionId: optionalString(data.appSessionId, 120),
+    approximateLocationHash: optionalString(data.approximateLocationHash, 160),
+    clientVersion: optionalString(data.clientVersion, 80),
+  };
 }
 
 async function createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason }) {
@@ -211,6 +255,126 @@ exports.auditItemUse = onCall(async (request) => {
   });
 
   return { accepted: true, eventId: eventRef.id };
+});
+
+exports.createTrackingSession = onCall(async (request) => {
+  const userId = requireAuth(request);
+  const data = request.data || {};
+  const missionId = requiredString(data.missionId, "missionId");
+  const source = enumValue(data.source, ALLOWED_TRACKING_SOURCES, "mobile");
+  const proofType = enumValue(data.proofType, ALLOWED_PROOF_TYPES, "motion");
+  const sessionRef = db.collection("trackingSessions").doc();
+
+  await sessionRef.set({
+    sessionId: sessionRef.id,
+    userId,
+    missionId,
+    source,
+    proofType,
+    status: "started",
+    serverValidationStatus: "pending",
+    proofEventCount: 0,
+    rewardAuthorized: false,
+    missionCompletionAuthorized: false,
+    createdAt: now(),
+    startedAt: now(),
+    updatedAt: now(),
+    ...minimalClientContext(data),
+  });
+
+  return {
+    accepted: true,
+    sessionId: sessionRef.id,
+    status: "started",
+    serverValidationStatus: "pending",
+  };
+});
+
+exports.recordTrackingProof = onCall(async (request) => {
+  const userId = requireAuth(request);
+  const data = request.data || {};
+  const sessionId = requiredString(data.sessionId, "sessionId");
+  const proofType = enumValue(data.proofType, ALLOWED_PROOF_TYPES, "motion");
+  const clientClaimStatus = enumValue(data.status, ALLOWED_TRACKING_STATUSES, "proof-submitted");
+  const sessionRef = db.collection("trackingSessions").doc(sessionId);
+  const proofRef = db.collection("trackingProofEvents").doc();
+
+  await db.runTransaction(async (transaction) => {
+    const sessionDoc = await transaction.get(sessionRef);
+    if (!sessionDoc.exists) {
+      throw new HttpsError("not-found", "Tracking-Session wurde nicht gefunden.");
+    }
+
+    const session = sessionDoc.data();
+    if (session.userId !== userId) {
+      throw new HttpsError("permission-denied", "Tracking-Session gehoert nicht diesem Nutzer.");
+    }
+
+    transaction.set(proofRef, {
+      proofEventId: proofRef.id,
+      sessionId,
+      userId,
+      missionId: session.missionId || null,
+      proofType,
+      clientClaimStatus,
+      serverValidationStatus: "received",
+      rewardAuthorized: false,
+      missionCompletionAuthorized: false,
+      createdAt: now(),
+      ...minimalClientContext(data),
+    });
+
+    transaction.update(sessionRef, {
+      status: clientClaimStatus === "completed" ? "proof-submitted" : clientClaimStatus,
+      lastProofType: proofType,
+      lastProofEventId: proofRef.id,
+      proofEventCount: incrementBy(1),
+      serverValidationStatus: "proof-received",
+      rewardAuthorized: false,
+      missionCompletionAuthorized: false,
+      updatedAt: now(),
+    });
+  });
+
+  return {
+    accepted: true,
+    proofEventId: proofRef.id,
+    sessionId,
+    serverValidationStatus: "received",
+  };
+});
+
+exports.createMissionBuddyEvent = onCall(async (request) => {
+  const userId = requireAuth(request);
+  const data = request.data || {};
+  const missionId = requiredString(data.missionId, "missionId");
+  const buddyId = optionalString(data.buddyId, 120) || "default";
+  const eventType = enumValue(data.eventType, ALLOWED_BUDDY_EVENT_TYPES, "missionExplained");
+  const status = enumValue(data.status, ALLOWED_BUDDY_EVENT_STATUSES, "recorded");
+  const eventRef = db.collection("missionBuddyEvents").doc();
+
+  await eventRef.set({
+    eventId: eventRef.id,
+    userId,
+    buddyId,
+    missionId,
+    eventType,
+    status,
+    itemId: optionalString(data.itemId, 120),
+    capabilityId: optionalString(data.capabilityId, 120),
+    messageKey: optionalString(data.messageKey, 160),
+    serverValidationStatus: "recorded",
+    rewardAuthorized: false,
+    missionCompletionAuthorized: false,
+    createdAt: now(),
+    ...minimalClientContext(data),
+  });
+
+  return {
+    accepted: true,
+    eventId: eventRef.id,
+    serverValidationStatus: "recorded",
+  };
 });
 
 exports.seedDemoItemsAndNfc = onCall(async (request) => {
