@@ -1,0 +1,24 @@
+// Vorlage fuer Assets/Scripts/WellFitNativeBridge.cs
+// Nach Unity-Projekterzeugung als .cs Datei uebernehmen.
+
+using UnityEngine;
+
+public class WellFitNativeBridge : MonoBehaviour
+{
+    public void StartSession()
+    {
+        Debug.Log("WellFit AR Session start requested");
+    }
+
+    public void StopSession()
+    {
+        Debug.Log("WellFit AR Session stop requested");
+    }
+
+    public void SendEventToWellFit(string eventName, string payloadJson)
+    {
+        Debug.Log($"WellFit AR Event: {eventName} {payloadJson}");
+        // Android/iOS Bridge spaeter hier anbinden.
+        // Unity meldet nur AR-Ereignisse. Backend entscheidet Rewards und Mission Completion.
+    }
+}
