@@ -1,6 +1,6 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
-const { seedDemoItemsAndNfc } = require("./seed/demoItemsAndNfc");
+const { seedDemoItemsAndNfc: runDemoItemsAndNfcSeed } = require("./seed/demoItemsAndNfc");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -22,6 +22,12 @@ function requireAdmin(request) {
 
 function now() {
   return admin.firestore.FieldValue.serverTimestamp();
+}
+
+function toErrorMessage(error) {
+  if (!error) return "Unbekannter Fehler";
+  if (error instanceof Error) return error.message;
+  return String(error);
 }
 
 async function createRejectedScanEvent({ userId, publicCode, missionId, reason }) {
@@ -184,12 +190,17 @@ exports.auditItemUse = onCall(async (request) => {
 
 exports.seedDemoItemsAndNfc = onCall(async (request) => {
   requireAdmin(request);
-  const result = await seedDemoItemsAndNfc(db);
-  return {
-    accepted: true,
-    message: "Demo Items und NFC Tags wurden angelegt.",
-    ...result,
-  };
+  try {
+    const result = await runDemoItemsAndNfcSeed(db);
+    return {
+      accepted: true,
+      message: "Demo Items und NFC Tags wurden angelegt.",
+      ...result,
+    };
+  } catch (error) {
+    console.error("seedDemoItemsAndNfc failed", error);
+    throw new HttpsError("internal", `Seed Demo Items/NFC fehlgeschlagen: ${toErrorMessage(error)}`);
+  }
 });
 
 exports.grantItemOrCapability = onCall(async () => {
