@@ -62,25 +62,29 @@ lib/vision/buddyCoachFeedback.ts
 # BUILD- UND DEPLOYMENT-STATUS
 
 ## Task-ID: WF-BUILD-VERIFY-001
-Status: [x] Build erfolgreich am Server ausgeführt
+Status: [x] Build nach QR-/Motion-Erweiterung erfolgreich am Server ausgeführt
 
 Server-Ergebnis vom letzten Testlauf:
 
 ```txt
 git fetch origin
 git reset --hard origin/main
-npm install
+npm install --no-audit --no-fund
 NODE_OPTIONS="--max-old-space-size=768" npm run build
 pm2 restart wellfit-now --update-env
 ```
 
 Ergebnis:
+[x] npm install erfolgreich: changed 1 package in 1s.
 [x] Next.js Build erfolgreich.
 [x] TypeScript erfolgreich.
-[x] 23/23 statische Seiten generiert.
+[x] 24/24 statische Seiten generiert.
+[x] Neue Route /mobile/bewegung im Build enthalten.
 [x] PM2 restart erfolgreich.
 [x] wellfit-now online.
-[!] npm audit meldet 2 moderate vulnerabilities.
+[x] PM2 Memory nach Restart ca. 29.7 MB.
+[!] npm verbose meldet viele failed optional dependency Einträge für fremde Plattformen. Das ist auf Linux erwartbar und kein Buildfehler.
+[!] npm audit meldete zuvor 2 moderate vulnerabilities.
 [ ] npm audit prüfen und gezielt bewerten, nicht blind npm audit fix --force ausführen.
 
 ---
@@ -88,7 +92,7 @@ Ergebnis:
 # TESTINSTALLATION / APP AUFS HANDY LADEN
 
 ## Task-ID: WF-MOBILE-INSTALL-QR-001
-Status: [x] Testflow umgesetzt / Produkt-QR später intern ersetzen
+Status: [x] Testflow umgesetzt / Build erfolgreich / Gerätetest offen
 Ziel: Über den Button „App aufs Handy laden“ soll ein QR-Code geöffnet werden, den das Handy scannt. Danach öffnet sich die WellFit-Mobile-Testoberfläche.
 
 Umsetzung:
@@ -99,7 +103,9 @@ Umsetzung:
 [x] Link kann kopiert werden.
 [x] PWA-beforeinstallprompt wird abgefangen, sofern Browser es unterstützt.
 [x] Hinweis für „Zum Home-Bildschirm hinzufügen“ vorbereitet.
+[x] Build nach Integration erfolgreich.
 [!] QR-Code nutzt vorerst externen QR-Bilddienst für schnellen Test.
+[ ] Gerätetest QR-Code mit Handy durchführen.
 [ ] Für Produktion eigenen QR-Code-Generator oder statischen QR ohne Drittanbieter verwenden.
 [ ] PWA manifest und Icons final ergänzen.
 [ ] Service Worker / Offline-Verhalten später prüfen.
@@ -109,7 +115,7 @@ Umsetzung:
 # MOBILE BEWEGUNG / SCHRITTZÄHLER / AKTIVITÄTSERKENNUNG
 
 ## Task-ID: WF-MOBILE-MOTION-001
-Status: [~] Browser-Prototyp umgesetzt / native App-Sensorik später erforderlich
+Status: [~] Browser-Prototyp umgesetzt / Build erfolgreich / Gerätetest offen
 Ziel: Handy soll Bewegung analysieren und grob unterscheiden: Stillstand, Gehen, Joggen/Laufen, Auto/Fahrzeug, Motorrad/Roller.
 
 Umsetzung:
@@ -123,6 +129,7 @@ Umsetzung:
 [x] Cadence Schritte/min berechnet.
 [x] Grobe Aktivitätsklassifikation eingebaut: still, walking, running, vehicle, motorbike, unknown.
 [x] Mobile-Home-Schnellstart „Bewegung testen“ ergänzt.
+[x] Build nach Integration erfolgreich.
 
 Wichtige Grenze:
 [!] Browser-Sensoren sind nur ein Test-Prototyp.
@@ -144,7 +151,7 @@ Nächste Schritte:
 # VERBINDLICHE IDEALE PIPELINE – BUDDY VISION / ÜBUNGSQUALITÄT / STIMMUNG
 
 ## Task-ID: WF-BUDDY-VISION-PIPELINE-001
-Status: [x] Technisch in Basis umgesetzt / Gerätetest und weiterer Build offen
+Status: [x] Technisch in Basis umgesetzt / Gerätetest offen
 
 [x] MediaPipe Pose Landmarker angebunden.
 [x] MediaPipe Face Landmarker angebunden.
@@ -152,6 +159,7 @@ Status: [x] Technisch in Basis umgesetzt / Gerätetest und weiterer Build offen
 [x] Skeleton Overlay gebaut.
 [x] validReps / invalidReps / qualityScore / moodSignal eingebaut.
 [x] trackingSessions speichern Pose-Ergebnisse.
+[x] Build nach Integration erfolgreich.
 [ ] Pose-validierte Mission Completion mit Mission-Buddy-Bridge verbinden.
 [ ] Gerätetest Android/iPhone durchführen.
 [ ] Web Worker prüfen, falls MediaPipe auf Handy ruckelt.
@@ -161,11 +169,10 @@ Status: [x] Technisch in Basis umgesetzt / Gerätetest und weiterer Build offen
 # Neue Roadmap-Reihenfolge
 
 PRIO 1:
-[x] WF-BUILD-VERIFY-001 – Build vor QR-/Motion-Erweiterung erfolgreich.
-[x] WF-MOBILE-INSTALL-QR-001 – QR-Testflow umgesetzt.
-[~] WF-MOBILE-MOTION-001 – Browser-Bewegungstest umgesetzt, Gerätetest offen.
-[x] WF-BUDDY-VISION-PIPELINE-001 – Vision-Pipeline technisch in Basis umgesetzt.
-[ ] Build nach QR-/Motion-Erweiterung prüfen.
+[x] WF-BUILD-VERIFY-001 – Build nach QR-/Motion-Erweiterung erfolgreich.
+[x] WF-MOBILE-INSTALL-QR-001 – QR-Testflow umgesetzt und Build erfolgreich.
+[~] WF-MOBILE-MOTION-001 – Browser-Bewegungstest umgesetzt, Build erfolgreich, Gerätetest offen.
+[x] WF-BUDDY-VISION-PIPELINE-001 – Vision-Pipeline technisch in Basis umgesetzt und Build erfolgreich.
 [ ] Gerätetests Android/iPhone: QR, Mobile, Kamera, Pose, Face, Bewegung.
 
 PRIO 2:
