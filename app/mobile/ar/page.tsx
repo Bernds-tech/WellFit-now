@@ -8,18 +8,19 @@ import ArBuddyControls from "./components/ArBuddyControls";
 import ArBuddyOverlay, { type ArBuddyMood, type ArBuddyPosition } from "./components/ArBuddyOverlay";
 import type { ArScreenAnchor } from "./components/ArDragonScene";
 import ArStatusCard from "./components/ArStatusCard";
+import NativeArModeCard from "./components/NativeArModeCard";
 
 const safePositions: ArBuddyPosition[] = ["nearLeft", "center", "farRight", "nearRight", "farLeft"];
 const tapMoods: ArBuddyMood[] = ["happy", "listening", "curious", "playful"];
 
 const buddyMessages: Record<ArBuddyMood, string> = {
-  idle: "Starte die Rückkamera. Setze einen Anker oder rufe Flammi in deinen Raum.",
-  called: "Flammi ist da. Du kannst ihn antippen, laufen lassen oder einen Anker setzen.",
+  idle: "Starte die Rueckkamera. Dieser Modus ist nur die Browser-Demo; echter Raumanker kommt ueber Native AR.",
+  called: "Flammi ist da. Du kannst UI, 3D-Modell und Bedienung testen. Echter Raumanker folgt nativ.",
   happy: "Flammi freut sich. Tippe ihn an, damit er weiter reagiert.",
-  listening: "Flammi hört dir zu und wartet auf deine nächste Aktion.",
-  curious: "Flammi schaut sich deinen Raum neugierig an.",
-  playful: "Flammi läuft um seinen gesetzten Punkt oder durch den simulierten Bereich.",
-  returning: "Flammi kommt sichtbar zu dir zurück.",
+  listening: "Flammi hoert zu. Fuer echte Raumbewegung brauchen wir ARCore/ARKit.",
+  curious: "Flammi schaut sich um. In diesem Browser-Modus noch ohne echtes World Tracking.",
+  playful: "Flammi laeuft in der Demo. Echte Bewegung ueber Couch, Boden und Moebel folgt in Native AR.",
+  returning: "Flammi kommt sichtbar zu dir zurueck.",
 };
 
 function getNextPosition(current: ArBuddyPosition): ArBuddyPosition {
@@ -54,23 +55,23 @@ export default function MobileArPage() {
 
   const statusMessage = useMemo(() => {
     if (!isCameraActive) {
-      return errorMessage || "Starte die Rückkamera, um den AR-Testmodus zu sehen.";
+      return errorMessage || "Starte die Rueckkamera, um die 3D-Flammi-Demo zu sehen.";
     }
 
     if (anchorMode) {
-      return "Anker-Modus aktiv: Tippe im Kamerabild auf den Boden oder eine freie Stelle. Flammi bleibt dort simuliert verankert.";
+      return "Demo-Anker aktiv: Tippe im Kamerabild. Hinweis: Das ist noch kein echter Raumanker; echte Weltpositionen brauchen Native AR.";
     }
 
     if (anchor && autoWalkEnabled) {
-      return `${buddyMessages[buddyMood]} Simulierter Anker aktiv. Flammi läuft um den gesetzten Punkt.`;
+      return `${buddyMessages[buddyMood]} Demo-Anker aktiv. Kein echtes World Tracking.`;
     }
 
     if (anchor) {
-      return `${buddyMessages[buddyMood]} Simulierter Anker gesetzt.`;
+      return `${buddyMessages[buddyMood]} Demo-Anker gesetzt. Beim Schwenken bleibt er nicht raumfest.`;
     }
 
     if (autoWalkEnabled) {
-      return `${buddyMessages[buddyMood]} Automatische Bewegung aktiv. Wechsel: ${actionCount}`;
+      return `${buddyMessages[buddyMood]} Demo-Bewegung aktiv. Wechsel: ${actionCount}`;
     }
 
     return buddyMessages[buddyMood];
@@ -171,6 +172,7 @@ export default function MobileArPage() {
       </CameraPreview>
 
       <ArStatusCard cameraActive={isCameraActive} message={statusMessage} />
+      {isCameraActive && <NativeArModeCard />}
 
       {!isCameraActive && (
         <div className="absolute inset-x-3 bottom-4 z-30">
