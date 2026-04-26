@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 5.0 – NFC EMULATOR SMOKE TEST SCRIPT ANGELEGT
+Version: 5.1 – FIREBASE EMULATOR UND NFC SMOKE TEST ERFOLGREICH
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -45,13 +45,37 @@ AKTUELLER FOKUS:
 [x] functions/test/emulatorNfcSmokeTest.js angelegt.
 [x] functions/package.json um smoke:nfc erweitert.
 [x] functions/EMULATOR_TEST_PLAN.md um smoke:nfc Ablauf ergänzt.
+[x] Java 17 auf Server installiert.
+[x] Firebase Emulator erfolgreich gestartet.
+[x] Auth Emulator erfolgreich gestartet.
+[x] Firestore Emulator erfolgreich gestartet: 127.0.0.1:8080.
+[x] Functions Emulator erfolgreich gestartet: 127.0.0.1:5001.
+[x] Functions wurden im Emulator geladen: validateNfcScan, auditItemUse, seedDemoItemsAndNfc, grantItemOrCapability, validateMissionCompletionWithItem.
+[x] NFC Emulator Smoke Test erfolgreich ausgeführt.
 
-PRIO 1 – BUILD UND CHECK NACH NFC SMOKE TEST SCRIPT
-[ ] Build nach NFC Smoke Test Script ausführen:
-    - functions/test/emulatorNfcSmokeTest.js
-    - functions/package.json: check enthält Smoke-Test Syntaxprüfung
-    - functions/package.json: smoke:nfc startet Emulator-Smoke-Test
-    - functions/EMULATOR_TEST_PLAN.md erweitert
+PRIO 1 – BESTÄTIGTER EMULATOR-SMOKE-TEST
+[x] Java installiert und geprüft:
+    - OpenJDK 17.0.18
+[x] Firebase Emulator gestartet:
+    - Auth 127.0.0.1:9099
+    - Firestore 127.0.0.1:8080
+    - Functions 127.0.0.1:5001
+    - Emulator UI 127.0.0.1:4000
+[x] functions npm run check erfolgreich.
+[x] functions npm run smoke:nfc erfolgreich.
+[x] Smoke-Test geprüft:
+    - Demo Items werden geseedet.
+    - Demo NFC Tags werden geseedet.
+    - rope_001 existiert.
+    - WF-DEMO-ROPE-TREE-001 wird validiert.
+    - userInventory bekommt rope_001.
+    - buddyCapabilities bekommt climbUp.
+    - falsche Mission wird mit mission-mismatch abgelehnt.
+
+HINWEISE:
+[!] Firebase CLI meldet: Nicht eingeloggt. Für lokale Demo-Emulator-Tests nicht kritisch.
+[!] Firebase CLI meldet: Java < 21 wird ab firebase-tools@15 nicht mehr unterstützt. Aktuell läuft Java 17, später auf Java 21 wechseln.
+[!] Zweiter Emulator-Start schlug fehl, weil Ports bereits vom laufenden Emulator belegt waren. Das ist normal; nur eine Emulator-Instanz parallel starten.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -67,7 +91,12 @@ cd /var/www/WellFit-now/functions
 npm install --no-audit --no-fund
 npm run check
 
-Optionaler Emulator-Smoke-Test, wenn Firestore Emulator läuft:
+Emulator-Test:
+Terminal 1:
+cd /var/www/WellFit-now
+npm run emulators
+
+Terminal 2:
 cd /var/www/WellFit-now/functions
 npm run smoke:nfc
 
@@ -78,15 +107,11 @@ PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
 [x] functions npm install ausgeführt.
 [x] Emulator-Testplan dokumentiert.
 [x] NFC Smoke Test Script angelegt.
-[ ] Firebase Emulator lokal starten:
-    cd /var/www/WellFit-now
-    npx firebase emulators:start --only auth,firestore,functions
-[ ] In zweitem Terminal ausführen:
-    cd /var/www/WellFit-now/functions
-    npm run smoke:nfc
+[x] Firebase Emulator lokal gestartet.
+[x] NFC Smoke Test erfolgreich.
 [ ] firestore.rules im Emulator testen.
-[ ] validateNfcScan Callable Function im Emulator testen.
-[ ] auditItemUse Callable Function im Emulator testen.
+[ ] validateNfcScan echte Callable Function im Emulator testen.
+[ ] auditItemUse echte Callable Function im Emulator testen.
 [ ] seedDemoItemsAndNfc nur mit Admin-Claim testen.
 [ ] Testszenarien prüfen:
     - Admin Seed erfolgreich
