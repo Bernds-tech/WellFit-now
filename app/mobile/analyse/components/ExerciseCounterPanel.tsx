@@ -1,10 +1,13 @@
 import type { ExerciseCounterState } from "@/lib/vision/visionTypes";
+import { getMoodSignalLabel } from "@/lib/vision/moodSignalEngine";
 
 type ExerciseCounterPanelProps = {
   counter: ExerciseCounterState;
+  trackerStatus?: string;
+  trackerError?: string | null;
 };
 
-export default function ExerciseCounterPanel({ counter }: ExerciseCounterPanelProps) {
+export default function ExerciseCounterPanel({ counter, trackerStatus, trackerError }: ExerciseCounterPanelProps) {
   return (
     <section className="rounded-[24px] bg-[#053841]/90 p-4 shadow-[0_8px_22px_rgba(0,0,0,0.14)]">
       <div className="flex items-start justify-between gap-3">
@@ -16,6 +19,9 @@ export default function ExerciseCounterPanel({ counter }: ExerciseCounterPanelPr
           {counter.isTracking ? "aktiv" : "vorbereitet"}
         </span>
       </div>
+
+      {trackerStatus && <p className="mt-3 text-xs font-semibold text-cyan-100/70">Status: {trackerStatus}</p>}
+      {trackerError && <p className="mt-3 rounded-2xl bg-red-400/15 p-3 text-sm font-semibold text-red-100">{trackerError}</p>}
 
       <div className="mt-4 grid grid-cols-3 gap-3 text-center">
         <div className="rounded-2xl bg-black/18 p-3">
@@ -29,6 +35,21 @@ export default function ExerciseCounterPanel({ counter }: ExerciseCounterPanelPr
         <div className="rounded-2xl bg-black/18 p-3">
           <p className="text-3xl font-black text-yellow-300">{counter.confidence}%</p>
           <p className="mt-1 text-xs text-white/55">Sicherheit</p>
+        </div>
+      </div>
+
+      <div className="mt-3 grid grid-cols-3 gap-3 text-center">
+        <div className="rounded-2xl bg-black/18 p-3">
+          <p className="text-2xl font-black text-cyan-200">{counter.qualityScore}%</p>
+          <p className="mt-1 text-xs text-white/55">Qualität</p>
+        </div>
+        <div className="rounded-2xl bg-black/18 p-3">
+          <p className="text-sm font-black text-cyan-100">{counter.phase}</p>
+          <p className="mt-1 text-xs text-white/55">Phase</p>
+        </div>
+        <div className="rounded-2xl bg-black/18 p-3">
+          <p className="text-sm font-black text-cyan-100">{getMoodSignalLabel(counter.moodSignal)}</p>
+          <p className="mt-1 text-xs text-white/55">Signal</p>
         </div>
       </div>
 
