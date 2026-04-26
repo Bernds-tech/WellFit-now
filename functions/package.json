@@ -6,7 +6,8 @@
     "node": "20"
   },
   "scripts": {
-    "check": "node -c index.js && node -c seed/demoItemsAndNfc.js",
+    "check": "node -c index.js && node -c seed/demoItemsAndNfc.js && node -c test/emulatorNfcSmokeTest.js",
+    "smoke:nfc": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node test/emulatorNfcSmokeTest.js",
     "lint": "echo \"functions lint placeholder\"",
     "serve": "firebase emulators:start --only functions,firestore,auth",
     "deploy": "firebase deploy --only functions"
