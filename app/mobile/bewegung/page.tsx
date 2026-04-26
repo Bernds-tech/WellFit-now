@@ -8,7 +8,7 @@ export default function MobileBewegungPage() {
   const { state, start, stop, reset } = useMotionActivity();
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-24 text-white">
+    <main className="h-screen overflow-y-auto bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-32 text-white">
       <section className="px-4 pt-4">
         <MotionActivityPanel state={state} onStart={start} onStop={stop} onReset={reset} />
 
@@ -20,7 +20,8 @@ export default function MobileBewegungPage() {
         </div>
       </section>
 
-      <MobileBottomNav activeTab="missions" />
+      <div className="h-8" />
+      <MobileBottomNav activeTab="settings" />
     </main>
   );
 }
