@@ -1,4 +1,4 @@
-import ArBuddyCharacter from "./ArBuddyCharacter";
+import ArDragonScene from "./ArDragonScene";
 import ArBuddySpeechBubble from "./ArBuddySpeechBubble";
 import ArPlacementHint from "./ArPlacementHint";
 
@@ -13,12 +13,12 @@ type ArBuddyOverlayProps = {
   onBuddyTap: () => void;
 };
 
-const positionClass: Record<ArBuddyPosition, string> = {
-  nearLeft: "bottom-[22%] left-[6%] scale-105",
-  center: "bottom-[31%] left-1/2 -translate-x-1/2 scale-95",
-  farRight: "bottom-[41%] right-[6%] scale-85",
-  nearRight: "bottom-[23%] right-[9%] scale-105",
-  farLeft: "bottom-[40%] left-[10%] scale-85",
+const bubblePositionClass: Record<ArBuddyPosition, string> = {
+  nearLeft: "bottom-[47%] left-[5%]",
+  center: "bottom-[56%] left-1/2 -translate-x-1/2",
+  farRight: "bottom-[63%] right-[5%]",
+  nearRight: "bottom-[48%] right-[7%]",
+  farLeft: "bottom-[62%] left-[8%]",
 };
 
 const moodMessage: Record<ArBuddyMood, string> = {
@@ -35,16 +35,21 @@ export default function ArBuddyOverlay({ isCameraActive, mood, position, actionC
   return (
     <div className="absolute inset-0 z-20">
       <ArPlacementHint isCameraActive={isCameraActive} mood={mood} />
+      <ArDragonScene
+        isCameraActive={isCameraActive}
+        mood={mood}
+        position={position}
+        actionCount={actionCount}
+        onDragonTap={onBuddyTap}
+      />
 
       <div
-        key={`${position}-${mood}-${actionCount}`}
-        className={`absolute transition-all duration-500 ease-out ${positionClass[position]} ${
+        key={`bubble-${position}-${mood}-${actionCount}`}
+        className={`pointer-events-none absolute z-30 transition-all duration-500 ease-out ${bubblePositionClass[position]} ${
           isCameraActive ? "opacity-100" : "opacity-55"
         }`}
       >
         <ArBuddySpeechBubble mood={mood} message={moodMessage[mood]} />
-        <ArBuddyCharacter mood={mood} isCameraActive={isCameraActive} onTap={onBuddyTap} />
-        <div className="mx-auto mt-1 h-6 w-24 rounded-full bg-black/35 blur-md" />
       </div>
     </div>
   );
