@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.8 – EMULATOR-TESTPLAN UND FUNCTIONS CHECK SCRIPT ANGELEGT
+Version: 4.9 – EMULATOR-TESTPLAN BUILD UND FUNCTIONS CHECK BESTÄTIGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -39,13 +39,32 @@ AKTUELLER FOKUS:
 [x] Admin-gated seedDemoItemsAndNfc Callable Function angelegt.
 [x] functions/package.json um check Script ergänzt.
 [x] functions/EMULATOR_TEST_PLAN.md angelegt.
+[x] Build nach Emulator-Testplan erfolgreich.
+[x] PM2 nach Emulator-Testplan erfolgreich neu gestartet.
+[x] functions npm run check erfolgreich.
 
-PRIO 1 – BUILD NACH EMULATOR-TESTPLAN
-[ ] Build nach Emulator-Testplan ausführen:
+PRIO 1 – BESTÄTIGTER SERVER-BUILD
+[x] Build nach Emulator-Testplan ausgeführt:
     - functions/package.json enthält npm run check
     - functions/EMULATOR_TEST_PLAN.md angelegt
     - functions/seed/demoItemsAndNfc.js
     - functions/index.js erweitert um seedDemoItemsAndNfc
+
+BESTÄTIGTER SERVER-STAND:
+[x] git fetch origin ausgeführt.
+[x] git reset --hard origin/main ausgeführt.
+[x] HEAD bestätigt: 8d6c140 Document emulator test plan and functions check script.
+[x] npm install --no-audit --no-fund erfolgreich.
+[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
+[x] Next.js 16.2.3 Build erfolgreich kompiliert.
+[x] TypeScript erfolgreich abgeschlossen.
+[x] Static Pages erfolgreich generiert: 29/29.
+[x] /mobile/ar im Build enthalten.
+[x] /mobile/missionen/squat im Build enthalten.
+[x] pm2 restart wellfit-now --update-env erfolgreich.
+[x] pm2 status geprüft: wellfit-now online.
+[x] cd functions && npm install --no-audit --no-fund erfolgreich.
+[x] cd functions && npm run check erfolgreich.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
