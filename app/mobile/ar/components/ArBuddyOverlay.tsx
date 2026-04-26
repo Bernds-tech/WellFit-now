@@ -1,4 +1,4 @@
-import ArDragonScene from "./ArDragonScene";
+import ArDragonScene, { type ArScreenAnchor } from "./ArDragonScene";
 import ArBuddySpeechBubble from "./ArBuddySpeechBubble";
 import ArPlacementHint from "./ArPlacementHint";
 
@@ -10,7 +10,11 @@ type ArBuddyOverlayProps = {
   mood: ArBuddyMood;
   position: ArBuddyPosition;
   actionCount: number;
+  anchor: ArScreenAnchor | null;
+  autoWalkEnabled: boolean;
+  anchorMode: boolean;
   onBuddyTap: () => void;
+  onSceneTap: (anchor: ArScreenAnchor) => void;
 };
 
 const bubblePositionClass: Record<ArBuddyPosition, string> = {
@@ -22,25 +26,43 @@ const bubblePositionClass: Record<ArBuddyPosition, string> = {
 };
 
 const moodMessage: Record<ArBuddyMood, string> = {
-  idle: "Ich warte auf dich.",
+  idle: "Setze einen Anker oder rufe mich zu dir.",
   called: "Ich bin da. Halte das Handy ruhig.",
   happy: "Gut gemacht! Ich bin bei dir.",
   listening: "Ich höre zu. Was machen wir als Nächstes?",
   curious: "Interessant! Ich sehe mich hier um.",
-  playful: "Ich hüpfe durch den sicheren Bereich.",
+  playful: "Ich laufe um meinen gesetzten Punkt.",
   returning: "Ich komme zurück zu dir.",
 };
 
-export default function ArBuddyOverlay({ isCameraActive, mood, position, actionCount, onBuddyTap }: ArBuddyOverlayProps) {
+export default function ArBuddyOverlay({
+  isCameraActive,
+  mood,
+  position,
+  actionCount,
+  anchor,
+  autoWalkEnabled,
+  anchorMode,
+  onBuddyTap,
+  onSceneTap,
+}: ArBuddyOverlayProps) {
   return (
     <div className="absolute inset-0 z-20">
       <ArPlacementHint isCameraActive={isCameraActive} mood={mood} />
+      {anchorMode && (
+        <div className="pointer-events-none absolute inset-x-6 top-[42%] z-40 rounded-[24px] border border-green-200/35 bg-[#042f35]/76 p-3 text-center text-xs font-black text-green-100 backdrop-blur-md">
+          Tippe auf den Boden oder eine freie Stelle im Kamerabild.
+        </div>
+      )}
       <ArDragonScene
         isCameraActive={isCameraActive}
         mood={mood}
         position={position}
         actionCount={actionCount}
+        anchor={anchor}
+        autoWalkEnabled={autoWalkEnabled}
         onDragonTap={onBuddyTap}
+        onSceneTap={onSceneTap}
       />
 
       <div
