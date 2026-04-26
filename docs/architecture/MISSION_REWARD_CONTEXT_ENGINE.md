@@ -53,6 +53,58 @@ Die Auszahlung orientiert sich nicht nur an der Mission selbst, sondern an einem
 - Tageslimit
 - Quest-Chain-Tiefe
 
+## Aktueller technischer Zwischenstand: Mission Completion Evaluation Stub
+
+`evaluateMissionCompletion` ist als sicherer serverseitiger Evaluation-Stub angelegt.
+
+Der Stub:
+
+- verlangt Auth,
+- verlangt `missionId`,
+- akzeptiert optionale Referenzen auf vorhandene Belege:
+  - `trackingSessionId`,
+  - `trackingProofEventId`,
+  - `nfcScanEventId`,
+  - `missionBuddyEventId`,
+- prueft, ob diese Belege dem Nutzer gehoeren,
+- prueft, ob Belege zur Mission passen,
+- schreibt `missionCompletionEvaluations`,
+- setzt `accepted = false`,
+- setzt `rewardAuthorized = false`,
+- setzt `missionCompletionAuthorized = false`,
+- setzt `xpAuthorized = false`,
+- setzt `pointsAuthorized = false`.
+
+Dieser Stub ist absichtlich noch keine finale Mission-Completion-Engine. Er sammelt und normalisiert Beweise, erzwingt Ownership-/Mission-Konsistenz und schafft die Audit-Grundlage fuer spaetere Anti-Cheat- und Reward-Entscheidungen.
+
+### missionCompletionEvaluations
+
+- evaluationId
+- userId
+- missionId
+- evidenceRefs
+  - trackingSessionId optional
+  - trackingProofEventId optional
+  - nfcScanEventId optional
+  - missionBuddyEventId optional
+- evidenceCount
+- preliminaryStatus
+- serverValidationStatus
+- accepted
+- rejectionReason
+- rewardAuthorized
+- missionCompletionAuthorized
+- xpAuthorized
+- pointsAuthorized
+- createdAt
+- updatedAt
+
+Firestore Rules:
+
+- Nutzer duerfen eigene Evaluationen lesen.
+- Fremde Evaluationen sind blockiert.
+- Client darf keine Evaluation direkt erstellen, updaten oder loeschen.
+
 ## Alters- und Sicherheitskontext
 
 Ein 4-jaehriges Kind darf nicht denselben Missionsradius erhalten wie ein Jugendlicher oder Erwachsener.
