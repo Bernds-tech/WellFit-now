@@ -1,4 +1,5 @@
 const admin = require("firebase-admin");
+const { FieldValue } = require("firebase-admin/firestore");
 
 const DEMO_ITEM_DEFINITIONS = [
   {
@@ -76,7 +77,7 @@ const DEMO_NFC_TAGS = [
 
 async function seedDemoItemsAndNfc(db = admin.firestore()) {
   const batch = db.batch();
-  const timestamp = admin.firestore.FieldValue.serverTimestamp();
+  const timestamp = FieldValue.serverTimestamp();
 
   for (const item of DEMO_ITEM_DEFINITIONS) {
     const ref = db.collection("itemDefinitions").doc(item.itemId);
