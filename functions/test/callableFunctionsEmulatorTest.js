@@ -7,6 +7,7 @@
   - seedDemoItemsAndNfc ohne Admin-Claim verboten
   - validateNfcScan als normaler Nutzer erfolgreich
   - NFC Edge Cases: missing/unknown/revoked/inactive/duplicate/user-not-allowed/usage-limit
+  - Transaktionaler NFC Duplicate-Schutz ueber nfcScanClaims
   - Magnifier Flow mit scanObject Capability
   - auditItemUse als normaler Nutzer erfolgreich
   - createTrackingSession / recordTrackingProof als serverautorisierter Tracking-Ersatzpfad
@@ -65,6 +66,7 @@ async function resetDemoCollections() {
     "itemDefinitions",
     "nfcTags",
     "nfcScanEvents",
+    "nfcScanClaims",
     "userInventory",
     "buddyCapabilities",
     "capabilityUnlockEvents",
@@ -158,6 +160,15 @@ async function countInventoryItems(userId, itemId) {
   return snapshot.size;
 }
 
+async function countClaims(userId, tagId, missionId) {
+  const snapshot = await db.collection("nfcScanClaims")
+    .where("userId", "==", userId)
+    .where("tagId", "==", tagId)
+    .where("missionId", "==", missionId)
+    .get();
+  return snapshot.size;
+}
+
 async function run() {
   console.log("WellFit Callable Functions Emulator Test startet...");
   await resetDemoCollections();
@@ -176,163 +187,60 @@ async function run() {
   assert(adminSeedResult.itemDefinitions === 3, "Admin Seed muss 3 Item-Definitionen anlegen.");
   assert(adminSeedResult.nfcTags === 2, "Admin Seed muss 2 NFC-Tags anlegen.");
 
-  await assertRejectedScan({
-    token: userToken,
-    publicCode: "",
-    missionId: "demo_tree_clue_001",
-    expectedReason: "missing-public-code",
-    label: "Fehlender NFC Code",
-  });
+  await assertRejectedScan({ token: userToken, publicCode: "", missionId: "demo_tree_clue_001", expectedReason: "missing-public-code", label: "Fehlender NFC Code" });
+  await assertRejectedScan({ token: userToken, publicCode: "UNKNOWN-CODE", missionId: "demo_tree_clue_001", expectedReason: "tag-not-found", label: "Unbekannter NFC Code" });
 
-  await assertRejectedScan({
-    token: userToken,
-    publicCode: "UNKNOWN-CODE",
-    missionId: "demo_tree_clue_001",
-    expectedReason: "tag-not-found",
-    label: "Unbekannter NFC Code",
-  });
+  await db.collection("nfcTags").doc("demo_nfc_revoked_001").set({ publicCode: "WF-DEMO-REVOKED-001", purpose: "grantItem", status: "revoked", linkedItemId: "rope_001", linkedCapabilityId: "climbUp", linkedMissionId: "demo_tree_clue_001", usageLimit: 100, usageCount: 0 });
+  await assertRejectedScan({ token: userToken, publicCode: "WF-DEMO-REVOKED-001", missionId: "demo_tree_clue_001", expectedReason: "tag-revoked", label: "Revoked NFC Tag" });
 
-  await db.collection("nfcTags").doc("demo_nfc_revoked_001").set({
-    publicCode: "WF-DEMO-REVOKED-001",
-    purpose: "grantItem",
-    status: "revoked",
-    linkedItemId: "rope_001",
-    linkedCapabilityId: "climbUp",
-    linkedMissionId: "demo_tree_clue_001",
-    usageLimit: 100,
-    usageCount: 0,
-  });
-  await assertRejectedScan({
-    token: userToken,
-    publicCode: "WF-DEMO-REVOKED-001",
-    missionId: "demo_tree_clue_001",
-    expectedReason: "tag-revoked",
-    label: "Revoked NFC Tag",
-  });
+  await db.collection("nfcTags").doc("demo_nfc_inactive_001").set({ publicCode: "WF-DEMO-INACTIVE-001", purpose: "grantItem", status: "inactive", linkedItemId: "rope_001", linkedCapabilityId: "climbUp", linkedMissionId: "demo_tree_clue_001", usageLimit: 100, usageCount: 0 });
+  await assertRejectedScan({ token: userToken, publicCode: "WF-DEMO-INACTIVE-001", missionId: "demo_tree_clue_001", expectedReason: "tag-not-active", label: "Inactive NFC Tag" });
 
-  await db.collection("nfcTags").doc("demo_nfc_inactive_001").set({
-    publicCode: "WF-DEMO-INACTIVE-001",
-    purpose: "grantItem",
-    status: "inactive",
-    linkedItemId: "rope_001",
-    linkedCapabilityId: "climbUp",
-    linkedMissionId: "demo_tree_clue_001",
-    usageLimit: 100,
-    usageCount: 0,
-  });
-  await assertRejectedScan({
-    token: userToken,
-    publicCode: "WF-DEMO-INACTIVE-001",
-    missionId: "demo_tree_clue_001",
-    expectedReason: "tag-not-active",
-    label: "Inactive NFC Tag",
-  });
+  await db.collection("nfcTags").doc("demo_nfc_user_locked_001").set({ publicCode: "WF-DEMO-USER-LOCKED-001", purpose: "grantItem", status: "active", linkedItemId: "rope_001", linkedCapabilityId: "climbUp", linkedMissionId: "demo_tree_clue_001", usageLimit: 100, usageCount: 0, allowedUserIds: ["callable-user"] });
+  await assertRejectedScan({ token: otherUserToken, publicCode: "WF-DEMO-USER-LOCKED-001", missionId: "demo_tree_clue_001", expectedReason: "user-not-allowed", label: "Falscher Nutzer" });
 
-  await db.collection("nfcTags").doc("demo_nfc_user_locked_001").set({
-    publicCode: "WF-DEMO-USER-LOCKED-001",
-    purpose: "grantItem",
-    status: "active",
-    linkedItemId: "rope_001",
-    linkedCapabilityId: "climbUp",
-    linkedMissionId: "demo_tree_clue_001",
-    usageLimit: 100,
-    usageCount: 0,
-    allowedUserIds: ["callable-user"],
-  });
-  await assertRejectedScan({
-    token: otherUserToken,
-    publicCode: "WF-DEMO-USER-LOCKED-001",
-    missionId: "demo_tree_clue_001",
-    expectedReason: "user-not-allowed",
-    label: "Falscher Nutzer",
-  });
+  await db.collection("nfcTags").doc("demo_nfc_limit_reached_001").set({ publicCode: "WF-DEMO-LIMIT-001", purpose: "grantItem", status: "active", linkedItemId: "rope_001", linkedCapabilityId: "climbUp", linkedMissionId: "demo_tree_clue_001", usageLimit: 1, usageCount: 1 });
+  await assertRejectedScan({ token: userToken, publicCode: "WF-DEMO-LIMIT-001", missionId: "demo_tree_clue_001", expectedReason: "usage-limit-reached", label: "Usage Limit erreicht" });
 
-  await db.collection("nfcTags").doc("demo_nfc_limit_reached_001").set({
-    publicCode: "WF-DEMO-LIMIT-001",
-    purpose: "grantItem",
-    status: "active",
-    linkedItemId: "rope_001",
-    linkedCapabilityId: "climbUp",
-    linkedMissionId: "demo_tree_clue_001",
-    usageLimit: 1,
-    usageCount: 1,
-  });
-  await assertRejectedScan({
-    token: userToken,
-    publicCode: "WF-DEMO-LIMIT-001",
-    missionId: "demo_tree_clue_001",
-    expectedReason: "usage-limit-reached",
-    label: "Usage Limit erreicht",
-  });
-
-  const nfcScan = await callCallable("validateNfcScan", userToken, {
-    publicCode: "WF-DEMO-ROPE-TREE-001",
-    missionId: "demo_tree_clue_001",
-    deviceId: "callable-test-device-001",
-    appSessionId: "callable-test-session-001",
-  });
+  const nfcScan = await callCallable("validateNfcScan", userToken, { publicCode: "WF-DEMO-ROPE-TREE-001", missionId: "demo_tree_clue_001", deviceId: "callable-test-device-001", appSessionId: "callable-test-session-001" });
   const nfcResult = getCallableResult(nfcScan);
   assert(nfcScan.ok, `validateNfcScan muss HTTP OK sein: ${describeCall(nfcScan)}`);
   assert(nfcResult.accepted === true, "validateNfcScan muss accepted=true liefern.");
+  assert(nfcResult.claimId, "validateNfcScan muss claimId liefern.");
   assert(nfcResult.grantedItemId === "rope_001", "validateNfcScan muss rope_001 vergeben.");
   assert(nfcResult.grantedCapabilityId === "climbUp", "validateNfcScan muss climbUp freischalten.");
+  assert(await countClaims("callable-user", "demo_nfc_rope_tree_001", "demo_tree_clue_001") === 1, "Erfolgreicher NFC Scan muss genau einen Claim erzeugen.");
 
-  const inventorySnapshot = await db.collection("userInventory")
-    .where("ownerUserId", "==", "callable-user")
-    .where("itemId", "==", "rope_001")
-    .get();
+  const inventorySnapshot = await db.collection("userInventory").where("ownerUserId", "==", "callable-user").where("itemId", "==", "rope_001").get();
   assert(!inventorySnapshot.empty, "Callable NFC Scan muss userInventory rope_001 erzeugen.");
 
   const capabilityDoc = await db.collection("buddyCapabilities").doc("callable-user_default_climbUp").get();
   assert(capabilityDoc.exists, "Callable NFC Scan muss buddyCapabilities climbUp erzeugen.");
   assert(capabilityDoc.data().unlocked === true, "Callable NFC Scan muss climbUp unlocked=true setzen.");
 
-  const duplicate = await assertRejectedScan({
-    token: userToken,
-    publicCode: "WF-DEMO-ROPE-TREE-001",
-    missionId: "demo_tree_clue_001",
-    expectedReason: "duplicate-scan",
-    label: "Duplicate Scan",
-  });
+  const duplicate = await assertRejectedScan({ token: userToken, publicCode: "WF-DEMO-ROPE-TREE-001", missionId: "demo_tree_clue_001", expectedReason: "duplicate-scan", label: "Duplicate Scan" });
   assert(duplicate.tagId === "demo_nfc_rope_tree_001", "Duplicate Scan muss Tag-ID zurueckgeben.");
   assert(await countInventoryItems("callable-user", "rope_001") === 1, "Duplicate Scan darf kein zweites rope_001 vergeben.");
+  assert(await countClaims("callable-user", "demo_nfc_rope_tree_001", "demo_tree_clue_001") === 1, "Duplicate Scan darf keinen zweiten Claim erzeugen.");
 
-  const magnifierScan = await callCallable("validateNfcScan", userToken, {
-    publicCode: "WF-DEMO-MAGNIFIER-LEAF-001",
-    missionId: "demo_leaf_quiz_001",
-    deviceId: "callable-test-device-002",
-    appSessionId: "callable-test-session-002",
-  });
+  const magnifierScan = await callCallable("validateNfcScan", userToken, { publicCode: "WF-DEMO-MAGNIFIER-LEAF-001", missionId: "demo_leaf_quiz_001", deviceId: "callable-test-device-002", appSessionId: "callable-test-session-002" });
   const magnifierResult = getCallableResult(magnifierScan);
   assert(magnifierScan.ok, `Magnifier Flow muss HTTP OK sein: ${describeCall(magnifierScan)}`);
   assert(magnifierResult.accepted === true, "Magnifier Flow muss accepted=true liefern.");
+  assert(magnifierResult.claimId, "Magnifier Flow muss claimId liefern.");
   assert(magnifierResult.grantedItemId === "magnifier_001", "Magnifier Flow muss magnifier_001 vergeben.");
   assert(magnifierResult.grantedCapabilityId === "scanObject", "Magnifier Flow muss scanObject freischalten.");
   const scanObjectDoc = await db.collection("buddyCapabilities").doc("callable-user_default_scanObject").get();
   assert(scanObjectDoc.exists, "Magnifier Flow muss buddyCapabilities scanObject erzeugen.");
   assert(scanObjectDoc.data().unlocked === true, "Magnifier Flow muss scanObject unlocked=true setzen.");
 
-  const audit = await callCallable("auditItemUse", userToken, {
-    buddyId: "default",
-    inventoryItemId: inventorySnapshot.docs[0].id,
-    itemId: "rope_001",
-    capabilityId: "climbUp",
-    missionId: "demo_tree_clue_001",
-    arSessionId: "callable-ar-session-001",
-    status: "completed",
-  });
+  const audit = await callCallable("auditItemUse", userToken, { buddyId: "default", inventoryItemId: inventorySnapshot.docs[0].id, itemId: "rope_001", capabilityId: "climbUp", missionId: "demo_tree_clue_001", arSessionId: "callable-ar-session-001", status: "completed" });
   const auditResult = getCallableResult(audit);
   assert(audit.ok, `auditItemUse muss HTTP OK sein: ${describeCall(audit)}`);
   assert(auditResult.accepted === true, "auditItemUse muss accepted=true liefern.");
   assert(auditResult.eventId, "auditItemUse muss eventId liefern.");
 
-  const trackingSession = await callCallable("createTrackingSession", userToken, {
-    missionId: "demo_tree_clue_001",
-    source: "mobile",
-    proofType: "motion",
-    deviceId: "tracking-device-001",
-    appSessionId: "tracking-app-session-001",
-  });
+  const trackingSession = await callCallable("createTrackingSession", userToken, { missionId: "demo_tree_clue_001", source: "mobile", proofType: "motion", deviceId: "tracking-device-001", appSessionId: "tracking-app-session-001" });
   const trackingSessionResult = getCallableResult(trackingSession);
   assert(trackingSession.ok, `createTrackingSession muss HTTP OK sein: ${describeCall(trackingSession)}`);
   assert(trackingSessionResult.accepted === true, "createTrackingSession muss accepted=true liefern.");
@@ -343,12 +251,7 @@ async function run() {
   assert(trackingDoc.data().rewardAuthorized === false, "Tracking Session darf keinen Reward autorisieren.");
   assert(trackingDoc.data().missionCompletionAuthorized === false, "Tracking Session darf keine Mission Completion autorisieren.");
 
-  const trackingProof = await callCallable("recordTrackingProof", userToken, {
-    sessionId: trackingSessionResult.sessionId,
-    proofType: "motion",
-    status: "completed",
-    deviceId: "tracking-device-001",
-  });
+  const trackingProof = await callCallable("recordTrackingProof", userToken, { sessionId: trackingSessionResult.sessionId, proofType: "motion", status: "completed", deviceId: "tracking-device-001" });
   const trackingProofResult = getCallableResult(trackingProof);
   assert(trackingProof.ok, `recordTrackingProof muss HTTP OK sein: ${describeCall(trackingProof)}`);
   assert(trackingProofResult.accepted === true, "recordTrackingProof muss accepted=true liefern.");
@@ -358,21 +261,10 @@ async function run() {
   assert(proofDoc.data().rewardAuthorized === false, "Tracking Proof darf keinen Reward autorisieren.");
   assert(proofDoc.data().missionCompletionAuthorized === false, "Tracking Proof darf keine Mission Completion autorisieren.");
 
-  const otherUserProof = await callCallable("recordTrackingProof", otherUserToken, {
-    sessionId: trackingSessionResult.sessionId,
-    proofType: "motion",
-  });
+  const otherUserProof = await callCallable("recordTrackingProof", otherUserToken, { sessionId: trackingSessionResult.sessionId, proofType: "motion" });
   assert(otherUserProof.status === 403 || otherUserProof.json.error, "Fremder Nutzer darf Tracking Proof nicht fuer fremde Session schreiben.");
 
-  const buddyEvent = await callCallable("createMissionBuddyEvent", userToken, {
-    missionId: "demo_tree_clue_001",
-    buddyId: "default",
-    eventType: "buddyActionRequested",
-    status: "requested",
-    itemId: "rope_001",
-    capabilityId: "climbUp",
-    messageKey: "buddy.climb.requested",
-  });
+  const buddyEvent = await callCallable("createMissionBuddyEvent", userToken, { missionId: "demo_tree_clue_001", buddyId: "default", eventType: "buddyActionRequested", status: "requested", itemId: "rope_001", capabilityId: "climbUp", messageKey: "buddy.climb.requested" });
   const buddyEventResult = getCallableResult(buddyEvent);
   assert(buddyEvent.ok, `createMissionBuddyEvent muss HTTP OK sein: ${describeCall(buddyEvent)}`);
   assert(buddyEventResult.accepted === true, "createMissionBuddyEvent muss accepted=true liefern.");
@@ -383,16 +275,10 @@ async function run() {
   assert(buddyEventDoc.data().rewardAuthorized === false, "Buddy Event darf keinen Reward autorisieren.");
   assert(buddyEventDoc.data().missionCompletionAuthorized === false, "Buddy Event darf keine Mission Completion autorisieren.");
 
-  const invalidTrackingSession = await callCallable("createTrackingSession", userToken, {
-    source: "mobile",
-    proofType: "motion",
-  });
+  const invalidTrackingSession = await callCallable("createTrackingSession", userToken, { source: "mobile", proofType: "motion" });
   assert(invalidTrackingSession.status === 400 || invalidTrackingSession.json.error, "createTrackingSession ohne missionId muss abgelehnt werden.");
 
-  const wrongMission = await callCallable("validateNfcScan", userToken, {
-    publicCode: "WF-DEMO-ROPE-TREE-001",
-    missionId: "wrong_mission",
-  });
+  const wrongMission = await callCallable("validateNfcScan", userToken, { publicCode: "WF-DEMO-ROPE-TREE-001", missionId: "wrong_mission" });
   const wrongMissionResult = getCallableResult(wrongMission);
   assert(wrongMission.ok, `wrong mission response soll HTTP OK sein: ${describeCall(wrongMission)}`);
   assert(wrongMissionResult.accepted === false, "Falsche Mission muss accepted=false liefern.");
