@@ -1,0 +1,25 @@
+{
+  "name": "WellFit Mobile Test",
+  "short_name": "WellFit",
+  "description": "WellFit Mobile Test-App für Missionen, Buddy, Analyse und AR-Vorbereitung.",
+  "start_url": "/mobile?source=pwa",
+  "scope": "/mobile",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#00505a",
+  "theme_color": "#00aabe",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
