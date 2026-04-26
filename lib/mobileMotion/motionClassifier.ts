@@ -1,8 +1,8 @@
-import type { ActivityType, MotionSample } from "./motionTypes";
+import type { ActivityType, MotionSample, MotionValidationStatus } from "./motionTypes";
 
-const STEP_THRESHOLD = 3.2;
-const MIN_STEP_INTERVAL_MS = 280;
-const MAX_STEP_INTERVAL_MS = 1800;
+const STEP_THRESHOLD = 2.2;
+const MIN_STEP_INTERVAL_MS = 260;
+const MAX_STEP_INTERVAL_MS = 2100;
 
 export function getAccelerationMagnitude(event: DeviceMotionEvent) {
   const acceleration = event.accelerationIncludingGravity ?? event.acceleration;
@@ -49,21 +49,69 @@ export function classifyActivity(samples: MotionSample[], cadence: number): { ac
     return { activityType: "still", confidence: 74, feedback: "Gerät wirkt ruhig oder liegt still." };
   }
 
-  if (cadence >= 55 && cadence <= 130 && accelerationVariance < 4.6) {
-    return { activityType: "walking", confidence: 72, feedback: "Gehen erkannt. Schritte werden gezählt." };
+  if (cadence >= 35 && cadence <= 140 && accelerationVariance < 5.4) {
+    return { activityType: "walking", confidence: 72, feedback: "Gehen erkannt. Schritte werden als Browser-Prototyp gezählt." };
   }
 
-  if (cadence > 130 && accelerationVariance >= 2.2) {
+  if (cadence > 140 && accelerationVariance >= 2.2) {
     return { activityType: "running", confidence: 76, feedback: "Joggen/Laufen erkannt. Bewegungen sind dynamischer." };
   }
 
   if (cadence < 45 && averageAcceleration > 10.2 && averageRotation < 35) {
-    return { activityType: "vehicle", confidence: 58, feedback: "Mögliche Fahrzeugbewegung. Schritte werden vorsichtig bewertet." };
+    return { activityType: "vehicle", confidence: 58, feedback: "Mögliche Fahrzeugbewegung. Nicht als sichere Schritte verwenden." };
   }
 
   if (cadence < 55 && averageRotation >= 35 && averageAcceleration > 9.8) {
-    return { activityType: "motorbike", confidence: 48, feedback: "Mögliche Motorrad-/Rollerbewegung. Noch nicht als sichere Klassifikation nutzen." };
+    return { activityType: "motorbike", confidence: 48, feedback: "Mögliche Motorrad-/Rollerbewegung. Nicht als sichere Schritte verwenden." };
   }
 
   return { activityType: "unknown", confidence: 35, feedback: "Bewegung erkannt, aber noch nicht eindeutig klassifiziert." };
+}
+
+export function validateMotionPlausibility(input: {
+  samplesCount: number;
+  steps: number;
+  cadence: number;
+  activityType: ActivityType;
+  confidence: number;
+}): { validationStatus: MotionValidationStatus; validationFeedback: string } {
+  if (input.samplesCount < 20) {
+    return {
+      validationStatus: "collecting",
+      validationFeedback: "Noch zu wenige Sensordaten. Trage das Handy am Körper und bewege dich weiter.",
+    };
+  }
+
+  if (input.activityType === "vehicle" || input.activityType === "motorbike") {
+    return {
+      validationStatus: "suspicious",
+      validationFeedback: "Bewegung wirkt wie Fahrzeug/Roller. Für Rewards später serverseitig blockieren oder prüfen.",
+    };
+  }
+
+  if (input.steps === 0 && input.cadence < 10) {
+    return {
+      validationStatus: "weak",
+      validationFeedback: "Bewegung erkannt, aber keine stabilen Schritte. Handy näher am Körper tragen.",
+    };
+  }
+
+  if (input.cadence > 220) {
+    return {
+      validationStatus: "suspicious",
+      validationFeedback: "Schrittfrequenz ist unplausibel hoch. Später serverseitig als Cheat-Risiko markieren.",
+    };
+  }
+
+  if ((input.activityType === "walking" || input.activityType === "running") && input.confidence >= 60) {
+    return {
+      validationStatus: "valid",
+      validationFeedback: "Plausible Bewegung erkannt. Für echte Rewards später zusätzlich native Chipdaten und Serverprüfung nutzen.",
+    };
+  }
+
+  return {
+    validationStatus: "native-required",
+    validationFeedback: "Browserdaten reichen nicht für sichere Rewards. Native Health-/Chipdaten sollten später ergänzt werden.",
+  };
 }
