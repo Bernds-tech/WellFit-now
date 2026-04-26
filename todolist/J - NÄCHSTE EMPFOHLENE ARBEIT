@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 5.2 – FIRESTORE RULES SMOKE TEST ERFOLGREICH
+Version: 5.3 – ECHTE CALLABLE FUNCTIONS IM EMULATOR ERFOLGREICH
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -54,8 +54,11 @@ AKTUELLER FOKUS:
 [x] NFC Emulator Smoke Test erfolgreich ausgeführt.
 [x] Firestore Rules Smoke Test angelegt.
 [x] Firestore Rules Smoke Test erfolgreich ausgeführt.
+[x] Callable Functions Emulator Test angelegt.
+[x] FieldValue/serverTimestamp/increment Fehler in Functions behoben.
+[x] Echte Callable Functions im Emulator erfolgreich getestet.
 
-PRIO 1 – BESTÄTIGTER EMULATOR- UND SECURITY-TEST
+PRIO 1 – BESTÄTIGTER EMULATOR- UND CALLABLE-TEST
 [x] Java installiert und geprüft:
     - OpenJDK 17.0.18
 [x] Firebase Emulator gestartet:
@@ -66,6 +69,7 @@ PRIO 1 – BESTÄTIGTER EMULATOR- UND SECURITY-TEST
 [x] functions npm run check erfolgreich.
 [x] functions npm run smoke:nfc erfolgreich.
 [x] functions npm run rules:firestore erfolgreich.
+[x] functions npm run callable:emulator erfolgreich.
 [x] NFC Smoke-Test geprüft:
     - Demo Items werden geseedet.
     - Demo NFC Tags werden geseedet.
@@ -84,13 +88,22 @@ PRIO 1 – BESTÄTIGTER EMULATOR- UND SECURITY-TEST
     - Nutzer darf keine NFC-ScanEvents direkt schreiben.
     - Nutzer darf keine capabilityUnlockEvents direkt schreiben.
     - Nutzer darf keine buddyItemUseEvents direkt schreiben.
+[x] Echte Callable Functions geprüft:
+    - seedDemoItemsAndNfc mit Admin-Claim funktioniert.
+    - seedDemoItemsAndNfc ohne Admin-Claim wird blockiert.
+    - validateNfcScan funktioniert über echten Callable-Endpunkt.
+    - rope_001 wird per Callable Flow vergeben.
+    - climbUp wird per Callable Flow freigeschaltet.
+    - auditItemUse funktioniert über echten Callable-Endpunkt.
+    - falsche Mission wird per Callable Flow mit mission-mismatch abgelehnt.
 
 HINWEISE:
 [!] Die PERMISSION_DENIED-Meldungen im Rules-Test sind erwartet und positiv. Sie zeigen, dass direkte Client-Writes blockiert werden.
 [!] Firebase CLI meldet: Nicht eingeloggt. Für lokale Demo-Emulator-Tests nicht kritisch.
 [!] Firebase CLI meldet: Java < 21 wird ab firebase-tools@15 nicht mehr unterstützt. Aktuell läuft Java 17, später auf Java 21 wechseln.
+[!] Firebase Functions Paket meldet Upgrade-Hinweis. Später gezielt auf neue firebase-functions Version migrieren und Breaking Changes prüfen.
 [!] Nur eine Emulator-Instanz parallel starten, sonst sind Ports 4000/8080/9099/5001 belegt.
-[!] Produktionsdeployment bleibt blockiert, bis echte Callable-Function-Tests und weitere Security-Tests abgeschlossen sind.
+[!] Produktionsdeployment bleibt blockiert, bis Gesamt-Emulator-Test und weitere Security-Tests abgeschlossen sind.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -115,9 +128,14 @@ Terminal 2:
 cd /var/www/WellFit-now/functions
 npm run smoke:nfc
 npm run rules:firestore
+npm run callable:emulator
+
+Gesamt-Emulator-Test:
+cd /var/www/WellFit-now/functions
+npm run test:emulator
 
 ============================================================
-PRIO 2 – NÄCHSTE TESTSTUFE: ECHTE CALLABLE FUNCTIONS
+PRIO 2 – NÄCHSTE TESTSTUFE: GESAMT-EMULATOR-TEST
 ============================================================
 
 [x] functions npm install ausgeführt.
@@ -126,26 +144,18 @@ PRIO 2 – NÄCHSTE TESTSTUFE: ECHTE CALLABLE FUNCTIONS
 [x] Firebase Emulator lokal gestartet.
 [x] NFC Smoke Test erfolgreich.
 [x] Firestore Rules Smoke Test erfolgreich.
-[ ] validateNfcScan echte Callable Function im Emulator testen.
-[ ] auditItemUse echte Callable Function im Emulator testen.
-[ ] seedDemoItemsAndNfc nur mit Admin-Claim testen.
-[ ] Testszenarien prüfen:
-    - Admin Seed erfolgreich
-    - Normaler Nutzer darf nicht seeden
-    - gültiger NFC Scan: WF-DEMO-ROPE-TREE-001
-    - Rope Item Grant: rope_001
-    - Capability Unlock: climbUp
-    - linkedMissionId: demo_tree_clue_001
-    - gültiger NFC Scan: WF-DEMO-MAGNIFIER-LEAF-001
-    - Magnifier Item Grant: magnifier_001
-    - Capability Unlock: scanObject
+[x] Callable Functions Emulator Test erfolgreich.
+[ ] Gesamt-Emulator-Test ausführen:
+    npm run test:emulator
+[ ] Testszenarien weiter ausbauen:
     - revoked NFC Tag
     - inactive NFC Tag
     - duplicate scan
     - falscher Nutzer
-    - falsche Mission
     - usageLimit erreicht
-[ ] Produktionsdeployment erst nach Emulator-Tests.
+    - Magnifier Flow vollständig als Callable testen
+    - scanObject/revealHint Capability prüfen
+[ ] Produktionsdeployment erst nach erweiterten Emulator-Tests.
 
 ============================================================
 PRIO 3 – UNITY AR FOUNDATION LOKAL ERZEUGEN
