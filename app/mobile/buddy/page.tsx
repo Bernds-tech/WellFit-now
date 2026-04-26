@@ -21,7 +21,7 @@ export default function MobileBuddyPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-24 text-white">
+    <main className="h-screen overflow-y-auto bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-32 text-white">
       <section className="px-4 pt-4">
         <div className="rounded-[30px] bg-[#04343b] p-5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
           <p className="text-xs font-black uppercase tracking-[0.24em] text-cyan-100/55">Mobile Buddy</p>
@@ -78,6 +78,7 @@ export default function MobileBuddyPage() {
         </p>
       </section>
 
+      <div className="h-8" />
       <MobileBottomNav activeTab="buddy" />
     </main>
   );
