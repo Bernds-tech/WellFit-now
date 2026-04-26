@@ -2,52 +2,146 @@
 
 ## Zielbild
 
-Flammi soll kein 2D-Emoji und kein verschobenes Bild sein, sondern ein kleiner animierter 3D-Drache, der im echten Raum erscheint.
+Flammi soll kein 2D-Emoji, kein verschobenes Bild und kein reines Kamera-Overlay sein, sondern ein kleiner animierter 3D-Drache, der im echten Raum erscheint.
 
-Das Ziel ist ein AR-Erlebnis: Rückkamera zeigt die reale Umgebung, Flammi wird als 3D-Charakter in diesen Raum gesetzt, bewegt sich, reagiert und wirkt durch Schatten, Skalierung und später Bodenanker glaubwürdig.
+Das Ziel ist ein echtes AR-Erlebnis:
 
-## Aktueller Stand
+- Rückkamera zeigt die reale Umgebung.
+- Flammi wird als 3D-Charakter in den Raum gesetzt.
+- Flammi bleibt an seiner Weltposition, auch wenn das Handy nach links/rechts/oben/unten geschwenkt wird.
+- Flammi kann auf realen Flächen stehen: Boden, Couch, Tisch, Kastl.
+- Flammi kann später zwischen erkannten Flächen navigieren: von der Couch springen, auf ein Kastl hüpfen, am Kratzbaum klettern.
+- Schatten, Skalierung, Perspektive und Verdeckung sollen glaubwürdig wirken.
 
-Der aktuelle /mobile/ar-Prototyp ist ein Kamera-Overlay. Das ist technisch nützlich zum Testen von Kamera, UI, Controls und Interaktion, erfüllt aber noch nicht das finale AR-Ziel.
+## Harte Erkenntnis aus Gerätetest
+
+Der aktuelle /mobile/ar-Prototyp mit Three.js/WebGL ist nur ein Kamera-Overlay mit simuliertem Anker.
+
+Er erfüllt folgende Dinge:
+
+- Rückkamera funktioniert.
+- 3D-Flammi wird über der Kamera angezeigt.
+- Tap-/Rufen-/Laufen-/Anker-Bedienlogik ist testbar.
+- Simulierter Anker zeigt, wie die Bedienung später funktionieren soll.
+
+Er erfüllt NICHT das echte AR-Ziel:
+
+- Kein World Tracking.
+- Keine echte Boden-/Flächenerkennung.
+- Kein echter Raumanker.
+- Flammi bleibt nicht im Raum stehen, wenn das Handy geschwenkt wird.
+- Keine realistische Navigation über Couch, Tisch, Kastl oder Kratzbaum.
+
+## Technische Entscheidung
+
+Für das gewünschte WellFit-Erlebnis reicht PWA + Kamera + Three.js nicht aus.
+
+Ab jetzt gilt:
+
+1. PWA/Three.js bleibt nur Demo-, UI- und Fallback-Schicht.
+2. Echtes Flammi-AR muss über native AR umgesetzt werden.
+3. Android-Ziel: ARCore.
+4. iOS-Ziel: ARKit.
+5. Unity wird geprüft, falls Cross-Plattform-AR, Animationen, Navigation und 3D-Asset-Pipeline schneller/stabiler werden.
+
+## Native AR Mindestanforderungen
+
+### World Tracking
+
+- Kamera-Pose verfolgen.
+- Gerätebewegung im Raum verstehen.
+- Flammi bleibt an Weltkoordinaten statt Bildschirmkoordinaten.
+
+### Plane Detection
+
+Zu erkennen:
+
+- Boden
+- Tischflächen
+- Couch-/Sitzflächen, soweit ARCore/ARKit sie als horizontale Flächen erkennt
+- vertikale Flächen optional später
+
+### Hit Test / Raycast
+
+- Nutzer tippt auf reale Fläche.
+- AR-System gibt Weltposition zurück.
+- Flammi wird dort verankert.
+
+### Anchor System
+
+- Anker speichern.
+- Flammi bleibt relativ zum Weltanker.
+- Rufen löst oder übersteuert Anker.
+- Mehrere mögliche Zielpunkte später.
+
+### Navigation / Behavior
+
+Stufe 1:
+
+- Flammi bleibt am Anker.
+- Flammi schaut zur Kamera.
+- Flammi läuft in kleinem Radius um Anker.
+
+Stufe 2:
+
+- Flammi springt zwischen erkannten Flächenpunkten.
+- Couch -> Boden.
+- Boden -> Tisch/Kastl.
+- Kleine Hop-/Climb-/Land-Animationen.
+
+Stufe 3:
+
+- Raum-Mesh / Scene Understanding, soweit Plattform unterstützt.
+- Hindernis- und Höhenlogik.
+- Klettern, Springen, Balancieren.
+- Missionen mit echter Rauminteraktion.
 
 ## Nächste technische Stufe
 
-### Stufe 1: 3D-Flammi im Kamera-Overlay
+### Sofort
 
-- Drei.js / WebGL Renderer über der Rückkamera.
-- Ein einfacher Low-Poly-Drache als glTF/GLB Asset.
-- Idle-Animation: Atmen, Schwanz, Kopfbewegung.
-- Walk/Hop-Animation: kleine Schritte oder Hüpfen.
-- Tap-Reaktion: Blick zum Nutzer, Freude, Feuerfunke.
-- Schatten-Ellipse unter Flammi.
-- Perspektivische Skalierung: nah größer, fern kleiner.
+- Browser-AR klar als Fallback markieren.
+- Native AR als Hauptpfad starten.
+- Capacitor/Native App-Schicht nicht nur für Sensoren, sondern auch für ARCore/ARKit planen.
 
-### Stufe 2: WebAR / Raumanker-Prototyp
+### Android
 
-- WebXR prüfen, wo verfügbar.
-- Fallback: Kamera + WebGL + simulierte Bodenebene.
-- Hit-Test / Bodenpunkt, falls Browser unterstützt.
-- Wenn WebXR nicht verfügbar: manuelle Platzierung über Bildschirm-Tap.
+- ARCore prüfen/integrieren.
+- Native AR Activity oder Plugin aufbauen.
+- Hit Test / Plane Detection implementieren.
+- Flammi als GLB-Modell in ARCore-Szene rendern.
 
-### Stufe 3: Native AR
+### iOS
 
-- Android: ARCore über native App-Schicht.
-- iOS: ARKit über native App-Schicht.
-- Option: Unity nur, wenn die 3D-/AR-Komplexität stark steigt.
+- ARKit prüfen/integrieren.
+- Native AR View / Plugin aufbauen.
+- Raycast / Plane Detection implementieren.
+- Flammi als GLB/RealityKit/SceneKit-Modell rendern.
+
+### Cross-Plattform-Option
+
+- Unity AR Foundation prüfen.
+- Vorteil: ARCore + ARKit in einer AR-Pipeline.
+- Vorteil: Animation Controller, Nav/State Machine, GLB/FBX-Assetpipeline.
+- Nachteil: App-Größe, Build-Komplexität, Integration in bestehende App.
 
 ## Asset-Anforderung Flammi v1
 
 Format:
 
-- GLB bevorzugt
+- GLB/GLTF oder FBX je nach AR-Engine
 - low-poly / mobile-optimiert
 - Zielgröße unter 2–5 MB
-- Draco/Meshopt-Kompression später prüfen
+- LODs später prüfen
 
 Animationen:
 
 - idle
-- walk oder hop
+- walk
+- hop
+- jumpDown
+- climbUp
+- land
 - happy
 - lookAround
 - return
@@ -61,8 +155,8 @@ Design:
 - große Augen, emotional bindend
 - kind-/familientauglich
 
-## Technische Entscheidung
+## Produktregel
 
-Der nächste Code-Schritt ist nicht mehr 2D-Emoji verbessern, sondern eine 3D-Flammi-Komponente mit WebGL/Three.js oder einer native-AR-fähigen Pipeline vorbereiten.
+Der aktuelle WebGL-Flammi bleibt nur Test-/Fallback-Modus.
 
-Die 2D-Version bleibt nur als Fallback, wenn WebGL/AR nicht verfügbar ist.
+Der echte WellFit-AR-Buddy muss nativ mit ARCore/ARKit oder Unity AR Foundation umgesetzt werden, weil nur dort Weltanker und raumfeste Bewegung zuverlässig möglich sind.
