@@ -3,7 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CameraPermissionState } from "@/lib/vision/visionTypes";
 
-export function useCameraPreview() {
+type CameraFacingMode = "user" | "environment";
+
+type UseCameraPreviewOptions = {
+  facingMode?: CameraFacingMode;
+};
+
+export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
+  const { facingMode = "user" } = options;
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [permissionState, setPermissionState] = useState<CameraPermissionState>("idle");
@@ -33,9 +40,9 @@ export function useCameraPreview() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: "user",
-          width: { ideal: 720 },
-          height: { ideal: 1280 },
+          facingMode: { ideal: facingMode },
+          width: { ideal: facingMode === "environment" ? 1280 : 720 },
+          height: { ideal: facingMode === "environment" ? 720 : 1280 },
         },
         audio: false,
       });
@@ -52,7 +59,7 @@ export function useCameraPreview() {
       setPermissionState(message.toLowerCase().includes("permission") ? "denied" : "error");
       setErrorMessage(message);
     }
-  }, []);
+  }, [facingMode]);
 
   useEffect(() => stopCamera, [stopCamera]);
 
