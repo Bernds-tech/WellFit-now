@@ -1,12 +1,8 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Version: 3.2 – BUSINESS / WEBSITE / PARTNER / LEGAL KONSOLIDIERT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
-Datei: To Do List.txt
-
-WICHTIGER HINWEIS:
-Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
-Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+Ordner: todolist/
 
 ============================================================
 I. BUSINESS / WEBSITE / PARTNER / LEGAL
@@ -16,9 +12,11 @@ TASK-ID: WF-FAMILY-001
 STATUS: [>] Später / Backlog
 [ ] Familiengruppen definieren.
 [ ] Enkel-/Kind-zu-Großeltern-Missionen definieren.
+[ ] Generationen-Tandem prüfen: Avatar des Kindes profitiert von validierten, sicheren Spaziergängen der Großeltern.
 [ ] Silver-Economy-Use-Cases definieren.
 [ ] Gemeinsame Familienziele definieren.
 [ ] Datenschutz/Einwilligung für Familiengruppen prüfen.
+[ ] Minderjährigen-/Eltern-Consent sauber berücksichtigen.
 
 TASK-ID: WF-CORP-001
 STATUS: [>] Später / Backlog
@@ -27,6 +25,8 @@ STATUS: [>] Später / Backlog
 [ ] anonymisierte Firmen-Analytics.
 [ ] Company Admin Rolle.
 [ ] Datenschutz für Arbeitgeberdaten streng abgrenzen.
+[ ] WellFit-Zertifizierung / „gesundes Unternehmen“-Siegel prüfen.
+[ ] Corporate Wellness als B2B-Säule ausarbeiten.
 
 TASK-ID: WF-CITY-001
 STATUS: [>] Später / Backlog
@@ -35,6 +35,8 @@ STATUS: [>] Später / Backlog
 [ ] Parks/Sehenswürdigkeiten.
 [ ] Stadt-/Tourismus-Partner.
 [ ] Eventmissionen.
+[ ] AR-Touren für Städte, Museen, Burgen, Zoos und Tourismusregionen vorbereiten.
+[ ] Bürgermeister-/Checkpoint-System langfristig prüfen, aber rechtlich und ethisch vorsichtig einordnen.
 
 TASK-ID: WF-REVENUE-001
 STATUS: [>] Später / Backlog
@@ -56,6 +58,99 @@ STATUS: [>] Später / Backlog
 [ ] Gesundheitsprogramme.
 [ ] Corporate Team Challenges.
 [ ] International Licensing.
+[ ] Creator-/Coach-Marktplatz prüfen.
+[ ] NFT-/Item-Verkäufe nur nach Rechts-/Store-Prüfung.
+[ ] AR-Sponsoring-Overlays nur optional, kontextbezogen und datenschutzfreundlich.
+
+============================================================
+I1. App Store / Store-Safe Architecture
+============================================================
+
+TASK-ID: WF-APPSTORE-001
+STATUS: [>] Später / Backlog
+
+[x] PWA/Web-Prototyp als interne technische Validierung gestartet.
+[x] Mobile App ist aktuell PWA-Test-App über /mobile.
+[x] Manifest und Service Worker Basis angelegt.
+[x] Mobile App enthält keine Token-, Presale-, Trading- oder Krypto-Handelsfunktionen.
+[x] Kamera, Pose, Face, Motion und AR werden aktuell als Browser-/PWA-Prototyp getestet.
+[ ] iOS TestFlight vorbereiten.
+[ ] Google Play Internal/Closed Testing vorbereiten.
+[ ] Technologieentscheidung: React Native/Expo, Capacitor, Flutter oder native Swift/Kotlin.
+[ ] Kamera, AR, HealthKit, Health Connect, Smartwatch-Daten und Datenschutztexte store-konform planen.
+[ ] Apple/Google Policies für Health, AR, Rewards, Crypto, Ads und User-Generated Content prüfen.
+
+TASK-ID: WF-STORE-SAFE-002
+STATUS: [>] Später / Backlog
+
+[x] Keine Token-/Presale-/Trading-Funktion in Mobile-Test-App.
+[x] Keine Mining-/DePIN-Last am Handy.
+[x] Mobile App macht Interface, Kamera, AR, GPS, Missionen, Gamification und lokale KI-Inferenz.
+[ ] Rechenintensive Prozesse laufen off-device oder nur mit freiwilliger, klarer Zustimmung.
+[ ] Apple/Google Policies prüfen.
+[ ] Tokenmechaniken aus App-Store-kritischen Bereichen heraushalten.
+[ ] In-App-Käufe / Premium / digitale Items store-konform planen.
+
+============================================================
+I2. Legal / Datenschutz / Compliance
+============================================================
+
+TASK-ID: WF-LEGAL-002
+STATUS: [ ] Offen / wichtig
+
+[ ] Datenschutz um Kamera/AR erweitern.
+[ ] Datenschutz um Pose Tracking erweitern.
+[ ] Datenschutz um Face Tracking / Mimiksignale erweitern.
+[ ] Datenschutz um HealthKit/Health Connect/Watch-Daten erweitern.
+[ ] Optionale Emotion/Mimik-Analyse gesondert zustimmungspflichtig machen.
+[ ] Keine Speicherung von Bildern/Videos als Standard klar dokumentieren.
+[ ] Kinder-/Familienmodus mit zusätzlichen Zustimmungen planen.
+[ ] Keine medizinische Diagnose oder Therapieaussage in Produkttexten.
+[ ] Abnehm-, Ernährungs- und Gesundheits-Challenges nur als Lifestyle-/Präventionshilfe formulieren, nicht als medizinisches Programm.
+[ ] Bei Beschwerden oder Erkrankungen Arzt/Expertin empfehlen.
+[ ] Forschungs-/Pharma-/Versicherungsdaten nur anonymisiert, opt-in und DSGVO-konform.
+
+TASK-ID: WF-LEGAL-WEB3-001
+STATUS: [>] Später / wichtig vor Token-Veröffentlichung
+
+[ ] MiCA/MiCAR prüfen.
+[ ] Steuerliche Behandlung von Token, NFT, Pre-Sale und Investorenzuteilung prüfen.
+[ ] KYC/AML-Pflichten prüfen.
+[ ] Utility-/Security-Token-Einordnung prüfen.
+[ ] Keine Rendite-, Preis- oder Gewinnversprechen.
+[ ] Chain-Strategie historisch trennen: Solana/SPL-Dokumente vs. neuere SUI/Dynamic-Object-Strategie.
+
+============================================================
+I3. Website / Landingpage / Business / Investoren / Pilot
+============================================================
+
+[ ] Startseite klarer machen.
+[ ] Hero-Text schärfen.
+[ ] Problem erklären: Menschen bewegen sich zu wenig, Motivation fehlt, Gesundheitsprogramme sind oft langweilig.
+[ ] Lösung erklären: WellFit macht Bewegung spielerisch, sozial und belohnend.
+[ ] Zielgruppen darstellen: Nutzer, Familien, Firmen, Städte, Marken, Investoren.
+[ ] echte App-Screens / Produkt-Screens einbauen.
+[ ] Roadmap anzeigen.
+[ ] Investor-Bereich einbauen.
+[ ] Pilotpartner-Bereich einbauen.
+[ ] Warteliste oder Registrierung einbauen.
+[ ] Kontaktformular einbauen.
+[ ] Impressum vollständig machen.
+[ ] Datenschutzseite vollständig machen.
+[ ] AGB vorbereiten.
+[ ] Mobile Ansicht prüfen.
+[ ] Ladezeiten prüfen.
+[ ] Menüführung prüfen.
+[ ] Tote Links entfernen.
+[ ] Rechtschreibfehler korrigieren.
+[ ] Token nicht zu dominant auf Startseite platzieren.
+[ ] Keine unrealistischen Versprechen machen.
+[ ] Pitch-/Investor-Sprache von Produkt-/App-Sprache trennen.
+[ ] Begriffe wie „Suchtspirale“, „passives Einkommen“ und „zertrümmern“ nur intern/investorisch mit Vorsicht verwenden, nicht in kinder-/gesundheitsnaher App-Kommunikation.
+
+============================================================
+I4. Dokumentation
+============================================================
 
 TASK-ID: WF-DOC-001
 STATUS: [ ] Offen
@@ -65,13 +160,21 @@ STATUS: [ ] Offen
 [ ] Firebase Setup dokumentieren.
 [ ] Server Deploy dokumentieren.
 [ ] PM2 Start/Restart dokumentieren.
-[ ] Hinweis auf To Do List.txt einbauen.
+[ ] Hinweis auf todolist/ einbauen.
+[ ] Hinweis auf PWA-Test-App /mobile einbauen.
+[ ] Hinweis auf Kamera/MediaPipe/DeviceMotion Voraussetzungen einbauen.
+[ ] Hinweis auf `todolist/CHAT_START_PROMPT.md` für neue Chats einbauen.
 
-TASK-ID: WF-LEGAL-002
-STATUS: [ ] Offen
-[ ] Datenschutz um Kamera/AR erweitern.
-[ ] Datenschutz um Pose Tracking erweitern.
-[ ] Datenschutz um HealthKit/Health Connect/Watch-Daten erweitern.
-[ ] Optionale Emotion/Mimik-Analyse gesondert zustimmungspflichtig machen.
-[ ] Keine Speicherung von Bildern/Videos als Standard.
+============================================================
+I5. Langfristige Business-KPIs als Zielbilder
+============================================================
 
+[>] Break-Even-Zielbild: 200.000 aktive Nutzer.
+[>] Premium Conversion Zielbild: 15–20 %.
+[>] DePIN-Dominanz langfristig: 500.000 aktive Smartphones als Supercomputer-Zielbild, aber nicht app-store-kritisch auf dem Gerät erzwingen.
+[>] Seed-Investment-Ziel: 5 Mio. € in 12–18 Monaten amortisieren.
+[>] Pilotziel: 100–500 echte User für frühe Validierung.
+[>] Größerer Test: 2.000–3.000 Tester vor echter Token-Ausschüttung.
+
+Hinweis:
+[!] Diese Werte sind strategische Zielbilder, keine Versprechen.
