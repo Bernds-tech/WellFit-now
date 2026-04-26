@@ -8,8 +8,8 @@ const mobileMissions = [
     id: "mobile-squat-test",
     title: "10 saubere Kniebeugen",
     type: "Pose-Test",
-    description: "Starte die Analyse, stelle dein Handy auf und lasse WellFit deine Kniebeugen prüfen.",
-    href: "/mobile/analyse",
+    description: "Öffnet direkt die Kamera mit Countdown, Aufgaben-HUD, Stop und Fertig-Button.",
+    href: "/mobile/missionen/squat",
   },
   {
     id: "mobile-motion-test",
@@ -25,13 +25,20 @@ const mobileMissions = [
     description: "Füttere oder pflege deinen Buddy in der mobilen Testansicht.",
     href: "/mobile/buddy",
   },
+  {
+    id: "mobile-ar-preview",
+    title: "AR-Buddy Vorschau",
+    type: "AR später",
+    description: "Später läuft Flammi im Vorder- oder Hintergrund durch deine reale Umgebung.",
+    href: "/mobile/missionen/squat",
+  },
 ];
 
 export default function MobileMissionenPage() {
   const [message, setMessage] = useState("Wähle eine mobile Testmission. Keine Desktop-Seite nötig.");
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-24 text-white">
+    <main className="h-screen overflow-y-auto bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-28 text-white">
       <section className="px-4 pt-4">
         <div className="rounded-[30px] bg-[#04343b] p-5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
           <p className="text-xs font-black uppercase tracking-[0.24em] text-cyan-100/55">Mobile Missionen</p>
