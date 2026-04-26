@@ -2,7 +2,7 @@
 
 ## Ziel
 
-Vor jedem Deployment muessen NFC-, Item- und Capability-Flows im Firebase Emulator getestet werden.
+Vor jedem Deployment muessen NFC-, Item-, Capability-, Tracking- und Buddy-Event-Flows im Firebase Emulator getestet werden.
 
 Produktionsdeployment ist blockiert, bis diese Tests erfolgreich sind.
 
@@ -32,7 +32,7 @@ Im Repo-Root:
 
 ```bash
 cd /var/www/WellFit-now
-npm install --no-audit --no-fund
+npm install --include=dev --no-audit --no-fund
 ```
 
 Im Functions-Ordner:
@@ -108,6 +108,11 @@ Das Script `test/callableFunctionsEmulatorTest.js` prueft echte Callable HTTP-En
 - duplicate scan erzeugt kein zweites Inventory Item.
 - Magnifier Flow vergibt magnifier_001 und scanObject.
 - auditItemUse schreibt ein serverseitiges Audit-Event.
+- createTrackingSession schreibt eine serverautorisierte Tracking-Session.
+- recordTrackingProof schreibt ein serverautorisiertes Tracking-Proof-Event.
+- recordTrackingProof fuer fremde Session wird blockiert.
+- createMissionBuddyEvent schreibt ein serverautorisiertes Buddy-Event.
+- Tracking-/Buddy-Callable-Flows setzen rewardAuthorized=false und missionCompletionAuthorized=false.
 - falsche Mission wird mit mission-mismatch abgelehnt.
 
 ## Testnutzer
@@ -126,7 +131,7 @@ Nur Admin darf `seedDemoItemsAndNfc` ausfuehren.
 
 ### Normaler Nutzer
 
-Darf NFC scannen, aber keine Seed-Daten, Items, Capabilities oder NFC-Tags direkt schreiben.
+Darf NFC scannen und serverautorisierte Tracking-/Buddy-Events ueber Callable Functions erzeugen, aber keine Seed-Daten, Items, Capabilities, NFC-Tags, Tracking-Sessions oder Buddy-Events direkt schreiben.
 
 ## Testdaten durch Seed Function
 
@@ -305,6 +310,8 @@ Direkte Writes muessen abgelehnt werden fuer:
 - nfcScanEvents create
 - capabilityUnlockEvents create
 - buddyItemUseEvents create
+- trackingSessions create/update
+- missionBuddyEvents create/update
 
 ## Testfall 9 - Revoked NFC Tag
 
@@ -419,6 +426,70 @@ Erwartung:
 - grantedCapabilityId = scanObject
 - buddyCapabilities enthaelt normal-user_default_scanObject
 
+## Testfall 15 - createTrackingSession
+
+Input:
+
+```json
+{
+  "missionId": "demo_tree_clue_001",
+  "source": "mobile",
+  "proofType": "motion",
+  "deviceId": "tracking-device-001"
+}
+```
+
+Erwartung:
+
+- accepted = true
+- trackingSessions enthaelt serverseitiges Dokument fuer Nutzer
+- serverValidationStatus = pending
+- rewardAuthorized = false
+- missionCompletionAuthorized = false
+
+## Testfall 16 - recordTrackingProof
+
+Input:
+
+```json
+{
+  "sessionId": "<server-created-session-id>",
+  "proofType": "motion",
+  "status": "completed"
+}
+```
+
+Erwartung:
+
+- accepted = true
+- trackingProofEvents enthaelt serverseitiges Proof Event
+- trackingSessions.proofEventCount wird erhoeht
+- rewardAuthorized = false
+- missionCompletionAuthorized = false
+- fremder Nutzer darf Proof nicht fuer fremde Session schreiben
+
+## Testfall 17 - createMissionBuddyEvent
+
+Input:
+
+```json
+{
+  "missionId": "demo_tree_clue_001",
+  "buddyId": "default",
+  "eventType": "buddyActionRequested",
+  "status": "requested",
+  "itemId": "rope_001",
+  "capabilityId": "climbUp"
+}
+```
+
+Erwartung:
+
+- accepted = true
+- missionBuddyEvents enthaelt serverseitiges Dokument fuer Nutzer
+- rewardAuthorized = false
+- missionCompletionAuthorized = false
+
 ## Naechste technische Aufgabe
 
-Rules fuer `trackingSessions` und `missionBuddyEvents` gegen Missbrauch pruefen und danach Mission-Completion-Backend-Flow planen. Der Smoke-Test und die erweiterten Callable-Edge-Case-Tests sind pruefbare Zwischenschritte, ersetzen aber noch nicht die vollstaendige Anti-Cheat-Architektur fuer Mission Completion und Rewards.
+Erweiterten Emulator-Gesamttest nach Tracking-/Buddy-Callable-Ergaenzung ausfuehren. Danach Mission-Completion-Backend-Flow planen. Die neuen Tracking-/Buddy-Callables sind nur Audit-/Proof-Pfade und ersetzen keine finale Anti-Cheat-, Reward- oder Mission-Completion-Entscheidung.
