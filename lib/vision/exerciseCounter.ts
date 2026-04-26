@@ -11,6 +11,7 @@ export const initialExerciseCounterState: ExerciseCounterState = {
   phase: "unknown",
   feedback: "Starte die Kamera. Danach erkennt WellFit deine Kniebeugen über Körperpunkte.",
   isTracking: false,
+  repCandidateValid: false,
 };
 
 function getBasicFeedback(phase: ExercisePhase, qualityScore: number, detected: boolean) {
@@ -29,9 +30,11 @@ export function updateSquatCounter(
 ): ExerciseEvaluation {
   const nextPhase = getSquatPhase(previous.phase, analysis);
   const qualityScore = getSquatQualityScore(analysis);
+  const bottomReached = nextPhase === "bottom";
+  const repCandidateValid = bottomReached ? isValidSquatRep(analysis) : previous.repCandidateValid;
   const completedRep = (previous.phase === "bottom" || previous.phase === "ascending") && nextPhase === "standing";
-  const validRep = completedRep && isValidSquatRep(analysis);
-  const invalidRep = completedRep && !validRep;
+  const validRep = completedRep && previous.repCandidateValid;
+  const invalidRep = completedRep && !previous.repCandidateValid;
 
   return {
     ...previous,
@@ -39,12 +42,13 @@ export function updateSquatCounter(
     confidence: analysis.confidence,
     qualityScore,
     moodSignal,
+    repCandidateValid: completedRep ? false : repCandidateValid,
     validReps: previous.validReps + (validRep ? 1 : 0),
     invalidReps: previous.invalidReps + (invalidRep ? 1 : 0),
     feedback: completedRep
       ? validRep
         ? "Saubere Wiederholung gezählt. Stark!"
-        : "Wiederholung erkannt, aber noch nicht sauber genug. Langsamer und stabiler."
+        : "Wiederholung erkannt, aber die Tiefe oder Stabilität war noch nicht sauber genug."
       : getBasicFeedback(nextPhase, qualityScore, analysis.detected),
     isTracking: true,
     detected: analysis.detected,
