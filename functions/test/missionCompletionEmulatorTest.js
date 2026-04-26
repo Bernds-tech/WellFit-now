@@ -2,14 +2,15 @@
   WellFit Mission Completion Emulator Test
 
   Zweck:
-  Testet sichere Mission-Kontext- und Mission-Completion-Evaluation-Stubs:
+  Testet sichere Mission-Kontext-, Mission-Completion- und Reward-Preview-Stubs:
   - evaluateMissionContext schreibt missionContextEvaluations
   - Context Evaluation autorisiert keine Rewards oder Mission Completion
   - evaluateMissionCompletion schreibt missionCompletionEvaluations
   - Completion Evaluation akzeptiert keine finale Completion
   - Evaluation autorisiert keine Rewards, XP oder Punkte
+  - missionRewardPreview schreibt nur eine Simulation und autorisiert keine Rewards, XP, Punkte oder Token
   - Fremde Tracking-Sessions werden blockiert
-  - Firestore Rules blockieren direkte Client-Writes auf Evaluation-Collections
+  - Firestore Rules blockieren direkte Client-Writes auf Evaluation- und Preview-Collections
 */
 
 const fs = require("fs");
@@ -108,6 +109,10 @@ async function resetCollections() {
     "nfcScanEvents",
     "missionContextEvaluations",
     "missionCompletionEvaluations",
+    "missionRewardPreviews",
+    "missionRewardEvents",
+    "missionRewardPolicies",
+    "systemReserveSnapshots",
   ];
   for (const collectionName of collections) {
     const snapshot = await db.collection(collectionName).limit(500).get();
@@ -117,7 +122,7 @@ async function resetCollections() {
   }
 }
 
-async function runRulesCheck({ contextEvaluationId, completionEvaluationId }) {
+async function runRulesCheck({ contextEvaluationId, completionEvaluationId, rewardPreviewId }) {
   const rulesPath = path.join(__dirname, "..", "..", "firestore.rules");
   const rules = fs.readFileSync(rulesPath, "utf8");
   const testEnv = await initializeTestEnvironment({
@@ -163,6 +168,39 @@ async function runRulesCheck({ contextEvaluationId, completionEvaluationId }) {
       accepted: true,
       rewardAuthorized: true,
       missionCompletionAuthorized: true,
+    }));
+
+    await assertSucceeds(aliceDb.collection("missionRewardPreviews").doc(rewardPreviewId).get());
+    await assertFails(bobDb.collection("missionRewardPreviews").doc(rewardPreviewId).get());
+    await assertFails(aliceDb.collection("missionRewardPreviews").doc("client_hack_preview").set({
+      previewId: "client_hack_preview",
+      userId: "mission-user",
+      missionId: "demo_tree_clue_001",
+      rewardAuthorized: true,
+      xpAuthorized: true,
+      pointsAuthorized: true,
+      tokenAuthorized: true,
+    }));
+    await assertFails(aliceDb.collection("missionRewardPreviews").doc(rewardPreviewId).update({
+      rewardAuthorized: true,
+      xpAuthorized: true,
+      pointsAuthorized: true,
+      tokenAuthorized: true,
+    }));
+
+    await assertSucceeds(aliceDb.collection("missionRewardPolicies").doc("public_policy_placeholder").get());
+    await assertFails(aliceDb.collection("missionRewardPolicies").doc("client_hack_policy").set({
+      policyId: "client_hack_policy",
+      rewardAuthorized: true,
+    }));
+    await assertFails(aliceDb.collection("systemReserveSnapshots").doc("client_hack_reserve").set({
+      snapshotId: "client_hack_reserve",
+      rewardPoolAvailable: 999999,
+    }));
+    await assertFails(aliceDb.collection("missionRewardEvents").doc("client_hack_reward_event").set({
+      rewardEventId: "client_hack_reward_event",
+      userId: "mission-user",
+      internalPointsGranted: 999999,
     }));
   } finally {
     await testEnv.cleanup();
@@ -268,11 +306,43 @@ async function run() {
   assert(evaluationDoc.data().rewardAuthorized === false, "Evaluation-Dokument rewardAuthorized muss false sein.");
   assert(evaluationDoc.data().missionCompletionAuthorized === false, "Evaluation-Dokument missionCompletionAuthorized muss false sein.");
 
+  const rewardPreview = await callCallable("missionRewardPreview", userToken, {
+    missionId: "demo_tree_clue_001",
+    missionType: "daily",
+    contextEvaluationId: contextEvaluationResult.evaluationId,
+    completionEvaluationId: evaluationResult.evaluationId,
+    requestedBaseReward: 20,
+  });
+  const rewardPreviewResult = getCallableResult(rewardPreview);
+  assert(rewardPreview.ok, `missionRewardPreview muss HTTP OK sein: ${describeCall(rewardPreview)}`);
+  assert(rewardPreviewResult.accepted === false, "RewardPreview darf nicht accepted=true liefern.");
+  assert(rewardPreviewResult.rewardAuthorized === false, "RewardPreview darf keinen Reward autorisieren.");
+  assert(rewardPreviewResult.xpAuthorized === false, "RewardPreview darf keine XP autorisieren.");
+  assert(rewardPreviewResult.pointsAuthorized === false, "RewardPreview darf keine Punkte autorisieren.");
+  assert(rewardPreviewResult.tokenAuthorized === false, "RewardPreview darf keine Token autorisieren.");
+  assert(rewardPreviewResult.missionCompletionAuthorized === false, "RewardPreview darf keine Mission Completion autorisieren.");
+  assert(rewardPreviewResult.estimatedTokenEquivalent === null, "RewardPreview darf kein Token-Equivalent setzen.");
+
+  const rewardPreviewDoc = await db.collection("missionRewardPreviews").doc(rewardPreviewResult.previewId).get();
+  assert(rewardPreviewDoc.exists, "RewardPreview muss missionRewardPreviews Dokument schreiben.");
+  assert(rewardPreviewDoc.data().rewardAuthorized === false, "RewardPreview-Dokument rewardAuthorized muss false sein.");
+  assert(rewardPreviewDoc.data().xpAuthorized === false, "RewardPreview-Dokument xpAuthorized muss false sein.");
+  assert(rewardPreviewDoc.data().pointsAuthorized === false, "RewardPreview-Dokument pointsAuthorized muss false sein.");
+  assert(rewardPreviewDoc.data().tokenAuthorized === false, "RewardPreview-Dokument tokenAuthorized muss false sein.");
+
   const foreignEvaluation = await callCallable("evaluateMissionCompletion", otherUserToken, {
     missionId: "demo_tree_clue_001",
     trackingSessionId: trackingSessionResult.sessionId,
   });
   assert(foreignEvaluation.status === 403 || foreignEvaluation.json.error, "Fremde Tracking-Session muss blockiert werden.");
+
+  const foreignRewardPreview = await callCallable("missionRewardPreview", otherUserToken, {
+    missionId: "demo_tree_clue_001",
+    contextEvaluationId: contextEvaluationResult.evaluationId,
+    completionEvaluationId: evaluationResult.evaluationId,
+    requestedBaseReward: 20,
+  });
+  assert(foreignRewardPreview.status === 403 || foreignRewardPreview.json.error, "Fremde RewardPreview muss blockiert werden.");
 
   const emptyEvaluation = await callCallable("evaluateMissionCompletion", userToken, {
     missionId: "demo_tree_clue_001",
@@ -285,6 +355,7 @@ async function run() {
   await runRulesCheck({
     contextEvaluationId: contextEvaluationResult.evaluationId,
     completionEvaluationId: evaluationResult.evaluationId,
+    rewardPreviewId: rewardPreviewResult.previewId,
   });
 
   console.log("WellFit Mission Completion Emulator Test erfolgreich.");
