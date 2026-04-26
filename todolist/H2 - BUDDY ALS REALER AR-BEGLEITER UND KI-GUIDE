@@ -1,0 +1,172 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 1.0 – BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
+Status: Produktvision / verbindliche Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Ordner: todolist/
+
+============================================================
+H2. BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
+============================================================
+
+KERNVISION:
+Der WellFit-Buddy ist nicht nur ein Avatar, kein Menü-Button und kein dekoratives Maskottchen. Er ist der persönliche Begleiter des Nutzers in der realen Welt.
+
+Der Nutzer sieht ihn durch das Handy in Augmented Reality. Der Buddy läuft, steht, schaut, reagiert, spricht, empfiehlt, erklärt, fragt, motiviert und führt durch Aufgaben, Rätsel, Missionen und Menüs.
+
+============================================================
+H2.1 PRODUKTZIEL
+============================================================
+
+[x] Gespielt wird primär am Handy.
+[x] PC/Web-Dashboard bleibt Steuerzentrale, Einstellung, Verwaltung und später Business-/Web3-Bereich.
+[x] Der Buddy soll Nutzer durch die reale Welt begleiten.
+[x] Der Buddy soll Kinder, Erwachsene und Familien motivieren, sich zu bewegen.
+[x] Der Buddy soll Aufgaben, Hinweise, Rätsel und nächste Schritte vorschlagen.
+[x] Die Bedienung soll langfristig weniger über Buttons und mehr über natürliche Buddy-Interaktion laufen.
+
+BEISPIELE:
+[ ] Buddy fragt: Wollen wir die nächste Tagesmission starten?
+[ ] Buddy empfiehlt: Du hast Wochenmissionen offen. Ich schlage diese Mission vor.
+[ ] Buddy sagt: Schau mal, da liegt ein Blatt. Was ist das?
+[ ] Nutzer bekommt Auswahl: Ahornblatt, Birkenblatt, Fichtenblatt.
+[ ] Buddy begleitet eine Rätselrallye mit Hinweisen.
+[ ] Buddy führt Kinder von Hinweis zu Hinweis.
+[ ] Buddy kann später durch Sprache/Chat Fragen beantworten.
+[ ] Buddy leitet durch Menüs, statt dass Nutzer viele Buttons suchen muss.
+
+============================================================
+H2.2 AR-BUDDY VERHALTEN IN DER REALEN WELT
+============================================================
+
+ZIEL:
+Der Buddy soll wirken, als wäre er wirklich in der realen Welt neben oder vor dem Nutzer.
+
+MUSS-KRITERIEN:
+[ ] Buddy bleibt an realer Weltposition, wenn das Handy geschwenkt wird.
+[ ] Buddy kann auf Boden, Couch, Tisch, Kastl oder anderen erkannten Flächen stehen.
+[ ] Buddy kann in der realen Umgebung laufen.
+[ ] Buddy kann von der Couch herunter springen.
+[ ] Buddy kann auf ein Kastl oder eine andere Fläche springen.
+[ ] Buddy kann später klettern, balancieren oder sich an Höhenunterschiede anpassen.
+[ ] Buddy schaut zur Kamera beziehungsweise zum Nutzer.
+[ ] Buddy kann auf Objekte oder Orte in der Umgebung aufmerksam machen.
+[ ] Buddy wirkt glaubwürdig durch Schatten, Skalierung, Perspektive und später Verdeckung/Occlusion.
+
+NICHT AUSREICHEND:
+[!] 2D-Bild über Kamera.
+[!] Emoji über Kamera.
+[!] 3D-Objekt, das nur am Display klebt.
+[!] Simulierter Anker ohne World Tracking.
+[!] Bewegung nur von Bildschirmposition zu Bildschirmposition.
+
+============================================================
+H2.3 BUDDY ALS KI-GUIDE
+============================================================
+
+DER BUDDY SOLL:
+[ ] Menüs erklären.
+[ ] Nutzer durch App-Bereiche führen.
+[ ] Nächste Missionen empfehlen.
+[ ] Tagesmissionen, Wochenmissionen, Rätsel und Challenges vorschlagen.
+[ ] Fortschritt kommentieren.
+[ ] Belohnungen emotional begleiten.
+[ ] Fragen beantworten.
+[ ] Altersgerecht sprechen.
+[ ] Familien- und Kinderkontext berücksichtigen.
+[ ] Keine medizinischen Diagnosen geben.
+[ ] Keine Scham-/Drucksprache als Standard verwenden.
+
+INTERAKTIONEN:
+[ ] Text-Chat mit Buddy.
+[ ] Sprachinteraktion später.
+[ ] Auswahlfelder bei Lern-/Rätselaufgaben.
+[ ] Kontextabhängige Empfehlungen.
+[ ] Buddy-gestützte Navigation statt reiner Button-Navigation.
+
+============================================================
+H2.4 RÄTSELRALLYE UND REAL-WORLD-MISSIONEN
+============================================================
+
+MISSIONSTYPEN:
+[ ] Natur-Rätsel: Blatt, Baum, Stein, Tiergeräusch, Umgebung erkennen.
+[ ] Bewegungs-Rätsel: gehe zu Punkt A, finde Hinweis B, löse Aufgabe C.
+[ ] Familien-Rallye: mehrere Nutzer lösen zusammen Hinweise.
+[ ] Lernmissionen: Mathe, Sprache, Naturkunde, Allgemeinwissen in Bewegung.
+[ ] Fitness-Missionen: Pose/Kamera-Übungen kombiniert mit AR-Hinweisen.
+[ ] Abenteuerpfade: Buddy führt durch eine Geschichte.
+
+BEISPIEL BLATT-MISSION:
+[ ] Buddy erkennt oder markiert ein Blatt.
+[ ] Buddy fragt: Was ist das für ein Blatt?
+[ ] Auswahl: Ahornblatt, Birkenblatt, Fichtenblatt.
+[ ] Nutzer antwortet.
+[ ] System bewertet Antwort.
+[ ] Reward-/XP-Logik läuft serverseitig nach bestehendem WellFit-Algorithmus.
+[ ] Buddy reagiert emotional und erklärt kurz.
+
+============================================================
+H2.5 TECHNISCHE KONSEQUENZ
+============================================================
+
+[!] Dieses Produktziel kann nicht mit reinem Browser/PWA-Kameraoverlay erreicht werden.
+[x] WebGL/PWA bleibt Demo, UI-Test und Fallback.
+[x] Echtes Erlebnis braucht native AR mit World Tracking, Plane Detection, Hit Test/Raycast, Anchors und 3D-Charakteranimation.
+[x] Android: ARCore.
+[x] iOS: ARKit.
+[x] Empfohlener Hauptpfad: Unity AR Foundation, wenn App-Größe und Build-Komplexität akzeptabel bleiben.
+
+WARUM UNITY AR FOUNDATION:
+[x] Gemeinsamer AR-Pfad für Android und iOS.
+[x] Charakteranimationen deutlich einfacher.
+[x] 3D-Assetpipeline besser geeignet.
+[x] Bewegungslogik, Animator Controller und spätere Navigation besser umsetzbar.
+[x] ARCore und ARKit werden über eine gemeinsame Schicht angesprochen.
+
+RISIKEN UNITY:
+[!] Größere App.
+[!] Komplexerer Build.
+[!] Unity-Version muss fixiert werden.
+[!] Integration mit bestehender Next/PWA-/Capacitor-Welt muss sauber geplant werden.
+
+ALTERNATIVE DIREKT ARCORE/ARKIT:
+[>] Schlanker pro Plattform.
+[>] Besser für einfache AR-Anker.
+[!] Doppelte Entwicklung Android/iOS.
+[!] Charakteranimation, Navigation und Assetpipeline aufwendiger.
+[!] Für den lebendigen Buddy langfristig weniger effizient.
+
+============================================================
+H2.6 STRATEGISCHE ENTSCHEIDUNG
+============================================================
+
+EMPFEHLUNG:
+[x] Unity AR Foundation wird als Hauptpfad für das echte Buddy-Erlebnis gewählt.
+[x] Direkte ARCore/ARKit-Implementierung bleibt Plan B.
+[x] Browser/WebGL bleibt nur Demo/Fallback.
+[x] Buddy-KI, Missionsempfehlungen, Rätselgenerierung und Reward-Bewertung bleiben außerhalb von Unity in WellFit-Backend/App-Logik.
+[x] Unity rendert und steuert die AR-Welt, aber finale Rewards, Mission Completion und Anti-Cheat bleiben serverseitig.
+
+============================================================
+H2.7 NÄCHSTE EMPFOHLENE ARBEIT
+============================================================
+
+[ ] Unity-Hauptpfad in J übernehmen.
+[ ] Unity-Version festlegen.
+[ ] native/unity/WellFitFlammiAR Projektstruktur anlegen.
+[ ] Minimalen Unity AR Foundation Prototyp planen:
+    - AR Session
+    - Plane Detection
+    - Raycast Tap
+    - Anchor
+    - Flammi Placeholder
+    - Idle Animation
+    - Look at Camera
+[ ] Bridge zwischen WellFit Mobile und Unity AR definieren.
+[ ] Buddy-KI-Guide Datenmodell entwerfen:
+    - aktuelle Mission
+    - nächste Empfehlung
+    - Dialogzustand
+    - Alter/Nutzerkontext
+    - Missionstyp
+    - Rewardstatus
+[ ] Rätselrallye-Datenmodell entwerfen.
