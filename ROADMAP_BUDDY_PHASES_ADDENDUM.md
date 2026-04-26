@@ -23,33 +23,17 @@ Keine endgültige clientseitige Autorität für Punkte, Rewards, Pflegezustand, 
 
 Alles wird wie beim Dashboard in kleine Dateien aufgeteilt.
 
-Geplante und teilweise umgesetzte Struktur für Phase 1:
+Umgesetzte Test-/Installationsstruktur:
 
 ```txt
-app/buddy/page.tsx
-app/buddy/types.ts
-app/buddy/hooks/useBuddyState.ts
-app/buddy/lib/buddyState.ts
-app/buddy/lib/buddyEconomy.ts
-app/buddy/lib/buddyCopy.ts
-app/buddy/lib/buddyCare.ts
-app/buddy/lib/buddyRecovery.ts
-app/buddy/lib/buddyInventoryPreview.ts
-app/buddy/components/BuddyPageHeader.tsx
-app/buddy/components/BuddyMainGrid.tsx
-app/buddy/components/BuddyHero.tsx
-app/buddy/components/BuddyStats.tsx
-app/buddy/components/BuddyActions.tsx
-app/buddy/components/BuddyCarePanel.tsx
-app/buddy/components/BuddyEvolution.tsx
-app/buddy/components/BuddyStoryBox.tsx
-app/buddy/components/BuddyHomePanel.tsx
-app/buddy/components/BuddyRecoveryPanel.tsx
-app/buddy/components/BuddyInventoryPreview.tsx
-app/buddy/components/BuddyFutureModules.tsx
-app/missionen/lib/missionBuddyBridge.ts
-firestore.rules
-firebase.json
+app/components/AppInstallPrompt.tsx
+app/mobile/page.tsx
+app/mobile/analyse/page.tsx
+app/mobile/bewegung/page.tsx
+app/mobile/bewegung/hooks/useMotionActivity.ts
+app/mobile/bewegung/components/MotionActivityPanel.tsx
+lib/mobileMotion/motionTypes.ts
+lib/mobileMotion/motionClassifier.ts
 ```
 
 Umgesetzte Struktur für Phase 2:
@@ -73,321 +57,124 @@ lib/vision/moodSignalEngine.ts
 lib/vision/buddyCoachFeedback.ts
 ```
 
-Geplante nächste Struktur für Phase 2:
+---
+
+# BUILD- UND DEPLOYMENT-STATUS
+
+## Task-ID: WF-BUILD-VERIFY-001
+Status: [x] Build erfolgreich am Server ausgeführt
+
+Server-Ergebnis vom letzten Testlauf:
 
 ```txt
-lib/vision/poseMissionCompletion.ts
-lib/vision/visionWorker.ts
-app/mobile/analyse/components/FaceSignalPanel.tsx
+git fetch origin
+git reset --hard origin/main
+npm install
+NODE_OPTIONS="--max-old-space-size=768" npm run build
+pm2 restart wellfit-now --update-env
 ```
 
-Geplante Struktur für Phase 3:
+Ergebnis:
+[x] Next.js Build erfolgreich.
+[x] TypeScript erfolgreich.
+[x] 23/23 statische Seiten generiert.
+[x] PM2 restart erfolgreich.
+[x] wellfit-now online.
+[!] npm audit meldet 2 moderate vulnerabilities.
+[ ] npm audit prüfen und gezielt bewerten, nicht blind npm audit fix --force ausführen.
 
-```txt
-app/buddy/ar/page.tsx
-app/buddy/ar/components/ARPermissionPanel.tsx
-app/buddy/ar/components/ARScene.tsx
-app/buddy/ar/components/ARBuddyStatus.tsx
-app/buddy/ar/components/ARSearchPanel.tsx
-lib/ar/arSession.ts
-lib/ar/buddyPlacement.ts
-lib/ar/buddyMovement.ts
-lib/ar/arAnchors.ts
-lib/ar/arTypes.ts
-```
+---
+
+# TESTINSTALLATION / APP AUFS HANDY LADEN
+
+## Task-ID: WF-MOBILE-INSTALL-QR-001
+Status: [x] Testflow umgesetzt / Produkt-QR später intern ersetzen
+Ziel: Über den Button „App aufs Handy laden“ soll ein QR-Code geöffnet werden, den das Handy scannt. Danach öffnet sich die WellFit-Mobile-Testoberfläche.
+
+Umsetzung:
+[x] Sidebar-Button klickbar gemacht.
+[x] AppInstallPrompt-Komponente gebaut.
+[x] QR-Dialog öffnet sich über Sidebar.
+[x] QR zeigt auf /mobile der aktuellen Domain.
+[x] Link kann kopiert werden.
+[x] PWA-beforeinstallprompt wird abgefangen, sofern Browser es unterstützt.
+[x] Hinweis für „Zum Home-Bildschirm hinzufügen“ vorbereitet.
+[!] QR-Code nutzt vorerst externen QR-Bilddienst für schnellen Test.
+[ ] Für Produktion eigenen QR-Code-Generator oder statischen QR ohne Drittanbieter verwenden.
+[ ] PWA manifest und Icons final ergänzen.
+[ ] Service Worker / Offline-Verhalten später prüfen.
+
+---
+
+# MOBILE BEWEGUNG / SCHRITTZÄHLER / AKTIVITÄTSERKENNUNG
+
+## Task-ID: WF-MOBILE-MOTION-001
+Status: [~] Browser-Prototyp umgesetzt / native App-Sensorik später erforderlich
+Ziel: Handy soll Bewegung analysieren und grob unterscheiden: Stillstand, Gehen, Joggen/Laufen, Auto/Fahrzeug, Motorrad/Roller.
+
+Umsetzung:
+[x] /mobile/bewegung angelegt.
+[x] DeviceMotion-Permission vorbereitet.
+[x] iOS-requestPermission berücksichtigt.
+[x] Start/Stop/Reset eingebaut.
+[x] Beschleunigungsmagnitude aus DeviceMotion berechnet.
+[x] Rotationsmagnitude aus DeviceMotion berechnet.
+[x] Einfache Schrittzählung über Beschleunigungspeaks eingebaut.
+[x] Cadence Schritte/min berechnet.
+[x] Grobe Aktivitätsklassifikation eingebaut: still, walking, running, vehicle, motorbike, unknown.
+[x] Mobile-Home-Schnellstart „Bewegung testen“ ergänzt.
+
+Wichtige Grenze:
+[!] Browser-Sensoren sind nur ein Test-Prototyp.
+[!] Auto/Motorrad-Klassifikation ist nur grob und nicht als sichere Autorität nutzbar.
+[!] Für App-Store-Version native APIs einplanen:
+    - iOS: Core Motion / CMPedometer / CMMotionActivity
+    - Android: Activity Recognition / SensorManager / Health Connect je nach Zweck
+[!] Für Rewards, Missionen und Anti-Cheat darf langfristig nicht allein der Client entscheiden.
+
+Nächste Schritte:
+[ ] Gerätetest Android Browser / PWA.
+[ ] Gerätetest iPhone Safari / PWA.
+[ ] Prüfen, ob DeviceMotion nur unter HTTPS funktioniert.
+[ ] Schrittzählung gegen echte Gehstrecke vergleichen.
+[ ] Fahrzeug-/Motorrad-Erkennung nicht für Rewards verwenden, nur als Plausibilitätssignal.
 
 ---
 
 # VERBINDLICHE IDEALE PIPELINE – BUDDY VISION / ÜBUNGSQUALITÄT / STIMMUNG
 
-Diese Pipeline ist ab jetzt die verbindliche technische und produktlogische Reihenfolge für Phase 2 und alle späteren AR-/Mission-Verbindungen.
-
 ## Task-ID: WF-BUDDY-VISION-PIPELINE-001
-Status: [x] Technisch in Basis umgesetzt / Gerätetest und Build offen
-Ziel: Der Avatar soll erkennen, ob der Nutzer Übungen sauber und ordentlich macht, wie die Übungsqualität ist und welche groben Stimmungssignale sichtbar sind, ohne medizinische Diagnosen zu erzeugen.
+Status: [x] Technisch in Basis umgesetzt / Gerätetest und weiterer Build offen
 
-## Idealer Ablauf
-
-```txt
-Handykamera startet nach Zustimmung
-↓
-MediaPipe Pose Landmarker erkennt Körperpunkte
-↓
-MediaPipe Face Landmarker erkennt Gesichtssignale
-↓
-WellFit berechnet:
-- Gelenkwinkel
-- Bewegungstiefe
-- Bewegungsumfang
-- Tempo
-- Stabilität
-- Wiederholungsphasen
-- grobe Stimmungssignale
-↓
-Exercise Counter entscheidet:
-- gültige Wiederholung
-- ungültige Wiederholung
-- Qualitätsscore
-- Feedback
-↓
-Buddy Coach erzeugt Feedback:
-- sauber
-- langsamer
-- tiefer
-- stabiler Rücken
-- kurze Pause
-- motivierender Kommentar
-↓
-trackingSessions speichert:
-- exercise
-- validReps
-- invalidReps
-- confidence
-- qualityScore
-- moodSignal
-- duration
-- source: pose
-↓
-Mission wird abgeschlossen oder fortgesetzt
-↓
-Mission-Buddy-Bridge vergibt Punkte und Buddy-Effekt
-↓
-Flammi reagiert sichtbar:
-- Lob
-- Sorge
-- Motivation
-- Bindung steigt
-- Energie/Hunger/Stimmung verändern sich
-```
-
-## Technische Entscheidung
-
-[x] Primärtechnologie für Körperanalyse: MediaPipe Pose Landmarker.
-[x] Primärtechnologie für Gesichtssignale: MediaPipe Face Landmarker.
-[x] Dependency @mediapipe/tasks-vision in package.json ergänzt.
-[>] TensorFlow.js / MoveNet bleibt Plan B, falls MediaPipe auf Zielgeräten unzureichend läuft.
-
-## Warum MediaPipe zuerst
-
-[x] Gut geeignet für Echtzeit-Kamera und Landmark-Erkennung.
-[x] Passend für Web/PWA-nahe Tests.
-[x] Pose und Face können mit einer gemeinsamen Vision-Architektur vorbereitet werden.
-[x] Erlaubt Gelenkwinkel-, Wiederholungs- und Haltungsauswertung.
-
-## Grenzen bei Stimmungserkennung
-
-Erlaubt:
-[x] Gesicht sichtbar / nicht sichtbar.
-[x] Blickrichtung grob.
-[x] Konzentration grob.
-[x] Anstrengung grob.
-[x] Unruhe / Unsicherheit als vorsichtiges Signal.
-[x] Buddy darf empathisch reagieren: „Mach kurz langsamer“, „Atme durch“, „Du wirkst konzentriert“.
-
-Nicht erlaubt:
-[!] Keine medizinische Diagnose.
-[!] Keine psychologische Diagnose.
-[!] Keine Aussagen wie depressiv, krank, Angststörung, Panik, Trauma.
-[!] Keine Speicherung von Rohbildern oder Videos als Standard.
-[!] Keine Face-/Mood-Analyse ohne explizite Zustimmung.
-
-## Umsetzungsschritte nach Pipeline
-
-[x] WF-BUDDY-POSE-001 – MediaPipe Pose Landmarker Dependency prüfen und anbinden.
-[x] WF-BUDDY-POSE-002 – poseTracker.ts erstellen und Körperlandmarks aus Video lesen.
-[x] WF-BUDDY-POSE-003 – SkeletonOverlay bauen: erkannte Körperpunkte visuell anzeigen.
-[x] WF-BUDDY-EXERCISE-001 – exerciseRules.ts bauen: Kniebeuge als erste Übung.
-[x] WF-BUDDY-EXERCISE-002 – Gelenkwinkel für Kniebeuge berechnen: Hüfte/Knie/Fuß.
-[x] WF-BUDDY-EXERCISE-003 – Wiederholungsphasen erkennen: oben -> runter -> tief genug -> hoch.
-[x] WF-BUDDY-EXERCISE-004 – validReps und invalidReps zählen.
-[x] WF-BUDDY-EXERCISE-005 – qualityScore berechnen.
-[x] WF-BUDDY-FACE-001 – MediaPipe Face Landmarker anbinden.
-[x] WF-BUDDY-FACE-002 – faceTracker.ts erstellen: Gesicht sichtbar, grobe Mimiksignale.
-[x] WF-BUDDY-MOOD-001 – moodSignalEngine.ts bauen: unknown, focused, motivated, strained, uneasy, tired, calm.
-[x] WF-BUDDY-COACH-001 – buddyCoachFeedback.ts bauen: Buddy-Kommentare aus Übungsqualität + MoodSignal.
-[x] WF-BUDDY-TRACKING-001 – TrackingSession mit validReps, invalidReps, qualityScore, moodSignal speichern.
-[ ] WF-BUDDY-MISSION-001 – Pose-basierte Mission Completion mit Mission-Buddy-Bridge verbinden.
-[ ] WF-BUDDY-WORKER-001 – MediaPipe Inference später in Web Worker verschieben, falls Performance auf Handy ruckelt.
-
----
-
-# PHASE 1 – Mein KI-Buddy MVP / Produktkern
-
-## Task-ID: WF-BUDDY-P1-001
-Status: [x] Funktional umgesetzt / Build und manuelle Mobile-QA extern prüfen
-Ziel: Mein KI-Buddy-Seite als eigenständige, hochwertige Produktseite bauen.
-
-## Umsetzung
-
-[x] Route angelegt: app/buddy/page.tsx.
-[x] Sidebar-Link zu Mein KI-Buddy ergänzt.
-[x] Layout an Dashboard-Stil angepasst: Sidebar, Farbwelt, Premium-Optik.
-[x] Buddy-Hero gebaut: Name, Avatar, Level, Titel, Status, Stimmung.
-[x] Buddy-Werte anzeigen: XP, Energie, Hunger, Stimmung, Sauberkeit, Bindung, Loyalität, Neugier.
-[x] Buddy-Aktionen gebaut: Füttern, Pflegen, Spielen, Aufräumen, Rufen, Suchen.
-[x] Buddy-Aktionslogik in useBuddyState ausgelagert.
-[x] Firestore-Speicherung für Buddy-Aktionen vorbereitet.
-[x] Buddy-Storybox gebaut: Tagesmodus, emotionale Beschreibung, kleine Ereignisse.
-[x] Buddy-Evolution gebaut: Entwicklungspfad, nächste Stufe, Spezialfähigkeiten später.
-[x] Buddy-Heimat vorbereitet: Drachenhorst.
-[x] Weglauf-/Rückholmechanik visuell vorbereitet.
-[x] Punkte-Ausgaben vorbereitet: Futter, Pflege, Spielzeug, Reinigungsset, Rückhol-Köder.
-[x] Inventory-/Shop-Vorschau vorbereitet.
-[x] Keine echte Token-/Krypto-Funktion eingebaut.
-[x] Clientseitige Economy-Schreibpfade sind Produktbestandteil, müssen aber weiter gehärtet und perspektivisch servervalidiert werden.
-[x] Mobile-Minimalstruktur vorbereitet: app/mobile.
-[x] Firestore Rules für users, Buddy-Felder, missionBuddyEvents und trackingSessions als erste produktnahe Rules-Datei angelegt.
-[x] firebase.json mit firestore.rules verknüpft.
-[ ] Mobile-Ansicht manuell auf echten Geräten prüfen.
-[ ] Build auf Server/GitHub Action prüfen.
-[ ] Firestore Rules im Firebase Emulator oder Projekt testen/deployen.
-
----
-
-# PHASE 1.1 – Missionen mit KI-Buddy verbinden
-
-## Task-ID: WF-BUDDY-MISSION-LINK-001
-Status: [x] Produktverbindung umgesetzt / nächster Schritt serverseitige Validierung
-Ziel: Tagesmissionen und Mein KI-Buddy dürfen nicht getrennte Systeme bleiben. Mission Completion löst Punkte, Buddy-Reaktion und Event-Log aus.
-
-## Umsetzung
-
-[x] Mission-Buddy-Bridge angelegt: app/missionen/lib/missionBuddyBridge.ts.
-[x] Bridge nutzt Firestore Transaction auf users/{userId}.
-[x] Bridge prüft missionBuddyEvents vor Anwendung und verhindert doppelte Punkte-/Buddy-Effekte pro Nutzer, Tag und Mission.
-[x] Mission Reward erhöht users.points.
-[x] Buddy-Werte reagieren je nach Missionstyp: Energie, Hunger, Stimmung, Sauberkeit, Bindung, Loyalität, Neugier.
-[x] Buddy status und dailyMode werden nach Effekt neu berechnet.
-[x] Event-Log wird in missionBuddyEvents geschrieben.
-[x] Tagesmission-Abschluss ruft applyMissionBuddyBridge auf.
-[x] UI-Meldung zeigt, ob Effekt neu angewendet oder bereits angewendet wurde.
-
-## Sicherheit
-
-[!] Mission-Buddy-Bridge ist produktrelevante Logik, kein Wegwerf-MVP.
-[x] Doppelte Reward-/Buddy-Anwendung wird über missionBuddyEvents in einer Firestore Transaction verhindert.
-[x] Erste Firestore Rules für users, userDailyMissionState, userDailyStreaks, userLevels, missionBuddyEvents und trackingSessions angelegt.
-[ ] Nächster Sicherheitsausbau: Cloud Function / Backend als Autorität für Mission Completion, Reward, Punkte, XP, Buddy-Effekt und Anti-Cheat.
-[ ] Client darf langfristig nur Completion-/Tracking-Events senden.
-[ ] missionBuddyEvents für Audit, Debugging, Anti-Cheat und Analytics nutzen.
-
-## Mobile-Entscheidung
-
-[x] Handy-App wird bewusst schlank gehalten.
-[x] Handy-App Fokus: Missionen spielen, Buddy sehen/füttern, Nutzer analysieren, AR starten, wenige Einstellungen.
-[x] PC-Web-Dashboard bleibt Steuerzentrale für Marktplatz, Leaderboard, Punkte-Shop, Analytics, Web3/Token später.
-
----
-
-# PHASE 2 – Skeleton Tracking, Face Tracking, Übungszählung
-
-## Task-ID: WF-BUDDY-P2-VISION-001
-Status: [x] Basis implementiert / Build und Gerätetest offen
-Ziel: Der Buddy kann den Nutzer über die Kamera analysieren, Übungen mitzählen und Feedback geben.
-
-## Umsetzung
-
-[x] Mobile-Analyse-Route angelegt: app/mobile/analyse/page.tsx.
-[x] Kamera-Modul mit expliziter Zustimmung gebaut.
-[x] Kamera startet nicht automatisch.
-[x] Kamera-Preview mit getUserMedia vorbereitet.
-[x] Kamera-Stop und Cleanup beim Verlassen umgesetzt.
-[x] Vision-Typen ausgelagert: lib/vision/visionTypes.ts.
-[x] Capability-Liste ausgelagert: lib/vision/visionCapabilities.ts.
-[x] Ideale Pipeline als verbindliche Reihenfolge dokumentiert.
 [x] MediaPipe Pose Landmarker angebunden.
 [x] MediaPipe Face Landmarker angebunden.
-[x] Skeleton Tracking angebunden.
-[x] Skeleton Overlay gebaut.
 [x] Kniebeuge als erste Übung umgesetzt.
-[x] Gültige und ungültige Wiederholungen unterscheiden.
-[x] qualityScore berechnen.
-[x] moodSignal vorsichtig berechnen.
-[x] Buddy-Coach-Feedback dynamisch anzeigen.
-[x] Tracking-Ergebnis in trackingSessions speichern.
-[x] Keine Bilder/Videos standardmäßig speichern.
-[x] Keine medizinischen Diagnosen anzeigen.
-
-## Tracking-Funktionen
-
-[x] Körperpunkte erkennen: Kopf, Schultern, Ellbogen, Hände, Hüfte, Knie, Füße.
-[x] Gelenkwinkel berechnen.
-[x] Wiederholungen zählen.
-[x] Saubere Bewegung validieren.
-[x] Schlechte Wiederholungen nicht zählen.
-[x] Face Tracking für grobe Mimiksignale vorbereitet.
-[x] MoodSignal vorsichtig berechnen: focused, motivated, strained, uneasy, tired, calm, unknown.
-[x] Feedback neutral und motivierend formulieren.
-
-## Akzeptanzkriterien
-
-[x] Kamera-Start funktioniert technisch über Browser-API, muss auf echten Geräten getestet werden.
-[x] Analyse-Seite ist über /mobile/analyse erreichbar.
-[x] Datenschutz- und Consent-Text ist vorbereitet.
-[x] Ideale Pipeline ist in der Roadmap festgelegt.
-[x] Skeleton kann über Overlay angezeigt werden.
-[x] Gesichtssignale können über Face Landmarker verarbeitet werden.
-[x] Mindestens eine Übung wird gezählt: Kniebeuge.
-[x] Buddy gibt Feedback.
-[x] TrackingSession kann gespeichert werden.
-[ ] Build-Test ausführen.
-[ ] Gerätetest auf Android/iPhone durchführen.
-[ ] Mission-Buddy-Bridge wird bei pose-validierter Completion ausgelöst.
-
-## Sicherheit / Datenschutz
-
-[!] Rohbilder und Videos werden nicht standardmäßig gespeichert.
-[!] Kamera, Mimik, Face Tracking, Pose Tracking und Health-Daten benötigen Zustimmung.
-[!] Kinder-/Familienmodus später gesondert absichern.
-[!] Keine medizinische Diagnose oder psychologische Bewertung.
-
----
-
-# PHASE 3 – AR-Buddy im realen Raum
-
-## Task-ID: WF-BUDDY-P3-AR-001
-Status: [ ] Offen / Später nach Phase 2-Basis
-Ziel: Nutzer sieht den Buddy durch die Handykamera im echten Raum herumlaufen.
-
-## Umsetzung
-
-[ ] AR-Technikentscheidung treffen: WebAR-Prototyp vs. native App / Unity / ARKit / ARCore.
-[ ] AR-Kamera nur nach Zustimmung starten.
-[ ] Boden-/Flächenerkennung vorbereiten.
-[ ] Buddy als 3D-Objekt vorbereiten.
-[ ] Buddy auf realer Fläche platzieren.
-[ ] Buddy im Raum laufen lassen.
-[ ] Tap-/Interaktion vorbereiten.
-[ ] Buddy kann sich verstecken oder Spuren hinterlassen.
-[ ] Weglauf-/Rückholmechanik mit AR verbinden.
-[ ] Training mit Buddy später mit Skeleton Tracking verbinden.
+[x] Skeleton Overlay gebaut.
+[x] validReps / invalidReps / qualityScore / moodSignal eingebaut.
+[x] trackingSessions speichern Pose-Ergebnisse.
+[ ] Pose-validierte Mission Completion mit Mission-Buddy-Bridge verbinden.
+[ ] Gerätetest Android/iPhone durchführen.
+[ ] Web Worker prüfen, falls MediaPipe auf Handy ruckelt.
 
 ---
 
 # Neue Roadmap-Reihenfolge
 
 PRIO 1:
-[x] WF-BUDDY-MISSION-LINK-001 – Mission-Buddy-Bridge als Produktverbindung umgesetzt.
-[x] WF-BUDDY-P1-001 – Mein KI-Buddy MVP funktional umgesetzt.
-[x] WF-BUDDY-VISION-PIPELINE-001 – Ideale Vision-Pipeline technisch in Basis umgesetzt.
-[x] WF-BUDDY-P2-VISION-001 – Pose/Face/Rep-Counting Basis implementiert.
-[ ] Mobile-Layout / Build prüfen.
-[ ] Firestore Rules deployen/testen.
+[x] WF-BUILD-VERIFY-001 – Build vor QR-/Motion-Erweiterung erfolgreich.
+[x] WF-MOBILE-INSTALL-QR-001 – QR-Testflow umgesetzt.
+[~] WF-MOBILE-MOTION-001 – Browser-Bewegungstest umgesetzt, Gerätetest offen.
+[x] WF-BUDDY-VISION-PIPELINE-001 – Vision-Pipeline technisch in Basis umgesetzt.
+[ ] Build nach QR-/Motion-Erweiterung prüfen.
+[ ] Gerätetests Android/iPhone: QR, Mobile, Kamera, Pose, Face, Bewegung.
 
 PRIO 2:
 [ ] Pose-validierte Mission Completion mit Mission-Buddy-Bridge verbinden.
-[ ] Gerätetests Android/iPhone: Kamera, Pose, Face, Performance.
-[ ] Web Worker prüfen, falls MediaPipe auf Handy ruckelt.
+[ ] PWA manifest / Icons / Installierbarkeit finalisieren.
+[ ] Native Sensorstrategie für spätere App-Store-Version dokumentieren.
 
 PRIO 3:
 [ ] WF-BUDDY-P3-AR-001 – AR-Buddy im realen Raum vorbereiten.
-
-Danach:
-[ ] Marktplatz MVP.
-[ ] Leaderboard MVP.
-[ ] Punkte-Shop MVP.
-[ ] Analytics & Stats MVP.
-[>] Missionen erst danach weiter inhaltlich ausbauen.
 
 # Hinweis zur To Do List.txt
 
