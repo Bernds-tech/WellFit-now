@@ -154,6 +154,7 @@ export default function MobileSquatMissionPage() {
         countdown={countdown}
         isRunning={isRunning}
         isCompleted={isCompleted}
+        isSavingMission={isSavingMission}
         counter={counter}
         targetReps={TARGET_REPS}
         onStart={startMission}
