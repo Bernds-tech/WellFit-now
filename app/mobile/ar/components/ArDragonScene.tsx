@@ -5,18 +5,28 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { ArBuddyMood, ArBuddyPosition } from "./ArBuddyOverlay";
 
+export type ArScreenAnchor = {
+  x: number;
+  y: number;
+};
+
 type ArDragonSceneProps = {
   isCameraActive: boolean;
   mood: ArBuddyMood;
   position: ArBuddyPosition;
   actionCount: number;
+  anchor: ArScreenAnchor | null;
+  autoWalkEnabled: boolean;
   onDragonTap: () => void;
+  onSceneTap: (anchor: ArScreenAnchor) => void;
 };
 
 type DragonModelProps = {
   mood: ArBuddyMood;
   position: ArBuddyPosition;
   actionCount: number;
+  anchor: ArScreenAnchor | null;
+  autoWalkEnabled: boolean;
   onDragonTap: () => void;
 };
 
@@ -28,6 +38,13 @@ const dragonPositions: Record<ArBuddyPosition, [number, number, number]> = {
   farLeft: [-1.15, -0.3, -0.65],
 };
 
+function anchorToWorld(anchor: ArScreenAnchor): [number, number, number] {
+  const worldX = (anchor.x - 0.5) * 2.7;
+  const worldY = (0.5 - anchor.y) * 1.9 - 0.18;
+  const worldZ = anchor.y > 0.62 ? 0.28 : anchor.y > 0.48 ? -0.2 : -0.66;
+  return [worldX, worldY, worldZ];
+}
+
 function getMoodScale(mood: ArBuddyMood) {
   if (mood === "playful") return 1.08;
   if (mood === "happy") return 1.12;
@@ -35,13 +52,14 @@ function getMoodScale(mood: ArBuddyMood) {
   return 1;
 }
 
-function DragonModel({ mood, position, actionCount, onDragonTap }: DragonModelProps) {
+function DragonModel({ mood, position, actionCount, anchor, autoWalkEnabled, onDragonTap }: DragonModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const leftWingRef = useRef<THREE.Mesh>(null);
   const rightWingRef = useRef<THREE.Mesh>(null);
   const tailRef = useRef<THREE.Mesh>(null);
   const headRef = useRef<THREE.Mesh>(null);
-  const targetPosition = dragonPositions[position];
+  const anchorBase = anchor ? anchorToWorld(anchor) : null;
+  const fallbackPosition = dragonPositions[position];
 
   const bodyColor = useMemo(() => {
     if (mood === "happy") return "#ffb347";
@@ -56,11 +74,18 @@ function DragonModel({ mood, position, actionCount, onDragonTap }: DragonModelPr
     const group = groupRef.current;
 
     if (group) {
+      const orbitX = anchorBase && autoWalkEnabled ? Math.sin(time * 1.35 + actionCount) * 0.34 : 0;
+      const orbitZ = anchorBase && autoWalkEnabled ? Math.cos(time * 1.35 + actionCount) * 0.18 : 0;
+      const targetPosition: [number, number, number] = anchorBase
+        ? [anchorBase[0] + orbitX, anchorBase[1], anchorBase[2] + orbitZ]
+        : fallbackPosition;
+
       group.position.lerp(new THREE.Vector3(...targetPosition), 0.08);
-      group.rotation.y = Math.sin(time * 0.9 + actionCount) * 0.22;
+      group.rotation.y = anchorBase && autoWalkEnabled ? Math.sin(time * 1.35 + actionCount) * 0.8 : Math.sin(time * 0.9 + actionCount) * 0.22;
       group.rotation.z = Math.sin(time * 1.7) * 0.035;
       group.position.y = targetPosition[1] + Math.sin(time * (mood === "playful" ? 4.2 : 2.2)) * (mood === "playful" ? 0.11 : 0.045);
-      const scale = getMoodScale(mood) * (position.includes("far") ? 0.76 : 1);
+      const isFar = anchorBase ? targetPosition[2] < -0.45 : position.includes("far");
+      const scale = getMoodScale(mood) * (isFar ? 0.76 : 1);
       group.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.12);
     }
 
@@ -84,7 +109,7 @@ function DragonModel({ mood, position, actionCount, onDragonTap }: DragonModelPr
   });
 
   return (
-    <group ref={groupRef} position={targetPosition} onClick={onDragonTap}>
+    <group ref={groupRef} position={anchorBase || fallbackPosition} onClick={(event) => { event.stopPropagation(); onDragonTap(); }}>
       <mesh position={[0, -0.42, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <circleGeometry args={[0.72, 48]} />
         <meshBasicMaterial color="#000000" transparent opacity={0.26} />
@@ -151,7 +176,7 @@ function DragonModel({ mood, position, actionCount, onDragonTap }: DragonModelPr
   );
 }
 
-export default function ArDragonScene({ isCameraActive, mood, position, actionCount, onDragonTap }: ArDragonSceneProps) {
+export default function ArDragonScene({ isCameraActive, mood, position, actionCount, anchor, autoWalkEnabled, onDragonTap, onSceneTap }: ArDragonSceneProps) {
   if (!isCameraActive) {
     return null;
   }
@@ -163,11 +188,18 @@ export default function ArDragonScene({ isCameraActive, mood, position, actionCo
         camera={{ position: [0, 0.65, 3.4], fov: 46 }}
         gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
         dpr={[1, 1.5]}
+        onPointerDown={(event) => onSceneTap({ x: event.pointer.x * 0.5 + 0.5, y: -event.pointer.y * 0.5 + 0.5 })}
       >
         <ambientLight intensity={1.1} />
         <directionalLight position={[2.8, 4, 3]} intensity={2.1} castShadow />
         <pointLight position={[-1.8, 1.6, 2.2]} intensity={0.8} color="#67e8f9" />
-        <DragonModel mood={mood} position={position} actionCount={actionCount} onDragonTap={onDragonTap} />
+        {anchor ? (
+          <mesh position={anchorToWorld(anchor)} rotation={[-Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.46, 0.51, 64]} />
+            <meshBasicMaterial color="#67e8f9" transparent opacity={0.68} />
+          </mesh>
+        ) : null}
+        <DragonModel mood={mood} position={position} actionCount={actionCount} anchor={anchor} autoWalkEnabled={autoWalkEnabled} onDragonTap={onDragonTap} />
       </Canvas>
     </div>
   );
