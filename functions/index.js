@@ -35,9 +35,9 @@ function toErrorMessage(error) {
   return String(error);
 }
 
-async function createRejectedScanEvent({ userId, publicCode, missionId, reason }) {
+async function createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason }) {
   const ref = db.collection("nfcScanEvents").doc();
-  await ref.set({
+  const event = {
     scanEventId: ref.id,
     publicCode: publicCode || "",
     userId,
@@ -47,7 +47,13 @@ async function createRejectedScanEvent({ userId, publicCode, missionId, reason }
     rejectionReason: reason,
     createdAt: now(),
     validatedAt: now(),
-  });
+  };
+
+  if (tagId) {
+    event.tagId = tagId;
+  }
+
+  await ref.set(event);
   return ref.id;
 }
 
@@ -73,23 +79,37 @@ exports.validateNfcScan = onCall(async (request) => {
   const tagId = tagDoc.id;
 
   if (tag.status !== "active") {
-    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, reason: "tag-not-active" });
-    return { accepted: false, scanEventId, tagId, message: "NFC-Tag ist nicht aktiv.", rejectionReason: "tag-not-active" };
+    const reason = tag.status === "revoked" ? "tag-revoked" : "tag-not-active";
+    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason });
+    return { accepted: false, scanEventId, tagId, message: "NFC-Tag ist nicht aktiv.", rejectionReason: reason };
   }
 
   if (tag.usageLimit && Number(tag.usageCount || 0) >= Number(tag.usageLimit)) {
-    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, reason: "usage-limit-reached" });
+    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason: "usage-limit-reached" });
     return { accepted: false, scanEventId, tagId, message: "NFC-Tag wurde bereits zu oft genutzt.", rejectionReason: "usage-limit-reached" };
   }
 
   if (tag.linkedMissionId && missionId && tag.linkedMissionId !== missionId) {
-    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, reason: "mission-mismatch" });
+    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason: "mission-mismatch" });
     return { accepted: false, scanEventId, tagId, message: "NFC-Tag passt nicht zu dieser Mission.", rejectionReason: "mission-mismatch" };
   }
 
   if (Array.isArray(tag.allowedUserIds) && tag.allowedUserIds.length > 0 && !tag.allowedUserIds.includes(userId)) {
-    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, reason: "user-not-allowed" });
+    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason: "user-not-allowed" });
     return { accepted: false, scanEventId, tagId, message: "NFC-Tag ist nicht fuer diesen Nutzer freigegeben.", rejectionReason: "user-not-allowed" };
+  }
+
+  const duplicateSnapshot = await db.collection("nfcScanEvents")
+    .where("tagId", "==", tagId)
+    .where("userId", "==", userId)
+    .where("missionId", "==", missionId)
+    .where("status", "==", "validated")
+    .limit(1)
+    .get();
+
+  if (!duplicateSnapshot.empty) {
+    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason: "duplicate-scan" });
+    return { accepted: false, scanEventId, tagId, message: "NFC-Tag wurde fuer diese Mission bereits genutzt.", rejectionReason: "duplicate-scan" };
   }
 
   const scanRef = db.collection("nfcScanEvents").doc();
