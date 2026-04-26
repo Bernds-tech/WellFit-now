@@ -3,6 +3,7 @@ const admin = require("firebase-admin");
 const { FieldValue } = require("firebase-admin/firestore");
 const { seedDemoItemsAndNfc: runDemoItemsAndNfcSeed } = require("./seed/demoItemsAndNfc");
 const { evaluateMissionContext: calculateMissionContext } = require("./lib/missionContext");
+const { calculateMissionRewardPreview } = require("./lib/missionRewardPolicy");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -507,6 +508,62 @@ exports.evaluateMissionCompletion = onCall(async (request) => {
     rewardAuthorized: false,
     missionCompletionAuthorized: false,
     rejectionReason: evidenceCount > 0 ? "manual-review-required" : "insufficient-evidence",
+  };
+});
+
+exports.missionRewardPreview = onCall(async (request) => {
+  const userId = requireAuth(request);
+  const data = request.data || {};
+  const missionId = requiredString(data.missionId, "missionId");
+  const previewRef = db.collection("missionRewardPreviews").doc();
+
+  const contextEvaluation = await readOwnedMissionDoc({
+    collectionName: "missionContextEvaluations",
+    docId: data.contextEvaluationId,
+    userId,
+    missionId,
+    label: "Mission-Context-Evaluation",
+  });
+
+  const completionEvaluation = await readOwnedMissionDoc({
+    collectionName: "missionCompletionEvaluations",
+    docId: data.completionEvaluationId,
+    userId,
+    missionId,
+    label: "Mission-Completion-Evaluation",
+  });
+
+  const preview = calculateMissionRewardPreview({
+    missionId,
+    missionType: data.missionType,
+    ageBand: data.ageBand || (contextEvaluation && contextEvaluation.data.ageBand),
+    requestedBaseReward: data.requestedBaseReward,
+    contextEvaluation: contextEvaluation ? contextEvaluation.data : {},
+    completionEvaluation: completionEvaluation ? completionEvaluation.data : {},
+  });
+
+  await previewRef.set({
+    previewId: previewRef.id,
+    userId,
+    missionId,
+    contextEvaluationId: contextEvaluation ? contextEvaluation.id : null,
+    completionEvaluationId: completionEvaluation ? completionEvaluation.id : null,
+    ...preview,
+    serverValidationStatus: "preview-created",
+    createdAt: now(),
+    updatedAt: now(),
+    ...minimalClientContext(data),
+  });
+
+  return {
+    accepted: false,
+    previewId: previewRef.id,
+    ...preview,
+    rewardAuthorized: false,
+    xpAuthorized: false,
+    pointsAuthorized: false,
+    tokenAuthorized: false,
+    missionCompletionAuthorized: false,
   };
 });
 
