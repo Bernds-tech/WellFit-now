@@ -6,32 +6,60 @@ Vor jedem Deployment muessen NFC-, Item- und Capability-Flows im Firebase Emulat
 
 Produktionsdeployment ist blockiert, bis diese Tests erfolgreich sind.
 
+## Wichtige Voraussetzungen
+
+Der Firebase Firestore Emulator benoetigt Java.
+
+Auf Ubuntu Server installieren:
+
+```bash
+sudo apt update
+sudo apt install -y openjdk-17-jre-headless
+java -version
+```
+
+Wichtig:
+
+- `npm run emulators` wird im Repo-Root ausgefuehrt: `/var/www/WellFit-now`.
+- `npm run check` und `npm run smoke:nfc` werden im Functions-Ordner ausgefuehrt: `/var/www/WellFit-now/functions`.
+- `npm run smoke:nfc` funktioniert erst, wenn der Firestore Emulator auf `127.0.0.1:8080` laeuft.
+
 ## Vorbereitung
 
 Im Repo-Root:
 
 ```bash
+cd /var/www/WellFit-now
 npm install --no-audit --no-fund
 ```
 
 Im Functions-Ordner:
 
 ```bash
-cd functions
+cd /var/www/WellFit-now/functions
 npm install --no-audit --no-fund
 npm run check
 ```
 
-Emulator starten:
+## Emulator starten
+
+Terminal 1 offen lassen:
 
 ```bash
 cd /var/www/WellFit-now
-npx firebase emulators:start --only auth,firestore,functions
+npm run emulators
+```
+
+Alternative nur Firestore:
+
+```bash
+cd /var/www/WellFit-now
+npm run emulators:firestore
 ```
 
 ## Smoke-Test fuer NFC / Item / Capability
 
-Dieses Skript prueft die Kernkette im Firestore Emulator:
+Terminal 2:
 
 ```bash
 cd /var/www/WellFit-now/functions
@@ -66,7 +94,7 @@ Muss Custom Claim besitzen:
 }
 ```
 
-Nur Admin darf `seedDemoItemsAndNfc` ausführen.
+Nur Admin darf `seedDemoItemsAndNfc` ausfuehren.
 
 ### Normaler Nutzer
 
