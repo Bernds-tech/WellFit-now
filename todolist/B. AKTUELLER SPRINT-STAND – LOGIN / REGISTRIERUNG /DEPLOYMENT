@@ -1,0 +1,157 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
+
+WICHTIGER HINWEIS:
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+
+============================================================
+A. MASTER-REGELN / STATUSSYSTEM
+============================================================
+
+[!] Diese To-do-Liste darf niemals kleiner werden.
+[!] Bestehende Aufgaben, Ideen, Epics, Businessplan-Punkte und Architekturentscheidungen dürfen nicht gelöscht werden.
+[!] Erledigte Punkte bleiben sichtbar und werden auf [x] gesetzt.
+[!] Verschobene Punkte bleiben sichtbar und werden auf [>] gesetzt.
+[!] Blockierte Punkte bleiben sichtbar und werden auf [!] gesetzt.
+[!] Neue Erkenntnisse werden ergänzt, nicht ersetzt.
+[!] Kein produktrelevanter Punkt darf nur im Chat stehen bleiben.
+[!] Bei jeder neuen Umsetzung muss diese Datei aktualisiert werden.
+
+Statussystem:
+[ ] Offen
+[x] Fertig
+[~] In Arbeit
+[!] Blockiert / kritisch
+[>] Später / Backlog
+
+Sichere Server-Deployment-Reihenfolge – AKTUELL:
+cd /var/www/WellFit-now
+pm2 stop wellfit-now
+git fetch origin
+git reset --hard origin/main
+npm install
+NODE_OPTIONS="--max-old-space-size=768" npm run build
+pm2 restart wellfit-now --update-env
+pm2 status
+
+============================================================
+B. AKTUELLER SPRINT-STAND – LOGIN / REGISTRIERUNG / DEPLOYMENT
+============================================================
+
+TASK-ID: WF-AUTH-001
+STATUS: [x] Fertig
+ZIEL:
+Login von Fake-/UI-Login auf echtes Firebase-Login umstellen und sicherer machen.
+ERLEDIGT:
+[x] LoginForm nutzt signInWithEmailAndPassword.
+[x] E-Mail wird normalisiert.
+[x] E-Mail-Format wird validiert.
+[x] Login schreibt lastLoginAt und updatedAt in Firestore.
+[x] Enter-Taste startet Login.
+[x] Ladezustand vorhanden.
+[x] Neutrale Fehlermeldung gegen User-Enumeration umgesetzt.
+[x] Passwort-Reset per sendPasswordResetEmail eingebaut.
+[x] Passwort-Reset-Antwort neutral formuliert.
+[x] Session-Check via onAuthStateChanged eingebaut.
+[x] Bereits eingeloggte User werden ins Dashboard weitergeleitet.
+[x] Login-UI an Register-Premium-Stil angepasst.
+[x] Login-Hero und Login-Form optisch modernisiert.
+OFFEN:
+[ ] E-Mail-Verifizierung nach Registrierung prüfen/einbauen.
+[ ] Logout auf allen Geräten später ergänzen.
+[ ] Optional: Social Login Google/Apple prüfen.
+
+TASK-ID: WF-REGISTER-001
+STATUS: [x] Fertig / Basis finalisiert
+ZIEL:
+Registrierung als produktnahes Onboarding mit sicheren Validierungen, Consent-Struktur, Buddy-Auswahl und Mission-Personalisierung aufbauen.
+ERLEDIGT:
+[x] Register Step 1 optisch modernisiert.
+[x] Register Step 1 kompakter und professioneller gestaltet.
+[x] Register Step 1 Spaltenabstand harmonisiert.
+[x] AGB/Datenschutz Checkbox standardmäßig deaktiviert.
+[x] Pflichtfelder werden geprüft.
+[x] E-Mail-Format wird geprüft.
+[x] Passwortstärke wird geprüft.
+[x] Passwortbestätigung wird geprüft.
+[x] AGB/Datenschutz wird blockierend geprüft.
+[x] Firebase-Fehlertexte verbessert.
+[x] Geburtsdatum wird geprüft.
+[x] Elternmodus/Minderjährigen-Hinweis vorbereitet.
+[x] Permissions standardmäßig auf false gesetzt.
+[x] Consent-Objekt gespeichert: terms, privacy, healthPersonalization, sensorTracking, marketingOptIn, guardianRequired.
+[x] Step 2 Biometrics optisch finalisiert.
+[x] Step 2 Buddy-Auswahl auf Carousel umgebaut.
+[x] Nur vorhandene Buddy-Assets eingebunden, damit keine kaputten Bilder erscheinen.
+[x] Buddy wird in avatar und profile.aiBuddy gespeichert.
+[x] Fortschrittsanzeige in Step 2 entfernt.
+[x] Avatar in Step 2 vergrößert und Beschreibung nach unten gesetzt.
+[x] Weiter-Button in Step 2 vollständig sichtbar.
+[x] Step 3 auf Grundeinstellungen/Game-Setup umgebaut.
+[x] Step 3 enthält Aktivitätslevel, Ziele, Interessen, Start-Tamagotchi, bevorzugte Aktivitäten und Community-Modus.
+[x] Step 3 Button sichtbar gemacht und Layout verdichtet.
+[x] Mapping-Bugs in registerUtils korrigiert: Schlaf, Ernährung, Bewegung.
+OFFEN:
+[ ] Alle finalen Buddy-Bilder sammeln und in public/buddy ergänzen.
+[ ] Buddy-Charaktere fachlich definieren: Eigenschaften, Verhalten, Entwicklung.
+[ ] Registerdaten-Schema final dokumentieren.
+[ ] Mobile-Ansicht aller Register-Steps manuell testen.
+[ ] E-Mail-Verifizierung nach Account-Erstellung prüfen.
+
+TASK-ID: WF-DEPLOY-001
+STATUS: [x] Fertig / Server stabilisiert
+ZIEL:
+Deployment reproduzierbar und low-memory-sicher machen.
+ERLEDIGT:
+[x] Ursache für alte Live-Seite gefunden: git pull divergente Branches + Build ohne Dependencies.
+[x] Server-Repo per git fetch + git reset --hard origin/main synchronisiert.
+[x] 2GB Swap auf Server eingerichtet.
+[x] npm install läuft wieder durch.
+[x] Next Build läuft erfolgreich.
+[x] PM2 restart funktioniert wieder.
+[x] GitHub Actions Deployment auf fetch/reset statt git pull umgestellt.
+[x] Deployment nutzt NODE_OPTIONS="--max-old-space-size=768".
+[x] Workflow stoppt bei Fehlern via script_stop/set -e, damit kein kaputter Restart mehr passiert.
+OFFEN:
+[ ] GitHub Action nach nächstem Push kontrollieren.
+[ ] Server mittelfristig auf mindestens 2GB RAM prüfen.
+[ ] README Deployment-Anleitung aktualisieren.
+
+TASK-ID: WF-QA-LOGIN-REGISTER-001
+STATUS: [ ] Offen
+ZIEL:
+Login und Registrierung nach den aktuellen Umbauten manuell testen.
+UMSETZUNG:
+[ ] Desktop: neuen Testnutzer registrieren.
+[ ] Desktop: Firestore User-Dokument prüfen.
+[ ] Desktop: Login mit Testnutzer prüfen.
+[ ] Desktop: lastLoginAt prüfen.
+[ ] Mobile: Login/Register Layout prüfen.
+[ ] Mobile: Register Step 1-3 prüfen.
+[ ] Mehrtab-Test für Session-Verhalten prüfen.
+
+TASK-ID: WF-REGISTER-SCHEMA-001
+STATUS: [ ] Offen / Wichtig für KI
+ZIEL:
+Firestore User-/Profile-/Settings-Schema dokumentieren und mit Einstellungen abgleichen.
+UMSETZUNG:
+[ ] Registerdaten-Schema dokumentieren.
+[ ] Settings-Schema dokumentieren.
+[ ] Avatar-Schema dokumentieren.
+[ ] Doppelte oder widersprüchliche Felder identifizieren.
+[ ] KI-relevante Felder markieren: Alter, Aktivität, Schlaf, Stress, Ernährung, Ziele, Interessen, Community-Modus, Buddy.
+
+TASK-ID: WF-REGISTER-BUDDY-002
+STATUS: [ ] Offen
+ZIEL:
+Alle finalen Buddy-Bilddateien beschaffen und korrekt in public/buddy einbauen.
+UMSETZUNG:
+[ ] Fehlende Buddy-Assets sammeln: ghost, wizard, queen, princess, dragon_princess, dragon_queen, royal_dragon usw.
+[ ] Dateinamen vereinheitlichen.
+[ ] Carousel wieder erweitern, sobald Bilder vorhanden sind.
+[ ] Fallback-Bild für fehlende Buddy-Dateien prüfen.
+
