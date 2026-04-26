@@ -16,6 +16,7 @@ service cloud.firestore {
         'avatar',
         'updatedAt',
         'lastLoginAt',
+        'lastMissionCompletedAt',
         'profile',
         'settings',
         'consent',
@@ -57,6 +58,11 @@ service cloud.firestore {
     }
 
     match /trackingProofEvents/{proofEventId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    match /missionCompletionEvaluations/{evaluationId} {
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow create, update, delete: if false;
     }
