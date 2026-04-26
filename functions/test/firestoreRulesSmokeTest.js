@@ -123,10 +123,23 @@ async function run() {
         status: "completed",
         proofQuality: "server-validated",
       });
+      await adminDb.collection("trackingProofEvents").doc("proof_alice_001").set({
+        proofEventId: "proof_alice_001",
+        sessionId: "tracking_alice_001",
+        userId: "alice",
+        proofType: "motion",
+        serverValidationStatus: "received",
+      });
+      await adminDb.collection("trackingProofEvents").doc("proof_bob_001").set({
+        proofEventId: "proof_bob_001",
+        sessionId: "tracking_bob_001",
+        userId: "bob",
+        proofType: "motion",
+        serverValidationStatus: "received",
+      });
     });
 
     const aliceDb = testEnv.authenticatedContext("alice").firestore();
-    const bobDb = testEnv.authenticatedContext("bob").firestore();
     const anonDb = testEnv.unauthenticatedContext().firestore();
 
     await assertSucceeds(aliceDb.collection("itemDefinitions").doc("rope_001").get());
@@ -206,6 +219,20 @@ async function run() {
       status: "completed",
       steps: 999999,
       proofQuality: "client-claimed",
+    }));
+
+    await assertSucceeds(aliceDb.collection("trackingProofEvents").doc("proof_alice_001").get());
+    await assertFails(aliceDb.collection("trackingProofEvents").doc("proof_bob_001").get());
+    await assertFails(aliceDb.collection("trackingProofEvents").doc("proof_hack").set({
+      proofEventId: "proof_hack",
+      sessionId: "tracking_alice_001",
+      userId: "alice",
+      proofType: "motion",
+      serverValidationStatus: "client-claimed",
+    }));
+    await assertFails(aliceDb.collection("trackingProofEvents").doc("proof_alice_001").update({
+      serverValidationStatus: "client-modified",
+      rewardAuthorized: true,
     }));
 
     assert(true, "Firestore Rules Smoke Test erfolgreich.");
