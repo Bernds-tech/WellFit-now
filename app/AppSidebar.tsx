@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import AppInstallPrompt from "@/app/components/AppInstallPrompt";
 
 type AppSidebarProps = {
   brightness: number;
@@ -36,7 +37,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
       </nav>
 
       <div className="mt-5 border-t border-cyan-400/10 pt-4">
-        <div className="mb-2 whitespace-nowrap text-base font-bold text-green-400">App aufs Handy laden</div>
+        <AppInstallPrompt />
         <label className="mb-1 block text-lg">Helligkeit</label>
         <input type="range" min="5" max="100" value={brightness} onChange={(event) => onBrightnessChange(Number(event.target.value))} className="w-full" />
         <div className="mt-1 text-right text-sm text-white/70">{brightness}%</div>
