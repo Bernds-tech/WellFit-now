@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 6.0 – TODOLIST KONSOLIDIERT / CONTEXT- UND COMPLETION-EVALUATION ERGÄNZT
+Version: 6.1 – SERVER-INSTALLATION UND ERWEITERTER EMULATOR-GESAMTTEST BESTÄTIGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -24,7 +24,7 @@ AKTUELLER FOKUS:
 [x] Mission Reward / Context / Payout Engine ist als Architekturpfad angelegt und erste sichere Backend-Stubs sind umgesetzt.
 
 ============================================================
-AKTUELLER UMSETZUNGSSTAND – NEU KONSOLIDIERT
+AKTUELLER UMSETZUNGSSTAND – NEU BESTÄTIGT
 ============================================================
 
 FIREBASE / FUNCTIONS / TESTS:
@@ -42,9 +42,19 @@ FIREBASE / FUNCTIONS / TESTS:
     - rules:firestore
     - callable:emulator
     - mission:emulator
-[x] T2 `npm run check` war nach aktuellem Code erfolgreich.
-[!] Server-Test `npm run test:emulator` kann nur laufen, wenn T1 Firebase Emulator aktiv ist.
-[!] Aktueller Serverlauf: T1-Root-install ist wegen ENOTEMPTY bei firebase-tools abgebrochen; dadurch fehlten `three` und `firebase` CLI.
+[x] Root-Installation nach ENOTEMPTY-Problem sauber wiederhergestellt.
+[x] `node_modules`, `next`, `three`, `firebase-tools` und `.bin` vorhanden.
+[x] `three` erfolgreich per `require('three')` geprüft.
+[x] `next/package.json` erfolgreich aufgelöst.
+[x] `firebase-tools/package.json` erfolgreich aufgelöst.
+[x] Firebase CLI läuft: 14.27.0.
+[x] T2 `npm run check` erfolgreich.
+[x] T2 `npm run test:emulator` erfolgreich.
+[x] NFC Smoke Test erfolgreich.
+[x] Firestore Rules Smoke Test erfolgreich.
+[x] Callable Functions Emulator Test erfolgreich.
+[x] Mission Completion Emulator Test erfolgreich.
+[!] Die PERMISSION_DENIED-Meldungen im Rules-Test sind erwartet und positiv. Sie zeigen, dass direkte Client-Writes blockiert werden.
 
 SERVERAUTORISIERTE COLLECTIONS:
 [x] itemDefinitions: Read für eingeloggte Nutzer, keine Client-Writes.
@@ -104,53 +114,34 @@ DOKUMENTATION KONSOLIDIERT:
 [x] docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md vorhanden.
 
 ============================================================
-PRIO 1 – SERVER-INSTALLATION REPARIEREN UND TEST BESTÄTIGEN
+PRIO 1 – PRODUKTIONSBUILD / PM2 WIEDER AKTIVIEREN
 ============================================================
 
-STATUS: [!] Blockiert durch unvollständige Root-Installation
+STATUS: [~] Nächster Server-Schritt nach erfolgreichem Emulator-Gesamttest
 
-AKTUELLER SERVERFEHLER:
-[!] `npm install --include=dev` im Root brach mit ENOTEMPTY bei `node_modules/firebase-tools` ab.
-[!] Danach fehlte `three`, obwohl es in package.json als Dependency vorhanden ist.
-[!] Danach fehlte `firebase`, weil firebase-tools nicht sauber installiert wurde.
-[!] T2-Emulator-Test schlug fehl, weil Firestore Emulator in T1 nicht lief: ECONNREFUSED 127.0.0.1:8080.
-
-SICHERER FIX:
-[ ] T1: Root-node_modules bereinigen.
-[ ] T1: Root-Abhängigkeiten vollständig neu installieren.
-[ ] T1: Build erneut prüfen.
-[ ] T1: Firebase Emulator starten und offen lassen.
-[ ] T2: functions npm install/check/test:emulator ausführen.
-[ ] Erst nach erfolgreichem erweitertem Gesamt-Test wieder als bestätigt markieren.
+[ ] T1 Emulator sauber stoppen, wenn Testphase abgeschlossen ist.
+[ ] Root Build erneut ausführen:
+    `NODE_OPTIONS="--max-old-space-size=768" npm run build`
+[ ] PM2 wieder starten:
+    `pm2 restart wellfit-now --update-env`
+[ ] PM2 Status prüfen:
+    `pm2 status`
+[ ] Website im Browser prüfen.
 
 EMPFOHLENE SERVERBEFEHLE:
 
 ```bash
 cd /var/www/WellFit-now
-pkill -f "firebase emulators" || true
-rm -rf node_modules/firebase-tools node_modules/.firebase-tools-* node_modules/.bin/firebase
-npm install --include=dev --no-audit --no-fund
-ls -l node_modules/.bin/firebase
-node -e "require.resolve('three'); console.log('three ok')"
-npx firebase --version
 NODE_OPTIONS="--max-old-space-size=768" npm run build
-npm run emulators
-```
-
-Terminal 2:
-
-```bash
-cd /var/www/WellFit-now/functions
-npm install --no-audit --no-fund
-npm run check
-npm run test:emulator
+pm2 restart wellfit-now --update-env
+pm2 status
 ```
 
 ============================================================
 PRIO 2 – MISSION REWARD POLICY / REWARD PREVIEW STUB
 ============================================================
 
-STATUS: [ ] Offen / nächster Entwicklungsblock nach erfolgreichem Server-Test
+STATUS: [ ] Offen / nächster Entwicklungsblock nach Produktionsbuild-Bestätigung
 
 [ ] missionRewardPolicies als reine Policy-Datenstruktur vorbereiten.
 [ ] Firestore Rules für missionRewardPolicies planen: Read nach Bedarf, keine Client-Writes.
@@ -200,7 +191,6 @@ STATUS: [ ] Offen
 DAUERHAFTE HINWEISE
 ============================================================
 
-[!] Die PERMISSION_DENIED-Meldungen im Rules-Test sind erwartet und positiv. Sie zeigen, dass direkte Client-Writes blockiert werden.
 [!] Firebase CLI meldet: Nicht eingeloggt. Für lokale Demo-Emulator-Tests nicht kritisch.
 [!] Firebase CLI meldet: Java < 21 wird ab firebase-tools@15 nicht mehr unterstützt. Aktuell läuft Java 17, später auf Java 21 wechseln.
 [!] Firebase Functions Paket kann Upgrade-Hinweis melden. Später gezielt migrieren und Breaking Changes prüfen.
