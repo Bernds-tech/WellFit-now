@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 6.2 – PRODUKTIONSBUILD BESTÄTIGT / PM2-NEUSTART AUSSTEHEND
+Version: 6.3 – BUILD, EMULATOR-TESTS UND PM2-START BESTÄTIGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -61,6 +61,10 @@ FIREBASE / FUNCTIONS / TESTS:
     - TypeScript fertig
     - 29/29 statische Seiten generiert
     - Route-Liste erfolgreich erzeugt
+[x] PM2 Restart erfolgreich ausgeführt.
+[x] PM2 Status: wellfit-now online.
+[x] Next.js Server meldet Ready auf localhost:3000 und Network 172.86.81.91:3000.
+[!] Alte Error-Log-Einträge zu fehlender `.next`-Production-Build-ID stammen aus der Zeit vor dem erfolgreichen Build/Restart. Aktueller Out-Log zeigt Ready.
 [!] Die PERMISSION_DENIED-Meldungen im Rules-Test sind erwartet und positiv. Sie zeigen, dass direkte Client-Writes blockiert werden.
 
 SERVERAUTORISIERTE COLLECTIONS:
@@ -121,37 +125,37 @@ DOKUMENTATION KONSOLIDIERT:
 [x] docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md vorhanden.
 
 ============================================================
-PRIO 1 – PM2 WIEDER AKTIVIEREN UND WEBSITE PRÜFEN
+PRIO 1 – WEBSITE IM BROWSER PRÜFEN
 ============================================================
 
-STATUS: [~] Letzter Server-Schritt nach erfolgreichem Build
+STATUS: [~] Letzte manuelle Bestätigung
 
 [x] T1 Emulator sauber gestoppt.
 [x] Firebase Root-Paket repariert.
 [x] Root Build erfolgreich ausgeführt:
     `NODE_OPTIONS="--max-old-space-size=768" npm run build`
-[ ] PM2 wieder starten:
+[x] PM2 wieder gestartet:
     `pm2 restart wellfit-now --update-env`
-[ ] PM2 Status prüfen:
-    `pm2 status`
-[ ] PM2 Logs prüfen:
-    `pm2 logs wellfit-now --lines 30`
+[x] PM2 Status geprüft: online.
+[x] PM2 Logs geprüft: aktueller Out-Log meldet Next.js Ready.
 [ ] Website im Browser prüfen.
 
-EMPFOHLENE SERVERBEFEHLE:
+EMPFOHLENE MANUELLE PRÜFUNG:
 
-```bash
-cd /var/www/WellFit-now
-pm2 restart wellfit-now --update-env
-pm2 status
-pm2 logs wellfit-now --lines 30
+```txt
+Startseite öffnen
+/mobile öffnen
+/mobile/ar öffnen
+/dashboard öffnen
+/missionen/tagesmissionen öffnen
+/missionen/wettkaempfe öffnen
 ```
 
 ============================================================
 PRIO 2 – MISSION REWARD POLICY / REWARD PREVIEW STUB
 ============================================================
 
-STATUS: [ ] Offen / nächster Entwicklungsblock nach PM2-/Website-Bestätigung
+STATUS: [ ] Offen / nächster Entwicklungsblock nach Browser-Bestätigung
 
 [ ] missionRewardPolicies als reine Policy-Datenstruktur vorbereiten.
 [ ] Firestore Rules für missionRewardPolicies planen: Read nach Bedarf, keine Client-Writes.
@@ -186,7 +190,7 @@ STATUS: [ ] Offen
 
 [ ] Unity Hub installieren/öffnen.
 [ ] Unity 2022.3 LTS als Startversion verwenden, sofern keine harte Inkompatibilität auftritt.
-[ ] Projekt `WellFitBuddyAR` unter `native/unity/WellFitBuddyAR` erzeugen.
+ [ ] Projekt `WellFitBuddyAR` unter `native/unity/WellFitBuddyAR` erzeugen.
 [ ] AR Foundation installieren.
 [ ] ARCore XR Plugin installieren.
 [ ] ARKit XR Plugin installieren.
