@@ -99,6 +99,30 @@ async function run() {
         itemId: "rope_001",
         status: "completed",
       });
+      await adminDb.collection("missionBuddyEvents").doc("buddy_alice_001").set({
+        eventId: "buddy_alice_001",
+        userId: "alice",
+        missionId: "demo_tree_clue_001",
+        status: "applied",
+      });
+      await adminDb.collection("missionBuddyEvents").doc("buddy_bob_001").set({
+        eventId: "buddy_bob_001",
+        userId: "bob",
+        missionId: "demo_tree_clue_001",
+        status: "applied",
+      });
+      await adminDb.collection("trackingSessions").doc("tracking_alice_001").set({
+        sessionId: "tracking_alice_001",
+        userId: "alice",
+        status: "completed",
+        proofQuality: "server-validated",
+      });
+      await adminDb.collection("trackingSessions").doc("tracking_bob_001").set({
+        sessionId: "tracking_bob_001",
+        userId: "bob",
+        status: "completed",
+        proofQuality: "server-validated",
+      });
     });
 
     const aliceDb = testEnv.authenticatedContext("alice").firestore();
@@ -154,6 +178,34 @@ async function run() {
       userId: "alice",
       itemId: "rope_001",
       status: "completed",
+    }));
+
+    await assertSucceeds(aliceDb.collection("missionBuddyEvents").doc("buddy_alice_001").get());
+    await assertFails(aliceDb.collection("missionBuddyEvents").doc("buddy_bob_001").get());
+    await assertFails(aliceDb.collection("missionBuddyEvents").doc("alice_buddy_hack").set({
+      eventId: "alice_buddy_hack",
+      userId: "alice",
+      missionId: "demo_tree_clue_001",
+      status: "applied",
+    }));
+    await assertFails(aliceDb.collection("missionBuddyEvents").doc("buddy_alice_001").update({
+      status: "completed",
+      rewardPreview: 999999,
+    }));
+
+    await assertSucceeds(aliceDb.collection("trackingSessions").doc("tracking_alice_001").get());
+    await assertFails(aliceDb.collection("trackingSessions").doc("tracking_bob_001").get());
+    await assertFails(aliceDb.collection("trackingSessions").doc("tracking_hack").set({
+      sessionId: "tracking_hack",
+      userId: "alice",
+      status: "completed",
+      steps: 999999,
+      proofQuality: "client-claimed",
+    }));
+    await assertFails(aliceDb.collection("trackingSessions").doc("tracking_alice_001").update({
+      status: "completed",
+      steps: 999999,
+      proofQuality: "client-claimed",
     }));
 
     assert(true, "Firestore Rules Smoke Test erfolgreich.");
