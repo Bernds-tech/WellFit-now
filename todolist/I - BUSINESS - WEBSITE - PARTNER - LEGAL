@@ -1,0 +1,77 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
+
+WICHTIGER HINWEIS:
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+
+============================================================
+I. BUSINESS / WEBSITE / PARTNER / LEGAL
+============================================================
+
+TASK-ID: WF-FAMILY-001
+STATUS: [>] Später / Backlog
+[ ] Familiengruppen definieren.
+[ ] Enkel-/Kind-zu-Großeltern-Missionen definieren.
+[ ] Silver-Economy-Use-Cases definieren.
+[ ] Gemeinsame Familienziele definieren.
+[ ] Datenschutz/Einwilligung für Familiengruppen prüfen.
+
+TASK-ID: WF-CORP-001
+STATUS: [>] Später / Backlog
+[ ] Firmen-Challenges.
+[ ] Teamranglisten.
+[ ] anonymisierte Firmen-Analytics.
+[ ] Company Admin Rolle.
+[ ] Datenschutz für Arbeitgeberdaten streng abgrenzen.
+
+TASK-ID: WF-CITY-001
+STATUS: [>] Später / Backlog
+[ ] Ortsmissionen.
+[ ] Checkpoints.
+[ ] Parks/Sehenswürdigkeiten.
+[ ] Stadt-/Tourismus-Partner.
+[ ] Eventmissionen.
+
+TASK-ID: WF-REVENUE-001
+STATUS: [>] Später / Backlog
+[ ] Firmenlizenzen.
+[ ] BGM-Challenges.
+[ ] Sponsored Missions.
+[ ] Brand Campaigns.
+[ ] Versicherungen/Prävention.
+[ ] Städte/Tourismus.
+[ ] Eventpartner.
+[ ] Marketplace Fees.
+[ ] Premium Accounts.
+[ ] White-Label-Challenges.
+[ ] Partner-Rewards.
+[ ] anonymisierte Reports DSGVO-konform.
+[ ] AR-Skins / digitale Items später.
+[ ] API-/Platform Fees später.
+[ ] Bildungs-/Lernmissionen.
+[ ] Gesundheitsprogramme.
+[ ] Corporate Team Challenges.
+[ ] International Licensing.
+
+TASK-ID: WF-DOC-001
+STATUS: [ ] Offen
+[ ] README.md aktualisieren.
+[ ] Projektstruktur dokumentieren.
+[ ] .env.example erstellen.
+[ ] Firebase Setup dokumentieren.
+[ ] Server Deploy dokumentieren.
+[ ] PM2 Start/Restart dokumentieren.
+[ ] Hinweis auf To Do List.txt einbauen.
+
+TASK-ID: WF-LEGAL-002
+STATUS: [ ] Offen
+[ ] Datenschutz um Kamera/AR erweitern.
+[ ] Datenschutz um Pose Tracking erweitern.
+[ ] Datenschutz um HealthKit/Health Connect/Watch-Daten erweitern.
+[ ] Optionale Emotion/Mimik-Analyse gesondert zustimmungspflichtig machen.
+[ ] Keine Speicherung von Bildern/Videos als Standard.
+
