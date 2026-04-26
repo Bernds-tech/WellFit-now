@@ -81,6 +81,14 @@ function minimalClientContext(data) {
   };
 }
 
+function safeDocIdPart(value) {
+  return encodeURIComponent(String(value || "none")).replace(/\./g, "%2E");
+}
+
+function nfcScanClaimId({ tagId, userId, missionId }) {
+  return ["claim", safeDocIdPart(tagId), safeDocIdPart(userId), safeDocIdPart(missionId || "no-mission")].join("__");
+}
+
 async function readOwnedMissionDoc({ collectionName, docId, userId, missionId, label }) {
   const normalizedDocId = optionalString(docId, 180);
   if (!normalizedDocId) return null;
@@ -151,11 +159,6 @@ exports.validateNfcScan = onCall(async (request) => {
     return { accepted: false, scanEventId, tagId, message: "NFC-Tag ist nicht aktiv.", rejectionReason: reason };
   }
 
-  if (tag.usageLimit && Number(tag.usageCount || 0) >= Number(tag.usageLimit)) {
-    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason: "usage-limit-reached" });
-    return { accepted: false, scanEventId, tagId, message: "NFC-Tag wurde bereits zu oft genutzt.", rejectionReason: "usage-limit-reached" };
-  }
-
   if (tag.linkedMissionId && missionId && tag.linkedMissionId !== missionId) {
     const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason: "mission-mismatch" });
     return { accepted: false, scanEventId, tagId, message: "NFC-Tag passt nicht zu dieser Mission.", rejectionReason: "mission-mismatch" };
@@ -166,95 +169,176 @@ exports.validateNfcScan = onCall(async (request) => {
     return { accepted: false, scanEventId, tagId, message: "NFC-Tag ist nicht fuer diesen Nutzer freigegeben.", rejectionReason: "user-not-allowed" };
   }
 
-  const duplicateSnapshot = await db.collection("nfcScanEvents")
-    .where("tagId", "==", tagId)
-    .where("userId", "==", userId)
-    .where("missionId", "==", missionId)
-    .where("status", "==", "validated")
-    .limit(1)
-    .get();
-
-  if (!duplicateSnapshot.empty) {
-    const scanEventId = await createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason: "duplicate-scan" });
-    return { accepted: false, scanEventId, tagId, message: "NFC-Tag wurde fuer diese Mission bereits genutzt.", rejectionReason: "duplicate-scan" };
-  }
-
+  const claimId = nfcScanClaimId({ tagId, userId, missionId });
+  const claimRef = db.collection("nfcScanClaims").doc(claimId);
+  const tagRef = tagDoc.ref;
   const scanRef = db.collection("nfcScanEvents").doc();
-  const batch = db.batch();
+  const inventoryRef = tag.linkedItemId ? db.collection("userInventory").doc() : null;
+  const capabilityRef = tag.linkedCapabilityId ? db.collection("buddyCapabilities").doc(`${userId}_default_${tag.linkedCapabilityId}`) : null;
+  const unlockRef = tag.linkedCapabilityId ? db.collection("capabilityUnlockEvents").doc() : null;
 
-  batch.set(scanRef, {
-    scanEventId: scanRef.id,
-    tagId,
-    publicCode,
-    userId,
-    source: "nfc",
-    missionId,
-    status: "validated",
-    grantedItemId: tag.linkedItemId || null,
-    grantedCapabilityId: tag.linkedCapabilityId || null,
-    createdAt: now(),
-    validatedAt: now(),
-    deviceId: data.deviceId || null,
-    appSessionId: data.appSessionId || null,
-    approximateLocationHash: data.approximateLocationHash || null,
-  });
+  const result = await db.runTransaction(async (transaction) => {
+    const [freshTagDoc, existingClaimDoc] = await Promise.all([
+      transaction.get(tagRef),
+      transaction.get(claimRef),
+    ]);
 
-  batch.update(tagDoc.ref, {
-    usageCount: incrementBy(1),
-    updatedAt: now(),
-  });
+    if (!freshTagDoc.exists) {
+      throw new HttpsError("not-found", "NFC-Tag wurde nicht gefunden.");
+    }
 
-  if (tag.linkedItemId) {
-    const inventoryRef = db.collection("userInventory").doc();
-    batch.set(inventoryRef, {
-      inventoryItemId: inventoryRef.id,
-      ownerUserId: userId,
-      itemId: tag.linkedItemId,
-      source: "nfc",
-      quantity: 1,
-      equipped: false,
-      serverValidationStatus: "validated",
-      grantedByEventId: scanRef.id,
-      grantedAt: now(),
-    });
-  }
+    const freshTag = freshTagDoc.data() || {};
 
-  if (tag.linkedCapabilityId) {
-    const capabilityRef = db.collection("buddyCapabilities").doc(`${userId}_default_${tag.linkedCapabilityId}`);
-    const unlockRef = db.collection("capabilityUnlockEvents").doc();
-    batch.set(capabilityRef, {
+    if (existingClaimDoc.exists) {
+      transaction.set(scanRef, {
+        scanEventId: scanRef.id,
+        claimId,
+        tagId,
+        publicCode,
+        userId,
+        source: "nfc",
+        missionId,
+        status: "rejected",
+        rejectionReason: "duplicate-scan",
+        createdAt: now(),
+        validatedAt: now(),
+        ...minimalClientContext(data),
+      });
+
+      return {
+        accepted: false,
+        scanEventId: scanRef.id,
+        tagId,
+        message: "NFC-Tag wurde fuer diese Mission bereits genutzt.",
+        rejectionReason: "duplicate-scan",
+      };
+    }
+
+    if (freshTag.status !== "active") {
+      const reason = freshTag.status === "revoked" ? "tag-revoked" : "tag-not-active";
+      transaction.set(scanRef, {
+        scanEventId: scanRef.id,
+        claimId,
+        tagId,
+        publicCode,
+        userId,
+        source: "nfc",
+        missionId,
+        status: "rejected",
+        rejectionReason: reason,
+        createdAt: now(),
+        validatedAt: now(),
+        ...minimalClientContext(data),
+      });
+      return { accepted: false, scanEventId: scanRef.id, tagId, message: "NFC-Tag ist nicht aktiv.", rejectionReason: reason };
+    }
+
+    if (freshTag.usageLimit && Number(freshTag.usageCount || 0) >= Number(freshTag.usageLimit)) {
+      transaction.set(scanRef, {
+        scanEventId: scanRef.id,
+        claimId,
+        tagId,
+        publicCode,
+        userId,
+        source: "nfc",
+        missionId,
+        status: "rejected",
+        rejectionReason: "usage-limit-reached",
+        createdAt: now(),
+        validatedAt: now(),
+        ...minimalClientContext(data),
+      });
+      return { accepted: false, scanEventId: scanRef.id, tagId, message: "NFC-Tag wurde bereits zu oft genutzt.", rejectionReason: "usage-limit-reached" };
+    }
+
+    transaction.set(claimRef, {
+      claimId,
+      scanEventId: scanRef.id,
+      tagId,
+      publicCode,
       userId,
-      buddyId: "default",
-      capabilityId: tag.linkedCapabilityId,
-      unlocked: true,
-      unlockedByItemId: tag.linkedItemId || null,
-      unlockedByMissionId: tag.linkedMissionId || null,
-      unlockedAt: now(),
-      serverValidationStatus: "validated",
-    }, { merge: true });
-    batch.set(unlockRef, {
-      eventId: unlockRef.id,
-      userId,
-      buddyId: "default",
-      capabilityId: tag.linkedCapabilityId,
+      missionId,
+      status: "claimed",
       source: "nfc",
-      sourceEventId: scanRef.id,
-      status: "completed",
       createdAt: now(),
-      completedAt: now(),
+      updatedAt: now(),
+      ...minimalClientContext(data),
     });
-  }
 
-  await batch.commit();
+    transaction.set(scanRef, {
+      scanEventId: scanRef.id,
+      claimId,
+      tagId,
+      publicCode,
+      userId,
+      source: "nfc",
+      missionId,
+      status: "validated",
+      grantedItemId: freshTag.linkedItemId || null,
+      grantedCapabilityId: freshTag.linkedCapabilityId || null,
+      createdAt: now(),
+      validatedAt: now(),
+      ...minimalClientContext(data),
+    });
 
-  return {
-    accepted: true,
-    scanEventId: scanRef.id,
-    tagId,
-    grantedItemId: tag.linkedItemId || undefined,
-    grantedCapabilityId: tag.linkedCapabilityId || undefined,
-    message: "NFC-Scan validiert.",
-  };
+    transaction.update(tagRef, {
+      usageCount: incrementBy(1),
+      updatedAt: now(),
+    });
+
+    if (freshTag.linkedItemId && inventoryRef) {
+      transaction.set(inventoryRef, {
+        inventoryItemId: inventoryRef.id,
+        ownerUserId: userId,
+        itemId: freshTag.linkedItemId,
+        source: "nfc",
+        quantity: 1,
+        equipped: false,
+        serverValidationStatus: "validated",
+        grantedByEventId: scanRef.id,
+        grantedByClaimId: claimId,
+        grantedAt: now(),
+      });
+    }
+
+    if (freshTag.linkedCapabilityId && capabilityRef && unlockRef) {
+      transaction.set(capabilityRef, {
+        userId,
+        buddyId: "default",
+        capabilityId: freshTag.linkedCapabilityId,
+        unlocked: true,
+        unlockedByItemId: freshTag.linkedItemId || null,
+        unlockedByMissionId: freshTag.linkedMissionId || null,
+        unlockedByClaimId: claimId,
+        unlockedAt: now(),
+        serverValidationStatus: "validated",
+      }, { merge: true });
+      transaction.set(unlockRef, {
+        eventId: unlockRef.id,
+        claimId,
+        userId,
+        buddyId: "default",
+        capabilityId: freshTag.linkedCapabilityId,
+        source: "nfc",
+        sourceEventId: scanRef.id,
+        status: "completed",
+        createdAt: now(),
+        completedAt: now(),
+      });
+    }
+
+    return {
+      accepted: true,
+      scanEventId: scanRef.id,
+      claimId,
+      tagId,
+      grantedItemId: freshTag.linkedItemId || undefined,
+      grantedCapabilityId: freshTag.linkedCapabilityId || undefined,
+      message: "NFC-Scan validiert.",
+    };
+  });
+
+  return result;
 });
 
 exports.auditItemUse = onCall(async (request) => {
@@ -439,37 +523,10 @@ exports.evaluateMissionCompletion = onCall(async (request) => {
   const missionId = requiredString(data.missionId, "missionId");
   const evaluationRef = db.collection("missionCompletionEvaluations").doc();
 
-  const trackingSession = await readOwnedMissionDoc({
-    collectionName: "trackingSessions",
-    docId: data.trackingSessionId,
-    userId,
-    missionId,
-    label: "Tracking-Session",
-  });
-
-  const trackingProof = await readOwnedMissionDoc({
-    collectionName: "trackingProofEvents",
-    docId: data.trackingProofEventId,
-    userId,
-    missionId,
-    label: "Tracking-Proof",
-  });
-
-  const nfcScan = await readOwnedMissionDoc({
-    collectionName: "nfcScanEvents",
-    docId: data.nfcScanEventId,
-    userId,
-    missionId,
-    label: "NFC-Scan",
-  });
-
-  const buddyEvent = await readOwnedMissionDoc({
-    collectionName: "missionBuddyEvents",
-    docId: data.missionBuddyEventId,
-    userId,
-    missionId,
-    label: "Buddy-Event",
-  });
+  const trackingSession = await readOwnedMissionDoc({ collectionName: "trackingSessions", docId: data.trackingSessionId, userId, missionId, label: "Tracking-Session" });
+  const trackingProof = await readOwnedMissionDoc({ collectionName: "trackingProofEvents", docId: data.trackingProofEventId, userId, missionId, label: "Tracking-Proof" });
+  const nfcScan = await readOwnedMissionDoc({ collectionName: "nfcScanEvents", docId: data.nfcScanEventId, userId, missionId, label: "NFC-Scan" });
+  const buddyEvent = await readOwnedMissionDoc({ collectionName: "missionBuddyEvents", docId: data.missionBuddyEventId, userId, missionId, label: "Buddy-Event" });
 
   const evidenceRefs = {
     trackingSessionId: trackingSession ? trackingSession.id : null,
@@ -517,21 +574,8 @@ exports.missionRewardPreview = onCall(async (request) => {
   const missionId = requiredString(data.missionId, "missionId");
   const previewRef = db.collection("missionRewardPreviews").doc();
 
-  const contextEvaluation = await readOwnedMissionDoc({
-    collectionName: "missionContextEvaluations",
-    docId: data.contextEvaluationId,
-    userId,
-    missionId,
-    label: "Mission-Context-Evaluation",
-  });
-
-  const completionEvaluation = await readOwnedMissionDoc({
-    collectionName: "missionCompletionEvaluations",
-    docId: data.completionEvaluationId,
-    userId,
-    missionId,
-    label: "Mission-Completion-Evaluation",
-  });
+  const contextEvaluation = await readOwnedMissionDoc({ collectionName: "missionContextEvaluations", docId: data.contextEvaluationId, userId, missionId, label: "Mission-Context-Evaluation" });
+  const completionEvaluation = await readOwnedMissionDoc({ collectionName: "missionCompletionEvaluations", docId: data.completionEvaluationId, userId, missionId, label: "Mission-Completion-Evaluation" });
 
   const preview = calculateMissionRewardPreview({
     missionId,
@@ -571,11 +615,7 @@ exports.seedDemoItemsAndNfc = onCall(async (request) => {
   requireAdmin(request);
   try {
     const result = await runDemoItemsAndNfcSeed(db);
-    return {
-      accepted: true,
-      message: "Demo Items und NFC Tags wurden angelegt.",
-      ...result,
-    };
+    return { accepted: true, message: "Demo Items und NFC Tags wurden angelegt.", ...result };
   } catch (error) {
     console.error("seedDemoItemsAndNfc failed", error);
     throw new HttpsError("internal", `Seed Demo Items/NFC fehlgeschlagen: ${toErrorMessage(error)}`);
