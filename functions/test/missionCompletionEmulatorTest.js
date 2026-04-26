@@ -2,12 +2,14 @@
   WellFit Mission Completion Emulator Test
 
   Zweck:
-  Testet den sicheren Mission-Completion-Evaluation-Stub:
+  Testet sichere Mission-Kontext- und Mission-Completion-Evaluation-Stubs:
+  - evaluateMissionContext schreibt missionContextEvaluations
+  - Context Evaluation autorisiert keine Rewards oder Mission Completion
   - evaluateMissionCompletion schreibt missionCompletionEvaluations
-  - Evaluation akzeptiert keine finale Completion
+  - Completion Evaluation akzeptiert keine finale Completion
   - Evaluation autorisiert keine Rewards, XP oder Punkte
   - Fremde Tracking-Sessions werden blockiert
-  - Firestore Rules blockieren direkte Client-Writes auf missionCompletionEvaluations
+  - Firestore Rules blockieren direkte Client-Writes auf Evaluation-Collections
 */
 
 const fs = require("fs");
@@ -104,6 +106,7 @@ async function resetCollections() {
     "trackingProofEvents",
     "missionBuddyEvents",
     "nfcScanEvents",
+    "missionContextEvaluations",
     "missionCompletionEvaluations",
   ];
   for (const collectionName of collections) {
@@ -114,7 +117,7 @@ async function resetCollections() {
   }
 }
 
-async function runRulesCheck(evaluationId) {
+async function runRulesCheck({ contextEvaluationId, completionEvaluationId }) {
   const rulesPath = path.join(__dirname, "..", "..", "firestore.rules");
   const rules = fs.readFileSync(rulesPath, "utf8");
   const testEnv = await initializeTestEnvironment({
@@ -130,8 +133,24 @@ async function runRulesCheck(evaluationId) {
     const aliceDb = testEnv.authenticatedContext("mission-user").firestore();
     const bobDb = testEnv.authenticatedContext("other-user").firestore();
 
-    await assertSucceeds(aliceDb.collection("missionCompletionEvaluations").doc(evaluationId).get());
-    await assertFails(bobDb.collection("missionCompletionEvaluations").doc(evaluationId).get());
+    await assertSucceeds(aliceDb.collection("missionContextEvaluations").doc(contextEvaluationId).get());
+    await assertFails(bobDb.collection("missionContextEvaluations").doc(contextEvaluationId).get());
+    await assertFails(aliceDb.collection("missionContextEvaluations").doc("client_hack_context").set({
+      evaluationId: "client_hack_context",
+      userId: "mission-user",
+      missionId: "demo_tree_clue_001",
+      recommendation: "context-ok-for-review",
+      rewardAuthorized: true,
+      missionCompletionAuthorized: true,
+    }));
+    await assertFails(aliceDb.collection("missionContextEvaluations").doc(contextEvaluationId).update({
+      recommendation: "context-ok-for-review",
+      rewardAuthorized: true,
+      missionCompletionAuthorized: true,
+    }));
+
+    await assertSucceeds(aliceDb.collection("missionCompletionEvaluations").doc(completionEvaluationId).get());
+    await assertFails(bobDb.collection("missionCompletionEvaluations").doc(completionEvaluationId).get());
     await assertFails(aliceDb.collection("missionCompletionEvaluations").doc("client_hack_eval").set({
       evaluationId: "client_hack_eval",
       userId: "mission-user",
@@ -140,7 +159,7 @@ async function runRulesCheck(evaluationId) {
       rewardAuthorized: true,
       missionCompletionAuthorized: true,
     }));
-    await assertFails(aliceDb.collection("missionCompletionEvaluations").doc(evaluationId).update({
+    await assertFails(aliceDb.collection("missionCompletionEvaluations").doc(completionEvaluationId).update({
       accepted: true,
       rewardAuthorized: true,
       missionCompletionAuthorized: true,
@@ -156,6 +175,48 @@ async function run() {
 
   const userToken = await createAuthUser("mission-user");
   const otherUserToken = await createAuthUser("other-user");
+
+  const contextEvaluation = await callCallable("evaluateMissionContext", userToken, {
+    missionId: "demo_tree_clue_001",
+    ageBand: "child",
+    dayType: "school-day",
+    timeWindow: "afternoon",
+    parentMode: "enabled",
+    gpsSafetyStatus: "inside-radius",
+    proofQuality: "medium",
+    estimatedMinutes: 15,
+    radiusMeters: 40,
+  });
+  const contextEvaluationResult = getCallableResult(contextEvaluation);
+  assert(contextEvaluation.ok, `evaluateMissionContext muss HTTP OK sein: ${describeCall(contextEvaluation)}`);
+  assert(contextEvaluationResult.accepted === false, "Context Evaluation darf nicht accepted=true liefern.");
+  assert(contextEvaluationResult.rewardAuthorized === false, "Context Evaluation darf keinen Reward autorisieren.");
+  assert(contextEvaluationResult.missionCompletionAuthorized === false, "Context Evaluation darf keine Mission Completion autorisieren.");
+  assert(contextEvaluationResult.recommendation === "context-ok-for-review", "Sicherer Child-Kontext soll context-ok-for-review liefern.");
+  assert(contextEvaluationResult.safetyScore >= 80, "Sicherer Child-Kontext soll hohen Safety Score liefern.");
+
+  const riskyContextEvaluation = await callCallable("evaluateMissionContext", userToken, {
+    missionId: "demo_tree_clue_001",
+    ageBand: "child",
+    dayType: "school-day",
+    timeWindow: "night",
+    parentMode: "not-required",
+    gpsSafetyStatus: "outside-radius",
+    proofQuality: "none",
+    estimatedMinutes: 60,
+    radiusMeters: 1000,
+  });
+  const riskyContextResult = getCallableResult(riskyContextEvaluation);
+  assert(riskyContextEvaluation.ok, `Risky evaluateMissionContext muss HTTP OK sein: ${describeCall(riskyContextEvaluation)}`);
+  assert(riskyContextResult.recommendation === "reject-or-parent-review", "Riskanter Child-Kontext muss reject-or-parent-review liefern.");
+  assert(riskyContextResult.flags.includes("parent-mode-required"), "Riskanter Kontext muss parent-mode-required flaggen.");
+  assert(riskyContextResult.flags.includes("night-not-safe-for-child"), "Riskanter Kontext muss night-not-safe-for-child flaggen.");
+  assert(riskyContextResult.flags.includes("outside-radius"), "Riskanter Kontext muss outside-radius flaggen.");
+
+  const contextDoc = await db.collection("missionContextEvaluations").doc(contextEvaluationResult.evaluationId).get();
+  assert(contextDoc.exists, "Context Evaluation muss missionContextEvaluations Dokument schreiben.");
+  assert(contextDoc.data().rewardAuthorized === false, "Context Evaluation Dokument darf keinen Reward autorisieren.");
+  assert(contextDoc.data().missionCompletionAuthorized === false, "Context Evaluation Dokument darf keine Mission Completion autorisieren.");
 
   const trackingSession = await callCallable("createTrackingSession", userToken, {
     missionId: "demo_tree_clue_001",
@@ -221,7 +282,10 @@ async function run() {
   assert(emptyEvaluationResult.accepted === false, "Leere Evaluation darf nicht akzeptiert werden.");
   assert(emptyEvaluationResult.rejectionReason === "insufficient-evidence", "Leere Evaluation muss insufficient-evidence liefern.");
 
-  await runRulesCheck(evaluationResult.evaluationId);
+  await runRulesCheck({
+    contextEvaluationId: contextEvaluationResult.evaluationId,
+    completionEvaluationId: evaluationResult.evaluationId,
+  });
 
   console.log("WellFit Mission Completion Emulator Test erfolgreich.");
 }
