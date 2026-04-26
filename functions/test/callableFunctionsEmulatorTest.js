@@ -6,6 +6,8 @@
   - seedDemoItemsAndNfc mit Admin-Claim erfolgreich
   - seedDemoItemsAndNfc ohne Admin-Claim verboten
   - validateNfcScan als normaler Nutzer erfolgreich
+  - NFC Edge Cases: missing/unknown/revoked/inactive/duplicate/user-not-allowed/usage-limit
+  - Magnifier Flow mit scanObject Capability
   - auditItemUse als normaler Nutzer erfolgreich
 
   Voraussetzung:
@@ -134,12 +136,30 @@ function describeCall(callResponse) {
   });
 }
 
+async function assertRejectedScan({ token, publicCode, missionId, expectedReason, label }) {
+  const response = await callCallable("validateNfcScan", token, { publicCode, missionId });
+  const result = getCallableResult(response);
+  assert(response.ok, `${label} response soll HTTP OK sein: ${describeCall(response)}`);
+  assert(result && result.accepted === false, `${label} muss accepted=false liefern.`);
+  assert(result.rejectionReason === expectedReason, `${label} muss ${expectedReason} liefern, erhalten: ${JSON.stringify(result)}`);
+  return result;
+}
+
+async function countInventoryItems(userId, itemId) {
+  const snapshot = await db.collection("userInventory")
+    .where("ownerUserId", "==", userId)
+    .where("itemId", "==", itemId)
+    .get();
+  return snapshot.size;
+}
+
 async function run() {
   console.log("WellFit Callable Functions Emulator Test startet...");
   await resetDemoCollections();
 
   const adminToken = await createAuthUser("callable-admin", true);
   const userToken = await createAuthUser("callable-user", false);
+  const otherUserToken = await createAuthUser("callable-other-user", false);
 
   const normalSeed = await callCallable("seedDemoItemsAndNfc", userToken, {});
   assert(normalSeed.status === 403 || normalSeed.json.error, "Normaler Nutzer darf seedDemoItemsAndNfc nicht ausfuehren.");
@@ -150,6 +170,95 @@ async function run() {
   assert(adminSeedResult && adminSeedResult.accepted === true, "Admin Seed muss accepted=true liefern.");
   assert(adminSeedResult.itemDefinitions === 3, "Admin Seed muss 3 Item-Definitionen anlegen.");
   assert(adminSeedResult.nfcTags === 2, "Admin Seed muss 2 NFC-Tags anlegen.");
+
+  await assertRejectedScan({
+    token: userToken,
+    publicCode: "",
+    missionId: "demo_tree_clue_001",
+    expectedReason: "missing-public-code",
+    label: "Fehlender NFC Code",
+  });
+
+  await assertRejectedScan({
+    token: userToken,
+    publicCode: "UNKNOWN-CODE",
+    missionId: "demo_tree_clue_001",
+    expectedReason: "tag-not-found",
+    label: "Unbekannter NFC Code",
+  });
+
+  await db.collection("nfcTags").doc("demo_nfc_revoked_001").set({
+    publicCode: "WF-DEMO-REVOKED-001",
+    purpose: "grantItem",
+    status: "revoked",
+    linkedItemId: "rope_001",
+    linkedCapabilityId: "climbUp",
+    linkedMissionId: "demo_tree_clue_001",
+    usageLimit: 100,
+    usageCount: 0,
+  });
+  await assertRejectedScan({
+    token: userToken,
+    publicCode: "WF-DEMO-REVOKED-001",
+    missionId: "demo_tree_clue_001",
+    expectedReason: "tag-revoked",
+    label: "Revoked NFC Tag",
+  });
+
+  await db.collection("nfcTags").doc("demo_nfc_inactive_001").set({
+    publicCode: "WF-DEMO-INACTIVE-001",
+    purpose: "grantItem",
+    status: "inactive",
+    linkedItemId: "rope_001",
+    linkedCapabilityId: "climbUp",
+    linkedMissionId: "demo_tree_clue_001",
+    usageLimit: 100,
+    usageCount: 0,
+  });
+  await assertRejectedScan({
+    token: userToken,
+    publicCode: "WF-DEMO-INACTIVE-001",
+    missionId: "demo_tree_clue_001",
+    expectedReason: "tag-not-active",
+    label: "Inactive NFC Tag",
+  });
+
+  await db.collection("nfcTags").doc("demo_nfc_user_locked_001").set({
+    publicCode: "WF-DEMO-USER-LOCKED-001",
+    purpose: "grantItem",
+    status: "active",
+    linkedItemId: "rope_001",
+    linkedCapabilityId: "climbUp",
+    linkedMissionId: "demo_tree_clue_001",
+    usageLimit: 100,
+    usageCount: 0,
+    allowedUserIds: ["callable-user"],
+  });
+  await assertRejectedScan({
+    token: otherUserToken,
+    publicCode: "WF-DEMO-USER-LOCKED-001",
+    missionId: "demo_tree_clue_001",
+    expectedReason: "user-not-allowed",
+    label: "Falscher Nutzer",
+  });
+
+  await db.collection("nfcTags").doc("demo_nfc_limit_reached_001").set({
+    publicCode: "WF-DEMO-LIMIT-001",
+    purpose: "grantItem",
+    status: "active",
+    linkedItemId: "rope_001",
+    linkedCapabilityId: "climbUp",
+    linkedMissionId: "demo_tree_clue_001",
+    usageLimit: 1,
+    usageCount: 1,
+  });
+  await assertRejectedScan({
+    token: userToken,
+    publicCode: "WF-DEMO-LIMIT-001",
+    missionId: "demo_tree_clue_001",
+    expectedReason: "usage-limit-reached",
+    label: "Usage Limit erreicht",
+  });
 
   const nfcScan = await callCallable("validateNfcScan", userToken, {
     publicCode: "WF-DEMO-ROPE-TREE-001",
@@ -172,6 +281,31 @@ async function run() {
   const capabilityDoc = await db.collection("buddyCapabilities").doc("callable-user_default_climbUp").get();
   assert(capabilityDoc.exists, "Callable NFC Scan muss buddyCapabilities climbUp erzeugen.");
   assert(capabilityDoc.data().unlocked === true, "Callable NFC Scan muss climbUp unlocked=true setzen.");
+
+  const duplicate = await assertRejectedScan({
+    token: userToken,
+    publicCode: "WF-DEMO-ROPE-TREE-001",
+    missionId: "demo_tree_clue_001",
+    expectedReason: "duplicate-scan",
+    label: "Duplicate Scan",
+  });
+  assert(duplicate.tagId === "demo_nfc_rope_tree_001", "Duplicate Scan muss Tag-ID zurueckgeben.");
+  assert(await countInventoryItems("callable-user", "rope_001") === 1, "Duplicate Scan darf kein zweites rope_001 vergeben.");
+
+  const magnifierScan = await callCallable("validateNfcScan", userToken, {
+    publicCode: "WF-DEMO-MAGNIFIER-LEAF-001",
+    missionId: "demo_leaf_quiz_001",
+    deviceId: "callable-test-device-002",
+    appSessionId: "callable-test-session-002",
+  });
+  const magnifierResult = getCallableResult(magnifierScan);
+  assert(magnifierScan.ok, `Magnifier Flow muss HTTP OK sein: ${describeCall(magnifierScan)}`);
+  assert(magnifierResult.accepted === true, "Magnifier Flow muss accepted=true liefern.");
+  assert(magnifierResult.grantedItemId === "magnifier_001", "Magnifier Flow muss magnifier_001 vergeben.");
+  assert(magnifierResult.grantedCapabilityId === "scanObject", "Magnifier Flow muss scanObject freischalten.");
+  const scanObjectDoc = await db.collection("buddyCapabilities").doc("callable-user_default_scanObject").get();
+  assert(scanObjectDoc.exists, "Magnifier Flow muss buddyCapabilities scanObject erzeugen.");
+  assert(scanObjectDoc.data().unlocked === true, "Magnifier Flow muss scanObject unlocked=true setzen.");
 
   const audit = await callCallable("auditItemUse", userToken, {
     buddyId: "default",
