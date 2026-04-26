@@ -1,0 +1,40 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
+
+WICHTIGER HINWEIS:
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+
+============================================================
+A. MASTER-REGELN / STATUSSYSTEM
+============================================================
+
+[!] Diese To-do-Liste darf niemals kleiner werden.
+[!] Bestehende Aufgaben, Ideen, Epics, Businessplan-Punkte und Architekturentscheidungen dürfen nicht gelöscht werden.
+[!] Erledigte Punkte bleiben sichtbar und werden auf [x] gesetzt.
+[!] Verschobene Punkte bleiben sichtbar und werden auf [>] gesetzt.
+[!] Blockierte Punkte bleiben sichtbar und werden auf [!] gesetzt.
+[!] Neue Erkenntnisse werden ergänzt, nicht ersetzt.
+[!] Kein produktrelevanter Punkt darf nur im Chat stehen bleiben.
+[!] Bei jeder neuen Umsetzung muss diese Datei aktualisiert werden.
+
+Statussystem:
+[ ] Offen
+[x] Fertig
+[~] In Arbeit
+[!] Blockiert / kritisch
+[>] Später / Backlog
+
+Sichere Server-Deployment-Reihenfolge – AKTUELL:
+cd /var/www/WellFit-now
+pm2 stop wellfit-now
+git fetch origin
+git reset --hard origin/main
+npm install
+NODE_OPTIONS="--max-old-space-size=768" npm run build
+pm2 restart wellfit-now --update-env
+pm2 status
+
