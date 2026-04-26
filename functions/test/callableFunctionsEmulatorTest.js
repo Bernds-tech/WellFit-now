@@ -9,6 +9,8 @@
   - NFC Edge Cases: missing/unknown/revoked/inactive/duplicate/user-not-allowed/usage-limit
   - Magnifier Flow mit scanObject Capability
   - auditItemUse als normaler Nutzer erfolgreich
+  - createTrackingSession / recordTrackingProof als serverautorisierter Tracking-Ersatzpfad
+  - createMissionBuddyEvent als serverautorisierter Buddy-Event-Ersatzpfad
 
   Voraussetzung:
   Terminal 1:
@@ -67,6 +69,9 @@ async function resetDemoCollections() {
     "buddyCapabilities",
     "capabilityUnlockEvents",
     "buddyItemUseEvents",
+    "trackingSessions",
+    "trackingProofEvents",
+    "missionBuddyEvents",
   ];
 
   for (const collectionName of collections) {
@@ -320,6 +325,69 @@ async function run() {
   assert(audit.ok, `auditItemUse muss HTTP OK sein: ${describeCall(audit)}`);
   assert(auditResult.accepted === true, "auditItemUse muss accepted=true liefern.");
   assert(auditResult.eventId, "auditItemUse muss eventId liefern.");
+
+  const trackingSession = await callCallable("createTrackingSession", userToken, {
+    missionId: "demo_tree_clue_001",
+    source: "mobile",
+    proofType: "motion",
+    deviceId: "tracking-device-001",
+    appSessionId: "tracking-app-session-001",
+  });
+  const trackingSessionResult = getCallableResult(trackingSession);
+  assert(trackingSession.ok, `createTrackingSession muss HTTP OK sein: ${describeCall(trackingSession)}`);
+  assert(trackingSessionResult.accepted === true, "createTrackingSession muss accepted=true liefern.");
+  assert(trackingSessionResult.sessionId, "createTrackingSession muss sessionId liefern.");
+  const trackingDoc = await db.collection("trackingSessions").doc(trackingSessionResult.sessionId).get();
+  assert(trackingDoc.exists, "createTrackingSession muss trackingSessions Dokument schreiben.");
+  assert(trackingDoc.data().userId === "callable-user", "trackingSessions userId muss callable-user sein.");
+  assert(trackingDoc.data().rewardAuthorized === false, "Tracking Session darf keinen Reward autorisieren.");
+  assert(trackingDoc.data().missionCompletionAuthorized === false, "Tracking Session darf keine Mission Completion autorisieren.");
+
+  const trackingProof = await callCallable("recordTrackingProof", userToken, {
+    sessionId: trackingSessionResult.sessionId,
+    proofType: "motion",
+    status: "completed",
+    deviceId: "tracking-device-001",
+  });
+  const trackingProofResult = getCallableResult(trackingProof);
+  assert(trackingProof.ok, `recordTrackingProof muss HTTP OK sein: ${describeCall(trackingProof)}`);
+  assert(trackingProofResult.accepted === true, "recordTrackingProof muss accepted=true liefern.");
+  assert(trackingProofResult.proofEventId, "recordTrackingProof muss proofEventId liefern.");
+  const proofDoc = await db.collection("trackingProofEvents").doc(trackingProofResult.proofEventId).get();
+  assert(proofDoc.exists, "recordTrackingProof muss trackingProofEvents Dokument schreiben.");
+  assert(proofDoc.data().rewardAuthorized === false, "Tracking Proof darf keinen Reward autorisieren.");
+  assert(proofDoc.data().missionCompletionAuthorized === false, "Tracking Proof darf keine Mission Completion autorisieren.");
+
+  const otherUserProof = await callCallable("recordTrackingProof", otherUserToken, {
+    sessionId: trackingSessionResult.sessionId,
+    proofType: "motion",
+  });
+  assert(otherUserProof.status === 403 || otherUserProof.json.error, "Fremder Nutzer darf Tracking Proof nicht fuer fremde Session schreiben.");
+
+  const buddyEvent = await callCallable("createMissionBuddyEvent", userToken, {
+    missionId: "demo_tree_clue_001",
+    buddyId: "default",
+    eventType: "buddyActionRequested",
+    status: "requested",
+    itemId: "rope_001",
+    capabilityId: "climbUp",
+    messageKey: "buddy.climb.requested",
+  });
+  const buddyEventResult = getCallableResult(buddyEvent);
+  assert(buddyEvent.ok, `createMissionBuddyEvent muss HTTP OK sein: ${describeCall(buddyEvent)}`);
+  assert(buddyEventResult.accepted === true, "createMissionBuddyEvent muss accepted=true liefern.");
+  assert(buddyEventResult.eventId, "createMissionBuddyEvent muss eventId liefern.");
+  const buddyEventDoc = await db.collection("missionBuddyEvents").doc(buddyEventResult.eventId).get();
+  assert(buddyEventDoc.exists, "createMissionBuddyEvent muss missionBuddyEvents Dokument schreiben.");
+  assert(buddyEventDoc.data().userId === "callable-user", "missionBuddyEvents userId muss callable-user sein.");
+  assert(buddyEventDoc.data().rewardAuthorized === false, "Buddy Event darf keinen Reward autorisieren.");
+  assert(buddyEventDoc.data().missionCompletionAuthorized === false, "Buddy Event darf keine Mission Completion autorisieren.");
+
+  const invalidTrackingSession = await callCallable("createTrackingSession", userToken, {
+    source: "mobile",
+    proofType: "motion",
+  });
+  assert(invalidTrackingSession.status === 400 || invalidTrackingSession.json.error, "createTrackingSession ohne missionId muss abgelehnt werden.");
 
   const wrongMission = await callCallable("validateNfcScan", userToken, {
     publicCode: "WF-DEMO-ROPE-TREE-001",
