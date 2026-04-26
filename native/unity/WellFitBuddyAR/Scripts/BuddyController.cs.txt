@@ -1,0 +1,43 @@
+// Vorlage fuer Assets/Scripts/BuddyController.cs
+// Nach Unity-Projekterzeugung als .cs Datei uebernehmen.
+
+using UnityEngine;
+
+public class BuddyController : MonoBehaviour
+{
+    [SerializeField] private Animator animator;
+    [SerializeField] private Transform cameraTransform;
+
+    public void PlayIdle()
+    {
+        animator?.SetTrigger("idle");
+    }
+
+    public void PlayHappy()
+    {
+        animator?.SetTrigger("happy");
+    }
+
+    public void PlayWalk()
+    {
+        animator?.SetTrigger("walk");
+    }
+
+    public void PlayHop()
+    {
+        animator?.SetTrigger("hop");
+    }
+
+    public void LookAtCamera()
+    {
+        if (cameraTransform == null) return;
+        Vector3 target = cameraTransform.position;
+        target.y = transform.position.y;
+        transform.LookAt(target);
+    }
+
+    private void Update()
+    {
+        LookAtCamera();
+    }
+}
