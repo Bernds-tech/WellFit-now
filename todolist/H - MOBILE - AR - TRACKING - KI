@@ -1,0 +1,65 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
+
+WICHTIGER HINWEIS:
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+
+============================================================
+H. MOBILE / AR / TRACKING / KI
+============================================================
+
+TASK-ID: WF-MOBILE-001
+STATUS: [>] Später / Backlog
+[x] Web-App = Steuerzentrale.
+[x] Mobile App = täglicher Begleiter.
+[ ] Startscreen mit AR-Startbutton, nicht automatisch Kamera starten.
+[ ] Rechts oben Nutzerbild.
+[ ] Daneben Buddy-Level.
+[ ] Links Hamburger-Menü.
+[ ] Unten Tagesfortschritt nur als Balken.
+[ ] AR-Elemente realistisch in Umgebung einbetten, nicht nur overlayen.
+
+TASK-ID: WF-AI-POSE-001
+STATUS: [>] Später / Backlog
+[ ] TensorFlow / MediaPipe / vergleichbare Technologie prüfen.
+[ ] Skeleton Tracking definieren.
+[ ] Saubere Wiederholungen zählen.
+[ ] Schlechte Wiederholungen nicht zählen.
+[ ] Edge AI / On-Device Verarbeitung prüfen.
+
+TASK-ID: WF-AI-MOOD-001
+STATUS: [>] Später / Backlog
+[ ] Mimik-/Stimmungszustände definieren: gut, schlecht, mies, genervt, müde, motiviert, gestresst.
+[ ] Consent für Kamera/Mimik-Erkennung.
+[ ] Keine Speicherung von Bildern/Videos als Standard.
+[ ] Nur lokale Analyse prüfen.
+
+TASK-ID: WF-WATCH-001
+STATUS: [>] Später / Backlog
+[>] Schritte, Smartwatch- und Health-Daten sind Kontextdaten, nicht Kernmission.
+[ ] HealthKit prüfen.
+[ ] Google Health Connect prüfen.
+[ ] Smartwatch-Daten anbinden.
+[ ] Datenminimierung und Consent festlegen.
+
+TASK-ID: WF-TRACK-001
+STATUS: [x] Fertig / Basis umgesetzt
+[x] lib/tracking.ts erstellt.
+[x] startTrackingSession vorhanden.
+[x] finishTrackingSession vorhanden.
+[x] trackingSessions Collection wird beschrieben.
+[x] source / missionId / missionTitle / activityType / startTime / endTime / stepsAggregated / eventsCount / validReps / invalidReps sind berücksichtigt.
+
+TASK-ID: WF-ANTI-CHEAT-001
+STATUS: [ ] Offen
+[ ] Cheat-Schutz für AR, Tracking und Wettbewerbe ausbauen.
+[ ] Standort / Zeit / Aufgabe plausibilisieren.
+[ ] Schrittmuster validieren.
+[ ] Geschwindigkeit / Distanz / Zeitfenster plausibilisieren.
+[ ] Unplausible Tracking-Sessions markieren.
+[ ] Wettbewerbe serverseitig validieren.
+
