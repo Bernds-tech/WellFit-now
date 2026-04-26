@@ -21,13 +21,13 @@ export const mobileFocusCards: MobileFocusCard[] = [
 export const mobileQuickActions: MobileQuickAction[] = [
   {
     label: "Mission spielen",
-    description: "Öffnet die spielbaren Tagesmissionen.",
-    href: "/missionen/tagesmissionen",
+    description: "Öffnet die mobile Missions-Testansicht ohne Desktop-Dashboard.",
+    href: "/mobile/missionen",
   },
   {
     label: "Flammi füttern",
-    description: "Öffnet den KI-Buddy für schnelle Pflege.",
-    href: "/buddy",
+    description: "Öffnet den mobilen KI-Buddy für schnelle Pflege.",
+    href: "/mobile/buddy",
   },
   {
     label: "Nutzer analysieren",
