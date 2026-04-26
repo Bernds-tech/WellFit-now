@@ -116,6 +116,10 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    match /nfcScanClaims/{claimId} {
+      allow read, write: if false;
+    }
+
     match /capabilityUnlockEvents/{eventId} {
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow create, update, delete: if false;
