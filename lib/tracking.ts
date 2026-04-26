@@ -17,6 +17,10 @@ export type FinishTrackingInput = {
   eventsCount?: number;
   validReps?: number;
   invalidReps?: number;
+  qualityScore?: number;
+  confidence?: number;
+  moodSignal?: string;
+  exercise?: string;
   notes?: string;
 };
 
@@ -38,6 +42,10 @@ export async function startTrackingSession(input: StartTrackingInput = {}) {
     eventsCount: 0,
     validReps: null,
     invalidReps: null,
+    qualityScore: null,
+    confidence: null,
+    moodSignal: null,
+    exercise: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -58,6 +66,10 @@ export async function finishTrackingSession(input: FinishTrackingInput) {
     eventsCount: input.eventsCount ?? 0,
     validReps: input.validReps ?? null,
     invalidReps: input.invalidReps ?? null,
+    qualityScore: input.qualityScore ?? null,
+    confidence: input.confidence ?? null,
+    moodSignal: input.moodSignal ?? null,
+    exercise: input.exercise ?? null,
     notes: input.notes ?? null,
     updatedAt: serverTimestamp(),
   });
