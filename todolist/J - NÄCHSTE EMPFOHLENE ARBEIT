@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 6.4 – MISSION REWARD POLICY UND REWARD PREVIEW STUB ERGÄNZT
+Version: 6.5 – MISSION REWARD PREVIEW EMULATOR-RETEST ERFOLGREICH
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -23,6 +23,7 @@ AKTUELLER FOKUS:
 [x] KI erzeugt Vorschläge; Backend entscheidet Preise, Rewards, Freischaltungen, Token-/WFT-Bezüge und Missbrauchsschutz.
 [x] Mission Reward / Context / Payout Engine ist als Architekturpfad angelegt und erste sichere Backend-Stubs sind umgesetzt.
 [x] MissionRewardPolicy + RewardPreview-Stub sind ergänzt: nur Simulation, keine XP-/Punkte-/Reward-/Token-Autorisierung.
+[x] MissionRewardPreview wurde im Emulator erfolgreich geladen und getestet.
 
 ============================================================
 AKTUELLER UMSETZUNGSSTAND – NEU BESTÄTIGT
@@ -57,17 +58,21 @@ FIREBASE / FUNCTIONS / TESTS:
 [x] Firestore Rules Smoke Test erfolgreich.
 [x] Callable Functions Emulator Test erfolgreich.
 [x] Mission Completion Emulator Test erfolgreich.
-[x] Root-Produktionsbuild erfolgreich:
+[x] missionRewardPreview im Functions Emulator erfolgreich initialisiert.
+[x] missionRewardPreview im Mission Emulator Test erfolgreich ausgeführt.
+[x] Fremde missionRewardPreview-Versuche werden blockiert.
+[x] Direkte Client-Writes auf missionRewardPreviews, missionRewardPolicies, systemReserveSnapshots und missionRewardEvents werden blockiert.
+[x] Root-Produktionsbuild zuletzt erfolgreich:
     - Compiled successfully
     - TypeScript fertig
     - 29/29 statische Seiten generiert
     - Route-Liste erfolgreich erzeugt
-[x] PM2 Restart erfolgreich ausgeführt.
-[x] PM2 Status: wellfit-now online.
-[x] Next.js Server meldet Ready auf localhost:3000 und Network 172.86.81.91:3000.
-[!] Alte Error-Log-Einträge zu fehlender `.next`-Production-Build-ID stammen aus der Zeit vor dem erfolgreichen Build/Restart. Aktueller Out-Log zeigt Ready.
+[x] PM2 Restart zuletzt erfolgreich ausgeführt.
+[x] PM2 Status zuletzt: wellfit-now online.
+[x] Next.js Server meldete zuletzt Ready auf localhost:3000 und Network 172.86.81.91:3000.
+[!] Nach RewardPreview-Retest muss der Root-Produktionsbuild erneut ausgeführt und PM2 neu gestartet werden.
+[!] Alte Error-Log-Einträge zu fehlender `.next`-Production-Build-ID stammen aus der Zeit vor dem erfolgreichen Build/Restart. Aktueller Out-Log prüfen.
 [!] Die PERMISSION_DENIED-Meldungen im Rules-Test sind erwartet und positiv. Sie zeigen, dass direkte Client-Writes blockiert werden.
-[!] Nach Ergänzung von missionRewardPreview muss der erweiterte Emulator-Gesamttest erneut ausgeführt werden.
 
 SERVERAUTORISIERTE COLLECTIONS:
 [x] itemDefinitions: Read für eingeloggte Nutzer, keine Client-Writes.
@@ -100,11 +105,15 @@ CALLABLE FUNCTIONS:
 [x] grantItemOrCapability: Guard-Stub vorhanden, noch nicht produktiv aktiv.
 [x] validateMissionCompletionWithItem: Guard-Stub vorhanden, noch nicht produktiv aktiv.
 
-MISSION CONTEXT / COMPLETION:
+MISSION CONTEXT / COMPLETION / REWARD PREVIEW:
 [x] functions/lib/missionContext.js angelegt.
+[x] functions/lib/missionRewardPolicy.js angelegt.
 [x] missionContextEvaluations Collection eingeführt.
 [x] missionCompletionEvaluations Collection eingeführt.
 [x] missionRewardPreviews Collection eingeführt.
+[x] missionRewardPolicies als Policy-Lesemodell vorbereitet.
+[x] systemReserveSnapshots als Systemgesundheits-Lesemodell vorbereitet.
+[x] missionRewardEvents als späteres Audit-Modell vorbereitet.
 [x] Sicherer Child-Kontext wird mit context-ok-for-review bewertet.
 [x] Riskanter Child-Kontext bei Nacht, ohne Parent-Mode, außerhalb Radius und ohne Proof wird mit reject-or-parent-review bewertet.
 [x] Risk Flags werden geprüft: parent-mode-required, night-not-safe-for-child, outside-radius.
@@ -114,7 +123,7 @@ MISSION CONTEXT / COMPLETION:
 [x] Fremde RewardPreview-Versuche werden im Emulator-Test abgedeckt.
 [x] Leere Evaluation liefert insufficient-evidence.
 [x] Evidence mit Belegen liefert manual-review-required.
-[!] evaluateMissionContext, evaluateMissionCompletion und missionRewardPreview autorisieren weiterhin keine Rewards, XP, Punkte oder finale Mission Completion.
+[!] evaluateMissionContext, evaluateMissionCompletion und missionRewardPreview autorisieren weiterhin keine Rewards, XP, Punkte, Token oder finale Mission Completion.
 
 NFC / ITEMS / BUDDY:
 [x] Demo Items: rope_001, magnifier_001, small_backpack_001.
@@ -135,19 +144,22 @@ DOKUMENTATION KONSOLIDIERT:
 [x] docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md vorhanden.
 
 ============================================================
-PRIO 1 – WEBSITE IM BROWSER PRÜFEN
+PRIO 1 – ROOT BUILD / PM2 RESTART / WEBSITE IM BROWSER PRÜFEN
 ============================================================
 
-STATUS: [~] Letzte manuelle Bestätigung
+STATUS: [~] Nach RewardPreview-Retest erneut ausführen
 
-[x] T1 Emulator sauber gestoppt.
-[x] Firebase Root-Paket repariert.
-[x] Root Build erfolgreich ausgeführt:
+[x] Functions `npm run check` nach RewardPreview-Ergänzung erfolgreich.
+[x] Emulator T1 erfolgreich gestartet.
+[x] Functions Emulator lädt missionRewardPreview erfolgreich.
+[x] T2 `npm run test:emulator` nach RewardPreview-Ergänzung erfolgreich.
+[ ] T1 Emulator sauber stoppen.
+[ ] Root Build erneut ausführen:
     `NODE_OPTIONS="--max-old-space-size=768" npm run build`
-[x] PM2 wieder gestartet:
+[ ] PM2 neu starten:
     `pm2 restart wellfit-now --update-env`
-[x] PM2 Status geprüft: online.
-[x] PM2 Logs geprüft: aktueller Out-Log meldet Next.js Ready.
+[ ] PM2 Status prüfen.
+[ ] PM2 Logs prüfen.
 [ ] Website im Browser prüfen.
 
 EMPFOHLENE MANUELLE PRÜFUNG:
@@ -165,7 +177,7 @@ Startseite öffnen
 PRIO 2 – MISSION REWARD POLICY / REWARD PREVIEW STUB
 ============================================================
 
-STATUS: [~] In Arbeit / sicherer Preview-Stub umgesetzt, Emulator-Retest offen
+STATUS: [x] Sicherer Preview-Stub umgesetzt und Emulator-Retest erfolgreich
 
 [x] missionRewardPolicies als reine Policy-Datenstruktur vorbereitet: `functions/lib/missionRewardPolicy.js`.
 [x] Firestore Rules für missionRewardPolicies geplant/ergänzt: Read nach Bedarf, keine Client-Writes.
@@ -180,14 +192,14 @@ STATUS: [~] In Arbeit / sicherer Preview-Stub umgesetzt, Emulator-Retest offen
 [x] systemReserveSnapshots als Lesemodell für spätere Systemgesundheit vorbereitet: keine Client-Writes.
 [x] missionRewardEvents als Audit-Modell vorbereitet: keine produktive Auszahlung, keine Client-Writes.
 [x] Emulator-Testplan technisch erweitert: missionRewardPreview-Guardrails in missionCompletionEmulatorTest.js ergänzt.
-[ ] `npm run check` im Functions-Ordner erneut ausführen.
-[ ] `npm run test:emulator` nach RewardPreview-Ergänzung erneut ausführen.
+[x] `npm run check` im Functions-Ordner erfolgreich.
+[x] `npm run test:emulator` nach RewardPreview-Ergänzung erfolgreich.
 
 ============================================================
 PRIO 3 – ANTI-CHEAT / SENSOR FUSION / RACE-CONDITIONS
 ============================================================
 
-STATUS: [ ] Offen / nächster Entwicklungsblock nach RewardPreview-Retest
+STATUS: [ ] Offen / nächster Entwicklungsblock nach Build und Browserprüfung
 
 [ ] NFC Duplicate-Scan-Schutz später transaktional/deterministisch absichern.
 [ ] Pose/Motion/AR/NFC/GPS-Beweise in ein Anti-Cheat-Modell überführen.
@@ -204,7 +216,7 @@ STATUS: [ ] Offen
 
 [ ] Unity Hub installieren/öffnen.
 [ ] Unity 2022.3 LTS als Startversion verwenden, sofern keine harte Inkompatibilität auftritt.
- [ ] Projekt `WellFitBuddyAR` unter `native/unity/WellFitBuddyAR` erzeugen.
+[ ] Projekt `WellFitBuddyAR` unter `native/unity/WellFitBuddyAR` erzeugen.
 [ ] AR Foundation installieren.
 [ ] ARCore XR Plugin installieren.
 [ ] ARKit XR Plugin installieren.
