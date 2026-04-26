@@ -23,9 +23,13 @@ J - NÄCHSTE EMPFOHLENE ARBEIT
 
 ```txt
 ROADMAP_BUDDY_PHASES_ADDENDUM
+CHAT_START_PROMPT.md
+H1 - NATIVE AR - ARCORE - ARKIT - UNITY
 ```
 
-Diese Datei ist ein historisches/ergänzendes Arbeitsaddendum. Inhalte daraus wurden in die A–J-Struktur übernommen oder werden dort weitergeführt.
+`H1 - NATIVE AR - ARCORE - ARKIT - UNITY` ist die verbindliche Detail-Roadmap für echtes Flammi-AR mit World Tracking, Plane Detection, ARCore, ARKit und Unity AR Foundation. Sie ergänzt `H - MOBILE - AR - TRACKING - KI` und wird bei allen AR-/Avatar-/Native-Mobile-Aufgaben mitgelesen.
+
+Historische/ergänzende Addenda bleiben sichtbar. Inhalte daraus wurden in die A–J-Struktur übernommen oder werden dort weitergeführt.
 
 ## Arbeitsregel
 
@@ -36,6 +40,7 @@ Diese Datei ist ein historisches/ergänzendes Arbeitsaddendum. Inhalte daraus wu
 - Neue Erkenntnisse werden ergänzt, nicht ersetzt.
 - Produktrelevante Punkte dürfen nicht nur im Chat stehen bleiben.
 - Änderungen werden künftig in den passenden A–J-Dateien gepflegt.
+- Echte AR-Entscheidungen müssen zusätzlich in `H1 - NATIVE AR - ARCORE - ARKIT - UNITY` gepflegt werden.
 
 ## Statussystem
 
@@ -53,4 +58,11 @@ Für neue Entwicklungsarbeit zuerst prüfen:
 
 ```txt
 J - NÄCHSTE EMPFOHLENE ARBEIT
+```
+
+Bei Mobile/AR/Avatar zusätzlich prüfen:
+
+```txt
+H - MOBILE - AR - TRACKING - KI
+H1 - NATIVE AR - ARCORE - ARKIT - UNITY
 ```
