@@ -79,6 +79,27 @@ function minimalClientContext(data) {
   };
 }
 
+async function readOwnedMissionDoc({ collectionName, docId, userId, missionId, label }) {
+  const normalizedDocId = optionalString(docId, 180);
+  if (!normalizedDocId) return null;
+
+  const snapshot = await db.collection(collectionName).doc(normalizedDocId).get();
+  if (!snapshot.exists) {
+    throw new HttpsError("not-found", `${label} wurde nicht gefunden.`);
+  }
+
+  const data = snapshot.data() || {};
+  if (data.userId !== userId && data.ownerUserId !== userId) {
+    throw new HttpsError("permission-denied", `${label} gehoert nicht diesem Nutzer.`);
+  }
+
+  if (data.missionId && data.missionId !== missionId) {
+    throw new HttpsError("failed-precondition", `${label} passt nicht zu dieser Mission.`);
+  }
+
+  return { id: snapshot.id, data };
+}
+
 async function createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason }) {
   const ref = db.collection("nfcScanEvents").doc();
   const event = {
@@ -374,6 +395,84 @@ exports.createMissionBuddyEvent = onCall(async (request) => {
     accepted: true,
     eventId: eventRef.id,
     serverValidationStatus: "recorded",
+  };
+});
+
+exports.evaluateMissionCompletion = onCall(async (request) => {
+  const userId = requireAuth(request);
+  const data = request.data || {};
+  const missionId = requiredString(data.missionId, "missionId");
+  const evaluationRef = db.collection("missionCompletionEvaluations").doc();
+
+  const trackingSession = await readOwnedMissionDoc({
+    collectionName: "trackingSessions",
+    docId: data.trackingSessionId,
+    userId,
+    missionId,
+    label: "Tracking-Session",
+  });
+
+  const trackingProof = await readOwnedMissionDoc({
+    collectionName: "trackingProofEvents",
+    docId: data.trackingProofEventId,
+    userId,
+    missionId,
+    label: "Tracking-Proof",
+  });
+
+  const nfcScan = await readOwnedMissionDoc({
+    collectionName: "nfcScanEvents",
+    docId: data.nfcScanEventId,
+    userId,
+    missionId,
+    label: "NFC-Scan",
+  });
+
+  const buddyEvent = await readOwnedMissionDoc({
+    collectionName: "missionBuddyEvents",
+    docId: data.missionBuddyEventId,
+    userId,
+    missionId,
+    label: "Buddy-Event",
+  });
+
+  const evidenceRefs = {
+    trackingSessionId: trackingSession ? trackingSession.id : null,
+    trackingProofEventId: trackingProof ? trackingProof.id : null,
+    nfcScanEventId: nfcScan ? nfcScan.id : null,
+    missionBuddyEventId: buddyEvent ? buddyEvent.id : null,
+  };
+
+  const evidenceCount = Object.values(evidenceRefs).filter(Boolean).length;
+  const preliminaryStatus = evidenceCount > 0 ? "needs-review" : "insufficient-evidence";
+
+  await evaluationRef.set({
+    evaluationId: evaluationRef.id,
+    userId,
+    missionId,
+    evidenceRefs,
+    evidenceCount,
+    preliminaryStatus,
+    serverValidationStatus: "evaluation-created",
+    accepted: false,
+    rejectionReason: evidenceCount > 0 ? "manual-review-required" : "insufficient-evidence",
+    rewardAuthorized: false,
+    missionCompletionAuthorized: false,
+    xpAuthorized: false,
+    pointsAuthorized: false,
+    createdAt: now(),
+    updatedAt: now(),
+    ...minimalClientContext(data),
+  });
+
+  return {
+    accepted: false,
+    evaluationId: evaluationRef.id,
+    preliminaryStatus,
+    evidenceCount,
+    rewardAuthorized: false,
+    missionCompletionAuthorized: false,
+    rejectionReason: evidenceCount > 0 ? "manual-review-required" : "insufficient-evidence",
   };
 });
 
