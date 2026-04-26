@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.2 – UNITY AR FOUNDATION PROJEKTSTRUKTUR BUILD/PM2 BESTÄTIGT
+Version: 4.3 – UNITY AR + BUDDY ITEM/NFC/CAPABILITY IN TODOLIST ZUSAMMENGEFÜHRT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -25,33 +25,14 @@ AKTUELLER FOKUS:
 [x] Unity Script-Platzhalter und erste C#-Vorlagen angelegt.
 [x] Build nach Unity-Struktur erfolgreich ausgeführt.
 [x] PM2 nach Unity-Struktur erfolgreich neu gestartet.
+[x] Buddy-Item-/Ausrüstungs-/NFC-/Capability-Erweiterung in H2 aufgenommen.
+[x] Erweiterung mit J und G zusammengeführt: Inventar, NFC, Item-Fähigkeiten und serverseitige Reward-/Security-Grenzen sind Roadmap-Bestandteil.
 
-PRIO 1 – BESTÄTIGTER SERVER-BUILD
-[x] Build nach Unity-Struktur ausgeführt:
-    - native/unity/WellFitBuddyAR/README.md
-    - native/unity/WellFitBuddyAR/.gitignore
-    - native/unity/WellFitBuddyAR/docs/SCENE_SETUP.md
-    - native/unity/WellFitBuddyAR/docs/BRIDGE_CONTRACT.md
-    - native/unity/WellFitBuddyAR/Scripts/README.md
-    - native/unity/WellFitBuddyAR/Scripts/WellFitNativeBridge.cs.txt
-    - native/unity/WellFitBuddyAR/Scripts/BuddyController.cs.txt
-    - native/unity/WellFitBuddyAR/Scripts/BuddyAnchorController.cs.txt
-    - todolist/H1 aktualisiert auf Unity-Hauptpfad
-    - todolist/H2 Produktvision ergänzt
-
-BESTÄTIGTER SERVER-BUILD NACH UNITY-STRUKTUR:
-[x] git fetch origin ausgeführt.
-[x] git reset --hard origin/main ausgeführt.
-[x] HEAD bestätigt: 633a927 Document Unity AR project structure as next work item.
-[x] npm install --no-audit --no-fund erfolgreich.
-[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
-[x] Next.js 16.2.3 Build erfolgreich kompiliert.
-[x] TypeScript erfolgreich abgeschlossen.
-[x] Static Pages erfolgreich generiert: 29/29.
-[x] /mobile/ar im Build enthalten.
-[x] /mobile/missionen/squat im Build enthalten.
-[x] pm2 restart wellfit-now --update-env erfolgreich.
-[x] pm2 status geprüft: wellfit-now online.
+PRIO 1 – TODOLIST-KONSOLIDIERUNG / BUILD
+[ ] Build nach Zusammenführung der Item-/NFC-/Capability-Erweiterungen ausführen:
+    - todolist/H2 erweitert um Ausrüstung, NFC, Real-World-Items und Buddy-Fähigkeiten
+    - todolist/J aktualisiert mit neuen Arbeitsblöcken
+    - todolist/G erweitert um Reward-/Security-Regeln für Items, NFC und Fähigkeiten
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -90,6 +71,9 @@ PRIO 3 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
     - Alter/Nutzerkontext
     - Missionstyp
     - Rewardstatus
+    - benötigte Fähigkeit
+    - verfügbares Item
+    - fehlendes Item
 [ ] Rätselrallye-Datenmodell entwerfen:
     - Story
     - Hinweise
@@ -97,19 +81,74 @@ PRIO 3 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
     - Aufgaben
     - Auswahlantworten
     - Belohnungen
+    - benötigte Ausrüstung
+    - NFC-/Real-World-Trigger
 [ ] Buddy-Menüführung definieren:
     - Mission empfehlen
     - Tagesmission starten
     - Wochenmission starten
     - Fortschritt erklären
     - Nutzer altersgerecht motivieren
+    - fehlende Ausrüstung erklären
+    - Buddy zum Holen/Klettern/Scannen losschicken
 [ ] Sicherheitsgrenze definieren:
     - Buddy darf empfehlen und erklären.
     - Backend entscheidet Rewards und Mission Completion.
     - Keine medizinischen Diagnosen.
+    - NFC/Item/Fähigkeit darf nicht clientseitig Reward-Autorität sein.
 
 ============================================================
-PRIO 4 – 3D-BUDDY / ASSETPIPELINE
+PRIO 4 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
+============================================================
+
+[ ] Inventar-/Item-Datenmodell entwerfen:
+    - itemId
+    - ownerUserId
+    - itemType
+    - rarity
+    - cosmeticSlots
+    - capabilityUnlocks
+    - source: mission, shop, NFC, partner, event
+    - serverValidationStatus
+[ ] Buddy-Fähigkeits-/Capability-Datenmodell entwerfen:
+    - climbUp
+    - jumpDown
+    - jumpBoost
+    - fetchClue
+    - scanObject
+    - revealHint
+    - protect
+    - carry
+[ ] NFC-/Real-World-Item-Validierung entwerfen:
+    - tagId
+    - rotatingSecret / signedPayload
+    - missionId
+    - allowedUser/group
+    - timeWindow
+    - usageLimit
+    - auditLog
+    - revoked/blocked status
+[ ] Firestore Collections planen:
+    - userInventory
+    - itemDefinitions
+    - buddyCapabilities
+    - nfcTags
+    - nfcScanEvents
+    - capabilityUnlockEvents
+[ ] Cloud Function planen:
+    - validateNfcScan
+    - grantItemOrCapability
+    - auditItemUse
+    - validateMissionCompletionWithItem
+[ ] Unity-Bridge erweitern:
+    - performBuddyAction(action)
+    - equipBuddyItem(itemId)
+    - setBuddyCapability(capabilityId)
+    - onBuddyItemUsed
+    - onBuddyCapabilityActionCompleted
+
+============================================================
+PRIO 5 – 3D-BUDDY / ASSETPIPELINE
 ============================================================
 
 [ ] Erstes echtes Buddy-Asset definieren: Drache, Ritter, Zwerg oder anderer Prototyp.
@@ -125,16 +164,23 @@ PRIO 4 – 3D-BUDDY / ASSETPIPELINE
     - lookAround
     - return
     - pointAtObject
+    - fetchClue
+    - scanObject
+    - carryItem
 [ ] Ausrüstungssystem vorbereiten:
     - Schwert
     - Schild
     - Rüstung
     - Kleidung
     - Accessoires
+    - Kletterseil
+    - Greifhaken
+    - Lupe
+    - Rucksack
 [ ] Mobile-Optimierung: LOD, Texturgrößen, Polygonbudget.
 
 ============================================================
-PRIO 5 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
+PRIO 6 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
 ============================================================
 
 [x] Capacitor-Abhängigkeiten ergänzt.
@@ -155,7 +201,7 @@ PRIO 5 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
 [ ] Server/Cloud Function für Mission Completion und Reward-Entscheidung planen.
 
 ============================================================
-PRIO 6 – MOBILE MISSION STABILISIEREN
+PRIO 7 – MOBILE MISSION STABILISIEREN
 ============================================================
 
 [ ] Kamera-Mission UX auf echtem Handy testen.
@@ -174,12 +220,14 @@ PRIO 6 – MOBILE MISSION STABILISIEREN
 [ ] Nach erfolgreichem Abschluss optional Zurück-Button zu /mobile/missionen ergänzen.
 
 ============================================================
-PRIO 7 – FIRESTORE / SECURITY HÄRTEN
+PRIO 8 – FIRESTORE / SECURITY HÄRTEN
 ============================================================
 
 [ ] firestore.rules lokal oder im Firebase Emulator testen.
 [ ] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch prüfen.
+[ ] Rules für userInventory, itemDefinitions, buddyCapabilities, nfcTags und nfcScanEvents planen.
 [ ] Cloud Function für Mission Completion planen.
+[ ] Cloud Function für NFC-/Item-/Capability-Validierung planen.
 [ ] Client darf langfristig nur Beweise/Events senden, nicht Rewards final vergeben.
-[ ] Anti-Cheat-Konzept für Pose, Bewegung und AR starten.
-[ ] Reward-/Punkte-Events auditierbar speichern.
+[ ] Anti-Cheat-Konzept für Pose, Bewegung, AR, NFC und Items starten.
+[ ] Reward-/Punkte-/Item-Events auditierbar speichern.
