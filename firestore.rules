@@ -62,6 +62,11 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    match /missionContextEvaluations/{evaluationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
     match /missionCompletionEvaluations/{evaluationId} {
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow create, update, delete: if false;
