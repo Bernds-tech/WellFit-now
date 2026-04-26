@@ -1,12 +1,8 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Version: 3.2 – MISSION REWARD / CONTEXT / PAYOUT ENGINE ERGÄNZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
-Datei: To Do List.txt
-
-WICHTIGER HINWEIS:
-Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
-Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+Ordner: todolist/
 
 ============================================================
 F. FIREBASE / REALTIME / MISSIONEN
@@ -66,178 +62,78 @@ STATUS: [~] In Arbeit / MVP-Simulation umgesetzt
 [ ] Burn-Mechanik rechtlich/technisch prüfen.
 [ ] Avatar-Kampfregeln definieren.
 
-============================================================
-G. REWARD SYSTEM / SYSTEM HEALTH / NEXT-GEN MECHANICS
-============================================================
+TASK-ID: WF-MISS-REWARD-CONTEXT-001
+STATUS: [~] Architektur ergänzt / technische Umsetzung offen
 
-[x] Vorerst KEINE echte Token-Ausschüttung.
-[x] Interne Punkte-Ausschüttung.
-[x] Persönliche Wallet-/Economy-Logik vorbereitet.
-[x] Systemreserve-Logik vorbereitet.
-[x] Reward Score Basis vorhanden.
-[x] Avatar + Economy beeinflussen Reward konzeptionell/teilweise.
-[x] Reward Breakdown im UI sichtbar.
-[x] Daily Reward Loop.
-[x] Tagesziel 3 Missionen.
-[x] Streak System.
-[x] XP-/Level-System.
-[ ] Precision / Workout Qualität.
-[ ] Sensor Fusion.
-[ ] Anti-Cheat AI.
-[ ] Completion Trends über mehrere Tage/Wochen.
-[ ] Streak-Risiko/Verlust visuell stärker darstellen.
-[ ] DePIN Compute.
-[ ] Pharma Simulation.
-[ ] External Economy.
-[>] Echte Token-/WFT-Anbindung bewusst verschoben bis nach Testphase.
+ANALYSE AKTUELLER MISSIONSDATEIEN:
+[x] app/missionen/tagesmissionen/missions.ts enthält Basis-Rewards pro Tagesmission.
+[x] app/missionen/tagesmissionen/rewardEngine.ts berechnet MVP-Reward aus Basisreward, Diversity, Anti-Farming und Streak.
+[x] app/missionen/tagesmissionen/MissionDetails.tsx zeigt Reward-Breakdown: Basis, Vielfalt, Anti-Farming.
+[x] app/missionen/tagesmissionen/useDailyMissionFirebase.ts speichert Start, Abschluss, Streak, XP und Level.
+[x] app/missionen/tagesmissionen/page.tsx ruft calculateDailyReward, completeMission und applyMissionBuddyBridge auf.
+[!] Aktuelle Reward-/XP-Vergabe ist für MVP/UI verwendbar, aber langfristig nicht finale Autorität.
+[!] Finale Auszahlung / Punkte / XP / spätere Token-nahe Bewertung muss serverseitig validiert werden.
 
-============================================================
-H. MOBILE / AR / TRACKING / KI
-============================================================
+VERBINDLICHE MISSION-REWARD-REGEL:
+[!] KI darf Missionen, Dimensionen, Item-Bedarfe und Quest-Detours vorschlagen, aber keine finale Auszahlung bestimmen.
+[!] Backend entscheidet Mission Completion, Reward, XP, Punkte, Item Grant, Burn-/Reserve-Logik und spätere Token-/WFT-Bezüge.
+[!] Auszahlung orientiert sich an Mission, Nutzerkontext, Sicherheit, Beweisen, Systemreserve und Anti-Farming.
 
-TASK-ID: WF-MOBILE-001
-STATUS: [>] Später / Backlog
-[x] Web-App = Steuerzentrale.
-[x] Mobile App = täglicher Begleiter.
-[ ] Startscreen mit AR-Startbutton, nicht automatisch Kamera starten.
-[ ] Rechts oben Nutzerbild.
-[ ] Daneben Buddy-Level.
-[ ] Links Hamburger-Menü.
-[ ] Unten Tagesfortschritt nur als Balken.
-[ ] AR-Elemente realistisch in Umgebung einbetten, nicht nur overlayen.
+KONTEXTFAKTOREN FÜR TAGESMISSIONEN:
+[ ] Alter / Altersgruppe berücksichtigen.
+[ ] Eltern-/Familienmodus berücksichtigen.
+[ ] GPS-/Radius-Sicherheit berücksichtigen.
+[ ] Tageszeit berücksichtigen.
+[ ] Wochentag / Schultag / Wochenende berücksichtigen.
+[ ] Sonntagvormittag + Elternmodus kann längere Outdoor-/Wander-/Familienmission erlauben.
+[ ] Schultag 16:00 Uhr soll eher kurze, sichere, schnell abschließbare Missionen erzeugen.
+[ ] Abend/Nacht soll keine weiten Outdoor-Kinder-Missionen erzeugen.
+[ ] 4-jähriges Kind darf keine Mission erhalten, die allein über Straßen oder weit vom sicheren Bereich wegführt.
+[ ] GPS und Kontextdaten nur mit Consent und Datenminimierung nutzen.
 
-TASK-ID: WF-AI-POSE-001
-STATUS: [>] Später / Backlog
-[ ] TensorFlow / MediaPipe / vergleichbare Technologie prüfen.
-[ ] Skeleton Tracking definieren.
-[ ] Saubere Wiederholungen zählen.
-[ ] Schlechte Wiederholungen nicht zählen.
-[ ] Edge AI / On-Device Verarbeitung prüfen.
+QUEST-CHAIN-/ITEM-DETOUR-REGEL:
+[!] Fehlendes oder zu teures Item darf nicht automatisch Kaufdruck erzeugen.
+[!] Zuerst faire spielerische Alternative prüfen: Nebenrätsel, AR-Hinweis, sichere Bewegung, NFC-/Partnerstation oder Tagesmission.
+[!] Danach kehrt Nutzer zur Hauptmission zurück.
+[!] Tagesmission muss am selben Tag abschließbar bleiben.
+[!] Maximal 1 bis 2 Nebenmissions-Ebenen pro Tagesmission.
+[!] Keine endlosen Item-Ketten.
+[!] Keine Paywall-Ketten.
 
-TASK-ID: WF-AI-MOOD-001
-STATUS: [>] Später / Backlog
-[ ] Mimik-/Stimmungszustände definieren: gut, schlecht, mies, genervt, müde, motiviert, gestresst.
-[ ] Consent für Kamera/Mimik-Erkennung.
-[ ] Keine Speicherung von Bildern/Videos als Standard.
-[ ] Nur lokale Analyse prüfen.
+SYSTEMRESERVE / WELLFIT-WALLET / AUSZAHLUNG:
+[!] Spätere Token-nahe Auszahlung darf nicht nur anhand der einzelnen Mission berechnet werden.
+[!] Sie muss zusätzlich an WellFit-Systemreserve / WellFit-Wallet / Emissions- und Burn-Rhythmus gekoppelt werden.
+[!] Mobile bleibt bei internen Punkten/XP.
+[!] Keine echte Token-Ausschüttung vor Testphase.
+[!] Burn, Ausgabe und Reserve müssen serverseitig oder Smart-Contract/Backend kontrolliert sein.
+[ ] systemReserveSnapshots planen.
+[ ] missionRewardPolicies planen.
+[ ] missionContextEvaluations planen.
+[ ] missionRewardEvents planen.
 
-TASK-ID: WF-WATCH-001
-STATUS: [>] Später / Backlog
-[>] Schritte, Smartwatch- und Health-Daten sind Kontextdaten, nicht Kernmission.
-[ ] HealthKit prüfen.
-[ ] Google Health Connect prüfen.
-[ ] Smartwatch-Daten anbinden.
-[ ] Datenminimierung und Consent festlegen.
-
-TASK-ID: WF-TRACK-001
-STATUS: [x] Fertig / Basis umgesetzt
-[x] lib/tracking.ts erstellt.
-[x] startTrackingSession vorhanden.
-[x] finishTrackingSession vorhanden.
-[x] trackingSessions Collection wird beschrieben.
-[x] source / missionId / missionTitle / activityType / startTime / endTime / stepsAggregated / eventsCount / validReps / invalidReps sind berücksichtigt.
-
-TASK-ID: WF-ANTI-CHEAT-001
-STATUS: [ ] Offen
-[ ] Cheat-Schutz für AR, Tracking und Wettbewerbe ausbauen.
-[ ] Standort / Zeit / Aufgabe plausibilisieren.
-[ ] Schrittmuster validieren.
-[ ] Geschwindigkeit / Distanz / Zeitfenster plausibilisieren.
-[ ] Unplausible Tracking-Sessions markieren.
-[ ] Wettbewerbe serverseitig validieren.
+DOKUMENT:
+[x] docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md angelegt.
 
 ============================================================
-I. BUSINESS / WEBSITE / PARTNER / LEGAL
+HINWEIS AUF BESTEHENDE REWARD-LOGIK
 ============================================================
 
-TASK-ID: WF-FAMILY-001
-STATUS: [>] Später / Backlog
-[ ] Familiengruppen definieren.
-[ ] Enkel-/Kind-zu-Großeltern-Missionen definieren.
-[ ] Silver-Economy-Use-Cases definieren.
-[ ] Gemeinsame Familienziele definieren.
-[ ] Datenschutz/Einwilligung für Familiengruppen prüfen.
+Aktuelle MVP-Formel aus rewardEngine.ts:
 
-TASK-ID: WF-CORP-001
-STATUS: [>] Später / Backlog
-[ ] Firmen-Challenges.
-[ ] Teamranglisten.
-[ ] anonymisierte Firmen-Analytics.
-[ ] Company Admin Rolle.
-[ ] Datenschutz für Arbeitgeberdaten streng abgrenzen.
+baseReward × diversityMultiplier × antiFarmingMultiplier × streakMultiplier
 
-TASK-ID: WF-CITY-001
-STATUS: [>] Später / Backlog
-[ ] Ortsmissionen.
-[ ] Checkpoints.
-[ ] Parks/Sehenswürdigkeiten.
-[ ] Stadt-/Tourismus-Partner.
-[ ] Eventmissionen.
+Spätere serverseitige Erweiterung:
 
-TASK-ID: WF-REVENUE-001
-STATUS: [>] Später / Backlog
-[ ] Firmenlizenzen.
-[ ] BGM-Challenges.
-[ ] Sponsored Missions.
-[ ] Brand Campaigns.
-[ ] Versicherungen/Prävention.
-[ ] Städte/Tourismus.
-[ ] Eventpartner.
-[ ] Marketplace Fees.
-[ ] Premium Accounts.
-[ ] White-Label-Challenges.
-[ ] Partner-Rewards.
-[ ] anonymisierte Reports DSGVO-konform.
-[ ] AR-Skins / digitale Items später.
-[ ] API-/Platform Fees später.
-[ ] Bildungs-/Lernmissionen.
-[ ] Gesundheitsprogramme.
-[ ] Corporate Team Challenges.
-[ ] International Licensing.
+baseReward
+× diversityMultiplier
+× antiFarmingMultiplier
+× streakMultiplier
+× ageSafetyMultiplier
+× contextFitMultiplier
+× proofQualityMultiplier
+× systemReserveMultiplier
+× questDepthLimiter
 
-TASK-ID: WF-DOC-001
-STATUS: [ ] Offen
-[ ] README.md aktualisieren.
-[ ] Projektstruktur dokumentieren.
-[ ] .env.example erstellen.
-[ ] Firebase Setup dokumentieren.
-[ ] Server Deploy dokumentieren.
-[ ] PM2 Start/Restart dokumentieren.
-[ ] Hinweis auf To Do List.txt einbauen.
+Danach serverseitiges Cap:
 
-TASK-ID: WF-LEGAL-002
-STATUS: [ ] Offen
-[ ] Datenschutz um Kamera/AR erweitern.
-[ ] Datenschutz um Pose Tracking erweitern.
-[ ] Datenschutz um HealthKit/Health Connect/Watch-Daten erweitern.
-[ ] Optionale Emotion/Mimik-Analyse gesondert zustimmungspflichtig machen.
-[ ] Keine Speicherung von Bildern/Videos als Standard.
-
-============================================================
-J. NÄCHSTE EMPFOHLENE ARBEIT
-============================================================
-
-PRIO 1:
-[~] WF-DASH-NEXT-000 – Dashboard-Produktmodule vor Missionen.
-[ ] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul ausbauen.
-[ ] WF-MARKET-001 – Marktplatz MVP vorbereiten.
-[ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten.
-[ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten.
-[ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
-
-PRIO 2:
-[ ] WF-QA-001 – Build und UI nach Dashboard-Refactor testen.
-[ ] WF-REGISTER-SCHEMA-001 – Firestore User-/Profile-/Settings-Schema dokumentieren.
-[ ] WF-QA-LOGIN-REGISTER-001 – Login/Register Desktop und Mobile testen.
-[ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
-
-PRIO 3:
-[ ] WF-BUDDY-CHAR-001 – Buddy-Charaktere definieren.
-[ ] WF-AVATAR-INV-001 – Avatar-Inventar anlegen.
-[ ] WF-AI-MISSIONS-001 – KI-Missionen vorbereiten.
-
-SPÄTER / NACH DASHBOARD-PRODUKTMODULEN:
-[>] WF-REFACTOR-004 bis WF-REFACTOR-009 – Missions- und Missionsnebenbereiche weiter modularisieren.
-[>] Missionen inhaltlich erst nach Dashboard-Produktzentrale, Datenmodell und Sicherheitsbasis weiter ausbauen.
-
-ENDE VERSION 3.1
+finalReward = min(validatedReward, userDailyCap, systemDailyEmissionCap, missionTypeCap)
