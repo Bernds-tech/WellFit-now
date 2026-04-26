@@ -5,11 +5,13 @@ import { useEffect, useRef, useState } from "react";
 import { analyzeSquatPose } from "@/lib/vision/exerciseRules";
 import { initialExerciseCounterState, updateSquatCounter } from "@/lib/vision/exerciseCounter";
 import { getBuddyCoachFeedback } from "@/lib/vision/buddyCoachFeedback";
+import { createFaceTracker } from "@/lib/vision/faceTracker";
 import { estimateMoodSignal } from "@/lib/vision/moodSignalEngine";
 import { createPoseTracker } from "@/lib/vision/poseTracker";
 import type { CameraPermissionState, ExerciseCounterState, PoseAnalysisResult, PoseLandmarks } from "@/lib/vision/visionTypes";
 
 type PoseTrackerInstance = Awaited<ReturnType<typeof createPoseTracker>>;
+type FaceTrackerInstance = Awaited<ReturnType<typeof createFaceTracker>>;
 
 type UsePoseExerciseTrackingInput = {
   videoRef: RefObject<HTMLVideoElement | null>;
@@ -17,7 +19,8 @@ type UsePoseExerciseTrackingInput = {
 };
 
 export function usePoseExerciseTracking({ videoRef, permissionState }: UsePoseExerciseTrackingInput) {
-  const trackerRef = useRef<PoseTrackerInstance | null>(null);
+  const poseTrackerRef = useRef<PoseTrackerInstance | null>(null);
+  const faceTrackerRef = useRef<FaceTrackerInstance | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const counterRef = useRef<ExerciseCounterState>(initialExerciseCounterState);
   const [counter, setCounter] = useState<ExerciseCounterState>(initialExerciseCounterState);
@@ -34,27 +37,35 @@ export function usePoseExerciseTracking({ videoRef, permissionState }: UsePoseEx
         return;
       }
 
-      setTrackerStatus("Pose-Modell wird geladen...");
+      setTrackerStatus("Vision-Modelle werden geladen...");
       setTrackerError(null);
 
       try {
-        trackerRef.current = await createPoseTracker();
+        poseTrackerRef.current = await createPoseTracker();
+
+        try {
+          faceTrackerRef.current = await createFaceTracker();
+        } catch {
+          faceTrackerRef.current = null;
+        }
+
         if (cancelled) return;
 
-        setTrackerStatus("Skeleton Tracking aktiv");
+        setTrackerStatus(faceTrackerRef.current ? "Skeleton + Face Tracking aktiv" : "Skeleton Tracking aktiv");
 
         const tick = () => {
           const video = videoRef.current;
-          const tracker = trackerRef.current;
+          const poseTracker = poseTrackerRef.current;
 
-          if (!video || !tracker || video.readyState < 2) {
+          if (!video || !poseTracker || video.readyState < 2) {
             animationFrameRef.current = requestAnimationFrame(tick);
             return;
           }
 
-          const nextLandmarks = tracker.detect(video);
+          const nextLandmarks = poseTracker.detect(video);
           const nextAnalysis = analyzeSquatPose(nextLandmarks);
-          const moodSignal = estimateMoodSignal({
+          const faceSignal = faceTrackerRef.current?.detect(video);
+          const moodSignal = faceSignal?.moodSignal ?? estimateMoodSignal({
             faceDetected: undefined,
             exerciseQualityScore: nextAnalysis.detected ? nextAnalysis.stabilityScore : 0,
             headStabilityScore: nextAnalysis.torsoLeanScore,
@@ -83,8 +94,10 @@ export function usePoseExerciseTracking({ videoRef, permissionState }: UsePoseEx
       cancelled = true;
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
-      trackerRef.current?.close();
-      trackerRef.current = null;
+      poseTrackerRef.current?.close();
+      faceTrackerRef.current?.close();
+      poseTrackerRef.current = null;
+      faceTrackerRef.current = null;
     };
   }, [permissionState, videoRef]);
 
