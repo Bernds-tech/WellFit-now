@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.4 – FIRESTORE / CLOUD FUNCTIONS FÜR ITEMS NFC CAPABILITIES VORBEREITET
+Version: 4.5 – FIREBASE FUNCTIONS / RULES / INDEXES FÜR ITEMS NFC CAPABILITIES ANGELEGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -27,9 +27,19 @@ AKTUELLER FOKUS:
 [x] Cloud Functions Plan für Items / NFC / Buddy Capabilities dokumentiert.
 [x] Firestore Rules Draft für Items / NFC / Buddy Capabilities dokumentiert.
 [x] Unity Bridge Contract um Items, NFC und Capability Actions erweitert.
+[x] Firebase config erweitert: Firestore Rules, Indexes, Functions, Emulatoren.
+[x] firestore.rules um serverautorisierte Item-/NFC-/Capability-Collections ergänzt.
+[x] firestore.indexes.json für Inventory, Capabilities, NFC Scan Events und Unlock Events angelegt.
+[x] functions/package.json angelegt.
+[x] functions/index.js mit validateNfcScan, auditItemUse und geplanten Guard-Stubs angelegt.
 
-PRIO 1 – BUILD NACH BACKEND-/SCHEMA-GRUNDLAGE
-[ ] Build nach Items/NFC/Capabilities Backend-Grundlage ausführen:
+PRIO 1 – BUILD NACH FIREBASE-/FUNCTIONS-GRUNDLAGE
+[ ] Build nach Firebase-/Functions-Grundlage ausführen:
+    - firebase.json erweitert
+    - firestore.rules erweitert
+    - firestore.indexes.json angelegt
+    - functions/package.json angelegt
+    - functions/index.js angelegt
     - lib/buddyItems/buddyItemTypes.ts
     - lib/buddyItems/nfcItemTypes.ts
     - docs/architecture/BUDDY_ITEMS_NFC_CAPABILITIES.md
@@ -48,29 +58,27 @@ pm2 restart wellfit-now --update-env
 pm2 status
 
 ============================================================
-PRIO 2 – FIREBASE / FUNCTIONS / RULES REAL UMSETZEN
+PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
 ============================================================
 
-[ ] Prüfen, ob Firebase Functions-Projekt bereits existiert oder neu angelegt werden muss.
-[ ] firebase.json, firestore.rules und ggf. functions/ Struktur sauber anlegen.
-[ ] Emulator-Setup definieren.
-[ ] Firestore Rules aus Draft in echte Rules überführen.
-[ ] Callable Function validateNfcScan implementieren.
-[ ] Internal Function grantItemOrCapability implementieren.
-[ ] auditItemUse implementieren.
-[ ] validateMissionCompletionWithItem implementieren.
-[ ] Emulator-Tests schreiben:
+[ ] functions npm install ausführen:
+    cd functions
+    npm install --no-audit --no-fund
+[ ] Firebase Emulator lokal vorbereiten.
+[ ] firestore.rules im Emulator testen.
+[ ] validateNfcScan Emulator-Test schreiben.
+[ ] auditItemUse Emulator-Test schreiben.
+[ ] Testszenarien prüfen:
     - gültiger NFC Scan
     - revoked NFC Tag
-    - expired NFC Tag
+    - inactive NFC Tag
     - duplicate scan
     - falscher Nutzer
     - falsche Mission
     - usageLimit erreicht
     - item grant erfolgreich
     - capability unlock erfolgreich
-    - mission completion mit Item erfolgreich
-    - mission completion ohne Item abgelehnt
+[ ] Produktionsdeployment erst nach Emulator-Tests.
 
 ============================================================
 PRIO 3 – UNITY AR FOUNDATION LOKAL ERZEUGEN
@@ -133,18 +141,19 @@ PRIO 5 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
 [x] Inventar-/Item-Datenmodell als TypeScript-Grundlage entworfen.
 [x] Buddy-Fähigkeits-/Capability-Datenmodell als TypeScript-Grundlage entworfen.
 [x] NFC-/Real-World-Item-Validierung als TypeScript-Grundlage entworfen.
-[x] Firestore Collections geplant:
+[x] Firestore Collections real in Rules/Indexes berücksichtigt:
     - userInventory
     - itemDefinitions
     - buddyCapabilities
     - nfcTags
     - nfcScanEvents
     - capabilityUnlockEvents
-[x] Cloud Functions geplant:
+    - buddyItemUseEvents
+[x] Cloud Functions angelegt/geplant:
     - validateNfcScan
-    - grantItemOrCapability
     - auditItemUse
-    - validateMissionCompletionWithItem
+    - grantItemOrCapability als Guard-Stub
+    - validateMissionCompletionWithItem als Guard-Stub
 [x] Unity-Bridge erweitert:
     - performBuddyAction(action)
     - equipBuddyItem(itemId)
@@ -157,67 +166,14 @@ PRIO 5 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
 [ ] Erstes Demo-Szenario definieren: Kletterseil schaltet climbUp/fetchClue frei.
 
 ============================================================
-PRIO 6 – 3D-BUDDY / ASSETPIPELINE
-============================================================
-
-[ ] Erstes echtes Buddy-Asset definieren: Drache, Ritter, Zwerg oder anderer Prototyp.
-[ ] GLB/GLTF/FBX-Pipeline festlegen.
-[ ] Animationen definieren:
-    - idle
-    - walk
-    - hop
-    - jumpDown
-    - climbUp
-    - land
-    - happy
-    - lookAround
-    - return
-    - pointAtObject
-    - fetchClue
-    - scanObject
-    - carryItem
-[ ] Ausrüstungssystem vorbereiten:
-    - Schwert
-    - Schild
-    - Rüstung
-    - Kleidung
-    - Accessoires
-    - Kletterseil
-    - Greifhaken
-    - Lupe
-    - Rucksack
-[ ] Mobile-Optimierung: LOD, Texturgrößen, Polygonbudget.
-
-============================================================
-PRIO 7 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
-============================================================
-
-[x] Capacitor-Abhängigkeiten ergänzt.
-[x] capacitor.config.ts ergänzt.
-[x] Native Activity Bridge Types ergänzt.
-[x] Web-Fallback für nativeActivityBridge ergänzt.
-[x] native/README.md ergänzt.
-[x] Android Health Connect / Step Counter Plan ergänzt.
-[x] iOS CoreMotion / HealthKit Plan ergänzt.
-[ ] Capacitor Plattformen erzeugen: Android und iOS.
-[ ] Android Kotlin Plugin WellFitActivityPlugin erstellen.
-[ ] Android Health Connect Permissions und getTodaySnapshot bauen.
-[ ] Android Step Counter Sensor Live-/Snapshot-Logik bauen.
-[ ] iOS Swift Plugin WellFitActivityPlugin erstellen.
-[ ] iOS CoreMotion/CMPedometer und HealthKit Consent bauen.
-[ ] Native Snapshot in Web-Bridge integrieren.
-[ ] Firestore DailyActivity / TrackingSession Datenmodell für native Quellen ergänzen.
-[ ] Server/Cloud Function für Mission Completion und Reward-Entscheidung planen.
-
-============================================================
-PRIO 8 – FIRESTORE / SECURITY HÄRTEN
+PRIO 6 – FIRESTORE / SECURITY HÄRTEN
 ============================================================
 
 [ ] firestore.rules lokal oder im Firebase Emulator testen.
 [ ] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch prüfen.
-[ ] Rules für userInventory, itemDefinitions, buddyCapabilities, nfcTags und nfcScanEvents planen.
+[ ] Rules für userInventory, itemDefinitions, buddyCapabilities, nfcTags und nfcScanEvents testen.
 [ ] Cloud Function für Mission Completion planen.
-[ ] Cloud Function für NFC-/Item-/Capability-Validierung planen.
+[ ] Cloud Function für NFC-/Item-/Capability-Validierung testen.
 [ ] Client darf langfristig nur Beweise/Events senden, nicht Rewards final vergeben.
 [ ] Anti-Cheat-Konzept für Pose, Bewegung, AR, NFC und Items starten.
 [ ] Reward-/Punkte-/Item-Events auditierbar speichern.
