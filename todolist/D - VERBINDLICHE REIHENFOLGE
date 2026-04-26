@@ -1,0 +1,214 @@
+WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
+Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
+Repository: Bernds-tech/WellFit-now
+Datei: To Do List.txt
+
+WICHTIGER HINWEIS:
+Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
+Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+
+============================================================
+D. VERBINDLICHE REIHENFOLGE
+============================================================
+
+PHASE 1 – REFACTOR ZUERST: GROSSE DATEIEN AUFTEILEN
+
+[~] WF-REFACTOR-000 – Refactor-first Arbeitsregel
+ZIEL:
+Erst Dateistruktur und Wartbarkeit stabilisieren, bevor neue Features weiter ausgebaut werden.
+AKZEPTANZKRITERIEN:
+[ ] Keine große App-Seite bleibt als schwer wartbare Monolith-Datei.
+[ ] Wiederverwendbare Layout-Bausteine liegen zentral.
+[ ] Seitenlogik, UI-Komponenten, Daten, Types und Helper sind getrennt.
+[ ] Jede Änderung ist kleiner, kontrollierbarer und build-sicherer.
+
+[~] WF-REFACTOR-001 – Tagesmissionen modularisiert
+STATUS: [x] Basis erledigt
+ERLEDIGT:
+[x] app/missionen/tagesmissionen/page.tsx verkleinert.
+[x] MissionTile.tsx erstellt.
+[x] MissionDetails.tsx erstellt.
+[x] DailyHeader.tsx erstellt.
+[x] DailySlots.tsx erstellt.
+[x] FavoritesStrip.tsx erstellt.
+[x] MissionPool.tsx erstellt.
+[x] missions.ts erstellt.
+[x] rewardEngine.ts erstellt.
+[x] useDailyMissionFirebase.ts erstellt.
+OFFEN:
+[ ] Prüfen, ob page.tsx weiter verkleinert werden soll.
+[ ] Types ggf. in types.ts auslagern.
+[ ] Hooks ggf. weiter teilen: persistence, level, streak, reward.
+
+[x] WF-REFACTOR-002 – Dashboard modularisieren
+STATUS: [x] Fertig / Basis abgeschlossen
+ZIEL:
+Dashboard wie Tagesmissionen in kleinere Dateien aufteilen.
+ERLEDIGT:
+[x] Dashboard Header ausgelagert.
+[x] Mission Panel ausgelagert.
+[x] Avatar-/User-Karte ausgelagert.
+[x] Fortschritts-/Punktekarte ausgelagert.
+[x] Dashboard Cards in einzelne Card-Komponenten zerlegt.
+[x] Firebase-/Realtime-Logik in useDashboardUser ausgelagert.
+[x] Dashboard Actions in useDashboardActions ausgelagert.
+[x] Dashboard Types in app/dashboard/types.ts ausgelagert.
+[x] Dashboard User Helper in app/dashboard/lib/dashboardUser.ts ausgelagert.
+AKZEPTANZKRITERIEN:
+[x] Dashboard page.tsx ist deutlich kleiner und übersichtlich.
+[x] Keine Firebase-Logik direkt tief im JSX.
+OFFEN / NACHLAUF:
+[ ] Build nach Roadmap-/Refactor-Push kontrollieren.
+[ ] Dashboard Mobile-Layout manuell prüfen.
+[ ] Clientseitige Punkte-/Fortschrittslogik später backendseitig absichern.
+
+[ ] WF-REFACTOR-003 – Einstellungen modularisieren.
+[ ] WF-REFACTOR-004 – Wochenmissionen modularisieren.
+[ ] WF-REFACTOR-005 – Abenteuer modularisieren.
+[ ] WF-REFACTOR-006 – Challenge modularisieren.
+[ ] WF-REFACTOR-007 – Wettkämpfe modularisieren.
+[ ] WF-REFACTOR-008 – Favoriten modularisieren und State später anbinden.
+[ ] WF-REFACTOR-009 – History modularisieren und State später vereinheitlichen.
+
+[ ] WF-REFACTOR-010 – Globale AppShell prüfen.
+ERLEDIGT:
+[x] app/AppSidebar.tsx vorhanden.
+[x] app/AppFooter.tsx vorhanden.
+OFFEN:
+[ ] Prüfen, ob eingeloggte Seiten ein gemeinsames AppLayout bekommen.
+[ ] Footer als eigene zentrale Komponente finalisieren.
+[ ] Header/Sidebar/Footer auf allen eingeloggten Seiten konsistent halten.
+
+PHASE 1.5 – DASHBOARD ALS PRODUKTZENTRALE FERTIGSTELLEN, VOR WEITEREM MISSIONS-AUSBAU
+
+[~] WF-DASH-NEXT-000 – Dashboard-Produktmodule vor Missionen
+ZIEL:
+Bevor Tagesmissionen, Wochenmissionen, Abenteuer, Challenge und Wettkämpfe inhaltlich weiter ausgebaut werden, werden die zentralen Dashboard-Module als Produktzentrale vorbereitet.
+GRUND:
+Dashboard ist der tägliche Einstiegspunkt. Mein KI-Buddy, Marktplatz, Leaderboard, Punkte-Shop und Analytics & Stats sind Kernbereiche für Avatar-Bindung, Economy, Progression, Motivation und spätere Monetarisierung.
+AKZEPTANZKRITERIEN:
+[ ] Dashboard zeigt konsistente Einstiege zu allen fünf Modulen.
+[ ] Keine neuen produktkritischen Economy-Funktionen werden rein clientseitig autorisiert.
+[ ] Punkte, Shop-Käufe, Marketplace-Transaktionen und Leaderboard-Wertungen werden später backend-/regelbasiert vorbereitet.
+[ ] Module bleiben MVP-tauglich, aber architektonisch erweiterbar.
+
+[ ] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul ausbauen
+ZIEL:
+Mein KI-Buddy als eigene Dashboard-nahe Detailansicht oder starke Dashboard-Sektion ausbauen.
+UMSETZUNG:
+[ ] Aktuellen Buddy aus Userdaten laden.
+[ ] Buddy-Level, Energie, Hunger, Stimmung und Entwicklung anzeigen.
+[ ] Buddy-Zustände ethisch formulieren: motivierend, nicht beschämend.
+[ ] Buddy-Aktionen wie Füttern/Pflegen nur als MVP-Punkteaktion, später serverseitig absichern.
+[ ] Vorbereitung für Avatar-Entwicklung, Inventory, Skins und spätere KI-Personalisierung.
+[ ] Mobile-Layout prüfen.
+SICHERHEIT:
+[!] Keine endgültige clientseitige Autorität für Level, Punkte, Pflege, Rewards oder Inventory.
+
+[ ] WF-MARKET-001 – Marktplatz MVP vorbereiten
+ZIEL:
+Marktplatz als späteren Ort für digitale Items, Skins, Avatar-Upgrades, Partnerinhalte und AR-Erlebnisse vorbereiten.
+UMSETZUNG:
+[ ] Marktplatz-Seite oder Dashboard-Modul prüfen/erstellen.
+[ ] Kategorien definieren: Skins, Items, Booster, AR-Erlebnisse, Partnerinhalte.
+[ ] Nur Mock-/MVP-Daten oder Firestore-read-only Produkte verwenden.
+[ ] Kauf-Buttons zunächst als vorbereitet/deaktiviert oder sichere Punkte-MVP-Aktion kennzeichnen.
+[ ] Keine echte Token-, Presale-, Wallet- oder Krypto-Handelsfunktion in App-Store-kritischen Bereichen.
+SICHERHEIT:
+[!] Marketplace-Transaktionen später nur serverseitig/regelbasiert bzw. über geprüfte Payment-/Contract-Logik.
+
+[ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten
+ZIEL:
+Leaderboard als Motivations- und Vergleichsmodul aufbauen, ohne unfaire oder manipulierbare Wertungen.
+UMSETZUNG:
+[ ] Leaderboard-Seite oder Dashboard-Modul prüfen/erstellen.
+[ ] Metriken definieren: XP, Level, Streak, abgeschlossene Missionen, Buddy-Level.
+[ ] Datenschutzfreundliche Anzeige: Nickname/Avatar statt sensibler Klardaten.
+[ ] Alters-/Familien-/Schulmodus später berücksichtigen.
+[ ] Manipulationsrisiko markieren: Wertungen später nur aus validierten Events.
+SICHERHEIT:
+[!] Keine clientseitig erzeugten Leaderboard-Scores als endgültige Wahrheit verwenden.
+
+[ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten
+ZIEL:
+Punkte-Shop für interne Punkte und spätere WFT-Kompatibilität vorbereiten.
+UMSETZUNG:
+[ ] Shop-Seite oder Dashboard-Modul prüfen/erstellen.
+[ ] Shop-Kategorien definieren: Buddy-Futter, kosmetische Items, kleine Booster, AR-Tickets später.
+[ ] Interne Punkte als aktuelle MVP-Währung verwenden.
+[ ] Preise zentral konfigurierbar halten.
+[ ] Keine echte Token-Ausschüttung und kein echter Krypto-Kauf.
+SICHERHEIT:
+[!] Punkte-Abzug und Item-Vergabe später serverseitig absichern.
+
+[ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten
+ZIEL:
+Nutzerfreundliche Statistikseite für persönlichen Fortschritt, Motivation und Selbstwirksamkeit schaffen.
+UMSETZUNG:
+[ ] Analytics-/Stats-Seite oder Dashboard-Modul prüfen/erstellen.
+[ ] Werte definieren: XP, Punkte, Streak, Missionen, Aktivität, Buddy-Entwicklung.
+[ ] Keine medizinischen Diagnosen oder Heilversprechen anzeigen.
+[ ] Positive, neutrale Sprache verwenden.
+[ ] Später Trends über Wochen/Monate und KI-Empfehlungen vorbereiten.
+DATENSCHUTZ:
+[!] Gesundheits-, Tracking- und Sensordaten nur mit Consent und Datenminimierung.
+
+PHASE 2 – STABILISIERUNG NACH REFACTOR UND DASHBOARD-PRODUKTMODULEN
+[ ] WF-QA-001 – Build und UI nach Refactor testen.
+[ ] WF-DOC-001 – README, Setup, Deployment und Entwicklerübergabe finalisieren.
+[ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
+[ ] WF-FIRESTORE-RULES-001 – Firestore-Regeln für neue Collections prüfen.
+[ ] WF-LEGAL-002 – Datenschutz für AR/Kamera/Pose/Health/Watch erweitern.
+
+PHASE 3 – AVATAR / INVENTORY VOR AR-KISTEN
+[ ] WF-AVATAR-INV-001 – Avatar-Inventar anlegen.
+[ ] WF-AVATAR-INV-002 – Avatar-Items definieren: Helm, Rüstung, Handschuhe, Schuhe, Accessoires, Skins.
+[ ] WF-AVATAR-INV-003 – Equipment Slots definieren.
+[ ] WF-AVATAR-INV-004 – Item-Raritäten definieren: common, rare, epic, legendary.
+[ ] WF-AVATAR-INV-005 – Belohnungen aus Kisten ins Inventar schreiben.
+[ ] WF-AVATAR-INV-006 – Avatar-Ausrüstung im UI anzeigen.
+
+PHASE 4 – AR-GRUNDSYSTEM
+[ ] WF-AR-CORE-001 – AR-Missionstyp definieren.
+[ ] WF-AR-CORE-002 – AR-Sicherheitsregeln definieren: keine Straßen, keine gefährlichen Orte, keine Privatgrundstücke.
+[ ] WF-AR-CORE-003 – AR-Ortslogik definieren: sichere Zonen, Radius, Zeitfenster, Altersfilter.
+[ ] WF-AR-CORE-004 – Missionen als echte AR-Aufgaben definieren: Ort finden, Objekt scannen, Aufgabe erfüllen, Quiz beantworten.
+[ ] WF-AR-CORE-005 – Schrittzähl-Missionen entfernen oder ersetzen.
+
+PHASE 5 – AR-SCHATZKISTEN / LOOT LOOP
+[x] WF-AR-CHEST-000 – Konzept als GitHub Issue dokumentiert.
+[ ] WF-AR-CHEST-001 – AR-Chest Mission Datenmodell erstellen.
+[ ] WF-AR-CHEST-002 – Statusmodell: locked -> tasksActive -> chestRevealed -> quizActive -> claimed.
+[ ] WF-AR-CHEST-003 – Aufgabenketten pro Kiste definieren.
+[ ] WF-AR-CHEST-004 – Finale Quiz-/Frage-Komponente bauen.
+[ ] WF-AR-CHEST-005 – Belohnung nach erfolgreichem Öffnen vergeben.
+[ ] WF-AR-CHEST-006 – Anti-Cheat für Standort und Zeitfenster vorbereiten.
+
+PHASE 6 – KI-MISSIONEN UND PERSONALISIERUNG
+[~] WF-MISS-AI-001 – KI-personalisierte Missionen architektonisch vorbereitet.
+[ ] WF-AI-MISSIONS-001 – KI erstellt personalisierte Missionen basierend auf Nutzerprofil.
+[ ] WF-AI-MISSIONS-002 – Speicherung aller KI-generierten Missionen in aiGeneratedMissions.
+[ ] WF-AI-MISSIONS-003 – Verknüpfung von KI-Missionen mit Nutzer: userId + missionId + sessionId.
+[ ] WF-AI-MISSIONS-004 – Tracking wie oft eine KI-Mission gespielt wird: usageCount.
+[ ] WF-AI-MISSIONS-005 – Bewertungssystem: Completion Rate, Abbruchrate, Favoritenrate.
+[ ] WF-AI-MISSIONS-006 – Mission Ratings speichern: likes, completionSuccess, difficultyMatch.
+[ ] WF-AI-MISSIONS-007 – Gute KI-Missionen in globale Collection missions hochstufen.
+[ ] WF-AI-MISSIONS-008 – Herkunft kennzeichnen: source prefab | ai | user.
+[ ] WF-AI-MISSIONS-009 – KI darf nur Missionen erstellen, die zum Nutzerprofil passen.
+[ ] WF-AI-MISSIONS-010 – Versionierung von Missionen.
+[ ] WF-AI-MISSIONS-011 – Moderation / Qualitätssicherung.
+[ ] WF-AI-MISSIONS-012 – Logging aller KI-Entscheidungen.
+[ ] WF-AI-MISSIONS-013 – Creator Reward für Nutzer, deren Mission global übernommen wird.
+[ ] WF-AI-MISSIONS-014 – Pipeline: KI erstellt -> Nutzer spielt -> Bewertung -> global oder verworfen.
+
+PHASE 7 – MISSIONEN ZULETZT WEITER AUSBAUEN
+[>] WF-MISS-FUTURE-001 – Tagesmissionen inhaltlich auf AR-Logik umbauen.
+[>] WF-MISS-FUTURE-002 – Wochenmissionen inhaltlich auf AR-Logik umbauen.
+[>] WF-MISS-FUTURE-003 – Abenteuer inhaltlich auf AR-Logik umbauen.
+[>] WF-MISS-FUTURE-004 – Challenge inhaltlich auf AR-Logik umbauen.
+[>] WF-MISS-FUTURE-005 – Wettkämpfe inhaltlich auf AR-/Avatar-/PvP-Logik umbauen.
+[>] WF-MISS-FUTURE-006 – 10 finale hochwertige Tagesmissionen erst nach AR-Regeln ersetzen.
+[>] WF-MISS-FUTURE-007 – Punktewerte final balancen erst nach AR-/Avatar-/Reward-Modell.
+[>] Missionen werden erst nach Dashboard-Produktmodulen, Sicherheitsgrundlagen und Datenmodell-Stabilisierung weiter inhaltlich ausgebaut.
+
