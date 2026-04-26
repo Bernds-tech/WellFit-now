@@ -49,18 +49,12 @@ service cloud.firestore {
 
     match /missionBuddyEvents/{eventId} {
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn()
-        && request.resource.data.userId == request.auth.uid
-        && eventId.matches(request.auth.uid + '_.*')
-        && request.resource.data.status == 'applied';
-      allow update, delete: if false;
+      allow create, update, delete: if false;
     }
 
     match /trackingSessions/{sessionId} {
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow delete: if false;
+      allow create, update, delete: if false;
     }
 
     match /itemDefinitions/{itemId} {
