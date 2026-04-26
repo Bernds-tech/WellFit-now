@@ -6,18 +6,19 @@ import CameraPreview from "../analyse/components/CameraPreview";
 import { useCameraPreview } from "../analyse/hooks/useCameraPreview";
 import ArBuddyControls from "./components/ArBuddyControls";
 import ArBuddyOverlay, { type ArBuddyMood, type ArBuddyPosition } from "./components/ArBuddyOverlay";
+import type { ArScreenAnchor } from "./components/ArDragonScene";
 import ArStatusCard from "./components/ArStatusCard";
 
 const safePositions: ArBuddyPosition[] = ["nearLeft", "center", "farRight", "nearRight", "farLeft"];
 const tapMoods: ArBuddyMood[] = ["happy", "listening", "curious", "playful"];
 
 const buddyMessages: Record<ArBuddyMood, string> = {
-  idle: "Starte die Rückkamera und rufe Flammi in deinen Raum.",
-  called: "Flammi ist da. Du kannst ihn antippen oder laufen lassen.",
+  idle: "Starte die Rückkamera. Setze einen Anker oder rufe Flammi in deinen Raum.",
+  called: "Flammi ist da. Du kannst ihn antippen, laufen lassen oder einen Anker setzen.",
   happy: "Flammi freut sich. Tippe ihn an, damit er weiter reagiert.",
   listening: "Flammi hört dir zu und wartet auf deine nächste Aktion.",
   curious: "Flammi schaut sich deinen Raum neugierig an.",
-  playful: "Flammi hüpft sichtbar durch den sicheren Bereich.",
+  playful: "Flammi läuft um seinen gesetzten Punkt oder durch den simulierten Bereich.",
   returning: "Flammi kommt sichtbar zu dir zurück.",
 };
 
@@ -32,11 +33,13 @@ export default function MobileArPage() {
   const [buddyPosition, setBuddyPosition] = useState<ArBuddyPosition>("nearLeft");
   const [tapCount, setTapCount] = useState(0);
   const [autoWalkEnabled, setAutoWalkEnabled] = useState(false);
+  const [anchorMode, setAnchorMode] = useState(false);
+  const [anchor, setAnchor] = useState<ArScreenAnchor | null>(null);
   const [actionCount, setActionCount] = useState(0);
   const isCameraActive = permissionState === "granted";
 
   useEffect(() => {
-    if (!isCameraActive || !autoWalkEnabled) {
+    if (!isCameraActive || !autoWalkEnabled || anchor) {
       return;
     }
 
@@ -47,11 +50,23 @@ export default function MobileArPage() {
     }, 1400);
 
     return () => window.clearInterval(walkTimer);
-  }, [autoWalkEnabled, isCameraActive]);
+  }, [anchor, autoWalkEnabled, isCameraActive]);
 
   const statusMessage = useMemo(() => {
     if (!isCameraActive) {
       return errorMessage || "Starte die Rückkamera, um den AR-Testmodus zu sehen.";
+    }
+
+    if (anchorMode) {
+      return "Anker-Modus aktiv: Tippe im Kamerabild auf den Boden oder eine freie Stelle. Flammi bleibt dort simuliert verankert.";
+    }
+
+    if (anchor && autoWalkEnabled) {
+      return `${buddyMessages[buddyMood]} Simulierter Anker aktiv. Flammi läuft um den gesetzten Punkt.`;
+    }
+
+    if (anchor) {
+      return `${buddyMessages[buddyMood]} Simulierter Anker gesetzt.`;
     }
 
     if (autoWalkEnabled) {
@@ -59,13 +74,15 @@ export default function MobileArPage() {
     }
 
     return buddyMessages[buddyMood];
-  }, [actionCount, autoWalkEnabled, buddyMood, errorMessage, isCameraActive]);
+  }, [actionCount, anchor, anchorMode, autoWalkEnabled, buddyMood, errorMessage, isCameraActive]);
 
   const callBuddy = () => {
     if (!isCameraActive) {
       return;
     }
 
+    setAnchor(null);
+    setAnchorMode(false);
     setAutoWalkEnabled(false);
     setBuddyMood("returning");
     setActionCount((current) => current + 1);
@@ -86,12 +103,26 @@ export default function MobileArPage() {
     setBuddyMood("playful");
     setAutoWalkEnabled(true);
     setActionCount((current) => current + 1);
-    setBuddyPosition((current) => getNextPosition(current));
+    if (!anchor) {
+      setBuddyPosition((current) => getNextPosition(current));
+    }
   };
 
   const stopBuddyWalk = () => {
     setAutoWalkEnabled(false);
     setBuddyMood("listening");
+  };
+
+  const handleSceneTap = (nextAnchor: ArScreenAnchor) => {
+    if (!isCameraActive || !anchorMode) {
+      return;
+    }
+
+    setAnchor(nextAnchor);
+    setAnchorMode(false);
+    setAutoWalkEnabled(false);
+    setBuddyMood("called");
+    setActionCount((current) => current + 1);
   };
 
   const handleBuddyTap = () => {
@@ -103,11 +134,15 @@ export default function MobileArPage() {
     setTapCount(nextTapCount);
     setActionCount((current) => current + 1);
     setBuddyMood(tapMoods[nextTapCount % tapMoods.length]);
-    setBuddyPosition((current) => getNextPosition(current));
+    if (!anchor) {
+      setBuddyPosition((current) => getNextPosition(current));
+    }
   };
 
   const resetBuddy = () => {
     setAutoWalkEnabled(false);
+    setAnchorMode(false);
+    setAnchor(null);
     setBuddyMood("idle");
     setBuddyPosition("nearLeft");
     setTapCount(0);
@@ -127,7 +162,11 @@ export default function MobileArPage() {
           mood={buddyMood}
           position={buddyPosition}
           actionCount={actionCount}
+          anchor={anchor}
+          autoWalkEnabled={autoWalkEnabled}
+          anchorMode={anchorMode}
           onBuddyTap={handleBuddyTap}
+          onSceneTap={handleSceneTap}
         />
       </CameraPreview>
 
@@ -147,9 +186,18 @@ export default function MobileArPage() {
       {isCameraActive && (
         <ArBuddyControls
           autoWalkEnabled={autoWalkEnabled}
+          anchorMode={anchorMode}
+          hasAnchor={Boolean(anchor)}
           onStopCamera={handleStopCamera}
           onCallBuddy={callBuddy}
           onToggleWalk={autoWalkEnabled ? stopBuddyWalk : startBuddyWalk}
+          onToggleAnchorMode={() => setAnchorMode((current) => !current)}
+          onClearAnchor={() => {
+            setAnchor(null);
+            setAnchorMode(false);
+            setAutoWalkEnabled(false);
+            setBuddyMood("listening");
+          }}
         />
       )}
     </main>
