@@ -9,7 +9,7 @@ const tabs: { id: MobileTabId; label: string; icon: string; href: string; disabl
   { id: "missions", label: "Missionen", icon: "🎯", href: "/mobile/missionen" },
   { id: "buddy", label: "Buddy", icon: "🐉", href: "/mobile/buddy" },
   { id: "scan", label: "Analyse", icon: "📷", href: "/mobile/analyse" },
-  { id: "settings", label: "Setup", icon: "⚙️", href: "/mobile/bewegung" },
+  { id: "settings", label: "Setup", icon: "⚙️", href: "/mobile/einstellungen" },
 ];
 
 export default function MobileBottomNav({ activeTab }: MobileBottomNavProps) {
