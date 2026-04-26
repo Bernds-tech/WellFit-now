@@ -2,6 +2,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const { FieldValue } = require("firebase-admin/firestore");
 const { seedDemoItemsAndNfc: runDemoItemsAndNfcSeed } = require("./seed/demoItemsAndNfc");
+const { evaluateMissionContext: calculateMissionContext } = require("./lib/missionContext");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -395,6 +396,39 @@ exports.createMissionBuddyEvent = onCall(async (request) => {
     accepted: true,
     eventId: eventRef.id,
     serverValidationStatus: "recorded",
+  };
+});
+
+exports.evaluateMissionContext = onCall(async (request) => {
+  const userId = requireAuth(request);
+  const data = request.data || {};
+  const missionId = requiredString(data.missionId, "missionId");
+  const contextResult = calculateMissionContext(data);
+  const evaluationRef = db.collection("missionContextEvaluations").doc();
+
+  await evaluationRef.set({
+    evaluationId: evaluationRef.id,
+    userId,
+    missionId,
+    ...contextResult,
+    serverValidationStatus: "context-evaluated",
+    rewardAuthorized: false,
+    missionCompletionAuthorized: false,
+    createdAt: now(),
+    updatedAt: now(),
+    ...minimalClientContext(data),
+  });
+
+  return {
+    accepted: false,
+    evaluationId: evaluationRef.id,
+    recommendation: contextResult.recommendation,
+    safetyScore: contextResult.safetyScore,
+    contextFitScore: contextResult.contextFitScore,
+    proofQualityScore: contextResult.proofQualityScore,
+    flags: contextResult.flags,
+    rewardAuthorized: false,
+    missionCompletionAuthorized: false,
   };
 });
 
