@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import MobileBottomNav from "../components/MobileBottomNav";
+import { finishTrackingSession, startTrackingSession } from "@/lib/tracking";
 import { visionCapabilities } from "@/lib/vision/visionCapabilities";
 import CameraPermissionPanel from "./components/CameraPermissionPanel";
 import CameraPreview from "./components/CameraPreview";
@@ -13,6 +15,40 @@ import { usePoseExerciseTracking } from "./hooks/usePoseExerciseTracking";
 export default function MobileAnalysePage() {
   const { videoRef, permissionState, errorMessage, startCamera, stopCamera } = useCameraPreview();
   const { counter, landmarks, trackerStatus, trackerError } = usePoseExerciseTracking({ videoRef, permissionState });
+  const [isSavingSession, setIsSavingSession] = useState(false);
+  const [sessionMessage, setSessionMessage] = useState<string | null>(null);
+
+  const savePoseSession = async () => {
+    setIsSavingSession(true);
+    setSessionMessage(null);
+
+    try {
+      const sessionId = await startTrackingSession({
+        source: "pose",
+        activityType: "pose",
+        missionId: "mobile-squat-test",
+        missionTitle: "Kniebeugen-Test",
+      });
+
+      await finishTrackingSession({
+        sessionId,
+        eventsCount: counter.validReps + counter.invalidReps,
+        validReps: counter.validReps,
+        invalidReps: counter.invalidReps,
+        qualityScore: counter.qualityScore,
+        confidence: counter.confidence,
+        moodSignal: counter.moodSignal,
+        exercise: counter.exercise,
+        notes: "Pose-basierter Kniebeugen-Test aus /mobile/analyse. Rohbilder und Videos werden nicht gespeichert.",
+      });
+
+      setSessionMessage("Training gespeichert. Diese Daten können später Missionen und Flammi-Reaktionen auslösen.");
+    } catch (error) {
+      setSessionMessage(error instanceof Error ? error.message : "Training konnte nicht gespeichert werden.");
+    } finally {
+      setIsSavingSession(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#00aabe] to-[#00505a] pb-24 text-white">
@@ -24,7 +60,14 @@ export default function MobileAnalysePage() {
             onStartCamera={startCamera}
             onStopCamera={stopCamera}
           />
-          <ExerciseCounterPanel counter={counter} trackerStatus={trackerStatus} trackerError={trackerError} />
+          <ExerciseCounterPanel
+            counter={counter}
+            trackerStatus={trackerStatus}
+            trackerError={trackerError}
+            isSavingSession={isSavingSession}
+            sessionMessage={sessionMessage}
+            onSaveSession={savePoseSession}
+          />
           <VisionCapabilityList capabilities={visionCapabilities} />
         </div>
 
