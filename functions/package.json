@@ -6,11 +6,12 @@
     "node": "20"
   },
   "scripts": {
-    "check": "node -c index.js && node -c seed/demoItemsAndNfc.js && node -c test/emulatorNfcSmokeTest.js && node -c test/firestoreRulesSmokeTest.js && node -c test/callableFunctionsEmulatorTest.js",
+    "check": "node -c index.js && node -c seed/demoItemsAndNfc.js && node -c test/emulatorNfcSmokeTest.js && node -c test/firestoreRulesSmokeTest.js && node -c test/callableFunctionsEmulatorTest.js && node -c test/missionCompletionEmulatorTest.js",
     "smoke:nfc": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node test/emulatorNfcSmokeTest.js",
     "rules:firestore": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node test/firestoreRulesSmokeTest.js",
     "callable:emulator": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FUNCTIONS_EMULATOR_URL=http://127.0.0.1:5001/demo-no-project/us-central1 node test/callableFunctionsEmulatorTest.js",
-    "test:emulator": "npm run smoke:nfc && npm run rules:firestore && npm run callable:emulator",
+    "mission:emulator": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FUNCTIONS_EMULATOR_URL=http://127.0.0.1:5001/demo-no-project/us-central1 node test/missionCompletionEmulatorTest.js",
+    "test:emulator": "npm run smoke:nfc && npm run rules:firestore && npm run callable:emulator && npm run mission:emulator",
     "lint": "echo \"functions lint placeholder\"",
     "serve": "firebase emulators:start --only functions,firestore,auth",
     "deploy": "firebase deploy --only functions"
