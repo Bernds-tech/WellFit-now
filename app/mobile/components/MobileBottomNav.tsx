@@ -6,10 +6,10 @@ type MobileBottomNavProps = {
 };
 
 const tabs: { id: MobileTabId; label: string; icon: string; href: string; disabled?: boolean }[] = [
-  { id: "missions", label: "Missionen", icon: "🎯", href: "/missionen/tagesmissionen" },
-  { id: "buddy", label: "Buddy", icon: "🐉", href: "/buddy" },
-  { id: "scan", label: "AR", icon: "📷", href: "/mobile/ar", disabled: true },
-  { id: "settings", label: "Setup", icon: "⚙️", href: "/mobile/einstellungen", disabled: true },
+  { id: "missions", label: "Missionen", icon: "🎯", href: "/mobile/missionen" },
+  { id: "buddy", label: "Buddy", icon: "🐉", href: "/mobile/buddy" },
+  { id: "scan", label: "Analyse", icon: "📷", href: "/mobile/analyse" },
+  { id: "settings", label: "Setup", icon: "⚙️", href: "/mobile/bewegung" },
 ];
 
 export default function MobileBottomNav({ activeTab }: MobileBottomNavProps) {
