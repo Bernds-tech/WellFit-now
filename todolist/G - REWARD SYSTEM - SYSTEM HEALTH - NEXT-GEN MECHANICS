@@ -1,12 +1,8 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Version: 3.2 – REWARD / SYSTEM HEALTH / NEXT-GEN MECHANICS KONSOLIDIERT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
-Datei: To Do List.txt
-
-WICHTIGER HINWEIS:
-Diese Version führt die bisherige Master-Roadmap 3.0, unsere aktuellen Arbeiten an Login, Registrierung, Deployment, UI-Finalisierung, Dashboard-Refactor und die nächsten offenen Produkt-/Architekturpunkte zusammen.
-Diese Datei ist ab jetzt die zentrale Arbeitsgrundlage für WellFit.
+Ordner: todolist/
 
 ============================================================
 G. REWARD SYSTEM / SYSTEM HEALTH / NEXT-GEN MECHANICS
@@ -23,8 +19,9 @@ G. REWARD SYSTEM / SYSTEM HEALTH / NEXT-GEN MECHANICS
 [x] Tagesziel 3 Missionen.
 [x] Streak System.
 [x] XP-/Level-System.
-[ ] Precision / Workout Qualität.
-[ ] Sensor Fusion.
+[x] Precision / Workout Qualität technisch in Basis umgesetzt: Kamera-Mission, Pose Tracking, validReps, invalidReps, qualityScore.
+[x] Buddy-Reaktion nach Mission über Mission-Buddy-Bridge technisch vorbereitet.
+[~] Sensor Fusion technisch begonnen: Pose/Face/DeviceMotion als getrennte Prototypen vorhanden, Fusion noch offen.
 [ ] Anti-Cheat AI.
 [ ] Completion Trends über mehrere Tage/Wochen.
 [ ] Streak-Risiko/Verlust visuell stärker darstellen.
@@ -33,3 +30,83 @@ G. REWARD SYSTEM / SYSTEM HEALTH / NEXT-GEN MECHANICS
 [ ] External Economy.
 [>] Echte Token-/WFT-Anbindung bewusst verschoben bis nach Testphase.
 
+============================================================
+G1. Reward- und Punkte-Grundsätze
+============================================================
+
+TASK-ID: WF-REWARD-SAFE-001
+STATUS: [~] In Arbeit
+
+[x] Aktuell nur interne Punkte und XP.
+[x] Punkte-System ist so vorbereitet, dass WFT später ergänzbar oder austauschbar ist.
+[x] Mobile App enthält keine echte Token-/Presale-/Trading-Funktion.
+[x] Mobile Kamera-Mission vergibt aktuell interne Punkte über Mission-Buddy-Bridge.
+[!] Produktkritische Punktevergabe ist langfristig nicht clientseitig autorisiert.
+[!] Mission Completion, Punkte, XP, Buddy-Effekte und Leaderboards müssen später über Cloud Functions / Backend / Firestore Rules validiert werden.
+[ ] Reward-Engine als serverseitige Autorität planen.
+[ ] Reward-Events auditierbar speichern.
+[ ] Punkte-Abzug und Item-Vergabe für Shop später serverseitig absichern.
+
+============================================================
+G2. Tokenomics / WFT – bewusst verschoben
+============================================================
+
+TASK-ID: WF-WFT-LATER-001
+STATUS: [>] Später / nach Testphase
+
+[x] Keine echte Token-Ausschüttung vor 2.000–3.000 Testern.
+[x] WFT bleibt vorerst interne Punkte-/XP-kompatible Logik.
+[x] Token-, Wallet-, Presale-, Trading- und Krypto-Funktionen bleiben aus Mobile/App-Store-kritischen Bereichen heraus.
+[ ] Vor echter WFT-Anbindung: MiCA/MiCAR, App Store Regeln, Steuer, KYC/AML und Utility-/Security-Token-Einordnung prüfen.
+[ ] Finale Chain-Entscheidung aktualisieren: ältere Quellen nennen Solana/SPL, neuere strategische Unterlagen nennen SUI/Dynamic Objects.
+[ ] Tokenomics-Versionierung einführen: historische Solana-Variante vs. spätere SUI-Variante nicht vermischen.
+[ ] Keine Rendite-, Preis- oder Gewinnversprechen im Produkt oder auf Landingpages.
+
+============================================================
+G3. Mini-Games / PvP / Wettbewerbe
+============================================================
+
+TASK-ID: WF-GAME-ARENA-001
+STATUS: [>] Später / Konzept vorhanden
+
+Konzeptquellen nennen Mini-Games wie BrainDash, WordBlitz, Push-Up Duel, QuickRun, DanceFlash, AR-BowShot, CastleRun, AR-TreasureBlast und AvatarDuel.
+
+[ ] Mini-Game-Arena als späteres Modul planen.
+[ ] Skill-basiertes Matchmaking definieren.
+[ ] Einsätze nur intern simulieren, keine echte WFT-Wette in MVP/Mobile.
+[ ] Keine Pay-to-Win-Mechanik.
+[ ] Maximal mögliche Einsätze an Level, Sicherheitsstatus und validierte Historie koppeln.
+[ ] Wettkampf-Ergebnisse serverseitig validieren.
+[ ] Plattformgebühren/Jackpot/Burn nur serverseitig oder Smart Contract/Backend.
+[ ] Rechtliche Prüfung für Echtgeld-/Token-Einsätze vor Umsetzung.
+
+============================================================
+G4. System Health / Anti-Farming
+============================================================
+
+TASK-ID: WF-SYSTEM-HEALTH-001
+STATUS: [~] Basis vorhanden / Ausbau offen
+
+[x] Systemgesundheit im Dashboard konzeptionell/teilweise sichtbar.
+[x] Diversity Multiplier konzeptionell vorhanden.
+[x] Anti-Farming Multiplier konzeptionell vorhanden.
+[x] Social Multiplier als Basisfeld technisch vorbereitet.
+[ ] Sensor Fusion aus Pose, Face, Motion, HealthKit/Health Connect und Watch-Daten entwerfen.
+[ ] Unplausible Sessions markieren.
+[ ] Belohnungen drosseln, wenn Daten unsicher sind.
+[ ] Wiederholtes Fake-/Pattern-Verhalten erkennen.
+[ ] Reward-Balancing für Kinder, Senioren, Erwachsene und Firmenkontexte getrennt prüfen.
+
+============================================================
+G5. DePIN / Compute / Forschung
+============================================================
+
+TASK-ID: WF-DEPIN-001
+STATUS: [>] Später / nur strategisches Zielbild
+
+[>] DePIN Compute bleibt langfristige Vision.
+[>] Keine Mining-/Compute-Last in Mobile-App-Store-kritischen Bereichen.
+[>] Rechenintensive Prozesse laufen off-device oder nur mit klarer, freiwilliger Zustimmung.
+[ ] Datenschutz, Akku, Hitze, App-Store-Policies und Sicherheit vor Umsetzung prüfen.
+[ ] Pharma-/Forschungsdaten nur anonymisiert, opt-in, DSGVO-konform und ethisch geprüft.
+[ ] Keine gesundheitsbezogenen Rohdaten ohne Rechtsgrundlage monetarisieren.
