@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.3 – UNITY AR + BUDDY ITEM/NFC/CAPABILITY IN TODOLIST ZUSAMMENGEFÜHRT
+Version: 4.4 – FIRESTORE / CLOUD FUNCTIONS FÜR ITEMS NFC CAPABILITIES VORBEREITET
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -20,19 +20,23 @@ AKTUELLER FOKUS:
 [x] Buddy-KI, Missionsempfehlungen, Rätselgenerierung und Reward-Bewertung bleiben außerhalb von Unity in WellFit-Backend/App-Logik.
 [x] Unity rendert und steuert die AR-Welt, aber finale Rewards, Mission Completion und Anti-Cheat bleiben serverseitig.
 [x] Unity-Projektstruktur unter native/unity/WellFitBuddyAR angelegt.
-[x] Unity Scene Setup dokumentiert.
-[x] Unity Bridge Contract dokumentiert.
-[x] Unity Script-Platzhalter und erste C#-Vorlagen angelegt.
-[x] Build nach Unity-Struktur erfolgreich ausgeführt.
-[x] PM2 nach Unity-Struktur erfolgreich neu gestartet.
 [x] Buddy-Item-/Ausrüstungs-/NFC-/Capability-Erweiterung in H2 aufgenommen.
-[x] Erweiterung mit J und G zusammengeführt: Inventar, NFC, Item-Fähigkeiten und serverseitige Reward-/Security-Grenzen sind Roadmap-Bestandteil.
+[x] Erweiterung mit J und G zusammengeführt.
+[x] Gemeinsame TypeScript-Datenmodelle für Buddy Items, User Inventory, Buddy Capabilities, Item Use Events und NFC angelegt.
+[x] Firestore Schema für Items / NFC / Buddy Capabilities dokumentiert.
+[x] Cloud Functions Plan für Items / NFC / Buddy Capabilities dokumentiert.
+[x] Firestore Rules Draft für Items / NFC / Buddy Capabilities dokumentiert.
+[x] Unity Bridge Contract um Items, NFC und Capability Actions erweitert.
 
-PRIO 1 – TODOLIST-KONSOLIDIERUNG / BUILD
-[ ] Build nach Zusammenführung der Item-/NFC-/Capability-Erweiterungen ausführen:
-    - todolist/H2 erweitert um Ausrüstung, NFC, Real-World-Items und Buddy-Fähigkeiten
-    - todolist/J aktualisiert mit neuen Arbeitsblöcken
-    - todolist/G erweitert um Reward-/Security-Regeln für Items, NFC und Fähigkeiten
+PRIO 1 – BUILD NACH BACKEND-/SCHEMA-GRUNDLAGE
+[ ] Build nach Items/NFC/Capabilities Backend-Grundlage ausführen:
+    - lib/buddyItems/buddyItemTypes.ts
+    - lib/buddyItems/nfcItemTypes.ts
+    - docs/architecture/BUDDY_ITEMS_NFC_CAPABILITIES.md
+    - docs/architecture/FIRESTORE_ITEMS_NFC_CAPABILITIES_SCHEMA.md
+    - docs/architecture/CLOUD_FUNCTIONS_ITEMS_NFC_CAPABILITIES.md
+    - docs/security/FIRESTORE_RULES_ITEMS_NFC_CAPABILITIES_DRAFT.md
+    - native/unity/WellFitBuddyAR/docs/BRIDGE_CONTRACT.md erweitert
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -44,7 +48,32 @@ pm2 restart wellfit-now --update-env
 pm2 status
 
 ============================================================
-PRIO 2 – UNITY AR FOUNDATION LOKAL ERZEUGEN
+PRIO 2 – FIREBASE / FUNCTIONS / RULES REAL UMSETZEN
+============================================================
+
+[ ] Prüfen, ob Firebase Functions-Projekt bereits existiert oder neu angelegt werden muss.
+[ ] firebase.json, firestore.rules und ggf. functions/ Struktur sauber anlegen.
+[ ] Emulator-Setup definieren.
+[ ] Firestore Rules aus Draft in echte Rules überführen.
+[ ] Callable Function validateNfcScan implementieren.
+[ ] Internal Function grantItemOrCapability implementieren.
+[ ] auditItemUse implementieren.
+[ ] validateMissionCompletionWithItem implementieren.
+[ ] Emulator-Tests schreiben:
+    - gültiger NFC Scan
+    - revoked NFC Tag
+    - expired NFC Tag
+    - duplicate scan
+    - falscher Nutzer
+    - falsche Mission
+    - usageLimit erreicht
+    - item grant erfolgreich
+    - capability unlock erfolgreich
+    - mission completion mit Item erfolgreich
+    - mission completion ohne Item abgelehnt
+
+============================================================
+PRIO 3 – UNITY AR FOUNDATION LOKAL ERZEUGEN
 ============================================================
 
 [ ] Unity Hub installieren/öffnen.
@@ -61,7 +90,7 @@ PRIO 2 – UNITY AR FOUNDATION LOKAL ERZEUGEN
 [ ] Ersten Android ARCore Build testen.
 
 ============================================================
-PRIO 3 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
+PRIO 4 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
 ============================================================
 
 [ ] Buddy-KI-Guide Datenmodell entwerfen:
@@ -98,57 +127,37 @@ PRIO 3 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
     - NFC/Item/Fähigkeit darf nicht clientseitig Reward-Autorität sein.
 
 ============================================================
-PRIO 4 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
+PRIO 5 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
 ============================================================
 
-[ ] Inventar-/Item-Datenmodell entwerfen:
-    - itemId
-    - ownerUserId
-    - itemType
-    - rarity
-    - cosmeticSlots
-    - capabilityUnlocks
-    - source: mission, shop, NFC, partner, event
-    - serverValidationStatus
-[ ] Buddy-Fähigkeits-/Capability-Datenmodell entwerfen:
-    - climbUp
-    - jumpDown
-    - jumpBoost
-    - fetchClue
-    - scanObject
-    - revealHint
-    - protect
-    - carry
-[ ] NFC-/Real-World-Item-Validierung entwerfen:
-    - tagId
-    - rotatingSecret / signedPayload
-    - missionId
-    - allowedUser/group
-    - timeWindow
-    - usageLimit
-    - auditLog
-    - revoked/blocked status
-[ ] Firestore Collections planen:
+[x] Inventar-/Item-Datenmodell als TypeScript-Grundlage entworfen.
+[x] Buddy-Fähigkeits-/Capability-Datenmodell als TypeScript-Grundlage entworfen.
+[x] NFC-/Real-World-Item-Validierung als TypeScript-Grundlage entworfen.
+[x] Firestore Collections geplant:
     - userInventory
     - itemDefinitions
     - buddyCapabilities
     - nfcTags
     - nfcScanEvents
     - capabilityUnlockEvents
-[ ] Cloud Function planen:
+[x] Cloud Functions geplant:
     - validateNfcScan
     - grantItemOrCapability
     - auditItemUse
     - validateMissionCompletionWithItem
-[ ] Unity-Bridge erweitern:
+[x] Unity-Bridge erweitert:
     - performBuddyAction(action)
     - equipBuddyItem(itemId)
     - setBuddyCapability(capabilityId)
+    - requestCapabilityAction
     - onBuddyItemUsed
     - onBuddyCapabilityActionCompleted
+[ ] Erste Beispiel-ItemDefinitions erstellen.
+[ ] Erste Beispiel-NFC-Tags als Seed-Daten definieren.
+[ ] Erstes Demo-Szenario definieren: Kletterseil schaltet climbUp/fetchClue frei.
 
 ============================================================
-PRIO 5 – 3D-BUDDY / ASSETPIPELINE
+PRIO 6 – 3D-BUDDY / ASSETPIPELINE
 ============================================================
 
 [ ] Erstes echtes Buddy-Asset definieren: Drache, Ritter, Zwerg oder anderer Prototyp.
@@ -180,7 +189,7 @@ PRIO 5 – 3D-BUDDY / ASSETPIPELINE
 [ ] Mobile-Optimierung: LOD, Texturgrößen, Polygonbudget.
 
 ============================================================
-PRIO 6 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
+PRIO 7 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
 ============================================================
 
 [x] Capacitor-Abhängigkeiten ergänzt.
@@ -199,25 +208,6 @@ PRIO 6 – NATIVE ACTIVITY / HANDY-CHIP-DATEN AKTIV UMSETZEN
 [ ] Native Snapshot in Web-Bridge integrieren.
 [ ] Firestore DailyActivity / TrackingSession Datenmodell für native Quellen ergänzen.
 [ ] Server/Cloud Function für Mission Completion und Reward-Entscheidung planen.
-
-============================================================
-PRIO 7 – MOBILE MISSION STABILISIEREN
-============================================================
-
-[ ] Kamera-Mission UX auf echtem Handy testen.
-[ ] Wenn Kamera-Preview/HUD Höhe problematisch ist: Missions-HUD kompakter machen.
-[ ] Mission Completion in Firestore prüfen:
-    - trackingSessions
-    - missionBuddyEvents
-    - users.points
-    - users.avatar / buddy state
-[ ] Fehlerfälle sauberer anzeigen:
-    - nicht eingeloggt
-    - Kamera abgelehnt
-    - MediaPipe lädt nicht
-    - Firestore nicht erreichbar
-    - Mission bereits heute angewendet
-[ ] Nach erfolgreichem Abschluss optional Zurück-Button zu /mobile/missionen ergänzen.
 
 ============================================================
 PRIO 8 – FIRESTORE / SECURITY HÄRTEN
