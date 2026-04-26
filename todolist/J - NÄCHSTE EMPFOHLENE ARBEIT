@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 6.3 – BUILD, EMULATOR-TESTS UND PM2-START BESTÄTIGT
+Version: 6.4 – MISSION REWARD POLICY UND REWARD PREVIEW STUB ERGÄNZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -22,6 +22,7 @@ AKTUELLER FOKUS:
 [x] NFTs sind spätere digitale Besitzobjekte/Sammlerobjekte/besondere Ausrüstung.
 [x] KI erzeugt Vorschläge; Backend entscheidet Preise, Rewards, Freischaltungen, Token-/WFT-Bezüge und Missbrauchsschutz.
 [x] Mission Reward / Context / Payout Engine ist als Architekturpfad angelegt und erste sichere Backend-Stubs sind umgesetzt.
+[x] MissionRewardPolicy + RewardPreview-Stub sind ergänzt: nur Simulation, keine XP-/Punkte-/Reward-/Token-Autorisierung.
 
 ============================================================
 AKTUELLER UMSETZUNGSSTAND – NEU BESTÄTIGT
@@ -66,6 +67,7 @@ FIREBASE / FUNCTIONS / TESTS:
 [x] Next.js Server meldet Ready auf localhost:3000 und Network 172.86.81.91:3000.
 [!] Alte Error-Log-Einträge zu fehlender `.next`-Production-Build-ID stammen aus der Zeit vor dem erfolgreichen Build/Restart. Aktueller Out-Log zeigt Ready.
 [!] Die PERMISSION_DENIED-Meldungen im Rules-Test sind erwartet und positiv. Sie zeigen, dass direkte Client-Writes blockiert werden.
+[!] Nach Ergänzung von missionRewardPreview muss der erweiterte Emulator-Gesamttest erneut ausgeführt werden.
 
 SERVERAUTORISIERTE COLLECTIONS:
 [x] itemDefinitions: Read für eingeloggte Nutzer, keine Client-Writes.
@@ -80,6 +82,10 @@ SERVERAUTORISIERTE COLLECTIONS:
 [x] missionBuddyEvents: Owner-Read, keine Client-Writes.
 [x] missionContextEvaluations: Owner-Read, keine Client-Writes.
 [x] missionCompletionEvaluations: Owner-Read, keine Client-Writes.
+[x] missionRewardPreviews: Owner-Read, keine Client-Writes.
+[x] missionRewardPolicies: Read für eingeloggte Nutzer, keine Client-Writes.
+[x] systemReserveSnapshots: Read für eingeloggte Nutzer, keine Client-Writes.
+[x] missionRewardEvents: Owner-Read, keine Client-Writes.
 
 CALLABLE FUNCTIONS:
 [x] seedDemoItemsAndNfc: Admin-only Seed Function.
@@ -90,6 +96,7 @@ CALLABLE FUNCTIONS:
 [x] createMissionBuddyEvent: schreibt serverseitige Buddy-/Mission-Events ohne Reward-Autorität.
 [x] evaluateMissionContext: bewertet Alter, Parent-Mode, Tageszeit, Wochentag, Radius/GPS, Dauer und Proof-Qualität.
 [x] evaluateMissionCompletion: sammelt Evidence-Referenzen und schreibt Review-Evaluation.
+[x] missionRewardPreview: erzeugt nur eine Reward-/XP-/Punkte-Simulation und autorisiert keine Auszahlung.
 [x] grantItemOrCapability: Guard-Stub vorhanden, noch nicht produktiv aktiv.
 [x] validateMissionCompletionWithItem: Guard-Stub vorhanden, noch nicht produktiv aktiv.
 
@@ -97,14 +104,17 @@ MISSION CONTEXT / COMPLETION:
 [x] functions/lib/missionContext.js angelegt.
 [x] missionContextEvaluations Collection eingeführt.
 [x] missionCompletionEvaluations Collection eingeführt.
+[x] missionRewardPreviews Collection eingeführt.
 [x] Sicherer Child-Kontext wird mit context-ok-for-review bewertet.
 [x] Riskanter Child-Kontext bei Nacht, ohne Parent-Mode, außerhalb Radius und ohne Proof wird mit reject-or-parent-review bewertet.
 [x] Risk Flags werden geprüft: parent-mode-required, night-not-safe-for-child, outside-radius.
 [x] evaluateMissionCompletion prüft Ownership und Mission-Zugehörigkeit von Evidence-Referenzen.
+[x] missionRewardPreview prüft Ownership und Mission-Zugehörigkeit von Context-/Completion-Evaluationen.
 [x] Fremde Tracking-Sessions werden blockiert.
+[x] Fremde RewardPreview-Versuche werden im Emulator-Test abgedeckt.
 [x] Leere Evaluation liefert insufficient-evidence.
 [x] Evidence mit Belegen liefert manual-review-required.
-[!] evaluateMissionContext und evaluateMissionCompletion autorisieren weiterhin keine Rewards, XP, Punkte oder finale Mission Completion.
+[!] evaluateMissionContext, evaluateMissionCompletion und missionRewardPreview autorisieren weiterhin keine Rewards, XP, Punkte oder finale Mission Completion.
 
 NFC / ITEMS / BUDDY:
 [x] Demo Items: rope_001, magnifier_001, small_backpack_001.
@@ -155,25 +165,29 @@ Startseite öffnen
 PRIO 2 – MISSION REWARD POLICY / REWARD PREVIEW STUB
 ============================================================
 
-STATUS: [ ] Offen / nächster Entwicklungsblock nach Browser-Bestätigung
+STATUS: [~] In Arbeit / sicherer Preview-Stub umgesetzt, Emulator-Retest offen
 
-[ ] missionRewardPolicies als reine Policy-Datenstruktur vorbereiten.
-[ ] Firestore Rules für missionRewardPolicies planen: Read nach Bedarf, keine Client-Writes.
-[ ] missionRewardPreview als sichere Callable Function planen.
-[ ] RewardPreview darf nur simulieren, nicht gutschreiben.
-[ ] RewardPreview muss weiterhin setzen:
+[x] missionRewardPolicies als reine Policy-Datenstruktur vorbereitet: `functions/lib/missionRewardPolicy.js`.
+[x] Firestore Rules für missionRewardPolicies geplant/ergänzt: Read nach Bedarf, keine Client-Writes.
+[x] missionRewardPreview als sichere Callable Function ergänzt.
+[x] RewardPreview simuliert nur und schreibt keine Auszahlung gut.
+[x] RewardPreview setzt weiterhin:
     - rewardAuthorized=false
     - xpAuthorized=false
     - pointsAuthorized=false
     - tokenAuthorized=false
-[ ] systemReserveSnapshots als Lesemodell für spätere Systemgesundheit planen.
-[ ] missionRewardEvents erst als Audit-Modell planen, keine produktive Auszahlung.
+    - missionCompletionAuthorized=false
+[x] systemReserveSnapshots als Lesemodell für spätere Systemgesundheit vorbereitet: keine Client-Writes.
+[x] missionRewardEvents als Audit-Modell vorbereitet: keine produktive Auszahlung, keine Client-Writes.
+[x] Emulator-Testplan technisch erweitert: missionRewardPreview-Guardrails in missionCompletionEmulatorTest.js ergänzt.
+[ ] `npm run check` im Functions-Ordner erneut ausführen.
+[ ] `npm run test:emulator` nach RewardPreview-Ergänzung erneut ausführen.
 
 ============================================================
 PRIO 3 – ANTI-CHEAT / SENSOR FUSION / RACE-CONDITIONS
 ============================================================
 
-STATUS: [ ] Offen
+STATUS: [ ] Offen / nächster Entwicklungsblock nach RewardPreview-Retest
 
 [ ] NFC Duplicate-Scan-Schutz später transaktional/deterministisch absichern.
 [ ] Pose/Motion/AR/NFC/GPS-Beweise in ein Anti-Cheat-Modell überführen.
