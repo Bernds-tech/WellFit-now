@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.0 – NATIVE AR / ARCORE / ARKIT / UNITY FOUNDATION
+Version: 1.1 – UNITY AR FOUNDATION ALS HAUPTPFAD FESTGELEGT
 Status: Aktive Produktumsetzung / verbindliche Entwickler-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -9,14 +9,14 @@ H1. NATIVE AR / ARCORE / ARKIT / UNITY FOUNDATION
 ============================================================
 
 ZIELBILD:
-Flammi soll kein 2D-Emoji, kein verschobenes Bild und kein reines Kamera-Overlay sein, sondern ein kleiner animierter 3D-Drache, der im echten Raum erscheint.
+Flammi soll kein 2D-Emoji, kein verschobenes Bild und kein reines Kamera-Overlay sein, sondern ein kleiner animierter 3D-Drache beziehungsweise später frei wählbarer Buddy, der im echten Raum erscheint.
 
 ECHTES AR-ZIEL:
 [x] Rückkamera zeigt reale Umgebung.
-[x] Flammi wird als 3D-Charakter in den Raum gesetzt.
-[x] Flammi bleibt an seiner Weltposition, auch wenn das Handy geschwenkt wird.
-[x] Flammi kann auf realen Flächen stehen: Boden, Couch, Tisch, Kastl.
-[x] Flammi kann später zwischen erkannten Flächen navigieren: von der Couch springen, auf ein Kastl hüpfen, am Kratzbaum klettern.
+[x] Buddy wird als 3D-Charakter in den Raum gesetzt.
+[x] Buddy bleibt an seiner Weltposition, auch wenn das Handy geschwenkt wird.
+[x] Buddy kann auf realen Flächen stehen: Boden, Couch, Tisch, Kastl.
+[x] Buddy kann später zwischen erkannten Flächen navigieren: von der Couch springen, auf ein Kastl hüpfen, am Kratzbaum klettern.
 [x] Schatten, Skalierung, Perspektive und später Verdeckung sollen glaubwürdig wirken.
 
 ============================================================
@@ -27,7 +27,7 @@ H1.1 HARTE ERKENNTNIS AUS GERÄTETEST
 
 ERFÜLLT:
 [x] Rückkamera funktioniert.
-[x] 3D-Flammi wird über der Kamera angezeigt.
+[x] 3D-Buddy wird über der Kamera angezeigt.
 [x] Tap-/Rufen-/Laufen-/Anker-Bedienlogik ist testbar.
 [x] Simulierter Anker zeigt, wie die Bedienung später funktionieren soll.
 
@@ -35,24 +35,54 @@ ERFÜLLT NICHT:
 [!] Kein echtes World Tracking.
 [!] Keine echte Boden-/Flächenerkennung.
 [!] Kein echter Raumanker.
-[!] Flammi bleibt nicht im Raum stehen, wenn das Handy geschwenkt wird.
+[!] Buddy bleibt nicht im Raum stehen, wenn das Handy geschwenkt wird.
 [!] Keine realistische Navigation über Couch, Tisch, Kastl oder Kratzbaum.
 
 VERBINDLICHE ENTSCHEIDUNG:
 [x] PWA/Three.js bleibt Demo-, UI- und Fallback-Schicht.
-[x] Echtes Flammi-AR muss nativ umgesetzt werden.
+[x] Echtes Buddy-AR muss nativ umgesetzt werden.
 [x] Android-Ziel: ARCore.
 [x] iOS-Ziel: ARKit.
-[x] Unity AR Foundation wird als bevorzugter Hauptpfad geprüft, falls Build-Komplexität und App-Größe akzeptabel bleiben.
+[x] Unity AR Foundation ist ab jetzt der Hauptpfad für das echte Buddy-AR-Erlebnis.
+[x] Direkte ARCore/ARKit-Implementierung bleibt Plan B, falls Unity untragbar wird.
 
 ============================================================
-H1.2 NATIVE AR MINDESTANFORDERUNGEN
+H1.2 WARUM UNITY AR FOUNDATION HAUPTPFAD IST
+============================================================
+
+ENTSCHEIDUNG:
+[x] Unity AR Foundation wird gewählt, weil der Buddy das zentrale Produktgefühl ist und das Projekt damit steht oder fällt.
+
+VORTEILE:
+[x] Ein gemeinsamer AR-Codepfad für Android und iOS.
+[x] ARCore und ARKit werden über eine gemeinsame Abstraktion genutzt.
+[x] Plane Detection, Raycast/Hit-Test und Anchors sind zentral im Unity-AR-Stack abbildbar.
+[x] 3D-Charakteranimationen sind deutlich besser beherrschbar.
+[x] Animator Controller und State Machines sind ideal für idle, walk, hop, climbUp, jumpDown, land, happy, return.
+[x] Später Ausrüstung möglich: Schwert, Schild, Rüstung, Kleidung, Items.
+[x] Besserer 3D-Asset-Workflow für GLB/FBX, Rigging, Animationen und LODs.
+[x] Raumverhalten und Buddy-Navigation können als Game-Logik aufgebaut werden.
+[x] Rätselrallye, Hinweise, visuelle Marker und echte Rauminteraktion passen besser in Unity.
+
+NACHTEILE / RISIKEN:
+[!] App-Größe steigt.
+[!] Build-System wird komplexer.
+[!] Unity-Version muss fixiert und stabil gehalten werden.
+[!] Integration mit bestehender WellFit-App muss sauber geplant werden.
+[!] CI/CD und Store-Builds werden anspruchsvoller.
+
+WARUM TROTZDEM UNITY:
+[x] Direkte ARCore/ARKit-Implementierung wäre für einfache Objektplatzierung schlanker, aber für einen lebendigen Buddy mit Bewegung, Animation, Ausrüstung, Rätselrallye und Rauminteraktion langfristig riskanter und langsamer.
+[x] Für WellFit ist nicht ein einzelner AR-Anker entscheidend, sondern ein glaubwürdiger Begleiter. Dafür ist Unity der passendere Hauptpfad.
+
+============================================================
+H1.3 NATIVE AR MINDESTANFORDERUNGEN
 ============================================================
 
 WORLD TRACKING:
 [ ] Kamera-Pose verfolgen.
 [ ] Gerätebewegung im Raum verstehen.
-[ ] Flammi bleibt an Weltkoordinaten statt Bildschirmkoordinaten.
+[ ] Buddy bleibt an Weltkoordinaten statt Bildschirmkoordinaten.
 
 PLANE DETECTION:
 [ ] Boden erkennen.
@@ -63,19 +93,19 @@ PLANE DETECTION:
 HIT TEST / RAYCAST:
 [ ] Nutzer tippt auf reale Fläche.
 [ ] AR-System gibt Weltposition zurück.
-[ ] Flammi wird dort verankert.
+[ ] Buddy wird dort verankert.
 
 ANCHOR SYSTEM:
 [ ] Anker speichern.
-[ ] Flammi bleibt relativ zum Weltanker.
+[ ] Buddy bleibt relativ zum Weltanker.
 [ ] Rufen löst oder übersteuert Anker.
 [ ] Mehrere Zielpunkte später.
 
 NAVIGATION / BEHAVIOR:
-[ ] Stufe 1: Flammi bleibt am Anker.
-[ ] Stufe 1: Flammi schaut zur Kamera.
-[ ] Stufe 1: Flammi läuft in kleinem Radius um Anker.
-[ ] Stufe 2: Flammi springt zwischen erkannten Flächenpunkten.
+[ ] Stufe 1: Buddy bleibt am Anker.
+[ ] Stufe 1: Buddy schaut zur Kamera.
+[ ] Stufe 1: Buddy läuft in kleinem Radius um Anker.
+[ ] Stufe 2: Buddy springt zwischen erkannten Flächenpunkten.
 [ ] Stufe 2: Couch -> Boden.
 [ ] Stufe 2: Boden -> Tisch/Kastl.
 [ ] Stufe 2: Hop-/Climb-/Land-Animationen.
@@ -85,7 +115,7 @@ NAVIGATION / BEHAVIOR:
 [ ] Stufe 3: Missionen mit echter Rauminteraktion.
 
 ============================================================
-H1.3 NATIVE AR BRIDGE
+H1.4 NATIVE AR BRIDGE
 ============================================================
 
 ERLEDIGT:
@@ -108,26 +138,18 @@ DATENMODELLE:
 [x] NativeArSessionState definiert.
 
 OFFEN:
+[ ] Unity-Bridge anbinden.
 [ ] Native Android-Bridge anbinden.
 [ ] Native iOS-Bridge anbinden.
-[ ] Unity-Bridge oder direkter ARCore/ARKit-Adapter auswählen.
 [ ] Native Events zurück in App/Web-Schicht definieren.
+[ ] Sicherheitsgrenze definieren: Unity meldet Events, Backend entscheidet Rewards.
 
 ============================================================
-H1.4 UNITY AR FOUNDATION IMPLEMENTIERUNG
+H1.5 UNITY AR FOUNDATION IMPLEMENTIERUNG
 ============================================================
 
 EMPFEHLUNG:
-[x] Unity AR Foundation ist aktuell der bevorzugte Hauptpfad für echtes Flammi-AR, sofern App-Größe und Build-Komplexität akzeptabel bleiben.
-
-WARUM UNITY:
-[x] Gemeinsamer AR-Codepfad für Android ARCore und iOS ARKit.
-[x] Plane Detection für horizontale und vertikale Flächen.
-[x] Raycast/Hit-Test für Nutzer-Taps auf echte Flächen.
-[x] Anchor-System für raumfeste Flammi-Platzierung.
-[x] Starke 3D-Asset- und Animationspipeline.
-[x] Animator Controller für idle, walk, hop, jumpDown, climbUp, land, happy.
-[x] Später Navigation über erkannte Flächenpunkte möglich.
+[x] Unity AR Foundation ist der verbindliche Hauptpfad für echtes Buddy-AR.
 
 UNITY-PAKETE:
 [ ] AR Foundation.
@@ -137,7 +159,7 @@ UNITY-PAKETE:
 [ ] Input System optional.
 
 UNITY-SZENE:
-[ ] Unity Scene: WellFitFlammiAR.
+[ ] Unity Scene: WellFitBuddyAR.
 [ ] AR Session.
 [ ] XR Origin / AR Session Origin.
 [ ] AR Camera.
@@ -145,44 +167,49 @@ UNITY-SZENE:
 [ ] AR Raycast Manager.
 [ ] AR Anchor Manager.
 [ ] AR Occlusion Manager optional später.
-[ ] FlammiController.
-[ ] FlammiNavigationController.
+[ ] BuddyController.
+[ ] BuddyNavigationController.
+[ ] BuddyDialogueEventBridge.
 [ ] WellFitNativeBridge.
 
 BRIDGE-EVENTS:
 [ ] onArReady.
 [ ] onPlaneDetected.
 [ ] onAnchorCreated.
-[ ] onFlammiPlaced.
-[ ] onFlammiActionStarted.
-[ ] onFlammiActionCompleted.
+[ ] onBuddyPlaced.
+[ ] onBuddyActionStarted.
+[ ] onBuddyActionCompleted.
+[ ] onBuddyReachedSurface.
 [ ] onArError.
 
 UNITY BUILD-SCHRITTE:
 [ ] Unity-Version fixieren.
-[ ] Unity-Projekt unter native/unity/WellFitFlammiAR anlegen.
+[ ] Unity-Projekt unter native/unity/WellFitBuddyAR anlegen.
 [ ] AR Foundation installieren.
 [ ] Android und iOS Build Targets aktivieren.
-[ ] Flammi-Platzhaltermodell importieren.
+[ ] Buddy-Platzhaltermodell importieren.
 [ ] Animator Controller anlegen.
 [ ] Native Bridge definieren.
 [ ] Android ARCore Build testen.
 [ ] iOS ARKit Build testen.
 [ ] App-Integration mit WellFit Mobile Flow planen.
 
-RISIKEN:
-[!] App-Größe steigt deutlich.
-[!] CI/CD wird komplexer.
-[!] Unity-Version muss fixiert werden.
-[!] App Store und Play Store Permissions müssen sauber formuliert sein.
-[!] Datenschutz: Kamera verarbeitet Raumdaten; keine Rohvideos standardmäßig speichern.
-
 ============================================================
-H1.5 DIREKTE ARCORE / ARKIT IMPLEMENTIERUNG
+H1.6 DIREKTE ARCORE / ARKIT IMPLEMENTIERUNG
 ============================================================
 
 ALTERNATIVE:
-[>] Falls Unity zu schwer wird, wird echte AR direkt nativ umgesetzt.
+[>] Plan B, falls Unity zu schwer, zu groß oder organisatorisch untragbar wird.
+
+VORTEILE:
+[>] Schlanker pro Plattform.
+[>] Weniger Unity-Abhängigkeit.
+[>] Gut für einfache AR-Anker.
+
+NACHTEILE:
+[!] Doppelte Entwicklung Android/iOS.
+[!] Charakteranimation, Navigation und Assetpipeline aufwendiger.
+[!] Für lebendigen Buddy langfristig weniger effizient.
 
 ANDROID ARCORE MINDESTUMFANG:
 [ ] AR Session starten.
@@ -191,8 +218,8 @@ ANDROID ARCORE MINDESTUMFANG:
 [ ] Plane Detection aktivieren.
 [ ] Hit Test auf Tap-Koordinate ausführen.
 [ ] Anchor erzeugen.
-[ ] Flammi GLB an Anchor rendern.
-[ ] Flammi Animationen starten.
+[ ] Buddy GLB an Anchor rendern.
+[ ] Buddy Animationen starten.
 [ ] Anchor lösen oder aktualisieren.
 
 IOS ARKIT MINDESTUMFANG:
@@ -202,8 +229,8 @@ IOS ARKIT MINDESTUMFANG:
 [ ] Plane Detection horizontal aktivieren.
 [ ] Raycast auf Tap-Koordinate ausführen.
 [ ] ARAnchor erzeugen.
-[ ] Flammi Modell an Anchor rendern.
-[ ] Flammi Animationen starten.
+[ ] Buddy Modell an Anchor rendern.
+[ ] Buddy Animationen starten.
 [ ] Anchor lösen oder aktualisieren.
 
 WICHTIGE GRENZE:
@@ -211,13 +238,13 @@ WICHTIGE GRENZE:
 [!] Diese Labels brauchen später Heuristik, Nutzerhilfe, Scene Understanding oder ML.
 
 ============================================================
-H1.6 3D-FLAMMI ASSETPIPELINE
+H1.7 3D-BUDDY ASSETPIPELINE
 ============================================================
 
 FORMAT:
 [ ] GLB/GLTF oder FBX je nach AR-Engine.
 [ ] Low-poly / mobile-optimiert.
-[ ] Zielgröße unter 2–5 MB.
+[ ] Zielgröße unter 2–5 MB für einzelne Buddy-Basisassets.
 [ ] LODs später prüfen.
 
 ANIMATIONEN:
@@ -230,22 +257,34 @@ ANIMATIONEN:
 [ ] happy.
 [ ] lookAround.
 [ ] return.
-[ ] optional fireSpark.
+[ ] pointAtObject.
+[ ] optional fireSpark / emote.
 
 DESIGN:
-[ ] Freundlicher kleiner Drache.
+[ ] Freundlicher kleiner Drache als erster Prototyp.
+[ ] Später andere Buddy-Typen möglich: Ritter, Zwerg, Tier, Fantasiefigur.
 [ ] Nicht bedrohlich.
 [ ] WellFit-Farbwelt: Türkis, Orange, warmes Licht.
 [ ] Große Augen, emotional bindend.
 [ ] Kind-/familientauglich.
+[ ] Ausrüstungssystem vorbereiten: Schwert, Schild, Rüstung, Kleidung, Accessoires.
 
 ============================================================
-H1.7 NÄCHSTE EMPFOHLENE ARBEIT
+H1.8 NÄCHSTE EMPFOHLENE ARBEIT
 ============================================================
 
-[ ] Build nach Roadmap-/Native-AR-Umstellung bestätigen.
-[ ] Entscheidung finalisieren: Unity AR Foundation oder direkte ARCore/ARKit-Implementierung.
-[ ] Falls Unity: Unity-Projektstruktur anlegen.
-[ ] Falls direkt nativ: Android/iOS AR-Plugin-Struktur anlegen.
-[ ] Flammi-Asset als Platzhaltermodell definieren.
-[ ] Native AR Bridge an Zieltechnologie anbinden.
+[x] Entscheidung finalisiert: Unity AR Foundation ist Hauptpfad.
+[ ] Build nach Roadmap-/Unity-Entscheidung bestätigen.
+[ ] Unity-Version festlegen.
+[ ] native/unity/WellFitBuddyAR Projektstruktur anlegen.
+[ ] Minimalen Unity AR Foundation Prototyp planen:
+    - AR Session
+    - Plane Detection
+    - Raycast Tap
+    - Anchor
+    - Buddy Placeholder
+    - Idle Animation
+    - Look at Camera
+[ ] Bridge zwischen WellFit Mobile und Unity AR definieren.
+[ ] Buddy-KI-Guide Datenmodell entwerfen.
+[ ] Rätselrallye-Datenmodell entwerfen.
