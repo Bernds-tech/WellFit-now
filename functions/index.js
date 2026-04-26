@@ -1,5 +1,6 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
+const { seedDemoItemsAndNfc } = require("./seed/demoItemsAndNfc");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -9,6 +10,14 @@ function requireAuth(request) {
     throw new HttpsError("unauthenticated", "Login erforderlich.");
   }
   return request.auth.uid;
+}
+
+function requireAdmin(request) {
+  const userId = requireAuth(request);
+  if (!request.auth.token || request.auth.token.admin !== true) {
+    throw new HttpsError("permission-denied", "Admin-Berechtigung erforderlich.");
+  }
+  return userId;
 }
 
 function now() {
@@ -171,6 +180,16 @@ exports.auditItemUse = onCall(async (request) => {
   });
 
   return { accepted: true, eventId: eventRef.id };
+});
+
+exports.seedDemoItemsAndNfc = onCall(async (request) => {
+  requireAdmin(request);
+  const result = await seedDemoItemsAndNfc(db);
+  return {
+    accepted: true,
+    message: "Demo Items und NFC Tags wurden angelegt.",
+    ...result,
+  };
 });
 
 exports.grantItemOrCapability = onCall(async () => {
