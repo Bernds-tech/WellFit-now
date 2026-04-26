@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.7 – DEMO ITEMS UND NFC SEED FÜR KLETTERSEIL-SZENARIO ANGELEGT
+Version: 4.8 – EMULATOR-TESTPLAN UND FUNCTIONS CHECK SCRIPT ANGELEGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -37,13 +37,15 @@ AKTUELLER FOKUS:
 [x] functions npm install erfolgreich.
 [x] Demo Seed-Daten für Items und NFC-Tags angelegt.
 [x] Admin-gated seedDemoItemsAndNfc Callable Function angelegt.
+[x] functions/package.json um check Script ergänzt.
+[x] functions/EMULATOR_TEST_PLAN.md angelegt.
 
-PRIO 1 – BUILD NACH DEMO-SEED-GRUNDLAGE
-[ ] Build nach Demo-Seed-Grundlage ausführen:
+PRIO 1 – BUILD NACH EMULATOR-TESTPLAN
+[ ] Build nach Emulator-Testplan ausführen:
+    - functions/package.json enthält npm run check
+    - functions/EMULATOR_TEST_PLAN.md angelegt
     - functions/seed/demoItemsAndNfc.js
     - functions/index.js erweitert um seedDemoItemsAndNfc
-    - Demo-Items: rope_001, magnifier_001, small_backpack_001
-    - Demo-NFC-Tags: WF-DEMO-ROPE-TREE-001, WF-DEMO-MAGNIFIER-LEAF-001
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -57,20 +59,22 @@ pm2 status
 Functions-Check:
 cd /var/www/WellFit-now/functions
 npm install --no-audit --no-fund
-node -c index.js
-node -c seed/demoItemsAndNfc.js
+npm run check
 
 ============================================================
 PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
 ============================================================
 
 [x] functions npm install ausgeführt.
+[x] Emulator-Testplan dokumentiert.
 [ ] Firebase Emulator lokal vorbereiten.
 [ ] firestore.rules im Emulator testen.
 [ ] validateNfcScan Emulator-Test schreiben.
 [ ] auditItemUse Emulator-Test schreiben.
 [ ] seedDemoItemsAndNfc nur mit Admin-Claim testen.
 [ ] Testszenarien prüfen:
+    - Admin Seed erfolgreich
+    - Normaler Nutzer darf nicht seeden
     - gültiger NFC Scan: WF-DEMO-ROPE-TREE-001
     - Rope Item Grant: rope_001
     - Capability Unlock: climbUp
@@ -84,8 +88,7 @@ PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
     - falscher Nutzer
     - falsche Mission
     - usageLimit erreicht
-    - item grant erfolgreich
-    - capability unlock erfolgreich
+    - direkter Client Write muss verboten sein
 [ ] Produktionsdeployment erst nach Emulator-Tests.
 
 ============================================================
