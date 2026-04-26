@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 4.5 – FIREBASE FUNCTIONS / RULES / INDEXES FÜR ITEMS NFC CAPABILITIES ANGELEGT
+Version: 4.6 – FIREBASE FUNCTIONS BUILD UND FUNCTIONS INSTALL BESTÄTIGT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -32,9 +32,12 @@ AKTUELLER FOKUS:
 [x] firestore.indexes.json für Inventory, Capabilities, NFC Scan Events und Unlock Events angelegt.
 [x] functions/package.json angelegt.
 [x] functions/index.js mit validateNfcScan, auditItemUse und geplanten Guard-Stubs angelegt.
+[x] Build nach Firebase-/Functions-Grundlage erfolgreich.
+[x] PM2 nach Firebase-/Functions-Grundlage erfolgreich neu gestartet.
+[x] functions npm install erfolgreich.
 
-PRIO 1 – BUILD NACH FIREBASE-/FUNCTIONS-GRUNDLAGE
-[ ] Build nach Firebase-/Functions-Grundlage ausführen:
+PRIO 1 – BESTÄTIGTER SERVER-BUILD
+[x] Build nach Firebase-/Functions-Grundlage ausgeführt:
     - firebase.json erweitert
     - firestore.rules erweitert
     - firestore.indexes.json angelegt
@@ -47,6 +50,23 @@ PRIO 1 – BUILD NACH FIREBASE-/FUNCTIONS-GRUNDLAGE
     - docs/architecture/CLOUD_FUNCTIONS_ITEMS_NFC_CAPABILITIES.md
     - docs/security/FIRESTORE_RULES_ITEMS_NFC_CAPABILITIES_DRAFT.md
     - native/unity/WellFitBuddyAR/docs/BRIDGE_CONTRACT.md erweitert
+
+BESTÄTIGTER SERVER-STAND:
+[x] git fetch origin ausgeführt.
+[x] git reset --hard origin/main ausgeführt.
+[x] HEAD bestätigt: 5df172d Document real Firebase Functions rules indexes groundwork.
+[x] npm install --no-audit --no-fund erfolgreich.
+[x] Hängender Next-Build-Prozess beendet.
+[x] rm -rf .next ausgeführt.
+[x] NODE_OPTIONS="--max-old-space-size=768" npm run build erfolgreich.
+[x] Next.js 16.2.3 Build erfolgreich kompiliert.
+[x] TypeScript erfolgreich abgeschlossen.
+[x] Static Pages erfolgreich generiert: 29/29.
+[x] /mobile/ar im Build enthalten.
+[x] /mobile/missionen/squat im Build enthalten.
+[x] pm2 restart wellfit-now --update-env erfolgreich.
+[x] pm2 status geprüft: wellfit-now online.
+[x] cd functions && npm install --no-audit --no-fund erfolgreich.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -61,9 +81,7 @@ pm2 status
 PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
 ============================================================
 
-[ ] functions npm install ausführen:
-    cd functions
-    npm install --no-audit --no-fund
+[x] functions npm install ausgeführt.
 [ ] Firebase Emulator lokal vorbereiten.
 [ ] firestore.rules im Emulator testen.
 [ ] validateNfcScan Emulator-Test schreiben.
