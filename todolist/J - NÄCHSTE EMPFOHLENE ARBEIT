@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 5.4 – GESAMT-EMULATOR-TEST ERFOLGREICH
+Version: 5.5 – AI DIMENSIONS / ITEMS / NFT ECONOMY IN ROADMAP AUFGENOMMEN
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -18,6 +18,12 @@ AKTUELLER FOKUS:
 [x] Unity AR Foundation ist verbindlicher Hauptpfad.
 [x] Direkte ARCore/ARKit-Implementierung bleibt Plan B.
 [x] Buddy-KI, Missionsempfehlungen, Rätselgenerierung und Reward-Bewertung bleiben außerhalb von Unity in WellFit-Backend/App-Logik.
+[x] KI-/Leitsystem soll später Dimensionen, Missionen, Rätsel, Item-Bedarfe und optionale Item-/NFT-Angebote erzeugen/vorschlagen können.
+[x] KI erzeugt Vorschläge, Backend entscheidet Preise, Rewards, Freischaltungen, Token-/WFT-Bezüge und Missbrauchsschutz.
+[x] Mobile bleibt App-Store-konform: keine Token-/NFT-/Trading-/Presale-Funktion in Mobile.
+[x] Token-/NFT-/Ownership-Funktionen bleiben später Web-/PC-Dashboard.
+[x] NFC-Tags sind reale physische Trigger und keine NFTs.
+[x] NFTs sind spätere digitale Besitzobjekte/Sammlerobjekte/besondere Ausrüstung.
 [x] Unity rendert und steuert die AR-Welt, aber finale Rewards, Mission Completion und Anti-Cheat bleiben serverseitig.
 [x] Unity-Projektstruktur unter native/unity/WellFitBuddyAR angelegt.
 [x] Buddy-Item-/Ausrüstungs-/NFC-/Capability-Erweiterung in H2 aufgenommen.
@@ -58,6 +64,8 @@ AKTUELLER FOKUS:
 [x] FieldValue/serverTimestamp/increment Fehler in Functions behoben.
 [x] Echte Callable Functions im Emulator erfolgreich getestet.
 [x] Gesamt-Emulator-Test erfolgreich ausgeführt.
+[x] AI Dimensions / Items / NFT Economy Architekturdatei angelegt.
+[x] Reward-/Economy-Roadmap um KI-Dimensionen, Item-Angebote, NFT-/Ownership-Abgrenzung ergänzt.
 
 PRIO 1 – BESTÄTIGTER GESAMT-EMULATOR-TEST
 [x] Java installiert und geprüft:
@@ -107,6 +115,8 @@ HINWEISE:
 [!] Firebase Functions Paket meldet Upgrade-Hinweis. Später gezielt auf neue firebase-functions Version migrieren und Breaking Changes prüfen.
 [!] Nur eine Emulator-Instanz parallel starten, sonst sind Ports 4000/8080/9099/5001 belegt.
 [!] Produktionsdeployment bleibt blockiert, bis erweiterte Emulator-/Security-Tests abgeschlossen sind.
+[!] KI-generierte Preise, Item-Angebote, Token-/WFT-Bezüge und NFT-/Ownership-Records müssen backendvalidiert sein.
+[!] Mobile-App darf keine App-Store-kritischen Token-/NFT-/Trading-Funktionen enthalten.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -155,7 +165,35 @@ PRIO 2 – NÄCHSTE TESTSTUFE: EDGE CASES UND ERWEITERTE SECURITY
 [ ] Produktionsdeployment erst nach erweiterten Emulator-Tests.
 
 ============================================================
-PRIO 3 – UNITY AR FOUNDATION LOKAL ERZEUGEN
+PRIO 3 – AI DIMENSIONS / ITEM OFFERS / NFT-OWNERSHIP BACKEND-DESIGN
+============================================================
+
+[x] docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md angelegt.
+[x] G-Roadmap um G7 KI-generierte Dimensionen / Item-Angebote / spätere NFT-Ownership erweitert.
+[ ] TypeScript-Datenmodelle planen/anlegen:
+    - AiDimension
+    - AiGeneratedItemOffer
+    - DigitalOwnershipRecord
+    - EconomyPricePolicy
+    - RewardPolicyVersion
+[ ] Firestore Collections planen:
+    - aiDimensions
+    - aiGeneratedItemOffers
+    - digitalOwnershipRecords
+    - economyPricePolicies
+    - rewardPolicyVersions
+[ ] Cloud Functions planen:
+    - createAiDimensionDraft
+    - validateAiDimension
+    - createItemOffer
+    - validateItemOfferPrice
+    - grantItemFromOffer
+[ ] Mobile-/Web-Grenze definieren:
+    - Mobile zeigt Itembedarf neutral.
+    - Web-Dashboard zeigt später Token/WFT/NFT/Ownership.
+
+============================================================
+PRIO 4 – UNITY AR FOUNDATION LOKAL ERZEUGEN
 ============================================================
 
 [ ] Unity Hub installieren/öffnen.
@@ -172,7 +210,7 @@ PRIO 3 – UNITY AR FOUNDATION LOKAL ERZEUGEN
 [ ] Ersten Android ARCore Build testen.
 
 ============================================================
-PRIO 4 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
+PRIO 5 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
 ============================================================
 
 [ ] Buddy-KI-Guide Datenmodell entwerfen:
@@ -209,7 +247,7 @@ PRIO 4 – BUDDY ALS KI-GUIDE / PRODUKTLOGIK
     - NFC/Item/Fähigkeit darf nicht clientseitig Reward-Autorität sein.
 
 ============================================================
-PRIO 5 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
+PRIO 6 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
 ============================================================
 
 [x] Inventar-/Item-Datenmodell als TypeScript-Grundlage entworfen.
@@ -246,7 +284,7 @@ PRIO 5 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
 [x] Erstes Demo-Szenario definiert: Kletterseil schaltet climbUp/fetchClue frei.
 
 ============================================================
-PRIO 6 – FIRESTORE / SECURITY HÄRTEN
+PRIO 7 – FIRESTORE / SECURITY HÄRTEN
 ============================================================
 
 [x] Rules für userInventory, itemDefinitions, buddyCapabilities, nfcTags und nfcScanEvents im Smoke-Test geprüft.
@@ -254,5 +292,5 @@ PRIO 6 – FIRESTORE / SECURITY HÄRTEN
 [ ] Cloud Function für Mission Completion planen.
 [ ] Cloud Function für NFC-/Item-/Capability-Validierung weiter testen.
 [ ] Client darf langfristig nur Beweise/Events senden, nicht Rewards final vergeben.
-[ ] Anti-Cheat-Konzept für Pose, Bewegung, AR, NFC und Items starten.
+[ ] Anti-Cheat-Konzept für Pose, Bewegung, AR, NFC, KI-Angebote und Items starten.
 [ ] Reward-/Punkte-/Item-Events auditierbar speichern.
