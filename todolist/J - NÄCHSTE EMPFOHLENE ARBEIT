@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 5.1 – FIREBASE EMULATOR UND NFC SMOKE TEST ERFOLGREICH
+Version: 5.2 – FIRESTORE RULES SMOKE TEST ERFOLGREICH
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -10,7 +10,7 @@ J. NÄCHSTE EMPFOHLENE ARBEIT
 
 AKTUELLER FOKUS:
 [x] Nutzerentscheidung übernommen: Handy / AR / Avatar / Buddy wird vor Desktop-Marktplatz, Leaderboard, Shop und weiteren Produktmodulen priorisiert.
-[x] PC/Web-App dient primär als Steuerzentrale und Einstellungsbereich.
+[x] PC/Web-App dient primär als Steuerzentrale, Einstellung, Verwaltung und später Business-/Web3-Bereich.
 [x] Browser/WebGL bleibt Demo und Fallback.
 [x] Echtes Buddy-AR braucht World Tracking, Plane Detection, Hit Test/Raycast und Anchor-System.
 [x] Android-Ziel: ARCore.
@@ -52,8 +52,10 @@ AKTUELLER FOKUS:
 [x] Functions Emulator erfolgreich gestartet: 127.0.0.1:5001.
 [x] Functions wurden im Emulator geladen: validateNfcScan, auditItemUse, seedDemoItemsAndNfc, grantItemOrCapability, validateMissionCompletionWithItem.
 [x] NFC Emulator Smoke Test erfolgreich ausgeführt.
+[x] Firestore Rules Smoke Test angelegt.
+[x] Firestore Rules Smoke Test erfolgreich ausgeführt.
 
-PRIO 1 – BESTÄTIGTER EMULATOR-SMOKE-TEST
+PRIO 1 – BESTÄTIGTER EMULATOR- UND SECURITY-TEST
 [x] Java installiert und geprüft:
     - OpenJDK 17.0.18
 [x] Firebase Emulator gestartet:
@@ -63,7 +65,8 @@ PRIO 1 – BESTÄTIGTER EMULATOR-SMOKE-TEST
     - Emulator UI 127.0.0.1:4000
 [x] functions npm run check erfolgreich.
 [x] functions npm run smoke:nfc erfolgreich.
-[x] Smoke-Test geprüft:
+[x] functions npm run rules:firestore erfolgreich.
+[x] NFC Smoke-Test geprüft:
     - Demo Items werden geseedet.
     - Demo NFC Tags werden geseedet.
     - rope_001 existiert.
@@ -71,11 +74,23 @@ PRIO 1 – BESTÄTIGTER EMULATOR-SMOKE-TEST
     - userInventory bekommt rope_001.
     - buddyCapabilities bekommt climbUp.
     - falsche Mission wird mit mission-mismatch abgelehnt.
+[x] Firestore Rules Smoke-Test geprüft:
+    - Nutzer darf eigene Inventory-Daten lesen.
+    - Nutzer darf fremde Inventory-Daten nicht lesen.
+    - Nutzer darf keine Items direkt erzeugen.
+    - Nutzer darf keine Buddy-Capabilities direkt freischalten.
+    - Nutzer darf NFC-Tags nicht lesen.
+    - Nutzer darf NFC-Tags nicht schreiben.
+    - Nutzer darf keine NFC-ScanEvents direkt schreiben.
+    - Nutzer darf keine capabilityUnlockEvents direkt schreiben.
+    - Nutzer darf keine buddyItemUseEvents direkt schreiben.
 
 HINWEISE:
+[!] Die PERMISSION_DENIED-Meldungen im Rules-Test sind erwartet und positiv. Sie zeigen, dass direkte Client-Writes blockiert werden.
 [!] Firebase CLI meldet: Nicht eingeloggt. Für lokale Demo-Emulator-Tests nicht kritisch.
 [!] Firebase CLI meldet: Java < 21 wird ab firebase-tools@15 nicht mehr unterstützt. Aktuell läuft Java 17, später auf Java 21 wechseln.
-[!] Zweiter Emulator-Start schlug fehl, weil Ports bereits vom laufenden Emulator belegt waren. Das ist normal; nur eine Emulator-Instanz parallel starten.
+[!] Nur eine Emulator-Instanz parallel starten, sonst sind Ports 4000/8080/9099/5001 belegt.
+[!] Produktionsdeployment bleibt blockiert, bis echte Callable-Function-Tests und weitere Security-Tests abgeschlossen sind.
 
 Sichere Server-Reihenfolge:
 cd /var/www/WellFit-now
@@ -99,9 +114,10 @@ npm run emulators
 Terminal 2:
 cd /var/www/WellFit-now/functions
 npm run smoke:nfc
+npm run rules:firestore
 
 ============================================================
-PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
+PRIO 2 – NÄCHSTE TESTSTUFE: ECHTE CALLABLE FUNCTIONS
 ============================================================
 
 [x] functions npm install ausgeführt.
@@ -109,7 +125,7 @@ PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
 [x] NFC Smoke Test Script angelegt.
 [x] Firebase Emulator lokal gestartet.
 [x] NFC Smoke Test erfolgreich.
-[ ] firestore.rules im Emulator testen.
+[x] Firestore Rules Smoke Test erfolgreich.
 [ ] validateNfcScan echte Callable Function im Emulator testen.
 [ ] auditItemUse echte Callable Function im Emulator testen.
 [ ] seedDemoItemsAndNfc nur mit Admin-Claim testen.
@@ -129,7 +145,6 @@ PRIO 2 – FIREBASE / FUNCTIONS / RULES TESTEN
     - falscher Nutzer
     - falsche Mission
     - usageLimit erreicht
-    - direkter Client Write muss verboten sein
 [ ] Produktionsdeployment erst nach Emulator-Tests.
 
 ============================================================
@@ -227,11 +242,10 @@ PRIO 5 – INVENTAR / ITEMS / NFC / BUDDY-FÄHIGKEITEN
 PRIO 6 – FIRESTORE / SECURITY HÄRTEN
 ============================================================
 
-[ ] firestore.rules lokal oder im Firebase Emulator testen.
+[x] Rules für userInventory, itemDefinitions, buddyCapabilities, nfcTags und nfcScanEvents im Smoke-Test geprüft.
 [ ] Rules für trackingSessions und missionBuddyEvents gegen Missbrauch prüfen.
-[ ] Rules für userInventory, itemDefinitions, buddyCapabilities, nfcTags und nfcScanEvents testen.
 [ ] Cloud Function für Mission Completion planen.
-[ ] Cloud Function für NFC-/Item-/Capability-Validierung testen.
+[ ] Cloud Function für NFC-/Item-/Capability-Validierung weiter testen.
 [ ] Client darf langfristig nur Beweise/Events senden, nicht Rewards final vergeben.
 [ ] Anti-Cheat-Konzept für Pose, Bewegung, AR, NFC und Items starten.
 [ ] Reward-/Punkte-/Item-Events auditierbar speichern.
