@@ -188,7 +188,13 @@ export default function ArDragonScene({ isCameraActive, mood, position, actionCo
         camera={{ position: [0, 0.65, 3.4], fov: 46 }}
         gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
         dpr={[1, 1.5]}
-        onPointerDown={(event) => onSceneTap({ x: event.pointer.x * 0.5 + 0.5, y: -event.pointer.y * 0.5 + 0.5 })}
+        onPointerDown={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          onSceneTap({
+            x: (event.clientX - rect.left) / rect.width,
+            y: (event.clientY - rect.top) / rect.height,
+          });
+        }}
       >
         <ambientLight intensity={1.1} />
         <directionalLight position={[2.8, 4, 3]} intensity={2.1} castShadow />
