@@ -23,6 +23,8 @@ Wichtig:
 - `npm run emulators` wird im Repo-Root ausgefuehrt: `/var/www/WellFit-now`.
 - `npm run check` und `npm run smoke:nfc` werden im Functions-Ordner ausgefuehrt: `/var/www/WellFit-now/functions`.
 - `npm run smoke:nfc` funktioniert erst, wenn der Firestore Emulator auf `127.0.0.1:8080` laeuft.
+- `npm run callable:emulator` benoetigt Auth-, Firestore- und Functions-Emulator.
+- `npm run test:emulator` ist der verbindliche Gesamt-Test fuer smoke:nfc + rules:firestore + callable:emulator.
 
 ## Vorbereitung
 
@@ -80,6 +82,32 @@ Das Script `test/emulatorNfcSmokeTest.js` prueft:
 - WF-DEMO-ROPE-TREE-001 wird validiert.
 - userInventory bekommt rope_001.
 - buddyCapabilities bekommt climbUp.
+- falsche Mission wird mit mission-mismatch abgelehnt.
+
+## Callable-Function-Edge-Case-Test
+
+Terminal 2:
+
+```bash
+cd /var/www/WellFit-now/functions
+npm run callable:emulator
+```
+
+Das Script `test/callableFunctionsEmulatorTest.js` prueft echte Callable HTTP-Endpunkte im Emulator:
+
+- seedDemoItemsAndNfc mit Admin-Claim erfolgreich.
+- seedDemoItemsAndNfc ohne Admin-Claim verboten.
+- missing-public-code wird abgelehnt.
+- tag-not-found wird abgelehnt.
+- revoked NFC Tag wird mit tag-revoked abgelehnt.
+- inactive NFC Tag wird mit tag-not-active abgelehnt.
+- falscher Nutzer wird mit user-not-allowed abgelehnt.
+- usageLimit erreicht wird mit usage-limit-reached abgelehnt.
+- gueltiger Rope Flow vergibt rope_001 und climbUp.
+- duplicate scan fuer denselben Nutzer, Tag und dieselbe Mission wird mit duplicate-scan abgelehnt.
+- duplicate scan erzeugt kein zweites Inventory Item.
+- Magnifier Flow vergibt magnifier_001 und scanObject.
+- auditItemUse schreibt ein serverseitiges Audit-Event.
 - falsche Mission wird mit mission-mismatch abgelehnt.
 
 ## Testnutzer
@@ -278,6 +306,119 @@ Direkte Writes muessen abgelehnt werden fuer:
 - capabilityUnlockEvents create
 - buddyItemUseEvents create
 
+## Testfall 9 - Revoked NFC Tag
+
+Input:
+
+```json
+{
+  "publicCode": "WF-DEMO-REVOKED-001",
+  "missionId": "demo_tree_clue_001"
+}
+```
+
+Erwartung:
+
+- accepted = false
+- rejectionReason = tag-revoked
+- kein Item Grant
+- kein Capability Unlock
+
+## Testfall 10 - Inactive NFC Tag
+
+Input:
+
+```json
+{
+  "publicCode": "WF-DEMO-INACTIVE-001",
+  "missionId": "demo_tree_clue_001"
+}
+```
+
+Erwartung:
+
+- accepted = false
+- rejectionReason = tag-not-active
+- kein Item Grant
+- kein Capability Unlock
+
+## Testfall 11 - Falscher Nutzer
+
+Input:
+
+```json
+{
+  "publicCode": "WF-DEMO-USER-LOCKED-001",
+  "missionId": "demo_tree_clue_001"
+}
+```
+
+Erwartung:
+
+- accepted = false
+- rejectionReason = user-not-allowed
+- kein Item Grant
+- kein Capability Unlock
+
+## Testfall 12 - Usage Limit erreicht
+
+Input:
+
+```json
+{
+  "publicCode": "WF-DEMO-LIMIT-001",
+  "missionId": "demo_tree_clue_001"
+}
+```
+
+Erwartung:
+
+- accepted = false
+- rejectionReason = usage-limit-reached
+- kein Item Grant
+- kein Capability Unlock
+
+## Testfall 13 - Duplicate Scan
+
+Input:
+
+```json
+{
+  "publicCode": "WF-DEMO-ROPE-TREE-001",
+  "missionId": "demo_tree_clue_001"
+}
+```
+
+Ablauf:
+
+- Erster Scan wird akzeptiert.
+- Zweiter Scan desselben Nutzers fuer denselben Tag und dieselbe Mission wird abgelehnt.
+
+Erwartung zweiter Scan:
+
+- accepted = false
+- rejectionReason = duplicate-scan
+- kein zweites Inventory Item
+- kein zweiter Capability Unlock noetig
+
+## Testfall 14 - Magnifier Flow / scanObject
+
+Input:
+
+```json
+{
+  "publicCode": "WF-DEMO-MAGNIFIER-LEAF-001",
+  "missionId": "demo_leaf_quiz_001"
+}
+```
+
+Erwartung:
+
+- accepted = true
+- grantedItemId = magnifier_001
+- grantedCapabilityId = scanObject
+- buddyCapabilities enthaelt normal-user_default_scanObject
+
 ## Naechste technische Aufgabe
 
-Automatisierte Callable-Function-Tests und Firestore-Rules-Tests ergaenzen. Der Smoke-Test ist ein erster pruefbarer Zwischenschritt, ersetzt aber noch nicht die vollstaendigen Security-Rule-Tests.
+Rules fuer `trackingSessions` und `missionBuddyEvents` gegen Missbrauch pruefen und danach Mission-Completion-Backend-Flow planen. Der Smoke-Test und die erweiterten Callable-Edge-Case-Tests sind pruefbare Zwischenschritte, ersetzen aber noch nicht die vollstaendige Anti-Cheat-Architektur fuer Mission Completion und Rewards.
