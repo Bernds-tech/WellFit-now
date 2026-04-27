@@ -18,13 +18,50 @@
 
 ### WellFit AR Objects
 
+- WellFitARSystem
 - WellFitNativeBridge
 - BuddyController
 - BuddyAnchorController
 - BuddyNavigationController
+- BuddyAbilityController
+- BuddyKiGuideController
 - BuddyDialogueEventBridge
 - BuddyLookAtCamera
+- ArMissionHintMarker
 - BuddyPlaceholder
+
+## Scene Object: WellFitARSystem
+
+Empfohlene Komponenten:
+
+- WellFitNativeBridge
+- BuddyAnchorController
+- BuddyKiGuideController
+- BuddyDialogueEventBridge
+
+Referenzen:
+
+- BuddyAnchorController -> AR Raycast Manager
+- BuddyAnchorController -> AR Anchor Manager
+- BuddyAnchorController -> Buddy Prefab
+- BuddyAnchorController -> WellFitNativeBridge
+- BuddyKiGuideController -> WellFitNativeBridge
+- BuddyDialogueEventBridge -> WellFitNativeBridge
+
+## Buddy Prefab
+
+Empfohlene Komponenten:
+
+- BuddyController
+- BuddyLookAtCamera
+- BuddyNavigationController
+- BuddyAbilityController
+
+Optionale Kinder:
+
+- Mesh / Placeholder
+- Shadow Blob
+- Hint Pointer
 
 ## Scene Flow v1
 
@@ -37,9 +74,10 @@
 7. Buddy wird am Anchor platziert.
 8. Buddy startet idle animation.
 9. Buddy richtet Blick grob zur Kamera.
-10. Nutzer tippt Buddy.
-11. Buddy startet happy animation.
-12. App/Bridge meldet Event zurueck an WellFit.
+10. WellFitNativeBridge meldet `onBuddyPlaced`.
+11. Nutzer tippt Buddy.
+12. Buddy startet happy animation.
+13. WellFitNativeBridge meldet `onBuddyActionStarted` und `onBuddyActionCompleted`.
 
 ## Scene Flow v2
 
@@ -50,6 +88,34 @@
    - hoeher: hop oder climbUp
    - tiefer: jumpDown und land
 5. Missionen koennen Buddy-Zielpunkte anfragen.
+6. ArMissionHintMarker kann Hinweise in der Umgebung markieren.
+7. BuddyKiGuideController kann Mission, Dialog oder Capability-Hinweis melden.
+
+## AR Event Contract
+
+Siehe:
+
+```txt
+docs/AR_EVENT_CONTRACT.md
+```
+
+Wichtige Events:
+
+- onArReady
+- onPlaneDetected
+- onAnchorCreated
+- onBuddyPlaced
+- onBuddyActionStarted
+- onBuddyActionCompleted
+- onBuddyActionRejected
+- onBuddyReachedSurface
+- onBuddyDialogueShown
+- onBuddyMissionSuggested
+- onBuddyCapabilityNeeded
+- onArHintMarkerCreated
+- onArHintMarkerFocused
+- onArHintMarkerResolved
+- onArError
 
 ## Wichtige Produktgrenze
 
@@ -62,6 +128,8 @@ Unity meldet nur AR-Events:
 - Buddy Aktion beendet
 - Surface erkannt
 - Nutzerinteraktion erkannt
+- Hinweis/Marker erstellt
+- Dialog/Empfehlung ausgelöst
 
 WellFit Backend/App entscheidet ueber:
 
@@ -70,3 +138,4 @@ WellFit Backend/App entscheidet ueber:
 - Streaks
 - Rewards
 - Anti-Cheat
+- Completion
