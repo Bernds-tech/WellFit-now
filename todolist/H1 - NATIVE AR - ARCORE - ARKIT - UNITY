@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.1 – UNITY AR FOUNDATION ALS HAUPTPFAD FESTGELEGT
+Version: 1.2 – UNITY AR FOUNDATION / KI-BUDDY REPO-VORBEREITUNG ERWEITERT
 Status: Aktive Produktumsetzung / verbindliche Entwickler-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -10,6 +10,13 @@ H1. NATIVE AR / ARCORE / ARKIT / UNITY FOUNDATION
 
 ZIELBILD:
 Flammi soll kein 2D-Emoji, kein verschobenes Bild und kein reines Kamera-Overlay sein, sondern ein kleiner animierter 3D-Drache beziehungsweise später frei wählbarer Buddy, der im echten Raum erscheint.
+
+KLARE GERÄTE-ROLLEN:
+[x] Zielgerät für Nutzer: Handy.
+[x] Android-Zielgerät: ARCore-fähiges Android-Handy.
+[x] iOS-Zielgerät: ARKit-fähiges iPhone.
+[x] PC/Laptop mit Unity Hub ist nur Entwicklungswerkzeug/Werkstatt zum Bauen der Handy-App.
+[x] Server/GitHub speichern Code, Roadmap, Tests und Backend; der Server ersetzt kein echtes Handy-AR-Testgerät.
 
 ECHTES AR-ZIEL:
 [x] Rückkamera zeigt reale Umgebung.
@@ -122,6 +129,8 @@ ERLEDIGT:
 [x] lib/nativeAr/nativeArTypes.ts erstellt.
 [x] lib/nativeAr/nativeArBridge.ts erstellt.
 [x] Web-Fallback für NativeArBridge erstellt.
+[x] Unity-Vorlage `WellFitNativeBridge.cs.txt` vorhanden.
+[x] Unity-Vorlage `BuddyDialogueEventBridge.cs.txt` vorhanden.
 
 BRIDGE-FUNKTIONEN:
 [x] getStatus vorgesehen.
@@ -130,6 +139,7 @@ BRIDGE-FUNKTIONEN:
 [x] placeFlammiAtHitTest vorgesehen.
 [x] moveFlammiToAnchor vorgesehen.
 [x] makeFlammiPerform vorgesehen.
+[x] Unity-Events: onBuddyPlaced, onBuddyActionStarted, onBuddyActionCompleted, onBuddyDialogueShown, onArHintMarkerCreated vorbereitet.
 
 DATENMODELLE:
 [x] NativeArAnchor definiert.
@@ -138,7 +148,7 @@ DATENMODELLE:
 [x] NativeArSessionState definiert.
 
 OFFEN:
-[ ] Unity-Bridge anbinden.
+[ ] Unity-Bridge real anbinden.
 [ ] Native Android-Bridge anbinden.
 [ ] Native iOS-Bridge anbinden.
 [ ] Native Events zurück in App/Web-Schicht definieren.
@@ -168,8 +178,14 @@ UNITY-SZENE:
 [ ] AR Anchor Manager.
 [ ] AR Occlusion Manager optional später.
 [ ] BuddyController.
+[ ] BuddyAnchorController.
+[ ] BuddyLookAtCamera.
+[ ] BuddySurfaceNode.
 [ ] BuddyNavigationController.
+[ ] BuddyAbilityController.
+[ ] BuddyKiGuideController.
 [ ] BuddyDialogueEventBridge.
+[ ] ArMissionHintMarker.
 [ ] WellFitNativeBridge.
 
 BRIDGE-EVENTS:
@@ -180,6 +196,10 @@ BRIDGE-EVENTS:
 [ ] onBuddyActionStarted.
 [ ] onBuddyActionCompleted.
 [ ] onBuddyReachedSurface.
+[ ] onBuddyDialogueShown.
+[ ] onBuddyMissionSuggested.
+[ ] onBuddyCapabilityNeeded.
+[ ] onArHintMarkerCreated.
 [ ] onArError.
 
 UNITY BUILD-SCHRITTE:
@@ -195,47 +215,28 @@ UNITY BUILD-SCHRITTE:
 [ ] App-Integration mit WellFit Mobile Flow planen.
 
 ============================================================
-H1.6 DIREKTE ARCORE / ARKIT IMPLEMENTIERUNG
+H1.6 UNITY-REPO-VORBEREITUNG
 ============================================================
 
-ALTERNATIVE:
-[>] Plan B, falls Unity zu schwer, zu groß oder organisatorisch untragbar wird.
+DOKUMENTE:
+[x] native/unity/WellFitBuddyAR/README.md aktualisiert.
+[x] native/unity/WellFitBuddyAR/docs/SCENE_SETUP.md vorhanden.
+[x] native/unity/WellFitBuddyAR/docs/BUDDY_AR_MUST_CRITERIA.md angelegt.
+[x] native/unity/WellFitBuddyAR/docs/UNITY_SETUP_CHECKLIST.md angelegt.
+[x] native/unity/WellFitBuddyAR/docs/HANDY_IS_TARGET_DEVICE.md angelegt.
+[x] native/unity/WellFitBuddyAR/docs/ANDROID_ARCORE_BUILD.md angelegt.
 
-VORTEILE:
-[>] Schlanker pro Plattform.
-[>] Weniger Unity-Abhängigkeit.
-[>] Gut für einfache AR-Anker.
-
-NACHTEILE:
-[!] Doppelte Entwicklung Android/iOS.
-[!] Charakteranimation, Navigation und Assetpipeline aufwendiger.
-[!] Für lebendigen Buddy langfristig weniger effizient.
-
-ANDROID ARCORE MINDESTUMFANG:
-[ ] AR Session starten.
-[ ] Camera Permission prüfen.
-[ ] ARCore Availability prüfen.
-[ ] Plane Detection aktivieren.
-[ ] Hit Test auf Tap-Koordinate ausführen.
-[ ] Anchor erzeugen.
-[ ] Buddy GLB an Anchor rendern.
-[ ] Buddy Animationen starten.
-[ ] Anchor lösen oder aktualisieren.
-
-IOS ARKIT MINDESTUMFANG:
-[ ] ARSession starten.
-[ ] Camera Permission prüfen.
-[ ] ARWorldTrackingConfiguration aktivieren.
-[ ] Plane Detection horizontal aktivieren.
-[ ] Raycast auf Tap-Koordinate ausführen.
-[ ] ARAnchor erzeugen.
-[ ] Buddy Modell an Anchor rendern.
-[ ] Buddy Animationen starten.
-[ ] Anchor lösen oder aktualisieren.
-
-WICHTIGE GRENZE:
-[!] ARCore und ARKit erkennen Flächen, aber sie wissen nicht automatisch sicher, was Couch, Kastl oder Kratzbaum ist.
-[!] Diese Labels brauchen später Heuristik, Nutzerhilfe, Scene Understanding oder ML.
+C#-VORLAGEN:
+[x] WellFitNativeBridge.cs.txt.
+[x] BuddyController.cs.txt.
+[x] BuddyAnchorController.cs.txt.
+[x] BuddyLookAtCamera.cs.txt.
+[x] BuddySurfaceNode.cs.txt.
+[x] BuddyNavigationController.cs.txt.
+[x] BuddyAbilityController.cs.txt.
+[x] BuddyKiGuideController.cs.txt.
+[x] BuddyDialogueEventBridge.cs.txt.
+[x] ArMissionHintMarker.cs.txt.
 
 ============================================================
 H1.7 3D-BUDDY ASSETPIPELINE
@@ -274,17 +275,12 @@ H1.8 NÄCHSTE EMPFOHLENE ARBEIT
 ============================================================
 
 [x] Entscheidung finalisiert: Unity AR Foundation ist Hauptpfad.
-[ ] Build nach Roadmap-/Unity-Entscheidung bestätigen.
-[ ] Unity-Version festlegen.
-[ ] native/unity/WellFitBuddyAR Projektstruktur anlegen.
-[ ] Minimalen Unity AR Foundation Prototyp planen:
-    - AR Session
-    - Plane Detection
-    - Raycast Tap
-    - Anchor
-    - Buddy Placeholder
-    - Idle Animation
-    - Look at Camera
-[ ] Bridge zwischen WellFit Mobile und Unity AR definieren.
-[ ] Buddy-KI-Guide Datenmodell entwerfen.
-[ ] Rätselrallye-Datenmodell entwerfen.
+[x] Repo-Dokumentation für Unity/AR erweitert.
+[x] C#-Vorlagen für Buddy-AR v1 vorbereitet.
+[ ] Unity Hub lokal installieren/öffnen.
+[ ] Unity 2022.3 LTS installieren.
+[ ] native/unity/WellFitBuddyAR lokal mit Unity Hub erzeugen.
+[ ] AR Foundation, ARCore XR Plugin, ARKit XR Plugin, XR Plugin Management installieren.
+[ ] Szene WellFitBuddyAR anlegen.
+[ ] C#-Vorlagen aus Scripts/*.cs.txt nach Assets/Scripts/*.cs übernehmen.
+[ ] Android ARCore Build testen.
