@@ -8,9 +8,14 @@
 [Uu]ser[Ss]ettings/
 [Mm]emoryCaptures/
 
-# Unity cache
+# Unity cache / IDE
+.vs/
+.gradle/
+ExportedObj/
+.consulo/
 *.csproj
 *.sln
+*.suo
 *.user
 *.userprefs
 *.pidb
@@ -21,19 +26,28 @@
 *.opendb
 *.VC.db
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
 # Crash reports
 sysinfo.txt
 
+# Build artifacts
+*.apk
+*.aab
+*.ipa
+*.unitypackage
+
 # Addressables / generated
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-# Keep project source, settings and packages
-![Aa]ssets/
-![Pp]ackages/
-![Pp]roject[Ss]ettings/
+# Keep project source, docs, settings and package templates
+!README.md
+!docs/**
+!Scripts/**
+![Aa]ssets/**
+![Pp]ackages/**
+![Pp]roject[Ss]ettings/**
