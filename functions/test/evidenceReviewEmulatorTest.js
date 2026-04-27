@@ -2,11 +2,13 @@
   WellFit Mission Evidence Review Emulator Test
 
   Zweck:
-  Testet den sicheren Evidence-/Anti-Cheat-Review-Stub:
+  Testet den sicheren Evidence-/Anti-Cheat-Review-Stub und RewardPreview-v3-Safety-Caps:
   - reviewMissionEvidence schreibt missionEvidenceReviews
   - Evidence Review sammelt Tracking, Proof, Buddy, Context, Completion und RewardPreview
   - Evidence Review autorisiert keine Rewards, XP, Punkte, Token oder Mission Completion
-  - missionRewardPreview drosselt bei riskanter Evidence Review auf 0
+  - missionRewardPreview drosselt bei fehlender/riskanter Evidence Review
+  - missionRewardPreview bezieht optional systemReserveSnapshotId ein
+  - blockierte Systemreserve setzt RewardPreview auf 0
   - Firestore Rules erlauben Owner-Read und blockieren fremde Reads sowie direkte Client-Writes
 */
 
@@ -107,6 +109,7 @@ async function resetCollections() {
     "missionCompletionEvaluations",
     "missionRewardPreviews",
     "missionEvidenceReviews",
+    "systemReserveSnapshots",
   ];
   for (const collectionName of collections) {
     const snapshot = await db.collection(collectionName).limit(500).get();
@@ -114,6 +117,28 @@ async function resetCollections() {
     snapshot.docs.forEach((doc) => batch.delete(doc.ref));
     await batch.commit();
   }
+}
+
+async function seedSystemReserveSnapshots() {
+  await db.collection("systemReserveSnapshots").doc("healthy_snapshot_001").set({
+    snapshotId: "healthy_snapshot_001",
+    reserveBalance: 100000,
+    dailyEmissionCap: 500,
+    dailyBurnTarget: 50,
+    rewardPoolAvailable: 1000,
+    systemHealthScore: 92,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  await db.collection("systemReserveSnapshots").doc("blocked_snapshot_001").set({
+    snapshotId: "blocked_snapshot_001",
+    reserveBalance: 0,
+    dailyEmissionCap: 0,
+    dailyBurnTarget: 0,
+    rewardPoolAvailable: 0,
+    systemHealthScore: 10,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
 }
 
 async function runRulesCheck(evidenceReviewId) {
@@ -151,6 +176,13 @@ async function runRulesCheck(evidenceReviewId) {
       tokenAuthorized: true,
       missionCompletionAuthorized: true,
     }));
+
+    await assertSucceeds(aliceDb.collection("systemReserveSnapshots").doc("healthy_snapshot_001").get());
+    await assertFails(aliceDb.collection("systemReserveSnapshots").doc("client_hack_reserve").set({
+      snapshotId: "client_hack_reserve",
+      rewardPoolAvailable: 999999,
+      systemHealthScore: 100,
+    }));
   } finally {
     await testEnv.cleanup();
   }
@@ -159,6 +191,7 @@ async function runRulesCheck(evidenceReviewId) {
 async function run() {
   console.log("WellFit Mission Evidence Review Emulator Test startet...");
   await resetCollections();
+  await seedSystemReserveSnapshots();
 
   const userToken = await createAuthUser("evidence-user");
   const otherUserToken = await createAuthUser("other-user");
@@ -224,6 +257,35 @@ async function run() {
   assert(rewardPreview.ok, `missionRewardPreview muss HTTP OK sein: ${describeCall(rewardPreview)}`);
   assert(rewardPreviewResult.previewStatus === "dampened-missing-evidence-review", "RewardPreview ohne Evidence Review muss gedrosselt werden.");
   assert(rewardPreviewResult.multipliers.evidenceReviewMultiplier === 0.65, "RewardPreview ohne Evidence Review muss evidenceReviewMultiplier 0.65 setzen.");
+  assert(rewardPreviewResult.multipliers.systemReserveMultiplier === 0.75, "RewardPreview ohne SystemReserveSnapshot muss systemReserveMultiplier 0.75 setzen.");
+
+  const healthyReservePreview = await callCallable("missionRewardPreview", userToken, {
+    missionId: "demo_tree_clue_001",
+    missionType: "daily",
+    contextEvaluationId: contextResult.evaluationId,
+    completionEvaluationId: completionResult.evaluationId,
+    systemReserveSnapshotId: "healthy_snapshot_001",
+    requestedBaseReward: 20,
+  });
+  const healthyReservePreviewResult = getCallableResult(healthyReservePreview);
+  assert(healthyReservePreview.ok, `Healthy reserve missionRewardPreview muss HTTP OK sein: ${describeCall(healthyReservePreview)}`);
+  assert(healthyReservePreviewResult.systemReserveSnapshotId === "healthy_snapshot_001", "RewardPreview muss healthy systemReserveSnapshotId zurueckgeben.");
+  assert(healthyReservePreviewResult.multipliers.systemReserveMultiplier === 1, "Gesunder SystemReserveSnapshot muss systemReserveMultiplier 1 setzen.");
+
+  const blockedReservePreview = await callCallable("missionRewardPreview", userToken, {
+    missionId: "demo_tree_clue_001",
+    missionType: "daily",
+    contextEvaluationId: contextResult.evaluationId,
+    completionEvaluationId: completionResult.evaluationId,
+    systemReserveSnapshotId: "blocked_snapshot_001",
+    requestedBaseReward: 20,
+  });
+  const blockedReservePreviewResult = getCallableResult(blockedReservePreview);
+  assert(blockedReservePreview.ok, `Blocked reserve missionRewardPreview muss HTTP OK sein: ${describeCall(blockedReservePreview)}`);
+  assert(blockedReservePreviewResult.previewStatus === "manual-review-required", "Blockierter SystemReserveSnapshot muss manual-review-required setzen.");
+  assert(blockedReservePreviewResult.estimatedInternalPoints === 0, "Blockierter SystemReserveSnapshot muss interne Punkte-Preview auf 0 setzen.");
+  assert(blockedReservePreviewResult.estimatedXp === 0, "Blockierter SystemReserveSnapshot muss XP-Preview auf 0 setzen.");
+  assert(blockedReservePreviewResult.multipliers.systemReserveMultiplier === 0, "Blockierter SystemReserveSnapshot muss systemReserveMultiplier 0 setzen.");
 
   const evidenceReview = await callCallable("reviewMissionEvidence", userToken, {
     missionId: "demo_tree_clue_001",
@@ -255,6 +317,7 @@ async function run() {
     contextEvaluationId: contextResult.evaluationId,
     completionEvaluationId: completionResult.evaluationId,
     evidenceReviewId: evidenceReviewResult.evidenceReviewId,
+    systemReserveSnapshotId: "healthy_snapshot_001",
     requestedBaseReward: 20,
   });
   const dampenedRewardPreviewResult = getCallableResult(dampenedRewardPreview);
@@ -264,24 +327,20 @@ async function run() {
   assert(dampenedRewardPreviewResult.estimatedXp === 0, "Riskante Evidence Review muss XP-Preview auf 0 setzen.");
   assert(dampenedRewardPreviewResult.rewardAuthorized === false, "Gedrosselte RewardPreview darf keinen Reward autorisieren.");
   assert(dampenedRewardPreviewResult.evidenceReviewId === evidenceReviewResult.evidenceReviewId, "RewardPreview muss EvidenceReview-ID zurueckgeben.");
+  assert(dampenedRewardPreviewResult.systemReserveSnapshotId === "healthy_snapshot_001", "RewardPreview muss SystemReserveSnapshot-ID zurueckgeben.");
 
   const evidenceReviewDoc = await db.collection("missionEvidenceReviews").doc(evidenceReviewResult.evidenceReviewId).get();
   assert(evidenceReviewDoc.exists, "reviewMissionEvidence muss missionEvidenceReviews Dokument schreiben.");
   assert(evidenceReviewDoc.data().rewardAuthorized === false, "Evidence Review Dokument rewardAuthorized muss false sein.");
   assert(evidenceReviewDoc.data().tokenAuthorized === false, "Evidence Review Dokument tokenAuthorized muss false sein.");
 
-  const emptyEvidenceReview = await callCallable("reviewMissionEvidence", userToken, {
-    missionId: "demo_tree_clue_001",
-  });
+  const emptyEvidenceReview = await callCallable("reviewMissionEvidence", userToken, { missionId: "demo_tree_clue_001" });
   const emptyResult = getCallableResult(emptyEvidenceReview);
   assert(emptyEvidenceReview.ok, `Leere Evidence Review soll HTTP OK sein: ${describeCall(emptyEvidenceReview)}`);
   assert(emptyResult.recommendation === "insufficient-evidence", "Leere Evidence Review muss insufficient-evidence liefern.");
   assert(emptyResult.rewardAuthorized === false, "Leere Evidence Review darf keinen Reward autorisieren.");
 
-  const foreignEvidenceReview = await callCallable("reviewMissionEvidence", otherUserToken, {
-    missionId: "demo_tree_clue_001",
-    trackingSessionId: trackingSessionResult.sessionId,
-  });
+  const foreignEvidenceReview = await callCallable("reviewMissionEvidence", otherUserToken, { missionId: "demo_tree_clue_001", trackingSessionId: trackingSessionResult.sessionId });
   assert(foreignEvidenceReview.status === 403 || foreignEvidenceReview.json.error, "Fremde Evidence muss blockiert werden.");
 
   await runRulesCheck(evidenceReviewResult.evidenceReviewId);
