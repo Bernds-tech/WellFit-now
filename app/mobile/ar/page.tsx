@@ -9,6 +9,7 @@ import ArBuddyOverlay, { type ArBuddyMood, type ArBuddyPosition } from "./compon
 import type { ArScreenAnchor } from "./components/ArDragonScene";
 import ArStatusCard from "./components/ArStatusCard";
 import NativeArModeCard from "./components/NativeArModeCard";
+import ArBuddyEventPanel from "./components/ArBuddyEventPanel";
 
 const safePositions: ArBuddyPosition[] = ["nearLeft", "center", "farRight", "nearRight", "farLeft"];
 const tapMoods: ArBuddyMood[] = ["happy", "listening", "curious", "playful"];
@@ -78,9 +79,7 @@ export default function MobileArPage() {
   }, [actionCount, anchor, anchorMode, autoWalkEnabled, buddyMood, errorMessage, isCameraActive]);
 
   const callBuddy = () => {
-    if (!isCameraActive) {
-      return;
-    }
+    if (!isCameraActive) return;
 
     setAnchor(null);
     setAnchorMode(false);
@@ -97,9 +96,7 @@ export default function MobileArPage() {
   };
 
   const startBuddyWalk = () => {
-    if (!isCameraActive) {
-      return;
-    }
+    if (!isCameraActive) return;
 
     setBuddyMood("playful");
     setAutoWalkEnabled(true);
@@ -115,9 +112,7 @@ export default function MobileArPage() {
   };
 
   const handleSceneTap = (nextAnchor: ArScreenAnchor) => {
-    if (!isCameraActive || !anchorMode) {
-      return;
-    }
+    if (!isCameraActive || !anchorMode) return;
 
     setAnchor(nextAnchor);
     setAnchorMode(false);
@@ -127,9 +122,7 @@ export default function MobileArPage() {
   };
 
   const handleBuddyTap = () => {
-    if (!isCameraActive) {
-      return;
-    }
+    if (!isCameraActive) return;
 
     const nextTapCount = tapCount + 1;
     setTapCount(nextTapCount);
@@ -173,6 +166,7 @@ export default function MobileArPage() {
 
       <ArStatusCard cameraActive={isCameraActive} message={statusMessage} />
       {isCameraActive && <NativeArModeCard />}
+      <ArBuddyEventPanel cameraActive={isCameraActive} />
 
       {!isCameraActive && (
         <div className="absolute inset-x-3 bottom-4 z-30">
