@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 6.5 – MISSION REWARD PREVIEW EMULATOR-RETEST ERFOLGREICH
+Version: 7.0 – STUFE 1 FUNDAMENT ABGESCHLOSSEN / STUFE 2 START
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -9,11 +9,12 @@ J. NÄCHSTE EMPFOHLENE ARBEIT
 ============================================================
 
 AKTUELLER FOKUS:
+[x] Stufe 1 – Mission Security / RewardPreview / Anti-Cheat Grundlage ist fachlich, emulatorseitig und produktionsseitig abgeschlossen.
 [x] Handy / AR / Avatar / Buddy bleibt vor Desktop-Marktplatz, Leaderboard, Shop und weiteren Produktmodulen priorisiert.
 [x] PC/Web-App dient primär als Steuerzentrale, Einstellung, Verwaltung und später Business-/Web3-Bereich.
 [x] Browser/WebGL bleibt Demo und Fallback.
 [x] Echtes Buddy-AR braucht World Tracking, Plane Detection, Hit Test/Raycast und Anchor-System.
-[x] Unity AR Foundation bleibt verbindlicher Hauptpfad.
+[x] Unity AR Foundation bleibt verbindlicher Hauptpfad, aber erst nach serverseitigem Fundament.
 [x] Buddy-KI, Missionsempfehlungen, Rätselgenerierung und Reward-Bewertung bleiben außerhalb von Unity in Backend/App-Logik.
 [x] Unity rendert und steuert AR, aber finale Rewards, Mission Completion und Anti-Cheat bleiben serverseitig.
 [x] Mobile bleibt App-Store-konform: keine Token-/NFT-/Trading-/Presale-Funktion in Mobile.
@@ -21,58 +22,41 @@ AKTUELLER FOKUS:
 [x] NFC-Tags sind reale physische Trigger, keine NFTs.
 [x] NFTs sind spätere digitale Besitzobjekte/Sammlerobjekte/besondere Ausrüstung.
 [x] KI erzeugt Vorschläge; Backend entscheidet Preise, Rewards, Freischaltungen, Token-/WFT-Bezüge und Missbrauchsschutz.
-[x] Mission Reward / Context / Payout Engine ist als Architekturpfad angelegt und erste sichere Backend-Stubs sind umgesetzt.
-[x] MissionRewardPolicy + RewardPreview-Stub sind ergänzt: nur Simulation, keine XP-/Punkte-/Reward-/Token-Autorisierung.
-[x] MissionRewardPreview wurde im Emulator erfolgreich geladen und getestet.
 
 ============================================================
-AKTUELLER UMSETZUNGSSTAND – NEU BESTÄTIGT
+AKTUELLER UMSETZUNGSSTAND – STUFE 1 ABGESCHLOSSEN
 ============================================================
+
+SERVER / BUILD / PM2:
+[x] Production Build erfolgreich.
+[x] 29/29 statische Seiten generiert.
+[x] `.next/BUILD_ID` vorhanden.
+[x] `.next/prerender-manifest.json` vorhanden.
+[x] `.next/server/middleware-manifest.json` vorhanden.
+[x] PM2 mit genau einer `wellfit-now` Instanz gestartet.
+[x] PM2 Prozessliste gespeichert.
+[x] `curl -I http://localhost:3000` liefert `HTTP/1.1 200 OK`.
+[x] `curl -I https://www.wellfit-now.io` liefert `HTTP/1.1 200 OK`.
+[x] PM2 Error-Log nach Flush leer.
+[x] PM2 Out-Log nach Flush leer.
 
 FIREBASE / FUNCTIONS / TESTS:
 [x] Firestore Rules, Indexes, Functions und Emulator-Grundlage vorhanden.
-[x] functions/EMULATOR_TEST_PLAN.md aktualisiert.
-[x] functions/package.json enthält:
-    - check
-    - smoke:nfc
-    - rules:firestore
-    - callable:emulator
-    - mission:emulator
-    - test:emulator
-[x] Erweiterter Gesamt-Test umfasst:
-    - smoke:nfc
-    - rules:firestore
-    - callable:emulator
-    - mission:emulator
-[x] Root-Installation nach ENOTEMPTY-Problem sauber wiederhergestellt.
-[x] `node_modules`, `next`, `three`, `firebase-tools` und `.bin` vorhanden.
-[x] `three` erfolgreich per `require('three')` geprüft.
-[x] `next/package.json` erfolgreich aufgelöst.
-[x] `firebase-tools/package.json` erfolgreich aufgelöst.
-[x] `firebase/app` erfolgreich aufgelöst.
-[x] `firebase/firestore` erfolgreich aufgelöst.
-[x] Firebase CLI läuft: 14.27.0.
-[x] T2 `npm run check` erfolgreich.
-[x] T2 `npm run test:emulator` erfolgreich.
+[x] Firebase CLI lokal wieder ausführbar: `npx firebase --version` -> 14.27.0.
+[x] Functions Entrypoint: `functions/cooldownIndex.js`.
+[x] `functions/index.js` bleibt Basis-Functions-Datei.
+[x] `functions/cooldownIndex.js` erweitert die Basis um `reviewMissionCooldowns`.
+[x] `functions/package.json` main zeigt auf `cooldownIndex.js`.
+[x] `npm run check` erfolgreich.
+[x] `npm run test:emulator` erfolgreich.
 [x] NFC Smoke Test erfolgreich.
 [x] Firestore Rules Smoke Test erfolgreich.
 [x] Callable Functions Emulator Test erfolgreich.
 [x] Mission Completion Emulator Test erfolgreich.
-[x] missionRewardPreview im Functions Emulator erfolgreich initialisiert.
-[x] missionRewardPreview im Mission Emulator Test erfolgreich ausgeführt.
-[x] Fremde missionRewardPreview-Versuche werden blockiert.
-[x] Direkte Client-Writes auf missionRewardPreviews, missionRewardPolicies, systemReserveSnapshots und missionRewardEvents werden blockiert.
-[x] Root-Produktionsbuild zuletzt erfolgreich:
-    - Compiled successfully
-    - TypeScript fertig
-    - 29/29 statische Seiten generiert
-    - Route-Liste erfolgreich erzeugt
-[x] PM2 Restart zuletzt erfolgreich ausgeführt.
-[x] PM2 Status zuletzt: wellfit-now online.
-[x] Next.js Server meldete zuletzt Ready auf localhost:3000 und Network 172.86.81.91:3000.
-[!] Nach RewardPreview-Retest muss der Root-Produktionsbuild erneut ausgeführt und PM2 neu gestartet werden.
-[!] Alte Error-Log-Einträge zu fehlender `.next`-Production-Build-ID stammen aus der Zeit vor dem erfolgreichen Build/Restart. Aktueller Out-Log prüfen.
-[!] Die PERMISSION_DENIED-Meldungen im Rules-Test sind erwartet und positiv. Sie zeigen, dass direkte Client-Writes blockiert werden.
+[x] Mission Evidence Review Emulator Test erfolgreich.
+[x] Mission Pattern Review Emulator Test erfolgreich.
+[x] Mission Cooldown Helper Test erfolgreich.
+[x] Mission Cooldown Callable Emulator Test erfolgreich.
 
 SERVERAUTORISIERTE COLLECTIONS:
 [x] itemDefinitions: Read für eingeloggte Nutzer, keine Client-Writes.
@@ -80,6 +64,7 @@ SERVERAUTORISIERTE COLLECTIONS:
 [x] buddyCapabilities: Owner-Read, keine Client-Writes.
 [x] nfcTags: kein Client-Read/Write.
 [x] nfcScanEvents: Owner-Read, keine Client-Writes.
+[x] nfcScanClaims: kein Client-Read/Write.
 [x] capabilityUnlockEvents: Owner-Read, keine Client-Writes.
 [x] buddyItemUseEvents: Owner-Read, keine Client-Writes.
 [x] trackingSessions: Owner-Read, keine Client-Writes.
@@ -88,6 +73,9 @@ SERVERAUTORISIERTE COLLECTIONS:
 [x] missionContextEvaluations: Owner-Read, keine Client-Writes.
 [x] missionCompletionEvaluations: Owner-Read, keine Client-Writes.
 [x] missionRewardPreviews: Owner-Read, keine Client-Writes.
+[x] missionEvidenceReviews: Owner-Read, keine Client-Writes.
+[x] missionPatternReviews: Owner-Read, keine Client-Writes.
+[x] missionCooldownReviews: Owner-Read, keine Client-Writes.
 [x] missionRewardPolicies: Read für eingeloggte Nutzer, keine Client-Writes.
 [x] systemReserveSnapshots: Read für eingeloggte Nutzer, keine Client-Writes.
 [x] missionRewardEvents: Owner-Read, keine Client-Writes.
@@ -102,117 +90,90 @@ CALLABLE FUNCTIONS:
 [x] evaluateMissionContext: bewertet Alter, Parent-Mode, Tageszeit, Wochentag, Radius/GPS, Dauer und Proof-Qualität.
 [x] evaluateMissionCompletion: sammelt Evidence-Referenzen und schreibt Review-Evaluation.
 [x] missionRewardPreview: erzeugt nur eine Reward-/XP-/Punkte-Simulation und autorisiert keine Auszahlung.
+[x] reviewMissionEvidence: serverseitige Evidence-/Anti-Cheat-Bewertung v1.
+[x] reviewMissionPatterns: serverseitige Pattern-/Fake-Verhalten-Bewertung v1.
+[x] reviewMissionCooldowns: serverseitige Cooldown-/Rate-Limit-Bewertung v1.
 [x] grantItemOrCapability: Guard-Stub vorhanden, noch nicht produktiv aktiv.
 [x] validateMissionCompletionWithItem: Guard-Stub vorhanden, noch nicht produktiv aktiv.
 
-MISSION CONTEXT / COMPLETION / REWARD PREVIEW:
-[x] functions/lib/missionContext.js angelegt.
-[x] functions/lib/missionRewardPolicy.js angelegt.
-[x] missionContextEvaluations Collection eingeführt.
-[x] missionCompletionEvaluations Collection eingeführt.
-[x] missionRewardPreviews Collection eingeführt.
-[x] missionRewardPolicies als Policy-Lesemodell vorbereitet.
-[x] systemReserveSnapshots als Systemgesundheits-Lesemodell vorbereitet.
-[x] missionRewardEvents als späteres Audit-Modell vorbereitet.
-[x] Sicherer Child-Kontext wird mit context-ok-for-review bewertet.
-[x] Riskanter Child-Kontext bei Nacht, ohne Parent-Mode, außerhalb Radius und ohne Proof wird mit reject-or-parent-review bewertet.
-[x] Risk Flags werden geprüft: parent-mode-required, night-not-safe-for-child, outside-radius.
-[x] evaluateMissionCompletion prüft Ownership und Mission-Zugehörigkeit von Evidence-Referenzen.
-[x] missionRewardPreview prüft Ownership und Mission-Zugehörigkeit von Context-/Completion-Evaluationen.
-[x] Fremde Tracking-Sessions werden blockiert.
-[x] Fremde RewardPreview-Versuche werden im Emulator-Test abgedeckt.
-[x] Leere Evaluation liefert insufficient-evidence.
-[x] Evidence mit Belegen liefert manual-review-required.
-[!] evaluateMissionContext, evaluateMissionCompletion und missionRewardPreview autorisieren weiterhin keine Rewards, XP, Punkte, Token oder finale Mission Completion.
+STUFE 1 – ERLEDIGTE FUNDAMENTBAUSTEINE:
+[x] RewardPreview Stub.
+[x] MissionRewardPolicy.
+[x] Proof-Quality-Drosselung.
+[x] Evidence Review v1.
+[x] NFC Duplicate-Schutz / nfcScanClaims.
+[x] SystemReserveSnapshot / Safety Caps.
+[x] UserDailyCap / MissionTypeCap als Preview-Caps.
+[x] Pattern Review v1.
+[x] Cooldown-/Rate-Limit-Grundlage v1.
+[x] Firestore Rules für kritische Collections.
+[x] Vollständiger Emulator-Gesamttest grün.
+[x] Production Build + PM2 + HTTP 200 bestätigt.
 
-NFC / ITEMS / BUDDY:
-[x] Demo Items: rope_001, magnifier_001, small_backpack_001.
-[x] Demo NFC Tags: WF-DEMO-ROPE-TREE-001, WF-DEMO-MAGNIFIER-LEAF-001.
-[x] Kletterseil-Demo: rope_001 -> climbUp.
-[x] Lupe-Demo: magnifier_001 -> scanObject.
-[x] Duplicate-Scan-Schutz pro Nutzer/Tag/Mission ergänzt.
-[!] Duplicate-Scan-Schutz ist MVP-Schutz; hochparallele Race Conditions später per Transaktion/deterministischem Claim-Dokument absichern.
-
-DOKUMENTATION KONSOLIDIERT:
-[x] todolist/README.md aktualisiert.
-[x] todolist/E - AKTUELLER UMSETZUNGSSTAND - VORHANDEN aktualisiert.
-[x] todolist/F - FIREBASE  - REALTIME - MISSIONEN aktualisiert.
-[x] todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS aktualisiert.
-[x] todolist/J - NÄCHSTE EMPFOHLENE ARBEIT aktualisiert.
-[x] docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md aktualisiert.
-[x] docs/architecture/TRACKING_BUDDY_SERVER_EVENTS.md vorhanden.
-[x] docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md vorhanden.
+WICHTIGE SICHERHEITSGARANTIE:
+[x] Keine echte Auszahlung.
+[x] Keine XP-Autorisierung.
+[x] Keine Punkte-Autorisierung.
+[x] Keine Token-Autorisierung.
+[x] Keine finale Mission-Completion-Autorisierung.
+[!] RewardPreview, EvidenceReview, PatternReview und CooldownReview bleiben Simulation/Audit/Guard-Logik.
+[!] Mobile-App bleibt frei von Token-, Presale-, Trading- und NFT-Marktplatz-Funktionen.
 
 ============================================================
-PRIO 1 – ROOT BUILD / PM2 RESTART / WEBSITE IM BROWSER PRÜFEN
+PRIO 1 – STUFE 2 START: SERVERSEITIGE MISSION COMPLETION / INTERNE REWARDS
 ============================================================
 
-STATUS: [~] Nach RewardPreview-Retest erneut ausführen
+STATUS: [ ] Nächster Entwicklungsblock
 
-[x] Functions `npm run check` nach RewardPreview-Ergänzung erfolgreich.
-[x] Emulator T1 erfolgreich gestartet.
-[x] Functions Emulator lädt missionRewardPreview erfolgreich.
-[x] T2 `npm run test:emulator` nach RewardPreview-Ergänzung erfolgreich.
-[ ] T1 Emulator sauber stoppen.
-[ ] Root Build erneut ausführen:
-    `NODE_OPTIONS="--max-old-space-size=768" npm run build`
-[ ] PM2 neu starten:
-    `pm2 restart wellfit-now --update-env`
-[ ] PM2 Status prüfen.
-[ ] PM2 Logs prüfen.
-[ ] Website im Browser prüfen.
+ZIEL:
+Erstmals echte serverseitige Mission Completion und interne XP/Punkte vorbereiten – weiterhin ohne Token/WFT, ohne echte Auszahlung und ohne Mobile-Krypto-Funktionen.
 
-EMPFOHLENE MANUELLE PRÜFUNG:
+ARBEITSREGEL:
+[!] Nicht direkt echte Punkte gutschreiben, bevor Audit-/Rollback-/Transaktionspfad steht.
+[!] Zuerst Mission Completion Decision Engine bauen.
+[!] Danach missionRewardEvents als Audit-Events.
+[!] Danach interne User-XP/Punkte/Streaks serverseitig transaktional.
 
-```txt
-Startseite öffnen
-/mobile öffnen
-/mobile/ar öffnen
-/dashboard öffnen
-/missionen/tagesmissionen öffnen
-/missionen/wettkaempfe öffnen
-```
+NÄCHSTE KONKRETE AUFGABEN:
+[ ] `validateMissionCompletionWithItem` produktionsreif vorbereiten.
+[ ] `grantItemOrCapability` produktionsreif vorbereiten.
+[ ] `missionRewardEvents` als echte Audit-Events schreiben.
+[ ] Server-Transaktionen für interne XP/Punkte/Streaks vorbereiten.
+[ ] UserDailyCap gegen Nutzerhistorie prüfen.
+[ ] MissionTypeCap gegen Missionstyp und Kontext prüfen.
+[ ] Completion nur bei ausreichender Evidence erlauben.
+[ ] Completion bei hohem Pattern-/Cooldown-/Evidence-Risiko auf Manual Review setzen.
+[ ] Rejected-/Manual-Review-Pfade sauber auditieren.
+[ ] Firestore Rules für Nutzerpunkte/XP weiter härten.
+[ ] Tagesmissionen schrittweise von MVP-Client-Reward auf Server-Preview/Server-Completion umstellen.
 
-============================================================
-PRIO 2 – MISSION REWARD POLICY / REWARD PREVIEW STUB
-============================================================
-
-STATUS: [x] Sicherer Preview-Stub umgesetzt und Emulator-Retest erfolgreich
-
-[x] missionRewardPolicies als reine Policy-Datenstruktur vorbereitet: `functions/lib/missionRewardPolicy.js`.
-[x] Firestore Rules für missionRewardPolicies geplant/ergänzt: Read nach Bedarf, keine Client-Writes.
-[x] missionRewardPreview als sichere Callable Function ergänzt.
-[x] RewardPreview simuliert nur und schreibt keine Auszahlung gut.
-[x] RewardPreview setzt weiterhin:
-    - rewardAuthorized=false
-    - xpAuthorized=false
-    - pointsAuthorized=false
-    - tokenAuthorized=false
-    - missionCompletionAuthorized=false
-[x] systemReserveSnapshots als Lesemodell für spätere Systemgesundheit vorbereitet: keine Client-Writes.
-[x] missionRewardEvents als Audit-Modell vorbereitet: keine produktive Auszahlung, keine Client-Writes.
-[x] Emulator-Testplan technisch erweitert: missionRewardPreview-Guardrails in missionCompletionEmulatorTest.js ergänzt.
-[x] `npm run check` im Functions-Ordner erfolgreich.
-[x] `npm run test:emulator` nach RewardPreview-Ergänzung erfolgreich.
+EMPFOHLENE REIHENFOLGE FÜR STUFE 2:
+1. `missionCompletionDecision` Helper anlegen.
+2. Helper-Test ohne Firestore schreiben.
+3. Callable `validateMissionCompletionWithItem` mit Guardrails aktivieren.
+4. `missionRewardEvents` nur als Audit schreiben, noch keine User-Punkte ändern.
+5. Emulator-Test erweitern.
+6. Erst danach serverseitige interne Punkte/XP/Streak-Transaktion vorbereiten.
 
 ============================================================
-PRIO 3 – ANTI-CHEAT / SENSOR FUSION / RACE-CONDITIONS
+PRIO 2 – ROADMAP-KONSOLIDIERUNG
 ============================================================
 
-STATUS: [ ] Offen / nächster Entwicklungsblock nach Build und Browserprüfung
+STATUS: [~] In Arbeit
 
-[ ] NFC Duplicate-Scan-Schutz später transaktional/deterministisch absichern.
-[ ] Pose/Motion/AR/NFC/GPS-Beweise in ein Anti-Cheat-Modell überführen.
-[ ] Unplausible Sessions markieren.
-[ ] Wiederholtes Fake-/Pattern-Verhalten erkennen.
-[ ] Proof-Qualität mit echten Tracking-/AR-Daten verbinden.
-[ ] Reward-Drosselung bei unsicheren Daten vorbereiten.
+[x] Status-Dateien in `todolist/status/` dokumentieren Einzelstände.
+[x] J-Datei wurde auf Stufe-1-Abschluss und Stufe-2-Start aktualisiert.
+[ ] F-Datei auf Stufe-1-Abschluss aktualisieren.
+[ ] G-Datei auf Stufe-1-Abschluss aktualisieren.
+[ ] D-Datei/Reihenfolge auf Stufe-2-Start aktualisieren.
+[ ] `functions/EMULATOR_TEST_PLAN.md` ggf. mit Cooldown Callable ergänzen.
+[ ] `docs/architecture/MISSION_EVIDENCE_REVIEW_PROOF_DAMPENING.md` ggf. um Cooldown Review ergänzen.
 
 ============================================================
-PRIO 4 – UNITY AR FOUNDATION LOKAL ERZEUGEN
+PRIO 3 – UNITY AR FOUNDATION LOKAL ERZEUGEN
 ============================================================
 
-STATUS: [ ] Offen
+STATUS: [ ] Offen / nach Stufe-2-Start oder bewusstem Wechsel
 
 [ ] Unity Hub installieren/öffnen.
 [ ] Unity 2022.3 LTS als Startversion verwenden, sofern keine harte Inkompatibilität auftritt.
@@ -235,5 +196,7 @@ DAUERHAFTE HINWEISE
 [!] Firebase CLI meldet: Java < 21 wird ab firebase-tools@15 nicht mehr unterstützt. Aktuell läuft Java 17, später auf Java 21 wechseln.
 [!] Firebase Functions Paket kann Upgrade-Hinweis melden. Später gezielt migrieren und Breaking Changes prüfen.
 [!] Nur eine Emulator-Instanz parallel starten, sonst sind Ports 4000/8080/9099/5001 belegt.
+[!] Nur eine PM2-Instanz `wellfit-now` starten.
+[!] Nicht `next start` starten, solange `next build` noch läuft oder `.next` unvollständig ist.
 [!] Mobile-App darf keine App-Store-kritischen Token-/NFT-/Trading-Funktionen enthalten.
 [!] Clientseitige Tagesmissions-Rewards sind MVP/UI-Logik, nicht langfristige Autorität.
