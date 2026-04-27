@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 1.1 – BUDDY ALS REALER AR-BEGLEITER, KI-GUIDE UND ITEM-FÄHIGKEITS-SYSTEM
+Version: 1.2 – KI-BUDDY / UNITY-AR VORBEREITUNG ERWEITERT
 Status: Produktvision / verbindliche Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -12,6 +12,12 @@ KERNVISION:
 Der WellFit-Buddy ist nicht nur ein Avatar, kein Menü-Button und kein dekoratives Maskottchen. Er ist der persönliche Begleiter des Nutzers in der realen Welt.
 
 Der Nutzer sieht ihn durch das Handy in Augmented Reality. Der Buddy läuft, steht, schaut, reagiert, spricht, empfiehlt, erklärt, fragt, motiviert und führt durch Aufgaben, Rätsel, Missionen und Menüs.
+
+WICHTIGE KLARSTELLUNG:
+[x] Das Handy ist das Zielgerät.
+[x] Unity Hub auf PC/Laptop ist nur die Entwicklungswerkstatt, um die Handy-App zu bauen.
+[x] Der Server/GitHub ersetzt kein echtes ARCore-/ARKit-Testgerät.
+[x] Das fertige Nutzererlebnis soll am Handy stattfinden.
 
 ============================================================
 H2.1 PRODUKTZIEL
@@ -56,6 +62,14 @@ MUSS-KRITERIEN:
 [ ] Buddy wirkt glaubwürdig durch Schatten, Skalierung, Perspektive und später Verdeckung/Occlusion.
 [ ] Buddy kann Fähigkeiten abhängig von Ausrüstung einsetzen: klettern, springen, holen, scannen, markieren, tragen.
 
+REPO-VORBEREITUNG ZU DEN MUSS-KRITERIEN:
+[x] `docs/BUDDY_AR_MUST_CRITERIA.md` angelegt.
+[x] `BuddyLookAtCamera.cs.txt` vorbereitet.
+[x] `BuddySurfaceNode.cs.txt` vorbereitet.
+[x] `BuddyNavigationController.cs.txt` vorbereitet.
+[x] `BuddyAbilityController.cs.txt` vorbereitet.
+[x] `ArMissionHintMarker.cs.txt` vorbereitet.
+
 NICHT AUSREICHEND:
 [!] 2D-Bild über Kamera.
 [!] Emoji über Kamera.
@@ -83,6 +97,12 @@ DER BUDDY SOLL:
 [ ] Auf fehlende Ausrüstung hinweisen.
 [ ] Erklären, warum ein Gegenstand gebraucht wird: z. B. Kletterseil, Greifhaken, Lupe, Schild, Rucksack.
 
+REPO-VORBEREITUNG:
+[x] `BuddyKiGuideController.cs.txt` vorbereitet.
+[x] `BuddyDialogueEventBridge.cs.txt` vorbereitet.
+[x] Buddy-Kontextfelder vorbereitet: aktuelle Mission, Missionstyp, Empfehlung, Mood.
+[x] Buddy-Events vorbereitet: Mission empfohlen, Capability benötigt, Mission Progress, Dialog gezeigt, Dialog abgeschlossen.
+
 INTERAKTIONEN:
 [ ] Text-Chat mit Buddy.
 [ ] Sprachinteraktion später.
@@ -105,6 +125,11 @@ MISSIONSTYPEN:
 [ ] Abenteuerpfade: Buddy führt durch eine Geschichte.
 [ ] Ausrüstungsmissionen: Buddy braucht Gegenstand/Fähigkeit, um Ziel zu erreichen.
 [ ] NFC-/Real-World-Item-Missionen: echter Gegenstand oder NFC-Tag schaltet Fähigkeit, Hinweis oder Mission frei.
+
+AR-HINWEIS-/MARKER-VORBEREITUNG:
+[x] `ArMissionHintMarker.cs.txt` vorbereitet.
+[x] Marker kann MissionId, MarkerId und MarkerType an WellFit melden.
+[x] Events vorbereitet: Marker erstellt, fokussiert, gelöst.
 
 BEISPIEL BLATT-MISSION:
 [ ] Buddy erkennt oder markiert ein Blatt.
@@ -150,6 +175,12 @@ FÄHIGKEITEN:
 [ ] protect: Buddy kann in Abenteuerlogik schützen.
 [ ] carry: Buddy trägt gefundenen Gegenstand zurück.
 
+REPO-VORBEREITUNG:
+[x] `BuddyAbilityController.cs.txt` vorbereitet.
+[x] Capability-Prüfung in Unity-Vorlage vorbereitet, aber ohne Reward-Autorität.
+[x] Rejection-Event bei fehlender Capability vorbereitet.
+[x] Demo-Capabilities anschlussfähig: climbUp, jumpBoost, fetchClue, scanObject, carry.
+
 NFC-/REAL-WORLD-ITEM-LOGIK:
 [ ] NFC-Tag kann Item, Mission, Hinweis oder Fähigkeit auslösen.
 [ ] NFC-Tag darf nicht clientseitig Reward-Autorität sein.
@@ -176,6 +207,14 @@ H2.6 TECHNISCHE KONSEQUENZ
 [x] Empfohlener Hauptpfad: Unity AR Foundation.
 [x] Für Ausrüstung/Fähigkeiten braucht WellFit ein Inventar-, Item- und Capability-System.
 [x] Für NFC/Real-World-Items braucht WellFit eine sichere Backend-Validierung.
+
+UNITY-REPO-VORBEREITUNG:
+[x] `native/unity/WellFitBuddyAR/README.md` aktualisiert.
+[x] `native/unity/WellFitBuddyAR/Scripts/README.md` aktualisiert.
+[x] `native/unity/WellFitBuddyAR/docs/HANDY_IS_TARGET_DEVICE.md` angelegt.
+[x] `native/unity/WellFitBuddyAR/docs/ANDROID_ARCORE_BUILD.md` angelegt.
+[x] `native/unity/WellFitBuddyAR/docs/UNITY_SETUP_CHECKLIST.md` angelegt.
+[x] `native/unity/WellFitBuddyAR/docs/BUDDY_AR_MUST_CRITERIA.md` angelegt.
 
 WARUM UNITY AR FOUNDATION:
 [x] Gemeinsamer AR-Pfad für Android und iOS.
@@ -216,9 +255,15 @@ H2.8 NÄCHSTE EMPFOHLENE ARBEIT
 
 [x] Unity-Hauptpfad in J übernommen.
 [x] Unity-Projektstruktur vorbereitet.
-[ ] Unity-Version festlegen.
+[x] Muss-Kriterien dokumentiert.
+[x] Setup-Checkliste dokumentiert.
+[x] Android-ARCore-Build-Anleitung dokumentiert.
+[x] Handy-als-Zielgerät-Klarstellung dokumentiert.
+[x] C#-Vorlagen für KI-Buddy, Dialog, Navigation, Fähigkeiten und AR-Hinweise vorbereitet.
+[ ] Unity Hub lokal installieren/öffnen.
+[ ] Unity 2022.3 LTS installieren.
 [ ] native/unity/WellFitBuddyAR lokal mit Unity Hub erzeugen.
-[ ] Minimalen Unity AR Foundation Prototyp planen:
+[ ] Minimalen Unity AR Foundation Prototyp bauen:
     - AR Session
     - Plane Detection
     - Raycast Tap
@@ -226,15 +271,16 @@ H2.8 NÄCHSTE EMPFOHLENE ARBEIT
     - Buddy Placeholder
     - Idle Animation
     - Look at Camera
-[ ] Bridge zwischen WellFit Mobile und Unity AR definieren.
-[ ] Buddy-KI-Guide Datenmodell entwerfen:
+[ ] Bridge zwischen WellFit Mobile und Unity AR real anbinden.
+[ ] Buddy-KI-Guide Datenmodell in App/Backend entwerfen:
     - aktuelle Mission
     - nächste Empfehlung
     - Dialogzustand
     - Alter/Nutzerkontext
     - Missionstyp
     - Rewardstatus
+    - benötigte Fähigkeit / Ausrüstung
 [ ] Rätselrallye-Datenmodell entwerfen.
-[ ] Inventar-/Item-Datenmodell entwerfen.
-[ ] Buddy-Fähigkeits-/Capability-Datenmodell entwerfen.
-[ ] NFC-/Real-World-Item-Validierung entwerfen.
+[ ] Inventar-/Item-Datenmodell für AR-Fähigkeiten erweitern.
+[ ] Buddy-Fähigkeits-/Capability-Datenmodell erweitern.
+[ ] NFC-/Real-World-Item-Validierung mit AR-Aktionen verbinden.
