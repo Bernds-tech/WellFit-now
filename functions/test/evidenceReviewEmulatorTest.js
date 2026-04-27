@@ -6,6 +6,7 @@
   - reviewMissionEvidence schreibt missionEvidenceReviews
   - Evidence Review sammelt Tracking, Proof, Buddy, Context, Completion und RewardPreview
   - Evidence Review autorisiert keine Rewards, XP, Punkte, Token oder Mission Completion
+  - missionRewardPreview drosselt bei riskanter Evidence Review auf 0
   - Firestore Rules erlauben Owner-Read und blockieren fremde Reads sowie direkte Client-Writes
 */
 
@@ -221,6 +222,8 @@ async function run() {
   });
   const rewardPreviewResult = getCallableResult(rewardPreview);
   assert(rewardPreview.ok, `missionRewardPreview muss HTTP OK sein: ${describeCall(rewardPreview)}`);
+  assert(rewardPreviewResult.previewStatus === "dampened-missing-evidence-review", "RewardPreview ohne Evidence Review muss gedrosselt werden.");
+  assert(rewardPreviewResult.multipliers.evidenceReviewMultiplier === 0.65, "RewardPreview ohne Evidence Review muss evidenceReviewMultiplier 0.65 setzen.");
 
   const evidenceReview = await callCallable("reviewMissionEvidence", userToken, {
     missionId: "demo_tree_clue_001",
@@ -245,6 +248,22 @@ async function run() {
   assert(evidenceReviewResult.evidenceTypes.includes("missionContextEvaluation"), "Evidence Review muss missionContextEvaluation enthalten.");
   assert(evidenceReviewResult.evidenceTypes.includes("missionCompletionEvaluation"), "Evidence Review muss missionCompletionEvaluation enthalten.");
   assert(evidenceReviewResult.evidenceTypes.includes("missionRewardPreview"), "Evidence Review muss missionRewardPreview enthalten.");
+
+  const dampenedRewardPreview = await callCallable("missionRewardPreview", userToken, {
+    missionId: "demo_tree_clue_001",
+    missionType: "daily",
+    contextEvaluationId: contextResult.evaluationId,
+    completionEvaluationId: completionResult.evaluationId,
+    evidenceReviewId: evidenceReviewResult.evidenceReviewId,
+    requestedBaseReward: 20,
+  });
+  const dampenedRewardPreviewResult = getCallableResult(dampenedRewardPreview);
+  assert(dampenedRewardPreview.ok, `Dampened missionRewardPreview muss HTTP OK sein: ${describeCall(dampenedRewardPreview)}`);
+  assert(dampenedRewardPreviewResult.previewStatus === "manual-review-required", "Riskante Evidence Review muss RewardPreview auf manual-review-required setzen.");
+  assert(dampenedRewardPreviewResult.estimatedInternalPoints === 0, "Riskante Evidence Review muss interne Punkte-Preview auf 0 setzen.");
+  assert(dampenedRewardPreviewResult.estimatedXp === 0, "Riskante Evidence Review muss XP-Preview auf 0 setzen.");
+  assert(dampenedRewardPreviewResult.rewardAuthorized === false, "Gedrosselte RewardPreview darf keinen Reward autorisieren.");
+  assert(dampenedRewardPreviewResult.evidenceReviewId === evidenceReviewResult.evidenceReviewId, "RewardPreview muss EvidenceReview-ID zurueckgeben.");
 
   const evidenceReviewDoc = await db.collection("missionEvidenceReviews").doc(evidenceReviewResult.evidenceReviewId).get();
   assert(evidenceReviewDoc.exists, "reviewMissionEvidence muss missionEvidenceReviews Dokument schreiben.");
