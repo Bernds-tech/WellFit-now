@@ -1,0 +1,91 @@
+using UnityEngine;
+
+public enum BuddyAbility
+{
+    None,
+    ClimbUp,
+    JumpDown,
+    JumpBoost,
+    FetchClue,
+    ScanObject,
+    RevealHint,
+    Protect,
+    Carry,
+    Mark
+}
+
+public class BuddyAbilityController : MonoBehaviour
+{
+    public BuddyNavigationController navigationController;
+    public WellFitNativeBridge bridge;
+
+    public bool canClimbUp;
+    public bool canJumpBoost;
+    public bool canFetchClue;
+    public bool canScanObject;
+    public bool canCarry;
+
+    public void ApplyCapability(string capabilityId)
+    {
+        switch (capabilityId)
+        {
+            case "climbUp":
+                canClimbUp = true;
+                break;
+            case "jumpBoost":
+                canJumpBoost = true;
+                break;
+            case "fetchClue":
+                canFetchClue = true;
+                break;
+            case "scanObject":
+                canScanObject = true;
+                break;
+            case "carry":
+                canCarry = true;
+                break;
+        }
+    }
+
+    public void PerformAbility(BuddyAbility ability, Transform target)
+    {
+        if (!CanPerform(ability))
+        {
+            bridge?.SendEventToWellFit("onBuddyActionRejected", "{\"reason\":\"capability-missing\"}");
+            return;
+        }
+
+        bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"ability\":\"" + ability.ToString() + "\"}");
+
+        if (target != null && navigationController != null)
+        {
+            navigationController.JumpTo(target.position);
+        }
+
+        bridge?.SendEventToWellFit("onBuddyActionCompleted", "{\"ability\":\"" + ability.ToString() + "\"}");
+    }
+
+    private bool CanPerform(BuddyAbility ability)
+    {
+        switch (ability)
+        {
+            case BuddyAbility.ClimbUp:
+                return canClimbUp;
+            case BuddyAbility.JumpBoost:
+                return canJumpBoost;
+            case BuddyAbility.FetchClue:
+                return canFetchClue;
+            case BuddyAbility.ScanObject:
+                return canScanObject;
+            case BuddyAbility.Carry:
+                return canCarry;
+            case BuddyAbility.JumpDown:
+            case BuddyAbility.Mark:
+            case BuddyAbility.RevealHint:
+            case BuddyAbility.Protect:
+                return true;
+            default:
+                return false;
+        }
+    }
+}
