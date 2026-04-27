@@ -1,0 +1,60 @@
+using UnityEngine;
+
+public enum BuddyGuideMood
+{
+    Neutral,
+    Happy,
+    Curious,
+    Helpful,
+    Warning
+}
+
+public class BuddyKiGuideController : MonoBehaviour
+{
+    public WellFitNativeBridge bridge;
+    public BuddyAbilityController abilityController;
+
+    public string currentMissionId;
+    public string currentMissionType;
+    public string currentRecommendation;
+    public BuddyGuideMood currentMood = BuddyGuideMood.Neutral;
+
+    public void SetMissionContext(string missionId, string missionType, string recommendation)
+    {
+        currentMissionId = missionId;
+        currentMissionType = missionType;
+        currentRecommendation = recommendation;
+
+        SendGuideEvent("onBuddyContextUpdated", "mission-context-updated");
+    }
+
+    public void SuggestNextMission(string missionId, string reason)
+    {
+        currentRecommendation = missionId;
+        string payload = "{\"missionId\":\"" + missionId + "\",\"reason\":\"" + reason + "\"}";
+        bridge?.SendEventToWellFit("onBuddyMissionSuggested", payload);
+    }
+
+    public void ExplainMissingCapability(string capabilityId)
+    {
+        currentMood = BuddyGuideMood.Helpful;
+        string payload = "{\"capabilityId\":\"" + capabilityId + "\",\"reason\":\"capability-needed\"}";
+        bridge?.SendEventToWellFit("onBuddyCapabilityNeeded", payload);
+    }
+
+    public void ReactToMissionProgress(string status)
+    {
+        if (status == "completed") currentMood = BuddyGuideMood.Happy;
+        if (status == "needs-help") currentMood = BuddyGuideMood.Helpful;
+        if (status == "unsafe") currentMood = BuddyGuideMood.Warning;
+
+        string payload = "{\"status\":\"" + status + "\",\"mood\":\"" + currentMood.ToString() + "\"}";
+        bridge?.SendEventToWellFit("onBuddyMissionProgress", payload);
+    }
+
+    private void SendGuideEvent(string eventName, string status)
+    {
+        string payload = "{\"status\":\"" + status + "\",\"missionId\":\"" + currentMissionId + "\"}";
+        bridge?.SendEventToWellFit(eventName, payload);
+    }
+}
