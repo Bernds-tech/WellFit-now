@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 7.0 – STUFE 1 FUNDAMENT ABGESCHLOSSEN / STUFE 2 START
+Version: 7.1 – AKTIVER FOKUS KI-BUDDY / UNITY AR FOUNDATION
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -10,11 +10,12 @@ J. NÄCHSTE EMPFOHLENE ARBEIT
 
 AKTUELLER FOKUS:
 [x] Stufe 1 – Mission Security / RewardPreview / Anti-Cheat Grundlage ist fachlich, emulatorseitig und produktionsseitig abgeschlossen.
+[x] Aktiver nächster Produktblock: KI-Buddy / echter AR-Begleiter / Unity AR Foundation.
+[x] Stufe 2 – serverseitige Mission Completion / interne Rewards bleibt vorbereitet, wird aber nach Wunsch zugunsten KI-Buddy/AR kurz zurückgestellt.
 [x] Handy / AR / Avatar / Buddy bleibt vor Desktop-Marktplatz, Leaderboard, Shop und weiteren Produktmodulen priorisiert.
-[x] PC/Web-App dient primär als Steuerzentrale, Einstellung, Verwaltung und später Business-/Web3-Bereich.
 [x] Browser/WebGL bleibt Demo und Fallback.
 [x] Echtes Buddy-AR braucht World Tracking, Plane Detection, Hit Test/Raycast und Anchor-System.
-[x] Unity AR Foundation bleibt verbindlicher Hauptpfad, aber erst nach serverseitigem Fundament.
+[x] Unity AR Foundation bleibt verbindlicher Hauptpfad.
 [x] Buddy-KI, Missionsempfehlungen, Rätselgenerierung und Reward-Bewertung bleiben außerhalb von Unity in Backend/App-Logik.
 [x] Unity rendert und steuert AR, aber finale Rewards, Mission Completion und Anti-Cheat bleiben serverseitig.
 [x] Mobile bleibt App-Store-konform: keine Token-/NFT-/Trading-/Presale-Funktion in Mobile.
@@ -24,79 +25,9 @@ AKTUELLER FOKUS:
 [x] KI erzeugt Vorschläge; Backend entscheidet Preise, Rewards, Freischaltungen, Token-/WFT-Bezüge und Missbrauchsschutz.
 
 ============================================================
-AKTUELLER UMSETZUNGSSTAND – STUFE 1 ABGESCHLOSSEN
+STUFE 1 – ABGESCHLOSSEN
 ============================================================
 
-SERVER / BUILD / PM2:
-[x] Production Build erfolgreich.
-[x] 29/29 statische Seiten generiert.
-[x] `.next/BUILD_ID` vorhanden.
-[x] `.next/prerender-manifest.json` vorhanden.
-[x] `.next/server/middleware-manifest.json` vorhanden.
-[x] PM2 mit genau einer `wellfit-now` Instanz gestartet.
-[x] PM2 Prozessliste gespeichert.
-[x] `curl -I http://localhost:3000` liefert `HTTP/1.1 200 OK`.
-[x] `curl -I https://www.wellfit-now.io` liefert `HTTP/1.1 200 OK`.
-[x] PM2 Error-Log nach Flush leer.
-[x] PM2 Out-Log nach Flush leer.
-
-FIREBASE / FUNCTIONS / TESTS:
-[x] Firestore Rules, Indexes, Functions und Emulator-Grundlage vorhanden.
-[x] Firebase CLI lokal wieder ausführbar: `npx firebase --version` -> 14.27.0.
-[x] Functions Entrypoint: `functions/cooldownIndex.js`.
-[x] `functions/index.js` bleibt Basis-Functions-Datei.
-[x] `functions/cooldownIndex.js` erweitert die Basis um `reviewMissionCooldowns`.
-[x] `functions/package.json` main zeigt auf `cooldownIndex.js`.
-[x] `npm run check` erfolgreich.
-[x] `npm run test:emulator` erfolgreich.
-[x] NFC Smoke Test erfolgreich.
-[x] Firestore Rules Smoke Test erfolgreich.
-[x] Callable Functions Emulator Test erfolgreich.
-[x] Mission Completion Emulator Test erfolgreich.
-[x] Mission Evidence Review Emulator Test erfolgreich.
-[x] Mission Pattern Review Emulator Test erfolgreich.
-[x] Mission Cooldown Helper Test erfolgreich.
-[x] Mission Cooldown Callable Emulator Test erfolgreich.
-
-SERVERAUTORISIERTE COLLECTIONS:
-[x] itemDefinitions: Read für eingeloggte Nutzer, keine Client-Writes.
-[x] userInventory: Owner-Read, keine Client-Writes.
-[x] buddyCapabilities: Owner-Read, keine Client-Writes.
-[x] nfcTags: kein Client-Read/Write.
-[x] nfcScanEvents: Owner-Read, keine Client-Writes.
-[x] nfcScanClaims: kein Client-Read/Write.
-[x] capabilityUnlockEvents: Owner-Read, keine Client-Writes.
-[x] buddyItemUseEvents: Owner-Read, keine Client-Writes.
-[x] trackingSessions: Owner-Read, keine Client-Writes.
-[x] trackingProofEvents: Owner-Read, keine Client-Writes.
-[x] missionBuddyEvents: Owner-Read, keine Client-Writes.
-[x] missionContextEvaluations: Owner-Read, keine Client-Writes.
-[x] missionCompletionEvaluations: Owner-Read, keine Client-Writes.
-[x] missionRewardPreviews: Owner-Read, keine Client-Writes.
-[x] missionEvidenceReviews: Owner-Read, keine Client-Writes.
-[x] missionPatternReviews: Owner-Read, keine Client-Writes.
-[x] missionCooldownReviews: Owner-Read, keine Client-Writes.
-[x] missionRewardPolicies: Read für eingeloggte Nutzer, keine Client-Writes.
-[x] systemReserveSnapshots: Read für eingeloggte Nutzer, keine Client-Writes.
-[x] missionRewardEvents: Owner-Read, keine Client-Writes.
-
-CALLABLE FUNCTIONS:
-[x] seedDemoItemsAndNfc: Admin-only Seed Function.
-[x] validateNfcScan: prüft NFC-Tag, Status, Mission, Nutzer, usageLimit und Duplicate-Scan.
-[x] auditItemUse: schreibt serverseitige Buddy-Item-Use-Events.
-[x] createTrackingSession: startet serverseitige Tracking-Session ohne Reward-Autorität.
-[x] recordTrackingProof: schreibt serverseitige Tracking-Proof-Events ohne Reward-Autorität.
-[x] createMissionBuddyEvent: schreibt serverseitige Buddy-/Mission-Events ohne Reward-Autorität.
-[x] evaluateMissionContext: bewertet Alter, Parent-Mode, Tageszeit, Wochentag, Radius/GPS, Dauer und Proof-Qualität.
-[x] evaluateMissionCompletion: sammelt Evidence-Referenzen und schreibt Review-Evaluation.
-[x] missionRewardPreview: erzeugt nur eine Reward-/XP-/Punkte-Simulation und autorisiert keine Auszahlung.
-[x] reviewMissionEvidence: serverseitige Evidence-/Anti-Cheat-Bewertung v1.
-[x] reviewMissionPatterns: serverseitige Pattern-/Fake-Verhalten-Bewertung v1.
-[x] reviewMissionCooldowns: serverseitige Cooldown-/Rate-Limit-Bewertung v1.
-[x] grantItemOrCapability: Guard-Stub vorhanden, noch nicht produktiv aktiv.
-[x] validateMissionCompletionWithItem: Guard-Stub vorhanden, noch nicht produktiv aktiv.
-
-STUFE 1 – ERLEDIGTE FUNDAMENTBAUSTEINE:
 [x] RewardPreview Stub.
 [x] MissionRewardPolicy.
 [x] Proof-Quality-Drosselung.
@@ -120,21 +51,88 @@ WICHTIGE SICHERHEITSGARANTIE:
 [!] Mobile-App bleibt frei von Token-, Presale-, Trading- und NFT-Marktplatz-Funktionen.
 
 ============================================================
-PRIO 1 – STUFE 2 START: SERVERSEITIGE MISSION COMPLETION / INTERNE REWARDS
+PRIO 1 – KI-BUDDY / UNITY AR FOUNDATION
 ============================================================
 
-STATUS: [ ] Nächster Entwicklungsblock
+STATUS: [~] Aktiv / Repository-Vorbereitung läuft
 
 ZIEL:
-Erstmals echte serverseitige Mission Completion und interne XP/Punkte vorbereiten – weiterhin ohne Token/WFT, ohne echte Auszahlung und ohne Mobile-Krypto-Funktionen.
+Der Buddy soll nicht als 2D-Overlay wirken, sondern als echter 3D-Begleiter in der realen Umgebung erscheinen.
 
-ARBEITSREGEL:
-[!] Nicht direkt echte Punkte gutschreiben, bevor Audit-/Rollback-/Transaktionspfad steht.
-[!] Zuerst Mission Completion Decision Engine bauen.
-[!] Danach missionRewardEvents als Audit-Events.
-[!] Danach interne User-XP/Punkte/Streaks serverseitig transaktional.
+MUSS-KRITERIEN:
+[ ] Buddy bleibt an realer Weltposition, wenn das Handy geschwenkt wird.
+[ ] Buddy kann auf Boden, Couch, Tisch, Kastl oder anderen erkannten Flächen stehen.
+[ ] Buddy kann in der realen Umgebung laufen.
+[ ] Buddy kann von der Couch herunter springen.
+[ ] Buddy kann auf ein Kastl oder eine andere Fläche springen.
+[ ] Buddy kann später klettern, balancieren oder sich an Höhenunterschiede anpassen.
+[ ] Buddy schaut zur Kamera beziehungsweise zum Nutzer.
+[ ] Buddy kann auf Objekte oder Orte in der Umgebung aufmerksam machen.
+[ ] Buddy wirkt glaubwürdig durch Schatten, Skalierung, Perspektive und später Verdeckung/Occlusion.
+[ ] Buddy kann Fähigkeiten abhängig von Ausrüstung einsetzen: klettern, springen, holen, scannen, markieren, tragen.
 
-NÄCHSTE KONKRETE AUFGABEN:
+REPO-VORBEREITUNG:
+[x] `native/unity/WellFitBuddyAR/README.md` vorhanden.
+[x] `native/unity/WellFitBuddyAR/docs/SCENE_SETUP.md` vorhanden.
+[x] `native/unity/WellFitBuddyAR/docs/BUDDY_AR_MUST_CRITERIA.md` angelegt.
+[x] `native/unity/WellFitBuddyAR/docs/UNITY_SETUP_CHECKLIST.md` angelegt.
+[x] `native/unity/WellFitBuddyAR/Scripts/README.md` aktualisiert.
+[x] C#-Vorlagen vorbereitet:
+    - `WellFitNativeBridge.cs.txt`
+    - `BuddyController.cs.txt`
+    - `BuddyAnchorController.cs.txt`
+    - `BuddyLookAtCamera.cs.txt`
+    - `BuddySurfaceNode.cs.txt`
+    - `BuddyNavigationController.cs.txt`
+    - `BuddyAbilityController.cs.txt`
+[ ] Buddy-KI-Guide Controller ergänzen.
+[ ] Buddy Dialogue/Event Bridge ergänzen.
+[ ] AR Mission Hint / Object Marker Vorlage ergänzen.
+[ ] Unity-Projekt lokal erzeugen.
+[ ] Erste Android-ARCore-Build-Kette testen.
+
+LOKALE UNITY-SCHRITTE:
+[ ] Unity Hub installieren/öffnen.
+[ ] Unity 2022.3 LTS als Startversion verwenden, sofern keine harte Inkompatibilität auftritt.
+[ ] Projekt `WellFitBuddyAR` unter `native/unity/WellFitBuddyAR` erzeugen.
+[ ] AR Foundation installieren.
+[ ] ARCore XR Plugin installieren.
+[ ] ARKit XR Plugin installieren.
+[ ] XR Plugin Management aktivieren.
+[ ] Szene `WellFitBuddyAR` anlegen.
+[ ] AR Session, XR Origin, AR Camera, AR Plane Manager, AR Raycast Manager, AR Anchor Manager anlegen.
+[ ] Buddy Placeholder anlegen.
+[ ] C#-Vorlagen aus `Scripts/*.cs.txt` in `Assets/Scripts/*.cs` übernehmen.
+[ ] Ersten Android ARCore Build testen.
+
+============================================================
+PRIO 2 – KI-BUDDY ALS GUIDE / DIALOG / MISSIONSEMPFEHLER
+============================================================
+
+STATUS: [ ] Direkt nach Unity-Grundstruktur
+
+[ ] Buddy-KI-Guide Datenmodell entwerfen:
+    - aktuelle Mission
+    - nächste Empfehlung
+    - Dialogzustand
+    - Alter/Nutzerkontext
+    - Missionstyp
+    - Rewardstatus
+    - benötigte Fähigkeit / Ausrüstung
+[ ] Buddy erklärt Menüs und nächste Schritte.
+[ ] Buddy empfiehlt Tagesmissionen, Wochenmissionen, Rätsel und Challenges.
+[ ] Buddy reagiert altersgerecht.
+[ ] Buddy vermeidet medizinische Diagnosen.
+[ ] Buddy nutzt keine Scham-/Drucksprache als Standard.
+[ ] Buddy kann fehlende Ausrüstung erklären, ohne Kaufdruck zu erzeugen.
+[ ] Buddy kann faire Detours vorschlagen.
+
+============================================================
+PRIO 3 – SERVERSEITIGE MISSION COMPLETION / INTERNE REWARDS
+============================================================
+
+STATUS: [ ] Vorbereitet / nach KI-Buddy-Grundstruktur weiterführen
+
 [ ] `validateMissionCompletionWithItem` produktionsreif vorbereiten.
 [ ] `grantItemOrCapability` produktionsreif vorbereiten.
 [ ] `missionRewardEvents` als echte Audit-Events schreiben.
@@ -146,47 +144,6 @@ NÄCHSTE KONKRETE AUFGABEN:
 [ ] Rejected-/Manual-Review-Pfade sauber auditieren.
 [ ] Firestore Rules für Nutzerpunkte/XP weiter härten.
 [ ] Tagesmissionen schrittweise von MVP-Client-Reward auf Server-Preview/Server-Completion umstellen.
-
-EMPFOHLENE REIHENFOLGE FÜR STUFE 2:
-1. `missionCompletionDecision` Helper anlegen.
-2. Helper-Test ohne Firestore schreiben.
-3. Callable `validateMissionCompletionWithItem` mit Guardrails aktivieren.
-4. `missionRewardEvents` nur als Audit schreiben, noch keine User-Punkte ändern.
-5. Emulator-Test erweitern.
-6. Erst danach serverseitige interne Punkte/XP/Streak-Transaktion vorbereiten.
-
-============================================================
-PRIO 2 – ROADMAP-KONSOLIDIERUNG
-============================================================
-
-STATUS: [~] In Arbeit
-
-[x] Status-Dateien in `todolist/status/` dokumentieren Einzelstände.
-[x] J-Datei wurde auf Stufe-1-Abschluss und Stufe-2-Start aktualisiert.
-[ ] F-Datei auf Stufe-1-Abschluss aktualisieren.
-[ ] G-Datei auf Stufe-1-Abschluss aktualisieren.
-[ ] D-Datei/Reihenfolge auf Stufe-2-Start aktualisieren.
-[ ] `functions/EMULATOR_TEST_PLAN.md` ggf. mit Cooldown Callable ergänzen.
-[ ] `docs/architecture/MISSION_EVIDENCE_REVIEW_PROOF_DAMPENING.md` ggf. um Cooldown Review ergänzen.
-
-============================================================
-PRIO 3 – UNITY AR FOUNDATION LOKAL ERZEUGEN
-============================================================
-
-STATUS: [ ] Offen / nach Stufe-2-Start oder bewusstem Wechsel
-
-[ ] Unity Hub installieren/öffnen.
-[ ] Unity 2022.3 LTS als Startversion verwenden, sofern keine harte Inkompatibilität auftritt.
-[ ] Projekt `WellFitBuddyAR` unter `native/unity/WellFitBuddyAR` erzeugen.
-[ ] AR Foundation installieren.
-[ ] ARCore XR Plugin installieren.
-[ ] ARKit XR Plugin installieren.
-[ ] XR Plugin Management aktivieren.
-[ ] Szene `WellFitBuddyAR` anlegen.
-[ ] AR Session, XR Origin, AR Camera, AR Plane Manager, AR Raycast Manager, AR Anchor Manager anlegen.
-[ ] Buddy Placeholder anlegen.
-[ ] C#-Vorlagen aus Scripts/*.txt in Assets/Scripts/*.cs übernehmen.
-[ ] Ersten Android ARCore Build testen.
 
 ============================================================
 DAUERHAFTE HINWEISE
