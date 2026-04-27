@@ -5,6 +5,7 @@ const { seedDemoItemsAndNfc: runDemoItemsAndNfcSeed } = require("./seed/demoItem
 const { evaluateMissionContext: calculateMissionContext } = require("./lib/missionContext");
 const { calculateMissionRewardPreview } = require("./lib/missionRewardPolicy");
 const { calculateMissionEvidenceReview } = require("./lib/missionEvidenceReview");
+const { calculateMissionPatternReview } = require("./lib/missionPatternReview");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -44,6 +45,11 @@ async function readSystemReserveSnapshot(docId) {
   const snapshot = await db.collection("systemReserveSnapshots").doc(normalizedDocId).get();
   if (!snapshot.exists) throw new HttpsError("not-found", "SystemReserveSnapshot wurde nicht gefunden.");
   return { id: snapshot.id, data: snapshot.data() || {} };
+}
+
+async function readRecentUserDocs(collectionName, userId, limit = 50) {
+  const snapshot = await db.collection(collectionName).where("userId", "==", userId).limit(limit).get();
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...(doc.data() || {}) }));
 }
 
 async function createRejectedScanEvent({ userId, publicCode, missionId, tagId, reason }) {
@@ -102,6 +108,49 @@ exports.missionRewardPreview = onCall(async (request) => {
 });
 
 exports.reviewMissionEvidence = onCall(async (request) => { const userId = requireAuth(request); const data = request.data || {}; const missionId = requiredString(data.missionId, "missionId"); const reviewRef = db.collection("missionEvidenceReviews").doc(); const evidence = { trackingSession: await readOwnedMissionDoc({ collectionName: "trackingSessions", docId: data.trackingSessionId, userId, missionId, label: "Tracking-Session" }), trackingProof: await readOwnedMissionDoc({ collectionName: "trackingProofEvents", docId: data.trackingProofEventId, userId, missionId, label: "Tracking-Proof" }), nfcScan: await readOwnedMissionDoc({ collectionName: "nfcScanEvents", docId: data.nfcScanEventId, userId, missionId, label: "NFC-Scan" }), buddyEvent: await readOwnedMissionDoc({ collectionName: "missionBuddyEvents", docId: data.missionBuddyEventId, userId, missionId, label: "Buddy-Event" }), contextEvaluation: await readOwnedMissionDoc({ collectionName: "missionContextEvaluations", docId: data.contextEvaluationId, userId, missionId, label: "Mission-Context-Evaluation" }), completionEvaluation: await readOwnedMissionDoc({ collectionName: "missionCompletionEvaluations", docId: data.completionEvaluationId, userId, missionId, label: "Mission-Completion-Evaluation" }), rewardPreview: await readOwnedMissionDoc({ collectionName: "missionRewardPreviews", docId: data.rewardPreviewId, userId, missionId, label: "Mission-Reward-Preview" }) }; const evidenceRefs = { trackingSessionId: evidence.trackingSession ? evidence.trackingSession.id : null, trackingProofEventId: evidence.trackingProof ? evidence.trackingProof.id : null, nfcScanEventId: evidence.nfcScan ? evidence.nfcScan.id : null, missionBuddyEventId: evidence.buddyEvent ? evidence.buddyEvent.id : null, contextEvaluationId: evidence.contextEvaluation ? evidence.contextEvaluation.id : null, completionEvaluationId: evidence.completionEvaluation ? evidence.completionEvaluation.id : null, rewardPreviewId: evidence.rewardPreview ? evidence.rewardPreview.id : null }; const review = calculateMissionEvidenceReview({ missionId, evidence }); await reviewRef.set({ evidenceReviewId: reviewRef.id, userId, missionId, evidenceRefs, ...review, serverValidationStatus: "evidence-reviewed", createdAt: now(), updatedAt: now(), ...minimalClientContext(data) }); return { accepted: false, evidenceReviewId: reviewRef.id, ...review, rewardAuthorized: false, xpAuthorized: false, pointsAuthorized: false, tokenAuthorized: false, missionCompletionAuthorized: false }; });
+
+exports.reviewMissionPatterns = onCall(async (request) => {
+  const userId = requireAuth(request);
+  const data = request.data || {};
+  const missionId = optionalString(data.missionId, 160);
+  const patternReviewRef = db.collection("missionPatternReviews").doc();
+  const [trackingSessions, trackingProofEvents, nfcScanEvents, missionBuddyEvents] = await Promise.all([
+    readRecentUserDocs("trackingSessions", userId, 50),
+    readRecentUserDocs("trackingProofEvents", userId, 80),
+    readRecentUserDocs("nfcScanEvents", userId, 80),
+    readRecentUserDocs("missionBuddyEvents", userId, 50),
+  ]);
+  const review = calculateMissionPatternReview({
+    missionId,
+    deviceId: optionalString(data.deviceId, 120),
+    appSessionId: optionalString(data.appSessionId, 120),
+    trackingSessions,
+    trackingProofEvents,
+    nfcScanEvents,
+    missionBuddyEvents,
+  });
+  await patternReviewRef.set({
+    patternReviewId: patternReviewRef.id,
+    userId,
+    missionId: missionId || null,
+    ...review,
+    serverValidationStatus: "pattern-reviewed",
+    createdAt: now(),
+    updatedAt: now(),
+    ...minimalClientContext(data),
+  });
+  return {
+    accepted: false,
+    patternReviewId: patternReviewRef.id,
+    ...review,
+    rewardAuthorized: false,
+    xpAuthorized: false,
+    pointsAuthorized: false,
+    tokenAuthorized: false,
+    missionCompletionAuthorized: false,
+  };
+});
+
 exports.seedDemoItemsAndNfc = onCall(async (request) => { requireAdmin(request); try { const result = await runDemoItemsAndNfcSeed(db); return { accepted: true, message: "Demo Items und NFC Tags wurden angelegt.", ...result }; } catch (error) { console.error("seedDemoItemsAndNfc failed", error); throw new HttpsError("internal", `Seed Demo Items/NFC fehlgeschlagen: ${toErrorMessage(error)}`); } });
 exports.grantItemOrCapability = onCall(async () => { throw new HttpsError("failed-precondition", "grantItemOrCapability ist vorerst nur als interner Server-Flow geplant."); });
 exports.validateMissionCompletionWithItem = onCall(async () => { throw new HttpsError("failed-precondition", "validateMissionCompletionWithItem ist geplant, aber noch nicht fuer Produktion aktiviert."); });
