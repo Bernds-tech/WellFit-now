@@ -1,0 +1,42 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public class BuddyDialogueEventBridge : MonoBehaviour
+{
+    public WellFitNativeBridge bridge;
+
+    private readonly Queue<string> dialogueQueue = new Queue<string>();
+    private bool isDialogueActive;
+
+    public void QueueDialogue(string messageKey)
+    {
+        if (string.IsNullOrEmpty(messageKey)) return;
+        dialogueQueue.Enqueue(messageKey);
+        TryShowNextDialogue();
+    }
+
+    public void CompleteCurrentDialogue()
+    {
+        isDialogueActive = false;
+        bridge?.SendEventToWellFit("onBuddyDialogueCompleted", "{\"status\":\"completed\"}");
+        TryShowNextDialogue();
+    }
+
+    public void ClearDialogue()
+    {
+        dialogueQueue.Clear();
+        isDialogueActive = false;
+        bridge?.SendEventToWellFit("onBuddyDialogueCleared", "{\"status\":\"cleared\"}");
+    }
+
+    private void TryShowNextDialogue()
+    {
+        if (isDialogueActive) return;
+        if (dialogueQueue.Count == 0) return;
+
+        string messageKey = dialogueQueue.Dequeue();
+        isDialogueActive = true;
+        string payload = "{\"messageKey\":\"" + messageKey + "\"}";
+        bridge?.SendEventToWellFit("onBuddyDialogueShown", payload);
+    }
+}
