@@ -6,7 +6,7 @@
     "node": "20"
   },
   "scripts": {
-    "check": "node -c index.js && node -c cooldownIndex.js && node -c lib/missionContext.js && node -c lib/missionRewardPolicy.js && node -c lib/missionEvidenceReview.js && node -c lib/missionPatternReview.js && node -c lib/missionCooldownReview.js && node -c seed/demoItemsAndNfc.js && node -c test/emulatorNfcSmokeTest.js && node -c test/firestoreRulesSmokeTest.js && node -c test/callableFunctionsEmulatorTest.js && node -c test/missionCompletionEmulatorTest.js && node -c test/evidenceReviewEmulatorTest.js && node -c test/patternReviewEmulatorTest.js && node -c test/cooldownReviewEmulatorTest.js",
+    "check": "node -c index.js && node -c cooldownIndex.js && node -c lib/missionContext.js && node -c lib/missionRewardPolicy.js && node -c lib/missionEvidenceReview.js && node -c lib/missionPatternReview.js && node -c lib/missionCooldownReview.js && node -c seed/demoItemsAndNfc.js && node -c test/emulatorNfcSmokeTest.js && node -c test/firestoreRulesSmokeTest.js && node -c test/callableFunctionsEmulatorTest.js && node -c test/missionCompletionEmulatorTest.js && node -c test/evidenceReviewEmulatorTest.js && node -c test/patternReviewEmulatorTest.js && node -c test/cooldownReviewEmulatorTest.js && node -c test/cooldownCallableEmulatorTest.js",
     "smoke:nfc": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node test/emulatorNfcSmokeTest.js",
     "rules:firestore": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node test/firestoreRulesSmokeTest.js",
     "callable:emulator": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FUNCTIONS_EMULATOR_URL=http://127.0.0.1:5001/demo-no-project/us-central1 node test/callableFunctionsEmulatorTest.js",
@@ -14,7 +14,8 @@
     "evidence:emulator": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FUNCTIONS_EMULATOR_URL=http://127.0.0.1:5001/demo-no-project/us-central1 node test/evidenceReviewEmulatorTest.js",
     "pattern:emulator": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FUNCTIONS_EMULATOR_URL=http://127.0.0.1:5001/demo-no-project/us-central1 node test/patternReviewEmulatorTest.js",
     "cooldown:emulator": "node test/cooldownReviewEmulatorTest.js",
-    "test:emulator": "npm run smoke:nfc && npm run rules:firestore && npm run callable:emulator && npm run mission:emulator && npm run evidence:emulator && npm run pattern:emulator && npm run cooldown:emulator",
+    "cooldown:callable": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FUNCTIONS_EMULATOR_URL=http://127.0.0.1:5001/demo-no-project/us-central1 node test/cooldownCallableEmulatorTest.js",
+    "test:emulator": "npm run smoke:nfc && npm run rules:firestore && npm run callable:emulator && npm run mission:emulator && npm run evidence:emulator && npm run pattern:emulator && npm run cooldown:emulator && npm run cooldown:callable",
     "lint": "echo functions lint placeholder",
     "serve": "firebase emulators:start --only functions,firestore,auth"
   },
