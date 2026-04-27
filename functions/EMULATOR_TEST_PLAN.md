@@ -2,7 +2,7 @@
 
 ## Ziel
 
-Vor jedem Deployment muessen NFC-, Item-, Capability-, Tracking-, Buddy-, Context- und Mission-Evaluation-Flows im Firebase Emulator getestet werden.
+Vor jedem Deployment muessen NFC-, Item-, Capability-, Tracking-, Buddy-, Context-, Mission-Evaluation-, Evidence-Review- und RewardPreview-Flows im Firebase Emulator getestet werden.
 
 Produktionsdeployment ist blockiert, bis diese Tests erfolgreich sind.
 
@@ -25,7 +25,8 @@ Wichtig:
 - `npm run smoke:nfc` funktioniert erst, wenn der Firestore Emulator auf `127.0.0.1:8080` laeuft.
 - `npm run callable:emulator` benoetigt Auth-, Firestore- und Functions-Emulator.
 - `npm run mission:emulator` benoetigt Auth-, Firestore- und Functions-Emulator.
-- `npm run test:emulator` ist der verbindliche Gesamt-Test fuer smoke:nfc + rules:firestore + callable:emulator + mission:emulator.
+- `npm run evidence:emulator` benoetigt Auth-, Firestore- und Functions-Emulator.
+- `npm run test:emulator` ist der verbindliche Gesamt-Test fuer smoke:nfc + rules:firestore + callable:emulator + mission:emulator + evidence:emulator.
 
 ## Vorbereitung
 
@@ -43,6 +44,15 @@ cd /var/www/WellFit-now/functions
 npm install --no-audit --no-fund
 npm run check
 ```
+
+`npm run check` prueft aktuell:
+
+- `index.js`
+- `lib/missionContext.js`
+- `lib/missionRewardPolicy.js`
+- `lib/missionEvidenceReview.js`
+- `seed/demoItemsAndNfc.js`
+- alle Emulator-Testskripte
 
 ## Emulator starten
 
@@ -76,6 +86,7 @@ WellFit Emulator NFC Smoke Test erfolgreich.
 WellFit Firestore Rules Smoke Test erfolgreich.
 WellFit Callable Functions Emulator Test erfolgreich.
 WellFit Mission Completion Emulator Test erfolgreich.
+WellFit Mission Evidence Review Emulator Test erfolgreich.
 ```
 
 ## Smoke-Test fuer NFC / Item / Capability
@@ -87,12 +98,6 @@ cd /var/www/WellFit-now/functions
 npm run smoke:nfc
 ```
 
-Voraussetzung:
-
-```txt
-FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
-```
-
 Das Script `test/emulatorNfcSmokeTest.js` prueft:
 
 - Demo Items werden geseedet.
@@ -102,6 +107,39 @@ Das Script `test/emulatorNfcSmokeTest.js` prueft:
 - userInventory bekommt rope_001.
 - buddyCapabilities bekommt climbUp.
 - falsche Mission wird mit mission-mismatch abgelehnt.
+
+## Firestore Rules Smoke Test
+
+Terminal 2:
+
+```bash
+cd /var/www/WellFit-now/functions
+npm run rules:firestore
+```
+
+Das Script `test/firestoreRulesSmokeTest.js` prueft, dass kritische Collections clientseitig nicht manipuliert werden koennen.
+
+Direkte Client-Writes muessen abgelehnt werden fuer:
+
+- userInventory create
+- buddyCapabilities create
+- nfcTags read/write
+- nfcScanEvents create/update
+- nfcScanClaims read/write
+- capabilityUnlockEvents create/update
+- buddyItemUseEvents create/update
+- trackingSessions create/update
+- trackingProofEvents create/update
+- missionBuddyEvents create/update
+- missionContextEvaluations create/update
+- missionCompletionEvaluations create/update
+- missionRewardPreviews create/update
+- missionEvidenceReviews create/update
+- missionRewardPolicies create/update
+- systemReserveSnapshots create/update
+- missionRewardEvents create/update
+
+Die `PERMISSION_DENIED`-Meldungen im Rules-Test sind erwartete Positivsignale.
 
 ## Callable-Function-Edge-Case-Test
 
@@ -123,7 +161,9 @@ Das Script `test/callableFunctionsEmulatorTest.js` prueft echte Callable HTTP-En
 - falscher Nutzer wird mit user-not-allowed abgelehnt.
 - usageLimit erreicht wird mit usage-limit-reached abgelehnt.
 - gueltiger Rope Flow vergibt rope_001 und climbUp.
+- transaktionaler Claim wird fuer gueltigen NFC-Scan erzeugt.
 - duplicate scan fuer denselben Nutzer, Tag und dieselbe Mission wird mit duplicate-scan abgelehnt.
+- duplicate scan erzeugt keinen zweiten Claim.
 - duplicate scan erzeugt kein zweites Inventory Item.
 - Magnifier Flow vergibt magnifier_001 und scanObject.
 - auditItemUse schreibt ein serverseitiges Audit-Event.
@@ -134,7 +174,7 @@ Das Script `test/callableFunctionsEmulatorTest.js` prueft echte Callable HTTP-En
 - Tracking-/Buddy-Callable-Flows setzen rewardAuthorized=false und missionCompletionAuthorized=false.
 - falsche Mission wird mit mission-mismatch abgelehnt.
 
-## Mission-/Context-Evaluation-Test
+## Mission-/Context-/RewardPreview-Test
 
 Terminal 2:
 
@@ -156,9 +196,40 @@ Das Script `test/missionCompletionEmulatorTest.js` prueft:
 - evaluateMissionCompletion schreibt `missionCompletionEvaluations`.
 - Completion Evaluation bleibt `accepted=false`.
 - Completion Evaluation autorisiert keine Rewards, XP oder Punkte.
+- missionRewardPreview schreibt `missionRewardPreviews`.
+- missionRewardPreview autorisiert keine Rewards, XP, Punkte oder Token.
 - Fremde Tracking-Sessions werden blockiert.
+- Fremde RewardPreview-Versuche werden blockiert.
 - Leere Completion Evaluation liefert `insufficient-evidence`.
-- Firestore Rules blockieren direkte Client-Writes auf `missionContextEvaluations` und `missionCompletionEvaluations`.
+- Firestore Rules blockieren direkte Client-Writes auf Evaluation- und Preview-Collections.
+
+## Evidence Review / Proof-Quality-Drosselung-Test
+
+Terminal 2:
+
+```bash
+cd /var/www/WellFit-now/functions
+npm run evidence:emulator
+```
+
+Das Script `test/evidenceReviewEmulatorTest.js` prueft:
+
+- reviewMissionEvidence schreibt `missionEvidenceReviews`.
+- Evidence Review sammelt Tracking, Proof, Buddy, Context, Completion und RewardPreview.
+- Evidence Review setzt `rewardAuthorized=false`.
+- Evidence Review setzt `xpAuthorized=false`.
+- Evidence Review setzt `pointsAuthorized=false`.
+- Evidence Review setzt `tokenAuthorized=false`.
+- Evidence Review setzt `missionCompletionAuthorized=false`.
+- Leere Evidence Review liefert `insufficient-evidence`.
+- Fremde Evidence wird blockiert.
+- Owner-Read fuer eigene Evidence Reviews funktioniert.
+- Fremder Read wird blockiert.
+- Direkte Client-Writes auf `missionEvidenceReviews` werden blockiert.
+- missionRewardPreview ohne Evidence Review wird mit `evidenceReviewMultiplier = 0.65` gedrosselt.
+- Riskante Evidence Review setzt RewardPreview auf `manual-review-required`.
+- Riskante Evidence Review setzt `estimatedInternalPoints = 0`.
+- Riskante Evidence Review setzt `estimatedXp = 0`.
 
 ## Testnutzer
 
@@ -176,7 +247,7 @@ Nur Admin darf `seedDemoItemsAndNfc` ausfuehren.
 
 ### Normaler Nutzer
 
-Darf NFC scannen und serverautorisierte Tracking-/Buddy-/Context-/Completion-Evaluation-Flows ueber Callable Functions erzeugen, aber keine Seed-Daten, Items, Capabilities, NFC-Tags, Tracking-Sessions, Buddy-Events oder Evaluationen direkt schreiben.
+Darf NFC scannen und serverautorisierte Tracking-/Buddy-/Context-/Completion-/RewardPreview-/EvidenceReview-Flows ueber Callable Functions erzeugen, aber keine Seed-Daten, Items, Capabilities, NFC-Tags, Tracking-Sessions, Buddy-Events, Evaluations, Reviews, Previews, Claims oder RewardEvents direkt schreiben.
 
 ## Testdaten durch Seed Function
 
@@ -197,22 +268,33 @@ Erwartete NFC-Tags:
 - WF-DEMO-ROPE-TREE-001
 - WF-DEMO-MAGNIFIER-LEAF-001
 
-## Direkter Client Write muss verboten sein
+## Production Build nach erfolgreichem Test
 
-Direkte Writes muessen abgelehnt werden fuer:
+Nach erfolgreichem Emulator-Gesamttest:
 
-- userInventory create
-- buddyCapabilities create
-- nfcTags read/write
-- nfcScanEvents create
-- capabilityUnlockEvents create
-- buddyItemUseEvents create
-- trackingSessions create/update
-- trackingProofEvents create/update
-- missionBuddyEvents create/update
-- missionContextEvaluations create/update
-- missionCompletionEvaluations create/update
+```bash
+cd /var/www/WellFit-now
+git fetch origin
+git reset --hard origin/main
+NODE_OPTIONS="--max-old-space-size=768" npm run build
+pm2 restart wellfit-now --update-env
+pm2 status
+```
+
+Erwartet:
+
+```txt
+Compiled successfully
+Finished TypeScript
+29/29 static pages generated
+wellfit-now online
+```
 
 ## Naechste technische Aufgabe
 
-Erweiterten Emulator-Gesamttest nach Mission-Context-Ergaenzung ausfuehren. Danach kann der naechste sichere Backend-Baustein geplant werden: `missionRewardPolicies` als reine Policy-Datenstruktur ohne Auszahlung, oder ein erster `missionRewardPreview`-Stub, der Reward nur simuliert und weiterhin keine XP/Punkte autorisiert.
+Nach EvidenceReview und Proof-Quality-Drosselung ist der naechste sinnvolle sichere Backend-Baustein:
+
+- UserDailyCap vorbereiten.
+- MissionTypeCap vorbereiten.
+- SystemReserveSnapshot read-only in RewardPreview einbeziehen.
+- Weiterhin keine produktive Auszahlung.
