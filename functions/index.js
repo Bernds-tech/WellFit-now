@@ -4,6 +4,7 @@ const { FieldValue } = require("firebase-admin/firestore");
 const { seedDemoItemsAndNfc: runDemoItemsAndNfcSeed } = require("./seed/demoItemsAndNfc");
 const { evaluateMissionContext: calculateMissionContext } = require("./lib/missionContext");
 const { calculateMissionRewardPreview } = require("./lib/missionRewardPolicy");
+const { calculateMissionEvidenceReview } = require("./lib/missionEvidenceReview");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -603,6 +604,58 @@ exports.missionRewardPreview = onCall(async (request) => {
     accepted: false,
     previewId: previewRef.id,
     ...preview,
+    rewardAuthorized: false,
+    xpAuthorized: false,
+    pointsAuthorized: false,
+    tokenAuthorized: false,
+    missionCompletionAuthorized: false,
+  };
+});
+
+exports.reviewMissionEvidence = onCall(async (request) => {
+  const userId = requireAuth(request);
+  const data = request.data || {};
+  const missionId = requiredString(data.missionId, "missionId");
+  const reviewRef = db.collection("missionEvidenceReviews").doc();
+
+  const evidence = {
+    trackingSession: await readOwnedMissionDoc({ collectionName: "trackingSessions", docId: data.trackingSessionId, userId, missionId, label: "Tracking-Session" }),
+    trackingProof: await readOwnedMissionDoc({ collectionName: "trackingProofEvents", docId: data.trackingProofEventId, userId, missionId, label: "Tracking-Proof" }),
+    nfcScan: await readOwnedMissionDoc({ collectionName: "nfcScanEvents", docId: data.nfcScanEventId, userId, missionId, label: "NFC-Scan" }),
+    buddyEvent: await readOwnedMissionDoc({ collectionName: "missionBuddyEvents", docId: data.missionBuddyEventId, userId, missionId, label: "Buddy-Event" }),
+    contextEvaluation: await readOwnedMissionDoc({ collectionName: "missionContextEvaluations", docId: data.contextEvaluationId, userId, missionId, label: "Mission-Context-Evaluation" }),
+    completionEvaluation: await readOwnedMissionDoc({ collectionName: "missionCompletionEvaluations", docId: data.completionEvaluationId, userId, missionId, label: "Mission-Completion-Evaluation" }),
+    rewardPreview: await readOwnedMissionDoc({ collectionName: "missionRewardPreviews", docId: data.rewardPreviewId, userId, missionId, label: "Mission-Reward-Preview" }),
+  };
+
+  const evidenceRefs = {
+    trackingSessionId: evidence.trackingSession ? evidence.trackingSession.id : null,
+    trackingProofEventId: evidence.trackingProof ? evidence.trackingProof.id : null,
+    nfcScanEventId: evidence.nfcScan ? evidence.nfcScan.id : null,
+    missionBuddyEventId: evidence.buddyEvent ? evidence.buddyEvent.id : null,
+    contextEvaluationId: evidence.contextEvaluation ? evidence.contextEvaluation.id : null,
+    completionEvaluationId: evidence.completionEvaluation ? evidence.completionEvaluation.id : null,
+    rewardPreviewId: evidence.rewardPreview ? evidence.rewardPreview.id : null,
+  };
+
+  const review = calculateMissionEvidenceReview({ missionId, evidence });
+
+  await reviewRef.set({
+    evidenceReviewId: reviewRef.id,
+    userId,
+    missionId,
+    evidenceRefs,
+    ...review,
+    serverValidationStatus: "evidence-reviewed",
+    createdAt: now(),
+    updatedAt: now(),
+    ...minimalClientContext(data),
+  });
+
+  return {
+    accepted: false,
+    evidenceReviewId: reviewRef.id,
+    ...review,
     rewardAuthorized: false,
     xpAuthorized: false,
     pointsAuthorized: false,
