@@ -22,6 +22,25 @@ Der Buddy soll in der realen Welt verankert werden, sich auf erkannten Flaechen 
 - Tap auf Flaeche setzt Weltanker
 - Buddy bleibt beim Schwenken des Handys an Weltposition
 
+## Muss-Kriterien
+
+Siehe:
+
+```txt
+docs/BUDDY_AR_MUST_CRITERIA.md
+```
+
+Kurzfassung:
+
+- Buddy bleibt an realer Weltposition, wenn das Handy geschwenkt wird.
+- Buddy kann auf Boden, Couch, Tisch, Kastl oder anderen erkannten Flaechen stehen.
+- Buddy kann in der realen Umgebung laufen.
+- Buddy kann von einer Flaeche herunter oder auf eine Flaeche springen.
+- Buddy schaut zur Kamera beziehungsweise zum Nutzer.
+- Buddy kann auf Objekte oder Orte aufmerksam machen.
+- Buddy wirkt glaubwuerdig durch Skalierung, Perspektive, Schatten und spaeter Occlusion.
+- Buddy kann Faehigkeiten abhaengig von Ausruestung einsetzen.
+
 ## Empfohlene Unity-Version
 
 Unity 2022.3 LTS oder Unity 6 LTS pruefen.
@@ -40,6 +59,7 @@ Dieses Repo enthaelt vorab:
 - Szenenplan
 - Gitignore-Regeln
 - Entwicklerarbeitsgrundlage
+- C#-Vorlagen fuer `Assets/Scripts/*.cs`
 
 ## Naechste lokale Schritte
 
@@ -51,4 +71,40 @@ Dieses Repo enthaelt vorab:
 6. ARKit XR Plugin installieren.
 7. XR Plugin Management aktivieren.
 8. Szene `WellFitBuddyAR` anlegen.
-9. Bridge- und Controller-Skripte anhand `docs/` und `Scripts/`-Platzhaltern bauen.
+9. AR Session, XR Origin, AR Camera, AR Plane Manager, AR Raycast Manager und AR Anchor Manager anlegen.
+10. Buddy Placeholder anlegen.
+11. C#-Vorlagen aus `Scripts/*.cs.txt` nach `Assets/Scripts/*.cs` kopieren.
+12. Ersten Android ARCore Build testen.
+
+## Vorlagen
+
+Siehe:
+
+```txt
+Scripts/README.md
+Scripts/*.cs.txt
+```
+
+Aktuelle Vorlagen:
+
+- `WellFitNativeBridge.cs.txt`
+- `BuddyController.cs.txt`
+- `BuddyAnchorController.cs.txt`
+- `BuddyLookAtCamera.cs.txt`
+- `BuddySurfaceNode.cs.txt`
+- `BuddyNavigationController.cs.txt`
+- `BuddyAbilityController.cs.txt`
+
+## Setup-Checkliste
+
+Siehe:
+
+```txt
+docs/UNITY_SETUP_CHECKLIST.md
+```
+
+## Sicherheitsgrenze
+
+Unity entscheidet nicht ueber Rewards, XP, Punkte, Token, Jackpot, Burn, Leaderboards oder Mission Completion.
+
+Unity meldet nur AR-Events. Backend/App entscheidet ueber Mission, Evidence, Anti-Cheat und spaetere interne Rewards.
