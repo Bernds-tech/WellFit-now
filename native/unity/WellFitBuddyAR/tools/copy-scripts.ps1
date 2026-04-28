@@ -23,4 +23,18 @@ Get-ChildItem -Path $sourceDir -Filter "*.cs.txt" | ForEach-Object {
   Write-Host "Copied $($_.Name) -> Assets/Scripts/$targetName"
 }
 
-Write-Host "WellFitBuddyAR script copy complete. Open Unity and let it compile."
+$staleEvents = @(
+  "onBuddyGuideContextUpdated",
+  "onBuddyGuideStepExplained",
+  "onBuddyGuideContextCleared",
+  "onBuddyDialogueCleared"
+)
+
+foreach ($staleEvent in $staleEvents) {
+  $matches = Get-ChildItem -Path $targetDir -Filter "*.cs" -Recurse | Select-String -Pattern $staleEvent -SimpleMatch
+  if ($matches) {
+    Write-Error "Stale AR event contract name found after copy: $staleEvent`n$($matches | Out-String)"
+  }
+}
+
+Write-Host "WellFitBuddyAR script copy complete. Event contract audit passed. Open Unity and let it compile."
