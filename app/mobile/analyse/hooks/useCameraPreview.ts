@@ -38,6 +38,36 @@ async function requestCameraStream(facingMode: CameraFacingMode) {
   }
 }
 
+async function attachStreamToVideo(video: HTMLVideoElement, stream: MediaStream) {
+  video.muted = true;
+  video.playsInline = true;
+  video.autoplay = true;
+
+  if (video.srcObject !== stream) {
+    video.srcObject = stream;
+  }
+
+  await new Promise<void>((resolve) => {
+    if (video.readyState >= 1 && video.videoWidth > 0) {
+      resolve();
+      return;
+    }
+
+    const timeout = window.setTimeout(resolve, 900);
+    video.onloadedmetadata = () => {
+      window.clearTimeout(timeout);
+      resolve();
+    };
+  });
+
+  const playPromise = video.play();
+  if (playPromise) {
+    await playPromise.catch((playError) => {
+      console.warn("Camera stream attached, but video.play() was blocked", playError);
+    });
+  }
+}
+
 export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
   const { facingMode = "user" } = options;
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -105,36 +135,14 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
       streamRef.current = stream;
 
       const video = videoRef.current;
-      if (!video) {
-        setPermissionState("granted");
-        refreshDebugInfo();
-        return;
-      }
-
-      video.muted = true;
-      video.playsInline = true;
-      video.autoplay = true;
-      video.srcObject = stream;
-      video.load();
-
-      await new Promise<void>((resolve) => {
-        const timeout = window.setTimeout(resolve, 900);
-        video.onloadedmetadata = () => {
-          window.clearTimeout(timeout);
-          resolve();
-        };
-      });
-
-      const playPromise = video.play();
-      if (playPromise) {
-        await playPromise.catch((playError) => {
-          console.warn("Camera stream attached, but video.play() was blocked", playError);
-        });
+      if (video) {
+        await attachStreamToVideo(video, stream);
       }
 
       setPermissionState("granted");
       refreshDebugInfo();
-      window.setTimeout(refreshDebugInfo, 800);
+      window.setTimeout(refreshDebugInfo, 500);
+      window.setTimeout(refreshDebugInfo, 1200);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Kamera konnte nicht gestartet werden.";
       const lowerMessage = message.toLowerCase();
@@ -148,6 +156,20 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
     const timer = window.setInterval(refreshDebugInfo, 1500);
     return () => window.clearInterval(timer);
   }, [refreshDebugInfo]);
+
+  useEffect(() => {
+    if (permissionState !== "granted") return;
+    const stream = streamRef.current;
+    const video = videoRef.current;
+    if (!stream || !video) return;
+
+    if (video.srcObject !== stream || video.videoWidth === 0 || video.paused) {
+      attachStreamToVideo(video, stream).finally(() => {
+        refreshDebugInfo();
+        window.setTimeout(refreshDebugInfo, 500);
+      });
+    }
+  }, [permissionState, refreshDebugInfo]);
 
   useEffect(() => stopCamera, [stopCamera]);
 
