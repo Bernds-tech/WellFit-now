@@ -55,7 +55,7 @@ public class BuddyKiGuideController : MonoBehaviour
         requiredItemId = itemIdNeeded;
         currentMood = ParseMood(mood);
 
-        SendGuideEvent("onBuddyGuideContextUpdated", "guide-context-updated");
+        SendGuideEvent("onBuddyContextUpdated", "guide-context-updated");
     }
 
     public void SuggestNextMission(string missionId, string reason)
@@ -76,7 +76,7 @@ public class BuddyKiGuideController : MonoBehaviour
     {
         currentMood = BuddyGuideMood.Helpful;
         dialogueBridge?.QueueDialogue(string.IsNullOrEmpty(messageKey) ? "buddy_next_step" : messageKey);
-        SendGuideEvent("onBuddyGuideStepExplained", "step-explained");
+        SendGuideEvent("onBuddyDialogueShown", "step-explained");
     }
 
     public void ExplainMissingCapability(string capabilityId)
@@ -130,7 +130,7 @@ public class BuddyKiGuideController : MonoBehaviour
         rewardStatus = "preview-only";
         currentMood = BuddyGuideMood.Neutral;
 
-        SendGuideEvent("onBuddyGuideContextCleared", "guide-context-cleared");
+        SendGuideEvent("onBuddyContextUpdated", "guide-context-cleared");
     }
 
     private void SendGuideEvent(string eventName, string status)
