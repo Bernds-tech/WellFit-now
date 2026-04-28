@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import GoogleCompetitionMap from "./GoogleCompetitionMap";
 
 type CheckpointType = "Mathe" | "Fitness" | "Avatar" | "Rätsel" | "Sprint";
 type DuelType = "Nutzer gegen Nutzer" | "Avatar gegen Avatar" | "Gruppen-Duell" | "Zeitrennen";
@@ -19,7 +20,8 @@ type Checkpoint = {
   entryPreview: string;
   spectatorStatus: SpectatorStatus;
   status: "Offen" | "Umkämpft" | "Geschützt";
-  position: { top: string; left: string };
+  lat: number;
+  lng: number;
   icon: string;
   description: string;
   nextWindow: string;
@@ -39,7 +41,8 @@ const checkpoints: Checkpoint[] = [
     entryPreview: "10 interne Punkte",
     spectatorStatus: "Zuschauen offen",
     status: "Umkämpft",
-    position: { top: "27%", left: "24%" },
+    lat: 48.210033,
+    lng: 16.363449,
     icon: "🧠",
     description: "Mathe-Duell am Checkpoint. Wer schneller richtig löst, kann Bürgermeister werden.",
     nextWindow: "Heute · 18:00–20:00",
@@ -57,7 +60,8 @@ const checkpoints: Checkpoint[] = [
     entryPreview: "Proof nötig",
     spectatorStatus: "Live bald",
     status: "Offen",
-    position: { top: "58%", left: "34%" },
+    lat: 48.204994,
+    lng: 16.386607,
     icon: "🏃",
     description: "Kurzer Sprint-Checkpoint mit späterer GPS-/Evidence-Prüfung.",
     nextWindow: "Morgen · 07:00–09:00",
@@ -75,7 +79,8 @@ const checkpoints: Checkpoint[] = [
     entryPreview: "Arena-Pot später",
     spectatorStatus: "Nur Freunde",
     status: "Geschützt",
-    position: { top: "36%", left: "62%" },
+    lat: 48.205914,
+    lng: 16.357956,
     icon: "⚔️",
     description: "Avatar-gegen-Avatar-Arena. Sieger und Pot dürfen später nur serverseitig entschieden werden.",
     nextWindow: "Heute · 21:00",
@@ -93,7 +98,8 @@ const checkpoints: Checkpoint[] = [
     entryPreview: "ohne Auszahlung",
     spectatorStatus: "Zuschauen offen",
     status: "Umkämpft",
-    position: { top: "66%", left: "72%" },
+    lat: 48.215115,
+    lng: 16.396277,
     icon: "🧩",
     description: "Rätsel-Checkpoint für Nutzerduelle und Zuschauer-Modus.",
     nextWindow: "Samstag · Community-Runde",
@@ -111,7 +117,8 @@ const checkpoints: Checkpoint[] = [
     entryPreview: "Kamera-Proof später",
     spectatorStatus: "Live bald",
     status: "Offen",
-    position: { top: "18%", left: "78%" },
+    lat: 48.198123,
+    lng: 16.371512,
     icon: "💪",
     description: "Fitness-Duell mit späterer KI-/Kamera-Validierung.",
     nextWindow: "Heute · flexibel",
@@ -142,6 +149,12 @@ export default function WettkaempfePage() {
   const [message, setMessage] = useState("Wähle einen Checkpoint auf der Karte.");
   const selectedCheckpoint = useMemo(() => checkpoints.find((checkpoint) => checkpoint.id === selectedCheckpointId) ?? checkpoints[0], [selectedCheckpointId]);
 
+  const selectCheckpoint = (checkpointId: number) => {
+    const checkpoint = checkpoints.find((item) => item.id === checkpointId);
+    setSelectedCheckpointId(checkpointId);
+    if (checkpoint) setMessage(`${checkpoint.title} ausgewählt. Bürgermeister: ${checkpoint.mayor}.`);
+  };
+
   const handlePreviewAction = (action: string) => {
     setMessage(`${action}: später über Serverpfad. Aktuell nur UI-Vorschau für ${selectedCheckpoint.title}.`);
   };
@@ -157,44 +170,11 @@ export default function WettkaempfePage() {
         </aside>
 
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
-          <div className="mb-4 flex items-start justify-between gap-4"><div><h1 className="text-5xl font-extrabold leading-none">Wettkämpfe</h1><p className="mt-1 text-lg text-cyan-100/90">Weltkarte mit Checkpoints, Bürgermeister und späteren PvP-/Avatar-Duellen.</p><p className="mt-2 text-sm font-semibold text-cyan-100/75">{message}</p></div><div className="rounded-[18px] border border-yellow-300/40 bg-gradient-to-r from-[#052f36] via-[#0d6872] to-[#ff8a00] px-7 py-4 text-center shadow-[0_10px_28px_rgba(0,0,0,0.24)]"><p className="text-[10px] font-semibold tracking-[0.3em] text-yellow-200">CHECKPOINT-MACHT</p><p className="mt-1 text-2xl font-extrabold text-white">Bürgermeister-System</p></div></div>
+          <div className="mb-4 flex items-start justify-between gap-4"><div><h1 className="text-5xl font-extrabold leading-none">Wettkämpfe</h1><p className="mt-1 text-lg text-cyan-100/90">Google Maps mit Checkpoints, Bürgermeister und späteren PvP-/Avatar-Duellen.</p><p className="mt-2 text-sm font-semibold text-cyan-100/75">{message}</p></div><div className="rounded-[18px] border border-yellow-300/40 bg-gradient-to-r from-[#052f36] via-[#0d6872] to-[#ff8a00] px-7 py-4 text-center shadow-[0_10px_28px_rgba(0,0,0,0.24)]"><p className="text-[10px] font-semibold tracking-[0.3em] text-yellow-200">CHECKPOINT-MACHT</p><p className="mt-1 text-2xl font-extrabold text-white">Bürgermeister-System</p></div></div>
           <div className="mb-4 flex justify-center"><div className="flex items-center gap-5 rounded-full border border-white/10 bg-[#0b6d79]/35 px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm">{tabs.map((tab) => tab.label === "Wettkämpfe" ? <div key={tab.label} className="relative pb-1 text-base font-semibold text-orange-400">{tab.label}<span className="absolute left-0 right-0 -bottom-2 h-[2px] rounded-full bg-orange-400" /></div> : <Link key={tab.label} href={tab.href} className="pb-1 text-base text-white/85 hover:text-white">{tab.label}</Link>)}</div></div>
 
           <div className="grid min-h-0 flex-1 grid-cols-[2fr_0.95fr] gap-4 overflow-hidden pb-20">
-            <div className="relative min-h-[520px] overflow-hidden rounded-[22px] border border-cyan-300/20 bg-[#d8f1df] text-slate-900 shadow-[0_14px_34px_rgba(0,0,0,0.2)]">
-              <div className="absolute inset-0 bg-[#dff3e5]" />
-              <div className="absolute left-[2%] top-[8%] h-[84%] w-[26%] rounded-[45%] bg-[#b7e3b4] opacity-80" />
-              <div className="absolute left-[55%] top-[4%] h-[36%] w-[34%] rounded-[40%] bg-[#bde7c4] opacity-90" />
-              <div className="absolute left-[64%] top-[58%] h-[32%] w-[28%] rounded-[40%] bg-[#b7e3b4] opacity-80" />
-              <div className="absolute left-[6%] top-[45%] h-[18%] w-[88%] -rotate-6 rounded-full bg-[#9bd5e8] opacity-85" />
-              <div className="absolute left-[42%] top-[-8%] h-[118%] w-[12%] rotate-[18deg] rounded-full bg-[#9bd5e8] opacity-70" />
-              <div className="absolute left-[-8%] top-[32%] h-[11%] w-[120%] rotate-[22deg] rounded-full bg-[#f7f2dd] shadow-[0_0_0_5px_rgba(255,255,255,0.35)]" />
-              <div className="absolute left-[8%] top-[70%] h-[10%] w-[96%] -rotate-[12deg] rounded-full bg-[#f7f2dd] shadow-[0_0_0_5px_rgba(255,255,255,0.35)]" />
-              <div className="absolute left-[22%] top-[-8%] h-[115%] w-[9%] rotate-[6deg] rounded-full bg-[#f7f2dd] shadow-[0_0_0_5px_rgba(255,255,255,0.35)]" />
-              <div className="absolute left-[71%] top-[-10%] h-[120%] w-[8%] -rotate-[8deg] rounded-full bg-[#f7f2dd] shadow-[0_0_0_5px_rgba(255,255,255,0.35)]" />
-              <div className="absolute inset-0 opacity-35" style={{ backgroundImage: "linear-gradient(90deg, rgba(30,80,70,0.12) 1px, transparent 1px), linear-gradient(rgba(30,80,70,0.12) 1px, transparent 1px)", backgroundSize: "46px 46px" }} />
-
-              <div className="absolute left-5 top-5 z-10 rounded-xl bg-white/90 px-4 py-3 text-slate-800 shadow-lg backdrop-blur-sm"><p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">Live-Map</p><p className="mt-1 text-sm font-semibold">Checkpoints · Bürgermeister · Herausforderer</p></div>
-              <div className="absolute right-5 top-5 z-10 rounded-xl bg-white/90 px-4 py-3 text-right text-slate-800 shadow-lg backdrop-blur-sm"><p className="text-xs font-black uppercase tracking-[0.25em] text-yellow-600">Legende</p><p className="mt-1 text-xs font-semibold">👑 Bürgermeister · ⚔ Duell · 👀 Zuschauer</p></div>
-
-              {checkpoints.map((checkpoint) => (
-                <button
-                  key={checkpoint.id}
-                  onClick={() => { setSelectedCheckpointId(checkpoint.id); setMessage(`${checkpoint.title} ausgewählt. Bürgermeister: ${checkpoint.mayor}.`); }}
-                  className={`absolute z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 text-2xl shadow-[0_10px_28px_rgba(0,0,0,0.35)] transition ${selectedCheckpoint.id === checkpoint.id ? "scale-110 border-yellow-300 bg-orange-500 text-white" : "border-white bg-cyan-600 text-white hover:scale-105"}`}
-                  style={{ top: checkpoint.position.top, left: checkpoint.position.left }}
-                  title={`${checkpoint.title} · Bürgermeister: ${checkpoint.mayor}`}
-                >
-                  <span className="absolute -top-5 text-2xl drop-shadow">👑</span>
-                  {checkpoint.icon}
-                </button>
-              ))}
-              {checkpoints.map((checkpoint) => (
-                <div key={`label-${checkpoint.id}`} className="absolute z-10 -translate-x-1/2 rounded-lg bg-white/95 px-3 py-2 text-xs font-bold text-slate-800 shadow-[0_8px_20px_rgba(0,0,0,0.22)]" style={{ top: `calc(${checkpoint.position.top} + 34px)`, left: checkpoint.position.left }}>
-                  {checkpoint.title}<br /><span className="text-yellow-700">👑 {checkpoint.mayor}</span>
-                </div>
-              ))}
-            </div>
+            <GoogleCompetitionMap checkpoints={checkpoints} selectedCheckpointId={selectedCheckpointId} onSelectCheckpoint={selectCheckpoint} />
 
             <div className="min-h-0 overflow-y-auto rounded-[22px] border border-cyan-300/10 bg-[#053841]/95 p-5 shadow-[0_10px_28px_rgba(0,0,0,0.18)]">
               <div className="mb-4 flex items-start justify-between gap-3"><div className="rounded-lg bg-cyan-500/20 px-3 py-2 text-sm font-bold text-cyan-300">{selectedCheckpoint.type}</div><div className={`rounded-lg border px-3 py-2 text-sm font-bold ${statusClass[selectedCheckpoint.status]}`}>{selectedCheckpoint.status}</div></div>
