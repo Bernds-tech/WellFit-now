@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 7.6 – BUDDY-KI GET- UND POST-ENDPOINT PRODUKTIV GEPRUEFT
+Version: 7.7 – MOBILE-AR INAKTIVE KAMERA-ANSICHT SCROLLBAR GEMACHT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -96,6 +96,7 @@ REPO-VORBEREITUNG:
 [x] Buddy-KI-Guide Controller ergänzt und erweitert.
 [x] Buddy Dialogue/Event Bridge ergänzt.
 [x] AR Mission Hint / Object Marker Vorlage ergänzt.
+[x] `/mobile/ar` inaktive Kamera-Ansicht scrollbar gemacht, damit Kamera-, KI-Buddy- und Consent-Panels nicht ueberlappen.
 [ ] Unity-Projekt lokal erzeugen.
 [ ] Erste Android-ARCore-Build-Kette testen.
 
@@ -133,7 +134,7 @@ STATUS: [~] Backend-/UI-Grundlage verbunden / echter Modelltest offen
 [x] Production Build nach AR-Guide-Panel-Fix erfolgreich.
 [x] `GET /api/buddy-ki` produktiv getestet: ok=true, providerMode=rules, modelConfigured=false, modelProviderEnabled=false.
 [x] `POST /api/buddy-ki` mit Intent `suggestMission` produktiv getestet: ok=true, providerMode=rules, fallbackReason=model-provider-disabled, Mission/Hint-Optionen vorhanden.
-[ ] `/mobile/ar` am Handy testen: Provider-Anzeige, Text, Optionen, Fallback.
+[ ] `/mobile/ar` am Handy testen: Provider-Anzeige, Text, Optionen, Fallback und Scrollbarkeit bei inaktiver Kamera.
 [ ] Server-Env für echten Modelltest setzen, falls gewünscht:
     - `BUDDY_KI_PROVIDER=openai`
     - `BUDDY_KI_MODEL=<explizit gewaehlt>`
