@@ -178,8 +178,15 @@ In Unity darf nicht passieren:
 - [ ] Keine Mission Completion.
 - [ ] Keine Token-/WFT-Logik.
 - [ ] Keine Jackpot-/Burn-Logik.
+- [ ] Keine Leaderboard-Autoritaet.
 
 Unity darf nur AR-Events melden.
+
+Wenn Events durch die Web-/App-Bridge laufen:
+
+- [ ] `rewardAuthorized` bleibt `false`.
+- [ ] `missionCompletionAuthorized` bleibt `false`.
+- [ ] Mission-/Marker-Fortschritt bleibt Evidence/Signal, keine Auszahlung.
 
 ## 13. Erfolgskriterium fuer v1
 
@@ -189,5 +196,5 @@ Der erste echte AR-Prototyp gilt als technisch erfolgreich, wenn:
 Buddy erscheint auf echter erkannter Flaeche
 Buddy bleibt beim Schwenken raumfest
 Buddy bewegt sich zu zweitem Tap-Punkt
-Keine Reward-/Punkte-Autoritaet in Unity
+Keine Reward-/Punkte-/Completion-Autoritaet in Unity
 ```
