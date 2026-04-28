@@ -191,7 +191,7 @@ export default function ArBuddyEventPanel({ cameraActive, floating = true }: ArB
     await emitNativeArBuddyEvent(
       createNativeArBuddyEvent({
         eventType,
-        payload: { status: "demo" },
+        payload: { status: "demo", rewardStatus: "preview-only" },
       })
     );
   };
@@ -211,6 +211,10 @@ export default function ArBuddyEventPanel({ cameraActive, floating = true }: ArB
           )}
         </div>
         <div className="rounded-2xl bg-white/10 px-3 py-2 text-xl">🐉</div>
+      </div>
+
+      <div className="mt-3 rounded-2xl border border-emerald-200/10 bg-emerald-300/10 px-3 py-2 text-[10px] font-bold leading-relaxed text-emerald-50/75">
+        Sicherheitsstatus: AR-Events sind nur Preview/Evidence. Keine Punkte, keine Rewards, keine Mission-Completion im Mobile-Client.
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
