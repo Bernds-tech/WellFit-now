@@ -31,10 +31,10 @@ export const buddyKiRulesProvider: BuddyKiProvider = {
 
       case "suggestMission": {
         res.title = "Ich habe etwas für dich";
-        res.message = "Wie wäre es mit einer einfachen AR-Mission in deiner Nähe?";
+        res.message = "Wie wäre es mit einer einfachen AR-Mission in deiner Nähe? Das bleibt hier eine sichere Preview ohne Abschluss oder Auszahlung.";
         res.mood = "curious";
         res.options = [
-          { id: "start", label: "Mission starten", intent: "missionProgress", payload: { missionId: "demo_ar_walk_001" } },
+          { id: "start", label: "Start anfragen", intent: "missionProgress", payload: { missionId: "demo_ar_walk_001", rewardStatus: "preview-only" } },
           { id: "hint", label: "Hinweis anzeigen", intent: "arHint" },
         ];
         break;
@@ -42,27 +42,27 @@ export const buddyKiRulesProvider: BuddyKiProvider = {
 
       case "explainMissingCapability": {
         res.title = "Ich brauche Hilfe";
-        res.message = `Ich brauche ${context.missingCapabilityId || "eine Fähigkeit"}, um das zu schaffen.`;
+        res.message = `Ich brauche ${context.missingCapabilityId || "eine Fähigkeit"}, um das zu schaffen. Wir zeigen zuerst faire Alternativen statt Kaufdruck.`;
         res.mood = "helpful";
         res.options = [
-          { id: "detour", label: "Alternative Aufgabe", intent: "safeDetour" },
+          { id: "detour", label: "Alternative vorschlagen", intent: "safeDetour" },
         ];
         break;
       }
 
       case "safeDetour": {
         res.title = "Alternative gefunden";
-        res.message = "Wir machen einfach eine andere Aufgabe, die du sofort schaffen kannst.";
+        res.message = "Wir können eine andere Aufgabe vorschlagen, die du sofort testen kannst. Keine echte Mission Completion.";
         res.mood = "happy";
         res.options = [
-          { id: "start", label: "Los geht’s", intent: "missionProgress", payload: { missionId: "demo_safe_detour_001" } },
+          { id: "start", label: "Alternative anfragen", intent: "missionProgress", payload: { missionId: "demo_safe_detour_001", rewardStatus: "preview-only" } },
         ];
         break;
       }
 
       case "arHint": {
         res.title = "Schau mal dort";
-        res.message = "Ich habe etwas in deiner Umgebung markiert.";
+        res.message = "Ich habe etwas in deiner Umgebung markiert. Das ist nur ein Hinweis-Signal, kein Abschluss.";
         res.mood = "curious";
         res.options = [
           { id: "focus", label: "Hinweis ansehen", intent: "arHint" },
@@ -72,7 +72,7 @@ export const buddyKiRulesProvider: BuddyKiProvider = {
 
       case "missionProgress": {
         res.title = "Weiter geht’s";
-        res.message = "Super, bleib dran. Wir schaffen das gemeinsam.";
+        res.message = "Super, bleib dran. Das ist ein Preview-Fortschrittssignal, keine Belohnungsfreigabe.";
         res.mood = "happy";
         res.options = [];
         break;
