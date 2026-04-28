@@ -30,14 +30,14 @@ export function createBuddyGuideCard(event: NativeArBuddyEvent | null, cameraAct
     return {
       id: "ready",
       title: "Buddy ist bereit",
-      description: "Teste Dialog, Mission, Item oder Marker. Spaeter kommen diese Events aus Unity.",
+      description: "Teste Dialog, Mission, Item oder Marker. Spaeter kommen diese Events aus Unity. Es wird nichts abgeschlossen oder ausgezahlt.",
       tone: "neutral",
       options: [
         {
           id: "suggest-mission",
           label: "Mission vorschlagen",
           eventType: "onBuddyMissionSuggested",
-          payload: { missionId: "demo_ar_walk_001", reason: "safe-starter-mission" },
+          payload: { missionId: "demo_ar_walk_001", reason: "safe-starter-mission", rewardStatus: "preview-only" },
         },
         {
           id: "show-dialogue",
@@ -54,14 +54,14 @@ export function createBuddyGuideCard(event: NativeArBuddyEvent | null, cameraAct
     return {
       id: "mission-suggested",
       title: "Mission vorgeschlagen",
-      description: `Der Buddy empfiehlt ${missionId}. Du kannst die Mission starten oder zuerst einen Hinweis anzeigen lassen.`,
+      description: `Der Buddy empfiehlt ${missionId}. Du kannst eine Start-Anfrage testen oder zuerst einen Hinweis anzeigen lassen. Keine echte Mission Completion.`,
       tone: "success",
       options: [
         {
           id: "start-mission",
-          label: "Mission starten",
+          label: "Start anfragen",
           eventType: "onBuddyActionStarted",
-          payload: { action: "walk", missionId, status: "mission-start-requested" },
+          payload: { action: "walk", missionId, status: "mission-start-requested", rewardStatus: "preview-only" },
         },
         {
           id: "show-marker",
@@ -78,18 +78,18 @@ export function createBuddyGuideCard(event: NativeArBuddyEvent | null, cameraAct
     return {
       id: "capability-needed",
       title: "Ausrüstung fehlt",
-      description: `Der Buddy braucht ${capabilityId}. Wir zeigen zuerst faire Alternativen statt Kaufdruck.`,
+      description: `Der Buddy braucht ${capabilityId}. Wir zeigen zuerst faire Alternativen statt Kaufdruck. Das ist nur ein sicherer Guide-Test.`,
       tone: "warning",
       options: [
         {
           id: "fair-detour",
-          label: "Alternative Mission",
+          label: "Alternative vorschlagen",
           eventType: "onBuddyMissionSuggested",
-          payload: { missionId: "demo_safe_detour_001", reason: "fair-detour-no-item-required" },
+          payload: { missionId: "demo_safe_detour_001", reason: "fair-detour-no-item-required", rewardStatus: "preview-only" },
         },
         {
           id: "scan-nfc",
-          label: "NFC/Item prüfen",
+          label: "NFC/Item erklären",
           eventType: "onBuddyDialogueShown",
           payload: { messageKey: "buddy.item.scan.explain", capabilityId },
         },
@@ -102,7 +102,7 @@ export function createBuddyGuideCard(event: NativeArBuddyEvent | null, cameraAct
     return {
       id: "marker-active",
       title: "Hinweis gefunden",
-      description: `Der Buddy hat ${markerId} markiert. Du kannst den Hinweis öffnen oder als erledigt markieren.`,
+      description: `Der Buddy hat ${markerId} markiert. Du kannst den Hinweis fokussieren oder ein Erledigt-Signal simulieren. Keine echte Completion.`,
       tone: "success",
       options: [
         {
@@ -113,9 +113,9 @@ export function createBuddyGuideCard(event: NativeArBuddyEvent | null, cameraAct
         },
         {
           id: "resolve-marker",
-          label: "Hinweis erledigt",
+          label: "Erledigt simulieren",
           eventType: "onArHintMarkerResolved",
-          payload: { markerId, status: "resolved" },
+          payload: { markerId, status: "resolved-preview-only", rewardStatus: "preview-only" },
         },
       ],
     };
