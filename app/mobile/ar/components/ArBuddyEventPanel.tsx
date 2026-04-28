@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buddyKiRemoteProvider } from "@/lib/buddyKi/buddyKiProviderRemote";
 import type { BuddyKiContext, BuddyKiIntent, BuddyKiOption, BuddyKiResponse } from "@/lib/buddyKi/buddyKiTypes";
 import {
@@ -117,6 +117,7 @@ export default function ArBuddyEventPanel({ cameraActive, floating = true }: ArB
   const [events, setEvents] = useState<NativeArBuddyEvent[]>([]);
   const [buddyKiResponse, setBuddyKiResponse] = useState<BuddyKiResponseWithMeta | null>(null);
   const [isBuddyKiLoading, setIsBuddyKiLoading] = useState(false);
+  const activeRequestIdRef = useRef(0);
   const latestEvent = events[0] ?? null;
 
   useEffect(() => {
@@ -127,53 +128,43 @@ export default function ArBuddyEventPanel({ cameraActive, floating = true }: ArB
     });
   }, []);
 
-  const loadBuddyKiResponse = async (event: NativeArBuddyEvent | null = latestEvent) => {
-    setIsBuddyKiLoading(true);
-    const intent = mapEventToBuddyKiIntent(event, cameraActive);
-    const context = buildBuddyKiContext(event, cameraActive);
-
-    try {
-      const response = await buddyKiRemoteProvider.generateResponse(intent, context);
-      setBuddyKiResponse(response as BuddyKiResponseWithMeta);
-    } catch (error) {
-      console.warn("Buddy KI panel fallback to local guide flow", error);
-      setBuddyKiResponse(null);
-    } finally {
-      setIsBuddyKiLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadInitialBuddyKiResponse() {
+  const requestBuddyKiResponse = useCallback(
+    async (intent: BuddyKiIntent, context: BuddyKiContext) => {
+      const requestId = activeRequestIdRef.current + 1;
+      activeRequestIdRef.current = requestId;
       setIsBuddyKiLoading(true);
-      const intent = mapEventToBuddyKiIntent(latestEvent, cameraActive);
-      const context = buildBuddyKiContext(latestEvent, cameraActive);
 
       try {
         const response = await buddyKiRemoteProvider.generateResponse(intent, context);
-        if (!cancelled) {
+        if (activeRequestIdRef.current === requestId) {
           setBuddyKiResponse(response as BuddyKiResponseWithMeta);
         }
       } catch (error) {
         console.warn("Buddy KI panel fallback to local guide flow", error);
-        if (!cancelled) {
+        if (activeRequestIdRef.current === requestId) {
           setBuddyKiResponse(null);
         }
       } finally {
-        if (!cancelled) {
+        if (activeRequestIdRef.current === requestId) {
           setIsBuddyKiLoading(false);
         }
       }
-    }
+    },
+    []
+  );
 
-    loadInitialBuddyKiResponse();
+  const loadBuddyKiResponse = useCallback(
+    async (event: NativeArBuddyEvent | null = latestEvent) => {
+      const intent = mapEventToBuddyKiIntent(event, cameraActive);
+      const context = buildBuddyKiContext(event, cameraActive);
+      await requestBuddyKiResponse(intent, context);
+    },
+    [cameraActive, latestEvent, requestBuddyKiResponse]
+  );
 
-    return () => {
-      cancelled = true;
-    };
-  }, [cameraActive, latestEvent]);
+  useEffect(() => {
+    void loadBuddyKiResponse();
+  }, [loadBuddyKiResponse]);
 
   const guideCard = useMemo(() => createBuddyGuideCard(latestEvent, cameraActive), [latestEvent, cameraActive]);
   const displayTitle = buddyKiResponse?.title || guideCard.title;
@@ -193,8 +184,7 @@ export default function ArBuddyEventPanel({ cameraActive, floating = true }: ArB
     await emitNativeArBuddyEvent(event);
 
     const context = buildBuddyKiContext(event, cameraActive);
-    const response = await buddyKiRemoteProvider.generateResponse(option.intent, context);
-    setBuddyKiResponse(response as BuddyKiResponseWithMeta);
+    await requestBuddyKiResponse(option.intent, context);
   };
 
   const emitDemoEvent = async (eventType: NativeArBuddyEventType) => {
