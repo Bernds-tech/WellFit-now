@@ -1,13 +1,17 @@
 # WellFit – Mission Types & AR Side Quests
 
 Stand: 2026-04-28
-Status: Architekturanker fuer vorhandene Missionsseiten, AR-Buddy-Nebenmissionen und Reward-Abgrenzung
+Status: Architekturanker fuer vorhandene Missionsseiten, KI-generierte Missionen, AR-Buddy-Nebenmissionen und Reward-Abgrenzung
 
 ## Zweck
 
-WellFit hat bereits mehrere Missionsbereiche im Produkt angelegt. AR-Buddy-Fragen wie `Was ist das fuer ein Blatt?` duerfen nicht automatisch als Tagesmission, Wochenmission, Abenteuer, Challenge oder Wettkampf zaehlen.
+WellFit hat bereits mehrere Missionsbereiche im Produkt angelegt. Die Seiten existieren als Container/Platzhalter, enthalten aber noch keine final ausgearbeiteten Missionen.
 
-Dieses Dokument trennt die vorhandenen Missionsseiten und die neuen AR-Buddy-Nebenmissionen.
+Die spaetere KI-Buddy-/Mission-Engine soll diese Bereiche mit echten Missionen befuellen.
+
+AR-Buddy-Fragen wie `Was ist das fuer ein Blatt?` duerfen nicht automatisch als Tagesmission, Wochenmission, Abenteuer, Challenge oder Wettkampf zaehlen.
+
+Dieses Dokument trennt die vorhandenen Missionsseiten, KI-generierte Hauptmissionen und AR-Buddy-Nebenmissionen.
 
 ## Vorhandene Routen / Seiten
 
@@ -21,7 +25,15 @@ Dieses Dokument trennt die vorhandenen Missionsseiten und die neuen AR-Buddy-Neb
 /missionen/history
 ```
 
-Diese Seiten sollen nicht neu erstellt werden. Die neue Logik muss spaeter in diese vorhandenen Bereiche einsortiert werden.
+Diese Seiten sollen nicht neu erstellt werden.
+
+Aktueller Status:
+
+```txt
+Seiten existieren.
+Missionen darin sind noch Platzhalter / vorbereitete Container.
+Fertige Missionen sollen spaeter durch KI-Buddy-/Mission-Engine, Server-Policy und kuratierte Inhalte entstehen.
+```
 
 ## Missionstypen
 
@@ -172,6 +184,42 @@ Sie erzeugen zuerst nur Evidence.
 Evidence -> Question Memory -> Reward Policy -> Server Ledger
 ```
 
+## KI-Buddy-/Mission-Engine
+
+Die KI-Buddy-/Mission-Engine soll spaeter echte Missionen fuer die bestehenden Seiten erzeugen oder vorschlagen.
+
+Sie darf:
+
+```txt
+Missionen draften
+Aufgaben vorschlagen
+Rallyes in der Naehe planen
+Schwierigkeit vorschlagen
+altersgerechte Inhalte vorschlagen
+```
+
+Sie darf nicht:
+
+```txt
+Punktehoehe autorisieren
+Mission final abschliessen
+Reward-Ledger schreiben
+Wettkampf-Sieger final bestimmen
+Partner-Challenge ohne Serverfreigabe aktivieren
+```
+
+Server/Policy entscheidet:
+
+```txt
+Kategorie
+Freigabe
+Reward Policy
+Completion
+Ledger
+Caps
+Anti-Cheat
+```
+
 ## Upgrade-Pfade
 
 Eine AR-Buddy-Nebenmission kann spaeter Teil von etwas Groesserem werden, aber nur wenn Server/Policy das zuordnet:
@@ -193,8 +241,8 @@ Aber die Zuordnung, Punktehoehe, Completion und Reward-Freigabe gehoeren in Serv
 
 ## Naechste Schritte
 
-- [ ] TypeScript Mission Category Types definieren.
-- [ ] AR-Buddy-Nebenmission als eigene Kategorie abbilden.
+- [x] TypeScript Mission Category Types definieren.
+- [x] AR-Buddy-Nebenmission als eigene Kategorie abbilden.
 - [ ] UI-Kennzeichnung fuer Nebenmission vs Hauptmission planen.
 - [ ] Reward Policy um `missionCategory` erweitern.
 - [ ] Question Memory auch nach Mission Category filtern.
