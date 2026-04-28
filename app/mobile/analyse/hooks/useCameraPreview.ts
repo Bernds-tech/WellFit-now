@@ -42,6 +42,8 @@ async function attachStreamToVideo(video: HTMLVideoElement, stream: MediaStream)
   video.muted = true;
   video.playsInline = true;
   video.autoplay = true;
+  video.setAttribute("playsinline", "true");
+  video.setAttribute("webkit-playsinline", "true");
 
   if (video.srcObject !== stream) {
     video.srcObject = stream;
@@ -60,12 +62,9 @@ async function attachStreamToVideo(video: HTMLVideoElement, stream: MediaStream)
     };
   });
 
-  const playPromise = video.play();
-  if (playPromise) {
-    await playPromise.catch((playError) => {
-      console.warn("Camera stream attached, but video.play() was blocked", playError);
-    });
-  }
+  await video.play().catch((playError) => {
+    console.warn("Camera stream attached, but video.play() was blocked", playError);
+  });
 }
 
 export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
@@ -99,6 +98,27 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
       trackLabel: track?.label || "none",
     });
   }, [facingMode]);
+
+  const bindVideoRef = useCallback((node: HTMLVideoElement | null) => {
+    videoRef.current = node;
+
+    if (!node) {
+      refreshDebugInfo();
+      return;
+    }
+
+    const stream = streamRef.current;
+    if (!stream) {
+      refreshDebugInfo();
+      return;
+    }
+
+    attachStreamToVideo(node, stream).finally(() => {
+      refreshDebugInfo();
+      window.setTimeout(refreshDebugInfo, 500);
+      window.setTimeout(refreshDebugInfo, 1200);
+    });
+  }, [refreshDebugInfo]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -134,9 +154,8 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
       const stream = await requestCameraStream(facingMode);
       streamRef.current = stream;
 
-      const video = videoRef.current;
-      if (video) {
-        await attachStreamToVideo(video, stream);
+      if (videoRef.current) {
+        await attachStreamToVideo(videoRef.current, stream);
       }
 
       setPermissionState("granted");
@@ -174,7 +193,7 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
   useEffect(() => stopCamera, [stopCamera]);
 
   return {
-    videoRef,
+    videoRef: bindVideoRef,
     permissionState,
     errorMessage,
     debugInfo,
