@@ -59,6 +59,31 @@ function shouldUseModelProvider() {
   return hasModelConfiguration() && process.env.BUDDY_KI_PROVIDER === "openai";
 }
 
+function createHardFallbackResponse(intent: BuddyKiIntent, fallbackReason: string): BuddyKiResponse & { meta: { fallbackReason: string } } {
+  return {
+    providerMode: "rules",
+    intent,
+    title: intent === "suggestMission" ? "Ich habe etwas für dich" : "Buddy ist bereit",
+    message: intent === "suggestMission"
+      ? "Wie wäre es mit einer einfachen AR-Mission? Ich bleibe im sicheren Fallback und helfe dir Schritt für Schritt."
+      : "Ich bin da. Der sichere Fallback ist aktiv und die App bleibt stabil.",
+    mood: intent === "suggestMission" ? "curious" : "helpful",
+    options: intent === "suggestMission"
+      ? [
+          { id: "start", label: "Mission starten", intent: "missionProgress", payload: { missionId: "demo_ar_walk_001" } },
+          { id: "hint", label: "Hinweis anzeigen", intent: "arHint", payload: { markerId: "marker_mission_hint_001" } },
+        ]
+      : [],
+    safety: {
+      rewardAuthorized: false,
+      missionCompletionAuthorized: false,
+      medicalDiagnosis: false,
+      mobileTokenTrading: false,
+    },
+    meta: { fallbackReason },
+  };
+}
+
 function withSafety(response: BuddyKiResponse, providerMode: BuddyKiProviderMode, fallbackReason?: string) {
   return {
     ...response,
@@ -76,8 +101,13 @@ function withSafety(response: BuddyKiResponse, providerMode: BuddyKiProviderMode
 }
 
 async function generateRulesResponse(intent: BuddyKiIntent, context: BuddyKiContext, fallbackReason?: string) {
-  const rulesResponse = await buddyKiRulesProvider.generateResponse(intent, context);
-  return withSafety(rulesResponse, "rules", fallbackReason);
+  try {
+    const rulesResponse = await buddyKiRulesProvider.generateResponse(intent, context);
+    return withSafety(rulesResponse, "rules", fallbackReason);
+  } catch (error) {
+    console.error("Buddy KI rules provider hard fallback", error);
+    return createHardFallbackResponse(intent, fallbackReason || "rules-provider-error");
+  }
 }
 
 async function generateBackendBuddyResponse(intent: BuddyKiIntent, context: BuddyKiContext) {
@@ -117,9 +147,8 @@ export async function POST(request: Request) {
       response,
     });
   } catch (error) {
-    console.error("Buddy KI POST fatal fallback", error);
-    const response = await generateRulesResponse("errorHelp", { language: "de", buddyId: "default", cameraActive: false }, "route-fatal-error");
-    return NextResponse.json({ ok: true, response });
+    console.error("Buddy KI POST hard fallback", error);
+    return NextResponse.json({ ok: true, response: createHardFallbackResponse("errorHelp", "route-fatal-error") });
   }
 }
 
