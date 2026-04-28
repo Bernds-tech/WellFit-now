@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 7.3 – KI-BUDDY UNITY GUIDE-/DIALOG-/HINT-VORLAGEN ABGEGLICHEN
+Version: 7.4 – AR-GUIDE-UI MIT BUDDY-KI-BACKEND VERBUNDEN
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -117,9 +117,27 @@ LOKALE UNITY-SCHRITTE:
 PRIO 2 – KI-BUDDY ALS GUIDE / DIALOG / MISSIONSEMPFEHLER
 ============================================================
 
-STATUS: [ ] Direkt nach Unity-Grundstruktur
+STATUS: [~] Backend-/UI-Grundlage verbunden / echter Modelltest offen
 
-[ ] Buddy-KI-Guide Datenmodell entwerfen:
+[x] `app/api/buddy-ki/route.ts` vorhanden.
+[x] `lib/buddyKi/buddyKiProviderRemote.ts` vorhanden.
+[x] `lib/buddyKi/buddyKiProviderRules.ts` bleibt sicherer Fallback.
+[x] `lib/buddyKi/buddyKiProviderOpenAi.ts` als optionaler serverseitiger Modellprovider angelegt.
+[x] AR-Guide-Panel `/mobile/ar` ist mit `buddyKiRemoteProvider` verbunden.
+[x] AR-Guide-Panel zeigt Backend-/Rules-/Remote-Antworten im UI an.
+[x] Option-Klicks erzeugen weiterhin sichere Native-AR-Buddy-Events.
+[x] Keine API Keys im Frontend.
+[x] Keine direkte KI im Handy.
+[x] Safety-Flags bleiben: keine Reward-, Punkte-, Token-, Trading- oder Mission-Completion-Autorität.
+[x] Rules-Fallback bleibt aktiv, wenn Endpoint, Netzwerk oder Modellprovider fehlschlägt.
+[ ] Server-Env für echten Modelltest setzen:
+    - `BUDDY_KI_PROVIDER=openai`
+    - `BUDDY_KI_MODEL=<explizit gewaehlt>`
+    - `OPENAI_API_KEY=<serverseitiger key>`
+[ ] `GET /api/buddy-ki` testen.
+[ ] `POST /api/buddy-ki` mit Intent `suggestMission` testen.
+[ ] `/mobile/ar` am Handy testen: Provider-Anzeige, Text, Optionen, Fallback.
+[ ] Buddy-KI-Guide Datenmodell in App/Backend weiter ausbauen:
     - aktuelle Mission
     - nächste Empfehlung
     - Dialogzustand
