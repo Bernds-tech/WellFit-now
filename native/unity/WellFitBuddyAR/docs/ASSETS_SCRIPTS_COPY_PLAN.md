@@ -20,6 +20,23 @@ native/unity/WellFitBuddyAR/Scripts/*.cs.txt
 native/unity/WellFitBuddyAR/Assets/Scripts/*.cs
 ```
 
+## Automatisch kopieren
+
+Windows PowerShell:
+
+```powershell
+cd native/unity/WellFitBuddyAR
+powershell -ExecutionPolicy Bypass -File tools/copy-scripts.ps1
+```
+
+macOS/Linux/Git Bash:
+
+```bash
+cd native/unity/WellFitBuddyAR
+chmod +x tools/copy-scripts.sh
+./tools/copy-scripts.sh
+```
+
 ## Zu kopierende Dateien
 
 - [ ] `Scripts/WellFitNativeBridge.cs.txt` -> `Assets/Scripts/WellFitNativeBridge.cs`
