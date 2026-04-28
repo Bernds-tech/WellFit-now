@@ -1,11 +1,16 @@
 type ArStatusCardProps = {
   cameraActive: boolean;
   message?: string | null;
+  floating?: boolean;
 };
 
-export default function ArStatusCard({ cameraActive, message }: ArStatusCardProps) {
+export default function ArStatusCard({ cameraActive, message, floating = true }: ArStatusCardProps) {
+  const positionClass = floating
+    ? "absolute left-3 right-3 top-3 z-30"
+    : "relative z-30";
+
   return (
-    <div className="absolute left-3 right-3 top-3 z-30 rounded-[24px] bg-[#042f35]/82 p-3 text-white shadow-[0_12px_30px_rgba(0,0,0,0.28)] backdrop-blur-md sm:p-4">
+    <div className={`${positionClass} rounded-[24px] bg-[#042f35]/82 p-3 text-white shadow-[0_12px_30px_rgba(0,0,0,0.28)] backdrop-blur-md sm:p-4`}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100/55 sm:text-xs">AR-Fallback-Demo</p>
