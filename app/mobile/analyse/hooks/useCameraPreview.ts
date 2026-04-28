@@ -99,25 +99,18 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
     });
   }, [facingMode]);
 
-  const bindVideoRef = useCallback((node: HTMLVideoElement | null) => {
-    videoRef.current = node;
-
-    if (!node) {
-      refreshDebugInfo();
-      return;
-    }
-
+  const reattachCurrentVideo = useCallback(async () => {
     const stream = streamRef.current;
-    if (!stream) {
+    const video = videoRef.current;
+    if (!stream || !video) {
       refreshDebugInfo();
       return;
     }
 
-    attachStreamToVideo(node, stream).finally(() => {
-      refreshDebugInfo();
-      window.setTimeout(refreshDebugInfo, 500);
-      window.setTimeout(refreshDebugInfo, 1200);
-    });
+    await attachStreamToVideo(video, stream);
+    refreshDebugInfo();
+    window.setTimeout(refreshDebugInfo, 500);
+    window.setTimeout(refreshDebugInfo, 1200);
   }, [refreshDebugInfo]);
 
   const stopCamera = useCallback(() => {
@@ -172,28 +165,28 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
   }, [facingMode, refreshDebugInfo, stopCamera]);
 
   useEffect(() => {
-    const timer = window.setInterval(refreshDebugInfo, 1500);
+    const timer = window.setInterval(() => {
+      const video = videoRef.current;
+      const stream = streamRef.current;
+      if (permissionState === "granted" && stream && video && (video.srcObject !== stream || video.videoWidth === 0 || video.paused)) {
+        attachStreamToVideo(video, stream).finally(refreshDebugInfo);
+        return;
+      }
+      refreshDebugInfo();
+    }, 1000);
+
     return () => window.clearInterval(timer);
-  }, [refreshDebugInfo]);
+  }, [permissionState, refreshDebugInfo]);
 
   useEffect(() => {
     if (permissionState !== "granted") return;
-    const stream = streamRef.current;
-    const video = videoRef.current;
-    if (!stream || !video) return;
-
-    if (video.srcObject !== stream || video.videoWidth === 0 || video.paused) {
-      attachStreamToVideo(video, stream).finally(() => {
-        refreshDebugInfo();
-        window.setTimeout(refreshDebugInfo, 500);
-      });
-    }
-  }, [permissionState, refreshDebugInfo]);
+    reattachCurrentVideo();
+  }, [permissionState, reattachCurrentVideo]);
 
   useEffect(() => stopCamera, [stopCamera]);
 
   return {
-    videoRef: bindVideoRef,
+    videoRef,
     permissionState,
     errorMessage,
     debugInfo,
