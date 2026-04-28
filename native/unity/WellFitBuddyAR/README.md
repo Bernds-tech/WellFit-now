@@ -98,6 +98,24 @@ Diese Commands sind Einstiegspunkte fuer die spaetere Android-/iOS-/App-Bridge. 
 11. C#-Vorlagen aus `Scripts/*.cs.txt` nach `Assets/Scripts/*.cs` kopieren.
 12. Ersten Android ARCore Build testen.
 
+## Erstes Android-ARCore-Runbook
+
+Siehe:
+
+```txt
+docs/FIRST_ANDROID_ARCORE_RUNBOOK.md
+```
+
+Dieses Runbook beschreibt den ersten echten Handy-Test:
+
+```txt
+Handy-Kamera
+→ ARCore erkennt Flaeche
+→ erster Tap platziert Buddy
+→ zweiter Tap bewegt Buddy
+→ Buddy bleibt raumfest
+```
+
 ## Vorlagen
 
 Siehe:
