@@ -116,6 +116,16 @@ Handy-Kamera
 → Buddy bleibt raumfest
 ```
 
+## Buddy Placeholder Prefab
+
+Siehe:
+
+```txt
+docs/BUDDY_PLACEHOLDER_PREFAB.md
+```
+
+Dieses Dokument beschreibt den ersten einfachen Buddy-Placeholder fuer den ARCore-Test. Der finale Drache kann spaeter als GLB/FBX-Prefab ersetzt werden.
+
 ## Vorlagen
 
 Siehe:
