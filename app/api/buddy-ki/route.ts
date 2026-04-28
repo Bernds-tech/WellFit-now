@@ -52,8 +52,12 @@ function sanitizeContext(context: Partial<BuddyKiContext> | undefined): BuddyKiC
   };
 }
 
+function hasModelConfiguration() {
+  return Boolean(process.env.OPENAI_API_KEY) && Boolean(process.env.BUDDY_KI_MODEL);
+}
+
 function shouldUseModelProvider() {
-  return Boolean(process.env.OPENAI_API_KEY) && process.env.BUDDY_KI_PROVIDER === "openai";
+  return hasModelConfiguration() && process.env.BUDDY_KI_PROVIDER === "openai";
 }
 
 function withSafety(response: BuddyKiResponse, providerMode: BuddyKiProviderMode, fallbackReason?: string) {
@@ -116,7 +120,8 @@ export async function GET() {
     service: "buddy-ki",
     status: "ready",
     providerMode: shouldUseModelProvider() ? "remote-ai" : "rules",
-    modelConfigured: Boolean(process.env.OPENAI_API_KEY),
+    modelConfigured: hasModelConfiguration(),
+    modelProviderEnabled: process.env.BUDDY_KI_PROVIDER === "openai",
     safety: {
       clientApiKeys: false,
       rewardAuthorized: false,
