@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 7.2 – AKTIVER FOKUS KI-BUDDY / UNITY AR FOUNDATION / PUNKTEOEKONOMIE VOR BLOCKCHAIN
+Version: 7.3 – KI-BUDDY UNITY GUIDE-/DIALOG-/HINT-VORLAGEN ABGEGLICHEN
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -90,9 +90,12 @@ REPO-VORBEREITUNG:
     - `BuddySurfaceNode.cs.txt`
     - `BuddyNavigationController.cs.txt`
     - `BuddyAbilityController.cs.txt`
-[ ] Buddy-KI-Guide Controller ergänzen.
-[ ] Buddy Dialogue/Event Bridge ergänzen.
-[ ] AR Mission Hint / Object Marker Vorlage ergänzen.
+    - `BuddyKiGuideController.cs.txt`
+    - `BuddyDialogueEventBridge.cs.txt`
+    - `ArMissionHintMarker.cs.txt`
+[x] Buddy-KI-Guide Controller ergänzt und erweitert.
+[x] Buddy Dialogue/Event Bridge ergänzt.
+[x] AR Mission Hint / Object Marker Vorlage ergänzt.
 [ ] Unity-Projekt lokal erzeugen.
 [ ] Erste Android-ARCore-Build-Kette testen.
 
