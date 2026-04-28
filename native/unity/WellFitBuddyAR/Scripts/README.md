@@ -17,6 +17,9 @@ Assets/Scripts/*.cs
 - `BuddySurfaceNode.cs.txt`
 - `BuddyNavigationController.cs.txt`
 - `BuddyAbilityController.cs.txt`
+- `BuddyKiGuideController.cs.txt`
+- `BuddyDialogueEventBridge.cs.txt`
+- `ArMissionHintMarker.cs.txt`
 
 ## Zweck der Vorlagen
 
@@ -47,6 +50,41 @@ Erlaubt einfache Bewegung, WalkTo, JumpTo und Sprung zwischen Surface Nodes.
 ### BuddyAbilityController
 
 Verwaltet Fähigkeiten wie climbUp, jumpBoost, fetchClue, scanObject, carry und markiert fehlende Capability als rejected Event.
+
+### BuddyKiGuideController
+
+Verwaltet den aktuellen Guide-Kontext für Mission, Empfehlung, Altersband, Rewardstatus, benötigte Fähigkeit, benötigtes Item und Buddy-Stimmung.
+
+Er meldet Events wie:
+
+- `onBuddyGuideContextUpdated`
+- `onBuddyMissionSuggested`
+- `onBuddyCapabilityNeeded`
+- `onBuddyMissionProgress`
+- `onBuddyGuideStepExplained`
+- `onBuddyGuideContextCleared`
+
+Der Controller darf keine Rewards, XP, Punkte oder Mission Completion autorisieren.
+
+### BuddyDialogueEventBridge
+
+Verwaltet einfache Dialog-Events und eine Dialog-Queue zwischen Unity-Buddy und WellFit-App.
+
+Er meldet Events wie:
+
+- `onBuddyDialogueShown`
+- `onBuddyDialogueCompleted`
+- `onBuddyDialogueCleared`
+
+### ArMissionHintMarker
+
+Repräsentiert einen AR-Hinweis oder Missionsmarker in der Unity-Szene.
+
+Er meldet Events wie:
+
+- `onArHintMarkerCreated`
+- `onArHintMarkerFocused`
+- `onArHintMarkerResolved`
 
 ## Sicherheitsgrenze
 
