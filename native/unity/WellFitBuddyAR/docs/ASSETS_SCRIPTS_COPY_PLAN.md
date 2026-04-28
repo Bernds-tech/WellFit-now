@@ -1,6 +1,6 @@
 # WellFitBuddyAR – Assets/Scripts Copy Plan
 
-Stand: 2026-04-27
+Stand: 2026-04-28
 
 ## Ziel
 
@@ -23,6 +23,7 @@ native/unity/WellFitBuddyAR/Assets/Scripts/*.cs
 ## Zu kopierende Dateien
 
 - [ ] `Scripts/WellFitNativeBridge.cs.txt` -> `Assets/Scripts/WellFitNativeBridge.cs`
+- [ ] `Scripts/BuddyInputController.cs.txt` -> `Assets/Scripts/BuddyInputController.cs`
 - [ ] `Scripts/BuddyController.cs.txt` -> `Assets/Scripts/BuddyController.cs`
 - [ ] `Scripts/BuddyAnchorController.cs.txt` -> `Assets/Scripts/BuddyAnchorController.cs`
 - [ ] `Scripts/BuddyLookAtCamera.cs.txt` -> `Assets/Scripts/BuddyLookAtCamera.cs`
@@ -41,6 +42,7 @@ Assets/
     WellFitBuddyAR.unity
   Scripts/
     WellFitNativeBridge.cs
+    BuddyInputController.cs
     BuddyController.cs
     BuddyAnchorController.cs
     BuddyLookAtCamera.cs
@@ -70,12 +72,16 @@ Assets/
 Komponenten:
 
 - `WellFitNativeBridge`
+- `BuddyInputController`
 - `BuddyAnchorController`
 - `BuddyKiGuideController`
 - `BuddyDialogueEventBridge`
 
 Referenzen:
 
+- BuddyInputController -> BuddyAnchorController
+- BuddyInputController -> WellFitNativeBridge
+- BuddyInputController -> AR Camera
 - BuddyAnchorController -> Buddy Prefab
 - BuddyAnchorController -> AR Raycast Manager
 - BuddyAnchorController -> AR Anchor Manager
