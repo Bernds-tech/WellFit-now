@@ -126,6 +126,16 @@ docs/BUDDY_PLACEHOLDER_PREFAB.md
 
 Dieses Dokument beschreibt den ersten einfachen Buddy-Placeholder fuer den ARCore-Test. Der finale Drache kann spaeter als GLB/FBX-Prefab ersetzt werden.
 
+## AR Scene Validation
+
+Siehe:
+
+```txt
+docs/AR_SCENE_VALIDATION_CHECKLIST.md
+```
+
+Diese Checkliste prueft nach dem Unity-Szenenaufbau, ob AR Session, Plane Detection, Raycast, Anchor, Buddy Prefab, Tap-Steuerung und Sicherheitsgrenzen korrekt verbunden sind.
+
 ## Vorlagen
 
 Siehe:
