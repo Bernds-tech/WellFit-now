@@ -20,6 +20,7 @@
 
 - WellFitARSystem
 - WellFitNativeBridge
+- BuddyInputController
 - BuddyController
 - BuddyAnchorController
 - BuddyNavigationController
@@ -35,12 +36,16 @@
 Empfohlene Komponenten:
 
 - WellFitNativeBridge
+- BuddyInputController
 - BuddyAnchorController
 - BuddyKiGuideController
 - BuddyDialogueEventBridge
 
 Referenzen:
 
+- BuddyInputController -> BuddyAnchorController
+- BuddyInputController -> WellFitNativeBridge
+- BuddyInputController -> AR Camera
 - BuddyAnchorController -> AR Raycast Manager
 - BuddyAnchorController -> AR Anchor Manager
 - BuddyAnchorController -> Buddy Prefab
@@ -69,15 +74,17 @@ Optionale Kinder:
 2. AR Plane Manager sucht horizontale Flaechen.
 3. UI fordert Nutzer auf, Boden oder Flaeche zu scannen.
 4. Nutzer tippt auf erkannte Flaeche.
-5. AR Raycast Manager gibt Weltposition zurueck.
-6. AR Anchor Manager erstellt Anchor.
-7. Buddy wird am Anchor platziert.
-8. Buddy startet idle animation.
-9. Buddy richtet Blick grob zur Kamera.
-10. WellFitNativeBridge meldet `onBuddyPlaced`.
-11. Nutzer tippt Buddy.
-12. Buddy startet happy animation.
-13. WellFitNativeBridge meldet `onBuddyActionStarted` und `onBuddyActionCompleted`.
+5. BuddyInputController leitet den Tap an BuddyAnchorController weiter.
+6. AR Raycast Manager gibt Weltposition zurueck.
+7. AR Anchor Manager erstellt Anchor.
+8. Buddy wird am Anchor platziert.
+9. Buddy startet idle animation.
+10. Buddy richtet Blick grob zur Kamera.
+11. WellFitNativeBridge meldet `onBuddyPlaced`.
+12. Nutzer tippt erneut auf erkannte Flaeche.
+13. BuddyAnchorController entscheidet: laufen oder bei Hoehenunterschied springen.
+14. BuddyNavigationController fuehrt WalkTo oder JumpTo aus.
+15. WellFitNativeBridge meldet `onBuddyActionStarted` und spaeter `onBuddyActionCompleted`.
 
 ## Scene Flow v2
 
