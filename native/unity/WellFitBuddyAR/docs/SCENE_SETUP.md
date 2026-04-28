@@ -4,6 +4,32 @@
 
 `WellFitBuddyAR`
 
+## Vorab: Scripts kopieren und Event Contract Audit bestehen
+
+Vor dem Aufbau oder der Validierung der Szene muessen die aktuellen C#-Vorlagen nach Unity kopiert werden.
+
+macOS/Linux/Git Bash:
+
+```bash
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.sh
+```
+
+Windows PowerShell:
+
+```powershell
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.ps1
+```
+
+Pflicht-Erfolgsmeldung:
+
+```txt
+Event contract audit passed
+```
+
+Wenn der Audit alte Eventnamen meldet, zuerst die gemeldeten Script-Kopien oder Vorlagen bereinigen. Unity erst danach kompilieren lassen.
+
 ## Required GameObjects
 
 ### AR Foundation Core
@@ -51,11 +77,12 @@ Referenzen:
 - BuddyAnchorController -> Buddy Prefab
 - BuddyAnchorController -> WellFitNativeBridge
 - BuddyKiGuideController -> WellFitNativeBridge
+- BuddyKiGuideController -> BuddyDialogueEventBridge
 - BuddyDialogueEventBridge -> WellFitNativeBridge
 
 ## Buddy Prefab
 
-Empfohlene Komponenten:
+Empfohlene Komponenten auf `BuddyPlaceholder`:
 
 - BuddyController
 - BuddyLookAtCamera
@@ -68,6 +95,22 @@ Optionale Kinder:
 - Shadow Blob
 - Hint Pointer
 
+Wichtige Inspector-Hinweise fuer den ersten Placeholder-Test:
+
+```txt
+BuddyController -> Animator: optional leer lassen
+BuddyLookAtCamera -> Camera Transform: AR Camera setzen oder Camera.main verwenden
+BuddyNavigationController -> Buddy Root: BuddyPlaceholder Root oder leer fuer Auto-Fallback
+BuddyAbilityController -> Navigation Controller: BuddyNavigationController setzen
+BuddyAbilityController -> Bridge: optional leer fuer ersten reinen ARCore-Test
+```
+
+Details siehe:
+
+```txt
+docs/BUDDY_PLACEHOLDER_PREFAB.md
+```
+
 ## Scene Flow v1
 
 1. App startet AR Session.
@@ -78,7 +121,7 @@ Optionale Kinder:
 6. AR Raycast Manager gibt Weltposition zurueck.
 7. AR Anchor Manager erstellt Anchor.
 8. Buddy wird am Anchor platziert.
-9. Buddy startet idle animation.
+9. Buddy startet idle animation, falls Animator vorhanden ist.
 10. Buddy richtet Blick grob zur Kamera.
 11. WellFitNativeBridge meldet `onBuddyPlaced`.
 12. Nutzer tippt erneut auf erkannte Flaeche.
@@ -104,6 +147,7 @@ Siehe:
 
 ```txt
 docs/AR_EVENT_CONTRACT.md
+docs/UNITY_EVENT_CONTRACT_AUDIT.md
 ```
 
 Wichtige Events:
@@ -116,9 +160,12 @@ Wichtige Events:
 - onBuddyActionCompleted
 - onBuddyActionRejected
 - onBuddyReachedSurface
+- onBuddyContextUpdated
 - onBuddyDialogueShown
+- onBuddyDialogueCompleted
 - onBuddyMissionSuggested
 - onBuddyCapabilityNeeded
+- onBuddyMissionProgress
 - onArHintMarkerCreated
 - onArHintMarkerFocused
 - onArHintMarkerResolved
