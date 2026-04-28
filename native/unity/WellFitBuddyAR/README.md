@@ -45,8 +45,6 @@ Kurzfassung:
 
 ## Empfohlene Unity-Version
 
-Unity 2022.3 LTS oder Unity 6 LTS pruefen.
-
 Erste stabile Empfehlung fuer Projektstart: Unity 2022.3 LTS, weil LTS, AR Foundation und Mobile-Builds gut dokumentiert und breit erprobt sind.
 
 ## Warum dieses Verzeichnis noch kein vollstaendiges Unity-Projekt ist
@@ -97,6 +95,23 @@ Diese Commands sind Einstiegspunkte fuer die spaetere Android-/iOS-/App-Bridge. 
 10. Buddy Placeholder anlegen.
 11. C#-Vorlagen aus `Scripts/*.cs.txt` nach `Assets/Scripts/*.cs` kopieren.
 12. Ersten Android ARCore Build testen.
+
+## Erster Handy-Test – kompakte Testkarte
+
+Siehe:
+
+```txt
+docs/FIRST_PHONE_AR_BUDDY_TEST.md
+```
+
+Diese Datei ist die kurze, operative Checkliste fuer den ersten echten Handy-Test:
+
+```txt
+Tap 1 -> Buddy wird auf realer ARCore-Plane platziert
+Kameraschwenk -> Buddy bleibt raumfest
+Tap 2 -> Buddy bewegt sich zu einem zweiten realen Plane-Punkt
+Unity -> meldet nur AR-Events, keine Rewards/XP/Punkte/Completion
+```
 
 ## Erstes Android-ARCore-Runbook
 
