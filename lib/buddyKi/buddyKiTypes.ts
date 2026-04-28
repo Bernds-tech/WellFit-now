@@ -45,6 +45,12 @@ export type BuddyKiOption = {
   payload?: Record<string, string | number | boolean | undefined>;
 };
 
+/**
+ * Buddy KI is advisory only.
+ * It may suggest missions, hints, dialogue, detours, or progress language,
+ * but it must never authorize rewards, points, tokens, trading, medical diagnosis,
+ * or final mission completion from the client/mobile layer.
+ */
 export type BuddyKiResponse = {
   providerMode: BuddyKiProviderMode;
   intent: BuddyKiIntent;
