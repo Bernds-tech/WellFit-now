@@ -6,6 +6,7 @@ import type { BuddyKiContext, BuddyKiIntent, BuddyKiOption, BuddyKiResponse } fr
 import {
   createNativeArBuddyEvent,
   type NativeArBuddyEvent,
+  type NativeArBuddyEventPayload,
   type NativeArBuddyEventType,
 } from "@/lib/nativeAr/nativeArTypes";
 import {
@@ -80,20 +81,19 @@ function mapBuddyKiIntentToEventType(intent: BuddyKiIntent): NativeArBuddyEventT
 }
 
 function createEventFromBuddyKiOption(option: BuddyKiOption, currentEvent: NativeArBuddyEvent | null) {
-  const payload = {
+  const optionPayload: NativeArBuddyEventPayload = {
     ...(option.payload || {}),
     status: "buddy-ki-option-selected",
-    optionId: option.id,
-    label: option.label,
+    message: option.label,
   };
 
   return createNativeArBuddyEvent({
     eventType: mapBuddyKiIntentToEventType(option.intent),
-    missionId: typeof payload.missionId === "string" ? payload.missionId : currentEvent?.missionId,
-    markerId: typeof payload.markerId === "string" ? payload.markerId : currentEvent?.markerId,
-    capabilityId: typeof payload.capabilityId === "string" ? payload.capabilityId : currentEvent?.capabilityId,
-    itemId: typeof payload.itemId === "string" ? payload.itemId : currentEvent?.itemId,
-    payload,
+    missionId: typeof optionPayload.missionId === "string" ? optionPayload.missionId : currentEvent?.missionId,
+    markerId: typeof optionPayload.markerId === "string" ? optionPayload.markerId : currentEvent?.markerId,
+    capabilityId: typeof optionPayload.capabilityId === "string" ? optionPayload.capabilityId : currentEvent?.capabilityId,
+    itemId: typeof optionPayload.itemId === "string" ? optionPayload.itemId : currentEvent?.itemId,
+    payload: optionPayload,
   });
 }
 
