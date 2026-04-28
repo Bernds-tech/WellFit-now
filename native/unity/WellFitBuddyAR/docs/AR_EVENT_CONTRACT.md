@@ -1,6 +1,6 @@
 # WellFitBuddyAR – AR Event Contract
 
-Stand: 2026-04-27
+Stand: 2026-04-28
 
 ## Ziel
 
@@ -35,7 +35,7 @@ Jedes Event soll langfristig diese Grundstruktur haben:
 ```json
 {
   "eventId": "evt_...",
-  "eventType": "buddyPlaced",
+  "eventType": "onBuddyPlaced",
   "userId": "optional-client-context",
   "buddyId": "default",
   "missionId": "optional",
@@ -48,6 +48,31 @@ Jedes Event soll langfristig diese Grundstruktur haben:
   "clientTimestamp": "optional",
   "payload": {}
 }
+```
+
+## Allowlist v1
+
+Fuer den ersten Unity-/ARCore-Build sind diese Eventnamen erlaubt:
+
+```txt
+onArReady
+onPlaneDetected
+onAnchorCreated
+onBuddyPlaced
+onBuddyActionStarted
+onBuddyActionCompleted
+onBuddyActionRejected
+onBuddyReachedSurface
+onBuddyContextUpdated
+onBuddyDialogueShown
+onBuddyDialogueCompleted
+onBuddyMissionSuggested
+onBuddyCapabilityNeeded
+onBuddyMissionProgress
+onArHintMarkerCreated
+onArHintMarkerFocused
+onArHintMarkerResolved
+onArError
 ```
 
 ## Core Events
@@ -159,6 +184,24 @@ Payload:
 }
 ```
 
+### onBuddyContextUpdated
+
+Unity meldet, dass sich der Buddy-/Guide-Kontext geaendert hat, zum Beispiel Mission, Empfehlung, Rewardstatus oder Stimmung.
+
+Payload:
+
+```json
+{
+  "status": "guide-context-updated",
+  "missionId": "demo_tree_clue_001",
+  "missionType": "arRiddle",
+  "recommendation": "demo_tree_clue_001",
+  "ageBand": "adult",
+  "rewardStatus": "preview-only",
+  "mood": "Curious"
+}
+```
+
 ### onBuddyDialogueShown
 
 Buddy zeigt oder triggert einen Dialog.
@@ -173,7 +216,7 @@ Payload:
 
 ### onBuddyDialogueCompleted
 
-Nutzer oder App hat Dialog abgeschlossen.
+Nutzer oder App hat Dialog abgeschlossen. Ein geleerter Dialog kann ebenfalls hierüber mit Status `cleared` gemeldet werden.
 
 Payload:
 
@@ -206,6 +249,19 @@ Payload:
 {
   "capabilityId": "climbUp",
   "reason": "capability-needed"
+}
+```
+
+### onBuddyMissionProgress
+
+Unity meldet einen nicht-autorisierenden Fortschrittsstatus. Dieser Status ist nur Evidence/Signal und keine Completion- oder Reward-Freigabe.
+
+Payload:
+
+```json
+{
+  "missionId": "demo_tree_clue_001",
+  "progressStatus": "needs-help"
 }
 ```
 
