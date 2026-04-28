@@ -122,7 +122,11 @@ async function requestOpenAiChat(intent: BuddyKiIntent, context: BuddyKiContext)
     throw new Error("openai-api-key-missing");
   }
 
-  const model = process.env.BUDDY_KI_MODEL || "gpt-4o-mini";
+  const model = process.env.BUDDY_KI_MODEL;
+  if (!model) {
+    throw new Error("buddy-ki-model-missing");
+  }
+
   const messages: OpenAiChatMessage[] = [
     { role: "system", content: buildSystemPrompt() },
     { role: "user", content: buildUserPrompt(intent, context) },
