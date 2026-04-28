@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 7.1 – AKTIVER FOKUS KI-BUDDY / UNITY AR FOUNDATION
+Version: 7.2 – AKTIVER FOKUS KI-BUDDY / UNITY AR FOUNDATION / PUNKTEOEKONOMIE VOR BLOCKCHAIN
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -23,6 +23,10 @@ AKTUELLER FOKUS:
 [x] NFC-Tags sind reale physische Trigger, keine NFTs.
 [x] NFTs sind spätere digitale Besitzobjekte/Sammlerobjekte/besondere Ausrüstung.
 [x] KI erzeugt Vorschläge; Backend entscheidet Preise, Rewards, Freischaltungen, Token-/WFT-Bezüge und Missbrauchsschutz.
+[x] Neue Master-Regel: WellFit muss zuerst als internes Punkte-, XP-, Reward- und Economy-System funktionieren.
+[x] Die geplante 25-Mrd.-WFT-Logik wird vorerst als interne Punkte-/Economy-Simulation behandelt.
+[x] Blockchain, echte NFTs und WFT werden erst nach stabiler Alpha-/Beta-/Testphase ergänzt.
+[x] Verbindliche Detaildatei: `todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN`.
 
 ============================================================
 STUFE 1 – ABGESCHLOSSEN
@@ -49,6 +53,7 @@ WICHTIGE SICHERHEITSGARANTIE:
 [x] Keine finale Mission-Completion-Autorisierung.
 [!] RewardPreview, EvidenceReview, PatternReview und CooldownReview bleiben Simulation/Audit/Guard-Logik.
 [!] Mobile-App bleibt frei von Token-, Presale-, Trading- und NFT-Marktplatz-Funktionen.
+[!] Punkteoekonomie zuerst: echte Rewards werden erst nach serverseitigem Punkte-Ledger, Audit-Events, Caps und Economy-Balancing produktiv freigegeben.
 
 ============================================================
 PRIO 1 – KI-BUDDY / UNITY AR FOUNDATION
@@ -136,7 +141,10 @@ STATUS: [ ] Vorbereitet / nach KI-Buddy-Grundstruktur weiterführen
 [ ] `validateMissionCompletionWithItem` produktionsreif vorbereiten.
 [ ] `grantItemOrCapability` produktionsreif vorbereiten.
 [ ] `missionRewardEvents` als echte Audit-Events schreiben.
+[ ] Serverseitiges Punkte-Ledger als Pflichtarchitektur vorbereiten.
 [ ] Server-Transaktionen für interne XP/Punkte/Streaks vorbereiten.
+[ ] Punkte-Ausgaben, Sinks, Gebühren, Jackpot und Burn-Äquivalente intern simulieren.
+[ ] 25-Mrd.-Supply-/Reserve-/Emission-Logik als interne Simulation vorbereiten.
 [ ] UserDailyCap gegen Nutzerhistorie prüfen.
 [ ] MissionTypeCap gegen Missionstyp und Kontext prüfen.
 [ ] Completion nur bei ausreichender Evidence erlauben.
@@ -157,3 +165,4 @@ DAUERHAFTE HINWEISE
 [!] Nicht `next start` starten, solange `next build` noch läuft oder `.next` unvollständig ist.
 [!] Mobile-App darf keine App-Store-kritischen Token-/NFT-/Trading-Funktionen enthalten.
 [!] Clientseitige Tagesmissions-Rewards sind MVP/UI-Logik, nicht langfristige Autorität.
+[!] WellFit bleibt bis nach stabiler Beta/Testphase internes Punkte-/XP-System; Blockchain, WFT und NFTs kommen danach als separate Schicht.
