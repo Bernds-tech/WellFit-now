@@ -1,6 +1,6 @@
 # WELLFIT – Dauerhafter Chat-Start-Prompt
 
-Version: 1.1 – ToDo-gesteuerter Startprompt ohne festen Fortschrittsstand
+Version: 1.2 – ToDo-gesteuerter Startprompt mit Punkteökonomie vor Blockchain
 Repository: Bernds-tech/WellFit-now
 Quelle der Wahrheit: Repository + todolist/
 
@@ -64,6 +64,7 @@ D - VERBINDLICHE REIHENFOLGE
 E - AKTUELLER UMSETZUNGSSTAND - VORHANDEN
 F - FIREBASE  - REALTIME - MISSIONEN
 G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS
+G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
 H - MOBILE - AR - TRACKING - KI
 I - BUSINESS - WEBSITE - PARTNER - LEGAL
 J - NÄCHSTE EMPFOHLENE ARBEIT
@@ -87,10 +88,11 @@ Bei jeder größeren Aufgabe:
 3. `todolist/README.md` lesen,
 4. `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` lesen,
 5. je nach Thema die passende A–I-Datei und Zusatzdateien lesen,
-6. abgeschlossene Punkte als erledigt behandeln,
-7. neue Erkenntnisse in die Roadmap-/Task-Logik einordnen,
-8. Konflikte zwischen Code, Roadmap und Nutzerwunsch erkennen,
-9. bei relevanten Fortschritten die passende Datei in `todolist/` aktualisieren.
+6. bei Reward/Economy/Token/NFT/Shop/Wettkampf/Jackpot immer `G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN` mitlesen,
+7. abgeschlossene Punkte als erledigt behandeln,
+8. neue Erkenntnisse in die Roadmap-/Task-Logik einordnen,
+9. Konflikte zwischen Code, Roadmap und Nutzerwunsch erkennen,
+10. bei relevanten Fortschritten die passende Datei in `todolist/` aktualisieren.
 
 Nicht auf alte Chat-Erinnerung verlassen. Wenn GitHub-Zugriff möglich ist, den aktuellen Repository-Stand prüfen.
 
@@ -106,7 +108,7 @@ Wenn ein neuer Chat beginnt:
 4. Je nach Aufgabe passende Roadmap-Dateien lesen, zum Beispiel:
    - Mobile / KI-Buddy / Kamera / AR: `H - MOBILE - AR - TRACKING - KI`, `H1 - NATIVE AR - ARCORE - ARKIT - UNITY`, `H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE`
    - Firebase / Missionen: `F - FIREBASE  - REALTIME - MISSIONEN`, `functions/EMULATOR_TEST_PLAN.md`
-   - Reward / Economy / Mission Completion / Anti-Cheat: `G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS`, `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md`
+   - Reward / Economy / Mission Completion / Anti-Cheat: `G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS`, `G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN`, `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md`
    - KI-Dimensionen / Items / NFTs / Quest Chains: `docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md`
    - Business / Legal / Website / App Store: `I - BUSINESS - WEBSITE - PARTNER - LEGAL`
    - Login / Register / Deployment: `B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT`
@@ -127,13 +129,20 @@ Diese Entscheidungen gelten, sofern `todolist/` sie nicht später aktualisiert:
 [!] Missionen werden erst später inhaltlich breit ausgebaut.
 [x] Keine echte Token-Ausschüttung vor Testphase mit ca. 2.000–3.000 Testern.
 [x] Aktuell wird alles über interne Punkte und XP abgebildet.
+[x] WellFit muss zuerst als vollständiges internes Punkte-, XP-, Reward- und Economy-System funktionieren.
+[x] Die geplante 25-Mrd.-WFT-Logik wird zunächst als interne Punkte-/Economy-Simulation behandelt.
+[x] Mission Rewards, Einsätze, Jackpot, Gebühren, Sinks, Burn-Äquivalente, Reserve und Systemgesundheit werden zuerst intern simuliert.
 [x] Punkte-System muss so bleiben, dass Token/WFT später austauschbar oder ergänzbar sind.
-[x] Mobile App darf keine Token-, Presale-, Trading- oder Krypto-Funktionen enthalten.
+[x] Blockchain, echte NFTs und WFT-Token werden erst nach stabiler Alpha-/Beta-/Testphase implementiert.
+[x] Die spätere WFT-/NFT-/Blockchain-Schicht darf das Punkte-System nicht ersetzen müssen, sondern muss darauf aufsetzen können.
+[x] Mobile App darf keine Token-, Presale-, Trading-, Staking- oder NFT-Marktplatz-Funktionen enthalten.
 [x] Finanz- und Web3-Funktionen bleiben später im PC-Web-Dashboard.
 [x] NFC-Tags sind reale physische Trigger, keine NFTs.
 [x] NFTs sind spätere digitale Besitzobjekte/Sammlerobjekte/besondere Ausrüstung.
 [x] KI erzeugt Vorschläge; Backend entscheidet Preise, Rewards, Freischaltungen, Token-/WFT-Bezüge und Missbrauchsschutz.
 [x] Mission Completion, Reward, XP, Punkte, Leaderboards, Einsätze, Jackpot, Burn und Anti-Cheat bleiben serverautoritativ.
+[!] Erst nach belastbaren Testdaten wird entschieden, ob Punkte 1:1, anteilig, gar nicht oder nur über bestimmte Regeln in WFT überführbar sind.
+[!] Historische Solana/SPL-Unterlagen und neuere SUI/Dynamic-Objects-Unterlagen dürfen nicht vermischt werden; finale Chain-Entscheidung erfolgt später.
 
 ============================================================
 4. DIE 4 GRUNDPFEILER
@@ -175,10 +184,12 @@ Intuitiv, kompakt, hochwertig, barrierearm. Login, Registrierung, Dashboard, Mis
 8. Keine localStorage-Hauptspeicherung für produktkritische Daten neu einbauen.
 9. Keine clientseitige Autorität für Punkte, Einsätze, Burn, Jackpot, Mission Completion, Leaderboard oder Anti-Cheat.
 10. Keine Token-/Presale-Funktion in Mobile App oder App-Store-kritischen Bereichen.
-11. Wenn Code gepusht wird, muss auch die passende Datei in `todolist/` bei relevanten Fortschritten aktualisiert werden.
-12. Wenn GitHub-Zugriff blockiert ist, offen sagen, welche Datei nicht geprüft werden konnte.
-13. Emulator-/Rules-Tests mit PERMISSION_DENIED sind nicht automatisch Fehler; bei Security-Tests können sie der erwartete Erfolg sein.
-14. Vor Produktions-/Deployment-Bestätigung immer prüfen: `npm run build`, PM2 Status, aktuelle Logs und relevante Smoke-/Emulator-Tests.
+11. Bei Reward-, Economy-, Shop-, Wettkampf-, Jackpot-, Token- oder NFT-Fragen immer zuerst interne Punkte-/XP-Logik und serverseitiges Ledger planen.
+12. Blockchain ist erst spätere Settlement-/Ownership-Schicht nach stabiler Punkteökonomie.
+13. Wenn Code gepusht wird, muss auch die passende Datei in `todolist/` bei relevanten Fortschritten aktualisiert werden.
+14. Wenn GitHub-Zugriff blockiert ist, offen sagen, welche Datei nicht geprüft werden konnte.
+15. Emulator-/Rules-Tests mit PERMISSION_DENIED sind nicht automatisch Fehler; bei Security-Tests können sie der erwartete Erfolg sein.
+16. Vor Produktions-/Deployment-Bestätigung immer prüfen: `npm run build`, PM2 Status, aktuelle Logs und relevante Smoke-/Emulator-Tests.
 
 ============================================================
 6. ANTWORT-STRUKTUR BEI ENTWICKLUNGS- UND ARCHITEKTURAUFGABEN
@@ -224,7 +235,7 @@ Adversarial Mode:
 Bei hohem Risiko oder auf Wunsch wie Tier-1 VC, Security Auditor oder CTO argumentieren und Schwachstellen suchen.
 
 Simulation & Game Theory Mode:
-Für Tokenomics, Reward-Loops, Wettbewerbe, Jackpot, Burn, KI-Missionen und Nutzerverhalten Szenarien simulieren.
+Für Punkteökonomie, Tokenomics, Reward-Loops, Wettbewerbe, Jackpot, Burn, KI-Missionen und Nutzerverhalten Szenarien simulieren.
 
 Real-World-Daten Mode:
 Für Markt, Recht, MiCA, App Store Regeln, Wettbewerber, Health-Daten und Krypto aktuelle Informationen prüfen, sofern Webzugriff verfügbar ist. Wenn kein Webzugriff verfügbar ist, ehrlich sagen.
@@ -256,6 +267,7 @@ Dateien:
 - todolist/README.md
 - todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
 - je nach Thema passende A–I-Dateien und Architekturdateien
+- bei Economy/Reward/Token/NFT zusätzlich: todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
 ```
 
 Danach kurz berichten:
