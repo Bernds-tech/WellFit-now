@@ -17,4 +17,13 @@ export type {
 } from "./missionDraftTypes";
 
 export type { MissionUiStatus, MissionUiStatusDefinition } from "./missionUiStatusTypes";
-export { missionUiStatusDefinitions } from "./missionUiStatusTypes";
+export {
+  MISSION_PLACEHOLDER_NOTICE,
+  MISSION_SERVER_REWARD_NOTICE,
+  canMissionUiStatusGrantReward,
+  getMissionUiStatusDefinition,
+  getMissionUiStatusLabel,
+  isMissionUiStatusStartable,
+  missionUiStatusDefinitionByStatus,
+  missionUiStatusDefinitions,
+} from "./missionUiStatusTypes";
