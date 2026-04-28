@@ -39,3 +39,31 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Unity generated files
+/native/unity/**/[Ll]ibrary/
+/native/unity/**/[Tt]emp/
+/native/unity/**/[Oo]bj/
+/native/unity/**/[Bb]uild/
+/native/unity/**/[Bb]uilds/
+/native/unity/**/[Ll]ogs/
+/native/unity/**/[Uu]ser[Ss]ettings/
+/native/unity/**/*.csproj
+/native/unity/**/*.sln
+/native/unity/**/*.user
+/native/unity/**/*.pidb
+/native/unity/**/*.booproj
+/native/unity/**/*.svd
+/native/unity/**/*.pdb
+/native/unity/**/*.mdb
+/native/unity/**/*.opendb
+/native/unity/**/*.VC.db
+/native/unity/**/ExportedObj/
+/native/unity/**/.consulo/
+/native/unity/**/.vs/
+/native/unity/**/.gradle/
+/native/unity/**/gradleOut/
+/native/unity/**/captures/
+/native/unity/**/*.apk
+/native/unity/**/*.aab
+/native/unity/**/*.unitypackage
