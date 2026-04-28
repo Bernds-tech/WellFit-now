@@ -16,6 +16,8 @@ import {
 } from "@/lib/nativeAr/nativeArBridge";
 import { createBuddyGuideCard, createBuddyGuideOptionEvent } from "../lib/buddyGuideFlow";
 
+type BuddyKiResponseWithMeta = BuddyKiResponse & { meta?: { fallbackReason?: string } };
+
 function mapEventToBuddyKiIntent(event: NativeArBuddyEvent | null, cameraActive: boolean): BuddyKiIntent {
   if (!cameraActive) return "welcome";
   if (!event) return "welcome";
@@ -97,9 +99,18 @@ function createEventFromBuddyKiOption(option: BuddyKiOption, currentEvent: Nativ
   });
 }
 
+function getProviderLabel(response: BuddyKiResponseWithMeta | null, loading: boolean) {
+  if (loading) return "Buddy denkt ...";
+  if (!response) return "Provider: lokaler Fallback";
+  const reason = response.meta?.fallbackReason;
+  if (reason === "model-provider-disabled") return "Provider: Backend Rules";
+  if (reason === "model-provider-error") return "Provider: Backend Rules nach Fehler";
+  return `Provider: ${response.providerMode}`;
+}
+
 export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: boolean }) {
   const [events, setEvents] = useState<NativeArBuddyEvent[]>([]);
-  const [buddyKiResponse, setBuddyKiResponse] = useState<BuddyKiResponse | null>(null);
+  const [buddyKiResponse, setBuddyKiResponse] = useState<BuddyKiResponseWithMeta | null>(null);
   const [isBuddyKiLoading, setIsBuddyKiLoading] = useState(false);
   const latestEvent = events[0] ?? null;
 
@@ -111,10 +122,26 @@ export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: bool
     });
   }, []);
 
+  const loadBuddyKiResponse = async (event: NativeArBuddyEvent | null = latestEvent) => {
+    setIsBuddyKiLoading(true);
+    const intent = mapEventToBuddyKiIntent(event, cameraActive);
+    const context = buildBuddyKiContext(event, cameraActive);
+
+    try {
+      const response = await buddyKiRemoteProvider.generateResponse(intent, context);
+      setBuddyKiResponse(response as BuddyKiResponseWithMeta);
+    } catch (error) {
+      console.warn("Buddy KI panel fallback to local guide flow", error);
+      setBuddyKiResponse(null);
+    } finally {
+      setIsBuddyKiLoading(false);
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
 
-    async function loadBuddyKiResponse() {
+    async function loadInitialBuddyKiResponse() {
       setIsBuddyKiLoading(true);
       const intent = mapEventToBuddyKiIntent(latestEvent, cameraActive);
       const context = buildBuddyKiContext(latestEvent, cameraActive);
@@ -122,7 +149,7 @@ export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: bool
       try {
         const response = await buddyKiRemoteProvider.generateResponse(intent, context);
         if (!cancelled) {
-          setBuddyKiResponse(response);
+          setBuddyKiResponse(response as BuddyKiResponseWithMeta);
         }
       } catch (error) {
         console.warn("Buddy KI panel fallback to local guide flow", error);
@@ -136,7 +163,7 @@ export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: bool
       }
     }
 
-    loadBuddyKiResponse();
+    loadInitialBuddyKiResponse();
 
     return () => {
       cancelled = true;
@@ -146,7 +173,7 @@ export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: bool
   const guideCard = useMemo(() => createBuddyGuideCard(latestEvent, cameraActive), [latestEvent, cameraActive]);
   const displayTitle = buddyKiResponse?.title || guideCard.title;
   const displayMessage = buddyKiResponse?.message || guideCard.description;
-  const providerMode = buddyKiResponse?.providerMode || "rules";
+  const providerLabel = getProviderLabel(buddyKiResponse, isBuddyKiLoading);
 
   const handleLocalOptionClick = async (option: Parameters<typeof createBuddyGuideOptionEvent>[0]) => {
     const event = createBuddyGuideOptionEvent(option, latestEvent);
@@ -159,7 +186,7 @@ export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: bool
 
     const context = buildBuddyKiContext(event, cameraActive);
     const response = await buddyKiRemoteProvider.generateResponse(option.intent, context);
-    setBuddyKiResponse(response);
+    setBuddyKiResponse(response as BuddyKiResponseWithMeta);
   };
 
   const emitDemoEvent = async (eventType: NativeArBuddyEventType) => {
@@ -179,8 +206,11 @@ export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: bool
           <h2 className="mt-1 text-lg font-black text-white">{displayTitle}</h2>
           <p className="mt-1 text-sm leading-relaxed text-cyan-50/80">{displayMessage}</p>
           <p className="mt-2 text-[10px] font-black uppercase tracking-[0.18em] text-cyan-100/50">
-            {isBuddyKiLoading ? "Buddy denkt ..." : `Provider: ${providerMode}`}
+            {providerLabel}
           </p>
+          {buddyKiResponse?.meta?.fallbackReason && (
+            <p className="mt-1 text-[10px] text-cyan-100/45">Fallback: {buddyKiResponse.meta.fallbackReason}</p>
+          )}
         </div>
         <div className="rounded-2xl bg-white/10 px-3 py-2 text-xl">🐉</div>
       </div>
@@ -213,6 +243,7 @@ export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: bool
         <button onClick={() => emitDemoEvent("onBuddyDialogueShown")} className="rounded-full bg-white/10 px-3 py-2 text-xs text-white">Dialog</button>
         <button onClick={() => emitDemoEvent("onBuddyMissionSuggested")} className="rounded-full bg-white/10 px-3 py-2 text-xs text-white">Mission</button>
         <button onClick={() => emitDemoEvent("onBuddyCapabilityNeeded")} className="rounded-full bg-white/10 px-3 py-2 text-xs text-white">Item fehlt</button>
+        <button onClick={() => loadBuddyKiResponse()} className="rounded-full bg-cyan-300/20 px-3 py-2 text-xs font-black text-cyan-50">Backend neu laden</button>
       </div>
     </section>
   );
