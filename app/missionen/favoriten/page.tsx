@@ -1,48 +1,53 @@
-"use client";
+import PreparedMissionPage, { type PreparedMissionCard } from "../components/PreparedMissionPage";
 
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-
-type FavoriteMission = { id: number; title: string; description: string; rewardLabel: string; icon: string; type: "daily" | "weekly"; };
-const dailyMissionsData: FavoriteMission[] = [
-  { id: 1, title: "Tägliche Bewegungsmission", description: "Erreiche 10.000 Schritte", rewardLabel: "+10 WFT", icon: "👟", type: "daily" },
-  { id: 2, title: "Tägliche Fitnessmission", description: "Absolviere 20 Minuten Training", rewardLabel: "+15 WFT", icon: "🏋️", type: "daily" },
-  { id: 3, title: "Tägliche Wissensmission", description: "Löse 3 Quizfragen", rewardLabel: "+10 WFT", icon: "🧠", type: "daily" },
-];
-const weeklyMissionsData: FavoriteMission[] = [
-  { id: 1, title: "Wöchentliche Bewegungsmission", description: "Sammle 50.000 Schritte", rewardLabel: "+25 WFT", icon: "👟", type: "weekly" },
-  { id: 2, title: "Wöchentliche Fitnessmission", description: "3× Ganzkörper-Training pro Woche", rewardLabel: "+1 Wochen-NFT", icon: "🏃", type: "weekly" },
-  { id: 3, title: "Wöchentliche Wissensmission", description: "Schließe 5 Lernmodule ab", rewardLabel: "+25 WFT", icon: "🧠", type: "weekly" },
+const favoriteCards: PreparedMissionCard[] = [
+  {
+    id: "favorites-main",
+    title: "Gemerkte Hauptmissionen",
+    description: "Vorbereiteter Bereich fuer favorisierte Tagesmissionen, Wochenmissionen, Abenteuer, Challenges und Wettkaempfe.",
+    icon: "⭐",
+    categoryLabel: "favoriten · Anzeige",
+    status: "placeholder",
+    notes: [
+      "Favoriten sind nur eine Merkliste und keine Mission-Freigabe.",
+      "Startbare Eintraege brauchen spaeter approved Status und Serverpruefung.",
+    ],
+  },
+  {
+    id: "favorites-drafts",
+    title: "Gespeicherte KI-Vorschlaege",
+    description: "Vorbereiteter Bereich fuer Buddy-Vorschlaege, die spaeter nach Pruefung gemerkt werden koennen.",
+    icon: "🤖",
+    categoryLabel: "favoriten · KI",
+    status: "placeholder",
+    notes: [
+      "KI-Vorschlaege sind keine fertigen Missionen.",
+      "Nicht freigegebene Vorschlaege duerfen nicht als startbare Favoriten erscheinen.",
+    ],
+  },
+  {
+    id: "favorites-sidequests",
+    title: "Wiederholbare Side Quests",
+    description: "Vorbereiteter Bereich fuer AR-Buddy-Nebenmissionen, falls daraus spaeter wiederholbare Lern- oder Rallye-Aufgaben entstehen.",
+    icon: "🧭",
+    categoryLabel: "favoriten · Side Quest",
+    status: "placeholder",
+    notes: [
+      "AR-Buddy-Nebenmissionen zaehlen nicht automatisch als Tages- oder Abenteuer-Mission.",
+      "Favoriten bleiben Anzeige und Merkliste.",
+    ],
+  },
 ];
 
 export default function FavoritenPage() {
-  const [brightness, setBrightness] = useState(100);
-  const [dailyFavoriteIds, setDailyFavoriteIds] = useState<number[]>([]);
-  const [weeklyFavoriteIds, setWeeklyFavoriteIds] = useState<number[]>([]);
-  useEffect(() => { const savedDailyFavorites = localStorage.getItem("wellfit-favorite-daily-missions"); const savedWeeklyFavorites = localStorage.getItem("wellfit-favorite-weekly-missions"); if (savedDailyFavorites) { try { setDailyFavoriteIds(JSON.parse(savedDailyFavorites)); } catch (error) { console.error("Fehler beim Laden der Tages-Favoriten", error); } } if (savedWeeklyFavorites) { try { setWeeklyFavoriteIds(JSON.parse(savedWeeklyFavorites)); } catch (error) { console.error("Fehler beim Laden der Wochen-Favoriten", error); } } }, []);
-  const favoriteDailyMissions = useMemo(() => dailyMissionsData.filter((mission) => dailyFavoriteIds.includes(mission.id)), [dailyFavoriteIds]);
-  const favoriteWeeklyMissions = useMemo(() => weeklyMissionsData.filter((mission) => weeklyFavoriteIds.includes(mission.id)), [weeklyFavoriteIds]);
-  const allFavorites = [...favoriteDailyMissions, ...favoriteWeeklyMissions];
-
   return (
-    <main className="h-screen w-screen overflow-hidden text-white" style={{ background: `linear-gradient(to bottom right, rgba(0,170,190,${brightness / 100}), rgba(0,80,90,1))` }}>
-      <div className="flex h-full">
-        <aside className="flex h-full w-[250px] flex-col border-r border-cyan-400/10 bg-[#042f35]/95 px-5 py-6">
-          <div className="mb-8 flex justify-center"><Image src="/logo.png" alt="WellFit Logo" width={150} height={150} className="object-contain" priority /></div>
-          <nav className="space-y-2 text-[14px]"><Link href="/dashboard" className="block text-white/80">Dashboard</Link><div className="font-bold text-orange-400">Missionen</div><div className="text-white/80">Mein KI-Buddy</div><div className="text-white/80">Marktplatz</div><div className="text-white/80">Leaderboard</div><div className="text-white/80">Punkte-Shop</div><div className="text-white/80">Analytics & Stats</div></nav>
-          <div className="mt-5 border-t border-cyan-400/10 pt-4"><div className="mb-2 whitespace-nowrap text-base font-bold text-green-400">App aufs Handy laden</div><label className="mb-1 block text-lg">Helligkeit</label><input type="range" min="5" max="100" value={brightness} onChange={(e) => setBrightness(Number(e.target.value))} className="w-full" /><div className="mt-1 text-right text-sm text-white/70">{brightness}%</div></div>
-          <div className="mt-auto pt-4"><div className="space-y-2 text-[14px]"><Link href="/einstellungen" className="block text-white/80">Einstellungen</Link><Link href="/datenschutz" className="block text-white/80">Datenschutz</Link><Link href="/agb" className="block text-white/80">AGB</Link><Link href="/impressum" className="block text-white/80">Impressum</Link><Link href="/faq" className="block text-white/80">FAQ</Link><Link href="/hilfe" className="block text-white/80">Hilfe</Link></div><div className="mt-4 border-t border-cyan-400/10 pt-3"><button className="text-[14px] font-bold text-red-400 hover:text-red-300">Abmelden</button></div></div>
-        </aside>
-        <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
-          <div className="mb-4 flex justify-between"><div><h1 className="text-5xl font-extrabold leading-none">Favoriten</h1><p className="mt-1 text-lg text-cyan-100/90">Hier findest du deine markierten Lieblingsmissionen</p></div><div className="flex items-center gap-2"><Link href="/missionen/tagesmissionen" className="rounded-[16px] bg-orange-500 px-5 py-3 text-sm font-bold">Zu Missionen</Link><div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">Meine Auswahl</div></div></div>
-          <div className="mb-4 flex justify-center"><div className="flex items-center gap-5 rounded-full border border-white/10 bg-[#0b6d79]/35 px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm"><Link href="/missionen/tagesmissionen" className="pb-1 text-base text-white/85 hover:text-white">Tagesmissionen</Link><Link href="/missionen/wochenmissionen" className="pb-1 text-base text-white/85 hover:text-white">Wochenmissionen</Link><Link href="/missionen/abenteuer" className="pb-1 text-base text-white/85 hover:text-white">Abenteuer</Link><Link href="/missionen/challenge" className="pb-1 text-base text-white/85 hover:text-white">Challenge</Link><Link href="/missionen/wettkaempfe" className="pb-1 text-base text-white/85 hover:text-white">Wettkämpfe</Link><div className="relative pb-1 text-base font-semibold text-orange-400">Favoriten<span className="absolute left-0 right-0 -bottom-2 h-[2px] rounded-full bg-orange-400" /></div><Link href="/missionen/history" className="pb-1 text-base text-white/85 hover:text-white">History</Link></div></div>
-          <div className="min-h-0 flex-1 overflow-y-auto pb-20 pr-2">
-            {allFavorites.length === 0 ? (<div className="rounded-[22px] bg-[#053841]/90 p-6 text-center shadow-[0_12px_30px_rgba(0,0,0,0.18)]"><div className="text-5xl">⭐</div><h2 className="mt-3 text-3xl font-bold">Noch keine Favoriten</h2><p className="mt-2 text-base text-white/75">Markiere Missionen mit dem Stern, damit sie hier erscheinen.</p><Link href="/missionen/tagesmissionen" className="mt-5 inline-block rounded-xl bg-blue-600 px-5 py-3 text-base font-bold text-white transition hover:bg-blue-700">Zu den Missionen</Link></div>) : (<div className="space-y-5"><div><h2 className="mb-3 text-2xl font-bold text-cyan-300">Tagesmissionen</h2>{favoriteDailyMissions.length === 0 ? (<div className="rounded-[18px] bg-[#053841]/80 p-4 text-base text-white/70">Keine Tagesmissionen als Favorit markiert.</div>) : (<div className="grid grid-cols-3 gap-4">{favoriteDailyMissions.map((mission) => (<div key={`daily-${mission.id}`} className="rounded-[20px] border border-cyan-300/10 bg-[#053841]/90 p-4"><div className="mb-3 flex items-start justify-between"><div className="text-3xl">{mission.icon}</div><div className="text-xl text-yellow-400">★</div></div><h3 className="text-lg font-bold leading-tight text-white">{mission.title}</h3><p className="mt-2 text-sm text-white/80">{mission.description}</p><div className="mt-3 text-sm font-semibold text-yellow-400">{mission.rewardLabel}</div><Link href="/missionen/tagesmissionen" className="mt-4 block w-full rounded-lg border border-yellow-400/40 bg-[#0a3d46] px-3 py-2 text-center text-sm font-bold text-white transition hover:bg-[#0e4c57]">Öffnen</Link></div>))}</div>)}</div><div><h2 className="mb-3 text-2xl font-bold text-cyan-300">Wochenmissionen</h2>{favoriteWeeklyMissions.length === 0 ? (<div className="rounded-[18px] bg-[#053841]/80 p-4 text-base text-white/70">Keine Wochenmissionen als Favorit markiert.</div>) : (<div className="grid grid-cols-3 gap-4">{favoriteWeeklyMissions.map((mission) => (<div key={`weekly-${mission.id}`} className="rounded-[20px] border border-cyan-300/10 bg-[#053841]/90 p-4"><div className="mb-3 flex items-start justify-between"><div className="text-3xl">{mission.icon}</div><div className="text-xl text-yellow-400">★</div></div><h3 className="text-lg font-bold leading-tight text-white">{mission.title}</h3><p className="mt-2 text-sm text-white/80">{mission.description}</p><div className="mt-3 text-sm font-semibold text-yellow-400">{mission.rewardLabel}</div><Link href="/missionen/wochenmissionen" className="mt-4 block w-full rounded-lg border border-yellow-400/40 bg-[#0a3d46] px-3 py-2 text-center text-sm font-bold text-white transition hover:bg-[#0e4c57]">Öffnen</Link></div>))}</div>)}</div></div>)}
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-5 py-3"><div className="flex items-center gap-3"><div className="min-w-[150px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2"><p className="text-[10px] uppercase text-white/50">Favoriten gesamt</p><p className="mt-1 text-sm font-semibold text-white">{allFavorites.length}</p></div><div className="min-w-[150px] rounded-xl border border-yellow-500/60 bg-[#041f24] px-3 py-2 text-center"><p className="text-[10px] uppercase text-white/50">Tagesfavoriten</p><p className="mt-1 text-lg font-bold text-white">{favoriteDailyMissions.length}</p></div><div className="min-w-[150px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2 text-center"><p className="text-[10px] uppercase text-white/50">Wochenfavoriten</p><p className="mt-1 text-lg font-bold text-white">{favoriteWeeklyMissions.length}</p></div></div><div className="flex items-center gap-3 text-xl text-white/80"><span>f</span><span>𝕏</span><span>in</span></div></div>
-        </section>
-      </div>
-    </main>
+    <PreparedMissionPage
+      routeKey="favoriten"
+      title="Favoriten"
+      subtitle="Favoriten sind als sichere Anzeige vorbereitet. Sie merken Missionen oder gepruefte Vorschlaege vor, sind aber keine Quelle fuer Freigaben."
+      cards={favoriteCards}
+      detailTitle="Favoriten als Anzeige"
+      detailBody="Diese Seite ist als Anzeige vorbereitet. Freigaben, Abschluesse und Buchungen folgen spaeter aus dem Serverpfad."
+    />
   );
 }
