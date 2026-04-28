@@ -11,35 +11,103 @@ public enum BuddyGuideMood
 
 public class BuddyKiGuideController : MonoBehaviour
 {
+    [Header("WellFit Bridge")]
     public WellFitNativeBridge bridge;
     public BuddyAbilityController abilityController;
+    public BuddyDialogueEventBridge dialogueBridge;
 
+    [Header("Current Guide Context")]
     public string currentMissionId;
-    public string currentMissionType;
+    public string currentMissionType = "none";
     public string currentRecommendation;
+    public string ageBand = "unknown";
+    public string rewardStatus = "preview-only";
+    public string requiredCapability;
+    public string requiredItemId;
     public BuddyGuideMood currentMood = BuddyGuideMood.Neutral;
 
     public void SetMissionContext(string missionId, string missionType, string recommendation)
     {
         currentMissionId = missionId;
-        currentMissionType = missionType;
+        currentMissionType = string.IsNullOrEmpty(missionType) ? "none" : missionType;
         currentRecommendation = recommendation;
 
         SendGuideEvent("onBuddyContextUpdated", "mission-context-updated");
     }
 
+    public void SetGuideContext(
+        string missionId,
+        string missionType,
+        string recommendation,
+        string userAgeBand,
+        string currentRewardStatus,
+        string capabilityNeeded,
+        string itemIdNeeded,
+        string mood
+    )
+    {
+        currentMissionId = missionId;
+        currentMissionType = string.IsNullOrEmpty(missionType) ? "none" : missionType;
+        currentRecommendation = recommendation;
+        ageBand = string.IsNullOrEmpty(userAgeBand) ? "unknown" : userAgeBand;
+        rewardStatus = string.IsNullOrEmpty(currentRewardStatus) ? "preview-only" : currentRewardStatus;
+        requiredCapability = capabilityNeeded;
+        requiredItemId = itemIdNeeded;
+        currentMood = ParseMood(mood);
+
+        SendGuideEvent("onBuddyGuideContextUpdated", "guide-context-updated");
+    }
+
     public void SuggestNextMission(string missionId, string reason)
     {
         currentRecommendation = missionId;
-        string payload = "{\"missionId\":\"" + missionId + "\",\"reason\":\"" + reason + "\"}";
+        currentMood = BuddyGuideMood.Curious;
+
+        string payload = BuildPayload(
+            "\"suggestedMissionId\":\"" + Escape(missionId) + "\"," +
+            "\"reason\":\"" + Escape(reason) + "\""
+        );
+
         bridge?.SendEventToWellFit("onBuddyMissionSuggested", payload);
+        dialogueBridge?.QueueDialogue("buddy_mission_suggested");
+    }
+
+    public void ExplainCurrentStep(string messageKey)
+    {
+        currentMood = BuddyGuideMood.Helpful;
+        dialogueBridge?.QueueDialogue(string.IsNullOrEmpty(messageKey) ? "buddy_next_step" : messageKey);
+        SendGuideEvent("onBuddyGuideStepExplained", "step-explained");
     }
 
     public void ExplainMissingCapability(string capabilityId)
     {
         currentMood = BuddyGuideMood.Helpful;
-        string payload = "{\"capabilityId\":\"" + capabilityId + "\",\"reason\":\"capability-needed\"}";
+        requiredCapability = capabilityId;
+        requiredItemId = string.Empty;
+
+        string payload = BuildPayload(
+            "\"capabilityId\":\"" + Escape(capabilityId) + "\"," +
+            "\"reason\":\"capability-needed\""
+        );
+
         bridge?.SendEventToWellFit("onBuddyCapabilityNeeded", payload);
+        dialogueBridge?.QueueDialogue("buddy_capability_needed");
+    }
+
+    public void RequestCapability(string capabilityId, string itemId)
+    {
+        currentMood = BuddyGuideMood.Helpful;
+        requiredCapability = capabilityId;
+        requiredItemId = itemId;
+
+        string payload = BuildPayload(
+            "\"capabilityId\":\"" + Escape(capabilityId) + "\"," +
+            "\"itemId\":\"" + Escape(itemId) + "\"," +
+            "\"reason\":\"capability-or-item-needed\""
+        );
+
+        bridge?.SendEventToWellFit("onBuddyCapabilityNeeded", payload);
+        dialogueBridge?.QueueDialogue("buddy_capability_needed");
     }
 
     public void ReactToMissionProgress(string status)
@@ -48,13 +116,66 @@ public class BuddyKiGuideController : MonoBehaviour
         if (status == "needs-help") currentMood = BuddyGuideMood.Helpful;
         if (status == "unsafe") currentMood = BuddyGuideMood.Warning;
 
-        string payload = "{\"status\":\"" + status + "\",\"mood\":\"" + currentMood.ToString() + "\"}";
+        string payload = BuildPayload("\"progressStatus\":\"" + Escape(status) + "\"");
         bridge?.SendEventToWellFit("onBuddyMissionProgress", payload);
+    }
+
+    public void ClearGuideContext()
+    {
+        currentMissionId = string.Empty;
+        currentMissionType = "none";
+        currentRecommendation = string.Empty;
+        requiredCapability = string.Empty;
+        requiredItemId = string.Empty;
+        rewardStatus = "preview-only";
+        currentMood = BuddyGuideMood.Neutral;
+
+        SendGuideEvent("onBuddyGuideContextCleared", "guide-context-cleared");
     }
 
     private void SendGuideEvent(string eventName, string status)
     {
-        string payload = "{\"status\":\"" + status + "\",\"missionId\":\"" + currentMissionId + "\"}";
+        string payload = BuildPayload("\"status\":\"" + Escape(status) + "\"");
         bridge?.SendEventToWellFit(eventName, payload);
+    }
+
+    private string BuildPayload(string extraJsonFields)
+    {
+        string payload = "{"
+            + "\"missionId\":\"" + Escape(currentMissionId) + "\"," 
+            + "\"missionType\":\"" + Escape(currentMissionType) + "\"," 
+            + "\"recommendation\":\"" + Escape(currentRecommendation) + "\"," 
+            + "\"ageBand\":\"" + Escape(ageBand) + "\"," 
+            + "\"rewardStatus\":\"" + Escape(rewardStatus) + "\"," 
+            + "\"requiredCapability\":\"" + Escape(requiredCapability) + "\"," 
+            + "\"requiredItemId\":\"" + Escape(requiredItemId) + "\"," 
+            + "\"mood\":\"" + currentMood.ToString() + "\"";
+
+        if (!string.IsNullOrEmpty(extraJsonFields))
+        {
+            payload += "," + extraJsonFields;
+        }
+
+        payload += "}";
+        return payload;
+    }
+
+    private BuddyGuideMood ParseMood(string mood)
+    {
+        if (string.IsNullOrEmpty(mood)) return BuddyGuideMood.Neutral;
+        try
+        {
+            return (BuddyGuideMood)System.Enum.Parse(typeof(BuddyGuideMood), mood, true);
+        }
+        catch
+        {
+            return BuddyGuideMood.Neutral;
+        }
+    }
+
+    private string Escape(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return string.Empty;
+        return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
     }
 }
