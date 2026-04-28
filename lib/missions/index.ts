@@ -15,3 +15,6 @@ export type {
   MissionDraftStatus,
   MissionDraftWaypoint,
 } from "./missionDraftTypes";
+
+export type { MissionUiStatus, MissionUiStatusDefinition } from "./missionUiStatusTypes";
+export { missionUiStatusDefinitions } from "./missionUiStatusTypes";
