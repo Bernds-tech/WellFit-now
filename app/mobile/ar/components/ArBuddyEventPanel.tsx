@@ -18,6 +18,11 @@ import { createBuddyGuideCard, createBuddyGuideOptionEvent } from "../lib/buddyG
 
 type BuddyKiResponseWithMeta = BuddyKiResponse & { meta?: { fallbackReason?: string } };
 
+type ArBuddyEventPanelProps = {
+  cameraActive: boolean;
+  floating?: boolean;
+};
+
 function mapEventToBuddyKiIntent(event: NativeArBuddyEvent | null, cameraActive: boolean): BuddyKiIntent {
   if (!cameraActive) return "welcome";
   if (!event) return "welcome";
@@ -108,7 +113,7 @@ function getProviderLabel(response: BuddyKiResponseWithMeta | null, loading: boo
   return `Provider: ${response.providerMode}`;
 }
 
-export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: boolean }) {
+export default function ArBuddyEventPanel({ cameraActive, floating = true }: ArBuddyEventPanelProps) {
   const [events, setEvents] = useState<NativeArBuddyEvent[]>([]);
   const [buddyKiResponse, setBuddyKiResponse] = useState<BuddyKiResponseWithMeta | null>(null);
   const [isBuddyKiLoading, setIsBuddyKiLoading] = useState(false);
@@ -174,6 +179,9 @@ export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: bool
   const displayTitle = buddyKiResponse?.title || guideCard.title;
   const displayMessage = buddyKiResponse?.message || guideCard.description;
   const providerLabel = getProviderLabel(buddyKiResponse, isBuddyKiLoading);
+  const panelPositionClass = floating
+    ? "absolute inset-x-3 bottom-28 z-30 md:left-auto md:right-4 md:w-[360px]"
+    : "relative z-30 mt-4 max-h-[52vh] overflow-y-auto";
 
   const handleLocalOptionClick = async (option: Parameters<typeof createBuddyGuideOptionEvent>[0]) => {
     const event = createBuddyGuideOptionEvent(option, latestEvent);
@@ -199,7 +207,7 @@ export default function ArBuddyEventPanel({ cameraActive }: { cameraActive: bool
   };
 
   return (
-    <section className="absolute inset-x-3 bottom-28 z-30 rounded-[28px] border border-white/15 bg-[#042f37]/90 p-4 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:left-auto md:right-4 md:w-[360px]">
+    <section className={`${panelPositionClass} rounded-[28px] border border-white/15 bg-[#042f37]/90 p-4 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur`}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-100/70">KI-Buddy Guide</p>
