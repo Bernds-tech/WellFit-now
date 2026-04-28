@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.1 – DASHBOARD REFACTOR ABGESCHLOSSEN / DASHBOARD-PRODUKTMODULE VOR MISSIONEN
+Version: 3.2 – INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN ERGAENZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -22,3 +22,21 @@ C. STRATEGISCHE GRUNDENTSCHEIDUNGEN
 [x] Aktuell alles über interne Punkte und XP abbilden.
 [x] Punkte-System so halten, dass Token/WFT später austauschbar oder ergänzbar sind.
 [x] Dashboard-Produktmodule Mein KI-Buddy, Marktplatz, Leaderboard, Punkte-Shop sowie Analytics & Stats werden vor weiterem Missionsausbau priorisiert.
+
+============================================================
+C1. INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
+============================================================
+
+[x] WellFit wird zuerst vollständig als internes Punkte-, XP-, Reward- und Economy-System aufgebaut.
+[x] Blockchain, echte NFTs und echter WFT-Token werden erst nach stabiler Alpha-/Beta-/Testphase implementiert.
+[x] Vor echter Token-/NFT-/Blockchain-Implementierung muss das komplette interne Wirtschaftssystem mit Punkten funktionieren.
+[x] Mission Rewards, Einsätze, Jackpot, Gebühren, Sinks, Burn-Äquivalente, Reserve und Systemgesundheit werden zuerst intern simuliert.
+[x] Die geplante 25-Mrd.-WFT-Logik wird vorerst als interne Punkte-/Economy-Simulation behandelt.
+[x] Die spätere WFT-/NFT-/Blockchain-Schicht darf das Punkte-System nicht ersetzen müssen, sondern muss darauf aufsetzen können.
+[x] Keine Blockchain-Abhängigkeit im MVP, in der Alpha oder frühen Beta.
+[x] Keine Token-, Presale-, Trading-, Staking- oder NFT-Marktplatz-Funktion in der Mobile App.
+[!] Erst nach belastbaren Testdaten wird entschieden, ob Punkte 1:1, anteilig, gar nicht oder nur über bestimmte Regeln in WFT überführbar sind.
+[!] Finale Chain-Entscheidung bleibt später: historische Solana/SPL-Unterlagen und neuere SUI/Dynamic-Objects-Unterlagen dürfen nicht vermischt werden.
+
+Verbindliche Detaildatei:
+`todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN`
