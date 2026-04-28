@@ -158,7 +158,31 @@ Ziel:
 native/unity/WellFitBuddyAR/Assets/Scripts/*.cs
 ```
 
-Kopieren/umbenennen:
+Empfohlen: Copy-Skript verwenden, damit veraltete AR-Eventnamen automatisch erkannt werden.
+
+macOS/Linux/Git Bash:
+
+```bash
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.sh
+```
+
+Windows PowerShell:
+
+```powershell
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.ps1
+```
+
+Pflicht-Erfolgsmeldung:
+
+```txt
+Event contract audit passed
+```
+
+Wenn diese Meldung nicht erscheint oder das Skript alte AR-Eventnamen meldet, nicht in Unity kompilieren. Erst die gemeldeten Dateien bereinigen und das Copy-Skript erneut starten.
+
+Kopierte Dateien:
 
 - [ ] WellFitNativeBridge.cs.txt → WellFitNativeBridge.cs
 - [ ] BuddyInputController.cs.txt → BuddyInputController.cs
@@ -317,6 +341,7 @@ Pruefen:
 - AR Foundation installiert?
 - ARCore XR Plugin installiert?
 - Namespaces vorhanden?
+- Copy-Skript ausgefuehrt und `Event contract audit passed` gesehen?
 
 ### Build startet nicht auf Handy
 
