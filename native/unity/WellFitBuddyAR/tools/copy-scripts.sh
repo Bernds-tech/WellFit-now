@@ -21,4 +21,19 @@ for source_file in "$SOURCE_DIR"/*.cs.txt; do
   echo "Copied $file_name -> Assets/Scripts/$target_name"
 done
 
-echo "WellFitBuddyAR script copy complete. Open Unity and let it compile."
+STALE_EVENTS=(
+  "onBuddyGuideContextUpdated"
+  "onBuddyGuideStepExplained"
+  "onBuddyGuideContextCleared"
+  "onBuddyDialogueCleared"
+)
+
+for stale_event in "${STALE_EVENTS[@]}"; do
+  if grep -R --line-number "$stale_event" "$TARGET_DIR" >/dev/null 2>&1; then
+    echo "Stale AR event contract name found after copy: $stale_event" >&2
+    grep -R --line-number "$stale_event" "$TARGET_DIR" >&2 || true
+    exit 1
+  fi
+done
+
+echo "WellFitBuddyAR script copy complete. Event contract audit passed. Open Unity and let it compile."
