@@ -30,7 +30,7 @@ function getNextPosition(current: ArBuddyPosition): ArBuddyPosition {
 }
 
 export default function MobileArPage() {
-  const { videoRef, permissionState, errorMessage, startCamera, stopCamera } = useCameraPreview({ facingMode: "environment" });
+  const { videoRef, permissionState, errorMessage, debugInfo, startCamera, stopCamera } = useCameraPreview({ facingMode: "environment" });
   const [buddyMood, setBuddyMood] = useState<ArBuddyMood>("idle");
   const [buddyPosition, setBuddyPosition] = useState<ArBuddyPosition>("center");
   const [tapCount, setTapCount] = useState(0);
@@ -41,9 +41,7 @@ export default function MobileArPage() {
   const isCameraActive = permissionState === "granted";
 
   useEffect(() => {
-    if (!isCameraActive || !autoWalkEnabled || anchor) {
-      return;
-    }
+    if (!isCameraActive || !autoWalkEnabled || anchor) return;
 
     const walkTimer = window.setInterval(() => {
       setBuddyPosition((current) => getNextPosition(current));
@@ -55,32 +53,16 @@ export default function MobileArPage() {
   }, [anchor, autoWalkEnabled, isCameraActive]);
 
   const statusMessage = useMemo(() => {
-    if (!isCameraActive) {
-      return errorMessage || "Starte die Rueckkamera, um die 3D-Flammi-Demo zu sehen.";
-    }
-
-    if (anchorMode) {
-      return "Demo-Anker aktiv: Tippe im Kamerabild. Hinweis: Das ist noch kein echter Raumanker; echte Weltpositionen brauchen Native AR.";
-    }
-
-    if (anchor && autoWalkEnabled) {
-      return `${buddyMessages[buddyMood]} Demo-Anker aktiv. Kein echtes World Tracking.`;
-    }
-
-    if (anchor) {
-      return `${buddyMessages[buddyMood]} Demo-Anker gesetzt. Beim Schwenken bleibt er nicht raumfest.`;
-    }
-
-    if (autoWalkEnabled) {
-      return `${buddyMessages[buddyMood]} Schritt: ${actionCount}`;
-    }
-
+    if (!isCameraActive) return errorMessage || "Starte die Rueckkamera, um die 3D-Flammi-Demo zu sehen.";
+    if (anchorMode) return "Demo-Anker aktiv: Tippe im Kamerabild. Hinweis: Das ist noch kein echter Raumanker; echte Weltpositionen brauchen Native AR.";
+    if (anchor && autoWalkEnabled) return `${buddyMessages[buddyMood]} Demo-Anker aktiv. Kein echtes World Tracking.`;
+    if (anchor) return `${buddyMessages[buddyMood]} Demo-Anker gesetzt. Beim Schwenken bleibt er nicht raumfest.`;
+    if (autoWalkEnabled) return `${buddyMessages[buddyMood]} Schritt: ${actionCount}`;
     return buddyMessages[buddyMood];
   }, [actionCount, anchor, anchorMode, autoWalkEnabled, buddyMood, errorMessage, isCameraActive]);
 
   const callBuddy = () => {
     if (!isCameraActive) return;
-
     setAnchor(null);
     setAnchorMode(false);
     setAutoWalkEnabled(false);
@@ -97,7 +79,6 @@ export default function MobileArPage() {
 
   const startBuddyWalk = () => {
     if (!isCameraActive) return;
-
     setAnchor(null);
     setAnchorMode(false);
     setBuddyMood("playful");
@@ -113,7 +94,6 @@ export default function MobileArPage() {
 
   const handleSceneTap = (nextAnchor: ArScreenAnchor) => {
     if (!isCameraActive || !anchorMode) return;
-
     setAnchor(nextAnchor);
     setAnchorMode(false);
     setAutoWalkEnabled(false);
@@ -123,14 +103,11 @@ export default function MobileArPage() {
 
   const handleBuddyTap = () => {
     if (!isCameraActive) return;
-
     const nextTapCount = tapCount + 1;
     setTapCount(nextTapCount);
     setActionCount((current) => current + 1);
     setBuddyMood(tapMoods[nextTapCount % tapMoods.length]);
-    if (!anchor) {
-      setBuddyPosition((current) => getNextPosition(current));
-    }
+    if (!anchor) setBuddyPosition((current) => getNextPosition(current));
   };
 
   const resetBuddy = () => {
@@ -148,12 +125,23 @@ export default function MobileArPage() {
     stopCamera();
   };
 
+  const debugPanel = (
+    <section className="rounded-[22px] border border-cyan-100/10 bg-[#042f35]/70 p-3 text-xs font-bold leading-relaxed text-cyan-50/70">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100/55">Kamera Diagnose</p>
+      <p>Status: {permissionState}</p>
+      <p>Stream: {debugInfo.hasStream ? "ja" : "nein"} · Track: {debugInfo.trackState}</p>
+      <p>Video: {debugInfo.videoWidth}×{debugInfo.videoHeight} · Ready: {debugInfo.readyState} · Paused: {debugInfo.paused ? "ja" : "nein"}</p>
+      <p className="break-words">Kamera: {debugInfo.trackLabel}</p>
+    </section>
+  );
+
   if (!isCameraActive) {
     return (
       <main className="h-screen w-screen overflow-y-auto bg-black px-3 py-4 text-white">
         <div className="mx-auto flex min-h-full max-w-[560px] flex-col gap-4 pb-8">
           <ArStatusCard cameraActive={isCameraActive} message={statusMessage} floating={false} />
           <CameraPreview videoRef={videoRef} permissionState={permissionState} />
+          {debugPanel}
           <ArBuddyEventPanel cameraActive={isCameraActive} floating={false} />
           <CameraPermissionPanel permissionState={permissionState} errorMessage={errorMessage} onStartCamera={startCamera} onStopCamera={handleStopCamera} />
         </div>
@@ -181,6 +169,8 @@ export default function MobileArPage() {
             />
           </CameraPreview>
         </div>
+
+        {debugPanel}
 
         <ArBuddyControls
           floating={false}
