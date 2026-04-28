@@ -9,6 +9,17 @@ type UseCameraPreviewOptions = {
   facingMode?: CameraFacingMode;
 };
 
+export type CameraPreviewDebugInfo = {
+  facingMode: CameraFacingMode;
+  hasStream: boolean;
+  videoWidth: number;
+  videoHeight: number;
+  readyState: number;
+  paused: boolean;
+  trackState: string;
+  trackLabel: string;
+};
+
 async function requestCameraStream(facingMode: CameraFacingMode) {
   const preferredConstraints: MediaStreamConstraints = {
     video: {
@@ -33,6 +44,31 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
   const streamRef = useRef<MediaStream | null>(null);
   const [permissionState, setPermissionState] = useState<CameraPermissionState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<CameraPreviewDebugInfo>({
+    facingMode,
+    hasStream: false,
+    videoWidth: 0,
+    videoHeight: 0,
+    readyState: 0,
+    paused: true,
+    trackState: "none",
+    trackLabel: "none",
+  });
+
+  const refreshDebugInfo = useCallback(() => {
+    const video = videoRef.current;
+    const track = streamRef.current?.getVideoTracks()[0];
+    setDebugInfo({
+      facingMode,
+      hasStream: Boolean(streamRef.current),
+      videoWidth: video?.videoWidth || 0,
+      videoHeight: video?.videoHeight || 0,
+      readyState: video?.readyState || 0,
+      paused: video?.paused ?? true,
+      trackState: track?.readyState || "none",
+      trackLabel: track?.label || "none",
+    });
+  }, [facingMode]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -44,7 +80,8 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
     }
 
     setPermissionState((current) => (current === "granted" ? "idle" : current));
-  }, []);
+    window.setTimeout(refreshDebugInfo, 0);
+  }, [refreshDebugInfo]);
 
   const startCamera = useCallback(async () => {
     if (typeof window === "undefined" || typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
@@ -70,6 +107,7 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
       const video = videoRef.current;
       if (!video) {
         setPermissionState("granted");
+        refreshDebugInfo();
         return;
       }
 
@@ -77,6 +115,15 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
       video.playsInline = true;
       video.autoplay = true;
       video.srcObject = stream;
+      video.load();
+
+      await new Promise<void>((resolve) => {
+        const timeout = window.setTimeout(resolve, 900);
+        video.onloadedmetadata = () => {
+          window.clearTimeout(timeout);
+          resolve();
+        };
+      });
 
       const playPromise = video.play();
       if (playPromise) {
@@ -86,13 +133,21 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
       }
 
       setPermissionState("granted");
+      refreshDebugInfo();
+      window.setTimeout(refreshDebugInfo, 800);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Kamera konnte nicht gestartet werden.";
       const lowerMessage = message.toLowerCase();
       setPermissionState(lowerMessage.includes("permission") || lowerMessage.includes("denied") || lowerMessage.includes("notallowed") ? "denied" : "error");
       setErrorMessage(message);
+      refreshDebugInfo();
     }
-  }, [facingMode, stopCamera]);
+  }, [facingMode, refreshDebugInfo, stopCamera]);
+
+  useEffect(() => {
+    const timer = window.setInterval(refreshDebugInfo, 1500);
+    return () => window.clearInterval(timer);
+  }, [refreshDebugInfo]);
 
   useEffect(() => stopCamera, [stopCamera]);
 
@@ -100,6 +155,7 @@ export function useCameraPreview(options: UseCameraPreviewOptions = {}) {
     videoRef,
     permissionState,
     errorMessage,
+    debugInfo,
     startCamera,
     stopCamera,
   };
