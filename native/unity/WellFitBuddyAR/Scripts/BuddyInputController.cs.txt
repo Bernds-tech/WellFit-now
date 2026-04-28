@@ -83,15 +83,18 @@ public class BuddyInputController : MonoBehaviour
     {
         if (anchorController == null)
         {
-            bridge?.SendEventToWellFit("onArError", "{\"message\":\"BuddyAnchorController missing\"}");
+            bridge?.SendEventToWellFit("onArError", "{\"message\":\"BuddyAnchorController missing\",\"code\":\"buddy-anchor-controller-missing\"}");
             return;
         }
 
         if (!buddyHasBeenPlaced && placeOnFirstTap)
         {
-            anchorController.PlaceBuddyAtScreenPoint(screenPoint);
-            buddyHasBeenPlaced = true;
-            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"placeFromTap\"}");
+            bool placed = anchorController.PlaceBuddyAtScreenPoint(screenPoint);
+            if (placed)
+            {
+                buddyHasBeenPlaced = true;
+                bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"placeFromTap\",\"source\":\"screen-tap\"}");
+            }
             return;
         }
 
@@ -101,6 +104,6 @@ public class BuddyInputController : MonoBehaviour
             return;
         }
 
-        bridge?.SendEventToWellFit("onArError", "{\"message\":\"Tap ignored\"}");
+        bridge?.SendEventToWellFit("onBuddyActionRejected", "{\"reason\":\"tap-ignored\",\"source\":\"screen-tap\"}");
     }
 }
