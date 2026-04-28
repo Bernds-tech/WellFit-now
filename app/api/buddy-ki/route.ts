@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { buddyKiOpenAiProvider } from "@/lib/buddyKi/buddyKiProviderOpenAi";
 import { buddyKiRulesProvider } from "@/lib/buddyKi/buddyKiProviderRules";
-import type { BuddyKiContext, BuddyKiIntent } from "@/lib/buddyKi/buddyKiTypes";
+import type { BuddyKiContext, BuddyKiIntent, BuddyKiProviderMode, BuddyKiResponse } from "@/lib/buddyKi/buddyKiTypes";
 
 export const runtime = "nodejs";
 
@@ -25,21 +26,66 @@ function isAllowedIntent(value: unknown): value is BuddyKiIntent {
   return typeof value === "string" && allowedIntents.includes(value as BuddyKiIntent);
 }
 
+function sanitizeText(value: unknown, maxLength = 120) {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  return trimmed.slice(0, maxLength);
+}
+
 function sanitizeContext(context: Partial<BuddyKiContext> | undefined): BuddyKiContext {
   return {
     language: context?.language === "en" ? "en" : "de",
-    buddyId: context?.buddyId || "default",
-    currentMissionId: context?.currentMissionId,
+    buddyId: sanitizeText(context?.buddyId, 80) || "default",
+    currentMissionId: sanitizeText(context?.currentMissionId, 120),
     currentMissionType: context?.currentMissionType || "unknown",
-    currentRoute: context?.currentRoute,
+    currentRoute: sanitizeText(context?.currentRoute, 160),
     ageBand: context?.ageBand,
     parentMode: Boolean(context?.parentMode),
-    inventoryCapabilityIds: Array.isArray(context?.inventoryCapabilityIds) ? context.inventoryCapabilityIds.slice(0, 20) : [],
-    missingCapabilityId: context?.missingCapabilityId,
-    markerId: context?.markerId,
+    inventoryCapabilityIds: Array.isArray(context?.inventoryCapabilityIds)
+      ? context.inventoryCapabilityIds.map((id) => sanitizeText(id, 80)).filter(Boolean).slice(0, 20) as string[]
+      : [],
+    missingCapabilityId: sanitizeText(context?.missingCapabilityId, 80),
+    markerId: sanitizeText(context?.markerId, 80),
     riskLevel: context?.riskLevel || "low",
     cameraActive: Boolean(context?.cameraActive),
   };
+}
+
+function shouldUseModelProvider() {
+  return Boolean(process.env.OPENAI_API_KEY) && process.env.BUDDY_KI_PROVIDER === "openai";
+}
+
+function withSafety(response: BuddyKiResponse, providerMode: BuddyKiProviderMode, fallbackReason?: string) {
+  return {
+    ...response,
+    providerMode,
+    safety: {
+      rewardAuthorized: false,
+      missionCompletionAuthorized: false,
+      medicalDiagnosis: false,
+      mobileTokenTrading: false,
+    },
+    meta: {
+      fallbackReason,
+    },
+  };
+}
+
+async function generateBackendBuddyResponse(intent: BuddyKiIntent, context: BuddyKiContext) {
+  if (!shouldUseModelProvider()) {
+    const rulesResponse = await buddyKiRulesProvider.generateResponse(intent, context);
+    return withSafety(rulesResponse, "rules", "model-provider-disabled");
+  }
+
+  try {
+    const aiResponse = await buddyKiOpenAiProvider.generateResponse(intent, context);
+    return withSafety(aiResponse, "remote-ai");
+  } catch (error) {
+    console.warn("Buddy KI model provider fallback to rules", error);
+    const rulesResponse = await buddyKiRulesProvider.generateResponse(intent, context);
+    return withSafety(rulesResponse, "rules", "model-provider-error");
+  }
 }
 
 export async function POST(request: Request) {
@@ -56,23 +102,11 @@ export async function POST(request: Request) {
   }
 
   const context = sanitizeContext(body.context);
-
-  // Stufe 1: sichere Rules-Antwort aus Backend.
-  // Stufe 2: hier spaeter echten KI-Provider anbinden, niemals direkt im Client.
-  const response = await buddyKiRulesProvider.generateResponse(body.intent, context);
+  const response = await generateBackendBuddyResponse(body.intent, context);
 
   return NextResponse.json({
     ok: true,
-    response: {
-      ...response,
-      providerMode: "rules",
-      safety: {
-        rewardAuthorized: false,
-        missionCompletionAuthorized: false,
-        medicalDiagnosis: false,
-        mobileTokenTrading: false,
-      },
-    },
+    response,
   });
 }
 
@@ -81,7 +115,8 @@ export async function GET() {
     ok: true,
     service: "buddy-ki",
     status: "ready",
-    providerMode: "rules",
+    providerMode: shouldUseModelProvider() ? "remote-ai" : "rules",
+    modelConfigured: Boolean(process.env.OPENAI_API_KEY),
     safety: {
       clientApiKeys: false,
       rewardAuthorized: false,
