@@ -12,6 +12,7 @@ public class BuddyAnchorController : MonoBehaviour
 {
     [SerializeField] private GameObject buddyPrefab;
     [SerializeField] private WellFitNativeBridge bridge;
+    [SerializeField] private BuddyNavigationController navigationController;
 
 #if UNITY_XR_ARFOUNDATION
     [SerializeField] private ARRaycastManager raycastManager;
@@ -20,40 +21,130 @@ public class BuddyAnchorController : MonoBehaviour
 #endif
 
     private GameObject currentBuddy;
+    private Transform currentAnchorTransform;
 
     public void PlaceBuddyAtScreenPoint(Vector2 screenPoint)
     {
 #if UNITY_XR_ARFOUNDATION
-        if (raycastManager == null || anchorManager == null || buddyPrefab == null) return;
-
-        if (!raycastManager.Raycast(screenPoint, hits, TrackableType.PlaneWithinPolygon))
+        if (!TryGetPlanePose(screenPoint, out Pose pose))
         {
             bridge?.SendEventToWellFit("onArError", "{\"message\":\"No plane hit\"}");
             return;
         }
 
-        Pose pose = hits[0].pose;
-        ARAnchor anchor = anchorManager.AddAnchor(pose);
+        ARAnchor anchor = CreateAnchor(pose);
         if (anchor == null)
         {
             bridge?.SendEventToWellFit("onArError", "{\"message\":\"Anchor creation failed\"}");
             return;
         }
 
+        currentAnchorTransform = anchor.transform;
+
         if (currentBuddy == null)
         {
             currentBuddy = Instantiate(buddyPrefab, anchor.transform);
+            currentBuddy.transform.localPosition = Vector3.zero;
+            currentBuddy.transform.localRotation = Quaternion.identity;
+            EnsureNavigationController();
         }
         else
         {
-            currentBuddy.transform.SetParent(anchor.transform);
+            currentBuddy.transform.SetParent(anchor.transform, true);
             currentBuddy.transform.localPosition = Vector3.zero;
             currentBuddy.transform.localRotation = Quaternion.identity;
         }
 
-        bridge?.SendEventToWellFit("onBuddyPlaced", "{\"status\":\"placed\"}");
+        bridge?.SendEventToWellFit("onBuddyPlaced", "{\"status\":\"placed\",\"source\":\"plane-raycast\"}");
 #else
         bridge?.SendEventToWellFit("onArError", "{\"message\":\"AR Foundation not enabled\"}");
 #endif
+    }
+
+    public void MoveBuddyToScreenPoint(Vector2 screenPoint)
+    {
+#if UNITY_XR_ARFOUNDATION
+        if (currentBuddy == null)
+        {
+            PlaceBuddyAtScreenPoint(screenPoint);
+            return;
+        }
+
+        if (!TryGetPlanePose(screenPoint, out Pose pose))
+        {
+            bridge?.SendEventToWellFit("onArError", "{\"message\":\"No movement plane hit\"}");
+            return;
+        }
+
+        EnsureNavigationController();
+        if (navigationController == null)
+        {
+            currentBuddy.transform.position = pose.position;
+            bridge?.SendEventToWellFit("onBuddyActionCompleted", "{\"action\":\"move\",\"mode\":\"teleport-fallback\"}");
+            return;
+        }
+
+        Vector3 currentPosition = currentBuddy.transform.position;
+        float heightDifference = pose.position.y - currentPosition.y;
+        bool shouldJump = Mathf.Abs(heightDifference) > 0.12f;
+
+        if (shouldJump)
+        {
+            navigationController.JumpTo(pose.position);
+            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"jumpToSurface\"}");
+        }
+        else
+        {
+            navigationController.WalkTo(pose.position);
+            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"walkToSurface\"}");
+        }
+#else
+        bridge?.SendEventToWellFit("onArError", "{\"message\":\"AR Foundation not enabled\"}");
+#endif
+    }
+
+    public void CallBuddyToCamera(Vector3 cameraForwardPoint)
+    {
+        if (currentBuddy == null)
+        {
+            bridge?.SendEventToWellFit("onArError", "{\"message\":\"Buddy not placed\"}");
+            return;
+        }
+
+        EnsureNavigationController();
+        if (navigationController != null)
+        {
+            navigationController.WalkTo(cameraForwardPoint);
+            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"returnToUser\"}");
+        }
+    }
+
+#if UNITY_XR_ARFOUNDATION
+    private bool TryGetPlanePose(Vector2 screenPoint, out Pose pose)
+    {
+        pose = default;
+        if (raycastManager == null || buddyPrefab == null) return false;
+        if (!raycastManager.Raycast(screenPoint, hits, TrackableType.PlaneWithinPolygon)) return false;
+        pose = hits[0].pose;
+        return true;
+    }
+
+    private ARAnchor CreateAnchor(Pose pose)
+    {
+        if (anchorManager == null) return null;
+        return anchorManager.AddAnchor(pose);
+    }
+#endif
+
+    private void EnsureNavigationController()
+    {
+        if (navigationController != null) return;
+        if (currentBuddy == null) return;
+        navigationController = currentBuddy.GetComponent<BuddyNavigationController>();
+        if (navigationController == null)
+        {
+            navigationController = currentBuddy.AddComponent<BuddyNavigationController>();
+        }
+        navigationController.buddyRoot = currentBuddy.transform;
     }
 }
