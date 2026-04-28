@@ -12,18 +12,19 @@ export default function CameraPreview({ videoRef, permissionState, children }: C
 
   return (
     <section className="overflow-hidden rounded-[28px] bg-black/35 shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
-      <div className="relative aspect-[9/14] max-h-[520px] w-full bg-black">
+      <div className="relative aspect-[9/14] max-h-[520px] w-full overflow-hidden bg-black">
         <video
           ref={videoRef}
-          className={`h-full w-full object-cover ${isActive ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 z-0 h-full w-full object-cover ${isActive ? "opacity-100" : "opacity-0"}`}
+          autoPlay
           muted
           playsInline
         />
 
-        {isActive && children}
+        {isActive && <div className="absolute inset-0 z-20">{children}</div>}
 
         {!isActive && (
-          <div className="absolute inset-0 grid place-items-center p-6 text-center">
+          <div className="absolute inset-0 z-10 grid place-items-center p-6 text-center">
             <div>
               <div className="text-6xl">📷</div>
               <h2 className="mt-4 text-2xl font-black text-white">Kamera noch aus</h2>
@@ -34,7 +35,7 @@ export default function CameraPreview({ videoRef, permissionState, children }: C
           </div>
         )}
 
-        <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-[#042f35]/80 px-3 py-1 text-xs font-black text-cyan-100">
+        <div className="pointer-events-none absolute left-3 top-3 z-30 rounded-full bg-[#042f35]/80 px-3 py-1 text-xs font-black text-cyan-100">
           {isActive ? "Live Preview + Skeleton" : "Preview"}
         </div>
       </div>
