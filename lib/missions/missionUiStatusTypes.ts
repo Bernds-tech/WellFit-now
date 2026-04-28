@@ -15,11 +15,17 @@ export type MissionUiStatusDefinition = {
   canGrantReward: false;
 };
 
+export const MISSION_PLACEHOLDER_NOTICE =
+  "Dieser Bereich ist vorbereitet. Missionen werden spaeter vom KI-Buddy erzeugt. Rewards werden serverseitig geprueft.";
+
+export const MISSION_SERVER_REWARD_NOTICE =
+  "Keine UI autorisiert Punkte, XP, Rewards, Mission Completion, Wettkampf-Sieger oder Token/WFT. Final entscheidet spaeter Server/Policy/Ledger.";
+
 export const missionUiStatusDefinitions: MissionUiStatusDefinition[] = [
   {
     status: "placeholder",
     label: "Platzhalter",
-    description: "Dieser Missionsbereich ist vorbereitet. Echte Missionen werden spaeter erzeugt oder freigegeben.",
+    description: MISSION_PLACEHOLDER_NOTICE,
     canStart: false,
     canGrantReward: false,
   },
@@ -54,7 +60,7 @@ export const missionUiStatusDefinitions: MissionUiStatusDefinition[] = [
   {
     status: "completed",
     label: "Abgeschlossen",
-    description: "Diese Mission wurde serverseitig abgeschlossen oder als abgeschlossen angezeigt.",
+    description: "Diese Mission darf nur nach Server-Completion als abgeschlossen gelten.",
     canStart: false,
     canGrantReward: false,
   },
@@ -66,3 +72,22 @@ export const missionUiStatusDefinitions: MissionUiStatusDefinition[] = [
     canGrantReward: false,
   },
 ];
+
+export const missionUiStatusDefinitionByStatus = missionUiStatusDefinitions.reduce(
+  (acc, definition) => {
+    acc[definition.status] = definition;
+    return acc;
+  },
+  {} as Record<MissionUiStatus, MissionUiStatusDefinition>,
+);
+
+export const getMissionUiStatusDefinition = (status: MissionUiStatus): MissionUiStatusDefinition =>
+  missionUiStatusDefinitionByStatus[status];
+
+export const getMissionUiStatusLabel = (status: MissionUiStatus): string =>
+  getMissionUiStatusDefinition(status).label;
+
+export const isMissionUiStatusStartable = (status: MissionUiStatus): boolean =>
+  getMissionUiStatusDefinition(status).canStart;
+
+export const canMissionUiStatusGrantReward = (_status: MissionUiStatus): false => false;
