@@ -11,6 +11,8 @@ import ArStatusCard from "./components/ArStatusCard";
 import NativeArModeCard from "./components/NativeArModeCard";
 import ArBuddyEventPanel from "./components/ArBuddyEventPanel";
 
+type CameraMode = "environment" | "user";
+
 const safePositions: ArBuddyPosition[] = ["nearLeft", "center", "nearRight", "farRight", "center", "farLeft"];
 const tapMoods: ArBuddyMood[] = ["happy", "listening", "curious", "playful"];
 
@@ -30,7 +32,8 @@ function getNextPosition(current: ArBuddyPosition): ArBuddyPosition {
 }
 
 export default function MobileArPage() {
-  const { videoRef, permissionState, errorMessage, debugInfo, startCamera, stopCamera } = useCameraPreview({ facingMode: "environment" });
+  const [cameraMode, setCameraMode] = useState<CameraMode>("environment");
+  const { videoRef, permissionState, errorMessage, debugInfo, startCamera, stopCamera } = useCameraPreview({ facingMode: cameraMode });
   const [buddyMood, setBuddyMood] = useState<ArBuddyMood>("idle");
   const [buddyPosition, setBuddyPosition] = useState<ArBuddyPosition>("center");
   const [tapCount, setTapCount] = useState(0);
@@ -42,13 +45,11 @@ export default function MobileArPage() {
 
   useEffect(() => {
     if (!isCameraActive || !autoWalkEnabled || anchor) return;
-
     const walkTimer = window.setInterval(() => {
       setBuddyPosition((current) => getNextPosition(current));
       setBuddyMood("playful");
       setActionCount((current) => current + 1);
     }, 950);
-
     return () => window.clearInterval(walkTimer);
   }, [anchor, autoWalkEnabled, isCameraActive]);
 
@@ -61,6 +62,14 @@ export default function MobileArPage() {
     return buddyMessages[buddyMood];
   }, [actionCount, anchor, anchorMode, autoWalkEnabled, buddyMood, errorMessage, isCameraActive]);
 
+  const restartCamera = async (nextMode?: CameraMode) => {
+    if (nextMode) setCameraMode(nextMode);
+    stopCamera();
+    window.setTimeout(() => {
+      startCamera();
+    }, 150);
+  };
+
   const callBuddy = () => {
     if (!isCameraActive) return;
     setAnchor(null);
@@ -69,7 +78,6 @@ export default function MobileArPage() {
     setBuddyMood("returning");
     setActionCount((current) => current + 1);
     setBuddyPosition("farRight");
-
     window.setTimeout(() => {
       setBuddyPosition("center");
       setBuddyMood("called");
@@ -128,10 +136,16 @@ export default function MobileArPage() {
   const debugPanel = (
     <section className="rounded-[22px] border border-cyan-100/10 bg-[#042f35]/70 p-3 text-xs font-bold leading-relaxed text-cyan-50/70">
       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100/55">Kamera Diagnose</p>
+      <p>Modus: {cameraMode === "environment" ? "Rueckkamera" : "Frontkamera"}</p>
       <p>Status: {permissionState}</p>
       <p>Stream: {debugInfo.hasStream ? "ja" : "nein"} · Track: {debugInfo.trackState}</p>
       <p>Video: {debugInfo.videoWidth}×{debugInfo.videoHeight} · Ready: {debugInfo.readyState} · Paused: {debugInfo.paused ? "ja" : "nein"}</p>
       <p className="break-words">Kamera: {debugInfo.trackLabel}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" onClick={() => restartCamera("environment")} className="rounded-full bg-white/10 px-3 py-2 text-[10px] font-black text-white">Rueckkamera neu</button>
+        <button type="button" onClick={() => restartCamera("user")} className="rounded-full bg-white/10 px-3 py-2 text-[10px] font-black text-white">Frontkamera testen</button>
+        <button type="button" onClick={() => restartCamera()} className="rounded-full bg-cyan-300/20 px-3 py-2 text-[10px] font-black text-cyan-50">Stream neu verbinden</button>
+      </div>
     </section>
   );
 
@@ -153,7 +167,6 @@ export default function MobileArPage() {
     <main className="h-screen w-screen overflow-y-auto bg-black px-3 py-4 text-white">
       <div className="mx-auto flex min-h-full max-w-[560px] flex-col gap-4 pb-8">
         <ArStatusCard cameraActive={isCameraActive} message={statusMessage} floating={false} />
-
         <div className="overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_18px_48px_rgba(0,0,0,0.35)]">
           <CameraPreview videoRef={videoRef} permissionState={permissionState}>
             <ArBuddyOverlay
@@ -169,9 +182,7 @@ export default function MobileArPage() {
             />
           </CameraPreview>
         </div>
-
         {debugPanel}
-
         <ArBuddyControls
           floating={false}
           autoWalkEnabled={autoWalkEnabled}
@@ -188,7 +199,6 @@ export default function MobileArPage() {
             setBuddyMood("listening");
           }}
         />
-
         <ArBuddyEventPanel cameraActive={isCameraActive} floating={false} />
         <NativeArModeCard floating={false} />
       </div>
