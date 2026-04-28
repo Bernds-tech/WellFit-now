@@ -33,6 +33,7 @@ Verbindet Unity-Ereignisse mit der WellFit-App/Bridge. Unity meldet nur Events, 
 Verarbeitet Touch-/Editor-Taps in der AR-Szene.
 
 - erster Tap: Buddy per `PlaceBuddyAtScreenPoint` auf erkannter realer Fläche platzieren
+- setzt den internen Platzierungsstatus nur, wenn die Platzierung wirklich erfolgreich war
 - weitere Taps: Buddy per `MoveBuddyToScreenPoint` zu angetipptem realem Flächenpunkt laufen oder springen lassen
 - meldet Fehler an WellFit, wenn AnchorController fehlt
 
@@ -44,6 +45,13 @@ Basissteuerung für Buddy-State, Animationen und einfache Aktionen.
 
 Setzt den Buddy per AR Raycast auf eine erkannte Fläche, bindet ihn an einen echten AR Anchor und bewegt ihn zu angetippten realen Flächenpunkten.
 
+Wichtige v1-Events:
+
+- `onAnchorCreated`
+- `onBuddyPlaced`
+- `onBuddyActionStarted`
+- `onArError`
+
 ### BuddyLookAtCamera
 
 Sorgt dafür, dass der Buddy weich zur Kamera beziehungsweise zum Nutzer schaut.
@@ -52,9 +60,20 @@ Sorgt dafür, dass der Buddy weich zur Kamera beziehungsweise zum Nutzer schaut.
 
 Repräsentiert erkannte oder manuell markierte Flächen wie Boden, Tisch, Couch, Kastl oder Plattform.
 
+Wichtig:
+
+- `surfaceId` dient als stabile Event-Referenz für spätere Surface-/Reached-Events.
+- Surface Nodes sind zuerst Hilfsobjekte, keine Reward- oder Completion-Autorität.
+
 ### BuddyNavigationController
 
 Erlaubt einfache Bewegung, WalkTo, JumpTo und Sprung zwischen Surface Nodes.
+
+Wichtige v1-Events:
+
+- `onBuddyReachedSurface`
+- `onBuddyActionCompleted`
+- `onBuddyActionRejected`
 
 ### BuddyAbilityController
 
@@ -64,14 +83,14 @@ Verwaltet Fähigkeiten wie climbUp, jumpBoost, fetchClue, scanObject, carry und 
 
 Verwaltet den aktuellen Guide-Kontext für Mission, Empfehlung, Altersband, Rewardstatus, benötigte Fähigkeit, benötigtes Item und Buddy-Stimmung.
 
-Er meldet Events wie:
+Er meldet nur erlaubte AR-Event-Contract-Namen wie:
 
-- `onBuddyGuideContextUpdated`
+- `onBuddyContextUpdated`
 - `onBuddyMissionSuggested`
 - `onBuddyCapabilityNeeded`
 - `onBuddyMissionProgress`
-- `onBuddyGuideStepExplained`
-- `onBuddyGuideContextCleared`
+- `onBuddyDialogueShown`
+- `onBuddyDialogueCompleted`
 
 Der Controller darf keine Rewards, XP, Punkte oder Mission Completion autorisieren.
 
@@ -83,7 +102,6 @@ Er meldet Events wie:
 
 - `onBuddyDialogueShown`
 - `onBuddyDialogueCompleted`
-- `onBuddyDialogueCleared`
 
 ### ArMissionHintMarker
 
@@ -94,6 +112,30 @@ Er meldet Events wie:
 - `onArHintMarkerCreated`
 - `onArHintMarkerFocused`
 - `onArHintMarkerResolved`
+
+## Event Contract Audit
+
+Vor dem Öffnen/Kompilieren in Unity immer das Copy-Skript ausführen:
+
+```bash
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.sh
+```
+
+oder unter Windows PowerShell:
+
+```powershell
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.ps1
+```
+
+Pflichtmeldung:
+
+```txt
+Event contract audit passed
+```
+
+Wenn alte Eventnamen gemeldet werden, nicht kompilieren. Erst Vorlagen oder kopierte Script-Dateien bereinigen.
 
 ## Sicherheitsgrenze
 
