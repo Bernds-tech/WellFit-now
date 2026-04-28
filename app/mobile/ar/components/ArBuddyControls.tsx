@@ -7,6 +7,7 @@ type ArBuddyControlsProps = {
   onToggleWalk: () => void;
   onToggleAnchorMode: () => void;
   onClearAnchor: () => void;
+  floating?: boolean;
 };
 
 export default function ArBuddyControls({
@@ -18,9 +19,14 @@ export default function ArBuddyControls({
   onToggleWalk,
   onToggleAnchorMode,
   onClearAnchor,
+  floating = true,
 }: ArBuddyControlsProps) {
+  const positionClass = floating
+    ? "absolute inset-x-3 bottom-3 z-40"
+    : "relative z-40";
+
   return (
-    <div className="absolute inset-x-3 bottom-3 z-40 rounded-[24px] bg-[#042f35]/76 p-2 shadow-[0_16px_38px_rgba(0,0,0,0.28)] backdrop-blur-md">
+    <div className={`${positionClass} rounded-[24px] bg-[#042f35]/76 p-2 shadow-[0_16px_38px_rgba(0,0,0,0.28)] backdrop-blur-md`}>
       <div className="grid grid-cols-4 gap-2">
         <button
           type="button"
