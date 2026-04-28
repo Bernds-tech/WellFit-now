@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import DesktopBuddyOverlay from "@/components/buddy/DesktopBuddyOverlay";
 
 const helpCards = [
   { title: "Erste Schritte", text: "Registrieren, einloggen und dein WellFit-Profil einrichten." },
@@ -10,6 +11,12 @@ const helpCards = [
   { title: "Flammi & KI-Buddy", text: "Dein Buddy begleitet dich, reagiert auf deine Angaben und motiviert dich." },
   { title: "Einstellungen", text: "Profil, Körperdaten, Benachrichtigungen, Privatsphäre und Berechtigungen verwalten." },
   { title: "Datenschutz", text: "Gesundheits-, Bewegungs- und Kameradaten werden nur mit Zustimmung genutzt." },
+];
+
+const rudiSteps = [
+  { title: "Willkommen!", text: "Ich bin Rudi Rastlos. Ich begleite dich hier in der Hilfe und zeige dir spaeter direkt, wo du klicken musst." },
+  { title: "Erste Schritte", text: "Starte mit Dashboard und Einstellungen. Danach kannst du deine ersten Missionen ausprobieren." },
+  { title: "KI-Buddy", text: "Spaeter kann dein Buddy mit dir sprechen, Seiten erklaeren und passende Aufgaben vorschlagen." },
 ];
 
 export default function HilfePage() {
@@ -69,6 +76,8 @@ export default function HilfePage() {
           WellFit motiviert dich zu Bewegung, ersetzt aber keine medizinische Beratung. Bei Schmerzen, Beschwerden oder Unsicherheit wende dich bitte an medizinisches Fachpersonal.
         </p>
       </section>
+
+      <DesktopBuddyOverlay routeLabel="Hilfe" steps={rudiSteps} />
 
       <style jsx>{`
         .rudi-float {
