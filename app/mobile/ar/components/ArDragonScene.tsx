@@ -49,15 +49,22 @@ function getMoodScale(mood: ArBuddyMood) {
   if (mood === "playful") return 1.08;
   if (mood === "happy") return 1.12;
   if (mood === "returning") return 1.04;
+  if (mood === "curious") return 1.06;
   return 1;
 }
 
 function DragonModel({ mood, position, actionCount, anchor, autoWalkEnabled, onDragonTap }: DragonModelProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const bodyRef = useRef<THREE.Mesh>(null);
   const leftWingRef = useRef<THREE.Mesh>(null);
   const rightWingRef = useRef<THREE.Mesh>(null);
   const tailRef = useRef<THREE.Mesh>(null);
   const headRef = useRef<THREE.Mesh>(null);
+  const leftEyeRef = useRef<THREE.Mesh>(null);
+  const rightEyeRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
+  const sparkARef = useRef<THREE.Mesh>(null);
+  const sparkBRef = useRef<THREE.Mesh>(null);
   const anchorBase = anchor ? anchorToWorld(anchor) : null;
   const fallbackPosition = dragonPositions[position];
 
@@ -74,37 +81,75 @@ function DragonModel({ mood, position, actionCount, anchor, autoWalkEnabled, onD
     const group = groupRef.current;
 
     if (group) {
-      const orbitX = anchorBase && autoWalkEnabled ? Math.sin(time * 1.35 + actionCount) * 0.34 : 0;
-      const orbitZ = anchorBase && autoWalkEnabled ? Math.cos(time * 1.35 + actionCount) * 0.18 : 0;
+      const walkSpeed = mood === "playful" ? 1.85 : 1.15;
+      const orbitX = anchorBase && autoWalkEnabled ? Math.sin(time * walkSpeed + actionCount) * 0.38 : 0;
+      const orbitZ = anchorBase && autoWalkEnabled ? Math.cos(time * walkSpeed + actionCount) * 0.22 : 0;
+      const driftX = !anchorBase && mood === "curious" ? Math.sin(time * 0.65 + actionCount) * 0.1 : 0;
+      const driftZ = !anchorBase && mood === "listening" ? Math.cos(time * 0.55 + actionCount) * 0.06 : 0;
       const targetPosition: [number, number, number] = anchorBase
         ? [anchorBase[0] + orbitX, anchorBase[1], anchorBase[2] + orbitZ]
-        : fallbackPosition;
+        : [fallbackPosition[0] + driftX, fallbackPosition[1], fallbackPosition[2] + driftZ];
 
-      group.position.lerp(new THREE.Vector3(...targetPosition), 0.08);
-      group.rotation.y = anchorBase && autoWalkEnabled ? Math.sin(time * 1.35 + actionCount) * 0.8 : Math.sin(time * 0.9 + actionCount) * 0.22;
+      group.position.lerp(new THREE.Vector3(...targetPosition), mood === "returning" ? 0.14 : 0.08);
+      group.rotation.y = anchorBase && autoWalkEnabled
+        ? Math.sin(time * walkSpeed + actionCount) * 0.85
+        : Math.sin(time * 0.9 + actionCount) * (mood === "curious" ? 0.34 : 0.22);
       group.rotation.z = Math.sin(time * 1.7) * 0.035;
-      group.position.y = targetPosition[1] + Math.sin(time * (mood === "playful" ? 4.2 : 2.2)) * (mood === "playful" ? 0.11 : 0.045);
+      const bounceSpeed = mood === "playful" ? 4.8 : mood === "happy" ? 3.1 : 2.1;
+      const bounceHeight = mood === "playful" ? 0.13 : mood === "happy" ? 0.075 : 0.045;
+      group.position.y = targetPosition[1] + Math.sin(time * bounceSpeed) * bounceHeight;
       const isFar = anchorBase ? targetPosition[2] < -0.45 : position.includes("far");
-      const scale = getMoodScale(mood) * (isFar ? 0.76 : 1);
+      const breathing = 1 + Math.sin(time * 2.35) * 0.018;
+      const scale = getMoodScale(mood) * (isFar ? 0.76 : 1) * breathing;
       group.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.12);
     }
 
+    if (bodyRef.current) {
+      bodyRef.current.rotation.x = Math.sin(time * 1.4) * 0.035;
+    }
+
     if (leftWingRef.current) {
-      leftWingRef.current.rotation.z = -0.55 + Math.sin(time * 6.4) * (mood === "playful" ? 0.42 : 0.22);
+      leftWingRef.current.rotation.z = -0.55 + Math.sin(time * 6.4) * (mood === "playful" ? 0.46 : 0.24);
+      leftWingRef.current.rotation.y = Math.sin(time * 4.6) * 0.09;
     }
 
     if (rightWingRef.current) {
-      rightWingRef.current.rotation.z = 0.55 - Math.sin(time * 6.4) * (mood === "playful" ? 0.42 : 0.22);
+      rightWingRef.current.rotation.z = 0.55 - Math.sin(time * 6.4) * (mood === "playful" ? 0.46 : 0.24);
+      rightWingRef.current.rotation.y = -Math.sin(time * 4.6) * 0.09;
     }
 
     if (tailRef.current) {
-      tailRef.current.rotation.y = Math.sin(time * 2.7) * 0.35;
+      tailRef.current.rotation.y = Math.sin(time * 2.7) * (mood === "happy" ? 0.46 : 0.35);
       tailRef.current.rotation.z = 0.25 + Math.sin(time * 2.1) * 0.12;
     }
 
     if (headRef.current) {
-      headRef.current.rotation.y = Math.sin(time * 1.2) * 0.18;
+      headRef.current.rotation.y = Math.sin(time * 1.2 + actionCount) * (mood === "curious" ? 0.3 : 0.18);
       headRef.current.rotation.x = Math.sin(time * 1.6) * 0.08;
+    }
+
+    const blink = Math.sin(time * 3.2) > 0.965 ? 0.25 : 1;
+    if (leftEyeRef.current) {
+      leftEyeRef.current.scale.y = THREE.MathUtils.lerp(leftEyeRef.current.scale.y, blink, 0.32);
+    }
+    if (rightEyeRef.current) {
+      rightEyeRef.current.scale.y = THREE.MathUtils.lerp(rightEyeRef.current.scale.y, blink, 0.32);
+    }
+
+    if (glowRef.current) {
+      const glowPulse = mood === "happy" || mood === "playful" || mood === "curious" ? 0.3 + Math.sin(time * 3.4) * 0.12 : 0.12;
+      glowRef.current.scale.setScalar(1 + Math.sin(time * 2.8) * 0.08);
+      const material = glowRef.current.material as THREE.MeshBasicMaterial;
+      material.opacity = glowPulse;
+    }
+
+    if (sparkARef.current) {
+      sparkARef.current.position.y = 0.72 + Math.sin(time * 3.1) * 0.08;
+      sparkARef.current.position.x = -0.18 + Math.cos(time * 2.2) * 0.05;
+    }
+    if (sparkBRef.current) {
+      sparkBRef.current.position.y = 0.6 + Math.cos(time * 2.7) * 0.07;
+      sparkBRef.current.position.x = 0.22 + Math.sin(time * 2.4) * 0.05;
     }
   });
 
@@ -115,7 +160,12 @@ function DragonModel({ mood, position, actionCount, anchor, autoWalkEnabled, onD
         <meshBasicMaterial color="#000000" transparent opacity={0.26} />
       </mesh>
 
-      <mesh castShadow position={[0, 0, 0]}>
+      <mesh ref={glowRef} position={[0, 0.1, 0.05]}>
+        <sphereGeometry args={[0.58, 32, 32]} />
+        <meshBasicMaterial color="#67e8f9" transparent opacity={0.14} depthWrite={false} />
+      </mesh>
+
+      <mesh ref={bodyRef} castShadow position={[0, 0, 0]}>
         <sphereGeometry args={[0.42, 32, 32]} />
         <meshStandardMaterial color={bodyColor} roughness={0.42} metalness={0.08} />
       </mesh>
@@ -125,11 +175,11 @@ function DragonModel({ mood, position, actionCount, anchor, autoWalkEnabled, onD
         <meshStandardMaterial color={bodyColor} roughness={0.4} metalness={0.05} />
       </mesh>
 
-      <mesh castShadow position={[-0.1, 0.52, 0.51]}>
+      <mesh ref={leftEyeRef} castShadow position={[-0.1, 0.52, 0.51]}>
         <sphereGeometry args={[0.045, 16, 16]} />
         <meshStandardMaterial color="#042f35" roughness={0.18} />
       </mesh>
-      <mesh castShadow position={[0.1, 0.52, 0.51]}>
+      <mesh ref={rightEyeRef} castShadow position={[0.1, 0.52, 0.51]}>
         <sphereGeometry args={[0.045, 16, 16]} />
         <meshStandardMaterial color="#042f35" roughness={0.18} />
       </mesh>
@@ -166,11 +216,17 @@ function DragonModel({ mood, position, actionCount, anchor, autoWalkEnabled, onD
         <meshStandardMaterial color="#fef3c7" roughness={0.35} />
       </mesh>
 
-      {mood === "happy" || mood === "playful" ? (
-        <mesh position={[0, 0.45, 0.72]}>
-          <sphereGeometry args={[0.055, 16, 16]} />
-          <meshBasicMaterial color="#fde68a" transparent opacity={0.88} />
-        </mesh>
+      {mood === "happy" || mood === "playful" || mood === "curious" ? (
+        <>
+          <mesh ref={sparkARef} position={[-0.18, 0.72, 0.7]}>
+            <sphereGeometry args={[0.045, 16, 16]} />
+            <meshBasicMaterial color="#fde68a" transparent opacity={0.88} />
+          </mesh>
+          <mesh ref={sparkBRef} position={[0.22, 0.6, 0.72]}>
+            <sphereGeometry args={[0.035, 16, 16]} />
+            <meshBasicMaterial color="#67e8f9" transparent opacity={0.82} />
+          </mesh>
+        </>
       ) : null}
     </group>
   );
