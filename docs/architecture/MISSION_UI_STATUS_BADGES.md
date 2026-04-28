@@ -1,7 +1,7 @@
 # WellFit – Mission UI Status Badges
 
 Stand: 2026-04-28
-Status: UI-/UX-Plan fuer Platzhalter, KI-Drafts und freigegebene Missionen
+Status: UI-/UX-Plan und erste Umsetzung fuer Platzhalter, KI-Drafts und freigegebene Missionen
 
 ## Zweck
 
@@ -43,6 +43,25 @@ completed -> Abgeschlossen
 rejected -> Nicht verfuegbar
 ```
 
+## Umsetzung 2026-04-28
+
+```txt
+[x] TypeScript Status-Typ definiert: lib/missions/missionUiStatusTypes.ts
+[x] Gemeinsame Status-Helper ergaenzt: getMissionUiStatusDefinition, getMissionUiStatusLabel, isMissionUiStatusStartable.
+[x] Gemeinsame Notice-Texte ergaenzt: MISSION_PLACEHOLDER_NOTICE und MISSION_SERVER_REWARD_NOTICE.
+[x] canGrantReward bleibt typisiert false.
+[x] Badge-Komponente angelegt: app/missionen/components/MissionStatusBadge.tsx.
+[x] Sicherer Missionsseiten-Wrapper angelegt: app/missionen/components/PreparedMissionPage.tsx.
+[x] Vorhandene Missionsseiten auf Platzhalter-/Containerstatus vorbereitet:
+    - app/missionen/tagesmissionen/page.tsx
+    - app/missionen/wochenmissionen/page.tsx
+    - app/missionen/abenteuer/page.tsx
+    - app/missionen/challenge/page.tsx
+    - app/missionen/wettkaempfe/page.tsx
+    - app/missionen/favoriten/page.tsx
+    - app/missionen/history/page.tsx
+```
+
 ## UX-Regeln
 
 ### Platzhalter
@@ -52,6 +71,7 @@ Darf zeigen:
 ```txt
 Dieser Bereich ist vorbereitet.
 Missionen werden spaeter durch den KI-Buddy erstellt.
+Rewards werden serverseitig geprueft.
 ```
 
 Darf nicht zeigen:
@@ -116,7 +136,9 @@ Reward wird serverseitig geprueft
 
 ## Naechste Schritte
 
-- [ ] TypeScript Status-Typ definieren.
-- [ ] Badge-Komponente planen oder bestehende Mission Cards erweitern.
-- [ ] Vorhandene Missionsseiten pruefen.
-- [ ] Platzhaltertexte einheitlich machen.
+- [x] TypeScript Status-Typ definieren.
+- [x] Badge-Komponente planen oder bestehende Mission Cards erweitern.
+- [x] Vorhandene Missionsseiten pruefen.
+- [x] Platzhaltertexte einheitlich machen.
+- [ ] Build lokal/Server pruefen.
+- [ ] Spaeter allowed/approved MissionDrafts aus serverseitiger Preview API anzeigen.
