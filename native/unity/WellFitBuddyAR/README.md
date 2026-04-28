@@ -20,6 +20,8 @@ Der Buddy soll in der realen Welt verankert werden, sich auf erkannten Flaechen 
 - Idle Animation
 - LookAtCamera Verhalten
 - Tap auf Flaeche setzt Weltanker
+- weiterer Tap bewegt Buddy zu realem Flaechenpunkt
+- Buddy kann bei Hoehenunterschied zu Zielpunkt springen
 - Buddy bleibt beim Schwenken des Handys an Weltposition
 
 ## Muss-Kriterien
@@ -61,6 +63,26 @@ Dieses Repo enthaelt vorab:
 - Entwicklerarbeitsgrundlage
 - C#-Vorlagen fuer `Assets/Scripts/*.cs`
 
+## Native Bridge Commands
+
+Siehe:
+
+```txt
+docs/NATIVE_BRIDGE_COMMANDS.md
+```
+
+Wichtige Commands:
+
+- `StartSession()`
+- `StopSession()`
+- `PlaceBuddyAtScreenPointJson(...)`
+- `MoveBuddyToScreenPointJson(...)`
+- `ResetBuddyPlacement()`
+- `SuggestMissionJson(...)`
+- `ExplainMissingCapabilityJson(...)`
+
+Diese Commands sind Einstiegspunkte fuer die spaetere Android-/iOS-/App-Bridge. Unity meldet danach Events zurueck; Backend/App entscheiden Rewards, Mission Completion und Anti-Cheat.
+
 ## Naechste lokale Schritte
 
 1. Unity Hub installieren.
@@ -88,12 +110,16 @@ Scripts/*.cs.txt
 Aktuelle Vorlagen:
 
 - `WellFitNativeBridge.cs.txt`
+- `BuddyInputController.cs.txt`
 - `BuddyController.cs.txt`
 - `BuddyAnchorController.cs.txt`
 - `BuddyLookAtCamera.cs.txt`
 - `BuddySurfaceNode.cs.txt`
 - `BuddyNavigationController.cs.txt`
 - `BuddyAbilityController.cs.txt`
+- `BuddyKiGuideController.cs.txt`
+- `BuddyDialogueEventBridge.cs.txt`
+- `ArMissionHintMarker.cs.txt`
 
 ## Setup-Checkliste
 
