@@ -1,0 +1,120 @@
+WELLFIT – ISSUE #8 AR-BUDDY MICRO-TASK LOG
+Stand: 2026-04-28
+Repository: Bernds-tech/WellFit-now
+
+============================================================
+ZIEL
+============================================================
+
+Hauptstrang dieses Chats:
+
+[x] KI-/AR-Buddy realraumfest lauffähig machen.
+[x] Issue #8 – AR-Buddy: Bewegungsverhalten wie Referenzvideo umsetzen.
+[x] Fokus: Unity AR Foundation / ARCore / ARKit.
+[x] Ziel: erster echter Handy-Test.
+
+Erfolgskriterium:
+
+```txt
+Buddy wird auf realer Flaeche platziert,
+bleibt beim Kameraschwenk an Ort und Stelle,
+und bewegt sich zu einem zweiten Tap-Punkt.
+```
+
+Nicht Teil dieses Blocks:
+
+[!] Keine Missionslogik weiter ausbauen.
+[!] Keine Punkte/XP/Rewards/Completion in Unity.
+[!] Keine Token-/NFT-/Trading-Funktionen in Mobile.
+
+============================================================
+AKTUELL UMGESETZTE MICRO-TASKS
+============================================================
+
+[x] NEXT_CHAT_HANDOFF_PROMPT.md gelesen.
+[x] CHAT_START_PROMPT.md gelesen.
+[x] AUTONOMOUS_ITERATION_MODE.md gelesen.
+[x] todolist/README.md gelesen.
+[x] J - NÄCHSTE EMPFOHLENE ARBEIT gelesen.
+[x] Issue #8 gelesen und als Arbeitsanker verwendet.
+[x] Unity Setup Checklist gelesen.
+[x] First Android ARCore Runbook gelesen.
+[x] AR Scene Validation Checklist gelesen.
+[x] Buddy Placeholder Prefab Guide gelesen.
+[x] Scene Setup gelesen.
+[x] AR Event Contract gelesen.
+[x] Unity-Skripte BuddyInputController, BuddyAnchorController, BuddyNavigationController, WellFitNativeBridge gelesen.
+
+Code-/Doku-Änderungen:
+
+[x] BuddyInputController gehaertet: Platzierungsstatus wird nur nach erfolgreichem Plane-Hit/Anchor-Placement gesetzt.
+[x] BuddyAnchorController gehaertet: Place/Move geben Erfolg boolesch zurueck.
+[x] BuddyAnchorController gehaertet: fehlende Prefab-/Raycast-/Anchor-Referenzen liefern konkrete onArError-Codes.
+[x] BuddyAnchorController erweitert: onAnchorCreated wird gemeldet.
+[x] BuddyAnchorController erweitert: onBuddyPlaced enthaelt anchorId/surfaceId/status/source.
+[x] BuddyAnchorController erweitert: Move-Events enthalten surfaceId und anchorId.
+[x] BuddyNavigationController erweitert: Bridge-/SurfaceId-Setzer ergaenzt.
+[x] BuddyNavigationController erweitert: onBuddyReachedSurface und onBuddyActionCompleted nach Zielerreichung.
+[x] BuddyNavigationController erweitert: Jump dreht Buddy Richtung Ziel.
+[x] BuddySurfaceNode erweitert: surfaceId als spaetere Event-Referenz.
+[x] Scripts/README.md auf aktuelle AR Event Contract Allowlist gebracht.
+[x] docs/FIRST_PHONE_AR_BUDDY_TEST.md angelegt.
+[x] native/unity/WellFitBuddyAR/README.md um First-Phone-Testkarte erweitert.
+[x] docs/ISSUE_8_AR_BUDDY_IMPLEMENTATION_LOG.md angelegt.
+[x] GitHub-Code-Suche nach alten Eventnamen ergab keine Treffer.
+
+============================================================
+BETROFFENE DATEIEN
+============================================================
+
+```txt
+native/unity/WellFitBuddyAR/Scripts/BuddyInputController.cs.txt
+native/unity/WellFitBuddyAR/Scripts/BuddyAnchorController.cs.txt
+native/unity/WellFitBuddyAR/Scripts/BuddyNavigationController.cs.txt
+native/unity/WellFitBuddyAR/Scripts/BuddySurfaceNode.cs.txt
+native/unity/WellFitBuddyAR/Scripts/README.md
+native/unity/WellFitBuddyAR/README.md
+native/unity/WellFitBuddyAR/docs/FIRST_PHONE_AR_BUDDY_TEST.md
+native/unity/WellFitBuddyAR/docs/ISSUE_8_AR_BUDDY_IMPLEMENTATION_LOG.md
+todolist/J1 - ISSUE 8 AR-BUDDY MICRO-TASK LOG
+```
+
+============================================================
+RISIKEN / BUILD-HINWEISE
+============================================================
+
+[!] Unity-/ARCore-Build konnte in diesem Chat nicht lokal ausgefuehrt werden, weil ein echtes lokales Unity-Projekt und ARCore-Handy-Testlauf erforderlich sind.
+[!] Die C#-Vorlagen setzen AR Foundation voraus. AR Foundation, ARCore XR Plugin und XR Plugin Management muessen im Unity Package Manager installiert sein.
+[!] `ARAnchorManager.AddAnchor(...)` kann je nach AR Foundation Version Warnungen oder API-Aenderungen zeigen. Bei Compile-Fehlern Unity-Konsole dokumentieren und gezielt migrieren.
+[!] Wenn Tap 1 keinen Plane-Hit liefert, bleibt der Buddy bewusst unplatziert. Das ist richtig und verhindert falschen Move-State.
+[!] Wenn der Buddy am Display klebt, ist der Parent/Anchor/XR-Origin-Aufbau falsch.
+[!] Unity bleibt reine AR-Event-Schicht. Jede Reward-/Completion-/Punkte-Logik waere ein Architekturbruch.
+
+============================================================
+NÄCHSTE MICRO-TASKS
+============================================================
+
+[ ] Unity Hub lokal öffnen.
+[ ] Unity 2022.3 LTS verwenden.
+[ ] Projekt `native/unity/WellFitBuddyAR` erzeugen.
+[ ] AR Foundation, ARCore XR Plugin, XR Plugin Management installieren.
+[ ] Szene `WellFitBuddyAR` nach SCENE_SETUP.md anlegen.
+[ ] Copy-Skript ausführen und `Event contract audit passed` bestätigen.
+[ ] BuddyPlaceholder Prefab nach BUDDY_PLACEHOLDER_PREFAB.md bauen.
+[ ] FIRST_PHONE_AR_BUDDY_TEST.md auf echtem Android-ARCore-Handy durchführen.
+[ ] Unity-Konsole prüfen: onAnchorCreated, onBuddyPlaced, onBuddyActionStarted, onBuddyReachedSurface, onBuddyActionCompleted.
+[ ] Falls Compile-/Runtime-Fehler auftreten: Ausgabe in Issue #8 dokumentieren.
+[ ] Danach Animationen minimalisieren: idle/walk/hop/land.
+[ ] Danach echte App-/Native-Bridge planen.
+
+============================================================
+SICHERHEITSSTATUS
+============================================================
+
+[x] Keine Punktevergabe in Unity.
+[x] Keine XP-Vergabe in Unity.
+[x] Keine Reward-Freigabe in Unity.
+[x] Keine Mission Completion in Unity.
+[x] Keine Token-/WFT-/NFT-/Trading-Funktion in Unity.
+[x] Keine Jackpot-/Burn-/Leaderboard-Autoritaet in Unity.
+[x] Unity meldet nur AR-Events.
