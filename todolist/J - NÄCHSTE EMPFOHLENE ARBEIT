@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 7.9 – UNITY TAP-STEUERUNG FUER ECHTEN AR-BUDDY ERGAENZT
+Version: 8.0 – MOBILE-KAMERA-PREVIEW STARTUP ROBUSTER GEMACHT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -61,28 +61,19 @@ PRIO 1 – KI-BUDDY / UNITY AR FOUNDATION
 
 STATUS: [~] Aktiv / Repository-Vorbereitung läuft
 
-ZIEL:
-Der Buddy soll nicht als 2D-Overlay wirken, sondern als echter 3D-Begleiter in der realen Umgebung erscheinen.
-
-MUSS-KRITERIEN:
-[ ] Buddy bleibt an realer Weltposition, wenn das Handy geschwenkt wird.
-[ ] Buddy kann auf Boden, Couch, Tisch, Kastl oder anderen erkannten Flächen stehen.
-[ ] Buddy kann in der realen Umgebung laufen.
-[ ] Buddy kann von der Couch herunter springen.
-[ ] Buddy kann auf ein Kastl oder eine andere Fläche springen.
-[ ] Buddy kann später klettern, balancieren oder sich an Höhenunterschiede anpassen.
-[ ] Buddy schaut zur Kamera beziehungsweise zum Nutzer.
-[ ] Buddy kann auf Objekte oder Orte in der Umgebung aufmerksam machen.
-[ ] Buddy wirkt glaubwürdig durch Schatten, Skalierung, Perspektive und später Verdeckung/Occlusion.
-[ ] Buddy kann Fähigkeiten abhängig von Ausrüstung einsetzen: klettern, springen, holen, scannen, markieren, tragen.
-
 REPO-VORBEREITUNG:
 [x] `native/unity/WellFitBuddyAR/README.md` vorhanden.
 [x] `native/unity/WellFitBuddyAR/docs/SCENE_SETUP.md` vorhanden.
 [x] `native/unity/WellFitBuddyAR/docs/BUDDY_AR_MUST_CRITERIA.md` angelegt.
 [x] `native/unity/WellFitBuddyAR/docs/UNITY_SETUP_CHECKLIST.md` angelegt.
+[x] `native/unity/WellFitBuddyAR/docs/FIRST_ANDROID_ARCORE_RUNBOOK.md` angelegt.
+[x] `native/unity/WellFitBuddyAR/docs/ANDROID_PLAYER_SETTINGS.md` angelegt.
+[x] `native/unity/WellFitBuddyAR/docs/BUDDY_PLACEHOLDER_PREFAB.md` angelegt.
+[x] `native/unity/WellFitBuddyAR/docs/AR_SCENE_VALIDATION_CHECKLIST.md` angelegt.
 [x] `native/unity/WellFitBuddyAR/Scripts/README.md` aktualisiert.
-[x] C#-Vorlagen vorbereitet:
+[x] `native/unity/WellFitBuddyAR/tools/copy-scripts.ps1` angelegt.
+[x] `native/unity/WellFitBuddyAR/tools/copy-scripts.sh` angelegt.
+[x] C#-Vorlagen vorbereitet und erweitert:
     - `WellFitNativeBridge.cs.txt`
     - `BuddyInputController.cs.txt`
     - `BuddyController.cs.txt`
@@ -100,25 +91,13 @@ REPO-VORBEREITUNG:
 [x] `/mobile/ar` inaktive Kamera-Ansicht scrollbar gemacht, damit Kamera-, KI-Buddy- und Consent-Panels nicht ueberlappen.
 [x] `/mobile/ar` aktive Kamera-Ansicht scrollbar gemacht, damit Avatar sichtbar bleibt und Buttons darunter testbar sind.
 [x] WebGL-Buddy-Fallback lebendiger gemacht: Blinzeln, Atmen, Kopfbewegung, stärkere Flügel-/Schwanzbewegung, Glow und Funken bei happy/playful/curious.
+[x] Kamera-Preview-Start robuster gemacht: HTTPS-Prüfung, Constraint-Fallback, autoplay/muted/playsInline und play()-Fallback.
 [x] Unity-Vorlage `BuddyAnchorController.cs.txt` erweitert: Platzieren, zu realem Flächenpunkt laufen, bei Höhenunterschied springen, zum Nutzer zurückrufen.
 [x] Unity-Vorlage `BuddyInputController.cs.txt` ergänzt: erster Tap platziert Buddy, weitere Taps bewegen Buddy zu realen AR-RayCast-Flächenpunkten.
 [x] Unity Scene Setup und Copy-Plan um `BuddyInputController` erweitert.
+[ ] `/mobile/ar` am Handy erneut testen: Kamera startet, Umgebung sichtbar, Avatar sichtbar, Buttons scrollbar.
 [ ] Unity-Projekt lokal erzeugen.
 [ ] Erste Android-ARCore-Build-Kette testen.
-
-LOKALE UNITY-SCHRITTE:
-[ ] Unity Hub installieren/öffnen.
-[ ] Unity 2022.3 LTS als Startversion verwenden, sofern keine harte Inkompatibilität auftritt.
-[ ] Projekt `WellFitBuddyAR` unter `native/unity/WellFitBuddyAR` erzeugen.
-[ ] AR Foundation installieren.
-[ ] ARCore XR Plugin installieren.
-[ ] ARKit XR Plugin installieren.
-[ ] XR Plugin Management aktivieren.
-[ ] Szene `WellFitBuddyAR` anlegen.
-[ ] AR Session, XR Origin, AR Camera, AR Plane Manager, AR Raycast Manager, AR Anchor Manager anlegen.
-[ ] Buddy Placeholder anlegen.
-[ ] C#-Vorlagen aus `Scripts/*.cs.txt` in `Assets/Scripts/*.cs` übernehmen.
-[ ] Ersten Android ARCore Build testen.
 
 ============================================================
 PRIO 2 – KI-BUDDY ALS GUIDE / DIALOG / MISSIONSEMPFEHLER
@@ -141,25 +120,8 @@ STATUS: [~] Backend-/UI-Grundlage verbunden / echter Modelltest offen
 [x] `GET /api/buddy-ki` produktiv getestet: ok=true, providerMode=rules, modelConfigured=false, modelProviderEnabled=false.
 [x] `POST /api/buddy-ki` mit Intent `suggestMission` produktiv getestet: ok=true, providerMode=rules, fallbackReason=model-provider-disabled, Mission/Hint-Optionen vorhanden.
 [ ] `/mobile/ar` am Handy testen: Provider-Anzeige, Text, Optionen, Fallback, Scrollbarkeit bei inaktiver/aktiver Kamera und lebendigeren WebGL-Buddy.
-[ ] Server-Env für echten Modelltest setzen, falls gewünscht:
-    - `BUDDY_KI_PROVIDER=openai`
-    - `BUDDY_KI_MODEL=<explizit gewaehlt>`
-    - `OPENAI_API_KEY=<serverseitiger key>`
-[ ] Buddy-KI-Guide Datenmodell in App/Backend weiter ausbauen:
-    - aktuelle Mission
-    - nächste Empfehlung
-    - Dialogzustand
-    - Alter/Nutzerkontext
-    - Missionstyp
-    - Rewardstatus
-    - benötigte Fähigkeit / Ausrüstung
-[ ] Buddy erklärt Menüs und nächste Schritte.
-[ ] Buddy empfiehlt Tagesmissionen, Wochenmissionen, Rätsel und Challenges.
-[ ] Buddy reagiert altersgerecht.
-[ ] Buddy vermeidet medizinische Diagnosen.
-[ ] Buddy nutzt keine Scham-/Drucksprache als Standard.
-[ ] Buddy kann fehlende Ausrüstung erklären, ohne Kaufdruck zu erzeugen.
-[ ] Buddy kann faire Detours vorschlagen.
+[ ] Server-Env für echten Modelltest setzen, falls gewünscht.
+[ ] Buddy-KI-Guide Datenmodell in App/Backend weiter ausbauen.
 
 ============================================================
 PRIO 3 – SERVERSEITIGE MISSION COMPLETION / INTERNE REWARDS
@@ -186,6 +148,7 @@ STATUS: [ ] Vorbereitet / nach KI-Buddy-Grundstruktur weiterführen
 DAUERHAFTE HINWEISE
 ============================================================
 
+[!] Bei `npm install` kann ENOTEMPTY in `node_modules` auftreten; wenn Build danach erfolgreich ist, ist es nicht zwingend blockierend. Bei wiederholten Fehlern `node_modules` bereinigen und neu installieren.
 [!] Firebase CLI meldet: Nicht eingeloggt. Für lokale Demo-Emulator-Tests nicht kritisch.
 [!] Firebase CLI meldet: Java < 21 wird ab firebase-tools@15 nicht mehr unterstützt. Aktuell läuft Java 17, später auf Java 21 wechseln.
 [!] Firebase Functions Paket kann Upgrade-Hinweis melden. Später gezielt migrieren und Breaking Changes prüfen.
