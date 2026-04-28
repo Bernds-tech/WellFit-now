@@ -11,6 +11,7 @@ Assets/Scripts/*.cs
 ## Vorlagen
 
 - `WellFitNativeBridge.cs.txt`
+- `BuddyInputController.cs.txt`
 - `BuddyController.cs.txt`
 - `BuddyAnchorController.cs.txt`
 - `BuddyLookAtCamera.cs.txt`
@@ -27,13 +28,21 @@ Assets/Scripts/*.cs
 
 Verbindet Unity-Ereignisse mit der WellFit-App/Bridge. Unity meldet nur Events, entscheidet aber keine Rewards.
 
+### BuddyInputController
+
+Verarbeitet Touch-/Editor-Taps in der AR-Szene.
+
+- erster Tap: Buddy per `PlaceBuddyAtScreenPoint` auf erkannter realer Fläche platzieren
+- weitere Taps: Buddy per `MoveBuddyToScreenPoint` zu angetipptem realem Flächenpunkt laufen oder springen lassen
+- meldet Fehler an WellFit, wenn AnchorController fehlt
+
 ### BuddyController
 
 Basissteuerung für Buddy-State, Animationen und einfache Aktionen.
 
 ### BuddyAnchorController
 
-Setzt den Buddy per AR Raycast auf eine erkannte Fläche und bindet ihn an einen echten AR Anchor.
+Setzt den Buddy per AR Raycast auf eine erkannte Fläche, bindet ihn an einen echten AR Anchor und bewegt ihn zu angetippten realen Flächenpunkten.
 
 ### BuddyLookAtCamera
 
