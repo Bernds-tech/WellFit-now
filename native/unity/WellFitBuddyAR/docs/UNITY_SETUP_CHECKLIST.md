@@ -98,6 +98,30 @@ nach Unity-Projekt kopieren als:
 native/unity/WellFitBuddyAR/Assets/Scripts/*.cs
 ```
 
+Empfohlener Weg über Copy-Skript:
+
+macOS/Linux/Git Bash:
+
+```bash
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.sh
+```
+
+Windows PowerShell:
+
+```powershell
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.ps1
+```
+
+Pflicht-Erfolgsmeldung vor dem Öffnen/Kompilieren in Unity:
+
+```txt
+Event contract audit passed
+```
+
+Wenn das Copy-Skript wegen veralteter AR-Eventnamen abbricht, keine Unity-Kompilierung starten. Erst die gemeldete alte Script-Kopie oder Vorlage bereinigen.
+
 Pflichtdateien fuer ersten echten AR-Buddy-Test:
 
 - [ ] `WellFitNativeBridge.cs`
