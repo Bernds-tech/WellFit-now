@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 8.0 – MOBILE-KAMERA-PREVIEW STARTUP ROBUSTER GEMACHT
+Version: 8.1 – KI-BUDDY-GUIDE REQUEST-SEQUENCING GEHAERTET
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -111,6 +111,7 @@ STATUS: [~] Backend-/UI-Grundlage verbunden / echter Modelltest offen
 [x] `lib/buddyKi/buddyKiProviderOpenAi.ts` als optionaler serverseitiger Modellprovider angelegt.
 [x] AR-Guide-Panel `/mobile/ar` ist mit `buddyKiRemoteProvider` verbunden.
 [x] AR-Guide-Panel zeigt Backend-/Rules-/Remote-Antworten im UI an.
+[x] AR-Guide-Panel ignoriert jetzt veraltete asynchrone Buddy-KI-Antworten bei schnellen Demo-/Optionsklicks.
 [x] Option-Klicks erzeugen weiterhin sichere Native-AR-Buddy-Events.
 [x] Keine API Keys im Frontend.
 [x] Keine direkte KI im Handy.
