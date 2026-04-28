@@ -11,7 +11,7 @@ import ArStatusCard from "./components/ArStatusCard";
 import NativeArModeCard from "./components/NativeArModeCard";
 import ArBuddyEventPanel from "./components/ArBuddyEventPanel";
 
-const safePositions: ArBuddyPosition[] = ["nearLeft", "center", "farRight", "nearRight", "farLeft"];
+const safePositions: ArBuddyPosition[] = ["nearLeft", "center", "nearRight", "farRight", "center", "farLeft"];
 const tapMoods: ArBuddyMood[] = ["happy", "listening", "curious", "playful"];
 
 const buddyMessages: Record<ArBuddyMood, string> = {
@@ -20,7 +20,7 @@ const buddyMessages: Record<ArBuddyMood, string> = {
   happy: "Flammi freut sich. Tippe ihn an, damit er weiter reagiert.",
   listening: "Flammi hoert zu. Fuer echte Raumbewegung brauchen wir ARCore/ARKit.",
   curious: "Flammi schaut sich um. In diesem Browser-Modus noch ohne echtes World Tracking.",
-  playful: "Flammi laeuft in der Demo. Echte Bewegung ueber Couch, Boden und Moebel folgt in Native AR.",
+  playful: "Flammi laeuft sichtbar durch die Demo. Echtes Raumlaufen folgt in Unity AR.",
   returning: "Flammi kommt sichtbar zu dir zurueck.",
 };
 
@@ -32,7 +32,7 @@ function getNextPosition(current: ArBuddyPosition): ArBuddyPosition {
 export default function MobileArPage() {
   const { videoRef, permissionState, errorMessage, startCamera, stopCamera } = useCameraPreview({ facingMode: "environment" });
   const [buddyMood, setBuddyMood] = useState<ArBuddyMood>("idle");
-  const [buddyPosition, setBuddyPosition] = useState<ArBuddyPosition>("nearLeft");
+  const [buddyPosition, setBuddyPosition] = useState<ArBuddyPosition>("center");
   const [tapCount, setTapCount] = useState(0);
   const [autoWalkEnabled, setAutoWalkEnabled] = useState(false);
   const [anchorMode, setAnchorMode] = useState(false);
@@ -49,7 +49,7 @@ export default function MobileArPage() {
       setBuddyPosition((current) => getNextPosition(current));
       setBuddyMood("playful");
       setActionCount((current) => current + 1);
-    }, 1400);
+    }, 950);
 
     return () => window.clearInterval(walkTimer);
   }, [anchor, autoWalkEnabled, isCameraActive]);
@@ -72,7 +72,7 @@ export default function MobileArPage() {
     }
 
     if (autoWalkEnabled) {
-      return `${buddyMessages[buddyMood]} Demo-Bewegung aktiv. Wechsel: ${actionCount}`;
+      return `${buddyMessages[buddyMood]} Schritt: ${actionCount}`;
     }
 
     return buddyMessages[buddyMood];
@@ -86,10 +86,10 @@ export default function MobileArPage() {
     setAutoWalkEnabled(false);
     setBuddyMood("returning");
     setActionCount((current) => current + 1);
-    setBuddyPosition((current) => (current === "nearLeft" ? "farRight" : "center"));
+    setBuddyPosition("farRight");
 
     window.setTimeout(() => {
-      setBuddyPosition("nearLeft");
+      setBuddyPosition("center");
       setBuddyMood("called");
       setActionCount((current) => current + 1);
     }, 520);
@@ -98,12 +98,12 @@ export default function MobileArPage() {
   const startBuddyWalk = () => {
     if (!isCameraActive) return;
 
+    setAnchor(null);
+    setAnchorMode(false);
     setBuddyMood("playful");
     setAutoWalkEnabled(true);
+    setBuddyPosition("nearLeft");
     setActionCount((current) => current + 1);
-    if (!anchor) {
-      setBuddyPosition((current) => getNextPosition(current));
-    }
   };
 
   const stopBuddyWalk = () => {
@@ -138,7 +138,7 @@ export default function MobileArPage() {
     setAnchorMode(false);
     setAnchor(null);
     setBuddyMood("idle");
-    setBuddyPosition("nearLeft");
+    setBuddyPosition("center");
     setTapCount(0);
     setActionCount(0);
   };
@@ -153,17 +153,9 @@ export default function MobileArPage() {
       <main className="h-screen w-screen overflow-y-auto bg-black px-3 py-4 text-white">
         <div className="mx-auto flex min-h-full max-w-[560px] flex-col gap-4 pb-8">
           <ArStatusCard cameraActive={isCameraActive} message={statusMessage} floating={false} />
-
           <CameraPreview videoRef={videoRef} permissionState={permissionState} />
-
           <ArBuddyEventPanel cameraActive={isCameraActive} floating={false} />
-
-          <CameraPermissionPanel
-            permissionState={permissionState}
-            errorMessage={errorMessage}
-            onStartCamera={startCamera}
-            onStopCamera={handleStopCamera}
-          />
+          <CameraPermissionPanel permissionState={permissionState} errorMessage={errorMessage} onStartCamera={startCamera} onStopCamera={handleStopCamera} />
         </div>
       </main>
     );
