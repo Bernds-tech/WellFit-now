@@ -14,6 +14,34 @@ Tap 2 -> Buddy zu realem Plane-Punkt bewegen
 Kameraschwenk -> Buddy bleibt an Weltposition
 ```
 
+## 0. Script Copy / Event Contract Audit
+
+Vor der Szene-Validierung muss das Copy-Skript erfolgreich gelaufen sein.
+
+macOS/Linux/Git Bash:
+
+```bash
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.sh
+```
+
+Windows PowerShell:
+
+```powershell
+cd native/unity/WellFitBuddyAR
+./tools/copy-scripts.ps1
+```
+
+Pflicht-Ergebnis:
+
+```txt
+Event contract audit passed
+```
+
+- [ ] C#-Vorlagen wurden nach `Assets/Scripts/*.cs` kopiert.
+- [ ] Event Contract Audit wurde bestanden.
+- [ ] Keine alten AR-Eventnamen in `Assets/Scripts/*.cs` vorhanden.
+
 ## 1. Scene Objects vorhanden
 
 - [ ] `AR Session` vorhanden.
