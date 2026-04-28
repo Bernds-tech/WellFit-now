@@ -6,13 +6,17 @@ public class BuddyNavigationController : MonoBehaviour
     public float walkSpeed = 0.45f;
     public float jumpDuration = 0.55f;
     public float jumpHeight = 0.22f;
+    public float reachedDistanceMeters = 0.02f;
 
+    private WellFitNativeBridge bridge;
     private Vector3 targetPosition;
     private bool isWalking;
     private bool isJumping;
     private float jumpTimer;
     private Vector3 jumpStart;
     private Vector3 jumpEnd;
+    private string targetSurfaceId = "unknown";
+    private string currentAction = "idle";
 
     void Awake()
     {
@@ -20,6 +24,7 @@ public class BuddyNavigationController : MonoBehaviour
         {
             buddyRoot = transform;
         }
+
         targetPosition = buddyRoot.position;
     }
 
@@ -37,11 +42,22 @@ public class BuddyNavigationController : MonoBehaviour
         }
     }
 
+    public void SetBridge(WellFitNativeBridge nativeBridge)
+    {
+        bridge = nativeBridge;
+    }
+
+    public void SetTargetSurfaceId(string surfaceId)
+    {
+        targetSurfaceId = string.IsNullOrEmpty(surfaceId) ? "unknown" : surfaceId;
+    }
+
     public void WalkTo(Vector3 worldPosition)
     {
         targetPosition = worldPosition;
         isWalking = true;
         isJumping = false;
+        currentAction = "walkToSurface";
     }
 
     public void JumpTo(Vector3 worldPosition)
@@ -51,12 +67,14 @@ public class BuddyNavigationController : MonoBehaviour
         jumpTimer = 0f;
         isWalking = false;
         isJumping = true;
+        currentAction = "jumpToSurface";
     }
 
     public void MoveToSurfaceNode(BuddySurfaceNode node)
     {
         if (node == null) return;
 
+        SetTargetSurfaceId(node.surfaceId);
         float heightDifference = node.transform.position.y - buddyRoot.position.y;
         if (Mathf.Abs(heightDifference) > 0.15f && node.isJumpTarget)
         {
@@ -65,6 +83,10 @@ public class BuddyNavigationController : MonoBehaviour
         else if (node.isWalkable)
         {
             WalkTo(node.transform.position);
+        }
+        else
+        {
+            bridge?.SendEventToWellFit("onBuddyActionRejected", "{\"reason\":\"surface-not-walkable\",\"surfaceId\":\"" + targetSurfaceId + "\"}");
         }
     }
 
@@ -81,9 +103,11 @@ public class BuddyNavigationController : MonoBehaviour
             buddyRoot.rotation = Quaternion.Slerp(buddyRoot.rotation, Quaternion.LookRotation(direction.normalized, Vector3.up), Time.deltaTime * 8f);
         }
 
-        if (Vector3.Distance(next, targetPosition) < 0.02f)
+        if (Vector3.Distance(next, targetPosition) <= reachedDistanceMeters)
         {
+            buddyRoot.position = targetPosition;
             isWalking = false;
+            SendReachedEvents();
         }
     }
 
@@ -95,10 +119,25 @@ public class BuddyNavigationController : MonoBehaviour
         float arc = Mathf.Sin(t * Mathf.PI) * jumpHeight;
         buddyRoot.position = flatPosition + Vector3.up * arc;
 
+        Vector3 direction = jumpEnd - jumpStart;
+        direction.y = 0f;
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            buddyRoot.rotation = Quaternion.Slerp(buddyRoot.rotation, Quaternion.LookRotation(direction.normalized, Vector3.up), Time.deltaTime * 8f);
+        }
+
         if (t >= 1f)
         {
             isJumping = false;
             buddyRoot.position = jumpEnd;
+            SendReachedEvents();
         }
+    }
+
+    private void SendReachedEvents()
+    {
+        bridge?.SendEventToWellFit("onBuddyReachedSurface", "{\"surfaceId\":\"" + targetSurfaceId + "\"}");
+        bridge?.SendEventToWellFit("onBuddyActionCompleted", "{\"action\":\"" + currentAction + "\",\"surfaceId\":\"" + targetSurfaceId + "\",\"status\":\"completed\"}");
+        currentAction = "idle";
     }
 }
