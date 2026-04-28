@@ -4,7 +4,7 @@ Dieser Ordner enthält die aufgeteilte, versionierte WellFit Master-Roadmap.
 
 ## Maßgebliche Struktur
 
-Die verbindliche Struktur sind die Dateien `A` bis `J`:
+Die verbindliche Struktur sind die Dateien `A` bis `J` plus `G1` als neue verbindliche Economy-Ergänzung:
 
 ```txt
 A - MASTER-REGELN - STATUSSYSTEM
@@ -14,6 +14,7 @@ D - VERBINDLICHE REIHENFOLGE
 E - AKTUELLER UMSETZUNGSSTAND - VORHANDEN
 F - FIREBASE  - REALTIME - MISSIONEN
 G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS
+G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
 H - MOBILE - AR - TRACKING - KI
 I - BUSINESS - WEBSITE - PARTNER - LEGAL
 J - NÄCHSTE EMPFOHLENE ARBEIT
@@ -26,7 +27,13 @@ ROADMAP_BUDDY_PHASES_ADDENDUM
 CHAT_START_PROMPT.md
 H1 - NATIVE AR - ARCORE - ARKIT - UNITY
 H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
+docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md
+docs/architecture/TRACKING_BUDDY_SERVER_EVENTS.md
+docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md
+functions/EMULATOR_TEST_PLAN.md
 ```
+
+`G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN` ist die verbindliche Detail-Roadmap für Punkte-/XP-/Reward-/Economy-System vor Blockchain. Sie ist bei allen Reward-, Economy-, Token-, NFT-, Shop-, Wettkampf-, Jackpot- und Burn-Fragen mitzulesen.
 
 `H1 - NATIVE AR - ARCORE - ARKIT - UNITY` ist die verbindliche Detail-Roadmap für echtes Flammi-AR mit World Tracking, Plane Detection, ARCore, ARKit und Unity AR Foundation. Sie ergänzt `H - MOBILE - AR - TRACKING - KI` und wird bei allen AR-/Avatar-/Native-Mobile-Aufgaben mitgelesen.
 
@@ -36,7 +43,42 @@ Historische/ergänzende Addenda bleiben sichtbar. Inhalte daraus wurden in die A
 
 ## Aktueller konsolidierter Stand
 
-Stand: Version 6.0 aus `J - NÄCHSTE EMPFOHLENE ARBEIT`.
+Stand: Version 7.2 aus `J - NÄCHSTE EMPFOHLENE ARBEIT` plus `CHAT_START_PROMPT.md` Version 1.3.
+
+### Chat-Start-Prompt / Teil-13-Abgleich
+
+```txt
+[x] Rollenblock WellFit Core-Team & operative Taskforce integriert.
+[x] Single Source of Truth: Repository + todolist/ integriert.
+[x] Startablauf für neue Chats integriert.
+[x] Pflichtprüfung README + J integriert.
+[x] Themenabhängiges Mitlesen passender A–I-Dateien integriert.
+[x] Erweiterte Zusatzdateien H1, H2 und Architekturdocs integriert.
+[x] G1 als Pflichtdatei für Economy/Reward/Token/NFT/Shop/Wettkampf/Jackpot integriert.
+[x] Nicht aus Chat-Erinnerung ableiten integriert.
+[x] Nicht behaupten, GitHub/todolist sei geprüft, wenn es nicht geprüft wurde, integriert.
+[x] Konfliktcheck Roadmap vs. Code, Nutzerwunsch vs. Master-Regeln, Client vs. Backend-Autorität integriert.
+[x] Konfliktcheck Mobile-App vs. Token/Krypto/Trading integriert.
+[x] Konfliktcheck Solana/SPL vs. SUI/Dynamic-Objects integriert.
+[x] Punkteökonomie zuerst vs. zu frühe Blockchain-/NFT-/WFT-Umsetzung integriert.
+[x] Server-/Build-/PM2-/Emulator-Prüfrahmen integriert.
+[ ] Bei künftigen Änderungen CHAT_START_PROMPT.md weiter versionieren und hier konsolidierten Stand aktualisieren.
+```
+
+### Interne Punkteökonomie vor Blockchain
+
+```txt
+[x] WellFit wird zuerst als internes Punkte-, XP-, Reward- und Economy-System aufgebaut.
+[x] Blockchain, echte NFTs und echter WFT-Token erst nach stabiler Alpha-/Beta-/Testphase.
+[x] 25-Mrd.-WFT-Logik wird vorerst als interne Punkte-/Economy-Simulation behandelt.
+[x] Mission Rewards, Einsätze, Jackpot, Gebühren, Sinks, Burn-Äquivalente, Reserve und Systemgesundheit werden zuerst intern simuliert.
+[x] Keine Blockchain-Abhängigkeit im MVP, in Alpha oder früher Beta.
+[x] Mobile bleibt ohne Token-, Presale-, Trading-, Staking- und NFT-Marktplatz-Funktionen.
+[!] Erst nach belastbaren Testdaten entscheiden, ob Punkte 1:1, anteilig, gar nicht oder nur regelbasiert in WFT überführbar sind.
+[ ] Serverseitiges Punkte-Ledger planen.
+[ ] Auditierbare Reward-/Spend-/Sink-Events planen.
+[ ] DailyEmissionCap, UserDailyCap, MissionTypeCap und EconomyHealthScore definieren.
+```
 
 ### Mobile / AR / Buddy
 
@@ -125,6 +167,7 @@ Stand: Version 6.0 aus `J - NÄCHSTE EMPFOHLENE ARBEIT`.
 ## Neue Architekturdateien
 
 ```txt
+todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
 docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md
 docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md
 docs/architecture/TRACKING_BUDDY_SERVER_EVENTS.md
@@ -143,6 +186,7 @@ npm install --include=dev --no-audit --no-fund
 NODE_OPTIONS="--max-old-space-size=768" npm run build
 pm2 restart wellfit-now --update-env
 pm2 status
+pm2 logs wellfit-now --lines 30
 ```
 
 Functions:
@@ -187,10 +231,12 @@ npm run test:emulator
 - Neue Erkenntnisse werden ergänzt, nicht ersetzt.
 - Produktrelevante Punkte dürfen nicht nur im Chat stehen bleiben.
 - Änderungen werden künftig in den passenden A–J-Dateien gepflegt.
+- Chat-Start-Prompt-Änderungen müssen zusätzlich in `CHAT_START_PROMPT.md` und `README.md` konsolidiert werden.
+- Economy-/Reward-/Token-/NFT-/Shop-/Wettkampf-/Jackpot-Entscheidungen müssen zusätzlich in `G`, `G1`, `J` und den passenden Architekturdateien gepflegt werden.
 - Echte AR-Entscheidungen müssen zusätzlich in `H1 - NATIVE AR - ARCORE - ARKIT - UNITY` gepflegt werden.
 - Buddy-/KI-Guide-/Rätselrallye-Entscheidungen müssen zusätzlich in `H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE` gepflegt werden.
-- Missions-/Reward-/Auszahlungsentscheidungen müssen zusätzlich in `F`, `G` und `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md` gepflegt werden.
-- KI-Dimensionen, Item-Detours, Item-Angebote und NFT-/Ownership-Abgrenzungen müssen zusätzlich in `G`, `J` und `docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md` gepflegt werden.
+- Missions-/Reward-/Auszahlungsentscheidungen müssen zusätzlich in `F`, `G`, `G1` und `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md` gepflegt werden.
+- KI-Dimensionen, Item-Detours, Item-Angebote und NFT-/Ownership-Abgrenzungen müssen zusätzlich in `G`, `G1`, `J` und `docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md` gepflegt werden.
 
 ## Statussystem
 
@@ -218,11 +264,12 @@ H1 - NATIVE AR - ARCORE - ARKIT - UNITY
 H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
 ```
 
-Bei Missionen, Rewards, Auszahlungen und KI-Quest-Chains zusätzlich prüfen:
+Bei Missionen, Rewards, Auszahlungen, Economy, Token/NFT-Fragen, Shop, Jackpot und KI-Quest-Chains zusätzlich prüfen:
 
 ```txt
 F - FIREBASE  - REALTIME - MISSIONEN
 G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS
+G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
 docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md
 docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md
 ```
