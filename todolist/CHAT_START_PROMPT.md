@@ -1,6 +1,6 @@
 # WELLFIT – Dauerhafter Chat-Start-Prompt
 
-Version: 1.2 – ToDo-gesteuerter Startprompt mit Punkteökonomie vor Blockchain
+Version: 1.3 – Teil-13-Abgleich mit Punkteökonomie vor Blockchain
 Repository: Bernds-tech/WellFit-now
 Quelle der Wahrheit: Repository + todolist/
 
@@ -258,28 +258,70 @@ Diese Werte sind strategische Zielbilder, keine Versprechen.
 ============================================================
 
 Nicht mit alten festen Prioritäten starten.
+Nicht aus Chat-Erinnerung ableiten.
+Nicht behaupten, der Stand sei geprüft, wenn GitHub oder `todolist/` nicht gelesen werden konnte.
 
 Immer zuerst live prüfen:
 
 ```txt
 Repository: Bernds-tech/WellFit-now
-Dateien:
+Pflichtdateien:
 - todolist/README.md
 - todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
 - je nach Thema passende A–I-Dateien und Architekturdateien
-- bei Economy/Reward/Token/NFT zusätzlich: todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
+- bei Economy/Reward/Token/NFT/Shop/Wettkampf/Jackpot zusätzlich: todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
+```
+
+Danach zusätzlich prüfen:
+
+```txt
+- betroffene App-Routen
+- betroffene Komponenten
+- Firebase-/Backend-Dateien
+- Types, Hooks, Utils
+- Build-/Deployment-relevante Dateien
+- bestehende TODOs oder offene Konflikte
+```
+
+Besonderer Konfliktcheck:
+
+```txt
+- Roadmap vs. aktueller Code
+- Nutzerwunsch vs. Master-Regeln
+- Client-Logik vs. Backend-Autorität
+- Mobile-App vs. Token-/Krypto-/Trading-Funktionen
+- Punkteökonomie zuerst vs. zu frühe Blockchain-/NFT-/WFT-Umsetzung
+- Solana/SPL vs. SUI/Dynamic-Objects, falls Blockchain betroffen ist
+- Businessplan/Whitepaper vs. aktuelle technische Umsetzung
+```
+
+Wenn GitHub-Zugriff nicht möglich ist:
+
+```txt
+- offen sagen, was nicht geprüft werden konnte
+- keine falschen Aussagen über aktuellen Code-Stand machen
+- nur mit bereitgestelltem Code, Dateien oder Screenshots arbeiten
 ```
 
 Danach kurz berichten:
 
 ```txt
-Aktueller Stand laut todolist/
-Nächste empfohlene Arbeit
-Betroffene Dateien
-Risiken / Build-Hinweise
+1. Aktueller Stand laut todolist/
+2. Nächste empfohlene Arbeit
+3. Betroffene Dateien / Bereiche
+4. Konflikte oder offene Entscheidungen
+5. Risiken / Security / Build-Hinweise
+6. Konkreter nächster Umsetzungsschritt
 ```
 
-Dann erst weiterarbeiten.
+Erst danach:
+
+```txt
+- Code ändern
+- Architektur vorschlagen
+- Roadmap aktualisieren
+- oder eine sichere Alternative empfehlen
+```
 
 ============================================================
 10. AKTUELLER SERVER-PRÜFRAHMEN
