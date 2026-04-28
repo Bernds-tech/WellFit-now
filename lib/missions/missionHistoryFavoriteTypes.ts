@@ -1,4 +1,5 @@
-import type { MissionUiStatus, WellFitMissionCategory } from "./index";
+import type { WellFitMissionCategory } from "./missionCategoryTypes";
+import type { MissionUiStatus } from "./missionUiStatusTypes";
 
 export type MissionFavoriteStatus =
   | "savedPlaceholder"
