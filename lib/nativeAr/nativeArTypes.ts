@@ -100,6 +100,13 @@ export type NativeArBuddyEventPayload = {
   messageKey?: string;
   confidence?: number;
   targetId?: string;
+  recommendation?: string;
+  rewardStatus?: string;
+  requiredCapability?: string;
+  requiredItemId?: string;
+  progressStatus?: string;
+  suggestedMissionId?: string;
+  ageBand?: string;
   payload?: Record<string, unknown>;
 };
 
