@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 7.8 – WEBGL-BUDDY-FALLBACK LEBENDIGER GEMACHT
+Version: 7.9 – UNITY TAP-STEUERUNG FUER ECHTEN AR-BUDDY ERGAENZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -84,6 +84,7 @@ REPO-VORBEREITUNG:
 [x] `native/unity/WellFitBuddyAR/Scripts/README.md` aktualisiert.
 [x] C#-Vorlagen vorbereitet:
     - `WellFitNativeBridge.cs.txt`
+    - `BuddyInputController.cs.txt`
     - `BuddyController.cs.txt`
     - `BuddyAnchorController.cs.txt`
     - `BuddyLookAtCamera.cs.txt`
@@ -97,7 +98,11 @@ REPO-VORBEREITUNG:
 [x] Buddy Dialogue/Event Bridge ergänzt.
 [x] AR Mission Hint / Object Marker Vorlage ergänzt.
 [x] `/mobile/ar` inaktive Kamera-Ansicht scrollbar gemacht, damit Kamera-, KI-Buddy- und Consent-Panels nicht ueberlappen.
+[x] `/mobile/ar` aktive Kamera-Ansicht scrollbar gemacht, damit Avatar sichtbar bleibt und Buttons darunter testbar sind.
 [x] WebGL-Buddy-Fallback lebendiger gemacht: Blinzeln, Atmen, Kopfbewegung, stärkere Flügel-/Schwanzbewegung, Glow und Funken bei happy/playful/curious.
+[x] Unity-Vorlage `BuddyAnchorController.cs.txt` erweitert: Platzieren, zu realem Flächenpunkt laufen, bei Höhenunterschied springen, zum Nutzer zurückrufen.
+[x] Unity-Vorlage `BuddyInputController.cs.txt` ergänzt: erster Tap platziert Buddy, weitere Taps bewegen Buddy zu realen AR-RayCast-Flächenpunkten.
+[x] Unity Scene Setup und Copy-Plan um `BuddyInputController` erweitert.
 [ ] Unity-Projekt lokal erzeugen.
 [ ] Erste Android-ARCore-Build-Kette testen.
 
@@ -135,7 +140,7 @@ STATUS: [~] Backend-/UI-Grundlage verbunden / echter Modelltest offen
 [x] Production Build nach AR-Guide-Panel-Fix erfolgreich.
 [x] `GET /api/buddy-ki` produktiv getestet: ok=true, providerMode=rules, modelConfigured=false, modelProviderEnabled=false.
 [x] `POST /api/buddy-ki` mit Intent `suggestMission` produktiv getestet: ok=true, providerMode=rules, fallbackReason=model-provider-disabled, Mission/Hint-Optionen vorhanden.
-[ ] `/mobile/ar` am Handy testen: Provider-Anzeige, Text, Optionen, Fallback, Scrollbarkeit bei inaktiver Kamera und lebendigeren WebGL-Buddy.
+[ ] `/mobile/ar` am Handy testen: Provider-Anzeige, Text, Optionen, Fallback, Scrollbarkeit bei inaktiver/aktiver Kamera und lebendigeren WebGL-Buddy.
 [ ] Server-Env für echten Modelltest setzen, falls gewünscht:
     - `BUDDY_KI_PROVIDER=openai`
     - `BUDDY_KI_MODEL=<explizit gewaehlt>`
