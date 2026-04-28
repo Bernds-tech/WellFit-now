@@ -28,6 +28,15 @@ Unity darf nicht autorisieren:
 - Leaderboards
 - finale Mission Completion
 
+Auch die Web-/App-Bridge normalisiert AR-Buddy-Events defensiv:
+
+```txt
+rewardAuthorized=false
+missionCompletionAuthorized=false
+```
+
+Diese Flags sind nur Sicherheitsindikatoren und keine Freigabe. Eine spaetere Freigabe darf ausschliesslich serverseitig nach Evidence-, Kontext-, Risiko- und Anti-Cheat-Pruefung entstehen.
+
 ## Event Envelope
 
 Jedes Event soll langfristig diese Grundstruktur haben:
@@ -46,6 +55,8 @@ Jedes Event soll langfristig diese Grundstruktur haben:
   "capabilityId": "optional",
   "itemId": "optional",
   "clientTimestamp": "optional",
+  "rewardAuthorized": false,
+  "missionCompletionAuthorized": false,
   "payload": {}
 }
 ```
@@ -145,7 +156,7 @@ Payload:
 
 ### onBuddyActionCompleted
 
-Buddy hat eine Aktion beendet.
+Buddy hat eine Aktion beendet. Dieses Event ist nur ein AR-Aktionssignal und keine Mission Completion.
 
 Payload:
 
@@ -235,7 +246,8 @@ Payload:
 ```json
 {
   "missionId": "demo_tree_clue_001",
-  "reason": "nearby-safe-mission"
+  "reason": "nearby-safe-mission",
+  "rewardStatus": "preview-only"
 }
 ```
 
@@ -261,7 +273,8 @@ Payload:
 ```json
 {
   "missionId": "demo_tree_clue_001",
-  "progressStatus": "needs-help"
+  "progressStatus": "needs-help",
+  "rewardStatus": "preview-only"
 }
 ```
 
@@ -293,14 +306,15 @@ Payload:
 
 ### onArHintMarkerResolved
 
-Marker wurde geloest oder erledigt.
+Marker wurde geloest oder erledigt. Dieses Event ist nur ein Marker-Signal und keine finale Mission Completion.
 
 Payload:
 
 ```json
 {
   "markerId": "marker_001",
-  "status": "resolved"
+  "status": "resolved-preview-only",
+  "rewardStatus": "preview-only"
 }
 ```
 
@@ -338,3 +352,4 @@ Der erste AR-Build schreibt noch nicht zwingend ins Backend. Zuerst soll er zeig
 - Buddy bleibt an Weltposition
 - Buddy schaut zur Kamera
 - einfache Events werden an WellFitNativeBridge gemeldet
+- keine Reward-/Completion-Autoritaet in Unity oder Web-Fallback entsteht
