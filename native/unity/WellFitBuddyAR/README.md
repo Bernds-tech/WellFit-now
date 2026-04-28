@@ -116,6 +116,16 @@ Handy-Kamera
 → Buddy bleibt raumfest
 ```
 
+## Android Player Settings
+
+Siehe:
+
+```txt
+docs/ANDROID_PLAYER_SETTINGS.md
+```
+
+Diese Datei sammelt Build Settings, XR Plug-in Management, Package Manager, Player Settings, Android Permissions und typische ARCore-Build-Probleme.
+
 ## Buddy Placeholder Prefab
 
 Siehe:
