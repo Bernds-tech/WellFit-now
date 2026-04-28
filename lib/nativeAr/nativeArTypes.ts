@@ -110,6 +110,11 @@ export type NativeArBuddyEventPayload = {
   payload?: Record<string, unknown>;
 };
 
+/**
+ * AR buddy events are telemetry/evidence candidates only.
+ * These flags are intentionally literal false to prevent Unity, PWA fallback,
+ * or any client-side bridge from becoming the authority for rewards or mission completion.
+ */
 export type NativeArBuddyEvent = {
   eventId: string;
   eventType: NativeArBuddyEventType;
