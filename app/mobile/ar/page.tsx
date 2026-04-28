@@ -170,40 +170,46 @@ export default function MobileArPage() {
   }
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-black text-white">
-      <CameraPreview videoRef={videoRef} permissionState={permissionState}>
-        <ArBuddyOverlay
-          isCameraActive={isCameraActive}
-          mood={buddyMood}
-          position={buddyPosition}
-          actionCount={actionCount}
-          anchor={anchor}
+    <main className="h-screen w-screen overflow-y-auto bg-black px-3 py-4 text-white">
+      <div className="mx-auto flex min-h-full max-w-[560px] flex-col gap-4 pb-8">
+        <ArStatusCard cameraActive={isCameraActive} message={statusMessage} floating={false} />
+
+        <div className="overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_18px_48px_rgba(0,0,0,0.35)]">
+          <CameraPreview videoRef={videoRef} permissionState={permissionState}>
+            <ArBuddyOverlay
+              isCameraActive={isCameraActive}
+              mood={buddyMood}
+              position={buddyPosition}
+              actionCount={actionCount}
+              anchor={anchor}
+              autoWalkEnabled={autoWalkEnabled}
+              anchorMode={anchorMode}
+              onBuddyTap={handleBuddyTap}
+              onSceneTap={handleSceneTap}
+            />
+          </CameraPreview>
+        </div>
+
+        <ArBuddyControls
+          floating={false}
           autoWalkEnabled={autoWalkEnabled}
           anchorMode={anchorMode}
-          onBuddyTap={handleBuddyTap}
-          onSceneTap={handleSceneTap}
+          hasAnchor={Boolean(anchor)}
+          onStopCamera={handleStopCamera}
+          onCallBuddy={callBuddy}
+          onToggleWalk={autoWalkEnabled ? stopBuddyWalk : startBuddyWalk}
+          onToggleAnchorMode={() => setAnchorMode((current) => !current)}
+          onClearAnchor={() => {
+            setAnchor(null);
+            setAnchorMode(false);
+            setAutoWalkEnabled(false);
+            setBuddyMood("listening");
+          }}
         />
-      </CameraPreview>
 
-      <ArStatusCard cameraActive={isCameraActive} message={statusMessage} />
-      <NativeArModeCard />
-      <ArBuddyEventPanel cameraActive={isCameraActive} />
-
-      <ArBuddyControls
-        autoWalkEnabled={autoWalkEnabled}
-        anchorMode={anchorMode}
-        hasAnchor={Boolean(anchor)}
-        onStopCamera={handleStopCamera}
-        onCallBuddy={callBuddy}
-        onToggleWalk={autoWalkEnabled ? stopBuddyWalk : startBuddyWalk}
-        onToggleAnchorMode={() => setAnchorMode((current) => !current)}
-        onClearAnchor={() => {
-          setAnchor(null);
-          setAnchorMode(false);
-          setAutoWalkEnabled(false);
-          setBuddyMood("listening");
-        }}
-      />
+        <ArBuddyEventPanel cameraActive={isCameraActive} floating={false} />
+        <NativeArModeCard floating={false} />
+      </div>
     </main>
   );
 }
