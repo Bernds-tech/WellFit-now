@@ -10,3 +10,12 @@ export type {
 export type { ArQuestionEvidenceEvent } from "./arQuestionEvidenceTypes";
 export type { ArQuestionMemory } from "./arQuestionMemoryTypes";
 export type { ArRewardPolicyInput, ArRewardPolicyResult } from "./arRewardPolicyTypes";
+export type {
+  ArRallyAgeBand,
+  ArRallyGenerationDraft,
+  ArRallyGenerationInput,
+  ArRallyMobilityMode,
+  ArRallyQuestionDraft,
+  ArRallyWaypointDraft,
+  ArRallyWaypointKind,
+} from "./arRallyGenerationTypes";
