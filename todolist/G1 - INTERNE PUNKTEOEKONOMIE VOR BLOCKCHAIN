@@ -1,0 +1,82 @@
+WELLFIT – INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
+Version: 1.0
+Status: Verbindliche Architektur- und Economy-Grundlage
+
+============================================================
+G1. INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
+============================================================
+
+MASTER-ENTSCHEIDUNG:
+WellFit wird zuerst vollstaendig als internes Punkte-, XP-, Reward- und Economy-System aufgebaut.
+Blockchain, echte NFTs und der echte WFT-Token werden erst nach stabiler Alpha-/Beta-/Testphase implementiert.
+
+============================================================
+1. Grundsatz
+============================================================
+
+[x] Punkte sind in MVP, Alpha und frueher Beta die primaere Economy-Waehrung.
+[x] XP, Level, Streaks, Mission Rewards, Einsaetze, Jackpot, Gebuehren, Sinks, Burns und Reserve-Logik werden zuerst intern simuliert.
+[x] Die spaetere WFT-/NFT-/Blockchain-Schicht darf das Punkte-System nicht ersetzen muessen, sondern muss darauf aufsetzen koennen.
+[x] Blockchain ist spaeter Settlement-/Ownership-/External-Economy-Schicht, nicht Grundlage des fruehen Game Loops.
+
+============================================================
+2. 25-Mrd.-Supply zuerst als internes Modell
+============================================================
+
+[x] Die geplante 25-Mrd.-WFT-Logik wird vorerst als interne Punkte-/Economy-Simulation behandelt.
+[x] Interne Punkte muessen Supply, Reserve, Ausschuttung, Gebuehren, Jackpot, Sinks, Burn-Aequivalente, Tageslimits und Systemgesundheit simulieren koennen.
+[x] Die Punkteoekonomie muss zeigen, ob das System bei realem Nutzerverhalten stabil bleibt, bevor echter WFT eingefuehrt wird.
+[x] Erst nach belastbaren Testdaten wird entschieden, ob Punkte 1:1, anteilig, gar nicht oder nur ueber bestimmte Regeln in WFT ueberfuehrbar sind.
+
+============================================================
+3. MVP-/Alpha-/Beta-Regeln
+============================================================
+
+[x] Kein echter WFT-Token im MVP.
+[x] Keine echte NFT-Funktion im MVP.
+[x] Keine Blockchain-Abhaengigkeit im MVP.
+[x] Keine Token-, Presale-, Trading-, Staking- oder NFT-Marktplatz-Funktion in der Mobile App.
+[x] Kein clientseitiger Punkte-, XP-, Einsatz-, Jackpot-, Burn-, Leaderboard- oder Mission-Completion-Entscheid.
+[x] Testphase mit ca. 2.000 bis 3.000 Testern muss zuerst zeigen, ob Game Loop, Reward Loop, Anti-Cheat und Economy-Balancing stabil sind.
+
+============================================================
+4. Serverseitiges Punkte-Ledger als Pflichtarchitektur
+============================================================
+
+[ ] Serverautoritatives Punkte-Ledger planen.
+[ ] Jede Punktevergabe als auditierbares Reward-Event speichern.
+[ ] Jede Punkteausgabe als auditierbares Spend-/Sink-Event speichern.
+[ ] Punkte-Einsaetze in Wettbewerben nur intern simulieren, bis rechtliche und technische Freigabe erfolgt.
+[ ] Jackpot nur intern simulieren und serverseitig kontrollieren.
+[ ] Plattformgebuehren nur serverseitig berechnen.
+[ ] Burn/Sink-Aequivalente nur serverseitig buchen.
+[ ] Systemreserve-Snapshots regelmaessig speichern.
+[ ] DailyEmissionCap, UserDailyCap, MissionTypeCap und EconomyHealthScore definieren.
+
+ZIELBILD:
+Mission abgeschlossen -> Server prueft Evidence, Kontext, Anti-Cheat und Policy -> interne Reward Engine berechnet Punkte/XP -> Punkte-Ledger speichert Transaktion -> spaeter optional externe Settlement-Schicht.
+
+============================================================
+5. Migration zur spaeteren Blockchain-Schicht
+============================================================
+
+[>] Blockchain-Stack wird erst finalisiert, wenn die interne Economy stabil ist.
+[>] Historische Solana/SPL-Unterlagen und neuere SUI/Dynamic-Objects-Unterlagen duerfen nicht vermischt werden.
+[>] Finale Chain-Entscheidung erfolgt spaeter anhand Produktreife, Kosten, UX, Security, App-Store, Compliance und technischer Eignung.
+[>] NFTs werden spaeter als digitale Besitzobjekte, Sammlerobjekte oder besondere Ausruestung behandelt; nicht als Voraussetzung fuer Missionen.
+[>] WFT wird spaeter als External-Economy-/Settlement-Schicht betrachtet; nicht als fruehe Produktvoraussetzung.
+
+============================================================
+6. Verbindliche Entwicklungsregel
+============================================================
+
+Bei jeder neuen Funktion mit Reward-, Economy-, Mission-, Wettkampf-, Jackpot-, Item-, Shop-, Avatar- oder Leaderboard-Bezug gilt:
+
+1. Erst internes Punkte-/XP-Verhalten definieren.
+2. Dann serverseitige Autoritaet und Audit-Events planen.
+3. Dann Economy-Balance, Caps und Systemreserve pruefen.
+4. Dann Mobile-App-Store-Konformitaet pruefen.
+5. Erst danach ueber spaetere WFT-/NFT-/Blockchain-Anbindung sprechen.
+
+Kurzform:
+Punkte zuerst. Server-Ledger zuerst. Anti-Cheat zuerst. Beta-Test zuerst. Blockchain danach.
