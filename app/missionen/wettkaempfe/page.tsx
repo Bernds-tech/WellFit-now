@@ -161,25 +161,37 @@ export default function WettkaempfePage() {
           <div className="mb-4 flex justify-center"><div className="flex items-center gap-5 rounded-full border border-white/10 bg-[#0b6d79]/35 px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm">{tabs.map((tab) => tab.label === "Wettkämpfe" ? <div key={tab.label} className="relative pb-1 text-base font-semibold text-orange-400">{tab.label}<span className="absolute left-0 right-0 -bottom-2 h-[2px] rounded-full bg-orange-400" /></div> : <Link key={tab.label} href={tab.href} className="pb-1 text-base text-white/85 hover:text-white">{tab.label}</Link>)}</div></div>
 
           <div className="grid min-h-0 flex-1 grid-cols-[2fr_0.95fr] gap-4 overflow-hidden pb-20">
-            <div className="relative min-h-0 overflow-hidden rounded-[22px] border border-cyan-300/10 bg-[#0a5564]/55">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_35%,rgba(93,221,255,0.22),transparent_28%),linear-gradient(135deg,rgba(9,75,88,0.9),rgba(3,33,41,0.98))]" />
-              <div className="absolute inset-0 opacity-45" style={{ backgroundImage: "linear-gradient(30deg, transparent 46%, rgba(255,255,255,0.22) 48%, rgba(255,255,255,0.22) 50%, transparent 52%), linear-gradient(120deg, transparent 44%, rgba(255,255,255,0.16) 46%, rgba(255,255,255,0.16) 48%, transparent 51%)", backgroundSize: "160px 120px" }} />
-              <div className="absolute left-5 top-5 z-10 rounded-xl bg-[#042f35]/85 px-4 py-3 shadow-lg backdrop-blur-sm"><p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-200">Live-Map</p><p className="mt-1 text-sm text-white/80">Checkpoints · Bürgermeister · Herausforderer</p></div>
-              <div className="absolute right-5 top-5 z-10 rounded-xl bg-[#042f35]/85 px-4 py-3 text-right shadow-lg backdrop-blur-sm"><p className="text-xs font-black uppercase tracking-[0.25em] text-yellow-200">Legende</p><p className="mt-1 text-xs text-white/80">👑 Bürgermeister · ⚔ Duell · 👀 Zuschauer</p></div>
+            <div className="relative min-h-[520px] overflow-hidden rounded-[22px] border border-cyan-300/20 bg-[#d8f1df] text-slate-900 shadow-[0_14px_34px_rgba(0,0,0,0.2)]">
+              <div className="absolute inset-0 bg-[#dff3e5]" />
+              <div className="absolute left-[2%] top-[8%] h-[84%] w-[26%] rounded-[45%] bg-[#b7e3b4] opacity-80" />
+              <div className="absolute left-[55%] top-[4%] h-[36%] w-[34%] rounded-[40%] bg-[#bde7c4] opacity-90" />
+              <div className="absolute left-[64%] top-[58%] h-[32%] w-[28%] rounded-[40%] bg-[#b7e3b4] opacity-80" />
+              <div className="absolute left-[6%] top-[45%] h-[18%] w-[88%] -rotate-6 rounded-full bg-[#9bd5e8] opacity-85" />
+              <div className="absolute left-[42%] top-[-8%] h-[118%] w-[12%] rotate-[18deg] rounded-full bg-[#9bd5e8] opacity-70" />
+              <div className="absolute left-[-8%] top-[32%] h-[11%] w-[120%] rotate-[22deg] rounded-full bg-[#f7f2dd] shadow-[0_0_0_5px_rgba(255,255,255,0.35)]" />
+              <div className="absolute left-[8%] top-[70%] h-[10%] w-[96%] -rotate-[12deg] rounded-full bg-[#f7f2dd] shadow-[0_0_0_5px_rgba(255,255,255,0.35)]" />
+              <div className="absolute left-[22%] top-[-8%] h-[115%] w-[9%] rotate-[6deg] rounded-full bg-[#f7f2dd] shadow-[0_0_0_5px_rgba(255,255,255,0.35)]" />
+              <div className="absolute left-[71%] top-[-10%] h-[120%] w-[8%] -rotate-[8deg] rounded-full bg-[#f7f2dd] shadow-[0_0_0_5px_rgba(255,255,255,0.35)]" />
+              <div className="absolute inset-0 opacity-35" style={{ backgroundImage: "linear-gradient(90deg, rgba(30,80,70,0.12) 1px, transparent 1px), linear-gradient(rgba(30,80,70,0.12) 1px, transparent 1px)", backgroundSize: "46px 46px" }} />
+
+              <div className="absolute left-5 top-5 z-10 rounded-xl bg-white/90 px-4 py-3 text-slate-800 shadow-lg backdrop-blur-sm"><p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">Live-Map</p><p className="mt-1 text-sm font-semibold">Checkpoints · Bürgermeister · Herausforderer</p></div>
+              <div className="absolute right-5 top-5 z-10 rounded-xl bg-white/90 px-4 py-3 text-right text-slate-800 shadow-lg backdrop-blur-sm"><p className="text-xs font-black uppercase tracking-[0.25em] text-yellow-600">Legende</p><p className="mt-1 text-xs font-semibold">👑 Bürgermeister · ⚔ Duell · 👀 Zuschauer</p></div>
+
               {checkpoints.map((checkpoint) => (
                 <button
                   key={checkpoint.id}
                   onClick={() => { setSelectedCheckpointId(checkpoint.id); setMessage(`${checkpoint.title} ausgewählt. Bürgermeister: ${checkpoint.mayor}.`); }}
-                  className={`absolute z-20 flex h-14 w-14 items-center justify-center rounded-full border-2 text-2xl shadow-[0_0_26px_rgba(255,255,255,0.35)] transition ${selectedCheckpoint.id === checkpoint.id ? "scale-110 border-yellow-300 bg-orange-500" : "border-cyan-200/70 bg-cyan-400/30 hover:scale-105"}`}
+                  className={`absolute z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 text-2xl shadow-[0_10px_28px_rgba(0,0,0,0.35)] transition ${selectedCheckpoint.id === checkpoint.id ? "scale-110 border-yellow-300 bg-orange-500 text-white" : "border-white bg-cyan-600 text-white hover:scale-105"}`}
                   style={{ top: checkpoint.position.top, left: checkpoint.position.left }}
                   title={`${checkpoint.title} · Bürgermeister: ${checkpoint.mayor}`}
                 >
+                  <span className="absolute -top-5 text-2xl drop-shadow">👑</span>
                   {checkpoint.icon}
                 </button>
               ))}
               {checkpoints.map((checkpoint) => (
-                <div key={`label-${checkpoint.id}`} className="absolute z-10 rounded-lg bg-[#082f39]/90 px-3 py-2 text-xs font-semibold text-white/90 shadow-[0_0_14px_rgba(0,0,0,0.25)]" style={{ top: `calc(${checkpoint.position.top} + 54px)`, left: checkpoint.position.left }}>
-                  {checkpoint.title}<br /><span className="text-yellow-300">👑 {checkpoint.mayor}</span>
+                <div key={`label-${checkpoint.id}`} className="absolute z-10 -translate-x-1/2 rounded-lg bg-white/95 px-3 py-2 text-xs font-bold text-slate-800 shadow-[0_8px_20px_rgba(0,0,0,0.22)]" style={{ top: `calc(${checkpoint.position.top} + 34px)`, left: checkpoint.position.left }}>
+                  {checkpoint.title}<br /><span className="text-yellow-700">👑 {checkpoint.mayor}</span>
                 </div>
               ))}
             </div>
