@@ -20,6 +20,13 @@ const buddyEventHandlers = new Set<NativeArBuddyEventHandler>();
 const recentBuddyEvents: NativeArBuddyEvent[] = [];
 const maxRecentBuddyEvents = 50;
 
+const normalizeBuddyEvent = (event: NativeArBuddyEvent): NativeArBuddyEvent => ({
+  ...event,
+  rewardAuthorized: false,
+  missionCompletionAuthorized: false,
+  payload: event.payload ?? {},
+});
+
 const rememberBuddyEvent = (event: NativeArBuddyEvent) => {
   recentBuddyEvents.unshift(event);
   if (recentBuddyEvents.length > maxRecentBuddyEvents) {
@@ -59,12 +66,13 @@ export const nativeArBridge: NativeArBridge = {
   },
 
   async emitBuddyEvent(event) {
-    rememberBuddyEvent(event);
+    const safeEvent = normalizeBuddyEvent(event);
+    rememberBuddyEvent(safeEvent);
 
     await Promise.all(
       [...buddyEventHandlers].map(async (handler) => {
         try {
-          await handler(event);
+          await handler(safeEvent);
         } catch (error) {
           console.error("WellFit Native AR Buddy Event Handler Fehler", error);
         }
