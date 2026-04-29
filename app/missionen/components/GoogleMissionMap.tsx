@@ -300,10 +300,18 @@ export default function GoogleMissionMap({
         <p className="mt-1 text-sm font-semibold">{subtitle}</p>
       </div>
       {ownLocation && (
-        <button type="button" onClick={focusOwnLocation} className="absolute bottom-5 right-5 z-10 rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500">
-          🐉 Zu meinem Standort
-        </button>
-      )}
+  <>
+    <div className="pointer-events-none absolute left-1/2 top-1/2 z-[999999] -translate-x-1/2 -translate-y-1/2 rounded-full border-[6px] border-white bg-blue-600 px-5 py-4 text-4xl shadow-[0_0_40px_rgba(37,99,235,0.95)]">
+      🐉
+    </div>
+    <div className="pointer-events-none absolute left-1/2 top-[calc(50%+56px)] z-[999999] -translate-x-1/2 rounded-full border-2 border-blue-300 bg-slate-900 px-4 py-1 text-xs font-black text-white shadow-lg">
+      Mein Standort
+    </div>
+    <button type="button" onClick={focusOwnLocation} className="absolute bottom-5 right-5 z-[999999] rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500">
+      🐉 Zu meinem Standort
+    </button>
+  </>
+)}
     </div>
   );
 }
