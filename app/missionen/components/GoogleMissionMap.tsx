@@ -30,7 +30,14 @@ type GoogleMapsWindow = Window & {
 };
 
 const GOOGLE_MAPS_SCRIPT_ID = "wellfit-google-maps-js";
-const OWN_LOCATION_LABEL = "🐉";
+
+const ownLocationSvg = encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="74" height="74" viewBox="0 0 74 74">
+  <circle cx="37" cy="37" r="32" fill="#2563eb" stroke="#ffffff" stroke-width="6"/>
+  <circle cx="37" cy="37" r="24" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/>
+  <text x="37" y="47" text-anchor="middle" font-size="30">🐉</text>
+</svg>
+`);
 
 const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
   if (typeof window === "undefined") return null;
@@ -120,7 +127,11 @@ export default function GoogleMissionMap({
         if (!google?.maps) throw new Error("Google Maps API nicht verfuegbar.");
 
         const selected = markers.find((marker) => marker.id === selectedMarkerId) ?? markers[0];
-        const center = ownLocation ? { lat: ownLocation.latitude, lng: ownLocation.longitude } : selected ? { lat: selected.lat, lng: selected.lng } : { lat: 48.2082, lng: 16.3738 };
+        const center = ownLocation
+          ? { lat: ownLocation.latitude, lng: ownLocation.longitude }
+          : selected
+            ? { lat: selected.lat, lng: selected.lng }
+            : { lat: 48.2082, lng: 16.3738 };
 
         const map = new google.maps.Map(mapElementRef.current, {
           center,
@@ -213,43 +224,47 @@ export default function GoogleMissionMap({
     }
 
     const position = { lat: ownLocation.latitude, lng: ownLocation.longitude };
+    const ownIcon = {
+      url: `data:image/svg+xml;charset=UTF-8,${ownLocationSvg}`,
+      scaledSize: new google.maps.Size(54, 54),
+      anchor: new google.maps.Point(27, 27),
+    };
 
     if (!ownLocationMarkerRef.current) {
       ownLocationMarkerRef.current = new google.maps.Marker({
         position,
         map,
         title: `Mein Standort / Flammi (${ownLocation.deviceType})`,
-        label: { text: OWN_LOCATION_LABEL, fontSize: "24px" },
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: "#2563eb",
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 4,
-          scale: 17,
-        },
-        zIndex: 999,
+        icon: ownIcon,
+        zIndex: 9999,
       });
     } else {
       ownLocationMarkerRef.current.setPosition(position);
-      ownLocationMarkerRef.current.setLabel({ text: OWN_LOCATION_LABEL, fontSize: "24px" });
+      ownLocationMarkerRef.current.setIcon(ownIcon);
       ownLocationMarkerRef.current.setMap(map);
     }
 
+    const visibleRadius = Math.max(ownLocation.accuracyMeters, 180);
     if (!ownLocationCircleRef.current) {
       ownLocationCircleRef.current = new google.maps.Circle({
         map,
         center: position,
-        radius: Math.max(ownLocation.accuracyMeters, 25),
-        strokeColor: "#2563eb",
-        strokeOpacity: 0.65,
-        strokeWeight: 2,
+        radius: visibleRadius,
+        strokeColor: "#1d4ed8",
+        strokeOpacity: 0.95,
+        strokeWeight: 4,
         fillColor: "#60a5fa",
-        fillOpacity: 0.18,
+        fillOpacity: 0.28,
+        zIndex: 9998,
       });
     } else {
       ownLocationCircleRef.current.setCenter(position);
-      ownLocationCircleRef.current.setRadius(Math.max(ownLocation.accuracyMeters, 25));
+      ownLocationCircleRef.current.setRadius(visibleRadius);
+      ownLocationCircleRef.current.setOptions({
+        strokeOpacity: 0.95,
+        strokeWeight: 4,
+        fillOpacity: 0.28,
+      });
       ownLocationCircleRef.current.setMap(map);
     }
   }, [ownLocation]);
