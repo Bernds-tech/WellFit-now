@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AppInstallPrompt from "@/app/components/AppInstallPrompt";
+import { updateCurrentDeviceLocation } from "@/app/lib/deviceLocation";
 
 type AppSidebarProps = {
   brightness: number;
@@ -20,6 +21,10 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
   const isMissionen = pathname.startsWith("/missionen");
   const isBuddy = pathname.startsWith("/buddy");
 
+  const updateLocationBeforeMissionNavigation = () => {
+    void updateCurrentDeviceLocation();
+  };
+
   return (
     <aside className="flex h-full w-[250px] flex-col border-r border-cyan-400/10 bg-[#042f35]/95 px-5 py-6">
       <div className="mb-8 flex justify-center">
@@ -28,7 +33,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
 
       <nav className="space-y-2 text-[14px]">
         <Link href="/dashboard" className={isDashboard ? activeClass : inactiveClass}>Dashboard</Link>
-        <Link href="/missionen/tagesmissionen" className={isMissionen ? activeClass : inactiveClass}>Missionen</Link>
+        <Link href="/missionen/tagesmissionen" onClick={updateLocationBeforeMissionNavigation} className={isMissionen ? activeClass : inactiveClass}>Missionen</Link>
         <Link href="/buddy" className={isBuddy ? activeClass : inactiveClass}>Mein KI-Buddy</Link>
         <div className="text-white/80">Marktplatz</div>
         <div className="text-white/80">Leaderboard</div>
