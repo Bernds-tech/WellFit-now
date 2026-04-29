@@ -84,6 +84,7 @@ const createOwnLocationOverlay = (google: any, position: { lat: number; lng: num
     container.style.transform = "translate(-50%, -50%)";
     container.style.zIndex = "2147483647";
     container.style.pointerEvents = "none";
+    container.style.willChange = "transform, left, top";
     container.innerHTML = `
   <div style="position:relative;width:54px;height:54px;display:flex;align-items:center;justify-content:center;">
     <div style="position:absolute;width:54px;height:54px;border-radius:999px;background:rgba(37,99,235,0.18);border:2px solid rgba(37,99,235,0.8);box-shadow:0 0 14px rgba(37,99,235,0.55);"></div>
@@ -91,7 +92,10 @@ const createOwnLocationOverlay = (google: any, position: { lat: number; lng: num
   </div>
 `;
     const panes = overlay.getPanes();
-(panes?.floatPane ?? panes?.overlayMouseTarget ?? panes?.overlayLayer)?.appendChild(container);
+const targetPane = panes?.floatPane ?? panes?.overlayMouseTarget ?? panes?.overlayLayer;
+if (targetPane) {
+  targetPane.appendChild(container);
+}
   };
 
   overlay.draw = () => {
