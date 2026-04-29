@@ -1,4 +1,4 @@
-export type PermissionKey = "location" | "camera" | "microphone" | "backgroundTracking";
+export type PermissionKey = "location" | "locationTracking" | "camera" | "microphone" | "backgroundTracking";
 
 export type ProfileForm = {
   displayName: string;
