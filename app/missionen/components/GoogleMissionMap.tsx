@@ -137,7 +137,46 @@ export default function GoogleMissionMap({
         });
 
         mapRef.current = map;
-        markerRefs.current.forEach((marker) => marker.setMap(null));
+
+if (ownLocation) {
+  const position = { lat: ownLocation.latitude, lng: ownLocation.longitude };
+
+  const ownLocationIcon = {
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: "#1a73e8",
+    fillOpacity: 1,
+    strokeColor: "#ffffff",
+    strokeOpacity: 1,
+    strokeWeight: 4,
+    scale: 10,
+  };
+
+  ownLocationMarkerRef.current?.setMap(null);
+  ownLocationCircleRef.current?.setMap(null);
+
+  ownLocationCircleRef.current = new google.maps.Circle({
+    map,
+    center: position,
+    radius: Math.max(ownLocation.accuracyMeters, 40),
+    strokeColor: "#1a73e8",
+    strokeOpacity: 0.35,
+    strokeWeight: 1,
+    fillColor: "#1a73e8",
+    fillOpacity: 0.12,
+    clickable: false,
+  });
+
+  ownLocationMarkerRef.current = new google.maps.Marker({
+    position,
+    map,
+    title: `Mein Standort · Genauigkeit ca. ${ownLocation.accuracyMeters} m`,
+    icon: ownLocationIcon,
+    zIndex: 999999,
+    optimized: false,
+  });
+}
+
+markerRefs.current.forEach((marker) => marker.setMap(null));
         markerRefs.current = markers.map((markerItem) => {
           const marker = new google.maps.Marker({
             position: { lat: markerItem.lat, lng: markerItem.lng },
@@ -212,14 +251,15 @@ export default function GoogleMissionMap({
     const position = { lat: ownLocation.latitude, lng: ownLocation.longitude };
 
     const ownLocationIcon = {
-      path: google.maps.SymbolPath.CIRCLE,
-      fillColor: "#2563eb",
-      fillOpacity: 1,
-      strokeColor: "#ffffff",
-      strokeOpacity: 1,
-      strokeWeight: 3,
-      scale: 9,
-    };
+  path: google.maps.SymbolPath.CIRCLE,
+  fillColor: "#1a73e8",
+  fillOpacity: 1,
+  strokeColor: "#ffffff",
+  strokeOpacity: 1,
+  strokeWeight: 4,
+  scale: 10,
+};
+  
 
     if (!ownLocationMarkerRef.current) {
       ownLocationMarkerRef.current = new google.maps.Marker({
