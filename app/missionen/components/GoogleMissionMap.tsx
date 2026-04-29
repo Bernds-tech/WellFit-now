@@ -283,19 +283,21 @@ markerRefs.current.forEach((marker) => marker.setMap(null));
         map,
         center: position,
         radius: visibleRadius,
-        strokeColor: "#2563eb",
-        strokeOpacity: 0.75,
-        strokeWeight: 2,
-        fillColor: "#60a5fa",
-        fillOpacity: 0.10,
+strokeColor: "#1a73e8",
+strokeOpacity: 0.35,
+strokeWeight: 1,
+fillColor: "#1a73e8",
+fillOpacity: 0.12,
+clickable: false,
       });
     } else {
       ownLocationCircleRef.current.setCenter(position);
       ownLocationCircleRef.current.setRadius(visibleRadius);
       ownLocationCircleRef.current.setOptions({
-        strokeOpacity: 0.75,
-        strokeWeight: 2,
-        fillOpacity: 0.10,
+        strokeOpacity: 0.35,
+strokeWeight: 1,
+fillOpacity: 0.12,
+clickable: false,
       });
       ownLocationCircleRef.current.setMap(map);
     }
