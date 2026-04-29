@@ -15,6 +15,7 @@ export const sensitiveDataNotice =
 
 export const defaultPermissions: Record<PermissionKey, boolean> = {
   location: false,
+  locationTracking: false,
   camera: true,
   microphone: true,
   backgroundTracking: true,
