@@ -31,6 +31,13 @@ type GoogleMapsWindow = Window & {
 
 const GOOGLE_MAPS_SCRIPT_ID = "wellfit-google-maps-js";
 
+const OWN_LOCATION_DOT_SVG = encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <circle cx="16" cy="16" r="12" fill="#1a73e8" stroke="#ffffff" stroke-width="4"/>
+  <circle cx="16" cy="16" r="15" fill="none" stroke="#1a73e8" stroke-width="2" opacity="0.35"/>
+</svg>
+`);
+
 const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
   if (typeof window === "undefined") return null;
   try {
@@ -142,14 +149,11 @@ if (ownLocation) {
   const position = { lat: ownLocation.latitude, lng: ownLocation.longitude };
 
   const ownLocationIcon = {
-    path: google.maps.SymbolPath.CIRCLE,
-    fillColor: "#1a73e8",
-    fillOpacity: 1,
-    strokeColor: "#ffffff",
-    strokeOpacity: 1,
-    strokeWeight: 4,
-    scale: 10,
-  };
+  url: `data:image/svg+xml;charset=UTF-8,${OWN_LOCATION_DOT_SVG}`,
+  scaledSize: new google.maps.Size(32, 32),
+  anchor: new google.maps.Point(16, 16),
+};
+
 
   ownLocationMarkerRef.current?.setMap(null);
   ownLocationCircleRef.current?.setMap(null);
@@ -251,13 +255,9 @@ markerRefs.current.forEach((marker) => marker.setMap(null));
     const position = { lat: ownLocation.latitude, lng: ownLocation.longitude };
 
     const ownLocationIcon = {
-  path: google.maps.SymbolPath.CIRCLE,
-  fillColor: "#1a73e8",
-  fillOpacity: 1,
-  strokeColor: "#ffffff",
-  strokeOpacity: 1,
-  strokeWeight: 4,
-  scale: 10,
+  url: `data:image/svg+xml;charset=UTF-8,${OWN_LOCATION_DOT_SVG}`,
+  scaledSize: new google.maps.Size(32, 32),
+  anchor: new google.maps.Point(16, 16),
 };
   
 
