@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { DeviceLocationSnapshot } from "@/app/components/DeviceLocationCard";
+import { WELLFIT_LAST_DEVICE_LOCATION_KEY } from "@/app/components/DeviceLocationCard";
 
 export type GoogleMapCheckpoint = {
   id: number;
@@ -24,6 +26,16 @@ type GoogleMapsWindow = Window & {
 };
 
 const GOOGLE_MAPS_SCRIPT_ID = "wellfit-google-maps-js";
+
+const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = localStorage.getItem(WELLFIT_LAST_DEVICE_LOCATION_KEY);
+    return saved ? (JSON.parse(saved) as DeviceLocationSnapshot) : null;
+  } catch {
+    return null;
+  }
+};
 
 const loadGoogleMaps = (apiKey: string): Promise<void> => {
   const browserWindow = window as GoogleMapsWindow;
@@ -62,8 +74,21 @@ export default function GoogleCompetitionMap({ checkpoints, selectedCheckpointId
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markerRefs = useRef<any[]>([]);
+  const ownLocationMarkerRef = useRef<any>(null);
+  const ownLocationCircleRef = useRef<any>(null);
   const [loadState, setLoadState] = useState<"missing-key" | "loading" | "ready" | "error">("loading");
+  const [ownLocation, setOwnLocation] = useState<DeviceLocationSnapshot | null>(null);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  useEffect(() => {
+    setOwnLocation(readLastDeviceLocation());
+    const onLocationUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent<DeviceLocationSnapshot>;
+      setOwnLocation(customEvent.detail ?? readLastDeviceLocation());
+    };
+    window.addEventListener("wellfit-device-location-updated", onLocationUpdate);
+    return () => window.removeEventListener("wellfit-device-location-updated", onLocationUpdate);
+  }, []);
 
   useEffect(() => {
     if (!apiKey) {
@@ -81,7 +106,7 @@ export default function GoogleCompetitionMap({ checkpoints, selectedCheckpointId
         if (!google?.maps) throw new Error("Google Maps API nicht verfuegbar.");
 
         const selected = checkpoints.find((checkpoint) => checkpoint.id === selectedCheckpointId) ?? checkpoints[0];
-        const center = selected ? { lat: selected.lat, lng: selected.lng } : { lat: 48.2082, lng: 16.3738 };
+        const center = ownLocation ? { lat: ownLocation.latitude, lng: ownLocation.longitude } : selected ? { lat: selected.lat, lng: selected.lng } : { lat: 48.2082, lng: 16.3738 };
 
         const map = new google.maps.Map(mapElementRef.current, {
           center,
@@ -130,7 +155,7 @@ export default function GoogleCompetitionMap({ checkpoints, selectedCheckpointId
     return () => {
       cancelled = true;
     };
-  }, [apiKey, checkpoints, onSelectCheckpoint, selectedCheckpointId]);
+  }, [apiKey, checkpoints, onSelectCheckpoint, ownLocation, selectedCheckpointId]);
 
   useEffect(() => {
     const google = (window as GoogleMapsWindow).google;
@@ -138,26 +163,88 @@ export default function GoogleCompetitionMap({ checkpoints, selectedCheckpointId
     if (!google?.maps || !map) return;
 
     const selected = checkpoints.find((checkpoint) => checkpoint.id === selectedCheckpointId);
-    if (selected) {
+    if (selected && !ownLocation) {
       map.panTo({ lat: selected.lat, lng: selected.lng });
-      markerRefs.current.forEach((marker, index) => {
-        const checkpoint = checkpoints[index];
-        if (!checkpoint) return;
-        marker.setLabel({
-          text: checkpoint.id === selectedCheckpointId ? "👑" : checkpoint.icon,
-          fontSize: checkpoint.id === selectedCheckpointId ? "24px" : "20px",
-        });
-        marker.setIcon({
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: getMarkerColor(checkpoint.status),
-          fillOpacity: 0.95,
-          strokeColor: checkpoint.id === selectedCheckpointId ? "#fde047" : "#ffffff",
-          strokeWeight: checkpoint.id === selectedCheckpointId ? 4 : 2,
-          scale: checkpoint.id === selectedCheckpointId ? 17 : 14,
-        });
-      });
     }
-  }, [checkpoints, selectedCheckpointId]);
+
+    markerRefs.current.forEach((marker, index) => {
+      const checkpoint = checkpoints[index];
+      if (!checkpoint) return;
+      marker.setLabel({
+        text: checkpoint.id === selectedCheckpointId ? "👑" : checkpoint.icon,
+        fontSize: checkpoint.id === selectedCheckpointId ? "24px" : "20px",
+      });
+      marker.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: getMarkerColor(checkpoint.status),
+        fillOpacity: 0.95,
+        strokeColor: checkpoint.id === selectedCheckpointId ? "#fde047" : "#ffffff",
+        strokeWeight: checkpoint.id === selectedCheckpointId ? 4 : 2,
+        scale: checkpoint.id === selectedCheckpointId ? 17 : 14,
+      });
+    });
+  }, [checkpoints, ownLocation, selectedCheckpointId]);
+
+  useEffect(() => {
+    const google = (window as GoogleMapsWindow).google;
+    const map = mapRef.current;
+    if (!google?.maps || !map) return;
+
+    if (!ownLocation) {
+      ownLocationMarkerRef.current?.setMap(null);
+      ownLocationCircleRef.current?.setMap(null);
+      ownLocationMarkerRef.current = null;
+      ownLocationCircleRef.current = null;
+      return;
+    }
+
+    const position = { lat: ownLocation.latitude, lng: ownLocation.longitude };
+
+    if (!ownLocationMarkerRef.current) {
+      ownLocationMarkerRef.current = new google.maps.Marker({
+        position,
+        map,
+        title: `Mein Standort (${ownLocation.deviceType})`,
+        label: { text: "📍", fontSize: "22px" },
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: "#2563eb",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 4,
+          scale: 16,
+        },
+        zIndex: 999,
+      });
+    } else {
+      ownLocationMarkerRef.current.setPosition(position);
+      ownLocationMarkerRef.current.setMap(map);
+    }
+
+    if (!ownLocationCircleRef.current) {
+      ownLocationCircleRef.current = new google.maps.Circle({
+        map,
+        center: position,
+        radius: Math.max(ownLocation.accuracyMeters, 25),
+        strokeColor: "#2563eb",
+        strokeOpacity: 0.65,
+        strokeWeight: 2,
+        fillColor: "#60a5fa",
+        fillOpacity: 0.18,
+      });
+    } else {
+      ownLocationCircleRef.current.setCenter(position);
+      ownLocationCircleRef.current.setRadius(Math.max(ownLocation.accuracyMeters, 25));
+      ownLocationCircleRef.current.setMap(map);
+    }
+  }, [ownLocation]);
+
+  const focusOwnLocation = () => {
+    const map = mapRef.current;
+    if (!map || !ownLocation) return;
+    map.panTo({ lat: ownLocation.latitude, lng: ownLocation.longitude });
+    map.setZoom(Math.max(map.getZoom?.() ?? 12, 15));
+  };
 
   if (loadState === "missing-key") {
     return (
@@ -193,6 +280,11 @@ export default function GoogleCompetitionMap({ checkpoints, selectedCheckpointId
         <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">Google Maps</p>
         <p className="mt-1 text-sm font-semibold">Zoom · Drag · Checkpoints · Bürgermeister</p>
       </div>
+      {ownLocation && (
+        <button type="button" onClick={focusOwnLocation} className="absolute bottom-5 right-5 z-10 rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500">
+          📍 Zu meinem Standort
+        </button>
+      )}
     </div>
   );
 }
