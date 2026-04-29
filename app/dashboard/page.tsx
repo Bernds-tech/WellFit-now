@@ -6,6 +6,7 @@ import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 
 import AppSidebar from "@/app/AppSidebar";
+import DeviceLocationCard from "@/app/components/DeviceLocationCard";
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardMissionPanel from "./components/DashboardMissionPanel";
 import DashboardCards from "./components/DashboardCards";
@@ -115,6 +116,8 @@ export default function DashboardPage() {
             foodPrice={foodPrice}
             onFeedBuddy={handleFeedBuddy}
           />
+
+          <DeviceLocationCard />
 
           {mission && (
             <DashboardCards
