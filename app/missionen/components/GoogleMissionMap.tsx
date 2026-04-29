@@ -31,14 +31,6 @@ type GoogleMapsWindow = Window & {
 
 const GOOGLE_MAPS_SCRIPT_ID = "wellfit-google-maps-js";
 
-const ownLocationSvg = encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" width="74" height="74" viewBox="0 0 74 74">
-  <circle cx="37" cy="37" r="32" fill="#2563eb" stroke="#ffffff" stroke-width="6"/>
-  <circle cx="37" cy="37" r="24" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/>
-  <text x="37" y="47" text-anchor="middle" font-size="30">🐉</text>
-</svg>
-`);
-
 const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
   if (typeof window === "undefined") return null;
   try {
@@ -51,7 +43,6 @@ const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
 
 const loadGoogleMaps = (apiKey: string): Promise<void> => {
   const browserWindow = window as GoogleMapsWindow;
-
   if (browserWindow.google?.maps) return Promise.resolve();
   if (browserWindow.__wellfitGoogleMapsPromise) return browserWindow.__wellfitGoogleMapsPromise;
 
@@ -83,6 +74,44 @@ const markerColor = (marker: GoogleMissionMapMarker) => {
   return "#0891b2";
 };
 
+const createOwnLocationOverlay = (google: any, position: { lat: number; lng: number }, accuracyMeters: number) => {
+  const overlay = new google.maps.OverlayView();
+  let container: HTMLDivElement | null = null;
+
+  overlay.onAdd = () => {
+    container = document.createElement("div");
+    container.style.position = "absolute";
+    container.style.transform = "translate(-50%, -50%)";
+    container.style.zIndex = "99999";
+    container.style.pointerEvents = "none";
+    container.innerHTML = `
+      <div style="position:relative;width:92px;height:92px;display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;width:92px;height:92px;border-radius:999px;background:rgba(37,99,235,0.20);border:4px solid rgba(37,99,235,0.95);box-shadow:0 0 30px rgba(37,99,235,0.7);"></div>
+        <div style="position:absolute;width:58px;height:58px;border-radius:999px;background:#2563eb;border:5px solid #ffffff;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 10px 30px rgba(0,0,0,0.45);">🐉</div>
+        <div style="position:absolute;top:72px;left:50%;transform:translateX(-50%);white-space:nowrap;border-radius:999px;background:#0f172a;color:#ffffff;border:2px solid #60a5fa;padding:4px 10px;font-size:12px;font-weight:900;box-shadow:0 8px 22px rgba(0,0,0,0.35);">Mein Standort</div>
+      </div>
+    `;
+    overlay.getPanes()?.overlayMouseTarget.appendChild(container);
+  };
+
+  overlay.draw = () => {
+    if (!container) return;
+    const projection = overlay.getProjection();
+    const point = projection.fromLatLngToDivPixel(new google.maps.LatLng(position.lat, position.lng));
+    if (!point) return;
+    container.style.left = `${point.x}px`;
+    container.style.top = `${point.y}px`;
+    container.title = `Mein Standort · Genauigkeit ca. ${accuracyMeters} m`;
+  };
+
+  overlay.onRemove = () => {
+    container?.remove();
+    container = null;
+  };
+
+  return overlay;
+};
+
 export default function GoogleMissionMap({
   title,
   subtitle,
@@ -95,7 +124,7 @@ export default function GoogleMissionMap({
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markerRefs = useRef<any[]>([]);
-  const ownLocationMarkerRef = useRef<any>(null);
+  const ownLocationOverlayRef = useRef<any>(null);
   const ownLocationCircleRef = useRef<any>(null);
   const [loadState, setLoadState] = useState<"missing-key" | "loading" | "ready" | "error">("loading");
   const [ownLocation, setOwnLocation] = useState<DeviceLocationSnapshot | null>(null);
@@ -152,10 +181,7 @@ export default function GoogleMissionMap({
             position: { lat: markerItem.lat, lng: markerItem.lng },
             map,
             title: `${markerItem.title}${markerItem.subtitle ? ` · ${markerItem.subtitle}` : ""}`,
-            label: {
-              text: markerItem.id === selectedMarkerId ? "★" : markerItem.icon,
-              fontSize: markerItem.id === selectedMarkerId ? "24px" : "20px",
-            },
+            label: { text: markerItem.id === selectedMarkerId ? "★" : markerItem.icon, fontSize: markerItem.id === selectedMarkerId ? "24px" : "20px" },
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               fillColor: markerColor(markerItem),
@@ -165,7 +191,6 @@ export default function GoogleMissionMap({
               scale: markerItem.id === selectedMarkerId ? 17 : 14,
             },
           });
-
           marker.addListener("click", () => onSelectMarker(markerItem.id));
           return marker;
         });
@@ -177,9 +202,7 @@ export default function GoogleMissionMap({
         if (!cancelled) setLoadState("error");
       });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [apiKey, markers, onSelectMarker, ownLocation, selectedMarkerId, zoom]);
 
   useEffect(() => {
@@ -187,18 +210,10 @@ export default function GoogleMissionMap({
     const map = mapRef.current;
     if (!google?.maps || !map) return;
 
-    const selected = markers.find((marker) => marker.id === selectedMarkerId);
-    if (selected && !ownLocation) {
-      map.panTo({ lat: selected.lat, lng: selected.lng });
-    }
-
     markerRefs.current.forEach((marker, index) => {
       const markerItem = markers[index];
       if (!markerItem) return;
-      marker.setLabel({
-        text: markerItem.id === selectedMarkerId ? "★" : markerItem.icon,
-        fontSize: markerItem.id === selectedMarkerId ? "24px" : "20px",
-      });
+      marker.setLabel({ text: markerItem.id === selectedMarkerId ? "★" : markerItem.icon, fontSize: markerItem.id === selectedMarkerId ? "24px" : "20px" });
       marker.setIcon({
         path: google.maps.SymbolPath.CIRCLE,
         fillColor: markerColor(markerItem),
@@ -208,7 +223,7 @@ export default function GoogleMissionMap({
         scale: markerItem.id === selectedMarkerId ? 17 : 14,
       });
     });
-  }, [markers, ownLocation, selectedMarkerId]);
+  }, [markers, selectedMarkerId]);
 
   useEffect(() => {
     const google = (window as GoogleMapsWindow).google;
@@ -216,33 +231,19 @@ export default function GoogleMissionMap({
     if (!google?.maps || !map) return;
 
     if (!ownLocation) {
-      ownLocationMarkerRef.current?.setMap(null);
+      ownLocationOverlayRef.current?.setMap(null);
       ownLocationCircleRef.current?.setMap(null);
-      ownLocationMarkerRef.current = null;
+      ownLocationOverlayRef.current = null;
       ownLocationCircleRef.current = null;
       return;
     }
 
     const position = { lat: ownLocation.latitude, lng: ownLocation.longitude };
-    const ownIcon = {
-      url: `data:image/svg+xml;charset=UTF-8,${ownLocationSvg}`,
-      scaledSize: new google.maps.Size(54, 54),
-      anchor: new google.maps.Point(27, 27),
-    };
 
-    if (!ownLocationMarkerRef.current) {
-      ownLocationMarkerRef.current = new google.maps.Marker({
-        position,
-        map,
-        title: `Mein Standort / Flammi (${ownLocation.deviceType})`,
-        icon: ownIcon,
-        zIndex: 9999,
-      });
-    } else {
-      ownLocationMarkerRef.current.setPosition(position);
-      ownLocationMarkerRef.current.setIcon(ownIcon);
-      ownLocationMarkerRef.current.setMap(map);
-    }
+    ownLocationOverlayRef.current?.setMap(null);
+    const overlay = createOwnLocationOverlay(google, position, ownLocation.accuracyMeters);
+    overlay.setMap(map);
+    ownLocationOverlayRef.current = overlay;
 
     const visibleRadius = Math.max(ownLocation.accuracyMeters, 180);
     if (!ownLocationCircleRef.current) {
@@ -252,19 +253,15 @@ export default function GoogleMissionMap({
         radius: visibleRadius,
         strokeColor: "#1d4ed8",
         strokeOpacity: 0.95,
-        strokeWeight: 4,
+        strokeWeight: 5,
         fillColor: "#60a5fa",
-        fillOpacity: 0.28,
+        fillOpacity: 0.32,
         zIndex: 9998,
       });
     } else {
       ownLocationCircleRef.current.setCenter(position);
       ownLocationCircleRef.current.setRadius(visibleRadius);
-      ownLocationCircleRef.current.setOptions({
-        strokeOpacity: 0.95,
-        strokeWeight: 4,
-        fillOpacity: 0.28,
-      });
+      ownLocationCircleRef.current.setOptions({ strokeOpacity: 0.95, strokeWeight: 5, fillOpacity: 0.32 });
       ownLocationCircleRef.current.setMap(map);
     }
   }, [ownLocation]);
