@@ -30,6 +30,7 @@ type GoogleMapsWindow = Window & {
 };
 
 const GOOGLE_MAPS_SCRIPT_ID = "wellfit-google-maps-js";
+const OWN_LOCATION_LABEL = "🐉";
 
 const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
   if (typeof window === "undefined") return null;
@@ -217,20 +218,21 @@ export default function GoogleMissionMap({
       ownLocationMarkerRef.current = new google.maps.Marker({
         position,
         map,
-        title: `Mein Standort (${ownLocation.deviceType})`,
-        label: { text: "📍", fontSize: "22px" },
+        title: `Mein Standort / Flammi (${ownLocation.deviceType})`,
+        label: { text: OWN_LOCATION_LABEL, fontSize: "24px" },
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
           fillColor: "#2563eb",
           fillOpacity: 1,
           strokeColor: "#ffffff",
           strokeWeight: 4,
-          scale: 16,
+          scale: 17,
         },
         zIndex: 999,
       });
     } else {
       ownLocationMarkerRef.current.setPosition(position);
+      ownLocationMarkerRef.current.setLabel({ text: OWN_LOCATION_LABEL, fontSize: "24px" });
       ownLocationMarkerRef.current.setMap(map);
     }
 
@@ -286,7 +288,7 @@ export default function GoogleMissionMap({
       </div>
       {ownLocation && (
         <button type="button" onClick={focusOwnLocation} className="absolute bottom-5 right-5 z-10 rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500">
-          📍 Zu meinem Standort
+          🐉 Zu meinem Standort
         </button>
       )}
     </div>
