@@ -1,4 +1,5 @@
 import Link from "next/link";
+import DeviceLocationCard from "@/app/components/DeviceLocationCard";
 
 const focusCards = [
   {
@@ -79,6 +80,10 @@ export default function MobileHomePage() {
             <p className="mt-3 text-sm leading-relaxed text-white/72">{card.helper}</p>
           </div>
         ))}
+      </section>
+
+      <section className="px-4 pt-4">
+        <DeviceLocationCard compact />
       </section>
 
       <section className="px-4 pt-4">
