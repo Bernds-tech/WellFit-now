@@ -85,12 +85,11 @@ const createOwnLocationOverlay = (google: any, position: { lat: number; lng: num
     container.style.zIndex = "2147483647";
     container.style.pointerEvents = "none";
     container.innerHTML = `
-      <div style="position:relative;width:112px;height:112px;display:flex;align-items:center;justify-content:center;">
-        <div style="position:absolute;width:112px;height:112px;border-radius:999px;background:rgba(37,99,235,0.20);border:4px solid rgba(37,99,235,0.95);box-shadow:0 0 30px rgba(37,99,235,0.7);"></div>
-        <div style="position:absolute;width:68px;height:68px;border-radius:999px;background:#2563eb;border:5px solid #ffffff;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 10px 30px rgba(0,0,0,0.45);">🐉</div>
-        <div style="position:absolute;top:72px;left:50%;transform:translateX(-50%);white-space:nowrap;border-radius:999px;background:#0f172a;color:#ffffff;border:2px solid #60a5fa;padding:4px 10px;font-size:12px;font-weight:900;box-shadow:0 8px 22px rgba(0,0,0,0.35);">Mein Standort</div>
-      </div>
-    `;
+  <div style="position:relative;width:54px;height:54px;display:flex;align-items:center;justify-content:center;">
+    <div style="position:absolute;width:54px;height:54px;border-radius:999px;background:rgba(37,99,235,0.18);border:2px solid rgba(37,99,235,0.8);box-shadow:0 0 14px rgba(37,99,235,0.55);"></div>
+    <div style="position:absolute;width:34px;height:34px;border-radius:999px;background:#2563eb;border:3px solid #ffffff;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(0,0,0,0.35);">🐉</div>
+  </div>
+`;
     const panes = overlay.getPanes();
 (panes?.floatPane ?? panes?.overlayMouseTarget ?? panes?.overlayLayer)?.appendChild(container);
   };
@@ -246,7 +245,7 @@ export default function GoogleMissionMap({
     overlay.setMap(map);
     ownLocationOverlayRef.current = overlay;
 
-    const visibleRadius = Math.max(ownLocation.accuracyMeters, 180);
+    const visibleRadius = Math.max(ownLocation.accuracyMeters, 40);
     if (!ownLocationCircleRef.current) {
       ownLocationCircleRef.current = new google.maps.Circle({
         map,
@@ -254,15 +253,15 @@ export default function GoogleMissionMap({
         radius: visibleRadius,
         strokeColor: "#1d4ed8",
         strokeOpacity: 0.95,
-        strokeWeight: 5,
+        strokeWeight: 2,
         fillColor: "#60a5fa",
-        fillOpacity: 0.32,
+        fillOpacity: 0.12,
         zIndex: 9998,
       });
     } else {
       ownLocationCircleRef.current.setCenter(position);
       ownLocationCircleRef.current.setRadius(visibleRadius);
-      ownLocationCircleRef.current.setOptions({ strokeOpacity: 0.95, strokeWeight: 5, fillOpacity: 0.32 });
+      ownLocationCircleRef.current.setOptions({ strokeOpacity: 0.95, strokeWeight: 2, fillOpacity: 0.12 });
       ownLocationCircleRef.current.setMap(map);
     }
   }, [ownLocation]);
@@ -300,17 +299,13 @@ export default function GoogleMissionMap({
         <p className="mt-1 text-sm font-semibold">{subtitle}</p>
       </div>
       {ownLocation && (
-  <>
-    <div className="pointer-events-none absolute left-1/2 top-1/2 z-[999999] -translate-x-1/2 -translate-y-1/2 rounded-full border-[6px] border-white bg-blue-600 px-5 py-4 text-4xl shadow-[0_0_40px_rgba(37,99,235,0.95)]">
-      🐉
-    </div>
-    <div className="pointer-events-none absolute left-1/2 top-[calc(50%+56px)] z-[999999] -translate-x-1/2 rounded-full border-2 border-blue-300 bg-slate-900 px-4 py-1 text-xs font-black text-white shadow-lg">
-      Mein Standort
-    </div>
-    <button type="button" onClick={focusOwnLocation} className="absolute bottom-5 right-5 z-[999999] rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500">
-      🐉 Zu meinem Standort
-    </button>
-  </>
+  <button
+    type="button"
+    onClick={focusOwnLocation}
+    className="absolute bottom-5 right-5 z-[999999] rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500"
+  >
+    🐉 Zu meinem Standort
+  </button>
 )}
     </div>
   );
