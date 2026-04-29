@@ -21,6 +21,7 @@ export default function PermissionsCard({
   toggleBase: string;
 }) {
   const toggleItems: { key: PermissionKey; label: string; text: string }[] = [
+    { key: "locationTracking", label: "Geräte-Standorttracking", text: "PC oder Handy darf nach Browser-Zustimmung den eigenen Standort aktualisieren" },
     { key: "camera", label: "Kamera-Zugriff", text: "Für AR-Erlebnisse & Edge-AI Tracking" },
     { key: "microphone", label: "Mikrofon", text: "Für Spracheingabe und Buddy-Funktionen" },
     { key: "backgroundTracking", label: "Hintergrund-Aktivität", text: "Schritte im Hintergrund weiterzählen" },
@@ -31,12 +32,12 @@ export default function PermissionsCard({
       <div className="space-y-3">
         <div className="rounded-lg border border-cyan-300/10 bg-[#0a3d46] px-3 py-2">
           <p className="font-semibold text-white">Standort (GPS)</p>
-          <p className="mb-2 text-xs text-white/60">Für Checkpoints, Karten & Reality-Glitches</p>
-          <select className={selectClass} value={permissions.location ? "Immer" : "Nie"} onChange={(event) => updatePermission("location", event.target.value !== "Nie")}>
-            <option>Immer</option>
+          <p className="mb-2 text-xs text-white/60">Für Checkpoints, Karten, Geräte-Standort & Reality-Glitches</p>
+          <select className={selectClass} value={permissions.location ? "Nur beim Verwenden" : "Nie"} onChange={(event) => updatePermission("location", event.target.value !== "Nie")}>
             <option>Nur beim Verwenden</option>
             <option>Nie</option>
           </select>
+          <p className="mt-2 text-xs text-white/45">Die eigentliche Browser-/Handy-Freigabe fragt dein Gerät separat ab. WellFit speichert hier nur, ob die Funktion aktiv sein soll.</p>
         </div>
 
         {toggleItems.map((item) => (
