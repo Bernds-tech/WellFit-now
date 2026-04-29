@@ -82,16 +82,17 @@ const createOwnLocationOverlay = (google: any, position: { lat: number; lng: num
     container = document.createElement("div");
     container.style.position = "absolute";
     container.style.transform = "translate(-50%, -50%)";
-    container.style.zIndex = "99999";
+    container.style.zIndex = "2147483647";
     container.style.pointerEvents = "none";
     container.innerHTML = `
-      <div style="position:relative;width:92px;height:92px;display:flex;align-items:center;justify-content:center;">
-        <div style="position:absolute;width:92px;height:92px;border-radius:999px;background:rgba(37,99,235,0.20);border:4px solid rgba(37,99,235,0.95);box-shadow:0 0 30px rgba(37,99,235,0.7);"></div>
-        <div style="position:absolute;width:58px;height:58px;border-radius:999px;background:#2563eb;border:5px solid #ffffff;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 10px 30px rgba(0,0,0,0.45);">🐉</div>
+      <div style="position:relative;width:112px;height:112px;display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;width:112px;height:112px;border-radius:999px;background:rgba(37,99,235,0.20);border:4px solid rgba(37,99,235,0.95);box-shadow:0 0 30px rgba(37,99,235,0.7);"></div>
+        <div style="position:absolute;width:68px;height:68px;border-radius:999px;background:#2563eb;border:5px solid #ffffff;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 10px 30px rgba(0,0,0,0.45);">🐉</div>
         <div style="position:absolute;top:72px;left:50%;transform:translateX(-50%);white-space:nowrap;border-radius:999px;background:#0f172a;color:#ffffff;border:2px solid #60a5fa;padding:4px 10px;font-size:12px;font-weight:900;box-shadow:0 8px 22px rgba(0,0,0,0.35);">Mein Standort</div>
       </div>
     `;
-    overlay.getPanes()?.overlayMouseTarget.appendChild(container);
+    const panes = overlay.getPanes();
+(panes?.floatPane ?? panes?.overlayMouseTarget ?? panes?.overlayLayer)?.appendChild(container);
   };
 
   overlay.draw = () => {
