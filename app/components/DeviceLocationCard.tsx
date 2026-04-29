@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
-type DeviceLocationSnapshot = {
+export type DeviceLocationSnapshot = {
   latitude: number;
   longitude: number;
   accuracyMeters: number;
@@ -22,6 +22,8 @@ type DeviceLocationCardProps = {
   compact?: boolean;
   className?: string;
 };
+
+export const WELLFIT_LAST_DEVICE_LOCATION_KEY = "wellfit-last-device-location";
 
 const detectDeviceType = (): DeviceLocationSnapshot["deviceType"] => {
   if (typeof navigator === "undefined") return "unknown";
@@ -41,6 +43,22 @@ const readStoredPermissions = (): StoredPermissions => {
   }
 };
 
+const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = localStorage.getItem(WELLFIT_LAST_DEVICE_LOCATION_KEY);
+    return saved ? (JSON.parse(saved) as DeviceLocationSnapshot) : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeLastDeviceLocation = (snapshot: DeviceLocationSnapshot) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(WELLFIT_LAST_DEVICE_LOCATION_KEY, JSON.stringify(snapshot));
+  window.dispatchEvent(new CustomEvent("wellfit-device-location-updated", { detail: snapshot }));
+};
+
 const formatCoordinate = (value: number) => value.toFixed(6);
 
 export default function DeviceLocationCard({ compact = false, className = "" }: DeviceLocationCardProps) {
@@ -51,6 +69,11 @@ export default function DeviceLocationCard({ compact = false, className = "" }: 
 
   useEffect(() => {
     setPermissions(readStoredPermissions());
+    const savedLocation = readLastDeviceLocation();
+    if (savedLocation) {
+      setLocation(savedLocation);
+      setMessage("Letzter Standort dieses Geräts ist lokal verfügbar.");
+    }
   }, []);
 
   const deviceLabel = useMemo(() => {
@@ -98,6 +121,7 @@ export default function DeviceLocationCard({ compact = false, className = "" }: 
         };
 
         setLocation(snapshot);
+        writeLastDeviceLocation(snapshot);
 
         try {
           await setDoc(
@@ -111,7 +135,7 @@ export default function DeviceLocationCard({ compact = false, className = "" }: 
           setMessage("Standort dieses Geräts wurde gespeichert.");
         } catch (error) {
           console.error("Standort konnte nicht gespeichert werden", error);
-          setMessage("Standort erkannt, aber Speichern wurde blockiert.");
+          setMessage("Standort erkannt, lokal gespeichert, aber Firestore-Speichern wurde blockiert.");
         } finally {
           setIsLoading(false);
         }
