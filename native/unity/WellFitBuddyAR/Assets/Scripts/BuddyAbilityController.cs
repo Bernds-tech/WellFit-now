@@ -4,6 +4,8 @@ public class BuddyAbilityController : MonoBehaviour
 {
     [SerializeField] private BuddyNavigationController navigationController;
     [SerializeField] private WellFitNativeBridge bridge;
+    [SerializeField] private float debugClimbHeightMeters = 0.18f;
+    [SerializeField] private float debugJumpForwardMeters = 0.35f;
 
     public bool canClimbUp = false;
     public bool canJumpBoost = false;
@@ -64,6 +66,18 @@ public class BuddyAbilityController : MonoBehaviour
             + " | reject=" + abilityRejectedCount
             + " | last=" + lastAbilityEvent
             + " | denied=" + lastRejectedCapability;
+    }
+
+    public void TestClimbUpNearBuddy()
+    {
+        Vector3 target = transform.position + Vector3.up * debugClimbHeightMeters;
+        TryClimbUp(target);
+    }
+
+    public void TestJumpBoostNearBuddy()
+    {
+        Vector3 target = transform.position + transform.forward * debugJumpForwardMeters + Vector3.up * debugClimbHeightMeters;
+        TryJumpBoost(target);
     }
 
     public void TryClimbUp(Vector3 targetPosition)
