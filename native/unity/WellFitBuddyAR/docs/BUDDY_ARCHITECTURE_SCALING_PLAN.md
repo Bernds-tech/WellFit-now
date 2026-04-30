@@ -10,6 +10,8 @@ Der AR-Buddy soll langfristig skalierbar bleiben, auch wenn spaeter mehr Verhalt
 
 Dieses Dokument legt fest, welche Verantwortlichkeiten in Unity bleiben und welche bewusst ausserhalb von Unity liegen.
 
+Zusaetzlich gilt: Die AR-/Buddy-Seite darf nicht zu einer einzigen grossen Debug-, Produkt- oder Controller-Seite anwachsen. Skalierung bedeutet getrennte Schichten, getrennte UI-Ebenen, kleine Controller, klare Contracts und serverseitige Autoritaet.
+
 ## Harte Architekturgrenze
 
 Unity ist nur AR-/Visualisierungs-/Interaktionsschicht.
@@ -58,6 +60,7 @@ Zielausbau:
 - Eventnamen zentralisieren.
 - Payload-Struktur versionieren.
 - Eventvertrag mit App/Backend dokumentieren.
+- Spaeter Command-Handler pro Featuregruppe statt immer mehr Methoden in einer Datei.
 
 ### 2. AR Placement / Anchor Layer
 
@@ -81,6 +84,7 @@ Zielausbau:
 - Surface Quality Bewertung.
 - Plane-Missing-Hinweise.
 - Optional: persistente AR-Anker spaeter pruefen.
+- SurfaceResolver/SurfaceQuality spaeter aus AnchorController auslagern.
 
 ### 3. Navigation Layer
 
@@ -124,6 +128,7 @@ Zielausbau:
 - Echter Companion-Radius.
 - Nutzernaehe ueber Kamera/Buddy-Distanz stabilisieren.
 - Auto-follow spaeter mit MovementPolicy koppeln.
+- CompanionState als eigenes Diagnose-/State-Objekt einfuehren.
 
 ### 5. Ability Layer
 
@@ -148,6 +153,7 @@ Zielausbau:
 - Ability-State von Backend/App uebergeben.
 - Lokale Anzeige aktualisieren.
 - Faehigkeits-Events sauber versionieren.
+- AbilityState als Datenobjekt statt einzelner Boolean-Felder wachsen lassen.
 
 ### 6. KI Guide Layer
 
@@ -174,6 +180,7 @@ Zielausbau:
 - App-/Backend-Missionsempfehlungen anzeigen.
 - Dialogue/Event Bridge stabilisieren.
 - Guide UI spaeter produktionsnah machen.
+- GuideSuggestion/CapabilityHint als versionierte DTOs einfuehren.
 
 ### 7. Debug Layer
 
@@ -193,6 +200,7 @@ Zielausbau:
 - Nach naechstem erfolgreichen Test in kleinere Dev-Komponenten splitten.
 - Produktbuild per Dev-Flag oder Build-Define ohne Debug-Overlay bauen.
 - Optional separate Debug-Szene behalten.
+- Neue Debug-Seiten nur als eigene Page-Komponenten, nicht im Root weiterstapeln.
 
 Empfohlene Split-Dateien spaeter:
 
@@ -203,7 +211,30 @@ BuddyDebugVisualPage.cs
 BuddyDebugAbilityPage.cs
 BuddyDebugGuidePage.cs
 BuddyDebugDiagnosticsPanel.cs
+BuddyDebugStyle.cs
+BuddyDebugControllerFinder.cs
 ```
+
+### 8. Product UI Layer
+
+Datei aktuell:
+
+```txt
+noch nicht final getrennt
+```
+
+Verantwortung:
+
+- Kurze, klare Nutzerhinweise in AR anzeigen.
+- Kinder-/Familienmodus freundlich halten.
+- Keine Debug-Diagnosen zeigen.
+- Keine Economy-/Reward-/Completion-Autoritaet enthalten.
+
+Zielausbau:
+
+- Produkt-UI getrennt vom Debug-Overlay planen.
+- Texte aus Contracts/Localization speisen.
+- AR-Hinweise wie `Zeig mir kurz den Boden` oder `Das ist noch zu weit fuer mich` sauber zentralisieren.
 
 ## Skalierungsregel fuer neue Features
 
@@ -217,8 +248,22 @@ Neue Buddy-Funktionen duerfen nur aufgenommen werden, wenn sie in eine dieser Sc
 6. KI Guide
 7. Debug
 8. Visual/Animation
+9. Product UI
 
 Wenn eine Funktion mehrere Schichten betrifft, muss sie in kleine Schritte zerlegt werden.
+
+## Skalierbarkeitsregeln fuer Seiten und Controller
+
+1. Keine neue Monolith-Seite fuer AR/Buddy/Debug.
+2. Keine produktive UI direkt aus `OnGUI` ableiten.
+3. Debug-UI, Produkt-UI und Event-/Backend-Vertraege bleiben getrennt.
+4. Eine Datei soll eine klare Verantwortung haben.
+5. Wenn ein Controller mehrere Featuregruppen steuert, wird nach erfolgreichem Test gesplittet.
+6. Wiederverwendbare Daten werden als DTO/State-Objekt definiert, nicht als lose String-Payloads in vielen Dateien kopiert.
+7. Neue Missionstypen, Avatarfaehigkeiten oder Surface-Regeln brauchen zuerst einen Contract oder eine Draft-Datei.
+8. Unity-Events werden versioniert, bevor App/Backend sie produktiv auswerten.
+9. Kein Client/Unity-Pfad darf wegen Skalierung zur Reward-/Completion-Autoritaet werden.
+10. Nach jedem stabilen Testbatch wird entschieden: Feature stabilisieren, refaktorieren oder verwerfen – nicht endlos erweitern.
 
 ## Naechste sinnvolle Arbeit ohne Handy-Test
 
@@ -228,6 +273,8 @@ Wenn eine Funktion mehrere Schichten betrifft, muss sie in kleine Schritte zerle
 4. Ability-State-Vertrag zwischen Backend/App und Unity planen.
 5. KI-Guide-Eventvertrag planen.
 6. Security Boundary in Unity-Dokumenten weiter klaeren.
+7. Skalierbares Product-UI-Konzept fuer AR-Hinweise planen.
+8. App-/Backend-Command-Vertrag fuer Buddy-Befehle vorbereiten.
 
 ## Naechste Arbeit mit Unity-Test
 
