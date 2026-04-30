@@ -66,36 +66,66 @@ Fuer den schnellen lokalen Test gibt es:
 
 ```txt
 Assets/Scripts/BuddyCallDebugController.cs
+Assets/Scripts/BuddyCompanionAutoReturnController.cs
 ```
 
 Scene-Setup:
 
 1. In der AR-Szene ein leeres GameObject erstellen, z. B. `BuddyCallDebug`.
 2. `BuddyCallDebugController` an dieses GameObject haengen.
-3. Das `WellFitNativeBridge`-Objekt in das Feld `bridge` ziehen.
-4. `showDebugButton` aktiv lassen.
-5. Build starten.
-6. Unten im Bild erscheint der Button `Buddy rufen`.
+3. Optional `BuddyCompanionAutoReturnController` an dasselbe oder ein eigenes GameObject haengen.
+4. Das `WellFitNativeBridge`-Objekt in das Feld `bridge` ziehen.
+5. Das `BuddyAnchorController`-Objekt in das Feld `anchorController` ziehen.
+6. `showDebugButton` aktiv lassen.
+7. `autoReturnEnabled` vor dem ersten Test aus lassen.
+8. Build starten.
 
-Der Button ruft intern auf:
+Im Testbuild erscheinen unten drei Buttons:
+
+```txt
+Buddy rufen
+Auto-Return einmal testen
+Auto-Return: AN/AUS
+```
+
+Der Button `Buddy rufen` ruft intern auf:
 
 ```csharp
 CallBuddyToUserJson("{\"x\":0.5,\"y\":0.35}")
 ```
 
-## Manueller Test
+## Manueller Sammeltest
 
 1. AR-Szene starten.
 2. Boden oder Tisch scannen.
 3. Buddy per Tap platzieren.
 4. Buddy weiter weg auf eine andere erkannte Flaeche bewegen.
-5. Button `Buddy rufen` antippen oder `CallBuddyToUserJson({"x":0.5,"y":0.35})` ausloesen.
+5. Button `Buddy rufen` antippen.
 6. Erwartung: Buddy laeuft zur naechsten erkannten Flaeche in Nutzernaehe.
-7. Wenn keine Flaeche gefunden wird, muss `onBuddyActionRejected` mit `reason=no-plane-hit` geloggt werden.
+7. Button `Auto-Return einmal testen` antippen.
+8. Erwartung: gleicher Rueckruf-Flow, aber ueber `BuddyCompanionAutoReturnController`.
+9. `Auto-Return: AN/AUS` aktivieren.
+10. Erwartung: Auto-Return fordert in Intervallen den Rueckruf-Flow an. Fuer erste Tests nur kurz aktivieren.
+11. Wenn keine Flaeche gefunden wird, muss `onBuddyActionRejected` mit `reason=no-plane-hit` geloggt werden.
+
+## Bewegungsgrenzen
+
+`BuddyNavigationController` enthaelt jetzt zentrale Bewegungsgrenzen:
+
+```txt
+maxWalkDistanceMeters
+maxJumpHeightDifferenceMeters
+IsMoving
+CurrentAction
+TargetSurfaceId
+```
+
+Wenn der Buddy bereits laeuft oder ein Ziel zu weit/zu hoch ist, wird `onBuddyActionRejected` gemeldet. Das verhindert stilles Fehlverhalten im Testbuild.
 
 ## Naechste Schritte
 
 - App-/Button-Befehl mit `CallBuddyToUserJson` verbinden.
 - Debug-UI im Unity-Testbuild auf echtem Android-Geraet pruefen.
 - Spaeter Re-Anchor nach Rueckkehr sauber ausbauen.
-- Spaeter Companion-Radius und automatische Rueckkehr an denselben Flow anschliessen.
+- Spaeter Companion-Radius und automatische Rueckkehr an echte Distanzmessung anschliessen.
+- Spaeter Hindernis-/Occlusion-Logik ergaenzen.
