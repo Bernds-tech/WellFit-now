@@ -14,6 +14,8 @@ public class BuddyController : MonoBehaviour
     private Vector3 baseLocalPosition;
     private Vector3 baseLocalScale;
 
+    public bool IdleMotionEnabled => idleMotionEnabled;
+
     void Awake()
     {
         if (cameraTransform == null && Camera.main != null)
