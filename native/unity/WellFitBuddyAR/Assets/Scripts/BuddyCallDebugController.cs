@@ -10,6 +10,8 @@ public class BuddyCallDebugController : MonoBehaviour
     [SerializeField] private float normalizedScreenY = 0.35f;
 
     private string lastStatus = "Buddy recall debug ready";
+    private BuddyController buddyController;
+    private BuddyLookAtCamera buddyLookAtCamera;
 
     void Awake()
     {
@@ -161,6 +163,45 @@ public class BuddyCallDebugController : MonoBehaviour
         lastStatus = autoReturnController.LastStatus;
     }
 
+    public void ToggleBuddyIdleMotion()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyController == null)
+        {
+            lastStatus = "Idle toggle: BuddyController missing";
+            return;
+        }
+
+        buddyController.SetIdleMotionEnabled(!buddyController.IdleMotionEnabled);
+        lastStatus = "Idle motion: " + (buddyController.IdleMotionEnabled ? "AN" : "AUS");
+    }
+
+    public void ToggleBuddyLookAt()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyLookAtCamera == null)
+        {
+            lastStatus = "Look toggle: BuddyLookAtCamera missing";
+            return;
+        }
+
+        buddyLookAtCamera.SetLookAtEnabled(!buddyLookAtCamera.LookAtEnabled);
+        lastStatus = "Look at camera: " + (buddyLookAtCamera.LookAtEnabled ? "AN" : "AUS");
+    }
+
+    private void RefreshBuddyVisualControllers()
+    {
+        if (buddyController == null)
+        {
+            buddyController = FindObjectOfType<BuddyController>();
+        }
+
+        if (buddyLookAtCamera == null)
+        {
+            buddyLookAtCamera = FindObjectOfType<BuddyLookAtCamera>();
+        }
+    }
+
     public void ToggleCompactMode()
     {
         compactMode = !compactMode;
@@ -175,12 +216,12 @@ public class BuddyCallDebugController : MonoBehaviour
         }
 
         float width = Mathf.Min(620f, Screen.width - 40f);
-        float height = 50f;
+        float height = 46f;
         float left = 20f;
-        float bottom = compactMode ? Screen.height - 118f : Screen.height - 681f;
+        float bottom = compactMode ? Screen.height - 118f : Screen.height - 779f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-        buttonStyle.fontSize = 20;
+        buttonStyle.fontSize = 19;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
         labelStyle.fontSize = 19;
@@ -204,49 +245,59 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        if (GUI.Button(new Rect(left, bottom + 56f, width, height), "Buddy rufen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 50f, width, height), "Buddy rufen", buttonStyle))
         {
             CallBuddyToUser();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 112f, width, height), "Rueckruf testen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 100f, width, height), "Rueckruf testen", buttonStyle))
         {
             RequestAutoReturnOnce();
         }
 
         string autoLabel = "Auto: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 168f, width, height), autoLabel, buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 150f, width, height), autoLabel, buttonStyle))
         {
             ToggleAutoReturn();
         }
 
         string farOnlyLabel = "Nur weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 224f, width, height), farOnlyLabel, buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 200f, width, height), farOnlyLabel, buttonStyle))
         {
             ToggleFarOnly();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 280f, width, height), "Timing schnell", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 250f, width, height), "Timing schnell", buttonStyle))
         {
             UseFastTiming();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 336f, width, height), "Timing normal", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 300f, width, height), "Timing normal", buttonStyle))
         {
             UseNormalTiming();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 392f, width, height), "Abstand Test", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 350f, width, height), "Abstand Test", buttonStyle))
         {
             UseTestDistance();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 448f, width, height), "Abstand Produkt", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 400f, width, height), "Abstand Produkt", buttonStyle))
         {
             UseProductDistance();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 504f, width, height), "Diagnose reset", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 450f, width, height), "Idle AN/AUS", buttonStyle))
+        {
+            ToggleBuddyIdleMotion();
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 500f, width, height), "Blick AN/AUS", buttonStyle))
+        {
+            ToggleBuddyLookAt();
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 550f, width, height), "Diagnose reset", buttonStyle))
         {
             ResetDiagnostics();
         }
