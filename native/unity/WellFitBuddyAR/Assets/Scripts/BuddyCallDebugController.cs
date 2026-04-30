@@ -135,6 +135,32 @@ public class BuddyCallDebugController : MonoBehaviour
         lastStatus = autoReturnController.LastStatus;
     }
 
+    public void UseTestDistance()
+    {
+        if (autoReturnController == null)
+        {
+            lastStatus = "Distance failed: controller missing";
+            Debug.LogWarning(lastStatus);
+            return;
+        }
+
+        autoReturnController.UseTestDistance();
+        lastStatus = autoReturnController.LastStatus;
+    }
+
+    public void UseProductDistance()
+    {
+        if (autoReturnController == null)
+        {
+            lastStatus = "Distance failed: controller missing";
+            Debug.LogWarning(lastStatus);
+            return;
+        }
+
+        autoReturnController.UseProductDistance();
+        lastStatus = autoReturnController.LastStatus;
+    }
+
     public void ToggleCompactMode()
     {
         compactMode = !compactMode;
@@ -149,12 +175,12 @@ public class BuddyCallDebugController : MonoBehaviour
         }
 
         float width = Mathf.Min(620f, Screen.width - 40f);
-        float height = 54f;
+        float height = 50f;
         float left = 20f;
-        float bottom = compactMode ? Screen.height - 118f : Screen.height - 573f;
+        float bottom = compactMode ? Screen.height - 118f : Screen.height - 681f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-        buttonStyle.fontSize = 21;
+        buttonStyle.fontSize = 20;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
         labelStyle.fontSize = 19;
@@ -178,39 +204,49 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        if (GUI.Button(new Rect(left, bottom + 60f, width, height), "Buddy rufen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 56f, width, height), "Buddy rufen", buttonStyle))
         {
             CallBuddyToUser();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 120f, width, height), "Rueckruf testen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 112f, width, height), "Rueckruf testen", buttonStyle))
         {
             RequestAutoReturnOnce();
         }
 
         string autoLabel = "Auto: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 180f, width, height), autoLabel, buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 168f, width, height), autoLabel, buttonStyle))
         {
             ToggleAutoReturn();
         }
 
         string farOnlyLabel = "Nur weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 240f, width, height), farOnlyLabel, buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 224f, width, height), farOnlyLabel, buttonStyle))
         {
             ToggleFarOnly();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 300f, width, height), "Timing schnell", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 280f, width, height), "Timing schnell", buttonStyle))
         {
             UseFastTiming();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 360f, width, height), "Timing normal", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 336f, width, height), "Timing normal", buttonStyle))
         {
             UseNormalTiming();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 420f, width, height), "Diagnose reset", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 392f, width, height), "Abstand Test", buttonStyle))
+        {
+            UseTestDistance();
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 448f, width, height), "Abstand Produkt", buttonStyle))
+        {
+            UseProductDistance();
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 504f, width, height), "Diagnose reset", buttonStyle))
         {
             ResetDiagnostics();
         }
