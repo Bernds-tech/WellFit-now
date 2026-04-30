@@ -51,7 +51,7 @@ public static class BuddyDebugSceneBootstrap
         WellFitNativeBridge[] allBridges = Resources.FindObjectsOfTypeAll<WellFitNativeBridge>();
         foreach (WellFitNativeBridge candidate in allBridges)
         {
-            if (candidate == null) continue;
+            if (!IsSceneObject(candidate)) continue;
             ActivateSceneObject(candidate.gameObject);
             return candidate;
         }
@@ -70,7 +70,7 @@ public static class BuddyDebugSceneBootstrap
         BuddyAnchorController[] allAnchorControllers = Resources.FindObjectsOfTypeAll<BuddyAnchorController>();
         foreach (BuddyAnchorController candidate in allAnchorControllers)
         {
-            if (candidate == null) continue;
+            if (!IsSceneObject(candidate)) continue;
             ActivateSceneObject(candidate.gameObject);
             return candidate;
         }
@@ -78,9 +78,19 @@ public static class BuddyDebugSceneBootstrap
         return null;
     }
 
+    private static bool IsSceneObject(Component component)
+    {
+        if (component == null || component.gameObject == null)
+        {
+            return false;
+        }
+
+        return component.gameObject.scene.IsValid();
+    }
+
     private static void ActivateSceneObject(GameObject sceneObject)
     {
-        if (sceneObject == null)
+        if (sceneObject == null || !sceneObject.scene.IsValid())
         {
             return;
         }
