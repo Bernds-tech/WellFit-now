@@ -112,6 +112,37 @@ public class BuddyAnchorController : MonoBehaviour
         return true;
     }
 
+    public bool CallBuddyToScreenPoint(Vector2 screenPoint)
+    {
+        if (currentBuddy == null)
+        {
+            bridge?.SendEventToWellFit("onArError", "{\"message\":\"Buddy not placed\",\"code\":\"buddy-not-placed\"}");
+            return false;
+        }
+
+        if (!ValidateSetup()) return false;
+
+        if (!TryGetPlanePose(screenPoint, out Pose pose, out TrackableId trackableId))
+        {
+            bridge?.SendEventToWellFit("onBuddyActionRejected", "{\"action\":\"callBuddyToUser\",\"reason\":\"no-plane-hit\"}");
+            return false;
+        }
+
+        EnsureNavigationController();
+        if (navigationController == null)
+        {
+            return false;
+        }
+
+        string surfaceId = CreateSurfaceId(trackableId);
+        navigationController.SetBridge(bridge);
+        navigationController.SetTargetSurfaceId(surfaceId);
+        navigationController.WalkTo(pose.position);
+
+        bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"returnToUser\",\"surfaceId\":\"" + surfaceId + "\",\"anchorId\":\"" + currentAnchorId + "\"}");
+        return true;
+    }
+
     public void CallBuddyToCamera(Vector3 cameraForwardPoint)
     {
         if (currentBuddy == null)
