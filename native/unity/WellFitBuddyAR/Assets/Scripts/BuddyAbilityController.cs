@@ -11,12 +11,59 @@ public class BuddyAbilityController : MonoBehaviour
     public bool canScanObject = false;
     public bool canCarry = false;
 
+    private string lastAbilityEvent = "none";
+    private string lastRejectedCapability = "none";
+    private int abilityStartedCount;
+    private int abilityRejectedCount;
+
+    public string LastAbilityEvent => lastAbilityEvent;
+    public string LastRejectedCapability => lastRejectedCapability;
+    public int AbilityStartedCount => abilityStartedCount;
+    public int AbilityRejectedCount => abilityRejectedCount;
+
     void Awake()
     {
         if (navigationController == null)
         {
             navigationController = GetComponent<BuddyNavigationController>();
         }
+    }
+
+    public void SetDemoCapabilities(bool enabled)
+    {
+        canClimbUp = enabled;
+        canJumpBoost = enabled;
+        canFetchClue = enabled;
+        canScanObject = enabled;
+        canCarry = enabled;
+        lastAbilityEvent = enabled ? "demo-capabilities-on" : "demo-capabilities-off";
+    }
+
+    public void ToggleDemoCapabilities()
+    {
+        bool enabled = !(canClimbUp && canJumpBoost && canFetchClue && canScanObject && canCarry);
+        SetDemoCapabilities(enabled);
+    }
+
+    public void ResetDiagnostics()
+    {
+        lastAbilityEvent = "none";
+        lastRejectedCapability = "none";
+        abilityStartedCount = 0;
+        abilityRejectedCount = 0;
+    }
+
+    public string BuildDiagnosticsLabel()
+    {
+        return "Abilities=" + (canClimbUp || canJumpBoost || canFetchClue || canScanObject || canCarry ? "some" : "none")
+            + " | climb=" + canClimbUp
+            + " | jump=" + canJumpBoost
+            + " | scan=" + canScanObject
+            + " | fetch=" + canFetchClue
+            + " | start=" + abilityStartedCount
+            + " | reject=" + abilityRejectedCount
+            + " | last=" + lastAbilityEvent
+            + " | denied=" + lastRejectedCapability;
     }
 
     public void TryClimbUp(Vector3 targetPosition)
@@ -27,11 +74,15 @@ public class BuddyAbilityController : MonoBehaviour
             return;
         }
 
-        navigationController?.JumpTo(targetPosition);
-        bridge?.SendEventToWellFit(
-            "onBuddyActionStarted",
-            "{\"action\":\"climbUp\",\"capabilityId\":\"climbUp\"}"
-        );
+        bool started = navigationController != null && navigationController.JumpTo(targetPosition, "climbUp");
+        if (started)
+        {
+            MarkStarted("climbUp");
+            bridge?.SendEventToWellFit(
+                "onBuddyActionStarted",
+                "{\"action\":\"climbUp\",\"capabilityId\":\"climbUp\"}"
+            );
+        }
     }
 
     public void TryJumpBoost(Vector3 targetPosition)
@@ -42,11 +93,15 @@ public class BuddyAbilityController : MonoBehaviour
             return;
         }
 
-        navigationController?.JumpTo(targetPosition);
-        bridge?.SendEventToWellFit(
-            "onBuddyActionStarted",
-            "{\"action\":\"jumpBoost\",\"capabilityId\":\"jumpBoost\"}"
-        );
+        bool started = navigationController != null && navigationController.JumpTo(targetPosition, "jumpBoost");
+        if (started)
+        {
+            MarkStarted("jumpBoost");
+            bridge?.SendEventToWellFit(
+                "onBuddyActionStarted",
+                "{\"action\":\"jumpBoost\",\"capabilityId\":\"jumpBoost\"}"
+            );
+        }
     }
 
     public void TryFetchClue(string markerId)
@@ -57,6 +112,7 @@ public class BuddyAbilityController : MonoBehaviour
             return;
         }
 
+        MarkStarted("fetchClue");
         bridge?.SendEventToWellFit(
             "onBuddyActionStarted",
             "{\"action\":\"fetchClue\",\"capabilityId\":\"fetchClue\",\"markerId\":\"" + markerId + "\"}"
@@ -71,14 +127,25 @@ public class BuddyAbilityController : MonoBehaviour
             return;
         }
 
+        MarkStarted("scanObject");
         bridge?.SendEventToWellFit(
             "onBuddyActionStarted",
             "{\"action\":\"scanObject\",\"capabilityId\":\"scanObject\",\"markerId\":\"" + markerId + "\"}"
         );
     }
 
+    private void MarkStarted(string capabilityId)
+    {
+        abilityStartedCount += 1;
+        lastAbilityEvent = capabilityId;
+        lastRejectedCapability = "none";
+    }
+
     private void Reject(string capabilityId)
     {
+        abilityRejectedCount += 1;
+        lastRejectedCapability = capabilityId;
+        lastAbilityEvent = "rejected";
         bridge?.SendEventToWellFit(
             "onBuddyActionRejected",
             "{\"reason\":\"capability-missing\",\"capabilityId\":\"" + capabilityId + "\"}"
