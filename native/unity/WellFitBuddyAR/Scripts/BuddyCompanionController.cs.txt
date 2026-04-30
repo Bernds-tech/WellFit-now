@@ -1,0 +1,151 @@
+// Vorlage fuer Assets/Scripts/BuddyCompanionController.cs
+// Companion-Layer fuer AR-Buddy: Naehe zum Nutzer, Buddy rufen, Radius-Pruefung.
+// Unity meldet nur AR-Ereignisse. Backend/App entscheiden Rewards, Completion und Anti-Cheat.
+
+using UnityEngine;
+
+public class BuddyCompanionController : MonoBehaviour
+{
+    [SerializeField] private BuddyAnchorController anchorController;
+    [SerializeField] private WellFitNativeBridge bridge;
+    [SerializeField] private Camera arCamera;
+    [SerializeField] private BuddyAvatarProfile avatarProfile;
+
+    [Header("Companion Behaviour")]
+    [SerializeField] private bool useProductRadius;
+    [SerializeField] private bool autoRecallWhenTooFar;
+    [SerializeField] private float fallbackRadiusMeters = 5f;
+    [SerializeField] private float callDistanceInFrontOfCameraMeters = 1.2f;
+    [SerializeField] private float minSecondsBetweenRadiusEvents = 2f;
+
+    private float lastRadiusEventTime = -999f;
+
+    void Awake()
+    {
+        if (arCamera == null)
+        {
+            arCamera = Camera.main;
+        }
+    }
+
+    void Update()
+    {
+        CheckCompanionRadius();
+    }
+
+    public void SetBridge(WellFitNativeBridge nativeBridge)
+    {
+        bridge = nativeBridge;
+    }
+
+    public void SetAnchorController(BuddyAnchorController controller)
+    {
+        anchorController = controller;
+    }
+
+    public void SetCompanionRadiusMode(bool productRadiusEnabled)
+    {
+        useProductRadius = productRadiusEnabled;
+        bridge?.SendEventToWellFit("onBuddyCompanionRadiusModeChanged", "{\"useProductRadius\":" + BoolJson(useProductRadius) + ",\"radiusMeters\":" + GetCompanionRadius().ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + "}");
+    }
+
+    public void CallBuddyToUser()
+    {
+        if (!ValidateSetup()) return;
+
+        Vector3 target = GetPointInFrontOfCamera();
+        anchorController.CallBuddyToUser(target);
+        bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"callBuddyToUser\",\"source\":\"companion-controller\"}");
+    }
+
+    public bool IsBuddyOutsideCompanionRadius()
+    {
+        if (anchorController == null || !anchorController.HasBuddy || arCamera == null)
+        {
+            return false;
+        }
+
+        float distance = Vector3.Distance(anchorController.CurrentBuddyWorldPosition, arCamera.transform.position);
+        return distance > GetCompanionRadius();
+    }
+
+    private void CheckCompanionRadius()
+    {
+        if (anchorController == null || !anchorController.HasBuddy || arCamera == null)
+        {
+            return;
+        }
+
+        float distance = Vector3.Distance(anchorController.CurrentBuddyWorldPosition, arCamera.transform.position);
+        float radius = GetCompanionRadius();
+
+        if (distance <= radius)
+        {
+            return;
+        }
+
+        if (Time.time - lastRadiusEventTime >= minSecondsBetweenRadiusEvents)
+        {
+            lastRadiusEventTime = Time.time;
+            bridge?.SendEventToWellFit("onBuddyCompanionRadiusExceeded", "{\"distanceMeters\":" + distance.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + ",\"radiusMeters\":" + radius.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + ",\"autoRecall\":" + BoolJson(autoRecallWhenTooFar) + "}");
+        }
+
+        if (autoRecallWhenTooFar)
+        {
+            CallBuddyToUser();
+        }
+    }
+
+    private bool ValidateSetup()
+    {
+        if (anchorController == null)
+        {
+            bridge?.SendEventToWellFit("onArError", "{\"message\":\"BuddyAnchorController missing\",\"code\":\"buddy-anchor-controller-missing\"}");
+            return false;
+        }
+
+        if (!anchorController.HasBuddy)
+        {
+            bridge?.SendEventToWellFit("onArError", "{\"message\":\"Buddy not placed\",\"code\":\"buddy-not-placed\"}");
+            return false;
+        }
+
+        if (arCamera == null)
+        {
+            bridge?.SendEventToWellFit("onArError", "{\"message\":\"AR camera missing\",\"code\":\"ar-camera-missing\"}");
+            return false;
+        }
+
+        return true;
+    }
+
+    private Vector3 GetPointInFrontOfCamera()
+    {
+        Vector3 forward = arCamera.transform.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude < 0.001f)
+        {
+            forward = arCamera.transform.forward;
+        }
+        forward.Normalize();
+
+        Vector3 target = arCamera.transform.position + forward * Mathf.Clamp(callDistanceInFrontOfCameraMeters, 0.5f, 3f);
+        target.y = anchorController.CurrentBuddyWorldPosition.y;
+        return target;
+    }
+
+    private float GetCompanionRadius()
+    {
+        if (avatarProfile != null)
+        {
+            return avatarProfile.GetSafeCompanionRadius(useProductRadius);
+        }
+
+        return Mathf.Clamp(fallbackRadiusMeters, 1f, 50f);
+    }
+
+    private string BoolJson(bool value)
+    {
+        return value ? "true" : "false";
+    }
+}
