@@ -181,8 +181,10 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
 
     public string BuildDiagnosticsLabel()
     {
+        string buddyState = buddyTransform == null ? "Buddy=not-found" : "Buddy=found";
         string distance = buddyTransform == null ? "no buddy" : currentDistanceMeters.ToString("0.00") + "m";
-        return "Auto=" + (autoReturnEnabled ? "ON" : "OFF")
+        return buddyState
+            + " | Auto=" + (autoReturnEnabled ? "ON" : "OFF")
             + " | FarOnly=" + (onlyReturnWhenFar ? "ON" : "OFF")
             + " | Dist=" + distance
             + " | Next=" + SecondsUntilNextCheck.ToString("0.0") + "s"
