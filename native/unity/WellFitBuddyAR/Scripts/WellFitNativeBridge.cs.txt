@@ -8,6 +8,16 @@ public class WellFitNativeBridge : MonoBehaviour
     [SerializeField] private BuddyAnchorController buddyAnchorController;
     [SerializeField] private BuddyInputController buddyInputController;
     [SerializeField] private BuddyKiGuideController buddyKiGuideController;
+    [SerializeField] private BuddyCompanionController buddyCompanionController;
+
+    void Awake()
+    {
+        if (buddyCompanionController != null)
+        {
+            buddyCompanionController.SetBridge(this);
+            buddyCompanionController.SetAnchorController(buddyAnchorController);
+        }
+    }
 
     public void StartSession()
     {
@@ -43,6 +53,29 @@ public class WellFitNativeBridge : MonoBehaviour
         }
 
         buddyAnchorController.MoveBuddyToScreenPoint(screenPoint);
+    }
+
+    public void CallBuddyToUser()
+    {
+        if (buddyCompanionController == null)
+        {
+            SendEventToWellFit("onArError", "{\"message\":\"BuddyCompanionController missing\",\"code\":\"buddy-companion-controller-missing\"}");
+            return;
+        }
+
+        buddyCompanionController.CallBuddyToUser();
+    }
+
+    public void SetCompanionRadiusJson(string payloadJson)
+    {
+        if (buddyCompanionController == null)
+        {
+            SendEventToWellFit("onArError", "{\"message\":\"BuddyCompanionController missing\",\"code\":\"buddy-companion-controller-missing\"}");
+            return;
+        }
+
+        bool useProductRadius = ExtractBool(payloadJson, "useProductRadius", false);
+        buddyCompanionController.SetCompanionRadiusMode(useProductRadius);
     }
 
     public void ResetBuddyPlacement()
@@ -83,6 +116,16 @@ public class WellFitNativeBridge : MonoBehaviour
         }
 
         return new Vector2(x, y);
+    }
+
+    private bool ExtractBool(string json, string key, bool fallback)
+    {
+        string raw = ExtractRawValue(json, key);
+        if (string.IsNullOrEmpty(raw)) return fallback;
+        raw = raw.Trim().Trim('"').ToLowerInvariant();
+        if (raw == "true") return true;
+        if (raw == "false") return false;
+        return fallback;
     }
 
     private float ExtractFloat(string json, string key, float fallback)
