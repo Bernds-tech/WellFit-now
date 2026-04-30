@@ -109,6 +109,32 @@ public class BuddyCallDebugController : MonoBehaviour
         lastStatus = autoReturnController.LastStatus;
     }
 
+    public void UseFastTiming()
+    {
+        if (autoReturnController == null)
+        {
+            lastStatus = "Timing failed: controller missing";
+            Debug.LogWarning(lastStatus);
+            return;
+        }
+
+        autoReturnController.UseFastTiming();
+        lastStatus = autoReturnController.LastStatus;
+    }
+
+    public void UseNormalTiming()
+    {
+        if (autoReturnController == null)
+        {
+            lastStatus = "Timing failed: controller missing";
+            Debug.LogWarning(lastStatus);
+            return;
+        }
+
+        autoReturnController.UseNormalTiming();
+        lastStatus = autoReturnController.LastStatus;
+    }
+
     public void ToggleCompactMode()
     {
         compactMode = !compactMode;
@@ -123,12 +149,12 @@ public class BuddyCallDebugController : MonoBehaviour
         }
 
         float width = Mathf.Min(620f, Screen.width - 40f);
-        float height = 58f;
+        float height = 54f;
         float left = 20f;
-        float bottom = compactMode ? Screen.height - 118f : Screen.height - 449f;
+        float bottom = compactMode ? Screen.height - 118f : Screen.height - 573f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-        buttonStyle.fontSize = 22;
+        buttonStyle.fontSize = 21;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
         labelStyle.fontSize = 19;
@@ -152,29 +178,39 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        if (GUI.Button(new Rect(left, bottom + 64f, width, height), "Buddy rufen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 60f, width, height), "Buddy rufen", buttonStyle))
         {
             CallBuddyToUser();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 128f, width, height), "Rueckruf testen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 120f, width, height), "Rueckruf testen", buttonStyle))
         {
             RequestAutoReturnOnce();
         }
 
         string autoLabel = "Auto: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 192f, width, height), autoLabel, buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 180f, width, height), autoLabel, buttonStyle))
         {
             ToggleAutoReturn();
         }
 
         string farOnlyLabel = "Nur weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 256f, width, height), farOnlyLabel, buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 240f, width, height), farOnlyLabel, buttonStyle))
         {
             ToggleFarOnly();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 320f, width, height), "Diagnose reset", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 300f, width, height), "Timing schnell", buttonStyle))
+        {
+            UseFastTiming();
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 360f, width, height), "Timing normal", buttonStyle))
+        {
+            UseNormalTiming();
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 420f, width, height), "Diagnose reset", buttonStyle))
         {
             ResetDiagnostics();
         }
