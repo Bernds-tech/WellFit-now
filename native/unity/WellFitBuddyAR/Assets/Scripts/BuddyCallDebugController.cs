@@ -96,6 +96,19 @@ public class BuddyCallDebugController : MonoBehaviour
         Debug.Log(lastStatus);
     }
 
+    public void ResetDiagnostics()
+    {
+        if (autoReturnController == null)
+        {
+            lastStatus = "Reset failed: controller missing";
+            Debug.LogWarning(lastStatus);
+            return;
+        }
+
+        autoReturnController.ResetDiagnostics();
+        lastStatus = autoReturnController.LastStatus;
+    }
+
     public void ToggleCompactMode()
     {
         compactMode = !compactMode;
@@ -112,7 +125,7 @@ public class BuddyCallDebugController : MonoBehaviour
         float width = Mathf.Min(620f, Screen.width - 40f);
         float height = 58f;
         float left = 20f;
-        float bottom = compactMode ? Screen.height - 118f : Screen.height - 385f;
+        float bottom = compactMode ? Screen.height - 118f : Screen.height - 449f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
         buttonStyle.fontSize = 22;
@@ -159,6 +172,11 @@ public class BuddyCallDebugController : MonoBehaviour
         if (GUI.Button(new Rect(left, bottom + 256f, width, height), farOnlyLabel, buttonStyle))
         {
             ToggleFarOnly();
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 320f, width, height), "Diagnose reset", buttonStyle))
+        {
+            ResetDiagnostics();
         }
     }
 }
