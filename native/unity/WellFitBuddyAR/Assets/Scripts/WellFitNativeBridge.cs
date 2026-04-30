@@ -99,7 +99,7 @@ public class WellFitNativeBridge : MonoBehaviour
 
     public string BuildDiagnosticsLabel()
     {
-        return "Events=" + eventCount + " | Last=" + lastEventName;
+        return "Events=" + eventCount + " | Last=" + lastEventName + " | Payload=" + ShortPayload(lastEventPayload);
     }
 
     public void SendEventToWellFit(string eventName, string payloadJson)
@@ -108,6 +108,13 @@ public class WellFitNativeBridge : MonoBehaviour
         lastEventPayload = string.IsNullOrEmpty(payloadJson) ? "{}" : payloadJson;
         eventCount += 1;
         Debug.Log($"WellFit AR Event: {lastEventName} {lastEventPayload}");
+    }
+
+    private string ShortPayload(string payload)
+    {
+        if (string.IsNullOrEmpty(payload)) return "{}";
+        if (payload.Length <= 44) return payload;
+        return payload.Substring(0, 44) + "...";
     }
 
     private Vector2 ParseScreenPoint(string payloadJson)
