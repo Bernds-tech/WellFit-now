@@ -3,6 +3,7 @@ using UnityEngine;
 public class BuddyCallDebugController : MonoBehaviour
 {
     [SerializeField] private WellFitNativeBridge bridge;
+    [SerializeField] private BuddyCompanionAutoReturnController autoReturnController;
     [SerializeField] private bool showDebugButton = true;
     [SerializeField] private float normalizedScreenX = 0.5f;
     [SerializeField] private float normalizedScreenY = 0.35f;
@@ -14,6 +15,11 @@ public class BuddyCallDebugController : MonoBehaviour
         if (bridge == null)
         {
             bridge = FindObjectOfType<WellFitNativeBridge>();
+        }
+
+        if (autoReturnController == null)
+        {
+            autoReturnController = FindObjectOfType<BuddyCompanionAutoReturnController>();
         }
     }
 
@@ -35,6 +41,34 @@ public class BuddyCallDebugController : MonoBehaviour
         Debug.Log(lastStatus);
     }
 
+    public void RequestAutoReturnOnce()
+    {
+        if (autoReturnController == null)
+        {
+            lastStatus = "Auto-return test failed: controller missing";
+            Debug.LogWarning(lastStatus);
+            return;
+        }
+
+        bool started = autoReturnController.RequestAutoReturn();
+        lastStatus = started ? "Auto-return test requested" : "Auto-return test rejected";
+        Debug.Log(lastStatus);
+    }
+
+    public void ToggleAutoReturn()
+    {
+        if (autoReturnController == null)
+        {
+            lastStatus = "Auto-return toggle failed: controller missing";
+            Debug.LogWarning(lastStatus);
+            return;
+        }
+
+        autoReturnController.ToggleAutoReturn();
+        lastStatus = autoReturnController.LastStatus;
+        Debug.Log(lastStatus);
+    }
+
     void OnGUI()
     {
         if (!showDebugButton)
@@ -43,20 +77,32 @@ public class BuddyCallDebugController : MonoBehaviour
         }
 
         float width = Mathf.Min(520f, Screen.width - 40f);
-        float height = 70f;
-        Rect buttonRect = new Rect(20f, Screen.height - 110f, width, height);
+        float height = 62f;
+        float left = 20f;
+        float bottom = Screen.height - 245f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-        buttonStyle.fontSize = 28;
+        buttonStyle.fontSize = 24;
 
-        if (GUI.Button(buttonRect, "Buddy rufen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom, width, height), "Buddy rufen", buttonStyle))
         {
             CallBuddyToUser();
         }
 
+        if (GUI.Button(new Rect(left, bottom + 68f, width, height), "Auto-Return einmal testen", buttonStyle))
+        {
+            RequestAutoReturnOnce();
+        }
+
+        string autoLabel = "Auto-Return: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
+        if (GUI.Button(new Rect(left, bottom + 136f, width, height), autoLabel, buttonStyle))
+        {
+            ToggleAutoReturn();
+        }
+
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-        labelStyle.fontSize = 22;
+        labelStyle.fontSize = 20;
         labelStyle.normal.textColor = Color.white;
-        GUI.Label(new Rect(24f, Screen.height - 145f, Screen.width - 48f, 30f), lastStatus, labelStyle);
+        GUI.Label(new Rect(24f, bottom - 34f, Screen.width - 48f, 30f), lastStatus, labelStyle);
     }
 }
