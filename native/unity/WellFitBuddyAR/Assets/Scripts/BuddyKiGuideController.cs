@@ -48,6 +48,21 @@ public class BuddyKiGuideController : MonoBehaviour
         );
     }
 
+    public void DebugSuggestWalkMission()
+    {
+        SuggestNextMission("debug_ar_walk", "debug-button");
+    }
+
+    public void DebugSuggestScanMission()
+    {
+        SuggestNextMission("debug_ar_scan", "debug-button");
+    }
+
+    public void DebugExplainJumpBoost()
+    {
+        ExplainMissingCapability("jumpBoost");
+    }
+
     public void ClearGuide()
     {
         currentMissionId = "none";
