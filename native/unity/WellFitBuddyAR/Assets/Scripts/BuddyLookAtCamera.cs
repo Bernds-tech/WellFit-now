@@ -9,6 +9,8 @@ public class BuddyLookAtCamera : MonoBehaviour
     [SerializeField] private float minLookDistanceMeters = 0.25f;
     [SerializeField] private float maxLookDistanceMeters = 12f;
 
+    public bool LookAtEnabled => lookAtEnabled;
+
     void Awake()
     {
         if (cameraTransform == null && Camera.main != null)
