@@ -8,6 +8,10 @@ public class BuddyNavigationController : MonoBehaviour
     public float jumpHeight = 0.22f;
     public float reachedDistanceMeters = 0.02f;
 
+    [Header("Movement Limits")]
+    public float maxWalkDistanceMeters = 3f;
+    public float maxJumpHeightDifferenceMeters = 0.45f;
+
     private WellFitNativeBridge bridge;
     private Vector3 targetPosition;
     private bool isWalking;
@@ -17,6 +21,10 @@ public class BuddyNavigationController : MonoBehaviour
     private Vector3 jumpEnd;
     private string targetSurfaceId = "unknown";
     private string currentAction = "idle";
+
+    public bool IsMoving => isWalking || isJumping;
+    public string CurrentAction => currentAction;
+    public string TargetSurfaceId => targetSurfaceId;
 
     void Awake()
     {
@@ -52,22 +60,87 @@ public class BuddyNavigationController : MonoBehaviour
         targetSurfaceId = string.IsNullOrEmpty(surfaceId) ? "unknown" : surfaceId;
     }
 
-    public void WalkTo(Vector3 worldPosition)
+    public bool CanNavigateTo(Vector3 worldPosition, bool allowJump, out string reason)
     {
+        reason = string.Empty;
+
+        if (buddyRoot == null)
+        {
+            reason = "buddy-root-missing";
+            return false;
+        }
+
+        if (IsMoving)
+        {
+            reason = "buddy-already-moving";
+            return false;
+        }
+
+        float horizontalDistance = HorizontalDistance(buddyRoot.position, worldPosition);
+        if (horizontalDistance > maxWalkDistanceMeters)
+        {
+            reason = "target-too-far";
+            return false;
+        }
+
+        float heightDifference = Mathf.Abs(worldPosition.y - buddyRoot.position.y);
+        if (heightDifference > maxJumpHeightDifferenceMeters)
+        {
+            reason = allowJump ? "height-too-large" : "jump-not-allowed";
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool WalkTo(Vector3 worldPosition)
+    {
+        return WalkTo(worldPosition, "walkToSurface");
+    }
+
+    public bool WalkTo(Vector3 worldPosition, string action)
+    {
+        if (!CanNavigateTo(worldPosition, false, out string reason))
+        {
+            SendRejected(action, reason);
+            return false;
+        }
+
         targetPosition = worldPosition;
         isWalking = true;
         isJumping = false;
-        currentAction = "walkToSurface";
+        currentAction = string.IsNullOrEmpty(action) ? "walkToSurface" : action;
+        return true;
     }
 
-    public void JumpTo(Vector3 worldPosition)
+    public bool JumpTo(Vector3 worldPosition)
     {
+        return JumpTo(worldPosition, "jumpToSurface");
+    }
+
+    public bool JumpTo(Vector3 worldPosition, string action)
+    {
+        if (!CanNavigateTo(worldPosition, true, out string reason))
+        {
+            SendRejected(action, reason);
+            return false;
+        }
+
         jumpStart = buddyRoot.position;
         jumpEnd = worldPosition;
         jumpTimer = 0f;
         isWalking = false;
         isJumping = true;
-        currentAction = "jumpToSurface";
+        currentAction = string.IsNullOrEmpty(action) ? "jumpToSurface" : action;
+        return true;
+    }
+
+    public void Stop(string reason = "stopped")
+    {
+        isWalking = false;
+        isJumping = false;
+        SendRejected(currentAction, reason);
+        currentAction = "idle";
     }
 
     private void UpdateWalk()
@@ -137,5 +210,20 @@ public class BuddyNavigationController : MonoBehaviour
         );
 
         currentAction = "idle";
+    }
+
+    private void SendRejected(string action, string reason)
+    {
+        bridge?.SendEventToWellFit(
+            "onBuddyActionRejected",
+            "{\"action\":\"" + (string.IsNullOrEmpty(action) ? "move" : action) + "\",\"surfaceId\":\"" + targetSurfaceId + "\",\"reason\":\"" + reason + "\"}"
+        );
+    }
+
+    private float HorizontalDistance(Vector3 a, Vector3 b)
+    {
+        a.y = 0f;
+        b.y = 0f;
+        return Vector3.Distance(a, b);
     }
 }
