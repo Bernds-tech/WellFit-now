@@ -12,6 +12,7 @@ public class BuddyAbilityController : MonoBehaviour
     public bool canFetchClue = false;
     public bool canScanObject = false;
     public bool canCarry = false;
+    public bool canPointAtObject = false;
 
     private string lastAbilityEvent = "none";
     private string lastRejectedCapability = "none";
@@ -38,12 +39,13 @@ public class BuddyAbilityController : MonoBehaviour
         canFetchClue = enabled;
         canScanObject = enabled;
         canCarry = enabled;
+        canPointAtObject = enabled;
         lastAbilityEvent = enabled ? "demo-capabilities-on" : "demo-capabilities-off";
     }
 
     public void ToggleDemoCapabilities()
     {
-        bool enabled = !(canClimbUp && canJumpBoost && canFetchClue && canScanObject && canCarry);
+        bool enabled = !(canClimbUp && canJumpBoost && canFetchClue && canScanObject && canCarry && canPointAtObject);
         SetDemoCapabilities(enabled);
     }
 
@@ -57,11 +59,13 @@ public class BuddyAbilityController : MonoBehaviour
 
     public string BuildDiagnosticsLabel()
     {
-        return "Abilities=" + (canClimbUp || canJumpBoost || canFetchClue || canScanObject || canCarry ? "some" : "none")
+        return "Abilities=" + (canClimbUp || canJumpBoost || canFetchClue || canScanObject || canCarry || canPointAtObject ? "some" : "none")
             + " | climb=" + canClimbUp
             + " | jump=" + canJumpBoost
             + " | scan=" + canScanObject
             + " | fetch=" + canFetchClue
+            + " | carry=" + canCarry
+            + " | point=" + canPointAtObject
             + " | start=" + abilityStartedCount
             + " | reject=" + abilityRejectedCount
             + " | last=" + lastAbilityEvent
@@ -145,6 +149,36 @@ public class BuddyAbilityController : MonoBehaviour
         bridge?.SendEventToWellFit(
             "onBuddyActionStarted",
             "{\"action\":\"scanObject\",\"capabilityId\":\"scanObject\",\"markerId\":\"" + markerId + "\"}"
+        );
+    }
+
+    public void TryCarry(string markerId)
+    {
+        if (!canCarry)
+        {
+            Reject("carry");
+            return;
+        }
+
+        MarkStarted("carry");
+        bridge?.SendEventToWellFit(
+            "onBuddyActionStarted",
+            "{\"action\":\"carry\",\"capabilityId\":\"carry\",\"markerId\":\"" + markerId + "\"}"
+        );
+    }
+
+    public void TryPointAtObject(string markerId)
+    {
+        if (!canPointAtObject)
+        {
+            Reject("pointAtObject");
+            return;
+        }
+
+        MarkStarted("pointAtObject");
+        bridge?.SendEventToWellFit(
+            "onBuddyActionStarted",
+            "{\"action\":\"pointAtObject\",\"capabilityId\":\"pointAtObject\",\"markerId\":\"" + markerId + "\"}"
         );
     }
 
