@@ -5,6 +5,9 @@ public class BuddyLookAtCamera : MonoBehaviour
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private float turnSpeed = 6f;
     [SerializeField] private bool keepUpright = true;
+    [SerializeField] private bool lookAtEnabled = true;
+    [SerializeField] private float minLookDistanceMeters = 0.25f;
+    [SerializeField] private float maxLookDistanceMeters = 12f;
 
     void Awake()
     {
@@ -14,9 +17,14 @@ public class BuddyLookAtCamera : MonoBehaviour
         }
     }
 
+    public void SetLookAtEnabled(bool enabled)
+    {
+        lookAtEnabled = enabled;
+    }
+
     void Update()
     {
-        if (cameraTransform == null) return;
+        if (!lookAtEnabled || cameraTransform == null) return;
 
         Vector3 direction = cameraTransform.position - transform.position;
 
@@ -25,6 +33,8 @@ public class BuddyLookAtCamera : MonoBehaviour
             direction.y = 0f;
         }
 
+        float distance = direction.magnitude;
+        if (distance < minLookDistanceMeters || distance > maxLookDistanceMeters) return;
         if (direction.sqrMagnitude < 0.001f) return;
 
         Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
