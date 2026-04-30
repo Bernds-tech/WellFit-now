@@ -1,7 +1,7 @@
 # WELLFIT – Neuer Chat Handoff-Prompt
 
-Version: 1.2
-Stand: 2026-04-30
+Version: 1.3
+Stand: 2026-05-01
 Repository: Bernds-tech/WellFit-now
 Quelle der Wahrheit: GitHub + todolist/
 
@@ -66,11 +66,14 @@ Pflichtdateien zuerst lesen:
 
 ```txt
 todolist/CHAT_START_PROMPT.md
+todolist/CHAT_START_SCALABILITY_ADDENDUM.md
 todolist/AUTONOMOUS_ITERATION_MODE.md
 todolist/README.md
 todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
 todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md
+todolist/L - SKALIERBARKEIT - AR BUDDY UI UND ARCHITEKTUR.md
 todolist/status/2026-04-30-unity-ar-buddy-debug-batch-handoff.md
+todolist/status/2026-05-01-unity-ar-buddy-pre-retest-readout.md
 native/unity/WellFitBuddyAR/docs/NEXT_AR_BUDDY_EXTENSION_BATCH.md
 native/unity/WellFitBuddyAR/docs/BATCH_AR_BUDDY_RECALL_TEST.md
 native/unity/WellFitBuddyAR/docs/CALL_BUDDY_TO_USER.md
@@ -82,6 +85,8 @@ native/unity/WellFitBuddyAR/docs/BUDDY_MOVEMENT_POLICY_DRAFT.md
 native/unity/WellFitBuddyAR/docs/BUDDY_SURFACE_QUALITY_DRAFT.md
 native/unity/WellFitBuddyAR/docs/BUDDY_GUIDE_MISSION_CONTRACT.md
 native/unity/WellFitBuddyAR/docs/BUDDY_COMPANION_RADIUS_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_COMMAND_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_PRODUCT_UI_CONTRACT.md
 ```
 
 Danach relevante Unity-Dateien lesen:
@@ -118,6 +123,7 @@ Aktueller Produktfokus:
 3. Compile-/Runtime-Fehler sofort beheben.
 4. Debug-Overlay spaeter in Dev-Schicht auslagern oder per Flag deaktivieren.
 5. Danach Re-Anchor, Companion-Radius, Tap-Zielmarker, Surface-Quality und Plane-Missing-Hinweise ausbauen.
+6. Skalierbarkeit dauerhaft beachten: keine Monolith-Seiten, keine Monolith-Controller, Debug-UI/Product-UI/QA-Export getrennt halten.
 ```
 
 Aktueller technischer Stand:
@@ -162,6 +168,23 @@ Neu vorbereitete Architektur-/Vertragsdokumente:
 - Buddy Surface Quality Draft
 - Buddy Guide Mission Contract
 - Buddy Companion Radius Contract
+- Buddy Command Contract
+- Buddy Product UI Contract
+- Chat Start Scalability Addendum
+- L - Skalierbarkeit - AR Buddy UI und Architektur
+```
+
+Skalierbarkeitsregeln:
+
+```txt
+Keine neuen Monolith-Seiten.
+Keine neuen Monolith-Controller.
+Kein dauerhaftes Weiterstapeln in BuddyCallDebugController.cs.
+Debug-UI, Product-UI und QA-/Diagnose-Export bleiben getrennt.
+Neue Commands zuerst in BUDDY_COMMAND_CONTRACT.md definieren.
+Neue Product-UI-Hinweise zuerst in BUDDY_PRODUCT_UI_CONTRACT.md definieren.
+Product-UI darf nicht aus Unity-OnGUI abgeleitet werden.
+Nach erfolgreichem Retest Debug-Overlay in kleinere Page-/Panel-Komponenten splitten.
 ```
 
 Harte Sicherheitsregeln:
@@ -183,6 +206,7 @@ Erster Ablauf im neuen Chat:
 4. Kurz berichten:
    - aktueller Stand laut todolist/ und PRs
    - aktueller Unity-/AR-Buddy-Stand
+   - Skalierbarkeitsstand laut `L` und Contracts
    - naechste empfohlene Arbeit
    - betroffene Dateien/Bereiche
    - Risiken/Security/Build-Hinweise
@@ -209,7 +233,7 @@ Wenn der Nutzer im Auto ist oder gerade nicht testen kann:
 
 ```txt
 Keine weiteren riskanten Unity-Scripts stapeln.
-Stattdessen skalierbare Dokumentation, Event-/State-Vertraege, Refactor-Plaene, Backend-/App-Vertraege oder nicht-testpflichtige Planung weiter ausarbeiten.
+Stattdessen skalierbare Dokumentation, Event-/State-Vertraege, Refactor-Plaene, Backend-/App-Vertraege, Product-UI-Vertraege oder nicht-testpflichtige Planung weiter ausarbeiten.
 ```
 
 Wenn der Nutzer sagt "weiter", nicht allgemein antworten, sondern den naechsten sinnvollen Micro-Task ausfuehren.
