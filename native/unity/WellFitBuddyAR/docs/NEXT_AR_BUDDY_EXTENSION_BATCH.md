@@ -28,6 +28,10 @@ Prepare the next larger test batch before another Android build.
 18. Manual return label.
 19. Controller-missing error labels.
 20. More readable debug panel box.
+21. Test distance preset.
+22. Product distance preset.
+23. Distance preset buttons in debug overlay.
+24. Near/Far threshold values in diagnostics.
 
 ## Still planned
 
