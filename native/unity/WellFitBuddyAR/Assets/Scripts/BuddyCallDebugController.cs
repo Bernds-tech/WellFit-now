@@ -5,6 +5,7 @@ public class BuddyCallDebugController : MonoBehaviour
     [SerializeField] private WellFitNativeBridge bridge;
     [SerializeField] private BuddyCompanionAutoReturnController autoReturnController;
     [SerializeField] private bool showDebugButton = true;
+    [SerializeField] private bool compactMode = false;
     [SerializeField] private float normalizedScreenX = 0.5f;
     [SerializeField] private float normalizedScreenY = 0.35f;
 
@@ -62,8 +63,8 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        bool started = autoReturnController.RequestAutoReturn();
-        lastStatus = started ? "Auto-return test requested" : "Auto-return test rejected";
+        bool started = autoReturnController.RequestAutoReturn(true);
+        lastStatus = started ? "Manual auto-return requested" : "Manual auto-return rejected";
         Debug.Log(lastStatus);
     }
 
@@ -81,6 +82,26 @@ public class BuddyCallDebugController : MonoBehaviour
         Debug.Log(lastStatus);
     }
 
+    public void ToggleFarOnly()
+    {
+        if (autoReturnController == null)
+        {
+            lastStatus = "Far-only toggle failed: controller missing";
+            Debug.LogWarning(lastStatus);
+            return;
+        }
+
+        autoReturnController.ToggleOnlyReturnWhenFar();
+        lastStatus = autoReturnController.LastStatus;
+        Debug.Log(lastStatus);
+    }
+
+    public void ToggleCompactMode()
+    {
+        compactMode = !compactMode;
+        lastStatus = compactMode ? "Debug overlay compact" : "Debug overlay expanded";
+    }
+
     void OnGUI()
     {
         if (!showDebugButton)
@@ -88,33 +109,55 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        float width = Mathf.Min(520f, Screen.width - 40f);
-        float height = 62f;
+        float width = Mathf.Min(620f, Screen.width - 40f);
+        float height = 58f;
         float left = 20f;
-        float bottom = Screen.height - 245f;
+        float bottom = compactMode ? Screen.height - 118f : Screen.height - 385f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-        buttonStyle.fontSize = 24;
+        buttonStyle.fontSize = 22;
 
-        if (GUI.Button(new Rect(left, bottom, width, height), "Buddy rufen", buttonStyle))
+        GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
+        labelStyle.fontSize = 19;
+        labelStyle.normal.textColor = Color.white;
+        labelStyle.wordWrap = true;
+
+        string diagnostics = autoReturnController != null
+            ? autoReturnController.BuildDiagnosticsLabel()
+            : "Auto-return controller missing";
+
+        GUI.Label(new Rect(24f, bottom - 66f, Screen.width - 48f, 58f), lastStatus + "\n" + diagnostics, labelStyle);
+
+        if (GUI.Button(new Rect(left, bottom, width, height), compactMode ? "Debug anzeigen" : "Debug einklappen", buttonStyle))
+        {
+            ToggleCompactMode();
+        }
+
+        if (compactMode)
+        {
+            return;
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 64f, width, height), "Buddy rufen", buttonStyle))
         {
             CallBuddyToUser();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 68f, width, height), "Auto-Return einmal testen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 128f, width, height), "Auto-Return einmal testen", buttonStyle))
         {
             RequestAutoReturnOnce();
         }
 
         string autoLabel = "Auto-Return: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 136f, width, height), autoLabel, buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 192f, width, height), autoLabel, buttonStyle))
         {
             ToggleAutoReturn();
         }
 
-        GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-        labelStyle.fontSize = 20;
-        labelStyle.normal.textColor = Color.white;
-        GUI.Label(new Rect(24f, bottom - 34f, Screen.width - 48f, 30f), lastStatus, labelStyle);
+        string farOnlyLabel = "Nur wenn weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
+        if (GUI.Button(new Rect(left, bottom + 256f, width, height), farOnlyLabel, buttonStyle))
+        {
+            ToggleFarOnly();
+        }
     }
 }
