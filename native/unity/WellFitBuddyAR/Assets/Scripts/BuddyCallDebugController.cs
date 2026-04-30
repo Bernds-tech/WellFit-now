@@ -17,6 +17,7 @@ public class BuddyCallDebugController : MonoBehaviour
     private BuddyNavigationController buddyNavigationController;
     private BuddyAnchorController buddyAnchorController;
     private BuddyAbilityController buddyAbilityController;
+    private BuddyKiGuideController buddyKiGuideController;
 
     void Awake()
     {
@@ -45,14 +46,14 @@ public class BuddyCallDebugController : MonoBehaviour
 
     public void NextDebugPage()
     {
-        debugPage = (debugPage + 1) % 3;
-        lastStatus = "Debug page " + (debugPage + 1) + "/3";
+        debugPage = (debugPage + 1) % 4;
+        lastStatus = "Debug page " + (debugPage + 1) + "/4";
     }
 
     public void SetDebugPage(int pageIndex)
     {
-        debugPage = Mathf.Clamp(pageIndex, 0, 2);
-        lastStatus = "Debug page " + (debugPage + 1) + "/3";
+        debugPage = Mathf.Clamp(pageIndex, 0, 3);
+        lastStatus = "Debug page " + (debugPage + 1) + "/4";
     }
 
     public void ToggleDiagnostics()
@@ -65,7 +66,8 @@ public class BuddyCallDebugController : MonoBehaviour
     {
         if (debugPage == 0) return "Rueckruf & Auto-Return";
         if (debugPage == 1) return "Visuals & Verhalten";
-        return "Faehigkeiten & Events";
+        if (debugPage == 2) return "Faehigkeiten & Events";
+        return "KI-Guide & Missionen";
     }
 
     public void CallBuddyToUser()
@@ -145,6 +147,10 @@ public class BuddyCallDebugController : MonoBehaviour
         if (buddyAbilityController != null)
         {
             buddyAbilityController.ResetDiagnostics();
+        }
+        if (buddyKiGuideController != null)
+        {
+            buddyKiGuideController.ResetDiagnostics();
         }
         lastStatus = autoReturnController.LastStatus;
     }
@@ -318,6 +324,58 @@ public class BuddyCallDebugController : MonoBehaviour
         lastStatus = "Jump ability test requested.";
     }
 
+    public void TestGuideWalkMission()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyKiGuideController == null)
+        {
+            lastStatus = "Guide test: BuddyKiGuideController missing";
+            return;
+        }
+
+        buddyKiGuideController.DebugSuggestWalkMission();
+        lastStatus = "Guide walk mission requested.";
+    }
+
+    public void TestGuideScanMission()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyKiGuideController == null)
+        {
+            lastStatus = "Guide test: BuddyKiGuideController missing";
+            return;
+        }
+
+        buddyKiGuideController.DebugSuggestScanMission();
+        lastStatus = "Guide scan mission requested.";
+    }
+
+    public void TestGuideMissingJumpBoost()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyKiGuideController == null)
+        {
+            lastStatus = "Guide test: BuddyKiGuideController missing";
+            return;
+        }
+
+        buddyKiGuideController.DebugExplainJumpBoost();
+        lastStatus = "Guide missing capability requested.";
+    }
+
+    public void ClearGuide()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyKiGuideController == null)
+        {
+            lastStatus = "Guide clear: BuddyKiGuideController missing";
+            return;
+        }
+
+        buddyKiGuideController.ClearGuide();
+        lastStatus = "Guide cleared.";
+    }
+
     private void RefreshBuddyVisualControllers()
     {
         if (buddyController == null)
@@ -343,6 +401,11 @@ public class BuddyCallDebugController : MonoBehaviour
         if (buddyAbilityController == null)
         {
             buddyAbilityController = FindObjectOfType<BuddyAbilityController>();
+        }
+
+        if (buddyKiGuideController == null)
+        {
+            buddyKiGuideController = FindObjectOfType<BuddyKiGuideController>();
         }
     }
 
@@ -370,7 +433,7 @@ public class BuddyCallDebugController : MonoBehaviour
         buttonStyle.fontSize = 17;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-        labelStyle.fontSize = 16;
+        labelStyle.fontSize = 15;
         labelStyle.normal.textColor = Color.white;
         labelStyle.wordWrap = true;
 
@@ -396,8 +459,12 @@ public class BuddyCallDebugController : MonoBehaviour
                 ? buddyAbilityController.BuildDiagnosticsLabel()
                 : "Abilities=not-found";
 
-            GUI.Box(new Rect(14f, top - 176f, width + 12f, 170f), "");
-            GUI.Label(new Rect(24f, top - 170f, Screen.width - 48f, 164f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/3 - " + GetPageTitle() + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics, labelStyle);
+            string guideDiagnostics = buddyKiGuideController != null
+                ? buddyKiGuideController.BuildDiagnosticsLabel()
+                : "Guide=not-found";
+
+            GUI.Box(new Rect(14f, top - 198f, width + 12f, 192f), "");
+            GUI.Label(new Rect(24f, top - 192f, Screen.width - 48f, 186f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/4 - " + GetPageTitle() + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics + "\nGuide: " + guideDiagnostics, labelStyle);
         }
 
         if (GUI.Button(new Rect(left, top, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
@@ -416,9 +483,11 @@ public class BuddyCallDebugController : MonoBehaviour
         }
 
         float pageTop = top + 96f;
-        if (GUI.Button(new Rect(left, pageTop, (width - 12f) / 3f, height), "Rueckruf", buttonStyle)) SetDebugPage(0);
-        if (GUI.Button(new Rect(left + (width + 6f) / 3f, pageTop, (width - 12f) / 3f, height), "Visual", buttonStyle)) SetDebugPage(1);
-        if (GUI.Button(new Rect(left + 2f * (width + 6f) / 3f, pageTop, (width - 12f) / 3f, height), "Faehigk.", buttonStyle)) SetDebugPage(2);
+        float tabWidth = (width - 18f) / 4f;
+        if (GUI.Button(new Rect(left, pageTop, tabWidth, height), "Rueckruf", buttonStyle)) SetDebugPage(0);
+        if (GUI.Button(new Rect(left + tabWidth + 6f, pageTop, tabWidth, height), "Visual", buttonStyle)) SetDebugPage(1);
+        if (GUI.Button(new Rect(left + 2f * (tabWidth + 6f), pageTop, tabWidth, height), "Faehigk.", buttonStyle)) SetDebugPage(2);
+        if (GUI.Button(new Rect(left + 3f * (tabWidth + 6f), pageTop, tabWidth, height), "Guide", buttonStyle)) SetDebugPage(3);
 
         if (debugPage == 0)
         {
@@ -428,9 +497,13 @@ public class BuddyCallDebugController : MonoBehaviour
         {
             DrawVisualPage(left, top + 144f, width, height, buttonStyle);
         }
-        else
+        else if (debugPage == 2)
         {
             DrawAbilityPage(left, top + 144f, width, height, buttonStyle);
+        }
+        else
+        {
+            DrawGuidePage(left, top + 144f, width, height, buttonStyle);
         }
     }
 
@@ -465,5 +538,14 @@ public class BuddyCallDebugController : MonoBehaviour
         if (GUI.Button(new Rect(left, top + 240f, width, height), "Klettern testen", buttonStyle)) TestClimbAbility();
         if (GUI.Button(new Rect(left, top + 288f, width, height), "Sprung testen", buttonStyle)) TestJumpAbility();
         if (GUI.Button(new Rect(left, top + 336f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
+    }
+
+    private void DrawGuidePage(float left, float top, float width, float height, GUIStyle buttonStyle)
+    {
+        if (GUI.Button(new Rect(left, top, width, height), "Mission: Gehen", buttonStyle)) TestGuideWalkMission();
+        if (GUI.Button(new Rect(left, top + 48f, width, height), "Mission: Scannen", buttonStyle)) TestGuideScanMission();
+        if (GUI.Button(new Rect(left, top + 96f, width, height), "Fehlt: Sprungboost", buttonStyle)) TestGuideMissingJumpBoost();
+        if (GUI.Button(new Rect(left, top + 144f, width, height), "Guide leeren", buttonStyle)) ClearGuide();
+        if (GUI.Button(new Rect(left, top + 192f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
     }
 }
