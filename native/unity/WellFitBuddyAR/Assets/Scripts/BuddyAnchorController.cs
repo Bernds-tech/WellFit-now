@@ -23,6 +23,15 @@ public class BuddyAnchorController : MonoBehaviour
     private string currentAnchorId;
     private int anchorSequence;
     private int surfaceSequence;
+    private string lastSurfaceId = "none";
+    private string lastAnchorStatus = "not-placed";
+    private string lastRaycastStatus = "none";
+    private Vector3 lastHitPosition;
+
+    public string LastSurfaceId => lastSurfaceId;
+    public string LastAnchorStatus => lastAnchorStatus;
+    public string LastRaycastStatus => lastRaycastStatus;
+    public Vector3 LastHitPosition => lastHitPosition;
 
     public bool PlaceBuddyAtScreenPoint(Vector2 screenPoint)
     {
@@ -30,6 +39,7 @@ public class BuddyAnchorController : MonoBehaviour
 
         if (!TryGetPlanePose(screenPoint, out Pose pose, out TrackableId trackableId))
         {
+            lastRaycastStatus = "place-no-plane";
             bridge?.SendEventToWellFit("onArError", "{\"message\":\"No plane hit\",\"code\":\"ar-no-plane-hit\"}");
             return false;
         }
@@ -37,6 +47,7 @@ public class BuddyAnchorController : MonoBehaviour
         ARAnchor anchor = CreateAnchor(pose);
         if (anchor == null)
         {
+            lastAnchorStatus = "anchor-failed";
             bridge?.SendEventToWellFit("onArError", "{\"message\":\"Anchor creation failed\",\"code\":\"ar-anchor-creation-failed\"}");
             return false;
         }
@@ -44,6 +55,9 @@ public class BuddyAnchorController : MonoBehaviour
         currentAnchorTransform = anchor.transform;
         currentAnchorId = CreateAnchorId();
         string surfaceId = CreateSurfaceId(trackableId);
+        lastSurfaceId = surfaceId;
+        lastAnchorStatus = "placed";
+        lastHitPosition = pose.position;
 
         bridge?.SendEventToWellFit("onAnchorCreated", "{\"anchorId\":\"" + currentAnchorId + "\",\"surfaceId\":\"" + surfaceId + "\"}");
 
@@ -76,12 +90,15 @@ public class BuddyAnchorController : MonoBehaviour
 
         if (!TryGetPlanePose(screenPoint, out Pose pose, out TrackableId trackableId))
         {
+            lastRaycastStatus = "move-no-plane";
             bridge?.SendEventToWellFit("onArError", "{\"message\":\"No movement plane hit\",\"code\":\"ar-no-movement-plane-hit\"}");
             return false;
         }
 
         EnsureNavigationController();
         string surfaceId = CreateSurfaceId(trackableId);
+        lastSurfaceId = surfaceId;
+        lastHitPosition = pose.position;
         Vector3 targetPosition = pose.position;
 
         if (navigationController == null)
@@ -116,6 +133,7 @@ public class BuddyAnchorController : MonoBehaviour
     {
         if (currentBuddy == null)
         {
+            lastAnchorStatus = "buddy-not-placed";
             bridge?.SendEventToWellFit("onArError", "{\"message\":\"Buddy not placed\",\"code\":\"buddy-not-placed\"}");
             return false;
         }
@@ -124,6 +142,7 @@ public class BuddyAnchorController : MonoBehaviour
 
         if (!TryGetPlanePose(screenPoint, out Pose pose, out TrackableId trackableId))
         {
+            lastRaycastStatus = "call-no-plane";
             bridge?.SendEventToWellFit("onBuddyActionRejected", "{\"action\":\"callBuddyToUser\",\"reason\":\"no-plane-hit\"}");
             return false;
         }
@@ -131,10 +150,13 @@ public class BuddyAnchorController : MonoBehaviour
         EnsureNavigationController();
         if (navigationController == null)
         {
+            lastAnchorStatus = "navigation-missing";
             return false;
         }
 
         string surfaceId = CreateSurfaceId(trackableId);
+        lastSurfaceId = surfaceId;
+        lastHitPosition = pose.position;
         navigationController.SetBridge(bridge);
         navigationController.SetTargetSurfaceId(surfaceId);
         navigationController.WalkTo(pose.position);
@@ -159,6 +181,14 @@ public class BuddyAnchorController : MonoBehaviour
             navigationController.WalkTo(cameraForwardPoint);
             bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"returnToUser\"}");
         }
+    }
+
+    public string BuildDiagnosticsLabel()
+    {
+        return "Anchor=" + lastAnchorStatus
+            + " | Raycast=" + lastRaycastStatus
+            + " | Surface=" + lastSurfaceId
+            + " | Hit=" + lastHitPosition.ToString("F2");
     }
 
     private bool ValidateSetup()
@@ -197,6 +227,7 @@ public class BuddyAnchorController : MonoBehaviour
         ARRaycastHit hit = hits[0];
         pose = hit.pose;
         trackableId = hit.trackableId;
+        lastRaycastStatus = "hit";
         return true;
     }
 
