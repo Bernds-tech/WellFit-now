@@ -1,6 +1,6 @@
 # WELLFIT – Neuer Chat Handoff-Prompt
 
-Version: 1.1
+Version: 1.2
 Stand: 2026-04-30
 Repository: Bernds-tech/WellFit-now
 Quelle der Wahrheit: GitHub + todolist/
@@ -70,9 +70,18 @@ todolist/AUTONOMOUS_ITERATION_MODE.md
 todolist/README.md
 todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
 todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md
+todolist/status/2026-04-30-unity-ar-buddy-debug-batch-handoff.md
 native/unity/WellFitBuddyAR/docs/NEXT_AR_BUDDY_EXTENSION_BATCH.md
 native/unity/WellFitBuddyAR/docs/BATCH_AR_BUDDY_RECALL_TEST.md
 native/unity/WellFitBuddyAR/docs/CALL_BUDDY_TO_USER.md
+native/unity/WellFitBuddyAR/docs/BUDDY_ARCHITECTURE_SCALING_PLAN.md
+native/unity/WellFitBuddyAR/docs/BUDDY_EVENT_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_ABILITY_STATE_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_DEBUG_OVERLAY_REFACTOR_PLAN.md
+native/unity/WellFitBuddyAR/docs/BUDDY_MOVEMENT_POLICY_DRAFT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_SURFACE_QUALITY_DRAFT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_GUIDE_MISSION_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_COMPANION_RADIUS_CONTRACT.md
 ```
 
 Danach relevante Unity-Dateien lesen:
@@ -117,6 +126,7 @@ Aktueller technischer Stand:
 PR #13 enthaelt Unity-Projekt unter native/unity/WellFitBuddyAR.
 Android-ARCore-Smoke-Test auf Samsung war erfolgreich: Kamera, ARCore, Plane/Raycast, Buddy-Anzeige, Bewegung und Debug-Buttons liefen ohne sichtbare Fehler.
 Danach wurde ein grosser Debug-/Diagnose-Batch eingebaut, aber noch nicht erneut kompiliert/getestet.
+Der letzte Handy-Test liegt vor diesem Debug-Batch.
 Debug-Overlay hat jetzt 4 Seiten:
 1. Rueckruf & Auto-Return
 2. Visuals & Verhalten
@@ -139,6 +149,19 @@ Wichtige neue Unity-Funktionen seit dem erfolgreichen Test:
 - Idle-Breathing/Bobbing
 - Look-at-camera mit Distanzschutz
 - KI-Guide-Diagnose und Buttons fuer Walk-Mission, Scan-Mission, fehlenden JumpBoost, Guide leeren
+```
+
+Neu vorbereitete Architektur-/Vertragsdokumente:
+
+```txt
+- Buddy Architecture Scaling Plan
+- Buddy Event Contract
+- Buddy Ability State Contract
+- Buddy Debug Overlay Refactor Plan
+- Buddy Movement Policy Draft
+- Buddy Surface Quality Draft
+- Buddy Guide Mission Contract
+- Buddy Companion Radius Contract
 ```
 
 Harte Sicherheitsregeln:
@@ -181,5 +204,12 @@ C:\wellfit\WellFit-now\native\unity\WellFitBuddyAR
 ```
 
 Dann Android Build/Run erneut ausfuehren und zuerst Compilefehler beheben, falls Unity nach dem Debug-Batch Fehler meldet.
+
+Wenn der Nutzer im Auto ist oder gerade nicht testen kann:
+
+```txt
+Keine weiteren riskanten Unity-Scripts stapeln.
+Stattdessen skalierbare Dokumentation, Event-/State-Vertraege, Refactor-Plaene, Backend-/App-Vertraege oder nicht-testpflichtige Planung weiter ausarbeiten.
+```
 
 Wenn der Nutzer sagt "weiter", nicht allgemein antworten, sondern den naechsten sinnvollen Micro-Task ausfuehren.
