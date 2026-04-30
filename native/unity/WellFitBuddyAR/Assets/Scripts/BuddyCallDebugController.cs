@@ -10,6 +10,7 @@ public class BuddyCallDebugController : MonoBehaviour
     [SerializeField] private float normalizedScreenY = 0.35f;
 
     private string lastStatus = "Buddy recall debug ready";
+    private int debugPage;
     private BuddyController buddyController;
     private BuddyLookAtCamera buddyLookAtCamera;
     private BuddyNavigationController buddyNavigationController;
@@ -39,6 +40,12 @@ public class BuddyCallDebugController : MonoBehaviour
         autoReturnController = sceneAutoReturnController;
         showDebugButton = showButtons;
         lastStatus = "Buddy recall debug wired by scene bootstrap";
+    }
+
+    public void NextDebugPage()
+    {
+        debugPage = (debugPage + 1) % 3;
+        lastStatus = "Debug page " + (debugPage + 1) + "/3";
     }
 
     public void CallBuddyToUser()
@@ -309,12 +316,12 @@ public class BuddyCallDebugController : MonoBehaviour
         RefreshBuddyVisualControllers();
 
         float width = Mathf.Min(620f, Screen.width - 40f);
-        float height = 38f;
+        float height = 44f;
         float left = 20f;
-        float bottom = compactMode ? Screen.height - 118f : Screen.height - 1039f;
+        float bottom = Screen.height - 500f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-        buttonStyle.fontSize = 16;
+        buttonStyle.fontSize = 17;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
         labelStyle.fontSize = 16;
@@ -341,8 +348,8 @@ public class BuddyCallDebugController : MonoBehaviour
             ? buddyAbilityController.BuildDiagnosticsLabel()
             : "Abilities=not-found";
 
-        GUI.Box(new Rect(14f, bottom - 156f, width + 12f, 150f), "");
-        GUI.Label(new Rect(24f, bottom - 150f, Screen.width - 48f, 144f), "Status: " + lastStatus + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics, labelStyle);
+        GUI.Box(new Rect(14f, bottom - 176f, width + 12f, 170f), "");
+        GUI.Label(new Rect(24f, bottom - 170f, Screen.width - 48f, 164f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/3" + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics, labelStyle);
 
         if (GUI.Button(new Rect(left, bottom, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
         {
@@ -354,86 +361,53 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        if (GUI.Button(new Rect(left, bottom + 42f, width, height), "Buddy rufen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 48f, width, height), "Seite wechseln", buttonStyle))
         {
-            CallBuddyToUser();
+            NextDebugPage();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 84f, width, height), "Rueckruf testen", buttonStyle))
+        if (debugPage == 0)
         {
-            RequestAutoReturnOnce();
+            DrawReturnPage(left, bottom + 96f, width, height, buttonStyle);
         }
+        else if (debugPage == 1)
+        {
+            DrawVisualPage(left, bottom + 96f, width, height, buttonStyle);
+        }
+        else
+        {
+            DrawAbilityPage(left, bottom + 96f, width, height, buttonStyle);
+        }
+    }
 
+    private void DrawReturnPage(float left, float top, float width, float height, GUIStyle buttonStyle)
+    {
+        if (GUI.Button(new Rect(left, top, width, height), "Buddy rufen", buttonStyle)) CallBuddyToUser();
+        if (GUI.Button(new Rect(left, top + 48f, width, height), "Rueckruf testen", buttonStyle)) RequestAutoReturnOnce();
         string autoLabel = "Auto: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 126f, width, height), autoLabel, buttonStyle))
-        {
-            ToggleAutoReturn();
-        }
-
+        if (GUI.Button(new Rect(left, top + 96f, width, height), autoLabel, buttonStyle)) ToggleAutoReturn();
         string farOnlyLabel = "Nur weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 168f, width, height), farOnlyLabel, buttonStyle))
-        {
-            ToggleFarOnly();
-        }
+        if (GUI.Button(new Rect(left, top + 144f, width, height), farOnlyLabel, buttonStyle)) ToggleFarOnly();
+        if (GUI.Button(new Rect(left, top + 192f, width, height), "Timing schnell", buttonStyle)) UseFastTiming();
+        if (GUI.Button(new Rect(left, top + 240f, width, height), "Timing normal", buttonStyle)) UseNormalTiming();
+        if (GUI.Button(new Rect(left, top + 288f, width, height), "Abstand Test", buttonStyle)) UseTestDistance();
+        if (GUI.Button(new Rect(left, top + 336f, width, height), "Abstand Produkt", buttonStyle)) UseProductDistance();
+    }
 
-        if (GUI.Button(new Rect(left, bottom + 210f, width, height), "Timing schnell", buttonStyle))
-        {
-            UseFastTiming();
-        }
+    private void DrawVisualPage(float left, float top, float width, float height, GUIStyle buttonStyle)
+    {
+        if (GUI.Button(new Rect(left, top, width, height), "Idle AN/AUS", buttonStyle)) ToggleBuddyIdleMotion();
+        if (GUI.Button(new Rect(left, top + 48f, width, height), "Blick AN/AUS", buttonStyle)) ToggleBuddyLookAt();
+        if (GUI.Button(new Rect(left, top + 96f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
+    }
 
-        if (GUI.Button(new Rect(left, bottom + 252f, width, height), "Timing normal", buttonStyle))
-        {
-            UseNormalTiming();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 294f, width, height), "Abstand Test", buttonStyle))
-        {
-            UseTestDistance();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 336f, width, height), "Abstand Produkt", buttonStyle))
-        {
-            UseProductDistance();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 378f, width, height), "Idle AN/AUS", buttonStyle))
-        {
-            ToggleBuddyIdleMotion();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 420f, width, height), "Blick AN/AUS", buttonStyle))
-        {
-            ToggleBuddyLookAt();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 462f, width, height), "Fähigkeiten AN/AUS", buttonStyle))
-        {
-            ToggleDemoAbilities();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 504f, width, height), "Scan testen", buttonStyle))
-        {
-            TestScanAbility();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 546f, width, height), "Hinweis holen testen", buttonStyle))
-        {
-            TestFetchAbility();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 588f, width, height), "Klettern testen", buttonStyle))
-        {
-            TestClimbAbility();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 630f, width, height), "Sprung testen", buttonStyle))
-        {
-            TestJumpAbility();
-        }
-
-        if (GUI.Button(new Rect(left, bottom + 672f, width, height), "Diagnose reset", buttonStyle))
-        {
-            ResetDiagnostics();
-        }
+    private void DrawAbilityPage(float left, float top, float width, float height, GUIStyle buttonStyle)
+    {
+        if (GUI.Button(new Rect(left, top, width, height), "Fähigkeiten AN/AUS", buttonStyle)) ToggleDemoAbilities();
+        if (GUI.Button(new Rect(left, top + 48f, width, height), "Scan testen", buttonStyle)) TestScanAbility();
+        if (GUI.Button(new Rect(left, top + 96f, width, height), "Hinweis holen testen", buttonStyle)) TestFetchAbility();
+        if (GUI.Button(new Rect(left, top + 144f, width, height), "Klettern testen", buttonStyle)) TestClimbAbility();
+        if (GUI.Button(new Rect(left, top + 192f, width, height), "Sprung testen", buttonStyle)) TestJumpAbility();
+        if (GUI.Button(new Rect(left, top + 240f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
     }
 }
