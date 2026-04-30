@@ -134,6 +134,22 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
         Debug.Log(lastStatus);
     }
 
+    public void UseTestDistance()
+    {
+        nearDistanceMeters = 1.2f;
+        farDistanceMeters = 2.5f;
+        lastStatus = "Test-Abstand aktiv.";
+        Debug.Log(lastStatus);
+    }
+
+    public void UseProductDistance()
+    {
+        nearDistanceMeters = 5f;
+        farDistanceMeters = 25f;
+        lastStatus = "Produkt-Abstand aktiv.";
+        Debug.Log(lastStatus);
+    }
+
     public bool RequestAutoReturn()
     {
         return RequestAutoReturn(true);
@@ -203,6 +219,8 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
             + " | Auto=" + (autoReturnEnabled ? "ON" : "OFF")
             + " | FarOnly=" + (onlyReturnWhenFar ? "ON" : "OFF")
             + " | Dist=" + distance
+            + " | Near=" + nearDistanceMeters.ToString("0.0") + "m"
+            + " | Far=" + farDistanceMeters.ToString("0.0") + "m"
             + " | Next=" + SecondsUntilNextCheck.ToString("0.0") + "s"
             + " | Cool=" + CooldownRemainingSeconds.ToString("0.0") + "s"
             + " | Req=" + requestCount
