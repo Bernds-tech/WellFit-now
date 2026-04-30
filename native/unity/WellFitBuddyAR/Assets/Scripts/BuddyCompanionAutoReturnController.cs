@@ -22,6 +22,12 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
         }
     }
 
+    public void ConfigureForScene(BuddyAnchorController sceneAnchorController, bool enabledAtStart)
+    {
+        anchorController = sceneAnchorController;
+        SetAutoReturnEnabled(enabledAtStart);
+    }
+
     void Update()
     {
         if (!autoReturnEnabled)
