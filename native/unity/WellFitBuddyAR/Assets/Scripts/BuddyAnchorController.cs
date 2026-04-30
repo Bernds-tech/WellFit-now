@@ -114,18 +114,18 @@ public class BuddyAnchorController : MonoBehaviour
         Vector3 currentPosition = currentBuddy.transform.position;
         float heightDifference = targetPosition.y - currentPosition.y;
         bool shouldJump = Mathf.Abs(heightDifference) > jumpHeightThresholdMeters;
+        bool started = shouldJump
+            ? navigationController.JumpTo(targetPosition)
+            : navigationController.WalkTo(targetPosition);
 
-        if (shouldJump)
+        if (!started)
         {
-            navigationController.JumpTo(targetPosition);
-            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"jumpToSurface\",\"surfaceId\":\"" + surfaceId + "\",\"anchorId\":\"" + currentAnchorId + "\"}");
-        }
-        else
-        {
-            navigationController.WalkTo(targetPosition);
-            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"walkToSurface\",\"surfaceId\":\"" + surfaceId + "\",\"anchorId\":\"" + currentAnchorId + "\"}");
+            lastAnchorStatus = "navigation-rejected";
+            return false;
         }
 
+        string action = shouldJump ? "jumpToSurface" : "walkToSurface";
+        bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"" + action + "\",\"surfaceId\":\"" + surfaceId + "\",\"anchorId\":\"" + currentAnchorId + "\"}");
         return true;
     }
 
@@ -159,7 +159,13 @@ public class BuddyAnchorController : MonoBehaviour
         lastHitPosition = pose.position;
         navigationController.SetBridge(bridge);
         navigationController.SetTargetSurfaceId(surfaceId);
-        navigationController.WalkTo(pose.position);
+        bool started = navigationController.WalkTo(pose.position, "returnToUser");
+
+        if (!started)
+        {
+            lastAnchorStatus = "return-rejected";
+            return false;
+        }
 
         bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"returnToUser\",\"surfaceId\":\"" + surfaceId + "\",\"anchorId\":\"" + currentAnchorId + "\"}");
         return true;
@@ -178,8 +184,11 @@ public class BuddyAnchorController : MonoBehaviour
         {
             navigationController.SetBridge(bridge);
             navigationController.SetTargetSurfaceId("user-forward-point");
-            navigationController.WalkTo(cameraForwardPoint);
-            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"returnToUser\"}");
+            bool started = navigationController.WalkTo(cameraForwardPoint, "returnToUser");
+            if (started)
+            {
+                bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"returnToUser\"}");
+            }
         }
     }
 
