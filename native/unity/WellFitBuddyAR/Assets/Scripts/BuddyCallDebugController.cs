@@ -110,6 +110,10 @@ public class BuddyCallDebugController : MonoBehaviour
         }
 
         autoReturnController.ResetDiagnostics();
+        if (bridge != null)
+        {
+            bridge.ResetEventDiagnostics();
+        }
         lastStatus = autoReturnController.LastStatus;
     }
 
@@ -232,7 +236,7 @@ public class BuddyCallDebugController : MonoBehaviour
         float width = Mathf.Min(620f, Screen.width - 40f);
         float height = 46f;
         float left = 20f;
-        float bottom = compactMode ? Screen.height - 118f : Screen.height - 819f;
+        float bottom = compactMode ? Screen.height - 118f : Screen.height - 839f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
         buttonStyle.fontSize = 19;
@@ -254,8 +258,12 @@ public class BuddyCallDebugController : MonoBehaviour
             ? buddyAnchorController.BuildDiagnosticsLabel()
             : "Anchor=not-found";
 
-        GUI.Box(new Rect(14f, bottom - 116f, width + 12f, 110f), "");
-        GUI.Label(new Rect(24f, bottom - 110f, Screen.width - 48f, 104f), "Status: " + lastStatus + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics, labelStyle);
+        string bridgeDiagnostics = bridge != null
+            ? bridge.BuildDiagnosticsLabel()
+            : "Bridge=not-found";
+
+        GUI.Box(new Rect(14f, bottom - 136f, width + 12f, 130f), "");
+        GUI.Label(new Rect(24f, bottom - 130f, Screen.width - 48f, 124f), "Status: " + lastStatus + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics, labelStyle);
 
         if (GUI.Button(new Rect(left, bottom, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
         {
