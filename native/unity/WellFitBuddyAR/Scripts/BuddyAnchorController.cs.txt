@@ -28,6 +28,10 @@ public class BuddyAnchorController : MonoBehaviour
     private int anchorSequence;
     private int surfaceSequence;
 
+    public bool HasBuddy => currentBuddy != null;
+    public Vector3 CurrentBuddyWorldPosition => currentBuddy != null ? currentBuddy.transform.position : Vector3.zero;
+    public string CurrentAnchorId => string.IsNullOrEmpty(currentAnchorId) ? "none" : currentAnchorId;
+
     public bool PlaceBuddyAtScreenPoint(Vector2 screenPoint)
     {
         if (!ValidateSetup()) return false;
@@ -105,15 +109,20 @@ public class BuddyAnchorController : MonoBehaviour
         if (shouldJump)
         {
             navigationController.JumpTo(targetPosition);
-            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"jumpToSurface\",\"surfaceId\":\"" + surfaceId + "\",\"anchorId\":\"" + currentAnchorId + "\"}");
+            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"jumpToSurface\",\"surfaceId\":\"" + surfaceId + "\",\"anchorId\":\"" + CurrentAnchorId + "\"}");
         }
         else
         {
             navigationController.WalkTo(targetPosition);
-            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"walkToSurface\",\"surfaceId\":\"" + surfaceId + "\",\"anchorId\":\"" + currentAnchorId + "\"}");
+            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"walkToSurface\",\"surfaceId\":\"" + surfaceId + "\",\"anchorId\":\"" + CurrentAnchorId + "\"}");
         }
 
         return true;
+    }
+
+    public void CallBuddyToUser(Vector3 userForwardPoint)
+    {
+        CallBuddyToCamera(userForwardPoint);
     }
 
     public void CallBuddyToCamera(Vector3 cameraForwardPoint)
@@ -130,7 +139,7 @@ public class BuddyAnchorController : MonoBehaviour
             navigationController.SetBridge(bridge);
             navigationController.SetTargetSurfaceId("user-forward-point");
             navigationController.WalkTo(cameraForwardPoint);
-            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"returnToUser\"}");
+            bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"returnToUser\",\"anchorId\":\"" + CurrentAnchorId + "\"}");
         }
     }
 
