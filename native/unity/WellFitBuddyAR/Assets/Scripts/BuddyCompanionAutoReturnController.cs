@@ -73,7 +73,14 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
         timer += Time.deltaTime;
         if (timer < checkEverySeconds)
         {
-            lastStatus = "Auto-return armed. Next check in " + SecondsUntilNextCheck.ToString("0.0") + "s";
+            if (onlyReturnWhenFar && buddyTransform != null && currentDistanceMeters < farDistanceMeters)
+            {
+                lastStatus = "Auto-Return AN: Buddy ist nah genug (" + currentDistanceMeters.ToString("0.00") + "m).";
+            }
+            else
+            {
+                lastStatus = "Auto-Return AN: wartet noch " + SecondsUntilNextCheck.ToString("0.0") + "s.";
+            }
             return;
         }
 
@@ -86,7 +93,7 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
         autoReturnEnabled = enabled;
         timer = 0f;
         cooldownTimer = 0f;
-        lastStatus = enabled ? "Companion auto-return enabled" : "Companion auto-return disabled";
+        lastStatus = enabled ? "Auto-Return eingeschaltet." : "Auto-Return ausgeschaltet.";
         Debug.Log(lastStatus);
     }
 
@@ -98,7 +105,7 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
     public void ToggleOnlyReturnWhenFar()
     {
         onlyReturnWhenFar = !onlyReturnWhenFar;
-        lastStatus = onlyReturnWhenFar ? "Auto-return only when far" : "Auto-return every interval";
+        lastStatus = onlyReturnWhenFar ? "Auto-Return nur bei Abstand aktiv." : "Auto-Return bei jedem Intervall aktiv.";
         Debug.Log(lastStatus);
     }
 
@@ -134,7 +141,7 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
         {
             rejectCount += 1;
             lastReason = "buddy-not-far";
-            lastStatus = "Auto-return skipped: Buddy is near (" + currentDistanceMeters.ToString("0.00") + "m)";
+            lastStatus = "Auto-Return prueft: Buddy ist nah genug (" + currentDistanceMeters.ToString("0.00") + "m).";
             Debug.Log(lastStatus);
             return false;
         }
@@ -149,14 +156,14 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
         {
             requestCount += 1;
             lastReason = force ? "manual" : "auto";
-            lastStatus = force ? "Manual return requested" : "Auto-return requested";
+            lastStatus = force ? "Manueller Rueckruf gestartet." : "Buddy ist weit weg: Auto-Return startet Rueckruf.";
             cooldownTimer = cooldownAfterRequestSeconds;
         }
         else
         {
             rejectCount += 1;
             lastReason = "controller-rejected";
-            lastStatus = "Auto-return skipped or rejected";
+            lastStatus = "Auto-Return wollte starten, aber keine passende Flaeche wurde gefunden.";
         }
 
         Debug.Log(lastStatus);
