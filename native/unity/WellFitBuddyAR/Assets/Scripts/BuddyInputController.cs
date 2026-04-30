@@ -1,0 +1,115 @@
+using UnityEngine;
+
+public class BuddyInputController : MonoBehaviour
+{
+    [SerializeField] private BuddyAnchorController anchorController;
+    [SerializeField] private WellFitNativeBridge bridge;
+    [SerializeField] private Camera arCamera;
+
+    [Header("Input Behaviour")]
+    public bool placeOnFirstTap = true;
+    public bool moveOnNextTaps = true;
+    public float minTapDistancePixels = 12f;
+
+    private bool buddyHasBeenPlaced;
+    private Vector2 pointerDownPosition;
+    private bool pointerDownStarted;
+
+    void Awake()
+    {
+        if (arCamera == null)
+        {
+            arCamera = Camera.main;
+        }
+    }
+
+    void Update()
+    {
+        HandleTouchInput();
+        HandleMouseInputForEditor();
+    }
+
+    public void ResetPlacementState()
+    {
+        buddyHasBeenPlaced = false;
+    }
+
+    private void HandleTouchInput()
+    {
+        if (Input.touchCount == 0) return;
+
+        Touch touch = Input.GetTouch(0);
+        if (touch.phase == TouchPhase.Began)
+        {
+            pointerDownStarted = true;
+            pointerDownPosition = touch.position;
+        }
+
+        if (touch.phase == TouchPhase.Ended && pointerDownStarted)
+        {
+            pointerDownStarted = false;
+            if (Vector2.Distance(pointerDownPosition, touch.position) <= minTapDistancePixels)
+            {
+                HandleScreenTap(touch.position);
+            }
+        }
+    }
+
+    private void HandleMouseInputForEditor()
+    {
+#if UNITY_EDITOR
+        if (Input.GetMouseButtonDown(0))
+        {
+            pointerDownStarted = true;
+            pointerDownPosition = Input.mousePosition;
+        }
+
+        if (Input.GetMouseButtonUp(0) && pointerDownStarted)
+        {
+            pointerDownStarted = false;
+            Vector2 upPosition = Input.mousePosition;
+            if (Vector2.Distance(pointerDownPosition, upPosition) <= minTapDistancePixels)
+            {
+                HandleScreenTap(upPosition);
+            }
+        }
+#endif
+    }
+
+    private void HandleScreenTap(Vector2 screenPoint)
+    {
+        if (anchorController == null)
+        {
+            bridge?.SendEventToWellFit(
+                "onArError",
+                "{\"message\":\"BuddyAnchorController missing\",\"code\":\"buddy-anchor-controller-missing\"}"
+            );
+            return;
+        }
+
+        if (!buddyHasBeenPlaced && placeOnFirstTap)
+        {
+            bool placed = anchorController.PlaceBuddyAtScreenPoint(screenPoint);
+            if (placed)
+            {
+                buddyHasBeenPlaced = true;
+                bridge?.SendEventToWellFit(
+                    "onBuddyActionStarted",
+                    "{\"action\":\"placeFromTap\",\"source\":\"screen-tap\"}"
+                );
+            }
+            return;
+        }
+
+        if (buddyHasBeenPlaced && moveOnNextTaps)
+        {
+            anchorController.MoveBuddyToScreenPoint(screenPoint);
+            return;
+        }
+
+        bridge?.SendEventToWellFit(
+            "onBuddyActionRejected",
+            "{\"reason\":\"tap-ignored\",\"source\":\"screen-tap\"}"
+        );
+    }
+}

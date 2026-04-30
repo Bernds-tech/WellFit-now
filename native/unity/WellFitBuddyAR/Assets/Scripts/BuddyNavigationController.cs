@@ -1,0 +1,141 @@
+using UnityEngine;
+
+public class BuddyNavigationController : MonoBehaviour
+{
+    public Transform buddyRoot;
+    public float walkSpeed = 0.45f;
+    public float jumpDuration = 0.55f;
+    public float jumpHeight = 0.22f;
+    public float reachedDistanceMeters = 0.02f;
+
+    private WellFitNativeBridge bridge;
+    private Vector3 targetPosition;
+    private bool isWalking;
+    private bool isJumping;
+    private float jumpTimer;
+    private Vector3 jumpStart;
+    private Vector3 jumpEnd;
+    private string targetSurfaceId = "unknown";
+    private string currentAction = "idle";
+
+    void Awake()
+    {
+        if (buddyRoot == null)
+        {
+            buddyRoot = transform;
+        }
+
+        targetPosition = buddyRoot.position;
+    }
+
+    void Update()
+    {
+        if (isJumping)
+        {
+            UpdateJump();
+            return;
+        }
+
+        if (isWalking)
+        {
+            UpdateWalk();
+        }
+    }
+
+    public void SetBridge(WellFitNativeBridge nativeBridge)
+    {
+        bridge = nativeBridge;
+    }
+
+    public void SetTargetSurfaceId(string surfaceId)
+    {
+        targetSurfaceId = string.IsNullOrEmpty(surfaceId) ? "unknown" : surfaceId;
+    }
+
+    public void WalkTo(Vector3 worldPosition)
+    {
+        targetPosition = worldPosition;
+        isWalking = true;
+        isJumping = false;
+        currentAction = "walkToSurface";
+    }
+
+    public void JumpTo(Vector3 worldPosition)
+    {
+        jumpStart = buddyRoot.position;
+        jumpEnd = worldPosition;
+        jumpTimer = 0f;
+        isWalking = false;
+        isJumping = true;
+        currentAction = "jumpToSurface";
+    }
+
+    private void UpdateWalk()
+    {
+        Vector3 current = buddyRoot.position;
+        Vector3 next = Vector3.MoveTowards(current, targetPosition, walkSpeed * Time.deltaTime);
+        buddyRoot.position = next;
+
+        Vector3 direction = targetPosition - current;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            buddyRoot.rotation = Quaternion.Slerp(
+                buddyRoot.rotation,
+                Quaternion.LookRotation(direction.normalized, Vector3.up),
+                Time.deltaTime * 8f
+            );
+        }
+
+        if (Vector3.Distance(next, targetPosition) <= reachedDistanceMeters)
+        {
+            buddyRoot.position = targetPosition;
+            isWalking = false;
+            SendReachedEvents();
+        }
+    }
+
+    private void UpdateJump()
+    {
+        jumpTimer += Time.deltaTime;
+        float t = Mathf.Clamp01(jumpTimer / Mathf.Max(0.01f, jumpDuration));
+        Vector3 flatPosition = Vector3.Lerp(jumpStart, jumpEnd, t);
+        float arc = Mathf.Sin(t * Mathf.PI) * jumpHeight;
+        buddyRoot.position = flatPosition + Vector3.up * arc;
+
+        Vector3 direction = jumpEnd - jumpStart;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            buddyRoot.rotation = Quaternion.Slerp(
+                buddyRoot.rotation,
+                Quaternion.LookRotation(direction.normalized, Vector3.up),
+                Time.deltaTime * 8f
+            );
+        }
+
+        if (t >= 1f)
+        {
+            isJumping = false;
+            buddyRoot.position = jumpEnd;
+            SendReachedEvents();
+        }
+    }
+
+    private void SendReachedEvents()
+    {
+        bridge?.SendEventToWellFit(
+            "onBuddyReachedSurface",
+            "{\"surfaceId\":\"" + targetSurfaceId + "\"}"
+        );
+
+        bridge?.SendEventToWellFit(
+            "onBuddyActionCompleted",
+            "{\"action\":\"" + currentAction + "\",\"surfaceId\":\"" + targetSurfaceId + "\",\"status\":\"completed\"}"
+        );
+
+        currentAction = "idle";
+    }
+}
