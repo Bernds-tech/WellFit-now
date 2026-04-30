@@ -126,9 +126,10 @@ public class BuddyCallDebugController : MonoBehaviour
             ? autoReturnController.BuildDiagnosticsLabel()
             : "Auto-return controller missing";
 
-        GUI.Label(new Rect(24f, bottom - 66f, Screen.width - 48f, 58f), lastStatus + "\n" + diagnostics, labelStyle);
+        GUI.Box(new Rect(14f, bottom - 76f, width + 12f, 70f), "");
+        GUI.Label(new Rect(24f, bottom - 70f, Screen.width - 48f, 64f), "Status: " + lastStatus + "\nDiag: " + diagnostics, labelStyle);
 
-        if (GUI.Button(new Rect(left, bottom, width, height), compactMode ? "Debug anzeigen" : "Debug einklappen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
         {
             ToggleCompactMode();
         }
@@ -143,18 +144,18 @@ public class BuddyCallDebugController : MonoBehaviour
             CallBuddyToUser();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 128f, width, height), "Auto-Return einmal testen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 128f, width, height), "Rueckruf testen", buttonStyle))
         {
             RequestAutoReturnOnce();
         }
 
-        string autoLabel = "Auto-Return: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
+        string autoLabel = "Auto: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
         if (GUI.Button(new Rect(left, bottom + 192f, width, height), autoLabel, buttonStyle))
         {
             ToggleAutoReturn();
         }
 
-        string farOnlyLabel = "Nur wenn weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
+        string farOnlyLabel = "Nur weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
         if (GUI.Button(new Rect(left, bottom + 256f, width, height), farOnlyLabel, buttonStyle))
         {
             ToggleFarOnly();
