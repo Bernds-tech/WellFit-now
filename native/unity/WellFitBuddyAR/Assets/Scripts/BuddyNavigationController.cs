@@ -21,10 +21,16 @@ public class BuddyNavigationController : MonoBehaviour
     private Vector3 jumpEnd;
     private string targetSurfaceId = "unknown";
     private string currentAction = "idle";
+    private string lastRejectReason = "none";
+    private float lastMoveDistanceMeters;
+    private float lastHeightDifferenceMeters;
 
     public bool IsMoving => isWalking || isJumping;
     public string CurrentAction => currentAction;
     public string TargetSurfaceId => targetSurfaceId;
+    public string LastRejectReason => lastRejectReason;
+    public float LastMoveDistanceMeters => lastMoveDistanceMeters;
+    public float LastHeightDifferenceMeters => lastHeightDifferenceMeters;
 
     void Awake()
     {
@@ -77,6 +83,7 @@ public class BuddyNavigationController : MonoBehaviour
         }
 
         float horizontalDistance = HorizontalDistance(buddyRoot.position, worldPosition);
+        lastMoveDistanceMeters = horizontalDistance;
         if (horizontalDistance > maxWalkDistanceMeters)
         {
             reason = "target-too-far";
@@ -84,6 +91,7 @@ public class BuddyNavigationController : MonoBehaviour
         }
 
         float heightDifference = Mathf.Abs(worldPosition.y - buddyRoot.position.y);
+        lastHeightDifferenceMeters = heightDifference;
         if (heightDifference > maxJumpHeightDifferenceMeters)
         {
             reason = allowJump ? "height-too-large" : "jump-not-allowed";
@@ -106,6 +114,7 @@ public class BuddyNavigationController : MonoBehaviour
             return false;
         }
 
+        lastRejectReason = "none";
         targetPosition = worldPosition;
         isWalking = true;
         isJumping = false;
@@ -126,6 +135,7 @@ public class BuddyNavigationController : MonoBehaviour
             return false;
         }
 
+        lastRejectReason = "none";
         jumpStart = buddyRoot.position;
         jumpEnd = worldPosition;
         jumpTimer = 0f;
@@ -141,6 +151,16 @@ public class BuddyNavigationController : MonoBehaviour
         isJumping = false;
         SendRejected(currentAction, reason);
         currentAction = "idle";
+    }
+
+    public string BuildDiagnosticsLabel()
+    {
+        return "Move=" + currentAction
+            + " | Moving=" + IsMoving
+            + " | Target=" + targetSurfaceId
+            + " | Dist=" + lastMoveDistanceMeters.ToString("0.00") + "m"
+            + " | Height=" + lastHeightDifferenceMeters.ToString("0.00") + "m"
+            + " | Reject=" + lastRejectReason;
     }
 
     private void UpdateWalk()
@@ -214,6 +234,7 @@ public class BuddyNavigationController : MonoBehaviour
 
     private void SendRejected(string action, string reason)
     {
+        lastRejectReason = reason;
         bridge?.SendEventToWellFit(
             "onBuddyActionRejected",
             "{\"action\":\"" + (string.IsNullOrEmpty(action) ? "move" : action) + "\",\"surfaceId\":\"" + targetSurfaceId + "\",\"reason\":\"" + reason + "\"}"
