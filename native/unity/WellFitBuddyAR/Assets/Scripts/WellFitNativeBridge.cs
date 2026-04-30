@@ -42,6 +42,27 @@ public class WellFitNativeBridge : MonoBehaviour
         buddyAnchorController.MoveBuddyToScreenPoint(screenPoint);
     }
 
+    public void CallBuddyToUserJson(string payloadJson)
+    {
+        Vector2 screenPoint = ParseScreenPointWithFallback(
+            payloadJson,
+            Screen.width * 0.5f,
+            Screen.height * 0.35f
+        );
+
+        if (buddyAnchorController == null)
+        {
+            SendEventToWellFit("onArError", "{\"message\":\"BuddyAnchorController missing\",\"code\":\"buddy-anchor-controller-missing\"}");
+            return;
+        }
+
+        bool started = buddyAnchorController.CallBuddyToScreenPoint(screenPoint);
+        if (started)
+        {
+            SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"callBuddyToUser\",\"source\":\"native-bridge\"}");
+        }
+    }
+
     public void ResetBuddyPlacement()
     {
         buddyInputController?.ResetPlacementState();
@@ -68,8 +89,17 @@ public class WellFitNativeBridge : MonoBehaviour
 
     private Vector2 ParseScreenPoint(string payloadJson)
     {
-        float x = ExtractFloat(payloadJson, "x", Screen.width * 0.5f);
-        float y = ExtractFloat(payloadJson, "y", Screen.height * 0.5f);
+        return ParseScreenPointWithFallback(
+            payloadJson,
+            Screen.width * 0.5f,
+            Screen.height * 0.5f
+        );
+    }
+
+    private Vector2 ParseScreenPointWithFallback(string payloadJson, float fallbackX, float fallbackY)
+    {
+        float x = ExtractFloat(payloadJson, "x", fallbackX);
+        float y = ExtractFloat(payloadJson, "y", fallbackY);
 
         if (x >= 0f && x <= 1f && y >= 0f && y <= 1f)
         {
