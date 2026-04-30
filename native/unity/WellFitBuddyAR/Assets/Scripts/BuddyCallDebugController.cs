@@ -23,6 +23,18 @@ public class BuddyCallDebugController : MonoBehaviour
         }
     }
 
+    public void ConfigureForScene(
+        WellFitNativeBridge sceneBridge,
+        BuddyCompanionAutoReturnController sceneAutoReturnController,
+        bool showButtons
+    )
+    {
+        bridge = sceneBridge;
+        autoReturnController = sceneAutoReturnController;
+        showDebugButton = showButtons;
+        lastStatus = "Buddy recall debug wired by scene bootstrap";
+    }
+
     public void CallBuddyToUser()
     {
         if (bridge == null)
