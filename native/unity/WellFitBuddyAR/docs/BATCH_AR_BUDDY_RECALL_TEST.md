@@ -37,7 +37,27 @@ C:\wellfit\WellFitBuddyAR
 
 ## Scene Setup
 
-In der aktiven AR-Testszene pruefen:
+Der Debug-Aufbau wird jetzt automatisch durch diesen Bootstrap vorbereitet:
+
+```txt
+Assets/Scripts/BuddyDebugSceneBootstrap.cs
+```
+
+Beim Laden der Szene macht der Bootstrap automatisch:
+
+1. `WellFitNativeBridge` suchen.
+2. `BuddyAnchorController` suchen.
+3. Falls das vorhandene Scene-Objekt `WellFitARSystem` deaktiviert ist, wird es aktiviert.
+4. GameObject `BuddyCallDebug` erstellen, falls es fehlt.
+5. `BuddyCallDebugController` anhaengen, falls es fehlt.
+6. `BuddyCompanionAutoReturnController` anhaengen, falls es fehlt.
+7. `WellFitNativeBridge` ins Feld `bridge` setzen.
+8. `BuddyAnchorController` ins Feld `anchorController` setzen.
+9. Auto-Return beim Start aus lassen.
+
+Manuelles Drag-and-drop ist dadurch fuer den ersten Sammeltest nicht mehr noetig.
+
+Trotzdem in der aktiven AR-Testszene pruefen:
 
 - `ARRaycastManager` ist vorhanden.
 - `ARAnchorManager` ist vorhanden.
@@ -47,15 +67,11 @@ In der aktiven AR-Testszene pruefen:
 - `WellFitNativeBridge.buddyAnchorController` ist gesetzt.
 - `BuddyAnchorController.bridge` ist gesetzt.
 
-Optional fuer Batch-Test:
+## Hinweis zu zwei Eingabewegen
 
-1. Leeres GameObject `BuddyCallDebug` erstellen.
-2. `BuddyCallDebugController` anhaengen.
-3. `BuddyCompanionAutoReturnController` anhaengen.
-4. In `BuddyCallDebugController.bridge` die `WellFitNativeBridge` setzen.
-5. In `BuddyCallDebugController.autoReturnController` den Auto-Return-Controller setzen.
-6. In `BuddyCompanionAutoReturnController.anchorController` den `BuddyAnchorController` setzen.
-7. `BuddyCompanionAutoReturnController.autoReturnEnabled` zuerst aus lassen.
+Die Szene enthaelt aktuell noch den alten `SimpleARPlacementTest` und zusaetzlich das modulare `WellFitARSystem`.
+
+Fuer den Sammeltest ist das akzeptabel. Langfristig soll `SimpleARPlacementTest` nur noch als historische Working-Testscene erhalten bleiben, waehrend `WellFitARSystem` der modulare Hauptpfad wird.
 
 ## Test A – Platzierung
 
