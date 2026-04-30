@@ -12,6 +12,7 @@ public class BuddyCallDebugController : MonoBehaviour
     private string lastStatus = "Buddy recall debug ready";
     private BuddyController buddyController;
     private BuddyLookAtCamera buddyLookAtCamera;
+    private BuddyNavigationController buddyNavigationController;
 
     void Awake()
     {
@@ -200,6 +201,11 @@ public class BuddyCallDebugController : MonoBehaviour
         {
             buddyLookAtCamera = FindObjectOfType<BuddyLookAtCamera>();
         }
+
+        if (buddyNavigationController == null)
+        {
+            buddyNavigationController = FindObjectOfType<BuddyNavigationController>();
+        }
     }
 
     public void ToggleCompactMode()
@@ -215,16 +221,18 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
+        RefreshBuddyVisualControllers();
+
         float width = Mathf.Min(620f, Screen.width - 40f);
         float height = 46f;
         float left = 20f;
-        float bottom = compactMode ? Screen.height - 118f : Screen.height - 779f;
+        float bottom = compactMode ? Screen.height - 118f : Screen.height - 799f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
         buttonStyle.fontSize = 19;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-        labelStyle.fontSize = 19;
+        labelStyle.fontSize = 18;
         labelStyle.normal.textColor = Color.white;
         labelStyle.wordWrap = true;
 
@@ -232,8 +240,12 @@ public class BuddyCallDebugController : MonoBehaviour
             ? autoReturnController.BuildDiagnosticsLabel()
             : "Auto-return controller missing";
 
-        GUI.Box(new Rect(14f, bottom - 76f, width + 12f, 70f), "");
-        GUI.Label(new Rect(24f, bottom - 70f, Screen.width - 48f, 64f), "Status: " + lastStatus + "\nDiag: " + diagnostics, labelStyle);
+        string navDiagnostics = buddyNavigationController != null
+            ? buddyNavigationController.BuildDiagnosticsLabel()
+            : "Navigation=not-found";
+
+        GUI.Box(new Rect(14f, bottom - 96f, width + 12f, 90f), "");
+        GUI.Label(new Rect(24f, bottom - 90f, Screen.width - 48f, 84f), "Status: " + lastStatus + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics, labelStyle);
 
         if (GUI.Button(new Rect(left, bottom, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
         {
