@@ -246,6 +246,32 @@ public class BuddyCallDebugController : MonoBehaviour
         lastStatus = "Fetch ability test requested.";
     }
 
+    public void TestCarryAbility()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyAbilityController == null)
+        {
+            lastStatus = "Carry test: BuddyAbilityController missing";
+            return;
+        }
+
+        buddyAbilityController.TryCarry("debug_marker_carry");
+        lastStatus = "Carry ability test requested.";
+    }
+
+    public void TestPointAbility()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyAbilityController == null)
+        {
+            lastStatus = "Point test: BuddyAbilityController missing";
+            return;
+        }
+
+        buddyAbilityController.TryPointAtObject("debug_marker_point");
+        lastStatus = "Point ability test requested.";
+    }
+
     public void TestClimbAbility()
     {
         RefreshBuddyVisualControllers();
@@ -406,8 +432,10 @@ public class BuddyCallDebugController : MonoBehaviour
         if (GUI.Button(new Rect(left, top, width, height), "Fähigkeiten AN/AUS", buttonStyle)) ToggleDemoAbilities();
         if (GUI.Button(new Rect(left, top + 48f, width, height), "Scan testen", buttonStyle)) TestScanAbility();
         if (GUI.Button(new Rect(left, top + 96f, width, height), "Hinweis holen testen", buttonStyle)) TestFetchAbility();
-        if (GUI.Button(new Rect(left, top + 144f, width, height), "Klettern testen", buttonStyle)) TestClimbAbility();
-        if (GUI.Button(new Rect(left, top + 192f, width, height), "Sprung testen", buttonStyle)) TestJumpAbility();
-        if (GUI.Button(new Rect(left, top + 240f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
+        if (GUI.Button(new Rect(left, top + 144f, width, height), "Tragen testen", buttonStyle)) TestCarryAbility();
+        if (GUI.Button(new Rect(left, top + 192f, width, height), "Zeigen testen", buttonStyle)) TestPointAbility();
+        if (GUI.Button(new Rect(left, top + 240f, width, height), "Klettern testen", buttonStyle)) TestClimbAbility();
+        if (GUI.Button(new Rect(left, top + 288f, width, height), "Sprung testen", buttonStyle)) TestJumpAbility();
+        if (GUI.Button(new Rect(left, top + 336f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
     }
 }
