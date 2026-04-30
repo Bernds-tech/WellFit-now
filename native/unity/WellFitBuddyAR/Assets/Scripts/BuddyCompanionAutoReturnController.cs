@@ -109,6 +109,15 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
         Debug.Log(lastStatus);
     }
 
+    public void ResetDiagnostics()
+    {
+        requestCount = 0;
+        rejectCount = 0;
+        lastReason = "none";
+        lastStatus = "Auto-Return Diagnose zurueckgesetzt.";
+        Debug.Log(lastStatus);
+    }
+
     public bool RequestAutoReturn()
     {
         return RequestAutoReturn(true);
