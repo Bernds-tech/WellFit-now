@@ -67,3 +67,5 @@ next-env.d.ts
 /native/unity/**/*.apk
 /native/unity/**/*.aab
 /native/unity/**/*.unitypackage
+
+native/unity/WellFitBuddyAR/.vscode/
