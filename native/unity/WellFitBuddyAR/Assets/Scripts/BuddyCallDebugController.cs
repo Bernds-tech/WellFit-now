@@ -48,6 +48,13 @@ public class BuddyCallDebugController : MonoBehaviour
         lastStatus = "Debug page " + (debugPage + 1) + "/3";
     }
 
+    private string GetPageTitle()
+    {
+        if (debugPage == 0) return "Rueckruf & Auto-Return";
+        if (debugPage == 1) return "Visuals & Verhalten";
+        return "Faehigkeiten & Events";
+    }
+
     public void CallBuddyToUser()
     {
         if (bridge == null)
@@ -375,7 +382,7 @@ public class BuddyCallDebugController : MonoBehaviour
             : "Abilities=not-found";
 
         GUI.Box(new Rect(14f, bottom - 176f, width + 12f, 170f), "");
-        GUI.Label(new Rect(24f, bottom - 170f, Screen.width - 48f, 164f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/3" + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics, labelStyle);
+        GUI.Label(new Rect(24f, bottom - 170f, Screen.width - 48f, 164f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/3 - " + GetPageTitle() + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics, labelStyle);
 
         if (GUI.Button(new Rect(left, bottom, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
         {
