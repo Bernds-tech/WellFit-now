@@ -6,6 +6,14 @@ public class WellFitNativeBridge : MonoBehaviour
     [SerializeField] private BuddyInputController buddyInputController;
     [SerializeField] private BuddyKiGuideController buddyKiGuideController;
 
+    private string lastEventName = "none";
+    private string lastEventPayload = "none";
+    private int eventCount;
+
+    public string LastEventName => lastEventName;
+    public string LastEventPayload => lastEventPayload;
+    public int EventCount => eventCount;
+
     public void StartSession()
     {
         Debug.Log("WellFit AR Session start requested");
@@ -82,9 +90,24 @@ public class WellFitNativeBridge : MonoBehaviour
         buddyKiGuideController?.ExplainMissingCapability(capabilityId);
     }
 
+    public void ResetEventDiagnostics()
+    {
+        lastEventName = "none";
+        lastEventPayload = "none";
+        eventCount = 0;
+    }
+
+    public string BuildDiagnosticsLabel()
+    {
+        return "Events=" + eventCount + " | Last=" + lastEventName;
+    }
+
     public void SendEventToWellFit(string eventName, string payloadJson)
     {
-        Debug.Log($"WellFit AR Event: {eventName} {payloadJson}");
+        lastEventName = string.IsNullOrEmpty(eventName) ? "unknown" : eventName;
+        lastEventPayload = string.IsNullOrEmpty(payloadJson) ? "{}" : payloadJson;
+        eventCount += 1;
+        Debug.Log($"WellFit AR Event: {lastEventName} {lastEventPayload}");
     }
 
     private Vector2 ParseScreenPoint(string payloadJson)
