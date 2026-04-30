@@ -48,6 +48,12 @@ public class BuddyCallDebugController : MonoBehaviour
         lastStatus = "Debug page " + (debugPage + 1) + "/3";
     }
 
+    public void SetDebugPage(int pageIndex)
+    {
+        debugPage = Mathf.Clamp(pageIndex, 0, 2);
+        lastStatus = "Debug page " + (debugPage + 1) + "/3";
+    }
+
     private string GetPageTitle()
     {
         if (debugPage == 0) return "Rueckruf & Auto-Return";
@@ -394,10 +400,10 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        if (GUI.Button(new Rect(left, bottom + 48f, width, height), "Seite wechseln", buttonStyle))
-        {
-            NextDebugPage();
-        }
+        float pageTop = bottom + 48f;
+        if (GUI.Button(new Rect(left, pageTop, (width - 12f) / 3f, height), "Rueckruf", buttonStyle)) SetDebugPage(0);
+        if (GUI.Button(new Rect(left + (width + 6f) / 3f, pageTop, (width - 12f) / 3f, height), "Visual", buttonStyle)) SetDebugPage(1);
+        if (GUI.Button(new Rect(left + 2f * (width + 6f) / 3f, pageTop, (width - 12f) / 3f, height), "Faehigk.", buttonStyle)) SetDebugPage(2);
 
         if (debugPage == 0)
         {
