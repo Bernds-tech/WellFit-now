@@ -213,6 +213,32 @@ public class BuddyCallDebugController : MonoBehaviour
         lastStatus = "Demo abilities toggled.";
     }
 
+    public void TestScanAbility()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyAbilityController == null)
+        {
+            lastStatus = "Scan test: BuddyAbilityController missing";
+            return;
+        }
+
+        buddyAbilityController.TryScanObject("debug_marker_scan");
+        lastStatus = "Scan ability test requested.";
+    }
+
+    public void TestFetchAbility()
+    {
+        RefreshBuddyVisualControllers();
+        if (buddyAbilityController == null)
+        {
+            lastStatus = "Fetch test: BuddyAbilityController missing";
+            return;
+        }
+
+        buddyAbilityController.TryFetchClue("debug_marker_clue");
+        lastStatus = "Fetch ability test requested.";
+    }
+
     private void RefreshBuddyVisualControllers()
     {
         if (buddyController == null)
@@ -257,15 +283,15 @@ public class BuddyCallDebugController : MonoBehaviour
         RefreshBuddyVisualControllers();
 
         float width = Mathf.Min(620f, Screen.width - 40f);
-        float height = 44f;
+        float height = 40f;
         float left = 20f;
-        float bottom = compactMode ? Screen.height - 118f : Screen.height - 899f;
+        float bottom = compactMode ? Screen.height - 118f : Screen.height - 951f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-        buttonStyle.fontSize = 18;
+        buttonStyle.fontSize = 17;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-        labelStyle.fontSize = 17;
+        labelStyle.fontSize = 16;
         labelStyle.normal.textColor = Color.white;
         labelStyle.wordWrap = true;
 
@@ -302,64 +328,74 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        if (GUI.Button(new Rect(left, bottom + 48f, width, height), "Buddy rufen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 44f, width, height), "Buddy rufen", buttonStyle))
         {
             CallBuddyToUser();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 96f, width, height), "Rueckruf testen", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 88f, width, height), "Rueckruf testen", buttonStyle))
         {
             RequestAutoReturnOnce();
         }
 
         string autoLabel = "Auto: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 144f, width, height), autoLabel, buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 132f, width, height), autoLabel, buttonStyle))
         {
             ToggleAutoReturn();
         }
 
         string farOnlyLabel = "Nur weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, bottom + 192f, width, height), farOnlyLabel, buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 176f, width, height), farOnlyLabel, buttonStyle))
         {
             ToggleFarOnly();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 240f, width, height), "Timing schnell", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 220f, width, height), "Timing schnell", buttonStyle))
         {
             UseFastTiming();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 288f, width, height), "Timing normal", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 264f, width, height), "Timing normal", buttonStyle))
         {
             UseNormalTiming();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 336f, width, height), "Abstand Test", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 308f, width, height), "Abstand Test", buttonStyle))
         {
             UseTestDistance();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 384f, width, height), "Abstand Produkt", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 352f, width, height), "Abstand Produkt", buttonStyle))
         {
             UseProductDistance();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 432f, width, height), "Idle AN/AUS", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 396f, width, height), "Idle AN/AUS", buttonStyle))
         {
             ToggleBuddyIdleMotion();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 480f, width, height), "Blick AN/AUS", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 440f, width, height), "Blick AN/AUS", buttonStyle))
         {
             ToggleBuddyLookAt();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 528f, width, height), "Fähigkeiten AN/AUS", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 484f, width, height), "Fähigkeiten AN/AUS", buttonStyle))
         {
             ToggleDemoAbilities();
         }
 
-        if (GUI.Button(new Rect(left, bottom + 576f, width, height), "Diagnose reset", buttonStyle))
+        if (GUI.Button(new Rect(left, bottom + 528f, width, height), "Scan testen", buttonStyle))
+        {
+            TestScanAbility();
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 572f, width, height), "Hinweis holen testen", buttonStyle))
+        {
+            TestFetchAbility();
+        }
+
+        if (GUI.Button(new Rect(left, bottom + 616f, width, height), "Diagnose reset", buttonStyle))
         {
             ResetDiagnostics();
         }
