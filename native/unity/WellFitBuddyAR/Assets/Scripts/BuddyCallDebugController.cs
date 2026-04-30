@@ -13,6 +13,7 @@ public class BuddyCallDebugController : MonoBehaviour
     private BuddyController buddyController;
     private BuddyLookAtCamera buddyLookAtCamera;
     private BuddyNavigationController buddyNavigationController;
+    private BuddyAnchorController buddyAnchorController;
 
     void Awake()
     {
@@ -206,6 +207,11 @@ public class BuddyCallDebugController : MonoBehaviour
         {
             buddyNavigationController = FindObjectOfType<BuddyNavigationController>();
         }
+
+        if (buddyAnchorController == null)
+        {
+            buddyAnchorController = FindObjectOfType<BuddyAnchorController>();
+        }
     }
 
     public void ToggleCompactMode()
@@ -226,7 +232,7 @@ public class BuddyCallDebugController : MonoBehaviour
         float width = Mathf.Min(620f, Screen.width - 40f);
         float height = 46f;
         float left = 20f;
-        float bottom = compactMode ? Screen.height - 118f : Screen.height - 799f;
+        float bottom = compactMode ? Screen.height - 118f : Screen.height - 819f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
         buttonStyle.fontSize = 19;
@@ -244,8 +250,12 @@ public class BuddyCallDebugController : MonoBehaviour
             ? buddyNavigationController.BuildDiagnosticsLabel()
             : "Navigation=not-found";
 
-        GUI.Box(new Rect(14f, bottom - 96f, width + 12f, 90f), "");
-        GUI.Label(new Rect(24f, bottom - 90f, Screen.width - 48f, 84f), "Status: " + lastStatus + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics, labelStyle);
+        string anchorDiagnostics = buddyAnchorController != null
+            ? buddyAnchorController.BuildDiagnosticsLabel()
+            : "Anchor=not-found";
+
+        GUI.Box(new Rect(14f, bottom - 116f, width + 12f, 110f), "");
+        GUI.Label(new Rect(24f, bottom - 110f, Screen.width - 48f, 104f), "Status: " + lastStatus + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics, labelStyle);
 
         if (GUI.Button(new Rect(left, bottom, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
         {
