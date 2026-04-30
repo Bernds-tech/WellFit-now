@@ -6,6 +6,7 @@ public class BuddyCallDebugController : MonoBehaviour
     [SerializeField] private BuddyCompanionAutoReturnController autoReturnController;
     [SerializeField] private bool showDebugButton = true;
     [SerializeField] private bool compactMode = false;
+    [SerializeField] private bool showDiagnostics = true;
     [SerializeField] private float normalizedScreenX = 0.5f;
     [SerializeField] private float normalizedScreenY = 0.35f;
 
@@ -52,6 +53,12 @@ public class BuddyCallDebugController : MonoBehaviour
     {
         debugPage = Mathf.Clamp(pageIndex, 0, 2);
         lastStatus = "Debug page " + (debugPage + 1) + "/3";
+    }
+
+    public void ToggleDiagnostics()
+    {
+        showDiagnostics = !showDiagnostics;
+        lastStatus = showDiagnostics ? "Diagnose sichtbar." : "Diagnose ausgeblendet.";
     }
 
     private string GetPageTitle()
@@ -357,7 +364,7 @@ public class BuddyCallDebugController : MonoBehaviour
         float width = Mathf.Min(620f, Screen.width - 40f);
         float height = 44f;
         float left = 20f;
-        float bottom = Screen.height - 500f;
+        float top = showDiagnostics ? Screen.height - 500f : Screen.height - 315f;
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
         buttonStyle.fontSize = 17;
@@ -367,30 +374,33 @@ public class BuddyCallDebugController : MonoBehaviour
         labelStyle.normal.textColor = Color.white;
         labelStyle.wordWrap = true;
 
-        string diagnostics = autoReturnController != null
-            ? autoReturnController.BuildDiagnosticsLabel()
-            : "Auto-return controller missing";
+        if (showDiagnostics)
+        {
+            string diagnostics = autoReturnController != null
+                ? autoReturnController.BuildDiagnosticsLabel()
+                : "Auto-return controller missing";
 
-        string navDiagnostics = buddyNavigationController != null
-            ? buddyNavigationController.BuildDiagnosticsLabel()
-            : "Navigation=not-found";
+            string navDiagnostics = buddyNavigationController != null
+                ? buddyNavigationController.BuildDiagnosticsLabel()
+                : "Navigation=not-found";
 
-        string anchorDiagnostics = buddyAnchorController != null
-            ? buddyAnchorController.BuildDiagnosticsLabel()
-            : "Anchor=not-found";
+            string anchorDiagnostics = buddyAnchorController != null
+                ? buddyAnchorController.BuildDiagnosticsLabel()
+                : "Anchor=not-found";
 
-        string bridgeDiagnostics = bridge != null
-            ? bridge.BuildDiagnosticsLabel()
-            : "Bridge=not-found";
+            string bridgeDiagnostics = bridge != null
+                ? bridge.BuildDiagnosticsLabel()
+                : "Bridge=not-found";
 
-        string abilityDiagnostics = buddyAbilityController != null
-            ? buddyAbilityController.BuildDiagnosticsLabel()
-            : "Abilities=not-found";
+            string abilityDiagnostics = buddyAbilityController != null
+                ? buddyAbilityController.BuildDiagnosticsLabel()
+                : "Abilities=not-found";
 
-        GUI.Box(new Rect(14f, bottom - 176f, width + 12f, 170f), "");
-        GUI.Label(new Rect(24f, bottom - 170f, Screen.width - 48f, 164f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/3 - " + GetPageTitle() + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics, labelStyle);
+            GUI.Box(new Rect(14f, top - 176f, width + 12f, 170f), "");
+            GUI.Label(new Rect(24f, top - 170f, Screen.width - 48f, 164f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/3 - " + GetPageTitle() + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics, labelStyle);
+        }
 
-        if (GUI.Button(new Rect(left, bottom, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
+        if (GUI.Button(new Rect(left, top, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
         {
             ToggleCompactMode();
         }
@@ -400,22 +410,27 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        float pageTop = bottom + 48f;
+        if (GUI.Button(new Rect(left, top + 48f, width, height), showDiagnostics ? "Diagnose aus" : "Diagnose an", buttonStyle))
+        {
+            ToggleDiagnostics();
+        }
+
+        float pageTop = top + 96f;
         if (GUI.Button(new Rect(left, pageTop, (width - 12f) / 3f, height), "Rueckruf", buttonStyle)) SetDebugPage(0);
         if (GUI.Button(new Rect(left + (width + 6f) / 3f, pageTop, (width - 12f) / 3f, height), "Visual", buttonStyle)) SetDebugPage(1);
         if (GUI.Button(new Rect(left + 2f * (width + 6f) / 3f, pageTop, (width - 12f) / 3f, height), "Faehigk.", buttonStyle)) SetDebugPage(2);
 
         if (debugPage == 0)
         {
-            DrawReturnPage(left, bottom + 96f, width, height, buttonStyle);
+            DrawReturnPage(left, top + 144f, width, height, buttonStyle);
         }
         else if (debugPage == 1)
         {
-            DrawVisualPage(left, bottom + 96f, width, height, buttonStyle);
+            DrawVisualPage(left, top + 144f, width, height, buttonStyle);
         }
         else
         {
-            DrawAbilityPage(left, bottom + 96f, width, height, buttonStyle);
+            DrawAbilityPage(left, top + 144f, width, height, buttonStyle);
         }
     }
 
