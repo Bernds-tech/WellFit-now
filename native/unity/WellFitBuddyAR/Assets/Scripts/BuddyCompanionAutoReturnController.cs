@@ -118,6 +118,22 @@ public class BuddyCompanionAutoReturnController : MonoBehaviour
         Debug.Log(lastStatus);
     }
 
+    public void UseFastTiming()
+    {
+        checkEverySeconds = 3f;
+        cooldownAfterRequestSeconds = 2f;
+        lastStatus = "Schnelles Timing aktiv.";
+        Debug.Log(lastStatus);
+    }
+
+    public void UseNormalTiming()
+    {
+        checkEverySeconds = 8f;
+        cooldownAfterRequestSeconds = 4f;
+        lastStatus = "Normales Timing aktiv.";
+        Debug.Log(lastStatus);
+    }
+
     public bool RequestAutoReturn()
     {
         return RequestAutoReturn(true);
