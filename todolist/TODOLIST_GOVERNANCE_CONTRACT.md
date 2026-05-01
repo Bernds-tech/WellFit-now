@@ -1,8 +1,8 @@
 # WellFit – ToDo Governance Contract
 
-Version: 1.0
+Version: 1.1
 Stand: 2026-05-01
-Zweck: Skalierbare Pflege von `todolist/`
+Zweck: Skalierbare Pflege von `todolist/` und Wichtigkeitssteuerung
 
 ---
 
@@ -29,6 +29,21 @@ J - NÄCHSTE EMPFOHLENE ARBEIT
 ```
 
 Operativer Fokus. Zeigt aktuellen Stand, naechste Schritte, Risiken. Kein Langzeitarchiv fuer jedes Detail.
+
+```txt
+TODOLIST_IMPORTANCE_CLASSIFICATION.md
+```
+
+Priorisiert ToDo-Inhalte nach Fertigstellungsrelevanz:
+
+```txt
+P0 = testbare Alpha
+P1 = gute Beta
+P2 = Ausbau nach stabiler Beta
+P3 = Vision / spaeter
+REFERENCE = Nachschlagewerk
+ARCHIVE = historisch / Status
+```
 
 ```txt
 A-I / G1 / K / L
@@ -64,6 +79,7 @@ Technische Contracts, Runbooks, Checklisten und Architekturplaene fuer Unity/AR-
 [ ] es die naechsten 3–10 Micro-Tasks beeinflusst.
 [ ] es ein Blocker, Risiko oder unmittelbarer Testschritt ist.
 [ ] es nur kurz zusammengefasst werden muss.
+[ ] es P0 oder direkt P1 betrifft.
 
 ### In eigene Addendum-/Contract-Datei schreiben, wenn:
 
@@ -72,6 +88,7 @@ Technische Contracts, Runbooks, Checklisten und Architekturplaene fuer Unity/AR-
 [ ] es spaeter wiederholt mitzulesen ist.
 [ ] es ein technischer Vertrag, Testplan oder Refactor-Plan ist.
 [ ] es `J`, `README` oder eine Roadmap-Datei unuebersichtlich machen wuerde.
+[ ] es P2/P3 ist, aber als Referenz erhalten bleiben soll.
 
 ### In `status/` schreiben, wenn:
 
@@ -116,7 +133,31 @@ Regel:
 
 ---
 
-## 6. Keine dreifache Duplikation
+## 6. Wichtigkeitssteuerung
+
+Alle neuen und bestehenden Themen sollen nach `TODOLIST_IMPORTANCE_CLASSIFICATION.md` betrachtet werden.
+
+Regel:
+
+```txt
+P0/P1 = aktiv fuer Fertigstellung relevant
+P2/P3 = behalten, aber nicht Alpha blockieren
+REFERENCE = bei Bedarf lesen
+ARCHIVE = nicht als Sprint-Fokus behandeln
+```
+
+Neue Arbeit wird nur priorisiert, wenn sie mindestens eine dieser Fragen positiv beantwortet:
+
+```txt
+Hilft es direkt zur testbaren Alpha?
+Entfernt es ein Sicherheits-/Build-/Test-Risiko?
+Macht es den naechsten Unity-/Mobile-/Backend-Test moeglich?
+Verhindert es spaeteren Architekturbruch?
+```
+
+---
+
+## 7. Keine dreifache Duplikation
 
 Informationen duerfen nicht unkontrolliert in mehreren Dateien vollstaendig kopiert werden.
 
@@ -135,7 +176,7 @@ Schlecht:
 
 ---
 
-## 7. Handoff-Regel
+## 8. Handoff-Regel
 
 Ein Handoff soll enthalten:
 
@@ -144,6 +185,7 @@ Branch
 PR
 wichtige Dateien
 aktueller Status
+P0/P1/P2/P3-Einordnung, falls relevant
 naechster Test/Build-Schritt
 Risiken
 konkrete Micro-Tasks
@@ -159,7 +201,7 @@ ungetestete Behauptungen
 
 ---
 
-## 8. Pull-/Branch-Regel fuer ToDo-Arbeit
+## 9. Pull-/Branch-Regel fuer ToDo-Arbeit
 
 Bei GitHub-Aenderungen:
 
@@ -171,7 +213,7 @@ Bei GitHub-Aenderungen:
 
 ---
 
-## 9. Skalierbarkeit bei neuen Themen
+## 10. Skalierbarkeit bei neuen Themen
 
 Wenn ein neues grosses Thema entsteht, z. B.:
 
@@ -184,31 +226,35 @@ Surface Quality
 Mission Reward Ledger
 Punkteoekonomie
 App Store Compliance
+Voice Interaction
+Avatar Profile
 ```
 
 Dann:
 
-1. pruefen, ob vorhandene Datei passt.
-2. falls nicht: eigene Addendum-/Contract-/Plan-Datei anlegen.
-3. `J` nur kurz referenzieren.
-4. Handoff-Datei nur Dateiliste + Kurzstand ergaenzen.
+1. Wichtigkeit bestimmen: P0/P1/P2/P3/REFERENCE/ARCHIVE.
+2. pruefen, ob vorhandene Datei passt.
+3. falls nicht: eigene Addendum-/Contract-/Plan-Datei anlegen.
+4. `J` nur kurz referenzieren, wenn P0/P1.
+5. Handoff-Datei nur Dateiliste + Kurzstand ergaenzen.
 
 ---
 
-## 10. Review-Regel
+## 11. Review-Regel
 
 Vor groesseren ToDo-Aenderungen pruefen:
 
 [ ] Wird eine Hauptdatei zu gross?
 [ ] Ist das Thema besser als Addendum?
 [ ] Muss `J` wirklich Details enthalten oder reicht ein Verweis?
+[ ] Ist die Wichtigkeit P0/P1/P2/P3 klar?
 [ ] Sind Security-Grenzen klar?
 [ ] Ist der naechste konkrete Micro-Task erkennbar?
 [ ] Ist der Status `[ ]/[x]/[~]/[!]/[>]` sauber?
 
 ---
 
-## 11. Aktuelle Anwendung auf AR-Buddy
+## 12. Aktuelle Anwendung auf AR-Buddy
 
 Fuer den aktuellen AR-Buddy-Block gilt:
 
@@ -216,6 +262,7 @@ Fuer den aktuellen AR-Buddy-Block gilt:
 J = operativer Fokus
 K = Companion/Avatar-Grundlogik
 L = Skalierbarkeit AR Buddy/UI/Architektur + ToDo-Skalierung
+TODOLIST_IMPORTANCE_CLASSIFICATION = Fertigstellungsrelevanz
 CHAT_START_SCALABILITY_ADDENDUM = neuer Chat-Kontext
 README_SCALABILITY_ADDENDUM = Index-Ergaenzung
 BUDDY_*_CONTRACT/PLAN/CHECKLIST = technische Details
@@ -224,7 +271,7 @@ status/*.md = zeitbezogene Handoffs
 
 ---
 
-## 12. Ergebnis
+## 13. Ergebnis
 
 `todolist/` bleibt so langfristig nutzbar:
 
@@ -234,4 +281,5 @@ status/*.md = zeitbezogene Handoffs
 - handoff-faehig
 - testfaehig
 - sicherheitsbewusst
+- priorisiert nach Fertigstellungsrelevanz
 - skalierbar fuer viele parallele Arbeitsbereiche
