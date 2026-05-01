@@ -1,6 +1,6 @@
 {
   "agentName": "wellfit-dev-agent",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "mode": "dry-run",
   "repository": "Bernds-tech/WellFit-now",
   "sourceOfTruth": [
@@ -39,9 +39,29 @@
   "maxPlannedMicroTasks": 12,
   "identityGate": {
     "enabled": true,
-    "requiredQuestion": "Bevor du am Code weitermachst: Bist du Coder 1, Coder 2 oder Coder 3? Antworte exakt mit: Coder 1, Coder 2 oder Coder 3.",
+    "requiredQuestion": "Bevor du am Code oder auf GitHub weitermachst: Welcher Coder bist du? Antworte exakt mit deiner registrierten Rolle, zum Beispiel: Coder 1, Coder 2, Coder 3 ...",
     "rejectUnknownIdentity": true,
-    "unknownIdentityMessage": "Ich kann noch keine Aufgabe zuweisen. Bitte nenne zuerst deine Rolle: Coder 1, Coder 2 oder Coder 3."
+    "unknownIdentityMessage": "Ich kann noch keine Aufgabe zuweisen. Bitte nenne zuerst deine registrierte Rolle, z. B. Coder 1, Coder 2, Coder 3 usw."
+  },
+  "todoMutationPolicy": {
+    "enabled": true,
+    "allowDeleteTodoEntries": false,
+    "allowDeleteRoadmapSections": false,
+    "allowedMutations": [
+      "changeStatusMarker",
+      "changePriority",
+      "appendClarification",
+      "appendNewTask",
+      "moveToBacklogWithMarker",
+      "addRiskNote",
+      "addBuildNote",
+      "addReviewNote"
+    ],
+    "protectedGlobs": [
+      "todolist/**",
+      "docs/architecture/**"
+    ],
+    "requiredNote": "Bestehende ToDo-/Roadmap-Einträge dürfen nicht gelöscht werden. Der Agent darf nur Status/Priorität ändern, ergänzen, erweitern oder mit [>] in Backlog verschieben."
   },
   "alphaScope": {
     "enabled": true,
@@ -99,6 +119,8 @@
   },
   "coderAssignment": {
     "enabled": true,
+    "dynamicRegistry": true,
+    "rebalanceOnRegistryChange": true,
     "coders": [
       {
         "id": "coder1",
@@ -155,6 +177,8 @@
     "modifyJackpotSettlement",
     "addMobileTokenTrading",
     "writeSecretsToFrontend",
-    "deployProduction"
+    "deployProduction",
+    "deleteTodoEntries",
+    "deleteRoadmapSections"
   ]
 }
