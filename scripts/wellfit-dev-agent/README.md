@@ -18,6 +18,30 @@ Der Agent ist zuerst bewusst als Dry-Run-Agent gebaut:
 
 ---
 
+## Wann Agent ausführen?
+
+Das verbindliche Runbook liegt hier:
+
+```txt
+scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
+```
+
+Kurzregel:
+
+```txt
+Neuer Coder oder neuer GPT-/GitHub-Arbeitsblock?
+→ npm run agent:validate
+→ npm run agent:goal-check
+→ npm run agent:coder-prompts
+→ npm run agent:dry-run
+→ Identity-Gate im Chat anzeigen
+→ Coder nennt Rolle
+→ passenden Coder-Prompt verwenden
+→ erst dann Codearbeit
+```
+
+---
+
 ## Pflicht: Coder-Identität vor jeder Arbeit
 
 Bevor ein GPT/Coder am Code oder auf GitHub weitermacht, muss zuerst gefragt werden:
@@ -223,6 +247,7 @@ scripts/wellfit-dev-agent/output/coder-prompts/
 ```txt
 wellfit-agent.config.json
 coder-registry.schema.md
+RUNBOOK_WHEN_TO_RUN_AGENT.md
 safety-checklist.md
 pr-template.md
 src/validate-agent-config.mjs
