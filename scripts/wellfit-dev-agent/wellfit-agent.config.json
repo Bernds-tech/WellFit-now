@@ -1,13 +1,14 @@
 {
   "agentName": "wellfit-dev-agent",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "mode": "dry-run",
   "repository": "Bernds-tech/WellFit-now",
   "sourceOfTruth": [
     "todolist/README.md",
     "todolist/J - NÄCHSTE EMPFOHLENE ARBEIT",
     "todolist/CHAT_START_PROMPT.md",
-    "todolist/AUTONOMOUS_ITERATION_MODE.md"
+    "todolist/AUTONOMOUS_ITERATION_MODE.md",
+    "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md"
   ],
   "topicFiles": {
     "mobileArBuddy": [
@@ -27,13 +28,68 @@
     ],
     "agentArchitecture": [
       "docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md",
-      "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md"
+      "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md",
+      "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md"
     ]
   },
   "defaultTopic": "agentArchitecture",
   "outputPath": "scripts/wellfit-dev-agent/output/dry-run-report.md",
   "maxOpenTasksPerFile": 12,
   "maxPlannedMicroTasks": 8,
+  "alphaScope": {
+    "enabled": true,
+    "priorityKeywords": [
+      "alpha",
+      "beta",
+      "mobile",
+      "ar",
+      "unity",
+      "android",
+      "buddy",
+      "mission",
+      "challenge",
+      "punkte",
+      "xp",
+      "reward",
+      "completion",
+      "firebase",
+      "backend",
+      "security",
+      "rules",
+      "login",
+      "registrierung",
+      "profil",
+      "deployment",
+      "datenschutz",
+      "app-store",
+      "test",
+      "qa",
+      "debug"
+    ],
+    "backlogKeywords": [
+      "nft",
+      "token",
+      "wft",
+      "blockchain",
+      "marketplace",
+      "trading",
+      "staking",
+      "dao",
+      "depin",
+      "compute",
+      "whitelabel",
+      "b2b",
+      "voice wake",
+      "wake word",
+      "vererbung",
+      "lebenslanger avatar",
+      "partnerplattform",
+      "museum",
+      "städte",
+      "stadt",
+      "pharma"
+    ]
+  },
   "writePolicy": {
     "dryRunCanWriteReport": true,
     "canModifyCode": false,
