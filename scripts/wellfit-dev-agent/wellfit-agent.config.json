@@ -1,0 +1,66 @@
+{
+  "agentName": "wellfit-dev-agent",
+  "version": "0.1.0",
+  "mode": "dry-run",
+  "repository": "Bernds-tech/WellFit-now",
+  "sourceOfTruth": [
+    "todolist/README.md",
+    "todolist/J - NÄCHSTE EMPFOHLENE ARBEIT",
+    "todolist/CHAT_START_PROMPT.md",
+    "todolist/AUTONOMOUS_ITERATION_MODE.md"
+  ],
+  "topicFiles": {
+    "mobileArBuddy": [
+      "todolist/H - MOBILE - AR - TRACKING - KI",
+      "todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY",
+      "todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE",
+      "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md"
+    ],
+    "rewardsEconomy": [
+      "todolist/F - FIREBASE  - REALTIME - MISSIONEN",
+      "todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS",
+      "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
+      "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md"
+    ],
+    "businessWebsiteLegal": [
+      "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL"
+    ],
+    "agentArchitecture": [
+      "docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md",
+      "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md"
+    ]
+  },
+  "defaultTopic": "agentArchitecture",
+  "outputPath": "scripts/wellfit-dev-agent/output/dry-run-report.md",
+  "maxOpenTasksPerFile": 12,
+  "maxPlannedMicroTasks": 8,
+  "writePolicy": {
+    "dryRunCanWriteReport": true,
+    "canModifyCode": false,
+    "canCreateBranch": false,
+    "canCreatePullRequest": false,
+    "canDeployProduction": false
+  },
+  "protectedAreas": [
+    "firestore.rules",
+    "functions/**",
+    "app/api/**",
+    "lib/**reward**",
+    "lib/**mission**",
+    "lib/**economy**",
+    "lib/**antiCheat**",
+    "app/mobile/**",
+    "app/missionen/**"
+  ],
+  "blockedAutonomousActions": [
+    "authorizeRewards",
+    "authorizePoints",
+    "authorizeXp",
+    "authorizeMissionCompletion",
+    "modifyAntiCheatDecision",
+    "modifyJackpotSettlement",
+    "addMobileTokenTrading",
+    "writeSecretsToFrontend",
+    "deployProduction"
+  ]
+}
