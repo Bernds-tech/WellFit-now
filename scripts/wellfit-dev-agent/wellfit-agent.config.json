@@ -1,6 +1,6 @@
 {
   "agentName": "wellfit-dev-agent",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "mode": "dry-run",
   "repository": "Bernds-tech/WellFit-now",
   "sourceOfTruth": [
@@ -34,6 +34,7 @@
   },
   "defaultTopic": "agentArchitecture",
   "outputPath": "scripts/wellfit-dev-agent/output/dry-run-report.md",
+  "goalCheckOutputPath": "scripts/wellfit-dev-agent/output/alpha-goal-check.md",
   "coderPromptOutputDir": "scripts/wellfit-dev-agent/output/coder-prompts",
   "maxOpenTasksPerFile": 12,
   "maxPlannedMicroTasks": 12,
@@ -62,6 +63,49 @@
       "docs/architecture/**"
     ],
     "requiredNote": "Bestehende ToDo-/Roadmap-Einträge dürfen nicht gelöscht werden. Der Agent darf nur Status/Priorität ändern, ergänzen, erweitern oder mit [>] in Backlog verschieben."
+  },
+  "firstTestRunGoals": {
+    "enabled": true,
+    "goalQuestion": "Hilft diese Aufgabe direkt zur ersten testbaren WellFit-Alpha mit echten Testläufen?",
+    "minimumRequiredTracks": [
+      {
+        "id": "login_profile",
+        "label": "Login / Registrierung / Nutzerprofil",
+        "keywords": ["login", "registrierung", "register", "auth", "profil", "user profile", "firebase auth"]
+      },
+      {
+        "id": "mobile_ar_buddy",
+        "label": "Mobile / AR / sichtbarer Buddy",
+        "keywords": ["mobile", "ar", "unity", "android", "arcore", "buddy", "avatar", "kamera", "camera", "placement", "call buddy"]
+      },
+      {
+        "id": "missions_challenges",
+        "label": "Missionen / Challenges spielbar",
+        "keywords": ["mission", "challenge", "tagesmission", "history", "favoriten", "guide", "mission event"]
+      },
+      {
+        "id": "internal_points_xp",
+        "label": "Interne Punkte / XP ohne Token",
+        "keywords": ["punkte", "xp", "reward", "ledger", "internal", "preview", "streak"]
+      },
+      {
+        "id": "backend_security",
+        "label": "Backend / Firebase / Security Rules / Completion",
+        "keywords": ["backend", "firebase", "firestore", "rules", "functions", "serverseitig", "completion", "security", "emulator"]
+      },
+      {
+        "id": "deployment_qa",
+        "label": "Deployment / Debug / QA / Testläufe",
+        "keywords": ["deployment", "deploy", "pm2", "build", "debug", "qa", "test", "smoke", "emulator"]
+      },
+      {
+        "id": "privacy_appstore",
+        "label": "Datenschutz / App-Store-Konformität",
+        "keywords": ["datenschutz", "privacy", "app-store", "app store", "legal", "consent", "kamera", "health", "kinder"]
+      }
+    ],
+    "backlogSignals": ["nft", "token", "wft", "blockchain", "marketplace", "trading", "staking", "dao", "depin", "whitelabel", "b2b", "pharma"],
+    "minimumCoverageWarningThreshold": 5
   },
   "alphaScope": {
     "enabled": true,
