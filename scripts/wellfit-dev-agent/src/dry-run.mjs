@@ -31,6 +31,7 @@ function parseArgs(argv) {
     includeRewards: false,
     includeBusiness: false,
     includeBuddy: false,
+    includeBacklog: false,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -45,6 +46,7 @@ function parseArgs(argv) {
     if (value === "--include-rewards") result.includeRewards = true;
     if (value === "--include-business") result.includeBusiness = true;
     if (value === "--include-buddy") result.includeBuddy = true;
+    if (value === "--include-backlog") result.includeBacklog = true;
   }
 
   return result;
@@ -69,7 +71,32 @@ function resolveFiles(config, args) {
   return unique(files);
 }
 
-function extractTasks(file, maxTasks) {
+function normalizeText(value) {
+  return value.toLowerCase().normalize("NFC");
+}
+
+function includesAny(haystack, terms) {
+  return terms.some((term) => haystack.includes(normalizeText(term)));
+}
+
+function classifyAlphaScope(text, filePath, config) {
+  if (!config.alphaScope?.enabled) return "unclassified";
+
+  const haystack = normalizeText(`${filePath} ${text}`);
+  const priorityKeywords = config.alphaScope.priorityKeywords ?? [];
+  const backlogKeywords = config.alphaScope.backlogKeywords ?? [];
+
+  const hasPrioritySignal = includesAny(haystack, priorityKeywords);
+  const hasBacklogSignal = includesAny(haystack, backlogKeywords);
+
+  if (hasPrioritySignal && !hasBacklogSignal) return "alpha-critical";
+  if (hasPrioritySignal && hasBacklogSignal) return "alpha-review-needed";
+  if (hasBacklogSignal) return "backlog";
+
+  return "alpha-supporting";
+}
+
+function extractTasks(file, maxTasks, config) {
   const lines = file.content.split(/\r?\n/);
   const tasks = [];
 
@@ -90,6 +117,7 @@ function extractTasks(file, maxTasks) {
       line: index + 1,
       status,
       text,
+      alphaScope: classifyAlphaScope(text, file.relativePath, config),
       risk: classifyRisk(text, file.relativePath),
     });
 
@@ -100,7 +128,7 @@ function extractTasks(file, maxTasks) {
 }
 
 function classifyRisk(text, filePath) {
-  const haystack = `${filePath} ${text}`.toLowerCase();
+  const haystack = normalizeText(`${filePath} ${text}`);
 
   const criticalTerms = [
     "reward",
@@ -132,30 +160,71 @@ function classifyRisk(text, filePath) {
     "emulator",
   ];
 
-  if (criticalTerms.some((term) => haystack.includes(term))) {
+  if (includesAny(haystack, criticalTerms)) {
     return "review-required-critical";
   }
 
-  if (backendTerms.some((term) => haystack.includes(term))) {
+  if (includesAny(haystack, backendTerms)) {
     return "review-required-backend";
   }
 
   return "agent-safe-dry-run";
 }
 
-function planMicroTasks(tasks, maxPlanned) {
-  const safeTasks = tasks.filter((task) => task.risk === "agent-safe-dry-run");
-  const reviewTasks = tasks.filter((task) => task.risk !== "agent-safe-dry-run");
+function scopeRank(task) {
+  const ranks = {
+    "alpha-critical": 0,
+    "alpha-review-needed": 1,
+    "alpha-supporting": 2,
+    unclassified: 3,
+    backlog: 4,
+  };
 
-  return [...safeTasks, ...reviewTasks].slice(0, maxPlanned).map((task, index) => ({
-    order: index + 1,
-    ...task,
-  }));
+  return ranks[task.alphaScope] ?? 9;
+}
+
+function riskRank(task) {
+  const ranks = {
+    "agent-safe-dry-run": 0,
+    "review-required-backend": 1,
+    "review-required-critical": 2,
+  };
+
+  return ranks[task.risk] ?? 9;
+}
+
+function planMicroTasks(tasks, maxPlanned, args) {
+  const eligibleTasks = args.includeBacklog ? tasks : tasks.filter((task) => task.alphaScope !== "backlog");
+
+  return [...eligibleTasks]
+    .sort((a, b) => scopeRank(a) - scopeRank(b) || riskRank(a) - riskRank(b))
+    .slice(0, maxPlanned)
+    .map((task, index) => ({
+      order: index + 1,
+      ...task,
+    }));
+}
+
+function countBy(values, key) {
+  return values.reduce((accumulator, value) => {
+    const group = value[key] ?? "unknown";
+    accumulator[group] = (accumulator[group] ?? 0) + 1;
+    return accumulator;
+  }, {});
+}
+
+function renderObjectList(object) {
+  const entries = Object.entries(object);
+  if (entries.length === 0) return "- none";
+
+  return entries.map(([key, value]) => `- ${key}: ${value}`).join("\n");
 }
 
 function renderReport({ config, args, files, tasks, plan }) {
   const generatedAt = new Date().toISOString();
   const missingFiles = files.filter((file) => !file.ok);
+  const alphaCounts = countBy(tasks, "alphaScope");
+  const riskCounts = countBy(tasks, "risk");
 
   return `# WellFit Dev Agent Dry-Run Report
 
@@ -163,6 +232,8 @@ Generated: ${generatedAt}
 Agent: ${config.agentName} ${config.version}
 Mode: ${config.mode}
 Topic: ${args.topic ?? config.defaultTopic}
+Alpha filter: ${config.alphaScope?.enabled ? "enabled" : "disabled"}
+Backlog included: ${args.includeBacklog ? "yes" : "no"}
 
 ## Summary
 
@@ -170,6 +241,14 @@ Topic: ${args.topic ?? config.defaultTopic}
 - Files missing: ${missingFiles.length}
 - Open tasks extracted: ${tasks.length}
 - Planned micro-tasks: ${plan.length}
+
+## Alpha Scope Breakdown
+
+${renderObjectList(alphaCounts)}
+
+## Risk Breakdown
+
+${renderObjectList(riskCounts)}
 
 ## Write Policy
 
@@ -189,8 +268,20 @@ ${
     : plan
         .map(
           (task) =>
-            `### ${task.order}. ${task.text}\n\n- Source: \`${task.file}:${task.line}\`\n- Status: \`[${task.status}]\`\n- Risk: \`${task.risk}\`\n`,
+            `### ${task.order}. ${task.text}\n\n- Source: \`${task.file}:${task.line}\`\n- Status: \`[${task.status}]\`\n- Alpha scope: \`${task.alphaScope}\`\n- Risk: \`${task.risk}\`\n`,
         )
+        .join("\n")
+}
+
+## Backlog Tasks Excluded By Default
+
+${
+  tasks.filter((task) => task.alphaScope === "backlog").length === 0
+    ? "No backlog tasks detected."
+    : tasks
+        .filter((task) => task.alphaScope === "backlog")
+        .slice(0, 20)
+        .map((task) => `- \`${task.file}:${task.line}\` ${task.text}`)
         .join("\n")
 }
 
@@ -204,6 +295,7 @@ ${files.map((file) => `- ${file.ok ? "[x]" : "[!]"} \`${file.relativePath}\``).j
 
 ## Review Notes
 
+- Tasks marked \`backlog\` are excluded unless \`--include-backlog\` is passed.
 - Tasks marked \`review-required-critical\` must not be implemented autonomously.
 - Backend, Reward, Mission Completion, Firestore Rules, Economy, Anti-Cheat and Token/NFT related work must stay with explicit review.
 - The current parallel backend coder should not be disturbed by this agent dry-run.
@@ -220,8 +312,8 @@ function main() {
   const relativeFiles = resolveFiles(config, args);
   const files = relativeFiles.map(readTextSafe);
   const existingFiles = files.filter((file) => file.ok);
-  const tasks = existingFiles.flatMap((file) => extractTasks(file, config.maxOpenTasksPerFile));
-  const plan = planMicroTasks(tasks, config.maxPlannedMicroTasks);
+  const tasks = existingFiles.flatMap((file) => extractTasks(file, config.maxOpenTasksPerFile, config));
+  const plan = planMicroTasks(tasks, config.maxPlannedMicroTasks, args);
   const report = renderReport({ config, args, files, tasks, plan });
 
   const outputPath = path.join(ROOT, config.outputPath);
@@ -229,6 +321,7 @@ function main() {
   fs.writeFileSync(outputPath, report, "utf8");
 
   console.log(`WellFit Dev Agent dry-run complete: ${config.outputPath}`);
+  console.log(`Open tasks extracted: ${tasks.length}`);
   console.log(`Planned micro-tasks: ${plan.length}`);
 }
 
