@@ -1,6 +1,6 @@
 # WELLFIT – Neuer Chat Handoff-Prompt
 
-Version: 1.3
+Version: 1.4
 Stand: 2026-05-01
 Repository: Bernds-tech/WellFit-now
 Quelle der Wahrheit: GitHub + todolist/
@@ -69,6 +69,8 @@ todolist/CHAT_START_PROMPT.md
 todolist/CHAT_START_SCALABILITY_ADDENDUM.md
 todolist/AUTONOMOUS_ITERATION_MODE.md
 todolist/README.md
+todolist/README_SCALABILITY_ADDENDUM.md
+todolist/TODOLIST_GOVERNANCE_CONTRACT.md
 todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
 todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md
 todolist/L - SKALIERBARKEIT - AR BUDDY UI UND ARCHITEKTUR.md
@@ -77,8 +79,10 @@ todolist/status/2026-05-01-unity-ar-buddy-pre-retest-readout.md
 native/unity/WellFitBuddyAR/docs/NEXT_AR_BUDDY_EXTENSION_BATCH.md
 native/unity/WellFitBuddyAR/docs/BATCH_AR_BUDDY_RECALL_TEST.md
 native/unity/WellFitBuddyAR/docs/CALL_BUDDY_TO_USER.md
+native/unity/WellFitBuddyAR/docs/PC_RETEST_CHECKLIST_2026-05-01.md
 native/unity/WellFitBuddyAR/docs/BUDDY_ARCHITECTURE_SCALING_PLAN.md
 native/unity/WellFitBuddyAR/docs/BUDDY_EVENT_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_EVENT_STATE_VERSIONING_PLAN.md
 native/unity/WellFitBuddyAR/docs/BUDDY_ABILITY_STATE_CONTRACT.md
 native/unity/WellFitBuddyAR/docs/BUDDY_DEBUG_OVERLAY_REFACTOR_PLAN.md
 native/unity/WellFitBuddyAR/docs/BUDDY_MOVEMENT_POLICY_DRAFT.md
@@ -108,6 +112,7 @@ Aktueller Arbeitsmodus:
 
 ```txt
 AUTONOMOUS_ITERATION_MODE.md beachten.
+TODOLIST_GOVERNANCE_CONTRACT.md beachten.
 Arbeite in Micro-Tasks.
 Bei GitHub-Codeaenderungen kurze, klare Commits.
 Keine direkten main-Commits.
@@ -124,6 +129,7 @@ Aktueller Produktfokus:
 4. Debug-Overlay spaeter in Dev-Schicht auslagern oder per Flag deaktivieren.
 5. Danach Re-Anchor, Companion-Radius, Tap-Zielmarker, Surface-Quality und Plane-Missing-Hinweise ausbauen.
 6. Skalierbarkeit dauerhaft beachten: keine Monolith-Seiten, keine Monolith-Controller, Debug-UI/Product-UI/QA-Export getrennt halten.
+7. ToDo-Governance beachten: J bleibt operativer Kurzanker; Details in Addenda/Contracts/Plans/Statusdateien auslagern.
 ```
 
 Aktueller technischer Stand:
@@ -162,6 +168,7 @@ Neu vorbereitete Architektur-/Vertragsdokumente:
 ```txt
 - Buddy Architecture Scaling Plan
 - Buddy Event Contract
+- Buddy Event & State Versioning Plan
 - Buddy Ability State Contract
 - Buddy Debug Overlay Refactor Plan
 - Buddy Movement Policy Draft
@@ -170,7 +177,10 @@ Neu vorbereitete Architektur-/Vertragsdokumente:
 - Buddy Companion Radius Contract
 - Buddy Command Contract
 - Buddy Product UI Contract
+- PC Retest Checklist 2026-05-01
 - Chat Start Scalability Addendum
+- README Scalability Addendum
+- ToDo Governance Contract
 - L - Skalierbarkeit - AR Buddy UI und Architektur
 ```
 
@@ -179,12 +189,14 @@ Skalierbarkeitsregeln:
 ```txt
 Keine neuen Monolith-Seiten.
 Keine neuen Monolith-Controller.
+Keine ToDo-Monolithen.
 Kein dauerhaftes Weiterstapeln in BuddyCallDebugController.cs.
 Debug-UI, Product-UI und QA-/Diagnose-Export bleiben getrennt.
 Neue Commands zuerst in BUDDY_COMMAND_CONTRACT.md definieren.
 Neue Product-UI-Hinweise zuerst in BUDDY_PRODUCT_UI_CONTRACT.md definieren.
 Product-UI darf nicht aus Unity-OnGUI abgeleitet werden.
 Nach erfolgreichem Retest Debug-Overlay in kleinere Page-/Panel-Komponenten splitten.
+J bleibt operativer Kurzanker; README bleibt Index; Details gehen in Addenda/Contracts/Plans/Statusdateien.
 ```
 
 Harte Sicherheitsregeln:
@@ -207,6 +219,7 @@ Erster Ablauf im neuen Chat:
    - aktueller Stand laut todolist/ und PRs
    - aktueller Unity-/AR-Buddy-Stand
    - Skalierbarkeitsstand laut `L` und Contracts
+   - ToDo-Governance-Stand
    - naechste empfohlene Arbeit
    - betroffene Dateien/Bereiche
    - Risiken/Security/Build-Hinweise
@@ -233,7 +246,7 @@ Wenn der Nutzer im Auto ist oder gerade nicht testen kann:
 
 ```txt
 Keine weiteren riskanten Unity-Scripts stapeln.
-Stattdessen skalierbare Dokumentation, Event-/State-Vertraege, Refactor-Plaene, Backend-/App-Vertraege, Product-UI-Vertraege oder nicht-testpflichtige Planung weiter ausarbeiten.
+Stattdessen skalierbare Dokumentation, Event-/State-Vertraege, Refactor-Plaene, Backend-/App-Vertraege, Product-UI-Vertraege, ToDo-Governance oder nicht-testpflichtige Planung weiter ausarbeiten.
 ```
 
 Wenn der Nutzer sagt "weiter", nicht allgemein antworten, sondern den naechsten sinnvollen Micro-Task ausfuehren.
