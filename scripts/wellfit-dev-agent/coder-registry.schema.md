@@ -48,6 +48,32 @@ Der Agent muss alle Coder dynamisch aus der Registry lesen.
 Keine hart codierten Coder-1/2/3-Verzweigungen im Agent-Code.
 ```
 
+## Dynamische Neuverteilung
+
+Sobald ein neuer Coder in `coderAssignment.coders` registriert wird, gilt:
+
+```txt
+[ ] Agent-Konfiguration aktualisieren.
+[ ] `npm run agent:coder-prompts` erneut ausführen.
+[ ] `npm run agent:dry-run` erneut ausführen.
+[ ] Aufgaben werden anhand focusKeywords / avoidKeywords neu bewertet.
+[ ] Neue Coder erhalten nur passende Aufgaben aus ihrem Kompetenzbereich.
+[ ] Bestehende Arbeiten anderer Coder werden nicht automatisch überschrieben.
+[ ] Bereits laufende Tasks bleiben beim ursprünglichen Coder, sofern sie nicht ausdrücklich neu zugewiesen werden.
+```
+
+Damit bleibt das System skalierbar für:
+
+```txt
+3 Coder
+5 Coder
+6 Coder
+15 Coder
+mehr Coder, falls notwendig
+```
+
+---
+
 ## GitHub-Pflichtregel
 
 Sobald jemand auf GitHub etwas machen möchte, muss zuerst klar sein:
@@ -67,6 +93,39 @@ Coder 15
 ```
 
 Wenn die Rolle nicht bekannt ist, darf keine Aufgabe übernommen werden.
+
+---
+
+## ToDo-/Roadmap-No-Delete-Policy
+
+Der Agent und alle Coder dürfen ToDo-/Roadmap-Dateien nicht bereinigen, zusammenkürzen oder alte Punkte löschen.
+
+Verboten:
+
+```txt
+[!] bestehende ToDo-Einträge löschen
+[!] alte Roadmap-Abschnitte entfernen
+[!] Visionseinträge entfernen, nur weil sie nicht Alpha-kritisch sind
+[!] erledigte Einträge löschen
+[!] blockierte Einträge löschen
+```
+
+Erlaubt:
+
+```txt
+[x] Statusmarker ändern: [ ] -> [x], [~], [!], [>]
+[x] Priorität ändern
+[x] neue Erkenntnisse ergänzen
+[x] Hinweise / Risiken / Build-Notizen ergänzen
+[x] Backlog mit [>] markieren
+[x] Aufgaben in neue Abschnitte kopieren und als verschoben markieren
+```
+
+Grundregel:
+
+```txt
+Nicht löschen, sondern sichtbar umpriorisieren.
+```
 
 ---
 
