@@ -67,3 +67,11 @@ next-env.d.ts
 /native/unity/**/*.apk
 /native/unity/**/*.aab
 /native/unity/**/*.unitypackage
+
+# Firebase / Functions generated files
+firestore-debug.log
+functions/node_modules/
+
+# WellFit dev agent generated output
+scripts/wellfit-dev-agent/output/*
+!scripts/wellfit-dev-agent/output/.gitkeep
