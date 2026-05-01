@@ -9,6 +9,7 @@
     "lint": "eslint",
     "emulators": "firebase emulators:start --only auth,firestore,functions",
     "emulators:firestore": "firebase emulators:start --only firestore",
+    "agent:validate": "node scripts/wellfit-dev-agent/src/validate-agent-config.mjs",
     "agent:dry-run": "node scripts/wellfit-dev-agent/src/dry-run.mjs",
     "agent:coder-prompts": "node scripts/wellfit-dev-agent/src/generate-coder-prompts.mjs"
   },
