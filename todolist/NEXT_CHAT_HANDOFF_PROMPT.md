@@ -1,15 +1,51 @@
 # WELLFIT – Neuer Chat Handoff-Prompt
 
-Version: 1.0
+Version: 1.1
 Stand: 2026-04-28
 Repository: Bernds-tech/WellFit-now
-Quelle der Wahrheit: GitHub + todolist/
+Quelle der Wahrheit: GitHub + todolist/ + WellFit Dev Agent
 
 ---
 
 ## Verwendung
 
 Diesen Prompt am Anfang eines neuen Chats schicken, damit direkt am aktuellen WellFit-Stand weitergearbeitet wird.
+
+Wenn der neue Chat ein GPT-Coder-/GitHub-Codearbeitschat ist, zusätzlich immer verwenden:
+
+```txt
+todolist/CODER_START_PROMPT.md
+scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
+```
+
+---
+
+## Pflicht vor Codearbeit / neuer Coder
+
+Wenn ein neuer GPT-Coder über ChatGPT/GitHub mitmachen will, wenn ein neuer GPT-Chat mit Codearbeit beginnt, wenn ein Coder sagt "weiter" oder wenn unklar ist, wer woran arbeiten soll, zuerst ausführen:
+
+```bash
+npm run agent:validate
+npm run agent:goal-check
+npm run agent:coder-prompts
+npm run agent:dry-run
+```
+
+Danach im Chat zuerst fragen:
+
+```txt
+Welcher Coder bist du? Antworte exakt mit deiner registrierten Rolle, z. B. Coder 1, Coder 2, Coder 3 ...
+```
+
+Nach Antwort des Coders passenden Prompt verwenden:
+
+```txt
+Coder 1 -> scripts/wellfit-dev-agent/output/coder-prompts/coder1.md
+Coder 2 -> scripts/wellfit-dev-agent/output/coder-prompts/coder2.md
+Coder 3 -> scripts/wellfit-dev-agent/output/coder-prompts/coder3.md
+```
+
+Bei späteren Codern entsprechend `coder4.md`, `coder5.md`, usw.
 
 ---
 
@@ -48,6 +84,15 @@ todolist/CHAT_START_PROMPT.md
 todolist/AUTONOMOUS_ITERATION_MODE.md
 todolist/README.md
 todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
+docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md
+```
+
+Wenn Codearbeit oder GPT-Coder beteiligt sind, zusätzlich lesen:
+
+```txt
+todolist/CODER_START_PROMPT.md
+scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
+scripts/wellfit-dev-agent/README.md
 ```
 
 Danach je nach Thema mitlesen:
@@ -80,11 +125,14 @@ Frage nur bei echter Blockade, Architekturentscheidung, Zugriff/Freigabe, Kosten
 Aktueller Produktfokus:
 
 ```txt
-1. Mobile AR / Kamera / WebGL-Fallback stabilisieren.
-2. Echten AR-Buddy wie Referenzvideos ueber Unity AR Foundation + ARCore/ARKit vorbereiten.
-3. Buddy-KI Backend und Rules-Fallback weiter ausbauen.
-4. Desktop/Web-Buddy als interaktiven Guide aufbauen.
-5. Skalierbarkeit fuer AR, KI, Rewards und Punkteoekonomie absichern.
+1. Testbare Alpha statt Alles-auf-einmal.
+2. Mobile AR / Kamera / WebGL-Fallback stabilisieren.
+3. Echten AR-Buddy wie Referenzvideos ueber Unity AR Foundation + ARCore/ARKit vorbereiten.
+4. Buddy platzieren / bewegen / rufen.
+5. Missionen spielbar machen.
+6. Interne Punkte / XP sicher vorbereiten.
+7. Backend bleibt Autorität fuer Reward, Completion, Anti-Cheat und Security.
+8. Datenschutz / App-Store-Konformität für erste Testläufe beachten.
 ```
 
 Aktueller technischer Stand:
@@ -98,6 +146,7 @@ AR-Guide-Panel ist mit /api/buddy-ki verbunden.
 WebGL-Buddy-Fallback ist testbar, bleibt aber nur Demo/Fallback.
 Echtes AR-Referenzvideo-Verhalten muss in Unity AR Foundation umgesetzt werden.
 Desktop/Web-Buddy MVP wurde auf /hilfe begonnen.
+WellFit Dev Agent ist als Dry-Run-/Coder-Routing-/Alpha-Zielkurs-Agent vorbereitet.
 ```
 
 Wichtige offene Issues:
@@ -123,6 +172,7 @@ Keine neuen grossen Monolith-Dateien.
 Unity meldet nur AR-Events.
 KI schlaegt vor, Backend/App entscheidet.
 Punkteoekonomie zuerst, Blockchain/WFT/NFT spaeter.
+ToDo-/Roadmap-Einträge niemals löschen; nur Status/Priorität ändern, ergänzen oder mit [>] in Backlog verschieben.
 ```
 
 Erster Ablauf im neuen Chat:
@@ -131,13 +181,15 @@ Erster Ablauf im neuen Chat:
 2. `todolist/AUTONOMOUS_ITERATION_MODE.md` lesen.
 3. `todolist/README.md` lesen.
 4. `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` lesen.
-5. Relevante Dateien zum aktuellen Thema pruefen.
-6. Kurz berichten:
+5. `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md` lesen.
+6. Bei Codearbeit: `todolist/CODER_START_PROMPT.md` und `scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md` lesen.
+7. Relevante Dateien zum aktuellen Thema pruefen.
+8. Kurz berichten:
    - aktueller Stand laut todolist/
    - naechste empfohlene Arbeit
    - betroffene Dateien/Bereiche
    - Risiken/Security/Build-Hinweise
    - konkrete naechsten Micro-Tasks
-7. Dann direkt weiterarbeiten.
+9. Dann direkt weiterarbeiten.
 
 Wenn der Nutzer sagt "weiter", nicht allgemein antworten, sondern den naechsten sinnvollen Micro-Task ausfuehren.
