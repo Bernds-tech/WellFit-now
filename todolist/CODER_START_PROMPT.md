@@ -1,6 +1,6 @@
 # WELLFIT – Coder-Start-Prompt für GPT/GitHub
 
-Version: 1.0
+Version: 1.1
 Repository: Bernds-tech/WellFit-now
 Quelle der Wahrheit: GitHub + todolist/ + WellFit Dev Agent
 
@@ -9,6 +9,15 @@ Quelle der Wahrheit: GitHub + todolist/ + WellFit Dev Agent
 ## Verwendung
 
 Diesen Prompt verwenden, wenn ein neuer GPT-Coder über ChatGPT/GitHub mitarbeiten soll oder ein bestehender Coder sagt: "weiter".
+
+Dieser Prompt wird ergänzt durch:
+
+```txt
+todolist/CHAT_START_AGENT_AND_CODER_ADDENDUM.md
+scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
+```
+
+Diese Ergänzungen dürfen bei neuen Coder-/Chat-Prompts nicht weggelassen werden.
 
 ---
 
@@ -89,6 +98,7 @@ Jeder Coder liest zuerst:
 
 ```txt
 todolist/CHAT_START_PROMPT.md
+todolist/CHAT_START_AGENT_AND_CODER_ADDENDUM.md
 todolist/AUTONOMOUS_ITERATION_MODE.md
 todolist/README.md
 todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
