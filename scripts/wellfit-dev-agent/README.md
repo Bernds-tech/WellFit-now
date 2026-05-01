@@ -1,6 +1,6 @@
 # WellFit Dev Agent
 
-Status: MVP / Dry-Run-Grundlage
+Status: MVP / Dry-Run-Grundlage mit Coder-Identitäts-Gate
 
 Dieser Ordner enthält den selbst gehosteten WellFit Dev Agent als OpenClaw-ähnliche, aber WellFit-spezifische Agentenstruktur.
 
@@ -10,8 +10,43 @@ Der Agent ist zuerst bewusst als Dry-Run-Agent gebaut:
 - Er erkennt offene Micro-Tasks.
 - Er bewertet Aufgaben gegen Safety-Regeln.
 - Er erzeugt einen Markdown-Report.
+- Er erzeugt Coder-spezifische Prompts.
 - Er schreibt noch keinen produktiven Code.
 - Er erstellt noch keine Branches oder Pull Requests.
+
+---
+
+## Pflicht: Coder-Identität vor jeder Arbeit
+
+Bevor ein GPT/Coder am Code weitermacht, muss zuerst gefragt werden:
+
+```txt
+Bist du Coder 1, Coder 2 oder Coder 3? Antworte exakt mit: Coder 1, Coder 2 oder Coder 3.
+```
+
+Ohne gültige Antwort wird keine Aufgabe zugewiesen.
+
+```txt
+Coder 1 = Mobile / AR / Buddy / Unity
+Coder 2 = Backend / Firebase / Mission Completion / Security
+Coder 3 = Website / UX / QA / Datenschutz / Dokumentation / Agent
+```
+
+Danach wird ausschließlich der passende Prompt verwendet:
+
+```txt
+scripts/wellfit-dev-agent/output/coder-prompts/coder1.md
+scripts/wellfit-dev-agent/output/coder-prompts/coder2.md
+scripts/wellfit-dev-agent/output/coder-prompts/coder3.md
+```
+
+Der allgemeine Einstieg liegt unter:
+
+```txt
+scripts/wellfit-dev-agent/output/coder-prompts/IDENTITY_GATE.md
+```
+
+---
 
 ## Abgrenzung
 
@@ -23,7 +58,8 @@ Er ist zuständig für:
 - technische Micro-Task-Planung,
 - Doku-/UI-/Code-Aufgaben als spätere PR-Vorbereitung,
 - Build-/Test-Hinweise,
-- Safety-Checks für geplante Änderungen.
+- Safety-Checks für geplante Änderungen,
+- Coder-Routing und Coder-Prompts.
 
 Nicht zuständig für:
 
@@ -57,10 +93,18 @@ Er darf nicht ohne Review:
 - Secrets/API Keys ins Frontend schreiben,
 - sensible Nutzer-/Kinder-/Health-/Standortdaten lesen.
 
-## Geplanter Ablauf
+## Befehle
 
-```txt
+Dry-Run-Report erzeugen:
+
+```bash
 npm run agent:dry-run
+```
+
+Coder-Prompts und Identity-Gate erzeugen:
+
+```bash
+npm run agent:coder-prompts
 ```
 
 Der Dry-Run erzeugt später einen Report unter:
@@ -69,12 +113,20 @@ Der Dry-Run erzeugt später einen Report unter:
 scripts/wellfit-dev-agent/output/dry-run-report.md
 ```
 
+Die Coder-Prompts werden erzeugt unter:
+
+```txt
+scripts/wellfit-dev-agent/output/coder-prompts/
+```
+
 ## MVP-Dateien
 
 ```txt
 wellfit-agent.config.json
 safety-checklist.md
+pr-template.md
 src/dry-run.mjs
+src/generate-coder-prompts.mjs
 output/.gitkeep
 ```
 
@@ -82,7 +134,8 @@ output/.gitkeep
 
 1. Dry-Run-Report stabilisieren.
 2. ToDo-Dateien automatisch auswerten.
-3. Priorisierung nach `J - NÄCHSTE EMPFOHLENE ARBEIT`.
+3. Priorisierung nach `J - NÄCHSTE EMPFOHLENE ARBEIT` und Alpha-Scope.
 4. Safety-Check je Task.
-5. Optionaler Branch-/PR-Modus für ungefährliche Doku-/UI-Aufgaben.
-6. Backend-Aufgaben nur mit Review-Pflicht und ohne Konflikt mit parallelem Backend-Coder.
+5. Coder-Prompts mit echten Dry-Run-Zuweisungen verbinden.
+6. Optionaler Branch-/PR-Modus für ungefährliche Doku-/UI-Aufgaben.
+7. Backend-Aufgaben nur mit Review-Pflicht und ohne Konflikt mit parallelem Backend-Coder.
