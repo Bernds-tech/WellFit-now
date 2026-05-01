@@ -1,6 +1,6 @@
 # WellFit Dev Agent
 
-Status: MVP / Dry-Run-Grundlage mit Coder-Identitäts-Gate
+Status: MVP / Dry-Run-Grundlage mit Coder-Identitäts-Gate und Registry-Validator
 
 Dieser Ordner enthält den selbst gehosteten WellFit Dev Agent als OpenClaw-ähnliche, aber WellFit-spezifische Agentenstruktur.
 
@@ -11,6 +11,7 @@ Der Agent ist zuerst bewusst als Dry-Run-Agent gebaut:
 - Er bewertet Aufgaben gegen Safety-Regeln.
 - Er erzeugt einen Markdown-Report.
 - Er erzeugt Coder-spezifische Prompts.
+- Er validiert die Coder-Registry und Agent-Policies.
 - Er schreibt noch keinen produktiven Code.
 - Er erstellt noch keine Branches oder Pull Requests.
 
@@ -18,19 +19,30 @@ Der Agent ist zuerst bewusst als Dry-Run-Agent gebaut:
 
 ## Pflicht: Coder-Identität vor jeder Arbeit
 
-Bevor ein GPT/Coder am Code weitermacht, muss zuerst gefragt werden:
+Bevor ein GPT/Coder am Code oder auf GitHub weitermacht, muss zuerst gefragt werden:
 
 ```txt
-Bist du Coder 1, Coder 2 oder Coder 3? Antworte exakt mit: Coder 1, Coder 2 oder Coder 3.
+Welcher Coder bist du? Antworte exakt mit deiner registrierten Rolle, z. B. Coder 1, Coder 2, Coder 3 ...
 ```
 
 Ohne gültige Antwort wird keine Aufgabe zugewiesen.
+
+Aktuelle Rollen werden nicht hart codiert, sondern dynamisch aus der Registry gelesen:
+
+```txt
+scripts/wellfit-dev-agent/wellfit-agent.config.json
+scripts/wellfit-dev-agent/coder-registry.schema.md
+```
+
+Aktueller Startzustand:
 
 ```txt
 Coder 1 = Mobile / AR / Buddy / Unity
 Coder 2 = Backend / Firebase / Mission Completion / Security
 Coder 3 = Website / UX / QA / Datenschutz / Dokumentation / Agent
 ```
+
+Später können Coder 4, 5, 6 oder 15 ergänzt werden, ohne die Agentenlogik neu zu bauen.
 
 Danach wird ausschließlich der passende Prompt verwendet:
 
@@ -44,6 +56,39 @@ Der allgemeine Einstieg liegt unter:
 
 ```txt
 scripts/wellfit-dev-agent/output/coder-prompts/IDENTITY_GATE.md
+```
+
+---
+
+## ToDo-/Roadmap-No-Delete-Policy
+
+Der Agent und alle Coder dürfen ToDo-/Roadmap-Dateien nicht bereinigen, zusammenkürzen oder alte Punkte löschen.
+
+Verboten:
+
+```txt
+[!] bestehende ToDo-Einträge löschen
+[!] alte Roadmap-Abschnitte entfernen
+[!] Visionseinträge entfernen, nur weil sie nicht Alpha-kritisch sind
+[!] erledigte Einträge löschen
+[!] blockierte Einträge löschen
+```
+
+Erlaubt:
+
+```txt
+[x] Statusmarker ändern: [ ] -> [x], [~], [!], [>]
+[x] Priorität ändern
+[x] neue Erkenntnisse ergänzen
+[x] Hinweise / Risiken / Build-Notizen ergänzen
+[x] Backlog mit [>] markieren
+[x] Aufgaben in neue Abschnitte kopieren und als verschoben markieren
+```
+
+Grundregel:
+
+```txt
+Nicht löschen, sondern sichtbar umpriorisieren.
 ```
 
 ---
@@ -91,9 +136,16 @@ Er darf nicht ohne Review:
 - Anti-Cheat-Regeln entfernen,
 - Token-/NFT-/Trading-/Presale-Funktionen in Mobile einbauen,
 - Secrets/API Keys ins Frontend schreiben,
-- sensible Nutzer-/Kinder-/Health-/Standortdaten lesen.
+- sensible Nutzer-/Kinder-/Health-/Standortdaten lesen,
+- ToDo-/Roadmap-Einträge löschen.
 
 ## Befehle
+
+Agent-Konfiguration und Registry prüfen:
+
+```bash
+npm run agent:validate
+```
 
 Dry-Run-Report erzeugen:
 
@@ -105,6 +157,14 @@ Coder-Prompts und Identity-Gate erzeugen:
 
 ```bash
 npm run agent:coder-prompts
+```
+
+Empfohlene Reihenfolge nach Registry-Änderungen:
+
+```bash
+npm run agent:validate
+npm run agent:coder-prompts
+npm run agent:dry-run
 ```
 
 Der Dry-Run erzeugt später einen Report unter:
@@ -123,8 +183,10 @@ scripts/wellfit-dev-agent/output/coder-prompts/
 
 ```txt
 wellfit-agent.config.json
+coder-registry.schema.md
 safety-checklist.md
 pr-template.md
+src/validate-agent-config.mjs
 src/dry-run.mjs
 src/generate-coder-prompts.mjs
 output/.gitkeep
