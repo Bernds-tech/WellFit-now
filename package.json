@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "emulators": "firebase emulators:start --only auth,firestore,functions",
-    "emulators:firestore": "firebase emulators:start --only firestore"
+    "emulators:firestore": "firebase emulators:start --only firestore",
+    "agent:dry-run": "node scripts/wellfit-dev-agent/src/dry-run.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
