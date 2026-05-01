@@ -1,6 +1,6 @@
 # WellFit Dev Agent
 
-Status: MVP / Dry-Run-Grundlage mit Coder-Identitäts-Gate und Registry-Validator
+Status: MVP / Dry-Run-Grundlage mit Coder-Identitäts-Gate, Registry-Validator und Alpha-Zielkurs-Check
 
 Dieser Ordner enthält den selbst gehosteten WellFit Dev Agent als OpenClaw-ähnliche, aber WellFit-spezifische Agentenstruktur.
 
@@ -9,6 +9,7 @@ Der Agent ist zuerst bewusst als Dry-Run-Agent gebaut:
 - Er liest Roadmap-/ToDo-Dateien.
 - Er erkennt offene Micro-Tasks.
 - Er bewertet Aufgaben gegen Safety-Regeln.
+- Er prüft, ob wir noch auf Kurs zur ersten testbaren Alpha sind.
 - Er erzeugt einen Markdown-Report.
 - Er erzeugt Coder-spezifische Prompts.
 - Er validiert die Coder-Registry und Agent-Policies.
@@ -60,6 +61,36 @@ scripts/wellfit-dev-agent/output/coder-prompts/IDENTITY_GATE.md
 
 ---
 
+## Alpha-Zielkurs-Check
+
+Der Agent soll nicht nur Aufgaben verteilen, sondern regelmäßig prüfen, ob WellFit noch direkt auf die ersten Testläufe hinarbeitet.
+
+Leitfrage:
+
+```txt
+Hilft diese Aufgabe direkt zur ersten testbaren WellFit-Alpha mit echten Testläufen?
+```
+
+Der Zielkurs-Check prüft aktuell diese Bereiche:
+
+```txt
+1. Login / Registrierung / Nutzerprofil
+2. Mobile / AR / sichtbarer Buddy
+3. Missionen / Challenges spielbar
+4. interne Punkte / XP ohne Token
+5. Backend / Firebase / Security Rules / Completion
+6. Deployment / Debug / QA / Testläufe
+7. Datenschutz / App-Store-Konformität
+```
+
+Output:
+
+```txt
+scripts/wellfit-dev-agent/output/alpha-goal-check.md
+```
+
+---
+
 ## ToDo-/Roadmap-No-Delete-Policy
 
 Der Agent und alle Coder dürfen ToDo-/Roadmap-Dateien nicht bereinigen, zusammenkürzen oder alte Punkte löschen.
@@ -101,6 +132,7 @@ Er ist zuständig für:
 
 - Repository-/Roadmap-Analyse,
 - technische Micro-Task-Planung,
+- Alpha-Zielkurs-Analyse,
 - Doku-/UI-/Code-Aufgaben als spätere PR-Vorbereitung,
 - Build-/Test-Hinweise,
 - Safety-Checks für geplante Änderungen,
@@ -147,6 +179,12 @@ Agent-Konfiguration und Registry prüfen:
 npm run agent:validate
 ```
 
+Alpha-Zielkurs prüfen:
+
+```bash
+npm run agent:goal-check
+```
+
 Dry-Run-Report erzeugen:
 
 ```bash
@@ -159,10 +197,11 @@ Coder-Prompts und Identity-Gate erzeugen:
 npm run agent:coder-prompts
 ```
 
-Empfohlene Reihenfolge nach Registry-Änderungen:
+Empfohlene Reihenfolge nach Registry- oder Roadmap-Änderungen:
 
 ```bash
 npm run agent:validate
+npm run agent:goal-check
 npm run agent:coder-prompts
 npm run agent:dry-run
 ```
@@ -187,6 +226,7 @@ coder-registry.schema.md
 safety-checklist.md
 pr-template.md
 src/validate-agent-config.mjs
+src/alpha-goal-check.mjs
 src/dry-run.mjs
 src/generate-coder-prompts.mjs
 output/.gitkeep
@@ -195,9 +235,10 @@ output/.gitkeep
 ## Nächste Ausbauphasen
 
 1. Dry-Run-Report stabilisieren.
-2. ToDo-Dateien automatisch auswerten.
-3. Priorisierung nach `J - NÄCHSTE EMPFOHLENE ARBEIT` und Alpha-Scope.
-4. Safety-Check je Task.
-5. Coder-Prompts mit echten Dry-Run-Zuweisungen verbinden.
-6. Optionaler Branch-/PR-Modus für ungefährliche Doku-/UI-Aufgaben.
-7. Backend-Aufgaben nur mit Review-Pflicht und ohne Konflikt mit parallelem Backend-Coder.
+2. Alpha-Zielkurs-Check mit konkreten Blocker-Empfehlungen erweitern.
+3. ToDo-Dateien automatisch auswerten.
+4. Priorisierung nach `J - NÄCHSTE EMPFOHLENE ARBEIT` und Alpha-Scope.
+5. Safety-Check je Task.
+6. Coder-Prompts mit echten Dry-Run-Zuweisungen verbinden.
+7. Optionaler Branch-/PR-Modus für ungefährliche Doku-/UI-Aufgaben.
+8. Backend-Aufgaben nur mit Review-Pflicht und ohne Konflikt mit parallelem Backend-Coder.
