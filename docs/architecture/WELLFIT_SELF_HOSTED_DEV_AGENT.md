@@ -1,6 +1,6 @@
 # WELLFIT – SELF-HOSTED DEV AGENT / OPENCLAW-ALTERNATIVE
 
-Status: Architektur-Grundlage / Kostenoptimierung
+Status: MVP-Dry-Run-Grundlage angelegt / Kostenoptimierung
 Kontext: GitHub, Server, Backend-Micro-Tasks, KI-gestützte Weiterentwicklung
 Ziel: Eine eigene, kontrollierte Agenten-Schicht für WellFit vorbereiten, die Backend-, Website- und App-Aufgaben beschleunigt, ohne produktive Sicherheitsregeln zu verletzen.
 
@@ -80,22 +80,24 @@ Nachteile / Risiken:
 
 ## 4. Minimaler MVP
 
-Der erste MVP soll kein vollständiges OpenClaw-Klon-System sein, sondern ein kleiner WellFit-spezifischer Dev-Agent.
+Der erste MVP ist kein vollständiges OpenClaw-Klon-System, sondern ein kleiner WellFit-spezifischer Dev-Agent im Dry-Run-Modus.
 
 ### MVP-Funktionen
 
 ```txt
-[ ] GitHub Repo lesen.
-[ ] todolist/README.md lesen.
-[ ] todolist/J - NÄCHSTE EMPFOHLENE ARBEIT lesen.
-[ ] relevante A–I-/G1-/H1-/H2-Dateien je Aufgabe lesen.
-[ ] Micro-Task-Plan erzeugen.
+[x] GitHub-/Repo-Dateien lokal/serverseitig über Repo-Arbeitskopie lesen.
+[x] todolist/README.md lesen.
+[x] todolist/J - NÄCHSTE EMPFOHLENE ARBEIT lesen.
+[x] relevante A–I-/G1-/H1-/H2-Dateien je Aufgabe konfigurierbar lesen.
+[x] Micro-Task-Plan aus offenen `[ ]`, `[~]`, `[!]`, `[>]` Aufgaben erzeugen.
 [ ] Branch erzeugen.
 [ ] Dateiänderungen vorbereiten.
 [ ] npm run build ausführen oder dokumentieren.
 [ ] functions npm run check ausführen oder dokumentieren.
 [ ] Pull Request erstellen.
-[ ] PR-Beschreibung mit Risiken/Testhinweisen erzeugen.
+[x] PR-Beschreibung mit Risiken/Testhinweisen als Template vorbereitet.
+[x] Dry-Run-Report unter `scripts/wellfit-dev-agent/output/dry-run-report.md` erzeugen.
+[x] `npm run agent:dry-run` als Startbefehl ergänzt.
 ```
 
 ### MVP-Nicht-Ziele
@@ -129,6 +131,14 @@ Phase 2: GitHub Action mit manual_dispatch
 Phase 3: optional PM2-Agent mit Job Queue
 ```
 
+Aktueller Stand:
+
+```txt
+[x] Phase 1 als Node.js CLI-Dry-Run-Agent begonnen.
+[ ] Phase 2 GitHub Action offen.
+[ ] Phase 3 PM2-/Job-Queue-Agent offen.
+```
+
 ### 5.2 Provider-Abstraktion
 
 Der Agent darf nicht hart an einen einzigen KI-Anbieter gekoppelt werden.
@@ -147,6 +157,13 @@ Mögliche Provider:
 - anderer kompatibler Provider,
 - OpenClaw-ähnlicher externer Agent, falls später sinnvoll.
 
+Aktueller Stand:
+
+```txt
+[x] Dry-Run arbeitet aktuell ohne Modellprovider, regelbasiert.
+[ ] Provider-Abstraktion später ergänzen.
+```
+
 ---
 
 ## 6. Berechtigungsmodell
@@ -161,6 +178,15 @@ PR erstellen: ja
 Secrets lesen: nein
 Deploy auslösen: nein
 Production Env ändern: nein
+```
+
+Aktueller Dry-Run-Stand:
+
+```txt
+[x] Keine Branch-Erstellung.
+[x] Keine PR-Erstellung.
+[x] Keine Codeänderung durch Agentenlauf.
+[x] Nur Report-Datei als Output vorgesehen.
 ```
 
 ### Kritische Bereiche mit Review-Pflicht
@@ -184,15 +210,23 @@ app/missionen/**
 Vor jedem PR muss der Agent prüfen:
 
 ```txt
-[ ] Keine clientseitige Autorität für Punkte/Rewards/Completion.
-[ ] Keine Token-/NFT-/Trading-Funktion in Mobile.
-[ ] Keine Secrets im Frontend.
-[ ] Kein localStorage als Hauptspeicher produktkritischer Daten.
-[ ] Keine medizinischen Diagnosen.
-[ ] Keine harte Scham-/Drucksprache.
-[ ] Keine großen Monolith-Dateien aufblasen.
-[ ] ToDo-/Roadmap-Bezug dokumentiert.
-[ ] Build-/Test-Hinweise vorhanden.
+[x] Keine clientseitige Autorität für Punkte/Rewards/Completion.
+[x] Keine Token-/NFT-/Trading-Funktion in Mobile.
+[x] Keine Secrets im Frontend.
+[x] Kein localStorage als Hauptspeicher produktkritischer Daten.
+[x] Keine medizinischen Diagnosen.
+[x] Keine harte Scham-/Drucksprache.
+[x] Keine großen Monolith-Dateien aufblasen.
+[x] ToDo-/Roadmap-Bezug dokumentiert.
+[x] Build-/Test-Hinweise vorhanden.
+```
+
+Aktueller Stand:
+
+```txt
+[x] Safety-Checklist als Markdown-Datei angelegt.
+[x] Dry-Run klassifiziert Tasks grob nach Risiko.
+[ ] Tiefer statischer Code-Safety-Scan offen.
 ```
 
 ---
@@ -202,15 +236,15 @@ Vor jedem PR muss der Agent prüfen:
 Geeignet:
 
 ```txt
-[ ] Doku-/Roadmap-Konsolidierung.
-[ ] Website-Texte verbessern.
-[ ] tote Links finden.
-[ ] Komponenten auslagern.
-[ ] TypeScript-Typen ergänzen.
-[ ] Firestore-Datenmodelle als Entwurf vorbereiten.
-[ ] Emulator-Testplan erweitern.
-[ ] RewardPreview nur als Simulation erweitern.
-[ ] Mission-History-Migration vorbereiten.
+[x] Doku-/Roadmap-Konsolidierung.
+[x] Website-Texte verbessern.
+[x] tote Links finden.
+[x] Komponenten auslagern.
+[x] TypeScript-Typen ergänzen.
+[x] Firestore-Datenmodelle als Entwurf vorbereiten.
+[x] Emulator-Testplan erweitern.
+[x] RewardPreview nur als Simulation erweitern.
+[x] Mission-History-Migration vorbereiten.
 ```
 
 Nur mit besonders strenger Review:
@@ -238,13 +272,17 @@ Nicht geeignet für Autonomie:
 ## 9. Konkrete erste Micro-Tasks
 
 ```txt
-[ ] `scripts/wellfit-dev-agent/` anlegen.
-[ ] Agent-Konfigurationsdatei `wellfit-agent.config.json` entwerfen.
-[ ] Repo-Reader implementieren: README + J + thematische Dateien lesen.
-[ ] Task-Planner implementieren: offene `[ ]` Aufgaben extrahieren und priorisieren.
-[ ] Safety-Checklist als statische Regeldatei anlegen.
-[ ] PR-Template für Agentenänderungen erstellen.
-[ ] Dry-Run-Modus implementieren: nur Vorschlag, keine Dateiänderung.
+[x] `scripts/wellfit-dev-agent/` anlegen.
+[x] Agent-Konfigurationsdatei `wellfit-agent.config.json` entwerfen.
+[x] Repo-Reader implementieren: README + J + thematische Dateien lesen.
+[x] Task-Planner implementieren: offene `[ ]` Aufgaben extrahieren und priorisieren.
+[x] Safety-Checklist als statische Regeldatei anlegen.
+[x] PR-Template für Agentenänderungen erstellen.
+[x] Dry-Run-Modus implementieren: nur Vorschlag, keine produktive Codeänderung.
+[x] Output-Ordner vorbereiten.
+[x] npm Script `agent:dry-run` ergänzen.
+[ ] Dry-Run lokal/serverseitig ausführen und Report prüfen.
+[ ] Dry-Run-Report optional in `.gitignore` ausnehmen oder bewusst versionieren entscheiden.
 [ ] Branch-/PR-Modus erst danach ergänzen.
 ```
 
@@ -253,19 +291,53 @@ Nicht geeignet für Autonomie:
 ## 10. Empfohlene Reihenfolge
 
 ```txt
-1. Architektur dokumentieren.
-2. Dry-Run-Agent bauen.
-3. Agent liest todolist/ und erstellt Micro-Task-Plan.
-4. Agent erzeugt nur Markdown-Report.
-5. Danach Branch-Schreibmodus für ungefährliche Doku-/UI-Aufgaben.
-6. Danach Code-Änderungen mit Tests.
-7. Danach Backend-Micro-Tasks mit Review-Pflicht.
-8. Kein Production-Autopilot.
+[x] 1. Architektur dokumentieren.
+[x] 2. Dry-Run-Agent bauen.
+[x] 3. Agent liest todolist/ und erstellt Micro-Task-Plan.
+[x] 4. Agent erzeugt nur Markdown-Report.
+[ ] 5. Danach Branch-Schreibmodus für ungefährliche Doku-/UI-Aufgaben.
+[ ] 6. Danach Code-Änderungen mit Tests.
+[ ] 7. Danach Backend-Micro-Tasks mit Review-Pflicht.
+[ ] 8. Kein Production-Autopilot.
 ```
 
 ---
 
-## 11. Fazit
+## 11. Aktuelle Dateien
+
+```txt
+scripts/wellfit-dev-agent/README.md
+scripts/wellfit-dev-agent/wellfit-agent.config.json
+scripts/wellfit-dev-agent/safety-checklist.md
+scripts/wellfit-dev-agent/pr-template.md
+scripts/wellfit-dev-agent/src/dry-run.mjs
+scripts/wellfit-dev-agent/output/.gitkeep
+```
+
+Startbefehl:
+
+```bash
+npm run agent:dry-run
+```
+
+Optionale Themenflags:
+
+```bash
+npm run agent:dry-run -- --topic agentArchitecture
+npm run agent:dry-run -- --include-buddy
+npm run agent:dry-run -- --include-business
+npm run agent:dry-run -- --include-rewards
+```
+
+Hinweis:
+
+```txt
+Rewards/Backend können gelesen und als Risiko markiert werden, aber im aktuellen Parallelbetrieb nicht autonom geändert werden, da ein zweiter Coder am Backend arbeitet.
+```
+
+---
+
+## 12. Fazit
 
 Eine eigene OpenClaw-ähnliche Struktur ist für WellFit sinnvoll, wenn sie als kontrollierter Dev-Agent aufgebaut wird.
 
