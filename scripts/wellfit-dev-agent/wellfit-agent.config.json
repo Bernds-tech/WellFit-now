@@ -1,6 +1,6 @@
 {
   "agentName": "wellfit-dev-agent",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "mode": "dry-run",
   "repository": "Bernds-tech/WellFit-now",
   "sourceOfTruth": [
@@ -37,6 +37,12 @@
   "coderPromptOutputDir": "scripts/wellfit-dev-agent/output/coder-prompts",
   "maxOpenTasksPerFile": 12,
   "maxPlannedMicroTasks": 12,
+  "identityGate": {
+    "enabled": true,
+    "requiredQuestion": "Bevor du am Code weitermachst: Bist du Coder 1, Coder 2 oder Coder 3? Antworte exakt mit: Coder 1, Coder 2 oder Coder 3.",
+    "rejectUnknownIdentity": true,
+    "unknownIdentityMessage": "Ich kann noch keine Aufgabe zuweisen. Bitte nenne zuerst deine Rolle: Coder 1, Coder 2 oder Coder 3."
+  },
   "alphaScope": {
     "enabled": true,
     "priorityKeywords": [
