@@ -1,6 +1,6 @@
 {
   "agentName": "wellfit-dev-agent",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "mode": "dry-run",
   "repository": "Bernds-tech/WellFit-now",
   "sourceOfTruth": [
@@ -34,8 +34,9 @@
   },
   "defaultTopic": "agentArchitecture",
   "outputPath": "scripts/wellfit-dev-agent/output/dry-run-report.md",
+  "coderPromptOutputDir": "scripts/wellfit-dev-agent/output/coder-prompts",
   "maxOpenTasksPerFile": 12,
-  "maxPlannedMicroTasks": 8,
+  "maxPlannedMicroTasks": 12,
   "alphaScope": {
     "enabled": true,
     "priorityKeywords": [
@@ -89,6 +90,37 @@
       "stadt",
       "pharma"
     ]
+  },
+  "coderAssignment": {
+    "enabled": true,
+    "coders": [
+      {
+        "id": "coder1",
+        "displayName": "Coder 1",
+        "selfNames": ["coder 1", "coder1", "c1"],
+        "role": "Mobile / AR / Buddy / Unity",
+        "focusKeywords": ["mobile", "ar", "unity", "android", "buddy", "avatar", "kamera", "camera", "debug", "qa"],
+        "avoidKeywords": ["reward", "punkte", "xp", "completion", "firestore rules", "token", "nft"]
+      },
+      {
+        "id": "coder2",
+        "displayName": "Coder 2",
+        "selfNames": ["coder 2", "coder2", "c2"],
+        "role": "Backend / Firebase / Mission Completion / Security",
+        "focusKeywords": ["backend", "firebase", "firestore", "rules", "functions", "serverseitig", "completion", "reward", "punkte", "xp", "ledger", "mission", "security", "emulator"],
+        "avoidKeywords": ["nft", "token", "trading", "marketplace", "depin"]
+      },
+      {
+        "id": "coder3",
+        "displayName": "Coder 3",
+        "selfNames": ["coder 3", "coder3", "c3"],
+        "role": "Website / UX / QA / Datenschutz / Dokumentation / Agent",
+        "focusKeywords": ["website", "business", "legal", "datenschutz", "app-store", "ux", "ui", "qa", "test", "doku", "documentation", "agent", "prompt", "deployment"],
+        "avoidKeywords": ["reward", "completion", "anti-cheat", "firestore rules", "token", "nft"]
+      }
+    ],
+    "defaultCoderId": "coder3",
+    "maxTasksPerCoder": 4
   },
   "writePolicy": {
     "dryRunCanWriteReport": true,
