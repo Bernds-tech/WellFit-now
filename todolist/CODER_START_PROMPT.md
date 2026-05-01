@@ -1,6 +1,6 @@
 # WELLFIT – Coder-Start-Prompt für GPT/GitHub
 
-Version: 1.1
+Version: 1.2
 Repository: Bernds-tech/WellFit-now
 Quelle der Wahrheit: GitHub + todolist/ + WellFit Dev Agent
 
@@ -15,9 +15,41 @@ Dieser Prompt wird ergänzt durch:
 ```txt
 todolist/CHAT_START_AGENT_AND_CODER_ADDENDUM.md
 scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
+scripts/wellfit-dev-agent/NEW_CODER_ENTRY_MESSAGE.md
 ```
 
 Diese Ergänzungen dürfen bei neuen Coder-/Chat-Prompts nicht weggelassen werden.
+
+---
+
+## Erste Antwort, wenn ein Coder sagt "weiter" oder "ich will coden"
+
+Wenn ein neuer Coder oder bestehender Coder im GPT-Chat sagt, dass er weitermachen oder coden will, nicht sofort Codearbeit zulassen.
+
+Zuerst diese Einstiegsnachricht verwenden:
+
+```txt
+scripts/wellfit-dev-agent/NEW_CODER_ENTRY_MESSAGE.md
+```
+
+Der Coder soll zuerst im Repository/Projekt-Terminal ausführen:
+
+```bash
+npm run agent:validate
+npm run agent:goal-check
+npm run agent:coder-prompts
+npm run agent:dry-run
+```
+
+Danach soll er im Chat die relevanten Outputs senden:
+
+```txt
+scripts/wellfit-dev-agent/output/alpha-goal-check.md
+scripts/wellfit-dev-agent/output/dry-run-report.md
+scripts/wellfit-dev-agent/output/coder-prompts/IDENTITY_GATE.md
+```
+
+Erst danach wird die Coder-Rolle geklärt und der passende Coder-Prompt verwendet.
 
 ---
 
@@ -105,6 +137,7 @@ todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
 docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md
 scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
 scripts/wellfit-dev-agent/README.md
+scripts/wellfit-dev-agent/NEW_CODER_ENTRY_MESSAGE.md
 ```
 
 Je nach Rolle zusätzlich:
@@ -232,12 +265,15 @@ Build-/Test-Hinweise:
 
 ```txt
 Neuer Coder / neuer GPT-Codeblock:
-1. npm run agent:validate
-2. npm run agent:goal-check
-3. npm run agent:coder-prompts
-4. npm run agent:dry-run
-5. Identity-Gate anzeigen
-6. Coder nennt Rolle
-7. passenden Coder-Prompt verwenden
-8. erst dann Codearbeit
+1. Einstiegsnachricht aus NEW_CODER_ENTRY_MESSAGE.md senden.
+2. Coder führt aus:
+   npm run agent:validate
+   npm run agent:goal-check
+   npm run agent:coder-prompts
+   npm run agent:dry-run
+3. Coder sendet Outputs.
+4. Identity-Gate anzeigen.
+5. Coder nennt Rolle.
+6. passenden Coder-Prompt verwenden.
+7. erst dann Codearbeit.
 ```
