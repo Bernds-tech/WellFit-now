@@ -10,8 +10,14 @@ public class BuddyCallDebugController : MonoBehaviour
     [SerializeField] private float normalizedScreenX = 0.5f;
     [SerializeField] private float normalizedScreenY = 0.35f;
 
+    [Header("Debug Overlay Touch UI")]
+    [SerializeField] private float minimumDebugButtonHeight = 64f;
+    [SerializeField] private int minimumDebugButtonFontSize = 24;
+    [SerializeField] private int minimumDebugLabelFontSize = 20;
+
     private string lastStatus = "Buddy recall debug ready";
     private int debugPage;
+    private float debugRowGap = 72f;
     private BuddyController buddyController;
     private BuddyLookAtCamera buddyLookAtCamera;
     private BuddyNavigationController buddyNavigationController;
@@ -424,16 +430,22 @@ public class BuddyCallDebugController : MonoBehaviour
 
         RefreshBuddyVisualControllers();
 
-        float width = Mathf.Min(620f, Screen.width - 40f);
-        float height = 44f;
-        float left = 20f;
-        float top = showDiagnostics ? Screen.height - 500f : Screen.height - 315f;
+        float horizontalMargin = 16f;
+        float width = Mathf.Min(760f, Screen.width - (horizontalMargin * 2f));
+        float height = Mathf.Max(minimumDebugButtonHeight, Screen.height * 0.044f);
+        debugRowGap = height + 10f;
+        float left = horizontalMargin;
+        float top = showDiagnostics ? Screen.height - 760f : Screen.height - 520f;
+        top = Mathf.Max(24f, top);
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
-        buttonStyle.fontSize = 17;
+        buttonStyle.fontSize = Mathf.Max(minimumDebugButtonFontSize, Mathf.RoundToInt(Screen.height * 0.018f));
+        buttonStyle.wordWrap = true;
+        buttonStyle.alignment = TextAnchor.MiddleCenter;
+        buttonStyle.padding = new RectOffset(10, 10, 8, 8);
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-        labelStyle.fontSize = 15;
+        labelStyle.fontSize = Mathf.Max(minimumDebugLabelFontSize, Mathf.RoundToInt(Screen.height * 0.014f));
         labelStyle.normal.textColor = Color.white;
         labelStyle.wordWrap = true;
 
@@ -463,8 +475,9 @@ public class BuddyCallDebugController : MonoBehaviour
                 ? buddyKiGuideController.BuildDiagnosticsLabel()
                 : "Guide=not-found";
 
-            GUI.Box(new Rect(14f, top - 198f, width + 12f, 192f), "");
-            GUI.Label(new Rect(24f, top - 192f, Screen.width - 48f, 186f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/4 - " + GetPageTitle() + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics + "\nGuide: " + guideDiagnostics, labelStyle);
+            float diagnosticsHeight = Mathf.Max(232f, Screen.height * 0.15f);
+            GUI.Box(new Rect(left - 6f, top - diagnosticsHeight - 8f, width + 12f, diagnosticsHeight), "");
+            GUI.Label(new Rect(left + 4f, top - diagnosticsHeight, width - 8f, diagnosticsHeight - 8f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/4 - " + GetPageTitle() + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics + "\nGuide: " + guideDiagnostics, labelStyle);
         }
 
         if (GUI.Button(new Rect(left, top, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle))
@@ -477,75 +490,77 @@ public class BuddyCallDebugController : MonoBehaviour
             return;
         }
 
-        if (GUI.Button(new Rect(left, top + 48f, width, height), showDiagnostics ? "Diagnose aus" : "Diagnose an", buttonStyle))
+        if (GUI.Button(new Rect(left, top + debugRowGap, width, height), showDiagnostics ? "Diagnose aus" : "Diagnose an", buttonStyle))
         {
             ToggleDiagnostics();
         }
 
-        float pageTop = top + 96f;
-        float tabWidth = (width - 18f) / 4f;
+        float pageTop = top + debugRowGap * 2f;
+        float tabGap = 8f;
+        float tabWidth = (width - tabGap * 3f) / 4f;
         if (GUI.Button(new Rect(left, pageTop, tabWidth, height), "Rueckruf", buttonStyle)) SetDebugPage(0);
-        if (GUI.Button(new Rect(left + tabWidth + 6f, pageTop, tabWidth, height), "Visual", buttonStyle)) SetDebugPage(1);
-        if (GUI.Button(new Rect(left + 2f * (tabWidth + 6f), pageTop, tabWidth, height), "Faehigk.", buttonStyle)) SetDebugPage(2);
-        if (GUI.Button(new Rect(left + 3f * (tabWidth + 6f), pageTop, tabWidth, height), "Guide", buttonStyle)) SetDebugPage(3);
+        if (GUI.Button(new Rect(left + tabWidth + tabGap, pageTop, tabWidth, height), "Visual", buttonStyle)) SetDebugPage(1);
+        if (GUI.Button(new Rect(left + 2f * (tabWidth + tabGap), pageTop, tabWidth, height), "Faehigk.", buttonStyle)) SetDebugPage(2);
+        if (GUI.Button(new Rect(left + 3f * (tabWidth + tabGap), pageTop, tabWidth, height), "Guide", buttonStyle)) SetDebugPage(3);
 
+        float contentTop = top + debugRowGap * 3f;
         if (debugPage == 0)
         {
-            DrawReturnPage(left, top + 144f, width, height, buttonStyle);
+            DrawReturnPage(left, contentTop, width, height, buttonStyle);
         }
         else if (debugPage == 1)
         {
-            DrawVisualPage(left, top + 144f, width, height, buttonStyle);
+            DrawVisualPage(left, contentTop, width, height, buttonStyle);
         }
         else if (debugPage == 2)
         {
-            DrawAbilityPage(left, top + 144f, width, height, buttonStyle);
+            DrawAbilityPage(left, contentTop, width, height, buttonStyle);
         }
         else
         {
-            DrawGuidePage(left, top + 144f, width, height, buttonStyle);
+            DrawGuidePage(left, contentTop, width, height, buttonStyle);
         }
     }
 
     private void DrawReturnPage(float left, float top, float width, float height, GUIStyle buttonStyle)
     {
         if (GUI.Button(new Rect(left, top, width, height), "Buddy rufen", buttonStyle)) CallBuddyToUser();
-        if (GUI.Button(new Rect(left, top + 48f, width, height), "Rueckruf testen", buttonStyle)) RequestAutoReturnOnce();
+        if (GUI.Button(new Rect(left, top + debugRowGap, width, height), "Rueckruf testen", buttonStyle)) RequestAutoReturnOnce();
         string autoLabel = "Auto: " + (autoReturnController != null && autoReturnController.AutoReturnEnabled ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, top + 96f, width, height), autoLabel, buttonStyle)) ToggleAutoReturn();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 2f, width, height), autoLabel, buttonStyle)) ToggleAutoReturn();
         string farOnlyLabel = "Nur weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
-        if (GUI.Button(new Rect(left, top + 144f, width, height), farOnlyLabel, buttonStyle)) ToggleFarOnly();
-        if (GUI.Button(new Rect(left, top + 192f, width, height), "Timing schnell", buttonStyle)) UseFastTiming();
-        if (GUI.Button(new Rect(left, top + 240f, width, height), "Timing normal", buttonStyle)) UseNormalTiming();
-        if (GUI.Button(new Rect(left, top + 288f, width, height), "Abstand Test", buttonStyle)) UseTestDistance();
-        if (GUI.Button(new Rect(left, top + 336f, width, height), "Abstand Produkt", buttonStyle)) UseProductDistance();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 3f, width, height), farOnlyLabel, buttonStyle)) ToggleFarOnly();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 4f, width, height), "Timing schnell", buttonStyle)) UseFastTiming();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 5f, width, height), "Timing normal", buttonStyle)) UseNormalTiming();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 6f, width, height), "Abstand Test", buttonStyle)) UseTestDistance();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 7f, width, height), "Abstand Produkt", buttonStyle)) UseProductDistance();
     }
 
     private void DrawVisualPage(float left, float top, float width, float height, GUIStyle buttonStyle)
     {
         if (GUI.Button(new Rect(left, top, width, height), "Idle AN/AUS", buttonStyle)) ToggleBuddyIdleMotion();
-        if (GUI.Button(new Rect(left, top + 48f, width, height), "Blick AN/AUS", buttonStyle)) ToggleBuddyLookAt();
-        if (GUI.Button(new Rect(left, top + 96f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
+        if (GUI.Button(new Rect(left, top + debugRowGap, width, height), "Blick AN/AUS", buttonStyle)) ToggleBuddyLookAt();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 2f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
     }
 
     private void DrawAbilityPage(float left, float top, float width, float height, GUIStyle buttonStyle)
     {
         if (GUI.Button(new Rect(left, top, width, height), "Fähigkeiten AN/AUS", buttonStyle)) ToggleDemoAbilities();
-        if (GUI.Button(new Rect(left, top + 48f, width, height), "Scan testen", buttonStyle)) TestScanAbility();
-        if (GUI.Button(new Rect(left, top + 96f, width, height), "Hinweis holen testen", buttonStyle)) TestFetchAbility();
-        if (GUI.Button(new Rect(left, top + 144f, width, height), "Tragen testen", buttonStyle)) TestCarryAbility();
-        if (GUI.Button(new Rect(left, top + 192f, width, height), "Zeigen testen", buttonStyle)) TestPointAbility();
-        if (GUI.Button(new Rect(left, top + 240f, width, height), "Klettern testen", buttonStyle)) TestClimbAbility();
-        if (GUI.Button(new Rect(left, top + 288f, width, height), "Sprung testen", buttonStyle)) TestJumpAbility();
-        if (GUI.Button(new Rect(left, top + 336f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
+        if (GUI.Button(new Rect(left, top + debugRowGap, width, height), "Scan testen", buttonStyle)) TestScanAbility();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 2f, width, height), "Hinweis holen testen", buttonStyle)) TestFetchAbility();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 3f, width, height), "Tragen testen", buttonStyle)) TestCarryAbility();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 4f, width, height), "Zeigen testen", buttonStyle)) TestPointAbility();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 5f, width, height), "Klettern testen", buttonStyle)) TestClimbAbility();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 6f, width, height), "Sprung testen", buttonStyle)) TestJumpAbility();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 7f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
     }
 
     private void DrawGuidePage(float left, float top, float width, float height, GUIStyle buttonStyle)
     {
         if (GUI.Button(new Rect(left, top, width, height), "Mission: Gehen", buttonStyle)) TestGuideWalkMission();
-        if (GUI.Button(new Rect(left, top + 48f, width, height), "Mission: Scannen", buttonStyle)) TestGuideScanMission();
-        if (GUI.Button(new Rect(left, top + 96f, width, height), "Fehlt: Sprungboost", buttonStyle)) TestGuideMissingJumpBoost();
-        if (GUI.Button(new Rect(left, top + 144f, width, height), "Guide leeren", buttonStyle)) ClearGuide();
-        if (GUI.Button(new Rect(left, top + 192f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
+        if (GUI.Button(new Rect(left, top + debugRowGap, width, height), "Mission: Scannen", buttonStyle)) TestGuideScanMission();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 2f, width, height), "Fehlt: Sprungboost", buttonStyle)) TestGuideMissingJumpBoost();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 3f, width, height), "Guide leeren", buttonStyle)) ClearGuide();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 4f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
     }
 }
