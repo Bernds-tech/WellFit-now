@@ -2,6 +2,7 @@
 // Nach Unity-Projekterzeugung als .cs Datei uebernehmen.
 
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class BuddyInputController : MonoBehaviour
 {
@@ -13,10 +14,13 @@ public class BuddyInputController : MonoBehaviour
     public bool placeOnFirstTap = true;
     public bool moveOnNextTaps = true;
     public float minTapDistancePixels = 12f;
+    public float uiTapBlockSeconds = 0.15f;
 
     private bool buddyHasBeenPlaced;
     private Vector2 pointerDownPosition;
     private bool pointerDownStarted;
+    private bool pointerDownStartedOverUi;
+    private float blockArInputUntil;
 
     void Awake()
     {
@@ -37,20 +41,41 @@ public class BuddyInputController : MonoBehaviour
         buddyHasBeenPlaced = false;
     }
 
+    public void NotifyUiPressed()
+    {
+        blockArInputUntil = Time.unscaledTime + uiTapBlockSeconds;
+        pointerDownStarted = false;
+        pointerDownStartedOverUi = true;
+    }
+
     private void HandleTouchInput()
     {
         if (Input.touchCount == 0) return;
 
         Touch touch = Input.GetTouch(0);
+
         if (touch.phase == TouchPhase.Began)
         {
             pointerDownStarted = true;
             pointerDownPosition = touch.position;
+            pointerDownStartedOverUi = IsPointerOverUi(touch.fingerId);
+
+            if (pointerDownStartedOverUi)
+            {
+                blockArInputUntil = Time.unscaledTime + uiTapBlockSeconds;
+            }
         }
 
         if (touch.phase == TouchPhase.Ended && pointerDownStarted)
         {
             pointerDownStarted = false;
+
+            if (ShouldBlockArTap())
+            {
+                pointerDownStartedOverUi = false;
+                return;
+            }
+
             if (Vector2.Distance(pointerDownPosition, touch.position) <= minTapDistancePixels)
             {
                 HandleScreenTap(touch.position);
@@ -65,11 +90,24 @@ public class BuddyInputController : MonoBehaviour
         {
             pointerDownStarted = true;
             pointerDownPosition = Input.mousePosition;
+            pointerDownStartedOverUi = IsPointerOverUi(-1);
+
+            if (pointerDownStartedOverUi)
+            {
+                blockArInputUntil = Time.unscaledTime + uiTapBlockSeconds;
+            }
         }
 
         if (Input.GetMouseButtonUp(0) && pointerDownStarted)
         {
             pointerDownStarted = false;
+
+            if (ShouldBlockArTap())
+            {
+                pointerDownStartedOverUi = false;
+                return;
+            }
+
             Vector2 upPosition = Input.mousePosition;
             if (Vector2.Distance(pointerDownPosition, upPosition) <= minTapDistancePixels)
             {
@@ -79,11 +117,24 @@ public class BuddyInputController : MonoBehaviour
 #endif
     }
 
+    private bool ShouldBlockArTap()
+    {
+        return pointerDownStartedOverUi || Time.unscaledTime < blockArInputUntil;
+    }
+
+    private bool IsPointerOverUi(int fingerId)
+    {
+        if (EventSystem.current == null) return false;
+        return fingerId >= 0
+            ? EventSystem.current.IsPointerOverGameObject(fingerId)
+            : EventSystem.current.IsPointerOverGameObject();
+    }
+
     private void HandleScreenTap(Vector2 screenPoint)
     {
         if (anchorController == null)
         {
-            bridge?.SendEventToWellFit("onArError", "{\"message\":\"BuddyAnchorController missing\",\"code\":\"buddy-anchor-controller-missing\"}");
+            bridge?.SendEventToWellFit("onArError", "{}");
             return;
         }
 
@@ -93,7 +144,7 @@ public class BuddyInputController : MonoBehaviour
             if (placed)
             {
                 buddyHasBeenPlaced = true;
-                bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"placeFromTap\",\"source\":\"screen-tap\"}");
+                bridge?.SendEventToWellFit("onBuddyActionStarted", "{}");
             }
             return;
         }
@@ -104,6 +155,6 @@ public class BuddyInputController : MonoBehaviour
             return;
         }
 
-        bridge?.SendEventToWellFit("onBuddyActionRejected", "{\"reason\":\"tap-ignored\",\"source\":\"screen-tap\"}");
+        bridge?.SendEventToWellFit("onBuddyActionRejected", "{}");
     }
 }
