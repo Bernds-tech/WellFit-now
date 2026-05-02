@@ -20,6 +20,8 @@ public class BuddyCompanionController : MonoBehaviour
 
     private float lastRadiusEventTime = -999f;
 
+    public bool AutoRecallWhenTooFar => autoRecallWhenTooFar;
+
     void Awake()
     {
         if (arCamera == null)
@@ -47,6 +49,12 @@ public class BuddyCompanionController : MonoBehaviour
     {
         useProductRadius = productRadiusEnabled;
         bridge?.SendEventToWellFit("onBuddyCompanionRadiusModeChanged", "{\"useProductRadius\":" + BoolJson(useProductRadius) + ",\"radiusMeters\":" + GetCompanionRadius().ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + "}");
+    }
+
+    public void SetAutoRecallEnabled(bool enabled)
+    {
+        autoRecallWhenTooFar = enabled;
+        bridge?.SendEventToWellFit("onBuddyAutoRecallChanged", "{\"enabled\":" + BoolJson(autoRecallWhenTooFar) + "}");
     }
 
     public void CallBuddyToUser()
