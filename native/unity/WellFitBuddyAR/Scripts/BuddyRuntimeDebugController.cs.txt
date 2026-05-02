@@ -1,0 +1,248 @@
+using UnityEngine;
+
+public class BuddyRuntimeDebugController : MonoBehaviour
+{
+    public WellFitNativeBridge bridge;
+    public BuddyAnchorController anchorController;
+    public BuddyCompanionController companionController;
+    public BuddyKiGuideController guideController;
+    public BuddyAbilityController abilityController;
+
+    public bool showDebugUi = true;
+    public int buttonHeight = 54;
+    public int buttonWidth = 260;
+    public int gap = 10;
+
+    private string lastAction = "runtime-debug-ready";
+    private Vector2 scroll;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void EnsureRuntimeDebugController()
+    {
+        if (FindObjectOfType<BuddyRuntimeDebugController>() != null) return;
+
+        GameObject host = new GameObject("BuddyRuntimeDebugController");
+        host.AddComponent<BuddyRuntimeDebugController>();
+        DontDestroyOnLoad(host);
+    }
+
+    void Awake()
+    {
+        ResolveReferences();
+    }
+
+    void Update()
+    {
+        if (bridge == null || anchorController == null || companionController == null || guideController == null)
+        {
+            ResolveReferences();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            showDebugUi = !showDebugUi;
+        }
+    }
+
+    private void ResolveReferences()
+    {
+        if (bridge == null) bridge = FindObjectOfType<WellFitNativeBridge>();
+        if (anchorController == null) anchorController = FindObjectOfType<BuddyAnchorController>();
+        if (companionController == null) companionController = FindObjectOfType<BuddyCompanionController>();
+        if (guideController == null) guideController = FindObjectOfType<BuddyKiGuideController>();
+        if (abilityController == null) abilityController = FindObjectOfType<BuddyAbilityController>();
+    }
+
+    void OnGUI()
+    {
+        if (!showDebugUi) return;
+
+        GUI.depth = -100;
+        int panelWidth = Mathf.Min(Screen.width - 24, buttonWidth + 34);
+        int panelHeight = Mathf.Min(Screen.height - 24, 560);
+        GUILayout.BeginArea(new Rect(12, 12, panelWidth, panelHeight), GUI.skin.box);
+        scroll = GUILayout.BeginScrollView(scroll);
+
+        GUILayout.Label("WellFit AR Buddy Debug");
+        GUILayout.Label(BuildStatusLine());
+        GUILayout.Label("Last: " + lastAction);
+
+        if (DebugButton("Place / Move Center"))
+        {
+            NotifyUi();
+            PlaceOrMoveCenter();
+        }
+
+        if (DebugButton("Recall Buddy"))
+        {
+            NotifyUi();
+            if (bridge != null)
+            {
+                bridge.CallBuddyToUser();
+                lastAction = "recall-requested";
+            }
+            else
+            {
+                lastAction = "bridge-missing";
+            }
+        }
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Auto On", GUILayout.Height(buttonHeight)))
+        {
+            NotifyUi();
+            SetAutoRecall(true);
+        }
+        if (GUILayout.Button("Auto Off", GUILayout.Height(buttonHeight)))
+        {
+            NotifyUi();
+            SetAutoRecall(false);
+        }
+        GUILayout.EndHorizontal();
+
+        if (DebugButton("Guide: Suggest Scan"))
+        {
+            NotifyUi();
+            if (guideController != null)
+            {
+                guideController.SuggestNextMission("debug_scan_mission", "runtime-debug");
+                lastAction = "guide-scan-suggested";
+            }
+            else
+            {
+                lastAction = "guide-missing";
+            }
+        }
+
+        if (DebugButton("Guide: Explain Jump"))
+        {
+            NotifyUi();
+            if (guideController != null)
+            {
+                guideController.ExplainMissingCapability("jumpBoost");
+                lastAction = "guide-jump-explained";
+            }
+            else
+            {
+                lastAction = "guide-missing";
+            }
+        }
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Scan", GUILayout.Height(buttonHeight)))
+        {
+            NotifyUi();
+            PerformAbility(BuddyAbility.ScanObject);
+        }
+        if (GUILayout.Button("Carry", GUILayout.Height(buttonHeight)))
+        {
+            NotifyUi();
+            PerformAbility(BuddyAbility.Carry);
+        }
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Mark", GUILayout.Height(buttonHeight)))
+        {
+            NotifyUi();
+            PerformAbility(BuddyAbility.Mark);
+        }
+        if (GUILayout.Button("Jump", GUILayout.Height(buttonHeight)))
+        {
+            NotifyUi();
+            PerformAbility(BuddyAbility.JumpBoost);
+        }
+        GUILayout.EndHorizontal();
+
+        if (DebugButton("Hide Debug UI (F1 toggles)"))
+        {
+            NotifyUi();
+            showDebugUi = false;
+        }
+
+        GUILayout.EndScrollView();
+        GUILayout.EndArea();
+    }
+
+    private bool DebugButton(string label)
+    {
+        return GUILayout.Button(label, GUILayout.Height(buttonHeight));
+    }
+
+    private void NotifyUi()
+    {
+        if (bridge != null)
+        {
+            bridge.NotifyUiPressed();
+        }
+    }
+
+    private void PlaceOrMoveCenter()
+    {
+        if (anchorController == null)
+        {
+            lastAction = "anchor-controller-missing";
+            return;
+        }
+
+        Vector2 center = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+        bool ok = anchorController.HasBuddy
+            ? anchorController.MoveBuddyToScreenPoint(center)
+            : anchorController.PlaceBuddyAtScreenPoint(center);
+
+        lastAction = ok ? "center-place-or-move-requested" : "center-place-or-move-failed";
+        abilityController = FindObjectOfType<BuddyAbilityController>();
+    }
+
+    private void SetAutoRecall(bool enabled)
+    {
+        if (companionController != null)
+        {
+            companionController.SetAutoRecallEnabled(enabled);
+            lastAction = enabled ? "auto-recall-on" : "auto-recall-off";
+            return;
+        }
+
+        if (bridge != null)
+        {
+            bridge.SetAutoRecallJson("{\"enabled\":" + (enabled ? "true" : "false") + "}");
+            lastAction = enabled ? "auto-recall-on-via-bridge" : "auto-recall-off-via-bridge";
+            return;
+        }
+
+        lastAction = "auto-recall-controller-missing";
+    }
+
+    private void PerformAbility(BuddyAbility ability)
+    {
+        if (abilityController == null)
+        {
+            abilityController = FindObjectOfType<BuddyAbilityController>();
+        }
+
+        if (abilityController == null)
+        {
+            lastAction = "ability-controller-missing-place-buddy-first";
+            return;
+        }
+
+        abilityController.bridge = bridge;
+        abilityController.ApplyCapability("scanObject");
+        abilityController.ApplyCapability("carry");
+        abilityController.ApplyCapability("jumpBoost");
+        abilityController.ApplyCapability("climbUp");
+        abilityController.PerformAbility(ability, null);
+        lastAction = "ability-" + ability.ToString();
+    }
+
+    private string BuildStatusLine()
+    {
+        string placed = anchorController != null && anchorController.HasBuddy ? "placed" : "not placed";
+        string anchor = anchorController != null ? anchorController.CurrentAnchorId : "anchor-controller-missing";
+        string bridgeState = bridge != null ? "bridge ok" : "bridge missing";
+        string companion = companionController != null ? "companion ok" : "companion missing";
+        string guide = guideController != null ? "guide ok" : "guide missing";
+        string ability = abilityController != null ? "ability ok" : "ability missing";
+        return placed + " | " + anchor + " | " + bridgeState + " | " + companion + " | " + guide + " | " + ability;
+    }
+}
