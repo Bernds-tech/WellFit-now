@@ -9,12 +9,21 @@ public class BuddyRuntimeDebugController : MonoBehaviour
     public BuddyAbilityController abilityController;
 
     public bool showDebugUi = true;
-    public int buttonHeight = 54;
-    public int buttonWidth = 260;
-    public int gap = 10;
+    public int buttonHeight = 96;
+    public int buttonWidth = 520;
+    public int fontSize = 28;
+    public int statusFontSize = 24;
+    public int gap = 14;
 
     private string lastAction = "runtime-debug-ready";
     private Vector2 scroll;
+    private GUIStyle panelStyle;
+    private GUIStyle buttonStyle;
+    private GUIStyle labelStyle;
+    private GUIStyle statusStyle;
+    private Texture2D panelTexture;
+    private Texture2D buttonTexture;
+    private Texture2D buttonActiveTexture;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void EnsureRuntimeDebugController()
@@ -29,6 +38,7 @@ public class BuddyRuntimeDebugController : MonoBehaviour
     void Awake()
     {
         ResolveReferences();
+        BuildStyles();
     }
 
     void Update()
@@ -56,24 +66,34 @@ public class BuddyRuntimeDebugController : MonoBehaviour
     void OnGUI()
     {
         if (!showDebugUi) return;
+        if (panelStyle == null || buttonStyle == null || labelStyle == null || statusStyle == null)
+        {
+            BuildStyles();
+        }
 
         GUI.depth = -100;
-        int panelWidth = Mathf.Min(Screen.width - 24, buttonWidth + 34);
-        int panelHeight = Mathf.Min(Screen.height - 24, 560);
-        GUILayout.BeginArea(new Rect(12, 12, panelWidth, panelHeight), GUI.skin.box);
-        scroll = GUILayout.BeginScrollView(scroll);
 
-        GUILayout.Label("WellFit AR Buddy Debug");
-        GUILayout.Label(BuildStatusLine());
-        GUILayout.Label("Last: " + lastAction);
+        int safeMargin = 18;
+        int panelWidth = Mathf.Min(Screen.width - safeMargin * 2, buttonWidth + 48);
+        int panelHeight = Mathf.Min(Screen.height - safeMargin * 2, 980);
 
-        if (DebugButton("Place / Move Center"))
+        GUILayout.BeginArea(new Rect(safeMargin, safeMargin, panelWidth, panelHeight), panelStyle);
+        scroll = GUILayout.BeginScrollView(scroll, GUILayout.Width(panelWidth - 8), GUILayout.Height(panelHeight - 8));
+
+        GUILayout.Label("WellFit AR Buddy Debug", labelStyle);
+        GUILayout.Space(gap);
+        GUILayout.Label(BuildStatusLine(), statusStyle);
+        GUILayout.Space(gap);
+        GUILayout.Label("Letzte Aktion: " + lastAction, statusStyle);
+        GUILayout.Space(gap * 2);
+
+        if (DebugButton("PLACE / MOVE CENTER"))
         {
             NotifyUi();
             PlaceOrMoveCenter();
         }
 
-        if (DebugButton("Recall Buddy"))
+        if (DebugButton("BUDDY RUECKRUF"))
         {
             NotifyUi();
             if (bridge != null)
@@ -88,19 +108,21 @@ public class BuddyRuntimeDebugController : MonoBehaviour
         }
 
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Auto On", GUILayout.Height(buttonHeight)))
+        if (GUILayout.Button("AUTO AN", buttonStyle, GUILayout.Height(buttonHeight), GUILayout.MinWidth((panelWidth - 70) / 2)))
         {
             NotifyUi();
             SetAutoRecall(true);
         }
-        if (GUILayout.Button("Auto Off", GUILayout.Height(buttonHeight)))
+        GUILayout.Space(gap);
+        if (GUILayout.Button("AUTO AUS", buttonStyle, GUILayout.Height(buttonHeight), GUILayout.MinWidth((panelWidth - 70) / 2)))
         {
             NotifyUi();
             SetAutoRecall(false);
         }
         GUILayout.EndHorizontal();
+        GUILayout.Space(gap);
 
-        if (DebugButton("Guide: Suggest Scan"))
+        if (DebugButton("GUIDE: SCAN VORSCHLAGEN"))
         {
             NotifyUi();
             if (guideController != null)
@@ -114,7 +136,7 @@ public class BuddyRuntimeDebugController : MonoBehaviour
             }
         }
 
-        if (DebugButton("Guide: Explain Jump"))
+        if (DebugButton("GUIDE: SPRUNG ERKLAEREN"))
         {
             NotifyUi();
             if (guideController != null)
@@ -129,36 +151,43 @@ public class BuddyRuntimeDebugController : MonoBehaviour
         }
 
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Scan", GUILayout.Height(buttonHeight)))
+        if (GUILayout.Button("SCAN", buttonStyle, GUILayout.Height(buttonHeight), GUILayout.MinWidth((panelWidth - 70) / 2)))
         {
             NotifyUi();
             PerformAbility(BuddyAbility.ScanObject);
         }
-        if (GUILayout.Button("Carry", GUILayout.Height(buttonHeight)))
+        GUILayout.Space(gap);
+        if (GUILayout.Button("TRAGEN", buttonStyle, GUILayout.Height(buttonHeight), GUILayout.MinWidth((panelWidth - 70) / 2)))
         {
             NotifyUi();
             PerformAbility(BuddyAbility.Carry);
         }
         GUILayout.EndHorizontal();
+        GUILayout.Space(gap);
 
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Mark", GUILayout.Height(buttonHeight)))
+        if (GUILayout.Button("MARKIEREN", buttonStyle, GUILayout.Height(buttonHeight), GUILayout.MinWidth((panelWidth - 70) / 2)))
         {
             NotifyUi();
             PerformAbility(BuddyAbility.Mark);
         }
-        if (GUILayout.Button("Jump", GUILayout.Height(buttonHeight)))
+        GUILayout.Space(gap);
+        if (GUILayout.Button("SPRUNG", buttonStyle, GUILayout.Height(buttonHeight), GUILayout.MinWidth((panelWidth - 70) / 2)))
         {
             NotifyUi();
             PerformAbility(BuddyAbility.JumpBoost);
         }
         GUILayout.EndHorizontal();
+        GUILayout.Space(gap);
 
-        if (DebugButton("Hide Debug UI (F1 toggles)"))
+        if (DebugButton("DEBUG AUSBLENDEN"))
         {
             NotifyUi();
             showDebugUi = false;
         }
+
+        GUILayout.Space(gap);
+        GUILayout.Label("Hinweis: Wenn anchor/bridge/companion missing steht, ist WellFitARSystem in der Szene nicht verdrahtet.", statusStyle);
 
         GUILayout.EndScrollView();
         GUILayout.EndArea();
@@ -166,7 +195,9 @@ public class BuddyRuntimeDebugController : MonoBehaviour
 
     private bool DebugButton(string label)
     {
-        return GUILayout.Button(label, GUILayout.Height(buttonHeight));
+        bool clicked = GUILayout.Button(label, buttonStyle, GUILayout.Height(buttonHeight), GUILayout.Width(buttonWidth));
+        GUILayout.Space(gap);
+        return clicked;
     }
 
     private void NotifyUi()
@@ -237,12 +268,57 @@ public class BuddyRuntimeDebugController : MonoBehaviour
 
     private string BuildStatusLine()
     {
-        string placed = anchorController != null && anchorController.HasBuddy ? "placed" : "not placed";
-        string anchor = anchorController != null ? anchorController.CurrentAnchorId : "anchor-controller-missing";
-        string bridgeState = bridge != null ? "bridge ok" : "bridge missing";
-        string companion = companionController != null ? "companion ok" : "companion missing";
-        string guide = guideController != null ? "guide ok" : "guide missing";
-        string ability = abilityController != null ? "ability ok" : "ability missing";
-        return placed + " | " + anchor + " | " + bridgeState + " | " + companion + " | " + guide + " | " + ability;
+        string placed = anchorController != null && anchorController.HasBuddy ? "BUDDY: PLATZIERT" : "BUDDY: NICHT PLATZIERT";
+        string anchor = anchorController != null ? "ANCHOR: " + anchorController.CurrentAnchorId : "ANCHOR: FEHLT";
+        string bridgeState = bridge != null ? "BRIDGE: OK" : "BRIDGE: FEHLT";
+        string companion = companionController != null ? "COMPANION: OK" : "COMPANION: FEHLT";
+        string guide = guideController != null ? "GUIDE: OK" : "GUIDE: FEHLT";
+        string ability = abilityController != null ? "ABILITY: OK" : "ABILITY: FEHLT";
+        return placed + "\n" + anchor + "\n" + bridgeState + " | " + companion + "\n" + guide + " | " + ability;
+    }
+
+    private void BuildStyles()
+    {
+        panelTexture = MakeTexture(new Color(0.02f, 0.03f, 0.035f, 0.96f));
+        buttonTexture = MakeTexture(new Color(0.03f, 0.28f, 0.32f, 1f));
+        buttonActiveTexture = MakeTexture(new Color(0.08f, 0.55f, 0.62f, 1f));
+
+        panelStyle = new GUIStyle(GUI.skin.box);
+        panelStyle.normal.background = panelTexture;
+        panelStyle.padding = new RectOffset(22, 22, 22, 22);
+        panelStyle.margin = new RectOffset(0, 0, 0, 0);
+
+        buttonStyle = new GUIStyle(GUI.skin.button);
+        buttonStyle.normal.background = buttonTexture;
+        buttonStyle.hover.background = buttonActiveTexture;
+        buttonStyle.active.background = buttonActiveTexture;
+        buttonStyle.normal.textColor = Color.white;
+        buttonStyle.hover.textColor = Color.white;
+        buttonStyle.active.textColor = Color.white;
+        buttonStyle.fontSize = fontSize;
+        buttonStyle.fontStyle = FontStyle.Bold;
+        buttonStyle.alignment = TextAnchor.MiddleCenter;
+        buttonStyle.padding = new RectOffset(16, 16, 12, 12);
+        buttonStyle.margin = new RectOffset(0, 0, 0, 0);
+
+        labelStyle = new GUIStyle(GUI.skin.label);
+        labelStyle.fontSize = fontSize;
+        labelStyle.fontStyle = FontStyle.Bold;
+        labelStyle.normal.textColor = Color.white;
+        labelStyle.wordWrap = true;
+
+        statusStyle = new GUIStyle(GUI.skin.label);
+        statusStyle.fontSize = statusFontSize;
+        statusStyle.fontStyle = FontStyle.Bold;
+        statusStyle.normal.textColor = Color.white;
+        statusStyle.wordWrap = true;
+    }
+
+    private Texture2D MakeTexture(Color color)
+    {
+        Texture2D texture = new Texture2D(1, 1);
+        texture.SetPixel(0, 0, color);
+        texture.Apply();
+        return texture;
     }
 }
