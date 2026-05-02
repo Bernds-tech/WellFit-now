@@ -5,6 +5,7 @@ public class BuddyInputController : MonoBehaviour
     [SerializeField] private BuddyAnchorController anchorController;
     [SerializeField] private WellFitNativeBridge bridge;
     [SerializeField] private Camera arCamera;
+    [SerializeField] private BuddyCallDebugController debugController;
 
     [Header("Input Behaviour")]
     public bool placeOnFirstTap = true;
@@ -20,6 +21,11 @@ public class BuddyInputController : MonoBehaviour
         if (arCamera == null)
         {
             arCamera = Camera.main;
+        }
+
+        if (debugController == null)
+        {
+            debugController = FindObjectOfType<BuddyCallDebugController>();
         }
     }
 
@@ -41,6 +47,12 @@ public class BuddyInputController : MonoBehaviour
         Touch touch = Input.GetTouch(0);
         if (touch.phase == TouchPhase.Began)
         {
+            if (IsDebugOverlayTouch(touch.position))
+            {
+                pointerDownStarted = false;
+                return;
+            }
+
             pointerDownStarted = true;
             pointerDownPosition = touch.position;
         }
@@ -48,6 +60,11 @@ public class BuddyInputController : MonoBehaviour
         if (touch.phase == TouchPhase.Ended && pointerDownStarted)
         {
             pointerDownStarted = false;
+            if (IsDebugOverlayTouch(touch.position))
+            {
+                return;
+            }
+
             if (Vector2.Distance(pointerDownPosition, touch.position) <= minTapDistancePixels)
             {
                 HandleScreenTap(touch.position);
@@ -60,14 +77,26 @@ public class BuddyInputController : MonoBehaviour
 #if UNITY_EDITOR
         if (Input.GetMouseButtonDown(0))
         {
+            Vector2 downPosition = Input.mousePosition;
+            if (IsDebugOverlayTouch(downPosition))
+            {
+                pointerDownStarted = false;
+                return;
+            }
+
             pointerDownStarted = true;
-            pointerDownPosition = Input.mousePosition;
+            pointerDownPosition = downPosition;
         }
 
         if (Input.GetMouseButtonUp(0) && pointerDownStarted)
         {
             pointerDownStarted = false;
             Vector2 upPosition = Input.mousePosition;
+            if (IsDebugOverlayTouch(upPosition))
+            {
+                return;
+            }
+
             if (Vector2.Distance(pointerDownPosition, upPosition) <= minTapDistancePixels)
             {
                 HandleScreenTap(upPosition);
@@ -78,6 +107,15 @@ public class BuddyInputController : MonoBehaviour
 
     private void HandleScreenTap(Vector2 screenPoint)
     {
+        if (IsDebugOverlayTouch(screenPoint))
+        {
+            bridge?.SendEventToWellFit(
+                "onBuddyActionRejected",
+                "{\"reason\":\"tap-on-debug-overlay\",\"source\":\"screen-tap\"}"
+            );
+            return;
+        }
+
         if (anchorController == null)
         {
             bridge?.SendEventToWellFit(
@@ -111,5 +149,15 @@ public class BuddyInputController : MonoBehaviour
             "onBuddyActionRejected",
             "{\"reason\":\"tap-ignored\",\"source\":\"screen-tap\"}"
         );
+    }
+
+    private bool IsDebugOverlayTouch(Vector2 screenPoint)
+    {
+        if (debugController != null && debugController.IsScreenPointOverDebugOverlay(screenPoint))
+        {
+            return true;
+        }
+
+        return BuddyCallDebugController.IsAnyDebugOverlayUnderScreenPoint(screenPoint);
     }
 }
