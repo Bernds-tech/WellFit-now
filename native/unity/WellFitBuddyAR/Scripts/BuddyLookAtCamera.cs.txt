@@ -3,6 +3,7 @@ using UnityEngine;
 public class BuddyLookAtCamera : MonoBehaviour
 {
     public Transform cameraTransform;
+    public Transform visualRoot;
     public float turnSpeed = 6f;
     public bool keepUpright = true;
 
@@ -12,13 +13,19 @@ public class BuddyLookAtCamera : MonoBehaviour
         {
             cameraTransform = Camera.main.transform;
         }
+
+        if (visualRoot == null)
+        {
+            visualRoot = transform;
+        }
     }
 
     void LateUpdate()
     {
-        if (cameraTransform == null) return;
+        if (cameraTransform == null || visualRoot == null) return;
 
-        Vector3 direction = cameraTransform.position - transform.position;
+        Vector3 lockedPosition = visualRoot.position;
+        Vector3 direction = cameraTransform.position - visualRoot.position;
         if (keepUpright)
         {
             direction.y = 0f;
@@ -27,6 +34,7 @@ public class BuddyLookAtCamera : MonoBehaviour
         if (direction.sqrMagnitude < 0.001f) return;
 
         Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+        visualRoot.rotation = Quaternion.Slerp(visualRoot.rotation, targetRotation, Time.deltaTime * turnSpeed);
+        visualRoot.position = lockedPosition;
     }
 }
