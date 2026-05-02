@@ -15,7 +15,7 @@ public class BuddyInputController : MonoBehaviour
     [Header("Debug Overlay Input Guard")]
     [SerializeField] private bool blockDebugOverlayTouches = true;
     [SerializeField, Range(0.3f, 0.95f)] private float debugOverlaySafeWidthRatio = 0.82f;
-    [SerializeField, Range(0.25f, 0.95f)] private float debugOverlaySafeHeightRatio = 0.72f;
+    [SerializeField, Range(0.15f, 0.95f)] private float debugOverlaySafeHeightRatio = 0.46f;
 
     private bool buddyHasBeenPlaced;
     private Vector2 pointerDownPosition;
@@ -185,6 +185,11 @@ public class BuddyInputController : MonoBehaviour
         if (!blockDebugOverlayTouches)
         {
             return false;
+        }
+
+        if (BuddyCallDebugController.ShouldBlockArInputNow(screenPoint))
+        {
+            return true;
         }
 
         if (debugController == null)
