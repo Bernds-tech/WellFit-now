@@ -1,9 +1,9 @@
-# WELLFIT – Neuer Chat Handoff-Prompt
+﻿# WELLFIT â€“ Neuer Chat Handoff-Prompt
 
 Version: 1.4
 Stand: 2026-05-01
 Repository: Bernds-tech/WellFit-now
-Quelle der Wahrheit: GitHub + todolist/
+Quelle der Wahrheit: GitHub + todolist/ + WellFit Dev Agent
 
 ---
 
@@ -71,7 +71,7 @@ todolist/AUTONOMOUS_ITERATION_MODE.md
 todolist/README.md
 todolist/README_SCALABILITY_ADDENDUM.md
 todolist/TODOLIST_GOVERNANCE_CONTRACT.md
-todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
+todolist/J - NÃ„CHSTE EMPFOHLENE ARBEIT
 todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md
 todolist/L - SKALIERBARKEIT - AR BUDDY UI UND ARCHITEKTUR.md
 todolist/status/2026-04-30-unity-ar-buddy-debug-batch-handoff.md
@@ -250,3 +250,4 @@ Stattdessen skalierbare Dokumentation, Event-/State-Vertraege, Refactor-Plaene, 
 ```
 
 Wenn der Nutzer sagt "weiter", nicht allgemein antworten, sondern den naechsten sinnvollen Micro-Task ausfuehren.
+
