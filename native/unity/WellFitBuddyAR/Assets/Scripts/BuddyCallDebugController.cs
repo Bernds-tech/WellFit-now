@@ -28,51 +28,28 @@ public class BuddyCallDebugController : MonoBehaviour
     private BuddyAbilityController buddyAbilityController;
     private BuddyKiGuideController buddyKiGuideController;
 
-    void OnEnable()
-    {
-        activeOverlay = this;
-    }
-
-    void OnDisable()
-    {
-        if (activeOverlay == this)
-        {
-            activeOverlay = null;
-        }
-    }
+    void OnEnable() { activeOverlay = this; }
+    void OnDisable() { if (activeOverlay == this) activeOverlay = null; }
 
     void Awake()
     {
-        if (bridge == null)
-        {
-            bridge = FindObjectOfType<WellFitNativeBridge>();
-        }
-
-        if (autoReturnController == null)
-        {
-            autoReturnController = FindObjectOfType<BuddyCompanionAutoReturnController>();
-        }
+        if (bridge == null) bridge = FindObjectOfType<WellFitNativeBridge>();
+        if (autoReturnController == null) autoReturnController = FindObjectOfType<BuddyCompanionAutoReturnController>();
     }
 
     public static bool IsAnyDebugOverlayUnderScreenPoint(Vector2 screenPoint)
     {
-        if (activeOverlay == null) return false;
-        return activeOverlay.IsScreenPointOverDebugOverlay(screenPoint);
+        return activeOverlay != null && activeOverlay.IsScreenPointOverDebugOverlay(screenPoint);
     }
 
     public bool IsScreenPointOverDebugOverlay(Vector2 screenPoint)
     {
         if (!showDebugButton) return false;
         float guiY = Screen.height - screenPoint.y;
-        Vector2 guiPoint = new Vector2(screenPoint.x, guiY);
-        return debugInputBlockRect.Contains(guiPoint);
+        return debugInputBlockRect.Contains(new Vector2(screenPoint.x, guiY));
     }
 
-    public void ConfigureForScene(
-        WellFitNativeBridge sceneBridge,
-        BuddyCompanionAutoReturnController sceneAutoReturnController,
-        bool showButtons
-    )
+    public void ConfigureForScene(WellFitNativeBridge sceneBridge, BuddyCompanionAutoReturnController sceneAutoReturnController, bool showButtons)
     {
         bridge = sceneBridge;
         autoReturnController = sceneAutoReturnController;
@@ -82,35 +59,56 @@ public class BuddyCallDebugController : MonoBehaviour
 
     public void NextDebugPage()
     {
-        debugPage = (debugPage + 1) % 5;
-        lastStatus = "Debug page " + (debugPage + 1) + "/5";
+        SetDebugPage((debugPage + 1) % 5);
     }
 
     public void SetDebugPage(int pageIndex)
     {
         debugPage = Mathf.Clamp(pageIndex, 0, 4);
-        lastStatus = "Debug page " + (debugPage + 1) + "/5";
+        if (debugPage != 0)
+        {
+            PauseAutoReturnForNonRecallTest("Debug page " + (debugPage + 1) + "/5");
+        }
+        else
+        {
+            lastStatus = "Debug page 1/5 - Rueckruf";
+        }
     }
 
     public void ToggleDiagnostics()
     {
+        PauseAutoReturnForNonRecallTest("Diagnose umgeschaltet");
         showDiagnostics = !showDiagnostics;
         lastStatus = showDiagnostics ? "Diagnose sichtbar." : "Diagnose ausgeblendet.";
     }
 
     public void ToggleCompactMode()
     {
+        PauseAutoReturnForNonRecallTest("Debug kompakt umgeschaltet");
         compactMode = !compactMode;
         lastStatus = compactMode ? "Debug overlay compact" : "Debug overlay expanded";
     }
 
     private string GetPageTitle()
     {
-        if (debugPage == 0) return "Rueckruf & Auto-Return";
+        if (debugPage == 0) return "Rueckruf";
         if (debugPage == 1) return "Visuals & Verhalten";
         if (debugPage == 2) return "Faehigkeiten & Events";
         if (debugPage == 3) return "KI-Guide & Missionen";
-        return "Bewegung & Sprung/Klettern";
+        return "Auto-Tuning & Bewegung";
+    }
+
+    private void PauseAutoReturnForNonRecallTest(string statusPrefix)
+    {
+        if (autoReturnController != null && autoReturnController.AutoReturnEnabled)
+        {
+            autoReturnController.SetAutoReturnEnabled(false);
+            lastStatus = statusPrefix + ": Auto-Return fuer Debug-Test ausgeschaltet.";
+        }
+        else
+        {
+            lastStatus = statusPrefix;
+        }
     }
 
     public void CallBuddyToUser()
@@ -125,7 +123,6 @@ public class BuddyCallDebugController : MonoBehaviour
         float x = Mathf.Clamp01(normalizedScreenX);
         float y = Mathf.Clamp01(normalizedScreenY);
         string payloadJson = "{\"x\":" + x.ToString(System.Globalization.CultureInfo.InvariantCulture) + ",\"y\":" + y.ToString(System.Globalization.CultureInfo.InvariantCulture) + "}";
-
         bridge.CallBuddyToUserJson(payloadJson);
         lastStatus = "Buddy recall requested at screen point " + x + ", " + y;
         Debug.Log(lastStatus);
@@ -175,16 +172,8 @@ public class BuddyCallDebugController : MonoBehaviour
 
     public void ResetDiagnostics()
     {
-        if (autoReturnController != null)
-        {
-            autoReturnController.ResetDiagnostics();
-            lastStatus = autoReturnController.LastStatus;
-        }
-        else
-        {
-            lastStatus = "Reset: auto-return controller missing";
-        }
-
+        PauseAutoReturnForNonRecallTest("Diagnose reset");
+        if (autoReturnController != null) autoReturnController.ResetDiagnostics();
         if (bridge != null) bridge.ResetEventDiagnostics();
         if (buddyAbilityController != null) buddyAbilityController.ResetDiagnostics();
         if (buddyKiGuideController != null) buddyKiGuideController.ResetDiagnostics();
@@ -192,221 +181,145 @@ public class BuddyCallDebugController : MonoBehaviour
 
     public void UseFastTiming()
     {
-        if (autoReturnController == null)
-        {
-            lastStatus = "Timing failed: controller missing";
-            Debug.LogWarning(lastStatus);
-            return;
-        }
-
+        if (autoReturnController == null) { lastStatus = "Timing failed: controller missing"; return; }
         autoReturnController.UseFastTiming();
         lastStatus = autoReturnController.LastStatus;
     }
 
     public void UseNormalTiming()
     {
-        if (autoReturnController == null)
-        {
-            lastStatus = "Timing failed: controller missing";
-            Debug.LogWarning(lastStatus);
-            return;
-        }
-
+        if (autoReturnController == null) { lastStatus = "Timing failed: controller missing"; return; }
         autoReturnController.UseNormalTiming();
         lastStatus = autoReturnController.LastStatus;
     }
 
     public void UseTestDistance()
     {
-        if (autoReturnController == null)
-        {
-            lastStatus = "Distance failed: controller missing";
-            Debug.LogWarning(lastStatus);
-            return;
-        }
-
+        if (autoReturnController == null) { lastStatus = "Distance failed: controller missing"; return; }
         autoReturnController.UseTestDistance();
         lastStatus = autoReturnController.LastStatus;
     }
 
     public void UseProductDistance()
     {
-        if (autoReturnController == null)
-        {
-            lastStatus = "Distance failed: controller missing";
-            Debug.LogWarning(lastStatus);
-            return;
-        }
-
+        if (autoReturnController == null) { lastStatus = "Distance failed: controller missing"; return; }
         autoReturnController.UseProductDistance();
         lastStatus = autoReturnController.LastStatus;
     }
 
     public void ToggleBuddyIdleMotion()
     {
+        PauseAutoReturnForNonRecallTest("Idle toggle");
         RefreshBuddyVisualControllers();
-        if (buddyController == null)
-        {
-            lastStatus = "Idle toggle: BuddyController missing";
-            return;
-        }
-
+        if (buddyController == null) { lastStatus = "Idle toggle: BuddyController missing"; return; }
         buddyController.SetIdleMotionEnabled(!buddyController.IdleMotionEnabled);
-        lastStatus = "Idle motion: " + (buddyController.IdleMotionEnabled ? "AN" : "AUS");
+        lastStatus = "Idle motion: " + (buddyController.IdleMotionEnabled ? "AN" : "AUS") + ". Buddy darf sich weiter per Bodentap bewegen.";
     }
 
     public void ToggleBuddyLookAt()
     {
+        PauseAutoReturnForNonRecallTest("Look toggle");
         RefreshBuddyVisualControllers();
-        if (buddyLookAtCamera == null)
-        {
-            lastStatus = "Look toggle: BuddyLookAtCamera missing";
-            return;
-        }
-
+        if (buddyLookAtCamera == null) { lastStatus = "Look toggle: BuddyLookAtCamera missing"; return; }
         buddyLookAtCamera.SetLookAtEnabled(!buddyLookAtCamera.LookAtEnabled);
-        lastStatus = "Look at camera: " + (buddyLookAtCamera.LookAtEnabled ? "AN" : "AUS");
+        lastStatus = "Look at camera: " + (buddyLookAtCamera.LookAtEnabled ? "AN" : "AUS") + ". Keine Positionsaenderung erwartet.";
     }
 
     public void ToggleDemoAbilities()
     {
+        PauseAutoReturnForNonRecallTest("Ability toggle");
         RefreshBuddyVisualControllers();
-        if (buddyAbilityController == null)
-        {
-            lastStatus = "Ability toggle: BuddyAbilityController missing";
-            return;
-        }
-
+        if (buddyAbilityController == null) { lastStatus = "Ability toggle: BuddyAbilityController missing"; return; }
         buddyAbilityController.ToggleDemoCapabilities();
-        lastStatus = "Demo abilities toggled.";
+        lastStatus = "Demo abilities toggled. Sichtbare Animationen kommen spaeter.";
     }
 
     public void TestScanAbility()
     {
+        PauseAutoReturnForNonRecallTest("Scan test");
         RefreshBuddyVisualControllers();
-        if (buddyAbilityController == null)
-        {
-            lastStatus = "Scan test: BuddyAbilityController missing";
-            return;
-        }
-
+        if (buddyAbilityController == null) { lastStatus = "Scan test: BuddyAbilityController missing"; return; }
         buddyAbilityController.TryScanObject("debug_marker_scan");
-        lastStatus = "Scan ability test requested.";
+        lastStatus = "Scan event sent. Noch keine sichtbare Scan-Animation erwartet.";
     }
 
     public void TestFetchAbility()
     {
+        PauseAutoReturnForNonRecallTest("Fetch test");
         RefreshBuddyVisualControllers();
-        if (buddyAbilityController == null)
-        {
-            lastStatus = "Fetch test: BuddyAbilityController missing";
-            return;
-        }
-
+        if (buddyAbilityController == null) { lastStatus = "Fetch test: BuddyAbilityController missing"; return; }
         buddyAbilityController.TryFetchClue("debug_marker_clue");
-        lastStatus = "Fetch ability test requested.";
+        lastStatus = "Hinweis-holen event sent. Noch keine sichtbare Animation erwartet.";
     }
 
     public void TestCarryAbility()
     {
+        PauseAutoReturnForNonRecallTest("Carry test");
         RefreshBuddyVisualControllers();
-        if (buddyAbilityController == null)
-        {
-            lastStatus = "Carry test: BuddyAbilityController missing";
-            return;
-        }
-
+        if (buddyAbilityController == null) { lastStatus = "Carry test: BuddyAbilityController missing"; return; }
         buddyAbilityController.TryCarry("debug_marker_carry");
-        lastStatus = "Carry ability test requested.";
+        lastStatus = "Tragen event sent. Noch keine sichtbare Trageanimation erwartet.";
     }
 
     public void TestPointAbility()
     {
+        PauseAutoReturnForNonRecallTest("Point test");
         RefreshBuddyVisualControllers();
-        if (buddyAbilityController == null)
-        {
-            lastStatus = "Point test: BuddyAbilityController missing";
-            return;
-        }
-
+        if (buddyAbilityController == null) { lastStatus = "Point test: BuddyAbilityController missing"; return; }
         buddyAbilityController.TryPointAtObject("debug_marker_point");
-        lastStatus = "Point ability test requested.";
+        lastStatus = "Zeigen event sent. Noch keine sichtbare Zeigeanimation erwartet.";
     }
 
     public void TestClimbAbility()
     {
+        PauseAutoReturnForNonRecallTest("Climb test");
         RefreshBuddyVisualControllers();
-        if (buddyAbilityController == null)
-        {
-            lastStatus = "Climb test: BuddyAbilityController missing";
-            return;
-        }
-
+        if (buddyAbilityController == null) { lastStatus = "Climb test: BuddyAbilityController missing"; return; }
         buddyAbilityController.TestClimbUpNearBuddy();
-        lastStatus = "Climb ability test requested.";
+        lastStatus = "Klettern event sent. Sichtbare Kletteranimation kommt spaeter.";
     }
 
     public void TestJumpAbility()
     {
+        PauseAutoReturnForNonRecallTest("Jump test");
         RefreshBuddyVisualControllers();
-        if (buddyAbilityController == null)
-        {
-            lastStatus = "Jump test: BuddyAbilityController missing";
-            return;
-        }
-
+        if (buddyAbilityController == null) { lastStatus = "Jump test: BuddyAbilityController missing"; return; }
         buddyAbilityController.TestJumpBoostNearBuddy();
-        lastStatus = "Jump ability test requested.";
+        lastStatus = "Sprung event sent. Sichtbare Sprunganimation kommt spaeter.";
     }
 
     public void TestGuideWalkMission()
     {
+        PauseAutoReturnForNonRecallTest("Guide walk mission");
         RefreshBuddyVisualControllers();
-        if (buddyKiGuideController == null)
-        {
-            lastStatus = "Guide test: BuddyKiGuideController missing";
-            return;
-        }
-
+        if (buddyKiGuideController == null) { lastStatus = "Guide test: BuddyKiGuideController missing"; return; }
         buddyKiGuideController.DebugSuggestWalkMission();
-        lastStatus = "Guide walk mission requested.";
+        lastStatus = "Guide walk mission suggested. Buddy soll nicht automatisch laufen.";
     }
 
     public void TestGuideScanMission()
     {
+        PauseAutoReturnForNonRecallTest("Guide scan mission");
         RefreshBuddyVisualControllers();
-        if (buddyKiGuideController == null)
-        {
-            lastStatus = "Guide test: BuddyKiGuideController missing";
-            return;
-        }
-
+        if (buddyKiGuideController == null) { lastStatus = "Guide test: BuddyKiGuideController missing"; return; }
         buddyKiGuideController.DebugSuggestScanMission();
-        lastStatus = "Guide scan mission requested.";
+        lastStatus = "Guide scan mission suggested. Buddy soll nicht automatisch laufen.";
     }
 
     public void TestGuideMissingJumpBoost()
     {
+        PauseAutoReturnForNonRecallTest("Guide missing jumpboost");
         RefreshBuddyVisualControllers();
-        if (buddyKiGuideController == null)
-        {
-            lastStatus = "Guide test: BuddyKiGuideController missing";
-            return;
-        }
-
+        if (buddyKiGuideController == null) { lastStatus = "Guide test: BuddyKiGuideController missing"; return; }
         buddyKiGuideController.DebugExplainJumpBoost();
-        lastStatus = "Guide missing capability requested.";
+        lastStatus = "Guide explains missing jumpboost. Keine Bewegung erwartet.";
     }
 
     public void ClearGuide()
     {
+        PauseAutoReturnForNonRecallTest("Guide clear");
         RefreshBuddyVisualControllers();
-        if (buddyKiGuideController == null)
-        {
-            lastStatus = "Guide clear: BuddyKiGuideController missing";
-            return;
-        }
-
+        if (buddyKiGuideController == null) { lastStatus = "Guide clear: BuddyKiGuideController missing"; return; }
         buddyKiGuideController.ClearGuide();
         lastStatus = "Guide cleared.";
     }
@@ -423,12 +336,7 @@ public class BuddyCallDebugController : MonoBehaviour
 
     void OnGUI()
     {
-        if (!showDebugButton)
-        {
-            debugInputBlockRect = Rect.zero;
-            return;
-        }
-
+        if (!showDebugButton) { debugInputBlockRect = Rect.zero; return; }
         RefreshBuddyVisualControllers();
 
         float horizontalMargin = 16f;
@@ -441,8 +349,7 @@ public class BuddyCallDebugController : MonoBehaviour
 
         float diagnosticsHeight = showDiagnostics ? Mathf.Max(232f, Screen.height * 0.15f) : 0f;
         float blockTop = showDiagnostics ? top - diagnosticsHeight - 12f : top - 8f;
-        float blockHeight = diagnosticsHeight + (debugRowGap * 10f);
-        debugInputBlockRect = new Rect(left - 12f, blockTop, width + 24f, blockHeight);
+        debugInputBlockRect = new Rect(left - 12f, blockTop, width + 24f, diagnosticsHeight + (debugRowGap * 10f));
 
         GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
         buttonStyle.fontSize = Mathf.Max(minimumDebugButtonFontSize, Mathf.RoundToInt(Screen.height * 0.018f));
@@ -457,33 +364,18 @@ public class BuddyCallDebugController : MonoBehaviour
 
         if (showDiagnostics)
         {
-            string diagnostics = autoReturnController != null
-                ? autoReturnController.BuildDiagnosticsLabel()
-                : "Auto-return controller missing";
-            string navDiagnostics = buddyNavigationController != null
-                ? buddyNavigationController.BuildDiagnosticsLabel()
-                : "Navigation=not-found";
-            string anchorDiagnostics = buddyAnchorController != null
-                ? buddyAnchorController.BuildDiagnosticsLabel()
-                : "Anchor=not-found";
-            string bridgeDiagnostics = bridge != null
-                ? bridge.BuildDiagnosticsLabel()
-                : "Bridge=not-found";
-            string abilityDiagnostics = buddyAbilityController != null
-                ? buddyAbilityController.BuildDiagnosticsLabel()
-                : "Abilities=not-found";
-            string guideDiagnostics = buddyKiGuideController != null
-                ? buddyKiGuideController.BuildDiagnosticsLabel()
-                : "Guide=not-found";
-
+            string diagnostics = autoReturnController != null ? autoReturnController.BuildDiagnosticsLabel() : "Auto-return controller missing";
+            string navDiagnostics = buddyNavigationController != null ? buddyNavigationController.BuildDiagnosticsLabel() : "Navigation=not-found";
+            string anchorDiagnostics = buddyAnchorController != null ? buddyAnchorController.BuildDiagnosticsLabel() : "Anchor=not-found";
+            string bridgeDiagnostics = bridge != null ? bridge.BuildDiagnosticsLabel() : "Bridge=not-found";
+            string abilityDiagnostics = buddyAbilityController != null ? buddyAbilityController.BuildDiagnosticsLabel() : "Abilities=not-found";
+            string guideDiagnostics = buddyKiGuideController != null ? buddyKiGuideController.BuildDiagnosticsLabel() : "Guide=not-found";
             GUI.Box(new Rect(left - 6f, top - diagnosticsHeight - 8f, width + 12f, diagnosticsHeight), "");
             GUI.Label(new Rect(left + 4f, top - diagnosticsHeight, width - 8f, diagnosticsHeight - 8f), "Status: " + lastStatus + "\nPage: " + (debugPage + 1) + "/5 - " + GetPageTitle() + "\nDiag: " + diagnostics + "\nNav: " + navDiagnostics + "\nAnchor: " + anchorDiagnostics + "\nBridge: " + bridgeDiagnostics + "\nAbility: " + abilityDiagnostics + "\nGuide: " + guideDiagnostics, labelStyle);
         }
 
         if (GUI.Button(new Rect(left, top, width, height), compactMode ? "Debug zeigen" : "Debug klein", buttonStyle)) ToggleCompactMode();
-
         if (compactMode) return;
-
         if (GUI.Button(new Rect(left, top + debugRowGap, width, height), showDiagnostics ? "Diagnose aus" : "Diagnose an", buttonStyle)) ToggleDiagnostics();
 
         float pageTop = top + debugRowGap * 2f;
@@ -493,14 +385,14 @@ public class BuddyCallDebugController : MonoBehaviour
         if (GUI.Button(new Rect(left + tabWidth + tabGap, pageTop, tabWidth, height), "Visual", buttonStyle)) SetDebugPage(1);
         if (GUI.Button(new Rect(left + 2f * (tabWidth + tabGap), pageTop, tabWidth, height), "Faehigk.", buttonStyle)) SetDebugPage(2);
         if (GUI.Button(new Rect(left + 3f * (tabWidth + tabGap), pageTop, tabWidth, height), "Guide", buttonStyle)) SetDebugPage(3);
-        if (GUI.Button(new Rect(left + 4f * (tabWidth + tabGap), pageTop, tabWidth, height), "Move", buttonStyle)) SetDebugPage(4);
+        if (GUI.Button(new Rect(left + 4f * (tabWidth + tabGap), pageTop, tabWidth, height), "Auto/Move", buttonStyle)) SetDebugPage(4);
 
         float contentTop = top + debugRowGap * 3f;
         if (debugPage == 0) DrawReturnPage(left, contentTop, width, height, buttonStyle);
         else if (debugPage == 1) DrawVisualPage(left, contentTop, width, height, buttonStyle);
         else if (debugPage == 2) DrawAbilityPage(left, contentTop, width, height, buttonStyle);
         else if (debugPage == 3) DrawGuidePage(left, contentTop, width, height, buttonStyle);
-        else DrawMovementAbilityPage(left, contentTop, width, height, buttonStyle);
+        else DrawAutoAndMovementPage(left, contentTop, width, height, buttonStyle);
     }
 
     private void DrawReturnPage(float left, float top, float width, float height, GUIStyle buttonStyle)
@@ -511,10 +403,6 @@ public class BuddyCallDebugController : MonoBehaviour
         if (GUI.Button(new Rect(left, top + debugRowGap * 2f, width, height), autoLabel, buttonStyle)) ToggleAutoReturn();
         string farOnlyLabel = "Nur weit weg: " + (autoReturnController != null && autoReturnController.OnlyReturnWhenFar ? "AN" : "AUS");
         if (GUI.Button(new Rect(left, top + debugRowGap * 3f, width, height), farOnlyLabel, buttonStyle)) ToggleFarOnly();
-        if (GUI.Button(new Rect(left, top + debugRowGap * 4f, width, height), "Timing schnell", buttonStyle)) UseFastTiming();
-        if (GUI.Button(new Rect(left, top + debugRowGap * 5f, width, height), "Timing normal", buttonStyle)) UseNormalTiming();
-        if (GUI.Button(new Rect(left, top + debugRowGap * 6f, width, height), "Abstand Test", buttonStyle)) UseTestDistance();
-        if (GUI.Button(new Rect(left, top + debugRowGap * 7f, width, height), "Abstand Produkt", buttonStyle)) UseProductDistance();
     }
 
     private void DrawVisualPage(float left, float top, float width, float height, GUIStyle buttonStyle)
@@ -542,10 +430,13 @@ public class BuddyCallDebugController : MonoBehaviour
         if (GUI.Button(new Rect(left, top + debugRowGap * 4f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
     }
 
-    private void DrawMovementAbilityPage(float left, float top, float width, float height, GUIStyle buttonStyle)
+    private void DrawAutoAndMovementPage(float left, float top, float width, float height, GUIStyle buttonStyle)
     {
-        if (GUI.Button(new Rect(left, top, width, height), "Klettern testen", buttonStyle)) TestClimbAbility();
-        if (GUI.Button(new Rect(left, top + debugRowGap, width, height), "Sprung testen", buttonStyle)) TestJumpAbility();
-        if (GUI.Button(new Rect(left, top + debugRowGap * 2f, width, height), "Diagnose reset", buttonStyle)) ResetDiagnostics();
+        if (GUI.Button(new Rect(left, top, width, height), "Timing schnell", buttonStyle)) UseFastTiming();
+        if (GUI.Button(new Rect(left, top + debugRowGap, width, height), "Timing normal", buttonStyle)) UseNormalTiming();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 2f, width, height), "Abstand Test", buttonStyle)) UseTestDistance();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 3f, width, height), "Abstand Produkt", buttonStyle)) UseProductDistance();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 4f, width, height), "Klettern testen", buttonStyle)) TestClimbAbility();
+        if (GUI.Button(new Rect(left, top + debugRowGap * 5f, width, height), "Sprung testen", buttonStyle)) TestJumpAbility();
     }
 }
