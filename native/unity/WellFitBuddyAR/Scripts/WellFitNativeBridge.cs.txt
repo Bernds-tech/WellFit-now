@@ -31,6 +31,26 @@ public class WellFitNativeBridge : MonoBehaviour
         SendEventToWellFit("onArReady", "{\"status\":\"session-stop-requested\"}");
     }
 
+    public void NotifyUiPressed()
+    {
+        buddyInputController?.NotifyUiPressed();
+    }
+
+    public void SetDebugPageJson(string payloadJson)
+    {
+        NotifyUiPressed();
+
+        int page = Mathf.RoundToInt(ExtractFloat(payloadJson, "page", 1f));
+        bool recallPage = page == 1;
+
+        if (buddyCompanionController != null)
+        {
+            buddyCompanionController.SetAutoRecallEnabled(recallPage);
+        }
+
+        SendEventToWellFit("onBuddyDebugPageChanged", "{\"page\":" + page + ",\"autoRecall\":" + BoolJson(recallPage) + "}");
+    }
+
     public void PlaceBuddyAtScreenPointJson(string payloadJson)
     {
         Vector2 screenPoint = ParseScreenPoint(payloadJson);
@@ -57,6 +77,8 @@ public class WellFitNativeBridge : MonoBehaviour
 
     public void CallBuddyToUser()
     {
+        NotifyUiPressed();
+
         if (buddyCompanionController == null)
         {
             SendEventToWellFit("onArError", "{\"message\":\"BuddyCompanionController missing\",\"code\":\"buddy-companion-controller-missing\"}");
@@ -68,6 +90,8 @@ public class WellFitNativeBridge : MonoBehaviour
 
     public void SetCompanionRadiusJson(string payloadJson)
     {
+        NotifyUiPressed();
+
         if (buddyCompanionController == null)
         {
             SendEventToWellFit("onArError", "{\"message\":\"BuddyCompanionController missing\",\"code\":\"buddy-companion-controller-missing\"}");
@@ -78,14 +102,30 @@ public class WellFitNativeBridge : MonoBehaviour
         buddyCompanionController.SetCompanionRadiusMode(useProductRadius);
     }
 
+    public void SetAutoRecallJson(string payloadJson)
+    {
+        NotifyUiPressed();
+
+        if (buddyCompanionController == null)
+        {
+            SendEventToWellFit("onArError", "{\"message\":\"BuddyCompanionController missing\",\"code\":\"buddy-companion-controller-missing\"}");
+            return;
+        }
+
+        bool enabled = ExtractBool(payloadJson, "enabled", false);
+        buddyCompanionController.SetAutoRecallEnabled(enabled);
+    }
+
     public void ResetBuddyPlacement()
     {
+        NotifyUiPressed();
         buddyInputController?.ResetPlacementState();
         SendEventToWellFit("onBuddyActionStarted", "{\"action\":\"resetPlacement\"}");
     }
 
     public void SuggestMissionJson(string payloadJson)
     {
+        NotifyUiPressed();
         string missionId = ExtractString(payloadJson, "missionId", "demo_ar_walk_001");
         string reason = ExtractString(payloadJson, "reason", "backend-suggested");
         buddyKiGuideController?.SuggestNextMission(missionId, reason);
@@ -93,6 +133,7 @@ public class WellFitNativeBridge : MonoBehaviour
 
     public void ExplainMissingCapabilityJson(string payloadJson)
     {
+        NotifyUiPressed();
         string capabilityId = ExtractString(payloadJson, "capabilityId", "unknown");
         buddyKiGuideController?.ExplainMissingCapability(capabilityId);
     }
@@ -167,5 +208,10 @@ public class WellFitNativeBridge : MonoBehaviour
 
         while (end < json.Length && json[end] != ',' && json[end] != '}') end++;
         return json.Substring(start, Mathf.Max(0, end - start)).Trim();
+    }
+
+    private string BoolJson(bool value)
+    {
+        return value ? "true" : "false";
     }
 }

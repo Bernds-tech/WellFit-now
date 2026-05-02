@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public enum BuddyAbility
@@ -18,12 +19,35 @@ public class BuddyAbilityController : MonoBehaviour
 {
     public BuddyNavigationController navigationController;
     public WellFitNativeBridge bridge;
+    public Transform visualRoot;
 
     public bool canClimbUp;
     public bool canJumpBoost;
     public bool canFetchClue;
     public bool canScanObject;
     public bool canCarry;
+
+    [Header("Visible Ability Feedback")]
+    public float feedbackDuration = 0.45f;
+    public float scanPulseScale = 1.12f;
+    public float carryLiftMeters = 0.08f;
+    public float climbLiftMeters = 0.16f;
+    public float markPulseScale = 1.08f;
+
+    private Coroutine feedbackRoutine;
+
+    void Awake()
+    {
+        if (visualRoot == null)
+        {
+            visualRoot = transform;
+        }
+
+        if (navigationController == null)
+        {
+            navigationController = GetComponent<BuddyNavigationController>();
+        }
+    }
 
     public void ApplyCapability(string capabilityId)
     {
@@ -51,18 +75,90 @@ public class BuddyAbilityController : MonoBehaviour
     {
         if (!CanPerform(ability))
         {
-            bridge?.SendEventToWellFit("onBuddyActionRejected", "{\"reason\":\"capability-missing\"}");
+            bridge?.SendEventToWellFit("onBuddyActionRejected", "{\"reason\":\"capability-missing\",\"ability\":\"" + ability.ToString() + "\"}");
             return;
         }
 
-        bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"ability\":\"" + ability.ToString() + "\"}");
-
-        if (target != null && navigationController != null)
+        if (feedbackRoutine != null)
         {
-            navigationController.JumpTo(target.position);
+            StopCoroutine(feedbackRoutine);
         }
 
-        bridge?.SendEventToWellFit("onBuddyActionCompleted", "{\"ability\":\"" + ability.ToString() + "\"}");
+        feedbackRoutine = StartCoroutine(PerformAbilityRoutine(ability, target));
+    }
+
+    private IEnumerator PerformAbilityRoutine(BuddyAbility ability, Transform target)
+    {
+        bridge?.SendEventToWellFit("onBuddyActionStarted", "{\"ability\":\"" + ability.ToString() + "\"}");
+
+        if (target != null && navigationController != null && ShouldMoveForAbility(ability))
+        {
+            navigationController.JumpTo(target.position);
+            yield return WaitUntilNavigationStops();
+        }
+        else
+        {
+            yield return PlayLocalFeedback(ability);
+        }
+
+        bridge?.SendEventToWellFit("onBuddyActionCompleted", "{\"ability\":\"" + ability.ToString() + "\",\"status\":\"completed\"}");
+        feedbackRoutine = null;
+    }
+
+    private bool ShouldMoveForAbility(BuddyAbility ability)
+    {
+        return ability == BuddyAbility.ClimbUp
+            || ability == BuddyAbility.JumpDown
+            || ability == BuddyAbility.JumpBoost;
+    }
+
+    private IEnumerator WaitUntilNavigationStops()
+    {
+        if (navigationController == null) yield break;
+
+        while (navigationController.IsMoving)
+        {
+            yield return null;
+        }
+    }
+
+    private IEnumerator PlayLocalFeedback(BuddyAbility ability)
+    {
+        if (visualRoot == null) yield break;
+
+        Vector3 startScale = visualRoot.localScale;
+        Vector3 startPosition = visualRoot.localPosition;
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.05f, feedbackDuration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float wave = Mathf.Sin(t * Mathf.PI);
+
+            if (ability == BuddyAbility.ScanObject || ability == BuddyAbility.RevealHint)
+            {
+                visualRoot.localScale = Vector3.Lerp(startScale, startScale * scanPulseScale, wave);
+            }
+            else if (ability == BuddyAbility.Carry)
+            {
+                visualRoot.localPosition = startPosition + Vector3.up * (carryLiftMeters * wave);
+            }
+            else if (ability == BuddyAbility.ClimbUp)
+            {
+                visualRoot.localPosition = startPosition + Vector3.up * (climbLiftMeters * wave);
+            }
+            else if (ability == BuddyAbility.Mark || ability == BuddyAbility.Protect || ability == BuddyAbility.FetchClue)
+            {
+                visualRoot.localScale = Vector3.Lerp(startScale, startScale * markPulseScale, wave);
+            }
+
+            yield return null;
+        }
+
+        visualRoot.localScale = startScale;
+        visualRoot.localPosition = startPosition;
     }
 
     private bool CanPerform(BuddyAbility ability)
