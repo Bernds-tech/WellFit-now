@@ -18,6 +18,9 @@ public class BuddyNavigationController : MonoBehaviour
     private string targetSurfaceId = "unknown";
     private string currentAction = "idle";
 
+    public bool IsMoving => isWalking || isJumping;
+    public string CurrentAction => currentAction;
+
     void Awake()
     {
         if (buddyRoot == null)
@@ -26,6 +29,7 @@ public class BuddyNavigationController : MonoBehaviour
         }
 
         targetPosition = buddyRoot.position;
+        DisableRootMotion();
     }
 
     void Update()
@@ -68,6 +72,14 @@ public class BuddyNavigationController : MonoBehaviour
         isWalking = false;
         isJumping = true;
         currentAction = "jumpToSurface";
+    }
+
+    public void StopMovement()
+    {
+        isWalking = false;
+        isJumping = false;
+        targetPosition = buddyRoot.position;
+        currentAction = "idle";
     }
 
     public void MoveToSurfaceNode(BuddySurfaceNode node)
@@ -139,5 +151,14 @@ public class BuddyNavigationController : MonoBehaviour
         bridge?.SendEventToWellFit("onBuddyReachedSurface", "{\"surfaceId\":\"" + targetSurfaceId + "\"}");
         bridge?.SendEventToWellFit("onBuddyActionCompleted", "{\"action\":\"" + currentAction + "\",\"surfaceId\":\"" + targetSurfaceId + "\",\"status\":\"completed\"}");
         currentAction = "idle";
+    }
+
+    private void DisableRootMotion()
+    {
+        Animator animator = buddyRoot.GetComponentInChildren<Animator>();
+        if (animator != null)
+        {
+            animator.applyRootMotion = false;
+        }
     }
 }
