@@ -12,9 +12,15 @@ public class BuddyInputController : MonoBehaviour
     public bool moveOnNextTaps = true;
     public float minTapDistancePixels = 12f;
 
+    [Header("Debug Overlay Input Guard")]
+    [SerializeField] private bool blockDebugOverlayTouches = true;
+    [SerializeField, Range(0.3f, 0.95f)] private float debugOverlaySafeWidthRatio = 0.82f;
+    [SerializeField, Range(0.25f, 0.95f)] private float debugOverlaySafeHeightRatio = 0.72f;
+
     private bool buddyHasBeenPlaced;
     private Vector2 pointerDownPosition;
     private bool pointerDownStarted;
+    private bool pointerDownBlockedByDebugOverlay;
 
     void Awake()
     {
@@ -42,12 +48,17 @@ public class BuddyInputController : MonoBehaviour
 
     private void HandleTouchInput()
     {
-        if (Input.touchCount == 0) return;
+        if (Input.touchCount == 0)
+        {
+            pointerDownBlockedByDebugOverlay = false;
+            return;
+        }
 
         Touch touch = Input.GetTouch(0);
         if (touch.phase == TouchPhase.Began)
         {
-            if (IsDebugOverlayTouch(touch.position))
+            pointerDownBlockedByDebugOverlay = IsDebugOverlayTouch(touch.position);
+            if (pointerDownBlockedByDebugOverlay)
             {
                 pointerDownStarted = false;
                 return;
@@ -57,17 +68,29 @@ public class BuddyInputController : MonoBehaviour
             pointerDownPosition = touch.position;
         }
 
-        if (touch.phase == TouchPhase.Ended && pointerDownStarted)
+        if (touch.phase == TouchPhase.Canceled)
         {
             pointerDownStarted = false;
-            if (IsDebugOverlayTouch(touch.position))
+            pointerDownBlockedByDebugOverlay = false;
+            return;
+        }
+
+        if (touch.phase == TouchPhase.Ended)
+        {
+            if (pointerDownBlockedByDebugOverlay || IsDebugOverlayTouch(touch.position))
             {
+                pointerDownStarted = false;
+                pointerDownBlockedByDebugOverlay = false;
                 return;
             }
 
-            if (Vector2.Distance(pointerDownPosition, touch.position) <= minTapDistancePixels)
+            if (pointerDownStarted)
             {
-                HandleScreenTap(touch.position);
+                pointerDownStarted = false;
+                if (Vector2.Distance(pointerDownPosition, touch.position) <= minTapDistancePixels)
+                {
+                    HandleScreenTap(touch.position);
+                }
             }
         }
     }
@@ -78,7 +101,8 @@ public class BuddyInputController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 downPosition = Input.mousePosition;
-            if (IsDebugOverlayTouch(downPosition))
+            pointerDownBlockedByDebugOverlay = IsDebugOverlayTouch(downPosition);
+            if (pointerDownBlockedByDebugOverlay)
             {
                 pointerDownStarted = false;
                 return;
@@ -88,18 +112,23 @@ public class BuddyInputController : MonoBehaviour
             pointerDownPosition = downPosition;
         }
 
-        if (Input.GetMouseButtonUp(0) && pointerDownStarted)
+        if (Input.GetMouseButtonUp(0))
         {
-            pointerDownStarted = false;
             Vector2 upPosition = Input.mousePosition;
-            if (IsDebugOverlayTouch(upPosition))
+            if (pointerDownBlockedByDebugOverlay || IsDebugOverlayTouch(upPosition))
             {
+                pointerDownStarted = false;
+                pointerDownBlockedByDebugOverlay = false;
                 return;
             }
 
-            if (Vector2.Distance(pointerDownPosition, upPosition) <= minTapDistancePixels)
+            if (pointerDownStarted)
             {
-                HandleScreenTap(upPosition);
+                pointerDownStarted = false;
+                if (Vector2.Distance(pointerDownPosition, upPosition) <= minTapDistancePixels)
+                {
+                    HandleScreenTap(upPosition);
+                }
             }
         }
 #endif
@@ -153,11 +182,33 @@ public class BuddyInputController : MonoBehaviour
 
     private bool IsDebugOverlayTouch(Vector2 screenPoint)
     {
+        if (!blockDebugOverlayTouches)
+        {
+            return false;
+        }
+
+        if (debugController == null)
+        {
+            debugController = FindObjectOfType<BuddyCallDebugController>();
+        }
+
         if (debugController != null && debugController.IsScreenPointOverDebugOverlay(screenPoint))
         {
             return true;
         }
 
-        return BuddyCallDebugController.IsAnyDebugOverlayUnderScreenPoint(screenPoint);
+        if (BuddyCallDebugController.IsAnyDebugOverlayUnderScreenPoint(screenPoint))
+        {
+            return true;
+        }
+
+        return IsInsideDebugOverlaySafetyZone(screenPoint);
+    }
+
+    private bool IsInsideDebugOverlaySafetyZone(Vector2 screenPoint)
+    {
+        float safeWidth = Screen.width * debugOverlaySafeWidthRatio;
+        float safeHeight = Screen.height * debugOverlaySafeHeightRatio;
+        return screenPoint.x <= safeWidth && screenPoint.y <= safeHeight;
     }
 }
