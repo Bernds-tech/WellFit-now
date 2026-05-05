@@ -21,16 +21,22 @@ npm run build
     - /leaderboard
     - /marktplatz
     - /punkte-shop
+[x] Dashboard-Anpassen-Route wurde im Build erkannt:
+    - /dashboard/anpassen
 [x] Settings-/Realtime-Refactor blockiert den Build nicht.
 [x] AppShell-Umbau blockiert den Build nicht.
 [x] ProductModulePlaceholderPage mit AppShell blockiert den Build nicht.
+[x] DashboardPinToggle und Dashboard Card Registry blockieren den Build nicht.
+[x] DashboardPinnedCards blockiert den Build nicht.
+[x] Dashboard-Anpassen-Steuerung fuer Pin, Groesse und Reihenfolge blockiert den Build nicht.
+[x] Umbenennung von `onToggle` zu `onPinnedChange` behebt den TypeScript-Konflikt mit dem nativen ToggleEvent.
 
 ## Aktueller Build-Auszug
 
 ```txt
 ✓ Compiled successfully
 ✓ Finished TypeScript
-✓ Generating static pages using 11 workers (34/34)
+✓ Generating static pages using 11 workers (35/35)
 ✓ Finalizing page optimization
 ```
 
@@ -41,4 +47,4 @@ npm run build
     - C:\wellfit\WellFit-now\package-lock.json
 
 [ ] Später sauber lösen: turbopack.root in next.config setzen oder unnötiges übergeordnetes Lockfile entfernen.
-[ ] Manuelle Browserprüfung bleibt offen: Sidebar-Links, Einstellungen laden/speichern, Mehrtab-Live-Sync.
+[ ] Manuelle Browserprüfung bleibt offen: /dashboard/anpassen Pin, Größe, Hoch/Runter, keine Weiterleitung im Bearbeitungsmodus.
