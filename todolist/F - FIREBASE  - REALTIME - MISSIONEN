@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.2 – MISSION REWARD / CONTEXT / PAYOUT ENGINE ERGÄNZT
+Version: 3.3 – SETTINGS REALTIME / EINSTELLUNGEN ON SNAPSHOT ERGÄNZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -25,10 +25,14 @@ STATUS: [x] Fertig / Basis umgesetzt
 [ ] Logout auf allen Geräten später ergänzen.
 
 TASK-ID: WF-SETTINGS-REALTIME-001
-STATUS: [ ] Offen
-[ ] Einstellungen von getDoc-basierter Lade-Logik auf onSnapshot umstellen.
-[ ] Cache/Loading-State sauber kombinieren.
-[ ] Listener sauber unsubscriben.
+STATUS: [x] Basis umgesetzt / Build- und UI-Nachlauf offen
+[x] Einstellungen von getDoc-basierter Lade-Logik auf onSnapshot umgestellt.
+[x] Cache/Loading-State über lokalen Permissions-Cache plus Firestore-Live-Daten kombiniert.
+[x] Auth- und Firestore-Listener werden sauber unsubscribed.
+[x] app/einstellungen/page.tsx nutzt bestehende Settings-Action-Hooks statt doppelter Speicherlogik.
+[ ] Build nach Refactor ausführen.
+[ ] Einstellungen im Browser manuell prüfen: Laden, Speichern, Reload, Mehrtab-Live-Sync.
+[ ] Settings-Hooks später weiter in Mapping-/Hydration-Helper aufteilen, falls useSettingsData zu groß wird.
 
 TASK-ID: WF-MISS-LOCALSTORAGE-001
 STATUS: [!] Kritisch / Offen
