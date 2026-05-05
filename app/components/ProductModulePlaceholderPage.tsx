@@ -68,7 +68,7 @@ export default function ProductModulePlaceholderPage({
                     <DashboardPinToggle
                       isPinned={isPinned}
                       label={`${card.title} im Dashboard anzeigen`}
-                      onToggle={(nextPinned) => togglePinnedCard(card.title, nextPinned)}
+                      onPinnedChange={(nextPinned) => togglePinnedCard(card.title, nextPinned)}
                     />
                   </div>
                   <p className="mt-3 text-sm leading-relaxed text-white/75">{card.body}</p>
