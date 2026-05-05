@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.2 – BACKEND-EVALUATION-STUBS UND SERVERAUTORISIERTE EVENT-PFADE ERGÄNZT
+Version: 3.3 – SETTINGS REALTIME / EINSTELLUNGEN LIVE-SYNC ERGÄNZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -16,6 +16,11 @@ E. AKTUELLER UMSETZUNGSSTAND / VORHANDEN
 [x] Dashboard Cards sind in einzelne Komponenten unter app/dashboard/components/cards/ zerlegt.
 [x] Dashboard page.tsx ist deutlich kleiner und enthält keine tief eingebettete Firebase-Realtime-Logik mehr.
 [x] Einstellungen existieren.
+[x] Einstellungen sind modularisiert: Cards, Hooks, Types, Defaults und Mapper sind getrennt.
+[x] Einstellungen page.tsx bleibt als skalierbarer Seiten-Orchestrator erhalten.
+[x] Einstellungen nutzen Firestore onSnapshot / Live Sync für Userdaten.
+[x] Einstellungen-Speicherlogik liegt zentral in useSettingsActions.
+[x] Einstellungen-Ladelogik liegt zentral in useSettingsData.
 [x] Hilfe-Seite existiert.
 [x] Tagesmissionen existieren.
 [x] Wochenmissionen existieren.
@@ -39,6 +44,7 @@ E. AKTUELLER UMSETZUNGSSTAND / VORHANDEN
 [x] Logout in Einstellungen funktional.
 [x] Hilfe-Seite mit Rudi Rastlos / Mascottchen vorbereitet.
 [x] Sidebar wurde auf Dashboard-Standard gebracht.
+[x] Sidebar ist responsiv korrigiert und zeigt die vollständige Navigation.
 [x] App-Content wurde auf Hauptseiten ca. 30 Prozent kompakter gemacht.
 [x] Tagesmissionen laden Missionen dynamisch aus Firestore.
 [x] Tagesmissionen nutzen Fallback-Missionen.
