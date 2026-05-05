@@ -14,13 +14,16 @@ type AppSidebarProps = {
 
 const activeClass = "block rounded-lg px-2 py-1.5 font-bold text-orange-400";
 const inactiveClass = "block rounded-lg px-2 py-1.5 text-white/80 hover:bg-white/5 hover:text-cyan-100";
-const disabledClass = "rounded-lg px-2 py-1.5 text-white/80";
 
 export default function AppSidebar({ brightness, onBrightnessChange, onLogout }: AppSidebarProps) {
   const pathname = usePathname();
   const isDashboard = pathname === "/dashboard";
   const isMissionen = pathname.startsWith("/missionen");
   const isBuddy = pathname.startsWith("/buddy");
+  const isMarketplace = pathname.startsWith("/marktplatz");
+  const isLeaderboard = pathname.startsWith("/leaderboard");
+  const isPointsShop = pathname.startsWith("/punkte-shop");
+  const isAnalytics = pathname.startsWith("/analytics");
 
   const updateLocationBeforeMissionNavigation = () => {
     void updateCurrentDeviceLocation();
@@ -44,10 +47,10 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
           <Link href="/dashboard" className={isDashboard ? activeClass : inactiveClass}>Dashboard</Link>
           <Link href="/missionen/tagesmissionen" onClick={updateLocationBeforeMissionNavigation} className={isMissionen ? activeClass : inactiveClass}>Missionen</Link>
           <Link href="/buddy" className={isBuddy ? activeClass : inactiveClass}>Mein KI-Buddy</Link>
-          <div className={disabledClass}>Marktplatz</div>
-          <div className={disabledClass}>Leaderboard</div>
-          <div className={disabledClass}>Punkte-Shop</div>
-          <div className={disabledClass}>Analytics & Stats</div>
+          <Link href="/marktplatz" className={isMarketplace ? activeClass : inactiveClass}>Marktplatz</Link>
+          <Link href="/leaderboard" className={isLeaderboard ? activeClass : inactiveClass}>Leaderboard</Link>
+          <Link href="/punkte-shop" className={isPointsShop ? activeClass : inactiveClass}>Punkte-Shop</Link>
+          <Link href="/analytics" className={isAnalytics ? activeClass : inactiveClass}>Analytics & Stats</Link>
         </nav>
 
         <div className="mt-5 shrink-0 border-t border-cyan-400/10 pt-4">
