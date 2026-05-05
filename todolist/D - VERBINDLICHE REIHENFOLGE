@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.2 – VERBINDLICHE REIHENFOLGE / MOBILE-BUDDY-VISION-AR KONSOLIDIERT
+Version: 3.3 – SETTINGS REFACTOR / REALTIME STATUS ERGÄNZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -16,7 +16,7 @@ Erst Dateistruktur und Wartbarkeit stabilisieren, bevor neue Features weiter aus
 AKZEPTANZKRITERIEN:
 [ ] Keine große App-Seite bleibt als schwer wartbare Monolith-Datei.
 [ ] Wiederverwendbare Layout-Bausteine liegen zentral.
-[ ] Seitenlogik, UI-Komponenten, Daten, Types und Helper sind getrennt.
+[x] Seitenlogik, UI-Komponenten, Daten, Types und Helper sind bei Dashboard und Einstellungen getrennt begonnen.
 [ ] Jede Änderung ist kleiner, kontrollierbarer und build-sicherer.
 
 [~] WF-REFACTOR-001 – Tagesmissionen modularisiert
@@ -56,7 +56,22 @@ OFFEN / NACHLAUF:
 [ ] Dashboard Mobile-Layout manuell prüfen.
 [ ] Clientseitige Punkte-/Fortschrittslogik später backendseitig absichern.
 
-[ ] WF-REFACTOR-003 – Einstellungen modularisieren.
+[~] WF-REFACTOR-003 – Einstellungen modularisieren
+STATUS: [x] Basis umgesetzt / Nachlauf offen
+ERLEDIGT:
+[x] app/einstellungen/page.tsx nutzt zentrale Card-Komponenten.
+[x] Settings Defaults liegen in app/einstellungen/lib/settingsDefaults.ts.
+[x] Settings Mapper liegen in app/einstellungen/lib/settingsMappers.ts.
+[x] Settings Types liegen in app/einstellungen/types.ts.
+[x] Settings Speicheraktionen liegen in useSettingsActions.
+[x] Settings Live-Daten liegen in useSettingsData.
+[x] Doppelte Speicherlogik aus page.tsx entfernt.
+[x] page.tsx bleibt als skalierbarer Seiten-Orchestrator erhalten.
+OFFEN:
+[ ] Build nach Settings-Refactor ausführen.
+[ ] Einstellungen im Browser testen: Laden, Speichern, Reload und Mehrtab-Live-Sync.
+[ ] useSettingsData später weiter in Hydration-/Mapping-Helper aufteilen, falls Datei zu groß bleibt.
+
 [ ] WF-REFACTOR-004 – Wochenmissionen modularisieren.
 [ ] WF-REFACTOR-005 – Abenteuer modularisieren.
 [ ] WF-REFACTOR-006 – Challenge modularisieren.
@@ -64,10 +79,11 @@ OFFEN / NACHLAUF:
 [ ] WF-REFACTOR-008 – Favoriten modularisieren und State später anbinden.
 [ ] WF-REFACTOR-009 – History modularisieren und State später vereinheitlichen.
 
-[ ] WF-REFACTOR-010 – Globale AppShell prüfen.
+[~] WF-REFACTOR-010 – Globale AppShell prüfen.
 ERLEDIGT:
 [x] app/AppSidebar.tsx vorhanden.
 [x] app/AppFooter.tsx vorhanden.
+[x] AppSidebar responsiv korrigiert: flexible Breite, interne Scrollbarkeit, vollständige Navigation sichtbar.
 OFFEN:
 [ ] Prüfen, ob eingeloggte Seiten ein gemeinsames AppLayout bekommen.
 [ ] Footer als eigene zentrale Komponente finalisieren.
@@ -145,7 +161,7 @@ PHASE 2 – STABILISIERUNG NACH REFACTOR UND PRODUKTKERN
 
 [ ] WF-QA-001 – Build und UI nach Refactor/Mobile-Erweiterungen testen.
 [ ] WF-DOC-001 – README, Setup, Deployment und Entwicklerübergabe finalisieren.
-[ ] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umstellen.
+[x] WF-SETTINGS-REALTIME-001 – Einstellungen auf onSnapshot umgestellt / Build- und UI-Nachlauf offen.
 [ ] WF-FIRESTORE-RULES-001 – Firestore-Regeln für neue Collections prüfen.
 [ ] WF-LEGAL-002 – Datenschutz für AR/Kamera/Pose/Face/Health/Watch erweitern.
 
