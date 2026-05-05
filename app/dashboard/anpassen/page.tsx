@@ -39,6 +39,7 @@ function getNextAllowedSize(cardId: string, currentSize: DashboardCardSize) {
 export default function DashboardCustomizePage() {
   const {
     preferences,
+    isLoaded,
     resetDashboardPreferences,
     setDashboardPreferences,
   } = useDashboardPreferences();
@@ -101,7 +102,8 @@ export default function DashboardCustomizePage() {
           <button
             type="button"
             onClick={resetDashboardPreferences}
-            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white/75 hover:bg-white/10"
+            disabled={!isLoaded}
+            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white/75 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-45"
           >
             Zurücksetzen
           </button>
@@ -111,66 +113,76 @@ export default function DashboardCustomizePage() {
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[0.95fr_1.55fr] gap-5 overflow-hidden pb-20">
-        <aside className="min-h-0 overflow-y-auto rounded-[24px] bg-[#053841]/90 p-5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Auswahl</p>
-          <h2 className="mt-2 text-2xl font-extrabold text-white">Karten ein- oder ausblenden</h2>
-          <p className="mt-3 text-sm leading-relaxed text-white/65">
-            Kreis aktivieren = Karte wird im Dashboard angezeigt. Rastergröße testet Standardformate; unten rechts an Karten ziehen ändert Breite und Höhe stufenlos.
-          </p>
-
-          <div className="mt-5 space-y-3">
-            {dashboardCards.map((card) => {
-              const isPinned = pinnedCardIdSet.has(card.id);
-              const currentSize = cardSizes[card.id] ?? card.defaultSize;
-
-              return (
-                <div key={card.id} className="rounded-[18px] border border-white/10 bg-[#082c39] p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-cyan-300/70">{card.category}</p>
-                      <h3 className="mt-1 text-base font-extrabold text-white">{card.label}</h3>
-                    </div>
-                    <DashboardPinToggle
-                      isPinned={isPinned}
-                      label={`${card.label} im Dashboard anzeigen`}
-                      onPinnedChange={(nextPinned) => togglePinnedCard(card.id, nextPinned)}
-                    />
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-white/60">{card.description}</p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => cycleCardSize(card.id)}
-                      className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold text-cyan-100 hover:bg-cyan-300/15"
-                    >
-                      Rastergröße: {currentSize} → {getNextAllowedSize(card.id, currentSize)}
-                    </button>
-                    {cardDimensions[card.id] ? (
-                      <span className="rounded-full bg-orange-300/10 px-3 py-1 text-xs font-bold text-orange-100">freie Größe aktiv</span>
-                    ) : null}
-                    {card.requiresConsent ? (
-                      <span className="rounded-full bg-yellow-300/10 px-3 py-1 text-xs font-bold text-yellow-100">Consent</span>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
+      {!isLoaded ? (
+        <div className="grid min-h-0 flex-1 place-items-center overflow-hidden pb-20">
+          <div className="rounded-[24px] border border-cyan-300/10 bg-[#053841]/90 p-6 text-center text-white shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Dashboard</p>
+            <h2 className="mt-2 text-2xl font-extrabold">Deine Karten werden geladen</h2>
+            <p className="mt-2 text-sm text-white/60">Gespeicherte Auswahl und Größen werden vorbereitet.</p>
           </div>
-        </aside>
-
-        <div className="min-h-0 overflow-y-auto pr-2">
-          <DashboardPinnedCards
-            pinnedCardIds={pinnedCardIds}
-            cardSizes={cardSizes}
-            cardDimensions={cardDimensions}
-            editable
-            enableLinks={false}
-            onPinnedChange={togglePinnedCard}
-            onDimensionsChange={setCardFreeformDimensions}
-          />
         </div>
-      </div>
+      ) : (
+        <div className="grid min-h-0 flex-1 grid-cols-[0.95fr_1.55fr] gap-5 overflow-hidden pb-20">
+          <aside className="min-h-0 overflow-y-auto rounded-[24px] bg-[#053841]/90 p-5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Auswahl</p>
+            <h2 className="mt-2 text-2xl font-extrabold text-white">Karten ein- oder ausblenden</h2>
+            <p className="mt-3 text-sm leading-relaxed text-white/65">
+              Kreis aktivieren = Karte wird im Dashboard angezeigt. Rastergröße testet Standardformate; unten rechts an Karten ziehen ändert Breite und Höhe stufenlos.
+            </p>
+
+            <div className="mt-5 space-y-3">
+              {dashboardCards.map((card) => {
+                const isPinned = pinnedCardIdSet.has(card.id);
+                const currentSize = cardSizes[card.id] ?? card.defaultSize;
+
+                return (
+                  <div key={card.id} className="rounded-[18px] border border-white/10 bg-[#082c39] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-cyan-300/70">{card.category}</p>
+                        <h3 className="mt-1 text-base font-extrabold text-white">{card.label}</h3>
+                      </div>
+                      <DashboardPinToggle
+                        isPinned={isPinned}
+                        label={`${card.label} im Dashboard anzeigen`}
+                        onPinnedChange={(nextPinned) => togglePinnedCard(card.id, nextPinned)}
+                      />
+                    </div>
+                    <p className="mt-2 text-xs leading-relaxed text-white/60">{card.description}</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => cycleCardSize(card.id)}
+                        className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold text-cyan-100 hover:bg-cyan-300/15"
+                      >
+                        Rastergröße: {currentSize} → {getNextAllowedSize(card.id, currentSize)}
+                      </button>
+                      {cardDimensions[card.id] ? (
+                        <span className="rounded-full bg-orange-300/10 px-3 py-1 text-xs font-bold text-orange-100">freie Größe aktiv</span>
+                      ) : null}
+                      {card.requiresConsent ? (
+                        <span className="rounded-full bg-yellow-300/10 px-3 py-1 text-xs font-bold text-yellow-100">Consent</span>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </aside>
+
+          <div className="min-h-0 overflow-y-auto pr-2">
+            <DashboardPinnedCards
+              pinnedCardIds={pinnedCardIds}
+              cardSizes={cardSizes}
+              cardDimensions={cardDimensions}
+              editable
+              enableLinks={false}
+              onPinnedChange={togglePinnedCard}
+              onDimensionsChange={setCardFreeformDimensions}
+            />
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
