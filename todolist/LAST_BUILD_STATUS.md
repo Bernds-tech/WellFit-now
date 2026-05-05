@@ -22,6 +22,17 @@ npm run build
     - /marktplatz
     - /punkte-shop
 [x] Settings-/Realtime-Refactor blockiert den Build nicht.
+[x] AppShell-Umbau blockiert den Build nicht.
+[x] ProductModulePlaceholderPage mit AppShell blockiert den Build nicht.
+
+## Aktueller Build-Auszug
+
+```txt
+✓ Compiled successfully
+✓ Finished TypeScript
+✓ Generating static pages using 11 workers (34/34)
+✓ Finalizing page optimization
+```
 
 ## Hinweise
 
