@@ -6,14 +6,17 @@ type DashboardPinToggleProps = {
   isPinned: boolean;
   label?: string;
   disabled?: boolean;
-  onToggle?: (nextPinned: boolean) => void;
-} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "aria-label" | "disabled" | "onClick">;
+  onPinnedChange?: (nextPinned: boolean) => void;
+} & Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "aria-label" | "disabled" | "onClick" | "onToggle"
+>;
 
 export default function DashboardPinToggle({
   isPinned,
   label = "Karte im Dashboard anzeigen",
   disabled = false,
-  onToggle,
+  onPinnedChange,
   className = "",
   ...buttonProps
 }: DashboardPinToggleProps) {
@@ -25,7 +28,7 @@ export default function DashboardPinToggle({
       aria-label={nextLabel}
       aria-pressed={isPinned}
       disabled={disabled}
-      onClick={() => onToggle?.(!isPinned)}
+      onClick={() => onPinnedChange?.(!isPinned)}
       title={nextLabel}
       className={`group inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition ${
         isPinned
