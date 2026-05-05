@@ -10,13 +10,20 @@ import {
   type DashboardCardSize,
 } from "../lib/dashboardCards";
 
+type DashboardCardDimensions = {
+  width: number;
+  height: number;
+};
+
 type DashboardPinnedCardsProps = {
   pinnedCardIds?: string[];
   cardSizes?: Partial<Record<string, DashboardCardSize>>;
+  cardDimensions?: Partial<Record<string, DashboardCardDimensions>>;
   editable?: boolean;
   enableLinks?: boolean;
   onPinnedChange?: (cardId: string, nextPinned: boolean) => void;
   onSizeChange?: (cardId: string, nextSize: DashboardCardSize) => void;
+  onDimensionsChange?: (cardId: string, nextDimensions: DashboardCardDimensions) => void;
   onMoveCard?: (cardId: string, direction: "up" | "down") => void;
 };
 
@@ -27,14 +34,23 @@ const sizeClassByCardSize: Record<DashboardCardSize, string> = {
   wide: "sm:col-span-2 xl:col-span-2",
 };
 
-const sizeOrder: DashboardCardSize[] = ["small", "medium", "large", "wide"];
-
 const nextSizeBySize: Record<DashboardCardSize, DashboardCardSize> = {
   small: "medium",
   medium: "large",
   large: "wide",
   wide: "small",
 };
+
+const defaultDimensionsBySize: Record<DashboardCardSize, DashboardCardDimensions> = {
+  small: { width: 260, height: 230 },
+  medium: { width: 330, height: 270 },
+  large: { width: 420, height: 330 },
+  wide: { width: 620, height: 330 },
+};
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
 
 function getCardSize(card: DashboardCardDefinition, cardSizes?: Partial<Record<string, DashboardCardSize>>) {
   const requestedSize = cardSizes?.[card.id];
@@ -57,54 +73,37 @@ function getNextAllowedSize(card: DashboardCardDefinition, currentSize: Dashboar
   return nextSize;
 }
 
-function getSizeFromDrag(card: DashboardCardDefinition, currentSize: DashboardCardSize, deltaX: number, deltaY: number) {
-  const dragDistance = deltaX + deltaY * 0.7;
-  const currentIndex = sizeOrder.indexOf(currentSize);
-  const step = Math.max(-2, Math.min(2, Math.round(dragDistance / 110)));
-  const targetIndex = Math.max(0, Math.min(sizeOrder.length - 1, currentIndex + step));
-  let targetSize = sizeOrder[targetIndex];
-
-  if (card.allowedSizes.includes(targetSize)) {
-    return targetSize;
-  }
-
-  const allowedByDistance = [...card.allowedSizes].sort(
-    (a, b) => Math.abs(sizeOrder.indexOf(a) - targetIndex) - Math.abs(sizeOrder.indexOf(b) - targetIndex),
-  );
-
-  targetSize = allowedByDistance[0] ?? currentSize;
-  return targetSize;
-}
-
 export default function DashboardPinnedCards({
   pinnedCardIds = defaultPinnedDashboardCardIds,
   cardSizes,
+  cardDimensions,
   editable = false,
   enableLinks = true,
   onPinnedChange,
   onSizeChange,
+  onDimensionsChange,
   onMoveCard,
 }: DashboardPinnedCardsProps) {
   const pinnedCards = pinnedCardIds
     .map((cardId) => dashboardCards.find((card) => card.id === cardId))
     .filter((card): card is DashboardCardDefinition => Boolean(card));
 
-  const startResize = (event: ReactPointerEvent<HTMLButtonElement>, card: DashboardCardDefinition, currentSize: DashboardCardSize) => {
-    if (!editable || !onSizeChange) return;
+  const startResize = (event: ReactPointerEvent<HTMLButtonElement>, cardId: string, currentDimensions: DashboardCardDimensions) => {
+    if (!editable || !onDimensionsChange) return;
 
     event.preventDefault();
     event.stopPropagation();
 
     const startX = event.clientX;
     const startY = event.clientY;
-    let lastAppliedSize = currentSize;
+    const startWidth = currentDimensions.width;
+    const startHeight = currentDimensions.height;
 
     const handlePointerMove = (pointerEvent: PointerEvent) => {
-      const nextSize = getSizeFromDrag(card, currentSize, pointerEvent.clientX - startX, pointerEvent.clientY - startY);
-      if (nextSize !== lastAppliedSize) {
-        lastAppliedSize = nextSize;
-        onSizeChange(card.id, nextSize);
-      }
+      onDimensionsChange(cardId, {
+        width: clamp(startWidth + pointerEvent.clientX - startX, 220, 900),
+        height: clamp(startHeight + pointerEvent.clientY - startY, 190, 620),
+      });
     };
 
     const stopResize = () => {
@@ -142,15 +141,19 @@ export default function DashboardPinnedCards({
         </p>
       </div>
 
-      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className={editable ? "flex min-w-0 flex-wrap items-start gap-4" : "grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
         {pinnedCards.map((card, index) => {
           const cardSize = getCardSize(card, cardSizes);
           const nextSize = getNextAllowedSize(card, cardSize);
+          const dimensions = cardDimensions?.[card.id] ?? defaultDimensionsBySize[cardSize];
           const isFirst = index === 0;
           const isLast = index === pinnedCards.length - 1;
 
           const cardContent = (
-            <div className="relative flex h-full min-h-[220px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-cyan-300/10 bg-[#053841]/90 p-5 text-white shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
+            <div
+              className="relative flex h-full min-h-[190px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-cyan-300/10 bg-[#053841]/90 p-5 text-white shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
+              style={editable ? { width: dimensions.width, height: dimensions.height } : undefined}
+            >
               <div className="flex min-w-0 items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <p className="break-words text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300/75">{card.category}</p>
@@ -165,12 +168,14 @@ export default function DashboardPinnedCards({
                 />
               </div>
 
-              <p className="mt-3 flex-1 break-words text-[clamp(0.82rem,1vw,0.98rem)] leading-relaxed text-white/72">
-                {card.description}
-              </p>
+              <div className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1">
+                <p className="break-words text-[clamp(0.82rem,1vw,0.98rem)] leading-relaxed text-white/72">
+                  {card.description}
+                </p>
+              </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-white/55">
-                <span className="rounded-full bg-white/5 px-3 py-1">Größe: {cardSize}</span>
+                <span className="rounded-full bg-white/5 px-3 py-1">{editable ? `${Math.round(dimensions.width)} × ${Math.round(dimensions.height)} px` : `Größe: ${cardSize}`}</span>
                 <span className="rounded-full bg-white/5 px-3 py-1">{card.requiresConsent ? "Consent nötig" : "Standardkarte"}</span>
               </div>
 
@@ -181,7 +186,7 @@ export default function DashboardPinnedCards({
                     onClick={() => onSizeChange?.(card.id, nextSize)}
                     className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-xs font-bold text-cyan-100 hover:bg-cyan-300/15"
                   >
-                    Größe ändern → {nextSize}
+                    Rastergröße → {nextSize}
                   </button>
                   <button
                     type="button"
@@ -205,9 +210,9 @@ export default function DashboardPinnedCards({
               {editable ? (
                 <button
                   type="button"
-                  aria-label={`${card.label} an der Ecke ziehen, um die Größe zu ändern`}
-                  title="Ziehen zum Vergrößern oder Verkleinern"
-                  onPointerDown={(event) => startResize(event, card, cardSize)}
+                  aria-label={`${card.label} stufenlos an der Ecke ziehen, um die Größe zu ändern`}
+                  title="Ziehen zum stufenlosen Vergrößern oder Verkleinern"
+                  onPointerDown={(event) => startResize(event, card.id, dimensions)}
                   className="absolute bottom-3 right-3 h-8 w-8 cursor-nwse-resize rounded-br-[18px] rounded-tl-xl border border-orange-300/35 bg-orange-300/15 text-orange-100 hover:bg-orange-300/25"
                 >
                   <span className="absolute bottom-2 right-2 h-3 w-3 border-b-2 border-r-2 border-orange-200" />
@@ -218,7 +223,7 @@ export default function DashboardPinnedCards({
           );
 
           return (
-            <div key={card.id} className={`min-w-0 ${sizeClassByCardSize[cardSize]}`}>
+            <div key={card.id} className={editable ? "min-w-0" : `min-w-0 ${sizeClassByCardSize[cardSize]}`}>
               {card.href && enableLinks && !editable ? (
                 <Link href={card.href} className="block h-full transition hover:scale-[1.01]">
                   {cardContent}
