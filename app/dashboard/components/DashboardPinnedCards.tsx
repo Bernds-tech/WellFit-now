@@ -34,13 +34,6 @@ const sizeClassByCardSize: Record<DashboardCardSize, string> = {
   wide: "sm:col-span-2 xl:col-span-2",
 };
 
-const nextSizeBySize: Record<DashboardCardSize, DashboardCardSize> = {
-  small: "medium",
-  medium: "large",
-  large: "wide",
-  wide: "small",
-};
-
 const defaultDimensionsBySize: Record<DashboardCardSize, DashboardCardDimensions> = {
   small: { width: 260, height: 230 },
   medium: { width: 330, height: 270 },
@@ -61,18 +54,6 @@ function getCardSize(card: DashboardCardDefinition, cardSizes?: Partial<Record<s
   return card.defaultSize;
 }
 
-function getNextAllowedSize(card: DashboardCardDefinition, currentSize: DashboardCardSize) {
-  let nextSize = nextSizeBySize[currentSize];
-  let safetyCounter = 0;
-
-  while (!card.allowedSizes.includes(nextSize) && safetyCounter < 4) {
-    nextSize = nextSizeBySize[nextSize];
-    safetyCounter += 1;
-  }
-
-  return nextSize;
-}
-
 export default function DashboardPinnedCards({
   pinnedCardIds = defaultPinnedDashboardCardIds,
   cardSizes,
@@ -80,9 +61,7 @@ export default function DashboardPinnedCards({
   editable = false,
   enableLinks = true,
   onPinnedChange,
-  onSizeChange,
   onDimensionsChange,
-  onMoveCard,
 }: DashboardPinnedCardsProps) {
   const pinnedCards = pinnedCardIds
     .map((cardId) => dashboardCards.find((card) => card.id === cardId))
@@ -142,12 +121,9 @@ export default function DashboardPinnedCards({
       </div>
 
       <div className={editable ? "flex min-w-0 flex-wrap items-start gap-4" : "grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
-        {pinnedCards.map((card, index) => {
+        {pinnedCards.map((card) => {
           const cardSize = getCardSize(card, cardSizes);
-          const nextSize = getNextAllowedSize(card, cardSize);
           const dimensions = cardDimensions?.[card.id] ?? defaultDimensionsBySize[cardSize];
-          const isFirst = index === 0;
-          const isLast = index === pinnedCards.length - 1;
 
           const cardContent = (
             <div
@@ -174,49 +150,20 @@ export default function DashboardPinnedCards({
                 </p>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-white/55">
+              <div className="mt-4 flex flex-wrap items-center gap-2 pr-8 text-xs text-white/55">
                 <span className="rounded-full bg-white/5 px-3 py-1">{editable ? `${Math.round(dimensions.width)} × ${Math.round(dimensions.height)} px` : `Größe: ${cardSize}`}</span>
                 <span className="rounded-full bg-white/5 px-3 py-1">{card.requiresConsent ? "Consent nötig" : "Standardkarte"}</span>
               </div>
 
               {editable ? (
-                <div className="mt-4 flex flex-wrap gap-2 border-t border-white/10 pt-3 pr-8">
-                  <button
-                    type="button"
-                    onClick={() => onSizeChange?.(card.id, nextSize)}
-                    className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-xs font-bold text-cyan-100 hover:bg-cyan-300/15"
-                  >
-                    Rastergröße → {nextSize}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isFirst}
-                    onClick={() => onMoveCard?.(card.id, "up")}
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/80 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35"
-                  >
-                    ↑ Hoch
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isLast}
-                    onClick={() => onMoveCard?.(card.id, "down")}
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/80 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35"
-                  >
-                    ↓ Runter
-                  </button>
-                </div>
-              ) : null}
-
-              {editable ? (
                 <button
                   type="button"
-                  aria-label={`${card.label} stufenlos an der Ecke ziehen, um die Größe zu ändern`}
-                  title="Ziehen zum stufenlosen Vergrößern oder Verkleinern"
+                  aria-label={`${card.label} stufenlos an der Kartenecke ziehen, um die Größe zu ändern`}
+                  title="Kartenecke ziehen zum stufenlosen Vergrößern oder Verkleinern"
                   onPointerDown={(event) => startResize(event, card.id, dimensions)}
-                  className="absolute bottom-3 right-3 h-8 w-8 cursor-nwse-resize rounded-br-[18px] rounded-tl-xl border border-orange-300/35 bg-orange-300/15 text-orange-100 hover:bg-orange-300/25"
+                  className="absolute bottom-0 right-0 h-12 w-12 cursor-nwse-resize bg-transparent"
                 >
-                  <span className="absolute bottom-2 right-2 h-3 w-3 border-b-2 border-r-2 border-orange-200" />
-                  <span className="absolute bottom-2 right-2 h-5 w-5 border-b border-r border-orange-200/60" />
+                  <span className="absolute bottom-2 right-2 h-4 w-4 border-b-2 border-r-2 border-orange-200/70" />
                 </button>
               ) : null}
             </div>
