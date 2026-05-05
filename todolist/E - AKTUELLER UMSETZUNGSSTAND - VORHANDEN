@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.3 – SETTINGS REALTIME / EINSTELLUNGEN LIVE-SYNC ERGÄNZT
+Version: 3.4 – PRODUKTMODUL-PLATZHALTER / SIDEBAR LINKS ERGÄNZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Datei: To Do List.txt
@@ -22,6 +22,12 @@ E. AKTUELLER UMSETZUNGSSTAND / VORHANDEN
 [x] Einstellungen-Speicherlogik liegt zentral in useSettingsActions.
 [x] Einstellungen-Ladelogik liegt zentral in useSettingsData.
 [x] Hilfe-Seite existiert.
+[x] Marktplatz-Seite existiert als sichere MVP-Platzhalterseite.
+[x] Leaderboard-Seite existiert als sichere MVP-Platzhalterseite.
+[x] Punkte-Shop-Seite existiert als sichere MVP-Platzhalterseite.
+[x] Analytics-&-Stats-Seite existiert als sichere MVP-Platzhalterseite.
+[x] Gemeinsame ProductModulePlaceholderPage-Komponente existiert.
+[x] Sidebar verlinkt Marktplatz, Leaderboard, Punkte-Shop und Analytics & Stats.
 [x] Tagesmissionen existieren.
 [x] Wochenmissionen existieren.
 [x] Abenteuer existieren.
