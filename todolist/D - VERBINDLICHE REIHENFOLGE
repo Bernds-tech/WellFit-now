@@ -1,5 +1,5 @@
 WELLFIT – MASTER ROADMAP & DEVELOPER TO-DO LIST
-Version: 3.3 – SETTINGS REFACTOR / REALTIME STATUS ERGÄNZT
+Version: 3.4 – PRODUKTMODUL-PLATZHALTER / SIDEBAR LINKS ERGÄNZT
 Status: Aktive Produktumsetzung / Entwickler- und KI-Arbeitsgrundlage
 Repository: Bernds-tech/WellFit-now
 Ordner: todolist/
@@ -15,7 +15,7 @@ ZIEL:
 Erst Dateistruktur und Wartbarkeit stabilisieren, bevor neue Features weiter ausgebaut werden.
 AKZEPTANZKRITERIEN:
 [ ] Keine große App-Seite bleibt als schwer wartbare Monolith-Datei.
-[ ] Wiederverwendbare Layout-Bausteine liegen zentral.
+[x] Wiederverwendbare Layout-Bausteine liegen zentral: ProductModulePlaceholderPage für sichere Produktmodul-MVP-Seiten ergänzt.
 [x] Seitenlogik, UI-Komponenten, Daten, Types und Helper sind bei Dashboard und Einstellungen getrennt begonnen.
 [ ] Jede Änderung ist kleiner, kontrollierbarer und build-sicherer.
 
@@ -84,6 +84,7 @@ ERLEDIGT:
 [x] app/AppSidebar.tsx vorhanden.
 [x] app/AppFooter.tsx vorhanden.
 [x] AppSidebar responsiv korrigiert: flexible Breite, interne Scrollbarkeit, vollständige Navigation sichtbar.
+[x] AppSidebar verlinkt Marktplatz, Leaderboard, Punkte-Shop und Analytics & Stats auf sichere MVP-Platzhalterseiten.
 OFFEN:
 [ ] Prüfen, ob eingeloggte Seiten ein gemeinsames AppLayout bekommen.
 [ ] Footer als eigene zentrale Komponente finalisieren.
@@ -98,10 +99,10 @@ ZIEL:
 Bevor Tagesmissionen, Wochenmissionen, Abenteuer, Challenge und Wettkämpfe inhaltlich breit ausgebaut werden, werden zentrale Produktmodule vorbereitet.
 
 AKZEPTANZKRITERIEN:
-[ ] Dashboard zeigt konsistente Einstiege zu allen Kernmodulen.
-[ ] Keine neuen produktkritischen Economy-Funktionen werden rein clientseitig autorisiert.
-[ ] Punkte, Shop-Käufe, Marketplace-Transaktionen und Leaderboard-Wertungen werden später backend-/regelbasiert vorbereitet.
-[ ] Module bleiben MVP-tauglich, aber architektonisch erweiterbar.
+[x] Dashboard/Sidebar zeigt konsistente Einstiege zu allen Kernmodulen.
+[x] Keine neuen produktkritischen Economy-Funktionen werden rein clientseitig autorisiert.
+[x] Punkte, Shop-Käufe, Marketplace-Transaktionen und Leaderboard-Wertungen werden später backend-/regelbasiert vorbereitet.
+[x] Module bleiben MVP-tauglich, aber architektonisch erweiterbar.
 
 [x] WF-DASH-BUDDY-001 – Mein KI-Buddy Modul ausbauen
 STATUS: [x] Funktional umgesetzt / Gerätetest und Security-Härtung offen
@@ -119,10 +120,33 @@ OFFEN:
 [ ] Servervalidierung für Punkte, Pflege, Rewards und Inventory planen.
 [ ] Buddy-Charaktere final definieren.
 
-[ ] WF-MARKET-001 – Marktplatz MVP vorbereiten.
-[ ] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten.
-[ ] WF-SHOP-001 – Punkte-Shop MVP vorbereiten.
-[ ] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
+[~] WF-MARKET-001 – Marktplatz MVP vorbereiten.
+ERLEDIGT:
+[x] /marktplatz als sichere MVP-Platzhalterseite angelegt.
+[x] Keine echte Kauf-, Token-, NFT- oder Wallet-Funktion eingebaut.
+OFFEN:
+[ ] Marketplace-Datenmodell, Moderation, Sichtbarkeit und interne Spend-Events planen.
+
+[~] WF-LEADERBOARD-001 – Leaderboard MVP vorbereiten.
+ERLEDIGT:
+[x] /leaderboard als sichere MVP-Platzhalterseite angelegt.
+[x] Keine finale Ranking-/Score-Autorität clientseitig eingebaut.
+OFFEN:
+[ ] Server-Scores, Privacy-Regeln und Anti-Farming-Anbindung planen.
+
+[~] WF-SHOP-001 – Punkte-Shop MVP vorbereiten.
+ERLEDIGT:
+[x] /punkte-shop als sichere MVP-Platzhalterseite angelegt.
+[x] Keine echte Punkteausgabe, Token-, NFT- oder Wallet-Funktion eingebaut.
+OFFEN:
+[ ] Shop-Item-Datenmodell, Spend-Policy, Limits und Audit-Events planen.
+
+[~] WF-ANALYTICS-001 – Analytics & Stats MVP vorbereiten.
+ERLEDIGT:
+[x] /analytics als sichere MVP-Platzhalterseite angelegt.
+[x] Datenschutz-, Opt-in- und Aggregationshinweise sichtbar gemacht.
+OFFEN:
+[ ] Analytics-Readmodels, Consent-Flags und sichere Aggregationspfade definieren.
 
 ============================================================
 PHASE 1.6 – MOBILE / PWA / VISION STABILISIEREN
