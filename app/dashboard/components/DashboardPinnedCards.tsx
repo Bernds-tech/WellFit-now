@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import DashboardPinToggle from "@/app/components/DashboardPinToggle";
 import {
   dashboardCards,
@@ -25,6 +26,8 @@ const sizeClassByCardSize: Record<DashboardCardSize, string> = {
   large: "sm:col-span-2 xl:col-span-1",
   wide: "sm:col-span-2 xl:col-span-2",
 };
+
+const sizeOrder: DashboardCardSize[] = ["small", "medium", "large", "wide"];
 
 const nextSizeBySize: Record<DashboardCardSize, DashboardCardSize> = {
   small: "medium",
@@ -54,6 +57,25 @@ function getNextAllowedSize(card: DashboardCardDefinition, currentSize: Dashboar
   return nextSize;
 }
 
+function getSizeFromDrag(card: DashboardCardDefinition, currentSize: DashboardCardSize, deltaX: number, deltaY: number) {
+  const dragDistance = deltaX + deltaY * 0.7;
+  const currentIndex = sizeOrder.indexOf(currentSize);
+  const step = Math.max(-2, Math.min(2, Math.round(dragDistance / 110)));
+  const targetIndex = Math.max(0, Math.min(sizeOrder.length - 1, currentIndex + step));
+  let targetSize = sizeOrder[targetIndex];
+
+  if (card.allowedSizes.includes(targetSize)) {
+    return targetSize;
+  }
+
+  const allowedByDistance = [...card.allowedSizes].sort(
+    (a, b) => Math.abs(sizeOrder.indexOf(a) - targetIndex) - Math.abs(sizeOrder.indexOf(b) - targetIndex),
+  );
+
+  targetSize = allowedByDistance[0] ?? currentSize;
+  return targetSize;
+}
+
 export default function DashboardPinnedCards({
   pinnedCardIds = defaultPinnedDashboardCardIds,
   cardSizes,
@@ -66,6 +88,35 @@ export default function DashboardPinnedCards({
   const pinnedCards = pinnedCardIds
     .map((cardId) => dashboardCards.find((card) => card.id === cardId))
     .filter((card): card is DashboardCardDefinition => Boolean(card));
+
+  const startResize = (event: ReactPointerEvent<HTMLButtonElement>, card: DashboardCardDefinition, currentSize: DashboardCardSize) => {
+    if (!editable || !onSizeChange) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    let lastAppliedSize = currentSize;
+
+    const handlePointerMove = (pointerEvent: PointerEvent) => {
+      const nextSize = getSizeFromDrag(card, currentSize, pointerEvent.clientX - startX, pointerEvent.clientY - startY);
+      if (nextSize !== lastAppliedSize) {
+        lastAppliedSize = nextSize;
+        onSizeChange(card.id, nextSize);
+      }
+    };
+
+    const stopResize = () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", stopResize);
+      window.removeEventListener("pointercancel", stopResize);
+    };
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", stopResize);
+    window.addEventListener("pointercancel", stopResize);
+  };
 
   if (pinnedCards.length === 0) {
     return (
@@ -99,7 +150,7 @@ export default function DashboardPinnedCards({
           const isLast = index === pinnedCards.length - 1;
 
           const cardContent = (
-            <div className="flex h-full min-h-[220px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-cyan-300/10 bg-[#053841]/90 p-5 text-white shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
+            <div className="relative flex h-full min-h-[220px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-cyan-300/10 bg-[#053841]/90 p-5 text-white shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
               <div className="flex min-w-0 items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <p className="break-words text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300/75">{card.category}</p>
@@ -124,7 +175,7 @@ export default function DashboardPinnedCards({
               </div>
 
               {editable ? (
-                <div className="mt-4 flex flex-wrap gap-2 border-t border-white/10 pt-3">
+                <div className="mt-4 flex flex-wrap gap-2 border-t border-white/10 pt-3 pr-8">
                   <button
                     type="button"
                     onClick={() => onSizeChange?.(card.id, nextSize)}
@@ -149,6 +200,19 @@ export default function DashboardPinnedCards({
                     ↓ Runter
                   </button>
                 </div>
+              ) : null}
+
+              {editable ? (
+                <button
+                  type="button"
+                  aria-label={`${card.label} an der Ecke ziehen, um die Größe zu ändern`}
+                  title="Ziehen zum Vergrößern oder Verkleinern"
+                  onPointerDown={(event) => startResize(event, card, cardSize)}
+                  className="absolute bottom-3 right-3 h-8 w-8 cursor-nwse-resize rounded-br-[18px] rounded-tl-xl border border-orange-300/35 bg-orange-300/15 text-orange-100 hover:bg-orange-300/25"
+                >
+                  <span className="absolute bottom-2 right-2 h-3 w-3 border-b-2 border-r-2 border-orange-200" />
+                  <span className="absolute bottom-2 right-2 h-5 w-5 border-b border-r border-orange-200/60" />
+                </button>
               ) : null}
             </div>
           );
