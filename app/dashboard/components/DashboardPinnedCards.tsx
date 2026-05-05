@@ -22,15 +22,15 @@ type DashboardPinnedCardsProps = {
   editable?: boolean;
   enableLinks?: boolean;
   onPinnedChange?: (cardId: string, nextPinned: boolean) => void;
-  onSizeChange?: (cardId: string, nextSize: DashboardCardSize) => void;
   onDimensionsChange?: (cardId: string, nextDimensions: DashboardCardDimensions) => void;
-  onMoveCard?: (cardId: string, direction: "up" | "down") => void;
 };
 
+const compactCardScale = 0.75;
+
 const sizeClassByCardSize: Record<DashboardCardSize, string> = {
-  small: "sm:col-span-1",
-  medium: "sm:col-span-1 xl:col-span-1",
-  large: "sm:col-span-2 xl:col-span-1",
+  small: "",
+  medium: "",
+  large: "sm:col-span-2 xl:col-span-2",
   wide: "sm:col-span-2 xl:col-span-2",
 };
 
@@ -52,6 +52,13 @@ function getCardSize(card: DashboardCardDefinition, cardSizes?: Partial<Record<s
   }
 
   return card.defaultSize;
+}
+
+function getCompactDimensions(dimensions: DashboardCardDimensions) {
+  return {
+    width: Math.round(dimensions.width * compactCardScale),
+    height: Math.round(dimensions.height * compactCardScale),
+  };
 }
 
 export default function DashboardPinnedCards({
@@ -99,53 +106,53 @@ export default function DashboardPinnedCards({
   if (pinnedCards.length === 0) {
     return (
       <section className="rounded-[24px] border border-cyan-300/10 bg-[#053841]/90 p-5 text-white shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
-        <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Mein Dashboard</p>
-        <h2 className="mt-2 text-2xl font-extrabold">Noch keine Karten ausgewählt</h2>
-        <p className="mt-3 text-sm leading-relaxed text-white/70">
-          Aktiviere auf Karten den Dashboard-Kreis, damit sie hier als persönliche Startzentrale erscheinen.
+        <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Dashboard</p>
+        <h2 className="mt-2 text-2xl font-extrabold">Keine Karten ausgewählt</h2>
+        <p className="mt-2 text-sm leading-relaxed text-white/65">
+          Aktiviere links mindestens eine Karte, damit sie in deiner persönlichen Startzentrale angezeigt wird.
         </p>
       </section>
     );
   }
 
   return (
-    <section className="min-w-0 space-y-4 overflow-hidden">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Mein Dashboard</p>
-          <h2 className="mt-1 text-2xl font-extrabold text-white">Ausgewählte Karten</h2>
-        </div>
-        <p className="max-w-xl text-sm leading-relaxed text-cyan-100/70">
-          Auswahl, Reihenfolge und Größe werden später über settings.dashboard gespeichert.
+    <section className="rounded-[24px] border border-cyan-300/10 bg-[#042f39]/70 p-5 text-white shadow-[0_12px_30px_rgba(0,0,0,0.16)]">
+      <div className="mb-4">
+        <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Vorschau</p>
+        <h2 className="mt-2 text-2xl font-extrabold">Deine Dashboard-Karten</h2>
+        <p className="mt-2 text-sm leading-relaxed text-white/65">
+          Diese Karten bilden deine persönliche Startzentrale. In der Bearbeitung sind sie bewusst kompakter dargestellt.
         </p>
       </div>
 
-      <div className={editable ? "flex min-w-0 flex-wrap items-start gap-4" : "grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
+      <div className={editable ? "flex min-w-0 flex-wrap items-start gap-3" : "grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"}>
         {pinnedCards.map((card) => {
           const cardSize = getCardSize(card, cardSizes);
           const dimensions = cardDimensions?.[card.id] ?? defaultDimensionsBySize[cardSize];
+          const compactDimensions = getCompactDimensions(dimensions);
 
           const cardContent = (
             <div
-              className="relative flex h-full min-h-[190px] min-w-0 flex-col overflow-hidden rounded-[22px] border border-cyan-300/10 bg-[#053841]/90 p-5 text-white shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
-              style={editable ? { width: dimensions.width, height: dimensions.height } : undefined}
+              className="relative flex h-full min-h-[142px] min-w-0 flex-col overflow-hidden rounded-[20px] border border-cyan-300/10 bg-[#053841]/90 p-4 text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)]"
+              style={editable ? { width: compactDimensions.width, height: compactDimensions.height } : undefined}
             >
-              <div className="flex min-w-0 items-start justify-between gap-4">
+              <div className="flex min-w-0 items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="break-words text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300/75">{card.category}</p>
-                  <h3 className="mt-2 break-words text-[clamp(1.05rem,1.4vw,1.55rem)] font-extrabold leading-tight text-white">
-                    {card.label}
-                  </h3>
+                  <p className="break-words text-[9px] font-black uppercase tracking-[0.2em] text-cyan-300/75">{card.category}</p>
+                  <h3 className="mt-1 break-words text-[clamp(0.95rem,1.3vw,1.18rem)] font-extrabold leading-tight text-white">{card.label}</h3>
                 </div>
-                <DashboardPinToggle
-                  isPinned
-                  label={`${card.label} im Dashboard anzeigen`}
-                  onPinnedChange={(nextPinned) => onPinnedChange?.(card.id, nextPinned)}
-                />
+
+                {editable && onPinnedChange ? (
+                  <DashboardPinToggle
+                    isPinned
+                    label={`${card.label} aus dem Dashboard entfernen`}
+                    onPinnedChange={(nextPinned) => onPinnedChange(card.id, nextPinned)}
+                  />
+                ) : null}
               </div>
 
-              <div className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1">
-                <p className="break-words text-[clamp(0.82rem,1vw,0.98rem)] leading-relaxed text-white/72">
+              <div className="mt-2 min-h-0 flex-1 overflow-y-auto pr-1">
+                <p className="break-words text-[clamp(0.75rem,0.9vw,0.88rem)] leading-relaxed text-white/72">
                   {card.description}
                 </p>
               </div>
@@ -156,9 +163,9 @@ export default function DashboardPinnedCards({
                   aria-label={`${card.label} stufenlos an der Kartenecke ziehen, um die Größe zu ändern`}
                   title="Kartenecke ziehen zum stufenlosen Vergrößern oder Verkleinern"
                   onPointerDown={(event) => startResize(event, card.id, dimensions)}
-                  className="absolute bottom-0 right-0 h-12 w-12 cursor-nwse-resize bg-transparent"
+                  className="absolute bottom-0 right-0 h-10 w-10 cursor-nwse-resize bg-transparent"
                 >
-                  <span className="absolute bottom-2 right-2 h-4 w-4 border-b-2 border-r-2 border-orange-200/70" />
+                  <span className="absolute bottom-2 right-2 h-3.5 w-3.5 border-b-2 border-r-2 border-orange-200/70" />
                 </button>
               ) : null}
             </div>
