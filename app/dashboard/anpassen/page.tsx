@@ -11,6 +11,11 @@ import {
   type DashboardCardSize,
 } from "../lib/dashboardCards";
 
+type DashboardCardDimensions = {
+  width: number;
+  height: number;
+};
+
 const nextSizeBySize: Record<DashboardCardSize, DashboardCardSize> = {
   small: "medium",
   medium: "large",
@@ -36,6 +41,7 @@ function getNextAllowedSize(cardId: string, currentSize: DashboardCardSize) {
 export default function DashboardCustomizePage() {
   const [pinnedCardIds, setPinnedCardIds] = useState<string[]>(defaultPinnedDashboardCardIds);
   const [cardSizes, setCardSizes] = useState<Partial<Record<string, DashboardCardSize>>>({});
+  const [cardDimensions, setCardDimensions] = useState<Partial<Record<string, DashboardCardDimensions>>>({});
 
   const pinnedCardIdSet = useMemo(() => new Set(pinnedCardIds), [pinnedCardIds]);
 
@@ -57,10 +63,23 @@ export default function DashboardCustomizePage() {
       const currentSize = currentSizes[cardId] ?? card.defaultSize;
       return { ...currentSizes, [cardId]: getNextAllowedSize(cardId, currentSize) };
     });
+
+    setCardDimensions((currentDimensions) => {
+      const { [cardId]: _removedDimension, ...remainingDimensions } = currentDimensions;
+      return remainingDimensions;
+    });
   };
 
   const setCardSize = (cardId: string, nextSize: DashboardCardSize) => {
     setCardSizes((currentSizes) => ({ ...currentSizes, [cardId]: nextSize }));
+    setCardDimensions((currentDimensions) => {
+      const { [cardId]: _removedDimension, ...remainingDimensions } = currentDimensions;
+      return remainingDimensions;
+    });
+  };
+
+  const setCardFreeformDimensions = (cardId: string, nextDimensions: DashboardCardDimensions) => {
+    setCardDimensions((currentDimensions) => ({ ...currentDimensions, [cardId]: nextDimensions }));
   };
 
   const moveCard = (cardId: string, direction: "up" | "down") => {
@@ -98,7 +117,7 @@ export default function DashboardCustomizePage() {
           <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Auswahl</p>
           <h2 className="mt-2 text-2xl font-extrabold text-white">Karten ein- oder ausblenden</h2>
           <p className="mt-3 text-sm leading-relaxed text-white/65">
-            Kreis aktivieren = Karte wird im Dashboard angezeigt. Größe und Reihenfolge ändern testet späteres responsive Verhalten.
+            Kreis aktivieren = Karte wird im Dashboard angezeigt. Rastergröße testet Standardformate; unten rechts an Karten ziehen ändert Breite und Höhe stufenlos.
           </p>
 
           <div className="mt-5 space-y-3">
@@ -127,8 +146,11 @@ export default function DashboardCustomizePage() {
                       onClick={() => cycleCardSize(card.id)}
                       className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold text-cyan-100 hover:bg-cyan-300/15"
                     >
-                      Größe: {currentSize} → {nextSize}
+                      Rastergröße: {currentSize} → {nextSize}
                     </button>
+                    {cardDimensions[card.id] ? (
+                      <span className="rounded-full bg-orange-300/10 px-3 py-1 text-xs font-bold text-orange-100">freie Größe aktiv</span>
+                    ) : null}
                     {card.requiresConsent ? (
                       <span className="rounded-full bg-yellow-300/10 px-3 py-1 text-xs font-bold text-yellow-100">Consent</span>
                     ) : null}
@@ -143,10 +165,12 @@ export default function DashboardCustomizePage() {
           <DashboardPinnedCards
             pinnedCardIds={pinnedCardIds}
             cardSizes={cardSizes}
+            cardDimensions={cardDimensions}
             editable
             enableLinks={false}
             onPinnedChange={togglePinnedCard}
             onSizeChange={setCardSize}
+            onDimensionsChange={setCardFreeformDimensions}
             onMoveCard={moveCard}
           />
         </div>
