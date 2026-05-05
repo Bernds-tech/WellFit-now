@@ -150,11 +150,6 @@ export default function DashboardPinnedCards({
                 </p>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-2 pr-8 text-xs text-white/55">
-                <span className="rounded-full bg-white/5 px-3 py-1">{editable ? `${Math.round(dimensions.width)} × ${Math.round(dimensions.height)} px` : `Größe: ${cardSize}`}</span>
-                <span className="rounded-full bg-white/5 px-3 py-1">{card.requiresConsent ? "Consent nötig" : "Standardkarte"}</span>
-              </div>
-
               {editable ? (
                 <button
                   type="button"
