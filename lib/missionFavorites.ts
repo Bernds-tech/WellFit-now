@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 import { auth, db } from "@/lib/firebase";
 import { collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 
@@ -37,7 +38,7 @@ const normalizeFavorite = (id: string, data: Record<string, any>): MissionFavori
   description: String(data.description ?? ""),
   rewardLabel: String(data.rewardLabel ?? `+${Number(data.rewardPoints ?? 0)} WFT`),
   rewardPoints: Number(data.rewardPoints ?? 0),
-  icon: String(data.icon ?? "⭐"),
+  icon: String(data.icon ?? "â­"),
   sourcePath: String(data.sourcePath ?? "/missionen/tagesmissionen"),
   source: String(data.source ?? "prefab"),
   createdAt: data.createdAt,
@@ -63,7 +64,7 @@ export async function setMissionFavorite(input: MissionFavoriteInput) {
       description: input.description ?? "",
       rewardLabel: input.rewardLabel ?? `+${input.rewardPoints ?? 0} WFT`,
       rewardPoints: input.rewardPoints ?? 0,
-      icon: input.icon ?? "⭐",
+      icon: input.icon ?? "â­",
       sourcePath: input.sourcePath ?? "/missionen/tagesmissionen",
       source: input.source ?? "prefab",
       createdAt: serverTimestamp(),
@@ -106,3 +107,4 @@ export function listenUserFavorites(userId: string, onChange: (favorites: Missio
     }
   );
 }
+

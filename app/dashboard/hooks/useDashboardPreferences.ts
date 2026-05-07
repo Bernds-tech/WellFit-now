@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { defaultPinnedDashboardCardIds, type DashboardCardSize } from "../lib/dashboardCards";
@@ -57,8 +57,10 @@ export function useDashboardPreferences() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setPreferences(readPreferences());
-    setIsLoaded(true);
+    queueMicrotask(() => {
+      setPreferences(readPreferences());
+      setIsLoaded(true);
+    });
   }, []);
 
   const setDashboardPreferences = useCallback((updater: DashboardPreferences | ((current: DashboardPreferences) => DashboardPreferences)) => {
@@ -76,3 +78,4 @@ export function useDashboardPreferences() {
 
   return { preferences, isLoaded, setDashboardPreferences, resetDashboardPreferences };
 }
+

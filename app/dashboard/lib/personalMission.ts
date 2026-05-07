@@ -1,3 +1,22 @@
+﻿import type { User } from "@/types/user";
+
+type PersonalMissionProfile = {
+  activityType?: string;
+  fitnessLevel?: string;
+  goals?: string[];
+  activities?: string[];
+  vitals?: {
+    sleepQuality?: string;
+  };
+  activity?: {
+    activityLevel?: string;
+    goals?: string[];
+    activities?: string[];
+  };
+};
+
+type PersonalMissionUser = (User & { profile?: PersonalMissionProfile }) | null | undefined;
+
 const label = (value?: string) => ({
   loseWeight: "Abnehmen",
   fitness: "Fitness",
@@ -11,14 +30,13 @@ const label = (value?: string) => ({
   relax: "Entspannung",
 } as Record<string, string>)[value ?? ""] ?? "Bewegung";
 
-export function getPersonalMission(user: any) {
+export function getPersonalMission(user: PersonalMissionUser) {
   const profile = user?.profile ?? {};
   const activity = profile.activity ?? {};
   const vitals = profile.vitals ?? {};
 
-  const goals: string[] = activity.goals ?? profile.goals ?? [];
-  const activities: string[] =
-    activity.activities ?? profile.activities ?? [profile.activityType ?? "walking"];
+  const goals = activity.goals ?? profile.goals ?? [];
+  const activities = activity.activities ?? profile.activities ?? [profile.activityType ?? "walking"];
 
   const mainGoal = goals[0] ?? "health";
   const mainActivity = activities[0] ?? "walking";

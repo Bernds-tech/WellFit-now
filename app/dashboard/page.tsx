@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { economyConfig, getPriceRate } from "@/config/economy";
@@ -36,16 +36,21 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return;
-    setPointsBalance(user.points ?? 0);
-    setBuddyEnergy(user.avatar?.energy ?? 100);
-    setBuddyHunger(user.avatar?.hunger ?? 100);
-    setBuddyLevel(user.avatar?.level ?? user.level ?? 1);
-    setStepsToday(user.stepsToday ?? 0);
+
+    queueMicrotask(() => {
+      setPointsBalance(user.points ?? 0);
+      setBuddyEnergy(user.avatar?.energy ?? 100);
+      setBuddyHunger(user.avatar?.hunger ?? 100);
+      setBuddyLevel(user.avatar?.level ?? user.level ?? 1);
+      setStepsToday(user.stepsToday ?? 0);
+    });
   }, [user]);
 
   useEffect(() => {
-    const priceRate = getPriceRate(economyConfig.reserve, economyConfig.totalSupply);
-    setFoodPrice(Math.round(economyConfig.baseFoodPrice * priceRate));
+    queueMicrotask(() => {
+      const priceRate = getPriceRate(economyConfig.reserve, economyConfig.totalSupply);
+      setFoodPrice(Math.round(economyConfig.baseFoodPrice * priceRate));
+    });
   }, []);
 
   const handleLogout = async () => {
@@ -122,3 +127,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+

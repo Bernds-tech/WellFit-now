@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import PrimaryButton from "@/app/components/PrimaryButton";
 import { Language } from "../registerTypes";
@@ -38,7 +40,7 @@ export default function Step3Psychography({ language, psychography, setPsychogra
           <div className={panelClass}>
             <h2 className="mb-3 text-lg font-black text-white">Wie aktiv bist du aktuell?</h2>
             <div className="grid gap-2">
-              {[["low", "Kaum aktiv"], ["sometimes", "Gehe gelegentlich"], ["regular", "Trainiere regelmäßig"], ["very", "Treibe ausreichend Sport"]].map(([value, label]) => <button key={value} type="button" onClick={() => setPsychography({ ...psychography, activityLevel: value })} className={optionClass(activityLevel === value)}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
+              {[["low", "Kaum aktiv"], ["sometimes", "Gehe gelegentlich"], ["regular", "Trainiere regelmÃ¤ÃŸig"], ["very", "Treibe ausreichend Sport"]].map(([value, label]) => <button key={value} type="button" onClick={() => setPsychography({ ...psychography, activityLevel: value })} className={optionClass(activityLevel === value)}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
             </div>
           </div>
           <div className={panelClass}>
@@ -53,11 +55,11 @@ export default function Step3Psychography({ language, psychography, setPsychogra
           <div className={panelClass}>
             <h2 className="mb-3 text-lg font-black text-white">Was interessiert dich am meisten?</h2>
             <div className="grid gap-2">
-              {[["game", "Spiel & Erfahrung"], ["fitness", "Fitness & Gesundheit"], ["nutrition", "Ernährung & Wissen"], ["nature", "Natur & Entdecken"]].map(([value, label]) => <button key={value} type="button" onClick={() => toggleList("interests", value)} className={optionClass(interests.includes(value))}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
+              {[["game", "Spiel & Erfahrung"], ["fitness", "Fitness & Gesundheit"], ["nutrition", "ErnÃ¤hrung & Wissen"], ["nature", "Natur & Entdecken"]].map(([value, label]) => <button key={value} type="button" onClick={() => toggleList("interests", value)} className={optionClass(interests.includes(value))}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
             </div>
           </div>
           <div className={panelClass}>
-            <h2 className="mb-3 text-lg font-black text-white">Wähle deinen Start-Tamagotchi</h2>
+            <h2 className="mb-3 text-lg font-black text-white">WÃ¤hle deinen Start-Tamagotchi</h2>
             <div className="grid gap-2">
               {[["animal", "Tierischer Begleiter"], ["magical", "Magisches Wesen"], ["robot", "Digitaler Roboter"], ["hero", "Junger Held (mittelalterlich)"]].map(([value, label]) => <button key={value} type="button" onClick={() => setPsychography({ ...psychography, companionType: value })} className={optionClass(companionType === value)}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
             </div>
@@ -66,7 +68,7 @@ export default function Step3Psychography({ language, psychography, setPsychogra
 
         <div className="flex min-h-0 flex-col gap-4">
           <div className={panelClass}>
-            <h2 className="mb-3 text-lg font-black text-white">Bevorzugte Aktivität</h2>
+            <h2 className="mb-3 text-lg font-black text-white">Bevorzugte AktivitÃ¤t</h2>
             <div className="grid grid-cols-2 gap-2">
               {[["walking", "Gehen"], ["running", "Laufen"], ["cycling", "Radfahren"], ["dancing", "Tanzen"], ["workout", "Workout"], ["relax", "Yoga"]].map(([value, label]) => <button key={value} type="button" onClick={() => toggleList("activities", value)} className={smallOptionClass(activities.includes(value))}><span className="h-3 w-3 rounded-sm bg-white" />{label}</button>)}
             </div>
@@ -78,7 +80,7 @@ export default function Step3Psychography({ language, psychography, setPsychogra
             </div>
             <div className="mt-4 rounded-[22px] border border-white/10 bg-black/15 p-3 text-center">
               <div className="text-base font-black text-cyan-100">Dein KI-Profil</div>
-              <p className="mt-1 text-sm text-white/75">{goals.length} Ziele · {interests.length} Interessen · {activities.length} Aktivitäten</p>
+              <p className="mt-1 text-sm text-white/75">{goals.length} Ziele Â· {interests.length} Interessen Â· {activities.length} AktivitÃ¤ten</p>
             </div>
           </div>
           <div className="flex shrink-0 justify-end pb-2"><div className="w-[290px]"><PrimaryButton onClick={onNext}>Speichern / Weiter</PrimaryButton></div></div>
@@ -87,3 +89,4 @@ export default function Step3Psychography({ language, psychography, setPsychogra
     </section>
   );
 }
+

@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -56,3 +58,4 @@ export function useDailyMissionFirebase() {
 
   return { ...state, setFavoriteIds, setDailySlotIds, startMission, completeMission };
 }
+

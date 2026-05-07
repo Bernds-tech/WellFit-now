@@ -1,7 +1,17 @@
-"use client";
+﻿"use client";
 
+import type { VitalValuesForm } from "../types";
 import SettingsCard from "./SettingsCard";
 import SensitiveNotice from "./SensitiveNotice";
+type VitalValuesCardProps = {
+  vitalValues: VitalValuesForm;
+  inputClass: string;
+  selectClass: string;
+  saveButtonClass: string;
+  isLoadingUser: boolean;
+  updateVitalValuesField: (key: keyof VitalValuesForm, value: string) => void;
+  saveVitalValues: () => void | Promise<void>;
+};
 
 export default function VitalValuesCard({
   vitalValues,
@@ -11,14 +21,14 @@ export default function VitalValuesCard({
   isLoadingUser,
   updateVitalValuesField,
   saveVitalValues,
-}: any) {
+}: VitalValuesCardProps) {
   return (
     <SettingsCard title="Erweiterte Vitalwerte">
       <SensitiveNotice />
 
       <div className="space-y-3">
         <div className="grid grid-cols-[1fr_80px_30px] items-center gap-2">
-          <label>Körperfettanteil</label>
+          <label>KÃ¶rperfettanteil</label>
           <input
             className={inputClass}
             value={vitalValues.bodyFat}
@@ -78,7 +88,7 @@ export default function VitalValuesCard({
         </div>
 
         <div>
-          <label>Schlafqualität</label>
+          <label>SchlafqualitÃ¤t</label>
           <select
             className={selectClass}
             value={vitalValues.sleepQuality}
@@ -166,8 +176,9 @@ export default function VitalValuesCard({
         onClick={saveVitalValues}
         disabled={isLoadingUser}
       >
-        Änderungen speichern
+        Ã„nderungen speichern
       </button>
     </SettingsCard>
   );
 }
+

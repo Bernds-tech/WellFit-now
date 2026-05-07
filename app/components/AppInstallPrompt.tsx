@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type BeforeInstallPromptEvent = Event & {
@@ -9,16 +10,12 @@ type BeforeInstallPromptEvent = Event & {
 
 export default function AppInstallPrompt() {
   const [isOpen, setIsOpen] = useState(false);
-  const [origin, setOrigin] = useState("");
+  const [origin] = useState(() => typeof window === "undefined" ? "" : window.location.origin);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setOrigin(window.location.origin);
-    }
-
-    const handleBeforeInstallPrompt = (event: Event) => {
+const handleBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
       setDeferredPrompt(event as BeforeInstallPromptEvent);
     };
@@ -39,18 +36,18 @@ export default function AppInstallPrompt() {
       await navigator.clipboard.writeText(mobileUrl);
       setCopyMessage("Link kopiert.");
     } catch {
-      setCopyMessage("Kopieren nicht möglich. Link bitte manuell öffnen.");
+      setCopyMessage("Kopieren nicht mÃ¶glich. Link bitte manuell Ã¶ffnen.");
     }
   };
 
   const installPwa = async () => {
     if (!isSecure) {
-      setCopyMessage("Installation, Kamera und Sensoren brauchen HTTPS. Bitte die https-Adresse scannen/öffnen.");
+      setCopyMessage("Installation, Kamera und Sensoren brauchen HTTPS. Bitte die https-Adresse scannen/Ã¶ffnen.");
       return;
     }
 
     if (!deferredPrompt) {
-      setCopyMessage("Am Handy öffnen: Android/Chrome Menü → App installieren. iPhone/Safari Teilen → Zum Home-Bildschirm.");
+      setCopyMessage("Am Handy Ã¶ffnen: Android/Chrome MenÃ¼ â†’ App installieren. iPhone/Safari Teilen â†’ Zum Home-Bildschirm.");
       return;
     }
 
@@ -78,22 +75,22 @@ export default function AppInstallPrompt() {
                 <h2 className="mt-2 text-3xl font-black leading-none">App testen</h2>
               </div>
               <button type="button" onClick={() => setIsOpen(false)} className="rounded-full bg-white/10 px-3 py-1 text-sm font-black text-white/80">
-                ×
+                Ã—
               </button>
             </div>
 
             <p className="mt-4 text-sm leading-relaxed text-cyan-100/75">
-              Scanne den QR-Code mit deinem Handy. Die Test-App öffnet nur die reduzierte Mobile-Oberfläche: Missionen, Buddy, Analyse und Bewegungstest.
+              Scanne den QR-Code mit deinem Handy. Die Test-App Ã¶ffnet nur die reduzierte Mobile-OberflÃ¤che: Missionen, Buddy, Analyse und Bewegungstest.
             </p>
 
             {!isSecure && (
               <p className="mt-3 rounded-2xl bg-red-400/15 p-3 text-xs font-bold leading-relaxed text-red-100">
-                Achtung: Du bist nicht über HTTPS verbunden. Kamera, Sensoren und Installation funktionieren auf Handys meist nur über HTTPS.
+                Achtung: Du bist nicht Ã¼ber HTTPS verbunden. Kamera, Sensoren und Installation funktionieren auf Handys meist nur Ã¼ber HTTPS.
               </p>
             )}
 
             <div className="mt-5 grid place-items-center rounded-[24px] bg-white p-4">
-              {qrUrl ? <img src={qrUrl} alt="WellFit Mobile QR Code" width={260} height={260} /> : <div className="h-[260px] w-[260px] bg-white" />}
+              {qrUrl ? <Image unoptimized src={qrUrl} alt="WellFit Mobile QR Code" width={260} height={260} /> : <div className="h-[260px] w-[260px] bg-white" />}
             </div>
 
             <div className="mt-4 rounded-2xl bg-black/18 p-3 text-sm font-semibold text-cyan-100/80 break-all">
@@ -111,15 +108,15 @@ export default function AppInstallPrompt() {
 
             <div className="mt-4 rounded-2xl bg-black/18 p-3 text-xs leading-relaxed text-cyan-100/72">
               <p className="font-black text-cyan-100">Android/Chrome:</p>
-              <p>QR öffnen → ⋮ Menü → App installieren oder Zum Startbildschirm hinzufügen.</p>
+              <p>QR Ã¶ffnen â†’ â‹® MenÃ¼ â†’ App installieren oder Zum Startbildschirm hinzufÃ¼gen.</p>
               <p className="mt-2 font-black text-cyan-100">iPhone/Safari:</p>
-              <p>QR öffnen → Teilen-Symbol → Zum Home-Bildschirm.</p>
+              <p>QR Ã¶ffnen â†’ Teilen-Symbol â†’ Zum Home-Bildschirm.</p>
             </div>
 
             {copyMessage && <p className="mt-3 rounded-2xl bg-black/18 p-3 text-xs font-semibold text-cyan-100/75">{copyMessage}</p>}
 
             <p className="mt-4 text-xs leading-relaxed text-white/48">
-              Hinweis: Der QR-Code nutzt vorerst einen externen QR-Bilddienst für den Test. Für App-Store-/Produktionsbetrieb ersetzen wir das später durch eine eigene QR-Erzeugung oder native Store-Links.
+              Hinweis: Der QR-Code nutzt vorerst einen externen QR-Bilddienst fÃ¼r den Test. FÃ¼r App-Store-/Produktionsbetrieb ersetzen wir das spÃ¤ter durch eine eigene QR-Erzeugung oder native Store-Links.
             </p>
           </div>
         </div>
@@ -127,3 +124,4 @@ export default function AppInstallPrompt() {
     </>
   );
 }
+

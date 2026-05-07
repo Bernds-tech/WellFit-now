@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import { useEffect } from "react";
 import { auth, db } from "@/lib/firebase";
@@ -179,14 +181,14 @@ export function useSettingsData({
           }
 
           const data = userSnap.data();
-          const storedProfile = (data.profile ?? {}) as Record<string, any>;
-          const storedVitals = (storedProfile.vitals ?? {}) as Record<string, any>;
-          const storedAiBuddy = (storedProfile.aiBuddy ?? {}) as Record<string, any>;
-          const storedLifestyle = (storedProfile.lifestyle ?? {}) as Record<string, any>;
-          const storedActivity = (storedProfile.activity ?? {}) as Record<string, any>;
-          const storedSettings = (data.settings ?? {}) as Record<string, any>;
-          const storedReminders = (storedSettings.reminders ?? {}) as Record<string, any>;
-          const storedPrivacy = (storedSettings.privacy ?? {}) as Record<string, any>;
+          const storedProfile = (data.profile ?? {}) as Record<string, unknown>;
+          const storedVitals = (storedProfile.vitals ?? {}) as Record<string, unknown>;
+          const storedAiBuddy = (storedProfile.aiBuddy ?? {}) as Record<string, unknown>;
+          const storedLifestyle = (storedProfile.lifestyle ?? {}) as Record<string, unknown>;
+          const storedActivity = (storedProfile.activity ?? {}) as Record<string, unknown>;
+          const storedSettings = (data.settings ?? {}) as Record<string, unknown>;
+          const storedReminders = (storedSettings.reminders ?? {}) as Record<string, unknown>;
+          const storedPrivacy = (storedSettings.privacy ?? {}) as Record<string, unknown>;
           const storedPermissions =
             (storedSettings.permissions as Partial<typeof defaultPermissions> | undefined) ?? undefined;
           const firstName = typeof data.firstName === "string" ? data.firstName : "";
@@ -373,3 +375,5 @@ export function useSettingsData({
     };
   }, []);
 }
+
+

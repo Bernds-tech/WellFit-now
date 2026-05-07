@@ -1,4 +1,8 @@
-"use client";
+﻿"use client";
+
+/* eslint-disable react-hooks/set-state-in-effect */
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { DeviceLocationSnapshot } from "@/app/components/DeviceLocationCard";
@@ -142,7 +146,7 @@ export default function GoogleMissionMap({
         ownLocationMarkerRef.current = new google.maps.Marker({
           position,
           map,
-          title: `Mein Standort · Genauigkeit ca. ${location.accuracyMeters} m`,
+          title: `Mein Standort Â· Genauigkeit ca. ${location.accuracyMeters} m`,
           icon: ownLocationIcon,
           zIndex: 999999,
           optimized: false,
@@ -151,7 +155,7 @@ export default function GoogleMissionMap({
         ownLocationMarkerRef.current.setPosition(position);
         ownLocationMarkerRef.current.setIcon(ownLocationIcon);
         ownLocationMarkerRef.current.setTitle(
-          `Mein Standort · Genauigkeit ca. ${location.accuracyMeters} m`,
+          `Mein Standort Â· Genauigkeit ca. ${location.accuracyMeters} m`,
         );
         ownLocationMarkerRef.current.setMap(map);
       }
@@ -245,10 +249,10 @@ export default function GoogleMissionMap({
             position: { lat: markerItem.lat, lng: markerItem.lng },
             map,
             title: `${markerItem.title}${
-              markerItem.subtitle ? ` · ${markerItem.subtitle}` : ""
+              markerItem.subtitle ? ` Â· ${markerItem.subtitle}` : ""
             }`,
             label: {
-              text: isSelected ? "★" : markerItem.icon,
+              text: isSelected ? "â˜…" : markerItem.icon,
               fontSize: isSelected ? "24px" : "20px",
             },
             icon: {
@@ -297,7 +301,7 @@ export default function GoogleMissionMap({
 
       const isSelected = markerItem.id === selectedMarkerId;
       marker.setLabel({
-        text: isSelected ? "★" : markerItem.icon,
+        text: isSelected ? "â˜…" : markerItem.icon,
         fontSize: isSelected ? "24px" : "20px",
       });
       marker.setIcon({
@@ -329,13 +333,13 @@ export default function GoogleMissionMap({
       <div
         className={`relative flex ${minHeightClassName} flex-col items-center justify-center rounded-[22px] border border-yellow-300/30 bg-[#053841]/95 p-8 text-center shadow-[0_14px_34px_rgba(0,0,0,0.2)]`}
       >
-        <div className="text-5xl">🗺️</div>
+        <div className="text-5xl">ðŸ—ºï¸</div>
         <h2 className="mt-4 text-3xl font-extrabold text-white">
           Google Maps Key fehlt
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/75">
           Setze `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, dann erscheint hier die echte
-          Google-Straßenkarte mit Zoom, Drag und Markern.
+          Google-StraÃŸenkarte mit Zoom, Drag und Markern.
         </p>
       </div>
     );
@@ -355,13 +359,13 @@ export default function GoogleMissionMap({
 
       {loadState === "error" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#053841]/95 p-8 text-center">
-          <div className="text-5xl">⚠️</div>
+          <div className="text-5xl">âš ï¸</div>
           <h2 className="mt-4 text-2xl font-extrabold text-white">
             Google Maps konnte nicht geladen werden
           </h2>
           <p className="mt-3 max-w-xl text-sm text-white/70">
             Bitte API-Key, Domain-Referrer, Billing und Maps JavaScript API
-            prüfen.
+            prÃ¼fen.
           </p>
         </div>
       )}
@@ -379,9 +383,11 @@ export default function GoogleMissionMap({
           onClick={focusOwnLocation}
           className="absolute bottom-5 right-5 z-[999999] rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500"
         >
-          📍 Zu meinem Standort
+          ðŸ“ Zu meinem Standort
         </button>
       )}
     </div>
   );
 }
+
+

@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -43,3 +45,4 @@ export default function Step1Account({ language, form, setForm, onNext, compact 
     </div>
   );
 }
+

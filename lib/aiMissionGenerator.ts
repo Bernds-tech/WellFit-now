@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 import { economyConfig, getRewardRate } from "@/config/economy";
 import { auth, db } from "@/lib/firebase";
 import { aggregateUserMissionAnalytics } from "@/lib/userAnalytics";
@@ -8,7 +9,7 @@ export type AiMissionProfile = {
   level?: number;
   stepsToday?: number;
   goal?: "fitness" | "abnehmen" | "lernen" | "sozial" | "gesundheit" | string;
-  preferredType?: "Bewegung" | "Ernährung" | "Workout" | "Community" | "Abenteuer" | string;
+  preferredType?: "Bewegung" | "ErnÃ¤hrung" | "Workout" | "Community" | "Abenteuer" | string;
   lastTargetValue?: number;
   adaptiveLimit?: number;
   recentSuccessRate?: number;
@@ -27,10 +28,10 @@ type AiAnalyticsProfile = {
 
 export type GeneratedMission = {
   title: string;
-  category: "Tagesmissionen" | "Wochenmissionen" | "Abenteuer" | "Challenge" | "Wettkämpfe";
+  category: "Tagesmissionen" | "Wochenmissionen" | "Abenteuer" | "Challenge" | "WettkÃ¤mpfe";
   description: string;
   difficulty: "Leicht" | "Mittel" | "Schwer";
-  type: "Bewegung" | "Ernährung" | "Workout" | "Community" | "Abenteuer";
+  type: "Bewegung" | "ErnÃ¤hrung" | "Workout" | "Community" | "Abenteuer";
   duration: string;
   baseReward: number;
   reward: number;
@@ -90,18 +91,18 @@ export function generateLocalAiMission(profile: AiMissionProfile = {}, analytics
   if (goal === "lernen") {
     const questionTarget = Math.max(3, Math.min(8, 3 + Math.floor((analytics?.completedCount ?? profile.progressIndex ?? 0) / 3) + slotIndex));
     const difficulty = questionTarget >= 6 || level > 3 ? "Mittel" : "Leicht";
-    return withAvailabilityReward({ title: `KI Wissens-Sprint ${slotIndex + 1}`, category: "Tagesmissionen", description: `Löse ${questionTarget} kurze Wissensfragen. Die KI nutzt deine Verlaufsauswertung und erhöht erst nach stabilen Abschlüssen.${analyticsHint}`, difficulty, type: "Community", duration: "10 Minuten", baseReward: 15 + level * 2 + slotIndex * 2, targetValue: questionTarget, unit: "questions" });
+    return withAvailabilityReward({ title: `KI Wissens-Sprint ${slotIndex + 1}`, category: "Tagesmissionen", description: `LÃ¶se ${questionTarget} kurze Wissensfragen. Die KI nutzt deine Verlaufsauswertung und erhÃ¶ht erst nach stabilen AbschlÃ¼ssen.${analyticsHint}`, difficulty, type: "Community", duration: "10 Minuten", baseReward: 15 + level * 2 + slotIndex * 2, targetValue: questionTarget, unit: "questions" });
   }
 
   if (goal === "abnehmen") {
     const baseTarget = lowActivity ? Math.max(500, adaptive.nextTarget * 100) : Math.max(1500, adaptive.nextTarget * 220);
     const difficulty = adaptive.nearLimit ? "Mittel" : lowActivity ? "Leicht" : "Mittel";
-    return withAvailabilityReward({ title: lowActivity ? `KI Sanfter Fettstoffwechsel-Start ${slotIndex + 1}` : `KI Aktiv-Burn Mission ${slotIndex + 1}`, category: "Tagesmissionen", description: adaptive.expiredCount > 0 ? `Gestern/offene Missionen wurden nicht vollständig abgeschlossen. Das Ziel bleibt stabil bei ${baseTarget.toLocaleString("de-DE")} Schritten, bis der Zeitraum abgeschlossen ist.${analyticsHint}` : adaptive.nearLimit ? `Du bist nahe an deinem aktuellen Belastungslimit. Wir halten das Ziel bei rund ${baseTarget.toLocaleString("de-DE")} Schritten und erhöhen danach wieder langsam.${analyticsHint}` : `Dein Ziel steigt kontrolliert auf ${baseTarget.toLocaleString("de-DE")} echte Schritte. Die KI nutzt deine Verlaufsdaten, nicht nur den Momentwert.${analyticsHint}`, difficulty, type: "Bewegung", duration: "1 Tag", baseReward: 20 + slotIndex * 4 + Math.round(baseTarget / 1000) * 2, targetValue: baseTarget, unit: "steps" });
+    return withAvailabilityReward({ title: lowActivity ? `KI Sanfter Fettstoffwechsel-Start ${slotIndex + 1}` : `KI Aktiv-Burn Mission ${slotIndex + 1}`, category: "Tagesmissionen", description: adaptive.expiredCount > 0 ? `Gestern/offene Missionen wurden nicht vollstÃ¤ndig abgeschlossen. Das Ziel bleibt stabil bei ${baseTarget.toLocaleString("de-DE")} Schritten, bis der Zeitraum abgeschlossen ist.${analyticsHint}` : adaptive.nearLimit ? `Du bist nahe an deinem aktuellen Belastungslimit. Wir halten das Ziel bei rund ${baseTarget.toLocaleString("de-DE")} Schritten und erhÃ¶hen danach wieder langsam.${analyticsHint}` : `Dein Ziel steigt kontrolliert auf ${baseTarget.toLocaleString("de-DE")} echte Schritte. Die KI nutzt deine Verlaufsdaten, nicht nur den Momentwert.${analyticsHint}`, difficulty, type: "Bewegung", duration: "1 Tag", baseReward: 20 + slotIndex * 4 + Math.round(baseTarget / 1000) * 2, targetValue: baseTarget, unit: "steps" });
   }
 
   const movementTarget = lowActivity ? Math.max(300, adaptive.nextTarget * 80) : Math.max(800, adaptive.nextTarget * 180);
   const difficulty = adaptive.nearLimit ? "Mittel" : lowActivity ? "Leicht" : "Mittel";
-  return withAvailabilityReward({ title: lowActivity ? `KI Tagesstart Bewegung ${slotIndex + 1}` : `KI Fortschrittsrunde ${slotIndex + 1}`, category: "Tagesmissionen", description: adaptive.expiredCount > 0 ? `Nicht abgeschlossene Zeiträume werden berücksichtigt. Das Ziel bleibt bei etwa ${movementTarget.toLocaleString("de-DE")} Schritten stabil.${analyticsHint}` : adaptive.nearLimit ? `Du näherst dich deiner persönlichen Grenze. Das System stabilisiert dein Ziel bei etwa ${movementTarget.toLocaleString("de-DE")} Schritten.${analyticsHint}` : `Das Ziel wächst aus deinem Verlauf: von ${adaptive.lastTarget} auf ${adaptive.nextTarget}. Heute etwa ${movementTarget.toLocaleString("de-DE")} Schritte.${analyticsHint}`, difficulty, type: "Bewegung", duration: "1 Tag", baseReward: 18 + slotIndex * 3 + Math.round(movementTarget / 1000) * 2, targetValue: movementTarget, unit: "steps" });
+  return withAvailabilityReward({ title: lowActivity ? `KI Tagesstart Bewegung ${slotIndex + 1}` : `KI Fortschrittsrunde ${slotIndex + 1}`, category: "Tagesmissionen", description: adaptive.expiredCount > 0 ? `Nicht abgeschlossene ZeitrÃ¤ume werden berÃ¼cksichtigt. Das Ziel bleibt bei etwa ${movementTarget.toLocaleString("de-DE")} Schritten stabil.${analyticsHint}` : adaptive.nearLimit ? `Du nÃ¤herst dich deiner persÃ¶nlichen Grenze. Das System stabilisiert dein Ziel bei etwa ${movementTarget.toLocaleString("de-DE")} Schritten.${analyticsHint}` : `Das Ziel wÃ¤chst aus deinem Verlauf: von ${adaptive.lastTarget} auf ${adaptive.nextTarget}. Heute etwa ${movementTarget.toLocaleString("de-DE")} Schritte.${analyticsHint}`, difficulty, type: "Bewegung", duration: "1 Tag", baseReward: 18 + slotIndex * 3 + Math.round(movementTarget / 1000) * 2, targetValue: movementTarget, unit: "steps" });
 }
 
 export async function createAiMissionForCurrentUser(profile: AiMissionProfile = {}) {
@@ -125,3 +126,4 @@ export async function createAiMissionForCurrentUser(profile: AiMissionProfile = 
 
   return { id: missionId, ...mission };
 }
+
