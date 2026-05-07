@@ -1,6 +1,6 @@
 # WF-DASH-PERSIST-001 – Dashboard Preferences lokal
 
-Status: [~] In Arbeit / lokale Speicherung und Dashboard-Einbindung umgesetzt, Build/Test offen
+Status: [~] In Arbeit / lokale Speicherung und Dashboard-Einbindung umgesetzt, lokaler Build bestanden, UI-Test offen
 
 ## Ziel
 Die Dashboard-Anpassungsseite soll nicht nur eine temporäre Vorschau sein. Auswahl und freie Kartengrößen sollen erhalten bleiben, wenn die Seite neu geladen wird. Die echte Dashboard-Startseite soll dieselbe gespeicherte Auswahl nutzen.
@@ -22,18 +22,32 @@ Die Dashboard-Anpassungsseite soll nicht nur eine temporäre Vorschau sein. Ausw
 - Testroute `app/dashboard/meine-karten/page.tsx` angelegt.
 - Echte `/dashboard`-Seite nutzt jetzt `DashboardSavedCardsPanel` statt der alten statischen `DashboardCards`-Sektion.
 
+## Build-Status
+- Lokaler Build unter Windows/PowerShell bestanden.
+- Befehl:
+
+```powershell
+$env:NODE_OPTIONS="--max-old-space-size=768"
+npm run build
+```
+
+- Ergebnis:
+  - Next.js Build erfolgreich kompiliert.
+  - TypeScript erfolgreich abgeschlossen.
+  - 36/36 statische Seiten generiert.
+  - Routen `/dashboard`, `/dashboard/anpassen` und `/dashboard/meine-karten` sind im Build enthalten.
+
 ## Bewusst noch nicht umgesetzt
 - Firestore-Sync ist bewusst noch nicht eingebaut.
 - Keine Reward-, Token-, Shop-, Leaderboard- oder Economy-Autorität wurde clientseitig erweitert.
 - GitHub-Workflow wurde angelegt, aber für die letzten Commits ist noch kein sichtbarer Workflow-Lauf im Connector verfügbar.
 
 ## Nächster Schritt
-1. Lokalen Build ausführen.
-2. `/dashboard` testen.
-3. `/dashboard/anpassen` testen.
-4. `/dashboard/meine-karten` optional als Kontrollseite prüfen.
-5. Wenn alles passt: Testroute später entfernen oder als interne Vorschau behalten.
-6. Danach Firestore-Sync vorbereiten.
+1. `/dashboard` im Browser testen.
+2. `/dashboard/anpassen` testen.
+3. `/dashboard/meine-karten` optional als Kontrollseite prüfen.
+4. Wenn alles optisch und funktional passt: Testroute später entfernen oder als interne Vorschau behalten.
+5. Danach Firestore-Sync vorbereiten.
 
 ## Testhinweise
 - Karten ein-/ausblenden.
@@ -41,15 +55,3 @@ Die Dashboard-Anpassungsseite soll nicht nur eine temporäre Vorschau sein. Ausw
 - `/dashboard/anpassen` neu laden.
 - `/dashboard` öffnen und prüfen, ob dieselbe Auswahl erscheint.
 - Zurücksetzen testen.
-- Build ausführen:
-
-```bash
-NODE_OPTIONS="--max-old-space-size=768" npm run build
-```
-
-PowerShell:
-
-```powershell
-$env:NODE_OPTIONS="--max-old-space-size=768"
-npm run build
-```
