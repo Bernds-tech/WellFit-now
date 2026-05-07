@@ -19,6 +19,9 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 - `todolist/TODO_CONSOLIDATION.md` mit gefundenen Alt-TODOs und offenen Konsolidierungsaufgaben erweitert.
 - `todolist/NEXT_ACTIONS.md` mit Inhalten aus `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` zusammengefuehrt.
 - `scripts/wellfit-dev-agent/wellfit-agent.config.json` auf Version 0.5.0 aktualisiert: neue Source-of-Truth-Dateien, TODO-Memory-Bereich, Database-Bereich und Approval-Hinweise aufgenommen.
+- Datei `todolist/LOCAL_AGENT_RUN_INSTRUCTIONS.md` angelegt: Anleitung fuer Bernd, wie der lokale Agent in PowerShell/VS Code ausgefuehrt wird.
+- Datei `scripts/wellfit-dev-agent/run-agent-full.ps1` angelegt: PowerShell-Skript fuer kompletten Agentenlauf.
+- `todolist/PROJECT_STRUCTURE.md` um lokale Agent-Anleitung und PowerShell-Skript erweitert.
 
 ## Offene Folgepunkte
 - Bestehende Alt-TODO-Dateien vollstaendig ueber lokalen/Codex-Scan finden.
@@ -26,6 +29,7 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 - Wichtige offene Punkte nach `NEXT_ACTIONS.md` uebernehmen.
 - Relevante Alt-TODO-Dateien mit KI-Fortsetzungs-Prompts ergaenzen.
 - Agent nach TODO-/Roadmap-Aenderungen lokal ausfuehren: `npm run agent:validate`, `npm run agent:goal-check`, `npm run agent:coder-prompts`, `npm run agent:dry-run`.
+- Alternativ kompletten Agentenlauf mit `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` starten.
 
 ## KI-Fortsetzungs-Prompt
 Wenn eine Aufgabe erledigt wurde, fuege hier einen neuen Eintrag hinzu. Nenne Datum, Datei(en), kurze Beschreibung und offenen Folgepunkt.
