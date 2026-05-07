@@ -26,13 +26,15 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 - `package.json` um Script `agent:memory-sync` erweitert.
 - `scripts/wellfit-dev-agent/run-agent-full.ps1` erweitert, damit Memory-Sync im kompletten Agentenlauf mitlaeuft.
 - `todolist/LOCAL_AGENT_RUN_INSTRUCTIONS.md` um Memory-Sync-Befehl und Output `memory-sync-report.md` erweitert.
+- Lokalen Memory-Sync-Report von Bernd ausgewertet: 117 gescannte Dateien, 89 TODO-/Roadmap-/Agent-aehnliche Dateien, 58 fehlende Index-Eintraege, 80 fehlende Prompt-Hinweise.
+- `todolist/TODO_INDEX.md` massiv erweitert: alte Haupt-TODOs A-E, J/J1/J8.x, Status-Dateien, Architektur-Dokumente, Dev-Agent-Dateien und Dashboard-/Build-Dateien indexiert.
+- `scripts/wellfit-dev-agent/src/memory-sync.mjs` verbessert: `.gitkeep`, historische Status-Logs, Agent-Source-Dateien, Config-/Schema-/Template-Dateien werden nicht mehr faelschlich als Prompt-pflichtig bewertet.
 
 ## Offene Folgepunkte
-- Lokal `npm run agent:memory-sync` oder kompletten Agentenlauf ausfuehren.
-- Output `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen.
-- Gefundene fehlende TODO-Dateien in `TODO_INDEX.md` referenzieren.
-- Wichtige offene Punkte nach `NEXT_ACTIONS.md` uebernehmen.
+- Lokal erneut `git pull` und danach `npm run agent:memory-sync` oder kompletten Agentenlauf ausfuehren.
+- Output `scripts/wellfit-dev-agent/output/memory-sync-report.md` erneut pruefen.
 - Relevante Alt-TODO-Dateien mit KI-Fortsetzungs-Prompts ergaenzen.
+- Wichtige offene Punkte nach `NEXT_ACTIONS.md` uebernehmen.
 - Agent nach TODO-/Roadmap-Aenderungen lokal ausfuehren: `npm run agent:validate`, `npm run agent:goal-check`, `npm run agent:memory-sync`, `npm run agent:coder-prompts`, `npm run agent:dry-run`.
 - Alternativ kompletten Agentenlauf mit `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` starten.
 
