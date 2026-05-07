@@ -41,7 +41,27 @@ Wichtige Dateien:
 - `src/alpha-goal-check.mjs` - prueft Alpha-/Beta-Zielkurs
 - `src/generate-coder-prompts.mjs` - erzeugt Coder-Prompts
 - `src/dry-run.mjs` - erzeugt Dry-Run-Report
+- `src/memory-sync.mjs` - prueft Arbeitsgedaechtnis-Abdeckung
+- `src/apply-memory-prompts.mjs` - ergaenzt fehlende KI-Fortsetzungs-Prompts kontrolliert
+- `src/quality-gate.mjs` - fuehrt Kontrollkette aus und entscheidet PASS/FAIL
 - `output/` - erzeugte Reports und Coder-Prompts
+
+### `docs/architecture/`
+Architektur-, Sicherheits- und Produktentscheidungen.
+
+Wichtige Dateien:
+- `WELLFIT_ALPHA_SCOPE_CUT.md` - verbindlicher Alpha-/Beta-Fokus
+- `WELLFIT_SELF_HOSTED_DEV_AGENT.md` - Architektur fuer eigenen Dev-Agenten
+- `WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md` - spaeterer Insight-/Mission-Agent
+- `MISSION_REWARD_CONTEXT_ENGINE.md` - Mission-/Reward-Kontextlogik
+- `AR_RIDDLE_FIRESTORE_SECURITY_PLAN.md` - AR-Raetsel Firestore Security
+- `USER_POINTS_CLIENT_WRITE_REFACTOR.md` - Client-Write-Risiko fuer Punkte/XP
+- `BUDDY_KI_INTEGRATION.md` - Buddy-KI Server-/Provider-Integration
+- `BUDDY_KI_GUIDE_DATA_MODEL.md` - Buddy-Guide Datenmodell
+- `BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md` - Modellprovider-Runbook ohne Frontend-Secrets
+- `TRACKING_BUDDY_SERVER_EVENTS.md` - serverautorisierte Tracking-/Buddy-Events
+- `MISSION_UI_STATUS_BADGES.md` - Missionsstatus-Badges und UI-Regeln
+- `AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md` - Dimensionen, Items, NFC und spaetere NFT-/Economy-Abgrenzung
 
 ## TODO-Konsolidierung
 Alte oder kleinere TODO-Dateien duerfen nicht geloescht werden. Sie sollen in `TODO_CONSOLIDATION.md` referenziert, markiert und in die neue Struktur uebernommen werden.
