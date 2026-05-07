@@ -1,6 +1,6 @@
 # WellFit Dev Agent - local watcher
 # Start this from the repository root: C:\wellfit\WellFit-now
-# It watches relevant project-memory and agent files and runs the full agent gate after changes.
+# It watches relevant project-memory and agent source files and runs the full agent gate after changes.
 
 $ErrorActionPreference = "Stop"
 
@@ -21,7 +21,7 @@ if (!(Test-Path $OutputDir)) {
 $watchPaths = @(
   "todolist",
   "docs\architecture",
-  "scripts\wellfit-dev-agent",
+  "scripts\wellfit-dev-agent\src",
   ".github\workflows"
 )
 
@@ -36,7 +36,7 @@ $rootFiles = @(
 )
 
 $lastRun = Get-Date "2000-01-01"
-$debounceSeconds = 10
+$debounceSeconds = 20
 $isRunning = $false
 $pending = $false
 
@@ -46,7 +46,25 @@ function Write-Log($message) {
   Add-Content -Path $LogFile -Value $line
 }
 
+function Should-IgnorePath($fullPath) {
+  $normalized = $fullPath.Replace('/', '\')
+
+  if ($normalized -like "*\scripts\wellfit-dev-agent\output\*") { return $true }
+  if ($normalized -like "*\.git\*") { return $true }
+  if ($normalized -like "*\.next\*") { return $true }
+  if ($normalized -like "*\node_modules\*") { return $true }
+  if ($normalized -like "*\dist\*") { return $true }
+  if ($normalized -like "*\build\*") { return $true }
+  if ($normalized -like "*\out\*") { return $true }
+
+  return $false
+}
+
 function Invoke-AgentRun($reason) {
+  if ($reason -and (Should-IgnorePath $reason)) {
+    return
+  }
+
   if ($script:isRunning) {
     $script:pending = $true
     Write-Log "Agent already running; queued another run. Reason: $reason"
@@ -99,10 +117,22 @@ foreach ($relativePath in $watchPaths) {
   $watcher.EnableRaisingEvents = $true
   $watcher.Filter = "*.*"
 
-  Register-ObjectEvent $watcher Changed -Action { Invoke-AgentRun "Changed: $($Event.SourceEventArgs.FullPath)" } | Out-Null
-  Register-ObjectEvent $watcher Created -Action { Invoke-AgentRun "Created: $($Event.SourceEventArgs.FullPath)" } | Out-Null
-  Register-ObjectEvent $watcher Renamed -Action { Invoke-AgentRun "Renamed: $($Event.SourceEventArgs.FullPath)" } | Out-Null
-  Register-ObjectEvent $watcher Deleted -Action { Invoke-AgentRun "Deleted: $($Event.SourceEventArgs.FullPath)" } | Out-Null
+  Register-ObjectEvent $watcher Changed -Action {
+    $fullPath = $Event.SourceEventArgs.FullPath
+    if (-not (Should-IgnorePath $fullPath)) { Invoke-AgentRun "Changed: $fullPath" }
+  } | Out-Null
+  Register-ObjectEvent $watcher Created -Action {
+    $fullPath = $Event.SourceEventArgs.FullPath
+    if (-not (Should-IgnorePath $fullPath)) { Invoke-AgentRun "Created: $fullPath" }
+  } | Out-Null
+  Register-ObjectEvent $watcher Renamed -Action {
+    $fullPath = $Event.SourceEventArgs.FullPath
+    if (-not (Should-IgnorePath $fullPath)) { Invoke-AgentRun "Renamed: $fullPath" }
+  } | Out-Null
+  Register-ObjectEvent $watcher Deleted -Action {
+    $fullPath = $Event.SourceEventArgs.FullPath
+    if (-not (Should-IgnorePath $fullPath)) { Invoke-AgentRun "Deleted: $fullPath" }
+  } | Out-Null
 
   $watchers += $watcher
   Write-Log "Watching path: $relativePath"
