@@ -22,13 +22,18 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 - Datei `todolist/LOCAL_AGENT_RUN_INSTRUCTIONS.md` angelegt: Anleitung fuer Bernd, wie der lokale Agent in PowerShell/VS Code ausgefuehrt wird.
 - Datei `scripts/wellfit-dev-agent/run-agent-full.ps1` angelegt: PowerShell-Skript fuer kompletten Agentenlauf.
 - `todolist/PROJECT_STRUCTURE.md` um lokale Agent-Anleitung und PowerShell-Skript erweitert.
+- Datei `scripts/wellfit-dev-agent/src/memory-sync.mjs` angelegt: sicherer Memory-Sync-Dry-Run fuer TODO-/Roadmap-/Agent-Dateien.
+- `package.json` um Script `agent:memory-sync` erweitert.
+- `scripts/wellfit-dev-agent/run-agent-full.ps1` erweitert, damit Memory-Sync im kompletten Agentenlauf mitlaeuft.
+- `todolist/LOCAL_AGENT_RUN_INSTRUCTIONS.md` um Memory-Sync-Befehl und Output `memory-sync-report.md` erweitert.
 
 ## Offene Folgepunkte
-- Bestehende Alt-TODO-Dateien vollstaendig ueber lokalen/Codex-Scan finden.
-- Gefundene Alt-TODOs in `TODO_CONSOLIDATION.md` referenzieren.
+- Lokal `npm run agent:memory-sync` oder kompletten Agentenlauf ausfuehren.
+- Output `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen.
+- Gefundene fehlende TODO-Dateien in `TODO_INDEX.md` referenzieren.
 - Wichtige offene Punkte nach `NEXT_ACTIONS.md` uebernehmen.
 - Relevante Alt-TODO-Dateien mit KI-Fortsetzungs-Prompts ergaenzen.
-- Agent nach TODO-/Roadmap-Aenderungen lokal ausfuehren: `npm run agent:validate`, `npm run agent:goal-check`, `npm run agent:coder-prompts`, `npm run agent:dry-run`.
+- Agent nach TODO-/Roadmap-Aenderungen lokal ausfuehren: `npm run agent:validate`, `npm run agent:goal-check`, `npm run agent:memory-sync`, `npm run agent:coder-prompts`, `npm run agent:dry-run`.
 - Alternativ kompletten Agentenlauf mit `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` starten.
 
 ## KI-Fortsetzungs-Prompt
