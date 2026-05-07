@@ -40,9 +40,17 @@ function parseNumber(text, label) {
 }
 
 function parseCoveredTracks(text) {
-  const match = text.match(/Covered tracks:\s*(\d+)\/(\d+)/i);
-  if (!match) return { covered: null, total: null };
-  return { covered: Number.parseInt(match[1], 10), total: Number.parseInt(match[2], 10) };
+  const direct = text.match(/Covered tracks:\s*(\d+)\/(\d+)/i);
+  if (direct) {
+    return { covered: Number.parseInt(direct[1], 10), total: Number.parseInt(direct[2], 10) };
+  }
+
+  const markdown = text.match(/Covered[^\n\r]*?(\d+)\s*\/\s*(\d+)/i);
+  if (markdown) {
+    return { covered: Number.parseInt(markdown[1], 10), total: Number.parseInt(markdown[2], 10) };
+  }
+
+  return { covered: null, total: null };
 }
 
 function assertCondition(checks, name, passed, details) {
@@ -59,6 +67,10 @@ function renderChecks(checks) {
     "|---|---|---|",
     ...checks.map((check) => `| ${check.name} | ${check.passed ? "PASS" : "FAIL"} | ${check.details} |`),
   ].join("\n");
+}
+
+function getStep(steps, label) {
+  return steps.find((step) => step.label === label);
 }
 
 function main() {
@@ -79,10 +91,14 @@ function main() {
   const memoryReport = readTextSafe("scripts/wellfit-dev-agent/output/memory-sync-report.md");
   const dryRunReport = readTextSafe("scripts/wellfit-dev-agent/output/dry-run-report.md");
 
-  const covered = parseCoveredTracks(goalReport);
-  const missingIndex = parseNumber(memoryReport, "Missing in TODO index/structure memory");
-  const missingPrompts = parseNumber(memoryReport, "Files requiring KI-Fortsetzungs-Prompt but missing it") ?? parseNumber(memoryReport, "Files without KI-Fortsetzungs-Prompt");
-  const plannedMicroTasks = parseNumber(dryRunReport, "Planned micro-tasks");
+  const alphaStep = getStep(steps, "Alpha goal check");
+  const dryRunStep = getStep(steps, "Dry run planning");
+  const memoryStep = getStep(steps, "Memory sync");
+
+  const covered = parseCoveredTracks(`${goalReport}\n${alphaStep?.stdout ?? ""}`);
+  const missingIndex = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in TODO index/structure memory") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in index");
+  const missingPrompts = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Files requiring KI-Fortsetzungs-Prompt but missing it") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Files without KI-Fortsetzungs-Prompt") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing prompts");
+  const plannedMicroTasks = parseNumber(`${dryRunReport}\n${dryRunStep?.stdout ?? ""}`, "Planned micro-tasks");
 
   assertCondition(
     checks,
