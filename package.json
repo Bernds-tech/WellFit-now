@@ -12,7 +12,8 @@
     "agent:validate": "node scripts/wellfit-dev-agent/src/validate-agent-config.mjs",
     "agent:goal-check": "node scripts/wellfit-dev-agent/src/alpha-goal-check.mjs",
     "agent:dry-run": "node scripts/wellfit-dev-agent/src/dry-run.mjs",
-    "agent:coder-prompts": "node scripts/wellfit-dev-agent/src/generate-coder-prompts.mjs"
+    "agent:coder-prompts": "node scripts/wellfit-dev-agent/src/generate-coder-prompts.mjs",
+    "agent:memory-sync": "node scripts/wellfit-dev-agent/src/memory-sync.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
