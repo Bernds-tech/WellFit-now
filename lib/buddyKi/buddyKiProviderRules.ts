@@ -1,6 +1,6 @@
-import { createBuddyKiSafety, type BuddyKiContext, type BuddyKiIntent, type BuddyKiProvider, type BuddyKiResponse } from "./buddyKiTypes";
+﻿import { createBuddyKiSafety, type BuddyKiIntent, type BuddyKiProvider, type BuddyKiResponse } from "./buddyKiTypes";
 
-function createBaseResponse(intent: BuddyKiIntent, context: BuddyKiContext): BuddyKiResponse {
+function createBaseResponse(intent: BuddyKiIntent): BuddyKiResponse {
   return {
     providerMode: "rules",
     intent,
@@ -16,11 +16,11 @@ export const buddyKiRulesProvider: BuddyKiProvider = {
   mode: "rules",
 
   async generateResponse(intent, context) {
-    const res = createBaseResponse(intent, context);
+    const res = createBaseResponse(intent);
 
     switch (intent) {
       case "welcome": {
-        res.title = "Hey, ich bin dein Buddy 🐉";
+        res.title = "Hey, ich bin dein Buddy ðŸ‰";
         res.message = "Lass uns gemeinsam etwas erleben. Ich kann dir Missionen vorschlagen oder Hinweise geben.";
         res.mood = "happy";
         res.options = [
@@ -30,8 +30,8 @@ export const buddyKiRulesProvider: BuddyKiProvider = {
       }
 
       case "suggestMission": {
-        res.title = "Ich habe etwas für dich";
-        res.message = "Wie wäre es mit einer einfachen AR-Mission in deiner Nähe? Das bleibt hier eine sichere Preview ohne Abschluss oder Auszahlung.";
+        res.title = "Ich habe etwas fÃ¼r dich";
+        res.message = "Wie wÃ¤re es mit einer einfachen AR-Mission in deiner NÃ¤he? Das bleibt hier eine sichere Preview ohne Abschluss oder Auszahlung.";
         res.mood = "curious";
         res.options = [
           { id: "start", label: "Start anfragen", intent: "missionProgress", payload: { missionId: "demo_ar_walk_001", rewardStatus: "preview-only" } },
@@ -42,7 +42,7 @@ export const buddyKiRulesProvider: BuddyKiProvider = {
 
       case "explainMissingCapability": {
         res.title = "Ich brauche Hilfe";
-        res.message = `Ich brauche ${context.missingCapabilityId || "eine Fähigkeit"}, um das zu schaffen. Wir zeigen zuerst faire Alternativen statt Kaufdruck.`;
+        res.message = `Ich brauche ${context.missingCapabilityId || "eine FÃ¤higkeit"}, um das zu schaffen. Wir zeigen zuerst faire Alternativen statt Kaufdruck.`;
         res.mood = "helpful";
         res.options = [
           { id: "detour", label: "Alternative vorschlagen", intent: "safeDetour" },
@@ -52,7 +52,7 @@ export const buddyKiRulesProvider: BuddyKiProvider = {
 
       case "safeDetour": {
         res.title = "Alternative gefunden";
-        res.message = "Wir können eine andere Aufgabe vorschlagen, die du sofort testen kannst. Keine echte Mission Completion.";
+        res.message = "Wir kÃ¶nnen eine andere Aufgabe vorschlagen, die du sofort testen kannst. Keine echte Mission Completion.";
         res.mood = "happy";
         res.options = [
           { id: "start", label: "Alternative anfragen", intent: "missionProgress", payload: { missionId: "demo_safe_detour_001", rewardStatus: "preview-only" } },
@@ -71,7 +71,7 @@ export const buddyKiRulesProvider: BuddyKiProvider = {
       }
 
       case "missionProgress": {
-        res.title = "Weiter geht’s";
+        res.title = "Weiter gehtâ€™s";
         res.message = "Super, bleib dran. Das ist ein Preview-Fortschrittssignal, keine Belohnungsfreigabe.";
         res.mood = "happy";
         res.options = [];
@@ -88,10 +88,11 @@ export const buddyKiRulesProvider: BuddyKiProvider = {
 
       default: {
         res.title = "Ich bin da";
-        res.message = "Sag mir, was du machen möchtest.";
+        res.message = "Sag mir, was du machen mÃ¶chtest.";
       }
     }
 
     return res;
   },
 };
+

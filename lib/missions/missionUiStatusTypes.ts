@@ -1,4 +1,4 @@
-export type MissionUiStatus =
+﻿export type MissionUiStatus =
   | "placeholder"
   | "kiDraft"
   | "needsReview"
@@ -90,4 +90,5 @@ export const getMissionUiStatusLabel = (status: MissionUiStatus): string =>
 export const isMissionUiStatusStartable = (status: MissionUiStatus): boolean =>
   getMissionUiStatusDefinition(status).canStart;
 
-export const canMissionUiStatusGrantReward = (_status: MissionUiStatus): false => false;
+export const canMissionUiStatusGrantReward = (): false => false;
+

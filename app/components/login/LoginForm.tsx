@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -13,13 +13,13 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const getLoginErrorMessage = (code: string | undefined, language: Language) => {
   const neutral = language === "de" ? "E-Mail oder Passwort ist nicht korrekt." : "Email or password is incorrect.";
   const common: Record<string, string> = {
-    "auth/invalid-email": language === "de" ? "Bitte gib eine gültige E-Mail-Adresse ein." : "Please enter a valid email address.",
+    "auth/invalid-email": language === "de" ? "Bitte gib eine gÃ¼ltige E-Mail-Adresse ein." : "Please enter a valid email address.",
     "auth/user-disabled": language === "de" ? "Dieses Konto wurde deaktiviert." : "This account has been disabled.",
     "auth/user-not-found": neutral,
     "auth/wrong-password": neutral,
     "auth/invalid-credential": neutral,
     "auth/too-many-requests": language === "de" ? "Zu viele Versuche. Bitte warte kurz und versuche es erneut." : "Too many attempts. Please wait a moment and try again.",
-    "auth/network-request-failed": language === "de" ? "Netzwerkfehler. Bitte prüfe deine Verbindung." : "Network error. Please check your connection.",
+    "auth/network-request-failed": language === "de" ? "Netzwerkfehler. Bitte prÃ¼fe deine Verbindung." : "Network error. Please check your connection.",
   };
   return common[code ?? ""] ?? (language === "de" ? "Anmeldung fehlgeschlagen. Bitte versuche es erneut." : "Login failed. Please try again.");
 };
@@ -46,16 +46,16 @@ export default function LoginForm({ language }: { language: Language }) {
     if (isLoading || isCheckingSession) return;
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !password) { setMessage(language === "de" ? "Bitte E-Mail und Passwort eingeben." : "Please enter email and password."); return; }
-    if (!emailPattern.test(normalizedEmail)) { setMessage(language === "de" ? "Bitte gib eine gültige E-Mail-Adresse ein." : "Please enter a valid email address."); return; }
+    if (!emailPattern.test(normalizedEmail)) { setMessage(language === "de" ? "Bitte gib eine gÃ¼ltige E-Mail-Adresse ein." : "Please enter a valid email address."); return; }
     try {
       setIsLoading(true);
-      setMessage(language === "de" ? "Anmeldung läuft..." : "Signing in...");
+      setMessage(language === "de" ? "Anmeldung lÃ¤uft..." : "Signing in...");
       const credential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
       await setDoc(doc(db, "users", credential.user.uid), { lastLoginAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, { merge: true });
       router.replace("/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
       setIsLoading(false);
-      setMessage(getLoginErrorMessage(error?.code, language));
+      setMessage(getLoginErrorMessage(error instanceof Error && "code" in error ? String((error as { code?: unknown }).code) : undefined, language));
     }
   };
 
@@ -79,14 +79,14 @@ export default function LoginForm({ language }: { language: Language }) {
       <div className="mb-5">
         <div className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100">Login</div>
         <p className="mt-3 text-[22px] font-black leading-snug text-white">{t.loginTitle}</p>
-        <p className="mt-1 text-sm text-white/70">{language === "de" ? "Willkommen zurück. Deine Missionen warten." : "Welcome back. Your missions are waiting."}</p>
+        <p className="mt-1 text-sm text-white/70">{language === "de" ? "Willkommen zurÃ¼ck. Deine Missionen warten." : "Welcome back. Your missions are waiting."}</p>
       </div>
 
       <input type="email" placeholder={t.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={handleKeyDown} autoComplete="email" className="mb-3 h-[48px] w-full rounded-xl bg-white px-4 text-[15px] text-gray-700 outline-none transition focus:ring-4 focus:ring-cyan-300/35" />
 
       <div className="relative mb-2">
         <input type={showPassword ? "text" : "password"} placeholder={t.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={handleKeyDown} autoComplete="current-password" className="h-[48px] w-full rounded-xl bg-white px-4 pr-12 text-[15px] text-gray-700 outline-none transition focus:ring-4 focus:ring-cyan-300/35" />
-        <button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-xl text-gray-500 transition hover:bg-gray-100 hover:text-gray-800" aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}>{showPassword ? "🙈" : "👁️"}</button>
+        <button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-xl text-gray-500 transition hover:bg-gray-100 hover:text-gray-800" aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}>{showPassword ? "ðŸ™ˆ" : "ðŸ‘ï¸"}</button>
       </div>
 
       <div className="mb-3 text-right"><button type="button" onClick={handlePasswordReset} className="text-sm font-semibold text-cyan-100 underline underline-offset-4 transition hover:text-white">{language === "de" ? "Passwort vergessen?" : "Forgot password?"}</button></div>
@@ -94,10 +94,11 @@ export default function LoginForm({ language }: { language: Language }) {
       {message && <div className="mb-3 rounded-xl border border-white/10 bg-black/20 px-4 py-2 text-sm font-semibold text-cyan-50">{message}</div>}
 
       <button onClick={handleLogin} disabled={isLoading || isCheckingSession} className="h-[54px] w-full rounded-xl bg-gradient-to-r from-emerald-300 to-cyan-400 text-[18px] font-black text-[#053841] shadow-[0_12px_28px_rgba(6,182,212,0.25)] transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:scale-100 disabled:bg-gray-500 disabled:opacity-70">
-        {isCheckingSession ? (language === "de" ? "Session prüfen..." : "Checking session...") : isLoading ? (language === "de" ? "Wird angemeldet..." : "Signing in...") : t.loginButton}
+        {isCheckingSession ? (language === "de" ? "Session prÃ¼fen..." : "Checking session...") : isLoading ? (language === "de" ? "Wird angemeldet..." : "Signing in...") : t.loginButton}
       </button>
 
       <div className="mt-4 text-center text-[15px] text-white/90"><span>{t.noAccount} </span><Link href="/register" className="font-bold text-cyan-100 underline underline-offset-4 hover:text-white">{t.registerNow}</Link></div>
     </div>
   );
 }
+

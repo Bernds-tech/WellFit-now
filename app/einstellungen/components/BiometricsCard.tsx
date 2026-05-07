@@ -1,7 +1,26 @@
-"use client";
+﻿"use client";
 
+import type { ComponentType } from "react";
+import type { BiometricsForm } from "../types";
 import SettingsCard from "./SettingsCard";
 import SensitiveNotice from "./SensitiveNotice";
+type ToggleButtonComponent = ComponentType<{
+  enabled: boolean;
+  onClick: () => void;
+  toggleBase: string;
+}>;
+
+type BiometricsCardProps = {
+  biometrics: BiometricsForm;
+  inputClass: string;
+  selectClass: string;
+  saveButtonClass: string;
+  isLoadingUser: boolean;
+  updateBiometricsField: (key: keyof BiometricsForm, value: string | boolean) => void;
+  saveBiometrics: () => void | Promise<void>;
+  ToggleButton: ToggleButtonComponent;
+  toggleBase: string;
+};
 
 export default function BiometricsCard({
   biometrics,
@@ -13,14 +32,14 @@ export default function BiometricsCard({
   saveBiometrics,
   ToggleButton,
   toggleBase,
-}: any) {
+}: BiometricsCardProps) {
   return (
-    <SettingsCard title="Biometrie & Körper">
+    <SettingsCard title="Biometrie & KÃ¶rper">
       <SensitiveNotice />
 
       <div className="space-y-3">
         <div className="grid grid-cols-[1fr_85px_35px_85px_28px] items-center gap-2">
-          <label className="text-xs text-white/70">Größe & Gewicht</label>
+          <label className="text-xs text-white/70">GrÃ¶ÃŸe & Gewicht</label>
           <input
             className={inputClass}
             value={biometrics.height}
@@ -66,7 +85,7 @@ export default function BiometricsCard({
         </div>
 
         <div>
-          <label className="text-xs text-white/70">Körperbau</label>
+          <label className="text-xs text-white/70">KÃ¶rperbau</label>
           <select
             className={selectClass}
             value={biometrics.bodyType}
@@ -76,7 +95,7 @@ export default function BiometricsCard({
           >
             <option>Schlank</option>
             <option>Normal</option>
-            <option>Kräftig</option>
+            <option>KrÃ¤ftig</option>
           </select>
         </div>
 
@@ -89,7 +108,7 @@ export default function BiometricsCard({
               updateBiometricsField("fitnessLevel", e.target.value)
             }
           >
-            <option>Anfänger</option>
+            <option>AnfÃ¤nger</option>
             <option>Fortgeschritten</option>
             <option>Aktiv</option>
           </select>
@@ -97,7 +116,7 @@ export default function BiometricsCard({
 
         <div>
           <label className="text-xs text-white/70">
-            Einschränkungen / Verletzungen
+            EinschrÃ¤nkungen / Verletzungen
           </label>
           <input
             className={inputClass}
@@ -114,8 +133,9 @@ export default function BiometricsCard({
         onClick={saveBiometrics}
         disabled={isLoadingUser}
       >
-        Änderungen speichern
+        Ã„nderungen speichern
       </button>
     </SettingsCard>
   );
 }
+
