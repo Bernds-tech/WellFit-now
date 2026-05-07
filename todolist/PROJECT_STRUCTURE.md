@@ -25,6 +25,17 @@ Wichtige Dateien:
 - `NEXT_ACTIONS.md` - naechste Schritte bis Beta
 - `DONE_LOG.md` - erledigte Arbeiten
 - `PROJECT_STRUCTURE.md` - diese Strukturuebersicht
+- `TODO_CONSOLIDATION.md` - Konsolidierung alter und kleiner TODO-Dateien ohne Loeschung
+
+## TODO-Konsolidierung
+Alte oder kleinere TODO-Dateien duerfen nicht geloescht werden. Sie sollen in `TODO_CONSOLIDATION.md` referenziert, markiert und in die neue Struktur uebernommen werden.
+
+Markierungen:
+- `offen`
+- `erledigt`
+- `duplikat`
+- `veraltet`
+- `zu pruefen`
 
 ## Noch zu pruefende Bereiche
 Die tatsaechliche Code-Struktur muss weiter analysiert und hier nachgetragen werden.
