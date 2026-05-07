@@ -8,8 +8,8 @@ import { signOut } from "firebase/auth";
 import AppSidebar from "@/app/AppSidebar";
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardMissionPanel from "./components/DashboardMissionPanel";
-import DashboardCards from "./components/DashboardCards";
 import DashboardAvatarPanel from "./components/DashboardAvatarPanel";
+import DashboardSavedCardsPanel from "./components/DashboardSavedCardsPanel";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { useDashboardActions } from "./hooks/useDashboardActions";
 import { getPersonalMission } from "./lib/personalMission";
@@ -116,17 +116,7 @@ export default function DashboardPage() {
             onFeedBuddy={handleFeedBuddy}
           />
 
-          {mission && (
-            <DashboardCards
-              mission={mission}
-              pointsBalance={pointsBalance}
-              buddyEnergy={buddyEnergy}
-              buddyHunger={buddyHunger}
-              stepsToday={stepsToday}
-              foodPrice={foodPrice}
-              onFeedBuddy={handleFeedBuddy}
-            />
-          )}
+          <DashboardSavedCardsPanel />
         </section>
       </div>
     </main>
