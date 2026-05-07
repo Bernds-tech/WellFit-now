@@ -1,9 +1,9 @@
 # WF-DASH-PERSIST-001 – Dashboard Preferences lokal
 
-Status: [~] In Arbeit / lokale Speicherung umgesetzt
+Status: [~] In Arbeit / lokale Speicherung und Dashboard-Einbindung umgesetzt, Build/Test offen
 
 ## Ziel
-Die Dashboard-Anpassungsseite soll nicht nur eine temporäre Vorschau sein. Auswahl und freie Kartengrößen sollen erhalten bleiben, wenn die Seite neu geladen wird.
+Die Dashboard-Anpassungsseite soll nicht nur eine temporäre Vorschau sein. Auswahl und freie Kartengrößen sollen erhalten bleiben, wenn die Seite neu geladen wird. Die echte Dashboard-Startseite soll dieselbe gespeicherte Auswahl nutzen.
 
 ## Umgesetzt
 - `app/dashboard/hooks/useDashboardPreferences.ts` angelegt.
@@ -16,27 +16,40 @@ Die Dashboard-Anpassungsseite soll nicht nur eine temporäre Vorschau sein. Ausw
 - Karten-Auswahl wird lokal gespeichert.
 - Freie Kartengrößen werden lokal gespeichert.
 - Reset-Button ergänzt.
-- Boxen-/Karten-Optik wurde bewusst nicht weiter verändert.
+- Lade-Flackern auf `/dashboard/anpassen` verhindert.
+- Karten-Optik auf kompaktere, professionellere Darstellung reduziert.
+- `app/dashboard/components/DashboardSavedCardsPanel.tsx` angelegt.
+- Testroute `app/dashboard/meine-karten/page.tsx` angelegt.
+- Echte `/dashboard`-Seite nutzt jetzt `DashboardSavedCardsPanel` statt der alten statischen `DashboardCards`-Sektion.
 
 ## Bewusst noch nicht umgesetzt
-- Die echte `/dashboard`-Seite wurde noch nicht überschrieben, weil der vollständige aktuelle Dateiinhalt im Connector nicht sicher als editierbarer Text verfügbar war.
 - Firestore-Sync ist bewusst noch nicht eingebaut.
 - Keine Reward-, Token-, Shop-, Leaderboard- oder Economy-Autorität wurde clientseitig erweitert.
+- GitHub-Workflow wurde angelegt, aber für die letzten Commits ist noch kein sichtbarer Workflow-Lauf im Connector verfügbar.
 
 ## Nächster Schritt
 1. Lokalen Build ausführen.
-2. `/dashboard/anpassen` testen.
-3. Danach die echte `/dashboard`-Seite kontrolliert an `useDashboardPreferences` anbinden.
-4. Erst danach Firestore-Sync vorbereiten.
+2. `/dashboard` testen.
+3. `/dashboard/anpassen` testen.
+4. `/dashboard/meine-karten` optional als Kontrollseite prüfen.
+5. Wenn alles passt: Testroute später entfernen oder als interne Vorschau behalten.
+6. Danach Firestore-Sync vorbereiten.
 
 ## Testhinweise
 - Karten ein-/ausblenden.
 - Kartengröße unten rechts ziehen.
-- Seite neu laden.
-- Prüfen, ob Auswahl und freie Größen erhalten bleiben.
-- Zurücksetzen klicken.
+- `/dashboard/anpassen` neu laden.
+- `/dashboard` öffnen und prüfen, ob dieselbe Auswahl erscheint.
+- Zurücksetzen testen.
 - Build ausführen:
 
 ```bash
 NODE_OPTIONS="--max-old-space-size=768" npm run build
+```
+
+PowerShell:
+
+```powershell
+$env:NODE_OPTIONS="--max-old-space-size=768"
+npm run build
 ```
