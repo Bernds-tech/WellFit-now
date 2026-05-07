@@ -1,6 +1,6 @@
 # WellFit Dev Agent - local watcher
 # Start this from the repository root: C:\wellfit\WellFit-now
-# It watches relevant project-memory and agent source files and runs the full agent gate after changes.
+# It watches relevant project-memory, app, backend, Unity and agent source files and runs the full agent gate after changes.
 
 $ErrorActionPreference = "Stop"
 
@@ -18,7 +18,17 @@ if (!(Test-Path $OutputDir)) {
   New-Item -ItemType Directory -Path $OutputDir | Out-Null
 }
 
+# Watch only meaningful source/project-memory areas.
+# Do not watch output/build/cache folders, otherwise the agent can trigger itself.
 $watchPaths = @(
+  "app",
+  "components",
+  "lib",
+  "functions",
+  "native\unity\WellFitBuddyAR\Assets\Scripts",
+  "native\unity\WellFitBuddyAR\docs",
+  "native\unity\WellFitBuddyAR\tools",
+  "public",
   "todolist",
   "docs\architecture",
   "scripts\wellfit-dev-agent\src",
@@ -30,9 +40,15 @@ $rootFiles = @(
   "package-lock.json",
   "next.config.js",
   "next.config.mjs",
+  "postcss.config.js",
+  "postcss.config.mjs",
+  "tailwind.config.js",
+  "tailwind.config.ts",
   "tsconfig.json",
   "firebase.json",
-  "firestore.rules"
+  "firestore.rules",
+  ".firebaserc",
+  ".env.example"
 )
 
 $lastRun = Get-Date "2000-01-01"
@@ -56,6 +72,16 @@ function Should-IgnorePath($fullPath) {
   if ($normalized -like "*\dist\*") { return $true }
   if ($normalized -like "*\build\*") { return $true }
   if ($normalized -like "*\out\*") { return $true }
+  if ($normalized -like "*\coverage\*") { return $true }
+  if ($normalized -like "*\.turbo\*") { return $true }
+  if ($normalized -like "*\.vercel\*") { return $true }
+  if ($normalized -like "*\native\unity\WellFitBuddyAR\Library\*") { return $true }
+  if ($normalized -like "*\native\unity\WellFitBuddyAR\Temp\*") { return $true }
+  if ($normalized -like "*\native\unity\WellFitBuddyAR\Logs\*") { return $true }
+  if ($normalized -like "*\native\unity\WellFitBuddyAR\Obj\*") { return $true }
+  if ($normalized -like "*\native\unity\WellFitBuddyAR\Build\*") { return $true }
+  if ($normalized -like "*\native\unity\WellFitBuddyAR\Builds\*") { return $true }
+  if ($normalized -like "*\native\unity\WellFitBuddyAR\UserSettings\*") { return $true }
 
   return $false
 }
