@@ -14,8 +14,9 @@ Baue WellFit Schritt fuer Schritt bis zur ersten Beta-Version weiter.
 1. Lies zuerst diesen Master-Prompt.
 2. Pruefe den Ordner `todolist/`.
 3. Lies die Datei `todolist/NEXT_ACTIONS.md`, falls vorhanden.
-4. Arbeite die naechste sinnvolle Aufgabe ab.
-5. Dokumentiere das Ergebnis im passenden TODO oder Log.
+4. Lies die Datei `todolist/PROJECT_STRUCTURE.md`, falls vorhanden.
+5. Arbeite die naechste sinnvolle Aufgabe ab.
+6. Dokumentiere das Ergebnis im passenden TODO oder Log.
 
 ## WellFit-Kernvision
 WellFit verbindet Bewegung, Gesundheit, Lernen, Gamification, KI, Community und spaeter Token-/Blockchain-Mechaniken.
@@ -27,6 +28,9 @@ WellFit verbindet Bewegung, Gesundheit, Lernen, Gamification, KI, Community und 
 - Mobile Darstellung immer mitdenken.
 - Navigation und bestehende Seiten duerfen nicht unabsichtlich zerstoert werden.
 - Neue Features sollen in kleine Dateien, Komponenten und Module aufgeteilt werden.
+- TODO-Dateien duerfen bearbeitet und erweitert werden, aber nicht geloescht werden.
+- Nichts vergessen: alte Informationen lieber als `erledigt`, `veraltet`, `offen` oder `zu pruefen` markieren.
+- Die Datei `todolist/PROJECT_STRUCTURE.md` muss gepflegt werden, damit klar bleibt, wo welche Dateien, Ordner und Features liegen.
 
 ## Dokumentationspflicht
 Nach jeder Aenderung:
@@ -34,6 +38,7 @@ Nach jeder Aenderung:
 - kurz erklaeren, was gemacht wurde
 - offene naechste Schritte aktualisieren
 - erledigte Punkte im DONE_LOG dokumentieren
+- falls Dateien oder Ordner betroffen sind, `todolist/PROJECT_STRUCTURE.md` aktualisieren
 
 ## Prioritaeten bis Beta
 1. Projektstruktur stabilisieren
