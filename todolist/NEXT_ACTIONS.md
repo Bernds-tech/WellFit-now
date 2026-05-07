@@ -17,14 +17,30 @@ Vor Arbeit an dieser Datei immer lesen:
 - `todolist/AUTONOMOUS_ITERATION_MODE.md`
 - `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md`
 
+## Aktueller Arbeitsfokus
+
+Stand: 2026-05-07
+
+Bernd hat entschieden:
+- Mobile/AR/Unity/Handytests werden erst am Samstag weiterbearbeitet.
+- Heute und morgen werden andere Beta-relevante Aufgaben bearbeitet.
+- Nach Repo-/TODO-/Agent-Aenderungen soll Bernd wieder den kompletten Agentenlauf starten.
+
+Aktueller Fokus heute/morgen:
+1. Build-/Server-/Installationsstabilitaet
+2. interne Economy-Regeln als Dokumentation
+3. Datenschutz-/Health-/Watch-Daten-Abgrenzung
+4. Blockchain-/Chain-Trennung fuer spaeter
+5. Website/Dashboard/Beta-Struktur, falls Zeit bleibt
+
 ## Aktueller Produktfokus aus alter Roadmap J
 
 Status aus `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` wurde uebernommen:
 
 - [x] Stufe 1 Mission Security / RewardPreview / Anti-Cheat Grundlage fachlich, emulatorseitig und produktionsseitig abgeschlossen.
-- [~] Aktiver naechster Produktblock: KI-Buddy / echter AR-Begleiter / Unity AR Foundation.
+- [>] KI-Buddy / echter AR-Begleiter / Unity AR Foundation ist wichtig, wird aber laut Bernd erst Samstag praktisch weiterbearbeitet.
 - [>] Serverseitige Mission Completion / interne Rewards bleiben vorbereitet, werden aber nach KI-Buddy/AR weitergefuehrt.
-- [~] Handy / AR / Avatar / Buddy bleibt vor Desktop-Marktplatz, Leaderboard, Shop und weiteren Produktmodulen priorisiert.
+- [>] Handy / AR / Avatar / Buddy bleibt fuer Produkt wichtig, ist aber heute/morgen nicht Arbeitsfokus.
 - [~] Browser/WebGL bleibt Demo und Fallback.
 - [~] Unity AR Foundation bleibt verbindlicher Hauptpfad fuer echten Buddy-AR.
 - [~] Buddy-KI, Missionsempfehlungen, Raetselgenerierung und Reward-Bewertung bleiben ausserhalb von Unity in Backend/App-Logik.
@@ -36,19 +52,54 @@ Status aus `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` wurde uebernommen:
 
 ## Prio 0 - TODO-/Agent-Gedaechtnis stabilisieren
 
-- [~] Bestehenden `todolist/`-Ordner konsolidieren.
 - [x] `todolist/TODO_INDEX.md` als zentralen Index mit Querverweisen angelegt.
 - [x] `todolist/TODO_CONSOLIDATION.md` als Konsolidierungsdatei angelegt.
-- [~] Gefundene Alt-TODOs in `TODO_INDEX.md` referenzieren.
-- [ ] Vollstaendigen lokalen/Codex-Scan aller TODO-Dateien ausfuehren.
-- [ ] Inhalte von `todolist/README.md` pruefen und relevante Punkte uebernehmen.
-- [ ] Inhalte von `todolist/CHAT_START_PROMPT.md` pruefen und relevante Punkte uebernehmen.
-- [ ] Jede wichtige TODO-Datei auf KI-Fortsetzungs-Prompt pruefen.
-- [ ] Fehlende KI-Fortsetzungs-Prompts in Alt-TODOs ergaenzen.
+- [x] Gefundene Alt-TODOs in `TODO_INDEX.md` referenziert.
+- [x] KI-Fortsetzungs-Prompts in wichtigen TODO-/Planungsdateien ergaenzt.
+- [x] Quality-Gate erreicht PASS: Alpha 7/7, Missing Index 0, Missing Prompts 0, Micro-Tasks 12.
+- [ ] Inhalte von `todolist/README.md` weiter pruefen und relevante Punkte in fuehrende Dateien uebernehmen.
+- [ ] Inhalte von `todolist/CHAT_START_PROMPT.md` weiter pruefen und relevante Punkte in fuehrende Dateien uebernehmen.
 - [ ] Doppelte TODOs als `duplikat` markieren, aber nicht loeschen.
 - [ ] Veraltete TODOs als `veraltet` markieren, aber nicht loeschen.
 
-## Prio 1 - KI-Buddy / Unity AR Foundation
+## Prio 1 - Heute/Morgen: Build, Server, Beta-Basis
+
+Quelle: Dry-Run-Report, `todolist/README.md`, `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT`
+
+- [ ] Nach aktuellem Stand erweiterten Server-Test erneut ausfuehren.
+- [ ] Root-Installation pruefen, falls Build `three` nicht findet.
+- [ ] `npm install` / `npm run build` Zustand dokumentieren.
+- [ ] `LAST_BUILD_STATUS.md` aktualisieren, falls Build-/Server-Test durchgefuehrt wird.
+- [ ] Build-/Server-Hinweise mit `DONE_LOG.md` und Status-Dateien abgleichen.
+
+## Prio 2 - Heute/Morgen: interne Economy-Regeln dokumentieren
+
+Quelle: Dry-Run-Report, `todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN`, `docs/architecture/AR_REWARD_LEDGER_EVENT.md`, `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md`
+
+- [ ] DailyEmissionCap, UserDailyCap, MissionTypeCap und EconomyHealthScore definieren.
+- [ ] Klar festlegen: interne Punkte/XP zuerst, keine echten Token/NFT/WFT vor stabiler Beta/Testphase.
+- [ ] Punkte-Ledger, Audit-Events, Caps und EconomyHealthScore nur als interne Logik planen, nicht produktiv freischalten.
+- [ ] Jackpot, Burn-Aequivalente und 25-Mrd.-Supply-Logik nur als Simulation/Dokumentation behandeln.
+
+## Prio 3 - Heute/Morgen: Datenschutz, Health, Watch, Standort
+
+Quelle: `todolist/CHAT_START_PROMPT.md`, `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md`, `docs/architecture/MISSION_DRAFT_SECURITY_PLAN.md`
+
+- [ ] Schritt-, Health- und Watch-Daten duerfen spaeter nur als unterstuetzende Validierungs-, Kontext- oder Plausibilitaetsdaten dienen.
+- [ ] Health-/Kinder-/Standortdaten besonders schuetzen.
+- [ ] Keine sensible Gesundheits-/Standortlogik als Beta-Hauptmechanik verwenden.
+- [ ] Mobile-App bleibt frei von Token-, NFT-, Trading- und Presale-Funktionen.
+
+## Prio 4 - Heute/Morgen: Chain-/Blockchain-Trennung
+
+Quelle: `todolist/CHAT_START_PROMPT.md`, `todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN`, `docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md`
+
+- [ ] Historische Solana/SPL-Unterlagen und neuere SUI/Dynamic-Objects-Unterlagen nicht vermischen.
+- [ ] Finale Chain-Entscheidung spaeter treffen.
+- [ ] Blockchain, WFT, NFT, Trading, Marketplace, Staking und DAO bleiben Backlog bis nach stabiler Beta/Testphase.
+- [ ] Fuer Beta nur interne Punkte-/XP-/Reward-Simulation verwenden.
+
+## Prio 5 - Samstag: KI-Buddy / Unity AR Foundation
 
 Quelle: `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT`, `todolist/H*`, `todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md`
 
@@ -59,28 +110,26 @@ Quelle: `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT`, `todolist/H*`, `todolist/K_AR
 - [ ] Buddy platzieren, bewegen, springen und zum Nutzer zurueckrufen als echten Unity-AR-Pfad weiterfuehren.
 - [ ] WebGL-Buddy als Demo/Fallback klar kennzeichnen.
 
-## Prio 2 - KI-Buddy als Guide / Dialog / Missionsempfehler
+## Prio 6 - KI-Buddy als Guide / Dialog / Missionsempfehler
 
 Quelle: `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT`, `docs/architecture/BUDDY_KI_INTEGRATION.md`, `docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md`
 
 - [x] `app/api/buddy-ki/route.ts` vorhanden laut Roadmap J.
 - [x] Rules-Fallback fuer Buddy-KI vorhanden laut Roadmap J.
 - [x] Optionaler serverseitiger OpenAI-Modellprovider vorbereitet laut Roadmap J.
-- [ ] Server-Env fuer echten Modelltest setzen, falls gewuenscht.
+- [>] Server-Env fuer echten Modelltest nur setzen, wenn Bernd das ausdruecklich will.
 - [ ] Buddy-KI-Guide Datenmodell in App/Backend weiter ausbauen.
 - [ ] KI-Buddy darf Vorschlaege machen, aber keine Rewards, Punkte, Token oder Mission-Completion autorisieren.
 
-## Prio 3 - Serverseitige Mission Completion / interne Rewards
+## Prio 7 - Serverseitige Mission Completion / interne Rewards
 
 Quelle: `todolist/F - FIREBASE  - REALTIME - MISSIONEN`, `todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS`, `todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN`, `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md`, `todolist/DATABASE_PLAN.md`
 
-- [ ] `validateMissionCompletionWithItem` produktionsreif vorbereiten.
-- [ ] `grantItemOrCapability` produktionsreif vorbereiten.
-- [ ] `missionRewardEvents` als echte Audit-Events schreiben.
+- [!] `validateMissionCompletionWithItem` produktionsreif vorbereiten: reviewpflichtig.
+- [!] `grantItemOrCapability` produktionsreif vorbereiten: reviewpflichtig.
+- [ ] `missionRewardEvents` als echte Audit-Events planen.
 - [ ] Serverseitiges Punkte-Ledger als Pflichtarchitektur vorbereiten.
 - [ ] Server-Transaktionen fuer interne XP/Punkte/Streaks vorbereiten.
-- [ ] Punkte-Ausgaben, Sinks, Gebuehren, Jackpot und Burn-Aequivalente intern simulieren.
-- [ ] 25-Mrd.-Supply-/Reserve-/Emission-Logik als interne Simulation vorbereiten.
 - [ ] UserDailyCap gegen Nutzerhistorie pruefen.
 - [ ] MissionTypeCap gegen Missionstyp und Kontext pruefen.
 - [ ] Completion nur bei ausreichender Evidence erlauben.
@@ -89,7 +138,7 @@ Quelle: `todolist/F - FIREBASE  - REALTIME - MISSIONEN`, `todolist/G - REWARD SY
 - [ ] Firestore Rules fuer Nutzerpunkte/XP weiter haerten.
 - [ ] Tagesmissionen schrittweise von MVP-Client-Reward auf Server-Preview/Server-Completion umstellen.
 
-## Prio 4 - Website / Dashboard / Navigation / Beta-Demo
+## Prio 8 - Website / Dashboard / Navigation / Beta-Demo
 
 Quelle: `todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL`, `PROJECT_STRUCTURE.md`
 
@@ -101,7 +150,7 @@ Quelle: `todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL`, `PROJECT_STRUCTURE.
 - [ ] Mobile Ansicht pruefen.
 - [ ] Beta-Akzeptanzkriterien definieren.
 
-## Prio 5 - Datenbank / Backend / Auth
+## Prio 9 - Datenbank / Backend / Auth
 
 Quelle: `todolist/DATABASE_PLAN.md`, `todolist/F - FIREBASE  - REALTIME - MISSIONEN`
 
@@ -134,3 +183,4 @@ Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, danach diese Datei, `todolist/TO
 - TODO-Dateien duerfen bearbeitet, aber nicht geloescht werden.
 - Es soll dokumentiert werden, wo welche Datei und welcher Ordner liegt.
 - Neue TODO-Listen muessen relevante Inhalte aus alten TODOs uebernehmen oder verlinken.
+- Mobile/AR/Unity/Handytests werden erst am Samstag weitergemacht.
