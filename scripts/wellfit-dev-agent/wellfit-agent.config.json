@@ -1,16 +1,39 @@
 {
   "agentName": "wellfit-dev-agent",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "mode": "dry-run",
   "repository": "Bernds-tech/WellFit-now",
   "sourceOfTruth": [
+    "todolist/MASTER_PROMPT_FOR_AI.md",
+    "todolist/TODO_INDEX.md",
+    "todolist/TODO_CONSOLIDATION.md",
+    "todolist/NEXT_ACTIONS.md",
+    "todolist/PROJECT_STRUCTURE.md",
+    "todolist/DONE_LOG.md",
+    "todolist/ARCHITECTURE_RULES.md",
+    "todolist/DATABASE_PLAN.md",
     "todolist/README.md",
     "todolist/J - NÄCHSTE EMPFOHLENE ARBEIT",
     "todolist/CHAT_START_PROMPT.md",
     "todolist/AUTONOMOUS_ITERATION_MODE.md",
+    "todolist/NEXT_CHAT_HANDOFF_PROMPT.md",
     "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md"
   ],
   "topicFiles": {
+    "todoMemory": [
+      "todolist/MASTER_PROMPT_FOR_AI.md",
+      "todolist/TODO_INDEX.md",
+      "todolist/TODO_CONSOLIDATION.md",
+      "todolist/NEXT_ACTIONS.md",
+      "todolist/PROJECT_STRUCTURE.md",
+      "todolist/DONE_LOG.md"
+    ],
+    "databaseArchitecture": [
+      "todolist/DATABASE_PLAN.md",
+      "todolist/F - FIREBASE  - REALTIME - MISSIONEN",
+      "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
+      "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md"
+    ],
     "mobileArBuddy": [
       "todolist/H - MOBILE - AR - TRACKING - KI",
       "todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY",
@@ -27,12 +50,17 @@
       "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL"
     ],
     "agentArchitecture": [
+      "todolist/CODER_START_PROMPT.md",
+      "todolist/CHAT_START_AGENT_AND_CODER_ADDENDUM.md",
+      "scripts/wellfit-dev-agent/README.md",
+      "scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md",
+      "scripts/wellfit-dev-agent/NEW_CODER_ENTRY_MESSAGE.md",
       "docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md",
       "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md",
       "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md"
     ]
   },
-  "defaultTopic": "agentArchitecture",
+  "defaultTopic": "todoMemory",
   "outputPath": "scripts/wellfit-dev-agent/output/dry-run-report.md",
   "goalCheckOutputPath": "scripts/wellfit-dev-agent/output/alpha-goal-check.md",
   "coderPromptOutputDir": "scripts/wellfit-dev-agent/output/coder-prompts",
@@ -56,13 +84,15 @@
       "moveToBacklogWithMarker",
       "addRiskNote",
       "addBuildNote",
-      "addReviewNote"
+      "addReviewNote",
+      "addCrossReference",
+      "appendContinuationPrompt"
     ],
     "protectedGlobs": [
       "todolist/**",
       "docs/architecture/**"
     ],
-    "requiredNote": "Bestehende ToDo-/Roadmap-Einträge dürfen nicht gelöscht werden. Der Agent darf nur Status/Priorität ändern, ergänzen, erweitern oder mit [>] in Backlog verschieben."
+    "requiredNote": "Bestehende ToDo-/Roadmap-Einträge dürfen nicht gelöscht werden. Der Agent darf nur Status/Priorität ändern, ergänzen, erweitern, Querverweise setzen, KI-Fortsetzungs-Prompts ergänzen oder mit [>] in Backlog verschieben."
   },
   "firstTestRunGoals": {
     "enabled": true,
@@ -110,55 +140,10 @@
   "alphaScope": {
     "enabled": true,
     "priorityKeywords": [
-      "alpha",
-      "beta",
-      "mobile",
-      "ar",
-      "unity",
-      "android",
-      "buddy",
-      "mission",
-      "challenge",
-      "punkte",
-      "xp",
-      "reward",
-      "completion",
-      "firebase",
-      "backend",
-      "security",
-      "rules",
-      "login",
-      "registrierung",
-      "profil",
-      "deployment",
-      "datenschutz",
-      "app-store",
-      "test",
-      "qa",
-      "debug"
+      "alpha", "beta", "mobile", "ar", "unity", "android", "buddy", "mission", "challenge", "punkte", "xp", "reward", "completion", "firebase", "backend", "security", "rules", "login", "registrierung", "profil", "deployment", "datenschutz", "app-store", "test", "qa", "debug", "todo", "todolist", "project structure", "database"
     ],
     "backlogKeywords": [
-      "nft",
-      "token",
-      "wft",
-      "blockchain",
-      "marketplace",
-      "trading",
-      "staking",
-      "dao",
-      "depin",
-      "compute",
-      "whitelabel",
-      "b2b",
-      "voice wake",
-      "wake word",
-      "vererbung",
-      "lebenslanger avatar",
-      "partnerplattform",
-      "museum",
-      "städte",
-      "stadt",
-      "pharma"
+      "nft", "token", "wft", "blockchain", "marketplace", "trading", "staking", "dao", "depin", "compute", "whitelabel", "b2b", "voice wake", "wake word", "vererbung", "lebenslanger avatar", "partnerplattform", "museum", "städte", "stadt", "pharma"
     ]
   },
   "coderAssignment": {
@@ -179,7 +164,7 @@
         "displayName": "Coder 2",
         "selfNames": ["coder 2", "coder2", "c2"],
         "role": "Backend / Firebase / Mission Completion / Security",
-        "focusKeywords": ["backend", "firebase", "firestore", "rules", "functions", "serverseitig", "completion", "reward", "punkte", "xp", "ledger", "mission", "security", "emulator"],
+        "focusKeywords": ["backend", "firebase", "firestore", "rules", "functions", "serverseitig", "completion", "reward", "punkte", "xp", "ledger", "mission", "security", "emulator", "database"],
         "avoidKeywords": ["nft", "token", "trading", "marketplace", "depin"]
       },
       {
@@ -187,7 +172,7 @@
         "displayName": "Coder 3",
         "selfNames": ["coder 3", "coder3", "c3"],
         "role": "Website / UX / QA / Datenschutz / Dokumentation / Agent",
-        "focusKeywords": ["website", "business", "legal", "datenschutz", "app-store", "ux", "ui", "qa", "test", "doku", "documentation", "agent", "prompt", "deployment"],
+        "focusKeywords": ["website", "business", "legal", "datenschutz", "app-store", "ux", "ui", "qa", "test", "doku", "documentation", "agent", "prompt", "deployment", "todo", "todolist"],
         "avoidKeywords": ["reward", "completion", "anti-cheat", "firestore rules", "token", "nft"]
       }
     ],
@@ -199,7 +184,9 @@
     "canModifyCode": false,
     "canCreateBranch": false,
     "canCreatePullRequest": false,
-    "canDeployProduction": false
+    "canDeployProduction": false,
+    "chatgptUiApprovalsCannotBeAutoConfirmed": true,
+    "futureCodexOrSelfHostedAgentMayWriteWithScopedToken": false
   },
   "protectedAreas": [
     "firestore.rules",
@@ -223,6 +210,7 @@
     "writeSecretsToFrontend",
     "deployProduction",
     "deleteTodoEntries",
-    "deleteRoadmapSections"
+    "deleteRoadmapSections",
+    "autoConfirmChatGPTToolApprovalDialogs"
   ]
 }
