@@ -110,6 +110,15 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md` | aktiv / zu pruefen | Mission-/Reward-Kontextlogik | Missionen/Reward | mit Datenbankplan abgleichen |
 | `docs/architecture/AR_RIDDLE_FIRESTORE_SECURITY_PLAN.md` | aktiv / Security | AR-Raetsel Firestore Security | Backend/Security | mit Coder 2 abgleichen |
 | `docs/architecture/USER_POINTS_CLIENT_WRITE_REFACTOR.md` | aktiv / Security | Refactor gegen Client-Write bei User Points | Backend/Security | fuer Beta wichtig |
+| `docs/architecture/AR_REWARD_LEDGER_EVENT.md` | aktiv / Reward Ledger | AR-Reward-Ledger-Event | Backend/Reward | mit Coder 2 und Punkte-Ledger abgleichen |
+| `docs/architecture/AR_RIDDLE_EMULATOR_TEST_PLAN.md` | aktiv / Testplan | AR-Riddle Emulator-Testplan | Backend/QA | mit Emulator-/QA-Tasks abgleichen |
+| `docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md` | aktiv / Runbook | Buddy-KI Modellprovider | Buddy-KI/Backend | keine Frontend-Secrets, Provider sauber testen |
+| `docs/architecture/MISSION_DRAFT_EMULATOR_TEST_PLAN.md` | aktiv / Testplan | Mission-Draft Emulator-Testplan | Mission/QA | mit Coder 2 abgleichen |
+| `docs/architecture/MISSION_DRAFT_FIRESTORE_RULES_DRAFT.md` | aktiv / Security | Mission-Draft Firestore Rules Draft | Backend/Security | reviewpflichtig |
+| `docs/architecture/MISSION_DRAFT_PREVIEW_API.md` | aktiv / API | Mission-Draft Preview API | Backend/Mission | reviewpflichtig |
+| `docs/architecture/MISSION_DRAFT_SECURITY_PLAN.md` | aktiv / Security | Mission-Draft Security Plan | Backend/Security | reviewpflichtig |
+| `docs/architecture/MISSION_HISTORY_FAVORITES_SIDEQUESTS.md` | aktiv / Mission UI | Mission History, Favorites, Sidequests | Mission/UI | mit AppShell und Beta pruefen |
+| `docs/architecture/USER_ECONOMY_WRITE_SEARCH_NOTES.md` | aktiv / Security Notes | User Economy Write Search Notes | Backend/Economy | mit Client-Write-Refactor abgleichen |
 
 ## Dev-Agent Dateien
 
