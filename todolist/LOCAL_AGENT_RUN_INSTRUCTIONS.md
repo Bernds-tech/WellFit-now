@@ -25,7 +25,7 @@ npm install
 Beispiel:
 
 ```powershell
-cd C:\Users\BERND\Documents\GitHub\WellFit-now
+cd C:\wellfit\WellFit-now
 npm install
 ```
 
@@ -35,6 +35,7 @@ Im Hauptordner des Repositories ausfuehren, also dort, wo auch `package.json` li
 ```powershell
 npm run agent:validate
 npm run agent:goal-check
+npm run agent:memory-sync
 npm run agent:coder-prompts
 npm run agent:dry-run
 ```
@@ -51,6 +52,7 @@ Nach dem Lauf pruefen:
 
 ```text
 scripts/wellfit-dev-agent/output/alpha-goal-check.md
+scripts/wellfit-dev-agent/output/memory-sync-report.md
 scripts/wellfit-dev-agent/output/dry-run-report.md
 scripts/wellfit-dev-agent/output/coder-prompts/IDENTITY_GATE.md
 scripts/wellfit-dev-agent/output/coder-prompts/coder1.md
@@ -60,9 +62,25 @@ scripts/wellfit-dev-agent/output/coder-prompts/coder3.md
 
 ## Danach im ChatGPT verwenden
 1. Inhalt von `alpha-goal-check.md` ansehen.
-2. Inhalt von `dry-run-report.md` ansehen.
-3. `IDENTITY_GATE.md` nutzen, wenn ein Coder startet.
-4. Je nach Antwort `coder1.md`, `coder2.md` oder `coder3.md` verwenden.
+2. Inhalt von `memory-sync-report.md` ansehen.
+3. Inhalt von `dry-run-report.md` ansehen.
+4. `IDENTITY_GATE.md` nutzen, wenn ein Coder startet.
+5. Je nach Antwort `coder1.md`, `coder2.md` oder `coder3.md` verwenden.
+
+## Memory-Sync
+`npm run agent:memory-sync` scannt TODO-/Roadmap-/Agent-Dateien und erzeugt nur einen Report. Es aendert keine Projektdateien.
+
+Output:
+
+```text
+scripts/wellfit-dev-agent/output/memory-sync-report.md
+```
+
+Der Report zeigt:
+- welche TODO-aehnlichen Dateien gefunden wurden
+- welche Dateien noch nicht im Index stehen
+- welche Dateien keinen KI-Fortsetzungs-Prompt haben
+- welche referenzierten Dateien fehlen
 
 ## Wann ausfuehren?
 Immer wenn:
