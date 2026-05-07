@@ -9,6 +9,7 @@ import AppSidebar from "@/app/AppSidebar";
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardMissionPanel from "./components/DashboardMissionPanel";
 import DashboardAvatarPanel from "./components/DashboardAvatarPanel";
+import DashboardEconomyPanel from "./components/DashboardEconomyPanel";
 import DashboardSavedCardsPanel from "./components/DashboardSavedCardsPanel";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { useDashboardActions } from "./hooks/useDashboardActions";
@@ -103,6 +104,8 @@ export default function DashboardPage() {
             hasUser={!!user}
             buddyLevel={buddyLevel}
           />
+
+          <DashboardEconomyPanel pointsBalance={pointsBalance} />
 
           {mission && (
             <DashboardMissionPanel
