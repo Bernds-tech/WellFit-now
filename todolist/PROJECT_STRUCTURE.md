@@ -26,6 +26,22 @@ Wichtige Dateien:
 - `DONE_LOG.md` - erledigte Arbeiten
 - `PROJECT_STRUCTURE.md` - diese Strukturuebersicht
 - `TODO_CONSOLIDATION.md` - Konsolidierung alter und kleiner TODO-Dateien ohne Loeschung
+- `TODO_INDEX.md` - zentraler Index fuer TODOs, Querverweise und Alt-Dateien
+- `LOCAL_AGENT_RUN_INSTRUCTIONS.md` - lokale Anleitung fuer Bernd zum Ausfuehren des Dev-Agenten
+
+### `scripts/wellfit-dev-agent/`
+Lokaler WellFit Dev Agent fuer Dry-Run, Zielkurs-Check, Coder-Prompts und Aufgabenverteilung.
+
+Wichtige Dateien:
+- `README.md` - Agent-Ueberblick
+- `RUNBOOK_WHEN_TO_RUN_AGENT.md` - wann der Agent auszufuehren ist
+- `wellfit-agent.config.json` - Agent-Konfiguration, Source-of-Truth, Rollen, Policies
+- `run-agent-full.ps1` - PowerShell-Hilfsskript fuer kompletten Agentenlauf
+- `src/validate-agent-config.mjs` - validiert Agent-Konfiguration
+- `src/alpha-goal-check.mjs` - prueft Alpha-/Beta-Zielkurs
+- `src/generate-coder-prompts.mjs` - erzeugt Coder-Prompts
+- `src/dry-run.mjs` - erzeugt Dry-Run-Report
+- `output/` - erzeugte Reports und Coder-Prompts
 
 ## TODO-Konsolidierung
 Alte oder kleinere TODO-Dateien duerfen nicht geloescht werden. Sie sollen in `TODO_CONSOLIDATION.md` referenziert, markiert und in die neue Struktur uebernommen werden.
