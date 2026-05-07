@@ -18,9 +18,13 @@ npm run agent:coder-prompts
 Write-Host "=== WellFit Dev Agent: dry-run ==="
 npm run agent:dry-run
 
+Write-Host "=== WellFit Dev Agent: quality-gate ==="
+npm run agent:quality-gate
+
 Write-Host "=== Done ==="
 Write-Host "Check outputs:"
 Write-Host "scripts/wellfit-dev-agent/output/alpha-goal-check.md"
 Write-Host "scripts/wellfit-dev-agent/output/memory-sync-report.md"
 Write-Host "scripts/wellfit-dev-agent/output/dry-run-report.md"
+Write-Host "scripts/wellfit-dev-agent/output/quality-gate-report.md"
 Write-Host "scripts/wellfit-dev-agent/output/coder-prompts/"
