@@ -383,3 +383,12 @@ finalReward = min(validatedReward, userDailyCap, systemDailyEmissionCap, mission
 - Backend prueft Alter, Kontext, Beweise, Mission, Tageslimit und Systemreserve.
 - Token-/WFT-/Burn-Logik bleibt ausserhalb der Mobile-App.
 - Kinder- und Familienmissionen brauchen strengere Radius-/Zeit-/Eltern-Regeln.
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md` und die fuehrenden Dateien: `todolist/DATABASE_PLAN.md`, `todolist/NEXT_ACTIONS.md`, `todolist/TODO_INDEX.md`.
+
+Arbeite mit dieser Datei nur ergaenzend und nachvollziehbar. Loesche keine alten Aufgaben, Roadmap-Punkte, Statushinweise oder erledigten Eintraege. Markiere veraltete oder doppelte Punkte nur als `veraltet`, `duplikat`, `erledigt`, `offen` oder `zu pruefen`.
+
+Wenn du offene Punkte aus dieser Datei uebernimmst, verlinke sie in `todolist/TODO_INDEX.md` oder uebertrage sie nach `todolist/NEXT_ACTIONS.md`. Dokumentiere erledigte Arbeit in `todolist/DONE_LOG.md`.
+

@@ -148,3 +148,12 @@ manualReviewRequired
 - [ ] TTL/Cooldown-Regeln definieren.
 - [ ] Reward Policy Input mit Question Memory verbinden.
 - [ ] Datenschutzstufe fuer Kinder-/Familienmodus definieren.
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md` und die fuehrenden Dateien: `todolist/NEXT_ACTIONS.md`, `todolist/TODO_INDEX.md`, `todolist/PROJECT_STRUCTURE.md`.
+
+Arbeite mit dieser Datei nur ergaenzend und nachvollziehbar. Loesche keine alten Aufgaben, Roadmap-Punkte, Statushinweise oder erledigten Eintraege. Markiere veraltete oder doppelte Punkte nur als `veraltet`, `duplikat`, `erledigt`, `offen` oder `zu pruefen`.
+
+Wenn du offene Punkte aus dieser Datei uebernimmst, verlinke sie in `todolist/TODO_INDEX.md` oder uebertrage sie nach `todolist/NEXT_ACTIONS.md`. Dokumentiere erledigte Arbeit in `todolist/DONE_LOG.md`.
+

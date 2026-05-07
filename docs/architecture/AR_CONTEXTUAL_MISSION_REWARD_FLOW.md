@@ -185,3 +185,12 @@ Die 25-Mrd.-Logik bleibt interne Punkte-/Economy-Simulation, bis die Alpha-/Beta
 - [ ] Server-Ledger Event fuer AR-Fragen entwerfen.
 - [ ] Anti-Farming-Regeln fuer Wiederholfragen definieren.
 - [ ] UI bleibt Preview-only, bis Backend-Reward-Pfad existiert.
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md` und die fuehrenden Dateien: `todolist/DATABASE_PLAN.md`, `todolist/NEXT_ACTIONS.md`, `todolist/TODO_INDEX.md`.
+
+Arbeite mit dieser Datei nur ergaenzend und nachvollziehbar. Loesche keine alten Aufgaben, Roadmap-Punkte, Statushinweise oder erledigten Eintraege. Markiere veraltete oder doppelte Punkte nur als `veraltet`, `duplikat`, `erledigt`, `offen` oder `zu pruefen`.
+
+Wenn du offene Punkte aus dieser Datei uebernimmst, verlinke sie in `todolist/TODO_INDEX.md` oder uebertrage sie nach `todolist/NEXT_ACTIONS.md`. Dokumentiere erledigte Arbeit in `todolist/DONE_LOG.md`.
+
