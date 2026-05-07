@@ -1,7 +1,7 @@
-# WELLFIT – Neuer Chat Handoff-Prompt
+﻿# WELLFIT â€“ Neuer Chat Handoff-Prompt
 
-Version: 1.1
-Stand: 2026-04-28
+Version: 1.4
+Stand: 2026-05-01
 Repository: Bernds-tech/WellFit-now
 Quelle der Wahrheit: GitHub + todolist/ + WellFit Dev Agent
 
@@ -10,42 +10,6 @@ Quelle der Wahrheit: GitHub + todolist/ + WellFit Dev Agent
 ## Verwendung
 
 Diesen Prompt am Anfang eines neuen Chats schicken, damit direkt am aktuellen WellFit-Stand weitergearbeitet wird.
-
-Wenn der neue Chat ein GPT-Coder-/GitHub-Codearbeitschat ist, zusätzlich immer verwenden:
-
-```txt
-todolist/CODER_START_PROMPT.md
-scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
-```
-
----
-
-## Pflicht vor Codearbeit / neuer Coder
-
-Wenn ein neuer GPT-Coder über ChatGPT/GitHub mitmachen will, wenn ein neuer GPT-Chat mit Codearbeit beginnt, wenn ein Coder sagt "weiter" oder wenn unklar ist, wer woran arbeiten soll, zuerst ausführen:
-
-```bash
-npm run agent:validate
-npm run agent:goal-check
-npm run agent:coder-prompts
-npm run agent:dry-run
-```
-
-Danach im Chat zuerst fragen:
-
-```txt
-Welcher Coder bist du? Antworte exakt mit deiner registrierten Rolle, z. B. Coder 1, Coder 2, Coder 3 ...
-```
-
-Nach Antwort des Coders passenden Prompt verwenden:
-
-```txt
-Coder 1 -> scripts/wellfit-dev-agent/output/coder-prompts/coder1.md
-Coder 2 -> scripts/wellfit-dev-agent/output/coder-prompts/coder2.md
-Coder 3 -> scripts/wellfit-dev-agent/output/coder-prompts/coder3.md
-```
-
-Bei späteren Codern entsprechend `coder4.md`, `coder5.md`, usw.
 
 ---
 
@@ -77,119 +41,213 @@ Repository:
 Bernds-tech/WellFit-now
 ```
 
+Aktiver Branch fuer Unity-Arbeit:
+
+```txt
+wellfit/upload-local-unity-ar-buddy
+```
+
+Offene PRs pruefen:
+
+```txt
+PR #12: Add AR Buddy companion and avatar groundwork todo
+PR #13: Add local Unity AR Buddy companion project
+```
+
+Aktueller lokaler PC-Kontext:
+
+```txt
+Repo: C:\wellfit\WellFit-now
+Unity-Projekt: C:\wellfit\WellFit-now\native\unity\WellFitBuddyAR
+Alter Ordner C:\wellfit\WellFitBuddyAR ist nur Backup und darf nicht mehr Arbeitsordner sein.
+```
+
 Pflichtdateien zuerst lesen:
 
 ```txt
 todolist/CHAT_START_PROMPT.md
+todolist/CHAT_START_SCALABILITY_ADDENDUM.md
 todolist/AUTONOMOUS_ITERATION_MODE.md
 todolist/README.md
-todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
-docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md
+todolist/README_SCALABILITY_ADDENDUM.md
+todolist/TODOLIST_GOVERNANCE_CONTRACT.md
+todolist/J - NÃ„CHSTE EMPFOHLENE ARBEIT
+todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md
+todolist/L - SKALIERBARKEIT - AR BUDDY UI UND ARCHITEKTUR.md
+todolist/status/2026-04-30-unity-ar-buddy-debug-batch-handoff.md
+todolist/status/2026-05-01-unity-ar-buddy-pre-retest-readout.md
+native/unity/WellFitBuddyAR/docs/NEXT_AR_BUDDY_EXTENSION_BATCH.md
+native/unity/WellFitBuddyAR/docs/BATCH_AR_BUDDY_RECALL_TEST.md
+native/unity/WellFitBuddyAR/docs/CALL_BUDDY_TO_USER.md
+native/unity/WellFitBuddyAR/docs/PC_RETEST_CHECKLIST_2026-05-01.md
+native/unity/WellFitBuddyAR/docs/BUDDY_ARCHITECTURE_SCALING_PLAN.md
+native/unity/WellFitBuddyAR/docs/BUDDY_EVENT_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_EVENT_STATE_VERSIONING_PLAN.md
+native/unity/WellFitBuddyAR/docs/BUDDY_ABILITY_STATE_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_DEBUG_OVERLAY_REFACTOR_PLAN.md
+native/unity/WellFitBuddyAR/docs/BUDDY_MOVEMENT_POLICY_DRAFT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_SURFACE_QUALITY_DRAFT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_GUIDE_MISSION_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_COMPANION_RADIUS_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_COMMAND_CONTRACT.md
+native/unity/WellFitBuddyAR/docs/BUDDY_PRODUCT_UI_CONTRACT.md
 ```
 
-Wenn Codearbeit oder GPT-Coder beteiligt sind, zusätzlich lesen:
+Danach relevante Unity-Dateien lesen:
 
 ```txt
-todolist/CODER_START_PROMPT.md
-scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
-scripts/wellfit-dev-agent/README.md
-```
-
-Danach je nach Thema mitlesen:
-
-```txt
-todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY
-todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
-todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
-docs/architecture/BUDDY_KI_INTEGRATION.md
-docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md
-docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md
-native/unity/WellFitBuddyAR/README.md
-native/unity/WellFitBuddyAR/docs/FIRST_ANDROID_ARCORE_RUNBOOK.md
-native/unity/WellFitBuddyAR/docs/UNITY_SETUP_CHECKLIST.md
-native/unity/WellFitBuddyAR/docs/ANDROID_PLAYER_SETTINGS.md
-native/unity/WellFitBuddyAR/docs/AR_SCENE_VALIDATION_CHECKLIST.md
-native/unity/WellFitBuddyAR/docs/BUDDY_PLACEHOLDER_PREFAB.md
+native/unity/WellFitBuddyAR/Assets/Scripts/WellFitNativeBridge.cs
+native/unity/WellFitBuddyAR/Assets/Scripts/BuddyDebugSceneBootstrap.cs
+native/unity/WellFitBuddyAR/Assets/Scripts/BuddyCallDebugController.cs
+native/unity/WellFitBuddyAR/Assets/Scripts/BuddyCompanionAutoReturnController.cs
+native/unity/WellFitBuddyAR/Assets/Scripts/BuddyAnchorController.cs
+native/unity/WellFitBuddyAR/Assets/Scripts/BuddyNavigationController.cs
+native/unity/WellFitBuddyAR/Assets/Scripts/BuddyAbilityController.cs
+native/unity/WellFitBuddyAR/Assets/Scripts/BuddyKiGuideController.cs
+native/unity/WellFitBuddyAR/Assets/Scripts/BuddyController.cs
+native/unity/WellFitBuddyAR/Assets/Scripts/BuddyLookAtCamera.cs
 ```
 
 Aktueller Arbeitsmodus:
 
 ```txt
 AUTONOMOUS_ITERATION_MODE.md beachten.
+TODOLIST_GOVERNANCE_CONTRACT.md beachten.
 Arbeite in Micro-Tasks.
-Plane 4 bis 8 naechste Schritte.
-Arbeite klare Folgeaufgaben eigenstaendig ab.
-Frage nur bei echter Blockade, Architekturentscheidung, Zugriff/Freigabe, Kosten/Provider/Secret oder Designentscheidung.
+Bei GitHub-Codeaenderungen kurze, klare Commits.
+Keine direkten main-Commits.
+Unity-Arbeit nach Moeglichkeit auf Branch wellfit/upload-local-unity-ar-buddy fortsetzen, solange PR #13 offen ist.
+Keine Unity Library/Temp/Logs/Obj/Build/Builds/node_modules/APK committen.
 ```
 
 Aktueller Produktfokus:
 
 ```txt
-1. Testbare Alpha statt Alles-auf-einmal.
-2. Mobile AR / Kamera / WebGL-Fallback stabilisieren.
-3. Echten AR-Buddy wie Referenzvideos ueber Unity AR Foundation + ARCore/ARKit vorbereiten.
-4. Buddy platzieren / bewegen / rufen.
-5. Missionen spielbar machen.
-6. Interne Punkte / XP sicher vorbereiten.
-7. Backend bleibt Autorität fuer Reward, Completion, Anti-Cheat und Security.
-8. Datenschutz / App-Store-Konformität für erste Testläufe beachten.
+1. Echten AR-Buddy ueber Unity AR Foundation + ARCore/ARKit stabilisieren.
+2. Android-Retest nach Debug-Batch durchfuehren.
+3. Compile-/Runtime-Fehler sofort beheben.
+4. Debug-Overlay spaeter in Dev-Schicht auslagern oder per Flag deaktivieren.
+5. Danach Re-Anchor, Companion-Radius, Tap-Zielmarker, Surface-Quality und Plane-Missing-Hinweise ausbauen.
+6. Skalierbarkeit dauerhaft beachten: keine Monolith-Seiten, keine Monolith-Controller, Debug-UI/Product-UI/QA-Export getrennt halten.
+7. ToDo-Governance beachten: J bleibt operativer Kurzanker; Details in Addenda/Contracts/Plans/Statusdateien auslagern.
 ```
 
 Aktueller technischer Stand:
 
 ```txt
-/mobile/ar Kamera-Fallback-Modus wurde eingebaut.
-Kamera-Diagnose zeigt Stream/Track/Video/Ready/Paused/Kamera.
-Kamerawechsel-Buttons vorhanden: Rueckkamera neu, Frontkamera testen, Stream neu verbinden.
-Buddy-KI Endpoint GET/POST produktiv getestet und laeuft im Rules-Fallback.
-AR-Guide-Panel ist mit /api/buddy-ki verbunden.
-WebGL-Buddy-Fallback ist testbar, bleibt aber nur Demo/Fallback.
-Echtes AR-Referenzvideo-Verhalten muss in Unity AR Foundation umgesetzt werden.
-Desktop/Web-Buddy MVP wurde auf /hilfe begonnen.
-WellFit Dev Agent ist als Dry-Run-/Coder-Routing-/Alpha-Zielkurs-Agent vorbereitet.
+PR #13 enthaelt Unity-Projekt unter native/unity/WellFitBuddyAR.
+Android-ARCore-Smoke-Test auf Samsung war erfolgreich: Kamera, ARCore, Plane/Raycast, Buddy-Anzeige, Bewegung und Debug-Buttons liefen ohne sichtbare Fehler.
+Danach wurde ein grosser Debug-/Diagnose-Batch eingebaut, aber noch nicht erneut kompiliert/getestet.
+Der letzte Handy-Test liegt vor diesem Debug-Batch.
+Debug-Overlay hat jetzt 4 Seiten:
+1. Rueckruf & Auto-Return
+2. Visuals & Verhalten
+3. Faehigkeiten & Events
+4. KI-Guide & Missionen
 ```
 
-Wichtige offene Issues:
+Wichtige neue Unity-Funktionen seit dem erfolgreichen Test:
 
 ```txt
-#4 Unity AR Foundation: ersten echten Android-ARCore-Buddy-Build durchfuehren
-#5 Buddy-KI: echten serverseitigen Modellprovider aktivieren und testen
-#6 Mobile AR: WebGL-Fallback und Buddy-KI am Handy testen
-#7 Architektur: Skalierbarkeit fuer AR, Buddy-KI, Rewards und Punkteoekonomie absichern
-#8 AR-Buddy: Bewegungsverhalten wie Referenzvideo umsetzen
-#9 Desktop/Web Buddy: KI-Avatar als interaktiver 3D-Guide ueber Dashboard und Hilfe
+- CallBuddyToUserJson / Buddy rufen
+- CompanionAutoReturn mit Countdown, Cooldown, Far-only, Distanz, Near/Far-Presets
+- Debug-Overlay mit Diagnose an/aus und Seitennavigation
+- Buddy found/not-found Diagnose
+- Navigation-Diagnose: Action, Moving, Ziel-Surface, Distanz, Hoehe, Reject-Reason
+- Anchor-Diagnose: Anchor-Status, Raycast-Status, Surface-ID, Hit-Position
+- Bridge-Diagnose: Event-Zaehler, letztes Event, gekuerzter Payload
+- Ability-Diagnose und Demo-Faehigkeiten
+- Testbuttons fuer scan, fetch clue, climb, jump, carry, point
+- Idle-Breathing/Bobbing
+- Look-at-camera mit Distanzschutz
+- KI-Guide-Diagnose und Buttons fuer Walk-Mission, Scan-Mission, fehlenden JumpBoost, Guide leeren
 ```
 
-Aktuelle harte Regeln:
+Neu vorbereitete Architektur-/Vertragsdokumente:
 
 ```txt
-Keine clientseitige Autoritaet fuer Punkte, Rewards, Einsaetze, Jackpot, Burn, Mission Completion, Leaderboards oder Anti-Cheat.
-Keine Token-/Trading-/NFT-Marktplatz-Funktionen in der Mobile App.
-Keine API-/Provider-Schluessel im Frontend.
-Keine medizinischen Diagnosen.
-Keine harte Scham-/Drucksprache als Standard.
-Keine neuen grossen Monolith-Dateien.
-Unity meldet nur AR-Events.
-KI schlaegt vor, Backend/App entscheidet.
-Punkteoekonomie zuerst, Blockchain/WFT/NFT spaeter.
-ToDo-/Roadmap-Einträge niemals löschen; nur Status/Priorität ändern, ergänzen oder mit [>] in Backlog verschieben.
+- Buddy Architecture Scaling Plan
+- Buddy Event Contract
+- Buddy Event & State Versioning Plan
+- Buddy Ability State Contract
+- Buddy Debug Overlay Refactor Plan
+- Buddy Movement Policy Draft
+- Buddy Surface Quality Draft
+- Buddy Guide Mission Contract
+- Buddy Companion Radius Contract
+- Buddy Command Contract
+- Buddy Product UI Contract
+- PC Retest Checklist 2026-05-01
+- Chat Start Scalability Addendum
+- README Scalability Addendum
+- ToDo Governance Contract
+- L - Skalierbarkeit - AR Buddy UI und Architektur
+```
+
+Skalierbarkeitsregeln:
+
+```txt
+Keine neuen Monolith-Seiten.
+Keine neuen Monolith-Controller.
+Keine ToDo-Monolithen.
+Kein dauerhaftes Weiterstapeln in BuddyCallDebugController.cs.
+Debug-UI, Product-UI und QA-/Diagnose-Export bleiben getrennt.
+Neue Commands zuerst in BUDDY_COMMAND_CONTRACT.md definieren.
+Neue Product-UI-Hinweise zuerst in BUDDY_PRODUCT_UI_CONTRACT.md definieren.
+Product-UI darf nicht aus Unity-OnGUI abgeleitet werden.
+Nach erfolgreichem Retest Debug-Overlay in kleinere Page-/Panel-Komponenten splitten.
+J bleibt operativer Kurzanker; README bleibt Index; Details gehen in Addenda/Contracts/Plans/Statusdateien.
+```
+
+Harte Sicherheitsregeln:
+
+```txt
+Unity darf keine Rewards, XP, Punkte, Token, NFT, Mission Completion, Leaderboard, Jackpot, Burn oder Anti-Cheat autorisieren.
+Unity darf nur AR-/Buddy-/Guide-Events visualisieren oder melden.
+Backend/App bleiben Autoritaet fuer Rewards, Items, Faehigkeiten, Completion, Economy und Security.
+Keine API-/Provider-Schluessel im Frontend oder in Unity.
+Mobile-App bleibt frei von Token-, Presale-, Trading- und NFT-Marktplatz-Funktionen.
+Punkteoekonomie zuerst; Blockchain/WFT/NFT spaeter.
 ```
 
 Erster Ablauf im neuen Chat:
 
-1. `todolist/CHAT_START_PROMPT.md` lesen.
-2. `todolist/AUTONOMOUS_ITERATION_MODE.md` lesen.
-3. `todolist/README.md` lesen.
-4. `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` lesen.
-5. `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md` lesen.
-6. Bei Codearbeit: `todolist/CODER_START_PROMPT.md` und `scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md` lesen.
-7. Relevante Dateien zum aktuellen Thema pruefen.
-8. Kurz berichten:
-   - aktueller Stand laut todolist/
+1. PR #12 und PR #13 live pruefen.
+2. Pflichtdateien aus `todolist/` lesen.
+3. Unity-Dateien lesen.
+4. Kurz berichten:
+   - aktueller Stand laut todolist/ und PRs
+   - aktueller Unity-/AR-Buddy-Stand
+   - Skalierbarkeitsstand laut `L` und Contracts
+   - ToDo-Governance-Stand
    - naechste empfohlene Arbeit
    - betroffene Dateien/Bereiche
    - Risiken/Security/Build-Hinweise
-   - konkrete naechsten Micro-Tasks
-9. Dann direkt weiterarbeiten.
+   - konkrete naechste Micro-Tasks
+5. Danach direkt weiterarbeiten.
+
+Wichtigster naechster Schritt:
+
+```powershell
+cd C:\wellfit\WellFit-now
+git checkout wellfit/upload-local-unity-ar-buddy
+git pull --ff-only origin wellfit/upload-local-unity-ar-buddy
+```
+
+Dann Unity oeffnen:
+
+```txt
+C:\wellfit\WellFit-now\native\unity\WellFitBuddyAR
+```
+
+Dann Android Build/Run erneut ausfuehren und zuerst Compilefehler beheben, falls Unity nach dem Debug-Batch Fehler meldet.
+
+Wenn der Nutzer im Auto ist oder gerade nicht testen kann:
+
+```txt
+Keine weiteren riskanten Unity-Scripts stapeln.
+Stattdessen skalierbare Dokumentation, Event-/State-Vertraege, Refactor-Plaene, Backend-/App-Vertraege, Product-UI-Vertraege, ToDo-Governance oder nicht-testpflichtige Planung weiter ausarbeiten.
+```
 
 Wenn der Nutzer sagt "weiter", nicht allgemein antworten, sondern den naechsten sinnvollen Micro-Task ausfuehren.
+
