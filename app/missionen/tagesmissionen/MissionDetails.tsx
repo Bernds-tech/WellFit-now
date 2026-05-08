@@ -1,13 +1,19 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import { DailyMission, missionIcon } from "./missions";
+
+type RewardPreviewStatus = "preview_allowed" | "manual_review" | "blocked";
 
 type MissionDetailsProps = {
   mission: DailyMission;
   reward: number;
   diversityMultiplier: number;
   antiFarmingMultiplier: number;
+  reserveRewardRate?: number;
+  rewardPreviewLabel?: string;
+  rewardPreviewStatus?: RewardPreviewStatus;
+  capReasons?: string[];
   isFavorite: boolean;
   isStarted: boolean;
   isCompleted: boolean;
@@ -18,11 +24,21 @@ type MissionDetailsProps = {
   onCompleteMission: (missionId: string) => void;
 };
 
+const getPreviewBadgeClasses = (status?: RewardPreviewStatus) => {
+  if (status === "blocked") return "border-red-400/50 bg-red-500/15 text-red-100";
+  if (status === "manual_review") return "border-yellow-400/50 bg-yellow-500/15 text-yellow-100";
+  return "border-green-400/50 bg-green-500/15 text-green-100";
+};
+
 export default function MissionDetails({
   mission,
   reward,
   diversityMultiplier,
   antiFarmingMultiplier,
+  reserveRewardRate = 1,
+  rewardPreviewLabel = "Preview bereit",
+  rewardPreviewStatus = "preview_allowed",
+  capReasons = [],
   isFavorite,
   isStarted,
   isCompleted,
@@ -44,13 +60,17 @@ export default function MissionDetails({
 
         {isCompleted ? (
           <div className="mb-3 rounded-xl border border-yellow-400/50 bg-yellow-500/15 px-3 py-2 text-center text-sm font-bold text-yellow-200">
-            🏆 Mission abgeschlossen · +{reward} Punkte
+            🏆 Mission abgeschlossen · +{reward} interne Punkte
           </div>
         ) : isStarted ? (
           <div className="mb-3 rounded-xl border border-green-400/50 bg-green-500/15 px-3 py-2 text-center text-sm font-bold text-green-200">
             ✅ Mission gestartet
           </div>
         ) : null}
+
+        <div className={`mb-3 rounded-xl border px-3 py-2 text-center text-sm font-bold ${getPreviewBadgeClasses(rewardPreviewStatus)}`}>
+          {rewardPreviewLabel} · +{reward} interne Punkte
+        </div>
 
         <div className="flex justify-center text-6xl text-cyan-300">{missionIcon(mission.type)}</div>
         <h3 className="mt-3 text-center text-3xl font-extrabold leading-tight">{mission.title}</h3>
@@ -72,13 +92,13 @@ export default function MissionDetails({
         </div>
 
         <div className="mt-2 flex items-center gap-3 text-lg font-bold">
-          <Image src="/coin.png" alt="Punkte" width={34} height={34} className="rounded-full" />
-          <span>+ {reward} Punkte</span>
+          <Image src="/coin.png" alt="Interne Punkte" width={34} height={34} className="rounded-full" />
+          <span>+ {reward} interne Punkte</span>
         </div>
 
         <div className="mt-3 overflow-hidden rounded-xl border border-yellow-500/30 bg-yellow-500/10 text-xs text-white/80">
           <button onClick={onToggleRewardDetails} className="flex w-full items-center justify-between p-3 text-left font-bold text-yellow-300">
-            <span>So entstehen die Punkte</span>
+            <span>So entstehen die internen Punkte</span>
             <span>{rewardDetailsOpen ? "−" : "+"}</span>
           </button>
           {rewardDetailsOpen && (
@@ -90,18 +110,32 @@ export default function MissionDetails({
                 <span className="text-right">×{diversityMultiplier.toFixed(2)}</span>
                 <span>Anti-Farming</span>
                 <span className="text-right">×{antiFarmingMultiplier.toFixed(2)}</span>
+                <span>Reserve-Ausschüttung</span>
+                <span className="text-right">×{reserveRewardRate.toFixed(2)}</span>
               </div>
-              <p className="mt-2 text-cyan-50/80">Abwechslung erhöht die Punkte. Wiederholung senkt sie.</p>
+              <p className="mt-2 text-cyan-50/80">
+                Abwechslung erhöht die Punkte. Wiederholung senkt sie. Die interne Reserve kann die Ausschüttung erhöhen oder drosseln.
+              </p>
+              {capReasons.length > 0 && (
+                <p className="mt-2 text-yellow-100/80">
+                  Hinweise: {capReasons.join(", ")}
+                </p>
+              )}
             </div>
           )}
         </div>
 
+        <div className="mt-3 rounded-xl border border-cyan-300/20 bg-cyan-500/10 p-3 text-xs leading-relaxed text-cyan-50/80">
+          Beta-Regel: Diese Mission nutzt interne Punkte. Keine Token, keine NFT, keine Auszahlung.
+          Finale Abrechnung und Anti-Cheat werden später serverseitig autorisiert.
+        </div>
+
         <button
           onClick={() => isStarted ? onCompleteMission(mission.id) : onStartMission(mission.id)}
-          disabled={isCompleted}
-          className={`mt-4 w-full rounded-[16px] px-4 py-3 text-lg font-extrabold transition active:scale-95 ${isCompleted ? "bg-yellow-600/70 cursor-not-allowed" : isStarted ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}`}
+          disabled={isCompleted || rewardPreviewStatus === "blocked"}
+          className={`mt-4 w-full rounded-[16px] px-4 py-3 text-lg font-extrabold transition active:scale-95 ${isCompleted || rewardPreviewStatus === "blocked" ? "bg-yellow-600/70 cursor-not-allowed" : isStarted ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}`}
         >
-          {isCompleted ? "Mission erledigt" : isStarted ? "Mission abschließen" : "Mission starten"}
+          {isCompleted ? "Mission erledigt" : rewardPreviewStatus === "blocked" ? "Durch Beta-Limit blockiert" : isStarted ? "Mission abschließen" : "Mission starten"}
         </button>
       </div>
     </aside>
