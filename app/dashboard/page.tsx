@@ -14,6 +14,7 @@ import DashboardSavedCardsPanel from "./components/DashboardSavedCardsPanel";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { useDashboardActions } from "./hooks/useDashboardActions";
 import { getPersonalMission } from "./lib/personalMission";
+import { createDashboardMissionRewardPreview, getRewardPreviewUiLabel } from "./lib/missionRewardPreview";
 
 export default function DashboardPage() {
   const {
@@ -34,6 +35,14 @@ export default function DashboardPage() {
   const [foodPrice, setFoodPrice] = useState(5);
 
   const mission = useMemo(() => getPersonalMission(user), [user]);
+  const missionPreview = useMemo(() => {
+    if (!mission) return undefined;
+    const decision = createDashboardMissionRewardPreview({ user, mission, stepsToday });
+    return {
+      decision,
+      label: getRewardPreviewUiLabel(decision),
+    };
+  }, [mission, stepsToday, user]);
 
   useEffect(() => {
     if (!user) return;
@@ -67,6 +76,7 @@ export default function DashboardPage() {
   const { handleStartMission, handleFeedBuddy } = useDashboardActions({
     user,
     mission,
+    missionPreview,
     pointsBalance,
     stepsToday,
     buddyEnergy,
@@ -110,6 +120,7 @@ export default function DashboardPage() {
           {mission && (
             <DashboardMissionPanel
               mission={mission}
+              missionPreview={missionPreview}
               stepsToday={stepsToday}
               onStartMission={handleStartMission}
             />
