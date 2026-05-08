@@ -20,6 +20,7 @@ Projektgedaechtnis, Aufgaben, Prompts, Entscheidungen und Logs.
 
 Wichtige Dateien:
 - `MASTER_PROMPT_FOR_AI.md` - zentrale Arbeitsanweisung fuer KI/Codex
+- `MASTER_OPEN_DONE_LIST.md` - zentrale Einzeluebersicht: alles erledigt, alles offen, aktuelle Produktregeln
 - `ARCHITECTURE_RULES.md` - Regeln fuer Skalierbarkeit und kleine Dateien
 - `DATABASE_PLAN.md` - Datenbankplanung
 - `NEXT_ACTIONS.md` - naechste Schritte bis Beta
@@ -29,6 +30,33 @@ Wichtige Dateien:
 - `TODO_INDEX.md` - zentraler Index fuer TODOs, Querverweise und Alt-Dateien
 - `LOCAL_AGENT_RUN_INSTRUCTIONS.md` - lokale Anleitung fuer Bernd zum Ausfuehren des Dev-Agenten
 
+### `config/`
+Konfigurationen fuer Economy und globale App-Parameter.
+
+Wichtige Dateien:
+- `economy.ts` - 25-Mrd.-Punkte-Supply, Reserve, Umlauf, Burn/Lock, Reward-/Preis-Faktoren, Token/NFT deaktiviert
+
+### `lib/economy/`
+Interne Punkte-, Reward-, Ledger- und Abrechnungslogik vor Tokenisierung.
+
+Wichtige Dateien:
+- `ledger.ts` - Ledger-Event-Typen, Status, Reason Codes, sichere Event-Factories
+- `caps.ts` - DailyEmissionCap, UserDailyCap, MissionTypeCaps, EconomyHealthScore
+- `projection.ts` - Projektion von Ledger-Events auf Punkte-/XP-/Streak-Staende
+- `rewardPreview.ts` - sichere RewardPreview-Entscheidung: preview_allowed / manual_review / blocked
+- `dashboardSnapshot.ts` - Economy-Snapshot fuer Dashboard-Anzeige
+- `index.ts` - zentrale Economy-Exports
+
+### `app/dashboard/`
+Dashboard-UI und dashboardnahe Produktlogik.
+
+Wichtige Dateien:
+- `page.tsx` - Dashboard-Hauptseite
+- `components/DashboardEconomyPanel.tsx` - Anzeige der internen Beta-Economy, Caps und RewardPreview
+- `components/DashboardMissionPanel.tsx` - Mission mit RewardPreview und Beta-Hinweis
+- `hooks/useDashboardActions.ts` - Dashboard-Aktionen fuer Mission/Buddy
+- `lib/missionRewardPreview.ts` - Dashboard-nahe MissionRewardPreview
+
 ### `scripts/wellfit-dev-agent/`
 Lokaler WellFit Dev Agent fuer Dry-Run, Zielkurs-Check, Coder-Prompts und Aufgabenverteilung.
 
@@ -37,6 +65,7 @@ Wichtige Dateien:
 - `RUNBOOK_WHEN_TO_RUN_AGENT.md` - wann der Agent auszufuehren ist
 - `wellfit-agent.config.json` - Agent-Konfiguration, Source-of-Truth, Rollen, Policies
 - `run-agent-full.ps1` - PowerShell-Hilfsskript fuer kompletten Agentenlauf
+- `watch-agent.ps1` - lokaler Watch-Agent fuer automatische Agentenlaeufe bei relevanten Aenderungen
 - `src/validate-agent-config.mjs` - validiert Agent-Konfiguration
 - `src/alpha-goal-check.mjs` - prueft Alpha-/Beta-Zielkurs
 - `src/generate-coder-prompts.mjs` - erzeugt Coder-Prompts
@@ -54,6 +83,10 @@ Wichtige Dateien:
 - `WELLFIT_SELF_HOSTED_DEV_AGENT.md` - Architektur fuer eigenen Dev-Agenten
 - `WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md` - spaeterer Insight-/Mission-Agent
 - `MISSION_REWARD_CONTEXT_ENGINE.md` - Mission-/Reward-Kontextlogik
+- `INTERNAL_ECONOMY_GUARDRAILS.md` - interne Punkte-/XP-/Reward-Leitplanken vor Blockchain
+- `INTERNAL_POINTS_LEDGER_AND_BILLING.md` - internes Punkte-Ledger, Abrechnung, Audit und Korrektur vor Tokenisierung
+- `BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md` - Token/WFT/NFT erst nach stabilem internem Punkte- und Abrechnungssystem
+- `HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md` - Health-, Watch-, Kamera-, AR-, Standort- und Kinder-/Jugenddaten
 - `AR_RIDDLE_FIRESTORE_SECURITY_PLAN.md` - AR-Raetsel Firestore Security
 - `USER_POINTS_CLIENT_WRITE_REFACTOR.md` - Client-Write-Risiko fuer Punkte/XP
 - `BUDDY_KI_INTEGRATION.md` - Buddy-KI Server-/Provider-Integration
