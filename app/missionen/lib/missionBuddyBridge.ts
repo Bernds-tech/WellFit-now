@@ -1,4 +1,5 @@
 import { auth, db } from "@/lib/firebase";
+import type { LedgerEvent } from "@/lib/economy";
 import { doc, runTransaction, serverTimestamp } from "firebase/firestore";
 import type { DailyMission, DailyMissionType } from "../tagesmissionen/missions";
 
@@ -16,6 +17,7 @@ type ApplyMissionBuddyBridgeInput = {
   mission: DailyMission;
   rewardPoints: number;
   source?: "dailyMission" | "mobile" | "ar" | "pose";
+  rewardPreviewEvent?: LedgerEvent;
 };
 
 type BridgeResult =
@@ -131,10 +133,26 @@ function applyEffect(currentAvatar: Record<string, unknown>, effect: MissionBudd
   };
 }
 
+function createRewardPreviewSummary(event?: LedgerEvent) {
+  if (!event) return null;
+
+  return {
+    eventId: event.eventId,
+    eventType: event.eventType,
+    status: event.status,
+    reasonCode: event.reasonCode,
+    pointsDelta: Number(event.pointsDelta ?? 0),
+    xpDelta: Number(event.xpDelta ?? 0),
+    schemaVersion: event.schemaVersion,
+    createdAt: event.createdAt,
+  };
+}
+
 export async function applyMissionBuddyBridge({
   mission,
   rewardPoints,
   source = "dailyMission",
+  rewardPreviewEvent,
 }: ApplyMissionBuddyBridgeInput): Promise<BridgeResult> {
   const currentUser = auth.currentUser;
   if (!currentUser) {
@@ -195,6 +213,10 @@ export async function applyMissionBuddyBridge({
           appliedAt,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
+          rewardPreview: createRewardPreviewSummary(rewardPreviewEvent),
+          economyMode: "internal_points_beta",
+          tokenized: false,
+          finalServerAuthorityRequired: true,
           productNote:
             "Mission-Buddy-Bridge ist produktrelevante Logik. Client-Aufruf ist aktuell der Integrationspfad; serverseitige Validierung/Cloud Functions sind der nächste Sicherheitsausbau.",
         },
@@ -214,7 +236,7 @@ export async function applyMissionBuddyBridge({
       effect,
       message: transactionResult.alreadyApplied
         ? "Mission-Buddy-Effekt war bereits angewendet. Keine doppelte Punktevergabe."
-        : "Mission wurde mit Punkten und Buddy-Effekt verbunden.",
+        : "Mission wurde mit internen Punkten und Buddy-Effekt verbunden.",
     };
   } catch (error) {
     return {

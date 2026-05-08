@@ -277,3 +277,29 @@ Stand: 2026-05-08
 ## Wichtig
 
 Diese Umsetzung aktiviert keine echten Token, NFTs oder Auszahlungen.
+# Mega-Block 2 - Tagesmissionen an RewardPreview und Ledger-Vorbereitung angebunden
+
+Stand: 2026-05-08
+
+## Eingebaute Dateien
+
+- `app/missionen/tagesmissionen/rewardEngine.ts`
+- `app/missionen/tagesmissionen/page.tsx`
+- `app/missionen/tagesmissionen/MissionDetails.tsx`
+- `app/missionen/lib/missionBuddyBridge.ts`
+
+## Was umgesetzt wurde
+
+- Tagesmissionen behalten vorhandene Diversity-, Anti-Farming- und Streak-Rewardlogik.
+- Tagesmissionen erzeugen jetzt eine interne RewardPreview ueber `lib/economy/rewardPreview.ts`.
+- Reserve-/Ausschüttungslogik wird ueber RewardPreview beruecksichtigt.
+- MissionDetails zeigt Preview-Status, interne Punkte, Reserve-Ausschüttung und Beta-Hinweise.
+- Blockierte Missionen werden nicht direkt gestartet/abgeschlossen.
+- Review-Missionen werden nicht direkt gutgeschrieben.
+- MissionBuddyBridge erhaelt Ledger-kompatible RewardPreview-Summary.
+- Doppelte Punktevergabe bleibt verhindert.
+- Keine Token, NFT, Wallet, Trading oder Auszahlung aktiviert.
+
+## Wichtig
+
+Dieser Block bleibt Beta-/MVP-sicher. Die echte finale Reward-Autoritaet muss spaeter serverseitig werden.
