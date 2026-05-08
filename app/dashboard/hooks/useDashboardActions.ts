@@ -3,12 +3,13 @@
 import type { User } from "@/types/user";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
-import type { PersonalMission } from "../types";
+import type { DashboardMissionPreview, PersonalMission } from "../types";
 import { writeCachedUser } from "../lib/dashboardUser";
 
 type Params = {
   user: User | null;
   mission: PersonalMission;
+  missionPreview?: DashboardMissionPreview;
   pointsBalance: number;
   stepsToday: number;
   buddyEnergy: number;
@@ -26,6 +27,7 @@ type Params = {
 export function useDashboardActions({
   user,
   mission,
+  missionPreview,
   pointsBalance,
   stepsToday,
   buddyEnergy,
@@ -83,8 +85,19 @@ export function useDashboardActions({
       return;
     }
 
+    if (missionPreview?.decision.status === "blocked") {
+      setMessage("Mission ist aktuell durch interne Beta-Limits blockiert.");
+      return;
+    }
+
+    if (missionPreview?.decision.status === "manual_review") {
+      setMessage("Mission wurde fuer Review vorgemerkt. Finale Punkte bleiben serverseitig.");
+      return;
+    }
+
+    const previewPoints = missionPreview?.decision.cappedPoints ?? mission.reward;
     const newSteps = stepsToday + mission.steps;
-    const newPoints = pointsBalance + mission.reward;
+    const newPoints = pointsBalance + previewPoints;
     const newEnergy = Math.max(buddyEnergy - 6, 0);
     const newHunger = Math.max(buddyHunger - 4, 0);
     const nextLevel = newPoints >= 150 && buddyLevel === 1 ? 2 : buddyLevel;
@@ -98,7 +111,7 @@ export function useDashboardActions({
     await persistUserPatch(
       {
         points: newPoints,
-        xp: (user.xp ?? 0) + mission.reward,
+        xp: (user.xp ?? 0) + previewPoints,
         stepsToday: newSteps,
         level: Math.max(user.level ?? 1, nextLevel),
         avatar: {
@@ -108,7 +121,7 @@ export function useDashboardActions({
           hunger: newHunger,
         },
       },
-      `Mission gestartet: +${mission.steps} Schritte, +${mission.reward} Punkte`,
+      `Mission gestartet: +${mission.steps} Schritte, +${previewPoints} interne Punkte`,
       "Mission lokal aktualisiert, Firebase konnte nicht gespeichert werden."
     );
   };
