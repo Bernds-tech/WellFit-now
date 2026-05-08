@@ -105,7 +105,7 @@ export default function DashboardPage() {
             buddyLevel={buddyLevel}
           />
 
-          <DashboardEconomyPanel pointsBalance={pointsBalance} />
+          <DashboardEconomyPanel pointsBalance={pointsBalance} userId={user?.id} />
 
           {mission && (
             <DashboardMissionPanel
