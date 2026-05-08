@@ -17,6 +17,7 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | Datei | Status | Zweck | Fuehrende Verweise |
 |---|---|---|---|
 | `todolist/MASTER_PROMPT_FOR_AI.md` | aktiv | zentrale Arbeitsanweisung fuer KI/Codex | `NEXT_ACTIONS.md`, `PROJECT_STRUCTURE.md`, `TODO_CONSOLIDATION.md`, `TODO_INDEX.md` |
+| `todolist/MASTER_OPEN_DONE_LIST.md` | aktiv | zentrale Einzeluebersicht fuer erledigte/offene Aufgaben und Produktregeln | `NEXT_ACTIONS.md`, `DONE_LOG.md`, `PROJECT_STRUCTURE.md` |
 | `todolist/NEXT_ACTIONS.md` | aktiv | operative Aufgaben bis Beta | alle Bereichs-TODOs |
 | `todolist/TODO_CONSOLIDATION.md` | aktiv | Konsolidierung alter TODOs ohne Loeschung | dieser Index, Alt-TODOs |
 | `todolist/PROJECT_STRUCTURE.md` | aktiv | Datei- und Ordneruebersicht | gebaute Bereiche und Feature-Dateien |
@@ -36,6 +37,13 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `todolist/E - AKTUELLER UMSETZUNGSSTAND - VORHANDEN` | aktiv / Ist-Stand | vorhandene Umsetzung | `PROJECT_STRUCTURE.md` | Ist-Stand in Struktur uebernehmen |
 | `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` | aktiv / Roadmap | naechste empfohlene Arbeit | `NEXT_ACTIONS.md` | bereits teilweise uebernommen, weiter abgleichen |
 | `todolist/README.md` | aktiv / Ueberblick | alter todolist-Ueberblick | `PROJECT_STRUCTURE.md` | pruefen und relevante Punkte uebernehmen |
+
+## Code-Inventur / Bestandsprüfung
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `scripts/wellfit-dev-agent/src/code-inventory.mjs` | aktiv / Agent-Code | scannt Code, Routen, Module und Logiktreffer | `PROJECT_STRUCTURE.md` | nach groesseren Codebloecken ausfuehren |
+| `scripts/wellfit-dev-agent/output/code-inventory-report.md` | generiert / lokal | lokaler Code-Inventur-Report | Agent Output | nicht manuell pflegen |
 
 ## Chat-, Coder- und Agent-Startdateien
 
@@ -140,6 +148,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `scripts/wellfit-dev-agent/src/generate-coder-prompts.mjs` | aktiv / Code | erzeugt Coder-Prompts | Agent-Code | keine KI-Prompt-Pflicht |
 | `scripts/wellfit-dev-agent/src/dry-run.mjs` | aktiv / Code | erzeugt Dry-Run-Report | Agent-Code | keine KI-Prompt-Pflicht |
 | `scripts/wellfit-dev-agent/src/memory-sync.mjs` | aktiv / Code | erzeugt Memory-Sync-Report | Agent-Code | keine KI-Prompt-Pflicht |
+| `scripts/wellfit-dev-agent/src/code-inventory.mjs` | aktiv / Code | erzeugt Code-Inventur-Report gegen Doppelarbeit | Agent-Code | nach groesseren Codebloecken ausfuehren |
 | `scripts/wellfit-dev-agent/src/apply-memory-prompts.mjs` | aktiv / Code | ergaenzt KI-Fortsetzungs-Prompts kontrolliert | Agent-Code | keine KI-Prompt-Pflicht |
 | `scripts/wellfit-dev-agent/src/quality-gate.mjs` | aktiv / Code | fuehrt Agent-Kontrollkette aus und entscheidet PASS/FAIL | Agent-Code | keine KI-Prompt-Pflicht |
 
