@@ -1,4 +1,4 @@
-export type MissionRewardType =
+﻿export type MissionRewardType =
   | "movement"
   | "learning"
   | "ar_riddle"
