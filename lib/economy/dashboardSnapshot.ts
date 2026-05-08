@@ -1,9 +1,10 @@
-import {
+﻿import {
   betaInternalEconomyCaps,
   evaluateInternalRewardCaps,
   type EconomyCapDecision,
   type MissionRewardType,
 } from "./caps";
+import { getInternalReserveSnapshot, type InternalReserveSnapshot } from "./reserve";
 import { createInternalRewardPreviewDecision, type RewardPreviewDecision } from "./rewardPreview";
 
 export type DashboardEconomySnapshot = {
@@ -16,6 +17,10 @@ export type DashboardEconomySnapshot = {
   dailyEmissionCap: number;
   userDailyCap: number;
   sampleRewardPreview: RewardPreviewDecision;
+  reserveSnapshot: InternalReserveSnapshot;
+  reserveDisplay: string;
+  rewardRateDisplay: string;
+  priceRateDisplay: string;
 };
 
 export const createDashboardEconomySnapshot = (params: {
@@ -27,6 +32,7 @@ export const createDashboardEconomySnapshot = (params: {
   const requestedPoints = params.requestedPoints ?? 25;
   const missionType = params.missionType ?? "movement";
   const userId = params.userId ?? "beta-dashboard-preview";
+  const reserveSnapshot = getInternalReserveSnapshot();
 
   const capDecision = evaluateInternalRewardCaps({
     requestedPoints,
@@ -44,6 +50,7 @@ export const createDashboardEconomySnapshot = (params: {
     sourceType: "dashboard",
     missionType,
     requestedPoints,
+    reserveSnapshot,
     usage: {
       emittedToday: 0,
       userEarnedToday: 0,
@@ -62,5 +69,9 @@ export const createDashboardEconomySnapshot = (params: {
     dailyEmissionCap: betaInternalEconomyCaps.dailyEmissionCap,
     userDailyCap: betaInternalEconomyCaps.userDailyCap,
     sampleRewardPreview,
+    reserveSnapshot,
+    reserveDisplay: `${Math.round(reserveSnapshot.reserveRatio * 100)}%`,
+    rewardRateDisplay: `${reserveSnapshot.rewardRate.toFixed(2)}x`,
+    priceRateDisplay: `${reserveSnapshot.priceRate.toFixed(2)}x`,
   };
 };

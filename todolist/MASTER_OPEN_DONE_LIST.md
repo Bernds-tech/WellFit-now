@@ -250,3 +250,30 @@ Harte Regel:
 ## KI-Fortsetzungs-Prompt
 
 Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md`, `todolist/DONE_LOG.md` und diese Datei. Arbeite offene Punkte in groesseren zusammenhaengenden Bloecken ab. Plane nur, wenn Architektur, Sicherheit oder Produktlogik unklar ist. Setze ansonsten mehrere zusammenhaengende Code-Dateien pro Arbeitsblock um. Loesche keine alten TODOs. Aktualisiere diese Datei, wenn neue grosse Aufgaben erledigt oder neue offene Punkte erkannt werden.
+# Mega-Block 1 - Economy-Verbindung eingebaut
+
+Stand: 2026-05-08
+
+## Eingebaute Dateien
+
+- `lib/economy/reserve.ts`
+- `lib/economy/shopItems.ts`
+- `lib/economy/rewardPreview.ts`
+- `lib/economy/dashboardSnapshot.ts`
+- `lib/economy/index.ts`
+- `app/dashboard/components/DashboardEconomyPanel.tsx`
+- `app/punkte-shop/page.tsx`
+
+## Was umgesetzt wurde
+
+- 25-Mrd.-Punkte-/Reserve-Logik aus `config/economy.ts` wird jetzt ueber `lib/economy/reserve.ts` nutzbar gemacht.
+- RewardRate wird in RewardPreview eingerechnet.
+- PriceRate wird fuer Punkte-Shop-Items eingerechnet.
+- Punkte-Shop zeigt interne Goodies/Items mit dynamischem internen Punktepreis.
+- Dashboard zeigt Reserve, Ausschüttungsfaktor und Goodie-Preisfaktor.
+- Token/NFT bleiben deaktiviert.
+- Shop ist weiterhin nur interne Beta-Struktur, kein Kauf, kein NFT, kein Wallet, kein Trading.
+
+## Wichtig
+
+Diese Umsetzung aktiviert keine echten Token, NFTs oder Auszahlungen.

@@ -1,4 +1,4 @@
-import { createDashboardEconomySnapshot } from "@/lib/economy/dashboardSnapshot";
+﻿import { createDashboardEconomySnapshot } from "@/lib/economy/dashboardSnapshot";
 
 type DashboardEconomyPanelProps = {
   pointsBalance: number;
@@ -74,6 +74,21 @@ export default function DashboardEconomyPanel({ pointsBalance, userId }: Dashboa
         <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/50">Reward Preview</p>
           <p className="mt-1 text-lg font-black text-white">{previewStatus === "preview_allowed" ? "bereit" : "Review"}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-cyan-200/10 bg-cyan-100/5 p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/50">Reserve</p>
+          <p className="mt-1 text-lg font-black text-white">{economySnapshot.reserveDisplay}</p>
+        </div>
+        <div className="rounded-2xl border border-cyan-200/10 bg-cyan-100/5 p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/50">Ausschüttung</p>
+          <p className="mt-1 text-lg font-black text-white">{economySnapshot.rewardRateDisplay}</p>
+        </div>
+        <div className="rounded-2xl border border-cyan-200/10 bg-cyan-100/5 p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/50">Goodie-Preise</p>
+          <p className="mt-1 text-lg font-black text-white">{economySnapshot.priceRateDisplay}</p>
         </div>
       </div>
     </section>

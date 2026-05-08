@@ -1,6 +1,7 @@
-import {
+﻿import {
   betaInternalEconomyCaps,
   evaluateInternalRewardCaps,
+  type EconomyCapDecision,
   type EconomyUsageSnapshot,
   type MissionRewardType,
 } from "./caps";
@@ -11,14 +12,24 @@ import {
   type LedgerRiskSummary,
   type LedgerSourceType,
 } from "./ledger";
+import {
+  calculateReserveAdjustedReward,
+  getInternalReserveSnapshot,
+  type InternalReserveSnapshot,
+} from "./reserve";
 
 export type RewardPreviewDecision = {
   status: "preview_allowed" | "manual_review" | "blocked";
   requestedPoints: number;
+  reserveAdjustedPoints: number;
   cappedPoints: number;
   missionType: MissionRewardType;
   reasons: string[];
   ledgerEvent: LedgerEvent;
+  reserveSnapshot: InternalReserveSnapshot;
+  rewardRate: number;
+  reserveRatio: number;
+  capDecision: EconomyCapDecision;
 };
 
 export type RewardPreviewInput = {
@@ -30,6 +41,7 @@ export type RewardPreviewInput = {
   requestedXp?: number;
   missionId?: string;
   usage: EconomyUsageSnapshot;
+  reserveSnapshot?: InternalReserveSnapshot;
   evidenceSummary?: string;
   riskSummary?: LedgerRiskSummary;
   correlationId?: string;
@@ -46,8 +58,11 @@ const hasHighRiskSignal = (riskSummary?: LedgerRiskSummary) => {
 };
 
 export const createInternalRewardPreviewDecision = (input: RewardPreviewInput): RewardPreviewDecision => {
+  const reserveSnapshot = input.reserveSnapshot ?? getInternalReserveSnapshot();
+  const reserveAdjustedPoints = calculateReserveAdjustedReward(input.requestedPoints, reserveSnapshot);
+
   const capDecision = evaluateInternalRewardCaps({
-    requestedPoints: input.requestedPoints,
+    requestedPoints: reserveAdjustedPoints,
     missionType: input.missionType,
     usage: input.usage,
     caps: betaInternalEconomyCaps,
@@ -55,6 +70,10 @@ export const createInternalRewardPreviewDecision = (input: RewardPreviewInput): 
 
   const reasons = [...capDecision.reasons];
   const highRisk = hasHighRiskSignal(input.riskSummary);
+
+  if (reserveAdjustedPoints !== input.requestedPoints) {
+    reasons.push("reserve_reward_rate_applied");
+  }
 
   if (highRisk) {
     reasons.push("high_risk_signal_manual_review");
@@ -75,19 +94,29 @@ export const createInternalRewardPreviewDecision = (input: RewardPreviewInput): 
     return {
       status: capDecision.cappedPoints > 0 ? "manual_review" : "blocked",
       requestedPoints: input.requestedPoints,
+      reserveAdjustedPoints,
       cappedPoints: capDecision.cappedPoints,
       missionType: input.missionType,
       reasons,
       ledgerEvent,
+      reserveSnapshot,
+      rewardRate: reserveSnapshot.rewardRate,
+      reserveRatio: reserveSnapshot.reserveRatio,
+      capDecision,
     };
   }
 
   return {
     status: "preview_allowed",
     requestedPoints: input.requestedPoints,
+    reserveAdjustedPoints,
     cappedPoints: capDecision.cappedPoints,
     missionType: input.missionType,
     reasons,
+    reserveSnapshot,
+    rewardRate: reserveSnapshot.rewardRate,
+    reserveRatio: reserveSnapshot.reserveRatio,
+    capDecision,
     ledgerEvent: createRewardPreviewLedgerEvent({
       userId: input.userId,
       missionId: input.missionId,
