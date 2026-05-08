@@ -165,3 +165,9 @@ Wenn neue zentrale TODO-Dateien angelegt werden, muessen relevante Inhalte aus a
 
 ## KI-Fortsetzungs-Prompt
 Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Dateien im Repository. Ergaenze gefundene Dateien in diesem Index. Uebertrage wichtige offene Aufgaben nach `NEXT_ACTIONS.md`. Loesche keine TODO-Dateien. Markiere doppelte oder veraltete Inhalte nur und setze Verweise auf die fuehrende Datei.
+
+## Codebase Feature Map
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `todolist/CODEBASE_FEATURE_MAP.md` | aktiv | Bestandskarte vorhandener Codebereiche gegen Doppelarbeit | `MASTER_OPEN_DONE_LIST.md` | vor grossen Codebloecken pruefen |
