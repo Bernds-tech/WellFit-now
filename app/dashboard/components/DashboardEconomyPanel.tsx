@@ -1,8 +1,20 @@
+import { createDashboardEconomySnapshot } from "@/lib/economy/dashboardSnapshot";
+
 type DashboardEconomyPanelProps = {
   pointsBalance: number;
+  userId?: string;
 };
 
-export default function DashboardEconomyPanel({ pointsBalance }: DashboardEconomyPanelProps) {
+const getHealthLabel = (healthState: "healthy" | "watch" | "critical") => {
+  if (healthState === "critical") return "kritisch";
+  if (healthState === "watch") return "beobachten";
+  return "gesund";
+};
+
+export default function DashboardEconomyPanel({ pointsBalance, userId }: DashboardEconomyPanelProps) {
+  const economySnapshot = createDashboardEconomySnapshot({ pointsBalance, userId });
+  const previewStatus = economySnapshot.sampleRewardPreview.status;
+
   return (
     <section className="rounded-[24px] border border-cyan-200/15 bg-[#042f37]/90 p-5 shadow-[0_8px_22px_rgba(0,0,0,0.12)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -11,7 +23,7 @@ export default function DashboardEconomyPanel({ pointsBalance }: DashboardEconom
             Interne Beta-Economy
           </p>
           <h2 className="mt-1 text-2xl font-black text-cyan-300">
-            {pointsBalance.toLocaleString("de-DE")} interne Punkte
+            {economySnapshot.displayBalance} {economySnapshot.currencyLabel}
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/70">
             Diese Punkte sind aktuell ein internes WellFit-Beta-System fuer Missionen, XP,
@@ -25,6 +37,7 @@ export default function DashboardEconomyPanel({ pointsBalance }: DashboardEconom
             Status
           </p>
           <p className="mt-1 text-sm font-black text-cyan-100">Internes Ledger zuerst</p>
+          <p className="mt-1 text-xs text-white/55">Economy: {getHealthLabel(economySnapshot.healthState)}</p>
         </div>
       </div>
 
@@ -46,6 +59,21 @@ export default function DashboardEconomyPanel({ pointsBalance }: DashboardEconom
           <p className="mt-1 text-xs leading-relaxed text-white/60">
             Token koennen spaeter interne Punkte ersetzen oder spiegeln, aber erst nach stabiler Beta.
           </p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/50">UserDailyCap</p>
+          <p className="mt-1 text-lg font-black text-white">{economySnapshot.userDailyCap.toLocaleString("de-DE")}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/50">DailyEmissionCap</p>
+          <p className="mt-1 text-lg font-black text-white">{economySnapshot.dailyEmissionCap.toLocaleString("de-DE")}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/50">Reward Preview</p>
+          <p className="mt-1 text-lg font-black text-white">{previewStatus === "preview_allowed" ? "bereit" : "Review"}</p>
         </div>
       </div>
     </section>
