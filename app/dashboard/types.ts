@@ -1,3 +1,5 @@
+import type { RewardPreviewDecision } from "@/lib/economy";
+
 export type PersonalMission = {
   title: string;
   steps: number;
@@ -6,4 +8,9 @@ export type PersonalMission = {
   focus: string;
   reward: number;
   note: string;
+};
+
+export type DashboardMissionPreview = {
+  decision: RewardPreviewDecision;
+  label: string;
 };
