@@ -7,5 +7,6 @@ export * from "./reserve";
 export * from "./rewardPreview";
 export * from "./serverCompletionPlan";
 export * from "./serverLedgerDraft";
+export * from "./serverPersistence";
 export * from "./shopItems";
 export * from "./spend";
