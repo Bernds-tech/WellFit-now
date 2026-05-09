@@ -6,6 +6,19 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 10 - Firestore-Haertung Stufe 1 vorbereitet, ohne harte Sperre.
+- Datei `firestore.rules` strukturiert: `hasOnlySafeUserProfileKeys()`, `hasOnlyTemporaryEconomyBridgeKeys()` und `hasOnlyUserWritableKeys()` getrennt.
+- Riskante temporaere Economy-Brueckenfelder markiert: `points`, `avatar`, `lastMissionCompletedAt`, `xp`, `level`, `stepsToday`, `energy`, `deviceLocation`.
+- Temporäre Mission-Progress-Collections markiert: `userDailyMissionState`, `userDailyStreaks`, `userLevels`.
+- Datei `docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` angelegt: Emulator-/Rules-Testplan mit aktueller Beta-Kompatibilitaet, spaeterer server-only Haertung und Regression.
+- Datei `todolist/TODO_INDEX.md` aktualisiert: neuer Firestore-Economy-Rules-Testplan indexiert.
+- Datei `todolist/PROJECT_STRUCTURE.md` aktualisiert: `firestore.rules` und Testplan dokumentiert.
+- Keine harte Sperre von `users.points/xp/level/avatar` aktiviert.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Kein Live-Test auf `wellfit-now.io` erforderlich.
+- Lokaler Test erforderlich: Agent + Build.
+
+### 2026-05-09
 - Mega-Block 9 - Dashboard Ledger-/Review-/Correction-Summary sichtbar gemacht.
 - Datei `lib/economy/dashboardSnapshot.ts` erweitert: `ledgerSummary` mit Preview-, Completion-, Draft-, Review-, Correction- und Rules-Haertungsstatus.
 - Datei `app/dashboard/components/DashboardEconomyPanel.tsx` erweitert: sichtbare Ledger-/Review-/Correction-Kachel im Dashboard.
