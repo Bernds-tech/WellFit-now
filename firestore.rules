@@ -10,23 +10,41 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function hasOnlyUserWritableKeys() {
+    // Safe owner-writable MVP profile fields.
+    // These may remain client-writable after the economy hardening step if they do not
+    // authorize points, XP, level, rewards, mission completion or anti-cheat decisions.
+    function hasOnlySafeUserProfileKeys() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-        'points',
-        'avatar',
         'updatedAt',
         'lastLoginAt',
-        'lastMissionCompletedAt',
         'profile',
         'settings',
         'consent',
-        'inventory',
+        'inventory'
+      ]);
+    }
+
+    // Temporary MVP bridge fields.
+    // These must become server-only after the server ledger / projection path is active:
+    // RewardPreview -> Completion -> Ledger/Audit -> UserStats/UserAvatar projection.
+    function hasOnlyTemporaryEconomyBridgeKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'points',
+        'avatar',
+        'lastMissionCompletedAt',
         'xp',
         'level',
         'stepsToday',
         'energy',
         'deviceLocation'
       ]);
+    }
+
+    // Current beta compatibility rule.
+    // Do not harden this to safe profile keys only until Dashboard, Tagesmissionen and
+    // Buddy sinks write through a server-only ledger/projection path.
+    function hasOnlyUserWritableKeys() {
+      return hasOnlySafeUserProfileKeys() || hasOnlyTemporaryEconomyBridgeKeys();
     }
 
     match /users/{userId} {
@@ -36,14 +54,20 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Temporary MVP bridge: daily mission UI state is still owner-writable.
+    // Target: server projection / completion state after ledger persistence is active.
     match /userDailyMissionState/{stateId} {
       allow read, write: if isSignedIn() && stateId.matches(request.auth.uid + '_.*');
     }
 
+    // Temporary MVP bridge: streaks are still owner-writable.
+    // Target: derive from server-authorized mission completion ledger events.
     match /userDailyStreaks/{userId} {
       allow read, write: if isOwner(userId);
     }
 
+    // Temporary MVP bridge: levels are still owner-writable.
+    // Target: derive from server-authorized XP ledger events.
     match /userLevels/{userId} {
       allow read, write: if isOwner(userId);
     }
