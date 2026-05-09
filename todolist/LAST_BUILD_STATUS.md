@@ -7,6 +7,7 @@ Stand: 2026-05-09
 [x] Lokaler Agent-, Inventur- und Build-Check erfolgreich ausgefuehrt.
 [x] Quality Gate nach Index-Fix erneut ausgefuehrt und PASS bestaetigt.
 [x] Mega-Block 6 nach lokalem Test bestaetigt: Dashboard/Tagesmissionen nutzen Server-Completion-Vorstufe.
+[x] Build nach `turbopack.root`-Fix bestaetigt: Next.js Workspace-Root-Warnung ist weg.
 
 ```powershell
 cd C:\wellfit\WellFit-now
@@ -15,6 +16,24 @@ npm run agent:code-inventory
 powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1
 npm run build
 ```
+
+## Bestaetigt am 2026-05-09 nach Turbopack-Root-Fix
+
+[x] `git pull`: Fast-forward von `71b5691` auf `3629885`.
+[x] Geaenderte Dateien lokal gezogen:
+    - `next.config.ts`
+    - `todolist/LAST_BUILD_STATUS.md`
+[x] `npm run build` erfolgreich.
+[x] Next.js 16.2.3 / Turbopack Build erfolgreich.
+[x] TypeScript-Pruefung erfolgreich.
+[x] Page Data Collection erfolgreich.
+[x] Statische Seiten wurden generiert: 34/34.
+[x] Workspace-Root-Warnung wurde im Build nicht mehr angezeigt.
+[x] Neue Economy-API-Routen werden im Build erkannt:
+    - `/api/economy/complete-mission`
+    - `/api/economy/reward-preview`
+    - `/api/economy/security-plan`
+    - `/api/economy/spend-preview`
 
 ## Bestaetigt am 2026-05-09 nach Mega-Block 6
 
@@ -41,11 +60,6 @@ npm run build
 [x] TypeScript-Pruefung erfolgreich.
 [x] Page Data Collection erfolgreich.
 [x] Statische Seiten wurden generiert: 34/34.
-[x] Neue Economy-API-Routen werden im Build erkannt:
-    - `/api/economy/complete-mission`
-    - `/api/economy/reward-preview`
-    - `/api/economy/security-plan`
-    - `/api/economy/spend-preview`
 
 ## Aktueller Quality-Gate-Auszug
 
@@ -65,11 +79,11 @@ OK: Dry run produced micro-tasks (12)
 ## Aktueller Build-Auszug
 
 ```txt
-✓ Compiled successfully in 14.6s
-✓ Finished TypeScript in 10.4s
-✓ Collecting page data using 11 workers in 1329ms
-✓ Generating static pages using 11 workers (34/34) in 990ms
-✓ Finalizing page optimization in 32ms
+✓ Compiled successfully in 15.0s
+✓ Finished TypeScript in 10.6s
+✓ Collecting page data using 11 workers in 1350ms
+✓ Generating static pages using 11 workers (34/34) in 1001ms
+✓ Finalizing page optimization in 36ms
 ```
 
 ## Erkannte Routen im Build
@@ -114,11 +128,7 @@ OK: Dry run produced micro-tasks (12)
 
 ## Hinweise
 
-[!] Next.js meldet weiterhin eine Workspace-Root-Warnung wegen mehrerer package-lock.json-Dateien:
-    - `C:\wellfit\package-lock.json`
-    - `C:\wellfit\WellFit-now\package-lock.json`
-
-[ ] Spaeter sauber loesen: `turbopack.root` in `next.config` setzen oder unnoetiges uebergeordnetes Lockfile pruefen.
+[x] Next.js Workspace-Root-Warnung wurde durch `next.config.ts` / `turbopack.root` lokal nicht mehr angezeigt.
 
 [!] Node DeprecationWarning im Quality-Gate bleibt offen:
     - `[DEP0190] Passing args to a child process with shell option true...`
@@ -150,9 +160,36 @@ powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-ful
 npm run build
 ```
 
-Zusaetzlich bei UI-Aenderungen: Dashboard/Tagesmissionen im Browser anklicken.
+Zusaetzlich bei UI-Aenderungen: lokal im Browser anklicken, wenn eine lokale Dev-/Preview-URL laeuft.
 Zusaetzlich bei `firestore.rules`: Firebase-Emulator-/Rules-Test vorbereiten, bevor produktiv gehaertet wird.
+
+## Live-Test-Regel fuer Bernd auf wellfit-now.io
+
+Wenn ein Codeblock sichtbare UI-, Routing-, Login-, Dashboard-, Missions-, Shop-, Mobile- oder API-Aenderungen enthaelt und nach GitHub-Push auf der Live-Deployment-Plattform angekommen ist, soll Bernd ausdruecklich gesagt bekommen:
+
+```txt
+Bitte jetzt auf wellfit-now.io testen.
+```
+
+Dann immer konkret nennen:
+- welche Seite getestet werden soll
+- welche Buttons/Klickpfade getestet werden sollen
+- welches Ergebnis erwartet wird
+- welche Fehlermeldung oder welches Verhalten Bernd zurueckmelden soll
+
+Beispiel:
+
+```txt
+Bitte auf wellfit-now.io testen:
+1. /dashboard oeffnen
+2. Tagesmission starten
+3. pruefen, ob Server-Completion-/Beta-Hinweis erscheint
+4. /missionen/tagesmissionen oeffnen und Mission abschliessen
+5. Screenshot oder genaue Fehlermeldung schicken, falls etwas nicht geht
+```
+
+Live-Test nur verlangen, wenn die Aenderung wirklich auf der Live-Seite sichtbar oder fuer die Live-Funktion relevant ist. Reine Dokumentations-, Agent-, Build- oder interne TypeScript-Vorbereitungen brauchen keinen wellfit-now.io-Test.
 
 ## KI-Fortsetzungs-Prompt
 
-Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md` und diese Datei. Aktualisiere diesen Buildstatus nur ergaenzend. Loesche keine alten Build-Hinweise, sondern markiere sie bei Bedarf als `veraltet`, `erledigt`, `offen` oder `zu pruefen`. Wenn ein neuer Build getestet wurde, dokumentiere Befehl, Ergebnis, Warnungen, erkannte Blocker und naechste Schritte. Sage Bernd nach jedem groesseren Codeblock ausdruecklich, ob und was lokal getestet werden muss.
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md` und diese Datei. Aktualisiere diesen Buildstatus nur ergaenzend. Loesche keine alten Build-Hinweise, sondern markiere sie bei Bedarf als `veraltet`, `erledigt`, `offen` oder `zu pruefen`. Wenn ein neuer Build getestet wurde, dokumentiere Befehl, Ergebnis, Warnungen, erkannte Blocker und naechste Schritte. Sage Bernd nach jedem groesseren Codeblock ausdruecklich, ob lokal getestet werden muss und ob ein Live-Test auf `wellfit-now.io` sinnvoll ist.
