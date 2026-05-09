@@ -118,6 +118,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md` | aktiv / zu pruefen | Mission-/Reward-Kontextlogik | Missionen/Reward | mit Datenbankplan abgleichen |
 | `docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md` | aktiv / Economy Guardrails | interne Punkte-/XP-/Reward-Leitplanken vor Blockchain | Economy/Reward | fuehrend fuer Beta-Economy-Regeln |
 | `docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md` | aktiv / Ledger und Abrechnung | internes Punkte-/XP-/Reward-Ledger vor Tokenisierung | Economy/Reward/Backend | fuehrend fuer interne Abrechnung |
+| `docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` | aktiv / Security | Server-Completion-Plan und Firestore-Haertung fuer interne Punkte, XP, Level, Avatar und Mission Completion | Backend/Economy | fuehrend fuer naechsten Server-Completion-Block |
 | `docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md` | aktiv / Privacy Guardrails | Health-, Watch-, Kamera-, AR-, Standort- und Kinder-/Jugenddaten | Datenschutz/Safety | fuehrend fuer sensible Daten und Berechtigungen |
 | `docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md` | aktiv / Blockchain Backlog | Token/WFT/NFT erst nach stabilem internem Punkte- und Abrechnungssystem | Blockchain/Token | fuehrend fuer spaetere Token-Migration |
 | `docs/architecture/AR_RIDDLE_FIRESTORE_SECURITY_PLAN.md` | aktiv / Security | AR-Raetsel Firestore Security | Backend/Security | mit Coder 2 abgleichen |
