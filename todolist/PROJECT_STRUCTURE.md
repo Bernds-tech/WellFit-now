@@ -67,7 +67,7 @@ Dashboard-UI und dashboardnahe Produktlogik.
 
 Wichtige Dateien:
 - `page.tsx` - Dashboard-Hauptseite
-- `components/DashboardEconomyPanel.tsx` - Anzeige der internen Beta-Economy, Caps und RewardPreview
+- `components/DashboardEconomyPanel.tsx` - Anzeige der internen Beta-Economy, Caps, RewardPreview und Ledger-/Review-/Correction-Summary
 - `components/DashboardMissionPanel.tsx` - Mission mit RewardPreview und Beta-Hinweis
 - `components/DashboardAvatarPanel.tsx` - Buddy-Status und Futteraktion
 - `hooks/useDashboardActions.ts` - Dashboard-Aktionen fuer Mission/Buddy; noch clientnaher Persist-Patch fuer User-Punkte/Avatar
@@ -83,6 +83,11 @@ Wichtige Dateien:
 - `tagesmissionen/serverCompletionApi.ts` - Tagesmissionen rufen Server-Completion vor lokaler/Firebase-Beta-Persistenz
 - `tagesmissionen/useDailyMissionFirebase.ts` - Tagesmissionsstate, Streak und Level; noch clientnah
 - `lib/missionBuddyBridge.ts` - Firestore Transaction fuer Buddy-Effekt und Punkte; noch clientnah, Ziel: Server-Completion
+
+### Root / Firebase
+
+Wichtige Dateien:
+- `firestore.rules` - Firestore Rules; aktuell Safe-Profile-Felder und temporaere Economy-Brueckenfelder getrennt markiert, harte Sperre noch nicht aktiv
 
 ### `scripts/wellfit-dev-agent/`
 Lokaler WellFit Dev Agent fuer Dry-Run, Zielkurs-Check, Coder-Prompts und Aufgabenverteilung.
@@ -114,6 +119,7 @@ Wichtige Dateien:
 - `INTERNAL_ECONOMY_GUARDRAILS.md` - interne Punkte-/XP-/Reward-Leitplanken vor Blockchain
 - `INTERNAL_POINTS_LEDGER_AND_BILLING.md` - internes Punkte-Ledger, Abrechnung, Audit und Korrektur vor Tokenisierung
 - `ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` - Server-Completion-Plan und Firestore-Haertung fuer Economy-Felder
+- `FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` - Emulator-/Rules-Testplan fuer Economy-Haertung
 - `BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md` - Token/WFT/NFT erst nach stabilem internem Punkte- und Abrechnungssystem
 - `HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md` - Health-, Watch-, Kamera-, AR-, Standort- und Kinder-/Jugenddaten
 - `AR_RIDDLE_FIRESTORE_SECURITY_PLAN.md` - AR-Raetsel Firestore Security
