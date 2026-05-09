@@ -48,6 +48,7 @@ Wichtige Dateien:
 - `rewardPreview.ts` - sichere RewardPreview-Entscheidung: preview_allowed / manual_review / blocked
 - `spend.ts` - SpendPreview fuer interne Punkte-Sinks
 - `serverCompletionPlan.ts` - Client-Write-Risiken, server-only Collections und Completion-Stufen
+- `serverLedgerDraft.ts` - serverseitige Draft-Records fuer spaetere Firestore-/Ledger-Persistenz, aktuell ohne Write-Autoritaet
 - `completion.ts` - servernahe Mission-Completion-Entscheidung ohne finale Client-Autoritaet
 - `dashboardSnapshot.ts` - Economy-Snapshot fuer Dashboard-Anzeige
 - `index.ts` - zentrale Economy-Exports
@@ -56,10 +57,10 @@ Wichtige Dateien:
 Servernahe interne Economy-APIs. Keine echten Token, NFTs, Wallets, Auszahlungen oder echten Kaeufe.
 
 Wichtige Dateien:
-- `reward-preview/route.ts` - RewardPreview-API ohne finale Punktegutschrift
-- `spend-preview/route.ts` - SpendPreview-API ohne echten Kauf
+- `reward-preview/route.ts` - RewardPreview-API ohne finale Punktegutschrift, gibt `serverDraft` zurueck
+- `spend-preview/route.ts` - SpendPreview-API ohne echten Kauf, gibt `serverDraft` zurueck
 - `security-plan/route.ts` - Security-/Completion-Plan gegen clientseitige Economy-Autoritaet
-- `complete-mission/route.ts` - Mission-Completion-Entscheidung als Server-Vorstufe, noch ohne finale Persistenz/Gutschrift
+- `complete-mission/route.ts` - Mission-Completion-Entscheidung als Server-Vorstufe, gibt `serverDrafts` zurueck, noch ohne finale Persistenz/Gutschrift
 
 ### `app/dashboard/`
 Dashboard-UI und dashboardnahe Produktlogik.
@@ -70,7 +71,7 @@ Wichtige Dateien:
 - `components/DashboardMissionPanel.tsx` - Mission mit RewardPreview und Beta-Hinweis
 - `components/DashboardAvatarPanel.tsx` - Buddy-Status und Futteraktion
 - `hooks/useDashboardActions.ts` - Dashboard-Aktionen fuer Mission/Buddy; noch clientnaher Persist-Patch fuer User-Punkte/Avatar
-- `lib/serverPreviewApi.ts` - Server-Preview-API-Client mit lokalem Fallback
+- `lib/serverPreviewApi.ts` - Server-Preview-/Completion-API-Client mit lokalem Fallback
 - `lib/missionRewardPreview.ts` - Dashboard-nahe MissionRewardPreview
 
 ### `app/missionen/`
@@ -79,6 +80,7 @@ Missionen, Tagesmissionen und Mission-Buddy-Bridge.
 Wichtige Dateien:
 - `tagesmissionen/page.tsx` - Tagesmissionen UI
 - `tagesmissionen/rewardEngine.ts` - lokale Beta-Rewardlogik mit Diversity/Anti-Farming/Streak
+- `tagesmissionen/serverCompletionApi.ts` - Tagesmissionen rufen Server-Completion vor lokaler/Firebase-Beta-Persistenz
 - `tagesmissionen/useDailyMissionFirebase.ts` - Tagesmissionsstate, Streak und Level; noch clientnah
 - `lib/missionBuddyBridge.ts` - Firestore Transaction fuer Buddy-Effekt und Punkte; noch clientnah, Ziel: Server-Completion
 
@@ -98,7 +100,7 @@ Wichtige Dateien:
 - `src/memory-sync.mjs` - prueft Arbeitsgedaechtnis-Abdeckung
 - `src/apply-memory-prompts.mjs` - ergaenzt fehlende KI-Fortsetzungs-Prompts kontrolliert
 - `src/code-inventory.mjs` - Code-Inventur gegen Doppelarbeit
-- `src/quality-gate.mjs` - fuehrt Kontrollkette aus und entscheidet PASS/FAIL
+- `src/quality-gate.mjs` - fuehrt Kontrollkette aus und entscheidet PASS/FAIL ohne `shell: true`
 - `output/` - erzeugte Reports und Coder-Prompts
 
 ### `docs/architecture/`
