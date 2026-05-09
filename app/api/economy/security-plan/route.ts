@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   economyServerCompletionStages,
+  getEconomyServerPersistenceStatus,
   serverOnlyEconomyCollections,
   userEconomyClientWriteRiskFields,
   summarizeEconomyServerCompletionPlan,
@@ -17,6 +18,7 @@ export async function GET() {
     walletEnabled: false,
     nftEnabled: false,
     plan: summarizeEconomyServerCompletionPlan(),
+    persistence: getEconomyServerPersistenceStatus(),
     clientWriteRisks: userEconomyClientWriteRiskFields,
     serverOnlyCollections: [...serverOnlyEconomyCollections],
     completionStages: economyServerCompletionStages,
