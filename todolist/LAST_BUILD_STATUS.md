@@ -9,6 +9,7 @@ Stand: 2026-05-09
 [x] Mega-Block 6 nach lokalem Test bestaetigt: Dashboard/Tagesmissionen nutzen Server-Completion-Vorstufe.
 [x] Build nach `turbopack.root`-Fix bestaetigt: Next.js Workspace-Root-Warnung ist weg.
 [x] Quality-Gate-Haertung nach lokalem Test bestaetigt: PASS ohne `[DEP0190]` Warnung.
+[x] Mega-Block 11 nach lokalem Test bestaetigt: Persistence-Status-API und Server-Persistenz-Guardrails builden sauber.
 
 ```powershell
 cd C:\wellfit\WellFit-now
@@ -17,6 +18,36 @@ npm run agent:code-inventory
 powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1
 npm run build
 ```
+
+## Bestaetigt am 2026-05-09 nach Mega-Block 11
+
+[x] `git pull`: Fast-forward von `63d9432` auf `8f3dc5b`.
+[x] Neue Dateien lokal gezogen:
+    - `app/api/economy/persistence-status/route.ts`
+    - `lib/economy/serverPersistence.ts`
+[x] Geaenderte Dateien lokal gezogen:
+    - `app/api/economy/security-plan/route.ts`
+    - `lib/economy/index.ts`
+    - `todolist/CODEBASE_FEATURE_MAP.md`
+    - `todolist/DONE_LOG.md`
+    - `todolist/PROJECT_STRUCTURE.md`
+[x] `npm run agent:code-inventory` erfolgreich.
+[x] Code-Inventur: 395 gescannte Dateien.
+[x] Code-Inventur: 30 App-Routen.
+[x] Code-Inventur: 6 API-Routen.
+[x] Code-Inventur: 13 Economy-Code-Dateien.
+[x] `agent:validate` erfolgreich.
+[x] `agent:goal-check` erfolgreich: Alpha Tracks 7/7.
+[x] `agent:memory-sync` erfolgreich: Missing in index 0, Missing prompts 0.
+[x] `agent:coder-prompts` erfolgreich.
+[x] `agent:dry-run` erfolgreich: 40 offene Aufgaben, 12 Micro-Tasks, 3 Coder.
+[x] `agent:quality-gate` erfolgreich: PASS.
+[x] `npm run build` erfolgreich.
+[x] Next.js 16.2.3 / Turbopack Build erfolgreich.
+[x] TypeScript-Pruefung erfolgreich.
+[x] Page Data Collection erfolgreich.
+[x] Statische Seiten wurden generiert: 34/34.
+[x] Neue API-Route wird im Build erkannt: `/api/economy/persistence-status`.
 
 ## Bestaetigt am 2026-05-09 nach Quality-Gate-Haertung
 
@@ -43,11 +74,6 @@ npm run build
 [x] Page Data Collection erfolgreich.
 [x] Statische Seiten wurden generiert: 34/34.
 [x] Workspace-Root-Warnung wurde im Build nicht mehr angezeigt.
-[x] Neue Economy-API-Routen werden im Build erkannt:
-    - `/api/economy/complete-mission`
-    - `/api/economy/reward-preview`
-    - `/api/economy/security-plan`
-    - `/api/economy/spend-preview`
 
 ## Bestaetigt am 2026-05-09 nach Mega-Block 6
 
@@ -98,6 +124,7 @@ OK: Dry run produced micro-tasks (12)
 /analytics
 /api/buddy-ki
 /api/economy/complete-mission
+/api/economy/persistence-status
 /api/economy/reward-preview
 /api/economy/security-plan
 /api/economy/spend-preview
@@ -143,6 +170,7 @@ OK: Dry run produced micro-tasks (12)
 [x] Dashboard/Tagesmissionen verwenden jetzt die Server-Completion-Vorstufe.
 [x] Neue Economy-/Security-API-Routen bauen erfolgreich.
 [x] Projekt ist weiterhin Beta-/Alpha-testfaehig.
+[>] Bernd bevorzugt den sauberen und stressaermeren Beta-Pfad mit noch 12–14 Mega-Bloecken statt Minimalpfad.
 [>] Naechster Mega-Block: echte Server-Ledger-Persistenz vorbereiten oder Firestore Rules in einer sicheren Stufe haerten.
 [!] Vor jeder Rules-Haertung erst lokale UI-Funktion auf Dashboard und Tagesmissionen pruefen.
 
