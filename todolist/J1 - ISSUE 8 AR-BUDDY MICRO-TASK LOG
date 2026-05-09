@@ -127,3 +127,34 @@ Arbeite mit dieser Datei nur ergaenzend und nachvollziehbar. Loesche keine alten
 
 Wenn du offene Punkte aus dieser Datei uebernimmst, verlinke sie in `todolist/TODO_INDEX.md` oder uebertrage sie nach `todolist/NEXT_ACTIONS.md`. Dokumentiere erledigte Arbeit in `todolist/DONE_LOG.md`.
 
+
+
+## 2026-05-09 – Unity-Projektpfad bereinigt und verifiziert
+
+[x] Offizieller WellFitBuddyAR-Arbeitsordner ist:
+    `C:\wellfit\WellFit-now\native\unity\WellFitBuddyAR`
+
+[x] Alter lokaler Doppelordner wurde entfernt:
+    `C:\wellfit\WellFitBuddyAR`
+
+[x] Lokale Prüfung:
+    `Test-Path C:\wellfit\WellFitBuddyAR` -> `False`
+    `Test-Path C:\wellfit\WellFit-now\native\unity\WellFitBuddyAR` -> `True`
+
+[x] Git-Prüfung:
+    Kein Git-Top-Level-Pfad `WellFitBuddyAR/` gefunden.
+    Keine Git-Datei mit `C:\wellfit\WellFitBuddyAR` gefunden.
+    Keine Git-Datei mit `C:/wellfit/WellFitBuddyAR` gefunden.
+
+[x] Repo-Pfad bleibt:
+    `native/unity/WellFitBuddyAR/**`
+
+[x] Unity Hub darf nur noch auf diesen Pfad zeigen:
+    `C:\wellfit\WellFit-now\native\unity\WellFitBuddyAR`
+
+[x] Arbeitsgrenze bestätigt:
+    Keine Änderungen an Web-App, Economy, Dashboard, Missionen, Firestore-Rules oder Master-Listen.
+
+[x] AR-/Unity-Sicherheitsgrenze bestätigt:
+    Unity darf nur Buddy-Anzeige, Platzierung, Bewegung, AR-Evidence, Hinweise und lokale Demo-Events vorbereiten.
+    Unity darf keine finalen Punkte, XP, Rewards, Token, NFTs, Wallets, Auszahlungen oder Mission-Completion autorisieren.
