@@ -1,0 +1,175 @@
+# WellFit – Firestore Economy Rules Hardening Test Plan
+
+Stand: 2026-05-09
+Status: Testplan / Vorbereitung, noch keine harte Sperre
+
+## Zweck
+
+Dieser Testplan beschreibt, wie die Firestore-Regeln fuer interne Punkte, XP, Level, Avatar-Zustand, Tagesmissionen und Server-Ledger schrittweise gehaertet werden.
+
+Wichtig: Dieser Plan aktiviert noch keine harte Sperre fuer die aktuelle Beta-UI. Dashboard, Tagesmissionen und Buddy-Futter nutzen noch temporaere MVP-Bruecken.
+
+## Aktueller Rules-Stand
+
+In `firestore.rules` sind die User-Update-Felder jetzt logisch getrennt:
+
+```txt
+hasOnlySafeUserProfileKeys()
+hasOnlyTemporaryEconomyBridgeKeys()
+hasOnlyUserWritableKeys()
+```
+
+### Safe Profile Keys
+
+Diese Felder koennen voraussichtlich client-writable bleiben, solange sie keine Reward-/Economy-Autoritaet haben:
+
+```txt
+updatedAt
+lastLoginAt
+profile
+settings
+consent
+inventory
+```
+
+### Temporary Economy Bridge Keys
+
+Diese Felder sind aktuell noch Beta-/MVP-kompatibel, muessen aber spaeter server-only werden:
+
+```txt
+points
+avatar
+lastMissionCompletedAt
+xp
+level
+stepsToday
+energy
+deviceLocation
+```
+
+### Temporary Mission Progress Collections
+
+Diese Collections sind aktuell noch owner-writable und muessen spaeter aus Server-Ledger-Projektionen entstehen:
+
+```txt
+userDailyMissionState/{stateId}
+userDailyStreaks/{userId}
+userLevels/{userId}
+```
+
+## Bereits server-only gesperrte Collections
+
+Diese Collections duerfen schon jetzt nicht vom Client erstellt/geaendert/geloescht werden:
+
+```txt
+missionBuddyEvents
+trackingSessions
+trackingProofEvents
+missionContextEvaluations
+missionCompletionEvaluations
+missionRewardPreviews
+missionEvidenceReviews
+missionPatternReviews
+missionCooldownReviews
+missionRewardPolicies
+systemReserveSnapshots
+missionRewardEvents
+itemDefinitions
+userInventory
+buddyCapabilities
+nfcTags
+nfcScanEvents
+nfcScanClaims
+capabilityUnlockEvents
+buddyItemUseEvents
+```
+
+## Zielzustand nach Server-Persistenz
+
+Sobald Server-Ledger-Persistenz aktiv ist, soll gelten:
+
+```txt
+Client darf Profil/Settings/Consent schreiben.
+Client darf keine finalen Punkte/XP/Level/Avatar-Economy-Werte schreiben.
+Client darf Mission Completion nur an Server-API melden.
+Server schreibt Ledger/Audit/Projection.
+Client liest Projektionen.
+```
+
+## Emulator-Teststufen
+
+### Stufe 1 – aktueller Beta-Kompatibilitaetstest
+
+Ziel: Sicherstellen, dass die aktuelle Beta nicht gebrochen ist.
+
+Erwartung:
+
+```txt
+/users/{uid}.profile update -> ALLOW
+/users/{uid}.settings update -> ALLOW
+/users/{uid}.points update -> ALLOW vorerst noch MVP-Bruecke
+/userDailyMissionState/{uid}_YYYY-MM-DD update -> ALLOW vorerst noch MVP-Bruecke
+/missionRewardEvents create -> DENY
+/missionRewardPreviews create -> DENY
+/missionCompletionEvaluations create -> DENY
+/userInventory create -> DENY
+/buddyCapabilities create -> DENY
+```
+
+### Stufe 2 – server-only Persistenz aktivieren
+
+Vorbedingung:
+
+```txt
+Server schreibt RewardPreview/Completion/Ledger/Audit.
+Dashboard und Tagesmissionen lesen Projektionen oder API-Ergebnis.
+Buddy-Futter nutzt serverseitige Punkte-Sink-Logik.
+```
+
+Dann Rules-Ziel:
+
+```txt
+/users/{uid}.points update -> DENY
+/users/{uid}.xp update -> DENY
+/users/{uid}.level update -> DENY
+/users/{uid}.avatar.energy/hunger/level update -> DENY als finale Autoritaet
+/users/{uid}.lastMissionCompletedAt update -> DENY
+/userDailyMissionState write -> DENY oder nur nichtkritische UI-Auswahl erlauben
+/userDailyStreaks write -> DENY
+/userLevels write -> DENY
+```
+
+### Stufe 3 – Regression nach Härtung
+
+Nach Rules-Haertung pruefen:
+
+```txt
+Dashboard laedt ohne Fehler.
+Tagesmissionen zeigen Zustand.
+Mission Completion blockiert keine UI hart, sondern nutzt Serverpfad.
+Punkte/XP/Level werden aus Server-Projektionen gelesen.
+MissionRewardEvents bleiben client-write-denied.
+```
+
+## Akzeptanzkriterien fuer erste harte Rules-Aenderung
+
+Die erste echte harte Rules-Aenderung darf erst passieren, wenn:
+
+- `app/api/economy/complete-mission` echte server-only Persistenz vorbereitet oder aktiv hat.
+- Dashboard nicht mehr auf direkte `users.points`-Writes angewiesen ist.
+- Tagesmissionen nicht mehr auf direkte `userLevels`-/`userDailyStreaks`-Writes als Autoritaet angewiesen sind.
+- Buddy-Futter nicht mehr direkt `users.points` als finale Ausgabe schreibt.
+- Emulator-Test fuer DENY/ALLOW-Faelle vorbereitet ist.
+- Lokaler Build und Quality Gate PASS sind.
+
+## Nicht tun
+
+- Keine sofortige Sperre von `users.points`, solange Dashboard/Tagesmissionen noch MVP-Bruecken nutzen.
+- Keine echten Token, NFTs, Wallets, Transfers, Auszahlungen oder echten Kaeufe aktivieren.
+- Keine Unity-/Native-AR-Dateien in diesem Hauptchat bearbeiten.
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/CODEBASE_FEATURE_MAP.md`, `todolist/PROJECT_STRUCTURE.md`, `docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` und diese Datei.
+
+Arbeite als naechstes an server-only Persistenz- und Emulator-Test-Vorstufen. Aendere `firestore.rules` nur dann hart, wenn Dashboard, Tagesmissionen und Buddy-Futter nicht mehr auf direkte Client-Writes fuer Punkte/XP/Level/Avatar angewiesen sind. Keine echten Token/NFT/Wallet/Transfers/Auszahlungen aktivieren.
