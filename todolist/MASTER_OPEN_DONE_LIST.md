@@ -329,3 +329,26 @@ Stand: 2026-05-08
 ## Wichtig
 
 Die finale Punkte-Sink-Autoritaet muss spaeter serverseitig werden. Aktuell bleibt es Beta-/MVP-Vorbereitung.
+
+# Mega-Block 4 - Server-Preview-APIs vorbereitet
+
+Stand: 2026-05-09
+
+## Eingebaute Dateien
+
+- `app/api/economy/reward-preview/route.ts`
+- `app/api/economy/spend-preview/route.ts`
+
+## Was umgesetzt wurde
+
+- Servernahe RewardPreview-API vorbereitet.
+- Servernahe SpendPreview-API vorbereitet.
+- Beide APIs bleiben interne Beta-Preview.
+- Keine finale Punktegutschrift.
+- Keine echten Käufe.
+- Keine Token, NFTs, Wallets, Trading, Staking oder Auszahlung.
+- Vorbereitung fuer spaetere serverseitige Abrechnung und Cloud-Function-/API-Autoritaet.
+
+## Wichtig
+
+Diese APIs sind Preview- und Sicherheitsvorbereitung. Die finale Reward-/Spend-Autoritaet muss spaeter serverseitig mit Auth, Firestore Rules, Transaktionen und Audit-Events durchgesetzt werden.

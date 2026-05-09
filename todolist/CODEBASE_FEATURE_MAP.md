@@ -181,3 +181,12 @@ Diese Dinge existieren bereits und sollen erweitert werden:
 ## KI-Fortsetzungs-Prompt
 
 Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/MASTER_OPEN_DONE_LIST.md`, `todolist/TODO_INDEX.md`, `todolist/PROJECT_STRUCTURE.md` und diese Datei. Bevor du neue Funktionen baust, pruefe die passende Datei in dieser Codebase Map. Erweitere vorhandene Module statt neue Parallelmodule zu bauen. Wenn du feststellst, dass eine Logik bereits existiert, verlinke sie hier und arbeite darauf weiter. Keine echten Token-/NFT-/Trading-/Presale-Funktionen vor stabiler interner Punkte- und Abrechnungslogik.
+
+## Server-Preview-APIs
+
+| Datei | Status | Zweck | Noch offen |
+|---|---|---|---|
+| `app/api/economy/reward-preview/route.ts` | vorbereitet | servernahe interne RewardPreview ohne finale Punktegutschrift | Auth, Rate Limits, echte Tages-/User-Historie, Audit-Persistenz |
+| `app/api/economy/spend-preview/route.ts` | vorbereitet | servernahe interne SpendPreview ohne echten Kauf | Auth, Spend-Transaktion, Shop-Audit, serverseitige Sink-Autoritaet |
+
+Regel: Diese APIs duerfen keine echten Token, NFTs, Wallet-Funktionen, Käufe, Auszahlungen oder finale Reward-Autoritaet aktivieren.
