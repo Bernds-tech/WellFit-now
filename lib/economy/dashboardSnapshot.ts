@@ -6,6 +6,21 @@
 } from "./caps";
 import { getInternalReserveSnapshot, type InternalReserveSnapshot } from "./reserve";
 import { createInternalRewardPreviewDecision, type RewardPreviewDecision } from "./rewardPreview";
+import { createRewardPreviewServerDraft, type EconomyServerLedgerDraft } from "./serverLedgerDraft";
+
+export type DashboardLedgerSummary = {
+  authorityLabel: string;
+  previewApiStatus: "active";
+  completionApiStatus: "prepared";
+  serverDraftStatus: "prepared_not_persisted";
+  reviewPathStatus: "manual_review_ready";
+  correctionPathStatus: "correction_events_planned";
+  firestoreHardeningStatus: "pending_server_persistence";
+  liveWriteEnabled: false;
+  finalClientAuthority: false;
+  tokenized: false;
+  auditDraft: EconomyServerLedgerDraft;
+};
 
 export type DashboardEconomySnapshot = {
   pointsBalance: number;
@@ -21,6 +36,7 @@ export type DashboardEconomySnapshot = {
   reserveDisplay: string;
   rewardRateDisplay: string;
   priceRateDisplay: string;
+  ledgerSummary: DashboardLedgerSummary;
 };
 
 export const createDashboardEconomySnapshot = (params: {
@@ -73,5 +89,18 @@ export const createDashboardEconomySnapshot = (params: {
     reserveDisplay: `${Math.round(reserveSnapshot.reserveRatio * 100)}%`,
     rewardRateDisplay: `${reserveSnapshot.rewardRate.toFixed(2)}x`,
     priceRateDisplay: `${reserveSnapshot.priceRate.toFixed(2)}x`,
+    ledgerSummary: {
+      authorityLabel: "Server-Preview → Completion-Draft → Ledger/Audit",
+      previewApiStatus: "active",
+      completionApiStatus: "prepared",
+      serverDraftStatus: "prepared_not_persisted",
+      reviewPathStatus: "manual_review_ready",
+      correctionPathStatus: "correction_events_planned",
+      firestoreHardeningStatus: "pending_server_persistence",
+      liveWriteEnabled: false,
+      finalClientAuthority: false,
+      tokenized: false,
+      auditDraft: createRewardPreviewServerDraft(sampleRewardPreview),
+    },
   };
 };
