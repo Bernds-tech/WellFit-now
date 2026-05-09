@@ -5,7 +5,7 @@ import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import type { DashboardMissionPreview, PersonalMission } from "../types";
 import { writeCachedUser } from "../lib/dashboardUser";
-import { fetchDashboardSpendPreview } from "../lib/serverPreviewApi";
+import { fetchDashboardMissionCompletion, fetchDashboardSpendPreview } from "../lib/serverPreviewApi";
 
 type Params = {
   user: User | null;
@@ -96,12 +96,31 @@ export function useDashboardActions({
       return;
     }
 
-    const previewPoints = missionPreview?.decision.cappedPoints ?? mission.reward;
+    const completion = await fetchDashboardMissionCompletion({
+      user,
+      mission,
+      missionPreview,
+      stepsToday,
+    });
+
+    if (completion.status === "completion_blocked") {
+      setMessage("Mission wurde servernah blockiert. Keine Punktegutschrift.");
+      return;
+    }
+
+    if (completion.status === "manual_review_required") {
+      setMessage("Mission wurde servernah fuer Review vorgemerkt. Keine direkte Punktegutschrift.");
+      return;
+    }
+
+    const previewPoints = completion.approvedPointsPreview || missionPreview?.decision.cappedPoints || mission.reward;
+    const previewXp = completion.approvedXpPreview || previewPoints;
     const newSteps = stepsToday + mission.steps;
     const newPoints = pointsBalance + previewPoints;
     const newEnergy = Math.max(buddyEnergy - 6, 0);
     const newHunger = Math.max(buddyHunger - 4, 0);
     const nextLevel = newPoints >= 150 && buddyLevel === 1 ? 2 : buddyLevel;
+    const completionSource = completion.source === "server" ? "Server-Completion" : "lokaler Completion-Fallback";
 
     setStepsToday(newSteps);
     setPointsBalance(newPoints);
@@ -112,7 +131,7 @@ export function useDashboardActions({
     await persistUserPatch(
       {
         points: newPoints,
-        xp: (user.xp ?? 0) + previewPoints,
+        xp: (user.xp ?? 0) + previewXp,
         stepsToday: newSteps,
         level: Math.max(user.level ?? 1, nextLevel),
         avatar: {
@@ -120,9 +139,11 @@ export function useDashboardActions({
           level: nextLevel,
           energy: newEnergy,
           hunger: newHunger,
+          lastMissionCompletion: completion.summary,
+          lastMissionCompletionSource: completion.source,
         },
       },
-      `Mission gestartet: +${mission.steps} Schritte, +${previewPoints} interne Punkte`,
+      `Mission gestartet: +${mission.steps} Schritte, +${previewPoints} interne Punkte (${completionSource}; finale Ledger-Autoritaet folgt serverseitig)`,
       "Mission lokal aktualisiert, Firebase konnte nicht gespeichert werden."
     );
   };
