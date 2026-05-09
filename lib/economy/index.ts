@@ -5,6 +5,7 @@ export * from "./ledger";
 export * from "./projection";
 export * from "./reserve";
 export * from "./rewardPreview";
+export * from "./serverAuth";
 export * from "./serverCompletionPlan";
 export * from "./serverLedgerDraft";
 export * from "./serverPersistence";
