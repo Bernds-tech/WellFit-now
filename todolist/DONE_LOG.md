@@ -5,6 +5,19 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 
 ## Eintraege
 
+### 2026-05-09
+- Mega-Block Firestore-/Security-Haertung vorbereitet.
+- Datei `lib/economy/serverCompletionPlan.ts` angelegt: riskante Client-Schreibfelder, server-only Collections und Completion-Stufen dokumentiert.
+- Datei `lib/economy/completion.ts` angelegt: servernahe Mission-Completion-Entscheidung vorbereitet.
+- Datei `app/api/economy/security-plan/route.ts` angelegt: API gibt Security-/Completion-Plan fuer interne Punkte aus.
+- Datei `app/api/economy/complete-mission/route.ts` angelegt: servernahe Completion-API entscheidet `completion_ready`, `manual_review_required` oder `completion_blocked`.
+- Datei `docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` angelegt: Zielpfad `RewardPreview -> Completion -> Ledger -> Audit -> Projection` dokumentiert.
+- Datei `lib/economy/index.ts` erweitert: `completion` und `serverCompletionPlan` werden zentral exportiert.
+- Datei `todolist/CODEBASE_FEATURE_MAP.md` aktualisiert: neue Economy-/Security-Dateien, API-Routen und offene Folgepunkte aufgenommen.
+- Datei `todolist/PROJECT_STRUCTURE.md` aktualisiert: `app/api/economy/**`, neue Economy-Module, neue Architekturdatei und Unity-Sperre fuer diesen Hauptchat dokumentiert.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- `firestore.rules` bewusst noch nicht gehaertet, damit Dashboard/Tagesmissionen nicht vor Server-Completion brechen.
+
 ### 2026-05-07
 - Datei `todolist/MASTER_PROMPT_FOR_AI.md` angelegt.
 - Datei `todolist/ARCHITECTURE_RULES.md` angelegt.
@@ -39,8 +52,10 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 - `todolist/PROJECT_STRUCTURE.md` um wichtige Dateien aus `docs/architecture/` erweitert: Buddy-KI, Buddy-Datenmodell, Provider-Runbook, Tracking/Buddy-Events, Mission-UI-Status-Badges und AI-Dimensions/Items/NFC/NFT-Economy.
 
 ## Offene Folgepunkte
-- Lokal erneut `git pull` und danach `npm run agent:quality-gate` oder kompletten Agentenlauf ausfuehren.
+- Lokal erneut `git pull` und danach `npm run agent:code-inventory`, `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` und `npm run build` ausfuehren.
 - Wenn Quality-Gate noch FAIL meldet, `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen und neue fehlende Dateien in `TODO_INDEX.md` oder `PROJECT_STRUCTURE.md` aufnehmen.
+- Dashboard und Tagesmissionen schrittweise auf `app/api/economy/complete-mission` umstellen.
+- Erst danach `firestore.rules` haerten und Client-Schreibrechte fuer `points`, `xp`, `level`, `avatar` und completionrelevante Felder entfernen.
 - Wichtige offene Punkte nach `NEXT_ACTIONS.md` uebernehmen.
 - Agent nach TODO-/Roadmap-Aenderungen lokal ausfuehren: `npm run agent:validate`, `npm run agent:goal-check`, `npm run agent:memory-sync`, `npm run agent:coder-prompts`, `npm run agent:dry-run`, `npm run agent:quality-gate`.
 - Alternativ kompletten Agentenlauf mit `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` starten.
