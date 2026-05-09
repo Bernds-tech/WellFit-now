@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  createEconomyServerPersistenceRequest,
   createInternalSpendPreviewDecision,
   createSpendPreviewServerDraft,
   summarizeInternalSpendDecisionForStorage,
@@ -46,6 +47,7 @@ export async function POST(request: Request) {
       sourceId: asString(body.sourceId, "api-spend-preview"),
       correlationId: typeof body.correlationId === "string" ? body.correlationId : undefined,
     });
+    const serverDraft = createSpendPreviewServerDraft(decision);
 
     return NextResponse.json({
       ok: true,
@@ -71,7 +73,8 @@ export async function POST(request: Request) {
       remainingPoints: decision.remainingPoints,
       reasons: decision.reasons,
       ledgerSummary: summarizeInternalSpendDecisionForStorage(decision),
-      serverDraft: createSpendPreviewServerDraft(decision),
+      serverDraft,
+      persistenceRequest: createEconomyServerPersistenceRequest(serverDraft),
     });
   } catch (error) {
     return NextResponse.json(
