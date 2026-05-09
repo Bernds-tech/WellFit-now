@@ -8,6 +8,7 @@ Stand: 2026-05-09
 [x] Quality Gate nach Index-Fix erneut ausgefuehrt und PASS bestaetigt.
 [x] Mega-Block 6 nach lokalem Test bestaetigt: Dashboard/Tagesmissionen nutzen Server-Completion-Vorstufe.
 [x] Build nach `turbopack.root`-Fix bestaetigt: Next.js Workspace-Root-Warnung ist weg.
+[x] Quality-Gate-Haertung nach lokalem Test bestaetigt: PASS ohne `[DEP0190]` Warnung.
 
 ```powershell
 cd C:\wellfit\WellFit-now
@@ -16,6 +17,19 @@ npm run agent:code-inventory
 powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1
 npm run build
 ```
+
+## Bestaetigt am 2026-05-09 nach Quality-Gate-Haertung
+
+[x] `git pull`: Fast-forward von `9080a74` auf `fe67eaa`.
+[x] Geaenderte Datei lokal gezogen:
+    - `scripts/wellfit-dev-agent/src/quality-gate.mjs`
+[x] `npm run agent:quality-gate` erfolgreich.
+[x] Quality Gate: PASS.
+[x] Alpha Tracks: 7/7.
+[x] TODO index missing files: 0.
+[x] Missing KI-Fortsetzungs-Prompts: 0.
+[x] Dry run micro-tasks: 12.
+[x] `[DEP0190]` Warnung wurde nicht mehr angezeigt.
 
 ## Bestaetigt am 2026-05-09 nach Turbopack-Root-Fix
 
@@ -76,16 +90,6 @@ OK: Required KI-Fortsetzungs-Prompts complete (0)
 OK: Dry run produced micro-tasks (12)
 ```
 
-## Aktueller Build-Auszug
-
-```txt
-✓ Compiled successfully in 15.0s
-✓ Finished TypeScript in 10.6s
-✓ Collecting page data using 11 workers in 1350ms
-✓ Generating static pages using 11 workers (34/34) in 1001ms
-✓ Finalizing page optimization in 36ms
-```
-
 ## Erkannte Routen im Build
 
 ```txt
@@ -129,11 +133,7 @@ OK: Dry run produced micro-tasks (12)
 ## Hinweise
 
 [x] Next.js Workspace-Root-Warnung wurde durch `next.config.ts` / `turbopack.root` lokal nicht mehr angezeigt.
-
-[!] Node DeprecationWarning im Quality-Gate bleibt offen:
-    - `[DEP0190] Passing args to a child process with shell option true...`
-
-[ ] Spaeter `scripts/wellfit-dev-agent/src/quality-gate.mjs` haerten, damit `shell: true` nicht mit unescaped Args genutzt wird.
+[x] Node `[DEP0190]` Warnung im Quality-Gate wurde durch direkten Node-Skriptaufruf lokal nicht mehr angezeigt.
 
 ## Bewertung
 
