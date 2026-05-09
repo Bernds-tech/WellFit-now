@@ -17,10 +17,19 @@ const getPreviewStatusLabel = (status: string) => {
   return "Blockiert";
 };
 
+const compactDraftTarget = (collection: string, documentId: string) => {
+  const shortId = documentId.length > 28 ? `${documentId.slice(0, 14)}…${documentId.slice(-10)}` : documentId;
+  return `${collection}/${shortId}`;
+};
+
 export default function DashboardEconomyPanel({ pointsBalance, userId }: DashboardEconomyPanelProps) {
   const economySnapshot = createDashboardEconomySnapshot({ pointsBalance, userId });
   const previewStatus = economySnapshot.sampleRewardPreview.status;
   const ledgerSummary = economySnapshot.ledgerSummary;
+  const draftTarget = compactDraftTarget(
+    ledgerSummary.auditDraft.collection,
+    ledgerSummary.auditDraft.documentId
+  );
 
   return (
     <section className="rounded-[24px] border border-cyan-200/15 bg-[#042f37]/90 p-5 shadow-[0_8px_22px_rgba(0,0,0,0.12)]">
@@ -148,11 +157,12 @@ export default function DashboardEconomyPanel({ pointsBalance, userId }: Dashboa
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Correction-Pfad</p>
             <p className="mt-1 text-xs font-semibold text-white/75">Korrektur-Events geplant</p>
           </div>
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+          <div className="min-w-0 rounded-xl border border-white/10 bg-white/5 p-3">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Draft-Ziel</p>
-            <p className="mt-1 text-xs font-semibold text-white/75">
-              {ledgerSummary.auditDraft.collection}/{ledgerSummary.auditDraft.documentId}
+            <p className="mt-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs font-semibold text-white/75" title={`${ledgerSummary.auditDraft.collection}/${ledgerSummary.auditDraft.documentId}`}>
+              {draftTarget}
             </p>
+            <p className="mt-1 text-[10px] text-white/40">gekürzt; volle ID intern im Draft</p>
           </div>
         </div>
       </div>
