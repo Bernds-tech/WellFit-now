@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  createEconomyServerPersistenceRequests,
   createInternalMissionCompletionDecision,
   createMissionCompletionServerDraft,
   createMissionRewardEventServerDraft,
@@ -128,6 +129,10 @@ export async function POST(request: Request) {
       correlationId: typeof body.correlationId === "string" ? body.correlationId : undefined,
       clientCompletedAt: typeof body.clientCompletedAt === "string" ? body.clientCompletedAt : undefined,
     });
+    const serverDrafts = {
+      completionEvaluation: createMissionCompletionServerDraft(decision),
+      rewardEvent: createMissionRewardEventServerDraft(decision),
+    };
 
     return NextResponse.json({
       ok: true,
@@ -150,10 +155,11 @@ export async function POST(request: Request) {
         reserveRatio: decision.rewardPreview.reserveRatio,
       },
       completionRequestEvent: summarizeInternalMissionCompletionForStorage(decision).completionRequestEvent,
-      serverDrafts: {
-        completionEvaluation: createMissionCompletionServerDraft(decision),
-        rewardEvent: createMissionRewardEventServerDraft(decision),
-      },
+      serverDrafts,
+      persistenceRequests: createEconomyServerPersistenceRequests([
+        serverDrafts.completionEvaluation,
+        serverDrafts.rewardEvent,
+      ]),
       nextServerStep: decision.nextServerStep,
     });
   } catch (error) {
