@@ -1,7 +1,10 @@
 import {
+  createInternalMissionCompletionDecision,
   createInternalSpendPreviewDecision,
+  summarizeInternalMissionCompletionForStorage,
   summarizeInternalSpendDecisionForStorage,
   type InternalSpendDecisionStatus,
+  type MissionCompletionDecisionStatus,
   type RewardPreviewDecision,
 } from "@/lib/economy";
 import type { User } from "@/types/user";
@@ -23,6 +26,18 @@ type ServerRewardPreviewResponse = {
   capDecision?: RewardPreviewDecision["capDecision"];
 };
 
+export type DashboardMissionCompletionResult = {
+  status: MissionCompletionDecisionStatus;
+  approvedPointsPreview: number;
+  approvedXpPreview: number;
+  reasons: string[];
+  source: "server" | "local";
+  finalAuthority: false;
+  tokenized: false;
+  summary: ReturnType<typeof summarizeInternalMissionCompletionForStorage>;
+  nextServerStep: string;
+};
+
 export type DashboardSpendPreviewResult = {
   status: InternalSpendDecisionStatus;
   spendPoints: number;
@@ -42,6 +57,10 @@ const isRewardPreviewStatus = (value: unknown): value is RewardPreviewDecision["
   return value === "preview_allowed" || value === "manual_review" || value === "blocked";
 };
 
+const isCompletionDecisionStatus = (value: unknown): value is MissionCompletionDecisionStatus => {
+  return value === "completion_ready" || value === "manual_review_required" || value === "completion_blocked";
+};
+
 const isSpendDecisionStatus = (value: unknown): value is InternalSpendDecisionStatus => {
   return (
     value === "spend_allowed" ||
@@ -49,6 +68,10 @@ const isSpendDecisionStatus = (value: unknown): value is InternalSpendDecisionSt
     value === "item_missing" ||
     value === "blocked"
   );
+};
+
+const dashboardMissionSourceId = (mission: PersonalMission) => {
+  return `dashboard-mission-${mission.title.toLowerCase().replace(/[^a-z0-9]+/gi, "-")}`;
 };
 
 export const fetchDashboardMissionRewardPreview = async (params: {
@@ -71,7 +94,7 @@ export const fetchDashboardMissionRewardPreview = async (params: {
       },
       body: JSON.stringify({
         userId: params.user?.id ?? "dashboard-preview-user",
-        sourceId: `dashboard-mission-${params.mission.title.toLowerCase().replace(/[^a-z0-9]+/gi, "-")}`,
+        sourceId: dashboardMissionSourceId(params.mission),
         sourceType: "dashboard",
         missionType: "movement",
         requestedPoints: params.mission.reward,
@@ -117,6 +140,112 @@ export const fetchDashboardMissionRewardPreview = async (params: {
     };
   } catch {
     return fallbackPreview;
+  }
+};
+
+export const fetchDashboardMissionCompletion = async (params: {
+  user: User;
+  mission: PersonalMission;
+  missionPreview?: DashboardMissionPreview;
+  stepsToday: number;
+}): Promise<DashboardMissionCompletionResult> => {
+  const fallbackDecision = createInternalMissionCompletionDecision({
+    userId: params.user.id,
+    sourceId: dashboardMissionSourceId(params.mission),
+    sourceType: "dashboard",
+    missionType: "movement",
+    requestedPoints: params.missionPreview?.decision.cappedPoints ?? params.mission.reward,
+    requestedXp: params.missionPreview?.decision.cappedPoints ?? params.mission.reward,
+    usage: {
+      emittedToday: 0,
+      userEarnedToday: Math.max(0, params.user.points ?? 0),
+      missionTypeEarnedToday: 0,
+    },
+    evidenceSummary: `Dashboard completion fallback for ${params.mission.title}. Steps today: ${params.stepsToday}.`,
+    completionEvidenceSummary: "Dashboard mission completion beta bridge. Local fallback does not create final authority.",
+    riskSummary: {
+      proofQuality: "unknown",
+      cooldownRisk: "unknown",
+      patternRisk: "unknown",
+      notes: ["Dashboard completion fallback. Firestore user patch remains temporary MVP bridge."],
+    },
+  });
+
+  const fallbackResult: DashboardMissionCompletionResult = {
+    status: fallbackDecision.status,
+    approvedPointsPreview: fallbackDecision.approvedPointsPreview,
+    approvedXpPreview: fallbackDecision.approvedXpPreview,
+    reasons: fallbackDecision.reasons,
+    source: "local",
+    finalAuthority: false,
+    tokenized: false,
+    summary: summarizeInternalMissionCompletionForStorage(fallbackDecision),
+    nextServerStep: fallbackDecision.nextServerStep,
+  };
+
+  try {
+    const response = await fetch("/api/economy/complete-mission", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: params.user.id,
+        sourceId: dashboardMissionSourceId(params.mission),
+        sourceType: "dashboard",
+        missionType: "movement",
+        requestedPoints: params.missionPreview?.decision.cappedPoints ?? params.mission.reward,
+        requestedXp: params.missionPreview?.decision.cappedPoints ?? params.mission.reward,
+        usage: {
+          emittedToday: 0,
+          userEarnedToday: Math.max(0, params.user.points ?? 0),
+          missionTypeEarnedToday: 0,
+        },
+        evidenceSummary: `Dashboard mission completion for ${params.mission.title}. Steps today: ${params.stepsToday}.`,
+        completionEvidenceSummary: "Dashboard mission completion request. Server decision first, final ledger later.",
+        riskSummary: {
+          proofQuality: "unknown",
+          cooldownRisk: "unknown",
+          patternRisk: "unknown",
+          notes: ["Dashboard completion uses server decision before MVP user patch."],
+        },
+      }),
+    });
+
+    if (!response.ok) return fallbackResult;
+
+    const data = (await response.json()) as {
+      ok?: boolean;
+      status?: unknown;
+      approvedPointsPreview?: number;
+      approvedXpPreview?: number;
+      reasons?: string[];
+      completionRequestEvent?: DashboardMissionCompletionResult["summary"]["completionRequestEvent"];
+      nextServerStep?: string;
+    };
+
+    if (!data.ok || !isCompletionDecisionStatus(data.status)) return fallbackResult;
+
+    return {
+      status: data.status,
+      approvedPointsPreview: Math.max(0, Math.floor(asFiniteNumber(data.approvedPointsPreview, fallbackResult.approvedPointsPreview))),
+      approvedXpPreview: Math.max(0, Math.floor(asFiniteNumber(data.approvedXpPreview, fallbackResult.approvedXpPreview))),
+      reasons: Array.isArray(data.reasons) ? data.reasons.filter((reason): reason is string => typeof reason === "string") : fallbackResult.reasons,
+      source: "server",
+      finalAuthority: false,
+      tokenized: false,
+      summary: {
+        ...fallbackResult.summary,
+        status: data.status,
+        approvedPointsPreview: Math.max(0, Math.floor(asFiniteNumber(data.approvedPointsPreview, fallbackResult.approvedPointsPreview))),
+        approvedXpPreview: Math.max(0, Math.floor(asFiniteNumber(data.approvedXpPreview, fallbackResult.approvedXpPreview))),
+        reasons: Array.isArray(data.reasons) ? data.reasons.filter((reason): reason is string => typeof reason === "string") : fallbackResult.reasons,
+        completionRequestEvent: data.completionRequestEvent ?? fallbackResult.summary.completionRequestEvent,
+      },
+      nextServerStep: typeof data.nextServerStep === "string" ? data.nextServerStep : fallbackResult.nextServerStep,
+    };
+  } catch {
+    return fallbackResult;
   }
 };
 
