@@ -15,6 +15,7 @@ import {
   createDailyMissionRewardPreview,
   getDailyMissionRewardPreviewLabel,
 } from "./rewardEngine";
+import { fetchDailyMissionCompletion } from "./serverCompletionApi";
 import { useDailyMissionFirebase } from "./useDailyMissionFirebase";
 import { applyMissionBuddyBridge } from "../lib/missionBuddyBridge";
 
@@ -179,21 +180,41 @@ export default function MissionenPage() {
       return;
     }
 
-    await persistCompleteMission(missionId, result.preview.cappedPoints);
+    const completion = await fetchDailyMissionCompletion({
+      userId,
+      mission: result.mission,
+      rewardPreview: result.preview,
+      selectedTypes,
+      streakBonus,
+    });
+
+    if (completion.status === "completion_blocked") {
+      setStatusMessage(`${result.mission.title} wurde servernah blockiert. Keine Punktegutschrift.`);
+      return;
+    }
+
+    if (completion.status === "manual_review_required") {
+      setStatusMessage(`${result.mission.title} wurde servernah für Review vorgemerkt. Keine direkte Punktegutschrift.`);
+      return;
+    }
+
+    await persistCompleteMission(missionId, completion.approvedXpPreview || completion.approvedPointsPreview);
 
     const bridgeResult = await applyMissionBuddyBridge({
       mission: result.mission,
-      rewardPoints: result.preview.cappedPoints,
+      rewardPoints: completion.approvedPointsPreview,
       source: "dailyMission",
       rewardPreviewEvent: result.preview.ledgerEvent,
     });
 
+    const completionSource = completion.source === "server" ? "Server-Completion" : "lokaler Completion-Fallback";
+
     setStatusMessage(
       bridgeResult.ok
         ? bridgeResult.alreadyApplied
-          ? `${result.mission.title} war bereits verbunden. Keine doppelte Punktevergabe. Flammi bleibt synchron.`
-          : `${result.mission.title} abgeschlossen. +${result.preview.cappedPoints} interne Punkte. Flammi reagiert auf deinen Fortschritt.`
-        : `${result.mission.title} abgeschlossen. Buddy-Sync braucht eine erneute Verbindung.`
+          ? `${result.mission.title} war bereits verbunden. Keine doppelte Punktevergabe. Flammi bleibt synchron. ${completionSource}.`
+          : `${result.mission.title} abgeschlossen. +${completion.approvedPointsPreview} interne Punkte. ${completionSource}; finale Ledger-Autorität folgt serverseitig.`
+        : `${result.mission.title} abgeschlossen. ${completionSource}; Buddy-Sync braucht eine erneute Verbindung.`
     );
   };
 
