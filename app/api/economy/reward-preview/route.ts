@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   createInternalRewardPreviewDecision,
+  createRewardPreviewServerDraft,
   type EconomyUsageSnapshot,
   type LedgerEvent,
   type LedgerRiskSummary,
@@ -147,6 +148,7 @@ export async function POST(request: Request) {
       reserveRatio: decision.reserveRatio,
       capDecision: decision.capDecision,
       ledgerEvent: summarizeLedgerEvent(decision.ledgerEvent),
+      serverDraft: createRewardPreviewServerDraft(decision),
     });
   } catch (error) {
     return NextResponse.json(
