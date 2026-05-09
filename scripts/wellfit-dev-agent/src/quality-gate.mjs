@@ -7,13 +7,14 @@ import { spawnSync } from "node:child_process";
 const ROOT = process.cwd();
 const OUTPUT_DIR = path.join(ROOT, "scripts", "wellfit-dev-agent", "output");
 const QUALITY_REPORT_PATH = path.join(OUTPUT_DIR, "quality-gate-report.md");
+const NPM_COMMAND = process.platform === "win32" ? "npm.cmd" : "npm";
 
 function runStep(label, command, args) {
   const startedAt = new Date().toISOString();
   const result = spawnSync(command, args, {
     cwd: ROOT,
     encoding: "utf8",
-    shell: process.platform === "win32",
+    shell: false,
   });
 
   return {
@@ -77,11 +78,11 @@ function main() {
   const steps = [];
   const checks = [];
 
-  steps.push(runStep("Agent config validation", "npm", ["run", "agent:validate"]));
-  steps.push(runStep("Alpha goal check", "npm", ["run", "agent:goal-check"]));
-  steps.push(runStep("Memory sync", "npm", ["run", "agent:memory-sync"]));
-  steps.push(runStep("Coder prompt generation", "npm", ["run", "agent:coder-prompts"]));
-  steps.push(runStep("Dry run planning", "npm", ["run", "agent:dry-run"]));
+  steps.push(runStep("Agent config validation", NPM_COMMAND, ["run", "agent:validate"]));
+  steps.push(runStep("Alpha goal check", NPM_COMMAND, ["run", "agent:goal-check"]));
+  steps.push(runStep("Memory sync", NPM_COMMAND, ["run", "agent:memory-sync"]));
+  steps.push(runStep("Coder prompt generation", NPM_COMMAND, ["run", "agent:coder-prompts"]));
+  steps.push(runStep("Dry run planning", NPM_COMMAND, ["run", "agent:dry-run"]));
 
   for (const step of steps) {
     assertCondition(checks, `${step.label} exits successfully`, step.ok, `exitCode=${step.exitCode}`);
