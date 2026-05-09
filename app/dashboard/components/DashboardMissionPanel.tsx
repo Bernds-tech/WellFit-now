@@ -11,6 +11,7 @@ export default function DashboardMissionPanel({ mission, missionPreview, stepsTo
   const progress = Math.min(100, Math.round((stepsToday / mission.steps) * 100));
   const previewStatus = missionPreview?.decision.status;
   const cappedPoints = missionPreview?.decision.cappedPoints ?? mission.reward;
+  const previewSource = missionPreview?.source === "server" ? "Server-Preview" : "Lokaler Fallback";
 
   return (
     <div className="rounded-[24px] bg-gradient-to-br from-[#063f46] to-[#052f35] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
@@ -27,6 +28,7 @@ export default function DashboardMissionPanel({ mission, missionPreview, stepsTo
           <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-right">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-100/50">Reward Preview</p>
             <p className="mt-1 text-sm font-black text-cyan-100">{missionPreview.label}</p>
+            <p className="mt-1 text-[10px] font-semibold text-white/45">{previewSource}</p>
           </div>
         )}
       </div>
@@ -55,9 +57,10 @@ export default function DashboardMissionPanel({ mission, missionPreview, stepsTo
         </span>
         <button
           onClick={onStartMission}
-          className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-bold hover:bg-orange-400"
+          disabled={previewStatus === "blocked"}
+          className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-bold hover:bg-orange-400 disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/50"
         >
-          Mission starten
+          {previewStatus === "blocked" ? "Blockiert" : "Mission starten"}
         </button>
       </div>
     </div>

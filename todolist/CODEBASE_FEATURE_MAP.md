@@ -190,3 +190,13 @@ Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/MASTER_OPEN_DONE_LIST.
 | `app/api/economy/spend-preview/route.ts` | vorbereitet | servernahe interne SpendPreview ohne echten Kauf | Auth, Spend-Transaktion, Shop-Audit, serverseitige Sink-Autoritaet |
 
 Regel: Diese APIs duerfen keine echten Token, NFTs, Wallet-Funktionen, Käufe, Auszahlungen oder finale Reward-Autoritaet aktivieren.
+
+## Frontend Server-Preview Nutzung
+
+| Datei | Status | Zweck | Fallback |
+|---|---|---|---|
+| `app/dashboard/lib/serverPreviewApi.ts` | aktiv / vorbereitet | Dashboard ruft Reward-/Spend-Preview-APIs auf | lokale Economy-Preview |
+| `app/dashboard/page.tsx` | erweitert | Mission Preview nutzt Server zuerst | lokale RewardPreview |
+| `app/dashboard/hooks/useDashboardActions.ts` | erweitert | Buddy-Futter nutzt SpendPreview-API zuerst | lokale SpendPreview |
+
+Regel: Frontend darf weiterhin keine finale Reward-/Spend-Autoritaet haben. Server-Preview ist nur Vorstufe.

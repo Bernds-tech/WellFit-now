@@ -352,3 +352,29 @@ Stand: 2026-05-09
 ## Wichtig
 
 Diese APIs sind Preview- und Sicherheitsvorbereitung. Die finale Reward-/Spend-Autoritaet muss spaeter serverseitig mit Auth, Firestore Rules, Transaktionen und Audit-Events durchgesetzt werden.
+
+# Mega-Block 5 - Frontend nutzt Server-Preview-APIs
+
+Stand: 2026-05-09
+
+## Eingebaute Dateien
+
+- `app/dashboard/lib/serverPreviewApi.ts`
+- `app/dashboard/page.tsx`
+- `app/dashboard/types.ts`
+- `app/dashboard/components/DashboardMissionPanel.tsx`
+- `app/dashboard/hooks/useDashboardActions.ts`
+
+## Was umgesetzt wurde
+
+- Dashboard Mission Preview ruft zuerst `/api/economy/reward-preview`.
+- Lokale RewardPreview bleibt als Fallback erhalten.
+- Buddy-Futter ruft zuerst `/api/economy/spend-preview`.
+- Lokale SpendPreview bleibt als Fallback erhalten.
+- UI zeigt, ob die Preview vom Server oder aus lokalem Fallback kommt.
+- Keine finale Punktebuchung durch Preview-API.
+- Keine Token, NFTs, Wallets, Käufe oder Auszahlungen.
+
+## Wichtig
+
+Dieser Block ist der nächste Schritt weg von reiner Client-Logik. Die finale Reward-/Spend-Autoritaet bleibt weiterhin ein späterer Server-/Ledger-/Firestore-Rules-Ausbau.

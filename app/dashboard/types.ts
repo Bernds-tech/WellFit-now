@@ -13,4 +13,6 @@ export type PersonalMission = {
 export type DashboardMissionPreview = {
   decision: RewardPreviewDecision;
   label: string;
+  source?: "local" | "server";
+  serverPreviewCheckedAt?: string;
 };

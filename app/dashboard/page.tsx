@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { economyConfig, getPriceRate } from "@/config/economy";
@@ -13,8 +13,13 @@ import DashboardEconomyPanel from "./components/DashboardEconomyPanel";
 import DashboardSavedCardsPanel from "./components/DashboardSavedCardsPanel";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { useDashboardActions } from "./hooks/useDashboardActions";
+import type { DashboardMissionPreview } from "./types";
 import { getPersonalMission } from "./lib/personalMission";
-import { createDashboardMissionRewardPreview, getRewardPreviewUiLabel } from "./lib/missionRewardPreview";
+import {
+  createDashboardMissionRewardPreview,
+  getRewardPreviewUiLabel,
+} from "./lib/missionRewardPreview";
+import { fetchDashboardMissionRewardPreview } from "./lib/serverPreviewApi";
 
 export default function DashboardPage() {
   const {
@@ -33,14 +38,33 @@ export default function DashboardPage() {
   const [buddyEnergy, setBuddyEnergy] = useState(100);
   const [buddyHunger, setBuddyHunger] = useState(100);
   const [foodPrice, setFoodPrice] = useState(5);
+  const [missionPreview, setMissionPreview] = useState<DashboardMissionPreview | undefined>(undefined);
 
   const mission = useMemo(() => getPersonalMission(user), [user]);
-  const missionPreview = useMemo(() => {
-    if (!mission) return undefined;
-    const decision = createDashboardMissionRewardPreview({ user, mission, stepsToday });
-    return {
-      decision,
-      label: getRewardPreviewUiLabel(decision),
+
+  useEffect(() => {
+    if (!mission) {
+      setMissionPreview(undefined);
+      return;
+    }
+
+    let isCancelled = false;
+    const localDecision = createDashboardMissionRewardPreview({ user, mission, stepsToday });
+
+    setMissionPreview({
+      decision: localDecision,
+      label: getRewardPreviewUiLabel(localDecision),
+      source: "local",
+    });
+
+    fetchDashboardMissionRewardPreview({ user, mission, stepsToday }).then((preview) => {
+      if (!isCancelled) {
+        setMissionPreview(preview);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
     };
   }, [mission, stepsToday, user]);
 
@@ -141,5 +165,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
-

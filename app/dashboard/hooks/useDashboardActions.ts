@@ -3,9 +3,9 @@
 import type { User } from "@/types/user";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
-import { createInternalSpendPreviewDecision, summarizeInternalSpendDecisionForStorage } from "@/lib/economy";
 import type { DashboardMissionPreview, PersonalMission } from "../types";
 import { writeCachedUser } from "../lib/dashboardUser";
+import { fetchDashboardSpendPreview } from "../lib/serverPreviewApi";
 
 type Params = {
   user: User | null;
@@ -133,21 +133,20 @@ export function useDashboardActions({
       return;
     }
 
-    const spendDecision = createInternalSpendPreviewDecision({
+    const spendPreview = await fetchDashboardSpendPreview({
       userId: user.id,
       itemId: "buddy-food-basic",
       pointsBalance,
-      sourceType: "buddy",
       sourceId: "dashboard-buddy-feed",
     });
 
-    if (spendDecision.status !== "spend_allowed") {
+    if (spendPreview.status !== "spend_allowed") {
       setMessage("Nicht genug interne Punkte für Futter.");
       return;
     }
 
-    const spendPoints = spendDecision.spendPoints || foodPrice;
-    const newPoints = spendDecision.remainingPoints;
+    const spendPoints = spendPreview.spendPoints || foodPrice;
+    const newPoints = spendPreview.remainingPoints;
     const newHunger = Math.min(100, buddyHunger + 10);
 
     setPointsBalance(newPoints);
@@ -159,10 +158,11 @@ export function useDashboardActions({
         avatar: {
           ...(user.avatar ?? {}),
           hunger: newHunger,
-          lastSpendPreview: summarizeInternalSpendDecisionForStorage(spendDecision),
+          lastSpendPreview: spendPreview.ledgerSummary,
+          lastSpendPreviewSource: spendPreview.source,
         },
       },
-      `Flammi wurde gefüttert. -${spendPoints} interne Punkte`,
+      `Flammi wurde gefüttert. -${spendPoints} interne Punkte (${spendPreview.source === "server" ? "Server-Preview" : "lokaler Fallback"})`,
       "Flammi wurde lokal gefüttert, Firebase konnte nicht gespeichert werden."
     );
   };
