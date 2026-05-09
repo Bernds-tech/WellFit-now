@@ -6,6 +6,20 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 11 - Server-Persistenz-Schalter / Guardrail-API vorbereitet.
+- Datei `lib/economy/serverPersistence.ts` angelegt: zentraler Persistence-Status mit `mode: draft_only`, `writeEnabled: false`, `firestoreWritesEnabled: false`, `finalAuthority: false`, `tokenized: false`.
+- Datei `lib/economy/index.ts` erweitert: `serverPersistence` wird zentral exportiert.
+- Datei `app/api/economy/persistence-status/route.ts` angelegt: API zeigt explizit, dass Economy-Server-Persistenz aktuell nur Draft-only ist.
+- Datei `app/api/economy/security-plan/route.ts` erweitert: Security-Plan gibt Persistence-Status mit aus.
+- Datei `todolist/CODEBASE_FEATURE_MAP.md` aktualisiert: Persistence-Status und Guardrails dokumentiert.
+- Datei `todolist/PROJECT_STRUCTURE.md` aktualisiert: neue Persistence-Datei und API dokumentiert.
+- Keine echten Serverwrites aktiviert.
+- Keine Firestore Rules gehaertet.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Kein Live-Test auf `wellfit-now.io` erforderlich.
+- Lokaler Test erforderlich: Agent + Build.
+
+### 2026-05-09
 - Mega-Block 10 - Firestore-Haertung Stufe 1 vorbereitet, ohne harte Sperre.
 - Datei `firestore.rules` strukturiert: `hasOnlySafeUserProfileKeys()`, `hasOnlyTemporaryEconomyBridgeKeys()` und `hasOnlyUserWritableKeys()` getrennt.
 - Riskante temporaere Economy-Brueckenfelder markiert: `points`, `avatar`, `lastMissionCompletedAt`, `xp`, `level`, `stepsToday`, `energy`, `deviceLocation`.
