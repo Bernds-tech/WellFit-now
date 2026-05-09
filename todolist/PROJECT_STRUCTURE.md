@@ -21,6 +21,7 @@ Projektgedaechtnis, Aufgaben, Prompts, Entscheidungen und Logs.
 Wichtige Dateien:
 - `MASTER_PROMPT_FOR_AI.md` - zentrale Arbeitsanweisung fuer KI/Codex
 - `MASTER_OPEN_DONE_LIST.md` - zentrale Einzeluebersicht: alles erledigt, alles offen, aktuelle Produktregeln
+- `CODEBASE_FEATURE_MAP.md` - Bestandskarte der vorhandenen Codebereiche gegen Doppelarbeit
 - `ARCHITECTURE_RULES.md` - Regeln fuer Skalierbarkeit und kleine Dateien
 - `DATABASE_PLAN.md` - Datenbankplanung
 - `NEXT_ACTIONS.md` - naechste Schritte bis Beta
@@ -43,9 +44,22 @@ Wichtige Dateien:
 - `ledger.ts` - Ledger-Event-Typen, Status, Reason Codes, sichere Event-Factories
 - `caps.ts` - DailyEmissionCap, UserDailyCap, MissionTypeCaps, EconomyHealthScore
 - `projection.ts` - Projektion von Ledger-Events auf Punkte-/XP-/Streak-Staende
+- `reserve.ts` - interne Reserve-, RewardRate- und PriceRate-Logik
 - `rewardPreview.ts` - sichere RewardPreview-Entscheidung: preview_allowed / manual_review / blocked
+- `spend.ts` - SpendPreview fuer interne Punkte-Sinks
+- `serverCompletionPlan.ts` - Client-Write-Risiken, server-only Collections und Completion-Stufen
+- `completion.ts` - servernahe Mission-Completion-Entscheidung ohne finale Client-Autoritaet
 - `dashboardSnapshot.ts` - Economy-Snapshot fuer Dashboard-Anzeige
 - `index.ts` - zentrale Economy-Exports
+
+### `app/api/economy/`
+Servernahe interne Economy-APIs. Keine echten Token, NFTs, Wallets, Auszahlungen oder echten Kaeufe.
+
+Wichtige Dateien:
+- `reward-preview/route.ts` - RewardPreview-API ohne finale Punktegutschrift
+- `spend-preview/route.ts` - SpendPreview-API ohne echten Kauf
+- `security-plan/route.ts` - Security-/Completion-Plan gegen clientseitige Economy-Autoritaet
+- `complete-mission/route.ts` - Mission-Completion-Entscheidung als Server-Vorstufe, noch ohne finale Persistenz/Gutschrift
 
 ### `app/dashboard/`
 Dashboard-UI und dashboardnahe Produktlogik.
@@ -54,8 +68,19 @@ Wichtige Dateien:
 - `page.tsx` - Dashboard-Hauptseite
 - `components/DashboardEconomyPanel.tsx` - Anzeige der internen Beta-Economy, Caps und RewardPreview
 - `components/DashboardMissionPanel.tsx` - Mission mit RewardPreview und Beta-Hinweis
-- `hooks/useDashboardActions.ts` - Dashboard-Aktionen fuer Mission/Buddy
+- `components/DashboardAvatarPanel.tsx` - Buddy-Status und Futteraktion
+- `hooks/useDashboardActions.ts` - Dashboard-Aktionen fuer Mission/Buddy; noch clientnaher Persist-Patch fuer User-Punkte/Avatar
+- `lib/serverPreviewApi.ts` - Server-Preview-API-Client mit lokalem Fallback
 - `lib/missionRewardPreview.ts` - Dashboard-nahe MissionRewardPreview
+
+### `app/missionen/`
+Missionen, Tagesmissionen und Mission-Buddy-Bridge.
+
+Wichtige Dateien:
+- `tagesmissionen/page.tsx` - Tagesmissionen UI
+- `tagesmissionen/rewardEngine.ts` - lokale Beta-Rewardlogik mit Diversity/Anti-Farming/Streak
+- `tagesmissionen/useDailyMissionFirebase.ts` - Tagesmissionsstate, Streak und Level; noch clientnah
+- `lib/missionBuddyBridge.ts` - Firestore Transaction fuer Buddy-Effekt und Punkte; noch clientnah, Ziel: Server-Completion
 
 ### `scripts/wellfit-dev-agent/`
 Lokaler WellFit Dev Agent fuer Dry-Run, Zielkurs-Check, Coder-Prompts und Aufgabenverteilung.
@@ -72,6 +97,7 @@ Wichtige Dateien:
 - `src/dry-run.mjs` - erzeugt Dry-Run-Report
 - `src/memory-sync.mjs` - prueft Arbeitsgedaechtnis-Abdeckung
 - `src/apply-memory-prompts.mjs` - ergaenzt fehlende KI-Fortsetzungs-Prompts kontrolliert
+- `src/code-inventory.mjs` - Code-Inventur gegen Doppelarbeit
 - `src/quality-gate.mjs` - fuehrt Kontrollkette aus und entscheidet PASS/FAIL
 - `output/` - erzeugte Reports und Coder-Prompts
 
@@ -85,16 +111,26 @@ Wichtige Dateien:
 - `MISSION_REWARD_CONTEXT_ENGINE.md` - Mission-/Reward-Kontextlogik
 - `INTERNAL_ECONOMY_GUARDRAILS.md` - interne Punkte-/XP-/Reward-Leitplanken vor Blockchain
 - `INTERNAL_POINTS_LEDGER_AND_BILLING.md` - internes Punkte-Ledger, Abrechnung, Audit und Korrektur vor Tokenisierung
+- `ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` - Server-Completion-Plan und Firestore-Haertung fuer Economy-Felder
 - `BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md` - Token/WFT/NFT erst nach stabilem internem Punkte- und Abrechnungssystem
 - `HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md` - Health-, Watch-, Kamera-, AR-, Standort- und Kinder-/Jugenddaten
 - `AR_RIDDLE_FIRESTORE_SECURITY_PLAN.md` - AR-Raetsel Firestore Security
 - `USER_POINTS_CLIENT_WRITE_REFACTOR.md` - Client-Write-Risiko fuer Punkte/XP
+- `USER_ECONOMY_WRITE_SEARCH_NOTES.md` - Suchnotiz zu direkten Economy-Schreibstellen
 - `BUDDY_KI_INTEGRATION.md` - Buddy-KI Server-/Provider-Integration
 - `BUDDY_KI_GUIDE_DATA_MODEL.md` - Buddy-Guide Datenmodell
 - `BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md` - Modellprovider-Runbook ohne Frontend-Secrets
 - `TRACKING_BUDDY_SERVER_EVENTS.md` - serverautorisierte Tracking-/Buddy-Events
 - `MISSION_UI_STATUS_BADGES.md` - Missionsstatus-Badges und UI-Regeln
 - `AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md` - Dimensionen, Items, NFC und spaetere NFT-/Economy-Abgrenzung
+
+### `native/unity/WellFitBuddyAR/`
+Separater Unity-/Native-AR-Arbeitsbereich.
+
+Regel fuer diesen Hauptchat:
+- Nicht bearbeiten.
+- Nicht loeschen.
+- Nicht anfassen, solange parallel ein anderer Chat am Unity-/AR-Bereich arbeitet.
 
 ## TODO-Konsolidierung
 Alte oder kleinere TODO-Dateien duerfen nicht geloescht werden. Sie sollen in `TODO_CONSOLIDATION.md` referenziert, markiert und in die neue Struktur uebernommen werden.
@@ -111,9 +147,9 @@ Die tatsaechliche Code-Struktur muss weiter analysiert und hier nachgetragen wer
 
 Zu pruefen:
 - Startseite / Landingpage
-- Dashboard
+- Dashboard Ledger-/Review-Summary
 - Navigation
-- Missionen
+- Missionen Server-Completion-Umstellung
 - KI-Buddy
 - Nutzerprofil / Avatar
 - Wallet / Demo-Wallet
@@ -122,6 +158,7 @@ Zu pruefen:
 - Assets / Bilder / Logos
 - Backend / API
 - Datenbank / Datenmodelle
+- Firestore Rules nach Server-Completion
 
 ## Einbau-Regel fuer neue Features
 Wenn eine neue Funktion gebaut wird, muss hier dokumentiert werden:
