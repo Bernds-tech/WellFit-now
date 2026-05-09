@@ -112,6 +112,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
+| `docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md` | aktiv / fuehrend | sauberer Web-Beta-Restpfad mit 12–14 Mega-Bloecken, ohne Buddy AR / Unity | Web-Beta-Restpfad | fuehrend fuer weitere Beta-Arbeit nutzen |
 | `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md` | aktiv | Alpha-Scope und Fokus | `NEXT_ACTIONS.md` | als Prioritaetsquelle nutzen |
 | `docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md` | aktiv | Self-hosted Dev-Agent Architektur | Agentenstrategie | fuer Automatisierung nutzen |
 | `docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md` | aktiv / zu pruefen | spaeterer Nutzeranalyse-/Mission-Agent | Bereich Mission/KI | nach Beta weiterfuehren |
