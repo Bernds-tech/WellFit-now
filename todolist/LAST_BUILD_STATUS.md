@@ -1,38 +1,55 @@
 # WellFit – letzter lokaler Build-Status
 
-Stand: 2026-05-07
+Stand: 2026-05-09
 
 ## Ergebnis
 
-[x] Lokaler Installations- und Build-Check erfolgreich ausgeführt.
+[x] Lokaler Agent-, Inventur- und Build-Check erfolgreich ausgefuehrt.
 
 ```powershell
 cd C:\wellfit\WellFit-now
-npm install
+git pull
+git status
+npm run agent:code-inventory
+powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1
 npm run build
 ```
 
-## Bestätigt am 2026-05-07
+## Bestaetigt am 2026-05-09
 
-[x] `npm install` erfolgreich: Pakete sind up to date.
-[x] 1155 Pakete auditiert.
+[x] `git pull`: Already up to date.
+[x] `git status`: working tree clean vor lokaler Ausfuehrung.
+[x] `npm run agent:code-inventory` erfolgreich.
+[x] Code-Inventur: 390 gescannte Dateien.
+[x] Code-Inventur: 30 App-Routen.
+[x] Code-Inventur: 5 API-Routen.
+[x] Code-Inventur: 11 Economy-Code-Dateien.
+[x] `agent:validate` erfolgreich.
+[x] `agent:goal-check` erfolgreich: Alpha Tracks 7/7.
+[x] `agent:memory-sync` erfolgreich, aber Quality Gate meldete Missing in index: 1.
+[x] `agent:coder-prompts` erfolgreich.
+[x] `agent:dry-run` erfolgreich: 40 offene Aufgaben, 12 Micro-Tasks, 3 Coder.
+[!] `agent:quality-gate` Ergebnis vor Index-Fix: FAIL wegen `TODO index has no missing files (1)`.
+[x] Nachgetragen: `docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` wurde in `todolist/TODO_INDEX.md` indexiert.
 [x] `npm run build` erfolgreich.
 [x] Next.js 16.2.3 / Turbopack Build erfolgreich.
-[x] TypeScript-Prüfung erfolgreich.
+[x] TypeScript-Pruefung erfolgreich.
 [x] Page Data Collection erfolgreich.
 [x] Statische Seiten wurden generiert: 34/34.
-[x] `/api/buddy-ki` wird als dynamische Route erkannt.
-[x] `/mobile/ar` wird im Build erkannt.
-[x] Missionen-, Dashboard-, Mobile-, Register-, Legal- und App-Routen werden im Build erkannt.
+[x] Neue Economy-API-Routen werden im Build erkannt:
+    - `/api/economy/complete-mission`
+    - `/api/economy/reward-preview`
+    - `/api/economy/security-plan`
+    - `/api/economy/spend-preview`
 
 ## Aktueller Build-Auszug
 
 ```txt
-✓ Compiled successfully in 24.7s
-✓ Finished TypeScript in 15.2s
-✓ Collecting page data using 11 workers
-✓ Generating static pages using 11 workers (34/34)
-✓ Finalizing page optimization
+✓ Compiled successfully in 11.8s
+✓ Finished TypeScript in 8.9s
+✓ Collecting page data using 11 workers in 1302ms
+✓ Generating static pages using 11 workers (34/34) in 833ms
+✓ Finalizing page optimization in 32ms
 ```
 
 ## Erkannte Routen im Build
@@ -42,6 +59,10 @@ npm run build
 /agb
 /analytics
 /api/buddy-ki
+/api/economy/complete-mission
+/api/economy/reward-preview
+/api/economy/security-plan
+/api/economy/spend-preview
 /buddy
 /dashboard
 /dashboard/anpassen
@@ -73,24 +94,21 @@ npm run build
 
 ## Hinweise
 
-[!] `npm install` meldet aktuell 6 vulnerabilities:
-    - 4 moderate
-    - 2 high
-
-[!] Nicht blind `npm audit fix --force` ausführen, weil das Breaking Changes auslösen kann.
-[ ] Später separat prüfen: `npm audit` auswerten und gezielt entscheiden.
-
 [!] Next.js meldet weiterhin eine Workspace-Root-Warnung wegen mehrerer package-lock.json-Dateien:
-    - C:\wellfit\package-lock.json
-    - C:\wellfit\WellFit-now\package-lock.json
+    - `C:\wellfit\package-lock.json`
+    - `C:\wellfit\WellFit-now\package-lock.json`
 
-[ ] Später sauber lösen: `turbopack.root` in `next.config` setzen oder unnötiges übergeordnetes Lockfile prüfen.
+[ ] Spaeter sauber loesen: `turbopack.root` in `next.config` setzen oder unnoetiges uebergeordnetes Lockfile pruefen.
+
+[!] Quality Gate muss nach dem Index-Fix erneut lokal ausgefuehrt werden. Erwartung: `Missing in index: 0`.
 
 ## Bewertung
 
 [x] Kein Build-Blocker.
-[x] Build ist grün.
-[x] Projekt ist weiterhin Beta-/Alpha-testfähig.
+[x] Build ist gruen.
+[x] Neue Economy-/Security-API-Routen bauen erfolgreich.
+[x] Projekt ist weiterhin Beta-/Alpha-testfaehig.
+[>] Nur Quality-Gate-Retest offen, weil der Index-Fix erst nach dem lokalen Lauf committed wurde.
 
 ## KI-Fortsetzungs-Prompt
 
