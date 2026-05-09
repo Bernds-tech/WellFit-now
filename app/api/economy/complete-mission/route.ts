@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import {
   createInternalMissionCompletionDecision,
+  createMissionCompletionServerDraft,
+  createMissionRewardEventServerDraft,
   summarizeInternalMissionCompletionForStorage,
   type EconomyUsageSnapshot,
   type LedgerRiskSummary,
@@ -148,6 +150,10 @@ export async function POST(request: Request) {
         reserveRatio: decision.rewardPreview.reserveRatio,
       },
       completionRequestEvent: summarizeInternalMissionCompletionForStorage(decision).completionRequestEvent,
+      serverDrafts: {
+        completionEvaluation: createMissionCompletionServerDraft(decision),
+        rewardEvent: createMissionRewardEventServerDraft(decision),
+      },
       nextServerStep: decision.nextServerStep,
     });
   } catch (error) {
