@@ -6,6 +6,16 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 6 - Dashboard/Tagesmissionen auf Server-Completion-Vorstufe umgestellt.
+- Datei `app/dashboard/lib/serverPreviewApi.ts` erweitert: `fetchDashboardMissionCompletion` ruft `/api/economy/complete-mission` mit lokalem Completion-Fallback.
+- Datei `app/dashboard/hooks/useDashboardActions.ts` erweitert: Mission Start fragt jetzt zuerst Server-Completion ab, blockiert/manual_review wird nicht lokal gutgeschrieben.
+- Datei `app/missionen/tagesmissionen/serverCompletionApi.ts` angelegt: Tagesmissionen haben eigenen Completion-API-Client mit lokalem Fallback.
+- Datei `app/missionen/tagesmissionen/page.tsx` erweitert: `completeMission` ruft jetzt vor lokaler/Firebase-Beta-Persistenz `fetchDailyMissionCompletion` auf.
+- Dashboard und Tagesmissionen nutzen weiterhin MVP-Bruecken fuer lokale/Firebase-Anzeige, aber erst nach Server-Completion-Entscheidung.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- `firestore.rules` weiterhin bewusst noch nicht gehaertet; naechster Schritt ist lokaler Agent-/Build-Test und danach schrittweise Rules-Haertung.
+
+### 2026-05-09
 - Mega-Block Firestore-/Security-Haertung vorbereitet.
 - Datei `lib/economy/serverCompletionPlan.ts` angelegt: riskante Client-Schreibfelder, server-only Collections und Completion-Stufen dokumentiert.
 - Datei `lib/economy/completion.ts` angelegt: servernahe Mission-Completion-Entscheidung vorbereitet.
@@ -53,9 +63,9 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 
 ## Offene Folgepunkte
 - Lokal erneut `git pull` und danach `npm run agent:code-inventory`, `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` und `npm run build` ausfuehren.
-- Wenn Quality-Gate noch FAIL meldet, `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen und neue fehlende Dateien in `TODO_INDEX.md` oder `PROJECT_STRUCTURE.md` aufnehmen.
-- Dashboard und Tagesmissionen schrittweise auf `app/api/economy/complete-mission` umstellen.
-- Erst danach `firestore.rules` haerten und Client-Schreibrechte fuer `points`, `xp`, `level`, `avatar` und completionrelevante Felder entfernen.
+- Wenn Quality-Gate FAIL meldet, `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen und neue fehlende Dateien in `TODO_INDEX.md` oder `PROJECT_STRUCTURE.md` aufnehmen.
+- Dashboard und Tagesmissionen nach lokalem Buildtest weiter Richtung echte Server-Ledger-Persistenz umbauen.
+- Danach `firestore.rules` haerten und Client-Schreibrechte fuer `points`, `xp`, `level`, `avatar` und completionrelevante Felder entfernen.
 - Wichtige offene Punkte nach `NEXT_ACTIONS.md` uebernehmen.
 - Agent nach TODO-/Roadmap-Aenderungen lokal ausfuehren: `npm run agent:validate`, `npm run agent:goal-check`, `npm run agent:memory-sync`, `npm run agent:coder-prompts`, `npm run agent:dry-run`, `npm run agent:quality-gate`.
 - Alternativ kompletten Agentenlauf mit `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` starten.
