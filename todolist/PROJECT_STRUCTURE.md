@@ -114,6 +114,7 @@ Wichtige Dateien:
 Architektur-, Sicherheits- und Produktentscheidungen.
 
 Wichtige Dateien:
+- `WEB_BETA_ROADMAP_NO_BUDDY_AR.md` - fuehrender sauberer Web-Beta-Restpfad mit 12–14 Mega-Bloecken, ohne Buddy AR / Unity
 - `WELLFIT_ALPHA_SCOPE_CUT.md` - verbindlicher Alpha-/Beta-Fokus
 - `WELLFIT_SELF_HOSTED_DEV_AGENT.md` - Architektur fuer eigenen Dev-Agenten
 - `WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md` - spaeterer Insight-/Mission-Agent
