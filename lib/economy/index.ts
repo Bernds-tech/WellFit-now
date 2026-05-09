@@ -1,4 +1,5 @@
 export * from "./caps";
+export * from "./completion";
 export * from "./dashboardSnapshot";
 export * from "./ledger";
 export * from "./projection";
