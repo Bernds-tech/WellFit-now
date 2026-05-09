@@ -6,6 +6,16 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 9 - Dashboard Ledger-/Review-/Correction-Summary sichtbar gemacht.
+- Datei `lib/economy/dashboardSnapshot.ts` erweitert: `ledgerSummary` mit Preview-, Completion-, Draft-, Review-, Correction- und Rules-Haertungsstatus.
+- Datei `app/dashboard/components/DashboardEconomyPanel.tsx` erweitert: sichtbare Ledger-/Review-/Correction-Kachel im Dashboard.
+- Dashboard zeigt jetzt: Server-Preview aktiv, Completion vorbereitet, Server-Draft noch nicht gespeichert, Rules-Haertung wartet auf Server-Persistenz.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Keine Firestore Rules gehaertet.
+- Lokaler Test erforderlich: Agent + Build.
+- Live-Test auf `wellfit-now.io` sinnvoll, sobald Deployment angekommen ist, weil die Dashboard-UI sichtbar geaendert wurde.
+
+### 2026-05-09
 - Mega-Block 8 - Server-Ledger-Draft-/Persistenz-Vorstufe vorbereitet.
 - Datei `lib/economy/serverLedgerDraft.ts` angelegt: serverseitige Draft-Records fuer spaetere Firestore-/Ledger-Persistenz.
 - Datei `lib/economy/index.ts` erweitert: `serverLedgerDraft` wird zentral exportiert.
