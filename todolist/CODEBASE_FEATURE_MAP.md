@@ -46,7 +46,7 @@ Output-Datei:
 | Interne Caps | vorbereitet | `lib/economy/caps.ts` | reale Tages-/User-/Missionstyp-Nutzung anbinden |
 | Ledger-Typen | vorbereitet | `lib/economy/ledger.ts` | echte serverseitige Persistenz / Firestore / Functions |
 | Server Ledger Drafts | vorbereitet / ohne Write | `lib/economy/serverLedgerDraft.ts`, API-Antworten mit `serverDraft`/`serverDrafts` | echte Firestore/Admin-Persistenz spaeter server-only aktivieren |
-| Server Persistence Guardrail | vorbereitet / draft-only | `lib/economy/serverPersistence.ts`, `app/api/economy/persistence-status/route.ts`, `security-plan` gibt Persistence-Status mit aus | echte Persistenz erst nach Admin/Auth/Emulator/Rules-Haertung aktivieren |
+| Server Persistence Guardrail | vorbereitet / dry-run | `lib/economy/serverPersistence.ts`, APIs geben `persistenceRequest(s)` dry-run zurueck | echte Persistenz erst nach Admin/Auth/Emulator/Rules-Haertung aktivieren |
 | Ledger-Projektion | vorbereitet | `lib/economy/projection.ts` | echte Ledger-Events statt Demo-/Client-Daten nutzen |
 | RewardPreview | vorbereitet / API-nah | `lib/economy/rewardPreview.ts`, `app/api/economy/reward-preview/route.ts` | Auth, Rate Limit, Persistenz, Audit |
 | SpendPreview | vorbereitet / API-nah | `lib/economy/spend.ts`, `app/api/economy/spend-preview/route.ts` | echte Spend-Completion und Audit |
@@ -76,7 +76,7 @@ Output-Datei:
 - `lib/economy/rewardPreview.ts` - sichere RewardPreview-Entscheidung.
 - `lib/economy/spend.ts` - interne SpendPreview fuer Punkte-Sinks.
 - `lib/economy/serverCompletionPlan.ts` - Risiko-Felder, server-only Collections und Completion-Stufen.
-- `lib/economy/serverPersistence.ts` - Persistenz-Guardrails, aktuell `draft_only` und `writeEnabled: false`.
+- `lib/economy/serverPersistence.ts` - Persistenz-Guardrails und Dry-Run-Persistenz-Requests, aktuell `draft_only` und `writeEnabled: false`.
 - `lib/economy/completion.ts` - servernahe Mission-Completion-Entscheidung ohne finale Client-Autoritaet.
 - `lib/economy/serverLedgerDraft.ts` - Firestore-/Ledger-Draft-Records fuer spaetere server-only Persistenz, aktuell `writeNow: false`.
 - `lib/economy/dashboardSnapshot.ts` - Dashboard-Snapshot aus interner Economy.
@@ -84,11 +84,11 @@ Output-Datei:
 
 ### Economy APIs
 
-- `app/api/economy/reward-preview/route.ts` - RewardPreview-API, keine finale Punktegutschrift, gibt `serverDraft` zurueck.
-- `app/api/economy/spend-preview/route.ts` - SpendPreview-API, kein echter Kauf, gibt `serverDraft` zurueck.
+- `app/api/economy/reward-preview/route.ts` - RewardPreview-API, keine finale Punktegutschrift, gibt `serverDraft` und `persistenceRequest` zurueck.
+- `app/api/economy/spend-preview/route.ts` - SpendPreview-API, kein echter Kauf, gibt `serverDraft` und `persistenceRequest` zurueck.
 - `app/api/economy/security-plan/route.ts` - Security-/Completion-Plan fuer Firestore-Haertung, gibt Persistence-Status mit aus.
 - `app/api/economy/persistence-status/route.ts` - zeigt explizit, dass Economy-Persistenz aktuell draft-only und ohne finalen Write bleibt.
-- `app/api/economy/complete-mission/route.ts` - Mission-Completion-Entscheidung, noch ohne finale Persistenz/Gutschrift, gibt `serverDrafts` zurueck.
+- `app/api/economy/complete-mission/route.ts` - Mission-Completion-Entscheidung, noch ohne finale Persistenz/Gutschrift, gibt `serverDrafts` und `persistenceRequests` zurueck.
 
 ### Dashboard
 
@@ -145,7 +145,7 @@ Output-Datei:
 - Punkte-Shop und Marktplatz sind sichere Placeholder ohne echte Token-/NFT-Funktion.
 - Firestore Rules blockieren viele serverseitige Reward-/Proof-/NFC-/Capability-Collections fuer Client Writes.
 - Server-Completion-Plan und Mission-Completion-API sind als sichere Vorstufe vorbereitet.
-- Economy-APIs liefern serverseitige Draft-Records fuer spaetere Persistenz, schreiben aber noch nicht final.
+- Economy-APIs liefern serverseitige Draft-Records und Dry-Run-Persistenz-Requests fuer spaetere Persistenz, schreiben aber noch nicht final.
 - Persistence-Status-API zeigt explizit, dass echte Serverwrites aktuell deaktiviert bleiben.
 
 ## Was nur vorbereitet ist
@@ -155,6 +155,7 @@ Output-Datei:
 - Mission Completion existiert servernah als Entscheidung, aber noch ohne finalen Ledger-Write.
 - ServerLedgerDrafts existieren als Records, aber `writeNow` ist bewusst `false`.
 - Economy-Persistenzstatus ist `draft_only`; echte Firestore/Admin-Persistenz ist noch nicht aktiv.
+- PersistenceRequests sind Dry-Run-Objekte und blockieren mit `blocked_persistence_disabled`.
 - Economy Caps nutzen aktuell Demo-/Snapshot-Werte, noch keine echte Tages-/Nutzerhistorie.
 - Reserve-/Umlauf-/Burn-/Locked-Werte existieren statisch, aber noch nicht dynamisch aus Ledger und Sinks.
 - Punkte-Shop ist noch kein echter Shop mit internen Spend-Events.
@@ -190,6 +191,7 @@ Output-Datei:
 - `missionRewardEvents` als serverseitige Audit-Events planen. Erledigt als Draft; echte Persistenz noch offen.
 - Dashboard/Tagesmissionen auf `complete-mission` API umstellen. Erledigt als Vorstufe.
 - Persistenz-Status-API vorbereiten. Erledigt.
+- Dry-Run-Persistenz-Requests vorbereiten. Erledigt.
 - Firestore Rules erst nach stabiler Server-Completion haerten. Offen.
 
 ### Block E - Dashboard/UX
@@ -221,11 +223,11 @@ Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/MASTER_OPEN_DONE_LIST.
 
 | Datei | Status | Zweck | Noch offen |
 |---|---|---|---|
-| `app/api/economy/reward-preview/route.ts` | vorbereitet | servernahe interne RewardPreview ohne finale Punktegutschrift, gibt `serverDraft` zurueck | Auth, Rate Limits, echte Tages-/User-Historie, Audit-Persistenz |
-| `app/api/economy/spend-preview/route.ts` | vorbereitet | servernahe interne SpendPreview ohne echten Kauf, gibt `serverDraft` zurueck | Auth, Spend-Transaktion, Shop-Audit, serverseitige Sink-Autoritaet |
+| `app/api/economy/reward-preview/route.ts` | vorbereitet | servernahe interne RewardPreview ohne finale Punktegutschrift, gibt `serverDraft` und `persistenceRequest` zurueck | Auth, Rate Limits, echte Tages-/User-Historie, Audit-Persistenz |
+| `app/api/economy/spend-preview/route.ts` | vorbereitet | servernahe interne SpendPreview ohne echten Kauf, gibt `serverDraft` und `persistenceRequest` zurueck | Auth, Spend-Transaktion, Shop-Audit, serverseitige Sink-Autoritaet |
 | `app/api/economy/security-plan/route.ts` | vorbereitet | zeigt Client-Write-Risiken, Server-Completion-Plan und Persistence-Status | optional UI/Admin-Anzeige, Tests |
 | `app/api/economy/persistence-status/route.ts` | vorbereitet | zeigt `draft_only`, `writeEnabled: false`, `firestoreWritesEnabled: false` | spaeter echte server-only Persistenz nach Guardrails |
-| `app/api/economy/complete-mission/route.ts` | vorbereitet | servernahe Mission-Completion-Entscheidung ohne finale Gutschrift, gibt `serverDrafts` zurueck | Auth, Persistenz, Ledger-Write, Client-Umstellung |
+| `app/api/economy/complete-mission/route.ts` | vorbereitet | servernahe Mission-Completion-Entscheidung ohne finale Gutschrift, gibt `serverDrafts` und `persistenceRequests` zurueck | Auth, Persistenz, Ledger-Write, Client-Umstellung |
 
 Regel: Diese APIs duerfen keine echten Token, NFTs, Wallet-Funktionen, Käufe, Auszahlungen oder finale Reward-Autoritaet aktivieren, solange Ledger/Auth/Audit/Rules nicht stabil sind.
 
