@@ -6,13 +6,24 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 8 - Server-Ledger-Draft-/Persistenz-Vorstufe vorbereitet.
+- Datei `lib/economy/serverLedgerDraft.ts` angelegt: serverseitige Draft-Records fuer spaetere Firestore-/Ledger-Persistenz.
+- Datei `lib/economy/index.ts` erweitert: `serverLedgerDraft` wird zentral exportiert.
+- Datei `app/api/economy/reward-preview/route.ts` erweitert: API gibt `serverDraft` fuer `missionRewardPreviews` zurueck.
+- Datei `app/api/economy/complete-mission/route.ts` erweitert: API gibt `serverDrafts` fuer Completion Evaluation und Reward Event zurueck.
+- Datei `app/api/economy/spend-preview/route.ts` erweitert: API gibt `serverDraft` fuer interne Punkte-Sink-Preview zurueck.
+- Alle Drafts sind bewusst `writeNow: false` und `finalAuthority: false`.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Keine Firestore Rules gehaertet; echte server-only Persistenz bleibt naechster Block nach lokalem Agent-/Build-Test.
+
+### 2026-05-09
 - Mega-Block 7 - Dev-Agent / Quality-Gate-Haertung vorbereitet.
 - Datei `scripts/wellfit-dev-agent/src/quality-gate.mjs` aktualisiert: `shell: true` entfernt.
-- Windows nutzt jetzt `npm.cmd`, andere Systeme nutzen `npm`.
+- Windows nutzt jetzt direkten Node-Skriptaufruf statt npm-shell.
 - Ziel: Node `DEP0190` Warnung vermeiden und Agentenlauf sicherer machen.
+- Lokaler Test durch Bernd bestaetigt: Quality Gate PASS ohne `[DEP0190]` Warnung.
 - Keine App-/UI-/Live-Seiten-Aenderung.
 - Kein Live-Test auf `wellfit-now.io` erforderlich.
-- Lokal zu testen: `npm run agent:quality-gate` oder kompletter Agentenlauf.
 
 ### 2026-05-09
 - Mega-Block 6 - Dashboard/Tagesmissionen auf Server-Completion-Vorstufe umgestellt.
@@ -72,7 +83,6 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 
 ## Offene Folgepunkte
 - Lokal erneut `git pull` und danach `npm run agent:code-inventory`, `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` und `npm run build` ausfuehren.
-- Nach Mega-Block 7 speziell pruefen: `npm run agent:quality-gate` soll PASS bleiben und keine `DEP0190` Warnung mehr zeigen.
 - Wenn Quality-Gate FAIL meldet, `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen und neue fehlende Dateien in `TODO_INDEX.md` oder `PROJECT_STRUCTURE.md` aufnehmen.
 - Dashboard und Tagesmissionen nach lokalem Buildtest weiter Richtung echte Server-Ledger-Persistenz umbauen.
 - Danach `firestore.rules` haerten und Client-Schreibrechte fuer `points`, `xp`, `level`, `avatar` und completionrelevante Felder entfernen.
