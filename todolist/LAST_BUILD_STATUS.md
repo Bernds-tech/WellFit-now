@@ -10,6 +10,7 @@ Stand: 2026-05-09
 [x] Build nach `turbopack.root`-Fix bestaetigt: Next.js Workspace-Root-Warnung ist weg.
 [x] Quality-Gate-Haertung nach lokalem Test bestaetigt: PASS ohne `[DEP0190]` Warnung.
 [x] Mega-Block 11 nach lokalem Test bestaetigt: Persistence-Status-API und Server-Persistenz-Guardrails builden sauber.
+[x] Mega-Block 12 nach lokalem Test bestaetigt: Dry-Run-Persistenz-Requests builden sauber.
 
 ```powershell
 cd C:\wellfit\WellFit-now
@@ -18,6 +19,35 @@ npm run agent:code-inventory
 powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1
 npm run build
 ```
+
+## Bestaetigt am 2026-05-09 nach Mega-Block 12
+
+[x] `git pull`: Fast-forward von `e1c321d` auf `8bfdf2f`.
+[x] Geaenderte Dateien lokal gezogen:
+    - `app/api/economy/complete-mission/route.ts`
+    - `app/api/economy/reward-preview/route.ts`
+    - `app/api/economy/spend-preview/route.ts`
+    - `lib/economy/serverPersistence.ts`
+    - `todolist/CODEBASE_FEATURE_MAP.md`
+    - `todolist/DONE_LOG.md`
+[x] `npm run agent:code-inventory` erfolgreich.
+[x] Code-Inventur: 396 gescannte Dateien.
+[x] Code-Inventur: 30 App-Routen.
+[x] Code-Inventur: 6 API-Routen.
+[x] Code-Inventur: 13 Economy-Code-Dateien.
+[x] `agent:validate` erfolgreich.
+[x] `agent:goal-check` erfolgreich: Alpha Tracks 7/7.
+[x] `agent:memory-sync` erfolgreich: Missing in index 0, Missing prompts 0.
+[x] `agent:coder-prompts` erfolgreich.
+[x] `agent:dry-run` erfolgreich: 40 offene Aufgaben, 12 Micro-Tasks, 3 Coder.
+[x] `agent:quality-gate` erfolgreich: PASS.
+[x] `npm run build` erfolgreich.
+[x] Next.js 16.2.3 / Turbopack Build erfolgreich.
+[x] TypeScript-Pruefung erfolgreich.
+[x] Page Data Collection erfolgreich.
+[x] Statische Seiten wurden generiert: 34/34.
+[x] API-Routen bleiben stabil: 6.
+[x] Economy-Code-Dateien bleiben stabil: 13.
 
 ## Bestaetigt am 2026-05-09 nach Mega-Block 11
 
@@ -171,7 +201,7 @@ OK: Dry run produced micro-tasks (12)
 [x] Neue Economy-/Security-API-Routen bauen erfolgreich.
 [x] Projekt ist weiterhin Beta-/Alpha-testfaehig.
 [>] Bernd bevorzugt den sauberen und stressaermeren Beta-Pfad mit noch 12–14 Mega-Bloecken statt Minimalpfad.
-[>] Naechster Mega-Block: echte Server-Ledger-Persistenz vorbereiten oder Firestore Rules in einer sicheren Stufe haerten.
+[>] Naechster Mega-Block: Auth-/User-Validierung fuer Economy APIs vorbereiten.
 [!] Vor jeder Rules-Haertung erst lokale UI-Funktion auf Dashboard und Tagesmissionen pruefen.
 
 ## Lokale Test-Regel fuer Bernd
