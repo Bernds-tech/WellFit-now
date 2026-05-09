@@ -3,6 +3,7 @@
 import type { User } from "@/types/user";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { createInternalSpendPreviewDecision, summarizeInternalSpendDecisionForStorage } from "@/lib/economy";
 import type { DashboardMissionPreview, PersonalMission } from "../types";
 import { writeCachedUser } from "../lib/dashboardUser";
 
@@ -132,12 +133,21 @@ export function useDashboardActions({
       return;
     }
 
-    if (pointsBalance < foodPrice) {
-      setMessage("Nicht genug Punkte für Futter.");
+    const spendDecision = createInternalSpendPreviewDecision({
+      userId: user.id,
+      itemId: "buddy-food-basic",
+      pointsBalance,
+      sourceType: "buddy",
+      sourceId: "dashboard-buddy-feed",
+    });
+
+    if (spendDecision.status !== "spend_allowed") {
+      setMessage("Nicht genug interne Punkte für Futter.");
       return;
     }
 
-    const newPoints = Math.max(0, pointsBalance - foodPrice);
+    const spendPoints = spendDecision.spendPoints || foodPrice;
+    const newPoints = spendDecision.remainingPoints;
     const newHunger = Math.min(100, buddyHunger + 10);
 
     setPointsBalance(newPoints);
@@ -149,9 +159,10 @@ export function useDashboardActions({
         avatar: {
           ...(user.avatar ?? {}),
           hunger: newHunger,
+          lastSpendPreview: summarizeInternalSpendDecisionForStorage(spendDecision),
         },
       },
-      `Flammi wurde gefüttert. -${foodPrice} Punkte`,
+      `Flammi wurde gefüttert. -${spendPoints} interne Punkte`,
       "Flammi wurde lokal gefüttert, Firebase konnte nicht gespeichert werden."
     );
   };

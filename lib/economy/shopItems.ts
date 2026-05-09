@@ -1,4 +1,4 @@
-﻿import { economyConfig } from "@/config/economy";
+import { economyConfig } from "@/config/economy";
 import { calculateReserveAdjustedPrice, getInternalReserveSnapshot } from "./reserve";
 
 export type InternalShopItemType =
@@ -91,4 +91,8 @@ export const getBetaShopItemsWithPrices = (): InternalShopItemWithPrice[] => {
     priceRate: snapshot.priceRate,
     currencyLabel: "interne Punkte",
   }));
+};
+
+export const findBetaShopItemWithPrice = (itemId: string) => {
+  return getBetaShopItemsWithPrices().find((item) => item.id === itemId);
 };

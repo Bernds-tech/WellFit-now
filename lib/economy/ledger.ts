@@ -8,7 +8,9 @@ export type LedgerEventType =
   | "streak_updated"
   | "cap_applied"
   | "manual_review_requested"
-  | "ledger_correction";
+  | "ledger_correction"
+  | "spend_preview_created"
+  | "points_spent";
 
 export type LedgerEventStatus =
   | "pending"
@@ -31,7 +33,10 @@ export type LedgerReasonCode =
   | "suspicious_pattern"
   | "manual_review_required"
   | "correction_applied"
-  | "beta_preview_only";
+  | "beta_preview_only"
+  | "internal_points_spend_preview"
+  | "insufficient_internal_points"
+  | "internal_points_sink";
 
 export type LedgerSourceType =
   | "mission"
@@ -39,7 +44,8 @@ export type LedgerSourceType =
   | "dashboard"
   | "system"
   | "manual_review"
-  | "correction";
+  | "correction"
+  | "shop";
 
 export type LedgerRiskSummary = {
   proofQuality?: "unknown" | "low" | "medium" | "high";

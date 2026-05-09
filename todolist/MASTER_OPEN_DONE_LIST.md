@@ -303,3 +303,29 @@ Stand: 2026-05-08
 ## Wichtig
 
 Dieser Block bleibt Beta-/MVP-sicher. Die echte finale Reward-Autoritaet muss spaeter serverseitig werden.
+
+# Mega-Block 3 - Interne Punkte-Sinks und Buddy-Futter verbunden
+
+Stand: 2026-05-08
+
+## Eingebaute Dateien
+
+- `lib/economy/spend.ts`
+- `lib/economy/shopItems.ts`
+- `lib/economy/ledger.ts`
+- `lib/economy/index.ts`
+- `app/dashboard/hooks/useDashboardActions.ts`
+- `app/dashboard/components/DashboardAvatarPanel.tsx`
+
+## Was umgesetzt wurde
+
+- Interne SpendPreview fuer Punkte-Sinks vorbereitet.
+- Buddy-Futter nutzt nun eine interne SpendPreview-Entscheidung.
+- Buddy-Futter speichert eine kompakte SpendPreview-Summary am Avatar.
+- ShopItems koennen nach Item-ID mit dynamischem Preis gelesen werden.
+- Ledger kennt SpendPreview-/PointsSpent-Typen als Vorbereitung.
+- Futter bleibt internes Beta-System: kein Kauf, kein Token, kein NFT, keine Auszahlung.
+
+## Wichtig
+
+Die finale Punkte-Sink-Autoritaet muss spaeter serverseitig werden. Aktuell bleibt es Beta-/MVP-Vorbereitung.

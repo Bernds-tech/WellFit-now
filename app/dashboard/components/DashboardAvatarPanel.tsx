@@ -49,13 +49,17 @@ export default function DashboardAvatarPanel({
         </div>
       </div>
 
+      <div className="mt-4 rounded-2xl border border-cyan-200/10 bg-cyan-100/5 p-3 text-xs leading-relaxed text-cyan-50/70">
+        Futter ist ein interner Punkte-Sink. Es ist kein Kauf, kein Token, kein NFT und keine Auszahlung.
+      </div>
+
       <button
         type="button"
         onClick={onFeedBuddy}
         disabled={!canFeed}
         className="mt-4 w-full rounded-2xl bg-cyan-400 px-4 py-2 text-sm font-black text-[#053841] transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/50"
       >
-        Füttern · {foodPrice} Punkte
+        Füttern · {foodPrice} interne Punkte
       </button>
     </div>
   );
