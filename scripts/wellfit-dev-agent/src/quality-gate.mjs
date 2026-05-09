@@ -7,19 +7,48 @@ import { spawnSync } from "node:child_process";
 const ROOT = process.cwd();
 const OUTPUT_DIR = path.join(ROOT, "scripts", "wellfit-dev-agent", "output");
 const QUALITY_REPORT_PATH = path.join(OUTPUT_DIR, "quality-gate-report.md");
-const NPM_COMMAND = process.platform === "win32" ? "npm.cmd" : "npm";
+const NODE_COMMAND = process.execPath;
 
-function runStep(label, command, args) {
+const agentSteps = [
+  {
+    label: "Agent config validation",
+    script: "scripts/wellfit-dev-agent/src/validate-agent-config.mjs",
+    displayCommand: "npm run agent:validate",
+  },
+  {
+    label: "Alpha goal check",
+    script: "scripts/wellfit-dev-agent/src/alpha-goal-check.mjs",
+    displayCommand: "npm run agent:goal-check",
+  },
+  {
+    label: "Memory sync",
+    script: "scripts/wellfit-dev-agent/src/memory-sync.mjs",
+    displayCommand: "npm run agent:memory-sync",
+  },
+  {
+    label: "Coder prompt generation",
+    script: "scripts/wellfit-dev-agent/src/generate-coder-prompts.mjs",
+    displayCommand: "npm run agent:coder-prompts",
+  },
+  {
+    label: "Dry run planning",
+    script: "scripts/wellfit-dev-agent/src/dry-run.mjs",
+    displayCommand: "npm run agent:dry-run",
+  },
+];
+
+function runNodeStep(step) {
   const startedAt = new Date().toISOString();
-  const result = spawnSync(command, args, {
+  const scriptPath = path.join(ROOT, step.script);
+  const result = spawnSync(NODE_COMMAND, [scriptPath], {
     cwd: ROOT,
     encoding: "utf8",
     shell: false,
   });
 
   return {
-    label,
-    command: `${command} ${args.join(" ")}`,
+    label: step.label,
+    command: step.displayCommand,
     startedAt,
     exitCode: result.status ?? 1,
     stdout: result.stdout ?? "",
@@ -78,11 +107,9 @@ function main() {
   const steps = [];
   const checks = [];
 
-  steps.push(runStep("Agent config validation", NPM_COMMAND, ["run", "agent:validate"]));
-  steps.push(runStep("Alpha goal check", NPM_COMMAND, ["run", "agent:goal-check"]));
-  steps.push(runStep("Memory sync", NPM_COMMAND, ["run", "agent:memory-sync"]));
-  steps.push(runStep("Coder prompt generation", NPM_COMMAND, ["run", "agent:coder-prompts"]));
-  steps.push(runStep("Dry run planning", NPM_COMMAND, ["run", "agent:dry-run"]));
+  for (const step of agentSteps) {
+    steps.push(runNodeStep(step));
+  }
 
   for (const step of steps) {
     assertCondition(checks, `${step.label} exits successfully`, step.ok, `exitCode=${step.exitCode}`);
