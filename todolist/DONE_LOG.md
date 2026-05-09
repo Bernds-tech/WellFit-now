@@ -6,6 +6,17 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 12-14 Restpfad-Planung - Web-Beta-Roadmap ohne Buddy AR / Unity angelegt.
+- Datei `docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md` angelegt: fuehrender sauberer Web-Beta-Restpfad mit 12–14 Mega-Bloecken.
+- Entscheidung dokumentiert: Bernd bevorzugt sauber und stressaermer statt Minimalpfad.
+- Buddy AR / Unity explizit aus dieser Web-Beta-Planung ausgeschlossen.
+- Restpfad mit Mega-Block 12 bis 25 definiert: Server-Ledger-Persistenz, Auth, Client-Write-Entkopplung, Punkte-Sinks, Emulator-Tests, Rules-Haertung, UX, Missionen, Mobile-Web, Onboarding, Legal, Smoke-Test und Puffer.
+- Datei `todolist/PROJECT_STRUCTURE.md` aktualisiert: neue Web-Beta-Roadmap unter `docs/architecture/` aufgenommen.
+- Keine App-/UI-/Live-Seiten-Aenderung.
+- Kein Live-Test auf `wellfit-now.io` erforderlich.
+- Lokaler Test erforderlich: Agent + Build.
+
+### 2026-05-09
 - Mega-Block 11 - Server-Persistenz-Schalter / Guardrail-API vorbereitet.
 - Datei `lib/economy/serverPersistence.ts` angelegt: zentraler Persistence-Status mit `mode: draft_only`, `writeEnabled: false`, `firestoreWritesEnabled: false`, `finalAuthority: false`, `tokenized: false`.
 - Datei `lib/economy/index.ts` erweitert: `serverPersistence` wird zentral exportiert.
@@ -121,8 +132,9 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Offene Folgepunkte
 - Lokal erneut `git pull` und danach `npm run agent:code-inventory`, `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` und `npm run build` ausfuehren.
 - Wenn Quality-Gate FAIL meldet, `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen und neue fehlende Dateien in `TODO_INDEX.md` oder `PROJECT_STRUCTURE.md` aufnehmen.
-- Dashboard und Tagesmissionen nach lokalem Buildtest weiter Richtung echte Server-Ledger-Persistenz umbauen.
-- Danach `firestore.rules` haerten und Client-Schreibrechte fuer `points`, `xp`, `level`, `avatar` und completionrelevante Felder entfernen.
+- Ab jetzt Web-Beta-Roadmap ohne Buddy AR / Unity in `docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md` als fuehrenden Restpfad nutzen.
+- Mega-Block 12 als naechstes: Server-Ledger-Persistenz-Vorstufe konkretisieren.
+- Danach Auth-/User-Validierung, Client-Write-Entkopplung, Punkte-Sinks, Emulator-Tests, Rules-Haertung, UX, Missionen, Mobile-Web, Onboarding, Legal, Smoke-Test und Puffer abarbeiten.
 - Wichtige offene Punkte nach `NEXT_ACTIONS.md` uebernehmen.
 - Agent nach TODO-/Roadmap-Aenderungen lokal ausfuehren: `npm run agent:validate`, `npm run agent:goal-check`, `npm run agent:memory-sync`, `npm run agent:coder-prompts`, `npm run agent:dry-run`, `npm run agent:quality-gate`.
 - Alternativ kompletten Agentenlauf mit `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` starten.
