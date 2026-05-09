@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   createInternalSpendPreviewDecision,
+  createSpendPreviewServerDraft,
   summarizeInternalSpendDecisionForStorage,
 } from "@/lib/economy";
 
@@ -70,6 +71,7 @@ export async function POST(request: Request) {
       remainingPoints: decision.remainingPoints,
       reasons: decision.reasons,
       ledgerSummary: summarizeInternalSpendDecisionForStorage(decision),
+      serverDraft: createSpendPreviewServerDraft(decision),
     });
   } catch (error) {
     return NextResponse.json(
