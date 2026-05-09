@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  createEconomyServerPersistenceRequest,
   createInternalRewardPreviewDecision,
   createRewardPreviewServerDraft,
   type EconomyUsageSnapshot,
@@ -132,6 +133,7 @@ export async function POST(request: Request) {
       riskSummary: asRiskSummary(body.riskSummary),
       correlationId: typeof body.correlationId === "string" ? body.correlationId : undefined,
     });
+    const serverDraft = createRewardPreviewServerDraft(decision);
 
     return NextResponse.json({
       ok: true,
@@ -148,7 +150,8 @@ export async function POST(request: Request) {
       reserveRatio: decision.reserveRatio,
       capDecision: decision.capDecision,
       ledgerEvent: summarizeLedgerEvent(decision.ledgerEvent),
-      serverDraft: createRewardPreviewServerDraft(decision),
+      serverDraft,
+      persistenceRequest: createEconomyServerPersistenceRequest(serverDraft),
     });
   } catch (error) {
     return NextResponse.json(
