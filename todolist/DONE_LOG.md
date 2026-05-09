@@ -6,6 +6,15 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 7 - Dev-Agent / Quality-Gate-Haertung vorbereitet.
+- Datei `scripts/wellfit-dev-agent/src/quality-gate.mjs` aktualisiert: `shell: true` entfernt.
+- Windows nutzt jetzt `npm.cmd`, andere Systeme nutzen `npm`.
+- Ziel: Node `DEP0190` Warnung vermeiden und Agentenlauf sicherer machen.
+- Keine App-/UI-/Live-Seiten-Aenderung.
+- Kein Live-Test auf `wellfit-now.io` erforderlich.
+- Lokal zu testen: `npm run agent:quality-gate` oder kompletter Agentenlauf.
+
+### 2026-05-09
 - Mega-Block 6 - Dashboard/Tagesmissionen auf Server-Completion-Vorstufe umgestellt.
 - Datei `app/dashboard/lib/serverPreviewApi.ts` erweitert: `fetchDashboardMissionCompletion` ruft `/api/economy/complete-mission` mit lokalem Completion-Fallback.
 - Datei `app/dashboard/hooks/useDashboardActions.ts` erweitert: Mission Start fragt jetzt zuerst Server-Completion ab, blockiert/manual_review wird nicht lokal gutgeschrieben.
@@ -63,6 +72,7 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 
 ## Offene Folgepunkte
 - Lokal erneut `git pull` und danach `npm run agent:code-inventory`, `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` und `npm run build` ausfuehren.
+- Nach Mega-Block 7 speziell pruefen: `npm run agent:quality-gate` soll PASS bleiben und keine `DEP0190` Warnung mehr zeigen.
 - Wenn Quality-Gate FAIL meldet, `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen und neue fehlende Dateien in `TODO_INDEX.md` oder `PROJECT_STRUCTURE.md` aufnehmen.
 - Dashboard und Tagesmissionen nach lokalem Buildtest weiter Richtung echte Server-Ledger-Persistenz umbauen.
 - Danach `firestore.rules` haerten und Client-Schreibrechte fuer `points`, `xp`, `level`, `avatar` und completionrelevante Felder entfernen.
