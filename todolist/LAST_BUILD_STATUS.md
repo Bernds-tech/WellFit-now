@@ -5,6 +5,7 @@ Stand: 2026-05-09
 ## Ergebnis
 
 [x] Lokaler Agent-, Inventur- und Build-Check erfolgreich ausgefuehrt.
+[x] Quality Gate nach Index-Fix erneut ausgefuehrt und PASS bestaetigt.
 
 ```powershell
 cd C:\wellfit\WellFit-now
@@ -17,7 +18,7 @@ npm run build
 
 ## Bestaetigt am 2026-05-09
 
-[x] `git pull`: Already up to date.
+[x] `git pull`: Already up to date beim ersten Lauf.
 [x] `git status`: working tree clean vor lokaler Ausfuehrung.
 [x] `npm run agent:code-inventory` erfolgreich.
 [x] Code-Inventur: 390 gescannte Dateien.
@@ -26,10 +27,14 @@ npm run build
 [x] Code-Inventur: 11 Economy-Code-Dateien.
 [x] `agent:validate` erfolgreich.
 [x] `agent:goal-check` erfolgreich: Alpha Tracks 7/7.
-[x] `agent:memory-sync` erfolgreich, aber Quality Gate meldete Missing in index: 1.
+[x] `agent:memory-sync` erfolgreich.
 [x] `agent:coder-prompts` erfolgreich.
 [x] `agent:dry-run` erfolgreich: 40 offene Aufgaben, 12 Micro-Tasks, 3 Coder.
-[!] `agent:quality-gate` Ergebnis vor Index-Fix: FAIL wegen `TODO index has no missing files (1)`.
+[x] `agent:quality-gate` nach Index-Fix erfolgreich: PASS.
+[x] Quality Gate: Alpha Tracks 7/7.
+[x] Quality Gate: TODO index missing files 0.
+[x] Quality Gate: Required KI-Fortsetzungs-Prompts 0 missing.
+[x] Quality Gate: Dry run produced micro-tasks 12.
 [x] Nachgetragen: `docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` wurde in `todolist/TODO_INDEX.md` indexiert.
 [x] `npm run build` erfolgreich.
 [x] Next.js 16.2.3 / Turbopack Build erfolgreich.
@@ -41,6 +46,21 @@ npm run build
     - `/api/economy/reward-preview`
     - `/api/economy/security-plan`
     - `/api/economy/spend-preview`
+
+## Aktueller Quality-Gate-Auszug
+
+```txt
+Result: PASS
+OK: Agent config validation exits successfully (exitCode=0)
+OK: Alpha goal check exits successfully (exitCode=0)
+OK: Memory sync exits successfully (exitCode=0)
+OK: Coder prompt generation exits successfully (exitCode=0)
+OK: Dry run planning exits successfully (exitCode=0)
+OK: Alpha tracks fully covered (7/7)
+OK: TODO index has no missing files (0)
+OK: Required KI-Fortsetzungs-Prompts complete (0)
+OK: Dry run produced micro-tasks (12)
+```
 
 ## Aktueller Build-Auszug
 
@@ -100,15 +120,19 @@ npm run build
 
 [ ] Spaeter sauber loesen: `turbopack.root` in `next.config` setzen oder unnoetiges uebergeordnetes Lockfile pruefen.
 
-[!] Quality Gate muss nach dem Index-Fix erneut lokal ausgefuehrt werden. Erwartung: `Missing in index: 0`.
+[!] Node DeprecationWarning im Quality-Gate bleibt offen:
+    - `[DEP0190] Passing args to a child process with shell option true...`
+
+[ ] Spaeter `scripts/wellfit-dev-agent/src/quality-gate.mjs` haerten, damit `shell: true` nicht mit unescaped Args genutzt wird.
 
 ## Bewertung
 
 [x] Kein Build-Blocker.
 [x] Build ist gruen.
+[x] Quality Gate ist PASS.
 [x] Neue Economy-/Security-API-Routen bauen erfolgreich.
 [x] Projekt ist weiterhin Beta-/Alpha-testfaehig.
-[>] Nur Quality-Gate-Retest offen, weil der Index-Fix erst nach dem lokalen Lauf committed wurde.
+[>] Naechster Mega-Block: Dashboard/Tagesmissionen auf `/api/economy/complete-mission` umstellen, danach Firestore Rules haerten.
 
 ## KI-Fortsetzungs-Prompt
 
