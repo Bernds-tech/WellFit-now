@@ -10,6 +10,10 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isReadableByOwnerUserId() {
+      return isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
     // Safe owner-writable MVP profile fields.
     // These may remain client-writable after the economy hardening step if they do not
     // authorize points, XP, level, rewards, mission completion or anti-cheat decisions.
@@ -73,47 +77,47 @@ service cloud.firestore {
     }
 
     match /missionBuddyEvents/{eventId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
     match /trackingSessions/{sessionId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
     match /trackingProofEvents/{proofEventId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
     match /missionContextEvaluations/{evaluationId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
     match /missionCompletionEvaluations/{evaluationId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
     match /missionRewardPreviews/{previewId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
     match /missionEvidenceReviews/{reviewId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
     match /missionPatternReviews/{reviewId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
     match /missionCooldownReviews/{reviewId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
@@ -128,7 +132,30 @@ service cloud.firestore {
     }
 
     match /missionRewardEvents/{rewardEventId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
+      allow create, update, delete: if false;
+    }
+
+    // Server-only economy authority collections prepared in Mega-Block 21.
+    // Clients may read their own records for transparency, but must never create,
+    // update or delete these records. Future server writes must use Admin/server code.
+    match /ledgerEvents/{ledgerEventId} {
+      allow read: if isReadableByOwnerUserId();
+      allow create, update, delete: if false;
+    }
+
+    match /auditEvents/{auditEventId} {
+      allow read: if isReadableByOwnerUserId();
+      allow create, update, delete: if false;
+    }
+
+    match /userEconomyProjections/{projectionId} {
+      allow read: if isReadableByOwnerUserId();
+      allow create, update, delete: if false;
+    }
+
+    match /pointsSinkEvents/{sinkEventId} {
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
@@ -143,7 +170,7 @@ service cloud.firestore {
     }
 
     match /buddyCapabilities/{capabilityDocId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
@@ -152,7 +179,7 @@ service cloud.firestore {
     }
 
     match /nfcScanEvents/{scanEventId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
@@ -161,12 +188,12 @@ service cloud.firestore {
     }
 
     match /capabilityUnlockEvents/{eventId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
     match /buddyItemUseEvents/{eventId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
 
