@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "emulators": "firebase emulators:start --only auth,firestore,functions",
+    "emulators:rules": "firebase emulators:start --only auth,firestore",
     "emulators:firestore": "firebase emulators:start --only firestore",
     "agent:validate": "node scripts/wellfit-dev-agent/src/validate-agent-config.mjs",
     "agent:goal-check": "node scripts/wellfit-dev-agent/src/alpha-goal-check.mjs",
