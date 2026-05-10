@@ -140,7 +140,43 @@ pointsSinkEvents create/update/delete -> DENY
 owner-read guard fuer server-only Economy-Collections vorhanden
 ```
 
-Wichtig: Dieser statische Check ersetzt noch keine Firebase-Emulator-Tests. Er verhindert nur, dass die aktuelle Rules-Datei versehentlich die geplante Beta-Haltung verliert.
+Wichtig: Dieser statische Check ersetzt keine Firebase-Emulator-Tests. Er verhindert nur, dass die aktuelle Rules-Datei versehentlich die geplante Beta-Haltung verliert.
+
+## Ausfuehrbarer Firebase-Emulator-Test
+
+Mega-Block 24 fuegt einen separaten Emulator-Test hinzu:
+
+```powershell
+npm run agent:firestore-economy-rules-emulator-test
+```
+
+Vorher muss in einem zweiten Terminal der Emulator laufen:
+
+```powershell
+npm run emulators
+```
+
+Der Test nutzt Firebase Auth + Firestore Emulator und prueft die wichtigsten Stufe-1-Faelle:
+
+```txt
+/users/{uid} create owner doc -> ALLOW
+/users/{uid}.profile update -> ALLOW
+/users/{uid}.settings update -> ALLOW
+/users/{uid}.points update -> ALLOW temporaere MVP-Bruecke
+/userDailyMissionState write -> ALLOW temporaere MVP-Bruecke
+/missionRewardEvents create -> DENY
+/missionRewardPreviews create -> DENY
+/missionCompletionEvaluations create -> DENY
+/ledgerEvents create -> DENY
+/auditEvents create -> DENY
+/userEconomyProjections create -> DENY
+/pointsSinkEvents create -> DENY
+/users/{uid} delete -> DENY
+other user cannot update owner profile -> DENY
+signed-out user cannot write user doc -> DENY
+```
+
+Wichtig: Dieser Emulator-Test ist bewusst nicht Teil von `agent:quality-gate`, weil er einen laufenden Emulator in einem separaten Terminal braucht.
 
 ## Zielzustand nach Server-Persistenz
 
@@ -233,6 +269,6 @@ Die erste echte harte Rules-Aenderung darf erst passieren, wenn:
 
 ## KI-Fortsetzungs-Prompt
 
-Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/CODEBASE_FEATURE_MAP.md`, `todolist/PROJECT_STRUCTURE.md`, `docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` und diese Datei.
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/CODEBASE_FEATURE_MAP.md`, `todolist/PROJECT_STRUCTURE.md`, `docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md`, `scripts/wellfit-dev-agent/src/firestore-economy-rules-emulator-test.mjs` und diese Datei.
 
-Arbeite als naechstes an echten Firebase-Emulator-Testdateien fuer die in Stufe 1 beschriebenen Allow-/Deny-Faelle. Aendere `firestore.rules` nur dann hart, wenn Dashboard, Tagesmissionen und Buddy-Futter nicht mehr auf direkte Client-Writes fuer Punkte/XP/Level/Avatar angewiesen sind. Keine echten Token/NFT/Wallet/Transfers/Auszahlungen aktivieren.
+Arbeite als naechstes an Erweiterungen der Emulator-Tests, z. B. `userInventory create -> DENY`, `buddyCapabilities create -> DENY` und spaeter Stufe-2-Tests fuer server-only Persistenz. Aendere `firestore.rules` nur dann hart, wenn Dashboard, Tagesmissionen und Buddy-Futter nicht mehr auf direkte Client-Writes fuer Punkte/XP/Level/Avatar angewiesen sind. Keine echten Token/NFT/Wallet/Transfers/Auszahlungen aktivieren.
