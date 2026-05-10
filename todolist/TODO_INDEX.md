@@ -97,6 +97,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 
 | Bereich | Status | Pfad / Dateien | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
+| Firestore Economy Rules | aktiv / Guardrail | `todolist/status/2026-05-10-firestore-economy-rules-guardrail-check-prepared.md` | `docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` | Nachweis fuer Mega-Block 23 behalten |
 | Mobile / Wettkaempfe | historisch | `todolist/status/2026-04-26-mobile-wettkaempfe-http-200-ok.md` | `DONE_LOG.md` | als Nachweis behalten |
 | Reward Preview / Build / PM2 | historisch | `todolist/status/2026-04-26-reward-preview-build-pm2-ok.md` | `DONE_LOG.md` | als Nachweis behalten |
 | AR Event Contract | historisch | `todolist/status/2026-04-27-ar-event-contract-prepared.md` | `DONE_LOG.md` | als Nachweis behalten |
@@ -152,8 +153,9 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `scripts/wellfit-dev-agent/src/dry-run.mjs` | aktiv / Code | erzeugt Dry-Run-Report | Agent-Code | keine KI-Prompt-Pflicht |
 | `scripts/wellfit-dev-agent/src/memory-sync.mjs` | aktiv / Code | erzeugt Memory-Sync-Report | Agent-Code | keine KI-Prompt-Pflicht |
 | `scripts/wellfit-dev-agent/src/code-inventory.mjs` | aktiv / Code | erzeugt Code-Inventur-Report gegen Doppelarbeit | Agent-Code | nach groesseren Codebloecken ausfuehren |
+| `scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs` | aktiv / Code | prueft statisch die Firestore-Economy-Rules-Guardrails | Agent-Code / Firestore QA | keine KI-Prompt-Pflicht |
 | `scripts/wellfit-dev-agent/src/apply-memory-prompts.mjs` | aktiv / Code | ergaenzt KI-Fortsetzungs-Prompts kontrolliert | Agent-Code | keine KI-Prompt-Pflicht |
-| `scripts/wellfit-dev-agent/src/quality-gate.mjs` | aktiv / Code | fuehrt Agent-Kontrollkette aus und entscheidet PASS/FAIL | Agent-Code | keine KI-Prompt-Pflicht |
+| `scripts/wellfit-dev-agent/src/quality-gate.mjs` | aktiv / Code | fuehrt Agent-Kontrollkette inklusive Firestore-Economy-Rules-Check aus und entscheidet PASS/FAIL | Agent-Code | keine KI-Prompt-Pflicht |
 
 ## Querverweis-Regel
 Jede wichtige TODO-Datei soll enthalten:
