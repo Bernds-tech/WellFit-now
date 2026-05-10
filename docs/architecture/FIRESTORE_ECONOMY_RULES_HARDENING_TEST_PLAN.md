@@ -74,6 +74,10 @@ missionCooldownReviews
 missionRewardPolicies
 systemReserveSnapshots
 missionRewardEvents
+ledgerEvents
+auditEvents
+userEconomyProjections
+pointsSinkEvents
 itemDefinitions
 userInventory
 buddyCapabilities
@@ -83,6 +87,26 @@ nfcScanClaims
 capabilityUnlockEvents
 buddyItemUseEvents
 ```
+
+## Server-only Collections aus Mega-Block 21
+
+Die folgenden Collections bilden den Zielpfad fuer echte interne Punkte-Persistenz ab. Sie duerfen vom Client nur gelesen werden, wenn `resource.data.userId == request.auth.uid`; Create/Update/Delete bleibt clientseitig verboten.
+
+```txt
+ledgerEvents/{ledgerEventId}
+auditEvents/{auditEventId}
+userEconomyProjections/{projectionId}
+pointsSinkEvents/{sinkEventId}
+```
+
+Geplanter serverseitiger Datenfluss:
+
+```txt
+RewardPreview -> Completion -> Ledger -> Audit -> UserProjection
+SpendPreview -> PointsSink -> Ledger -> Audit -> UserProjection
+```
+
+Diese Collections sind noch nicht echt beschrieben. Die APIs liefern aktuell nur Dry-Run-/Draft-Bundles und `writeNow: false`.
 
 ## Zielzustand nach Server-Persistenz
 
@@ -112,6 +136,10 @@ Erwartung:
 /missionRewardEvents create -> DENY
 /missionRewardPreviews create -> DENY
 /missionCompletionEvaluations create -> DENY
+/ledgerEvents create -> DENY
+/auditEvents create -> DENY
+/userEconomyProjections create -> DENY
+/pointsSinkEvents create -> DENY
 /userInventory create -> DENY
 /buddyCapabilities create -> DENY
 ```
@@ -121,7 +149,7 @@ Erwartung:
 Vorbedingung:
 
 ```txt
-Server schreibt RewardPreview/Completion/Ledger/Audit.
+Server schreibt RewardPreview/Completion/Ledger/Audit/Projection.
 Dashboard und Tagesmissionen lesen Projektionen oder API-Ergebnis.
 Buddy-Futter nutzt serverseitige Punkte-Sink-Logik.
 ```
@@ -149,6 +177,7 @@ Tagesmissionen zeigen Zustand.
 Mission Completion blockiert keine UI hart, sondern nutzt Serverpfad.
 Punkte/XP/Level werden aus Server-Projektionen gelesen.
 MissionRewardEvents bleiben client-write-denied.
+LedgerEvents/AuditEvents/UserEconomyProjections/PointsSinkEvents bleiben client-write-denied.
 ```
 
 ## Akzeptanzkriterien fuer erste harte Rules-Aenderung
