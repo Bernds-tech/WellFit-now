@@ -4,12 +4,13 @@ const WWW_HOST = "www.wellfit-now.io";
 const APEX_HOST = "wellfit-now.io";
 
 export function proxy(request: NextRequest) {
-  const host = request.headers.get("host")?.toLowerCase();
+  const hostname = request.nextUrl.hostname.toLowerCase();
 
-  if (host === WWW_HOST) {
+  if (hostname === WWW_HOST) {
     const url = request.nextUrl.clone();
-    url.hostname = APEX_HOST;
     url.protocol = "https:";
+    url.hostname = APEX_HOST;
+    url.port = "";
     return NextResponse.redirect(url, 308);
   }
 
