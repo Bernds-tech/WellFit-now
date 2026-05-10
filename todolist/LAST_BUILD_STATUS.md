@@ -12,6 +12,7 @@ Stand: 2026-05-09
 [x] Mega-Block 11 nach lokalem Test bestaetigt: Persistence-Status-API und Server-Persistenz-Guardrails builden sauber.
 [x] Mega-Block 12 nach lokalem Test bestaetigt: Dry-Run-Persistenz-Requests builden sauber.
 [x] Mega-Block 13 nach lokalem Test bestaetigt: Auth-/User-Validierung fuer Economy APIs buildet sauber.
+[x] Mega-Block 14 nach lokalem Test bestaetigt: Dashboard-/Tagesmissionen-Schreibstellen sind als temporaere Projektionen markiert und builden sauber.
 
 ```powershell
 cd C:\wellfit\WellFit-now
@@ -20,6 +21,36 @@ npm run agent:code-inventory
 powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1
 npm run build
 ```
+
+## Bestaetigt am 2026-05-09 nach Mega-Block 14
+
+[x] `git pull`: Fast-forward von `3520551` auf `9c37551`.
+[x] Geaenderte Dateien lokal gezogen:
+    - `app/dashboard/hooks/useDashboardActions.ts`
+    - `app/missionen/tagesmissionen/useDailyMissionFirebase.ts`
+    - `todolist/LAST_BUILD_STATUS.md`
+[x] `npm run agent:code-inventory` erfolgreich.
+[x] Code-Inventur: 397 gescannte Dateien.
+[x] Code-Inventur: 30 App-Routen.
+[x] Code-Inventur: 6 API-Routen.
+[x] Code-Inventur: 14 Economy-Code-Dateien.
+[x] `agent:validate` erfolgreich.
+[x] `agent:goal-check` erfolgreich: Alpha Tracks 7/7.
+[x] `agent:memory-sync` erfolgreich: Missing in index 0, Missing prompts 0.
+[x] `agent:coder-prompts` erfolgreich.
+[x] `agent:dry-run` erfolgreich: 40 offene Aufgaben, 12 Micro-Tasks, 3 Coder.
+[x] `agent:quality-gate` erfolgreich: PASS.
+[x] `npm run build` erfolgreich.
+[x] Next.js 16.2.3 / Turbopack Build erfolgreich.
+[x] TypeScript-Pruefung erfolgreich.
+[x] Page Data Collection erfolgreich.
+[x] Statische Seiten wurden generiert: 34/34.
+[x] API-Routen bleiben stabil: 6.
+[x] Economy-Code-Dateien bleiben stabil: 14.
+[x] Live-Dashboard-Test: Mission Start zeigt temporaere Anzeige / finale Ledger-Autoritaet folgt serverseitig.
+[x] Live-Dashboard-Test: Buddy-Futter funktioniert weiter.
+[x] Live-Tagesmissionen-Test: Tagesmissionen laden und zeigen interne Punkte.
+[!] Live-Folgepunkt: Wochenmissionen und Abenteuer enthalten Encoding-Fehler und WFT-/NFT-Sprache. Naechster Mega-Block soll diese Begriffe und kaputten Umlaute bereinigen.
 
 ## Bestaetigt am 2026-05-09 nach Mega-Block 13
 
@@ -224,7 +255,7 @@ OK: Dry run produced micro-tasks (12)
 [x] Neue Economy-/Security-API-Routen bauen erfolgreich.
 [x] Projekt ist weiterhin Beta-/Alpha-testfaehig.
 [>] Bernd bevorzugt den sauberen und stressaermeren Beta-Pfad mit noch 12–14 Mega-Bloecken statt Minimalpfad.
-[>] Naechster Mega-Block: Dashboard- und Tagesmissionen von finalen User-Patches weiter entkoppeln.
+[>] Naechster Mega-Block: Token-/NFT-/WFT-Sprache und Encoding-Fehler in Wochenmissionen/Abenteuer bereinigen.
 [!] Vor jeder Rules-Haertung erst lokale UI-Funktion auf Dashboard und Tagesmissionen pruefen.
 
 ## Lokale Test-Regel fuer Bernd
