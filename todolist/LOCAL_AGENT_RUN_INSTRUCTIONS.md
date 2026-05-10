@@ -6,6 +6,18 @@ Diese Datei erklaert Bernd, wo und wie der lokale WellFit Dev Agent ausgefuehrt 
 ## Voraussetzung
 Der WellFit-Code muss lokal auf dem Windows-PC vorhanden sein, z. B. in Visual Studio Code oder in einem GitHub-Ordner.
 
+Fuer normale Agent-/Build-Laeufe reichen Node.js und npm.
+
+Fuer Firebase Emulator Tests ist zusaetzlich Java erforderlich, weil Firebase Firestore Emulator ohne Java nicht startet.
+
+Java pruefen:
+
+```powershell
+java -version
+```
+
+Wenn PowerShell `java` nicht findet, muss ein JDK installiert und danach PowerShell neu geoeffnet werden. Empfohlen ist ein aktuelles LTS-JDK wie Eclipse Temurin JDK oder Microsoft Build of OpenJDK.
+
 ## Einmaliger Einstieg
 Falls das Repository noch nicht lokal vorhanden ist:
 
@@ -80,6 +92,12 @@ scripts/wellfit-dev-agent/output/firestore-economy-rules-check.md
 
 ## Firestore Economy Rules Emulator-Test
 Der Emulator-Test prueft die wichtigsten Allow-/Deny-Faelle wirklich gegen Firebase Auth + Firestore Emulator.
+
+Vorbedingung:
+
+```powershell
+java -version
+```
 
 Terminal 1 im Repository-Root starten und offen lassen:
 
