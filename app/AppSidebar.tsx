@@ -13,43 +13,23 @@ type AppSidebarProps = {
   onLogout?: () => void;
 };
 
-type MainNavItem = {
-  href: string;
-  label: string;
-  icon: string;
-  isActive: (pathname: string) => boolean;
-  onClick?: () => void;
-};
-
-type UtilityNavItem = {
-  href: string;
-  label: string;
-  icon: string;
-};
-
-const mainNavItems: MainNavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: "🏠", isActive: (pathname) => pathname === "/dashboard" },
-  {
-    href: "/missionen/tagesmissionen",
-    label: "Missionen",
-    icon: "🎯",
-    isActive: (pathname) => pathname.startsWith("/missionen"),
-    onClick: () => void updateCurrentDeviceLocation(),
-  },
-  { href: "/buddy", label: "Mein KI-Buddy", icon: "🐉", isActive: (pathname) => pathname.startsWith("/buddy") },
-  { href: "/marktplatz", label: "Marktplatz", icon: "🛍️", isActive: (pathname) => pathname.startsWith("/marktplatz") },
-  { href: "/leaderboard", label: "Leaderboard", icon: "🏆", isActive: (pathname) => pathname.startsWith("/leaderboard") },
-  { href: "/punkte-shop", label: "Punkte-Shop", icon: "🪙", isActive: (pathname) => pathname.startsWith("/punkte-shop") },
-  { href: "/analytics", label: "Analytics & Stats", icon: "📊", isActive: (pathname) => pathname.startsWith("/analytics") },
+const mainNavItems = [
+  { href: "/dashboard", label: "Dashboard", icon: "D", activePrefix: "/dashboard" },
+  { href: "/missionen/tagesmissionen", label: "Missionen", icon: "M", activePrefix: "/missionen", location: true },
+  { href: "/buddy", label: "Mein KI-Buddy", icon: "B", activePrefix: "/buddy" },
+  { href: "/marktplatz", label: "Marktplatz", icon: "K", activePrefix: "/marktplatz" },
+  { href: "/leaderboard", label: "Leaderboard", icon: "L", activePrefix: "/leaderboard" },
+  { href: "/punkte-shop", label: "Punkte-Shop", icon: "P", activePrefix: "/punkte-shop" },
+  { href: "/analytics", label: "Analytics & Stats", icon: "A", activePrefix: "/analytics" },
 ];
 
-const utilityNavItems: UtilityNavItem[] = [
-  { href: "/einstellungen", label: "Einstellungen", icon: "⚙️" },
-  { href: "/datenschutz", label: "Datenschutz", icon: "🔒" },
-  { href: "/agb", label: "AGB", icon: "📄" },
-  { href: "/impressum", label: "Impressum", icon: "🏢" },
-  { href: "/faq", label: "FAQ", icon: "❓" },
-  { href: "/hilfe", label: "Hilfe", icon: "🛟" },
+const utilityNavItems = [
+  { href: "/einstellungen", label: "Einstellungen", icon: "E" },
+  { href: "/datenschutz", label: "Datenschutz", icon: "S" },
+  { href: "/agb", label: "AGB", icon: "G" },
+  { href: "/impressum", label: "Impressum", icon: "I" },
+  { href: "/faq", label: "FAQ", icon: "F" },
+  { href: "/hilfe", label: "Hilfe", icon: "H" },
 ];
 
 export default function AppSidebar({ brightness, onBrightnessChange, onLogout }: AppSidebarProps) {
@@ -57,8 +37,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("wellfit-sidebar-collapsed");
-    setCollapsed(saved === "true");
+    setCollapsed(localStorage.getItem("wellfit-sidebar-collapsed") === "true");
   }, []);
 
   const toggleCollapsed = () => {
@@ -69,46 +48,26 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
     });
   };
 
-  const widthClass = collapsed ? "w-[74px]" : "w-[250px]";
-  const navLinkClass = (active: boolean) =>
-    collapsed
-      ? `flex h-11 items-center justify-center rounded-lg text-xl ${active ? "text-orange-400" : "text-white/80 hover:bg-white/5 hover:text-cyan-100"}`
-      : `block rounded-lg px-2 py-1.5 text-[14px] ${active ? "font-bold text-orange-400" : "text-white/80 hover:bg-white/5 hover:text-cyan-100"}`;
+  const isActive = (href: string, prefix: string) => href === "/dashboard" ? pathname === href : pathname.startsWith(prefix);
+  const linkClass = (active: boolean) => collapsed
+    ? `flex h-10 items-center justify-center rounded-lg text-base font-bold ${active ? "text-orange-400" : "text-white/80 hover:bg-white/5 hover:text-cyan-100"}`
+    : `block rounded-lg py-1.5 text-[14px] ${active ? "font-bold text-orange-400" : "text-white/80 hover:text-cyan-100"}`;
 
   return (
-    <aside className={`relative h-full ${widthClass} shrink-0 overflow-hidden border-r border-cyan-400/10 bg-[#042f35]/95 transition-[width] duration-200 ease-out`}>
-      <button
-        type="button"
-        onClick={toggleCollapsed}
-        aria-label={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
-        title={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
-        className="absolute right-[-13px] top-5 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-cyan-300/30 bg-[#063b43] text-sm font-black text-cyan-100 shadow-[0_6px_18px_rgba(0,0,0,0.25)] hover:bg-[#0a4c55]"
-      >
-        {collapsed ? "›" : "‹"}
+    <aside className={`relative flex h-full shrink-0 flex-col border-r border-cyan-400/10 bg-[#042f35]/95 transition-[width] duration-200 ease-out ${collapsed ? "w-[74px]" : "w-[250px]"}`}>
+      <button type="button" onClick={toggleCollapsed} aria-label={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"} title={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"} className="absolute right-[-13px] top-7 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-cyan-300/30 bg-[#063b43] text-sm font-black text-cyan-100 shadow-[0_6px_18px_rgba(0,0,0,0.25)] hover:bg-[#0a4c55]">
+        {collapsed ? "+" : "-"}
       </button>
 
-      <div className={`flex h-full min-h-0 flex-col ${collapsed ? "items-center px-2 py-5" : "px-5 py-6"}`}>
-        <div className={`mb-8 flex shrink-0 ${collapsed ? "justify-center" : "justify-center"}`}>
-          <Image
-            src="/logo.png"
-            alt="WellFit Logo"
-            width={collapsed ? 54 : 150}
-            height={collapsed ? 54 : 150}
-            priority
-            className={collapsed ? "h-[54px] w-[54px] object-contain" : "h-auto w-[150px] object-contain"}
-          />
+      <div className={`flex h-full min-h-0 flex-col ${collapsed ? "items-center px-2 py-6" : "px-5 py-6"}`}>
+        <div className="mb-8 flex shrink-0 justify-center">
+          <Image src="/logo.png" alt="WellFit Logo" width={collapsed ? 52 : 150} height={collapsed ? 52 : 150} priority className={collapsed ? "h-[52px] w-[52px] object-contain" : "h-auto w-[150px] object-contain"} />
         </div>
 
-        <nav className={`shrink-0 space-y-2 ${collapsed ? "w-full" : "w-full"}`}>
+        <nav className="w-full shrink-0 space-y-2 text-[14px]">
           {mainNavItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={item.onClick}
-              className={navLinkClass(item.isActive(pathname))}
-              title={collapsed ? item.label : undefined}
-            >
-              {collapsed ? <span aria-hidden="true">{item.icon}</span> : item.label}
+            <Link key={item.href} href={item.href} onClick={item.location ? () => void updateCurrentDeviceLocation() : undefined} className={linkClass(isActive(item.href, item.activePrefix))} title={collapsed ? item.label : undefined}>
+              {collapsed ? item.icon : item.label}
             </Link>
           ))}
         </nav>
@@ -117,14 +76,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
           <div className="mt-5 w-full shrink-0 border-t border-cyan-400/10 pt-4">
             <AppInstallPrompt />
             <label className="mb-1 block text-lg">Helligkeit</label>
-            <input
-              type="range"
-              min="5"
-              max="100"
-              value={brightness}
-              onChange={(event) => onBrightnessChange(Number(event.target.value))}
-              className="w-full"
-            />
+            <input type="range" min="5" max="100" value={brightness} onChange={(event) => onBrightnessChange(Number(event.target.value))} className="w-full" />
             <div className="mt-1 text-right text-sm text-white/70">{brightness}%</div>
           </div>
         )}
@@ -133,24 +85,14 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
           {utilityNavItems.map((item) => {
             const active = pathname === item.href;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={navLinkClass(active)}
-                title={collapsed ? item.label : undefined}
-              >
-                {collapsed ? <span aria-hidden="true">{item.icon}</span> : item.label}
+              <Link key={item.href} href={item.href} className={linkClass(active)} title={collapsed ? item.label : undefined}>
+                {collapsed ? item.icon : item.label}
               </Link>
             );
           })}
 
-          <button
-            type="button"
-            onClick={onLogout}
-            className={`${collapsed ? "flex h-11 w-full items-center justify-center rounded-lg text-xl" : "block w-full rounded-lg px-2 py-1.5 text-left text-[14px]"} font-bold text-red-400 hover:bg-red-400/10 hover:text-red-300`}
-            title={collapsed ? "Abmelden" : undefined}
-          >
-            {collapsed ? "⏻" : "Abmelden"}
+          <button type="button" onClick={onLogout} className={`${collapsed ? "flex h-10 w-full items-center justify-center rounded-lg text-base" : "block w-full rounded-lg py-1.5 text-left text-[14px]"} font-bold text-red-400 hover:bg-red-400/10 hover:text-red-300`} title={collapsed ? "Abmelden" : undefined}>
+            {collapsed ? "X" : "Abmelden"}
           </button>
         </nav>
       </div>
