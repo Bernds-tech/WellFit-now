@@ -1,9 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState } from "react";
 import AppFooter from "@/app/AppFooter";
 import AppSidebar from "@/app/AppSidebar";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 
 type AppShellProps = {
   children: ReactNode;
@@ -18,7 +18,7 @@ export default function AppShell({
   onLogout,
   contentClassName = "px-7 py-5 pb-0",
 }: AppShellProps) {
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
 
   return (
     <main
@@ -36,7 +36,7 @@ export default function AppShell({
 
         <section className={`relative flex h-full flex-1 flex-col overflow-hidden ${contentClassName}`}>
           {children}
-          <AppFooter reward={reward} />
+          <AppFooter reward={reward} brightness={brightness} />
         </section>
       </div>
     </main>
