@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import {
+  createEconomyServerAuthContext,
   createEconomyServerPersistenceRequest,
   createInternalSpendPreviewDecision,
   createSpendPreviewServerDraft,
+  summarizeEconomyServerAuthContext,
   summarizeInternalSpendDecisionForStorage,
 } from "@/lib/economy";
 
@@ -38,9 +40,13 @@ export async function POST(request: Request) {
   try {
     const body = asRecord(await request.json());
     const pointsBalance = Math.max(0, Math.floor(asNumber(body.pointsBalance, 0)));
+    const authContext = createEconomyServerAuthContext({
+      bodyUserId: body.userId,
+      fallbackUserId: "api-spend-preview-user",
+    });
 
     const decision = createInternalSpendPreviewDecision({
-      userId: asString(body.userId, "api-spend-preview-user"),
+      userId: authContext.userId,
       itemId: asString(body.itemId, "buddy-food-basic"),
       pointsBalance,
       sourceType: "shop",
@@ -54,6 +60,7 @@ export async function POST(request: Request) {
       mode: "internal_points_beta",
       finalAuthority: false,
       tokenized: false,
+      auth: summarizeEconomyServerAuthContext(authContext),
       status: decision.status,
       item: decision.item
         ? {
