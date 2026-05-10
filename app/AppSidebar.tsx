@@ -32,6 +32,13 @@ const utilityNavItems = [
   { href: "/hilfe", label: "Hilfe", short: "H" },
 ];
 
+const createSidebarBackground = (brightness: number) => {
+  const ratio = Math.max(0.05, Math.min(1, brightness / 100));
+  const green = Math.round(35 + ratio * 75);
+  const blue = Math.round(40 + ratio * 85);
+  return `rgba(2, ${green}, ${blue}, 0.96)`;
+};
+
 export default function AppSidebar({ brightness, onBrightnessChange, onLogout }: AppSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
@@ -54,7 +61,10 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
     : "flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black text-white/80 hover:bg-white/5 hover:text-cyan-100";
 
   return (
-    <aside className={`relative flex h-full shrink-0 flex-col border-r border-cyan-400/10 bg-[#042f35]/95 transition-[width] duration-200 ease-out ${collapsed ? "w-[74px]" : "w-[250px]"}`}>
+    <aside
+      className={`relative flex h-full shrink-0 flex-col border-r border-cyan-400/10 transition-[width] duration-200 ease-out ${collapsed ? "w-[74px]" : "w-[250px]"}`}
+      style={{ backgroundColor: createSidebarBackground(brightness) }}
+    >
       <button
         type="button"
         onClick={toggleCollapsed}
