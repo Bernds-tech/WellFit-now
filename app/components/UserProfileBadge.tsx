@@ -81,17 +81,17 @@ export default function UserProfileBadge() {
   };
 
   return (
-    <div className="fixed right-5 top-4 z-[70] flex flex-col items-center gap-1 text-white">
+    <div className="fixed right-7 top-5 z-[9999] flex w-[94px] flex-col items-center gap-1 text-white">
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-cyan-200/70 bg-[#063b43]/95 text-lg font-black shadow-[0_10px_26px_rgba(0,0,0,0.30)] hover:border-orange-300"
+        className="relative flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-full border-2 border-cyan-100 bg-[#063b43] text-lg font-black shadow-[0_12px_32px_rgba(0,0,0,0.42)] hover:border-orange-300"
         title="Profilbild ändern"
         aria-label="Profilbild ändern"
       >
-        {photo ? <Image src={photo} alt={displayName} fill sizes="64px" className="object-cover" unoptimized /> : <span>{initials}</span>}
+        {photo ? <Image src={photo} alt={displayName} fill sizes="68px" className="object-cover" unoptimized /> : <span>{initials}</span>}
       </button>
-      <p className="max-w-[110px] truncate rounded-full border border-cyan-300/20 bg-[#042f35]/90 px-3 py-1 text-center text-xs font-bold text-cyan-50 shadow-[0_6px_16px_rgba(0,0,0,0.22)]">
+      <p className="w-full truncate rounded-full border border-cyan-300/30 bg-[#042f35] px-2 py-1 text-center text-xs font-bold text-cyan-50 shadow-[0_6px_16px_rgba(0,0,0,0.28)]">
         {displayName}
       </p>
       <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(event) => handleFile(event.target.files?.[0])} />
