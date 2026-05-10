@@ -97,6 +97,8 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 
 | Bereich | Status | Pfad / Dateien | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
+| User Projection API | aktiv / Build OK | `todolist/status/2026-05-10-user-projection-api-build-ok.md` | `todolist/LAST_BUILD_STATUS.md` | als Build-Nachweis behalten |
+| User Projection API | aktiv / Live+Lokal OK | `todolist/status/2026-05-10-user-projection-api-live-local-ok.md` | `todolist/LAST_BUILD_STATUS.md` | als API-Testnachweis behalten |
 | Firestore Economy Emulator | aktiv / PASS | `todolist/status/2026-05-10-firestore-economy-emulator-pass.md` | `docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` | als lokalen Emulator-Nachweis behalten |
 | Firestore Economy Rules | aktiv / Guardrail | `todolist/status/2026-05-10-firestore-economy-rules-guardrail-check-prepared.md` | `docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` | Nachweis fuer Mega-Block 23 behalten |
 | Mobile / Wettkaempfe | historisch | `todolist/status/2026-04-26-mobile-wettkaempfe-http-200-ok.md` | `DONE_LOG.md` | als Nachweis behalten |
