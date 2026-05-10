@@ -25,6 +25,16 @@ type Params = {
   setBuddyLevel: (value: number | ((prev: number) => number)) => void;
 };
 
+const createTemporaryEconomyBridgeMeta = (action: "mission_completion" | "buddy_food_sink") => ({
+  action,
+  bridgeMode: "temporary_client_projection",
+  finalAuthority: false,
+  tokenized: false,
+  serverTarget: "server_completion_to_ledger_to_projection",
+  rulesHardeningTarget: "remove_client_points_xp_level_avatar_authority",
+  createdAt: new Date().toISOString(),
+});
+
 export function useDashboardActions({
   user,
   mission,
@@ -42,7 +52,7 @@ export function useDashboardActions({
   setBuddyHunger,
   setBuddyLevel,
 }: Params) {
-  const persistUserPatch = async (
+  const persistTemporaryEconomyBridgePatch = async (
     patch: Record<string, unknown>,
     successMessage: string,
     errorMessage: string
@@ -121,6 +131,7 @@ export function useDashboardActions({
     const newHunger = Math.max(buddyHunger - 4, 0);
     const nextLevel = newPoints >= 150 && buddyLevel === 1 ? 2 : buddyLevel;
     const completionSource = completion.source === "server" ? "Server-Completion" : "lokaler Completion-Fallback";
+    const temporaryBridge = createTemporaryEconomyBridgeMeta("mission_completion");
 
     setStepsToday(newSteps);
     setPointsBalance(newPoints);
@@ -128,7 +139,7 @@ export function useDashboardActions({
     setBuddyHunger(newHunger);
     setBuddyLevel(nextLevel);
 
-    await persistUserPatch(
+    await persistTemporaryEconomyBridgePatch(
       {
         points: newPoints,
         xp: (user.xp ?? 0) + previewXp,
@@ -141,9 +152,10 @@ export function useDashboardActions({
           hunger: newHunger,
           lastMissionCompletion: completion.summary,
           lastMissionCompletionSource: completion.source,
+          lastTemporaryEconomyBridge: temporaryBridge,
         },
       },
-      `Mission gestartet: +${mission.steps} Schritte, +${previewPoints} interne Punkte (${completionSource}; finale Ledger-Autoritaet folgt serverseitig)`,
+      `Mission gestartet: +${mission.steps} Schritte, +${previewPoints} interne Punkte (${completionSource}; temporäre Anzeige, finale Ledger-Autorität folgt serverseitig)`,
       "Mission lokal aktualisiert, Firebase konnte nicht gespeichert werden."
     );
   };
@@ -169,11 +181,12 @@ export function useDashboardActions({
     const spendPoints = spendPreview.spendPoints || foodPrice;
     const newPoints = spendPreview.remainingPoints;
     const newHunger = Math.min(100, buddyHunger + 10);
+    const temporaryBridge = createTemporaryEconomyBridgeMeta("buddy_food_sink");
 
     setPointsBalance(newPoints);
     setBuddyHunger(newHunger);
 
-    await persistUserPatch(
+    await persistTemporaryEconomyBridgePatch(
       {
         points: newPoints,
         avatar: {
@@ -181,9 +194,10 @@ export function useDashboardActions({
           hunger: newHunger,
           lastSpendPreview: spendPreview.ledgerSummary,
           lastSpendPreviewSource: spendPreview.source,
+          lastTemporaryEconomyBridge: temporaryBridge,
         },
       },
-      `Flammi wurde gefüttert. -${spendPoints} interne Punkte (${spendPreview.source === "server" ? "Server-Preview" : "lokaler Fallback"})`,
+      `Flammi wurde gefüttert. -${spendPoints} interne Punkte (${spendPreview.source === "server" ? "Server-Preview" : "lokaler Fallback"}; temporäre Anzeige bis Server-Projektion)`,
       "Flammi wurde lokal gefüttert, Firebase konnte nicht gespeichert werden."
     );
   };
