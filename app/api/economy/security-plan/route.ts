@@ -6,6 +6,7 @@ import {
   userEconomyClientWriteRiskFields,
   summarizeEconomyServerCompletionPlan,
 } from "@/lib/economy";
+import { summarizeEconomyProjectionPlan } from "@/lib/economy/serverProjectionPlan";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export async function GET() {
     walletEnabled: false,
     nftEnabled: false,
     plan: summarizeEconomyServerCompletionPlan(),
+    projectionPlan: summarizeEconomyProjectionPlan(),
     persistence: getEconomyServerPersistenceStatus(),
     clientWriteRisks: userEconomyClientWriteRiskFields,
     serverOnlyCollections: [...serverOnlyEconomyCollections],
