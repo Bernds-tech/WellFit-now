@@ -5,6 +5,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 
 type FavoriteItem = {
   id: string;
@@ -30,7 +31,7 @@ const favoriteCatalog: FavoriteItem[] = [
 const groups: FavoriteItem["group"][] = ["Tagesmissionen", "Wochenmissionen", "Abenteuer", "Challenge", "Wettkämpfe", "KI-Buddy"];
 
 export default function FavoritenPage() {
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
   const [manualFavorites, setManualFavorites] = useState<string[]>([]);
 
   useEffect(() => {
