@@ -78,8 +78,33 @@ Output:
 scripts/wellfit-dev-agent/output/firestore-economy-rules-check.md
 ```
 
+## Firestore Economy Rules Emulator-Test
+Der Emulator-Test prueft die wichtigsten Allow-/Deny-Faelle wirklich gegen Firebase Auth + Firestore Emulator.
+
+Terminal 1 im Repository-Root starten und offen lassen:
+
+```powershell
+cd C:\wellfit\WellFit-now
+npm run emulators
+```
+
+Terminal 2 im Repository-Root ausfuehren:
+
+```powershell
+cd C:\wellfit\WellFit-now
+npm run agent:firestore-economy-rules-emulator-test
+```
+
+Erwartung:
+
+```text
+Firestore economy rules emulator test result: PASS
+```
+
+Wichtig: Dieser Emulator-Test ist bewusst nicht Teil von `agent:quality-gate`, weil er einen laufenden Emulator in einem separaten Terminal braucht.
+
 ## Einfacher mit Skript
-Alternativ:
+Alternativ fuer den normalen Agentenlauf:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1
