@@ -6,6 +6,22 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 21 - Server-Persistenz-Bundles fuer interne Economy vorbereitet.
+- Datei `lib/economy/serverLedgerDraft.ts` erweitert: neue künftige Server-only Collections `ledgerEvents`, `auditEvents`, `userEconomyProjections` und `pointsSinkEvents` aufgenommen.
+- Datei `lib/economy/serverLedgerDraft.ts` erweitert: Draft-Erzeuger fuer Ledger-Events, Audit-Events, User-Economy-Projektionen und Points-Sink-Events angelegt.
+- Datei `lib/economy/serverLedgerDraft.ts` erweitert: `createMissionCompletionPersistenceBundle()` bildet jetzt Completion Evaluation, Reward Event, Ledger Event, Audit Event und User Projection als zusammenhaengendes Draft-Bundle ab.
+- Datei `lib/economy/serverLedgerDraft.ts` erweitert: `createSpendPersistenceBundle()` bildet jetzt Spend Preview, Points-Sink Event, Ledger Event, Audit Event und User Projection als zusammenhaengendes Draft-Bundle ab.
+- Datei `lib/economy/serverPersistence.ts` erweitert: neue Collections in Allowlist und Server-only-Liste aufgenommen.
+- Datei `lib/economy/serverPersistence.ts` erweitert: Persistenzfluss dokumentiert: Preview -> Completion -> Ledger -> Audit -> Projection -> Rules.
+- Datei `app/api/economy/complete-mission/route.ts` erweitert: API gibt jetzt komplette Persistence-Bundles und Persistence Requests fuer Completion, Ledger, Audit und Projection zurueck.
+- Datei `app/api/economy/spend-preview/route.ts` erweitert: API gibt jetzt komplette Persistence-Bundles und Persistence Requests fuer Spend/Sink, Ledger, Audit und Projection zurueck.
+- Echte Firestore Writes bleiben weiterhin deaktiviert: `writeNow: false`, `finalAuthority: false`, `firestoreWritesEnabled: false`.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Keine Firestore Rules gehaertet.
+- Kein Live-Test auf `wellfit-now.io` erforderlich, da es eine Backend-/API-Vorstufe ohne sichtbare UI-Aenderung ist.
+- Lokaler Test erforderlich: Agent + Build.
+
+### 2026-05-09
 - Mega-Block 17b - Footer-Fix nach Live-Feedback korrigiert.
 - Datei `app/AppFooter.tsx` wieder als kompakter Bottom-Footer positioniert, damit der Footer optisch wie vorher unten sitzt.
 - Datei `app/globals.css` korrigiert: grobe `position: static`-Ueberschreibung entfernt und durch gezielte Safe-Area fuer Inhaltsbereiche ersetzt.
