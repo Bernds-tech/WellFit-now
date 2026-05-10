@@ -58,7 +58,24 @@ npm run agent:goal-check
 npm run agent:memory-sync
 npm run agent:coder-prompts
 npm run agent:dry-run
+npm run agent:firestore-economy-rules-check
 npm run agent:quality-gate
+```
+
+## Firestore Economy Rules Check
+`npm run agent:firestore-economy-rules-check` prueft statisch die aktuelle Beta-Haltung der Firestore Rules:
+
+- sichere Profilfelder bleiben owner-writable
+- temporaere Economy-Brueckenfelder bleiben vorerst als MVP-Bruecke erlaubt
+- server-only Economy-Collections blockieren Client-Create/Update/Delete
+- Ledger-/Audit-/Projection-/Sink-Collections bleiben client-write-denied
+
+Wichtig: Dieser Check ersetzt noch keine Firebase-Emulator-Testdatei. Er ist eine Guardrail-Vorstufe fuer Mega-Block 22/23.
+
+Output:
+
+```text
+scripts/wellfit-dev-agent/output/firestore-economy-rules-check.md
 ```
 
 ## Einfacher mit Skript
@@ -106,6 +123,7 @@ Nach dem Lauf pruefen:
 scripts/wellfit-dev-agent/output/alpha-goal-check.md
 scripts/wellfit-dev-agent/output/memory-sync-report.md
 scripts/wellfit-dev-agent/output/dry-run-report.md
+scripts/wellfit-dev-agent/output/firestore-economy-rules-check.md
 scripts/wellfit-dev-agent/output/quality-gate-report.md
 scripts/wellfit-dev-agent/output/coder-prompts/IDENTITY_GATE.md
 scripts/wellfit-dev-agent/output/coder-prompts/coder1.md
@@ -117,9 +135,10 @@ scripts/wellfit-dev-agent/output/coder-prompts/coder3.md
 1. Inhalt von `alpha-goal-check.md` ansehen.
 2. Inhalt von `memory-sync-report.md` ansehen.
 3. Inhalt von `dry-run-report.md` ansehen.
-4. Inhalt von `quality-gate-report.md` ansehen.
-5. `IDENTITY_GATE.md` nutzen, wenn ein Coder startet.
-6. Je nach Antwort `coder1.md`, `coder2.md` oder `coder3.md` verwenden.
+4. Inhalt von `firestore-economy-rules-check.md` ansehen.
+5. Inhalt von `quality-gate-report.md` ansehen.
+6. `IDENTITY_GATE.md` nutzen, wenn ein Coder startet.
+7. Je nach Antwort `coder1.md`, `coder2.md` oder `coder3.md` verwenden.
 
 ## Memory-Sync
 `npm run agent:memory-sync` scannt TODO-/Roadmap-/Agent-Dateien und erzeugt nur einen Report. Es aendert keine Projektdateien.
