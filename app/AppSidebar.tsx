@@ -94,6 +94,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
 
   return (
     <aside
+      data-wellfit-sidebar="central"
       className={`relative flex h-full shrink-0 flex-col border-r border-cyan-400/10 transition-[width] duration-200 ease-out ${collapsed ? "w-[74px]" : "w-[250px]"}`}
       style={{ backgroundColor: createSidebarBackground(brightness) }}
     >
