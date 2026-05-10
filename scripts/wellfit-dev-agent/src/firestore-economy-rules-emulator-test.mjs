@@ -21,10 +21,10 @@ const AUTH_HOST = process.env.FIREBASE_AUTH_EMULATOR_HOST ?? "127.0.0.1:9099";
 const PROJECT_ID = process.env.FIREBASE_EMULATOR_PROJECT_ID ?? "wellfit-rules-test";
 
 const now = Date.now();
-const ownerUid = `rules-owner-${now}`;
-const otherUid = `rules-other-${now}`;
-const ownerEmail = `${ownerUid}@example.test`;
-const otherEmail = `${otherUid}@example.test`;
+const ownerHandle = `rules-owner-${now}`;
+const otherHandle = `rules-other-${now}`;
+const ownerEmail = `${ownerHandle}@example.test`;
+const otherEmail = `${otherHandle}@example.test`;
 const password = "WellFit-Test-Password-123!";
 
 const serverOnlyCollections = [
@@ -98,9 +98,10 @@ async function main() {
   try {
     const ownerCredential = await createUserWithEmailAndPassword(auth, ownerEmail, password);
     const ownerUser = ownerCredential.user;
+    const ownerUserId = ownerUser.uid;
 
     await expectAllow(results, "users/{uid} create owner doc", async () => {
-      await setDoc(doc(db, "users", ownerUser.uid), {
+      await setDoc(doc(db, "users", ownerUserId), {
         profile: { displayName: "Rules Owner" },
         settings: { language: "de" },
         consent: { beta: true },
@@ -114,28 +115,28 @@ async function main() {
     });
 
     await expectAllow(results, "users/{uid}.profile update -> ALLOW", async () => {
-      await updateDoc(doc(db, "users", ownerUser.uid), {
+      await updateDoc(doc(db, "users", ownerUserId), {
         profile: { displayName: "Rules Owner Updated" },
         updatedAt: new Date().toISOString(),
       });
     });
 
     await expectAllow(results, "users/{uid}.settings update -> ALLOW", async () => {
-      await updateDoc(doc(db, "users", ownerUser.uid), {
+      await updateDoc(doc(db, "users", ownerUserId), {
         settings: { language: "de", brightness: 100 },
         updatedAt: new Date().toISOString(),
       });
     });
 
     await expectAllow(results, "users/{uid}.points update -> ALLOW temporary MVP bridge", async () => {
-      await updateDoc(doc(db, "users", ownerUser.uid), {
+      await updateDoc(doc(db, "users", ownerUserId), {
         points: 25,
       });
     });
 
     await expectAllow(results, "userDailyMissionState write -> ALLOW temporary MVP bridge", async () => {
-      await setDoc(doc(db, "userDailyMissionState", `${ownerUser.uid}_2026-05-10`), {
-        userId: ownerUser.uid,
+      await setDoc(doc(db, "userDailyMissionState", `${ownerUserId}_2026-05-10`), {
+        userId: ownerUserId,
         missionId: "daily-test",
         state: "started",
         updatedAt: new Date().toISOString(),
@@ -144,8 +145,8 @@ async function main() {
 
     for (const collectionName of serverOnlyCollections) {
       await expectDeny(results, `${collectionName} create -> DENY`, async () => {
-        await setDoc(doc(db, collectionName, `${ownerUser.uid}_test_${now}`), {
-          userId: ownerUser.uid,
+        await setDoc(doc(db, collectionName, `${ownerUserId}_test_${now}`), {
+          userId: ownerUserId,
           type: "rules-test",
           createdAt: new Date().toISOString(),
         });
@@ -153,7 +154,7 @@ async function main() {
     }
 
     await expectDeny(results, "users/{uid} delete -> DENY", async () => {
-      await deleteDoc(doc(db, "users", ownerUser.uid));
+      await deleteDoc(doc(db, "users", ownerUserId));
     });
 
     await signOut(auth);
@@ -161,7 +162,7 @@ async function main() {
     const otherUser = otherCredential.user;
 
     await expectDeny(results, "other user cannot update owner profile", async () => {
-      await updateDoc(doc(db, "users", ownerUid), {
+      await updateDoc(doc(db, "users", ownerUserId), {
         profile: { displayName: "Wrong User" },
       });
     });
