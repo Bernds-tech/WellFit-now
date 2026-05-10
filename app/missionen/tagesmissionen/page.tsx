@@ -326,7 +326,7 @@ export default function MissionenPage() {
             />
           </div>
 
-          <AppFooter reward={displayReward} />
+          <AppFooter reward={displayReward} brightness={brightness} />
         </section>
       </div>
     </main>
