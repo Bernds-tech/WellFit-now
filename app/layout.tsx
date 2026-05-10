@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import PwaInstaller from "@/app/components/PwaInstaller";
 import SidebarLegacyBridge from "@/app/components/SidebarLegacyBridge";
+import UserProfileBadge from "@/app/components/UserProfileBadge";
 import { LanguageProvider } from "@/app/components/useLegalLanguage";
 import "./globals.css";
 
@@ -47,6 +48,7 @@ export default function RootLayout({
         <LanguageProvider>
           <PwaInstaller />
           <SidebarLegacyBridge />
+          <UserProfileBadge />
           {children}
         </LanguageProvider>
       </body>
