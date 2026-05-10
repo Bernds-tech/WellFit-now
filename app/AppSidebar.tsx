@@ -110,7 +110,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
           </div>
         )}
 
-        <nav className={`mt-auto shrink-0 border-t border-cyan-400/10 pt-4 ${collapsed ? "flex w-full flex-col items-center gap-1.5" : "w-full space-y-2 text-[14px]"}`}>
+        <nav className={`mt-auto shrink-0 ${collapsed ? "flex w-full flex-col items-center gap-1.5 border-t border-cyan-400/10 pt-4" : "w-full space-y-2 pt-4 text-[14px]"}`}>
           {utilityNavItems.map((item) => {
             const active = pathname === item.href;
             return (
@@ -125,14 +125,16 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
             );
           })}
 
-          <button
-            type="button"
-            onClick={onLogout}
-            className={collapsed ? "flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black text-red-400 hover:bg-red-400/10 hover:text-red-300" : "block w-full text-left text-[14px] font-bold text-red-400 hover:text-red-300"}
-            title={collapsed ? "Abmelden" : undefined}
-          >
-            {collapsed ? "X" : "Abmelden"}
-          </button>
+          <div className={collapsed ? "w-full border-t border-cyan-400/10 pt-3" : "mt-4 w-full border-t border-cyan-400/10 pt-3"}>
+            <button
+              type="button"
+              onClick={onLogout}
+              className={collapsed ? "mx-auto flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black text-red-400 hover:bg-red-400/10 hover:text-red-300" : "block w-full text-left text-[14px] font-bold text-red-400 hover:text-red-300"}
+              title={collapsed ? "Abmelden" : undefined}
+            >
+              {collapsed ? "X" : "Abmelden"}
+            </button>
+          </div>
         </nav>
       </div>
     </aside>
