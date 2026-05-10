@@ -1,6 +1,6 @@
 # WellFit – Firestore Economy Rules Hardening Test Plan
 
-Stand: 2026-05-09
+Stand: 2026-05-10
 Status: Testplan / Vorbereitung, noch keine harte Sperre
 
 ## Zweck
@@ -108,6 +108,40 @@ SpendPreview -> PointsSink -> Ledger -> Audit -> UserProjection
 
 Diese Collections sind noch nicht echt beschrieben. Die APIs liefern aktuell nur Dry-Run-/Draft-Bundles und `writeNow: false`.
 
+## Ausfuehrbare Guardrail-Vorstufe
+
+Mega-Block 23 fuegt einen statischen Agent-Check hinzu:
+
+```powershell
+npm run agent:firestore-economy-rules-check
+```
+
+Output:
+
+```txt
+scripts/wellfit-dev-agent/output/firestore-economy-rules-check.md
+```
+
+Der Check prueft die aktuelle Beta-Rules-Haltung:
+
+```txt
+Safe Profile Helper vorhanden
+Temporary Economy Bridge Helper vorhanden
+users/{uid} update nutzt hasOnlyUserWritableKeys()
+users/{uid} delete bleibt DENY
+userDailyMissionState / userDailyStreaks / userLevels existieren als temporaere MVP-Bruecken
+missionRewardEvents create/update/delete -> DENY
+missionRewardPreviews create/update/delete -> DENY
+missionCompletionEvaluations create/update/delete -> DENY
+ledgerEvents create/update/delete -> DENY
+auditEvents create/update/delete -> DENY
+userEconomyProjections create/update/delete -> DENY
+pointsSinkEvents create/update/delete -> DENY
+owner-read guard fuer server-only Economy-Collections vorhanden
+```
+
+Wichtig: Dieser statische Check ersetzt noch keine Firebase-Emulator-Tests. Er verhindert nur, dass die aktuelle Rules-Datei versehentlich die geplante Beta-Haltung verliert.
+
 ## Zielzustand nach Server-Persistenz
 
 Sobald Server-Ledger-Persistenz aktiv ist, soll gelten:
@@ -201,4 +235,4 @@ Die erste echte harte Rules-Aenderung darf erst passieren, wenn:
 
 Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/CODEBASE_FEATURE_MAP.md`, `todolist/PROJECT_STRUCTURE.md`, `docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` und diese Datei.
 
-Arbeite als naechstes an server-only Persistenz- und Emulator-Test-Vorstufen. Aendere `firestore.rules` nur dann hart, wenn Dashboard, Tagesmissionen und Buddy-Futter nicht mehr auf direkte Client-Writes fuer Punkte/XP/Level/Avatar angewiesen sind. Keine echten Token/NFT/Wallet/Transfers/Auszahlungen aktivieren.
+Arbeite als naechstes an echten Firebase-Emulator-Testdateien fuer die in Stufe 1 beschriebenen Allow-/Deny-Faelle. Aendere `firestore.rules` nur dann hart, wenn Dashboard, Tagesmissionen und Buddy-Futter nicht mehr auf direkte Client-Writes fuer Punkte/XP/Level/Avatar angewiesen sind. Keine echten Token/NFT/Wallet/Transfers/Auszahlungen aktivieren.
