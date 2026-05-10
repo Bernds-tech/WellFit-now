@@ -27,9 +27,6 @@ type UtilityNavItem = {
   icon: string;
 };
 
-const activeClass = "rounded-lg font-bold text-orange-400";
-const inactiveClass = "rounded-lg text-white/80 hover:bg-white/5 hover:text-cyan-100";
-
 const mainNavItems: MainNavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "🏠", isActive: (pathname) => pathname === "/dashboard" },
   {
@@ -72,48 +69,37 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
     });
   };
 
-  const widthClass = collapsed ? "w-[76px]" : "w-[clamp(180px,18vw,250px)]";
+  const widthClass = collapsed ? "w-[74px]" : "w-[250px]";
   const navLinkClass = (active: boolean) =>
-    `${active ? activeClass : inactiveClass} ${collapsed ? "flex h-11 items-center justify-center px-0 py-0 text-xl" : "block px-2 py-1.5 text-[13px] leading-tight sm:text-[14px]"}`;
+    collapsed
+      ? `flex h-11 items-center justify-center rounded-lg text-xl ${active ? "text-orange-400" : "text-white/80 hover:bg-white/5 hover:text-cyan-100"}`
+      : `block rounded-lg px-2 py-1.5 text-[14px] ${active ? "font-bold text-orange-400" : "text-white/80 hover:bg-white/5 hover:text-cyan-100"}`;
 
   return (
-    <aside className={`h-full ${widthClass} shrink-0 overflow-hidden border-r border-cyan-400/10 bg-[#042f35]/95 transition-[width] duration-200 ease-out`}>
-      <div className="flex h-full min-h-0 flex-col px-3 py-4 sm:px-4 sm:py-5 lg:px-5 lg:py-6">
-        <div className={`mb-4 flex shrink-0 items-center ${collapsed ? "justify-center" : "justify-between"}`}>
-          {!collapsed && (
-            <Image
-              src="/logo.png"
-              alt="WellFit Logo"
-              width={150}
-              height={150}
-              priority
-              className="h-auto w-[clamp(78px,8vw,132px)]"
-            />
-          )}
+    <aside className={`relative h-full ${widthClass} shrink-0 overflow-hidden border-r border-cyan-400/10 bg-[#042f35]/95 transition-[width] duration-200 ease-out`}>
+      <button
+        type="button"
+        onClick={toggleCollapsed}
+        aria-label={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
+        title={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
+        className="absolute right-[-13px] top-5 z-30 flex h-7 w-7 items-center justify-center rounded-full border border-cyan-300/30 bg-[#063b43] text-sm font-black text-cyan-100 shadow-[0_6px_18px_rgba(0,0,0,0.25)] hover:bg-[#0a4c55]"
+      >
+        {collapsed ? "›" : "‹"}
+      </button>
 
-          {collapsed && (
-            <Image
-              src="/logo.png"
-              alt="WellFit Logo"
-              width={44}
-              height={44}
-              priority
-              className="h-11 w-11 object-contain"
-            />
-          )}
+      <div className={`flex h-full min-h-0 flex-col ${collapsed ? "items-center px-2 py-5" : "px-5 py-6"}`}>
+        <div className={`mb-8 flex shrink-0 ${collapsed ? "justify-center" : "justify-center"}`}>
+          <Image
+            src="/logo.png"
+            alt="WellFit Logo"
+            width={collapsed ? 54 : 150}
+            height={collapsed ? 54 : 150}
+            priority
+            className={collapsed ? "h-[54px] w-[54px] object-contain" : "h-auto w-[150px] object-contain"}
+          />
         </div>
 
-        <button
-          type="button"
-          onClick={toggleCollapsed}
-          aria-label={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
-          className={`mb-4 shrink-0 rounded-xl border border-cyan-300/20 bg-[#063b43] px-3 py-2 text-sm font-bold text-cyan-100 transition hover:bg-[#0a4c55] ${collapsed ? "mx-auto w-11 px-0" : "w-full"}`}
-          title={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
-        >
-          {collapsed ? "☰" : "☰ Sidebar einklappen"}
-        </button>
-
-        <nav className="shrink-0 space-y-1.5">
+        <nav className={`shrink-0 space-y-2 ${collapsed ? "w-full" : "w-full"}`}>
           {mainNavItems.map((item) => (
             <Link
               key={item.href}
@@ -128,9 +114,9 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
         </nav>
 
         {!collapsed && (
-          <div className="mt-5 shrink-0 border-t border-cyan-400/10 pt-4">
+          <div className="mt-5 w-full shrink-0 border-t border-cyan-400/10 pt-4">
             <AppInstallPrompt />
-            <label className="mb-1 block text-sm font-semibold sm:text-base lg:text-lg">Helligkeit</label>
+            <label className="mb-1 block text-lg">Helligkeit</label>
             <input
               type="range"
               min="5"
@@ -139,11 +125,11 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
               onChange={(event) => onBrightnessChange(Number(event.target.value))}
               className="w-full"
             />
-            <div className="mt-1 text-right text-xs text-white/70 sm:text-sm">{brightness}%</div>
+            <div className="mt-1 text-right text-sm text-white/70">{brightness}%</div>
           </div>
         )}
 
-        <nav className={`mt-auto shrink-0 space-y-1.5 border-t border-cyan-400/10 pt-4 ${collapsed ? "text-center" : "text-[13px] leading-tight sm:text-[14px]"}`}>
+        <nav className={`${collapsed ? "mt-auto w-full space-y-1.5 border-t border-cyan-400/10 pt-4" : "mt-auto w-full space-y-2 border-t border-cyan-400/10 pt-4 text-[14px]"}`}>
           {utilityNavItems.map((item) => {
             const active = pathname === item.href;
             return (
@@ -161,7 +147,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
           <button
             type="button"
             onClick={onLogout}
-            className={`${collapsed ? "flex h-11 w-full items-center justify-center px-0 py-0 text-xl" : "block w-full px-2 py-1.5 text-left text-[13px] sm:text-[14px]"} rounded-lg font-bold text-red-400 hover:bg-red-400/10 hover:text-red-300`}
+            className={`${collapsed ? "flex h-11 w-full items-center justify-center rounded-lg text-xl" : "block w-full rounded-lg px-2 py-1.5 text-left text-[14px]"} font-bold text-red-400 hover:bg-red-400/10 hover:text-red-300`}
             title={collapsed ? "Abmelden" : undefined}
           >
             {collapsed ? "⏻" : "Abmelden"}
