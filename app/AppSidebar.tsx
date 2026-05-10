@@ -14,22 +14,22 @@ type AppSidebarProps = {
 };
 
 const mainNavItems = [
-  { href: "/dashboard", label: "Dashboard", short: "D", active: (path: string) => path === "/dashboard" },
-  { href: "/missionen/tagesmissionen", label: "Missionen", short: "M", active: (path: string) => path.startsWith("/missionen"), location: true },
-  { href: "/buddy", label: "Mein KI-Buddy", short: "B", active: (path: string) => path.startsWith("/buddy") },
-  { href: "/marktplatz", label: "Marktplatz", short: "K", active: (path: string) => path.startsWith("/marktplatz") },
-  { href: "/leaderboard", label: "Leaderboard", short: "L", active: (path: string) => path.startsWith("/leaderboard") },
-  { href: "/punkte-shop", label: "Punkte-Shop", short: "P", active: (path: string) => path.startsWith("/punkte-shop") },
-  { href: "/analytics", label: "Analytics & Stats", short: "A", active: (path: string) => path.startsWith("/analytics") },
+  { href: "/dashboard", label: "Dashboard", icon: "grid", active: (path: string) => path === "/dashboard" },
+  { href: "/missionen/tagesmissionen", label: "Missionen", icon: "target", active: (path: string) => path.startsWith("/missionen"), location: true },
+  { href: "/buddy", label: "Mein KI-Buddy", icon: "bot", active: (path: string) => path.startsWith("/buddy") },
+  { href: "/marktplatz", label: "Marktplatz", icon: "shop", active: (path: string) => path.startsWith("/marktplatz") },
+  { href: "/leaderboard", label: "Leaderboard", icon: "cup", active: (path: string) => path.startsWith("/leaderboard") },
+  { href: "/punkte-shop", label: "Punkte-Shop", icon: "coin", active: (path: string) => path.startsWith("/punkte-shop") },
+  { href: "/analytics", label: "Analytics & Stats", icon: "chart", active: (path: string) => path.startsWith("/analytics") },
 ];
 
 const utilityNavItems = [
-  { href: "/einstellungen", label: "Einstellungen", short: "E" },
-  { href: "/datenschutz", label: "Datenschutz", short: "S" },
-  { href: "/agb", label: "AGB", short: "G" },
-  { href: "/impressum", label: "Impressum", short: "I" },
-  { href: "/faq", label: "FAQ", short: "F" },
-  { href: "/hilfe", label: "Hilfe", short: "H" },
+  { href: "/einstellungen", label: "Einstellungen", icon: "gear" },
+  { href: "/datenschutz", label: "Datenschutz", icon: "lock" },
+  { href: "/agb", label: "AGB", icon: "doc" },
+  { href: "/impressum", label: "Impressum", icon: "info" },
+  { href: "/faq", label: "FAQ", icon: "help" },
+  { href: "/hilfe", label: "Hilfe", icon: "life" },
 ];
 
 const createSidebarBackground = (brightness: number) => {
@@ -38,6 +38,38 @@ const createSidebarBackground = (brightness: number) => {
   const blue = Math.round(40 + ratio * 85);
   return `rgba(2, ${green}, ${blue}, 0.96)`;
 };
+
+function SidebarIcon({ name }: { name: string }) {
+  const common = "h-5 w-5";
+  if (name === "grid") {
+    return <span className={`${common} grid grid-cols-2 gap-[3px]`}><i className="rounded-[2px] border border-current" /><i className="rounded-[2px] border border-current" /><i className="rounded-[2px] border border-current" /><i className="rounded-[2px] border border-current" /></span>;
+  }
+  if (name === "target") {
+    return <span className={`${common} rounded-full border-2 border-current before:block before:h-2 before:w-2 before:translate-x-[5px] before:translate-y-[5px] before:rounded-full before:bg-current`} />;
+  }
+  if (name === "bot") {
+    return <span className={`${common} rounded-md border-2 border-current before:block before:h-[3px] before:w-3 before:translate-x-[3px] before:translate-y-[7px] before:rounded-full before:bg-current`} />;
+  }
+  if (name === "shop") {
+    return <span className={`${common} border-b-2 border-current before:block before:h-2 before:w-5 before:rounded-t-md before:border-2 before:border-b-0 before:border-current`} />;
+  }
+  if (name === "cup") {
+    return <span className={`${common} rounded-b-lg border-2 border-t-0 border-current before:block before:h-2 before:w-3 before:translate-x-[3px] before:translate-y-[-3px] before:rounded-b-full before:bg-current`} />;
+  }
+  if (name === "coin") {
+    return <span className={`${common} rounded-full border-2 border-current before:block before:h-[2px] before:w-3 before:translate-x-[3px] before:translate-y-[8px] before:bg-current`} />;
+  }
+  if (name === "chart") {
+    return <span className={`${common} flex items-end justify-center gap-[3px]`}><i className="h-2 w-[3px] bg-current" /><i className="h-4 w-[3px] bg-current" /><i className="h-3 w-[3px] bg-current" /></span>;
+  }
+  if (name === "gear") return <span className="text-lg leading-none">*</span>;
+  if (name === "lock") return <span className="text-lg leading-none">#</span>;
+  if (name === "doc") return <span className="text-lg leading-none">[]</span>;
+  if (name === "info") return <span className="text-lg leading-none">i</span>;
+  if (name === "help") return <span className="text-lg leading-none">?</span>;
+  if (name === "life") return <span className="text-lg leading-none">+</span>;
+  return <span className="text-lg leading-none">.</span>;
+}
 
 export default function AppSidebar({ brightness, onBrightnessChange, onLogout }: AppSidebarProps) {
   const pathname = usePathname();
@@ -57,8 +89,8 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
 
   const expandedClass = (active: boolean) => active ? "block font-bold text-orange-400" : "block text-white/80 hover:text-cyan-100";
   const collapsedClass = (active: boolean) => active
-    ? "flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-sm font-black text-orange-400"
-    : "flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black text-white/80 hover:bg-white/5 hover:text-cyan-100";
+    ? "flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-orange-400"
+    : "flex h-10 w-10 items-center justify-center rounded-xl text-white/80 hover:bg-white/5 hover:text-cyan-100";
 
   return (
     <aside
@@ -98,7 +130,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
                 className={collapsed ? collapsedClass(active) : expandedClass(active)}
                 title={collapsed ? item.label : undefined}
               >
-                {collapsed ? item.short : item.label}
+                {collapsed ? <SidebarIcon name={item.icon} /> : item.label}
               </Link>
             );
           })}
@@ -130,7 +162,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
                 className={collapsed ? collapsedClass(active) : expandedClass(active)}
                 title={collapsed ? item.label : undefined}
               >
-                {collapsed ? item.short : item.label}
+                {collapsed ? <SidebarIcon name={item.icon} /> : item.label}
               </Link>
             );
           })}
@@ -139,7 +171,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
             <button
               type="button"
               onClick={onLogout}
-              className={collapsed ? "mx-auto flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black text-red-400 hover:bg-red-400/10 hover:text-red-300" : "block w-full text-left text-[14px] font-bold text-red-400 hover:text-red-300"}
+              className={collapsed ? "mx-auto flex h-10 w-10 items-center justify-center rounded-xl text-red-400 hover:bg-red-400/10 hover:text-red-300" : "block w-full text-left text-[14px] font-bold text-red-400 hover:text-red-300"}
               title={collapsed ? "Abmelden" : undefined}
             >
               {collapsed ? "X" : "Abmelden"}
