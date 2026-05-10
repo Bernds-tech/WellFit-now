@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { signOut } from "firebase/auth";
 import AppSidebar from "@/app/AppSidebar";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import { auth } from "@/lib/firebase";
 import { useDashboardUser } from "@/app/dashboard/hooks/useDashboardUser";
 import BuddyEvolution from "./components/BuddyEvolution";
@@ -15,7 +16,7 @@ import { useBuddyState } from "./hooks/useBuddyState";
 
 export default function BuddyPage() {
   const { user, message, setMessage, isRealtimeConnected, loadedFromCache } = useDashboardUser();
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
   const { buddy, actions, buddyMessage, isSavingBuddy, handleBuddyAction } = useBuddyState(user);
 
   const story = useMemo(() => getBuddyStory(buddy), [buddy]);
