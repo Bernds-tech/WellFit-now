@@ -16,6 +16,8 @@ export type EconomyServerPersistenceStatus = {
   reason: string;
   requiredBeforeEnable: string[];
   allowedCollectionsWhenEnabled: string[];
+  serverOnlyCollections: string[];
+  persistenceFlow: string[];
 };
 
 export type EconomyServerPersistenceRequest = {
@@ -47,6 +49,28 @@ const allowedCollectionsWhenEnabled = [
   "missionRewardEvents",
   "missionContextEvaluations",
   "systemReserveSnapshots",
+  "ledgerEvents",
+  "auditEvents",
+  "userEconomyProjections",
+  "pointsSinkEvents",
+];
+
+const serverOnlyCollections = [
+  "ledgerEvents",
+  "auditEvents",
+  "missionRewardEvents",
+  "missionCompletionEvaluations",
+  "pointsSinkEvents",
+  "userEconomyProjections",
+];
+
+const persistenceFlow = [
+  "Preview: calculate internal points reward/spend preview without final authority.",
+  "Completion: server evaluates mission/spend eligibility and review/block states.",
+  "Ledger: append immutable internal-points ledger event draft.",
+  "Audit: append traceability record for review, fraud checks and debugging.",
+  "Projection: update user-facing points/xp/level/avatar fields from server-only aggregate.",
+  "Rules: deny client writes to economy authority fields after server writes are enabled.",
 ];
 
 const validDocumentIdPattern = /^[a-z0-9_-]{1,180}$/;
@@ -59,9 +83,11 @@ export function getEconomyServerPersistenceStatus(): EconomyServerPersistenceSta
     tokenized: false,
     firestoreWritesEnabled: false,
     reason:
-      "WellFit is still in internal-points beta. Economy APIs may return serverDraft records, but they must not persist final ledger/audit records yet.",
+      "WellFit is still in internal-points beta. Economy APIs may return serverDraft records and persistence bundles, but they must not persist final ledger/audit/projection records yet.",
     requiredBeforeEnable,
     allowedCollectionsWhenEnabled,
+    serverOnlyCollections,
+    persistenceFlow,
   };
 }
 
