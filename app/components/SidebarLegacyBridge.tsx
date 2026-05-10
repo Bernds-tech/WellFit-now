@@ -6,11 +6,20 @@ const STORAGE_KEY = "wellfit-sidebar-collapsed";
 
 const hasCentralSidebar = () => Boolean(document.querySelector("[data-wellfit-sidebar='central']"));
 const hasLegacySidebar = () => Boolean(document.querySelector("main > div.flex > aside"));
-
 const readCollapsed = () => localStorage.getItem(STORAGE_KEY) === "true";
 
 const applyCollapsedState = (collapsed: boolean) => {
   document.documentElement.dataset.wellfitSidebarCollapsed = String(collapsed);
+};
+
+const applyBrightnessVars = () => {
+  const range = document.querySelector("main > div.flex > aside input[type='range']") as HTMLInputElement | null;
+  const value = Number(range?.value ?? 100);
+  const ratio = Math.max(0.05, Math.min(1, value / 100));
+  const green = Math.round(35 + ratio * 75);
+  const blue = Math.round(40 + ratio * 85);
+  document.documentElement.style.setProperty("--wellfit-sidebar-bg", `rgba(2, ${green}, ${blue}, 0.96)`);
+  document.documentElement.style.setProperty("--wellfit-footer-bg", `rgba(2, ${green}, ${blue}, 0.96)`);
 };
 
 export default function SidebarLegacyBridge() {
@@ -21,6 +30,7 @@ export default function SidebarLegacyBridge() {
     const sync = () => {
       const nextCollapsed = readCollapsed();
       applyCollapsedState(nextCollapsed);
+      applyBrightnessVars();
       setCollapsed(nextCollapsed);
       setShowLegacyToggle(!hasCentralSidebar() && hasLegacySidebar());
     };
@@ -30,18 +40,18 @@ export default function SidebarLegacyBridge() {
     const onStorage = (event: StorageEvent) => {
       if (event.key === STORAGE_KEY) sync();
     };
-
-    const onClick = () => window.setTimeout(sync, 0);
-    const onResize = () => window.setTimeout(sync, 0);
+    const onInteraction = () => window.setTimeout(sync, 0);
 
     window.addEventListener("storage", onStorage);
-    window.addEventListener("click", onClick);
-    window.addEventListener("resize", onResize);
+    window.addEventListener("click", onInteraction);
+    window.addEventListener("input", onInteraction);
+    window.addEventListener("resize", onInteraction);
 
     return () => {
       window.removeEventListener("storage", onStorage);
-      window.removeEventListener("click", onClick);
-      window.removeEventListener("resize", onResize);
+      window.removeEventListener("click", onInteraction);
+      window.removeEventListener("input", onInteraction);
+      window.removeEventListener("resize", onInteraction);
     };
   }, []);
 
