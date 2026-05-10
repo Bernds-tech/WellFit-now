@@ -5,6 +5,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import type { User } from "@/types/user";
 
 type WeeklyMission = {
@@ -48,7 +49,7 @@ const weeklyMissions: WeeklyMission[] = [
 ];
 
 export default function WochenmissionenPage() {
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
   const [selectedMissionId, setSelectedMissionId] = useState<number>(1);
   const [favoriteIds, setFavoriteIds] = useState<number[]>([1]);
   const [user, setUser] = useState<User | null>(null);
