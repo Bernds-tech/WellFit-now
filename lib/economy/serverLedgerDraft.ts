@@ -278,7 +278,7 @@ export function createSpendPersistenceBundle(decision: InternalSpendDecision): E
     createUserEconomyProjectionServerDraft({
       userId: event.userId,
       sourceEventId: event.eventId,
-      pointsDelta: decision.status === "approved" ? -decision.spendPoints : 0,
+      pointsDelta: decision.status === "spend_allowed" ? -decision.spendPoints : 0,
       xpDelta: 0,
       reason: decision.status,
     }),
