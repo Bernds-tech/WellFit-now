@@ -28,6 +28,18 @@ body {
   height: 100%;
 }
 
+/*
+ * WellFit beta layout guardrail:
+ * Older mission pages placed their footer as an absolute overlay.
+ * In the Web-Beta layout this must behave like a normal flex footer so maps,
+ * detail cards and scrollbars do not disappear behind it.
+ */
+main section.relative > div.absolute.bottom-0.left-0.right-0.flex.items-center.justify-between.border-t {
+  position: static;
+  flex-shrink: 0;
+  margin-top: 1rem;
+}
+
 @keyframes spinY {
   from {
     transform: rotateY(0deg);
