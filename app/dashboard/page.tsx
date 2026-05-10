@@ -6,6 +6,7 @@ import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 
 import AppSidebar from "@/app/AppSidebar";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import DashboardHeader from "./components/DashboardHeader";
 import DashboardMissionPanel from "./components/DashboardMissionPanel";
 import DashboardAvatarPanel from "./components/DashboardAvatarPanel";
@@ -31,7 +32,7 @@ export default function DashboardPage() {
     isRealtimeConnected,
   } = useDashboardUser();
 
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
   const [pointsBalance, setPointsBalance] = useState(0);
   const [buddyLevel, setBuddyLevel] = useState(1);
   const [stepsToday, setStepsToday] = useState(0);
