@@ -15,6 +15,7 @@
     "agent:coder-prompts": "node scripts/wellfit-dev-agent/src/generate-coder-prompts.mjs",
     "agent:memory-sync": "node scripts/wellfit-dev-agent/src/memory-sync.mjs",
     "agent:code-inventory": "node scripts/wellfit-dev-agent/src/code-inventory.mjs",
+    "agent:firestore-economy-rules-check": "node scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
     "agent:apply-memory-prompts": "node scripts/wellfit-dev-agent/src/apply-memory-prompts.mjs",
     "agent:apply-memory-prompts:write": "node scripts/wellfit-dev-agent/src/apply-memory-prompts.mjs --write",
     "agent:quality-gate": "node scripts/wellfit-dev-agent/src/quality-gate.mjs"
