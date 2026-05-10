@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import {
+  createEconomyServerAuthContext,
   createEconomyServerPersistenceRequest,
   createInternalRewardPreviewDecision,
   createRewardPreviewServerDraft,
+  summarizeEconomyServerAuthContext,
   type EconomyUsageSnapshot,
   type LedgerEvent,
   type LedgerRiskSummary,
@@ -120,8 +122,13 @@ export async function POST(request: Request) {
       );
     }
 
+    const authContext = createEconomyServerAuthContext({
+      bodyUserId: body.userId,
+      fallbackUserId: "api-preview-user",
+    });
+
     const decision = createInternalRewardPreviewDecision({
-      userId: asString(body.userId, "api-preview-user"),
+      userId: authContext.userId,
       sourceId: asString(body.sourceId, "api-reward-preview"),
       sourceType: asLedgerSourceType(body.sourceType),
       missionType: asMissionRewardType(body.missionType),
@@ -140,6 +147,7 @@ export async function POST(request: Request) {
       mode: "internal_points_beta",
       finalAuthority: false,
       tokenized: false,
+      auth: summarizeEconomyServerAuthContext(authContext),
       status: decision.status,
       requestedPoints: decision.requestedPoints,
       reserveAdjustedPoints: decision.reserveAdjustedPoints,
