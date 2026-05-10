@@ -13,62 +13,11 @@ type DailyHeaderProps = {
   xpForNextLevel: number;
 };
 
-export default function DailyHeader({
-  diversityCount,
-  completedCount,
-  dailyGoal,
-  goalCompleted,
-  currentStreak,
-  longestStreak,
-  streakBonus,
-  level,
-  xpForCurrentLevel,
-  xpForNextLevel,
-}: DailyHeaderProps) {
-  const remaining = Math.max(0, dailyGoal - completedCount);
-  const dailyProgress = Math.min(100, Math.round((completedCount / Math.max(1, dailyGoal)) * 100));
-  const xpProgress = Math.min(100, Math.round((xpForCurrentLevel / Math.max(1, xpForNextLevel)) * 100));
-
+export default function DailyHeader(_props: DailyHeaderProps) {
   return (
-    <div className="mb-3 flex min-h-[92px] items-start justify-between gap-4">
-      <div className="min-w-[420px]">
-        <h1 className="text-5xl font-extrabold leading-none">Tagesmissionen</h1>
-        <p className="mt-1 text-lg text-cyan-100/90">Ziehe Missionen in deine 3 Tagesfelder.</p>
-        <p className="mt-1 text-xs text-cyan-100/65">10 balancierte Tagesmissionen - Punkte-System aktiv</p>
-      </div>
-
-      <div className="flex min-h-[72px] items-start gap-3">
-        <div className="min-w-[120px] rounded-2xl border border-yellow-400/40 bg-[#073b44] px-4 py-2 shadow-[0_0_16px_rgba(250,204,21,0.12)]">
-          <p className="text-sm font-bold text-yellow-300">Streak {currentStreak}</p>
-          <p className="text-[10px] text-white/55">Best {longestStreak}</p>
-        </div>
-
-        <div className="min-w-[150px] rounded-2xl border border-cyan-300/30 bg-[#073b44] px-4 py-2 shadow-[0_0_16px_rgba(34,211,238,0.10)]">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-bold text-cyan-100">Heute {completedCount}/{dailyGoal}</p>
-            <span className="text-xs font-bold text-yellow-200">+{streakBonus}%</span>
-          </div>
-          <div className="mt-1 h-2 overflow-hidden rounded-full bg-black/25">
-            <div className="h-full rounded-full bg-cyan-300 transition-all duration-700" style={{ width: `${dailyProgress}%` }} />
-          </div>
-          <p className="mt-1 text-[10px] text-white/55">{goalCompleted ? "Tagesziel erfüllt" : `Noch ${remaining} bis Bonus`}</p>
-        </div>
-
-        <div className="min-w-[160px] rounded-2xl border border-purple-300/35 bg-[#073b44] px-4 py-2 shadow-[0_0_16px_rgba(216,180,254,0.10)]">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-bold text-purple-200">Level {level}</p>
-            <span className="text-[10px] font-bold text-white/70">{xpForCurrentLevel}/{xpForNextLevel} XP</span>
-          </div>
-          <div className="mt-1 h-2 overflow-hidden rounded-full bg-black/25">
-            <div className="h-full rounded-full bg-purple-300 transition-all duration-700" style={{ width: `${xpProgress}%` }} />
-          </div>
-          <p className="mt-1 text-[10px] text-white/55">Noch {Math.max(0, xpForNextLevel - xpForCurrentLevel)} XP bis Level {level + 1}</p>
-        </div>
-
-        <div className="min-w-[120px] rounded-2xl border border-green-300/30 bg-[#073b44] px-4 py-2">
-          <p className="text-sm font-bold text-green-300">Vielfalt {diversityCount}/3</p>
-          <p className="text-[10px] text-white/55">3 Typen = Bonus</p>
-        </div>
+    <div className="mb-4 flex min-h-[78px] items-start justify-between gap-4 pr-[120px]">
+      <div>
+        <h1 className="text-3xl font-extrabold leading-tight md:text-4xl">Tagesmissionen</h1>
       </div>
     </div>
   );
