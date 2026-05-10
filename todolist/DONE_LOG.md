@@ -6,6 +6,17 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 15 - Token-/NFT-/WFT-Sprache und Encoding-Fehler in Wochenmissionen/Abenteuer bereinigt.
+- Datei `app/missionen/wochenmissionen/page.tsx` bereinigt: kaputte Umlaute/Emoji-Strings repariert und WFT-/NFT-Sprache entfernt.
+- Wochenmissionen nutzen jetzt interne Punkte, Beta-Abzeichen und Beta-Wochenkiste statt WFT oder Wochen-NFT.
+- Datei `app/missionen/abenteuer/page.tsx` bereinigt: kaputte Umlaute/Emoji-Strings repariert und WFT-Sprache entfernt.
+- Abenteuer nutzen jetzt interne Punkte und klare Beta-Hinweise: keine Token, keine NFTs, keine Auszahlung.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Keine Firestore Rules gehaertet.
+- Live-Test auf `wellfit-now.io` erforderlich, weil sichtbare Missionsseiten betroffen sind.
+- Lokaler Test erforderlich: Agent + Build.
+
+### 2026-05-09
 - Mega-Block 13 - Auth-/User-Validierung fuer Economy APIs vorbereitet.
 - Datei `lib/economy/serverAuth.ts` angelegt: Beta-sichere Auth-/Ownership-Vorstufe mit `beta_body_user_fallback` und spaeterem `verified_server_auth`-Modus.
 - Datei `lib/economy/index.ts` erweitert: `serverAuth` wird zentral exportiert.
