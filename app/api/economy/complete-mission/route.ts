@@ -3,8 +3,7 @@ import {
   createEconomyServerAuthContext,
   createEconomyServerPersistenceRequests,
   createInternalMissionCompletionDecision,
-  createMissionCompletionServerDraft,
-  createMissionRewardEventServerDraft,
+  createMissionCompletionPersistenceBundle,
   summarizeEconomyServerAuthContext,
   summarizeInternalMissionCompletionForStorage,
   type EconomyUsageSnapshot,
@@ -136,10 +135,7 @@ export async function POST(request: Request) {
       correlationId: typeof body.correlationId === "string" ? body.correlationId : undefined,
       clientCompletedAt: typeof body.clientCompletedAt === "string" ? body.clientCompletedAt : undefined,
     });
-    const serverDrafts = {
-      completionEvaluation: createMissionCompletionServerDraft(decision),
-      rewardEvent: createMissionRewardEventServerDraft(decision),
-    };
+    const serverDrafts = createMissionCompletionPersistenceBundle(decision);
 
     return NextResponse.json({
       ok: true,
@@ -164,10 +160,14 @@ export async function POST(request: Request) {
       },
       completionRequestEvent: summarizeInternalMissionCompletionForStorage(decision).completionRequestEvent,
       serverDrafts,
-      persistenceRequests: createEconomyServerPersistenceRequests([
-        serverDrafts.completionEvaluation,
-        serverDrafts.rewardEvent,
-      ]),
+      persistenceRequests: createEconomyServerPersistenceRequests(serverDrafts),
+      persistenceBundle: {
+        collections: serverDrafts.map((draft) => draft.collection),
+        draftCount: serverDrafts.length,
+        finalAuthority: false,
+        tokenized: false,
+        writeNow: false,
+      },
       nextServerStep: decision.nextServerStep,
     });
   } catch (error) {
