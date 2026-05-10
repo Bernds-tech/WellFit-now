@@ -5,6 +5,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import type { User } from "@/types/user";
 import GoogleMissionMap from "../components/GoogleMissionMap";
 
@@ -92,7 +93,7 @@ const adventures: Adventure[] = [
 ];
 
 export default function AbenteuerPage() {
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("Bereit für neue Abenteuer?");
   const [selectedCategory, setSelectedCategory] = useState<AdventureCategory>("Alle Orte");
