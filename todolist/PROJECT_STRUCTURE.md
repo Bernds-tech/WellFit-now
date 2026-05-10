@@ -91,6 +91,7 @@ Wichtige Dateien:
 
 Wichtige Dateien:
 - `firestore.rules` - Firestore Rules; aktuell Safe-Profile-Felder und temporaere Economy-Brueckenfelder getrennt markiert, harte Sperre noch nicht aktiv
+- `firebase.json` - Firebase-Emulatoren und Firestore-Rules-Datei konfiguriert
 
 ### `scripts/wellfit-dev-agent/`
 Lokaler WellFit Dev Agent fuer Dry-Run, Zielkurs-Check, Coder-Prompts und Aufgabenverteilung.
@@ -99,7 +100,7 @@ Wichtige Dateien:
 - `README.md` - Agent-Ueberblick
 - `RUNBOOK_WHEN_TO_RUN_AGENT.md` - wann der Agent auszufuehren ist
 - `wellfit-agent.config.json` - Agent-Konfiguration, Source-of-Truth, Rollen, Policies
-- `run-agent-full.ps1` - PowerShell-Hilfsskript fuer kompletten Agentenlauf
+- `run-agent-full.ps1` - PowerShell-Hilfsskript fuer kompletten Agentenlauf inklusive Firestore-Economy-Rules-Check
 - `watch-agent.ps1` - lokaler Watch-Agent fuer automatische Agentenlaeufe bei relevanten Aenderungen
 - `src/validate-agent-config.mjs` - validiert Agent-Konfiguration
 - `src/alpha-goal-check.mjs` - prueft Alpha-/Beta-Zielkurs
@@ -108,7 +109,9 @@ Wichtige Dateien:
 - `src/memory-sync.mjs` - prueft Arbeitsgedaechtnis-Abdeckung
 - `src/apply-memory-prompts.mjs` - ergaenzt fehlende KI-Fortsetzungs-Prompts kontrolliert
 - `src/code-inventory.mjs` - Code-Inventur gegen Doppelarbeit
-- `src/quality-gate.mjs` - fuehrt Kontrollkette aus und entscheidet PASS/FAIL ohne `shell: true`
+- `src/firestore-economy-rules-check.mjs` - statischer Guardrail-Check fuer Firestore Economy Rules und Mega-Block-22-ALLOW/DENY-Haltung
+- `src/quality-gate.mjs` - fuehrt Kontrollkette inklusive Firestore-Economy-Rules-Check aus und entscheidet PASS/FAIL ohne `shell: true`
+- `output/firestore-economy-rules-check.md` - generierter Report des Firestore-Economy-Rules-Checks
 - `output/` - erzeugte Reports und Coder-Prompts
 
 ### `docs/architecture/`
@@ -123,7 +126,7 @@ Wichtige Dateien:
 - `INTERNAL_ECONOMY_GUARDRAILS.md` - interne Punkte-/XP-/Reward-Leitplanken vor Blockchain
 - `INTERNAL_POINTS_LEDGER_AND_BILLING.md` - internes Punkte-Ledger, Abrechnung, Audit und Korrektur vor Tokenisierung
 - `ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` - Server-Completion-Plan und Firestore-Haertung fuer Economy-Felder
-- `FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` - Emulator-/Rules-Testplan fuer Economy-Haertung
+- `FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` - Emulator-/Rules-Testplan und statischer Guardrail-Befehl fuer Economy-Haertung
 - `BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md` - Token/WFT/NFT erst nach stabilem internem Punkte- und Abrechnungssystem
 - `HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md` - Health-, Watch-, Kamera-, AR-, Standort- und Kinder-/Jugenddaten
 - `AR_RIDDLE_FIRESTORE_SECURITY_PLAN.md` - AR-Raetsel Firestore Security
@@ -170,7 +173,7 @@ Zu pruefen:
 - Assets / Bilder / Logos
 - Backend / API
 - Datenbank / Datenmodelle
-- Firestore Rules nach Server-Completion
+- echte Firebase-Emulator-Testdateien fuer Firestore Rules nach Server-Completion
 
 ## Einbau-Regel fuer neue Features
 Wenn eine neue Funktion gebaut wird, muss hier dokumentiert werden:
