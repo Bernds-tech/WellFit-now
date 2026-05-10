@@ -35,6 +35,11 @@ const agentSteps = [
     script: "scripts/wellfit-dev-agent/src/dry-run.mjs",
     displayCommand: "npm run agent:dry-run",
   },
+  {
+    label: "Firestore economy rules check",
+    script: "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
+    displayCommand: "npm run agent:firestore-economy-rules-check",
+  },
 ];
 
 function runNodeStep(step) {
@@ -118,15 +123,18 @@ function main() {
   const goalReport = readTextSafe("scripts/wellfit-dev-agent/output/alpha-goal-check.md");
   const memoryReport = readTextSafe("scripts/wellfit-dev-agent/output/memory-sync-report.md");
   const dryRunReport = readTextSafe("scripts/wellfit-dev-agent/output/dry-run-report.md");
+  const rulesReport = readTextSafe("scripts/wellfit-dev-agent/output/firestore-economy-rules-check.md");
 
   const alphaStep = getStep(steps, "Alpha goal check");
   const dryRunStep = getStep(steps, "Dry run planning");
   const memoryStep = getStep(steps, "Memory sync");
+  const rulesStep = getStep(steps, "Firestore economy rules check");
 
   const covered = parseCoveredTracks(`${goalReport}\n${alphaStep?.stdout ?? ""}`);
   const missingIndex = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in TODO index/structure memory") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in index");
   const missingPrompts = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Files requiring KI-Fortsetzungs-Prompt but missing it") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Files without KI-Fortsetzungs-Prompt") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing prompts");
   const plannedMicroTasks = parseNumber(`${dryRunReport}\n${dryRunStep?.stdout ?? ""}`, "Planned micro-tasks");
+  const rulesReportPassed = /Result:\s*PASS/i.test(`${rulesReport}\n${rulesStep?.stdout ?? ""}`);
 
   assertCondition(
     checks,
@@ -156,8 +164,15 @@ function main() {
     plannedMicroTasks === null ? "not found" : String(plannedMicroTasks),
   );
 
+  assertCondition(
+    checks,
+    "Firestore economy rules check passed",
+    rulesReportPassed,
+    rulesReportPassed ? "PASS" : "not found or FAIL",
+  );
+
   const passed = checks.every((check) => check.passed);
-  const report = `# WellFit Agent Quality Gate Report\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Gate Checks\n\n${renderChecks(checks)}\n\n## Required Standard\n\n- Agent validation must pass.\n- Alpha goal check must cover all required tracks.\n- Memory sync must report zero missing indexed files.\n- Memory sync must report zero required missing KI-Fortsetzungs-Prompts.\n- Dry run must produce planned micro-tasks.\n\n## Step Logs\n\n${steps.map(renderStep).join("\n\n")}\n\n## Next Action\n\n${passed ? "Quality gate passed. Continue with the next Beta-relevant task." : "Quality gate failed. Fix the failed checks before continuing with larger implementation work."}\n`;
+  const report = `# WellFit Agent Quality Gate Report\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Gate Checks\n\n${renderChecks(checks)}\n\n## Required Standard\n\n- Agent validation must pass.\n- Alpha goal check must cover all required tracks.\n- Memory sync must report zero missing indexed files.\n- Memory sync must report zero required missing KI-Fortsetzungs-Prompts.\n- Dry run must produce planned micro-tasks.\n- Firestore economy rules check must pass the current beta allow/deny guardrails.\n\n## Step Logs\n\n${steps.map(renderStep).join("\n\n")}\n\n## Next Action\n\n${passed ? "Quality gate passed. Continue with the next Beta-relevant task." : "Quality gate failed. Fix the failed checks before continuing with larger implementation work."}\n`;
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(QUALITY_REPORT_PATH, report, "utf8");
