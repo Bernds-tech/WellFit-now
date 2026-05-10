@@ -1,17 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 const WWW_HOST = "www.wellfit-now.io";
-const APEX_HOST = "wellfit-now.io";
+const APEX_ORIGIN = "https://wellfit-now.io";
 
 export function proxy(request: NextRequest) {
   const hostname = request.nextUrl.hostname.toLowerCase();
 
   if (hostname === WWW_HOST) {
-    const url = request.nextUrl.clone();
-    url.protocol = "https:";
-    url.hostname = APEX_HOST;
-    url.port = "";
-    return NextResponse.redirect(url, 308);
+    const redirectUrl = new URL(`${request.nextUrl.pathname}${request.nextUrl.search}`, APEX_ORIGIN);
+    return NextResponse.redirect(redirectUrl, 307);
   }
 
   return NextResponse.next();
