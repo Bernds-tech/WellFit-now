@@ -6,6 +6,28 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 17 - Footer-/Scrollbar-Overlay auf Missionsseiten entschärft.
+- Datei `app/globals.css` erweitert: alte absolut positionierte Footer in `section.relative` werden im Web-Beta-Layout als normale, nicht überlappende Flex-Footer behandelt.
+- Ziel: Karten, Detailkarten und rechte Scrollbars verschwinden nicht mehr hinter dem Footer.
+- Betrifft sichtbar u. a. Tagesmissionen, Wochenmissionen, Abenteuer, Challenge, Wettkämpfe, Favoriten und History, sofern dort noch Legacy-Footer mit `absolute bottom-0` verwendet werden.
+- `app/AppFooter.tsx` bereits auf nicht überlappendes Verhalten umgestellt.
+- Einklappbare Sidebar bleibt als eigener Folgeblock, damit Footer-/Scroll-Fix und Sidebar-State nicht vermischt werden.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Keine Firestore Rules gehaertet.
+- Live-Test auf `wellfit-now.io` erforderlich, weil sichtbare Layoutbereiche betroffen sind.
+- Lokaler Test erforderlich: Agent + Build.
+
+### 2026-05-09
+- Mega-Block 16 - Challenge, Favoriten und History auf Beta-/Encoding-Regeln bereinigt.
+- Datei `app/missionen/challenge/page.tsx` bereinigt: kaputte Umlaute/Emoji-Strings repariert, Token-Sprache entfernt und interne Punkte/Beta-Hinweise ergänzt.
+- Datei `app/missionen/favoriten/page.tsx` bereinigt: kaputte Umlaute/Emoji-Strings repariert und WFT-/NFT-Reste durch interne Punkte/Beta-Abzeichen ersetzt.
+- Datei `app/missionen/history/page.tsx` bereinigt: kaputte Umlaute repariert, Status `in Prüfung` korrigiert, leere Ansicht verbessert und Reward-Labels gegen WFT/NFT/Token-Reste sanitisiert.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Keine Firestore Rules gehaertet.
+- Live-Test auf `wellfit-now.io` erforderlich, weil sichtbare Missionsseiten betroffen sind.
+- Lokaler Test erforderlich: Agent + Build.
+
+### 2026-05-09
 - Mega-Block 15 - Token-/NFT-/WFT-Sprache und Encoding-Fehler in Wochenmissionen/Abenteuer bereinigt.
 - Datei `app/missionen/wochenmissionen/page.tsx` bereinigt: kaputte Umlaute/Emoji-Strings repariert und WFT-/NFT-Sprache entfernt.
 - Wochenmissionen nutzen jetzt interne Punkte, Beta-Abzeichen und Beta-Wochenkiste statt WFT oder Wochen-NFT.
@@ -171,7 +193,7 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 - Lokal erneut `git pull` und danach `npm run agent:code-inventory`, `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` und `npm run build` ausfuehren.
 - Wenn Quality-Gate FAIL meldet, `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen und neue fehlende Dateien in `TODO_INDEX.md` oder `PROJECT_STRUCTURE.md` aufnehmen.
 - Ab jetzt Web-Beta-Roadmap ohne Buddy AR / Unity in `docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md` als fuehrenden Restpfad nutzen.
-- Mega-Block 14 als naechstes: Dashboard- und Tagesmissionen von finalen User-Patches weiter entkoppeln.
+- Mega-Block 18 als naechstes: einklappbare Sidebar als eigener UI-Block vorbereiten.
 - Danach Punkte-Sinks, Emulator-Tests, Rules-Haertung, UX, Missionen, Mobile-Web, Onboarding, Legal, Smoke-Test und Puffer abarbeiten.
 - Wichtige offene Punkte nach `NEXT_ACTIONS.md` uebernehmen.
 - Agent nach TODO-/Roadmap-Aenderungen lokal ausfuehren: `npm run agent:validate`, `npm run agent:goal-check`, `npm run agent:memory-sync`, `npm run agent:coder-prompts`, `npm run agent:dry-run`, `npm run agent:quality-gate`.
