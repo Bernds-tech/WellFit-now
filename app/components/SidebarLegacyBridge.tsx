@@ -2,24 +2,53 @@
 
 import { useEffect, useState } from "react";
 
-const STORAGE_KEY = "wellfit-sidebar-collapsed";
+const SIDEBAR_STORAGE_KEY = "wellfit-sidebar-collapsed";
+const BRIGHTNESS_STORAGE_KEY = "wellfit-brightness";
 
+const clampBrightness = (value: number) => {
+  if (!Number.isFinite(value)) return 100;
+  return Math.max(5, Math.min(100, Math.round(value)));
+};
+
+const readBrightness = () => clampBrightness(Number(localStorage.getItem(BRIGHTNESS_STORAGE_KEY) ?? 100));
+const readCollapsed = () => localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true";
 const hasCentralSidebar = () => Boolean(document.querySelector("[data-wellfit-sidebar='central']"));
 const hasLegacySidebar = () => Boolean(document.querySelector("main > div.flex > aside"));
-const readCollapsed = () => localStorage.getItem(STORAGE_KEY) === "true";
+
+const createChromeColor = (brightness: number) => {
+  const ratio = Math.max(0.05, Math.min(1, brightness / 100));
+  const green = Math.round(35 + ratio * 75);
+  const blue = Math.round(40 + ratio * 85);
+  return `rgba(2, ${green}, ${blue}, 0.96)`;
+};
+
+const createPageBackground = (brightness: number) => {
+  const ratio = Math.max(0.05, Math.min(1, brightness / 100));
+  return `linear-gradient(to bottom right, rgba(0,170,190,${ratio}), rgba(0,80,90,1))`;
+};
 
 const applyCollapsedState = (collapsed: boolean) => {
   document.documentElement.dataset.wellfitSidebarCollapsed = String(collapsed);
 };
 
-const applyBrightnessVars = () => {
-  const range = document.querySelector("main > div.flex > aside input[type='range']") as HTMLInputElement | null;
-  const value = Number(range?.value ?? 100);
-  const ratio = Math.max(0.05, Math.min(1, value / 100));
-  const green = Math.round(35 + ratio * 75);
-  const blue = Math.round(40 + ratio * 85);
-  document.documentElement.style.setProperty("--wellfit-sidebar-bg", `rgba(2, ${green}, ${blue}, 0.96)`);
-  document.documentElement.style.setProperty("--wellfit-footer-bg", `rgba(2, ${green}, ${blue}, 0.96)`);
+const applyBrightness = (brightness: number) => {
+  const safeBrightness = clampBrightness(brightness);
+  const color = createChromeColor(safeBrightness);
+
+  document.documentElement.style.setProperty("--wellfit-sidebar-bg", color);
+  document.documentElement.style.setProperty("--wellfit-footer-bg", color);
+
+  document.querySelectorAll("input[type='range']").forEach((input) => {
+    const range = input as HTMLInputElement;
+    if (range.min === "5" && range.max === "100") {
+      range.value = String(safeBrightness);
+    }
+  });
+
+  const main = document.querySelector("main.h-screen") as HTMLElement | null;
+  if (main) {
+    main.style.background = createPageBackground(safeBrightness);
+  }
 };
 
 export default function SidebarLegacyBridge() {
@@ -29,29 +58,41 @@ export default function SidebarLegacyBridge() {
   useEffect(() => {
     const sync = () => {
       const nextCollapsed = readCollapsed();
+      const nextBrightness = readBrightness();
       applyCollapsedState(nextCollapsed);
-      applyBrightnessVars();
+      applyBrightness(nextBrightness);
       setCollapsed(nextCollapsed);
       setShowLegacyToggle(!hasCentralSidebar() && hasLegacySidebar());
+    };
+
+    const persistRangeInput = (event: Event) => {
+      const target = event.target as HTMLInputElement | null;
+      if (target?.type === "range" && target.min === "5" && target.max === "100") {
+        const next = clampBrightness(Number(target.value));
+        localStorage.setItem(BRIGHTNESS_STORAGE_KEY, String(next));
+        applyBrightness(next);
+      }
     };
 
     sync();
 
     const onStorage = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY) sync();
+      if (event.key === SIDEBAR_STORAGE_KEY || event.key === BRIGHTNESS_STORAGE_KEY) sync();
     };
     const onInteraction = () => window.setTimeout(sync, 0);
 
     window.addEventListener("storage", onStorage);
     window.addEventListener("click", onInteraction);
-    window.addEventListener("input", onInteraction);
+    window.addEventListener("input", persistRangeInput, true);
     window.addEventListener("resize", onInteraction);
+    window.addEventListener("popstate", onInteraction);
 
     return () => {
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("click", onInteraction);
-      window.removeEventListener("input", onInteraction);
+      window.removeEventListener("input", persistRangeInput, true);
       window.removeEventListener("resize", onInteraction);
+      window.removeEventListener("popstate", onInteraction);
     };
   }, []);
 
@@ -62,7 +103,7 @@ export default function SidebarLegacyBridge() {
       type="button"
       onClick={() => {
         const next = !readCollapsed();
-        localStorage.setItem(STORAGE_KEY, String(next));
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
         applyCollapsedState(next);
         setCollapsed(next);
       }}
