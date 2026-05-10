@@ -2,7 +2,7 @@
 
 export default function AppFooter({ reward }: { reward: number }) {
   return (
-    <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-5 py-3">
+    <div className="mt-4 flex shrink-0 items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-5 py-3">
       <div className="flex items-center gap-3">
         <div className="min-w-[150px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2">
           <p className="text-[10px] uppercase text-white/50">Letzter Login</p>
