@@ -47,6 +47,7 @@ Wichtige Dateien:
 - `reserve.ts` - interne Reserve-, RewardRate- und PriceRate-Logik
 - `rewardPreview.ts` - sichere RewardPreview-Entscheidung: preview_allowed / manual_review / blocked
 - `spend.ts` - SpendPreview fuer interne Punkte-Sinks
+- `serverAuth.ts` - Beta-sichere Auth-/Ownership-Vorstufe fuer Economy APIs, aktuell ohne harte Auth-Pflicht
 - `serverCompletionPlan.ts` - Client-Write-Risiken, server-only Collections und Completion-Stufen
 - `serverPersistence.ts` - Persistenz-Guardrails, aktuell `draft_only`, `writeEnabled: false`, `firestoreWritesEnabled: false`
 - `serverLedgerDraft.ts` - serverseitige Draft-Records fuer spaetere Firestore-/Ledger-Persistenz, aktuell ohne Write-Autoritaet
@@ -58,11 +59,11 @@ Wichtige Dateien:
 Servernahe interne Economy-APIs. Keine echten Token, NFTs, Wallets, Auszahlungen oder echten Kaeufe.
 
 Wichtige Dateien:
-- `reward-preview/route.ts` - RewardPreview-API ohne finale Punktegutschrift, gibt `serverDraft` zurueck
-- `spend-preview/route.ts` - SpendPreview-API ohne echten Kauf, gibt `serverDraft` zurueck
+- `reward-preview/route.ts` - RewardPreview-API ohne finale Punktegutschrift, gibt Auth-Kontext, `serverDraft` und `persistenceRequest` zurueck
+- `spend-preview/route.ts` - SpendPreview-API ohne echten Kauf, gibt Auth-Kontext, `serverDraft` und `persistenceRequest` zurueck
 - `security-plan/route.ts` - Security-/Completion-Plan gegen clientseitige Economy-Autoritaet, inklusive Persistence-Status
 - `persistence-status/route.ts` - zeigt explizit `draft_only` und deaktivierte Firestore-/Final-Writes
-- `complete-mission/route.ts` - Mission-Completion-Entscheidung als Server-Vorstufe, gibt `serverDrafts` zurueck, noch ohne finale Persistenz/Gutschrift
+- `complete-mission/route.ts` - Mission-Completion-Entscheidung als Server-Vorstufe, gibt Auth-Kontext, `serverDrafts` und `persistenceRequests` zurueck, noch ohne finale Persistenz/Gutschrift
 
 ### `app/dashboard/`
 Dashboard-UI und dashboardnahe Produktlogik.
