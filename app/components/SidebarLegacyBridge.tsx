@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const SIDEBAR_STORAGE_KEY = "wellfit-sidebar-collapsed";
 const BRIGHTNESS_STORAGE_KEY = "wellfit-brightness";
@@ -31,10 +32,16 @@ const applyCollapsedState = (collapsed: boolean) => {
   document.documentElement.dataset.wellfitSidebarCollapsed = String(collapsed);
 };
 
+const setNativeRangeValue = (range: HTMLInputElement, value: string) => {
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+  setter?.call(range, value);
+};
+
 const dispatchRangeUpdate = (range: HTMLInputElement, value: number) => {
   const nextValue = String(value);
-  if (range.value === nextValue) return;
-  range.value = nextValue;
+  if (range.value !== nextValue) {
+    setNativeRangeValue(range, nextValue);
+  }
   range.dispatchEvent(new Event("input", { bubbles: true }));
   range.dispatchEvent(new Event("change", { bubbles: true }));
 };
@@ -52,7 +59,7 @@ const applyBrightness = (brightness: number, syncReactRanges = true) => {
       if (syncReactRanges) {
         dispatchRangeUpdate(range, safeBrightness);
       } else {
-        range.value = String(safeBrightness);
+        setNativeRangeValue(range, String(safeBrightness));
       }
     }
   });
@@ -63,7 +70,16 @@ const applyBrightness = (brightness: number, syncReactRanges = true) => {
   }
 };
 
+const syncRepeatedly = (sync: () => void) => {
+  sync();
+  window.setTimeout(sync, 0);
+  window.setTimeout(sync, 50);
+  window.setTimeout(sync, 150);
+  window.setTimeout(sync, 350);
+};
+
 export default function SidebarLegacyBridge() {
+  const pathname = usePathname();
   const [showLegacyToggle, setShowLegacyToggle] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -86,10 +102,13 @@ export default function SidebarLegacyBridge() {
       }
     };
 
-    sync();
+    syncRepeatedly(sync);
+
+    const observer = new MutationObserver(() => window.setTimeout(sync, 0));
+    observer.observe(document.body, { childList: true, subtree: true });
 
     const onStorage = (event: StorageEvent) => {
-      if (event.key === SIDEBAR_STORAGE_KEY || event.key === BRIGHTNESS_STORAGE_KEY) sync();
+      if (event.key === SIDEBAR_STORAGE_KEY || event.key === BRIGHTNESS_STORAGE_KEY) syncRepeatedly(sync);
     };
     const onInteraction = () => window.setTimeout(sync, 0);
 
@@ -100,13 +119,14 @@ export default function SidebarLegacyBridge() {
     window.addEventListener("popstate", onInteraction);
 
     return () => {
+      observer.disconnect();
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("click", onInteraction);
       window.removeEventListener("input", persistRangeInput, true);
       window.removeEventListener("resize", onInteraction);
       window.removeEventListener("popstate", onInteraction);
     };
-  }, []);
+  }, [pathname]);
 
   if (!showLegacyToggle) return null;
 
