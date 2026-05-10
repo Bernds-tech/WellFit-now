@@ -31,7 +31,15 @@ const applyCollapsedState = (collapsed: boolean) => {
   document.documentElement.dataset.wellfitSidebarCollapsed = String(collapsed);
 };
 
-const applyBrightness = (brightness: number) => {
+const dispatchRangeUpdate = (range: HTMLInputElement, value: number) => {
+  const nextValue = String(value);
+  if (range.value === nextValue) return;
+  range.value = nextValue;
+  range.dispatchEvent(new Event("input", { bubbles: true }));
+  range.dispatchEvent(new Event("change", { bubbles: true }));
+};
+
+const applyBrightness = (brightness: number, syncReactRanges = true) => {
   const safeBrightness = clampBrightness(brightness);
   const color = createChromeColor(safeBrightness);
 
@@ -41,7 +49,11 @@ const applyBrightness = (brightness: number) => {
   document.querySelectorAll("input[type='range']").forEach((input) => {
     const range = input as HTMLInputElement;
     if (range.min === "5" && range.max === "100") {
-      range.value = String(safeBrightness);
+      if (syncReactRanges) {
+        dispatchRangeUpdate(range, safeBrightness);
+      } else {
+        range.value = String(safeBrightness);
+      }
     }
   });
 
@@ -70,7 +82,7 @@ export default function SidebarLegacyBridge() {
       if (target?.type === "range" && target.min === "5" && target.max === "100") {
         const next = clampBrightness(Number(target.value));
         localStorage.setItem(BRIGHTNESS_STORAGE_KEY, String(next));
-        applyBrightness(next);
+        applyBrightness(next, false);
       }
     };
 
