@@ -3,6 +3,8 @@
 :root {
   --background: #0b0f14;
   --foreground: #ffffff;
+  --wellfit-sidebar-bg: rgba(2, 110, 125, 0.96);
+  --wellfit-footer-bg: rgba(2, 110, 125, 0.96);
 }
 
 * {
@@ -36,6 +38,47 @@ main section.relative > div.min-h-0.flex-1 {
 
 main section.relative > div.absolute.bottom-0.left-0.right-0.flex.items-center.justify-between.border-t {
   z-index: 20;
+}
+
+main > div.flex > aside:not([data-wellfit-sidebar="central"]) {
+  background-color: var(--wellfit-sidebar-bg) !important;
+  transition: width 200ms ease-out, background-color 180ms ease-out;
+}
+
+main section.relative > div.absolute.bottom-0.left-0.right-0.flex.items-center.justify-between.border-t {
+  background-color: var(--wellfit-footer-bg) !important;
+}
+
+html[data-wellfit-sidebar-collapsed="true"] main > div.flex > aside:not([data-wellfit-sidebar="central"]) {
+  width: 74px !important;
+  min-width: 74px !important;
+  max-width: 74px !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  overflow: hidden !important;
+}
+
+html[data-wellfit-sidebar-collapsed="true"] main > div.flex > aside:not([data-wellfit-sidebar="central"]) img {
+  width: 52px !important;
+  height: 52px !important;
+  object-fit: contain !important;
+}
+
+html[data-wellfit-sidebar-collapsed="true"] main > div.flex > aside:not([data-wellfit-sidebar="central"]) nav,
+html[data-wellfit-sidebar-collapsed="true"] main > div.flex > aside:not([data-wellfit-sidebar="central"]) div:not(:first-child) {
+  font-size: 0 !important;
+}
+
+html[data-wellfit-sidebar-collapsed="true"] main > div.flex > aside:not([data-wellfit-sidebar="central"]) a,
+html[data-wellfit-sidebar-collapsed="true"] main > div.flex > aside:not([data-wellfit-sidebar="central"]) button {
+  font-size: 0 !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+html[data-wellfit-sidebar-collapsed="true"] main > div.flex > aside:not([data-wellfit-sidebar="central"]) a::first-letter,
+html[data-wellfit-sidebar-collapsed="true"] main > div.flex > aside:not([data-wellfit-sidebar="central"]) button::first-letter {
+  font-size: 16px !important;
 }
 
 @keyframes spinY {
