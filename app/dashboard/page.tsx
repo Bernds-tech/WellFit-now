@@ -21,6 +21,7 @@ import {
   getRewardPreviewUiLabel,
 } from "./lib/missionRewardPreview";
 import { fetchDashboardMissionRewardPreview } from "./lib/serverPreviewApi";
+import { fetchDashboardUserProjection } from "./lib/serverProjectionApi";
 
 export default function DashboardPage() {
   const {
@@ -40,6 +41,7 @@ export default function DashboardPage() {
   const [buddyHunger, setBuddyHunger] = useState(100);
   const [foodPrice, setFoodPrice] = useState(5);
   const [missionPreview, setMissionPreview] = useState<DashboardMissionPreview | undefined>(undefined);
+  const [projectionSource, setProjectionSource] = useState<"server" | "local">("local");
 
   const mission = useMemo(() => getPersonalMission(user), [user]);
 
@@ -72,13 +74,24 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
 
-    queueMicrotask(() => {
-      setPointsBalance(user.points ?? 0);
-      setBuddyEnergy(user.avatar?.energy ?? 100);
-      setBuddyHunger(user.avatar?.hunger ?? 100);
-      setBuddyLevel(user.avatar?.level ?? user.level ?? 1);
-      setStepsToday(user.stepsToday ?? 0);
+    let isCancelled = false;
+
+    fetchDashboardUserProjection(user).then((projection) => {
+      if (isCancelled) return;
+
+      queueMicrotask(() => {
+        setPointsBalance(projection.points);
+        setBuddyEnergy(projection.avatarEnergy);
+        setBuddyHunger(projection.avatarHunger);
+        setBuddyLevel(projection.avatarLevel);
+        setStepsToday(projection.stepsToday);
+        setProjectionSource(projection.source);
+      });
     });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [user]);
 
   useEffect(() => {
@@ -140,7 +153,11 @@ export default function DashboardPage() {
             buddyLevel={buddyLevel}
           />
 
-          <DashboardEconomyPanel pointsBalance={pointsBalance} userId={user?.id} />
+          <DashboardEconomyPanel
+            pointsBalance={pointsBalance}
+            userId={user?.id}
+            projectionSource={projectionSource}
+          />
 
           {mission && (
             <DashboardMissionPanel
