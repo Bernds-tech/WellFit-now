@@ -6,6 +6,20 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 13 - Auth-/User-Validierung fuer Economy APIs vorbereitet.
+- Datei `lib/economy/serverAuth.ts` angelegt: Beta-sichere Auth-/Ownership-Vorstufe mit `beta_body_user_fallback` und spaeterem `verified_server_auth`-Modus.
+- Datei `lib/economy/index.ts` erweitert: `serverAuth` wird zentral exportiert.
+- Datei `app/api/economy/reward-preview/route.ts` erweitert: API nutzt Auth-Kontext und gibt `auth`-Summary zurueck.
+- Datei `app/api/economy/complete-mission/route.ts` erweitert: API nutzt Auth-Kontext und gibt `auth`-Summary zurueck.
+- Datei `app/api/economy/spend-preview/route.ts` erweitert: API nutzt Auth-Kontext und gibt `auth`-Summary zurueck.
+- Datei `todolist/PROJECT_STRUCTURE.md` aktualisiert: `serverAuth.ts` und Auth-Kontext in Economy APIs dokumentiert.
+- Harte Auth-Pflicht wurde bewusst noch nicht aktiviert, damit Beta-Fallbacks nicht brechen.
+- Keine Firestore Rules gehaertet.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Kein Live-Test auf `wellfit-now.io` erforderlich.
+- Lokaler Test erforderlich: Agent + Build.
+
+### 2026-05-09
 - Mega-Block 12 - Server-Ledger-Persistenz-Vorstufe konkretisiert.
 - Datei `lib/economy/serverPersistence.ts` erweitert: Dry-Run-Persistenz-Requests, Collection-Allowlist, Dokument-ID-Pruefung und Pfadbildung fuer spaetere server-only Firestore Writes.
 - Datei `app/api/economy/reward-preview/route.ts` erweitert: API gibt jetzt `persistenceRequest` fuer den RewardPreview-Draft zurueck.
@@ -146,8 +160,8 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 - Lokal erneut `git pull` und danach `npm run agent:code-inventory`, `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` und `npm run build` ausfuehren.
 - Wenn Quality-Gate FAIL meldet, `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen und neue fehlende Dateien in `TODO_INDEX.md` oder `PROJECT_STRUCTURE.md` aufnehmen.
 - Ab jetzt Web-Beta-Roadmap ohne Buddy AR / Unity in `docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md` als fuehrenden Restpfad nutzen.
-- Mega-Block 13 als naechstes: Auth-/User-Validierung fuer Economy APIs vorbereiten.
-- Danach Client-Write-Entkopplung, Punkte-Sinks, Emulator-Tests, Rules-Haertung, UX, Missionen, Mobile-Web, Onboarding, Legal, Smoke-Test und Puffer abarbeiten.
+- Mega-Block 14 als naechstes: Dashboard- und Tagesmissionen von finalen User-Patches weiter entkoppeln.
+- Danach Punkte-Sinks, Emulator-Tests, Rules-Haertung, UX, Missionen, Mobile-Web, Onboarding, Legal, Smoke-Test und Puffer abarbeiten.
 - Wichtige offene Punkte nach `NEXT_ACTIONS.md` uebernehmen.
 - Agent nach TODO-/Roadmap-Aenderungen lokal ausfuehren: `npm run agent:validate`, `npm run agent:goal-check`, `npm run agent:memory-sync`, `npm run agent:coder-prompts`, `npm run agent:dry-run`, `npm run agent:quality-gate`.
 - Alternativ kompletten Agentenlauf mit `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` starten.
