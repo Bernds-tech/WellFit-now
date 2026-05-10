@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AppSidebar from "@/app/AppSidebar";
 import AppFooter from "@/app/AppFooter";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
@@ -17,6 +17,7 @@ import {
   getDailyMissionRewardPreviewLabel,
 } from "./rewardEngine";
 import { fetchDailyMissionCompletion } from "./serverCompletionApi";
+import { fetchDailyMissionProjection } from "./serverProjectionApi";
 import { useDailyMissionFirebase } from "./useDailyMissionFirebase";
 import { applyMissionBuddyBridge } from "../lib/missionBuddyBridge";
 
@@ -53,6 +54,8 @@ export default function MissionenPage() {
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
   const [rewardDetailsOpen, setRewardDetailsOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Ziehe Missionen in deine 3 Tagesfelder.");
+  const [projectionSource, setProjectionSource] = useState<"server" | "local">("local");
+  const [projectionHint, setProjectionHint] = useState("Projection Read: lokaler Fallback");
 
   const {
     favoriteIds,
@@ -70,10 +73,39 @@ export default function MissionenPage() {
     currentStreak,
     longestStreak,
     streakBonus,
+    xp,
     level,
     xpForCurrentLevel,
     xpForNextLevel,
   } = useDailyMissionFirebase();
+
+  useEffect(() => {
+    if (!ready) return;
+
+    let isCancelled = false;
+
+    fetchDailyMissionProjection({
+      userId,
+      xp,
+      level,
+      currentStreak,
+      longestStreak,
+    }).then((projection) => {
+      if (isCancelled) return;
+      setProjectionSource(projection.source);
+      setProjectionHint(
+        projection.source === "server"
+          ? "Projection Read: API-Vorstufe aktiv"
+          : userId
+            ? "Projection Read: lokaler Fallback"
+            : "Projection Read: kein Profil geladen"
+      );
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [currentStreak, level, longestStreak, ready, userId, xp]);
 
   const selectedMission = dailyMissions.find((mission) => mission.id === selectedMissionId) ?? dailyMissions[0];
   const isStarted = startedMissionIds.includes(selectedMission.id);
@@ -243,7 +275,7 @@ export default function MissionenPage() {
             xpForNextLevel={xpForNextLevel}
           />
 
-          <p className="-mt-3 mb-3 text-sm font-semibold text-cyan-100/80">
+          <p className="-mt-3 mb-1 text-sm font-semibold text-cyan-100/80">
             {!ready
               ? "Lade Tagesmissionen..."
               : isCompleted
@@ -251,6 +283,9 @@ export default function MissionenPage() {
                 : isStarted
                   ? `${selectedMission.title} läuft bereits.`
                   : statusMessage}
+          </p>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100/45">
+            {projectionHint} · {projectionSource === "server" ? "keine finale Autorität" : "MVP-Brücke bleibt aktiv"}
           </p>
 
           <div className="mb-4 flex justify-center">
