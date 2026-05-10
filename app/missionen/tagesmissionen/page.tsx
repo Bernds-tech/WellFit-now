@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import AppSidebar from "@/app/AppSidebar";
 import AppFooter from "@/app/AppFooter";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import DailyHeader from "./DailyHeader";
 import DailySlots from "./DailySlots";
 import FavoritesStrip from "./FavoritesStrip";
@@ -47,7 +48,7 @@ const tabHref = (tab: MissionTab) =>
               : "/missionen/history";
 
 export default function MissionenPage() {
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(dailyMissions[0].id);
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
   const [rewardDetailsOpen, setRewardDetailsOpen] = useState(false);
