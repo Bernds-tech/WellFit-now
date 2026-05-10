@@ -97,6 +97,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 
 | Bereich | Status | Pfad / Dateien | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
+| WWW Domain | aktiv / Live OK | `todolist/status/2026-05-10-www-domain-live-ok.md` | `todolist/LAST_BUILD_STATUS.md` | als Domain-Nachweis behalten |
 | User Projection API | aktiv / Build OK | `todolist/status/2026-05-10-user-projection-api-build-ok.md` | `todolist/LAST_BUILD_STATUS.md` | als Build-Nachweis behalten |
 | User Projection API | aktiv / Live+Lokal OK | `todolist/status/2026-05-10-user-projection-api-live-local-ok.md` | `todolist/LAST_BUILD_STATUS.md` | als API-Testnachweis behalten |
 | Firestore Economy Emulator | aktiv / PASS | `todolist/status/2026-05-10-firestore-economy-emulator-pass.md` | `docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` | als lokalen Emulator-Nachweis behalten |
