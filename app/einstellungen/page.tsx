@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import AppSidebar from "@/app/AppSidebar";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import AccountManagementCard from "./components/AccountManagementCard";
 import ActivityCard from "./components/ActivityCard";
 import AiBuddyCard from "./components/AiBuddyCard";
@@ -42,7 +43,7 @@ import type {
 } from "./types";
 
 export default function SettingsPage() {
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [saveMessage, setSaveMessage] = useState("");
@@ -128,109 +129,16 @@ export default function SettingsPage() {
           </div>
 
           <div className="grid flex-1 grid-cols-3 gap-4 overflow-y-auto pr-2 pb-8 text-sm">
-            <ProfileCard
-              profile={profile}
-              inputClass={inputClass}
-              selectClass={selectClass}
-              saveButtonClass={saveButtonClass}
-              isLoadingUser={isLoadingUser}
-              updateProfileField={updateProfileField}
-              saveProfile={() => saveProfile(profile, permissions)}
-            />
-
-            <SecurityCard
-              email={profile.email}
-              securityMessage={securityMessage}
-              isLoadingUser={isLoadingUser}
-              isSendingPasswordReset={isSendingPasswordReset}
-              saveButtonClass={saveButtonClass}
-              sendSecurityPasswordReset={() => sendSecurityPasswordReset(profile.email)}
-            />
-
-            <BiometricsCard
-              biometrics={biometrics}
-              inputClass={inputClass}
-              selectClass={selectClass}
-              saveButtonClass={saveButtonClass}
-              isLoadingUser={isLoadingUser}
-              updateBiometricsField={updateBiometricsField}
-              saveBiometrics={() => saveBiometrics(biometrics)}
-              ToggleButton={ToggleButton}
-              toggleBase={toggleBase}
-            />
-
-            <NotificationsCard
-              notifications={notifications}
-              saveButtonClass={saveButtonClass}
-              isLoadingUser={isLoadingUser}
-              updateNotificationField={updateNotificationField}
-              saveNotifications={() => saveNotifications(notifications)}
-              ToggleButton={ToggleButton}
-              toggleBase={toggleBase}
-            />
-
-            <VitalValuesCard
-              vitalValues={vitalValues}
-              inputClass={inputClass}
-              selectClass={selectClass}
-              saveButtonClass={saveButtonClass}
-              isLoadingUser={isLoadingUser}
-              updateVitalValuesField={updateVitalValuesField}
-              saveVitalValues={() => saveVitalValues(vitalValues)}
-            />
-
-            <LifestyleCard
-              lifestyle={lifestyle}
-              inputClass={inputClass}
-              selectClass={selectClass}
-              saveButtonClass={saveButtonClass}
-              isLoadingUser={isLoadingUser}
-              updateLifestyleField={updateLifestyleField}
-              saveLifestyle={() => saveLifestyle(lifestyle)}
-            />
-
-            <ActivityCard
-              activity={activity}
-              inputClass={inputClass}
-              selectClass={selectClass}
-              saveButtonClass={saveButtonClass}
-              isLoadingUser={isLoadingUser}
-              updateActivityField={updateActivityField}
-              saveActivity={() => saveActivity(activity)}
-            />
-
-            <AiBuddyCard
-              aiBuddy={aiBuddy}
-              selectClass={selectClass}
-              saveButtonClass={saveButtonClass}
-              isLoadingUser={isLoadingUser}
-              updateAiBuddyField={updateAiBuddyField}
-              saveAiBuddy={() => saveAiBuddy(aiBuddy)}
-              ToggleButton={ToggleButton}
-              toggleBase={toggleBase}
-            />
-
-            <PrivacyCard
-              privacy={privacy}
-              selectClass={selectClass}
-              saveButtonClass={saveButtonClass}
-              isLoadingUser={isLoadingUser}
-              updatePrivacyField={updatePrivacyField}
-              savePrivacy={() => savePrivacy(privacy)}
-              ToggleButton={ToggleButton}
-              toggleBase={toggleBase}
-            />
-
-            <PermissionsCard
-              permissions={permissions}
-              selectClass={selectClass}
-              saveButtonClass={saveButtonClass}
-              isLoadingUser={isLoadingUser}
-              updatePermission={updatePermission}
-              savePermissions={() => savePermissions(permissions)}
-              toggleBase={toggleBase}
-            />
-
+            <ProfileCard profile={profile} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateProfileField={updateProfileField} saveProfile={() => saveProfile(profile, permissions)} />
+            <SecurityCard email={profile.email} securityMessage={securityMessage} isLoadingUser={isLoadingUser} isSendingPasswordReset={isSendingPasswordReset} saveButtonClass={saveButtonClass} sendSecurityPasswordReset={() => sendSecurityPasswordReset(profile.email)} />
+            <BiometricsCard biometrics={biometrics} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateBiometricsField={updateBiometricsField} saveBiometrics={() => saveBiometrics(biometrics)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
+            <NotificationsCard notifications={notifications} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateNotificationField={updateNotificationField} saveNotifications={() => saveNotifications(notifications)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
+            <VitalValuesCard vitalValues={vitalValues} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateVitalValuesField={updateVitalValuesField} saveVitalValues={() => saveVitalValues(vitalValues)} />
+            <LifestyleCard lifestyle={lifestyle} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateLifestyleField={updateLifestyleField} saveLifestyle={() => saveLifestyle(lifestyle)} />
+            <ActivityCard activity={activity} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateActivityField={updateActivityField} saveActivity={() => saveActivity(activity)} />
+            <AiBuddyCard aiBuddy={aiBuddy} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateAiBuddyField={updateAiBuddyField} saveAiBuddy={() => saveAiBuddy(aiBuddy)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
+            <PrivacyCard privacy={privacy} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updatePrivacyField={updatePrivacyField} savePrivacy={() => savePrivacy(privacy)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
+            <PermissionsCard permissions={permissions} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updatePermission={updatePermission} savePermissions={() => savePermissions(permissions)} toggleBase={toggleBase} />
             <AccountManagementCard />
           </div>
         </section>
