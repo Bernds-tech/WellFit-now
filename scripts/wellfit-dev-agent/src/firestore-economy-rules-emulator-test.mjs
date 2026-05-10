@@ -18,7 +18,7 @@ import {
 
 const FIRESTORE_HOST = process.env.FIRESTORE_EMULATOR_HOST ?? "127.0.0.1:8080";
 const AUTH_HOST = process.env.FIREBASE_AUTH_EMULATOR_HOST ?? "127.0.0.1:9099";
-const PROJECT_ID = process.env.FIREBASE_EMULATOR_PROJECT_ID ?? "wellfit-rules-test";
+const PROJECT_ID = process.env.FIREBASE_EMULATOR_PROJECT_ID ?? "demo-no-project";
 
 const now = Date.now();
 const ownerHandle = `rules-owner-${now}`;
@@ -74,6 +74,9 @@ async function expectDeny(results, name, action) {
 function printResults(results) {
   const passed = results.length > 0 && results.every((result) => result.passed);
   console.log(`Firestore economy rules emulator test result: ${passed ? "PASS" : "FAIL"}`);
+  console.log(`Project ID: ${PROJECT_ID}`);
+  console.log(`Auth emulator: ${AUTH_HOST}`);
+  console.log(`Firestore emulator: ${FIRESTORE_HOST}`);
   if (results.length === 0) console.log("FAIL: no assertions ran. The emulator is probably not running.");
   for (const result of results) {
     console.log(`${result.passed ? "OK" : "FAIL"}: ${result.name} (${result.details})`);
@@ -84,7 +87,7 @@ function printResults(results) {
 async function main() {
   const app = initializeApp({
     apiKey: "wellfit-emulator-test-key",
-    authDomain: "wellfit-emulator-test.local",
+    authDomain: `${PROJECT_ID}.local`,
     projectId: PROJECT_ID,
   }, `wellfit-rules-test-${now}`);
 
