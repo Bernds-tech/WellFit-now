@@ -30,6 +30,7 @@ Wichtige Dateien:
 - `TODO_CONSOLIDATION.md` - Konsolidierung alter und kleiner TODO-Dateien ohne Loeschung
 - `TODO_INDEX.md` - zentraler Index fuer TODOs, Querverweise und Alt-Dateien
 - `LOCAL_AGENT_RUN_INSTRUCTIONS.md` - lokale Anleitung fuer Bernd zum Ausfuehren des Dev-Agenten
+- `status/2026-05-10-firestore-economy-rules-guardrail-check-prepared.md` - Statusnachweis fuer Mega-Block-23-Guardrail-Check
 
 ### `config/`
 Konfigurationen fuer Economy und globale App-Parameter.
