@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import PwaInstaller from "@/app/components/PwaInstaller";
+import SidebarLegacyBridge from "@/app/components/SidebarLegacyBridge";
 import { LanguageProvider } from "@/app/components/useLegalLanguage";
 import "./globals.css";
 
@@ -45,6 +46,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <LanguageProvider>
           <PwaInstaller />
+          <SidebarLegacyBridge />
           {children}
         </LanguageProvider>
       </body>
