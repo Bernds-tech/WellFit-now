@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import {
   createEconomyServerAuthContext,
-  createEconomyServerPersistenceRequest,
+  createEconomyServerPersistenceRequests,
   createInternalSpendPreviewDecision,
-  createSpendPreviewServerDraft,
+  createSpendPersistenceBundle,
   summarizeEconomyServerAuthContext,
   summarizeInternalSpendDecisionForStorage,
 } from "@/lib/economy";
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       sourceId: asString(body.sourceId, "api-spend-preview"),
       correlationId: typeof body.correlationId === "string" ? body.correlationId : undefined,
     });
-    const serverDraft = createSpendPreviewServerDraft(decision);
+    const serverDrafts = createSpendPersistenceBundle(decision);
 
     return NextResponse.json({
       ok: true,
@@ -80,8 +80,15 @@ export async function POST(request: Request) {
       remainingPoints: decision.remainingPoints,
       reasons: decision.reasons,
       ledgerSummary: summarizeInternalSpendDecisionForStorage(decision),
-      serverDraft,
-      persistenceRequest: createEconomyServerPersistenceRequest(serverDraft),
+      serverDrafts,
+      persistenceRequests: createEconomyServerPersistenceRequests(serverDrafts),
+      persistenceBundle: {
+        collections: serverDrafts.map((draft) => draft.collection),
+        draftCount: serverDrafts.length,
+        finalAuthority: false,
+        tokenized: false,
+        writeNow: false,
+      },
     });
   } catch (error) {
     return NextResponse.json(
