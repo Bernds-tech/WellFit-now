@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import GoogleCompetitionMap from "./GoogleCompetitionMap";
 
 type CheckpointType = "Mathe" | "Fitness" | "Avatar" | "Rätsel" | "Sprint";
@@ -30,101 +31,11 @@ type Checkpoint = {
 };
 
 const checkpoints: Checkpoint[] = [
-  {
-    id: 1,
-    title: "Rathaus-Checkpoint",
-    type: "Mathe",
-    duelType: "Nutzer gegen Nutzer",
-    mayor: "FlammiMax",
-    mayorScore: "934 Punkte",
-    challengers: 18,
-    entryPreview: "10 interne Punkte",
-    spectatorStatus: "Zuschauen offen",
-    status: "Umkämpft",
-    lat: 48.210033,
-    lng: 16.363449,
-    icon: "🧠",
-    description: "Mathe-Duell am Checkpoint. Wer schneller richtig löst, kann Bürgermeister werden.",
-    nextWindow: "Heute · 18:00–20:00",
-    serverPath: "Matchmaking -> Evidence -> Server-Sieger -> Ledger später",
-    evidenceNeeded: ["Checkpoint-Nähe", "Antwortzeit", "Richtige Antworten", "Cooldown-Prüfung"],
-  },
-  {
-    id: 2,
-    title: "Park-Sprint Gate",
-    type: "Sprint",
-    duelType: "Zeitrennen",
-    mayor: "LunaRun",
-    mayorScore: "00:42",
-    challengers: 11,
-    entryPreview: "Proof nötig",
-    spectatorStatus: "Live bald",
-    status: "Offen",
-    lat: 48.204994,
-    lng: 16.386607,
-    icon: "🏃",
-    description: "Kurzer Sprint-Checkpoint mit späterer GPS-/Evidence-Prüfung.",
-    nextWindow: "Morgen · 07:00–09:00",
-    serverPath: "GPS/Time Proof -> Plausibilität -> Server-Ranking",
-    evidenceNeeded: ["GPS-Route", "Zeitfenster", "Bewegungsdaten", "Anti-Cheat-Prüfung"],
-  },
-  {
-    id: 3,
-    title: "Burg-Arena",
-    type: "Avatar",
-    duelType: "Avatar gegen Avatar",
-    mayor: "Drako",
-    mayorScore: "Level 12",
-    challengers: 7,
-    entryPreview: "Arena-Pot später",
-    spectatorStatus: "Nur Freunde",
-    status: "Geschützt",
-    lat: 48.205914,
-    lng: 16.357956,
-    icon: "⚔️",
-    description: "Avatar-gegen-Avatar-Arena. Sieger und Pot dürfen später nur serverseitig entschieden werden.",
-    nextWindow: "Heute · 21:00",
-    serverPath: "Avatar-State -> Fairness -> Server-Kampfentscheidung",
-    evidenceNeeded: ["Avatar-Level", "Ausrüstung", "Energie", "Fairness-Matchmaking"],
-  },
-  {
-    id: 4,
-    title: "Wissensbrücke",
-    type: "Rätsel",
-    duelType: "Gruppen-Duell",
-    mayor: "QuizMira",
-    mayorScore: "12 Siege",
-    challengers: 21,
-    entryPreview: "ohne Auszahlung",
-    spectatorStatus: "Zuschauen offen",
-    status: "Umkämpft",
-    lat: 48.215115,
-    lng: 16.396277,
-    icon: "🧩",
-    description: "Rätsel-Checkpoint für Nutzerduelle und Zuschauer-Modus.",
-    nextWindow: "Samstag · Community-Runde",
-    serverPath: "Team-Join -> Rätsel-Evidence -> Server-Auswertung",
-    evidenceNeeded: ["Team-Zuordnung", "Antworten", "Zeit", "Mehrfachversuch-Sperre"],
-  },
-  {
-    id: 5,
-    title: "Fitness-Hof",
-    type: "Fitness",
-    duelType: "Nutzer gegen Nutzer",
-    mayor: "PushUpBen",
-    mayorScore: "41 Reps",
-    challengers: 14,
-    entryPreview: "Kamera-Proof später",
-    spectatorStatus: "Live bald",
-    status: "Offen",
-    lat: 48.198123,
-    lng: 16.371512,
-    icon: "💪",
-    description: "Fitness-Duell mit späterer KI-/Kamera-Validierung.",
-    nextWindow: "Heute · flexibel",
-    serverPath: "Kamera-Proof -> Pose-Validation -> Server-Review",
-    evidenceNeeded: ["Pose-Proof", "Wiederholungen", "Qualität", "Cooldown"],
-  },
+  { id: 1, title: "Rathaus-Checkpoint", type: "Mathe", duelType: "Nutzer gegen Nutzer", mayor: "FlammiMax", mayorScore: "934 Punkte", challengers: 18, entryPreview: "10 interne Punkte", spectatorStatus: "Zuschauen offen", status: "Umkämpft", lat: 48.210033, lng: 16.363449, icon: "🧠", description: "Mathe-Duell am Checkpoint. Wer schneller richtig löst, kann Bürgermeister werden.", nextWindow: "Heute · 18:00–20:00", serverPath: "Matchmaking -> Evidence -> Server-Sieger -> Ledger später", evidenceNeeded: ["Checkpoint-Nähe", "Antwortzeit", "Richtige Antworten", "Cooldown-Prüfung"] },
+  { id: 2, title: "Park-Sprint Gate", type: "Sprint", duelType: "Zeitrennen", mayor: "LunaRun", mayorScore: "00:42", challengers: 11, entryPreview: "Proof nötig", spectatorStatus: "Live bald", status: "Offen", lat: 48.204994, lng: 16.386607, icon: "🏃", description: "Kurzer Sprint-Checkpoint mit späterer GPS-/Evidence-Prüfung.", nextWindow: "Morgen · 07:00–09:00", serverPath: "GPS/Time Proof -> Plausibilität -> Server-Ranking", evidenceNeeded: ["GPS-Route", "Zeitfenster", "Bewegungsdaten", "Anti-Cheat-Prüfung"] },
+  { id: 3, title: "Burg-Arena", type: "Avatar", duelType: "Avatar gegen Avatar", mayor: "Drako", mayorScore: "Level 12", challengers: 7, entryPreview: "Arena-Pot später", spectatorStatus: "Nur Freunde", status: "Geschützt", lat: 48.205914, lng: 16.357956, icon: "⚔️", description: "Avatar-gegen-Avatar-Arena. Sieger und Pot dürfen später nur serverseitig entschieden werden.", nextWindow: "Heute · 21:00", serverPath: "Avatar-State -> Fairness -> Server-Kampfentscheidung", evidenceNeeded: ["Avatar-Level", "Ausrüstung", "Energie", "Fairness-Matchmaking"] },
+  { id: 4, title: "Wissensbrücke", type: "Rätsel", duelType: "Gruppen-Duell", mayor: "QuizMira", mayorScore: "12 Siege", challengers: 21, entryPreview: "ohne Auszahlung", spectatorStatus: "Zuschauen offen", status: "Umkämpft", lat: 48.215115, lng: 16.396277, icon: "🧩", description: "Rätsel-Checkpoint für Nutzerduelle und Zuschauer-Modus.", nextWindow: "Samstag · Community-Runde", serverPath: "Team-Join -> Rätsel-Evidence -> Server-Auswertung", evidenceNeeded: ["Team-Zuordnung", "Antworten", "Zeit", "Mehrfachversuch-Sperre"] },
+  { id: 5, title: "Fitness-Hof", type: "Fitness", duelType: "Nutzer gegen Nutzer", mayor: "PushUpBen", mayorScore: "41 Reps", challengers: 14, entryPreview: "Kamera-Proof später", spectatorStatus: "Live bald", status: "Offen", lat: 48.198123, lng: 16.371512, icon: "💪", description: "Fitness-Duell mit späterer KI-/Kamera-Validierung.", nextWindow: "Heute · flexibel", serverPath: "Kamera-Proof -> Pose-Validation -> Server-Review", evidenceNeeded: ["Pose-Proof", "Wiederholungen", "Qualität", "Cooldown"] },
 ];
 
 const tabs = [
@@ -137,27 +48,15 @@ const tabs = [
   { label: "History", href: "/missionen/history" },
 ];
 
-const statusClass: Record<Checkpoint["status"], string> = {
-  Offen: "border-cyan-300/30 bg-cyan-400/15 text-cyan-100",
-  Umkämpft: "border-orange-300/40 bg-orange-400/15 text-orange-100",
-  Geschützt: "border-yellow-300/40 bg-yellow-400/15 text-yellow-100",
-};
+const statusClass: Record<Checkpoint["status"], string> = { Offen: "border-cyan-300/30 bg-cyan-400/15 text-cyan-100", Umkämpft: "border-orange-300/40 bg-orange-400/15 text-orange-100", Geschützt: "border-yellow-300/40 bg-yellow-400/15 text-yellow-100" };
 
 export default function WettkaempfePage() {
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
   const [selectedCheckpointId, setSelectedCheckpointId] = useState(1);
   const [message, setMessage] = useState("Wähle einen Checkpoint auf der Karte.");
   const selectedCheckpoint = useMemo(() => checkpoints.find((checkpoint) => checkpoint.id === selectedCheckpointId) ?? checkpoints[0], [selectedCheckpointId]);
-
-  const selectCheckpoint = (checkpointId: number) => {
-    const checkpoint = checkpoints.find((item) => item.id === checkpointId);
-    setSelectedCheckpointId(checkpointId);
-    if (checkpoint) setMessage(`${checkpoint.title} ausgewählt. Bürgermeister: ${checkpoint.mayor}.`);
-  };
-
-  const handlePreviewAction = (action: string) => {
-    setMessage(`${action}: später über Serverpfad. Aktuell nur UI-Vorschau für ${selectedCheckpoint.title}.`);
-  };
+  const selectCheckpoint = (checkpointId: number) => { const checkpoint = checkpoints.find((item) => item.id === checkpointId); setSelectedCheckpointId(checkpointId); if (checkpoint) setMessage(`${checkpoint.title} ausgewählt. Bürgermeister: ${checkpoint.mayor}.`); };
+  const handlePreviewAction = (action: string) => { setMessage(`${action}: später über Serverpfad. Aktuell nur UI-Vorschau für ${selectedCheckpoint.title}.`); };
 
   return (
     <main className="h-screen w-screen overflow-hidden text-white" style={{ background: `linear-gradient(to bottom right, rgba(0,170,190,${brightness / 100}), rgba(0,80,90,1))` }}>
@@ -172,10 +71,8 @@ export default function WettkaempfePage() {
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
           <div className="mb-4 flex items-start justify-between gap-4"><div><h1 className="text-5xl font-extrabold leading-none">Wettkämpfe</h1><p className="mt-1 text-lg text-cyan-100/90">Google Maps mit Checkpoints, Bürgermeister und späteren PvP-/Avatar-Duellen.</p><p className="mt-2 text-sm font-semibold text-cyan-100/75">{message}</p></div><div className="rounded-[18px] border border-yellow-300/40 bg-gradient-to-r from-[#052f36] via-[#0d6872] to-[#ff8a00] px-7 py-4 text-center shadow-[0_10px_28px_rgba(0,0,0,0.24)]"><p className="text-[10px] font-semibold tracking-[0.3em] text-yellow-200">CHECKPOINT-MACHT</p><p className="mt-1 text-2xl font-extrabold text-white">Bürgermeister-System</p></div></div>
           <div className="mb-4 flex justify-center"><div className="flex items-center gap-5 rounded-full border border-white/10 bg-[#0b6d79]/35 px-5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm">{tabs.map((tab) => tab.label === "Wettkämpfe" ? <div key={tab.label} className="relative pb-1 text-base font-semibold text-orange-400">{tab.label}<span className="absolute left-0 right-0 -bottom-2 h-[2px] rounded-full bg-orange-400" /></div> : <Link key={tab.label} href={tab.href} className="pb-1 text-base text-white/85 hover:text-white">{tab.label}</Link>)}</div></div>
-
           <div className="grid min-h-0 flex-1 grid-cols-[2fr_0.95fr] gap-4 overflow-hidden pb-20">
             <GoogleCompetitionMap checkpoints={checkpoints} selectedCheckpointId={selectedCheckpointId} onSelectCheckpoint={selectCheckpoint} />
-
             <div className="min-h-0 overflow-y-auto rounded-[22px] border border-cyan-300/10 bg-[#053841]/95 p-5 shadow-[0_10px_28px_rgba(0,0,0,0.18)]">
               <div className="mb-4 flex items-start justify-between gap-3"><div className="rounded-lg bg-cyan-500/20 px-3 py-2 text-sm font-bold text-cyan-300">{selectedCheckpoint.type}</div><div className={`rounded-lg border px-3 py-2 text-sm font-bold ${statusClass[selectedCheckpoint.status]}`}>{selectedCheckpoint.status}</div></div>
               <div className="mb-4 flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-400/20 text-3xl">{selectedCheckpoint.icon}</div><h2 className="text-2xl font-bold text-white">{selectedCheckpoint.title}</h2></div>
@@ -187,7 +84,6 @@ export default function WettkaempfePage() {
               <p className="mt-3 text-xs leading-relaxed text-white/55">Hinweis: Bürgermeister, Sieger, Einsätze und Reward-Ledger werden später serverseitig autorisiert. Diese Karte ist UI-/Gameplay-Vorschau.</p>
             </div>
           </div>
-
           <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-5 py-3"><div className="flex items-center gap-3"><div className="min-w-[150px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2"><p className="text-[10px] uppercase text-white/50">Checkpoints</p><p className="mt-1 text-sm font-semibold text-white">{checkpoints.length} sichtbar</p></div><div className="min-w-[150px] rounded-xl border border-yellow-500/60 bg-[#041f24] px-3 py-2 text-center"><p className="text-[10px] uppercase text-white/50">Umkämpft</p><p className="mt-1 text-lg font-bold text-white">{checkpoints.filter((checkpoint) => checkpoint.status === "Umkämpft").length}</p></div><div className="min-w-[170px] rounded-xl border border-yellow-500/40 bg-[#0a3d46] px-3 py-2 text-center"><p className="text-sm font-semibold text-yellow-400">⚠ Server-Entscheidung später</p></div></div><div className="flex items-center gap-3 text-xl text-white/80"><span>f</span><span>𝕏</span><span>in</span></div></div>
         </section>
       </div>
