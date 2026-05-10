@@ -3,6 +3,7 @@
 type DashboardEconomyPanelProps = {
   pointsBalance: number;
   userId?: string;
+  projectionSource?: "server" | "local";
 };
 
 const getHealthLabel = (healthState: "healthy" | "watch" | "critical") => {
@@ -22,7 +23,11 @@ const compactDraftTarget = (collection: string, documentId: string) => {
   return `${collection}/${shortId}`;
 };
 
-export default function DashboardEconomyPanel({ pointsBalance, userId }: DashboardEconomyPanelProps) {
+export default function DashboardEconomyPanel({
+  pointsBalance,
+  userId,
+  projectionSource = "local",
+}: DashboardEconomyPanelProps) {
   const economySnapshot = createDashboardEconomySnapshot({ pointsBalance, userId });
   const previewStatus = economySnapshot.sampleRewardPreview.status;
   const ledgerSummary = economySnapshot.ledgerSummary;
@@ -30,6 +35,7 @@ export default function DashboardEconomyPanel({ pointsBalance, userId }: Dashboa
     ledgerSummary.auditDraft.collection,
     ledgerSummary.auditDraft.documentId
   );
+  const projectionLabel = projectionSource === "server" ? "Projection API" : "lokaler Fallback";
 
   return (
     <section className="rounded-[24px] border border-cyan-200/15 bg-[#042f37]/90 p-5 shadow-[0_8px_22px_rgba(0,0,0,0.12)]">
@@ -54,6 +60,7 @@ export default function DashboardEconomyPanel({ pointsBalance, userId }: Dashboa
           </p>
           <p className="mt-1 text-sm font-black text-cyan-100">Internes Ledger zuerst</p>
           <p className="mt-1 text-xs text-white/55">Economy: {getHealthLabel(economySnapshot.healthState)}</p>
+          <p className="mt-1 text-xs text-cyan-100/70">Quelle: {projectionLabel}</p>
         </div>
       </div>
 
@@ -116,7 +123,7 @@ export default function DashboardEconomyPanel({ pointsBalance, userId }: Dashboa
             </p>
             <h3 className="mt-1 text-lg font-black text-orange-100">{ledgerSummary.authorityLabel}</h3>
             <p className="mt-2 max-w-3xl text-xs leading-relaxed text-white/65">
-              Die App nutzt bereits Server-Preview und Completion-Drafts. Finale Punkte-, XP- und Avatar-Autoritaet
+              Die App nutzt bereits Server-Preview, Completion-Drafts und Projection-Read-Vorstufen. Finale Punkte-, XP- und Avatar-Autoritaet
               bleibt noch bewusst deaktiviert, bis serverseitige Persistenz, Audit und Firestore Rules stabil sind.
             </p>
           </div>
@@ -139,8 +146,8 @@ export default function DashboardEconomyPanel({ pointsBalance, userId }: Dashboa
             <p className="mt-1 text-sm font-black text-white">vorbereitet</p>
           </div>
           <div className="rounded-xl bg-black/18 p-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Server Draft</p>
-            <p className="mt-1 text-sm font-black text-white">noch nicht gespeichert</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Projection Read</p>
+            <p className="mt-1 text-sm font-black text-white">{projectionLabel}</p>
           </div>
           <div className="rounded-xl bg-black/18 p-3">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Rules-Härtung</p>
