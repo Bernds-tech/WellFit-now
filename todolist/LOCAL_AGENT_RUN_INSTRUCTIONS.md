@@ -103,7 +103,7 @@ Terminal 1 im Repository-Root starten und offen lassen:
 
 ```powershell
 cd C:\wellfit\WellFit-now
-npm run emulators
+npm run emulators:rules
 ```
 
 Terminal 2 im Repository-Root ausfuehren:
@@ -118,6 +118,8 @@ Erwartung:
 ```text
 Firestore economy rules emulator test result: PASS
 ```
+
+Hinweis: `npm run emulators:rules` startet nur Auth + Firestore und vermeidet Functions-Warnungen, die fuer Rules-Tests nicht benoetigt werden.
 
 Wichtig: Dieser Emulator-Test ist bewusst nicht Teil von `agent:quality-gate`, weil er einen laufenden Emulator in einem separaten Terminal braucht.
 
