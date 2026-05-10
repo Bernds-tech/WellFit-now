@@ -36,6 +36,12 @@ export default function DashboardEconomyPanel({
     ledgerSummary.auditDraft.documentId
   );
   const projectionLabel = projectionSource === "server" ? "Projection API" : "lokaler Fallback";
+  const projectionHint =
+    projectionSource === "server"
+      ? "Server-Read-Vorstufe aktiv"
+      : userId
+        ? "API-Fallback aktiv"
+        : "kein Profil geladen";
 
   return (
     <section className="rounded-[24px] border border-cyan-200/15 bg-[#042f37]/90 p-5 shadow-[0_8px_22px_rgba(0,0,0,0.12)]">
@@ -61,6 +67,9 @@ export default function DashboardEconomyPanel({
           <p className="mt-1 text-sm font-black text-cyan-100">Internes Ledger zuerst</p>
           <p className="mt-1 text-xs text-white/55">Economy: {getHealthLabel(economySnapshot.healthState)}</p>
           <p className="mt-1 text-xs text-cyan-100/70">Quelle: {projectionLabel}</p>
+          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+            {projectionHint}
+          </p>
         </div>
       </div>
 
@@ -148,6 +157,7 @@ export default function DashboardEconomyPanel({
           <div className="rounded-xl bg-black/18 p-3">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Projection Read</p>
             <p className="mt-1 text-sm font-black text-white">{projectionLabel}</p>
+            <p className="mt-1 text-[10px] text-white/45">{projectionHint}</p>
           </div>
           <div className="rounded-xl bg-black/18 p-3">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Rules-Härtung</p>
