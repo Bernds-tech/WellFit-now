@@ -6,6 +6,17 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 ## Eintraege
 
 ### 2026-05-09
+- Mega-Block 17b - Footer-Fix nach Live-Feedback korrigiert.
+- Datei `app/AppFooter.tsx` wieder als kompakter Bottom-Footer positioniert, damit der Footer optisch wie vorher unten sitzt.
+- Datei `app/globals.css` korrigiert: grobe `position: static`-Ueberschreibung entfernt und durch gezielte Safe-Area fuer Inhaltsbereiche ersetzt.
+- Ziel: kein grosser Abstand zwischen Content und Footer, kein Header-/Tab-Bar-Huepfen, aber weiterhin Abstand fuer scrollbare Inhalte ueber dem Footer.
+- Einklappbare Sidebar bleibt als eigener Folgeblock.
+- Keine echten Token, NFTs, Wallets, Auszahlungen, echten Kaeufe oder Blockchain-Funktionen aktiviert.
+- Keine Firestore Rules gehaertet.
+- Live-Test auf `wellfit-now.io` erforderlich, weil sichtbare Layoutbereiche betroffen sind.
+- Lokaler Test erforderlich: Agent + Build.
+
+### 2026-05-09
 - Mega-Block 17 - Footer-/Scrollbar-Overlay auf Missionsseiten entschärft.
 - Datei `app/globals.css` erweitert: alte absolut positionierte Footer in `section.relative` werden im Web-Beta-Layout als normale, nicht überlappende Flex-Footer behandelt.
 - Ziel: Karten, Detailkarten und rechte Scrollbars verschwinden nicht mehr hinter dem Footer.
