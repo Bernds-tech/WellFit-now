@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import AppFooter from "@/app/AppFooter";
 import AppSidebar from "@/app/AppSidebar";
+import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import type { MissionUiStatus, WellFitMissionRouteKey } from "@/lib/missions";
 import { MISSION_PLACEHOLDER_NOTICE, MISSION_SERVER_REWARD_NOTICE } from "@/lib/missions";
 import MissionStatusBadge from "./MissionStatusBadge";
@@ -57,7 +58,7 @@ export default function PreparedMissionPage({
   detailBody = "Diese Ansicht ist als Container vorbereitet. Echte Missionen entstehen später aus KI-Buddy-Drafts, Server-/Policy-Prüfung und Evidence-Auswertung.",
   footerRewardPreview = 0,
 }: PreparedMissionPageProps) {
-  const [brightness, setBrightness] = useState(100);
+  const [brightness, setBrightness] = useWellFitBrightness(100);
   const [selectedCardId, setSelectedCardId] = useState(cards[0]?.id ?? "prepared");
   const [message, setMessage] = useState(primaryNote);
 
@@ -171,7 +172,7 @@ export default function PreparedMissionPage({
             </aside>
           </div>
 
-          <AppFooter reward={footerRewardPreview} />
+          <AppFooter reward={footerRewardPreview} brightness={brightness} />
         </section>
       </div>
     </main>
