@@ -14,16 +14,21 @@ const asNumber = (value: unknown, fallback: number) => {
   return Number.isFinite(numberValue) ? numberValue : fallback;
 };
 
+const asOptionalNumber = (value: unknown) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : undefined;
+};
+
 const createPreview = (input: Record<string, unknown> = {}) => {
   const health = calculateInternalEconomyHealth({
-    totalSupply: asNumber(input.totalSupply, undefined as unknown as number),
-    reserve: asNumber(input.reserve, undefined as unknown as number),
-    circulating: asNumber(input.circulating, undefined as unknown as number),
-    burned: asNumber(input.burned, undefined as unknown as number),
-    locked: asNumber(input.locked, undefined as unknown as number),
-    configuredDailyEmissionCap: asNumber(input.configuredDailyEmissionCap, undefined as unknown as number),
-    activeUsersDaily: asNumber(input.activeUsersDaily, undefined as unknown as number),
-    activeUsersMonthly: asNumber(input.activeUsersMonthly, undefined as unknown as number),
+    totalSupply: asOptionalNumber(input.totalSupply),
+    reserve: asOptionalNumber(input.reserve),
+    circulating: asOptionalNumber(input.circulating),
+    burned: asOptionalNumber(input.burned),
+    locked: asOptionalNumber(input.locked),
+    configuredDailyEmissionCap: asOptionalNumber(input.configuredDailyEmissionCap),
+    activeUsersDaily: asOptionalNumber(input.activeUsersDaily),
+    activeUsersMonthly: asOptionalNumber(input.activeUsersMonthly),
     emittedToday: asNumber(input.emittedToday, 0),
     sinkReturnedToday: asNumber(input.sinkReturnedToday, 0),
     requestedPointsToday: asNumber(input.requestedPointsToday, 0),
