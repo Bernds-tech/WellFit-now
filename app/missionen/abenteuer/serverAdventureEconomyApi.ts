@@ -64,11 +64,13 @@ export async function fetchAdventureTravelSpend(params: {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: params.userId,
-        itemId: "adventure-travel",
+        itemId: `adventure-travel-${params.mission.id}`,
         sourceId: `adventure-travel-${params.mission.id}`,
-        sourceType: "mission",
         pointsBalance: params.pointsBalance,
-        spendPoints: params.mission.travelCost,
+        customSpendPoints: params.mission.travelCost,
+        customTitle: `Reise: ${params.mission.shortLabel}`,
+        customType: "mission_hint",
+        customDescription: `Interner Reise-/Abenteuer-Spend fuer ${params.mission.title}.`,
       }),
     });
 
@@ -79,11 +81,14 @@ export async function fetchAdventureTravelSpend(params: {
       spendPoints?: unknown;
       remainingPoints?: unknown;
       serverDrafts?: Array<{ collection?: string }>;
-      serverDraft?: { collection?: string };
+      persistenceBundle?: { collections?: unknown };
     };
 
     if (!data.ok) return fallback;
     const status = data.status === "spend_allowed" ? "spend_allowed" : data.status === "insufficient_points" ? "insufficient_points" : "blocked";
+    const bundleCollections = Array.isArray(data.persistenceBundle?.collections)
+      ? data.persistenceBundle.collections.filter((item): item is string => typeof item === "string")
+      : [];
 
     return {
       source: "server",
@@ -91,9 +96,8 @@ export async function fetchAdventureTravelSpend(params: {
       spendPoints: Math.max(0, Math.floor(asNumber(data.spendPoints, fallback.spendPoints))),
       remainingPoints: Math.max(0, Math.floor(asNumber(data.remainingPoints, fallback.remainingPoints))),
       draftCollections: [
-        data.serverDraft?.collection,
         ...(data.serverDrafts ?? []).map((draft) => draft.collection),
-        "pointsSinkEvents",
+        ...bundleCollections,
       ].filter((collection): collection is string => typeof collection === "string"),
       message: "Reise-Spend nutzt Server-Preview und Sink-Draft-Vorstufe.",
     };
