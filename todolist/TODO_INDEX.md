@@ -97,6 +97,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 
 | Bereich | Status | Pfad / Dateien | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
+| Roadmap-Konsolidierung | erledigt / Nachweis | `todolist/status/2026-05-12-roadmap-consolidation-master-upload-done.md` | `todolist/PROJECT_STRUCTURE.md`, `todolist/CODEBASE_FEATURE_MAP.md` | Nachweis fuer Master-Roadmap-Upload-Abgleich behalten |
 | Beta-Reihenfolge | aktiv / verbindlich | `todolist/status/2026-05-12-beta-order-and-megablock-priority-confirmed.md` | `todolist/MASTER_OPEN_DONE_LIST.md` | Reihenfolge fuer Megabloecke, KI-Buddy, Beta und spaetere NFT-Themen behalten |
 | Points Shop Paid Points | aktiv / Backlog nicht aktiv | `todolist/status/2026-05-12-points-shop-paid-points-backlog-not-active.md` | `docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md`, `docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md` | als Backlog-Nachweis behalten; keine echten Kaeufe vor Beta |
 | WWW Domain | aktiv / Live OK | `todolist/status/2026-05-10-www-domain-live-ok.md` | `todolist/LAST_BUILD_STATUS.md` | als Domain-Nachweis behalten |
@@ -142,7 +143,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/MISSION_DRAFT_FIRESTORE_RULES_DRAFT.md` | aktiv / Security | Mission-Draft Firestore Rules Draft | Backend/Security | reviewpflichtig |
 | `docs/architecture/MISSION_DRAFT_PREVIEW_API.md` | aktiv / API | Mission-Draft Preview API | Backend/Mission | reviewpflichtig |
 | `docs/architecture/MISSION_DRAFT_SECURITY_PLAN.md` | aktiv / Security | Mission-Draft Security Plan | Backend/Security | reviewpflichtig |
-| `docs/architecture/MISSION_HISTORY_FAVORITES_SIDEQUESTS.md` | aktiv / Mission UI | Mission History, Favorites, Sidequests | Mission/UI | mit AppShell und Beta pruefen |
+| `docs/architecture/MISSION_HISTORY_FAVORITES_SIDEQUESTS.md` | aktiv / Mission UI | Mission History, Favorites, Sidequests | Mission/UI | mit AppShell abgleichen |
 | `docs/architecture/USER_ECONOMY_WRITE_SEARCH_NOTES.md` | aktiv / Security Notes | User Economy Write Search Notes | Backend/Economy | mit Client-Write-Refactor abgleichen |
 
 ## Dev-Agent Dateien
@@ -164,7 +165,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `scripts/wellfit-dev-agent/src/code-inventory.mjs` | aktiv / Code | erzeugt Code-Inventur-Report gegen Doppelarbeit | Agent-Code | nach groesseren Codebloecken ausfuehren |
 | `scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs` | aktiv / Code | prueft statisch die Firestore-Economy-Rules-Guardrails | Agent-Code / Firestore QA | keine KI-Prompt-Pflicht |
 | `scripts/wellfit-dev-agent/src/apply-memory-prompts.mjs` | aktiv / Code | ergaenzt KI-Fortsetzungs-Prompts kontrolliert | Agent-Code | keine KI-Prompt-Pflicht |
-| `scripts/wellfit-dev-agent/src/quality-gate.mjs` | aktiv / Code | fuehrt Agent-Kontrollkette inklusive Firestore-Economy-Rules-Check aus und entscheidet PASS/FAIL | Agent-Code | keine KI-Prompt-Pflicht |
+| `scripts/wellfit-dev-agent/src/quality-gate.mjs` | aktiv / Code | fuehrt Kontrollkette inklusive Firestore-Economy-Rules-Check aus und entscheidet PASS/FAIL | Agent-Code | keine KI-Prompt-Pflicht |
 
 ## Querverweis-Regel
 Jede wichtige TODO-Datei soll enthalten:
