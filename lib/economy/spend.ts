@@ -31,8 +31,9 @@ export const createInternalSpendPreviewDecision = (params: {
   sourceType?: LedgerSourceType;
   sourceId?: string;
   correlationId?: string;
+  customItem?: InternalShopItemWithPrice;
 }): InternalSpendDecision => {
-  const item = findBetaShopItemWithPrice(params.itemId);
+  const item = findBetaShopItemWithPrice(params.itemId) ?? params.customItem;
   const sourceType = params.sourceType ?? "shop";
   const sourceId = params.sourceId ?? `internal-spend-${params.itemId}`;
   const pointsBalance = Math.max(0, Math.floor(Number(params.pointsBalance) || 0));
