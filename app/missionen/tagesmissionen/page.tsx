@@ -18,6 +18,7 @@ import {
 } from "./rewardEngine";
 import { fetchDailyMissionCompletion } from "./serverCompletionApi";
 import { fetchDailyMissionProjection } from "./serverProjectionApi";
+import { fetchDailyBuddySyncPreview } from "./serverBuddySyncApi";
 import { useDailyMissionFirebase } from "./useDailyMissionFirebase";
 import { applyMissionBuddyBridge } from "../lib/missionBuddyBridge";
 
@@ -240,6 +241,14 @@ export default function MissionenPage() {
       rewardPreviewEvent: result.preview.ledgerEvent,
     });
 
+    const buddySyncPreview = bridgeResult.ok
+      ? null
+      : await fetchDailyBuddySyncPreview({
+          userId,
+          mission: result.mission,
+          rewardPoints: completion.approvedPointsPreview,
+        });
+
     const completionSource = completion.source === "server" ? "Server-Completion" : "lokaler Completion-Fallback";
 
     setStatusMessage(
@@ -247,7 +256,7 @@ export default function MissionenPage() {
         ? bridgeResult.alreadyApplied
           ? `${result.mission.title} war bereits verbunden. Keine doppelte Punktevergabe. Flammi bleibt synchron. ${completionSource}.`
           : `${result.mission.title} abgeschlossen. +${completion.approvedPointsPreview} interne Punkte. ${completionSource}; finale Ledger-Autorität folgt serverseitig.`
-        : `${result.mission.title} abgeschlossen. ${completionSource}; Buddy-Sync braucht eine erneute Verbindung.`
+        : `${result.mission.title} abgeschlossen. ${completionSource}; ${buddySyncPreview?.message ?? "Buddy-Sync bleibt als MVP-Bruecke vorgemerkt."}`
     );
   };
 
