@@ -88,6 +88,25 @@ function parseCoveredTracks(text) {
   return { covered: null, total: null };
 }
 
+function extractMarkdownListSection(text, heading) {
+  const escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`## ${escapedHeading}\\s*\\n([\\s\\S]*?)(?=\\n## |$)`, "i");
+  const match = text.match(regex);
+  if (!match) return [];
+
+  return match[1]
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("- `") && line.endsWith("`"))
+    .map((line) => line.replace(/^- `/, "").replace(/`$/, ""));
+}
+
+function formatDetailCount(count, files) {
+  if (count === null) return "not found";
+  if (!files || files.length === 0) return String(count);
+  return `${count}: ${files.join(", ")}`;
+}
+
 function assertCondition(checks, name, passed, details) {
   checks.push({ name, passed, details });
 }
@@ -133,6 +152,8 @@ function main() {
   const covered = parseCoveredTracks(`${goalReport}\n${alphaStep?.stdout ?? ""}`);
   const missingIndex = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in TODO index/structure memory") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in index");
   const missingPrompts = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Files requiring KI-Fortsetzungs-Prompt but missing it") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Files without KI-Fortsetzungs-Prompt") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing prompts");
+  const missingIndexFiles = extractMarkdownListSection(memoryReport, "Files Missing In Index");
+  const missingPromptFiles = extractMarkdownListSection(memoryReport, "Files Missing KI-Fortsetzungs-Prompt");
   const plannedMicroTasks = parseNumber(`${dryRunReport}\n${dryRunStep?.stdout ?? ""}`, "Planned micro-tasks");
   const rulesReportPassed = /Result:\s*PASS/i.test(`${rulesReport}\n${rulesStep?.stdout ?? ""}`);
 
@@ -147,14 +168,14 @@ function main() {
     checks,
     "TODO index has no missing files",
     missingIndex === 0,
-    missingIndex === null ? "not found" : String(missingIndex),
+    formatDetailCount(missingIndex, missingIndexFiles),
   );
 
   assertCondition(
     checks,
     "Required KI-Fortsetzungs-Prompts complete",
     missingPrompts === 0,
-    missingPrompts === null ? "not found" : String(missingPrompts),
+    formatDetailCount(missingPrompts, missingPromptFiles),
   );
 
   assertCondition(
@@ -172,7 +193,7 @@ function main() {
   );
 
   const passed = checks.every((check) => check.passed);
-  const report = `# WellFit Agent Quality Gate Report\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Gate Checks\n\n${renderChecks(checks)}\n\n## Required Standard\n\n- Agent validation must pass.\n- Alpha goal check must cover all required tracks.\n- Memory sync must report zero missing indexed files.\n- Memory sync must report zero required missing KI-Fortsetzungs-Prompts.\n- Dry run must produce planned micro-tasks.\n- Firestore economy rules check must pass the current beta allow/deny guardrails.\n\n## Step Logs\n\n${steps.map(renderStep).join("\n\n")}\n\n## Next Action\n\n${passed ? "Quality gate passed. Continue with the next Beta-relevant task." : "Quality gate failed. Fix the failed checks before continuing with larger implementation work."}\n`;
+  const report = `# WellFit Agent Quality Gate Report\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Gate Checks\n\n${renderChecks(checks)}\n\n## Required Standard\n\n- Agent validation must pass.\n- Alpha goal check must cover all required tracks.\n- Memory sync must report zero missing indexed files.\n- Memory sync must report zero required missing KI-Fortsetzungs-Prompts.\n- Dry run must produce planned micro-tasks.\n- Firestore economy rules check must pass the current beta allow/deny guardrails.\n\n## Exact Memory Sync Failures\n\n### Files Missing In Index\n\n${missingIndexFiles.length ? missingIndexFiles.map((file) => `- \`${file}\``).join("\n") : "No missing index files reported."}\n\n### Files Missing KI-Fortsetzungs-Prompt\n\n${missingPromptFiles.length ? missingPromptFiles.map((file) => `- \`${file}\``).join("\n") : "No missing continuation prompts reported."}\n\n## Step Logs\n\n${steps.map(renderStep).join("\n\n")}\n\n## Next Action\n\n${passed ? "Quality gate passed. Continue with the next Beta-relevant task." : "Quality gate failed. Fix the failed checks before continuing with larger implementation work."}\n`;
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(QUALITY_REPORT_PATH, report, "utf8");
@@ -182,6 +203,16 @@ function main() {
 
   for (const check of checks) {
     console.log(`${check.passed ? "OK" : "FAIL"}: ${check.name} (${check.details})`);
+  }
+
+  if (!passed && missingIndexFiles.length > 0) {
+    console.log("Missing index files:");
+    for (const file of missingIndexFiles) console.log(`- ${file}`);
+  }
+
+  if (!passed && missingPromptFiles.length > 0) {
+    console.log("Missing continuation prompt files:");
+    for (const file of missingPromptFiles) console.log(`- ${file}`);
   }
 
   if (!passed) process.exit(1);
