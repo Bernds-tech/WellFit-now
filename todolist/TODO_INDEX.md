@@ -97,6 +97,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 
 | Bereich | Status | Pfad / Dateien | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
+| Challenge Buddy Consistency | erledigt / sichtbar OK | `todolist/status/2026-05-12-challenge-buddy-consistency-ok.md` | `todolist/status/2026-05-12-challenge-economy-path-prepared.md` | Nachweis fuer Challenge/Dashboard/Buddy-Konsistenz behalten |
 | Challenge Economy Path | umgesetzt / Build offen | `todolist/status/2026-05-12-challenge-economy-path-prepared.md` | `app/missionen/challenge/**`, `app/api/economy/**` | Nachweis fuer Challenge-Economy-Pfad behalten |
 | Roadmap-Konsolidierung | erledigt / Nachweis | `todolist/status/2026-05-12-roadmap-consolidation-master-upload-done.md` | `todolist/PROJECT_STRUCTURE.md`, `todolist/CODEBASE_FEATURE_MAP.md` | Nachweis fuer Master-Roadmap-Upload-Abgleich behalten |
 | Beta-Reihenfolge | aktiv / verbindlich | `todolist/status/2026-05-12-beta-order-and-megablock-priority-confirmed.md` | `todolist/MASTER_OPEN_DONE_LIST.md` | Reihenfolge fuer Megabloecke, KI-Buddy, Beta und spaetere NFT-Themen behalten |
