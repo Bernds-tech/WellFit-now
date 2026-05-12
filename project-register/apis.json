@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "purpose": "Maschinenlesbares API-Register fuer Stufe-4-Checks, Security und Cross-References.",
+    "issue": 19,
+    "status": "baseline-import"
+  },
+  "apiRoutes": [
+    {
+      "route": "/api/buddy-ki",
+      "area": "Buddy-KI",
+      "authority": "suggestion-only",
+      "security": ["no-frontend-secrets", "no-reward-authority", "rules-fallback-required"],
+      "status": "active"
+    },
+    {
+      "route": "/api/economy/buddy-sync-preview",
+      "area": "Economy-Preview",
+      "authority": "preview-only",
+      "security": ["no-final-write", "no-client-trust"],
+      "status": "active"
+    },
+    {
+      "route": "/api/economy/complete-mission",
+      "area": "Mission-Completion",
+      "authority": "server-preview-before-final-ledger",
+      "security": ["no-client-authority", "no-final-token", "no-final-ledger-write-yet"],
+      "status": "active"
+    },
+    {
+      "route": "/api/economy/health-preview",
+      "area": "Economy-Health",
+      "authority": "preview-only",
+      "security": ["no-final-write", "no-token-activation"],
+      "status": "active"
+    },
+    {
+      "route": "/api/economy/persistence-status",
+      "area": "Persistence-Guardrails",
+      "authority": "status-only",
+      "security": ["must-show-draft-only-state"],
+      "status": "active"
+    },
+    {
+      "route": "/api/economy/reward-preview",
+      "area": "Reward-Preview",
+      "authority": "preview-only",
+      "security": ["no-final-reward", "no-client-authority", "caps-required"],
+      "status": "active"
+    },
+    {
+      "route": "/api/economy/security-plan",
+      "area": "Security-Plan",
+      "authority": "documentation-api",
+      "security": ["no-secret-output", "no-production-write"],
+      "status": "active"
+    },
+    {
+      "route": "/api/economy/spend-preview",
+      "area": "Spend-Preview",
+      "authority": "preview-only",
+      "security": ["no-real-purchase", "no-token-transfer", "no-final-write"],
+      "status": "active"
+    },
+    {
+      "route": "/api/economy/user-projection",
+      "area": "User-Projection",
+      "authority": "projection-read-preview",
+      "security": ["no-final-write", "auth-context-required-or-documented-beta-fallback"],
+      "status": "active"
+    }
+  ],
+  "stufe4Rules": {
+    "newApisMustBeRegistered": true,
+    "apiChangesRequireSecurityReview": true,
+    "economyApisCannotAuthorizeFinalRewardsWithoutExplicitDecision": true,
+    "apiChangesRequireCrossReferences": true
+  }
+}
