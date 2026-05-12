@@ -126,7 +126,6 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/WELLFIT_SITE_QUALITY_AUDIT_AGENT.md` | aktiv | Site-Quality-Audit-Agent fuer Routen-, Seitenqualitaets- und Nebenseitenpruefung | Agentenstrategie / Site QA | nach sichtbaren Website-/Routen-Aenderungen nutzen |
 | `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md` | aktiv | Alpha-Scope und Fokus | `NEXT_ACTIONS.md` | als Prioritaetsquelle nutzen |
 | `docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md` | aktiv | Self-hosted Dev-Agent Architektur | Agentenstrategie | fuer Automatisierung nutzen |
-| `docs/architecture/WELLFIT_SITE_QUALITY_AUDIT_AGENT.md` | aktiv | Site-Quality-Audit-Agent fuer Routen-, Seitenqualitaets- und Nebenseitenpruefung | Agentenstrategie / Site QA | nach sichtbaren Website-/Routen-Aenderungen nutzen |
 | `docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md` | aktiv / zu pruefen | spaeterer Nutzeranalyse-/Mission-Agent | Bereich Mission/KI | nach Beta weiterfuehren |
 | `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md` | aktiv / zu pruefen | Mission-/Reward-Kontextlogik | Missionen/Reward | mit Datenbankplan abgleichen |
 | `docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md` | aktiv / Economy Guardrails | interne Punkte-/XP-/Reward-Leitplanken vor Blockchain | Economy/Reward | fuehrend fuer Beta-Economy-Regeln |
