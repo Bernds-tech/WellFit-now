@@ -461,12 +461,12 @@ export default function AbenteuerPage() {
               <div className="mt-5 rounded-[18px] border border-yellow-500/30 bg-yellow-500/10 px-4 py-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs uppercase text-white/70">Beta-Belohnung</p>
-                    <p className="mt-1 text-3xl font-extrabold text-yellow-400">{selectedAdventure.reward} interne Punkte</p>
+                    <p className="text-xs uppercase text-white/70">Max. Beta-Belohnung</p>
+                    <p className="mt-1 text-3xl font-extrabold text-yellow-400">bis zu {selectedAdventure.reward} interne Punkte</p>
                   </div>
                   <div className="text-3xl">🏅</div>
                 </div>
-                <p className="mt-2 text-xs text-white/60">Interne Beta-Punkte. Keine Token, keine NFTs, keine Auszahlung.</p>
+                <p className="mt-2 text-xs text-white/60">Interne Beta-Punkte. Die Server-Preview kann die finale Gutschrift cappen oder Review verlangen. Keine Token, keine NFTs, keine Auszahlung.</p>
               </div>
 
               <div className="mt-5 grid gap-3">
@@ -480,7 +480,7 @@ export default function AbenteuerPage() {
                   onClick={completeAdventure}
                   className="w-full rounded-[18px] bg-blue-600 px-4 py-3 text-base font-extrabold text-white transition hover:bg-blue-700"
                 >
-                  Abenteuer abschließen (+{selectedAdventure.reward} interne Punkte)
+                  Abenteuer prüfen & abschließen (bis zu +{selectedAdventure.reward} interne Punkte)
                 </button>
               </div>
             </div>
