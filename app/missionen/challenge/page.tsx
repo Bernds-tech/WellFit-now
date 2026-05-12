@@ -228,6 +228,27 @@ export default function ChallengePage() {
               onCompleteChallenge={() => completeChallenge(selectedChallenge)}
             />
           </div>
+
+          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-5 py-3">
+            <div className="flex items-center gap-3">
+              <div className="min-w-[150px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2">
+                <p className="text-[10px] uppercase text-white/50">Letzter Login: Heute 9:43</p>
+                <p className="mt-1 text-sm font-semibold text-white">Interne Beta aktiv</p>
+              </div>
+              <div className="min-w-[150px] rounded-xl border border-yellow-500/60 bg-[#041f24] px-3 py-2 text-center">
+                <p className="text-[10px] uppercase text-white/50">Interne Punkte</p>
+                <p className="mt-1 text-lg font-bold text-white">{user?.points ?? 0}</p>
+              </div>
+              <div className="min-w-[220px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2 text-center">
+                <p className="text-[10px] uppercase text-white/50">Beta-Hinweis</p>
+                <p className="mt-1 text-xs font-semibold text-white/70">Keine Token · keine NFTs · keine Auszahlung</p>
+              </div>
+              <div className="min-w-[170px] rounded-xl border border-yellow-500/40 bg-[#0a3d46] px-3 py-2 text-center">
+                <p className="text-sm font-semibold text-yellow-400">⚠ Server-Event vorbereitet</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 text-xl text-white/80"><span>f</span><span>X</span><span>in</span></div>
+          </div>
         </section>
       </div>
     </main>
