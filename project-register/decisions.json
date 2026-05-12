@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "purpose": "Decision Log fuer Stufe-4-Arbeit, Produktentscheidungen und Blocker.",
+    "issue": 19,
+    "status": "initial-governance-layer"
+  },
+  "decisions": [
+    {
+      "id": "DEC-STUFE4-0001",
+      "topic": "Bestehendes WellFit-Repository behalten oder neu starten?",
+      "status": "decided",
+      "decision": "Bestehendes Repository behalten und Stufe-4-Governance-Layer darueberlegen.",
+      "reasoning": "Build und Quality Gate waren dokumentiert gruen; es existieren bereits Agenten-, Todo-, Architektur- und Security-Strukturen. Ein Neustart wuerde vorhandene Arbeit riskieren.",
+      "source": "Chat mit Bernd und GitHub Issue #19",
+      "date": "2026-05-12"
+    },
+    {
+      "id": "DEC-STUFE4-0002",
+      "topic": "Soll Stufe 4 live deployen duerfen?",
+      "status": "decided",
+      "decision": "Nein. Stufe 4 darf autonom arbeiten, aber nicht automatisch live deployen.",
+      "reasoning": "Autonomie soll Entwicklung und Pruefung beschleunigen, aber Production bleibt manuell freizugeben.",
+      "source": "GitHub Issue #19",
+      "date": "2026-05-12"
+    },
+    {
+      "id": "DEC-STUFE4-0003",
+      "topic": "Sollen alte Todo-Dateien geloescht werden?",
+      "status": "decided",
+      "decision": "Nein. Alte Todo-, Architektur-, Status- und Roadmapdateien bleiben erhalten und werden markiert/verlinkt.",
+      "reasoning": "Keine Idee, Entscheidung oder erledigte Arbeit soll verloren gehen.",
+      "source": "todolist/TODO_CONSOLIDATION.md und GitHub Issue #19",
+      "date": "2026-05-12"
+    }
+  ]
+}
