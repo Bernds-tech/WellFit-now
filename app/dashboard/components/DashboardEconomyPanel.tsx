@@ -1,14 +1,24 @@
-﻿import { createDashboardEconomySnapshot } from "@/lib/economy/dashboardSnapshot";
+import type { InternalEconomyHealthSnapshot } from "@/lib/economy";
+import { createDashboardEconomySnapshot } from "@/lib/economy/dashboardSnapshot";
 
 type DashboardEconomyPanelProps = {
   pointsBalance: number;
   userId?: string;
   projectionSource?: "server" | "local";
+  economyHealth?: InternalEconomyHealthSnapshot | null;
+  economyHealthSource?: "server" | "local";
 };
 
 const getHealthLabel = (healthState: "healthy" | "watch" | "critical") => {
   if (healthState === "critical") return "kritisch";
   if (healthState === "watch") return "beobachten";
+  return "gesund";
+};
+
+const getEconomyHealthLabel = (status: string) => {
+  if (status === "critical") return "kritisch";
+  if (status === "strained") return "angespannt";
+  if (status === "balanced") return "stabil";
   return "gesund";
 };
 
@@ -27,8 +37,11 @@ export default function DashboardEconomyPanel({
   pointsBalance,
   userId,
   projectionSource = "local",
+  economyHealth,
+  economyHealthSource = "local",
 }: DashboardEconomyPanelProps) {
   const economySnapshot = createDashboardEconomySnapshot({ pointsBalance, userId });
+  const healthSnapshot = economyHealth ?? economySnapshot.economyHealthSnapshot;
   const previewStatus = economySnapshot.sampleRewardPreview.status;
   const ledgerSummary = economySnapshot.ledgerSummary;
   const draftTarget = compactDraftTarget(
@@ -42,6 +55,7 @@ export default function DashboardEconomyPanel({
       : userId
         ? "API-Fallback aktiv"
         : "kein Profil geladen";
+  const healthSourceLabel = economyHealthSource === "server" ? "Health API" : "lokaler Fallback";
 
   return (
     <section className="rounded-[24px] border border-cyan-200/15 bg-[#042f37]/90 p-5 shadow-[0_8px_22px_rgba(0,0,0,0.12)]">
@@ -121,6 +135,60 @@ export default function DashboardEconomyPanel({
         <div className="rounded-2xl border border-cyan-200/10 bg-cyan-100/5 p-3">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/50">Goodie-Preise</p>
           <p className="mt-1 text-lg font-black text-white">{economySnapshot.priceRateDisplay}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/8 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-100/60">
+              EconomyHealth / 25-Mrd.-Punkte-Draft
+            </p>
+            <h3 className="mt-1 text-lg font-black text-cyan-100">
+              Score {healthSnapshot.economyHealthScore}/100 · {getEconomyHealthLabel(healthSnapshot.economyHealthStatus)}
+            </h3>
+            <p className="mt-2 max-w-3xl text-xs leading-relaxed text-white/65">
+              Die Health-Preview simuliert Reserve, Tagesbudget, Rueckfluesse und Drosselung. Sie ist nur ein Draft und schreibt keine finalen Punkte.
+            </p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-right">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/45">Quelle</p>
+            <p className="mt-1 text-sm font-black text-cyan-100">{healthSourceLabel}</p>
+          </div>
+        </div>
+
+        <div className="mt-3 grid gap-2 md:grid-cols-4">
+          <div className="rounded-xl bg-black/18 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Effektives Tagesbudget</p>
+            <p className="mt-1 text-sm font-black text-white">{healthSnapshot.effectiveDailyEmissionBudget.toLocaleString("de-DE")}</p>
+          </div>
+          <div className="rounded-xl bg-black/18 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Restbudget heute</p>
+            <p className="mt-1 text-sm font-black text-white">{healthSnapshot.remainingDailyEmissionBudget.toLocaleString("de-DE")}</p>
+          </div>
+          <div className="rounded-xl bg-black/18 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Rueckfluss heute</p>
+            <p className="mt-1 text-sm font-black text-white">{healthSnapshot.sinkReturnedToday.toLocaleString("de-DE")}</p>
+          </div>
+          <div className="rounded-xl bg-black/18 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Reward-Drossel</p>
+            <p className="mt-1 text-sm font-black text-white">{healthSnapshot.rewardThrottleRate.toFixed(2)}x</p>
+          </div>
+        </div>
+
+        <div className="mt-3 grid gap-2 md:grid-cols-3">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Pro Tagesnutzer</p>
+            <p className="mt-1 text-xs font-semibold text-white/75">{healthSnapshot.estimatedPerDailyActiveUserBudget.toLocaleString("de-DE")} interne Punkte Budget</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Sink-Preisfaktor</p>
+            <p className="mt-1 text-xs font-semibold text-white/75">{healthSnapshot.sinkPriceRate.toFixed(2)}x</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Gruende</p>
+            <p className="mt-1 text-xs font-semibold text-white/75">{healthSnapshot.reasons.slice(0, 2).join(" · ")}</p>
+          </div>
         </div>
       </div>
 
