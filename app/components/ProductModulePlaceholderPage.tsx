@@ -14,7 +14,7 @@ type ProductModulePlaceholderPageProps = {
     body: string;
   }[];
   safetyNotes?: string[];
-  extraContent?: ReactNode;
+  children?: ReactNode;
 };
 
 export default function ProductModulePlaceholderPage({
@@ -27,7 +27,7 @@ export default function ProductModulePlaceholderPage({
     "Keine clientseitige Punkte-, Reward-, Wallet-, Token- oder NFT-Autorität.",
     "Dieses Modul ist ein MVP-Platzhalter und bereitet nur UI, Navigation und spätere Serveranbindung vor.",
   ],
-  extraContent,
+  children,
 }: ProductModulePlaceholderPageProps) {
   const [pinnedCards, setPinnedCards] = useState<string[]>([]);
 
@@ -60,7 +60,7 @@ export default function ProductModulePlaceholderPage({
       <div className="grid min-h-0 flex-1 grid-cols-[1.6fr_0.9fr] gap-5 overflow-hidden pb-20">
         <div className="min-h-0 overflow-y-auto pr-2">
           <div className="space-y-4">
-            {extraContent}
+            {children}
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               {cards.map((card) => {
