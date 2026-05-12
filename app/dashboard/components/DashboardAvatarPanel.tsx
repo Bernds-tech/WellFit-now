@@ -23,6 +23,7 @@ export default function DashboardAvatarPanel({
 }: DashboardAvatarPanelProps) {
   const mood = getBuddyMood(buddyEnergy, buddyHunger);
   const canFeed = pointsBalance >= foodPrice;
+  const remainingAfterFood = Math.max(0, pointsBalance - foodPrice);
 
   return (
     <div className="rounded-[24px] bg-[#053841]/85 p-5 shadow-[0_8px_22px_rgba(0,0,0,0.12)]">
@@ -51,6 +52,23 @@ export default function DashboardAvatarPanel({
 
       <div className="mt-4 rounded-2xl border border-cyan-200/10 bg-cyan-100/5 p-3 text-xs leading-relaxed text-cyan-50/70">
         Futter ist ein interner Punkte-Sink. Es ist kein Kauf, kein Token, kein NFT und keine Auszahlung.
+      </div>
+
+      <div className="mt-3 grid gap-2 md:grid-cols-3">
+        <div className="rounded-xl border border-white/10 bg-black/18 p-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Spend Preview</p>
+          <p className="mt-1 text-xs font-black text-cyan-100">Server zuerst</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-black/18 p-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Sink-Kosten</p>
+          <p className="mt-1 text-xs font-black text-cyan-100">{foodPrice} Punkte</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-black/18 p-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Rest danach</p>
+          <p className="mt-1 text-xs font-black text-cyan-100">
+            {canFeed ? remainingAfterFood.toLocaleString("de-DE") : "zu wenig"}
+          </p>
+        </div>
       </div>
 
       <button
