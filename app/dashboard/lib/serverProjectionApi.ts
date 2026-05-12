@@ -1,3 +1,4 @@
+import { readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import type { User } from "@/types/user";
 
 export type DashboardProjectionSource = "server" | "local";
@@ -30,6 +31,28 @@ const readObject = (value: unknown): Record<string, unknown> => {
 };
 
 export const createLocalDashboardUserProjection = (user: User | null): DashboardUserProjection => {
+  const clientProjection = readClientBetaProjection(user?.id ?? null);
+
+  if (clientProjection) {
+    return {
+      source: "local",
+      finalAuthority: false,
+      tokenized: false,
+      walletEnabled: false,
+      nftEnabled: false,
+      writeEnabledNow: false,
+      points: clientProjection.points,
+      xp: clientProjection.xp,
+      level: clientProjection.level,
+      stepsToday: clientProjection.stepsToday,
+      avatarLevel: clientProjection.avatar.level,
+      avatarEnergy: clientProjection.avatar.energy,
+      avatarHunger: clientProjection.avatar.hunger,
+      checkedAt: new Date().toISOString(),
+      warnings: ["Client beta projection fallback. Final authority remains server ledger/projection target."],
+    };
+  }
+
   return {
     source: "local",
     finalAuthority: false,
@@ -61,11 +84,16 @@ export const fetchDashboardUserProjection = async (user: User | null): Promise<D
       },
       body: JSON.stringify({
         userId: user.id,
-        points: user.points ?? 0,
-        xp: user.xp ?? 0,
-        level: user.level ?? user.avatar?.level ?? 1,
-        stepsToday: user.stepsToday ?? 0,
-        avatar: user.avatar ?? {},
+        points: fallback.points,
+        xp: fallback.xp,
+        level: fallback.level,
+        stepsToday: fallback.stepsToday,
+        avatar: {
+          ...(user.avatar ?? {}),
+          level: fallback.avatarLevel,
+          energy: fallback.avatarEnergy,
+          hunger: fallback.avatarHunger,
+        },
       }),
     });
 
