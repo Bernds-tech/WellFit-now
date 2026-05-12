@@ -24,14 +24,31 @@ Vor jeder strukturellen oder produktrelevanten Arbeit lesen:
 - `todolist/CODEBASE_FEATURE_MAP.md`
 - `todolist/LAST_BUILD_STATUS.md`
 - `scripts/wellfit-dev-agent/wellfit-agent.config.json`
+- `agents/modes/README.md`
+- `agents/modes/stufe-1.md`
+- `agents/modes/stufe-2.md`
+- `agents/modes/stufe-3.md`
 - `agents/modes/stufe-4.md`
 - `agents/self-check.md`
+- `agents/failure-recovery-rules.md`
+- `agents/security-rules.md`
+- `agents/scalability-rules.md`
+- `agents/documentation-rules.md`
 - `project-register/routes.json`
 - `project-register/apis.json`
 - `project-register/features.json`
 - `project-register/todos.json`
 - `project-register/decisions.json`
 - `project-register/cross-references.json`
+- `project-register/product-rules.json`
+- `project-register/progress-log.json`
+
+## Arbeitsstufen
+
+- Stufe 1 = Analyse + Bestandsaufnahme + Dokumentation, ohne Codeaenderung
+- Stufe 2 = kleine sichere Aenderungen + Dokumentation + begrenzte Tests
+- Stufe 3 = Code-/UI-/Feature-Aenderung + Tests + Dokumentation + Preview
+- Stufe 4 = autonom arbeiten, Nebenseiten pruefen, Fehler beheben, dokumentieren, Preview liefern, nicht live schalten
 
 ## Stufe 4
 
@@ -66,6 +83,21 @@ Details stehen in `agents/modes/stufe-4.md`.
 - Punkte, XP, Rewards, Einsaetze und Mission Completion duerfen nicht clientseitig autorisiert werden.
 - Firebase-/Firestore-Regeln nur mit Guardrail- und Emulator-Testplan veraendern.
 
+## Failure Recovery
+
+Wenn eine Aenderung durch Tool-Limit, Dateigroesse, Sicherheitsblock, fehlende Berechtigung oder Merge-Konflikt nicht umgesetzt werden kann, darf sie nicht im Chat verloren gehen.
+
+Pflicht:
+
+- Blocker benennen
+- betroffene Datei nennen
+- exakten Patch oder gewuenschten Eintrag dokumentieren
+- kleinere Alternative vorschlagen
+- Issue-/PR-Kommentar, Todo, Progress-Log oder Pending-Fix-Datei anlegen
+- nicht behaupten, die Aenderung sei erledigt
+
+Details stehen in `agents/failure-recovery-rules.md`.
+
 ## Abschlussbedingungen
 
 Ein Agent darf nur abschliessen, wenn mindestens gilt:
@@ -79,7 +111,7 @@ Ein Agent darf nur abschliessen, wenn mindestens gilt:
 
 ## Blocker-Regel
 
-Bei echten Blockern muss ein Eintrag in `project-register/decisions.json` oder `project-register/progress-log.json` entstehen mit:
+Bei echten Blockern muss ein Eintrag in `project-register/decisions.json`, `project-register/progress-log.json`, `project-register/todos.json` oder `project-register/pending-fixes/` entstehen mit:
 
 - Blocker-ID
 - Ursache
