@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { economyConfig, getPriceRate } from "@/config/economy";
 import { auth } from "@/lib/firebase";
+import type { InternalEconomyHealthSnapshot } from "@/lib/economy";
 import { signOut } from "firebase/auth";
 
 import AppSidebar from "@/app/AppSidebar";
@@ -20,7 +21,7 @@ import {
   createDashboardMissionRewardPreview,
   getRewardPreviewUiLabel,
 } from "./lib/missionRewardPreview";
-import { fetchDashboardMissionRewardPreview } from "./lib/serverPreviewApi";
+import { fetchDashboardEconomyHealthPreview, fetchDashboardMissionRewardPreview } from "./lib/serverPreviewApi";
 import { fetchDashboardUserProjection } from "./lib/serverProjectionApi";
 
 export default function DashboardPage() {
@@ -42,6 +43,8 @@ export default function DashboardPage() {
   const [foodPrice, setFoodPrice] = useState(5);
   const [missionPreview, setMissionPreview] = useState<DashboardMissionPreview | undefined>(undefined);
   const [projectionSource, setProjectionSource] = useState<"server" | "local">("local");
+  const [economyHealth, setEconomyHealth] = useState<InternalEconomyHealthSnapshot | null>(null);
+  const [economyHealthSource, setEconomyHealthSource] = useState<"server" | "local">("local");
 
   const mission = useMemo(() => getPersonalMission(user), [user]);
 
@@ -70,6 +73,20 @@ export default function DashboardPage() {
       isCancelled = true;
     };
   }, [mission, stepsToday, user]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    fetchDashboardEconomyHealthPreview({ requestedReward: mission?.reward ?? 100 }).then((preview) => {
+      if (isCancelled) return;
+      setEconomyHealth(preview.health);
+      setEconomyHealthSource(preview.source);
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [mission?.reward]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -163,6 +180,8 @@ export default function DashboardPage() {
             pointsBalance={pointsBalance}
             userId={user?.id}
             projectionSource={projectionSource}
+            economyHealth={economyHealth}
+            economyHealthSource={economyHealthSource}
           />
 
           {mission && (
