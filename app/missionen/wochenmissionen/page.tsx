@@ -56,6 +56,7 @@ export default function WochenmissionenPage() {
   const [favoriteIds, setFavoriteIds] = useState<number[]>([1]);
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("Bereit für neue Wochenziele?");
+  const [serverPathLabel, setServerPathLabel] = useState("Reward Preview · Completion · Projection bereit");
 
   useEffect(() => {
     const savedUser = localStorage.getItem("wellfit-user");
@@ -120,30 +121,37 @@ export default function WochenmissionenPage() {
       return;
     }
 
+    const currentPoints = projectedUser?.points ?? user?.points ?? 0;
+    const currentXp = projectedUser?.xp ?? user?.xp ?? 0;
+    const currentLevel = projectedUser?.level ?? user?.level ?? 1;
+
     const completion = await fetchWeeklyMissionCompletion({
       userId,
       mission: selectedMission,
+      currentPoints,
+      currentXp,
+      currentLevel,
     });
 
     if (completion.status === "completion_blocked") {
       setMessage(`${selectedMission.title} wurde servernah blockiert. Keine Punkte vorgemerkt.`);
+      setServerPathLabel(`Reward Preview: ${completion.rewardPreviewStatus}`);
       return;
     }
 
     if (completion.status === "manual_review_required") {
       setMessage(`${selectedMission.title} wurde für Review vorgemerkt. Keine direkte Punktegutschrift.`);
+      setServerPathLabel(`Reward Preview: ${completion.rewardPreviewStatus}`);
       return;
     }
 
     const currentProjection = readClientBetaProjection(userId);
-    const nextPoints = (currentProjection?.points ?? user?.points ?? 0) + completion.approvedPointsPreview;
-    const nextXp = (currentProjection?.xp ?? user?.xp ?? 0) + completion.approvedXpPreview;
     const nextLevel = user?.level ?? currentProjection?.level ?? 1;
     const nextAvatar = currentProjection?.avatar ?? user?.avatar ?? { hunger: 100, mood: 100, energy: 100, level: nextLevel };
 
     const nextProjection = mergeClientBetaProjection(userId, {
-      points: nextPoints,
-      xp: nextXp,
+      points: completion.projectedPoints,
+      xp: completion.projectedXp,
       level: nextLevel,
       stepsToday: currentProjection?.stepsToday ?? user?.stepsToday ?? 0,
       avatar: nextAvatar,
@@ -189,7 +197,12 @@ export default function WochenmissionenPage() {
     localStorage.setItem("wellfit-history", JSON.stringify(historyEntries));
     setUser(updatedUser);
     setMessage(
-      `${selectedMission.title} vorgemerkt: +${completion.approvedPointsPreview} interne Punkte. ${completion.message}`
+      `${selectedMission.title} vorgemerkt: +${completion.approvedPointsPreview} interne Punkte. ${completion.message} ${completion.buddySyncMessage}`
+    );
+    setServerPathLabel(
+      completion.draftCollections.length > 0
+        ? `Drafts: ${completion.draftCollections.slice(0, 4).join(" · ")}`
+        : "Reward Preview · Completion · Projection im Fallback"
     );
     localStorage.setItem("wellfit-user", JSON.stringify(updatedUser));
     localStorage.setItem(alreadyRewardedKey, "true");
@@ -252,6 +265,7 @@ export default function WochenmissionenPage() {
             <div>
               <h1 className="text-5xl font-extrabold leading-none">Wochenmissionen</h1>
               <p className="mt-1 text-lg text-cyan-100/90">{message}</p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100/45">{serverPathLabel}</p>
             </div>
             <div className="flex items-center gap-2">
               <button className="rounded-[16px] bg-orange-500 px-5 py-3 text-sm font-bold">Tracker starten</button>
