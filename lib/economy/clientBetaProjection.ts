@@ -16,7 +16,7 @@ export type ClientBetaProjection = {
 const GLOBAL_KEY = "wellfit-client-beta-projection";
 const userKey = (userId: string) => `wellfit-client-beta-projection-${userId}`;
 
-const defaultAvatar: AvatarState = {
+const defaultAvatar = {
   hunger: 100,
   mood: 100,
   energy: 100,
@@ -25,7 +25,8 @@ const defaultAvatar: AvatarState = {
   bond: 60,
   loyalty: 70,
   curiosity: 60,
-};
+} satisfies Required<Pick<AvatarState, "hunger" | "mood" | "energy" | "level">> &
+  Required<Pick<AvatarState, "cleanliness" | "bond" | "loyalty" | "curiosity">>;
 
 const numberFrom = (value: unknown, fallback: number) => {
   const parsed = Number(value);
