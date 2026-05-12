@@ -72,25 +72,31 @@ export default function DashboardPage() {
   }, [mission, stepsToday, user]);
 
   useEffect(() => {
-    if (!user) return;
-
     let isCancelled = false;
 
-    fetchDashboardUserProjection(user).then((projection) => {
-      if (isCancelled) return;
+    const loadProjection = () => {
+      fetchDashboardUserProjection(user).then((projection) => {
+        if (isCancelled) return;
 
-      queueMicrotask(() => {
-        setPointsBalance(projection.points);
-        setBuddyEnergy(projection.avatarEnergy);
-        setBuddyHunger(projection.avatarHunger);
-        setBuddyLevel(projection.avatarLevel);
-        setStepsToday(projection.stepsToday);
-        setProjectionSource(projection.source);
+        queueMicrotask(() => {
+          setPointsBalance(projection.points);
+          setBuddyEnergy(projection.avatarEnergy);
+          setBuddyHunger(projection.avatarHunger);
+          setBuddyLevel(projection.avatarLevel);
+          setStepsToday(projection.stepsToday);
+          setProjectionSource(projection.source);
+        });
       });
-    });
+    };
+
+    loadProjection();
+
+    const onProjectionUpdated = () => loadProjection();
+    window.addEventListener("wellfit-client-beta-projection-updated", onProjectionUpdated);
 
     return () => {
       isCancelled = true;
+      window.removeEventListener("wellfit-client-beta-projection-updated", onProjectionUpdated);
     };
   }, [user]);
 
