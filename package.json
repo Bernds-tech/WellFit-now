@@ -17,6 +17,8 @@
     "agent:memory-sync": "node scripts/wellfit-dev-agent/src/memory-sync.mjs",
     "agent:code-inventory": "node scripts/wellfit-dev-agent/src/code-inventory.mjs",
     "agent:site-quality": "node scripts/wellfit-dev-agent/src/site-quality-audit.mjs",
+    "agent:todo-index-fix": "node scripts/wellfit-dev-agent/src/apply-todo-index-fixes.mjs",
+    "agent:todo-index-fix:write": "node scripts/wellfit-dev-agent/src/apply-todo-index-fixes.mjs --write",
     "agent:firestore-economy-rules-check": "node scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
     "agent:firestore-economy-rules-emulator-test": "node scripts/wellfit-dev-agent/src/firestore-economy-rules-emulator-test.mjs",
     "agent:apply-memory-prompts": "node scripts/wellfit-dev-agent/src/apply-memory-prompts.mjs",
