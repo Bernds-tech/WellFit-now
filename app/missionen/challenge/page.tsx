@@ -8,6 +8,7 @@ import AppSidebar from "@/app/AppSidebar";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import { mergeClientBetaProjection, readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import type { User } from "@/types/user";
+import { appendClientMissionHistory } from "../lib/clientMissionHistory";
 import ChallengeDetailsPanel from "./ChallengeDetailsPanel";
 import ChallengeMapPanel from "./ChallengeMapPanel";
 import { challengeCategories, challenges, missionTabs, type Challenge, type ChallengeCategory } from "./challengeData";
@@ -157,6 +158,16 @@ export default function ChallengePage() {
     });
 
     localStorage.setItem(completedKey, "true");
+    appendClientMissionHistory({
+      id: `challenge-${challenge.id}-${new Date().toISOString().slice(0, 10)}`,
+      title: challenge.title,
+      category: "Challenge",
+      rewardLabel: `+${completion.approvedPointsPreview} interne Punkte`,
+      completedAt: new Date().toISOString(),
+      icon: challenge.icon,
+      pointsDelta: completion.approvedPointsPreview,
+      status: "geschafft",
+    });
     setMessage(`${challenge.title} abgeschlossen: +${completion.approvedPointsPreview} interne Punkte. ${completion.message} ${completion.buddySyncMessage}`);
     setServerPathLabel(
       completion.draftCollections.length > 0
