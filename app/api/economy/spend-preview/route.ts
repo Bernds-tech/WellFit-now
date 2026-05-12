@@ -7,6 +7,7 @@ import {
   summarizeEconomyServerAuthContext,
   summarizeInternalSpendDecisionForStorage,
 } from "@/lib/economy";
+import type { InternalShopItemWithPrice, InternalShopItemType } from "@/lib/economy/shopItems";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,24 @@ const asString = (value: unknown, fallback: string) => {
 const asNumber = (value: unknown, fallback: number) => {
   const numberValue = Number(value);
   return Number.isFinite(numberValue) ? numberValue : fallback;
+};
+
+const asCustomSpendItem = (body: Record<string, unknown>): InternalShopItemWithPrice | undefined => {
+  const customSpendPoints = Math.max(0, Math.floor(asNumber(body.customSpendPoints, 0)));
+  if (customSpendPoints <= 0) return undefined;
+
+  return {
+    id: asString(body.itemId, "custom-internal-spend"),
+    title: asString(body.customTitle, "Interner Beta-Spend"),
+    type: asString(body.customType, "mission_hint") as InternalShopItemType,
+    basePrice: customSpendPoints,
+    price: customSpendPoints,
+    priceRate: 1,
+    currencyLabel: "interne Punkte",
+    betaDescription: asString(body.customDescription, "Interner Punkte-Sink. Keine echte Ausgabe."),
+    appStoreSafe: true,
+    tokenizedLater: false,
+  };
 };
 
 export async function GET() {
@@ -52,6 +71,7 @@ export async function POST(request: Request) {
       sourceType: "shop",
       sourceId: asString(body.sourceId, "api-spend-preview"),
       correlationId: typeof body.correlationId === "string" ? body.correlationId : undefined,
+      customItem: asCustomSpendItem(body),
     });
     const serverDrafts = createSpendPersistenceBundle(decision);
 
