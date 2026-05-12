@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "purpose": "Seitenregister fuer Stufe-4-Seitenpruefung, UX-/Psychologie-Check und Nebenseiten-Crawl.",
+    "issue": 19,
+    "status": "baseline-import"
+  },
+  "pageGroups": [
+    {
+      "id": "PAGES-PUBLIC",
+      "name": "Public Pages",
+      "routes": ["/", "/register", "/datenschutz", "/agb", "/impressum", "/faq", "/hilfe"],
+      "stufe4Checks": ["loads-publicly", "no-encoding-errors", "clear-cta", "trust", "mobile-readable"]
+    },
+    {
+      "id": "PAGES-DASHBOARD",
+      "name": "Dashboard",
+      "routes": ["/dashboard", "/dashboard/anpassen"],
+      "stufe4Checks": ["progress-visible", "mission-actions-safe", "buddy-state-visible", "server-preview-path-visible"]
+    },
+    {
+      "id": "PAGES-MISSIONS",
+      "name": "Missionen",
+      "routes": ["/missionen/tagesmissionen", "/missionen/wochenmissionen", "/missionen/abenteuer", "/missionen/challenge", "/missionen/wettkaempfe", "/missionen/favoriten", "/missionen/history"],
+      "stufe4Checks": ["no-client-authority", "reward-preview-clear", "mission-status-clear", "history-favorites-consistent", "mobile-layout"]
+    },
+    {
+      "id": "PAGES-MOBILE",
+      "name": "Mobile-Web",
+      "routes": ["/mobile", "/mobile/analyse", "/mobile/ar", "/mobile/bewegung", "/mobile/buddy", "/mobile/einstellungen", "/mobile/missionen", "/mobile/missionen/squat"],
+      "stufe4Checks": ["mobile-viewport", "touch-targets", "no-horizontal-scroll", "camera-ar-fallback-safe", "no-crash"]
+    },
+    {
+      "id": "PAGES-ECONOMY-UX",
+      "name": "Economy UX",
+      "routes": ["/punkte-shop", "/marktplatz", "/leaderboard", "/analytics"],
+      "stufe4Checks": ["internal-points-only", "no-token-activation", "privacy-aware", "user-understands-preview-vs-final"]
+    },
+    {
+      "id": "PAGES-SYSTEM",
+      "name": "System Pages",
+      "routes": ["/_not-found"],
+      "stufe4Checks": ["intentional-not-found", "helpful-navigation"]
+    }
+  ],
+  "psychologyChecks": {
+    "binding": ["emotional-relevance", "visible-progress", "buddy-or-reward-feedback"],
+    "trust": ["legal-visible", "privacy-consistent", "no-overpromise", "clear-beta-state"],
+    "motivation": ["small-next-action", "movement-learning-reward-link", "positive-feedback"],
+    "conversion": ["cta-clear", "path-clear", "no-unnecessary-friction"],
+    "multisensoryLearning": ["movement", "visual-feedback", "learning-task", "reward-loop", "repetition"]
+  }
+}

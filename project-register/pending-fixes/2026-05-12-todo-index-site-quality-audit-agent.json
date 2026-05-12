@@ -1,0 +1,15 @@
+{
+  "id": "PENDING-FIX-2026-05-12-001",
+  "date": "2026-05-12",
+  "status": "open-until-quality-gate-pass",
+  "blockedToolOrReason": "Direct full replacement of the very large todolist/TODO_INDEX.md was blocked by the GitHub tool. The local memory-sync report confirms the exact missing indexed file.",
+  "targetFile": "todolist/TODO_INDEX.md",
+  "qualityGateFailure": "FAIL: TODO index has no missing files (1)",
+  "exactMissingFile": "docs/architecture/WELLFIT_SITE_QUALITY_AUDIT_AGENT.md",
+  "desiredChange": "Add docs/architecture/WELLFIT_SITE_QUALITY_AUDIT_AGENT.md to the architecture/security documents table in todolist/TODO_INDEX.md.",
+  "exactPatchText": "| `docs/architecture/WELLFIT_SITE_QUALITY_AUDIT_AGENT.md` | aktiv | Site-Quality-Audit-Agent fuer Routen-, Seitenqualitaets- und Nebenseitenpruefung | Agentenstrategie / Site QA | nach sichtbaren Website-/Routen-Aenderungen nutzen |",
+  "insertNear": "In section '## Architektur- und Sicherheitsdokumente', preferably after docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md or before docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md.",
+  "nextAction": "Insert the exactPatchText into todolist/TODO_INDEX.md, then run npm run agent:memory-sync, npm run agent:quality-gate, npm run build.",
+  "relatedIssueOrPr": ["#19", "#20"],
+  "stufe4Rule": "autonom arbeiten, Nebenseiten pruefen, Fehler beheben, dokumentieren, Preview liefern, nicht live schalten"
+}

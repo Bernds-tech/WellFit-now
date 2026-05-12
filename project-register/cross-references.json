@@ -1,0 +1,59 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "purpose": "Querverweis-Register fuer Routen, APIs, Features, Todos und Regeln.",
+    "issue": 19,
+    "status": "initial-governance-layer"
+  },
+  "references": [
+    {
+      "id": "REF-STUFE4-0001",
+      "source": "agents/modes/stufe-4.md",
+      "target": "project-register/routes.json",
+      "relation": "requires",
+      "reason": "Stufe 4 muss alle relevanten Haupt- und Nebenseiten aus dem Routenregister pruefen."
+    },
+    {
+      "id": "REF-STUFE4-0002",
+      "source": "agents/self-check.md",
+      "target": "project-register/todos.json",
+      "relation": "requires-update-check",
+      "reason": "Self Check verlangt Todo-Pruefung und Aktualisierung vor Abschluss."
+    },
+    {
+      "id": "REF-STUFE4-0003",
+      "source": "FEATURE-MISSIONS",
+      "target": "/api/economy/complete-mission",
+      "relation": "depends-on",
+      "reason": "Missionen duerfen Completion nicht clientseitig final autorisieren."
+    },
+    {
+      "id": "REF-STUFE4-0004",
+      "source": "FEATURE-BUDDY",
+      "target": "/api/buddy-ki",
+      "relation": "depends-on",
+      "reason": "Buddy-KI darf Guide-/Vorschlagslogik liefern, aber keine Rewards autorisieren."
+    },
+    {
+      "id": "REF-STUFE4-0005",
+      "source": "FEATURE-POINTS-SHOP",
+      "target": "/api/economy/spend-preview",
+      "relation": "depends-on",
+      "reason": "Punkte-Shop nutzt interne Spend-Preview, keine echten Kaeufe."
+    },
+    {
+      "id": "REF-STUFE4-0006",
+      "source": "agents/security-rules.md",
+      "target": "project-register/apis.json",
+      "relation": "must-consider",
+      "reason": "API-Aenderungen muessen Security-Regeln und Autoritaetsgrenzen beachten."
+    },
+    {
+      "id": "REF-STUFE4-0007",
+      "source": "agents/scalability-rules.md",
+      "target": "project-register/features.json",
+      "relation": "must-consider",
+      "reason": "Feature-Aenderungen muessen skalierbar und ohne Parallelmodule dokumentiert werden."
+    }
+  ]
+}

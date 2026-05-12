@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "purpose": "Maschinenlesbares Register fuer Stufe-4-Nebenseiten-Crawl und Routen-Governance.",
+    "baselineSource": "todolist/LAST_BUILD_STATUS.md und bestehende Next.js Routen",
+    "issue": 19,
+    "status": "baseline-import"
+  },
+  "publicPages": [
+    { "route": "/", "area": "Landing", "auth": "public", "status": "active" },
+    { "route": "/register", "area": "Registration", "auth": "public", "status": "active" },
+    { "route": "/datenschutz", "area": "Legal", "auth": "public", "status": "active" },
+    { "route": "/agb", "area": "Legal", "auth": "public", "status": "active" },
+    { "route": "/impressum", "area": "Legal", "auth": "public", "status": "active" },
+    { "route": "/faq", "area": "Help", "auth": "public", "status": "active" },
+    { "route": "/hilfe", "area": "Help", "auth": "public", "status": "active" }
+  ],
+  "protectedAppPages": [
+    { "route": "/dashboard", "area": "Dashboard", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/dashboard/anpassen", "area": "Dashboard", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/buddy", "area": "Buddy", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/missionen/tagesmissionen", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/missionen/wochenmissionen", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/missionen/abenteuer", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/missionen/challenge", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/missionen/wettkaempfe", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/missionen/favoriten", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/missionen/history", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/punkte-shop", "area": "Punkte-Shop", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/marktplatz", "area": "Marketplace", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/leaderboard", "area": "Leaderboard", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/analytics", "area": "Analytics", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/einstellungen", "area": "Settings", "auth": "app-user-or-beta-preview", "status": "active" }
+  ],
+  "mobilePages": [
+    { "route": "/mobile", "area": "Mobile-Web", "auth": "mobile-beta-preview", "status": "active" },
+    { "route": "/mobile/analyse", "area": "Mobile-Web", "auth": "mobile-beta-preview", "status": "active" },
+    { "route": "/mobile/ar", "area": "Mobile-Web-AR", "auth": "mobile-beta-preview", "status": "active" },
+    { "route": "/mobile/bewegung", "area": "Mobile-Web", "auth": "mobile-beta-preview", "status": "active" },
+    { "route": "/mobile/buddy", "area": "Mobile-Web-Buddy", "auth": "mobile-beta-preview", "status": "active" },
+    { "route": "/mobile/einstellungen", "area": "Mobile-Web", "auth": "mobile-beta-preview", "status": "active" },
+    { "route": "/mobile/missionen", "area": "Mobile-Web-Missionen", "auth": "mobile-beta-preview", "status": "active" },
+    { "route": "/mobile/missionen/squat", "area": "Mobile-Web-Missionen", "auth": "mobile-beta-preview", "status": "active" }
+  ],
+  "systemPages": [
+    { "route": "/_not-found", "area": "System", "auth": "public", "status": "active" }
+  ],
+  "viewports": [
+    { "name": "mobile-small", "width": 360, "height": 740 },
+    { "name": "mobile-standard", "width": 390, "height": 844 },
+    { "name": "tablet", "width": 768, "height": 1024 },
+    { "name": "desktop", "width": 1440, "height": 900 }
+  ],
+  "stufe4Rules": {
+    "crawlAllPublicPages": true,
+    "crawlAllMobilePages": true,
+    "protectedPagesRequireTestUserOrDocumentedBlocker": true,
+    "newRoutesMustBeRegistered": true,
+    "routeChangesRequireCrossReferences": true
+  }
+}

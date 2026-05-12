@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "purpose": "Fortschrittslog fuer Stufe-4-Agentenarbeit.",
+    "issue": 19,
+    "status": "initial-governance-layer"
+  },
+  "entries": [
+    {
+      "id": "PROGRESS-STUFE4-0001",
+      "date": "2026-05-12",
+      "branch": "feature/stufe-4-governance-layer",
+      "issue": 19,
+      "goal": "Stufe-4-Governance-Layer und Projektregister im bestehenden WellFit-Repo anlegen.",
+      "changedAreas": ["agents", "project-register"],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Nur Governance- und Registerdateien angelegt. Keine Produktlogik, keine Firebase-Rules, keine UI-Refactors, kein Live-Deploy."
+    }
+  ]
+}
