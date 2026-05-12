@@ -3,6 +3,7 @@ import {
   createInternalSpendPreviewDecision,
   summarizeInternalMissionCompletionForStorage,
   summarizeInternalSpendDecisionForStorage,
+  type InternalEconomyHealthSnapshot,
   type InternalSpendDecisionStatus,
   type MissionCompletionDecisionStatus,
   type RewardPreviewDecision,
@@ -48,6 +49,11 @@ export type DashboardSpendPreviewResult = {
   ledgerSummary: ReturnType<typeof summarizeInternalSpendDecisionForStorage>;
 };
 
+export type DashboardEconomyHealthPreviewResult = {
+  source: "server" | "local";
+  health: InternalEconomyHealthSnapshot | null;
+};
+
 const asFiniteNumber = (value: unknown, fallback: number) => {
   const numericValue = Number(value);
   return Number.isFinite(numericValue) ? numericValue : fallback;
@@ -72,6 +78,31 @@ const isSpendDecisionStatus = (value: unknown): value is InternalSpendDecisionSt
 
 const dashboardMissionSourceId = (mission: PersonalMission) => {
   return `dashboard-mission-${mission.title.toLowerCase().replace(/[^a-z0-9]+/gi, "-")}`;
+};
+
+export const fetchDashboardEconomyHealthPreview = async (params: {
+  requestedReward?: number;
+} = {}): Promise<DashboardEconomyHealthPreviewResult> => {
+  try {
+    const response = await fetch("/api/economy/health-preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestedReward: params.requestedReward ?? 100 }),
+    });
+
+    if (!response.ok) return { source: "local", health: null };
+
+    const data = (await response.json()) as {
+      ok?: boolean;
+      health?: InternalEconomyHealthSnapshot;
+    };
+
+    if (!data.ok || !data.health) return { source: "local", health: null };
+
+    return { source: "server", health: data.health };
+  } catch {
+    return { source: "local", health: null };
+  }
 };
 
 export const fetchDashboardMissionRewardPreview = async (params: {
