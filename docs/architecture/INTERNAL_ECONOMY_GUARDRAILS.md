@@ -1,7 +1,7 @@
 # WellFit Internal Economy Guardrails
 
 Status: Beta-planend / nicht produktiv freigeschaltet
-Stand: 2026-05-07
+Stand: 2026-05-12
 
 ## Ziel
 
@@ -35,6 +35,64 @@ Serverseitig erzeugtes Audit-Ereignis fuer spaetere Punkte-/XP-/Item-Logik.
 
 ### Economy Health Score
 Interner Zustand der Punkteoekonomie. Dient spaeter zur Drosselung und Balancierung.
+
+## Checkpoint- und Vor-Ort-Grundsatz
+
+Abenteuer, Challenges und Wettkaempfe sollen Nutzer zu echten Orten bewegen.
+
+Produktgrundsatz:
+- Ein Checkpoint ist ein echter Nahbereich, kein grober Stadtteil.
+- Zielradius fuer normale Checkpoints: ca. 20 Meter um den realen Ort.
+- Beta-Toleranz kann wegen GPS-Ungenauigkeit technisch groesser sein, darf aber nicht als Produktziel gelten.
+- Nutzer sollen nicht nur die halbe Strecke gehen und dann irgendwo abschliessen koennen.
+- Die spaetere Server-/KI-/Evidence-Pruefung muss Standort, Zeit, Bewegung und Proof-Qualitaet zusammen bewerten.
+
+Spaeter moegliche Dynamik:
+- Bei sehr hoher Nutzerdichte kann ein Checkpoint-Kreis temporär groesser werden.
+- Bei normalem Betrieb bleibt der 20-Meter-Nahbereich das Ziel.
+- Diese Dynamik darf erst nach stabiler Beta und Anti-Cheat-Pruefung aktiviert werden.
+
+## Interne Gesamtmenge und Nachhaltigkeit
+
+Die interne Economy simuliert derzeit eine maximale Gesamtmenge von 25 Milliarden internen Punkten.
+
+Grundsatz:
+- Punkte duerfen nicht nur ausgegeben werden.
+- Punkte muessen ueber interne Sinks, Zugangsmechaniken, Goodies, Buddy-Pflege, Upgrades, kosmetische Items, Challenge-Starts, Abenteuer-Zugaenge und spaetere Systemgebuehren wieder in den Systembestand zurueckfliessen.
+- Die interne Punkte-Reserve ist fuer Reward-Hoehe, Preise und EconomyHealthScore relevant.
+- Das System muss auch bei sehr grosser Nutzerzahl stabil bleiben.
+
+Skalierungsannahme:
+- WellFit darf langfristig nicht nur fuer kleine Beta-Nutzerzahlen berechnet werden.
+- Das Balancing muss gedanklich fuer Millionen bis Milliarden Nutzer tragfaehig sein.
+- Auch bei theoretisch mehreren Milliarden Nutzern darf die Punkteausgabe nicht in eine unkontrollierte Inflation laufen.
+
+## Reserve-, Emissions- und Sink-Logik
+
+Die Punkteoekonomie muss spaeter mindestens diese Werte beruecksichtigen:
+
+- totalPointSupply: 25.000.000.000 interne Punkte
+- systemReservePoints: noch nicht ausgegebene oder zurueckgefuehrte Punkte
+- circulatingUserPoints: Summe aller Nutzerbestaende
+- dailyEmissionBudget: Tagesbudget fuer neue Rewards
+- dailySinkReturn: Punkte, die am Tag ueber Sinks zurueckfliessen
+- activeUsersDaily: aktive Nutzer pro Tag
+- activeUsersMonthly: aktive Nutzer pro Monat
+- economyHealthScore: Zustand aus Reserve, Ausgabe, Rueckfluss, Abuse-Risiko und Cap-Auslastung
+
+Grundformel als Beta-Draft:
+
+```text
+effectiveDailyEmissionBudget = min(
+  configuredDailyEmissionCap,
+  reserveBasedDailyBudget + sinkReturnShare
+)
+```
+
+Dabei gilt:
+- Hohe Reserve und hoher Rueckfluss erlauben hoehere Rewards und guenstigere Goodies.
+- Niedrige Reserve oder schwacher Rueckfluss drosseln Rewards und verteuern Sinks.
+- Kritische Reserve stoppt neue hohe Rewards und schaltet mehr Aktionen auf Preview oder Manual Review.
 
 ## Kern-Caps
 
@@ -79,6 +137,9 @@ Moegliche Signale:
 - heutige Gesamtausgabe
 - Ausgaben pro Nutzer
 - Ausgaben pro Missionstyp
+- heutige Rueckfluesse ueber Sinks
+- Reservequote gegen 25-Mrd.-Gesamtmenge
+- aktive Nutzerzahl und Wachstumsrate
 - auffaellige Wiederholungen
 - Proof-Qualitaet
 - Pattern-/Cooldown-Risiko
@@ -95,6 +156,9 @@ Moegliche Signale:
 | MissionTypeCap erreicht | Reward fuer Missionstyp drosseln |
 | DailyEmissionCap erreicht | globale Ausgabe stoppen oder stark reduzieren |
 | EconomyHealthScore kritisch | nur Preview, keine finale Vergabe |
+| Reservequote kritisch | Rewards drosseln, Preise/Sinks erhoehen, Reviewquote erhoehen |
+| Sink-Rueckfluss zu niedrig | neue hohe Ausschüttungen vermeiden |
+| Checkpoint-Distanz zu gross | keine finale Mission Completion, nur Route/Preview |
 
 ## Serverautoritaet
 
@@ -108,6 +172,8 @@ Alle finalen Entscheidungen muessen spaeter serverseitig erfolgen:
 - Audit-Events
 - Anti-Cheat-Entscheidungen
 - Manual Review
+- Checkpoint-/Standort-Evidence
+- Reserve-/Emission-/Sink-Balancing
 
 Der Client darf fuer Beta nur anzeigen, vorschlagen, vorfiltern oder Demo-Zustaende darstellen.
 
@@ -138,6 +204,8 @@ Diese Guardrails muessen spaeter mit folgenden Bereichen abgeglichen werden:
 - [ ] Konkrete Default-Werte fuer UserDailyCap definieren.
 - [ ] MissionTypeCap je Missionstyp definieren.
 - [ ] EconomyHealthScore-Formel als Beta-Draft definieren.
+- [ ] 25-Mrd.-Punkte-Reserve-/Rueckfluss-Formel als ausfuehrbaren Server-Draft definieren.
+- [ ] Checkpoint-Distanzregel mit 20-Meter-Zielradius als serverseitige Evidence-Pruefung vorbereiten.
 - [ ] Datenmodell fuer Economy-Audit-Events finalisieren.
 - [ ] Sicherstellen, dass Client keine Punkte/XP final schreiben darf.
 
