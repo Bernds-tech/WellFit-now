@@ -11,7 +11,6 @@ export default function PointsShopPage() {
       title="Punkte-Shop"
       subtitle="Der Punkte-Shop wird zuerst als internes Punkte- und Spend-Modul vorbereitet. Echte Käufe, Token, NFTs oder Wallet-Funktionen werden nicht im MVP aktiviert."
       status="Interne Beta-Preise"
-      extraContent={<ShopSpendPreviewPanel items={shopItems} />}
       cards={[
         {
           title: "Interne Punkte zuerst",
@@ -36,6 +35,8 @@ export default function PointsShopPage() {
         "Token, NFT, Trading, Staking und Presale bleiben deaktiviert.",
         "Goodie-Preise reagieren später auf Reserve und Umlauf, aktuell als interne Simulation.",
       ]}
-    />
+    >
+      <ShopSpendPreviewPanel items={shopItems} />
+    </ProductModulePlaceholderPage>
   );
 }
