@@ -130,6 +130,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` | aktiv / Testplan | Firestore Economy Rules Haertung, DENY/ALLOW Emulator-Stufen und Client-Write-Migration | Backend/Economy/QA | vor harter Rules-Aenderung nutzen |
 | `docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md` | aktiv / Privacy Guardrails | Health-, Watch-, Kamera-, AR-, Standort- und Kinder-/Jugenddaten | Datenschutz/Safety | fuehrend fuer sensible Daten und Berechtigungen |
 | `docs/architecture/CHECKPOINT_LOCATION_SAFETY_AND_PLACEMENT.md` | aktiv / Checkpoint Safety | sichere echte Orte, verbotene Orte, 20-Meter-Radius und Standortplatzierung | Mission/Location/Safety | fuehrend fuer Checkpoint-Erzeugung nutzen |
+| `docs/architecture/COMPETITION_INTERNAL_STAKES_GUARDRAILS.md` | aktiv / Competition Stakes | interne Duell-Einsaetze, Punkte-/Item-Locks, keine echten Wetten/Auszahlungen | Wettkaempfe/Economy/Safety | fuehrend fuer Wettkampf-Einsaetze nutzen |
 | `docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md` | aktiv / Blockchain Backlog | Token/WFT/NFT erst nach stabilem internem Punkte- und Abrechnungssystem | Blockchain/Token | fuehrend fuer spaetere Token-Migration |
 | `docs/architecture/AR_RIDDLE_FIRESTORE_SECURITY_PLAN.md` | aktiv / Security | AR-Raetsel Firestore Security | Backend/Security | mit Coder 2 abgleichen |
 | `docs/architecture/USER_POINTS_CLIENT_WRITE_REFACTOR.md` | aktiv / Security | Refactor gegen Client-Write bei User Points | Backend/Security | fuer Beta wichtig |
@@ -181,5 +182,5 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 ## Codebase Feature Map
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
-|---|---|---|---|---|
+|---|---|---|---|
 | `todolist/CODEBASE_FEATURE_MAP.md` | aktiv | Bestandskarte vorhandener Codebereiche gegen Doppelarbeit | `MASTER_OPEN_DONE_LIST.md` | vor grossen Codebloecken pruefen |
