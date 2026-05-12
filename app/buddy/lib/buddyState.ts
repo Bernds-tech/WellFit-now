@@ -1,3 +1,4 @@
+import { readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import type { User } from "@/types/user";
 import type { BuddyDailyMode, BuddyState, BuddyStatus } from "../types";
 
@@ -22,12 +23,14 @@ export function getBuddyDailyMode(state: Pick<BuddyState, "energy" | "hunger" | 
 }
 
 export function createBuddyStateFromUser(user: User | null): BuddyState {
-  const level = user?.avatar?.level ?? user?.level ?? 1;
-  const xp = user?.xp ?? 0;
-  const energy = clamp(user?.avatar?.energy ?? 78);
-  const hunger = clamp(user?.avatar?.hunger ?? 72);
-  const mood = clamp(user?.avatar?.mood ?? 68);
-  const points = user?.points ?? 0;
+  const projection = readClientBetaProjection(user?.id ?? null);
+  const avatar = projection?.avatar ?? user?.avatar;
+  const level = avatar?.level ?? projection?.level ?? user?.level ?? 1;
+  const xp = projection?.xp ?? user?.xp ?? 0;
+  const energy = clamp(avatar?.energy ?? 78);
+  const hunger = clamp(avatar?.hunger ?? 72);
+  const mood = clamp(avatar?.mood ?? 68);
+  const points = projection?.points ?? user?.points ?? 0;
 
   const baseState = {
     name: "Flammi",
@@ -39,10 +42,10 @@ export function createBuddyStateFromUser(user: User | null): BuddyState {
     energy,
     hunger,
     mood,
-    cleanliness: clamp(76 - Math.max(0, 60 - hunger) / 2),
-    bond: clamp(64 + Math.min(level * 4, 26)),
-    loyalty: clamp(72 + Math.min(level * 3, 20)),
-    curiosity: clamp(62 + Math.min(level * 2, 24)),
+    cleanliness: clamp(avatar?.cleanliness ?? 76 - Math.max(0, 60 - hunger) / 2),
+    bond: clamp(avatar?.bond ?? 64 + Math.min(level * 4, 26)),
+    loyalty: clamp(avatar?.loyalty ?? 72 + Math.min(level * 3, 20)),
+    curiosity: clamp(avatar?.curiosity ?? 62 + Math.min(level * 2, 24)),
   } satisfies Omit<BuddyState, "status" | "dailyMode">;
 
   const status = getBuddyStatus(baseState);
