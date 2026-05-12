@@ -26,11 +26,17 @@ type GoogleMissionMapProps = {
   onSelectMarker: (markerId: number) => void;
   zoom?: number;
   minHeightClassName?: string;
+  autoRequestLocation?: boolean;
 };
 
 type GoogleMapsWindow = Window & {
   google?: any;
   __wellfitGoogleMapsPromise?: Promise<void>;
+};
+
+type StoredPermissions = {
+  location?: boolean;
+  locationTracking?: boolean;
 };
 
 const GOOGLE_MAPS_SCRIPT_ID = "wellfit-google-maps-js";
@@ -49,6 +55,23 @@ const detectDeviceType = (): DeviceLocationSnapshot["deviceType"] => {
   if (/android|iphone|ipod|mobile/.test(userAgent)) return "mobile";
   if (/windows|macintosh|linux|x11/.test(userAgent)) return "desktop";
   return "unknown";
+};
+
+const readStoredPermissions = (): StoredPermissions => {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(localStorage.getItem("wellfit-permissions") ?? "{}") as StoredPermissions;
+  } catch {
+    return {};
+  }
+};
+
+const mergeStoredPermissions = (patch: StoredPermissions) => {
+  if (typeof window === "undefined") return;
+  try {
+    const current = readStoredPermissions();
+    localStorage.setItem("wellfit-permissions", JSON.stringify({ ...current, ...patch }));
+  } catch {}
 };
 
 const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
@@ -123,12 +146,14 @@ export default function GoogleMissionMap({
   onSelectMarker,
   zoom = 12,
   minHeightClassName = "min-h-[520px]",
+  autoRequestLocation = false,
 }: GoogleMissionMapProps) {
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markerRefs = useRef<any[]>([]);
   const ownLocationMarkerRef = useRef<any>(null);
   const ownLocationCircleRef = useRef<any>(null);
+  const autoLocationRequestedRef = useRef(false);
   const [loadState, setLoadState] = useState<
     "missing-key" | "loading" | "ready" | "error"
   >("loading");
@@ -144,6 +169,44 @@ export default function GoogleMissionMap({
     map.panTo({ lat: location.latitude, lng: location.longitude });
     map.setZoom(Math.max(map.getZoom?.() ?? zoom, 15));
   }, [ownLocation, zoom]);
+
+  const requestOwnLocation = useCallback((options?: { silent?: boolean }) => {
+    if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
+      if (!options?.silent) setLocationMessage("Dieses Gerät unterstützt keine Standortfreigabe.");
+      return;
+    }
+
+    setIsLocating(true);
+    if (!options?.silent) setLocationMessage("Standort wird ermittelt ...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const snapshot: DeviceLocationSnapshot = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracyMeters: Math.round(position.coords.accuracy),
+          deviceType: detectDeviceType(),
+          source: "browser-geolocation",
+          capturedAt: new Date().toISOString(),
+        };
+
+        mergeStoredPermissions({ location: true, locationTracking: true });
+        setOwnLocation(snapshot);
+        writeLastDeviceLocation(snapshot);
+        setLocationMessage(`Standort aktiv · Genauigkeit ca. ${snapshot.accuracyMeters} m`);
+        setIsLocating(false);
+        setTimeout(() => focusOwnLocation(snapshot), 50);
+      },
+      (error) => {
+        setIsLocating(false);
+        if (error.code === error.PERMISSION_DENIED) setLocationMessage("Standortfreigabe wurde abgelehnt.");
+        else if (error.code === error.POSITION_UNAVAILABLE) setLocationMessage("Standort ist aktuell nicht verfügbar.");
+        else if (error.code === error.TIMEOUT) setLocationMessage("Standortabfrage hat zu lange gedauert.");
+        else setLocationMessage("Standort konnte nicht ermittelt werden.");
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
+    );
+  }, [focusOwnLocation]);
 
   const renderOwnLocation = useCallback(
     (google: any, map: any, location: DeviceLocationSnapshot | null) => {
@@ -220,13 +283,15 @@ export default function GoogleMissionMap({
   useEffect(() => {
     const onLocationUpdate = (event: Event) => {
       const customEvent = event as CustomEvent<DeviceLocationSnapshot>;
-      setOwnLocation(customEvent.detail ?? readLastDeviceLocation());
+      const nextLocation = customEvent.detail ?? readLastDeviceLocation();
+      setOwnLocation(nextLocation);
+      if (nextLocation) setTimeout(() => focusOwnLocation(nextLocation), 50);
     };
 
     window.addEventListener("wellfit-device-location-updated", onLocationUpdate);
     return () =>
       window.removeEventListener("wellfit-device-location-updated", onLocationUpdate);
-  }, []);
+  }, [focusOwnLocation]);
 
   useEffect(() => {
     if (!apiKey) {
@@ -315,6 +380,17 @@ export default function GoogleMissionMap({
   ]);
 
   useEffect(() => {
+    if (!autoRequestLocation || autoLocationRequestedRef.current || ownLocation || loadState !== "ready") return;
+
+    autoLocationRequestedRef.current = true;
+    requestOwnLocation({ silent: true });
+  }, [autoRequestLocation, loadState, ownLocation, requestOwnLocation]);
+
+  useEffect(() => {
+    if (loadState === "ready" && ownLocation) focusOwnLocation(ownLocation);
+  }, [focusOwnLocation, loadState, ownLocation]);
+
+  useEffect(() => {
     const google = (window as GoogleMapsWindow).google;
     const map = mapRef.current;
     if (!google?.maps || !map) return;
@@ -343,43 +419,6 @@ export default function GoogleMissionMap({
     const google = (window as GoogleMapsWindow).google;
     renderOwnLocation(google, mapRef.current, ownLocation);
   }, [ownLocation, renderOwnLocation]);
-
-  const requestOwnLocation = () => {
-    if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
-      setLocationMessage("Dieses Gerät unterstützt keine Standortfreigabe.");
-      return;
-    }
-
-    setIsLocating(true);
-    setLocationMessage("Standort wird ermittelt ...");
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const snapshot: DeviceLocationSnapshot = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracyMeters: Math.round(position.coords.accuracy),
-          deviceType: detectDeviceType(),
-          source: "browser-geolocation",
-          capturedAt: new Date().toISOString(),
-        };
-
-        setOwnLocation(snapshot);
-        writeLastDeviceLocation(snapshot);
-        setLocationMessage(`Standort aktiv · Genauigkeit ca. ${snapshot.accuracyMeters} m`);
-        setIsLocating(false);
-        setTimeout(() => focusOwnLocation(snapshot), 50);
-      },
-      (error) => {
-        setIsLocating(false);
-        if (error.code === error.PERMISSION_DENIED) setLocationMessage("Standortfreigabe wurde abgelehnt.");
-        else if (error.code === error.POSITION_UNAVAILABLE) setLocationMessage("Standort ist aktuell nicht verfügbar.");
-        else if (error.code === error.TIMEOUT) setLocationMessage("Standortabfrage hat zu lange gedauert.");
-        else setLocationMessage("Standort konnte nicht ermittelt werden.");
-      },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
-    );
-  };
 
   if (loadState === "missing-key") {
     return (
@@ -438,11 +477,11 @@ export default function GoogleMissionMap({
         )}
         <button
           type="button"
-          onClick={ownLocation ? () => focusOwnLocation() : requestOwnLocation}
+          onClick={ownLocation ? () => focusOwnLocation() : () => requestOwnLocation()}
           disabled={isLocating}
           className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-65"
         >
-          {isLocating ? "📍 Standort wird gesucht" : ownLocation ? "📍 Zu meinem Standort" : "📍 Standort erlauben"}
+          {isLocating ? "📍 Standort wird gesucht" : ownLocation ? "📍 Standort aktualisieren" : "📍 Standort erlauben"}
         </button>
       </div>
     </div>
