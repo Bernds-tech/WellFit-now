@@ -1,6 +1,6 @@
-# Challenge Economy Path vorbereitet
+# Challenge Economy Path vorbereitet und getestet
 
-Status: umgesetzt / Build noch lokal zu pruefen
+Status: umgesetzt / lokal und sichtbar getestet
 Datum: 2026-05-12
 
 ## Ziel
@@ -29,6 +29,45 @@ Challenge-Missionen wurden an denselben internen Economy-Pfad vorbereitet, der b
 - Nach erfolgreicher Completion wird `clientBetaProjection` geschrieben, damit Dashboard/Buddy denselben Beta-Stand lesen koennen.
 - Server-Preview kann Reward cappen, Review verlangen oder blockieren.
 
+## Test durch Bernd
+
+Bernd hat lokal ausgefuehrt:
+
+```powershell
+cd C:\wellfit\WellFit-now
+git pull
+npm run agent:code-inventory
+npm run agent:quality-gate
+npm run build
+```
+
+Ergebnis:
+
+- Code Inventory: PASS / Report erzeugt
+- Scanned files: 429
+- App routes: 30
+- API routes: 9
+- Economy code files: 18
+- Quality Gate: PASS
+- TODO index missing files: 0
+- Firestore economy rules check: PASS
+- Build: gruen
+- TypeScript: gruen
+- Static pages: 34/34
+
+## Sichtbarer Live-/Beta-Test
+
+Bernd hat `/missionen/challenge` sichtbar getestet:
+
+- Dashboard Startpunkt: 238 interne Punkte
+- Challenge-Route vorbereitet: Mathe-Speed
+- Challenge pruefen & abschliessen geklickt
+- Serverpfad meldete: Reward-Preview, Completion, Projection und Buddy-Sync-Preview genutzt
+- Punkte stiegen von 238 auf 338 interne Punkte
+- Dashboard zeigte danach 338 interne Punkte
+- Zweiter Klick auf `Challenge pruefen & abschliessen` gab `Challenge bereits abgeschlossen: Mathe-Speed` aus
+- Keine doppelte Punktegutschrift sichtbar
+
 ## Harte Grenzen
 
 Nicht aktiviert:
@@ -43,25 +82,13 @@ Nicht aktiviert:
 - keine harte Firestore-Sperre
 - keine produktive 20m-Evidence-Entscheidung
 
-## Naechster lokaler Test
+## Offene Folgepunkte
 
-```powershell
-cd C:\wellfit\WellFit-now
-git pull
-npm run agent:code-inventory
-npm run agent:quality-gate
-npm run build
-```
-
-Danach live testen:
-
-- `/missionen/challenge` oeffnen
-- Standort muss automatisch funktionieren
-- Challenge-Route vorbereiten klicken
-- Challenge pruefen & abschliessen klicken
-- Punkte muessen sich in der lokalen Beta-Projektion aendern
-- Dashboard und Buddy muessen denselben Stand lesen
+- Buddy-Seite nach Challenge-Abschluss noch explizit live pruefen.
+- Challenge-History/Favoriten spaeter an denselben Event-/History-Pfad anbinden.
+- Finale Checkpoint-/20m-Evidence bleibt serverseitiger Folgeblock.
+- Echte Ledger-/Audit-/Projection-Persistenz bleibt deaktiviert bis Server/Rules stabil sind.
 
 ## KI-Fortsetzungs-Prompt
 
-Lies zuerst `todolist/TODO_INDEX.md`, `todolist/CODEBASE_FEATURE_MAP.md`, `todolist/PROJECT_STRUCTURE.md` und diese Datei. Challenge ist jetzt economy-pfad-vorbereitet, aber noch nicht final serverpersistiert. Keine parallelen Challenge-Economy-Module bauen. Naechste Schritte muessen bestehende Economy-APIs, `clientBetaProjection`, Ledger-/Audit-/Projection-Drafts und Firestore-Hardening-Plaene weiterverwenden.
+Lies zuerst `todolist/TODO_INDEX.md`, `todolist/CODEBASE_FEATURE_MAP.md`, `todolist/PROJECT_STRUCTURE.md` und diese Datei. Challenge ist jetzt economy-pfad-vorbereitet und lokal sichtbar getestet, aber noch nicht final serverpersistiert. Keine parallelen Challenge-Economy-Module bauen. Naechste Schritte muessen bestehende Economy-APIs, `clientBetaProjection`, Ledger-/Audit-/Projection-Drafts und Firestore-Hardening-Plaene weiterverwenden.
