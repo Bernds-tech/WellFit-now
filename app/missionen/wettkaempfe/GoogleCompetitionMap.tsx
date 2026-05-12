@@ -40,13 +40,14 @@ export default function GoogleCompetitionMap({
 
   return (
     <GoogleMissionMap
-      title="Google Maps"
-      subtitle="Zoom · Drag · Checkpoints · Bürgermeister"
+      title="Google Maps Wettkämpfe"
+      subtitle="Standort automatisch · sichere Checkpoints · Bürgermeister"
       markers={checkpointMarkers}
       selectedMarkerId={selectedCheckpointId}
       onSelectMarker={onSelectCheckpoint}
       zoom={12}
       minHeightClassName="min-h-[520px]"
+      autoRequestLocation
     />
   );
 }
