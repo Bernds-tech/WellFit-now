@@ -6,20 +6,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
+import { mergeClientBetaProjection, readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import type { User } from "@/types/user";
 import GoogleMissionMap from "../components/GoogleMissionMap";
+import {
+  fetchAdventureRewardCompletion,
+  fetchAdventureTravelSpend,
+  type AdventureEconomyMission,
+} from "./serverAdventureEconomyApi";
 
 type AdventureCategory = "Alle Orte" | "Tierparks" | "Museen" | "Burgen" | "Parks & Städte";
 
-type Adventure = {
-  id: number;
-  title: string;
-  shortLabel: string;
-  category: AdventureCategory;
+type Adventure = AdventureEconomyMission & {
   region: string;
-  description: string;
-  reward: number;
-  travelCost: number;
   image: string;
   icon: string;
   lat: number;
@@ -92,10 +91,34 @@ const adventures: Adventure[] = [
   },
 ];
 
+const createUserFromProjection = (fallbackUser: User | null): User | null => {
+  const projection = readClientBetaProjection(fallbackUser?.id ?? null);
+  if (!projection) return fallbackUser;
+
+  return {
+    ...(fallbackUser ?? {
+      id: projection.userId,
+      firstName: "",
+      lastName: "",
+      email: "",
+      energy: projection.avatar.energy,
+      currency: "points" as const,
+      inventory: [],
+    }),
+    id: fallbackUser?.id ?? projection.userId,
+    points: projection.points,
+    xp: projection.xp,
+    level: projection.level,
+    stepsToday: projection.stepsToday,
+    avatar: projection.avatar,
+  };
+};
+
 export default function AbenteuerPage() {
   const [brightness, setBrightness] = useWellFitBrightness(100);
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("Bereit für neue Abenteuer?");
+  const [serverPathLabel, setServerPathLabel] = useState("Spend Preview · Reward Preview · Completion · Projection bereit");
   const [selectedCategory, setSelectedCategory] = useState<AdventureCategory>("Alle Orte");
   const [selectedAdventureId, setSelectedAdventureId] = useState<number>(1);
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
@@ -104,13 +127,16 @@ export default function AbenteuerPage() {
     const savedUser = localStorage.getItem("wellfit-user");
     const savedFavorites = localStorage.getItem("wellfit-favorite-adventures");
 
+    let parsedUser: User | null = null;
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        parsedUser = JSON.parse(savedUser) as User;
       } catch (error) {
         console.error("Fehler beim Laden des Users", error);
       }
     }
+
+    setUser(createUserFromProjection(parsedUser));
 
     if (savedFavorites) {
       try {
@@ -157,31 +183,132 @@ export default function AbenteuerPage() {
     localStorage.setItem("wellfit-favorite-adventures", JSON.stringify(updated));
   };
 
-  const startAdventure = () => {
-    if (!user) {
-      setMessage("Bitte zuerst registrieren oder einloggen.");
-      return;
-    }
+  const syncUserFromProjection = (nextUserId: string) => {
+    const nextUser = createUserFromProjection(user ?? {
+      id: nextUserId,
+      firstName: "",
+      lastName: "",
+      email: "",
+      points: 0,
+      xp: 0,
+      energy: 100,
+      level: 1,
+      stepsToday: 0,
+      currency: "points",
+      avatar: { hunger: 100, mood: 100, energy: 100, level: 1 },
+      inventory: [],
+    });
 
-    const currentPoints = user.points ?? 0;
-
-    if (currentPoints < selectedAdventure.travelCost) {
-      setMessage("Nicht genug interne Punkte für diese Reise.");
-      return;
+    if (nextUser) {
+      setUser(nextUser);
+      localStorage.setItem("wellfit-user", JSON.stringify(nextUser));
     }
+  };
+
+  const startAdventure = async () => {
+    const projection = readClientBetaProjection(user?.id ?? null);
+    const userId = user?.id ?? projection?.userId ?? "adventure-local-beta-user";
+    const currentPoints = projection?.points ?? user?.points ?? 0;
+    const currentXp = projection?.xp ?? user?.xp ?? 0;
+    const currentLevel = projection?.level ?? user?.level ?? 1;
+    const currentAvatar = projection?.avatar ?? user?.avatar ?? { hunger: 100, mood: 100, energy: 100, level: currentLevel };
 
     const alreadyStartedKey = `wellfit-adventure-${selectedAdventure.id}-started`;
-
     if (localStorage.getItem(alreadyStartedKey)) {
       setMessage(`Abenteuer läuft bereits: ${selectedAdventure.title}`);
       return;
     }
 
-    const updatedUser: User = { ...user, points: currentPoints - selectedAdventure.travelCost };
-    setUser(updatedUser);
-    setMessage(`Reise gestartet: ${selectedAdventure.title} (-${selectedAdventure.travelCost} interne Punkte; Beta-Anzeige)`);
-    localStorage.setItem("wellfit-user", JSON.stringify(updatedUser));
+    const spend = await fetchAdventureTravelSpend({
+      userId,
+      mission: selectedAdventure,
+      pointsBalance: currentPoints,
+    });
+
+    if (spend.status !== "spend_allowed") {
+      setMessage("Nicht genug interne Punkte für diese Reise.");
+      setServerPathLabel(`Travel Spend: ${spend.status}`);
+      return;
+    }
+
+    mergeClientBetaProjection(userId, {
+      points: spend.remainingPoints,
+      xp: currentXp,
+      level: currentLevel,
+      avatar: currentAvatar,
+      source: "mission_completion",
+    });
+
     localStorage.setItem(alreadyStartedKey, "true");
+    setMessage(`Reise gestartet: ${selectedAdventure.title} (-${spend.spendPoints} interne Punkte). ${spend.message}`);
+    setServerPathLabel(
+      spend.draftCollections.length > 0
+        ? `Spend-Drafts: ${spend.draftCollections.slice(0, 4).join(" · ")}`
+        : "Spend Preview im Fallback"
+    );
+    syncUserFromProjection(userId);
+  };
+
+  const completeAdventure = async () => {
+    const projection = readClientBetaProjection(user?.id ?? null);
+    const userId = user?.id ?? projection?.userId ?? "adventure-local-beta-user";
+    const currentPoints = projection?.points ?? user?.points ?? 0;
+    const currentXp = projection?.xp ?? user?.xp ?? 0;
+    const currentLevel = projection?.level ?? user?.level ?? 1;
+    const currentAvatar = projection?.avatar ?? user?.avatar ?? { hunger: 100, mood: 100, energy: 100, level: currentLevel };
+    const startedKey = `wellfit-adventure-${selectedAdventure.id}-started`;
+    const completedKey = `wellfit-adventure-${selectedAdventure.id}-completed`;
+
+    if (!localStorage.getItem(startedKey)) {
+      setMessage("Bitte zuerst die Reise antreten, bevor das Abenteuer abgeschlossen wird.");
+      return;
+    }
+
+    if (localStorage.getItem(completedKey)) {
+      setMessage(`Abenteuer bereits abgeschlossen: ${selectedAdventure.title}`);
+      return;
+    }
+
+    const completion = await fetchAdventureRewardCompletion({
+      userId,
+      mission: selectedAdventure,
+      currentPoints,
+      currentXp,
+      currentLevel,
+    });
+
+    if (completion.status === "completion_blocked") {
+      setMessage(`${selectedAdventure.title} wurde servernah blockiert. Keine Punkte vorgemerkt.`);
+      setServerPathLabel(`Reward Preview: ${completion.rewardPreviewStatus}`);
+      return;
+    }
+
+    if (completion.status === "manual_review_required") {
+      setMessage(`${selectedAdventure.title} wurde für Review vorgemerkt. Keine direkte Punktegutschrift.`);
+      setServerPathLabel(`Reward Preview: ${completion.rewardPreviewStatus}`);
+      return;
+    }
+
+    mergeClientBetaProjection(userId, {
+      points: completion.projectedPoints,
+      xp: completion.projectedXp,
+      level: currentLevel,
+      avatar: {
+        ...currentAvatar,
+        energy: Math.max(0, (currentAvatar.energy ?? 100) - 3),
+        hunger: Math.max(0, (currentAvatar.hunger ?? 100) - 2),
+      },
+      source: "mission_completion",
+    });
+
+    localStorage.setItem(completedKey, "true");
+    setMessage(`${selectedAdventure.title} abgeschlossen: +${completion.approvedPointsPreview} interne Punkte. ${completion.message} ${completion.buddySyncMessage}`);
+    setServerPathLabel(
+      completion.draftCollections.length > 0
+        ? `Reward-Drafts: ${completion.draftCollections.slice(0, 4).join(" · ")}`
+        : "Reward Preview · Completion · Projection im Fallback"
+    );
+    syncUserFromProjection(userId);
   };
 
   return (
@@ -241,11 +368,12 @@ export default function AbenteuerPage() {
             <div>
               <h1 className="text-5xl font-extrabold leading-none">Abenteuer</h1>
               <p className="mt-1 text-lg text-cyan-100/90">{message}</p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100/45">{serverPathLabel}</p>
             </div>
             <div className="flex items-center gap-2">
               <button className="rounded-full border border-cyan-300/20 bg-[#0a6b78]/20 px-4 py-2 text-sm text-white/90">Synchron</button>
               <button className="rounded-[16px] bg-orange-500 px-5 py-3 text-sm font-bold">Tracker starten</button>
-              <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">Flammi LVL 1</div>
+              <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">Flammi LVL {user?.avatar?.level ?? 1}</div>
             </div>
           </div>
 
@@ -341,12 +469,20 @@ export default function AbenteuerPage() {
                 <p className="mt-2 text-xs text-white/60">Interne Beta-Punkte. Keine Token, keine NFTs, keine Auszahlung.</p>
               </div>
 
-              <button
-                onClick={startAdventure}
-                className="mt-5 w-full rounded-[18px] bg-orange-500 px-4 py-3 text-base font-extrabold text-white transition hover:bg-orange-600"
-              >
-                Reise antreten ({selectedAdventure.travelCost} interne Punkte)
-              </button>
+              <div className="mt-5 grid gap-3">
+                <button
+                  onClick={startAdventure}
+                  className="w-full rounded-[18px] bg-orange-500 px-4 py-3 text-base font-extrabold text-white transition hover:bg-orange-600"
+                >
+                  Reise antreten ({selectedAdventure.travelCost} interne Punkte)
+                </button>
+                <button
+                  onClick={completeAdventure}
+                  className="w-full rounded-[18px] bg-blue-600 px-4 py-3 text-base font-extrabold text-white transition hover:bg-blue-700"
+                >
+                  Abenteuer abschließen (+{selectedAdventure.reward} interne Punkte)
+                </button>
+              </div>
             </div>
           </div>
 
