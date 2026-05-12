@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import AppSidebar from "@/app/AppSidebar";
 import AppFooter from "@/app/AppFooter";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
+import { mergeClientBetaProjection, readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import DailyHeader from "./DailyHeader";
 import DailySlots from "./DailySlots";
 import FavoritesStrip from "./FavoritesStrip";
@@ -234,6 +235,25 @@ export default function MissionenPage() {
 
     await persistCompleteMission(missionId, completion.approvedXpPreview || completion.approvedPointsPreview);
 
+    const currentProjection = readClientBetaProjection(userId);
+    const projectedPoints = (currentProjection?.points ?? 0) + completion.approvedPointsPreview;
+    const projectedXp = (currentProjection?.xp ?? xp) + (completion.approvedXpPreview || completion.approvedPointsPreview);
+    const projectedAvatarEnergy = Math.max(0, (currentProjection?.avatar.energy ?? 100) - 4);
+    const projectedAvatarHunger = Math.max(0, (currentProjection?.avatar.hunger ?? 100) - 2);
+
+    mergeClientBetaProjection(userId, {
+      points: projectedPoints,
+      xp: projectedXp,
+      level,
+      avatar: {
+        ...(currentProjection?.avatar ?? {}),
+        energy: projectedAvatarEnergy,
+        hunger: projectedAvatarHunger,
+        level,
+      },
+      source: "mission_completion",
+    });
+
     const bridgeResult = await applyMissionBuddyBridge({
       mission: result.mission,
       rewardPoints: completion.approvedPointsPreview,
@@ -256,7 +276,7 @@ export default function MissionenPage() {
         ? bridgeResult.alreadyApplied
           ? `${result.mission.title} war bereits verbunden. Keine doppelte Punktevergabe. Flammi bleibt synchron. ${completionSource}.`
           : `${result.mission.title} abgeschlossen. +${completion.approvedPointsPreview} interne Punkte. ${completionSource}; finale Ledger-Autorität folgt serverseitig.`
-        : `${result.mission.title} abgeschlossen. ${completionSource}; ${buddySyncPreview?.message ?? "Buddy-Sync bleibt als MVP-Bruecke vorgemerkt."}`
+        : `${result.mission.title} abgeschlossen. +${completion.approvedPointsPreview} interne Punkte lokal vorgemerkt. ${completionSource}; ${buddySyncPreview?.message ?? "Buddy-Sync bleibt als MVP-Bruecke vorgemerkt."}`
     );
   };
 
