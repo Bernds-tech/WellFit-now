@@ -6,7 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
+import { mergeClientBetaProjection, readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import type { User } from "@/types/user";
+import { fetchWeeklyMissionCompletion } from "./serverWeeklyMissionApi";
 
 type WeeklyMission = {
   id: number;
@@ -32,7 +34,7 @@ const weeklyMissions: WeeklyMission[] = [
     id: 2,
     title: "Wöchentliche Fitnessmission",
     reward: 15,
-    rewardLabel: "+1 Beta-Abzeichen",
+    rewardLabel: "+15 interne Punkte",
     progress: 0,
     description: "3× Ganzkörper-Training pro Woche",
     icon: "🏃",
@@ -67,6 +69,27 @@ export default function WochenmissionenPage() {
       }
     }
 
+    const projection = readClientBetaProjection(null);
+    if (projection) {
+      setUser((currentUser) => ({
+        ...(currentUser ?? {
+          id: projection.userId,
+          firstName: "",
+          lastName: "",
+          email: "",
+          energy: projection.avatar.energy,
+          currency: "points",
+          inventory: [],
+        }),
+        id: currentUser?.id ?? projection.userId,
+        points: projection.points,
+        xp: projection.xp,
+        level: projection.level,
+        stepsToday: projection.stepsToday,
+        avatar: projection.avatar,
+      }));
+    }
+
     if (savedFavorites) {
       try {
         setFavoriteIds(JSON.parse(savedFavorites));
@@ -87,12 +110,9 @@ export default function WochenmissionenPage() {
     localStorage.setItem("wellfit-favorite-weekly-missions", JSON.stringify(updated));
   };
 
-  const continueMission = () => {
-    if (!user) {
-      setMessage("Bitte zuerst registrieren oder einloggen.");
-      return;
-    }
-
+  const continueMission = async () => {
+    const projectedUser = readClientBetaProjection(null);
+    const userId = user?.id ?? projectedUser?.userId ?? "weekly-local-beta-user";
     const alreadyRewardedKey = `wellfit-weekly-mission-${selectedMission.id}-started`;
 
     if (localStorage.getItem(alreadyRewardedKey)) {
@@ -100,7 +120,51 @@ export default function WochenmissionenPage() {
       return;
     }
 
-    const updatedUser: User = { ...user, points: (user.points ?? 0) + selectedMission.reward };
+    const completion = await fetchWeeklyMissionCompletion({
+      userId,
+      mission: selectedMission,
+    });
+
+    if (completion.status === "completion_blocked") {
+      setMessage(`${selectedMission.title} wurde servernah blockiert. Keine Punkte vorgemerkt.`);
+      return;
+    }
+
+    if (completion.status === "manual_review_required") {
+      setMessage(`${selectedMission.title} wurde für Review vorgemerkt. Keine direkte Punktegutschrift.`);
+      return;
+    }
+
+    const currentProjection = readClientBetaProjection(userId);
+    const nextPoints = (currentProjection?.points ?? user?.points ?? 0) + completion.approvedPointsPreview;
+    const nextXp = (currentProjection?.xp ?? user?.xp ?? 0) + completion.approvedXpPreview;
+    const nextLevel = user?.level ?? currentProjection?.level ?? 1;
+    const nextAvatar = currentProjection?.avatar ?? user?.avatar ?? { hunger: 100, mood: 100, energy: 100, level: nextLevel };
+
+    const nextProjection = mergeClientBetaProjection(userId, {
+      points: nextPoints,
+      xp: nextXp,
+      level: nextLevel,
+      stepsToday: currentProjection?.stepsToday ?? user?.stepsToday ?? 0,
+      avatar: nextAvatar,
+      source: "mission_completion",
+    });
+
+    const updatedUser: User = {
+      id: userId,
+      firstName: user?.firstName ?? "",
+      lastName: user?.lastName ?? "",
+      email: user?.email ?? "",
+      points: nextProjection.points,
+      xp: nextProjection.xp,
+      energy: nextProjection.avatar.energy,
+      level: nextProjection.level,
+      stepsToday: nextProjection.stepsToday,
+      currency: "points",
+      avatar: nextProjection.avatar,
+      inventory: user?.inventory ?? [],
+    };
+
     const savedHistory = localStorage.getItem("wellfit-history");
     let historyEntries = [];
 
@@ -116,15 +180,17 @@ export default function WochenmissionenPage() {
       id: `weekly-${selectedMission.id}-${Date.now()}`,
       title: selectedMission.title,
       category: "Wochenmissionen",
-      rewardLabel: selectedMission.rewardLabel,
+      rewardLabel: `+${completion.approvedPointsPreview} interne Punkte`,
       completedAt: new Date().toISOString(),
       icon: selectedMission.icon,
-      betaNote: "Interne Punkte/Beta-Abzeichen, keine Token, keine NFTs, keine Auszahlung.",
+      betaNote: "Interne Punkte/Beta-Projection, keine Token, keine NFTs, keine Auszahlung.",
     });
 
     localStorage.setItem("wellfit-history", JSON.stringify(historyEntries));
     setUser(updatedUser);
-    setMessage(`Wochenmission gestartet: ${selectedMission.title} (${selectedMission.rewardLabel}, interne Beta-Anzeige)`);
+    setMessage(
+      `${selectedMission.title} vorgemerkt: +${completion.approvedPointsPreview} interne Punkte. ${completion.message}`
+    );
     localStorage.setItem("wellfit-user", JSON.stringify(updatedUser));
     localStorage.setItem(alreadyRewardedKey, "true");
   };
@@ -189,7 +255,7 @@ export default function WochenmissionenPage() {
             </div>
             <div className="flex items-center gap-2">
               <button className="rounded-[16px] bg-orange-500 px-5 py-3 text-sm font-bold">Tracker starten</button>
-              <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">Flammi LVL 1</div>
+              <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">Flammi LVL {user?.avatar?.level ?? 1}</div>
             </div>
           </div>
 
