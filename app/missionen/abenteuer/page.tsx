@@ -226,8 +226,8 @@ export default function AbenteuerPage() {
     });
 
     if (spend.status !== "spend_allowed") {
-      setMessage("Nicht genug interne Punkte für diese Reise.");
-      setServerPathLabel(`Travel Spend: ${spend.status}`);
+      setMessage("Nicht genug interne Punkte für den Abenteuer-Zugang.");
+      setServerPathLabel(`Access Spend: ${spend.status}`);
       return;
     }
 
@@ -240,10 +240,10 @@ export default function AbenteuerPage() {
     });
 
     localStorage.setItem(alreadyStartedKey, "true");
-    setMessage(`Reise gestartet: ${selectedAdventure.title} (-${spend.spendPoints} interne Punkte). ${spend.message}`);
+    setMessage(`Abenteuer-Zugang aktiviert: ${selectedAdventure.title} (-${spend.spendPoints} interne Punkte). ${spend.message}`);
     setServerPathLabel(
       spend.draftCollections.length > 0
-        ? `Spend-Drafts: ${spend.draftCollections.slice(0, 4).join(" · ")}`
+        ? `Access-Drafts: ${spend.draftCollections.slice(0, 4).join(" · ")}`
         : "Spend Preview im Fallback"
     );
     syncUserFromProjection(userId);
@@ -260,7 +260,7 @@ export default function AbenteuerPage() {
     const completedKey = `wellfit-adventure-${selectedAdventure.id}-completed`;
 
     if (!localStorage.getItem(startedKey)) {
-      setMessage("Bitte zuerst die Reise antreten, bevor das Abenteuer abgeschlossen wird.");
+      setMessage("Bitte zuerst den Abenteuer-Zugang aktivieren, bevor das Abenteuer abgeschlossen wird.");
       return;
     }
 
@@ -396,12 +396,13 @@ export default function AbenteuerPage() {
             <div className="relative min-h-0 overflow-hidden rounded-[22px] border border-cyan-300/10 bg-[#07171d]/70">
               <GoogleMissionMap
                 title="Google Maps Abenteuer"
-                subtitle="Zoomen · ziehen · Abenteuerorte wählen"
+                subtitle="Standort automatisch · bewegen · Abenteuerorte wählen"
                 markers={adventureMarkers}
                 selectedMarkerId={selectedAdventureId}
                 onSelectMarker={setSelectedAdventureId}
                 zoom={12}
                 minHeightClassName="h-full min-h-[520px]"
+                autoRequestLocation
               />
               <div className="absolute bottom-5 left-5 z-10 flex flex-wrap gap-3">
                 {categories.map((category) => (
@@ -446,6 +447,11 @@ export default function AbenteuerPage() {
 
               <p className="text-sm leading-relaxed text-white/85">{selectedAdventure.description}</p>
 
+              <div className="mt-5 rounded-[18px] border border-cyan-300/20 bg-cyan-300/10 px-4 py-3">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-200">Bewegungsziel</p>
+                <p className="mt-2 text-xs leading-relaxed text-white/65">WellFit soll dich zum echten Ort bringen. Der kleine interne Zugang ist keine Reisegebühr, sondern ein Beta-Sink für das Abenteuer-Erlebnis.</p>
+              </div>
+
               <div className="mt-5">
                 <h3 className="text-base font-bold uppercase tracking-wide text-cyan-300">Missions-Meilensteine</h3>
                 <div className="mt-3 space-y-3">
@@ -474,7 +480,7 @@ export default function AbenteuerPage() {
                   onClick={startAdventure}
                   className="w-full rounded-[18px] bg-orange-500 px-4 py-3 text-base font-extrabold text-white transition hover:bg-orange-600"
                 >
-                  Reise antreten ({selectedAdventure.travelCost} interne Punkte)
+                  Abenteuer-Zugang aktivieren ({selectedAdventure.travelCost} interne Punkte)
                 </button>
                 <button
                   onClick={completeAdventure}
