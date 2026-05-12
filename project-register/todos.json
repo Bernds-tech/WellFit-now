@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "purpose": "Maschinenlesbares Todo-Register als Bruecke zu bestehenden todolist-Dateien.",
+    "issue": 19,
+    "status": "initial-governance-layer",
+    "rule": "Dieses Register ersetzt die bestehenden todolist-Dateien nicht. Es verweist auf fuehrende Aufgaben und verhindert Doppelarbeit."
+  },
+  "todos": [
+    {
+      "id": "TODO-STUFE4-0001",
+      "title": "Stufe-4-Governance-Layer in bestehendes Repository einbauen",
+      "status": "in_progress",
+      "priority": "high",
+      "type": "governance-documentation",
+      "source": "GitHub Issue #19",
+      "relatedFiles": ["agents/AGENTS.md", "agents/modes/stufe-4.md", "agents/self-check.md", "project-register/routes.json"],
+      "relatedFeatures": ["FEATURE-ECONOMY-PREVIEW-APIS", "FEATURE-MISSIONS", "FEATURE-MOBILE-WEB"],
+      "notes": "Erster PR soll nur Governance und Register anlegen, keine Produktlogik veraendern."
+    },
+    {
+      "id": "TODO-STUFE4-0002",
+      "title": "Quality Gate spaeter um Stufe-4-Register-Checks erweitern",
+      "status": "open",
+      "priority": "high",
+      "type": "quality-gate",
+      "source": "GitHub Issue #19",
+      "relatedFiles": ["scripts/wellfit-dev-agent/src/quality-gate.mjs", "project-register/*", "agents/self-check.md"],
+      "notes": "Nicht im ersten Governance-PR produktiv erzwingen; zuerst Register und Regeln stabilisieren."
+    },
+    {
+      "id": "TODO-STUFE4-0003",
+      "title": "Bestehende todolist-Dateien gegen maschinenlesbares Register konsolidieren",
+      "status": "open",
+      "priority": "medium",
+      "type": "todo-consolidation",
+      "source": "todolist/TODO_INDEX.md und todolist/TODO_CONSOLIDATION.md",
+      "relatedFiles": ["todolist/TODO_INDEX.md", "todolist/TODO_CONSOLIDATION.md", "todolist/NEXT_ACTIONS.md"],
+      "notes": "Alte Dateien nicht loeschen. Doppelte Punkte markieren und verweisen."
+    }
+  ]
+}
