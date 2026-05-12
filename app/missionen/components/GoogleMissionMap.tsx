@@ -158,8 +158,8 @@ export default function GoogleMissionMap({
     "missing-key" | "loading" | "ready" | "error"
   >("loading");
   const [ownLocation, setOwnLocation] = useState<DeviceLocationSnapshot | null>(() => readLastDeviceLocation());
-  const [locationMessage, setLocationMessage] = useState<string>("");
-  const [isLocating, setIsLocating] = useState(false);
+  const [, setLocationMessage] = useState<string>("");
+  const [, setIsLocating] = useState(false);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const focusOwnLocation = useCallback((location: DeviceLocationSnapshot | null = ownLocation) => {
@@ -467,22 +467,6 @@ export default function GoogleMissionMap({
           {title}
         </p>
         <p className="mt-1 text-sm font-semibold">{subtitle}</p>
-      </div>
-
-      <div className="absolute bottom-5 right-5 z-[999999] flex max-w-[260px] flex-col items-end gap-2">
-        {locationMessage && (
-          <div className="rounded-xl bg-black/70 px-3 py-2 text-right text-xs font-bold text-white shadow-lg">
-            {locationMessage}
-          </div>
-        )}
-        <button
-          type="button"
-          onClick={ownLocation ? () => focusOwnLocation() : () => requestOwnLocation()}
-          disabled={isLocating}
-          className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-65"
-        >
-          {isLocating ? "📍 Standort wird gesucht" : ownLocation ? "📍 Standort aktualisieren" : "📍 Standort erlauben"}
-        </button>
       </div>
     </div>
   );
