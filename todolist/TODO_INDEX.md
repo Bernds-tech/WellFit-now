@@ -1,4 +1,4 @@
-# TODO INDEX - WELLFIT
+﻿# TODO INDEX - WELLFIT
 
 ## Zweck
 Diese Datei ist der zentrale Index fuer alle TODO-Dateien, Arbeitslisten, Prompts und Querverweise im WellFit-Projekt.
@@ -35,10 +35,10 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `todolist/C - STRATEGISCHE GRUNDENTSCHEIDUNGEN` | aktiv / Strategie | strategische Produktentscheidungen | `MASTER_PROMPT_FOR_AI.md` | Entscheidungen referenzieren |
 | `todolist/D - VERBINDLICHE REIHENFOLGE` | aktiv / Reihenfolge | verbindliche Arbeitsreihenfolge | `NEXT_ACTIONS.md` | Priorisierung abgleichen |
 | `todolist/E - AKTUELLER UMSETZUNGSSTAND - VORHANDEN` | aktiv / Ist-Stand | vorhandene Umsetzung | `PROJECT_STRUCTURE.md` | Ist-Stand in Struktur uebernehmen |
-| `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` | aktiv / Roadmap | naechste empfohlene Arbeit | `NEXT_ACTIONS.md` | bereits teilweise uebernommen, weiter abgleichen |
+| `todolist/J - NÃ„CHSTE EMPFOHLENE ARBEIT` | aktiv / Roadmap | naechste empfohlene Arbeit | `NEXT_ACTIONS.md` | bereits teilweise uebernommen, weiter abgleichen |
 | `todolist/README.md` | aktiv / Ueberblick | alter todolist-Ueberblick | `PROJECT_STRUCTURE.md` | pruefen und relevante Punkte uebernehmen |
 
-## Code-Inventur / Bestandsprüfung
+## Code-Inventur / BestandsprÃ¼fung
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
@@ -122,8 +122,12 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
+<<<<<<< HEAD
 | `docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md` | aktiv / fuehrend | sauberer Web-Beta-Restpfad mit 12–14 Mega-Bloecken, ohne Buddy AR / Unity | Web-Beta-Restpfad | fuehrend fuer weitere Beta-Arbeit nutzen |
 | `docs/architecture/WELLFIT_SITE_QUALITY_AUDIT_AGENT.md` | aktiv | Site-Quality-Audit-Agent fuer Routen-, Seitenqualitaets- und Nebenseitenpruefung | Agentenstrategie / Site QA | nach sichtbaren Website-/Routen-Aenderungen nutzen |
+=======
+| `docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md` | aktiv / fuehrend | sauberer Web-Beta-Restpfad mit 12â€“14 Mega-Bloecken, ohne Buddy AR / Unity | Web-Beta-Restpfad | fuehrend fuer weitere Beta-Arbeit nutzen |
+>>>>>>> 4cdd3c9 (Fix TODO index encoding and memory sync references)
 | `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md` | aktiv | Alpha-Scope und Fokus | `NEXT_ACTIONS.md` | als Prioritaetsquelle nutzen |
 | `docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md` | aktiv | Self-hosted Dev-Agent Architektur | Agentenstrategie | fuer Automatisierung nutzen |
 | `docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md` | aktiv / zu pruefen | spaeterer Nutzeranalyse-/Mission-Agent | Bereich Mission/KI | nach Beta weiterfuehren |
@@ -190,3 +194,4 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
 |---|---|---|---|
 | `todolist/CODEBASE_FEATURE_MAP.md` | aktiv | Bestandskarte vorhandener Codebereiche gegen Doppelarbeit | `MASTER_OPEN_DONE_LIST.md` | vor grossen Codebloecken pruefen |
+
