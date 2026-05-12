@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 /* eslint-disable react-hooks/set-state-in-effect */
 
@@ -42,6 +42,15 @@ const OWN_LOCATION_DOT_SVG = encodeURIComponent(`
 </svg>
 `);
 
+const detectDeviceType = (): DeviceLocationSnapshot["deviceType"] => {
+  if (typeof navigator === "undefined") return "unknown";
+  const userAgent = navigator.userAgent.toLowerCase();
+  if (/ipad|tablet/.test(userAgent)) return "tablet";
+  if (/android|iphone|ipod|mobile/.test(userAgent)) return "mobile";
+  if (/windows|macintosh|linux|x11/.test(userAgent)) return "desktop";
+  return "unknown";
+};
+
 const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
   if (typeof window === "undefined") return null;
 
@@ -51,6 +60,15 @@ const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
   } catch {
     return null;
   }
+};
+
+const writeLastDeviceLocation = (snapshot: DeviceLocationSnapshot) => {
+  if (typeof window === "undefined") return;
+
+  try {
+    localStorage.setItem(WELLFIT_LAST_DEVICE_LOCATION_KEY, JSON.stringify(snapshot));
+    window.dispatchEvent(new CustomEvent("wellfit-device-location-updated", { detail: snapshot }));
+  } catch {}
 };
 
 const loadGoogleMaps = (apiKey: string): Promise<void> => {
@@ -114,10 +132,18 @@ export default function GoogleMissionMap({
   const [loadState, setLoadState] = useState<
     "missing-key" | "loading" | "ready" | "error"
   >("loading");
-  const [ownLocation, setOwnLocation] = useState<DeviceLocationSnapshot | null>(
-    null,
-  );
+  const [ownLocation, setOwnLocation] = useState<DeviceLocationSnapshot | null>(() => readLastDeviceLocation());
+  const [locationMessage, setLocationMessage] = useState<string>("");
+  const [isLocating, setIsLocating] = useState(false);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  const focusOwnLocation = useCallback((location: DeviceLocationSnapshot | null = ownLocation) => {
+    const map = mapRef.current;
+    if (!map || !location) return;
+
+    map.panTo({ lat: location.latitude, lng: location.longitude });
+    map.setZoom(Math.max(map.getZoom?.() ?? zoom, 15));
+  }, [ownLocation, zoom]);
 
   const renderOwnLocation = useCallback(
     (google: any, map: any, location: DeviceLocationSnapshot | null) => {
@@ -146,7 +172,7 @@ export default function GoogleMissionMap({
         ownLocationMarkerRef.current = new google.maps.Marker({
           position,
           map,
-          title: `Mein Standort Â· Genauigkeit ca. ${location.accuracyMeters} m`,
+          title: `Mein Standort · Genauigkeit ca. ${location.accuracyMeters} m`,
           icon: ownLocationIcon,
           zIndex: 999999,
           optimized: false,
@@ -155,7 +181,7 @@ export default function GoogleMissionMap({
         ownLocationMarkerRef.current.setPosition(position);
         ownLocationMarkerRef.current.setIcon(ownLocationIcon);
         ownLocationMarkerRef.current.setTitle(
-          `Mein Standort Â· Genauigkeit ca. ${location.accuracyMeters} m`,
+          `Mein Standort · Genauigkeit ca. ${location.accuracyMeters} m`,
         );
         ownLocationMarkerRef.current.setMap(map);
       }
@@ -192,8 +218,6 @@ export default function GoogleMissionMap({
   );
 
   useEffect(() => {
-    setOwnLocation(readLastDeviceLocation());
-
     const onLocationUpdate = (event: Event) => {
       const customEvent = event as CustomEvent<DeviceLocationSnapshot>;
       setOwnLocation(customEvent.detail ?? readLastDeviceLocation());
@@ -230,7 +254,7 @@ export default function GoogleMissionMap({
 
         const map = new google.maps.Map(mapElementRef.current, {
           center,
-          zoom,
+          zoom: ownLocation ? Math.max(zoom, 15) : zoom,
           minZoom: 2,
           maxZoom: 20,
           mapTypeControl: true,
@@ -249,10 +273,10 @@ export default function GoogleMissionMap({
             position: { lat: markerItem.lat, lng: markerItem.lng },
             map,
             title: `${markerItem.title}${
-              markerItem.subtitle ? ` Â· ${markerItem.subtitle}` : ""
+              markerItem.subtitle ? ` · ${markerItem.subtitle}` : ""
             }`,
             label: {
-              text: isSelected ? "â˜…" : markerItem.icon,
+              text: isSelected ? "★" : markerItem.icon,
               fontSize: isSelected ? "24px" : "20px",
             },
             icon: {
@@ -301,7 +325,7 @@ export default function GoogleMissionMap({
 
       const isSelected = markerItem.id === selectedMarkerId;
       marker.setLabel({
-        text: isSelected ? "â˜…" : markerItem.icon,
+        text: isSelected ? "★" : markerItem.icon,
         fontSize: isSelected ? "24px" : "20px",
       });
       marker.setIcon({
@@ -320,12 +344,41 @@ export default function GoogleMissionMap({
     renderOwnLocation(google, mapRef.current, ownLocation);
   }, [ownLocation, renderOwnLocation]);
 
-  const focusOwnLocation = () => {
-    const map = mapRef.current;
-    if (!map || !ownLocation) return;
+  const requestOwnLocation = () => {
+    if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
+      setLocationMessage("Dieses Gerät unterstützt keine Standortfreigabe.");
+      return;
+    }
 
-    map.panTo({ lat: ownLocation.latitude, lng: ownLocation.longitude });
-    map.setZoom(Math.max(map.getZoom?.() ?? zoom, 15));
+    setIsLocating(true);
+    setLocationMessage("Standort wird ermittelt ...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const snapshot: DeviceLocationSnapshot = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracyMeters: Math.round(position.coords.accuracy),
+          deviceType: detectDeviceType(),
+          source: "browser-geolocation",
+          capturedAt: new Date().toISOString(),
+        };
+
+        setOwnLocation(snapshot);
+        writeLastDeviceLocation(snapshot);
+        setLocationMessage(`Standort aktiv · Genauigkeit ca. ${snapshot.accuracyMeters} m`);
+        setIsLocating(false);
+        setTimeout(() => focusOwnLocation(snapshot), 50);
+      },
+      (error) => {
+        setIsLocating(false);
+        if (error.code === error.PERMISSION_DENIED) setLocationMessage("Standortfreigabe wurde abgelehnt.");
+        else if (error.code === error.POSITION_UNAVAILABLE) setLocationMessage("Standort ist aktuell nicht verfügbar.");
+        else if (error.code === error.TIMEOUT) setLocationMessage("Standortabfrage hat zu lange gedauert.");
+        else setLocationMessage("Standort konnte nicht ermittelt werden.");
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
+    );
   };
 
   if (loadState === "missing-key") {
@@ -333,13 +386,13 @@ export default function GoogleMissionMap({
       <div
         className={`relative flex ${minHeightClassName} flex-col items-center justify-center rounded-[22px] border border-yellow-300/30 bg-[#053841]/95 p-8 text-center shadow-[0_14px_34px_rgba(0,0,0,0.2)]`}
       >
-        <div className="text-5xl">ðŸ—ºï¸</div>
+        <div className="text-5xl">🗺️</div>
         <h2 className="mt-4 text-3xl font-extrabold text-white">
           Google Maps Key fehlt
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/75">
           Setze `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, dann erscheint hier die echte
-          Google-StraÃŸenkarte mit Zoom, Drag und Markern.
+          Google-Straßenkarte mit Zoom, Drag und Markern.
         </p>
       </div>
     );
@@ -359,13 +412,13 @@ export default function GoogleMissionMap({
 
       {loadState === "error" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#053841]/95 p-8 text-center">
-          <div className="text-5xl">âš ï¸</div>
+          <div className="text-5xl">⚠️</div>
           <h2 className="mt-4 text-2xl font-extrabold text-white">
             Google Maps konnte nicht geladen werden
           </h2>
           <p className="mt-3 max-w-xl text-sm text-white/70">
             Bitte API-Key, Domain-Referrer, Billing und Maps JavaScript API
-            prÃ¼fen.
+            prüfen.
           </p>
         </div>
       )}
@@ -377,17 +430,21 @@ export default function GoogleMissionMap({
         <p className="mt-1 text-sm font-semibold">{subtitle}</p>
       </div>
 
-      {ownLocation && (
+      <div className="absolute bottom-5 right-5 z-[999999] flex max-w-[260px] flex-col items-end gap-2">
+        {locationMessage && (
+          <div className="rounded-xl bg-black/70 px-3 py-2 text-right text-xs font-bold text-white shadow-lg">
+            {locationMessage}
+          </div>
+        )}
         <button
           type="button"
-          onClick={focusOwnLocation}
-          className="absolute bottom-5 right-5 z-[999999] rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500"
+          onClick={ownLocation ? () => focusOwnLocation() : requestOwnLocation}
+          disabled={isLocating}
+          className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-65"
         >
-          ðŸ“ Zu meinem Standort
+          {isLocating ? "📍 Standort wird gesucht" : ownLocation ? "📍 Zu meinem Standort" : "📍 Standort erlauben"}
         </button>
-      )}
+      </div>
     </div>
   );
 }
-
-
