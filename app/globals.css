@@ -5,6 +5,8 @@
   --foreground: #ffffff;
   --wellfit-sidebar-bg: rgba(2, 110, 125, 0.96);
   --wellfit-footer-bg: rgba(2, 110, 125, 0.96);
+  --font-geist-sans: Arial, Helvetica, sans-serif;
+  --font-geist-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 * {
@@ -23,7 +25,7 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans);
 }
 
 #__next {

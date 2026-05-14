@@ -1,20 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import PwaInstaller from "@/app/components/PwaInstaller";
 import SidebarLegacyBridge from "@/app/components/SidebarLegacyBridge";
 import UserProfileBadge from "@/app/components/UserProfileBadge";
 import { LanguageProvider } from "@/app/components/useLegalLanguage";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "WellFit",
@@ -40,10 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="de"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="de" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <LanguageProvider>
           <PwaInstaller />
