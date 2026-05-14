@@ -7,6 +7,7 @@ const ROOT = process.cwd();
 const FEATURES = path.join(ROOT, "project-register", "features.json");
 const APIS = path.join(ROOT, "project-register", "apis.json");
 const CROSS = path.join(ROOT, "project-register", "cross-references.json");
+const FLOW = path.join(ROOT, "project-register", "mission-buddy-economy-flow.json");
 const OUT = path.join(ROOT, "scripts", "wellfit-dev-agent", "output", "mission-buddy-economy-audit.md");
 
 const requiredFeatures = [
@@ -32,6 +33,13 @@ const requiredApis = [
   "/api/economy/user-projection",
   "/api/economy/persistence-status",
   "/api/buddy-ki"
+];
+
+const requiredFlows = [
+  "FLOW-MISSION-COMPLETE-PREVIEW",
+  "FLOW-BUDDY-SYNC-PREVIEW",
+  "FLOW-POINTS-SHOP-SPEND-PREVIEW",
+  "FLOW-DASHBOARD-PROJECTION"
 ];
 
 function readJson(file) {
@@ -62,7 +70,7 @@ function main() {
   const issues = [];
   const warnings = [];
 
-  for (const file of [FEATURES, APIS, CROSS]) {
+  for (const file of [FEATURES, APIS, CROSS, FLOW]) {
     if (!fs.existsSync(file)) issues.push(`Missing ${path.relative(ROOT, file)}`);
   }
 
@@ -70,6 +78,7 @@ function main() {
     const features = readJson(FEATURES);
     const apis = readJson(APIS);
     const cross = readJson(CROSS);
+    const flowMap = readJson(FLOW);
     const featureIds = listFeatureIds(features);
     const apiRoutes = listApiRoutes(apis);
 
@@ -99,6 +108,25 @@ function main() {
       }
     }
 
+    if (flowMap.authorityRules?.frontendMayFinalizeRewards !== false) issues.push("Flow map must forbid frontend reward finalization");
+    if (flowMap.authorityRules?.frontendMayFinalizeMissionCompletion !== false) issues.push("Flow map must forbid frontend mission completion finalization");
+    if (flowMap.authorityRules?.buddyMayAuthorizeRewards !== false) issues.push("Flow map must forbid buddy reward authority");
+    if (flowMap.authorityRules?.serverLedgerRequiredForFinalAuthority !== true) issues.push("Flow map must require server ledger for final authority");
+
+    const flows = flowMap.flows ?? [];
+    const flowIds = new Set(flows.map((flow) => flow.id));
+    for (const flowId of requiredFlows) {
+      if (!flowIds.has(flowId)) issues.push(`Missing required flow ${flowId}`);
+    }
+
+    for (const flow of flows) {
+      if (!featureIds.has(flow.sourceFeature)) issues.push(`${flow.id} references missing feature ${flow.sourceFeature}`);
+      if (!flow.serverAuthorityRequired) issues.push(`${flow.id} must require server authority`);
+      for (const api of flow.apis ?? []) {
+        if (!apiRoutes.has(api)) issues.push(`${flow.id} references missing API ${api}`);
+      }
+    }
+
     const refs = cross.references ?? [];
     const hasMissionCompletionRef = refs.some((ref) => ref.source === "FEATURE-MISSIONS" && String(ref.target).includes("complete-mission"));
     const hasBuddyRef = refs.some((ref) => ref.source === "FEATURE-BUDDY" && String(ref.target).includes("buddy-ki"));
@@ -117,7 +145,7 @@ function main() {
     "",
     "## Scope",
     "",
-    "This audit validates registry-level authority boundaries for missions, buddy and internal economy preview flows. It does not modify product logic, APIs, Firestore rules or user data.",
+    "This audit validates registry-level authority boundaries and machine-readable flows for missions, buddy and internal economy preview flows. It does not modify product logic, APIs, Firestore rules or user data.",
     "",
     "## Issues",
     "",
@@ -132,7 +160,8 @@ function main() {
     "- Missions must not have client-side completion authority.",
     "- Buddy must remain suggestion/guide logic and must not authorize rewards.",
     "- Points shop must remain internal-points-only and no real purchase/transfer.",
-    "- Economy APIs must remain preview/draft-only until server ledger authority is implemented."
+    "- Economy APIs must remain preview/draft-only until server ledger authority is implemented.",
+    "- Mission/Buddy/Economy flow map must forbid frontend final authority and require server-ledger authority."
   ].join("\n");
 
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
