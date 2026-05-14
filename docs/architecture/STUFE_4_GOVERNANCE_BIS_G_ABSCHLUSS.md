@@ -1,4 +1,4 @@
-# WellFit – Stufe 4 Governance B–G Abschluss-Checkpoint
+# WellFit – Stufe 4 Governance B-G Abschluss-Checkpoint
 
 Stand: 2026-05-14  
 Status: abgeschlossen / validiert / nicht live deployed
@@ -7,7 +7,7 @@ Status: abgeschlossen / validiert / nicht live deployed
 
 Dieses Dokument haelt den abgeschlossenen Stand der Stufe-4-Governance-Arbeit fuer die Bloecke B bis G fest.
 
-Es dient als Arbeitsanker fuer spaetere KI-Agenten, damit nicht vergessen wird:
+Es dient als Arbeitsanker fuer spaetere Agenten, damit sichtbar bleibt:
 
 - welche Governance-Schicht bereits gebaut wurde,
 - welche Quality-Gate-Checks aktiv sind,
@@ -153,20 +153,20 @@ Weiterhin verboten ohne explizite neue Freigabe:
 - keine finale Reward-/Mission-Completion-Autoritaet im Frontend,
 - kein Buddy als Reward-/Completion-Autoritaet.
 
-## Erlaubte naechste Arbeit
+## Erlaubte Anschlussarbeit
 
-Naechste Entwicklungsarbeit darf auf dieser Governance-Schicht aufbauen, muss aber weiterhin ueber Branch, PR, Quality Gate, Build und Preview-/Review-Schritt laufen.
+Neue Entwicklungsarbeit darf auf dieser Governance-Schicht aufbauen, muss aber weiterhin ueber Branch, PR, Quality Gate, Build und Preview-/Review-Schritt laufen.
 
-Empfohlene naechste Richtung:
+Empfohlene Richtung:
 
 ```txt
 Produktfunktionen weiter ausbauen,
 aber alle Aenderungen mit Stufe-4-Governance pruefen.
 ```
 
-## KI-Fortsetzungs-Prompt
+## Fortsetzungsanker
 
-Lies vor groesseren Aenderungen zuerst:
+Vor groesseren Aenderungen diese Dateien lesen:
 
 ```txt
 agents/AGENTS.md
@@ -180,8 +180,8 @@ project-register/feedback-analytics-loop.json
 docs/architecture/STUFE_4_GOVERNANCE_BIS_G_ABSCHLUSS.md
 ```
 
-Arbeite danach nach Stufe 4:
+Danach gilt:
 
 ```txt
-Ziel verstehen -> betroffene Seiten/APIs erfassen -> Code/Docs/Register anpassen -> Quality Gate ausfuehren -> Build ausfuehren -> Fehler selbst korrigieren -> Preview/Review liefern -> nicht live schalten ohne Freigabe.
+Ziel verstehen -> betroffene Seiten/APIs erfassen -> Code/Docs/Register anpassen -> Quality Gate ausfuehren -> Build ausfuehren -> Fehler korrigieren -> Preview/Review liefern -> nicht live schalten ohne Freigabe.
 ```
