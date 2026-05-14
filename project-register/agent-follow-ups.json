@@ -1,0 +1,121 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "purpose": "Machine-readable register for future WellFit agent follow-ups detected after documentation, registry, or PR outcome review. It keeps follow-up detection inside the existing agent memory loop without creating duplicate TODO files, architecture, product logic, or parallel systems.",
+  "sourceOfTruth": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "project-register/agent-task-queue.json",
+    "project-register/risk-classifier.json",
+    "project-register/definition-of-done.json",
+    "project-register/agent-work-log.json",
+    "project-register/agent-workflows.json",
+    "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"
+  ],
+  "followUpCategories": [
+    {
+      "id": "api_proposal",
+      "label": "API proposal",
+      "description": "A future or changed API surface is proposed in docs/registers and needs alignment with project-register/apis.json before runtime changes."
+    },
+    {
+      "id": "firestore_collection_proposal",
+      "label": "Firestore collection proposal",
+      "description": "A future Firestore collection, rule, index, emulator scenario, or data-flow proposal is mentioned and needs planning/review before writes."
+    },
+    {
+      "id": "route_added",
+      "label": "Route added or changed",
+      "description": "An app route or route register entry changed and may need route inventory, screenshots, or UI shell stability checks."
+    },
+    {
+      "id": "register_changed",
+      "label": "Register changed",
+      "description": "A project-register file changed and may need WORK_MAP.md, TODO_INDEX.md, and memory-loop synchronization."
+    },
+    {
+      "id": "feedback_plan_added",
+      "label": "Feedback plan added",
+      "description": "A feedback intake, analysis, or analytics plan changed and may need review against existing user-feedback and privacy-safe planning registers."
+    },
+    {
+      "id": "mission_economy_touched",
+      "label": "Mission or economy touched",
+      "description": "Mission, XP, points, reward, buddy, anti-cheat, or economy-adjacent areas were mentioned or touched and must remain preview/planning unless explicitly approved."
+    },
+    {
+      "id": "ui_route_touched",
+      "label": "UI route touched",
+      "description": "A visible route, component, page, or navigation-adjacent file changed and may need route audits or screenshots when runnable."
+    },
+    {
+      "id": "governance_changed",
+      "label": "Governance changed",
+      "description": "Agent workflow, TODO governance, quality gate, or memory-loop files changed and need register/TODO alignment checks."
+    }
+  ],
+  "riskMapping": {
+    "api_proposal": {
+      "defaultRiskLevel": "medium",
+      "riskClassifierPattern": "api_planning_or_non_authority_api_change"
+    },
+    "firestore_collection_proposal": {
+      "defaultRiskLevel": "high",
+      "riskClassifierPattern": "firebase_functions_or_firestore_rules_change"
+    },
+    "route_added": {
+      "defaultRiskLevel": "medium",
+      "riskClassifierPattern": "existing_ui_route_fix"
+    },
+    "register_changed": {
+      "defaultRiskLevel": "low",
+      "riskClassifierPattern": "json_registry_metadata_sync"
+    },
+    "feedback_plan_added": {
+      "defaultRiskLevel": "medium",
+      "riskClassifierPattern": "feedback_or_analytics_planning_without_live_tracking"
+    },
+    "mission_economy_touched": {
+      "defaultRiskLevel": "high",
+      "riskClassifierPattern": "mission_completion_or_anti_cheat_adjacent_change"
+    },
+    "ui_route_touched": {
+      "defaultRiskLevel": "medium",
+      "riskClassifierPattern": "existing_ui_route_fix"
+    },
+    "governance_changed": {
+      "defaultRiskLevel": "low",
+      "riskClassifierPattern": "markdown_documentation_alignment"
+    }
+  },
+  "requiredReviewRules": [
+    "Do not create duplicate TODO, architecture, API, route, feature, data-model, or economy systems; continue in existing mapped files.",
+    "High and critical follow-ups are never auto-approved by scripts and require human review or planning-only handling.",
+    "Critical product/compliance areas require explicit human approval and a review plan before implementation.",
+    "Follow-up entries should cite the source PR, changed files, checks, risk level, and the single safest next recommended task.",
+    "Product logic, token/NFT/wallet/payment/betting/reward authority, health, child, location, privacy, legal, and compliance behavior must not be modified by follow-up detection."
+  ],
+  "examples": [
+    {
+      "category": "governance_changed",
+      "source": "A PR updates project-register/agent-workflows.json and docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md.",
+      "riskLevel": "low",
+      "nextRecommendedTask": "Run npm run agent:quality-gate and keep WORK_MAP.md/TODO_INDEX.md synchronized."
+    },
+    {
+      "category": "firestore_collection_proposal",
+      "source": "A planning doc proposes a future feedback collection or Firestore rule scenario.",
+      "riskLevel": "high",
+      "nextRecommendedTask": "Create planning-only review notes and do not write runtime Firestore logic without explicit approval."
+    },
+    {
+      "category": "mission_economy_touched",
+      "source": "A PR mentions mission rewards, points, XP, anti-cheat, or economy APIs.",
+      "riskLevel": "high",
+      "nextRecommendedTask": "Classify against risk-classifier.json and keep authority server-side or draft/preview only."
+    }
+  ],
+  "entries": []
+}

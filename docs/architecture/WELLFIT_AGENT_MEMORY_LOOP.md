@@ -2,7 +2,7 @@
 
 Status: active / governance documentation  
 Updated: 2026-05-14  
-Leading files: `AGENTS.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-workflows.json`, `project-register/agent-task-queue.json`, `project-register/agent-work-log.json`
+Leading files: `AGENTS.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-workflows.json`, `project-register/agent-task-queue.json`, `project-register/agent-work-log.json`, `project-register/agent-follow-ups.json`
 
 ## Purpose
 
@@ -38,7 +38,15 @@ Agents may override the suggestion only when the human request is narrower and s
 
 ## 3. How an agent records work
 
-After checks and before final handoff, append a concise entry to `project-register/agent-work-log.json` using its `entrySchema`. Each entry should include:
+After checks and before final handoff, validate the PR outcome in dry-run mode:
+
+```bash
+node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run
+```
+
+For merged PRs, the recorder defines the local append format for `project-register/agent-work-log.json` and validates the required fields before any write: PR number, title, status, changed files, checks, follow-ups, and next recommended task. This first version does not call GitHub and does not require GitHub credentials. It writes only when a future agent supplies a valid input file plus the explicit `--local-write` flag.
+
+The resulting work-log entry should include:
 
 - task id and title
 - final status
@@ -74,6 +82,14 @@ The first version reports malformed or unknown status markers and TODO sections 
 
 ## 5. How an agent creates follow-ups
 
+Run the report-only detector after task work and before handoff:
+
+```bash
+node scripts/wellfit-dev-agent/src/follow-up-detector.mjs
+```
+
+The detector reads `todolist/WORK_MAP.md`, `todolist/CURRENT_PROJECT_STATE.md`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, and optional `project-register/internal-sources.json` / `project-register/user-feedback.json`. It reports categories tracked in `project-register/agent-follow-ups.json`, including API proposals, Firestore collection proposals, route/register/feedback/governance changes, mission/economy mentions, and UI route touches. It is report-only in this version and never auto-approves high or critical follow-ups.
+
 Create follow-ups in existing leading files only:
 
 - `todolist/NEXT_ACTIONS.md` for near-term priority work.
@@ -105,8 +121,11 @@ For governance/script-only work, run the repository checks requested by `AGENTS.
 - `npm --prefix functions run check`
 - `npm run agent:quality-gate`
 - `node scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs`
+- `node scripts/wellfit-dev-agent/src/follow-up-detector.mjs`
+- `node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run`
 - `node scripts/wellfit-dev-agent/src/todo-status-sync.mjs`
+- `jq empty project-register/agent-follow-ups.json`
 
 ## KI-Fortsetzungs-Prompt
 
-Lies `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, diese Datei und die Agent-Control-Register. Nutze `suggest-next-agent-task.mjs`, waehle nur einen sicheren nicht-blockierten Task, dokumentiere Ergebnisse in `project-register/agent-work-log.json`, validiere TODO-Marker mit `todo-status-sync.mjs`, und erstelle Follow-ups nur in vorhandenen fuehrenden Dateien.
+Lies `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, diese Datei und die Agent-Control-Register. Nutze `suggest-next-agent-task.mjs`, waehle nur einen sicheren nicht-blockierten Task, validiere PR-Outcomes mit `pr-outcome-recorder.mjs --dry-run`, pruefe Follow-ups report-only mit `follow-up-detector.mjs`, dokumentiere Ergebnisse in `project-register/agent-work-log.json`, validiere TODO-Marker mit `todo-status-sync.mjs`, und erstelle Follow-ups nur in vorhandenen fuehrenden Dateien.

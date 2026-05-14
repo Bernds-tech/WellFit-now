@@ -26,12 +26,14 @@ const agentSteps = [
   { label: "Mission Buddy Economy audit", script: "scripts/wellfit-dev-agent/src/mission-buddy-economy-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/mission-buddy-economy-audit.mjs" },
   { label: "Firestore economy rules check", script: "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs", displayCommand: "npm run agent:firestore-economy-rules-check" },
   { label: "Next agent task suggestion", script: "scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs" },
+  { label: "Follow-up detector", script: "scripts/wellfit-dev-agent/src/follow-up-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs" },
+  { label: "PR outcome recorder dry run", script: "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs", args: ["--dry-run"], displayCommand: "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run" },
   { label: "TODO status sync", script: "scripts/wellfit-dev-agent/src/todo-status-sync.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/todo-status-sync.mjs" }
 ];
 
 function runNodeStep(step) {
   const scriptPath = path.join(ROOT, step.script);
-  const result = spawnSync(NODE_COMMAND, [scriptPath], { cwd: ROOT, encoding: "utf8", shell: false });
+  const result = spawnSync(NODE_COMMAND, [scriptPath, ...(step.args ?? [])], { cwd: ROOT, encoding: "utf8", shell: false });
   return { label: step.label, command: step.displayCommand, exitCode: result.status ?? 1, stdout: result.stdout ?? "", stderr: result.stderr ?? "", ok: result.status === 0 };
 }
 
@@ -106,6 +108,8 @@ function main() {
   const memoryStep = getStep(steps, "Memory sync");
   const rulesStep = getStep(steps, "Firestore economy rules check");
   const nextTaskStep = getStep(steps, "Next agent task suggestion");
+  const followUpDetectorStep = getStep(steps, "Follow-up detector");
+  const prOutcomeRecorderStep = getStep(steps, "PR outcome recorder dry run");
   const todoStatusStep = getStep(steps, "TODO status sync");
 
   const covered = parseCoveredTracks(`${goalReport}\n${alphaStep?.stdout ?? ""}`);
@@ -116,6 +120,8 @@ function main() {
   const plannedMicroTasks = parseNumber(`${dryRunReport}\n${dryRunStep?.stdout ?? ""}`, "Planned micro-tasks");
   const rulesReportPassed = /Result:\s*PASS/i.test(`${rulesReport}\n${rulesStep?.stdout ?? ""}`);
   const nextTaskSuggestionPassed = /Result:\s*TASK_SELECTED/i.test(nextTaskStep?.stdout ?? "");
+  const followUpDetectorPassed = /Result:\s*REPORT_ONLY/i.test(followUpDetectorStep?.stdout ?? "");
+  const prOutcomeRecorderPassed = /Mode:\s*DRY_RUN/i.test(prOutcomeRecorderStep?.stdout ?? "");
   const todoStatusSyncPassed = /Result:\s*PASS/i.test(todoStatusStep?.stdout ?? "");
 
   assertCondition(checks, "Alpha tracks fully covered", covered.covered !== null && covered.total !== null && covered.covered === covered.total, covered.covered === null ? "not found" : `${covered.covered}/${covered.total}`);
@@ -133,6 +139,8 @@ function main() {
   assertCondition(checks, "Mission Buddy Economy audit passed", /Result:\s*PASS/i.test(missionBuddyEconomyReport), /Result:\s*PASS/i.test(missionBuddyEconomyReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Firestore economy rules check passed", rulesReportPassed, rulesReportPassed ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Next agent task suggestion selected a safe task", nextTaskSuggestionPassed, nextTaskSuggestionPassed ? "TASK_SELECTED" : "not found or STOP");
+  assertCondition(checks, "Follow-up detector reported without rewriting", followUpDetectorPassed, followUpDetectorPassed ? "REPORT_ONLY" : "not found or FAIL");
+  assertCondition(checks, "PR outcome recorder dry run completed", prOutcomeRecorderPassed, prOutcomeRecorderPassed ? "DRY_RUN" : "not found or FAIL");
   assertCondition(checks, "TODO status sync passed", todoStatusSyncPassed, todoStatusSyncPassed ? "PASS" : "not found or FAIL");
 
   const passed = checks.every((check) => check.passed);
