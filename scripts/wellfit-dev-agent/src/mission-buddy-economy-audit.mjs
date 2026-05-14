@@ -2,8 +2,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 
 const ROOT = process.cwd();
+const NODE = process.execPath;
 const FEATURES = path.join(ROOT, "project-register", "features.json");
 const APIS = path.join(ROOT, "project-register", "apis.json");
 const CROSS = path.join(ROOT, "project-register", "cross-references.json");
@@ -64,6 +66,13 @@ function apiEntry(register, route) {
 
 function hasRule(feature, rule) {
   return (feature.rules ?? []).includes(rule);
+}
+
+function runCodeAuthorityAudit() {
+  const script = path.join(ROOT, "scripts", "wellfit-dev-agent", "src", "economy-code-authority-audit.mjs");
+  if (!fs.existsSync(script)) return { ok: false, stdout: "", stderr: "Missing economy-code-authority-audit.mjs" };
+  const result = spawnSync(NODE, [script], { cwd: ROOT, encoding: "utf8", shell: false });
+  return { ok: result.status === 0, stdout: result.stdout ?? "", stderr: result.stderr ?? "" };
 }
 
 function main() {
@@ -136,6 +145,9 @@ function main() {
     if (!hasShopRef) warnings.push("Missing cross-reference FEATURE-POINTS-SHOP -> spend-preview");
   }
 
+  const codeAuthority = runCodeAuthorityAudit();
+  if (!codeAuthority.ok) issues.push("Economy code authority audit failed. See economy-code-authority-audit.md.");
+
   const passed = issues.length === 0;
   const report = [
     "# Mission / Buddy / Economy Audit",
@@ -145,7 +157,7 @@ function main() {
     "",
     "## Scope",
     "",
-    "This audit validates registry-level authority boundaries and machine-readable flows for missions, buddy and internal economy preview flows. It does not modify product logic, APIs, Firestore rules or user data.",
+    "This audit validates registry-level authority boundaries, machine-readable flows and code-level beta economy authority risk. It does not modify product logic, APIs, Firestore rules or user data.",
     "",
     "## Issues",
     "",
@@ -155,13 +167,22 @@ function main() {
     "",
     warnings.length ? warnings.map((item) => `- ${item}`).join("\n") : "No warnings.",
     "",
+    "## Economy Code Authority Audit",
+    "",
+    codeAuthority.ok ? "PASS" : "FAIL",
+    "",
+    "```text",
+    `${codeAuthority.stdout.trim()}${codeAuthority.stderr.trim() ? `\n${codeAuthority.stderr.trim()}` : ""}`,
+    "```",
+    "",
     "## Required Standard",
     "",
     "- Missions must not have client-side completion authority.",
     "- Buddy must remain suggestion/guide logic and must not authorize rewards.",
     "- Points shop must remain internal-points-only and no real purchase/transfer.",
     "- Economy APIs must remain preview/draft-only until server ledger authority is implemented.",
-    "- Mission/Buddy/Economy flow map must forbid frontend final authority and require server-ledger authority."
+    "- Mission/Buddy/Economy flow map must forbid frontend final authority and require server-ledger authority.",
+    "- Code must not activate wallet/token/NFT/cashout flows in beta."
   ].join("\n");
 
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
