@@ -2,9 +2,11 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, "scripts", "wellfit-dev-agent", "output", "stufe4-governance-check.md");
+const NODE = process.execPath;
 
 const requiredFiles = [
   "agents/AGENTS.md",
@@ -39,6 +41,13 @@ function read(file) {
   return fs.readFileSync(path.join(ROOT, file), "utf8");
 }
 
+function runMojibakeCheck() {
+  const script = path.join(ROOT, "scripts", "wellfit-dev-agent", "src", "mojibake-check.mjs");
+  if (!fs.existsSync(script)) return { ok: false, stdout: "", stderr: "Missing mojibake-check.mjs" };
+  const result = spawnSync(NODE, [script], { cwd: ROOT, encoding: "utf8", shell: false });
+  return { ok: result.status === 0, stdout: result.stdout ?? "", stderr: result.stderr ?? "" };
+}
+
 const missing = requiredFiles.filter((file) => !fileExists(file));
 const invalidJson = [];
 
@@ -51,7 +60,8 @@ for (const file of jsonFiles) {
   }
 }
 
-const passed = missing.length === 0 && invalidJson.length === 0;
+const mojibake = runMojibakeCheck();
+const passed = missing.length === 0 && invalidJson.length === 0 && mojibake.ok;
 const report = [
   "# Stufe 4 Governance Check",
   "",
@@ -66,11 +76,20 @@ const report = [
   "",
   invalidJson.length ? invalidJson.map((file) => `- \`${file}\``).join("\n") : "No invalid JSON files.",
   "",
+  "## Mojibake check",
+  "",
+  mojibake.ok ? "PASS" : "FAIL",
+  "",
+  "```text",
+  `${mojibake.stdout.trim()}${mojibake.stderr.trim() ? `\n${mojibake.stderr.trim()}` : ""}`,
+  "```",
+  "",
   "## Required standard",
   "",
   "- Agent mode files for Stufe 1-4 must exist.",
   "- Self-check and rule files must exist.",
-  "- Project-register JSON files must exist and parse successfully."
+  "- Project-register JSON files must exist and parse successfully.",
+  "- Documentation/register files must not contain known broken encoding patterns."
 ].join("\n");
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
@@ -87,6 +106,12 @@ if (missing.length) {
 if (invalidJson.length) {
   console.log("Invalid JSON files:");
   for (const file of invalidJson) console.log(`- ${file}`);
+}
+
+if (!mojibake.ok) {
+  console.log("Mojibake check failed.");
+  if (mojibake.stdout.trim()) console.log(mojibake.stdout.trim());
+  if (mojibake.stderr.trim()) console.log(mojibake.stderr.trim());
 }
 
 if (!passed) process.exit(1);
