@@ -69,6 +69,23 @@
           ],
           "purpose": "Repeatable loop for safe task selection, work recording, TODO status validation, and follow-up handoff for future agents.",
           "usage": "Start by running the next-task picker, record completed PR outcomes with the recorder, run the follow-up detector in report-only mode, validate TODO status markers, and create follow-ups only in existing leading files."
+        },
+        {
+          "id": "drift_and_gap_analysis",
+          "registers": [
+            "project-register/routes.json",
+            "project-register/apis.json",
+            "project-register/features.json",
+            "project-register/internal-sources.json",
+            "project-register/product-readiness.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_DRIFT_AND_GAP_ANALYSIS.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+            "scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs"
+          ],
+          "purpose": "Detect route/API/register drift and concept-to-code mapping gaps before agents create duplicate routes, APIs, architecture, or product systems.",
+          "usage": "Run both scripts before adding routes, APIs, feature mappings, readiness changes, or concept-driven implementation work; resolve only safe registry gaps and leave high/critical areas for human review."
         }
       ],
       "additionalGovernanceInputs": [
@@ -104,7 +121,9 @@
         "npm run agent:quality-gate",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
         "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
-        "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run"
+        "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs"
       ],
       "phases": [
         {
