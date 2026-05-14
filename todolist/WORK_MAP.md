@@ -10,6 +10,12 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 - Dokumentations-/TODO-Dateien nicht loeschen. Veraltete oder doppelte Dateien nur markieren und zur fuehrenden Datei verlinken.
 - Compliance- und Safety-kritische Bereiche nur mit explizitem Auftrag bearbeiten.
 
+## Internal source map
+
+- `project-register/internal-sources.json` ist die maschinenlesbare WellFit Internal-Source-to-Implementation-Map. Sie verbindet interne Konzeptgruppen (Master-Bibel, Whitepaper/Investor, Tokenomics, Buddy, Kinder/Familien/Active Breaks, AR/Unity, B2B, Feedback/Analytics) mit vorhandenen Dateien aus dieser Work Map und den Project-Register-Dateien.
+- `docs/architecture/WELLFIT_INTERNAL_SOURCE_MAP.md` erklaert die Registry fuer Menschen.
+- Diese Registry ersetzt diese Work Map nicht; sie verweist auf vorhandene Fuehrungsdateien und soll Doppelarchitektur verhindern.
+
 ## Topic-to-file map
 
 | Thema | Fuehrende / vorhandene Dateien | Do-not-duplicate Warnung |
