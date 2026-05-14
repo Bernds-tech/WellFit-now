@@ -48,6 +48,34 @@ The visual register currently defines two standard viewports:
 
 Future agents may add more viewports only through `project-register/visual-regression.json` and this document, not by creating a second screenshot plan.
 
+
+## Optional screenshot comparison modes
+
+Pixel matching means comparing a newly captured **current** screenshot with an approved **baseline** screenshot and measuring how many rendered pixels differ. It is useful for catching unintended layout, spacing, color, typography, and responsive breakage that route-smoke checks may miss, but it can be noisy when fonts, animations, timestamps, browser binaries, seeded data, or device rendering are not deterministic.
+
+WellFit therefore starts from safe, non-blocking modes in `project-register/visual-regression.json`:
+
+- `off` — no screenshot comparison is expected for that route. This is the default for protected app-preview routes until an approved test-user/session plan and seeded demo data exist.
+- `smoke` — route registration and optional screenshot capture only. Missing baselines do not fail checks.
+- `tolerant` — future baseline/current comparison may allow a small `pixelThreshold` and `maxDiffRatio`, plus narrow route-scoped ignored dynamic areas. This mode is still optional/report-only unless a maintainer creates a dedicated visual-review job.
+- `strict` — future exact or near-exact comparison for deterministic pages only. Strict mode must not be added to the main build or quality gate without explicit maintainer approval.
+
+The checker currently performs report-only readiness detection: if generated current screenshots and matching baseline filenames are both present in ignored agent output paths, it reports `VISUAL_COMPARISON_READY`; if current screenshots exist but baselines do not, it reports `VISUAL_BASELINE_MISSING`. Missing baselines are expected during this preparation phase and must not fail CI, `npm run build`, or `npm run agent:quality-gate`.
+
+## Why smoke/tolerant first
+
+WellFit uses smoke and tolerant comparison before strict matching because the app includes dynamic marketing surfaces, mobile beta previews, avatar/buddy interactions, mission progress widgets, and future AR/canvas experiences. These can legitimately vary between browser versions, animation frames, local preview data, and test environments. A tolerant path lets agents collect evidence and identify whether comparison would be possible without turning visual QA into a flaky blocker.
+
+Strict pixel matching is allowed only when all of the following are true:
+
+- The route is public or uses an approved non-sensitive seeded demo session.
+- The page has deterministic content, fonts, viewport, reduced animation, and stable data.
+- Baseline screenshots were reviewed in a dedicated small PR or review artifact.
+- Dynamic areas are either absent or documented with narrow route-scoped masks in `ignoredDynamicAreas`.
+- The check remains outside the main build unless a maintainer explicitly creates and approves a separate visual-review CI job.
+
+Dynamic AR, avatar/buddy, and mission pages should not use strict matching yet. AR/canvas previews, avatar idle frames, mission progress, timers, and demo state can change without product regressions; strict pixel checks on those pages would create false failures and could pressure agents to hide important dynamic UI or compliance-sensitive content. Keep these routes `smoke` or carefully `tolerant` until deterministic fixtures and masks are approved.
+
 ## Browser availability and non-blocking behavior
 
 Browser execution is optional. The checker looks for supported browser runners (`@playwright/test` or `playwright`) and never installs them automatically.
@@ -56,6 +84,8 @@ Expected non-blocking results:
 
 - `SKIPPED_BROWSER_UNAVAILABLE` — no supported browser runner is installed or browser launch fails because the environment lacks browser binaries.
 - `SKIPPED_BASE_URL_UNAVAILABLE` — browser support exists, but no reachable preview URL was provided.
+- `VISUAL_COMPARISON_READY` — current and baseline screenshots with matching filenames exist, so a future optional comparison could run.
+- `VISUAL_BASELINE_MISSING` — current screenshots exist, but matching baseline screenshots are missing; this is report-only and non-failing.
 
 Both skip states are environment-safe and should exit `0` after route-register validation passes. The quality gate runs the checker with `--report-only`, so browser availability cannot make the main agent gate flaky.
 
@@ -104,6 +134,7 @@ Generated screenshots, traces, videos, and browser caches are local QA artifacts
 - `SKIPPED_BROWSER_UNAVAILABLE`
 - `SKIPPED_BASE_URL_UNAVAILABLE`
 - `REPORT_ONLY`
+- `VISUAL_COMPARISON_READY` / `VISUAL_BASELINE_MISSING` as report markers, not build-blocking result states
 
 This keeps visual validation visible to future agents while preserving non-flaky CI/build behavior.
 
@@ -116,7 +147,7 @@ This keeps visual validation visible to future agents while preserving non-flaky
 
 ## Next recommended hardening task
 
-When a maintainer approves browser tooling, add a small optional package script and documented local preview command that still remains non-blocking in CI unless an explicit visual-review job is created.
+When a maintainer approves browser tooling, add a small optional package script and documented local preview command that still remains non-blocking in CI unless an explicit visual-review job is created. After that, propose a tiny reviewed baseline set for deterministic public routes only; keep mobile AR/avatar/mission pages smoke or tolerant until masks and seeded fixtures are approved.
 
 ## KI-Fortsetzungs-Prompt
 

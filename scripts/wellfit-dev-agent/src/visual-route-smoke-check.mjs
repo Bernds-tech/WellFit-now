@@ -45,6 +45,14 @@ function validateVisualRegister(visualRegister, routesRegister) {
   const groupIds = new Set(groups.map((group) => group.id));
   const configuredRoutes = new Set();
   const issues = [];
+  const allowedComparisonModes = new Set(visualRegister.allowedComparisonModes ?? ["off", "smoke", "tolerant", "strict"]);
+
+  if (visualRegister.comparisonMode && !allowedComparisonModes.has(visualRegister.comparisonMode)) {
+    issues.push(`Unknown visual comparisonMode: ${visualRegister.comparisonMode}.`);
+  }
+  if (visualRegister.defaultComparisonMode && !allowedComparisonModes.has(visualRegister.defaultComparisonMode)) {
+    issues.push(`Unknown visual defaultComparisonMode: ${visualRegister.defaultComparisonMode}.`);
+  }
 
   for (const group of groups) {
     if (!group.id) issues.push("Route group without id.");
@@ -55,6 +63,7 @@ function validateVisualRegister(visualRegister, routesRegister) {
     if (!item.route) issues.push("routesToCheck item without route.");
     if (item.route) configuredRoutes.add(item.route);
     if (item.group && !groupIds.has(item.group)) issues.push(`Route ${item.route} references unknown group ${item.group}.`);
+    if (item.comparisonMode && !allowedComparisonModes.has(item.comparisonMode)) issues.push(`Route ${item.route} uses unknown comparisonMode ${item.comparisonMode}.`);
     for (const viewport of item.viewports ?? []) {
       if (!viewportNames.has(viewport)) issues.push(`Route ${item.route} references unknown viewport ${viewport}.`);
     }
@@ -64,6 +73,58 @@ function validateVisualRegister(visualRegister, routesRegister) {
   for (const route of missingRoutes) issues.push(`Configured visual route is missing from project-register/routes.json: ${route}`);
 
   return { issues, missingRoutes, configuredRouteCount: configuredRoutes.size };
+}
+
+
+function expectedScreenshotFileName(routeConfig, viewportName) {
+  return `${routeConfig.group}-${viewportName}-${safeSlug(routeConfig.route)}.png`;
+}
+
+function comparisonModeForRoute(visualRegister, routeConfig) {
+  return routeConfig.comparisonMode ?? visualRegister.defaultComparisonMode ?? visualRegister.comparisonMode ?? "smoke";
+}
+
+function existingExpectedScreenshots(directory, expectedNames) {
+  if (!directory || !fs.existsSync(directory)) return [];
+  return expectedNames.filter((name) => fs.existsSync(path.join(directory, name)));
+}
+
+function detectComparisonReadiness(visualRegister, browserOutcome) {
+  const routes = selectedBrowserRoutes(visualRegister).filter((routeConfig) => comparisonModeForRoute(visualRegister, routeConfig) !== "off");
+  const expectedNames = [];
+
+  for (const routeConfig of routes) {
+    for (const viewportName of routeConfig.viewports ?? ["desktop"]) {
+      if (visualRegister.viewports?.[viewportName]) expectedNames.push(expectedScreenshotFileName(routeConfig, viewportName));
+    }
+  }
+
+  const baselineDir = path.join(ROOT, visualRegister.baselineScreenshotPolicy?.directory ?? "scripts/wellfit-dev-agent/output/visual-route-smoke-check/baseline/");
+  const currentDir = path.join(ROOT, visualRegister.currentScreenshotPolicy?.directory ?? visualRegister.screenshotArtifactPolicy?.defaultOutputDirectory ?? "scripts/wellfit-dev-agent/output/visual-route-smoke-check/");
+  const legacyCurrentDir = path.join(ROOT, visualRegister.currentScreenshotPolicy?.legacySmokeDirectory ?? visualRegister.screenshotArtifactPolicy?.defaultOutputDirectory ?? "scripts/wellfit-dev-agent/output/visual-route-smoke-check/");
+  const currentFromOutcome = (browserOutcome?.screenshots ?? []).map((file) => path.basename(file));
+  const currentExisting = [...new Set([
+    ...currentFromOutcome.filter((name) => expectedNames.includes(name)),
+    ...existingExpectedScreenshots(currentDir, expectedNames),
+    ...existingExpectedScreenshots(legacyCurrentDir, expectedNames)
+  ])].sort();
+  const baselineExisting = existingExpectedScreenshots(baselineDir, expectedNames).sort();
+  const comparablePairs = currentExisting.filter((name) => baselineExisting.includes(name));
+  let status = "VISUAL_COMPARISON_NOT_CHECKED";
+
+  if (currentExisting.length && comparablePairs.length) status = "VISUAL_COMPARISON_READY";
+  else if (currentExisting.length) status = "VISUAL_BASELINE_MISSING";
+
+  return {
+    status,
+    expectedCount: expectedNames.length,
+    currentCount: currentExisting.length,
+    baselineCount: baselineExisting.length,
+    comparableCount: comparablePairs.length,
+    baselineDirectory: path.relative(ROOT, baselineDir),
+    currentDirectory: path.relative(ROOT, currentDir),
+    comparablePairs
+  };
 }
 
 function resolveBrowserRunner() {
@@ -131,7 +192,7 @@ async function runBrowserSmoke({ visualRegister, runnerModule, baseUrl }) {
           return null;
         });
         if (response && response.status() >= 400) warnings.push(`${routeConfig.route} (${viewportName}) returned HTTP ${response.status()}.`);
-        const filePath = path.join(artifactDir, `${routeConfig.group}-${viewportName}-${safeSlug(routeConfig.route)}.png`);
+        const filePath = path.join(artifactDir, expectedScreenshotFileName(routeConfig, viewportName));
         await page.screenshot({ path: filePath, fullPage: true }).catch((error) => warnings.push(`${routeConfig.route} (${viewportName}) screenshot warning: ${error.message}`));
         if (fs.existsSync(filePath)) screenshots.push(path.relative(ROOT, filePath));
         await context.close();
@@ -146,7 +207,7 @@ async function runBrowserSmoke({ visualRegister, runnerModule, baseUrl }) {
   return { result: warnings.length ? "PASS_WITH_WARNINGS" : "PASS", screenshots, warnings };
 }
 
-function renderReport({ visualRegister, validation, result, reportOnly, runnerName, baseUrl, reachability, browserOutcome }) {
+function renderReport({ visualRegister, validation, result, reportOnly, runnerName, baseUrl, reachability, browserOutcome, comparisonReadiness }) {
   const lines = [
     "# WellFit Visual Route Smoke Check",
     "",
@@ -174,6 +235,18 @@ function renderReport({ visualRegister, validation, result, reportOnly, runnerNa
     "",
     browserOutcome?.screenshots?.length ? browserOutcome.screenshots.map((file) => `- \`${file}\``).join("\n") : "No screenshots generated.",
     "",
+    "## Optional Screenshot Comparison Readiness",
+    "",
+    `- Status: ${comparisonReadiness?.status ?? "VISUAL_COMPARISON_NOT_CHECKED"}`,
+    `- Expected current screenshots: ${comparisonReadiness?.expectedCount ?? 0}`,
+    `- Current screenshots found: ${comparisonReadiness?.currentCount ?? 0}`,
+    `- Baseline screenshots found: ${comparisonReadiness?.baselineCount ?? 0}`,
+    `- Comparable baseline/current pairs: ${comparisonReadiness?.comparableCount ?? 0}`,
+    `- Current directory: \`${comparisonReadiness?.currentDirectory ?? "not checked"}\``,
+    `- Baseline directory: \`${comparisonReadiness?.baselineDirectory ?? "not checked"}\``,
+    "",
+    comparisonReadiness?.comparablePairs?.length ? comparisonReadiness.comparablePairs.map((file) => `- \`${file}\``).join("\n") : "No comparable screenshot pairs detected. Missing baselines are report-only and do not fail this check.",
+    "",
     "## Warnings",
     "",
     browserOutcome?.warnings?.length ? browserOutcome.warnings.map((warning) => `- ${warning}`).join("\n") : "No browser warnings.",
@@ -199,6 +272,7 @@ async function main() {
   let baseUrl = null;
   let reachability = null;
   let browserOutcome = { result: "not run", screenshots: [], warnings: [] };
+  let comparisonReadiness = null;
 
   if (!validation.issues.length) {
     runnerName = resolveBrowserRunner();
@@ -225,9 +299,10 @@ async function main() {
   }
 
   if (reportOnly && result === "FAIL") result = "REPORT_ONLY";
+  comparisonReadiness = detectComparisonReadiness(visualRegister, browserOutcome);
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-  fs.writeFileSync(REPORT_PATH, renderReport({ visualRegister, validation, result, reportOnly, runnerName, baseUrl, reachability, browserOutcome }), "utf8");
+  fs.writeFileSync(REPORT_PATH, renderReport({ visualRegister, validation, result, reportOnly, runnerName, baseUrl, reachability, browserOutcome, comparisonReadiness }), "utf8");
 
   console.log(`WellFit visual route smoke check complete: ${path.relative(ROOT, REPORT_PATH)}`);
   console.log(`Result: ${result}`);
@@ -235,6 +310,7 @@ async function main() {
   console.log(`Browser runner: ${runnerName ?? "none"}`);
   if (browserOutcome.result === "SKIPPED_BROWSER_UNAVAILABLE") console.log("SKIPPED_BROWSER_UNAVAILABLE");
   if (browserOutcome.result === "SKIPPED_BASE_URL_UNAVAILABLE") console.log("SKIPPED_BASE_URL_UNAVAILABLE");
+  if (["VISUAL_COMPARISON_READY", "VISUAL_BASELINE_MISSING"].includes(comparisonReadiness?.status)) console.log(comparisonReadiness.status);
   for (const issue of validation.issues) console.log(`- ${issue}`);
 
   if (!reportOnly && result === "FAIL") process.exit(1);

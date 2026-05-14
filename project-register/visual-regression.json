@@ -14,14 +14,31 @@
       "description": "Public marketing, registration, help, and legal routes that can be smoke-checked without credentials.",
       "auth": "public",
       "defaultScreenshotRequired": true,
-      "routes": ["/", "/register", "/datenschutz", "/agb", "/impressum", "/faq", "/hilfe"]
+      "routes": [
+        "/",
+        "/register",
+        "/datenschutz",
+        "/agb",
+        "/impressum",
+        "/faq",
+        "/hilfe"
+      ]
     },
     {
       "id": "mobile_beta_preview",
       "description": "Mobile beta-preview routes that must preserve the current mobile shell and beta wording without activating protected economy, health, privacy, location, or camera logic.",
       "auth": "mobile-beta-preview",
       "defaultScreenshotRequired": true,
-      "routes": ["/mobile", "/mobile/analyse", "/mobile/ar", "/mobile/bewegung", "/mobile/buddy", "/mobile/einstellungen", "/mobile/missionen", "/mobile/missionen/squat"]
+      "routes": [
+        "/mobile",
+        "/mobile/analyse",
+        "/mobile/ar",
+        "/mobile/bewegung",
+        "/mobile/buddy",
+        "/mobile/einstellungen",
+        "/mobile/missionen",
+        "/mobile/missionen/squat"
+      ]
     },
     {
       "id": "protected_app_preview",
@@ -29,7 +46,24 @@
       "auth": "app-user-or-beta-preview",
       "defaultScreenshotRequired": false,
       "requiresAuthPlan": true,
-      "routes": ["/dashboard", "/dashboard/anpassen", "/buddy", "/missionen", "/missionen/tagesmissionen", "/missionen/wochenmissionen", "/missionen/abenteuer", "/missionen/challenge", "/missionen/wettkaempfe", "/missionen/favoriten", "/missionen/history", "/punkte-shop", "/marktplatz", "/leaderboard", "/analytics", "/einstellungen"]
+      "routes": [
+        "/dashboard",
+        "/dashboard/anpassen",
+        "/buddy",
+        "/missionen",
+        "/missionen/tagesmissionen",
+        "/missionen/wochenmissionen",
+        "/missionen/abenteuer",
+        "/missionen/challenge",
+        "/missionen/wettkaempfe",
+        "/missionen/favoriten",
+        "/missionen/history",
+        "/punkte-shop",
+        "/marktplatz",
+        "/leaderboard",
+        "/analytics",
+        "/einstellungen"
+      ]
     }
   ],
   "viewports": {
@@ -56,7 +90,10 @@
   },
   "browserRequirement": {
     "optional": true,
-    "supportedRunners": ["@playwright/test", "playwright"],
+    "supportedRunners": [
+      "@playwright/test",
+      "playwright"
+    ],
     "baseUrlEnvironmentVariable": "WELLFIT_VISUAL_BASE_URL",
     "fallbackBaseUrl": "http://127.0.0.1:3000",
     "browserUnavailableResult": "SKIPPED_BROWSER_UNAVAILABLE",
@@ -64,17 +101,119 @@
     "installPolicy": "Do not install browser dependencies automatically from this check. If browser support is unavailable, report the skip and exit 0."
   },
   "routesToCheck": [
-    { "route": "/", "group": "public_core", "viewports": ["desktop", "mobile"], "screenshotRequiredOnUiChange": true },
-    { "route": "/register", "group": "public_core", "viewports": ["desktop", "mobile"], "screenshotRequiredOnUiChange": true },
-    { "route": "/faq", "group": "public_core", "viewports": ["desktop", "mobile"], "screenshotRequiredOnUiChange": true },
-    { "route": "/hilfe", "group": "public_core", "viewports": ["desktop", "mobile"], "screenshotRequiredOnUiChange": true },
-    { "route": "/mobile", "group": "mobile_beta_preview", "viewports": ["mobile"], "screenshotRequiredOnUiChange": true },
-    { "route": "/mobile/missionen", "group": "mobile_beta_preview", "viewports": ["mobile"], "screenshotRequiredOnUiChange": true },
-    { "route": "/mobile/buddy", "group": "mobile_beta_preview", "viewports": ["mobile"], "screenshotRequiredOnUiChange": true },
-    { "route": "/mobile/einstellungen", "group": "mobile_beta_preview", "viewports": ["mobile"], "screenshotRequiredOnUiChange": true },
-    { "route": "/dashboard", "group": "protected_app_preview", "viewports": ["desktop"], "screenshotRequiredOnUiChange": false, "authLimitation": "requires approved test user/session or documented beta-preview blocker" },
-    { "route": "/missionen/tagesmissionen", "group": "protected_app_preview", "viewports": ["desktop"], "screenshotRequiredOnUiChange": false, "authLimitation": "requires approved test user/session or documented beta-preview blocker" },
-    { "route": "/einstellungen", "group": "protected_app_preview", "viewports": ["desktop"], "screenshotRequiredOnUiChange": false, "authLimitation": "requires approved test user/session or documented beta-preview blocker" }
+    {
+      "route": "/",
+      "group": "public_core",
+      "viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "tolerant"
+    },
+    {
+      "route": "/register",
+      "group": "public_core",
+      "viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "tolerant"
+    },
+    {
+      "route": "/faq",
+      "group": "public_core",
+      "viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "tolerant"
+    },
+    {
+      "route": "/hilfe",
+      "group": "public_core",
+      "viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "tolerant"
+    },
+    {
+      "route": "/mobile",
+      "group": "mobile_beta_preview",
+      "viewports": [
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "smoke",
+      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved."
+    },
+    {
+      "route": "/mobile/missionen",
+      "group": "mobile_beta_preview",
+      "viewports": [
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "smoke",
+      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved."
+    },
+    {
+      "route": "/mobile/buddy",
+      "group": "mobile_beta_preview",
+      "viewports": [
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "smoke",
+      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved."
+    },
+    {
+      "route": "/mobile/einstellungen",
+      "group": "mobile_beta_preview",
+      "viewports": [
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "smoke",
+      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved."
+    },
+    {
+      "route": "/dashboard",
+      "group": "protected_app_preview",
+      "viewports": [
+        "desktop"
+      ],
+      "screenshotRequiredOnUiChange": false,
+      "authLimitation": "requires approved test user/session or documented beta-preview blocker",
+      "comparisonMode": "off",
+      "comparisonNote": "Protected app comparison is off until an approved test-user/session plan and seeded demo data exist."
+    },
+    {
+      "route": "/missionen/tagesmissionen",
+      "group": "protected_app_preview",
+      "viewports": [
+        "desktop"
+      ],
+      "screenshotRequiredOnUiChange": false,
+      "authLimitation": "requires approved test user/session or documented beta-preview blocker",
+      "comparisonMode": "off",
+      "comparisonNote": "Protected app comparison is off until an approved test-user/session plan and seeded demo data exist."
+    },
+    {
+      "route": "/einstellungen",
+      "group": "protected_app_preview",
+      "viewports": [
+        "desktop"
+      ],
+      "screenshotRequiredOnUiChange": false,
+      "authLimitation": "requires approved test user/session or documented beta-preview blocker",
+      "comparisonMode": "off",
+      "comparisonNote": "Protected app comparison is off until an approved test-user/session plan and seeded demo data exist."
+    }
   ],
   "protectedRoutesAndAuthLimitations": {
     "defaultRule": "Do not use real user credentials or capture real user data. Protected route screenshots require an approved test account, seeded demo data, or explicit documentation that auth blocks full visual validation.",
@@ -101,5 +240,42 @@
     "This plan and its checker are QA/documentation support only and must never rewrite product files.",
     "Do not modify token, NFT, wallet, payment, betting, reward authority, health, child, location, privacy, or compliance logic while using this plan.",
     "Do not create duplicate route, architecture, visual-design, or browser-test systems; keep future additions mapped through this register, Work Map, and the existing wellfit-dev-agent quality gate."
-  ]
+  ],
+  "comparisonMode": "smoke",
+  "allowedComparisonModes": [
+    "off",
+    "smoke",
+    "tolerant",
+    "strict"
+  ],
+  "defaultComparisonMode": "smoke",
+  "pixelThreshold": 0.12,
+  "maxDiffRatio": 0.01,
+  "baselineScreenshotPolicy": {
+    "directory": "scripts/wellfit-dev-agent/output/visual-route-smoke-check/baseline/",
+    "requiredForSmokeMode": false,
+    "requiredForTolerantMode": false,
+    "requiredForStrictMode": true,
+    "gitPolicy": "Do not commit baseline screenshots until a maintainer approves a dedicated small baseline review; keep local/generated baselines under ignored agent output paths for now.",
+    "missingBaselineResult": "VISUAL_BASELINE_MISSING",
+    "naming": "Use screenshotArtifactPolicy.filenameTemplate so baseline/current pairs can be detected without adding binaries to the repo."
+  },
+  "currentScreenshotPolicy": {
+    "directory": "scripts/wellfit-dev-agent/output/visual-route-smoke-check/current/",
+    "legacySmokeDirectory": "scripts/wellfit-dev-agent/output/visual-route-smoke-check/",
+    "gitPolicy": "Generated current screenshots are local QA artifacts only and must remain in ignored agent output paths.",
+    "comparisonReadinessResult": "VISUAL_COMPARISON_READY",
+    "missingCurrentResult": "VISUAL_CURRENT_SCREENSHOT_MISSING"
+  },
+  "ignoredDynamicAreas": {
+    "concept": "Future tolerant/strict comparison may mask named dynamic page areas before pixel comparison. Masks must be narrow, route-scoped, documented here, and must not hide compliance, auth, reward-authority, payment, wallet, health, privacy, child-safety, or location defects.",
+    "allowedExamples": [
+      "timestamps or relative time labels",
+      "animated gradients or non-critical decorative particles",
+      "avatar idle animation frames",
+      "AR camera/canvas placeholders in demo mode",
+      "mission progress widgets backed by seeded/demo state"
+    ],
+    "routeScopedPlaceholders": []
+  }
 }
