@@ -16,7 +16,8 @@
     "feedbackRegister": "project-register/user-feedback.json",
     "riskClassifier": "project-register/risk-classifier.json",
     "definitionOfDone": "project-register/definition-of-done.json",
-    "architectureDoc": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md"
+    "architectureDoc": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md",
+    "agentFollowUps": "project-register/agent-follow-ups.json"
   },
   "globalRequiredFirstReadFiles": [
     "AGENTS.md",
@@ -25,7 +26,9 @@
     "todolist/TODO_INDEX.md",
     "project-register/agent-workflows.json",
     "project-register/risk-classifier.json",
-    "project-register/definition-of-done.json"
+    "project-register/definition-of-done.json",
+    "project-register/agent-follow-ups.json",
+    "project-register/agent-work-log.json"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -46,12 +49,15 @@
     "npx tsc --noEmit",
     "npm run build",
     "npm --prefix functions run check",
-    "npm run agent:quality-gate"
+    "npm run agent:quality-gate",
+    "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
     "jq empty project-register/definition-of-done.json",
-    "jq empty project-register/risk-classifier.json"
+    "jq empty project-register/risk-classifier.json",
+    "jq empty project-register/agent-follow-ups.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -404,6 +410,55 @@
         "State that only planning changed.",
         "List explicit approvals required before any implementation.",
         "Name protected files intentionally left untouched."
+      ]
+    },
+    {
+      "id": "AGENT-FOLLOW-UP-MEMORY-LOOP",
+      "title": "Maintain follow-up detection and PR outcome memory-loop records",
+      "status": "ready",
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "allowedFiles": [
+        "scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
+        "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs",
+        "project-register/agent-follow-ups.json",
+        "project-register/agent-work-log.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"
+      ],
+      "forbiddenFiles": [
+        "native/unity/WellFitBuddyAR/**",
+        "app/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/agent-follow-ups.json",
+        "project-register/agent-work-log.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run",
+        "jq empty project-register/agent-follow-ups.json"
+      ],
+      "stopConditions": [
+        "Would modify product logic or protected compliance/economy/runtime areas.",
+        "Would auto-approve high or critical follow-ups.",
+        "Would create duplicate TODO or architecture files instead of updating mapped files."
+      ],
+      "expectedPrOutput": [
+        "Report-only follow-up detection.",
+        "Dry-run PR outcome recording validation.",
+        "Updated existing memory-loop registers and mapped TODO docs."
       ]
     }
   ],

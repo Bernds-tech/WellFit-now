@@ -28,7 +28,8 @@
         "project-register/internal-sources.json",
         "project-register/user-feedback.json",
         "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
-        "project-register/agent-work-log.json"
+        "project-register/agent-work-log.json",
+        "project-register/agent-follow-ups.json"
       ],
       "controlRegisters": [
         {
@@ -46,15 +47,18 @@
           "id": "agent_memory_loop",
           "registers": [
             "project-register/agent-work-log.json",
-            "project-register/agent-task-queue.json"
+            "project-register/agent-task-queue.json",
+            "project-register/agent-follow-ups.json"
           ],
           "architecture": "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
           "scripts": [
             "scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs",
-            "scripts/wellfit-dev-agent/src/todo-status-sync.mjs"
+            "scripts/wellfit-dev-agent/src/todo-status-sync.mjs",
+            "scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
+            "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs"
           ],
           "purpose": "Repeatable loop for safe task selection, work recording, TODO status validation, and follow-up handoff for future agents.",
-          "usage": "Start by running the next-task picker, record completed work in the work log, validate TODO status markers, and create follow-ups only in existing leading files."
+          "usage": "Start by running the next-task picker, record completed PR outcomes with the recorder, run the follow-up detector in report-only mode, validate TODO status markers, and create follow-ups only in existing leading files."
         }
       ],
       "additionalGovernanceInputs": [
@@ -87,7 +91,9 @@
         "npx tsc --noEmit",
         "npm run build",
         "npm --prefix functions run check",
-        "npm run agent:quality-gate"
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run"
       ],
       "phases": [
         {

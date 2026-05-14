@@ -25,7 +25,10 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 - `docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md` erklaert diese Register fuer Menschen.
 - `docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md` erklaert den wiederholbaren Start-, Task-Auswahl-, Work-Log-, TODO-Status- und Follow-up-Loop fuer Agenten.
 - `project-register/agent-work-log.json` ist das append-only Arbeitsprotokoll fuer abgeschlossene Agentenlaeufe, Checks, Follow-ups und die naechste empfohlene Aufgabe.
+- `project-register/agent-follow-ups.json` beschreibt die maschinenlesbaren Follow-up-Kategorien, Risk-Mappings, Review-Regeln, Beispiele und das leere `entries`-Array fuer zukuenftig erkannte Follow-ups.
 - `scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs` waehlt aus der bestehenden Task Queue den sichersten nicht-blockierten low/medium-risk Task und selektiert nie high/critical automatisch.
+- `scripts/wellfit-dev-agent/src/follow-up-detector.mjs` liest Work Map, Current State, Task Queue, Risk Classifier sowie optionale Internal-Source-/Feedback-Register und meldet Follow-up-Kategorien nur report-only ohne Dateien zu schreiben.
+- `scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs` validiert PR-Outcome-Daten im Dry-Run und kann nur mit explizitem lokalen Schreibflag an `project-register/agent-work-log.json` anhaengen.
 - `scripts/wellfit-dev-agent/src/todo-status-sync.mjs` validiert TODO-Statusmarker in `todolist/NEXT_ACTIONS.md` und `todolist/TODO_INDEX.md` ohne automatische Rewrite-Aenderungen.
 - `scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs` validiert diese Register automatisch und ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
 - Diese Dateien erweitern `AGENTS.md`, `project-register/agent-workflows.json`, `project-register/internal-sources.json`, diese Work Map und `todolist/CURRENT_PROJECT_STATE.md`; sie ersetzen keine dieser fuehrenden Dateien.
