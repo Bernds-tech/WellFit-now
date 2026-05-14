@@ -188,4 +188,8 @@ Ziel verstehen -> betroffene Seiten/APIs erfassen -> Code/Docs/Register anpassen
 
 ## KI-Fortsetzungs-Prompt
 
-Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `agents/AGENTS.md` und diese Datei. Nutze dieses Dokument als historischen Abschlussanker fuer die Stufe-4-Governance-Bloecke B bis G. Erweitere keine Produktlogik aus diesem Dokument heraus; verwende es nur, um Quality-Gate-, Register-, Safety- und Nicht-Live-Deploy-Regeln bei neuen Branch-/PR-Arbeiten einzuhalten.
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md` und die fuehrenden Dateien: `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/NEXT_ACTIONS.md`, `todolist/TODO_INDEX.md`.
+
+Arbeite mit dieser Datei nur ergaenzend und nachvollziehbar. Loesche keine alten Aufgaben, Roadmap-Punkte, Statushinweise oder erledigten Eintraege. Markiere veraltete oder doppelte Punkte nur als `veraltet`, `duplikat`, `erledigt`, `offen` oder `zu pruefen`.
+
+Wenn du offene Punkte aus dieser Datei uebernimmst, verlinke sie in `todolist/TODO_INDEX.md` oder uebertrage sie nach `todolist/NEXT_ACTIONS.md`. Dokumentiere erledigte Arbeit in `todolist/DONE_LOG.md`.

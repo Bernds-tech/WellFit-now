@@ -39,6 +39,12 @@ Read in this order before new WellFit work:
 - Marketplace is registered as active/placeholder with review required and no token/NFT/trading activation in MVP.
 
 
+### PR #45 merge alignment
+
+- PR #45 was merged into `main` before PR #46 and already added the Stufe-4 governance checkpoint prompt plus TODO index entry.
+- PR #46 keeps `CURRENT_PROJECT_STATE.md` and `WORK_MAP.md` as its unique leading-memory deliverables and aligns the shared governance wording with PR #45 to avoid duplicate/conflicting documentation.
+- The `/missionen` redirect registered by PR #45 belongs to the route baseline on current `main`; future route inventory work should preserve it and continue documenting route changes in `project-register/routes.json`.
+
 ### Validation in this consolidation branch
 
 The documentation consolidation branch was checked with:

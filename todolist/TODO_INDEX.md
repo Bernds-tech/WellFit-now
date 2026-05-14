@@ -1,4 +1,4 @@
-﻿# TODO INDEX - WELLFIT
+# TODO INDEX - WELLFIT
 
 ## Zweck
 Diese Datei ist der zentrale Index fuer alle TODO-Dateien, Arbeitslisten, Prompts und Querverweise im WellFit-Projekt.
@@ -151,7 +151,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/MISSION_DRAFT_SECURITY_PLAN.md` | aktiv / Security | Mission-Draft Security Plan | Backend/Security | reviewpflichtig |
 | `docs/architecture/MISSION_HISTORY_FAVORITES_SIDEQUESTS.md` | aktiv / Mission UI | Mission History, Favorites, Sidequests | Mission/UI | mit AppShell abgleichen |
 | `docs/architecture/USER_ECONOMY_WRITE_SEARCH_NOTES.md` | aktiv / Security Notes | User Economy Write Search Notes | Backend/Economy | mit Client-Write-Refactor abgleichen |
-| `docs/architecture/STUFE_4_GOVERNANCE_BIS_G_ABSCHLUSS.md` | aktiv / Governance-Abschluss | Stufe-4-Governance B-G Abschluss-Checkpoint, Quality-Gate- und Safety-Anker | Agentenstrategie/Governance | als Abschlussanker fuer Quality-Gate-Regeln nutzen |
+| `docs/architecture/STUFE_4_GOVERNANCE_BIS_G_ABSCHLUSS.md` | aktiv / Checkpoint | Stufe-4-Governance-Abschlussstand B-G, Quality-Gate-Pruefungen und Sicherheitsgrenzen | Agentenstrategie / Governance | vor groesseren Aenderungen als Governance-Anker nutzen |
 
 ## Dev-Agent Dateien
 
