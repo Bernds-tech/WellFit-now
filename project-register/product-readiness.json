@@ -554,12 +554,15 @@
       "supporting_files": [
         "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
         "project-register/feedback-analytics-loop.json",
-        "project-register/features.json"
+        "project-register/features.json",
+        "project-register/adaptive-user-insights.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
       ],
       "current_blockers": [
         "Analytics must avoid unreviewed tracking, third-party analytics, personal data exposure, or health-data expansion."
       ],
-      "next_safe_task": "Keep analytics aggregate/beta-safe and improve feedback loop documentation or static registers.",
+      "next_safe_task": "Keep analytics aggregate/beta-safe and improve feedback or Adaptive User Insight planning documentation; do not add live tracking or raw user-data exposure.",
       "do_not_duplicate_warning": "Do not introduce an unreviewed analytics SDK, parallel feedback database, or personal tracking pipeline.",
       "required_checks_before_status_can_advance": [
         "privacy review for tracking scope",
@@ -569,7 +572,9 @@
         "node scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs",
         "jq empty project-register/product-readiness.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
-        "npm run agent:quality-gate"
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "jq empty project-register/adaptive-user-insights.json"
       ],
       "human_approval_required": true
     },
@@ -585,19 +590,24 @@
       "supporting_files": [
         "project-register/feedback-analytics-loop.json",
         "scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs",
-        "project-register/agent-follow-ups.json"
+        "project-register/agent-follow-ups.json",
+        "project-register/adaptive-user-insights.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
       ],
       "current_blockers": [
         "Feedback storage and analysis must be privacy-aware and not become an unreviewed personal-data pipeline."
       ],
-      "next_safe_task": "Update feedback registry and audit documentation; avoid adding data collection endpoints unless explicitly assigned.",
+      "next_safe_task": "Update feedback and Adaptive User Insight registries or audit documentation; avoid adding data collection endpoints unless explicitly assigned.",
       "do_not_duplicate_warning": "Do not create a second feedback register, analytics loop, or unreviewed feedback database.",
       "required_checks_before_status_can_advance": [
         "jq empty project-register/user-feedback.json",
         "node scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs",
         "jq empty project-register/product-readiness.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
-        "npm run agent:quality-gate"
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "jq empty project-register/adaptive-user-insights.json"
       ],
       "human_approval_required": false
     },
