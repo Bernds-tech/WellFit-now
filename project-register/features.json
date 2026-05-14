@@ -59,8 +59,9 @@
       "name": "Analytics",
       "status": "active-beta",
       "routes": ["/analytics", "/mobile/analyse"],
-      "apis": ["/api/economy/user-projection"],
-      "rules": ["user-progress", "privacy-aware"]
+      "apis": ["/api/economy/user-projection", "/api/feedback/submit"],
+      "rules": ["user-progress", "privacy-aware", "feedback-db-planning-only", "aggregate-agent-summaries-only", "no-third-party-analytics"],
+      "feedbackRegister": "project-register/user-feedback.json"
     },
     {
       "id": "FEATURE-MOBILE-WEB",
