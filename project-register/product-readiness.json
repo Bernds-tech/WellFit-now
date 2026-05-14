@@ -585,12 +585,14 @@
       "supporting_files": [
         "project-register/feedback-analytics-loop.json",
         "scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs",
-        "project-register/agent-follow-ups.json"
+        "project-register/agent-follow-ups.json",
+        "project-register/adaptive-user-insights.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md"
       ],
       "current_blockers": [
         "Feedback storage and analysis must be privacy-aware and not become an unreviewed personal-data pipeline."
       ],
-      "next_safe_task": "Update feedback registry and audit documentation; avoid adding data collection endpoints unless explicitly assigned.",
+      "next_safe_task": "Keep feedback and adaptive insight planning limited to reviewed aggregate summaries; do not enable live tracking or raw user-data exposure.",
       "do_not_duplicate_warning": "Do not create a second feedback register, analytics loop, or unreviewed feedback database.",
       "required_checks_before_status_can_advance": [
         "jq empty project-register/user-feedback.json",
@@ -692,12 +694,15 @@
         "scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
         "project-register/master-roadmap-tasks.json",
         "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md",
-        "scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs"
+        "scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
+        "project-register/adaptive-user-insights.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
       ],
       "current_blockers": [
         "Governance is active but must remain synchronized across human-readable docs, machine-readable registers, and quality-gate scripts."
       ],
-      "next_safe_task": "Maintain registers, task queue, Work Map, TODO index, validation scripts, and optional visual/screenshot QA plans without changing product behavior.",
+      "next_safe_task": "Maintain agent governance, including adaptive user insight planning-only guardrails, validation scripts, task queue, Work Map, TODO index, and optional visual/screenshot QA plans without changing product behavior.",
       "do_not_duplicate_warning": "Do not create a competing agent workflow, task queue, quality gate, or architecture map.",
       "required_checks_before_status_can_advance": [
         "jq empty project-register/*.json",
@@ -705,6 +710,7 @@
         "jq empty project-register/product-readiness.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
         "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
         "npm run agent:quality-gate"
       ],
       "human_approval_required": false

@@ -29,6 +29,7 @@
         "project-register/features.json",
         "project-register/internal-sources.json",
         "project-register/user-feedback.json",
+        "project-register/adaptive-user-insights.json",
         "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
         "project-register/agent-work-log.json",
         "project-register/agent-follow-ups.json",
@@ -96,13 +97,24 @@
           "scripts": ["scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs"],
           "purpose": "Optional route-register-backed visual screenshot smoke validation for public, mobile beta-preview, and protected app routes without changing product logic or making browser checks mandatory.",
           "usage": "Run after perceptible UI changes and through quality gate report-only mode; if browser support or preview URL is unavailable, record the safe skip instead of failing the main build."
+        },
+        {
+          "id": "adaptive_user_insight_agent",
+          "registers": ["project-register/adaptive-user-insights.json", "project-register/user-feedback.json", "project-register/feedback-analytics-loop.json", "project-register/product-readiness.json"],
+          "architecture": "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+          "scripts": ["scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"],
+          "purpose": "Planning-only governance for future agents to recommend adaptive missions, buddy tone, difficulty tuning and product optimizations from aggregate, anonymized signals without raw sensitive data.",
+          "usage": "Use only agent-visible aggregate summaries above minimum sample thresholds; keep activationState planning_only; require human review for high/critical or protected-area recommendations; never activate tracking or runtime personalization from this workflow."
         }
       ],
       "additionalGovernanceInputs": [
         "agents/",
         "project-register/",
         "todolist/",
-        "docs/architecture/"
+        "docs/architecture/",
+        "project-register/adaptive-user-insights.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
       ],
       "autonomyBoundary": {
         "allowedUntil": ["pull_request", "preview_notes", "completion_report"],

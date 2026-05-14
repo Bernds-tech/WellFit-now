@@ -25,6 +25,7 @@ const agentSteps = [
   { label: "Site route audit", script: "scripts/wellfit-dev-agent/src/site-route-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/site-route-audit.mjs" },
   { label: "Mobile Buddy UX audit", script: "scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs" },
   { label: "Feedback loop audit", script: "scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs" },
+  { label: "Adaptive user insight check", script: "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs" },
   { label: "Firebase security audit", script: "scripts/wellfit-dev-agent/src/firebase-security-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/firebase-security-audit.mjs" },
   { label: "Firestore emulator test plan check", script: "scripts/wellfit-dev-agent/src/firestore-emulator-test-plan-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/firestore-emulator-test-plan-check.mjs" },
   { label: "Mission Buddy Economy audit", script: "scripts/wellfit-dev-agent/src/mission-buddy-economy-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/mission-buddy-economy-audit.mjs" },
@@ -108,6 +109,7 @@ function main() {
   const siteRouteReport = readTextSafe("scripts/wellfit-dev-agent/output/site-route-audit-report.md");
   const mobileBuddyUxReport = readTextSafe("scripts/wellfit-dev-agent/output/mobile-buddy-ux-audit.md");
   const feedbackLoopReport = readTextSafe("scripts/wellfit-dev-agent/output/feedback-loop-audit.md");
+  const adaptiveUserInsightReport = readTextSafe("scripts/wellfit-dev-agent/output/adaptive-user-insight-check.md");
   const firebaseSecurityReport = readTextSafe("scripts/wellfit-dev-agent/output/firebase-security-audit.md");
   const emulatorPlanReport = readTextSafe("scripts/wellfit-dev-agent/output/firestore-emulator-test-plan-check.md");
   const missionBuddyEconomyReport = readTextSafe("scripts/wellfit-dev-agent/output/mission-buddy-economy-audit.md");
@@ -154,6 +156,7 @@ function main() {
   assertCondition(checks, "Site route audit passed", /Result:\s*PASS/i.test(siteRouteReport), /Result:\s*PASS/i.test(siteRouteReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Mobile Buddy UX audit passed", /Result:\s*PASS/i.test(mobileBuddyUxReport), /Result:\s*PASS/i.test(mobileBuddyUxReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Feedback loop audit passed", /Result:\s*PASS/i.test(feedbackLoopReport), /Result:\s*PASS/i.test(feedbackLoopReport) ? "PASS" : "not found or FAIL");
+  assertCondition(checks, "Adaptive user insight check passed", /Result:\s*PASS/i.test(adaptiveUserInsightReport), /Result:\s*PASS/i.test(adaptiveUserInsightReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Firebase security audit passed", /Result:\s*PASS/i.test(firebaseSecurityReport), /Result:\s*PASS/i.test(firebaseSecurityReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Firestore emulator test plan check passed", /Result:\s*PASS/i.test(emulatorPlanReport), /Result:\s*PASS/i.test(emulatorPlanReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Mission Buddy Economy audit passed", /Result:\s*PASS/i.test(missionBuddyEconomyReport), /Result:\s*PASS/i.test(missionBuddyEconomyReport) ? "PASS" : "not found or FAIL");

@@ -1,0 +1,279 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "purpose": "Privacy-safe, machine-readable governance for future AI/Codex agents to propose WellFit personalization and product improvements from aggregated user feedback, gameplay behavior, and engagement signals without exposing raw user data or activating live tracking.",
+  "activationState": "planning_only",
+  "sourceRegisters": [
+    "project-register/user-feedback.json",
+    "project-register/feedback-analytics-loop.json",
+    "project-register/product-readiness.json",
+    "project-register/agent-task-queue.json",
+    "project-register/risk-classifier.json",
+    "project-register/definition-of-done.json",
+    "project-register/agent-workflows.json",
+    "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+    "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
+  ],
+  "allowedAggregateSignals": [
+    {
+      "id": "mission_completion_rate_by_module",
+      "description": "Percentage of missions completed per existing module or route group after aggregation.",
+      "minimumSampleSize": 25
+    },
+    {
+      "id": "mission_abandon_rate_by_module",
+      "description": "Percentage of started missions abandoned per existing module or route group after aggregation.",
+      "minimumSampleSize": 25
+    },
+    {
+      "id": "favorite_repeat_usage_counts",
+      "description": "Count buckets for repeated use or favorites at module level only.",
+      "minimumSampleSize": 10
+    },
+    {
+      "id": "aggregated_difficulty_feedback",
+      "description": "Difficulty buckets such as too_easy, balanced, too_hard from reviewed and aggregated feedback.",
+      "minimumSampleSize": 10
+    },
+    {
+      "id": "aggregate_route_module_satisfaction",
+      "description": "Satisfaction buckets by route or module without raw messages.",
+      "minimumSampleSize": 10
+    },
+    {
+      "id": "feature_request_clusters",
+      "description": "Reviewed feature-request themes clustered without personal text.",
+      "minimumSampleSize": 5
+    },
+    {
+      "id": "anonymized_sentiment_buckets",
+      "description": "Positive, neutral, negative, mixed, unknown counts for a route/module/time window.",
+      "minimumSampleSize": 10
+    },
+    {
+      "id": "buddy_interaction_counts_by_category",
+      "description": "Counts for safe buddy interaction categories such as encouragement, quiz_help, mission_hint, celebration.",
+      "minimumSampleSize": 25
+    },
+    {
+      "id": "aggregate_friction_categories",
+      "description": "Aggregated friction categories such as too_hard, too_long, unclear, technical_issue, privacy_concern, low_motivation.",
+      "minimumSampleSize": 10
+    },
+    {
+      "id": "aggregate_device_class_only",
+      "description": "Broad device class only, such as mobile, tablet, desktop; no IDs, fingerprints, OS builds, or exact models.",
+      "minimumSampleSize": 25
+    },
+    {
+      "id": "aggregate_time_window_preference_only",
+      "description": "Broad preference windows such as morning, afternoon, evening, weekend; no exact routines.",
+      "minimumSampleSize": 25
+    },
+    {
+      "id": "learning_play_style_labels",
+      "description": "Explicitly non-sensitive labels derived from non-sensitive behavior, such as explorer, quiz_focused, movement_focused, social_helper.",
+      "minimumSampleSize": 25
+    }
+  ],
+  "forbiddenRawSensitiveFields": [
+    "raw user messages unless manually reviewed and redacted",
+    "names",
+    "emails",
+    "user IDs",
+    "device IDs",
+    "IP addresses, session IDs, advertising IDs or device fingerprints",
+    "exact location, GPS coordinates, addresses, route history or location traces",
+    "health data, wearable raw streams, heart rate, sleep, weight, injuries, symptoms, diagnoses or medications",
+    "child/minor data, school/class identifiers, guardian contact details or exact age for minors",
+    "camera images, video, audio, AR captures, face data, biometric data, raw sensor data or biometric templates",
+    "medical claims, diagnosis suggestions or treatment recommendations",
+    "payment data, token data, NFT data, wallet data, payout data, staking, presale, trading or betting data",
+    "mission-completion evidence, anti-cheat evidence, final reward authority or ledger decisions",
+    "exact daily routine that could identify a person",
+    "secrets, API keys, auth tokens or private support notes"
+  ],
+  "personalizationDimensions": {
+    "motivationStyle": [
+      "gentle",
+      "playful",
+      "competitive",
+      "educational",
+      "social"
+    ],
+    "challengeLevel": [
+      "easier",
+      "balanced",
+      "harder"
+    ],
+    "missionPreference": [
+      "indoor",
+      "outdoor",
+      "camera",
+      "AR",
+      "quiz",
+      "movement",
+      "family",
+      "solo"
+    ],
+    "buddyTone": [
+      "calm",
+      "funny",
+      "coach",
+      "explorer",
+      "mentor"
+    ],
+    "sessionLength": [
+      "short",
+      "medium",
+      "long"
+    ],
+    "frictionReasons": [
+      "too hard",
+      "too long",
+      "unclear",
+      "technical issue",
+      "privacy concern",
+      "low motivation"
+    ]
+  },
+  "behaviorSignalCategories": [
+    {
+      "category": "mission_progress",
+      "allowedSignals": [
+        "completion_rate",
+        "abandon_rate",
+        "repeat_count"
+      ],
+      "rawEventsVisibleToAgents": false
+    },
+    {
+      "category": "learning_engagement",
+      "allowedSignals": [
+        "quiz_retry_bucket",
+        "content_satisfaction_bucket",
+        "module_repeat_bucket"
+      ],
+      "rawEventsVisibleToAgents": false
+    },
+    {
+      "category": "buddy_engagement",
+      "allowedSignals": [
+        "interaction_count_by_safe_category",
+        "tone_satisfaction_bucket"
+      ],
+      "rawEventsVisibleToAgents": false
+    },
+    {
+      "category": "friction_feedback",
+      "allowedSignals": [
+        "reviewed_friction_category_counts",
+        "technical_issue_cluster_counts"
+      ],
+      "rawEventsVisibleToAgents": false
+    },
+    {
+      "category": "context_buckets",
+      "allowedSignals": [
+        "device_class_bucket",
+        "broad_time_window_bucket"
+      ],
+      "rawEventsVisibleToAgents": false
+    }
+  ],
+  "missionAdaptationRules": [
+    "Recommend easier missions when aggregated abandon and too_hard buckets exceed threshold; do not shame or pressure users.",
+    "Recommend shorter missions when aggregated too_long feedback exceeds threshold.",
+    "Recommend clearer instructions when unclear friction exceeds threshold.",
+    "Recommend alternate non-camera, non-location paths when privacy concern buckets appear.",
+    "Use existing mission modules and registers; do not create duplicate mission architecture.",
+    "Do not directly change mission completion, anti-cheat, reward authorization or ledger authority."
+  ],
+  "buddyAdaptationRules": [
+    "Recommend buddy tone changes only from safe aggregate preferences and satisfaction buckets.",
+    "Allowed tone suggestions are calm, funny, coach, explorer and mentor.",
+    "Do not use manipulative psychological targeting, sensitive profiling or vulnerability inference.",
+    "Do not expose raw user text to buddy prompts unless manually reviewed and redacted.",
+    "Escalate safety, child, medical, privacy or crisis-like themes for human review instead of automated buddy behavior."
+  ],
+  "difficultyTuningRules": [
+    "Suggest easier, balanced or harder mission variants based on aggregate completion, abandon and difficulty-feedback buckets.",
+    "Prefer reversible content/configuration recommendations over runtime logic changes.",
+    "Do not penalize low engagement or personalize in a way that creates pressure, shame or unsafe competition.",
+    "Flag possible accessibility or technical-friction causes before recommending harder difficulty."
+  ],
+  "challengeRewardTuningBoundaries": [
+    "Agents may recommend challenge pacing, explanation, non-financial point-preview wording or internal beta UX improvements.",
+    "Agents must not directly alter rewards, XP authority, token/economy, NFT, wallet, payment, betting, staking, payout, marketplace or final ledger behavior.",
+    "Any high or critical reward, economy, anti-cheat, mission-completion or fairness change requires human review.",
+    "Internal beta points remain preview/planning unless server authority and approved rules explicitly exist elsewhere."
+  ],
+  "fairnessAndSafetyRules": [
+    "Use aggregated buckets only; do not infer protected traits or sensitive conditions.",
+    "Avoid personalization that excludes users without a watch, camera, location sharing or high-end device.",
+    "Provide fallback recommendations for indoor, non-camera, non-location and short-session users.",
+    "Do not pressure, shame, diagnose, treat or make medical claims.",
+    "Keep child/minor, health, exact location, camera/biometric, payment/token/wallet and privacy/compliance topics out of agent-visible summaries.",
+    "High or critical product changes, safety-sensitive themes and protected-area changes require human approval before implementation."
+  ],
+  "minimumSampleThresholds": {
+    "featureRequestCluster": 5,
+    "frictionCategory": 10,
+    "sentimentBucket": 10,
+    "difficultyFeedbackBucket": 10,
+    "routeModuleSatisfaction": 10,
+    "missionCompletionOrAbandonRate": 25,
+    "buddyInteractionCategory": 25,
+    "deviceClassBucket": 25,
+    "timeWindowPreferenceBucket": 25,
+    "learningPlayStyleLabel": 25,
+    "suppressionRule": "Do not show a bucket or recommendation to agents when the applicable threshold is not met."
+  },
+  "explainabilityRequirements": [
+    "Every recommendation must cite aggregate signal ids, source register/doc paths and sample threshold status.",
+    "Every recommendation must state the personalization dimension affected and the safe boundary that prevents protected logic changes.",
+    "Every recommendation must include a plain-language explanation suitable for human review.",
+    "Every recommendation must include confidence, risk level and whether human review is required.",
+    "No recommendation may rely on raw user identifiers, raw messages, exact location, health, child, camera/biometric, payment/token/wallet or medical data."
+  ],
+  "humanReviewRequiredTriggers": [
+    "riskLevel is high or critical",
+    "recommendation touches reward authority, XP authority, mission completion, anti-cheat, ledger, token, NFT, wallet, payment, betting, staking or payout boundaries",
+    "recommendation touches health, watch, child/minor, exact location, camera, biometric, medical, privacy, consent, legal, AGB, Datenschutz, Impressum or compliance topics",
+    "recommendation needs a new runtime tracker, production write, third-party analytics integration or raw data processing",
+    "recommendation includes possible safety harm, shame/pressure, manipulative targeting, discrimination or unfair exclusion",
+    "minimum sample threshold is not met or a small cohort could become identifiable",
+    "raw user messages are needed and have not been manually reviewed and redacted"
+  ],
+  "agentVisibleSummarySchema": {
+    "summaryId": "string; opaque aggregate summary id, never a user id",
+    "createdAt": "ISO-8601 date/time",
+    "sourceRegisterIds": "array of register/doc paths",
+    "moduleOrRouteGroup": "existing module or route group only",
+    "timeWindowBucket": "broad bucket only, optional",
+    "sampleSize": "number at or above applicable threshold",
+    "aggregateSignals": "array of allowed aggregate signal ids with bucketed values only",
+    "sentimentBucket": "positive | neutral | negative | mixed | unknown",
+    "frictionCategories": "array of controlled aggregate friction categories",
+    "personalizationDimensions": "controlled labels only",
+    "privacySuppressionApplied": "boolean",
+    "rawUserIdentifiers": "forbidden; must not exist",
+    "rawUserMessages": "forbidden; must not exist"
+  },
+  "recommendationSchema": {
+    "recommendationId": "string",
+    "summaryId": "string referencing an agent-visible aggregate summary",
+    "type": "mission_adaptation | buddy_adaptation | difficulty_tuning | product_optimization | governance_follow_up",
+    "targetModuleOrRouteGroup": "existing module or route group",
+    "suggestedChange": "plain-language proposal, not an automatic runtime action",
+    "personalizationDimension": "controlled label from personalizationDimensions",
+    "supportingAggregateSignals": "array of allowed aggregate signal ids",
+    "minimumSampleThresholdMet": "boolean",
+    "explanation": "plain-language reason using aggregate evidence only",
+    "riskLevel": "low | medium | high | critical",
+    "humanReviewRequired": "boolean",
+    "forbiddenDataCheck": "must state no raw/sensitive fields used",
+    "implementationBoundary": "planning_only | docs_registry_only | requires_human_approval_before_runtime"
+  },
+  "entries": []
+}

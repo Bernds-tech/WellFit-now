@@ -58,7 +58,8 @@
     "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run",
     "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
     "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
-    "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs"
+    "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+    "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -70,7 +71,8 @@
     "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
     "jq empty project-register/visual-regression.json",
     "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
-    "jq empty project-register/master-roadmap-tasks.json"
+    "jq empty project-register/master-roadmap-tasks.json",
+    "project-register/adaptive-user-insights.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -712,6 +714,72 @@
         "Confirm no runtime product logic, Unity files or protected compliance/economy/privacy areas changed.",
         "Report master-roadmap-task-check and quality-gate results.",
         "Name the next safe registry-only roadmap reconciliation task."
+      ]
+    },
+    {
+      "id": "AGENT-ADAPTIVE-USER-INSIGHT-GOVERNANCE",
+      "title": "Maintain Adaptive User Insight and Personalization Agent governance",
+      "status": "ready",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Maintain the planning-only adaptive insight framework so future agents can propose personalized missions, buddy tone, difficulty tuning and product optimizations from aggregate anonymized signals without exposing raw or sensitive user data.",
+      "allowedFiles": [
+        "project-register/adaptive-user-insights.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md"
+      ],
+      "requiredChecks": [
+        "jq empty project-register/adaptive-user-insights.json",
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "runtime_product_logic_change_required",
+        "live_tracking_or_third_party_analytics_required",
+        "raw_user_data_or_sensitive_data_would_be_exposed_to_agents",
+        "would_touch_unity_or_pr_13",
+        "would_modify_token_wallet_payment_reward_authority_health_child_location_privacy_or_compliance_logic",
+        "would_create_duplicate_architecture_or_parallel_system"
+      ],
+      "expectedPrOutput": [
+        "List adaptive-user-insight register, architecture, validation, workflow, task-queue and TODO mapping updates.",
+        "Confirm activationState remains planning_only and no runtime tracking/product logic was changed.",
+        "Report adaptive-user-insight-check and quality-gate results.",
+        "Name the next safe aggregate-feedback governance follow-up."
       ]
     }
   ],
