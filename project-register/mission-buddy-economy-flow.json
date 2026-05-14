@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "block": "E",
+    "issue": 26,
+    "purpose": "Machine-readable Mission -> Buddy -> Economy flow map for Stufe 4 authority checks.",
+    "status": "draft-authority-map"
+  },
+  "authorityRules": {
+    "frontendMaySuggest": true,
+    "frontendMayPreview": true,
+    "frontendMayFinalizeRewards": false,
+    "frontendMayFinalizeMissionCompletion": false,
+    "buddyMayAuthorizeRewards": false,
+    "tokensNftsWalletsActive": false,
+    "serverLedgerRequiredForFinalAuthority": true
+  },
+  "flows": [
+    {
+      "id": "FLOW-MISSION-COMPLETE-PREVIEW",
+      "name": "Mission completion preview",
+      "sourceFeature": "FEATURE-MISSIONS",
+      "routes": ["/missionen/tagesmissionen", "/missionen/wochenmissionen", "/missionen/challenge", "/mobile/missionen"],
+      "apis": ["/api/economy/complete-mission", "/api/economy/reward-preview", "/api/economy/user-projection"],
+      "authority": "preview-only-until-server-ledger",
+      "frontendAuthority": "suggest-and-submit-evidence-only",
+      "serverAuthorityRequired": true,
+      "forbidden": ["final-client-completion", "final-client-reward", "token-reward", "nft-reward", "cashout"]
+    },
+    {
+      "id": "FLOW-BUDDY-SYNC-PREVIEW",
+      "name": "Buddy sync preview",
+      "sourceFeature": "FEATURE-BUDDY",
+      "routes": ["/buddy", "/mobile/buddy", "/mobile/ar"],
+      "apis": ["/api/buddy-ki", "/api/economy/buddy-sync-preview"],
+      "authority": "suggestion-only",
+      "frontendAuthority": "conversation-and-guidance-only",
+      "serverAuthorityRequired": true,
+      "forbidden": ["buddy-final-reward-authority", "buddy-final-completion-authority", "token-trigger"]
+    },
+    {
+      "id": "FLOW-POINTS-SHOP-SPEND-PREVIEW",
+      "name": "Points shop spend preview",
+      "sourceFeature": "FEATURE-POINTS-SHOP",
+      "routes": ["/punkte-shop"],
+      "apis": ["/api/economy/spend-preview"],
+      "authority": "spend-preview-only",
+      "frontendAuthority": "preview-selection-only",
+      "serverAuthorityRequired": true,
+      "forbidden": ["real-purchase", "token-transfer", "nft-purchase", "cashout"]
+    },
+    {
+      "id": "FLOW-DASHBOARD-PROJECTION",
+      "name": "Dashboard economy projection",
+      "sourceFeature": "FEATURE-DASHBOARD",
+      "routes": ["/dashboard", "/analytics", "/mobile/analyse"],
+      "apis": ["/api/economy/user-projection", "/api/economy/health-preview", "/api/economy/persistence-status"],
+      "authority": "read-projection-preview",
+      "frontendAuthority": "display-only",
+      "serverAuthorityRequired": true,
+      "forbidden": ["direct-final-points-write", "direct-final-xp-write", "direct-final-level-write"]
+    }
+  ]
+}
