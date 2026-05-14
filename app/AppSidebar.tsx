@@ -76,7 +76,9 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
-    setCollapsed(localStorage.getItem("wellfit-sidebar-collapsed") === "true");
+    queueMicrotask(() => {
+      setCollapsed(localStorage.getItem("wellfit-sidebar-collapsed") === "true");
+    });
   }, []);
 
   const toggleCollapsed = () => {

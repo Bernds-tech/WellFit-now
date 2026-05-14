@@ -14,6 +14,7 @@ type DailyHeaderProps = {
 };
 
 export default function DailyHeader(_props: DailyHeaderProps) {
+  void _props;
   return (
     <div className="mb-4 flex min-h-[78px] items-start justify-between gap-4 pr-[120px]">
       <div>

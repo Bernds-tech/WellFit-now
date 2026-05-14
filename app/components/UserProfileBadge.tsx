@@ -62,8 +62,10 @@ export default function UserProfileBadge() {
       }
     }
 
-    setDisplayName(getName(parsedUser));
-    setPhoto(savedPhoto);
+    queueMicrotask(() => {
+      setDisplayName(getName(parsedUser));
+      setPhoto(savedPhoto);
+    });
   }, [shouldRender, pathname]);
 
   if (!shouldRender) return null;
