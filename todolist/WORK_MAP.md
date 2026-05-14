@@ -16,6 +16,15 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 - `docs/architecture/WELLFIT_INTERNAL_SOURCE_MAP.md` erklaert die Registry fuer Menschen.
 - Diese Registry ersetzt diese Work Map nicht; sie verweist auf vorhandene Fuehrungsdateien und soll Doppelarchitektur verhindern.
 
+
+## Agent execution controls
+
+- `project-register/agent-task-queue.json` ist die maschinenlesbare Aufgaben-Warteschlange fuer kuenftige Codex-/KI-Agenten. Sie verbindet Prioritaet, Risiko, erlaubte/verbotene Dateien, First-Read-Dateien, Pflichtchecks, PR-Ausgabe und Stop-Bedingungen.
+- `project-register/definition-of-done.json` definiert maschinenlesbar, wann Dokumentations-, Registry-, UI-, API-, Mission-, Buddy/KI-, Firebase/Backend-, Feedback/Analytics-, Unity/AR-Planungs- und compliance-sensitive Planungsaufgaben erledigt sind.
+- `project-register/risk-classifier.json` klassifiziert WellFit-Arbeit in low/medium/high/critical risk, listet geschuetzte Bereiche und erzwingt automatische Stop- bzw. Planning-only-Regeln.
+- `docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md` erklaert diese Register fuer Menschen.
+- Diese Dateien erweitern `AGENTS.md`, `project-register/agent-workflows.json`, `project-register/internal-sources.json`, diese Work Map und `todolist/CURRENT_PROJECT_STATE.md`; sie ersetzen keine dieser fuehrenden Dateien.
+
 ## Topic-to-file map
 
 | Thema | Fuehrende / vorhandene Dateien | Do-not-duplicate Warnung |

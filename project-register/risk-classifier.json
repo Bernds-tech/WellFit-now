@@ -1,0 +1,143 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "status": "active",
+  "purpose": "Machine-readable WellFit risk classifier for future Codex/AI agents. Use before selecting work from project-register/agent-task-queue.json and before changing files.",
+  "sourceOfTruth": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "project-register/agent-workflows.json",
+    "project-register/product-rules.json",
+    "project-register/features.json",
+    "project-register/apis.json",
+    "project-register/user-feedback.json"
+  ],
+  "riskLevels": {
+    "low": {
+      "description": "Documentation, planning, or registry maintenance that does not change runtime behavior and does not touch protected areas.",
+      "patterns": [
+        "markdown_documentation_alignment",
+        "todo_index_or_work_map_pointer_update",
+        "json_registry_metadata_sync",
+        "progress_log_or_decision_record_update",
+        "quality_check_result_documentation"
+      ],
+      "allowedByDefault": true,
+      "maximumDefaultAction": "documentation_or_registry_change"
+    },
+    "medium": {
+      "description": "Small scoped existing UI/API/feature work that may affect behavior but avoids authority, sensitive data, protected areas, and compliance-critical logic.",
+      "patterns": [
+        "existing_ui_route_fix",
+        "existing_component_copy_or_layout_adjustment_without_compliance_copy",
+        "api_planning_or_non_authority_api_change",
+        "mission_or_buddy_preview_behavior_without_authority_change",
+        "feedback_or_analytics_planning_without_live_tracking"
+      ],
+      "allowedByDefault": false,
+      "maximumDefaultAction": "scoped_existing_surface_change_when_user_explicitly_requests_runtime_work"
+    },
+    "high": {
+      "description": "Backend, Firestore, Functions, native, AR/Unity, mission authority-adjacent, reward-adjacent, security, or data-flow work where mistakes could create product, security, or governance risk.",
+      "patterns": [
+        "firebase_functions_or_firestore_rules_change",
+        "reward_preview_or_economy_api_change",
+        "mission_completion_or_anti_cheat_adjacent_change",
+        "native_ar_or_unity_planning",
+        "auth_validation_or_rate_limit_change",
+        "data_persistence_or_retention_change"
+      ],
+      "allowedByDefault": false,
+      "maximumDefaultAction": "planning_only_unless_explicit_runtime_scope_and_safety_plan_present"
+    },
+    "critical": {
+      "description": "Compliance-critical, financial-equivalent, child/sensitive data, legal/privacy, token/NFT/wallet/payment/betting, or final authority work. Future agents must stop unless explicit human approval and review plan are present.",
+      "patterns": [
+        "token_nft_wallet_payment_purchase_payout_marketplace_staking_presale_trading",
+        "betting_pvp_stakes_competition_payouts_financial_equivalent_mechanics",
+        "final_reward_authority_or_final_ledger_write",
+        "health_watch_location_camera_child_safety_privacy_consent_medical_adjacent_logic",
+        "legal_agb_datenschutz_impressum_or_compliance_messaging_change",
+        "secret_or_server_key_exposure_risk",
+        "pr_13_or_unity_asset_modification"
+      ],
+      "allowedByDefault": false,
+      "maximumDefaultAction": "stop_or_planning_only_with_explicit_approval"
+    }
+  },
+  "protectedAreas": [
+    {
+      "id": "UNITY_WELLFIT_BUDDY_AR",
+      "paths": ["native/unity/WellFitBuddyAR/**", "native/unity/WellFitBuddyAR/Assets/Scripts/**"],
+      "classification": "critical",
+      "defaultAction": "stop",
+      "reason": "Local Unity work and old PR #13 must remain isolated unless the repository owner explicitly instructs otherwise."
+    },
+    {
+      "id": "PR_13",
+      "paths": ["PR #13"],
+      "classification": "critical",
+      "defaultAction": "stop",
+      "reason": "Do not merge, close, depend on, or use old Unity PR #13 as a shortcut."
+    },
+    {
+      "id": "ECONOMY_REWARD_AUTHORITY",
+      "paths": ["lib/economy/**", "lib/rewards.ts", "lib/rewardScore.ts", "lib/missionCompletion.ts", "app/api/economy/**", "firestore.rules", "functions/**"],
+      "classification": "high",
+      "defaultAction": "planning_only",
+      "reason": "Points, XP, rewards, mission completion, anti-cheat, inventory unlocks, and rare-item grants must not become final client authority."
+    },
+    {
+      "id": "FINANCIAL_OR_TOKENIZED_FEATURES",
+      "paths": ["app/marktplatz/**", "app/punkte-shop/**", "lib/economy/**", "project-register/product-rules.json"],
+      "classification": "critical",
+      "keywords": ["token", "NFT", "wallet", "payment", "purchase", "payout", "marketplace", "staking", "presale", "trading", "WFT"],
+      "defaultAction": "stop_without_explicit_human_approval",
+      "reason": "Mobile/beta must not activate token, NFT, trading, presale, wallet, payment, or financial-equivalent mechanics."
+    },
+    {
+      "id": "SENSITIVE_DATA_AND_COMPLIANCE",
+      "paths": ["app/datenschutz/**", "app/agb/**", "app/impressum/**", "lib/healthConnect.ts", "lib/mobileMotion/**", "lib/nativeActivity/**", "app/mobile/**", "app/api/feedback/**", "project-register/user-feedback.json"],
+      "classification": "critical",
+      "keywords": ["health", "watch", "location", "camera", "child", "privacy", "consent", "medical", "biometric", "Datenschutz", "AGB", "Impressum"],
+      "defaultAction": "planning_only_or_stop",
+      "reason": "Health, child-safety, location, camera, privacy, consent, and legal/compliance areas require explicit review."
+    }
+  ],
+  "automaticStopRules": [
+    "Current branch is main or a protected branch.",
+    "Requested work requires touching native/unity/WellFitBuddyAR or PR #13 without explicit repository-owner instruction.",
+    "Requested work would delete TODO, roadmap, status, planning, register, handoff, or historical context files instead of marking/linking them.",
+    "Requested work would create a duplicate app shell, design system, route, API, feature module, economy system, ledger, data model, or architecture beside an existing leading file.",
+    "Requested work would expose secrets or server API keys to frontend code or documentation examples.",
+    "Requested work would enable token/NFT/wallet/payment/betting/trading/presale/payout/staking or real marketplace behavior.",
+    "Requested work would grant final reward, point, XP, mission completion, anti-cheat, inventory, rare-item, or ledger authority to the client.",
+    "Requested work would collect, expand, or process health, child, location, camera, biometric, privacy, consent, wallet/payment, or reward-evidence data without explicit approval and data-minimization plan.",
+    "Requested work would change legal, AGB, Datenschutz, Impressum, privacy, or compliance messaging without explicit approval and review plan.",
+    "Required source-of-truth files conflict and no leading file can be identified."
+  ],
+  "documentationOnlyAllowedWhen": [
+    "The request mentions protected or critical areas but asks for planning, architecture, inventory, or risk documentation only.",
+    "The next step is unclear, blocked by human/legal/security approval, or would require product logic changes beyond the prompt.",
+    "Existing registers are stale or incomplete and runtime work would depend on unverified route/API/feature inventory.",
+    "Emulator, Firebase, native, or external service requirements prevent safe verification in the current environment.",
+    "The task is to align AGENTS.md, WORK_MAP.md, TODO_INDEX.md, current-state docs, or project-register governance controls."
+  ],
+  "explicitHumanApprovalRequiredWhen": [
+    "Changing token, NFT, wallet, payment, purchase, payout, marketplace, staking, presale, trading, WFT, betting, PvP stake, or competition payout behavior.",
+    "Changing final reward, XP, points, mission completion, anti-cheat, ledger, inventory unlock, or rare-item authorization logic.",
+    "Changing health, watch, location, camera, child-safety, biometric, privacy, consent, medical-adjacent, legal, AGB, Datenschutz, Impressum, or compliance messaging/logic.",
+    "Touching native/unity/WellFitBuddyAR, Unity scripts, native AR runtime behavior, or old Unity PR #13.",
+    "Deploying, merging to main, live-enabling production services, or creating production data writes.",
+    "Introducing a new API, route, feature module, provider, external analytics service, data retention behavior, or Firestore write path that is not already covered by registers and architecture docs."
+  ],
+  "classificationProcedure": [
+    "Read global first-read files from agent-task-queue.json.",
+    "Map requested files, keywords, routes, APIs, and features against protectedAreas.",
+    "Assign the highest matching risk level; critical overrides high, high overrides medium, and medium overrides low.",
+    "Select a task type from definition-of-done.json and a task candidate from agent-task-queue.json.",
+    "If any automaticStopRules match, stop or convert to planning-only if documentationOnlyAllowedWhen applies.",
+    "Before committing, verify git status and ensure only intentional documentation/register files changed for documentation-only tasks."
+  ]
+}

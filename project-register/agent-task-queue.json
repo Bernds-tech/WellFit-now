@@ -1,0 +1,417 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "status": "active",
+  "purpose": "Machine-readable task-selection queue for future WellFit Codex/AI agents. It converts existing governance, work-map, route/API/feature registers, and safety constraints into safe next-task candidates, required first reads, stop rules, checks, and expected PR outputs without creating a parallel product architecture.",
+  "sourceOfTruth": {
+    "humanRules": "AGENTS.md",
+    "currentState": "todolist/CURRENT_PROJECT_STATE.md",
+    "workMap": "todolist/WORK_MAP.md",
+    "todoIndex": "todolist/TODO_INDEX.md",
+    "agentWorkflowRegister": "project-register/agent-workflows.json",
+    "internalSourceRegister": "project-register/internal-sources.json",
+    "routeRegister": "project-register/routes.json",
+    "apiRegister": "project-register/apis.json",
+    "featureRegister": "project-register/features.json",
+    "feedbackRegister": "project-register/user-feedback.json",
+    "riskClassifier": "project-register/risk-classifier.json",
+    "definitionOfDone": "project-register/definition-of-done.json",
+    "architectureDoc": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md"
+  },
+  "globalRequiredFirstReadFiles": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "project-register/agent-workflows.json",
+    "project-register/risk-classifier.json",
+    "project-register/definition-of-done.json"
+  ],
+  "globalForbiddenFiles": [
+    "native/unity/WellFitBuddyAR/**",
+    "native/unity/WellFitBuddyAR/Assets/Scripts/**",
+    "PR #13"
+  ],
+  "globalForbiddenChanges": [
+    "do_not_merge_close_or_depend_on_pr_13",
+    "do_not_delete_or_overwrite_unity_files",
+    "do_not_create_parallel_architecture",
+    "do_not_create_duplicate_routes_apis_feature_modules_or_data_models",
+    "do_not_modify_product_logic_unless_task_explicitly_allows_it",
+    "do_not_modify_compliance_critical_logic_without_explicit_human_approval",
+    "do_not_activate_token_nft_wallet_payment_betting_trading_presale_or_reward_authority"
+  ],
+  "defaultRequiredChecks": [
+    "npm run lint",
+    "npx tsc --noEmit",
+    "npm run build",
+    "npm --prefix functions run check",
+    "npm run agent:quality-gate"
+  ],
+  "jsonValidationChecks": [
+    "jq empty project-register/agent-task-queue.json",
+    "jq empty project-register/definition-of-done.json",
+    "jq empty project-register/risk-classifier.json"
+  ],
+  "expectedPrOutput": {
+    "requiredSections": [
+      "summary_of_changed_files",
+      "checks_run_with_results",
+      "known_risks_or_skipped_checks",
+      "dependencies_installed_or_unchanged",
+      "next_recommended_task"
+    ],
+    "mustMention": [
+      "branch_name",
+      "risk_level",
+      "definition_of_done_key_used",
+      "whether_product_logic_was_unchanged",
+      "whether_protected_areas_were_untouched"
+    ]
+  },
+  "taskCandidates": [
+    {
+      "id": "AGENT-DOC-BASELINE-CHECK",
+      "title": "Refresh documentation-only baseline and quality-check notes",
+      "priority": 1,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task",
+      "purpose": "Keep current-state, TODO, and architecture notes aligned after baseline check runs without changing runtime behavior.",
+      "allowedFiles": [
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "docs/architecture/**/*.md",
+        "project-register/progress-log*.json",
+        "project-register/decisions.json",
+        "project-register/cross-references.json"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/agent-workflows.json"
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "runtime_code_change_required",
+        "compliance_or_product_logic_change_required",
+        "conflicting_source_of_truth_found",
+        "would_delete_or_rewrite_historical_todo_context"
+      ],
+      "expectedPrOutput": [
+        "List documentation/register files updated.",
+        "State that no product logic changed.",
+        "Report baseline commands and failures honestly.",
+        "Name the next safe documentation or registry task."
+      ]
+    },
+    {
+      "id": "AGENT-REGISTRY-SYNC",
+      "title": "Synchronize project-register entries with Work Map and current state",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Update machine-readable registers so routes, APIs, features, source maps, workflow rules, and feedback constraints point to existing leading files.",
+      "allowedFiles": [
+        "project-register/*.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "docs/architecture/**/*.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-workflows.json",
+        "project-register/internal-sources.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/features.json"
+      ],
+      "requiredChecks": [
+        "jq empty project-register/*.json",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "new_register_would_duplicate_existing_register",
+        "runtime_implementation_needed_to_make_registry_true",
+        "unverified_route_api_or_feature_claim",
+        "protected_area_detected"
+      ],
+      "expectedPrOutput": [
+        "List registry keys changed.",
+        "Identify source files used for each new or changed register entry.",
+        "Explain anti-duplication checks performed.",
+        "State any stale or uncertain entries as risks."
+      ]
+    },
+    {
+      "id": "AGENT-UI-ROUTE-STABILITY",
+      "title": "Small existing UI route stability fix",
+      "priority": 3,
+      "riskLevel": "medium",
+      "definitionOfDoneKey": "ui_route_task",
+      "purpose": "Make targeted fixes to existing pages while preserving the app shell, navigation, mobile patterns, and route register alignment.",
+      "allowedFiles": [
+        "app/**/page.tsx",
+        "app/components/**",
+        "components/**",
+        "project-register/routes.json",
+        "project-register/pages.json",
+        "project-register/features.json",
+        "todolist/WORK_MAP.md"
+      ],
+      "forbiddenFiles": [
+        "app/api/**",
+        "lib/economy/**",
+        "lib/rewards.ts",
+        "lib/missionCompletion.ts",
+        "firestore.rules",
+        "functions/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "node_modules/next/dist/docs/** relevant routing/rendering docs",
+        "todolist/WORK_MAP.md",
+        "project-register/routes.json",
+        "project-register/features.json"
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "requires_new_app_shell_or_design_system",
+        "requires_compliance_wording_change_without_review_plan",
+        "requires_reward_payment_wallet_health_child_location_privacy_logic",
+        "route_not_in_register_and_no_approved_register_update"
+      ],
+      "expectedPrOutput": [
+        "Name affected routes.",
+        "Describe UI behavior preserved or changed.",
+        "Include screenshot or explain why unavailable for perceptible UI changes.",
+        "State route/register alignment."
+      ]
+    },
+    {
+      "id": "AGENT-API-ROUTE-PLANNING",
+      "title": "API route planning or documentation alignment",
+      "priority": 4,
+      "riskLevel": "medium",
+      "definitionOfDoneKey": "api_route_task",
+      "purpose": "Plan or document API route changes before implementation, with security and authority boundaries explicit.",
+      "allowedFiles": [
+        "project-register/apis.json",
+        "project-register/features.json",
+        "docs/architecture/**/*.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/api/**/route.ts",
+        "functions/**",
+        "firestore.rules",
+        "lib/economy/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "project-register/apis.json",
+        "project-register/features.json",
+        "project-register/product-rules.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredChecks": [
+        "jq empty project-register/apis.json",
+        "jq empty project-register/features.json",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "implementation_requested_without_explicit_scope",
+        "api_would_authorize_final_rewards_or_ledger_writes",
+        "api_would_expose_sensitive_or_unminimized_data",
+        "missing_security_review_for_api_change"
+      ],
+      "expectedPrOutput": [
+        "Name proposed API authority level.",
+        "State security constraints and no-secret posture.",
+        "List affected features and registers.",
+        "Identify explicit approvals needed before runtime work."
+      ]
+    },
+    {
+      "id": "AGENT-FEEDBACK-ANALYTICS-PLANNING",
+      "title": "Feedback and analytics planning alignment",
+      "priority": 5,
+      "riskLevel": "medium",
+      "definitionOfDoneKey": "feedback_analytics_task",
+      "purpose": "Keep feedback, analytics, minimization, consent, and aggregate-agent-summary planning synchronized without live tracking changes.",
+      "allowedFiles": [
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+        "docs/architecture/**/*.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/api/feedback/**",
+        "app/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "project-register/user-feedback.json",
+        "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+        "project-register/apis.json",
+        "project-register/features.json"
+      ],
+      "requiredChecks": [
+        "jq empty project-register/user-feedback.json",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "would_add_live_tracking_or_third_party_analytics",
+        "would_collect_sensitive_health_child_location_camera_biometric_wallet_payment_or_reward_evidence_data",
+        "would_put_raw_user_data_in_agent_reports",
+        "consent_or_retention_model_unclear"
+      ],
+      "expectedPrOutput": [
+        "State data minimization boundaries.",
+        "Confirm no runtime tracking was added.",
+        "Name consent, retention, and aggregation assumptions.",
+        "List next approval needed for implementation."
+      ]
+    },
+    {
+      "id": "AGENT-UNITY-AR-PLANNING-ONLY",
+      "title": "Unity and AR planning-only inventory",
+      "priority": 6,
+      "riskLevel": "high",
+      "definitionOfDoneKey": "unity_ar_planning_task",
+      "purpose": "Inventory or plan AR/Unity work without touching PR #13 or Unity assets and without shifting reward authority to Unity.",
+      "allowedFiles": [
+        "docs/architecture/**/*AR*.md",
+        "docs/architecture/**/*UNITY*.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/internal-sources.json",
+        "project-register/features.json"
+      ],
+      "forbiddenFiles": [
+        "native/unity/WellFitBuddyAR/**",
+        "native/ar/** runtime changes",
+        "native/android/** runtime changes",
+        "native/ios/** runtime changes",
+        "app/mobile/ar/page.tsx",
+        "lib/nativeAr/**",
+        "lib/arRiddle/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/WORK_MAP.md",
+        "project-register/internal-sources.json",
+        "docs/architecture/AR_CONTEXTUAL_MISSION_REWARD_FLOW.md",
+        "docs/architecture/AR_REWARD_PREVIEW_API.md"
+      ],
+      "requiredChecks": [
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "would_touch_unity_files",
+        "would_depend_on_or_merge_pr_13",
+        "would_authorize_rewards_or_mission_completion_from_unity",
+        "runtime_ar_change_requested_without_explicit_scope"
+      ],
+      "expectedPrOutput": [
+        "Confirm Unity files untouched.",
+        "Confirm PR #13 untouched.",
+        "State AR emits events only and app/backend retain authority.",
+        "List planning files updated."
+      ]
+    },
+    {
+      "id": "AGENT-COMPLIANCE-SENSITIVE-PLANNING",
+      "title": "Compliance-sensitive planning only",
+      "priority": 7,
+      "riskLevel": "critical",
+      "definitionOfDoneKey": "compliance_sensitive_planning_task",
+      "purpose": "Document scope, risks, and required human decisions for compliance-sensitive areas without modifying runtime logic or legal/compliance messaging.",
+      "allowedFiles": [
+        "docs/architecture/**/*.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/*.json"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/**",
+        "public/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/risk-classifier.json",
+        "project-register/product-rules.json",
+        "project-register/features.json"
+      ],
+      "requiredChecks": [
+        "jq empty project-register/*.json",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "legal_text_or_privacy_text_change_required",
+        "runtime_or_user_facing_behavior_change_required",
+        "human_approval_not_present",
+        "scope_includes_token_nft_wallet_payment_betting_health_child_location_camera_privacy_or_reward_authority_logic"
+      ],
+      "expectedPrOutput": [
+        "Classify the area as critical risk.",
+        "State that only planning changed.",
+        "List explicit approvals required before any implementation.",
+        "Name protected files intentionally left untouched."
+      ]
+    }
+  ],
+  "selectionRules": [
+    "Choose the highest-priority candidate that matches the user request and does not violate stop conditions.",
+    "If a task touches protected areas, downgrade action to planning-only or stop for explicit human approval.",
+    "If existing WORK_MAP or project-register entries already cover the area, continue those files instead of creating duplicates.",
+    "If runtime code is needed but the user requested documentation/registry only, stop and report the mismatch.",
+    "If checks cannot run because of environment limitations, document the exact command and reason in the PR and final report."
+  ]
+}
