@@ -23,7 +23,8 @@
     "agent:firestore-economy-rules-emulator-test": "node scripts/wellfit-dev-agent/src/firestore-economy-rules-emulator-test.mjs",
     "agent:apply-memory-prompts": "node scripts/wellfit-dev-agent/src/apply-memory-prompts.mjs",
     "agent:apply-memory-prompts:write": "node scripts/wellfit-dev-agent/src/apply-memory-prompts.mjs --write",
-    "agent:quality-gate": "node scripts/wellfit-dev-agent/src/quality-gate.mjs"
+    "agent:quality-gate": "node scripts/wellfit-dev-agent/src/quality-gate.mjs",
+    "agent:autopilot:dry-run": "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",

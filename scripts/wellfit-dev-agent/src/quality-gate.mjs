@@ -30,6 +30,7 @@ const agentSteps = [
   { label: "Mission Buddy Economy audit", script: "scripts/wellfit-dev-agent/src/mission-buddy-economy-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/mission-buddy-economy-audit.mjs" },
   { label: "Firestore economy rules check", script: "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs", displayCommand: "npm run agent:firestore-economy-rules-check" },
   { label: "Next agent task suggestion", script: "scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs" },
+  { label: "Agent Autopilot dry run", script: "scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs" },
   { label: "Follow-up detector", script: "scripts/wellfit-dev-agent/src/follow-up-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs" },
   { label: "PR outcome recorder dry run", script: "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs", args: ["--dry-run"], displayCommand: "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run" },
   { label: "TODO status sync", script: "scripts/wellfit-dev-agent/src/todo-status-sync.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/todo-status-sync.mjs" },
@@ -122,6 +123,7 @@ function main() {
   const memoryStep = getStep(steps, "Memory sync");
   const rulesStep = getStep(steps, "Firestore economy rules check");
   const nextTaskStep = getStep(steps, "Next agent task suggestion");
+  const autopilotDryRunStep = getStep(steps, "Agent Autopilot dry run");
   const followUpDetectorStep = getStep(steps, "Follow-up detector");
   const prOutcomeRecorderStep = getStep(steps, "PR outcome recorder dry run");
   const todoStatusStep = getStep(steps, "TODO status sync");
@@ -137,6 +139,7 @@ function main() {
   const plannedMicroTasks = parseNumber(`${dryRunReport}\n${dryRunStep?.stdout ?? ""}`, "Planned micro-tasks");
   const rulesReportPassed = /Result:\s*PASS/i.test(`${rulesReport}\n${rulesStep?.stdout ?? ""}`);
   const nextTaskSuggestionPassed = /Result:\s*TASK_SELECTED/i.test(nextTaskStep?.stdout ?? "");
+  const autopilotDryRunPassed = /Result:\s*DRY_RUN/i.test(autopilotDryRunStep?.stdout ?? "") && /dry run completed without writing files/i.test(autopilotDryRunStep?.stdout ?? "");
   const followUpDetectorPassed = /Result:\s*REPORT_ONLY/i.test(followUpDetectorStep?.stdout ?? "");
   const prOutcomeRecorderPassed = /Mode:\s*DRY_RUN/i.test(prOutcomeRecorderStep?.stdout ?? "");
   const todoStatusSyncPassed = /Result:\s*PASS/i.test(todoStatusStep?.stdout ?? "");
@@ -163,6 +166,7 @@ function main() {
   assertCondition(checks, "Mission Buddy Economy audit passed", /Result:\s*PASS/i.test(missionBuddyEconomyReport), /Result:\s*PASS/i.test(missionBuddyEconomyReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Firestore economy rules check passed", rulesReportPassed, rulesReportPassed ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Next agent task suggestion selected a safe task", nextTaskSuggestionPassed, nextTaskSuggestionPassed ? "TASK_SELECTED" : "not found or STOP");
+  assertCondition(checks, "Agent Autopilot dry run reported without rewriting", autopilotDryRunPassed, autopilotDryRunPassed ? "DRY_RUN" : "not found or unsafe output");
   assertCondition(checks, "Follow-up detector reported without rewriting", followUpDetectorPassed, followUpDetectorPassed ? "REPORT_ONLY" : "not found or FAIL");
   assertCondition(checks, "PR outcome recorder dry run completed", prOutcomeRecorderPassed, prOutcomeRecorderPassed ? "DRY_RUN" : "not found or FAIL");
   assertCondition(checks, "TODO status sync passed", todoStatusSyncPassed, todoStatusSyncPassed ? "PASS" : "not found or FAIL");

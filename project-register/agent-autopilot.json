@@ -1,0 +1,166 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "purpose": "Single governed dry-run entrypoint for safe WellFit agent iterations from memory-read through task selection, risk check, validation planning, PR handoff, and stop-before-merge.",
+  "activationState": "dry_run_only",
+  "humanReadableSource": "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md",
+  "requiredFirstReadFiles": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "todolist/NEXT_ACTIONS.md",
+    "project-register/agent-workflows.json",
+    "project-register/agent-task-queue.json",
+    "project-register/risk-classifier.json",
+    "project-register/definition-of-done.json",
+    "project-register/agent-work-log.json",
+    "project-register/product-readiness.json",
+    "project-register/internal-sources.json",
+    "project-register/master-roadmap-tasks.json",
+    "project-register/user-feedback.json",
+    "project-register/adaptive-user-insights.json",
+    "project-register/research-recommendations.json"
+  ],
+  "iterationPhases": [
+    {
+      "id": "read_memory",
+      "purpose": "Read repository instructions, current state, work map, TODO index, next actions, workflow registers, task queue, risk classifier, definition of done, work log, readiness, internal sources, roadmap, feedback, insights, and research registers before planning changes."
+    },
+    {
+      "id": "inspect_current_state",
+      "purpose": "Inspect branch, worktree, dependency state, mapped leading files, and whether the task is documentation/registry/script-only or runtime product work."
+    },
+    {
+      "id": "select_next_task",
+      "purpose": "Use the existing task queue and next-task suggestion logic to identify the safest non-blocked low/medium-risk task unless the human request is narrower and still passes safety gates."
+    },
+    {
+      "id": "classify_risk",
+      "purpose": "Classify the requested or selected task with project-register/risk-classifier.json; default unclear or protected work to high or critical and stop before implementation."
+    },
+    {
+      "id": "check_definition_of_done",
+      "purpose": "Verify the task has a valid definitionOfDoneKey and required evidence/check mappings in project-register/definition-of-done.json."
+    },
+    {
+      "id": "inspect_related_files",
+      "purpose": "Inspect existing leading files from the Work Map, TODO index, internal sources, readiness matrix, roadmap, feedback, research, and insight registers without creating duplicate architecture or parallel systems."
+    },
+    {
+      "id": "create_plan",
+      "purpose": "Create a small report-only plan listing allowed files, forbidden files, required checks, risk gates, expected evidence, and stop conditions."
+    },
+    {
+      "id": "run_validation_checks",
+      "purpose": "Run validation/report-only checks required by the selected task, definition of done, and Autopilot governance; the dry-run script itself never writes files."
+    },
+    {
+      "id": "report_followups",
+      "purpose": "Report follow-ups from existing registers and report-only scripts; do not auto-create high/critical follow-ups or new TODO systems."
+    },
+    {
+      "id": "prepare_pr_summary",
+      "purpose": "Prepare the PR handoff summary with changed files, checks, risks, skipped checks, dependency status, and next recommended task."
+    },
+    {
+      "id": "stop_for_human_approval",
+      "purpose": "Stop before merge, deploy, protected implementation, high/critical work, or any approval-required action."
+    }
+  ],
+  "allowedActions": [
+    "read_existing_governance_todo_architecture_and_project_register_files",
+    "run_validation_and_report_only_scripts",
+    "call_suggest_next_agent_task_for_task_selection",
+    "print_selected_safe_task_risk_required_checks_affected_files_and_stop_conditions",
+    "prepare_human_readable_plan_and_pr_handoff",
+    "update_autopilot_governance_docs_or_registers_only_when_explicitly_requested_by_human_task_outside_the_dry_run_script"
+  ],
+  "forbiddenActions": [
+    "write_files_automatically_from_agent_autopilot_dry_run",
+    "merge_deploy_publish_or_close_pull_requests",
+    "touch_pr_13_or_native_unity_wellfitbuddyar_files",
+    "modify_runtime_product_logic_for_documentation_registry_script_only_tasks",
+    "create_duplicate_architecture_task_systems_registries_routes_apis_or_feature_modules",
+    "modify_token_nft_wallet_payment_payout_marketplace_staking_presale_trading_or_betting_logic_without_explicit_human_approval",
+    "modify_reward_authority_final_ledger_mission_completion_anticheat_inventory_unlock_or_rare_item_authority_without_explicit_human_approval",
+    "modify_health_watch_child_location_camera_privacy_consent_medical_legal_agb_datenschutz_impressum_or_compliance_logic_without_explicit_human_approval",
+    "expose_secrets_or_server_api_keys"
+  ],
+  "stopConditions": [
+    "current_branch_is_main",
+    "risk_level_is_high_or_critical",
+    "risk_level_is_unclear",
+    "protected_topic_detected",
+    "task_requires_files_outside_allowed_mapped_files",
+    "runtime_product_logic_change_required_for_documentation_registry_script_only_task",
+    "would_create_duplicate_architecture_or_parallel_system",
+    "required_governance_file_missing_or_malformed",
+    "definition_of_done_key_missing",
+    "validation_check_fails_for_code_reason",
+    "human_approval_required_but_not_present"
+  ],
+  "requiredChecks": [
+    "npm run lint",
+    "npx tsc --noEmit",
+    "npm run build",
+    "npm --prefix functions run check",
+    "npm run agent:quality-gate",
+    "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
+    "jq empty project-register/agent-autopilot.json"
+  ],
+  "riskGates": {
+    "sourceOfTruth": "project-register/risk-classifier.json",
+    "allowedAutomaticSelectionRiskLevels": ["low", "medium"],
+    "implementationAllowedByAutopilotDryRun": false,
+    "low": {
+      "defaultAction": "planning_or_documentation_registry_script_work_after_normal_agent_plan",
+      "dryRunAction": "report_only"
+    },
+    "medium": {
+      "defaultAction": "planning_only_unless_human_explicitly_requests_scoped_runtime_work",
+      "dryRunAction": "report_only"
+    },
+    "high": {
+      "defaultAction": "stop_and_report_for_human_approval",
+      "dryRunAction": "stop_before_implementation"
+    },
+    "critical": {
+      "defaultAction": "stop_and_report_for_human_approval",
+      "dryRunAction": "stop_before_implementation"
+    },
+    "defaultWhenUnclear": "high"
+  },
+  "requiredReportOutput": [
+    "activation_state",
+    "selected_next_safe_task",
+    "selection_source_and_rationale",
+    "risk_classification",
+    "implementation_allowed_or_planning_only",
+    "definition_of_done_key_and_evidence",
+    "required_checks",
+    "affected_registers_and_files",
+    "forbidden_files_and_actions",
+    "stop_conditions",
+    "product_readiness_context",
+    "research_recommendation_context_when_present",
+    "adaptive_user_insight_context_when_present",
+    "no_merge_no_deploy_reminder",
+    "human_approval_rule"
+  ],
+  "humanApprovalRules": {
+    "requiredForRiskLevels": ["high", "critical"],
+    "requiredForProtectedTopics": true,
+    "requiredForMerge": true,
+    "requiredForDeploy": true,
+    "requiredForRuntimeProductLogicChangeFromAutopilot": true,
+    "requiredForComplianceCriticalLogic": true,
+    "requiredForUnityOrPr13": true,
+    "unclearRiskDefaultsToApprovalRequired": true
+  },
+  "noMergeNoDeployRule": {
+    "mergeAllowed": false,
+    "deployAllowed": false,
+    "message": "Autopilot prepares a report and PR handoff only; it never merges or deploys."
+  }
+}
