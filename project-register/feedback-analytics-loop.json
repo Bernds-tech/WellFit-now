@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "block": "G",
+    "issue": 28,
+    "purpose": "Machine-readable feedback, analytics and optimization loop guardrails for Stufe 4.",
+    "status": "planning-no-tracking-code"
+  },
+  "privacyRules": {
+    "trackingCodeActive": false,
+    "requiresConsentBeforeTracking": true,
+    "noRealUserDataInAgentReports": true,
+    "noHeatmapWithoutPrivacyReview": true,
+    "noSessionRecordingWithoutConsent": true,
+    "analyticsMustBeAggregated": true,
+    "productionActivationRequiresManualApproval": true
+  },
+  "signals": [
+    {
+      "id": "SIGNAL-PAGE-FRICTION",
+      "name": "Page friction review",
+      "source": "manual-preview-review",
+      "allowedBeforeConsent": true,
+      "containsPersonalData": false
+    },
+    {
+      "id": "SIGNAL-UX-FEEDBACK",
+      "name": "Qualitative UX feedback",
+      "source": "manual-user-feedback",
+      "allowedBeforeConsent": true,
+      "containsPersonalData": false
+    },
+    {
+      "id": "SIGNAL-ANALYTICS-FUTURE",
+      "name": "Future aggregated analytics",
+      "source": "consent-gated-analytics",
+      "allowedBeforeConsent": false,
+      "containsPersonalData": "review-required"
+    },
+    {
+      "id": "SIGNAL-CLARITY-FUTURE",
+      "name": "Future Microsoft Clarity or equivalent",
+      "source": "consent-gated-heatmap-session-insights",
+      "allowedBeforeConsent": false,
+      "containsPersonalData": "review-required"
+    }
+  ],
+  "optimizationLoop": [
+    "collect manual preview observations",
+    "classify friction by route and feature",
+    "create issue with affected route/api/register references",
+    "implement in feature branch",
+    "run quality gate and build",
+    "deliver preview before live approval",
+    "after consent-enabled analytics, compare aggregate signals only"
+  ]
+}
