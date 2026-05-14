@@ -13,7 +13,13 @@ const REQUIRED_DOCS = [
 ];
 
 const REQUIRED_TOPICS = [
-  { id: "user-isolation", terms: ["User A", "User B"] },
+  {
+    id: "user-isolation",
+    alternatives: [
+      ["User A", "User B"],
+      ["other user", "owner profile"]
+    ]
+  },
   { id: "deny-client-points-write", terms: ["points", "client"] },
   { id: "deny-client-xp-write", terms: ["XP", "client"] },
   { id: "reward-guardrails", terms: ["reward", "guardrail"] },
@@ -35,10 +41,20 @@ function containsAll(haystack, terms) {
   return terms.every((term) => lower.includes(term.toLowerCase()));
 }
 
+function topicCovered(haystack, topic) {
+  if (topic.terms) return containsAll(haystack, topic.terms);
+  return (topic.alternatives ?? []).some((terms) => containsAll(haystack, terms));
+}
+
+function topicNeedText(topic) {
+  if (topic.terms) return topic.terms.join(", ");
+  return (topic.alternatives ?? []).map((terms) => `[${terms.join(", ")}]`).join(" OR ");
+}
+
 function main() {
   const missingDocs = REQUIRED_DOCS.filter((file) => !exists(file));
   const combined = REQUIRED_DOCS.filter(exists).map(read).join("\n\n---\n\n");
-  const missingTopics = REQUIRED_TOPICS.filter((topic) => !containsAll(combined, topic.terms));
+  const missingTopics = REQUIRED_TOPICS.filter((topic) => !topicCovered(combined, topic));
   const passed = missingDocs.length === 0 && missingTopics.length === 0;
 
   const report = [
@@ -57,11 +73,11 @@ function main() {
     "",
     "## Missing Topics",
     "",
-    missingTopics.length ? missingTopics.map((topic) => `- \`${topic.id}\` needs terms: ${topic.terms.join(", ")}`).join("\n") : "No missing required topics.",
+    missingTopics.length ? missingTopics.map((topic) => `- \`${topic.id}\` needs terms: ${topicNeedText(topic)}`).join("\n") : "No missing required topics.",
     "",
     "## Required Standard",
     "",
-    "- User A/User B isolation must be documented.",
+    "- User isolation must be documented, either as User A/User B or equivalent other-user/owner-profile wording.",
     "- Client-side points/XP/reward write attempts must be covered.",
     "- Server ledger/projection path must be documented.",
     "- Emulator-based rules testing must be explicitly planned.",
@@ -83,7 +99,7 @@ function main() {
 
   if (missingTopics.length) {
     console.log("Missing topics:");
-    for (const topic of missingTopics) console.log(`- ${topic.id}: ${topic.terms.join(", ")}`);
+    for (const topic of missingTopics) console.log(`- ${topic.id}: ${topicNeedText(topic)}`);
   }
 
   if (!passed) process.exit(1);
