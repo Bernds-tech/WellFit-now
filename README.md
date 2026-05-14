@@ -34,3 +34,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Firebase environment variables in CI
+
+The Next.js build must be able to prerender public pages in GitHub Actions and other CI/Codex environments without committing Firebase secrets. If the `NEXT_PUBLIC_FIREBASE_*` variables are absent, `lib/firebase.ts` leaves Firebase uninitialized during import so `npm run build` can complete, but any actual Auth or Firestore usage still throws until all required Firebase variables are configured in the deployment environment.
