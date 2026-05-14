@@ -16,6 +16,8 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 
 | Datei | Status | Zweck | Fuehrende Verweise |
 |---|---|---|---|
+| `todolist/CURRENT_PROJECT_STATE.md` | aktiv / fuehrend | fuehrender aktueller Projektzustand, Baseline, Risiken und Fortsetzungs-Prompt | `WORK_MAP.md`, `NEXT_ACTIONS.md`, `PROJECT_STRUCTURE.md` |
+| `todolist/WORK_MAP.md` | aktiv / fuehrend | fuehrende Topic-to-File-Map gegen doppelte Architektur und parallele Systeme | `CURRENT_PROJECT_STATE.md`, Bereichs-TODOs, `docs/architecture/` |
 | `todolist/MASTER_PROMPT_FOR_AI.md` | aktiv | zentrale Arbeitsanweisung fuer KI/Codex | `NEXT_ACTIONS.md`, `PROJECT_STRUCTURE.md`, `TODO_CONSOLIDATION.md`, `TODO_INDEX.md` |
 | `todolist/MASTER_OPEN_DONE_LIST.md` | aktiv | zentrale Einzeluebersicht fuer erledigte/offene Aufgaben und Produktregeln | `NEXT_ACTIONS.md`, `DONE_LOG.md`, `PROJECT_STRUCTURE.md` |
 | `todolist/NEXT_ACTIONS.md` | aktiv | operative Aufgaben bis Beta | alle Bereichs-TODOs |

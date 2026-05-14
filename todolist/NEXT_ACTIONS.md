@@ -7,9 +7,14 @@ Diese Datei steuert die naechsten Schritte bis zur ersten Beta-Version.
 Die KI soll die Aufgaben von oben nach unten bearbeiten, sofern keine neue hoehere Prioritaet von Bernd kommt.
 
 ## Fuehrende Quellen
-Vor Arbeit an dieser Datei immer lesen:
-- `todolist/MASTER_PROMPT_FOR_AI.md`
+Vor Arbeit an dieser Datei immer zuerst lesen:
+- `AGENTS.md`
+- `todolist/CURRENT_PROJECT_STATE.md`
+- `todolist/WORK_MAP.md`
 - `todolist/TODO_INDEX.md`
+
+Danach je nach Aufgabe lesen:
+- `todolist/MASTER_PROMPT_FOR_AI.md`
 - `todolist/TODO_CONSOLIDATION.md`
 - `todolist/PROJECT_STRUCTURE.md`
 - `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT`
