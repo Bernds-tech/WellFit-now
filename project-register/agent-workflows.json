@@ -33,7 +33,9 @@
         "project-register/agent-work-log.json",
         "project-register/agent-follow-ups.json",
         "project-register/visual-regression.json",
-        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md"
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+        "project-register/research-recommendations.json",
+        "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md"
       ],
       "controlRegisters": [
         {
@@ -96,6 +98,14 @@
           "scripts": ["scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs"],
           "purpose": "Optional route-register-backed visual screenshot smoke validation for public, mobile beta-preview, and protected app routes without changing product logic or making browser checks mandatory.",
           "usage": "Run after perceptible UI changes and through quality gate report-only mode; if browser support or preview URL is unavailable, record the safe skip instead of failing the main build."
+        },
+        {
+          "id": "research_recommendation_agent",
+          "registers": ["project-register/research-recommendations.json"],
+          "architecture": "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
+          "scripts": ["scripts/wellfit-dev-agent/src/research-recommendation-check.mjs"],
+          "purpose": "Internal-first, optional-external-research governance for unclear WellFit product or technical questions; requires three options, one recommendation, risk classification, and human review before implementation.",
+          "usage": "Read internal sources first, report when external research is unavailable, present at least three options, select exactly one recommendation, classify risk, and never implement high/critical or protected-topic decisions without explicit human approval."
         }
       ],
       "additionalGovernanceInputs": [
