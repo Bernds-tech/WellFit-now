@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { ComponentType } from "react";
 import type { BiometricsForm } from "../types";
@@ -34,12 +34,12 @@ export default function BiometricsCard({
   toggleBase,
 }: BiometricsCardProps) {
   return (
-    <SettingsCard title="Biometrie & KÃ¶rper">
+    <SettingsCard title="Biometrie & Körper">
       <SensitiveNotice />
 
       <div className="space-y-3">
         <div className="grid grid-cols-[1fr_85px_35px_85px_28px] items-center gap-2">
-          <label className="text-xs text-white/70">GrÃ¶ÃŸe & Gewicht</label>
+          <label className="text-xs text-white/70">Größe & Gewicht</label>
           <input
             className={inputClass}
             value={biometrics.height}
@@ -85,7 +85,7 @@ export default function BiometricsCard({
         </div>
 
         <div>
-          <label className="text-xs text-white/70">KÃ¶rperbau</label>
+          <label className="text-xs text-white/70">Körperbau</label>
           <select
             className={selectClass}
             value={biometrics.bodyType}
@@ -95,7 +95,7 @@ export default function BiometricsCard({
           >
             <option>Schlank</option>
             <option>Normal</option>
-            <option>KrÃ¤ftig</option>
+            <option>Kräftig</option>
           </select>
         </div>
 
@@ -108,7 +108,7 @@ export default function BiometricsCard({
               updateBiometricsField("fitnessLevel", e.target.value)
             }
           >
-            <option>AnfÃ¤nger</option>
+            <option>Anfänger</option>
             <option>Fortgeschritten</option>
             <option>Aktiv</option>
           </select>
@@ -116,7 +116,7 @@ export default function BiometricsCard({
 
         <div>
           <label className="text-xs text-white/70">
-            EinschrÃ¤nkungen / Verletzungen
+            Einschränkungen / Verletzungen
           </label>
           <input
             className={inputClass}
@@ -133,7 +133,7 @@ export default function BiometricsCard({
         onClick={saveBiometrics}
         disabled={isLoadingUser}
       >
-        Ã„nderungen speichern
+        Änderungen speichern
       </button>
     </SettingsCard>
   );

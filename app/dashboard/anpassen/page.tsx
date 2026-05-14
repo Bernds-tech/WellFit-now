@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo } from "react";
 import Link from "next/link";
@@ -95,7 +95,7 @@ export default function DashboardCustomizePage() {
           <p className="text-xs font-black uppercase tracking-[0.32em] text-cyan-200/80">Dashboard</p>
           <h1 className="mt-2 text-5xl font-extrabold leading-none">Dashboard anpassen</h1>
           <p className="mt-2 max-w-5xl text-lg leading-relaxed text-cyan-100/90">
-            WÃ¤hle aus, welche Karten auf deiner persÃ¶nlichen Startzentrale sichtbar sein sollen. Deine Auswahl wird lokal gespeichert.
+            Wähle aus, welche Karten auf deiner persönlichen Startzentrale sichtbar sein sollen. Deine Auswahl wird lokal gespeichert.
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
@@ -105,10 +105,10 @@ export default function DashboardCustomizePage() {
             disabled={!isLoaded}
             className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white/75 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-45"
           >
-            ZurÃ¼cksetzen
+            Zurücksetzen
           </button>
           <Link href="/dashboard" className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-4 py-2 text-sm font-bold text-cyan-100 hover:bg-cyan-300/15">
-            ZurÃ¼ck zum Dashboard
+            Zurück zum Dashboard
           </Link>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function DashboardCustomizePage() {
           <div className="rounded-[24px] border border-cyan-300/10 bg-[#053841]/90 p-6 text-center text-white shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
             <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Dashboard</p>
             <h2 className="mt-2 text-2xl font-extrabold">Deine Karten werden geladen</h2>
-            <p className="mt-2 text-sm text-white/60">Gespeicherte Auswahl und GrÃ¶ÃŸen werden vorbereitet.</p>
+            <p className="mt-2 text-sm text-white/60">Gespeicherte Auswahl und Größen werden vorbereitet.</p>
           </div>
         </div>
       ) : (
@@ -127,7 +127,7 @@ export default function DashboardCustomizePage() {
             <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300/80">Auswahl</p>
             <h2 className="mt-2 text-2xl font-extrabold text-white">Karten ein- oder ausblenden</h2>
             <p className="mt-3 text-sm leading-relaxed text-white/65">
-              Kreis aktivieren = Karte wird im Dashboard angezeigt. RastergrÃ¶ÃŸe testet Standardformate; unten rechts an Karten ziehen Ã¤ndert Breite und HÃ¶he stufenlos.
+              Kreis aktivieren = Karte wird im Dashboard angezeigt. Rastergröße testet Standardformate; unten rechts an Karten ziehen ändert Breite und Höhe stufenlos.
             </p>
 
             <div className="mt-5 space-y-3">
@@ -155,10 +155,10 @@ export default function DashboardCustomizePage() {
                         onClick={() => cycleCardSize(card.id)}
                         className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold text-cyan-100 hover:bg-cyan-300/15"
                       >
-                        RastergrÃ¶ÃŸe: {currentSize} â†’ {getNextAllowedSize(card.id, currentSize)}
+                        Rastergröße: {currentSize} → {getNextAllowedSize(card.id, currentSize)}
                       </button>
                       {cardDimensions[card.id] ? (
-                        <span className="rounded-full bg-orange-300/10 px-3 py-1 text-xs font-bold text-orange-100">freie GrÃ¶ÃŸe aktiv</span>
+                        <span className="rounded-full bg-orange-300/10 px-3 py-1 text-xs font-bold text-orange-100">freie Größe aktiv</span>
                       ) : null}
                       {card.requiresConsent ? (
                         <span className="rounded-full bg-yellow-300/10 px-3 py-1 text-xs font-bold text-yellow-100">Consent</span>

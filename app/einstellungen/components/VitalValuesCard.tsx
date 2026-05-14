@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { VitalValuesForm } from "../types";
 import SettingsCard from "./SettingsCard";
@@ -28,7 +28,7 @@ export default function VitalValuesCard({
 
       <div className="space-y-3">
         <div className="grid grid-cols-[1fr_80px_30px] items-center gap-2">
-          <label>KÃ¶rperfettanteil</label>
+          <label>Körperfettanteil</label>
           <input
             className={inputClass}
             value={vitalValues.bodyFat}
@@ -88,7 +88,7 @@ export default function VitalValuesCard({
         </div>
 
         <div>
-          <label>SchlafqualitÃ¤t</label>
+          <label>Schlafqualität</label>
           <select
             className={selectClass}
             value={vitalValues.sleepQuality}
@@ -176,7 +176,7 @@ export default function VitalValuesCard({
         onClick={saveVitalValues}
         disabled={isLoadingUser}
       >
-        Ã„nderungen speichern
+        Änderungen speichern
       </button>
     </SettingsCard>
   );

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 /* eslint-disable react-hooks/set-state-in-effect */
 
@@ -85,7 +85,7 @@ export function usePoseExerciseTracking({ videoRef, permissionState }: UsePoseEx
 
         animationFrameRef.current = requestAnimationFrame(tick);
       } catch (error) {
-        setTrackerStatus("Pose Tracking nicht verfÃ¼gbar");
+        setTrackerStatus("Pose Tracking nicht verfügbar");
         setTrackerError(error instanceof Error ? error.message : "Pose Tracking konnte nicht gestartet werden.");
       }
     }

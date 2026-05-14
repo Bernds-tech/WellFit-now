@@ -1,4 +1,4 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type StepCounterUpdate = {
   steps: number;
   magnitude: number;
@@ -72,7 +72,7 @@ export function createBrowserStepCounter(options: StepCounterOptions) {
     async start() {
       const eventName = getMotionEventName();
       if (!eventName) {
-        options.onError?.("Dieses GerÃ¤t unterstÃ¼tzt im Browser kein Bewegungs-Tracking.");
+        options.onError?.("Dieses Gerät unterstützt im Browser kein Bewegungs-Tracking.");
         return false;
       }
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
@@ -36,18 +36,18 @@ const handleBeforeInstallPrompt = (event: Event) => {
       await navigator.clipboard.writeText(mobileUrl);
       setCopyMessage("Link kopiert.");
     } catch {
-      setCopyMessage("Kopieren nicht mÃ¶glich. Link bitte manuell Ã¶ffnen.");
+      setCopyMessage("Kopieren nicht möglich. Link bitte manuell öffnen.");
     }
   };
 
   const installPwa = async () => {
     if (!isSecure) {
-      setCopyMessage("Installation, Kamera und Sensoren brauchen HTTPS. Bitte die https-Adresse scannen/Ã¶ffnen.");
+      setCopyMessage("Installation, Kamera und Sensoren brauchen HTTPS. Bitte die https-Adresse scannen/öffnen.");
       return;
     }
 
     if (!deferredPrompt) {
-      setCopyMessage("Am Handy Ã¶ffnen: Android/Chrome MenÃ¼ â†’ App installieren. iPhone/Safari Teilen â†’ Zum Home-Bildschirm.");
+      setCopyMessage("Am Handy öffnen: Android/Chrome Menü → App installieren. iPhone/Safari Teilen → Zum Home-Bildschirm.");
       return;
     }
 
@@ -75,17 +75,17 @@ const handleBeforeInstallPrompt = (event: Event) => {
                 <h2 className="mt-2 text-3xl font-black leading-none">App testen</h2>
               </div>
               <button type="button" onClick={() => setIsOpen(false)} className="rounded-full bg-white/10 px-3 py-1 text-sm font-black text-white/80">
-                Ã—
+                ×
               </button>
             </div>
 
             <p className="mt-4 text-sm leading-relaxed text-cyan-100/75">
-              Scanne den QR-Code mit deinem Handy. Die Test-App Ã¶ffnet nur die reduzierte Mobile-OberflÃ¤che: Missionen, Buddy, Analyse und Bewegungstest.
+              Scanne den QR-Code mit deinem Handy. Die Test-App öffnet nur die reduzierte Mobile-Oberfläche: Missionen, Buddy, Analyse und Bewegungstest.
             </p>
 
             {!isSecure && (
               <p className="mt-3 rounded-2xl bg-red-400/15 p-3 text-xs font-bold leading-relaxed text-red-100">
-                Achtung: Du bist nicht Ã¼ber HTTPS verbunden. Kamera, Sensoren und Installation funktionieren auf Handys meist nur Ã¼ber HTTPS.
+                Achtung: Du bist nicht über HTTPS verbunden. Kamera, Sensoren und Installation funktionieren auf Handys meist nur über HTTPS.
               </p>
             )}
 
@@ -108,15 +108,15 @@ const handleBeforeInstallPrompt = (event: Event) => {
 
             <div className="mt-4 rounded-2xl bg-black/18 p-3 text-xs leading-relaxed text-cyan-100/72">
               <p className="font-black text-cyan-100">Android/Chrome:</p>
-              <p>QR Ã¶ffnen â†’ â‹® MenÃ¼ â†’ App installieren oder Zum Startbildschirm hinzufÃ¼gen.</p>
+              <p>QR öffnen → ⋮ Menü → App installieren oder Zum Startbildschirm hinzufügen.</p>
               <p className="mt-2 font-black text-cyan-100">iPhone/Safari:</p>
-              <p>QR Ã¶ffnen â†’ Teilen-Symbol â†’ Zum Home-Bildschirm.</p>
+              <p>QR öffnen → Teilen-Symbol → Zum Home-Bildschirm.</p>
             </div>
 
             {copyMessage && <p className="mt-3 rounded-2xl bg-black/18 p-3 text-xs font-semibold text-cyan-100/75">{copyMessage}</p>}
 
             <p className="mt-4 text-xs leading-relaxed text-white/48">
-              Hinweis: Der QR-Code nutzt vorerst einen externen QR-Bilddienst fÃ¼r den Test. FÃ¼r App-Store-/Produktionsbetrieb ersetzen wir das spÃ¤ter durch eine eigene QR-Erzeugung oder native Store-Links.
+              Hinweis: Der QR-Code nutzt vorerst einen externen QR-Bilddienst für den Test. Für App-Store-/Produktionsbetrieb ersetzen wir das später durch eine eigene QR-Erzeugung oder native Store-Links.
             </p>
           </div>
         </div>
