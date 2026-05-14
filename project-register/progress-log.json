@@ -38,6 +38,17 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Documentation/register-only baseline refresh for AGENT-DOC-BASELINE-CHECK. Autopilot dry run, lint, TypeScript noEmit, Next build, Firebase Functions syntax check, and quality gate passed. Runtime product code, protected areas, Unity/PR #13, and compliance-critical logic were untouched."
+    },
+    {
+      "id": "PROGRESS-AGENT-REGISTRY-SYNC-2026-05-14-0001",
+      "date": "2026-05-14",
+      "branch": "agent-registry-sync",
+      "issue": null,
+      "goal": "Synchronize project-register entries with Work Map and current state for AGENT-REGISTRY-SYNC.",
+      "changedAreas": ["project-register"],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Registry-only sync for AGENT-REGISTRY-SYNC. Removed the non-existent /api/feedback/submit route from active API/feature links while preserving the feedback proposal registers, linked existing public/settings/mission/mobile/economy/Buddy files to features and product readiness, and kept runtime product code, protected areas, Unity/PR #13, and compliance-critical logic untouched."
     }
   ]
 }
