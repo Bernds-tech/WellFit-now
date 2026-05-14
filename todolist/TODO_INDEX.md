@@ -49,6 +49,14 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md` | aktiv / Architektur-Notiz | Importprinzip, Schutzregeln, Validierung und sichere naechste Aufgaben zum Master-Roadmap-Import | `project-register/master-roadmap-tasks.json` | als Kontext lesen, nicht als Ersatz fuer aktuelle Source-of-Truth-Dateien verwenden |
 | `scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs` | aktiv / Agent-Code | validiert Master-Roadmap-Registry, Statusmarker, Pflichtfelder, Risk-/Human-Approval-Regeln und Safe-Auto-Work-Schutz | `project-register/master-roadmap-tasks.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | nach Registry-Aenderungen ausfuehren; im Quality Gate eingebunden |
 
+## Research Recommendation Agent / Governance
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `project-register/research-recommendations.json` | aktiv / Register | maschinenlesbare Governance fuer interne-first Research-Reports, optionale externe Recherche, drei Optionen, eine Empfehlung, Risiko und Human Review | `todolist/WORK_MAP.md`, `project-register/agent-workflows.json`, `project-register/agent-task-queue.json` | nach Recommendation-Governance-Aenderungen mit `research-recommendation-check.mjs` validieren |
+| `docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md` | aktiv / Architektur-Notiz | menschliche Anleitung fuer Research-&-Recommendation-Agenten ohne Laufzeitlogik oder parallele Architektur | `project-register/research-recommendations.json` | vor unklaren Produkt-/Technikentscheidungen lesen; High-/Critical-Empfehlungen nicht ohne Human Approval umsetzen |
+| `scripts/wellfit-dev-agent/src/research-recommendation-check.mjs` | aktiv / Agent-Code | validiert Internal-First-Regel, optionale externe Recherche, Drei-Optionen-Schema, eine Empfehlung, Human Review und geschuetzte Themen | `project-register/research-recommendations.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | direkt nach Registry-Aenderungen ausfuehren; im Quality Gate eingebunden |
+
 ## Code-Inventur / Bestandspruefung
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |

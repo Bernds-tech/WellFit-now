@@ -17,7 +17,8 @@
     "riskClassifier": "project-register/risk-classifier.json",
     "definitionOfDone": "project-register/definition-of-done.json",
     "architectureDoc": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md",
-    "agentFollowUps": "project-register/agent-follow-ups.json"
+    "agentFollowUps": "project-register/agent-follow-ups.json",
+    "researchRecommendations": "project-register/research-recommendations.json"
   },
   "globalRequiredFirstReadFiles": [
     "AGENTS.md",
@@ -31,7 +32,9 @@
     "project-register/agent-follow-ups.json",
     "project-register/agent-work-log.json",
     "project-register/visual-regression.json",
-    "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md"
+    "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+    "project-register/research-recommendations.json",
+    "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -58,7 +61,8 @@
     "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run",
     "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
     "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
-    "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs"
+    "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+    "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -712,6 +716,69 @@
         "Confirm no runtime product logic, Unity files or protected compliance/economy/privacy areas changed.",
         "Report master-roadmap-task-check and quality-gate results.",
         "Name the next safe registry-only roadmap reconciliation task."
+      ]
+    },
+    {
+      "id": "AGENT-RESEARCH-RECOMMENDATION-REVIEW",
+      "title": "Create internal-first research recommendation report",
+      "status": "ready",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Analyze an unclear WellFit product or technical question using internal sources first, optional external research only when explicitly available, three options, one recommendation, risk classification, and human-review-required decision status before any implementation.",
+      "allowedFiles": [
+        "project-register/research-recommendations.json",
+        "project-register/decisions.json",
+        "project-register/agent-work-log.json",
+        "docs/architecture/**/*.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/research-recommendations.json",
+        "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/internal-sources.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
+        "jq empty project-register/research-recommendations.json",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "runtime_product_logic_change_required",
+        "would_create_duplicate_architecture_or_parallel_system",
+        "external_research_assumed_but_not_available",
+        "less_than_three_options_available",
+        "no_single_recommended_option_selected",
+        "high_or_critical_risk_implementation_requested_without_explicit_human_approval",
+        "protected_topic_requires_unapproved_changes",
+        "would_touch_unity_or_pr_13"
+      ],
+      "expectedPrOutput": [
+        "List internal sources reviewed before any external research.",
+        "State whether external research was available, used, or unavailable.",
+        "Summarize three options and exactly one recommended option.",
+        "Classify risk and mark humanReviewRequired for unclear, high, critical, or protected decisions.",
+        "Confirm no runtime product logic, Unity/PR #13 files, or protected compliance/economy/privacy areas changed.",
+        "Name the next safe review or registry-only task."
       ]
     }
   ],
