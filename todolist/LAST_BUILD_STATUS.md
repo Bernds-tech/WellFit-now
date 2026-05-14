@@ -1,6 +1,24 @@
 # WellFit – letzter lokaler Build-Status
 
-Stand: 2026-05-09
+Stand: 2026-05-14
+
+
+## Bestaetigt am 2026-05-14 nach PR #41, #42 und #43
+
+[x] Baseline-Branch geprueft: lokaler Ausgangsstand `42b2625` (`Merge pull request #43 from Bernds-tech/codex/fix-next.js-build-blocker-for-google-fonts`) enthaelt die Merges von PR #41, #42 und #43.
+[x] Arbeitsbranch fuer diese Dokumentationspruefung: `codex/verify-green-baseline-after-pr43`; nicht direkt auf `main` gearbeitet.
+[x] `git status --short --branch` war vor der Dokumentationsaenderung sauber auf dem lokalen Ausgangsstand.
+[x] `npm run lint` erfolgreich.
+[x] `npx tsc --noEmit` erfolgreich.
+[x] `npm run build` erfolgreich mit Next.js 16.2.3 / Turbopack.
+[x] Build: TypeScript-Pruefung erfolgreich, Page Data Collection erfolgreich, statische Seiten generiert: 34/34.
+[x] Build-Routen bestaetigt: 30 statische App-Seiten plus `_not-found`, 9 API-Routen und Proxy/Middleware.
+[x] `npm --prefix functions run check` erfolgreich: Firebase Functions Syntax-Checks fuer `index.js`, `cooldownIndex.js`, `lib/*`, Seed- und Emulator-Testdateien bestanden.
+[x] Erster `npm run agent:quality-gate` Lauf fand nur Dokumentations-Governance-Drift: `docs/architecture/WELLFIT_NEXT_PHASE_PREP_REPORT.md` fehlte im TODO-Index und ohne KI-Fortsetzungs-Prompt.
+[x] Low-Risk-Dokumentationsfix erledigt: Report in `todolist/TODO_INDEX.md` verlinkt und KI-Fortsetzungs-Prompt im Report ergaenzt; keine Produktlogik geaendert.
+[x] `npm run agent:quality-gate` nach Dokumentationsfix erfolgreich: PASS.
+[x] Abhaengigkeiten wurden nicht installiert; vorhandenes `node_modules` wurde verwendet.
+[x] Unity/WellFitBuddyAR, PR #13, Token-/NFT-/Wallet-/Payment-/Reward-Authority-/Health-/Child-/Location-/Privacy-/Compliance-Logik wurden nicht veraendert.
 
 ## Ergebnis
 

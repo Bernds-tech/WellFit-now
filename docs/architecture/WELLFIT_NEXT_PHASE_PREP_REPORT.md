@@ -118,3 +118,7 @@ Risk note: some live Unity scripts reference bridge/anchor classes that currentl
 4. **Mission authority hardening (medium/high risk)**: continue server-side mission completion, ledger draft, Firestore rules and emulator test work before adding new mission features.
 5. **Unity AR readiness report (low risk analysis, medium risk implementation)**: compare Unity templates and live assets, identify compile blockers, and keep PR #13 untouched.
 6. **Beta wording pass (low/medium risk)**: review visible mission/shop/marketplace/competition wording for premature token/NFT/wallet/payment/betting language without changing compliance-critical logic.
+
+## KI-Fortsetzungs-Prompt
+
+Lies vor der naechsten Entwicklungsphase zuerst `todolist/LAST_BUILD_STATUS.md`, `todolist/NEXT_ACTIONS.md`, `todolist/TODO_INDEX.md` und die Projektregister. Nutze diesen Report nur als historischen Vorbereitungsnachweis nach PR #41-#43: Routen, Shells und Unity wurden inventarisiert, aber Produktlogik wurde nicht veraendert. Fuehre neue Baseline-Ergebnisse in `todolist/LAST_BUILD_STATUS.md` fort und halte Unity/PR #13 sowie Token-, NFT-, Wallet-, Payment-, Reward-Authority-, Health-, Child-, Location-, Privacy- und Compliance-Logik reviewpflichtig.
