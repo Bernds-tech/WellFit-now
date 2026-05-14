@@ -22,6 +22,16 @@ const warningPatterns = [
   { id: "reward-final-wording", pattern: /final\s+reward|reward\s+authorized|mission\s+completed/iu, reason: "Review final reward/completion authority wording." }
 ];
 
+const allowedNegativeCashoutPatterns = [
+  /keine\s+(echte\s+)?auszahlung/iu,
+  /keine\s+auszahlungen/iu,
+  /nicht\s+auszahlbar/iu,
+  /no\s+(real\s+)?cashout/iu,
+  /no\s+(real\s+)?withdrawal/iu,
+  /no\s+payout/iu,
+  /cashout\s*\/\s*echtgeldsprache\s+vermeiden/iu
+];
+
 function norm(filePath) { return filePath.split(path.sep).join("/"); }
 
 function walk(relativeDir, result = []) {
@@ -41,6 +51,16 @@ function lineNumber(text, index) {
   return text.slice(0, index).split(/\r?\n/u).length;
 }
 
+function lineAt(text, index) {
+  const lines = text.split(/\r?\n/u);
+  return lines[lineNumber(text, index) - 1] ?? "";
+}
+
+function isAllowedNegativeSafetyContext(patternId, line) {
+  if (patternId !== "cashout") return false;
+  return allowedNegativeCashoutPatterns.some((pattern) => pattern.test(line));
+}
+
 function scanFile(file) {
   const text = fs.readFileSync(path.join(ROOT, file), "utf8");
   const issues = [];
@@ -48,7 +68,12 @@ function scanFile(file) {
 
   for (const item of blockingPatterns) {
     const match = item.pattern.exec(text);
-    if (match) issues.push({ file, line: lineNumber(text, match.index), id: item.id, reason: item.reason });
+    if (match) {
+      const line = lineAt(text, match.index);
+      if (!isAllowedNegativeSafetyContext(item.id, line)) {
+        issues.push({ file, line: lineNumber(text, match.index), id: item.id, reason: item.reason });
+      }
+    }
   }
 
   for (const item of warningPatterns) {
@@ -88,6 +113,7 @@ function main() {
     "## Required Standard",
     "",
     "- No active wallet/token/NFT/cashout code in beta.",
+    "- Negative safety wording such as 'keine Auszahlung' is allowed and should not fail the gate.",
     "- Firestore writes and points/xp/level assignments must be reviewed as preview, bridge or server-authority logic.",
     "- This audit does not modify product code."
   ].join("\n");
