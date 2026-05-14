@@ -18,7 +18,7 @@
       "id": "FEATURE-MISSIONS",
       "name": "Missionen",
       "status": "active-beta",
-      "routes": ["/missionen/tagesmissionen", "/missionen/wochenmissionen", "/missionen/abenteuer", "/missionen/challenge", "/missionen/wettkaempfe", "/missionen/favoriten", "/missionen/history"],
+      "routes": ["/missionen", "/missionen/tagesmissionen", "/missionen/wochenmissionen", "/missionen/abenteuer", "/missionen/challenge", "/missionen/wettkaempfe", "/missionen/favoriten", "/missionen/history"],
       "apis": ["/api/economy/complete-mission", "/api/economy/reward-preview", "/api/economy/user-projection"],
       "rules": ["no-client-completion-authority", "evidence-before-reward", "no-token-reward"]
     },
@@ -59,7 +59,7 @@
       "name": "Analytics",
       "status": "active-beta",
       "routes": ["/analytics", "/mobile/analyse"],
-      "apis": ["/api/economy/user-projection", "/api/feedback/submit"],
+      "apis": ["/api/economy/user-projection"],
       "rules": ["user-progress", "privacy-aware", "feedback-db-planning-only", "aggregate-agent-summaries-only", "no-third-party-analytics"],
       "feedbackRegister": "project-register/user-feedback.json"
     },
@@ -86,6 +86,22 @@
       "routes": [],
       "apis": ["/api/economy/buddy-sync-preview", "/api/economy/complete-mission", "/api/economy/health-preview", "/api/economy/persistence-status", "/api/economy/reward-preview", "/api/economy/security-plan", "/api/economy/spend-preview", "/api/economy/user-projection"],
       "rules": ["preview-only", "draft-only", "no-final-firestore-write-until-approved"]
+    },
+    {
+      "id": "FEATURE-PUBLIC-ENTRY",
+      "name": "Public entry and registration",
+      "status": "active-beta",
+      "routes": ["/", "/register"],
+      "apis": [],
+      "rules": ["public-entry", "registration-entry", "no-sensitive-profile-expansion"]
+    },
+    {
+      "id": "FEATURE-SETTINGS",
+      "name": "Settings",
+      "status": "active-beta",
+      "routes": ["/einstellungen"],
+      "apis": [],
+      "rules": ["profile-settings", "consent-sensitive-changes-require-review"]
     }
   ],
   "stufe4Rules": {
