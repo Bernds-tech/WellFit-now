@@ -19,6 +19,7 @@ const agentSteps = [
   { label: "Agent governance control check", script: "scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs" },
   { label: "Product readiness check", script: "scripts/wellfit-dev-agent/src/product-readiness-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs" },
   { label: "Route API register check", script: "scripts/wellfit-dev-agent/src/route-api-register-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/route-api-register-check.mjs" },
+  { label: "Visual route smoke check", script: "scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs", args: ["--report-only"], displayCommand: "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs --report-only" },
   { label: "Route/API drift detector", script: "scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs" },
   { label: "Concept-to-code gap analyzer", script: "scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs" },
   { label: "Site route audit", script: "scripts/wellfit-dev-agent/src/site-route-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/site-route-audit.mjs" },
@@ -100,6 +101,7 @@ function main() {
   const agentGovernanceControlReport = readTextSafe("scripts/wellfit-dev-agent/output/agent-governance-control-check.md");
   const productReadinessReport = readTextSafe("scripts/wellfit-dev-agent/output/product-readiness-check.md");
   const routeApiReport = readTextSafe("scripts/wellfit-dev-agent/output/route-api-register-check.md");
+  const visualRouteSmokeReport = readTextSafe("scripts/wellfit-dev-agent/output/visual-route-smoke-check.md");
   const routeApiDriftReport = readTextSafe("scripts/wellfit-dev-agent/output/route-api-drift-detector.md");
   const conceptToCodeGapReport = readTextSafe("scripts/wellfit-dev-agent/output/concept-to-code-gap-analyzer.md");
   const siteRouteReport = readTextSafe("scripts/wellfit-dev-agent/output/site-route-audit-report.md");
@@ -118,6 +120,7 @@ function main() {
   const prOutcomeRecorderStep = getStep(steps, "PR outcome recorder dry run");
   const todoStatusStep = getStep(steps, "TODO status sync");
   const routeApiDriftStep = getStep(steps, "Route/API drift detector");
+  const visualRouteSmokeStep = getStep(steps, "Visual route smoke check");
   const conceptToCodeGapStep = getStep(steps, "Concept-to-code gap analyzer");
 
   const covered = parseCoveredTracks(`${goalReport}\n${alphaStep?.stdout ?? ""}`);
@@ -132,6 +135,7 @@ function main() {
   const prOutcomeRecorderPassed = /Mode:\s*DRY_RUN/i.test(prOutcomeRecorderStep?.stdout ?? "");
   const todoStatusSyncPassed = /Result:\s*PASS/i.test(todoStatusStep?.stdout ?? "");
   const routeApiDriftPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${routeApiDriftReport}\n${routeApiDriftStep?.stdout ?? ""}`);
+  const visualRouteSmokePassed = /Result:\s*(?:PASS|PASS_WITH_WARNINGS|SKIPPED_BROWSER_UNAVAILABLE|SKIPPED_BASE_URL_UNAVAILABLE|REPORT_ONLY)/i.test(`${visualRouteSmokeReport}\n${visualRouteSmokeStep?.stdout ?? ""}`);
   const conceptToCodeGapPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${conceptToCodeGapReport}\n${conceptToCodeGapStep?.stdout ?? ""}`);
 
   assertCondition(checks, "Alpha tracks fully covered", covered.covered !== null && covered.total !== null && covered.covered === covered.total, covered.covered === null ? "not found" : `${covered.covered}/${covered.total}`);
@@ -143,6 +147,7 @@ function main() {
   assertCondition(checks, "Product readiness check passed", /Result:\s*PASS/i.test(productReadinessReport), /Result:\s*PASS/i.test(productReadinessReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Route/API register check passed", /Result:\s*PASS/i.test(routeApiReport), /Result:\s*PASS/i.test(routeApiReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Route/API drift detector passed", routeApiDriftPassed, routeApiDriftPassed ? "PASS or PASS_WITH_WARNINGS" : "not found or FAIL");
+  assertCondition(checks, "Visual route smoke check reported safely", visualRouteSmokePassed, visualRouteSmokePassed ? "PASS, PASS_WITH_WARNINGS, SKIPPED, or REPORT_ONLY" : "not found or unsafe FAIL");
   assertCondition(checks, "Concept-to-code gap analyzer passed", conceptToCodeGapPassed, conceptToCodeGapPassed ? "PASS or PASS_WITH_WARNINGS" : "not found or FAIL");
   assertCondition(checks, "Site route audit passed", /Result:\s*PASS/i.test(siteRouteReport), /Result:\s*PASS/i.test(siteRouteReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Mobile Buddy UX audit passed", /Result:\s*PASS/i.test(mobileBuddyUxReport), /Result:\s*PASS/i.test(mobileBuddyUxReport) ? "PASS" : "not found or FAIL");
@@ -157,7 +162,7 @@ function main() {
   assertCondition(checks, "TODO status sync passed", todoStatusSyncPassed, todoStatusSyncPassed ? "PASS" : "not found or FAIL");
 
   const passed = checks.every((check) => check.passed);
-  const report = `# WellFit Agent Quality Gate Report\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Gate Checks\n\n${renderChecks(checks)}\n\n## Required Standard\n\n- Agent validation must pass.\n- Alpha goal check must cover all required tracks.\n- Memory sync must report zero missing indexed files.\n- Memory sync must report zero required missing KI-Fortsetzungs-Prompts.\n- Dry run must produce planned micro-tasks.\n- Stufe 4 governance check must pass.\n- Agent governance control check must pass.\n- Route/API register check must pass.\n- Site route audit must pass.\n- Mobile Buddy UX audit must pass.\n- Feedback loop audit must pass.\n- Firebase security audit must pass.\n- Firestore emulator test plan check must pass.\n- Mission Buddy Economy audit must pass.\n- Firestore economy rules check must pass the current beta allow/deny guardrails.\n- Next agent task suggestion must select a non-blocked safe task.\n- TODO status sync must report no malformed or unknown status markers.\n\n## Exact Memory Sync Failures\n\n### Files Missing In Index\n\n${missingIndexFiles.length ? missingIndexFiles.map((file) => `- \`${file}\``).join("\n") : "No missing index files reported."}\n\n### Files Missing KI-Fortsetzungs-Prompt\n\n${missingPromptFiles.length ? missingPromptFiles.map((file) => `- \`${file}\``).join("\n") : "No missing continuation prompts reported."}\n\n## Step Logs\n\n${steps.map(renderStep).join("\n\n")}\n\n## Next Action\n\n${passed ? "Quality gate passed. Continue with the next Beta-relevant task." : "Quality gate failed. Fix the failed checks before continuing with larger implementation work."}\n`;
+  const report = `# WellFit Agent Quality Gate Report\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Gate Checks\n\n${renderChecks(checks)}\n\n## Required Standard\n\n- Agent validation must pass.\n- Alpha goal check must cover all required tracks.\n- Memory sync must report zero missing indexed files.\n- Memory sync must report zero required missing KI-Fortsetzungs-Prompts.\n- Dry run must produce planned micro-tasks.\n- Stufe 4 governance check must pass.\n- Agent governance control check must pass.\n- Route/API register check must pass.\n- Visual route smoke check must report safely in optional/report-only mode and must not require browser support.\n- Site route audit must pass.\n- Mobile Buddy UX audit must pass.\n- Feedback loop audit must pass.\n- Firebase security audit must pass.\n- Firestore emulator test plan check must pass.\n- Mission Buddy Economy audit must pass.\n- Firestore economy rules check must pass the current beta allow/deny guardrails.\n- Next agent task suggestion must select a non-blocked safe task.\n- TODO status sync must report no malformed or unknown status markers.\n\n## Exact Memory Sync Failures\n\n### Files Missing In Index\n\n${missingIndexFiles.length ? missingIndexFiles.map((file) => `- \`${file}\``).join("\n") : "No missing index files reported."}\n\n### Files Missing KI-Fortsetzungs-Prompt\n\n${missingPromptFiles.length ? missingPromptFiles.map((file) => `- \`${file}\``).join("\n") : "No missing continuation prompts reported."}\n\n## Step Logs\n\n${steps.map(renderStep).join("\n\n")}\n\n## Next Action\n\n${passed ? "Quality gate passed. Continue with the next Beta-relevant task." : "Quality gate failed. Fix the failed checks before continuing with larger implementation work."}\n`;
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(QUALITY_REPORT_PATH, report, "utf8");

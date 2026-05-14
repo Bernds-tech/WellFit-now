@@ -29,7 +29,9 @@
     "project-register/definition-of-done.json",
     "project-register/product-readiness.json",
     "project-register/agent-follow-ups.json",
-    "project-register/agent-work-log.json"
+    "project-register/agent-work-log.json",
+    "project-register/visual-regression.json",
+    "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -55,7 +57,8 @@
     "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
     "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run",
     "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
-    "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs"
+    "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+    "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -64,7 +67,8 @@
     "jq empty project-register/agent-follow-ups.json",
     "jq empty project-register/routes.json project-register/apis.json project-register/features.json project-register/internal-sources.json project-register/product-readiness.json",
     "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
-    "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs"
+    "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+    "jq empty project-register/visual-regression.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -580,6 +584,68 @@
         "Identify status/risk/check changes and source files used.",
         "Confirm no product logic or Unity files changed.",
         "State any human-review-required module decisions as risks."
+      ]
+    },
+    {
+      "id": "AGENT-VISUAL-REGRESSION-QA",
+      "title": "Maintain optional visual regression and screenshot route checks",
+      "status": "ready",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Keep WellFit visual/screenshot route validation mapped to the existing route register, Work Map, quality gate, and non-blocking browser-skip policy without changing product logic.",
+      "allowedFiles": [
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+        "project-register/visual-regression.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/routes.json",
+        "project-register/visual-regression.json",
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+        "project-register/agent-workflows.json"
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "jq empty project-register/visual-regression.json"
+      ],
+      "stopConditions": [
+        "product_logic_change_required",
+        "mandatory_browser_ci_required",
+        "protected_auth_or_real_user_data_required",
+        "compliance_or_reward_authority_change_required",
+        "would_create_parallel_visual_test_architecture",
+        "would_touch_unity_or_pr_13"
+      ],
+      "expectedPrOutput": [
+        "List visual-regression docs/register/script files updated.",
+        "State browser checks are optional and non-blocking when unavailable.",
+        "Report route-register validation and browser skip/pass result honestly.",
+        "Confirm no product logic, protected compliance areas, or Unity files changed.",
+        "Name the next safe visual QA hardening task."
       ]
     }
   ],

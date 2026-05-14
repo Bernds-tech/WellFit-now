@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "purpose": "Machine-readable WellFit visual regression and screenshot smoke-check plan for future Codex/AI agents. It defines optional, non-product-logic browser validation for important public, mobile beta-preview, and protected app routes while keeping screenshots out of source control and avoiding flaky mandatory CI requirements.",
+  "mode": {
+    "default": "route-register-validation-with-optional-browser-smoke",
+    "reportOnlySupported": true,
+    "qualityGateIntegration": "optional-report-only",
+    "nonBlockingWhenBrowserUnavailable": true
+  },
+  "routeGroups": [
+    {
+      "id": "public_core",
+      "description": "Public marketing, registration, help, and legal routes that can be smoke-checked without credentials.",
+      "auth": "public",
+      "defaultScreenshotRequired": true,
+      "routes": ["/", "/register", "/datenschutz", "/agb", "/impressum", "/faq", "/hilfe"]
+    },
+    {
+      "id": "mobile_beta_preview",
+      "description": "Mobile beta-preview routes that must preserve the current mobile shell and beta wording without activating protected economy, health, privacy, location, or camera logic.",
+      "auth": "mobile-beta-preview",
+      "defaultScreenshotRequired": true,
+      "routes": ["/mobile", "/mobile/analyse", "/mobile/ar", "/mobile/bewegung", "/mobile/buddy", "/mobile/einstellungen", "/mobile/missionen", "/mobile/missionen/squat"]
+    },
+    {
+      "id": "protected_app_preview",
+      "description": "Protected app or beta-preview dashboard routes. Full screenshot validation requires an approved test-user/session plan; unauthenticated smoke checks may only document redirects, login blockers, or beta-preview availability.",
+      "auth": "app-user-or-beta-preview",
+      "defaultScreenshotRequired": false,
+      "requiresAuthPlan": true,
+      "routes": ["/dashboard", "/dashboard/anpassen", "/buddy", "/missionen", "/missionen/tagesmissionen", "/missionen/wochenmissionen", "/missionen/abenteuer", "/missionen/challenge", "/missionen/wettkaempfe", "/missionen/favoriten", "/missionen/history", "/punkte-shop", "/marktplatz", "/leaderboard", "/analytics", "/einstellungen"]
+    }
+  ],
+  "viewports": {
+    "desktop": {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "mobile": {
+      "name": "mobile-standard",
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 2,
+      "isMobile": true
+    }
+  },
+  "screenshotArtifactPolicy": {
+    "defaultOutputDirectory": "scripts/wellfit-dev-agent/output/visual-route-smoke-check/",
+    "gitPolicy": "generated-artifacts-only; do not commit screenshots, videos, traces, or browser caches",
+    "filenameTemplate": "{routeGroup}-{viewport}-{routeSlug}.png",
+    "retention": "local PR evidence only unless a reviewer explicitly requests an attached artifact",
+    "redactionRule": "Do not capture authenticated personal data, secrets, private health data, child data, location data, wallet/payment state, or final reward authority evidence. Use approved seed/demo data only."
+  },
+  "browserRequirement": {
+    "optional": true,
+    "supportedRunners": ["@playwright/test", "playwright"],
+    "baseUrlEnvironmentVariable": "WELLFIT_VISUAL_BASE_URL",
+    "fallbackBaseUrl": "http://127.0.0.1:3000",
+    "browserUnavailableResult": "SKIPPED_BROWSER_UNAVAILABLE",
+    "baseUrlUnavailableResult": "SKIPPED_BASE_URL_UNAVAILABLE",
+    "installPolicy": "Do not install browser dependencies automatically from this check. If browser support is unavailable, report the skip and exit 0."
+  },
+  "routesToCheck": [
+    { "route": "/", "group": "public_core", "viewports": ["desktop", "mobile"], "screenshotRequiredOnUiChange": true },
+    { "route": "/register", "group": "public_core", "viewports": ["desktop", "mobile"], "screenshotRequiredOnUiChange": true },
+    { "route": "/faq", "group": "public_core", "viewports": ["desktop", "mobile"], "screenshotRequiredOnUiChange": true },
+    { "route": "/hilfe", "group": "public_core", "viewports": ["desktop", "mobile"], "screenshotRequiredOnUiChange": true },
+    { "route": "/mobile", "group": "mobile_beta_preview", "viewports": ["mobile"], "screenshotRequiredOnUiChange": true },
+    { "route": "/mobile/missionen", "group": "mobile_beta_preview", "viewports": ["mobile"], "screenshotRequiredOnUiChange": true },
+    { "route": "/mobile/buddy", "group": "mobile_beta_preview", "viewports": ["mobile"], "screenshotRequiredOnUiChange": true },
+    { "route": "/mobile/einstellungen", "group": "mobile_beta_preview", "viewports": ["mobile"], "screenshotRequiredOnUiChange": true },
+    { "route": "/dashboard", "group": "protected_app_preview", "viewports": ["desktop"], "screenshotRequiredOnUiChange": false, "authLimitation": "requires approved test user/session or documented beta-preview blocker" },
+    { "route": "/missionen/tagesmissionen", "group": "protected_app_preview", "viewports": ["desktop"], "screenshotRequiredOnUiChange": false, "authLimitation": "requires approved test user/session or documented beta-preview blocker" },
+    { "route": "/einstellungen", "group": "protected_app_preview", "viewports": ["desktop"], "screenshotRequiredOnUiChange": false, "authLimitation": "requires approved test user/session or documented beta-preview blocker" }
+  ],
+  "protectedRoutesAndAuthLimitations": {
+    "defaultRule": "Do not use real user credentials or capture real user data. Protected route screenshots require an approved test account, seeded demo data, or explicit documentation that auth blocks full visual validation.",
+    "checkBehaviorWithoutAuth": "Allowed only for safe smoke documentation of HTTP reachability, redirects, not-found states, or beta-preview screens. Do not treat unauthenticated protected-route screenshots as final visual approval.",
+    "forbidden": [
+      "real credentials",
+      "production user data",
+      "personal health data",
+      "child data",
+      "precise location data",
+      "wallet/payment state",
+      "final reward authority evidence",
+      "token/NFT/trading/presale flows"
+    ]
+  },
+  "screenshotRequiredRules": [
+    "Required for perceptible UI changes to public_core routes when a runnable preview and browser runner are available.",
+    "Required for perceptible UI changes to mobile_beta_preview routes when a runnable preview and browser runner are available.",
+    "Required for app shell, navigation, footer, dashboard, mission, buddy, legal/help, and mobile navigation changes when affected routes are accessible safely.",
+    "Protected app routes require either screenshots from an approved test-user/demo session or a written blocker explaining why screenshots could not be captured.",
+    "If browser support is unavailable in the environment, agents must run the route-register validation, record SKIPPED_BROWSER_UNAVAILABLE, and avoid making the main build fail for that reason."
+  ],
+  "safetyRules": [
+    "This plan and its checker are QA/documentation support only and must never rewrite product files.",
+    "Do not modify token, NFT, wallet, payment, betting, reward authority, health, child, location, privacy, or compliance logic while using this plan.",
+    "Do not create duplicate route, architecture, visual-design, or browser-test systems; keep future additions mapped through this register, Work Map, and the existing wellfit-dev-agent quality gate."
+  ]
+}
