@@ -53,13 +53,18 @@
     "npm run agent:quality-gate",
     "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
     "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
-    "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run"
+    "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run",
+    "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+    "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
     "jq empty project-register/definition-of-done.json",
     "jq empty project-register/risk-classifier.json",
-    "jq empty project-register/agent-follow-ups.json"
+    "jq empty project-register/agent-follow-ups.json",
+    "jq empty project-register/routes.json project-register/apis.json project-register/features.json project-register/internal-sources.json project-register/product-readiness.json",
+    "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+    "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -177,6 +182,61 @@
         "Identify source files used for each new or changed register entry.",
         "Explain anti-duplication checks performed.",
         "State any stale or uncertain entries as risks."
+      ]
+    },
+    {
+      "id": "AGENT-DRIFT-GAP-REGISTER-FOLLOWUP",
+      "title": "Review Route/API Drift and Concept-to-Code Gap warnings",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Resolve safe, verified drift/gap warnings from the validation-only detectors without changing runtime product logic or protected high/critical areas.",
+      "allowedFiles": [
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/features.json",
+        "project-register/internal-sources.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "docs/architecture/WELLFIT_DRIFT_AND_GAP_ANALYSIS.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/features.json",
+        "project-register/internal-sources.json",
+        "project-register/product-readiness.json",
+        "docs/architecture/WELLFIT_DRIFT_AND_GAP_ANALYSIS.md"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "warning_requires_product_logic_change",
+        "warning_touches_high_or_critical_protected_area_without_human_classification",
+        "unverified_route_api_or_feature_claim",
+        "would_create_duplicate_architecture_or_parallel_system"
+      ],
+      "expectedPrOutput": [
+        "List each detector warning reviewed and whether it was resolved or deferred.",
+        "State that no product logic changed.",
+        "State protected high/critical areas were not auto-fixed.",
+        "Name the next safe registry-only task."
       ]
     },
     {

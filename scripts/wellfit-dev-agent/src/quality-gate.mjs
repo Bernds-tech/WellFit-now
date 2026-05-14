@@ -19,6 +19,8 @@ const agentSteps = [
   { label: "Agent governance control check", script: "scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs" },
   { label: "Product readiness check", script: "scripts/wellfit-dev-agent/src/product-readiness-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs" },
   { label: "Route API register check", script: "scripts/wellfit-dev-agent/src/route-api-register-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/route-api-register-check.mjs" },
+  { label: "Route/API drift detector", script: "scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs" },
+  { label: "Concept-to-code gap analyzer", script: "scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs" },
   { label: "Site route audit", script: "scripts/wellfit-dev-agent/src/site-route-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/site-route-audit.mjs" },
   { label: "Mobile Buddy UX audit", script: "scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs" },
   { label: "Feedback loop audit", script: "scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs" },
@@ -98,6 +100,8 @@ function main() {
   const agentGovernanceControlReport = readTextSafe("scripts/wellfit-dev-agent/output/agent-governance-control-check.md");
   const productReadinessReport = readTextSafe("scripts/wellfit-dev-agent/output/product-readiness-check.md");
   const routeApiReport = readTextSafe("scripts/wellfit-dev-agent/output/route-api-register-check.md");
+  const routeApiDriftReport = readTextSafe("scripts/wellfit-dev-agent/output/route-api-drift-detector.md");
+  const conceptToCodeGapReport = readTextSafe("scripts/wellfit-dev-agent/output/concept-to-code-gap-analyzer.md");
   const siteRouteReport = readTextSafe("scripts/wellfit-dev-agent/output/site-route-audit-report.md");
   const mobileBuddyUxReport = readTextSafe("scripts/wellfit-dev-agent/output/mobile-buddy-ux-audit.md");
   const feedbackLoopReport = readTextSafe("scripts/wellfit-dev-agent/output/feedback-loop-audit.md");
@@ -113,6 +117,8 @@ function main() {
   const followUpDetectorStep = getStep(steps, "Follow-up detector");
   const prOutcomeRecorderStep = getStep(steps, "PR outcome recorder dry run");
   const todoStatusStep = getStep(steps, "TODO status sync");
+  const routeApiDriftStep = getStep(steps, "Route/API drift detector");
+  const conceptToCodeGapStep = getStep(steps, "Concept-to-code gap analyzer");
 
   const covered = parseCoveredTracks(`${goalReport}\n${alphaStep?.stdout ?? ""}`);
   const missingIndex = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in TODO index/structure memory") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in index");
@@ -125,6 +131,8 @@ function main() {
   const followUpDetectorPassed = /Result:\s*REPORT_ONLY/i.test(followUpDetectorStep?.stdout ?? "");
   const prOutcomeRecorderPassed = /Mode:\s*DRY_RUN/i.test(prOutcomeRecorderStep?.stdout ?? "");
   const todoStatusSyncPassed = /Result:\s*PASS/i.test(todoStatusStep?.stdout ?? "");
+  const routeApiDriftPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${routeApiDriftReport}\n${routeApiDriftStep?.stdout ?? ""}`);
+  const conceptToCodeGapPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${conceptToCodeGapReport}\n${conceptToCodeGapStep?.stdout ?? ""}`);
 
   assertCondition(checks, "Alpha tracks fully covered", covered.covered !== null && covered.total !== null && covered.covered === covered.total, covered.covered === null ? "not found" : `${covered.covered}/${covered.total}`);
   assertCondition(checks, "TODO index has no missing files", missingIndex === 0, formatDetailCount(missingIndex, missingIndexFiles));
@@ -134,6 +142,8 @@ function main() {
   assertCondition(checks, "Agent governance control check passed", /Result:\s*PASS/i.test(agentGovernanceControlReport), /Result:\s*PASS/i.test(agentGovernanceControlReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Product readiness check passed", /Result:\s*PASS/i.test(productReadinessReport), /Result:\s*PASS/i.test(productReadinessReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Route/API register check passed", /Result:\s*PASS/i.test(routeApiReport), /Result:\s*PASS/i.test(routeApiReport) ? "PASS" : "not found or FAIL");
+  assertCondition(checks, "Route/API drift detector passed", routeApiDriftPassed, routeApiDriftPassed ? "PASS or PASS_WITH_WARNINGS" : "not found or FAIL");
+  assertCondition(checks, "Concept-to-code gap analyzer passed", conceptToCodeGapPassed, conceptToCodeGapPassed ? "PASS or PASS_WITH_WARNINGS" : "not found or FAIL");
   assertCondition(checks, "Site route audit passed", /Result:\s*PASS/i.test(siteRouteReport), /Result:\s*PASS/i.test(siteRouteReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Mobile Buddy UX audit passed", /Result:\s*PASS/i.test(mobileBuddyUxReport), /Result:\s*PASS/i.test(mobileBuddyUxReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Feedback loop audit passed", /Result:\s*PASS/i.test(feedbackLoopReport), /Result:\s*PASS/i.test(feedbackLoopReport) ? "PASS" : "not found or FAIL");
