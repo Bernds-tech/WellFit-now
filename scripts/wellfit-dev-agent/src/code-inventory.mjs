@@ -53,7 +53,6 @@ function walk(relativeDir, result = []) {
     if (IGNORE_DIR_NAMES.has(entry.name)) continue;
 
     const relativePath = normalizePath(path.join(relativeDir, entry.name));
-    const absolutePath = path.join(ROOT, relativePath);
 
     if (entry.isDirectory()) {
       walk(relativePath, result);

@@ -26,7 +26,7 @@ function walk(dir, result = []) {
   return result;
 }
 
-function routeFromFile(absFile, marker) {
+function routeFromFile(absFile) {
   const rel = norm(path.relative(APP_DIR, path.dirname(absFile)));
   const parts = rel === "" ? [] : rel.split("/");
   const routeParts = parts.filter((part) => !part.startsWith("(") && !part.startsWith("@"));

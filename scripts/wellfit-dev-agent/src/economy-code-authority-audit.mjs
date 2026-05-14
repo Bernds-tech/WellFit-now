@@ -41,7 +41,6 @@ function walk(relativeDir, result = []) {
   for (const entry of fs.readdirSync(absDir, { withFileTypes: true })) {
     if (IGNORE_DIRS.has(entry.name)) continue;
     const rel = norm(path.join(relativeDir, entry.name));
-    const abs = path.join(ROOT, rel);
     if (entry.isDirectory()) walk(rel, result);
     else if (entry.isFile() && EXTENSIONS.has(path.extname(entry.name).toLowerCase())) result.push(rel);
   }

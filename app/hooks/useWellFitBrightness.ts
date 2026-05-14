@@ -24,13 +24,15 @@ export const applyWellFitBrightnessVars = (brightness: number) => {
 };
 
 export function useWellFitBrightness(defaultValue = 100) {
-  const [brightness, setBrightnessState] = useState(defaultValue);
+  const [brightness, setBrightnessState] = useState(clampBrightness(defaultValue));
 
   useEffect(() => {
-    const saved = localStorage.getItem(WELLFIT_BRIGHTNESS_STORAGE_KEY);
-    const next = clampBrightness(saved ? Number(saved) : defaultValue);
-    setBrightnessState(next);
-    applyWellFitBrightnessVars(next);
+    queueMicrotask(() => {
+      const saved = localStorage.getItem(WELLFIT_BRIGHTNESS_STORAGE_KEY);
+      const next = clampBrightness(saved ? Number(saved) : defaultValue);
+      setBrightnessState(next);
+      applyWellFitBrightnessVars(next);
+    });
   }, [defaultValue]);
 
   const setBrightness = (value: number) => {

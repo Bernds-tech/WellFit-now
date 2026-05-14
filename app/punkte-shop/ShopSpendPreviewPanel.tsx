@@ -43,11 +43,13 @@ export default function ShopSpendPreviewPanel({ items }: ShopSpendPreviewPanelPr
     if (!selectedItem) return;
 
     let isCancelled = false;
-    setPreviewState({
-      status: "loading",
-      itemId: selectedItem.id,
-      message: "Server-Spend-Preview wird vorbereitet...",
-      source: "server",
+    queueMicrotask(() => {
+      setPreviewState({
+        status: "loading",
+        itemId: selectedItem.id,
+        message: "Server-Spend-Preview wird vorbereitet...",
+        source: "server",
+      });
     });
 
     fetch("/api/economy/spend-preview", {

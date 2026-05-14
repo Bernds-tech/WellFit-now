@@ -72,7 +72,7 @@ export default function HistoryPage() {
   const [statusFilter, setStatusFilter] = useState<"Alle" | HistoryStatus>("Alle");
 
   useEffect(() => {
-    setClientEntries(readClientMissionHistory());
+    queueMicrotask(() => setClientEntries(readClientMissionHistory()));
     return subscribeClientMissionHistory(setClientEntries);
   }, []);
 

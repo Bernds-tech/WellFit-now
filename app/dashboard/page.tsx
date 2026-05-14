@@ -41,31 +41,35 @@ export default function DashboardPage() {
   const [buddyEnergy, setBuddyEnergy] = useState(100);
   const [buddyHunger, setBuddyHunger] = useState(100);
   const [foodPrice, setFoodPrice] = useState(5);
-  const [missionPreview, setMissionPreview] = useState<DashboardMissionPreview | undefined>(undefined);
+  const [serverMissionPreview, setServerMissionPreview] = useState<DashboardMissionPreview | undefined>(undefined);
   const [projectionSource, setProjectionSource] = useState<"server" | "local">("local");
   const [economyHealth, setEconomyHealth] = useState<InternalEconomyHealthSnapshot | null>(null);
   const [economyHealthSource, setEconomyHealthSource] = useState<"server" | "local">("local");
 
   const mission = useMemo(() => getPersonalMission(user), [user]);
+  const localMissionPreview = useMemo<DashboardMissionPreview | undefined>(() => {
+    if (!mission) return undefined;
+    const localDecision = createDashboardMissionRewardPreview({ user, mission, stepsToday });
+    return {
+      decision: localDecision,
+      label: getRewardPreviewUiLabel(localDecision),
+      source: "local",
+    };
+  }, [mission, stepsToday, user]);
+  const missionPreview = serverMissionPreview ?? localMissionPreview;
 
   useEffect(() => {
     if (!mission) {
-      setMissionPreview(undefined);
+      queueMicrotask(() => setServerMissionPreview(undefined));
       return;
     }
 
     let isCancelled = false;
-    const localDecision = createDashboardMissionRewardPreview({ user, mission, stepsToday });
-
-    setMissionPreview({
-      decision: localDecision,
-      label: getRewardPreviewUiLabel(localDecision),
-      source: "local",
-    });
+    queueMicrotask(() => setServerMissionPreview(undefined));
 
     fetchDashboardMissionRewardPreview({ user, mission, stepsToday }).then((preview) => {
       if (!isCancelled) {
-        setMissionPreview(preview);
+        setServerMissionPreview(preview);
       }
     });
 
