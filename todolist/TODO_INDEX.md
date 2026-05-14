@@ -161,6 +161,10 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
+| `project-register/agent-task-queue.json` | aktiv / maschinenlesbares Register | Agenten-Aufgabenwarteschlange mit Prioritaet, Risiko, erlaubten/verbotenen Dateien, First-Reads, Checks, PR-Ausgabe und Stop-Bedingungen | `AGENTS.md`, `project-register/agent-workflows.json`, `todolist/WORK_MAP.md` | vor autonomer Task-Auswahl lesen |
+| `project-register/definition-of-done.json` | aktiv / maschinenlesbares Register | Definition-of-Done-Kriterien fuer Dokumentation, Registry, UI, API, Mission, Buddy/KI, Firebase/Backend, Feedback/Analytics, Unity/AR-Planung und compliance-sensitive Planung | `AGENTS.md`, `project-register/agent-workflows.json` | passenden Done-Key vor Umsetzung waehlen |
+| `project-register/risk-classifier.json` | aktiv / maschinenlesbares Register | Risikoklassifikation, geschuetzte Bereiche, automatische Stop-Regeln, Planning-only-Regeln und Freigabepflichten fuer Agenten | `AGENTS.md`, `project-register/agent-workflows.json` | vor jeder neuen Aufgabe klassifizieren |
+| `docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md` | aktiv / Architektur-Erklaerung | Human-readable Erklaerung der Agent Task Queue, Definition of Done und Risk Classifier Controls | `project-register/agent-task-queue.json`, `project-register/definition-of-done.json`, `project-register/risk-classifier.json` | bei Aenderungen an den Agent-Control-Registern synchron halten |
 | `agents/modes/stufe-4-autonomous-development.md` | aktiv / Stufe-4-Workflow | human-readable autonomer Entwicklungsworkflow mit Phasen, Safety-Gates, PR-/Preview-Grenzen und Pflichtchecks | `project-register/agent-workflows.json` | vor neuer Stufe-4-Featurearbeit lesen und befolgen |
 | `project-register/agent-workflows.json` | aktiv / maschinenlesbares Register | maschinenlesbarer Stufe-4-Agentenworkflow, Pflichtdateien, Phasen, Autonomiegrenzen und Checks | `agents/modes/stufe-4-autonomous-development.md` | bei Workflow-Aenderungen synchron halten |
 

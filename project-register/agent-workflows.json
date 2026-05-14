@@ -18,10 +18,28 @@
         "todolist/CURRENT_PROJECT_STATE.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
+        "project-register/agent-task-queue.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
         "todolist/NEXT_ACTIONS.md",
         "project-register/routes.json",
         "project-register/apis.json",
-        "project-register/features.json"
+        "project-register/features.json",
+        "project-register/internal-sources.json",
+        "project-register/user-feedback.json"
+      ],
+      "controlRegisters": [
+        {
+          "id": "agent_execution_controls",
+          "registers": [
+            "project-register/agent-task-queue.json",
+            "project-register/definition-of-done.json",
+            "project-register/risk-classifier.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md",
+          "purpose": "Task selection, risk classification, stop rules, and definition-of-done controls for future autonomous agents.",
+          "usage": "Before choosing or implementing a task, classify risk, select a task candidate, select a definitionOfDoneKey, and honor stop conditions."
+        }
       ],
       "additionalGovernanceInputs": [
         "agents/",

@@ -1,0 +1,223 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "status": "active",
+  "purpose": "Machine-readable definition-of-done controls for WellFit task types. Future agents must select the matching key before implementation and report it in the PR output.",
+  "sharedCriteria": [
+    "AGENTS.md and scoped governance files were read before changes.",
+    "Work happened on a task-specific branch, not directly on main.",
+    "Existing leading files from todolist/WORK_MAP.md and project-register were extended instead of creating duplicate architecture.",
+    "Protected Unity/PR #13 areas were not touched unless explicitly approved, and no such approval is implied by default.",
+    "Product logic, compliance-critical logic, reward authority, token/NFT/wallet/payment/betting, health, child, location, privacy, and legal logic were not modified unless the selected task type explicitly allowed it with human approval.",
+    "Required checks were run or documented with exact failure reasons and environment limitations.",
+    "PR summary includes changed files, checks, risks, dependency status, and next recommended task."
+  ],
+  "taskTypes": {
+    "documentation_task": {
+      "riskDefault": "low",
+      "doneWhen": [
+        "Only Markdown or approved planning documents changed.",
+        "Documentation points to the leading source-of-truth files instead of replacing them.",
+        "Historical TODO/status context was preserved; stale or duplicate content was marked and linked rather than deleted.",
+        "No runtime code, product behavior, legal copy, privacy copy, or compliance-sensitive wording changed.",
+        "Relevant cross-references in WORK_MAP.md or TODO_INDEX.md were updated when a new documentation file was added."
+      ],
+      "requiredEvidence": [
+        "List of documentation files changed.",
+        "Statement that runtime code and protected areas were untouched.",
+        "Commands/checks run and results."
+      ],
+      "requiredChecks": [
+        "npm run agent:quality-gate"
+      ]
+    },
+    "registry_task": {
+      "riskDefault": "low",
+      "doneWhen": [
+        "JSON is syntactically valid and follows existing project-register conventions.",
+        "New entries reference existing leading files, routes, APIs, features, or docs and do not invent unimplemented behavior as fact.",
+        "Machine-readable entries include status, purpose, source links, and safety boundaries where relevant.",
+        "WORK_MAP.md and TODO_INDEX.md point to newly added governance registers when required.",
+        "No runtime code or product logic changed."
+      ],
+      "requiredEvidence": [
+        "jq validation commands for changed JSON files.",
+        "Source files used to justify registry entries.",
+        "Anti-duplication note."
+      ],
+      "requiredChecks": [
+        "jq empty <changed-json-files>",
+        "npm run agent:quality-gate"
+      ]
+    },
+    "ui_route_task": {
+      "riskDefault": "medium",
+      "doneWhen": [
+        "Only existing route/page/component surfaces needed for the scoped UI fix changed.",
+        "The current visual identity, AppShell, sidebar, footer, mobile navigation, legal/help flow, and mission route structure remain intact unless explicitly requested.",
+        "Route/page/feature registers are updated if route behavior or inventory changed.",
+        "No API authority, reward logic, health/location/camera/child/privacy logic, wallet/payment/token/NFT/betting behavior, or legal/compliance copy changed.",
+        "A screenshot or preview note is provided for perceptible runnable UI changes when the environment supports it."
+      ],
+      "requiredEvidence": [
+        "Affected route list.",
+        "Screenshot/preview note for perceptible UI changes.",
+        "Lint, typecheck, build, and quality-gate results."
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm run agent:quality-gate"
+      ]
+    },
+    "api_route_task": {
+      "riskDefault": "medium",
+      "doneWhen": [
+        "API authority level is documented in project-register/apis.json before or with the change.",
+        "Security boundaries, allowed inputs/outputs, no-secret posture, and data minimization are explicit.",
+        "Economy/reward APIs remain preview/draft-only unless an explicit human-approved server-authority plan is present.",
+        "No final ledger, payment, wallet, token/NFT, betting, health, child, location, privacy, or compliance-sensitive behavior is introduced without explicit approval.",
+        "Tests/checks cover syntax and build impact, and any missing emulator requirements are documented."
+      ],
+      "requiredEvidence": [
+        "Affected API route list.",
+        "Authority and security note.",
+        "Register update references.",
+        "Check results including build and relevant function checks."
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate"
+      ]
+    },
+    "mission_task": {
+      "riskDefault": "medium",
+      "doneWhen": [
+        "Existing mission routes, libs, and registers from WORK_MAP.md are extended rather than replaced.",
+        "Mission completion, reward authorization, anti-cheat, evidence, and rare-item grants are not finalized on the client.",
+        "Any points/XP behavior is clearly internal beta preview/draft unless server authority is explicitly approved.",
+        "Affected routes/APIs/features and mission architecture docs are updated when behavior changes.",
+        "No PvP stake, betting, payout, wallet, token/NFT, or marketplace authority is activated."
+      ],
+      "requiredEvidence": [
+        "Affected mission files and registers.",
+        "Authority boundary statement.",
+        "Check results."
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm run agent:quality-gate"
+      ]
+    },
+    "buddy_ki_task": {
+      "riskDefault": "medium",
+      "doneWhen": [
+        "Existing Buddy/KI pages, components, libs, API route, and architecture docs are extended in place.",
+        "Buddy/KI can guide, explain, personalize, or summarize but cannot authorize rewards, points, mission completion, tokens, payments, or ledger writes.",
+        "Provider, prompt, model, and fallback behavior are documented without exposing secrets to the frontend.",
+        "Child-safety, health, location, privacy, and sensitive-profile assumptions are not expanded without explicit approval.",
+        "Feature/API registers remain aligned with the Buddy/KI boundaries."
+      ],
+      "requiredEvidence": [
+        "Affected Buddy/KI surfaces.",
+        "No-reward-authority statement.",
+        "Provider/secret boundary note when relevant.",
+        "Check results."
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm run agent:quality-gate"
+      ]
+    },
+    "firebase_backend_task": {
+      "riskDefault": "high",
+      "doneWhen": [
+        "Backend, Functions, Firestore, or rules changes are minimal and tied to existing architecture docs/registers.",
+        "No client or untrusted caller receives final reward, ledger, payment, wallet, token/NFT, betting, or mission-completion authority.",
+        "Rules/callables avoid secret exposure and document auth, validation, rate/cooldown, and data-minimization assumptions.",
+        "Emulator or syntax-check requirements are run where available; environment blockers are clearly classified.",
+        "Relevant backend readiness, security, API, and feature registers are synchronized."
+      ],
+      "requiredEvidence": [
+        "Affected backend/rules/API files.",
+        "Authority and auth-validation note.",
+        "Functions check and build results.",
+        "Emulator limitation note if applicable."
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate"
+      ]
+    },
+    "feedback_analytics_task": {
+      "riskDefault": "medium",
+      "doneWhen": [
+        "Feedback/analytics work follows project-register/user-feedback.json and USER_FEEDBACK_DATABASE_FLOW.md.",
+        "No third-party analytics, live tracking, raw user-data agent reports, or sensitive data collection is added without explicit approval.",
+        "Consent, retention, minimization, allowed fields, forbidden fields, and aggregate-summary boundaries are documented.",
+        "Feedback APIs or implementation work stays server-validated and avoids direct client Firestore writes unless approved by existing architecture.",
+        "Registers and docs remain synchronized."
+      ],
+      "requiredEvidence": [
+        "Feedback/analytics files changed.",
+        "Allowed/forbidden data field summary.",
+        "Consent and retention note.",
+        "Check results."
+      ],
+      "requiredChecks": [
+        "jq empty project-register/user-feedback.json",
+        "npm run agent:quality-gate"
+      ]
+    },
+    "unity_ar_planning_task": {
+      "riskDefault": "high",
+      "doneWhen": [
+        "Work is planning/inventory-only unless the user explicitly approves runtime AR work.",
+        "native/unity/WellFitBuddyAR and PR #13 are untouched and not used as shortcuts.",
+        "Unity/AR is described as event/rendering input; app/backend retain reward, mission-completion, and anti-cheat authority.",
+        "Existing AR architecture docs, TODO entries, and internal-source mappings are linked instead of creating a parallel AR plan.",
+        "No native files, AR runtime code, reward logic, health/location/camera/privacy behavior, or Unity scripts changed."
+      ],
+      "requiredEvidence": [
+        "Planning files changed.",
+        "Unity/PR #13 untouched statement.",
+        "Authority boundary statement.",
+        "Check results."
+      ],
+      "requiredChecks": [
+        "npm run agent:quality-gate"
+      ]
+    },
+    "compliance_sensitive_planning_task": {
+      "riskDefault": "critical",
+      "doneWhen": [
+        "Work remains planning-only and does not modify runtime behavior or user-facing legal/compliance copy.",
+        "Protected area, risk level, assumptions, unknowns, and required human/legal/security decisions are explicit.",
+        "No token/NFT/wallet/payment/purchase/payout/marketplace/staking/presale/trading, betting/PvP stake, health/watch/location/camera/child/privacy/consent, legal, or reward-authority logic changes are made.",
+        "Any future implementation is broken into approval-gated tasks with protected files listed.",
+        "Registers and architecture docs point back to AGENTS.md safety rules and risk-classifier stop rules."
+      ],
+      "requiredEvidence": [
+        "Planning files changed.",
+        "Critical risk classification.",
+        "Explicit human approval list for future work.",
+        "Protected files intentionally left untouched."
+      ],
+      "requiredChecks": [
+        "jq empty project-register/risk-classifier.json",
+        "npm run agent:quality-gate"
+      ]
+    }
+  }
+}
