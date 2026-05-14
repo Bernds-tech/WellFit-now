@@ -17,6 +17,7 @@ const agentSteps = [
   { label: "Dry run planning", script: "scripts/wellfit-dev-agent/src/dry-run.mjs", displayCommand: "npm run agent:dry-run" },
   { label: "Stufe 4 governance check", script: "scripts/wellfit-dev-agent/src/stufe4-governance-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/stufe4-governance-check.mjs" },
   { label: "Agent governance control check", script: "scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs" },
+  { label: "Product readiness check", script: "scripts/wellfit-dev-agent/src/product-readiness-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs" },
   { label: "Route API register check", script: "scripts/wellfit-dev-agent/src/route-api-register-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/route-api-register-check.mjs" },
   { label: "Site route audit", script: "scripts/wellfit-dev-agent/src/site-route-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/site-route-audit.mjs" },
   { label: "Mobile Buddy UX audit", script: "scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs" },
@@ -95,6 +96,7 @@ function main() {
   const rulesReport = readTextSafe("scripts/wellfit-dev-agent/output/firestore-economy-rules-check.md");
   const governanceReport = readTextSafe("scripts/wellfit-dev-agent/output/stufe4-governance-check.md");
   const agentGovernanceControlReport = readTextSafe("scripts/wellfit-dev-agent/output/agent-governance-control-check.md");
+  const productReadinessReport = readTextSafe("scripts/wellfit-dev-agent/output/product-readiness-check.md");
   const routeApiReport = readTextSafe("scripts/wellfit-dev-agent/output/route-api-register-check.md");
   const siteRouteReport = readTextSafe("scripts/wellfit-dev-agent/output/site-route-audit-report.md");
   const mobileBuddyUxReport = readTextSafe("scripts/wellfit-dev-agent/output/mobile-buddy-ux-audit.md");
@@ -130,6 +132,7 @@ function main() {
   assertCondition(checks, "Dry run produced micro-tasks", plannedMicroTasks !== null && plannedMicroTasks > 0, plannedMicroTasks === null ? "not found" : String(plannedMicroTasks));
   assertCondition(checks, "Stufe 4 governance check passed", /Result:\s*PASS/i.test(governanceReport), /Result:\s*PASS/i.test(governanceReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Agent governance control check passed", /Result:\s*PASS/i.test(agentGovernanceControlReport), /Result:\s*PASS/i.test(agentGovernanceControlReport) ? "PASS" : "not found or FAIL");
+  assertCondition(checks, "Product readiness check passed", /Result:\s*PASS/i.test(productReadinessReport), /Result:\s*PASS/i.test(productReadinessReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Route/API register check passed", /Result:\s*PASS/i.test(routeApiReport), /Result:\s*PASS/i.test(routeApiReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Site route audit passed", /Result:\s*PASS/i.test(siteRouteReport), /Result:\s*PASS/i.test(siteRouteReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Mobile Buddy UX audit passed", /Result:\s*PASS/i.test(mobileBuddyUxReport), /Result:\s*PASS/i.test(mobileBuddyUxReport) ? "PASS" : "not found or FAIL");

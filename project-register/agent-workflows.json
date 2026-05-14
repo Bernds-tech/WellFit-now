@@ -21,6 +21,8 @@
         "project-register/agent-task-queue.json",
         "project-register/risk-classifier.json",
         "project-register/definition-of-done.json",
+        "project-register/product-readiness.json",
+        "docs/architecture/WELLFIT_PRODUCT_READINESS_MATRIX.md",
         "todolist/NEXT_ACTIONS.md",
         "project-register/routes.json",
         "project-register/apis.json",
@@ -42,6 +44,14 @@
           "architecture": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md",
           "purpose": "Task selection, risk classification, stop rules, and definition-of-done controls for future autonomous agents.",
           "usage": "Before choosing or implementing a task, classify risk, select a task candidate, select a definitionOfDoneKey, and honor stop conditions."
+        },
+        {
+          "id": "product_readiness_matrix",
+          "registers": ["project-register/product-readiness.json"],
+          "architecture": "docs/architecture/WELLFIT_PRODUCT_READINESS_MATRIX.md",
+          "scripts": ["scripts/wellfit-dev-agent/src/product-readiness-check.mjs"],
+          "purpose": "Module readiness, risk, blockers, safe next task, duplicate-warning, advancement checks, and human-approval guidance for future agents.",
+          "usage": "Before selecting module work, verify readiness status and required checks; stop or request human review for blocked, review-required, critical, or protected modules."
         },
         {
           "id": "agent_memory_loop",
@@ -92,6 +102,7 @@
         "npm run build",
         "npm --prefix functions run check",
         "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
         "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
         "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run"
       ],
@@ -117,7 +128,7 @@
         {
           "id": "derive_structure",
           "purpose": "Derive existing WellFit structure, module boundaries, and affected registers from the goal.",
-          "requiredInputFiles": ["todolist/PROJECT_STRUCTURE.md", "todolist/CODEBASE_FEATURE_MAP.md", "project-register/cross-references.json", "project-register/decisions.json"],
+          "requiredInputFiles": ["todolist/PROJECT_STRUCTURE.md", "todolist/CODEBASE_FEATURE_MAP.md", "project-register/cross-references.json", "project-register/decisions.json", "project-register/product-readiness.json"],
           "allowedActions": ["map existing folders/modules/registers", "keep change scope minimal", "document exclusions"],
           "forbiddenActions": ["create parallel modules", "create second design systems", "create duplicate shells", "create competing data models", "create redundant registers"],
           "requiredOutput": "Structure decision with affected files/registers and excluded areas.",
@@ -126,7 +137,7 @@
         {
           "id": "inspect_existing_pages_routes_apis",
           "purpose": "Capture affected pages, secondary pages, routes, APIs, and features before implementation.",
-          "requiredInputFiles": ["project-register/routes.json", "project-register/pages.json", "project-register/apis.json", "project-register/features.json", "existing app/API routes"],
+          "requiredInputFiles": ["project-register/routes.json", "project-register/pages.json", "project-register/apis.json", "project-register/features.json", "project-register/product-readiness.json", "existing app/API routes"],
           "allowedActions": ["read route/API inventory", "name affected pages/APIs", "plan crawl or audit for UI work"],
           "forbiddenActions": ["create routes or APIs without register entry", "ignore existing routes", "skip security review for API changes"],
           "requiredOutput": "Affected routes, APIs, and features in task plan and PR report.",
@@ -156,7 +167,7 @@
           "requiredInputFiles": ["package.json", "functions/package.json", "scripts/wellfit-dev-agent/", "affected test/config files"],
           "allowedActions": ["run required checks", "evaluate output", "document environment limits"],
           "forbiddenActions": ["hide failures", "remove tests", "skip checks without reason"],
-          "requiredOutput": "Result list for npm run lint, npx tsc --noEmit, npm run build, npm --prefix functions run check, npm run agent:quality-gate.",
+          "requiredOutput": "Result list for npm run lint, npx tsc --noEmit, npm run build, npm --prefix functions run check, npm run agent:quality-gate, and product-readiness-check where relevant.",
           "riskGates": ["PR may include failures only with transparent cause, risk, and next fix step."]
         },
         {

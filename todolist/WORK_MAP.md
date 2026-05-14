@@ -17,6 +17,14 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 - Diese Registry ersetzt diese Work Map nicht; sie verweist auf vorhandene Fuehrungsdateien und soll Doppelarchitektur verhindern.
 
 
+
+## Product readiness matrix
+
+- `project-register/product-readiness.json` ist die maschinenlesbare Produktbereitschafts-Matrix fuer Modulstatus (`not_started`, `concept_only`, `planned`, `prototype`, `active_beta`, `blocked`, `review_required`, `production_ready`), Risiko, fuehrende Dateien, Blocker, naechste sichere Aufgabe, Duplicate-Warnung, Advancement-Checks und Human-Approval.
+- `docs/architecture/WELLFIT_PRODUCT_READINESS_MATRIX.md` erklaert die Matrix fuer Menschen und enthaelt die Research-Fallback-Regel: nicht raten; bei verfuegbarem Internet drei Optionen recherchieren, eine empfehlen und vor Umsetzung als `human-review-required` markieren.
+- `scripts/wellfit-dev-agent/src/product-readiness-check.mjs` validiert die Matrix und ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
+- Die Matrix ersetzt nicht `features.json`, `routes.json`, `apis.json`, `internal-sources.json` oder diese Work Map; sie verknuepft deren fuehrende Bereiche und verhindert unsafe Statusspruenge.
+
 ## Agent execution controls
 
 - `project-register/agent-task-queue.json` ist die maschinenlesbare Aufgaben-Warteschlange fuer kuenftige Codex-/KI-Agenten. Sie verbindet Prioritaet, Risiko, erlaubte/verbotene Dateien, First-Read-Dateien, Pflichtchecks, PR-Ausgabe und Stop-Bedingungen.
@@ -31,6 +39,7 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 - `scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs` validiert PR-Outcome-Daten im Dry-Run und kann nur mit explizitem lokalen Schreibflag an `project-register/agent-work-log.json` anhaengen.
 - `scripts/wellfit-dev-agent/src/todo-status-sync.mjs` validiert TODO-Statusmarker in `todolist/NEXT_ACTIONS.md` und `todolist/TODO_INDEX.md` ohne automatische Rewrite-Aenderungen.
 - `scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs` validiert diese Register automatisch und ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
+- `scripts/wellfit-dev-agent/src/product-readiness-check.mjs` validiert `project-register/product-readiness.json` als Pflichtteil des Quality Gates.
 - Diese Dateien erweitern `AGENTS.md`, `project-register/agent-workflows.json`, `project-register/internal-sources.json`, diese Work Map und `todolist/CURRENT_PROJECT_STATE.md`; sie ersetzen keine dieser fuehrenden Dateien.
 
 ## Topic-to-file map
@@ -38,6 +47,7 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 | Thema | Fuehrende / vorhandene Dateien | Do-not-duplicate Warnung |
 |---|---|---|
 | App shell / Navigation | `app/components/AppShell.tsx`, `app/components/SidebarLegacyBridge.tsx`, `app/components/PwaInstaller.tsx`, `app/components/AppInstallPrompt.tsx`, `app/page.tsx`, `todolist/PROJECT_STRUCTURE.md` | Keine zweite Shell, kein paralleles Navigation-System, Header/Sidebar/Footer nicht breit restylen. |
+| Product readiness / Modulstatus | `project-register/product-readiness.json`, `docs/architecture/WELLFIT_PRODUCT_READINESS_MATRIX.md`, `scripts/wellfit-dev-agent/src/product-readiness-check.mjs`, `project-register/agent-workflows.json`, `project-register/agent-task-queue.json` | Kein zweites Produktstatus-/Readiness-System anlegen; Statuswechsel in bestehenden Registern und Work Map spiegeln. |
 | Dashboard | `app/dashboard/page.tsx`, `app/dashboard/anpassen/page.tsx`, `app/components/DashboardPinToggle.tsx`, `lib/economy/dashboardSnapshot.ts`, `todolist/WF-DASH-PERSIST-001 - Dashboard Preferences lokal.md`, `todolist/J8.4E - PERSONALISIERBARES DASHBOARD UND PIN-CARDS.md` | Keine zweite Dashboard-Datenquelle oder neues Preference-System ohne Abgleich. |
 | Missionen | `app/missionen/page.tsx`, `app/missionen/tagesmissionen/page.tsx`, `app/missionen/wochenmissionen/page.tsx`, `app/missionen/challenge/page.tsx`, `app/missionen/abenteuer/page.tsx`, `app/missionen/history/page.tsx`, `app/missionen/favoriten/page.tsx`, `lib/missions/`, `lib/missionCompletion.ts`, `lib/missionStats.ts`, `docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md`, `docs/architecture/MISSION_HISTORY_FAVORITES_SIDEQUESTS.md`, `docs/architecture/MISSION_UI_STATUS_BADGES.md`, `todolist/J8.4*` | Mission Completion, Reward-Autoritaet und Anti-Cheat nicht clientseitig finalisieren. Keine parallele Mission Engine anlegen. |
 | Buddy / KI | `app/buddy/page.tsx`, `app/mobile/buddy/page.tsx`, `app/api/buddy-ki/route.ts`, `components/buddy/`, `lib/buddyKi/`, `docs/architecture/BUDDY_KI_INTEGRATION.md`, `docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md`, `docs/architecture/BUDDY_KI_GUIDE_DATA_MODEL.md`, `docs/architecture/KI_BUDDY_MISSION_ENGINE.md`, `todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE`, `todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md` | Buddy darf empfehlen/erklaeren, aber keine Rewards, Punkte, Token oder Mission Completion autorisieren. Keine zweite KI-Provider-Schicht ohne Abgleich. |
