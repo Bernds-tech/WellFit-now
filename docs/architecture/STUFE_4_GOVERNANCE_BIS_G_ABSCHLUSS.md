@@ -185,3 +185,7 @@ Danach gilt:
 ```txt
 Ziel verstehen -> betroffene Seiten/APIs erfassen -> Code/Docs/Register anpassen -> Quality Gate ausfuehren -> Build ausfuehren -> Fehler korrigieren -> Preview/Review liefern -> nicht live schalten ohne Freigabe.
 ```
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `agents/AGENTS.md` und diese Datei. Nutze dieses Dokument als historischen Abschlussanker fuer die Stufe-4-Governance-Bloecke B bis G. Erweitere keine Produktlogik aus diesem Dokument heraus; verwende es nur, um Quality-Gate-, Register-, Safety- und Nicht-Live-Deploy-Regeln bei neuen Branch-/PR-Arbeiten einzuhalten.

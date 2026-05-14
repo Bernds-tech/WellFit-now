@@ -17,6 +17,8 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | Datei | Status | Zweck | Fuehrende Verweise |
 |---|---|---|---|
 | `todolist/MASTER_PROMPT_FOR_AI.md` | aktiv | zentrale Arbeitsanweisung fuer KI/Codex | `NEXT_ACTIONS.md`, `PROJECT_STRUCTURE.md`, `TODO_CONSOLIDATION.md`, `TODO_INDEX.md` |
+| `todolist/CURRENT_PROJECT_STATE.md` | aktiv / fuehrend | fuehrende aktuelle Projektzustandsdatei mit Baseline, offenen Punkten, Risiken und naechstem Prompt | `WORK_MAP.md`, `NEXT_ACTIONS.md`, `PROJECT_STRUCTURE.md`, `CODEBASE_FEATURE_MAP.md` |
+| `todolist/WORK_MAP.md` | aktiv / fuehrend | fuehrende topic-to-file Map gegen Doppelarbeit und parallele Systeme | `CURRENT_PROJECT_STATE.md`, `TODO_INDEX.md`, `project-register/*.json` |
 | `todolist/MASTER_OPEN_DONE_LIST.md` | aktiv | zentrale Einzeluebersicht fuer erledigte/offene Aufgaben und Produktregeln | `NEXT_ACTIONS.md`, `DONE_LOG.md`, `PROJECT_STRUCTURE.md` |
 | `todolist/NEXT_ACTIONS.md` | aktiv | operative Aufgaben bis Beta | alle Bereichs-TODOs |
 | `todolist/TODO_CONSOLIDATION.md` | aktiv | Konsolidierung alter TODOs ohne Loeschung | dieser Index, Alt-TODOs |
@@ -35,7 +37,7 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `todolist/C - STRATEGISCHE GRUNDENTSCHEIDUNGEN` | aktiv / Strategie | strategische Produktentscheidungen | `MASTER_PROMPT_FOR_AI.md` | Entscheidungen referenzieren |
 | `todolist/D - VERBINDLICHE REIHENFOLGE` | aktiv / Reihenfolge | verbindliche Arbeitsreihenfolge | `NEXT_ACTIONS.md` | Priorisierung abgleichen |
 | `todolist/E - AKTUELLER UMSETZUNGSSTAND - VORHANDEN` | aktiv / Ist-Stand | vorhandene Umsetzung | `PROJECT_STRUCTURE.md` | Ist-Stand in Struktur uebernehmen |
-| `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT | `NEXT_ACTIONS.md` | bereits teilweise uebernommen, weiter abgleichen |
+| `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` | historisch / Bereichs-Backlog | naechste empfohlene Arbeit und alte Roadmap-Prioritaeten | `NEXT_ACTIONS.md` | bereits teilweise uebernommen, weiter abgleichen |
 | `todolist/README.md` | aktiv / Ueberblick | alter todolist-Ueberblick | `PROJECT_STRUCTURE.md` | pruefen und relevante Punkte uebernehmen |
 
 ## Code-Inventur / Bestandspruefung
@@ -149,6 +151,7 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/MISSION_DRAFT_SECURITY_PLAN.md` | aktiv / Security | Mission-Draft Security Plan | Backend/Security | reviewpflichtig |
 | `docs/architecture/MISSION_HISTORY_FAVORITES_SIDEQUESTS.md` | aktiv / Mission UI | Mission History, Favorites, Sidequests | Mission/UI | mit AppShell abgleichen |
 | `docs/architecture/USER_ECONOMY_WRITE_SEARCH_NOTES.md` | aktiv / Security Notes | User Economy Write Search Notes | Backend/Economy | mit Client-Write-Refactor abgleichen |
+| `docs/architecture/STUFE_4_GOVERNANCE_BIS_G_ABSCHLUSS.md` | aktiv / Governance-Abschluss | Stufe-4-Governance B-G Abschluss-Checkpoint, Quality-Gate- und Safety-Anker | Agentenstrategie/Governance | als Abschlussanker fuer Quality-Gate-Regeln nutzen |
 
 ## Dev-Agent Dateien
 

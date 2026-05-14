@@ -1,5 +1,17 @@
 # NEXT ACTIONS - WELLFIT BETA
 
+
+## Start here for future agents
+
+Before using this backlog, read these files first:
+
+1. `AGENTS.md`
+2. `todolist/CURRENT_PROJECT_STATE.md`
+3. `todolist/WORK_MAP.md`
+4. `todolist/TODO_INDEX.md`
+
+These files define the current state, leading topic map and no-duplicate/no-delete rules for continuing work safely.
+
 ## Ziel
 Diese Datei steuert die naechsten Schritte bis zur ersten Beta-Version.
 
@@ -173,7 +185,7 @@ Quelle: `todolist/DATABASE_PLAN.md`, `todolist/F - FIREBASE  - REALTIME - MISSIO
 - [!] WellFit bleibt bis nach stabiler Beta/Testphase internes Punkte-/XP-System; Blockchain, WFT und NFTs kommen danach als separate Schicht.
 
 ## KI-Fortsetzungs-Prompt
-Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, danach diese Datei, `todolist/TODO_INDEX.md`, `todolist/PROJECT_STRUCTURE.md` und `todolist/TODO_CONSOLIDATION.md`. Waehle die naechste offene Aufgabe aus, setze sie pragmatisch um und dokumentiere das Ergebnis. Bis zur Beta darf direkt auf `main` gearbeitet werden. Halte Aenderungen klein und modular. TODO-Dateien nicht loeschen, sondern erweitern oder markieren.
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, danach diese Datei, `todolist/TODO_INDEX.md`, `todolist/PROJECT_STRUCTURE.md` und `todolist/TODO_CONSOLIDATION.md`. Waehle die naechste offene Aufgabe aus, setze sie pragmatisch um und dokumentiere das Ergebnis. Nicht direkt auf `main` arbeiten; immer Branch/PR-Workflow nutzen. Halte Aenderungen klein und modular. TODO-Dateien nicht loeschen, sondern erweitern oder markieren.
 
 ## Hinweise von Bernd
 - Skalierbarkeit ist wichtig.
