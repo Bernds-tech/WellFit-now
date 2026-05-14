@@ -51,6 +51,11 @@ const agentSteps = [
     displayCommand: "node scripts/wellfit-dev-agent/src/site-route-audit.mjs",
   },
   {
+    label: "Firebase security audit",
+    script: "scripts/wellfit-dev-agent/src/firebase-security-audit.mjs",
+    displayCommand: "node scripts/wellfit-dev-agent/src/firebase-security-audit.mjs",
+  },
+  {
     label: "Firestore economy rules check",
     script: "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
     displayCommand: "npm run agent:firestore-economy-rules-check",
@@ -151,6 +156,7 @@ function main() {
   const governanceReport = readTextSafe("scripts/wellfit-dev-agent/output/stufe4-governance-check.md");
   const routeApiReport = readTextSafe("scripts/wellfit-dev-agent/output/route-api-register-check.md");
   const siteRouteReport = readTextSafe("scripts/wellfit-dev-agent/output/site-route-audit-report.md");
+  const firebaseSecurityReport = readTextSafe("scripts/wellfit-dev-agent/output/firebase-security-audit.md");
 
   const alphaStep = getStep(steps, "Alpha goal check");
   const dryRunStep = getStep(steps, "Dry run planning");
@@ -167,6 +173,7 @@ function main() {
   const governanceReportPassed = /Result:\s*PASS/i.test(governanceReport);
   const routeApiReportPassed = /Result:\s*PASS/i.test(routeApiReport);
   const siteRouteReportPassed = /Result:\s*PASS/i.test(siteRouteReport);
+  const firebaseSecurityReportPassed = /Result:\s*PASS/i.test(firebaseSecurityReport);
 
   assertCondition(checks, "Alpha tracks fully covered", covered.covered !== null && covered.total !== null && covered.covered === covered.total, covered.covered === null ? "not found" : `${covered.covered}/${covered.total}`);
   assertCondition(checks, "TODO index has no missing files", missingIndex === 0, formatDetailCount(missingIndex, missingIndexFiles));
@@ -175,10 +182,11 @@ function main() {
   assertCondition(checks, "Stufe 4 governance check passed", governanceReportPassed, governanceReportPassed ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Route/API register check passed", routeApiReportPassed, routeApiReportPassed ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Site route audit passed", siteRouteReportPassed, siteRouteReportPassed ? "PASS" : "not found or FAIL");
+  assertCondition(checks, "Firebase security audit passed", firebaseSecurityReportPassed, firebaseSecurityReportPassed ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Firestore economy rules check passed", rulesReportPassed, rulesReportPassed ? "PASS" : "not found or FAIL");
 
   const passed = checks.every((check) => check.passed);
-  const report = `# WellFit Agent Quality Gate Report\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Gate Checks\n\n${renderChecks(checks)}\n\n## Required Standard\n\n- Agent validation must pass.\n- Alpha goal check must cover all required tracks.\n- Memory sync must report zero missing indexed files.\n- Memory sync must report zero required missing KI-Fortsetzungs-Prompts.\n- Dry run must produce planned micro-tasks.\n- Stufe 4 governance check must pass.\n- Route/API register check must pass.\n- Site route audit must pass.\n- Firestore economy rules check must pass the current beta allow/deny guardrails.\n\n## Exact Memory Sync Failures\n\n### Files Missing In Index\n\n${missingIndexFiles.length ? missingIndexFiles.map((file) => `- \`${file}\``).join("\n") : "No missing index files reported."}\n\n### Files Missing KI-Fortsetzungs-Prompt\n\n${missingPromptFiles.length ? missingPromptFiles.map((file) => `- \`${file}\``).join("\n") : "No missing continuation prompts reported."}\n\n## Step Logs\n\n${steps.map(renderStep).join("\n\n")}\n\n## Next Action\n\n${passed ? "Quality gate passed. Continue with the next Beta-relevant task." : "Quality gate failed. Fix the failed checks before continuing with larger implementation work."}\n`;
+  const report = `# WellFit Agent Quality Gate Report\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Gate Checks\n\n${renderChecks(checks)}\n\n## Required Standard\n\n- Agent validation must pass.\n- Alpha goal check must cover all required tracks.\n- Memory sync must report zero missing indexed files.\n- Memory sync must report zero required missing KI-Fortsetzungs-Prompts.\n- Dry run must produce planned micro-tasks.\n- Stufe 4 governance check must pass.\n- Route/API register check must pass.\n- Site route audit must pass.\n- Firebase security audit must pass.\n- Firestore economy rules check must pass the current beta allow/deny guardrails.\n\n## Exact Memory Sync Failures\n\n### Files Missing In Index\n\n${missingIndexFiles.length ? missingIndexFiles.map((file) => `- \`${file}\``).join("\n") : "No missing index files reported."}\n\n### Files Missing KI-Fortsetzungs-Prompt\n\n${missingPromptFiles.length ? missingPromptFiles.map((file) => `- \`${file}\``).join("\n") : "No missing continuation prompts reported."}\n\n## Step Logs\n\n${steps.map(renderStep).join("\n\n")}\n\n## Next Action\n\n${passed ? "Quality gate passed. Continue with the next Beta-relevant task." : "Quality gate failed. Fix the failed checks before continuing with larger implementation work."}\n`;
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(QUALITY_REPORT_PATH, report, "utf8");
