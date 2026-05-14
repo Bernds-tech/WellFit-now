@@ -27,6 +27,17 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "/missionen als Redirect auf /missionen/tagesmissionen registriert, sichtbare Mojibake-Texte in bestehenden UI-/Supportdateien korrigiert, Quality-Gate-Governance-Index repariert und angeforderte Checks inklusive Route-Smoke ausgefuehrt. Keine Mission-Feature-Entwicklung, keine Unity-Aenderungen, keine Economy-/Reward-Authority-Aenderungen."
+    },
+    {
+      "id": "PROGRESS-AGENT-DOC-BASELINE-2026-05-14-0001",
+      "date": "2026-05-14",
+      "branch": "agent-doc-baseline-check",
+      "issue": null,
+      "goal": "Refresh Autopilot-selected documentation/register baseline notes after recent agent-governance additions.",
+      "changedAreas": ["todolist", "project-register"],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Documentation/register-only baseline refresh for AGENT-DOC-BASELINE-CHECK. Autopilot dry run, lint, TypeScript noEmit, Next build, Firebase Functions syntax check, and quality gate passed. Runtime product code, protected areas, Unity/PR #13, and compliance-critical logic were untouched."
     }
   ]
 }

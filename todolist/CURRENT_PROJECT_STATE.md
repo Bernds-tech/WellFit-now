@@ -1,18 +1,20 @@
 # CURRENT PROJECT STATE - WELLFIT
 
 Stand: 2026-05-14  
-Basis: aktueller `main`-Stand nach Merge von PR #45 (`419cded`, UI- und Route-Smoke-Check).  
+Basis: aktueller Dokumentationsbaseline-Stand nach PR #45 (`419cded`, UI-/Route-Smoke-Check) und den Agent-Governance-/Autopilot-Ergaenzungen vom 2026-05-14.
 Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei ersetzt keine Bereichs-TODOs, sondern verlinkt und ordnet sie.
 
 ## Aktuelle verifizierte Baseline
 
-- Repository-Basis ist der Stand nach PR #45. PR #45 bleibt erhalten; diese Konsolidierung ist dokumentations-only.
+- Repository-Basis ist der Stand nach PR #45 plus den dokumentations-/registry-only Agent-Governance-, Autopilot-, Research-, Adaptive-Insight-, Master-Roadmap- und Visual-Check-Ergaenzungen vom 2026-05-14. PR #45 bleibt erhalten; diese Konsolidierung ist dokumentations-only.
 - Aktuelle Route-Inventur umfasst Landing, Dashboard, Buddy, Mobile, Missionen, Punkte-Shop/Marktplatz, Analytics, Einstellungen, Hilfe/FAQ und Legal-Seiten sowie Economy- und Buddy-API-Routen.
 - Next.js ist Version 16.2.3 laut `package.json`; bei kuenftigen Next.js-Codeaenderungen zuerst `node_modules/next/dist/docs/` lesen.
 - Firebase Functions haben lokale Syntax-Checks ueber `npm --prefix functions run check` vorbereitet.
-- Agent-Governance ist ueber `AGENTS.md`, `agents/`, `scripts/wellfit-dev-agent/` und `npm run agent:quality-gate` vorhanden.
+- Agent-Governance ist ueber `AGENTS.md`, `agents/`, `scripts/wellfit-dev-agent/`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/agent-autopilot.json` und `npm run agent:quality-gate` vorhanden.
 - `todolist/WORK_MAP.md` ist die fuehrende topic-to-file map fuer bestehende App-, Backend-, Architektur- und TODO-Dateien.
 - Diese Datei und `todolist/WORK_MAP.md` duerfen nicht zu Parallelarchitektur ausgebaut werden; sie zeigen nur auf bestehende Dateien.
+- Baseline-Check am 2026-05-14 auf Branch `agent-doc-baseline-check`: `npm run agent:autopilot:dry-run`, `npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm --prefix functions run check` und `npm run agent:quality-gate` liefen erfolgreich; `agent:quality-gate` meldete PASS.
+- Autopilot waehlt weiterhin `AGENT-DOC-BASELINE-CHECK` als sichersten low-risk Dokumentations-Task; Umsetzung bleibt auf erlaubte Dokumentations-/Registerdateien begrenzt und schreibt keine Runtime-Produktlogik.
 
 ## Abgeschlossene Arbeit / vorhandene Grundlagen
 
@@ -23,6 +25,7 @@ Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei erse
 - Economy-/Punkte-/Reward-Preview-Pfade sind als interne Beta-/Preview-Schicht vorhanden; finale Autoritaet bleibt serverseitig bzw. als Draft/Preview markiert.
 - Firestore-/Functions-/Rules-/Emulator-Planung und viele Statusdateien zu RewardPreview, Mission Completion, Evidence, Pattern und Cooldown sind vorhanden.
 - PR #45 hat einen UI- und Route-Smoke-Check eingebracht; darauf aufbauen, nicht neu inventarisieren, sofern nicht noetig.
+- Agent-Memory-Loop, Autopilot-Dry-Run, Research-Recommendation-Governance, Adaptive-User-Insight-Governance, Master-Roadmap-Import, Product-Readiness, Visual-Route-Smoke-Check, Drift-/Gap-Detektoren und TODO-Status-Sync sind in `WORK_MAP.md`/`TODO_INDEX.md` verlinkt und im Quality Gate eingebunden.
 
 ## Offene Arbeit / aktuelle Schwerpunkte
 
@@ -63,11 +66,12 @@ Die vom Nutzer bereitgestellte WellFit Master Roadmap / Developer To-Do List wur
 ## Naechste sichere Tasks
 
 1. Nach jedem Rebase/Merge die Dokumentationsdateien `CURRENT_PROJECT_STATE.md`, `WORK_MAP.md`, `TODO_INDEX.md` und `NEXT_ACTIONS.md` konfliktfrei halten.
-2. Einen aktuellen, dokumentierten Baseline-Lauf mit `npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm --prefix functions run check` und `npm run agent:quality-gate` pflegen.
-3. UI-/Route-Smoke-Ergebnisse aus PR #45 bei Bedarf in passende Statusdateien einordnen, ohne neue Shells oder parallele Systeme zu erstellen.
-4. Mobile/Beta-Safety-Wording in bestehenden Dateien pruefen, aber Compliance-Logik nur nach explizitem Auftrag aendern.
-5. Backend-/Firestore-Guardrails weiter dokumentiert vorbereiten, bevor Reward-/Mission-Autoritaet vom Client weg verlagert wird.
-6. Unity/AR-Arbeit separat planen und nur vorhandene Unity-Dateien inventarisieren, nicht ueberschreiben.
+2. Den dokumentierten Baseline-Lauf bei kuenftigen Aenderungen erneut ausfuehren: `npm run agent:autopilot:dry-run`, `npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm --prefix functions run check` und `npm run agent:quality-gate`.
+3. Als naechsten Autopilot-Kandidaten nach dieser Baseline-Aktualisierung erneut `npm run agent:autopilot:dry-run` verwenden; keine High-/Critical- oder geschuetzten Aufgaben automatisch umsetzen.
+4. UI-/Route-Smoke-Ergebnisse aus PR #45 bei Bedarf in passende Statusdateien einordnen, ohne neue Shells oder parallele Systeme zu erstellen.
+5. Mobile/Beta-Safety-Wording in bestehenden Dateien pruefen, aber Compliance-Logik nur nach explizitem Auftrag aendern.
+6. Backend-/Firestore-Guardrails weiter dokumentiert vorbereiten, bevor Reward-/Mission-Autoritaet vom Client weg verlagert wird.
+7. Unity/AR-Arbeit separat planen und nur vorhandene Unity-Dateien inventarisieren, nicht ueberschreiben.
 
 ## Continuation prompt
 

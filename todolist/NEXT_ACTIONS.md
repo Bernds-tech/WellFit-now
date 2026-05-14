@@ -24,14 +24,15 @@ Danach je nach Aufgabe lesen:
 
 ## Aktueller Arbeitsfokus
 
-Stand: 2026-05-07
+Stand: 2026-05-14
 
-Bernd hat entschieden:
+Bernd hat entschieden (uebernommener Fokus aus dem 2026-05-07-Kontext, als TODO-Kontext erhalten):
 - Mobile/AR/Unity/Handytests werden erst am Samstag weiterbearbeitet.
 - Heute und morgen werden andere Beta-relevante Aufgaben bearbeitet.
 - Nach Repo-/TODO-/Agent-Aenderungen soll Bernd wieder den kompletten Agentenlauf starten.
+- Der Autopilot-Dry-Run vom 2026-05-14 waehlt `AGENT-DOC-BASELINE-CHECK` als aktuellen low-risk Dokumentationsbaseline-Task.
 
-Aktueller Fokus heute/morgen:
+Aktueller Fokus aus diesem uebernommenen Kontext:
 1. Build-/Server-/Installationsstabilitaet
 2. interne Economy-Regeln als Dokumentation
 3. Datenschutz-/Health-/Watch-Daten-Abgrenzung
@@ -60,7 +61,8 @@ Status aus `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` wurde uebernommen:
 Quelle / fuehrende Dateien: `project-register/master-roadmap-tasks.json`, `docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md`, `scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs`
 
 - [x] Die WellFit Master Roadmap / Developer To-Do List ist als maschinenlesbare Registry importiert und auf bestehende Work-Map-/Product-Readiness-Themen gemappt.
-- [ ] Safe next task 1: `project-register/master-roadmap-tasks.json` nach kuenftigen PRs registry-only aktualisieren und `node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs` ausfuehren.
+- [ ] Safe next task 1: Nach diesem Dokumentationsbaseline-PR erneut `npm run agent:autopilot:dry-run` ausfuehren und den dann ausgewaehlten low-risk Task pruefen.
+- [ ] Safe next task 1b: `project-register/master-roadmap-tasks.json` nach kuenftigen PRs registry-only aktualisieren und `node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs` ausfuehren.
 - [ ] Safe next task 2: Economy-Caps und EconomyHealthScore nur in bestehenden Guardrail-Dokumenten weiter spezifizieren, ohne finale Ledger-/Reward-Authority zu aktivieren.
 - [ ] Safe next task 3: Unity/AR-Micro-Task-Kontext planning-only ausserhalb von `native/unity/WellFitBuddyAR` inventarisieren; PR #13 und Unity-Dateien nicht anfassen.
 
@@ -71,6 +73,8 @@ Quelle / fuehrende Dateien: `project-register/master-roadmap-tasks.json`, `docs/
 - [x] Gefundene Alt-TODOs in `TODO_INDEX.md` referenziert.
 - [x] KI-Fortsetzungs-Prompts in wichtigen TODO-/Planungsdateien ergaenzt.
 - [x] Quality-Gate erreicht PASS: Alpha 7/7, Missing Index 0, Missing Prompts 0, Micro-Tasks 12.
+- [x] 2026-05-14 Baseline auf `agent-doc-baseline-check`: `npm run agent:autopilot:dry-run`, `npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm --prefix functions run check` und `npm run agent:quality-gate` erfolgreich.
+- [x] Agent-Governance-/Autopilot-/Research-/Adaptive-Insight-/Master-Roadmap-/Visual-Check-Mapping in `WORK_MAP.md` und `TODO_INDEX.md` geprueft; keine Parallelarchitektur angelegt.
 - [ ] Inhalte von `todolist/README.md` weiter pruefen und relevante Punkte in fuehrende Dateien uebernehmen.
 - [ ] Inhalte von `todolist/CHAT_START_PROMPT.md` weiter pruefen und relevante Punkte in fuehrende Dateien uebernehmen.
 - [ ] Doppelte TODOs als `duplikat` markieren, aber nicht loeschen.
@@ -80,11 +84,10 @@ Quelle / fuehrende Dateien: `project-register/master-roadmap-tasks.json`, `docs/
 
 Quelle: Dry-Run-Report, `todolist/README.md`, `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT`
 
-- [ ] Nach aktuellem Stand erweiterten Server-Test erneut ausfuehren.
-- [ ] Root-Installation pruefen, falls Build `three` nicht findet.
-- [ ] `npm install` / `npm run build` Zustand dokumentieren.
-- [ ] `LAST_BUILD_STATUS.md` aktualisieren, falls Build-/Server-Test durchgefuehrt wird.
-- [ ] Build-/Server-Hinweise mit `DONE_LOG.md` und Status-Dateien abgleichen.
+- [x] 2026-05-14 aktuellen Baseline-Check ausgefuehrt: Lint, Typecheck, Build, Functions-Syntaxcheck und Quality Gate erfolgreich.
+- [~] Root-Installation bleibt unveraendert; `npm install` wurde nicht ausgefuehrt, weil Abhaengigkeiten fuer die Checks vorhanden waren.
+- [ ] `LAST_BUILD_STATUS.md` nur aktualisieren, wenn ein kuenftiger Auftrag diese Statusdatei ausdruecklich in den erlaubten Dateien einschliesst.
+- [ ] Build-/Server-Hinweise mit `DONE_LOG.md` und Status-Dateien abgleichen, sobald diese Dateien in einem passenden Dokumentationsauftrag erlaubt sind.
 
 ## Prio 2 - Heute/Morgen: interne Economy-Regeln dokumentieren
 
