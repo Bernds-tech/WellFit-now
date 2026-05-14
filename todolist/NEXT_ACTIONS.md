@@ -55,6 +55,15 @@ Status aus `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` wurde uebernommen:
 - [~] WellFit muss zuerst als internes Punkte-, XP-, Reward- und Economy-System funktionieren.
 - [>] Blockchain, echte NFTs und WFT werden erst nach stabiler Alpha-/Beta-/Testphase ergaenzt.
 
+## Master Roadmap import available
+
+Quelle / fuehrende Dateien: `project-register/master-roadmap-tasks.json`, `docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md`, `scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs`
+
+- [x] Die WellFit Master Roadmap / Developer To-Do List ist als maschinenlesbare Registry importiert und auf bestehende Work-Map-/Product-Readiness-Themen gemappt.
+- [ ] Safe next task 1: `project-register/master-roadmap-tasks.json` nach kuenftigen PRs registry-only aktualisieren und `node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs` ausfuehren.
+- [ ] Safe next task 2: Economy-Caps und EconomyHealthScore nur in bestehenden Guardrail-Dokumenten weiter spezifizieren, ohne finale Ledger-/Reward-Authority zu aktivieren.
+- [ ] Safe next task 3: Unity/AR-Micro-Task-Kontext planning-only ausserhalb von `native/unity/WellFitBuddyAR` inventarisieren; PR #13 und Unity-Dateien nicht anfassen.
+
 ## Prio 0 - TODO-/Agent-Gedaechtnis stabilisieren
 
 - [x] `todolist/TODO_INDEX.md` als zentralen Index mit Querverweisen angelegt.

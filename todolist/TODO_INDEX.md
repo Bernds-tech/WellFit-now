@@ -40,6 +40,15 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT | `NEXT_ACTIONS.md` | bereits teilweise uebernommen, weiter abgleichen |
 | `todolist/README.md` | aktiv / Ueberblick | alter todolist-Ueberblick | `PROJECT_STRUCTURE.md` | pruefen und relevante Punkte uebernehmen |
 
+
+## Master Roadmap Import / Registry
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `project-register/master-roadmap-tasks.json` | aktiv / Register | maschinenlesbarer Import der WellFit Master Roadmap / Developer To-Do List mit Phasen, Tasks, Risk- und Mapping-Feldern | `todolist/WORK_MAP.md`, `project-register/product-readiness.json`, `project-register/internal-sources.json` | nach Roadmap-/Status-Aenderungen registry-only aktualisieren |
+| `docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md` | aktiv / Architektur-Notiz | Importprinzip, Schutzregeln, Validierung und sichere naechste Aufgaben zum Master-Roadmap-Import | `project-register/master-roadmap-tasks.json` | als Kontext lesen, nicht als Ersatz fuer aktuelle Source-of-Truth-Dateien verwenden |
+| `scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs` | aktiv / Agent-Code | validiert Master-Roadmap-Registry, Statusmarker, Pflichtfelder, Risk-/Human-Approval-Regeln und Safe-Auto-Work-Schutz | `project-register/master-roadmap-tasks.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | nach Registry-Aenderungen ausfuehren; im Quality Gate eingebunden |
+
 ## Code-Inventur / Bestandspruefung
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |

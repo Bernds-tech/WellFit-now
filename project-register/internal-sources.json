@@ -493,6 +493,41 @@
         "project-register/feedback-analytics-loop.json"
       ],
       "riskLevel": "high"
+    },
+    {
+      "id": "wellfit-master-roadmap-developer-todo-list-import",
+      "name": "WellFit Master Roadmap / Developer To-Do List import",
+      "topics": ["master roadmap", "developer to-do list", "roadmap versions 3.1-3.7", "Unity AR Foundation notes", "KI-Buddy notes", "AR-Buddy micro-task log", "internal points economy", "business/legal/website notes", "implementation status reconciliation"],
+      "supportingConceptFiles": [
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "alreadyStartedInRepo": [
+        "Master roadmap source has been reconciled into project-register/master-roadmap-tasks.json instead of replacing current source-of-truth files.",
+        "Imported tasks are mapped to existing Work Map topics and Product Readiness modules where possible."
+      ],
+      "notYetImplemented": [
+        "Roadmap items that touch Unity, reward authority, token/NFT/wallet/payment, health/child/location/privacy or compliance remain review-required and are not safe autonomous runtime work."
+      ],
+      "leadingImplementationFiles": [
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md",
+        "scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not create a second roadmap, architecture map, TODO system or agent memory source from the imported roadmap.",
+        "Link to existing Work Map/Product Readiness/TODO files when a roadmap item already exists."
+      ],
+      "nextSafeWorkLocation": [
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "riskLevel": "medium"
     }
   ]
 }
