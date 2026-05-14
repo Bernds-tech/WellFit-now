@@ -152,6 +152,8 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/MISSION_DRAFT_SECURITY_PLAN.md` | aktiv / Security | Mission-Draft Security Plan | Backend/Security | reviewpflichtig |
 | `docs/architecture/MISSION_HISTORY_FAVORITES_SIDEQUESTS.md` | aktiv / Mission UI | Mission History, Favorites, Sidequests | Mission/UI | mit AppShell abgleichen |
 | `docs/architecture/USER_ECONOMY_WRITE_SEARCH_NOTES.md` | aktiv / Security Notes | User Economy Write Search Notes | Backend/Economy | mit Client-Write-Refactor abgleichen |
+| `docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md` | aktiv / Feedback Privacy Architecture | Datenschutzsicherer Datenbank-Flow fuer User-Feedback, Aggregation und Agent-Auswertung ohne Live-Tracking | `project-register/user-feedback.json` | vor Feedback-API, Firestore-Writes oder Agent-Auswertung lesen; keine Rohdaten in Agentenreports |
+| `project-register/user-feedback.json` | aktiv / maschinenlesbares Register | Machine-readable Feedback-Datenbankplan mit erlaubten/verbotenen Feldern, Consent, Retention, Summary-Format und API-Vorschlag | `docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md` | bei Feedback-Datenmodell- oder API-Planung synchron halten |
 
 ## Agenten-Modi und Workflows
 

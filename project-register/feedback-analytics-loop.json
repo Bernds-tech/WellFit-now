@@ -13,7 +13,10 @@
     "noHeatmapWithoutPrivacyReview": true,
     "noSessionRecordingWithoutConsent": true,
     "analyticsMustBeAggregated": true,
-    "productionActivationRequiresManualApproval": true
+    "productionActivationRequiresManualApproval": true,
+    "noSensitiveFeedbackFields": true,
+    "noDirectClientFirestoreWrites": true,
+    "rawFeedbackAdminOnly": true
   },
   "signals": [
     {
@@ -53,5 +56,14 @@
     "run quality gate and build",
     "deliver preview before live approval",
     "after consent-enabled analytics, compare aggregate signals only"
-  ]
+  ],
+  "databaseFlow": {
+    "status": "planning-no-production-tracking",
+    "register": "project-register/user-feedback.json",
+    "architecture": "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+    "rawFeedbackAgentAccessAllowed": false,
+    "agentReadableOnlyAfterAggregation": true,
+    "minimumClusterSize": 5,
+    "futureApiProposal": "/api/feedback/submit"
+  }
 }

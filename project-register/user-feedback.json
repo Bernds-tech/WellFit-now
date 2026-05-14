@@ -1,0 +1,180 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "purpose": "Machine-readable, privacy-safe database feedback flow plan for future product optimization without live tracking.",
+    "status": "planning-no-production-tracking",
+    "createdAt": "2026-05-14",
+    "architectureDoc": "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+    "relatedRegisters": [
+      "project-register/feedback-analytics-loop.json",
+      "project-register/features.json",
+      "project-register/apis.json"
+    ]
+  },
+  "activationState": {
+    "liveTrackingImplemented": false,
+    "productionWritesEnabled": false,
+    "thirdPartyAnalyticsEnabled": false,
+    "requiresHumanPrivacyReviewBeforeImplementation": true,
+    "requiresConsentBeforeIdentifiedFeedback": true,
+    "requiresSecurityRulesBeforeFirestoreWrites": true
+  },
+  "firestoreProposal": {
+    "collections": [
+      {
+        "path": "userFeedback/{feedbackId}",
+        "purpose": "Stores a single user-submitted feedback item after consent, validation, and minimization.",
+        "writeAuthority": "future-server-api-only",
+        "clientDirectWritesAllowed": false,
+        "readAuthority": "admin-review-only",
+        "containsRealUserText": true,
+        "notes": [
+          "Free text must be reviewed for accidental personal data before agent summaries are created.",
+          "Do not include raw health, child, location, camera, biometric, token, wallet, payment, betting, reward-authority, or mission-completion evidence data."
+        ]
+      },
+      {
+        "path": "userFeedbackSummaries/{summaryId}",
+        "purpose": "Stores anonymized and aggregated feedback themes for future agents and product planning.",
+        "writeAuthority": "future-admin-or-server-curation-only",
+        "clientDirectWritesAllowed": false,
+        "readAuthority": "agent-readable-aggregate-only",
+        "containsRealUserText": false,
+        "minimumClusterSize": 5
+      },
+      {
+        "path": "userFeedbackDeletionRequests/{requestId}",
+        "purpose": "Tracks feedback deletion/export requests without exposing feedback contents to agents.",
+        "writeAuthority": "future-server-api-only",
+        "clientDirectWritesAllowed": false,
+        "readAuthority": "admin-privacy-ops-only"
+      }
+    ],
+    "recommendedIndexes": [
+      "createdAt + routeKey",
+      "createdAt + featureId",
+      "status + priority",
+      "consent.feedbackStorage + createdAt"
+    ]
+  },
+  "allowedFields": {
+    "feedbackId": "Server-generated opaque id.",
+    "createdAt": "Server timestamp.",
+    "updatedAt": "Server timestamp for moderation/status changes.",
+    "source": "Enum: in_app_form, admin_import, support_triage, preview_review.",
+    "environment": "Enum: beta_preview, staging, production_after_approval.",
+    "routeKey": "Known app route or route group, e.g. /dashboard or /mobile/missionen.",
+    "featureId": "Existing project-register feature id where possible.",
+    "category": "Enum: bug, usability, content, performance, accessibility, idea, safety_flag, other.",
+    "sentiment": "Enum: positive, neutral, negative, mixed, unknown.",
+    "severity": "Enum: low, medium, high; critical requires admin safety review.",
+    "message": "User-provided feedback text after length limits and forbidden-data warning.",
+    "tags": "Small controlled tag array for routing, not free-form personal labels.",
+    "userRef": "Optional hashed/pseudonymous app user reference only if consent and auth context permit it.",
+    "contactAllowed": "Boolean controlled by explicit contact consent.",
+    "contactRef": "Optional separate support-system reference; do not expose to agents.",
+    "consent": "Structured consent snapshot for feedback storage, product review use, and optional contact.",
+    "moderation": "Admin-only status, redaction flags, and review notes.",
+    "agentSummaryEligible": "Boolean; false until reviewed/redacted or aggregated."
+  },
+  "forbiddenFields": [
+    "raw health data, diagnoses, injuries, symptoms, medications, biometric readings, heart rate, sleep, weight, or wearable raw streams",
+    "child or minor identity details, school/class identifiers, guardian contact details, or age below broad non-identifying category",
+    "precise GPS, address, route history, beacon data, Wi-Fi/Bluetooth identifiers, or persistent location traces",
+    "camera images, video, audio, AR captures, face/body scans, or biometric templates",
+    "wallet addresses, private keys, token/NFT holdings, payment details, payout data, betting/staking information, or purchase records",
+    "mission-completion evidence, anti-cheat evidence, reward authorization signals, or final ledger decisions",
+    "secrets, API keys, auth tokens, session identifiers, IP addresses, device fingerprints, advertising ids, or third-party analytics identifiers",
+    "raw user data in agent reports, PR descriptions, task summaries, or public documentation"
+  ],
+  "consentRequirements": {
+    "anonymousFeedback": {
+      "allowed": true,
+      "requirements": ["clear notice", "data minimization warning", "no contact follow-up"]
+    },
+    "identifiedFeedback": {
+      "allowed": "future-review-required",
+      "requirements": ["authenticated context", "explicit feedback storage consent", "pseudonymous userRef", "deletion path"]
+    },
+    "contactFollowUp": {
+      "allowed": "optional-only",
+      "requirements": ["separate consent", "contactRef hidden from agent-readable summaries"]
+    },
+    "analyticsOrBehaviorTracking": {
+      "allowed": false,
+      "requirements": ["separate privacy review", "separate consent", "no third-party analytics in this plan"]
+    }
+  },
+  "retentionAndDeletion": {
+    "rawFeedbackDefaultRetentionDays": 180,
+    "reviewedAggregateRetentionDays": 730,
+    "deletionRequestTargetDays": 30,
+    "deleteOrRedactOnRequest": true,
+    "agentSummariesMustRemainNonIdentifying": true,
+    "notes": [
+      "Shorten retention for accidental sensitive data immediately after detection.",
+      "Aggregates may persist only when they cannot reasonably identify a user."
+    ]
+  },
+  "agentReadableSummaryFormat": {
+    "collection": "userFeedbackSummaries",
+    "mustNotContain": ["user ids", "names", "contact details", "raw quotes", "unique incidents", "sensitive attributes"],
+    "fields": {
+      "summaryId": "Server/admin generated id.",
+      "period": "Date range, e.g. 2026-W20 or 2026-05.",
+      "routeKey": "Route or route group.",
+      "featureId": "Registered feature id.",
+      "theme": "Short non-identifying theme.",
+      "category": "Controlled category.",
+      "sentimentTrend": "Aggregate sentiment only.",
+      "countBucket": "Bucket such as 5-10, 11-25, 26-50; never exact for small groups.",
+      "impact": "low, medium, high with rationale from aggregate data.",
+      "recommendedExistingTask": "Existing TODO/register reference if known.",
+      "requiresHumanDecision": "True for safety, compliance, privacy, economy, or child-related feedback."
+    },
+    "minimumClusterSize": 5,
+    "exampleWithoutRealUserData": {
+      "period": "2026-W20",
+      "routeKey": "/mobile/missionen",
+      "featureId": "FEATURE-MISSIONS",
+      "theme": "Users need clearer mission progress wording",
+      "category": "usability",
+      "sentimentTrend": "mixed-negative",
+      "countBucket": "5-10",
+      "impact": "medium",
+      "recommendedExistingTask": "todolist/WORK_MAP.md#Missionen",
+      "requiresHumanDecision": false
+    }
+  },
+  "futureApiProposal": {
+    "route": "/api/feedback/submit",
+    "status": "proposal-no-implementation",
+    "method": "POST",
+    "authority": "server-validation-and-minimization-only",
+    "requirements": [
+      "rate limit and abuse protection",
+      "auth optional for anonymous feedback but required for identified follow-up",
+      "schema validation and length limits",
+      "forbidden-field rejection and user warning",
+      "server timestamp only",
+      "Firestore security rules with no direct client writes",
+      "no third-party analytics or session recording",
+      "no activation before privacy/security review"
+    ]
+  },
+  "adminReviewFlow": [
+    "Receive feedback through future server API or manual preview review.",
+    "Auto-validate schema, length, routeKey, featureId, and forbidden field indicators.",
+    "Place raw feedback in admin-only pending state.",
+    "Admin reviews, redacts accidental sensitive data, and classifies category/severity.",
+    "Safety/compliance/economy/child/privacy items require human decision before product work.",
+    "Aggregate reviewed feedback into clusters with minimum cluster size before agent access.",
+    "Future agents read only userFeedbackSummaries and map themes to existing TODO/register entries."
+  ],
+  "crossReferences": {
+    "workMapTopic": "Analytics / Feedback",
+    "todoIndexSection": "Architecture / Security / Planning",
+    "privacyGuardrails": "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+    "feedbackLoopRegister": "project-register/feedback-analytics-loop.json"
+  }
+}

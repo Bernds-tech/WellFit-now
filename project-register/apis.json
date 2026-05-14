@@ -68,6 +68,15 @@
       "authority": "projection-read-preview",
       "security": ["no-final-write", "auth-context-required-or-documented-beta-fallback"],
       "status": "active"
+    },
+    {
+      "route": "/api/feedback/submit",
+      "area": "User-Feedback",
+      "authority": "proposal-server-validation-and-minimization-only",
+      "security": ["proposal-no-implementation", "no-direct-client-firestore-writes", "consent-required-for-identified-feedback", "no-sensitive-health-child-location-camera-biometric-wallet-payment-reward-evidence-data", "no-third-party-analytics", "no-raw-user-data-in-agent-reports"],
+      "status": "proposal-no-live-tracking",
+      "register": "project-register/user-feedback.json",
+      "architecture": "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md"
     }
   ],
   "stufe4Rules": {
