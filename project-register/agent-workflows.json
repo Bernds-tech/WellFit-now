@@ -26,7 +26,9 @@
         "project-register/apis.json",
         "project-register/features.json",
         "project-register/internal-sources.json",
-        "project-register/user-feedback.json"
+        "project-register/user-feedback.json",
+        "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
+        "project-register/agent-work-log.json"
       ],
       "controlRegisters": [
         {
@@ -39,6 +41,20 @@
           "architecture": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md",
           "purpose": "Task selection, risk classification, stop rules, and definition-of-done controls for future autonomous agents.",
           "usage": "Before choosing or implementing a task, classify risk, select a task candidate, select a definitionOfDoneKey, and honor stop conditions."
+        },
+        {
+          "id": "agent_memory_loop",
+          "registers": [
+            "project-register/agent-work-log.json",
+            "project-register/agent-task-queue.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs",
+            "scripts/wellfit-dev-agent/src/todo-status-sync.mjs"
+          ],
+          "purpose": "Repeatable loop for safe task selection, work recording, TODO status validation, and follow-up handoff for future agents.",
+          "usage": "Start by running the next-task picker, record completed work in the work log, validate TODO status markers, and create follow-ups only in existing leading files."
         }
       ],
       "additionalGovernanceInputs": [
@@ -176,8 +192,8 @@
         {
           "id": "optimize_next_iteration",
           "purpose": "Prepare the next small iteration without overloading the current PR.",
-          "requiredInputFiles": ["PR result", "check results", "todolist/NEXT_ACTIONS.md", "project-register/progress-log.json", "project-register/todos.json"],
-          "allowedActions": ["document next recommended task", "handoff risks/blockers", "sort follow-up work into existing registers"],
+          "requiredInputFiles": ["PR result", "check results", "todolist/NEXT_ACTIONS.md", "project-register/progress-log.json", "project-register/todos.json", "project-register/agent-work-log.json", "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"],
+          "allowedActions": ["document next recommended task", "handoff risks/blockers", "sort follow-up work into existing registers", "append agent work-log entries that record checks, follow-ups, and the next recommended task"],
           "forbiddenActions": ["scope creep", "continue feature work after closure without new assignment", "live deploy without approval"],
           "requiredOutput": "Concrete next recommendation and clean handoff.",
           "riskGates": ["Do not start another iteration when tests/build are red without documented blocker/plan."]

@@ -1,0 +1,92 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "purpose": "Machine-readable WellFit agent work log for recording completed agent runs, changed files, checks, follow-ups, and the next recommended safe task without creating duplicate architecture or parallel systems.",
+  "governance": {
+    "readBeforeUpdating": [
+      "AGENTS.md",
+      "todolist/CURRENT_PROJECT_STATE.md",
+      "todolist/WORK_MAP.md",
+      "todolist/TODO_INDEX.md",
+      "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
+      "project-register/agent-task-queue.json",
+      "project-register/definition-of-done.json",
+      "project-register/risk-classifier.json"
+    ],
+    "doNotRecord": [
+      "secrets",
+      "local-only machine paths",
+      "unreviewed compliance decisions",
+      "private production data"
+    ],
+    "appendOnlyGuidance": "Append a concise entry after each scoped agent run. Do not delete historical entries; mark superseded or corrected entries in a follow-up entry."
+  },
+  "entrySchema": {
+    "taskId": {
+      "type": "string",
+      "required": true,
+      "description": "Task id from project-register/agent-task-queue.json or a clearly named human-request id."
+    },
+    "title": {
+      "type": "string",
+      "required": true,
+      "description": "Short task title."
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "allowedValues": ["planned", "in_progress", "done", "partially_done", "blocked", "review_required", "superseded"],
+      "description": "Final status for this agent run."
+    },
+    "pr": {
+      "type": "object",
+      "required": true,
+      "fields": {
+        "branch": "Current task branch.",
+        "number": "Pull request number or null until assigned by hosting provider.",
+        "url": "Pull request URL or null when unavailable.",
+        "title": "Pull request title."
+      }
+    },
+    "changedFiles": {
+      "type": "array",
+      "required": true,
+      "items": "Repository-relative file paths intentionally changed."
+    },
+    "checks": {
+      "type": "array",
+      "required": true,
+      "items": {
+        "command": "Exact command run.",
+        "result": "pass, fail, warning, or skipped.",
+        "notes": "Short reason for failures, warnings, or skips."
+      }
+    },
+    "followUps": {
+      "type": "array",
+      "required": true,
+      "items": "Follow-up tasks, blockers, or review requests created for later agents."
+    },
+    "nextRecommendedTask": {
+      "type": "string",
+      "required": true,
+      "description": "Single safest next task recommendation, preferably from the agent task queue."
+    },
+    "updatedTodoFiles": {
+      "type": "array",
+      "required": false,
+      "items": "TODO/status files whose markers or references were updated."
+    },
+    "riskLevel": {
+      "type": "string",
+      "required": false,
+      "allowedValues": ["low", "medium", "high", "critical"]
+    },
+    "definitionOfDoneKey": {
+      "type": "string",
+      "required": false,
+      "description": "Definition-of-done key used for the task."
+    }
+  },
+  "entries": []
+}
