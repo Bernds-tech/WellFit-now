@@ -29,6 +29,7 @@ Vor jeder strukturellen oder produktrelevanten Arbeit lesen:
 - `agents/modes/stufe-2.md`
 - `agents/modes/stufe-3.md`
 - `agents/modes/stufe-4.md`
+- `agents/modes/stufe-4-autonomous-development.md`
 - `agents/self-check.md`
 - `agents/failure-recovery-rules.md`
 - `agents/security-rules.md`
@@ -42,6 +43,7 @@ Vor jeder strukturellen oder produktrelevanten Arbeit lesen:
 - `project-register/cross-references.json`
 - `project-register/product-rules.json`
 - `project-register/progress-log.json`
+- `project-register/agent-workflows.json`
 
 ## Arbeitsstufen
 
@@ -62,7 +64,7 @@ Wenn Bernd `Stufe 4` schreibt, gilt automatisch:
 - Preview/Pull Request liefern
 - nie automatisch live deployen
 
-Details stehen in `agents/modes/stufe-4.md`.
+Details stehen in `agents/modes/stufe-4.md` und im phasenbasierten Workflow `agents/modes/stufe-4-autonomous-development.md`.
 
 ## Arbeitsregeln
 

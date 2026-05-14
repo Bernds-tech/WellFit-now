@@ -153,6 +153,13 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/MISSION_HISTORY_FAVORITES_SIDEQUESTS.md` | aktiv / Mission UI | Mission History, Favorites, Sidequests | Mission/UI | mit AppShell abgleichen |
 | `docs/architecture/USER_ECONOMY_WRITE_SEARCH_NOTES.md` | aktiv / Security Notes | User Economy Write Search Notes | Backend/Economy | mit Client-Write-Refactor abgleichen |
 
+## Agenten-Modi und Workflows
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `agents/modes/stufe-4-autonomous-development.md` | aktiv / Stufe-4-Workflow | human-readable autonomer Entwicklungsworkflow mit Phasen, Safety-Gates, PR-/Preview-Grenzen und Pflichtchecks | `project-register/agent-workflows.json` | vor neuer Stufe-4-Featurearbeit lesen und befolgen |
+| `project-register/agent-workflows.json` | aktiv / maschinenlesbares Register | maschinenlesbarer Stufe-4-Agentenworkflow, Pflichtdateien, Phasen, Autonomiegrenzen und Checks | `agents/modes/stufe-4-autonomous-development.md` | bei Workflow-Aenderungen synchron halten |
+
 ## Dev-Agent Dateien
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |

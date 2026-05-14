@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "purpose": "Maschinenlesbares Register fuer verbindliche WellFit-Agenten-Workflows und Stufe-4-Autonomiegrenzen.",
+    "status": "active",
+    "created": "2026-05-14",
+    "humanReadableSource": "agents/modes/stufe-4-autonomous-development.md",
+    "extends": ["agents/AGENTS.md", "agents/modes/stufe-4.md"]
+  },
+  "workflows": [
+    {
+      "id": "WF-AGENT-STUFE-4-AUTONOMOUS-DEVELOPMENT",
+      "name": "WellFit Stufe 4 Autonomous Development Workflow",
+      "status": "active",
+      "summary": "Ziel verstehen -> Konzept pruefen -> Struktur ableiten -> Seiten erfassen -> Aufgaben erstellen -> Code bauen -> automatisch testen -> Fehler beheben -> Dokumentation aktualisieren -> Preview liefern -> Nutzerfeedback auswerten -> weiter optimieren.",
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/features.json"
+      ],
+      "additionalGovernanceInputs": [
+        "agents/",
+        "project-register/",
+        "todolist/",
+        "docs/architecture/"
+      ],
+      "autonomyBoundary": {
+        "allowedUntil": ["pull_request", "preview_notes", "completion_report"],
+        "requiresHumanApproval": ["merge_to_main", "live_deploy", "production_deploy"],
+        "protectedAreas": [
+          "PR #13",
+          "native/unity/WellFitBuddyAR",
+          "token",
+          "NFT",
+          "wallet",
+          "payment",
+          "reward_authority",
+          "health",
+          "child_safety",
+          "location",
+          "privacy",
+          "compliance"
+        ]
+      },
+      "antiDuplicationRule": "If a feature, topic, API, route, or architecture area already exists in todolist/WORK_MAP.md or project-register files, continue there instead of creating a parallel implementation or duplicate architecture.",
+      "requiredChecksBeforePr": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate"
+      ],
+      "phases": [
+        {
+          "id": "understand_goal",
+          "purpose": "Understand goal, scope, non-goals, safety boundaries, and expected result.",
+          "requiredInputFiles": ["AGENTS.md", "todolist/CURRENT_PROJECT_STATE.md", "todolist/NEXT_ACTIONS.md", "user_request"],
+          "allowedActions": ["summarize request", "identify affected product areas", "check branch/status facts", "record open questions as risks"],
+          "forbiddenActions": ["change code", "change product logic", "create new architecture", "work directly on main"],
+          "requiredOutput": "Goal and scope note with allowed and excluded work.",
+          "riskGates": ["Stop or document blocker if scope touches compliance, reward, payment, token, health, child, location, or privacy logic."]
+        },
+        {
+          "id": "check_concepts",
+          "purpose": "Check existing concepts, Work Map, TODOs, and registers to avoid duplicate work.",
+          "requiredInputFiles": ["todolist/WORK_MAP.md", "todolist/TODO_INDEX.md", "project-register/features.json", "project-register/product-rules.json", "relevant docs/architecture files"],
+          "allowedActions": ["identify leading files", "map existing tasks/features", "record risks and dependencies"],
+          "forbiddenActions": ["create concepts beside existing leading files", "delete old files", "overwrite historical decisions"],
+          "requiredOutput": "Reference to leading file or documented reason for a new entry.",
+          "riskGates": ["Do not continue if an existing concept conflicts or a human decision is missing."]
+        },
+        {
+          "id": "derive_structure",
+          "purpose": "Derive existing WellFit structure, module boundaries, and affected registers from the goal.",
+          "requiredInputFiles": ["todolist/PROJECT_STRUCTURE.md", "todolist/CODEBASE_FEATURE_MAP.md", "project-register/cross-references.json", "project-register/decisions.json"],
+          "allowedActions": ["map existing folders/modules/registers", "keep change scope minimal", "document exclusions"],
+          "forbiddenActions": ["create parallel modules", "create second design systems", "create duplicate shells", "create competing data models", "create redundant registers"],
+          "requiredOutput": "Structure decision with affected files/registers and excluded areas.",
+          "riskGates": ["Stop if work would touch Unity, PR #13, compliance-critical logic, or unapproved product areas."]
+        },
+        {
+          "id": "inspect_existing_pages_routes_apis",
+          "purpose": "Capture affected pages, secondary pages, routes, APIs, and features before implementation.",
+          "requiredInputFiles": ["project-register/routes.json", "project-register/pages.json", "project-register/apis.json", "project-register/features.json", "existing app/API routes"],
+          "allowedActions": ["read route/API inventory", "name affected pages/APIs", "plan crawl or audit for UI work"],
+          "forbiddenActions": ["create routes or APIs without register entry", "ignore existing routes", "skip security review for API changes"],
+          "requiredOutput": "Affected routes, APIs, and features in task plan and PR report.",
+          "riskGates": ["API changes require security review.", "Economy/reward APIs must not activate final authority."]
+        },
+        {
+          "id": "create_task_plan",
+          "purpose": "Create small, reviewable tasks from structure and risks.",
+          "requiredInputFiles": ["todolist/NEXT_ACTIONS.md", "project-register/todos.json", "project-register/progress-log.json", "relevant Work Map entries"],
+          "allowedActions": ["continue existing tasks", "create new tasks only if no existing entry fits", "define order and checks"],
+          "forbiddenActions": ["create unchecked TODO files", "start broad vague work packages", "skip safety gates"],
+          "requiredOutput": "Task plan with status, test plan, and documentation duties.",
+          "riskGates": ["No implementation without defined checks and explicit forbidden-area boundaries."]
+        },
+        {
+          "id": "implement_code",
+          "purpose": "If code work is in scope, implement the smallest suitable change inside existing architecture.",
+          "requiredInputFiles": ["affected source/config files", "relevant Next.js docs for Next.js API/routing/rendering/build changes", "todolist/WORK_MAP.md", "project-register files"],
+          "allowedActions": ["extend existing modules", "make targeted fixes", "maintain tests/types", "prepare register updates"],
+          "forbiddenActions": ["change product logic outside scope", "change token/NFT/wallet/payment/reward-authority/health/child/location/privacy/compliance logic", "touch Unity files", "build parallel systems"],
+          "requiredOutput": "Minimal diff mapped to existing feature, route, or API.",
+          "riskGates": ["Stop if work would activate final reward/ledger authority, real purchases, secrets, or live integrations."]
+        },
+        {
+          "id": "run_automatic_checks",
+          "purpose": "Run lint, type, build, functions, and quality-gate checks.",
+          "requiredInputFiles": ["package.json", "functions/package.json", "scripts/wellfit-dev-agent/", "affected test/config files"],
+          "allowedActions": ["run required checks", "evaluate output", "document environment limits"],
+          "forbiddenActions": ["hide failures", "remove tests", "skip checks without reason"],
+          "requiredOutput": "Result list for npm run lint, npx tsc --noEmit, npm run build, npm --prefix functions run check, npm run agent:quality-gate.",
+          "riskGates": ["PR may include failures only with transparent cause, risk, and next fix step."]
+        },
+        {
+          "id": "fix_errors",
+          "purpose": "Analyze found errors, fix them minimally, and repeat checks.",
+          "requiredInputFiles": ["check outputs", "affected files", "agents/failure-recovery-rules.md"],
+          "allowedActions": ["root-cause analysis", "minimal fix", "rerun checks", "document blockers"],
+          "forbiddenActions": ["hide errors by removing important tests/rules", "start unrelated refactors", "weaken safety rules"],
+          "requiredOutput": "Fixed errors or documented blocker with cause, files, and next step.",
+          "riskGates": ["Document blocker instead of speculative fix when requirements conflict or decision is missing."]
+        },
+        {
+          "id": "update_documentation_and_registers",
+          "purpose": "Keep documentation and machine-readable registers aligned with the work.",
+          "requiredInputFiles": ["todolist/TODO_INDEX.md", "todolist/WORK_MAP.md", "project-register/*.json", "relevant docs/architecture files"],
+          "allowedActions": ["update relevant registers", "set cross-references", "update progress/todos", "index new workflow files"],
+          "forbiddenActions": ["delete historical TODOs", "replace leading files without reason", "create duplicate architecture"],
+          "requiredOutput": "Updated docs/registers or explicit note that no update is needed.",
+          "riskGates": ["Governance changes require human-readable and machine-readable sources to match."]
+        },
+        {
+          "id": "deliver_pr_and_preview_notes",
+          "purpose": "Deliver review-ready PR with preview/test notes.",
+          "requiredInputFiles": ["git diff", "check results", "affected registers/routes/apis/features", "PR template if available"],
+          "allowedActions": ["commit", "write PR summary/checks/risks/next task", "provide preview notes"],
+          "forbiddenActions": ["merge to main", "live deploy", "hide failures", "omit risks", "make unverified claims"],
+          "requiredOutput": "Pull request with goal, changed files, checks, risks, preview notes, and next recommended task.",
+          "riskGates": ["Do not finish with commit but no PR, or PR but no commit.", "No live release without human approval."]
+        },
+        {
+          "id": "evaluate_user_feedback_if_available",
+          "purpose": "Evaluate available user feedback after PR/preview and map it to existing tasks.",
+          "requiredInputFiles": ["user_feedback", "project-register/feedback-analytics-loop.json", "project-register/todos.json", "relevant feature/route registers"],
+          "allowedActions": ["cluster feedback", "update existing tasks", "create new task only if no existing entry fits"],
+          "forbiddenActions": ["treat feedback as automatic product approval", "skip safety gates", "start parallel features"],
+          "requiredOutput": "Feedback evaluation linked to existing tasks or justified new register entry.",
+          "riskGates": ["Compliance- or safety-relevant feedback requires human decision before implementation."]
+        },
+        {
+          "id": "optimize_next_iteration",
+          "purpose": "Prepare the next small iteration without overloading the current PR.",
+          "requiredInputFiles": ["PR result", "check results", "todolist/NEXT_ACTIONS.md", "project-register/progress-log.json", "project-register/todos.json"],
+          "allowedActions": ["document next recommended task", "handoff risks/blockers", "sort follow-up work into existing registers"],
+          "forbiddenActions": ["scope creep", "continue feature work after closure without new assignment", "live deploy without approval"],
+          "requiredOutput": "Concrete next recommendation and clean handoff.",
+          "riskGates": ["Do not start another iteration when tests/build are red without documented blocker/plan."]
+        }
+      ]
+    }
+  ]
+}

@@ -70,6 +70,8 @@ Nutzen:
 
 Datei: `agents/modes/stufe-4.md`
 
+Detaillierter autonomer Entwicklungsworkflow: `agents/modes/stufe-4-autonomous-development.md`
+
 ---
 
 ## Grundregel
@@ -79,4 +81,4 @@ Je hoeher die Stufe, desto mehr Autonomie und Pruefpflicht.
 - Stufe 1 = verstehen und dokumentieren
 - Stufe 2 = kleine sichere Aenderung
 - Stufe 3 = begrenzte Umsetzung mit Tests/Preview
-- Stufe 4 = autonomer Vollmodus mit Nebenseiten-Crawl und Selbstkorrektur
+- Stufe 4 = autonomer Vollmodus mit Nebenseiten-Crawl, Selbstkorrektur und phasenbasiertem Workflow in `agents/modes/stufe-4-autonomous-development.md`
