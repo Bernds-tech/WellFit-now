@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "block": "C",
+    "issue": 24,
+    "purpose": "Progress log for Site-Quality-Crawl, Nebenseitenpruefung and Preview rule preparation.",
+    "status": "in_progress"
+  },
+  "entries": [
+    {
+      "id": "PROGRESS-BLOCK-C-0001",
+      "date": "2026-05-14",
+      "branch": "feature/block-c-site-quality-crawl",
+      "goal": "Add site route audit and execute it from the existing quality gate.",
+      "changedFiles": [
+        "scripts/wellfit-dev-agent/src/site-route-audit.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/progress-log-block-c.json"
+      ],
+      "checksAdded": [
+        "Read route groups from project-register/routes.json",
+        "Verify required public pages are registered",
+        "Verify required mobile pages are registered",
+        "Document protected app pages as test-user/Auth requirements",
+        "Document preview rule for Stufe-3/Stufe-4 PRs",
+        "Invoke site route audit from agent:quality-gate"
+      ],
+      "productLogicChanged": false,
+      "firebaseRulesChanged": false,
+      "productionDeployTriggered": false,
+      "nextSteps": [
+        "Run npm run agent:memory-sync",
+        "Run npm run agent:quality-gate",
+        "Run npm run build",
+        "Extend actual browser/page quality checks later without using real user data"
+      ]
+    }
+  ]
+}
