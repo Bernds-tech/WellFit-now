@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "project": "WellFit-now",
+    "block": "D",
+    "issue": 25,
+    "purpose": "Progress log for Firebase/Firestore security, emulator-test preparation and database scalability guardrails.",
+    "status": "in_progress"
+  },
+  "entries": [
+    {
+      "id": "PROGRESS-BLOCK-D-0001",
+      "date": "2026-05-14",
+      "branch": "feature/block-d-firebase-security-audit",
+      "goal": "Add static Firebase/Firestore security audit and execute it from the existing quality gate.",
+      "changedFiles": [
+        "scripts/wellfit-dev-agent/src/firebase-security-audit.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/progress-log-block-d.json"
+      ],
+      "checksAdded": [
+        "Verify server-only economy collections have rule blocks",
+        "Verify server-only economy collections deny client create/update/delete",
+        "Detect temporary MVP bridge rules and report them as warnings",
+        "Verify final catch-all deny rule exists",
+        "Verify auth helper functions exist",
+        "Invoke Firebase security audit from agent:quality-gate"
+      ],
+      "productLogicChanged": false,
+      "firebaseRulesChanged": false,
+      "productionDeployTriggered": false,
+      "realUserDataAccessed": false,
+      "nextSteps": [
+        "Run npm run agent:memory-sync",
+        "Run npm run agent:quality-gate",
+        "Run npm run build",
+        "If the audit fails, document exact collection/rule issue before changing firestore.rules",
+        "Future sub-step: emulator tests, not in this initial static audit PR"
+      ]
+    }
+  ]
+}
