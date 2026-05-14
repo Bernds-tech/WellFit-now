@@ -18,7 +18,8 @@
     "definitionOfDone": "project-register/definition-of-done.json",
     "architectureDoc": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md",
     "agentFollowUps": "project-register/agent-follow-ups.json",
-    "researchRecommendations": "project-register/research-recommendations.json"
+    "researchRecommendations": "project-register/research-recommendations.json",
+    "adaptiveUserInsights": "project-register/adaptive-user-insights.json"
   },
   "globalRequiredFirstReadFiles": [
     "AGENTS.md",
@@ -34,7 +35,9 @@
     "project-register/visual-regression.json",
     "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
     "project-register/research-recommendations.json",
-    "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md"
+    "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
+    "project-register/adaptive-user-insights.json",
+    "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -62,7 +65,9 @@
     "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
     "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
     "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
-    "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs"
+    "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
+    "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+    "jq empty project-register/adaptive-user-insights.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -779,6 +784,80 @@
         "Classify risk and mark humanReviewRequired for unclear, high, critical, or protected decisions.",
         "Confirm no runtime product logic, Unity/PR #13 files, or protected compliance/economy/privacy areas changed.",
         "Name the next safe review or registry-only task."
+      ]
+    },
+    {
+      "id": "AGENT-ADAPTIVE-USER-INSIGHT-GOVERNANCE",
+      "title": "Maintain planning-only Adaptive User Insight governance",
+      "status": "ready",
+      "riskLevel": "medium",
+      "definitionOfDoneKey": "registry_documentation_task",
+      "purpose": "Keep aggregate Adaptive User Insight governance aligned with feedback, analytics, research-recommendation, product-readiness, and safety guardrails without activating live tracking or runtime product logic.",
+      "allowedFiles": [
+        "project-register/adaptive-user-insights.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "native/unity/WellFitBuddyAR/**",
+        "app/**",
+        "lib/** runtime product logic",
+        "functions/** runtime logic unless explicitly assigned"
+      ],
+      "relatedRegisters": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "project-register/research-recommendations.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
+        "jq empty project-register/adaptive-user-insights.json",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "activationState would change away from planning_only",
+        "raw user data or user identifiers would become agent-visible",
+        "live tracking, runtime personalization, reward authority, health, child, location, camera/biometric, token, wallet, payment, betting, privacy, legal, or compliance logic would be modified"
+      ],
+      "expectedOutput": [
+        "Adaptive User Insight remains planning_only.",
+        "Only aggregate signals above minimum thresholds are agent-visible.",
+        "High/critical and protected-topic recommendations remain human-review-required and implementationAllowed=false.",
+        "Research & Recommendation governance remains preserved and referenced, not duplicated."
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/adaptive-user-insights.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "project-register/research-recommendations.json",
+        "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/product-readiness.json",
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json"
+      ],
+      "expectedPrOutput": [
+        "State that Adaptive User Insight remains planning_only and validation-only.",
+        "Confirm only aggregate signals are allowed and raw user identifiers/sensitive data are forbidden.",
+        "Confirm no runtime product logic, live tracking, Unity/PR #13 files, or protected compliance/economy/privacy areas changed.",
+        "List adaptive-user-insight-check, research-recommendation-check, JSON validation, and quality-gate results.",
+        "Name the next safe registry-only or human-review task."
       ]
     }
   ],

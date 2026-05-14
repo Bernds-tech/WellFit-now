@@ -35,7 +35,9 @@
         "project-register/visual-regression.json",
         "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
         "project-register/research-recommendations.json",
-        "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md"
+        "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
+        "project-register/adaptive-user-insights.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md"
       ],
       "controlRegisters": [
         {
@@ -106,6 +108,14 @@
           "scripts": ["scripts/wellfit-dev-agent/src/research-recommendation-check.mjs"],
           "purpose": "Internal-first, optional-external-research governance for unclear WellFit product or technical questions; requires three options, one recommendation, risk classification, and human review before implementation.",
           "usage": "Read internal sources first, report when external research is unavailable, present at least three options, select exactly one recommendation, classify risk, and never implement high/critical or protected-topic decisions without explicit human approval."
+        },
+        {
+          "id": "adaptive_user_insight_governance",
+          "registers": ["project-register/adaptive-user-insights.json", "project-register/user-feedback.json", "project-register/feedback-analytics-loop.json", "project-register/research-recommendations.json"],
+          "architecture": "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+          "scripts": ["scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"],
+          "purpose": "Planning-only governance for future aggregate Adaptive User Insight summaries without raw user data, live tracking, runtime personalization, or protected product logic changes.",
+          "usage": "Use only aggregate cohorts above minimum thresholds, keep activationState=planning_only, expose no raw identifiers or sensitive fields to agents, and require human review for high/critical or protected-topic recommendations."
         }
       ],
       "additionalGovernanceInputs": [

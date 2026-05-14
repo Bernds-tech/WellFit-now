@@ -1,0 +1,214 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "purpose": "Planning-only governance register for future Adaptive User Insight summaries: define how WellFit may later use privacy-preserving aggregate signals to recommend mission, buddy, difficulty, challenge, and internal reward-tuning ideas without exposing raw user data to agents or changing runtime product logic.",
+  "activationState": "planning_only",
+  "scope": "Documentation, registry, and validation-only governance. This register does not activate live tracking, data collection, personalization runtime, reward authority, or protected compliance logic.",
+  "sourceRegisters": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "project-register/agent-workflows.json",
+    "project-register/agent-task-queue.json",
+    "project-register/product-readiness.json",
+    "project-register/user-feedback.json",
+    "project-register/feedback-analytics-loop.json",
+    "project-register/research-recommendations.json",
+    "project-register/risk-classifier.json",
+    "project-register/definition-of-done.json",
+    "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+    "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md",
+    "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
+  ],
+  "allowedAggregateSignals": [
+    "aggregate anonymous cohort-level mission completion rates",
+    "aggregate anonymous cohort-level mission abandonment rates",
+    "aggregate anonymous cohort-level difficulty distribution bands",
+    "aggregate anonymous cohort-level buddy interaction counts by category",
+    "aggregate anonymous cohort-level feature usage counts by route or module",
+    "aggregate anonymous cohort-level challenge participation counts",
+    "aggregate anonymous cohort-level feedback tags that were manually reviewed and redacted before aggregation",
+    "aggregate anonymous cohort-level accessibility preference counts",
+    "aggregate anonymous cohort-level onboarding friction categories",
+    "aggregate anonymous cohort-level reward-balance issue categories without ledger, wallet, payment, token, or user-level evidence"
+  ],
+  "forbiddenRawSensitiveFields": [
+    "raw user messages unless manually reviewed and redacted",
+    "names, emails, user IDs, device IDs, account IDs, handles, or personal identifiers",
+    "exact location, GPS traces, addresses, coordinates, routes, or check-in history",
+    "health data, watch data, workout details, heart rate, sleep, nutrition, disability, injury, or medical-adjacent data",
+    "child/minor data, age-verification records, school data, guardian data, or youth safety records",
+    "camera, face, biometric or raw sensor data, AR camera frames, photos, video, audio, gait, motion traces, or raw accelerometer/gyroscope data",
+    "medical claims, diagnosis, treatment, therapy, or clinical recommendations",
+    "payment/token/wallet data, purchase records, payout records, NFT ownership, staking, presale, trading, or financial-equivalent data",
+    "exact daily routine that could identify a person, including precise commute, work, school, home, sleep, or movement patterns",
+    "reward authority evidence, anti-cheat evidence, final ledger writes, rare-item grants, or mission-completion proof tied to a user"
+  ],
+  "personalizationDimensions": [
+    {
+      "id": "mission_theme_affinity",
+      "allowedInput": "cohort-level completed mission theme counts",
+      "allowedOutput": "suggested backlog theme emphasis for human review"
+    },
+    {
+      "id": "learning_format_preference",
+      "allowedInput": "cohort-level interaction counts for quiz, story, reflection, and micro-learning formats",
+      "allowedOutput": "planning-only content mix recommendation"
+    },
+    {
+      "id": "difficulty_band_fit",
+      "allowedInput": "cohort-level completion and abandonment rates by difficulty band",
+      "allowedOutput": "aggregate difficulty adjustment recommendation"
+    },
+    {
+      "id": "buddy_tone_fit",
+      "allowedInput": "cohort-level redacted feedback tags and interaction category counts",
+      "allowedOutput": "planning-only buddy tone and help-style recommendation"
+    },
+    {
+      "id": "challenge_participation_fit",
+      "allowedInput": "cohort-level challenge participation and opt-out counts",
+      "allowedOutput": "planning-only challenge pacing recommendation"
+    }
+  ],
+  "behaviorSignalCategories": [
+    "mission_flow_aggregate",
+    "learning_flow_aggregate",
+    "buddy_interaction_aggregate",
+    "challenge_participation_aggregate",
+    "accessibility_preference_aggregate",
+    "onboarding_friction_aggregate",
+    "redacted_feedback_tag_aggregate"
+  ],
+  "missionAdaptationRules": {
+    "allowed": [
+      "Recommend backlog changes to mission themes using only aggregate cohorts above minimum sample thresholds.",
+      "Suggest lowering, raising, or splitting difficulty bands only as planning recommendations with explanation and human review.",
+      "Flag unclear aggregate signals for research-recommendation review instead of creating runtime personalization."
+    ],
+    "forbidden": [
+      "No per-user mission targeting, live tracking, location-based personalization, or client-side completion authority.",
+      "No use of raw mission evidence, raw movement traces, raw user messages, or exact daily routines.",
+      "No final reward, XP, anti-cheat, ledger, or mission-completion decisions."
+    ]
+  },
+  "buddyAdaptationRules": {
+    "allowed": [
+      "Recommend aggregate buddy tone, onboarding help, or explanation style changes for human review.",
+      "Use only redacted feedback tags and anonymous interaction category counts above minimum sample thresholds.",
+      "Keep all recommendations explainable and reversible."
+    ],
+    "forbidden": [
+      "No raw chat logs, raw user messages, health inferences, child/minor data, medical claims, or sensitive personal profiling.",
+      "No personalized emotional manipulation, diagnosis, therapy, or high-impact decisioning.",
+      "No exposure of agent-visible data that can identify a person."
+    ]
+  },
+  "difficultyTuningRules": {
+    "allowed": [
+      "Compare aggregate completion and abandonment rates across difficulty bands.",
+      "Recommend a conservative difficulty-band adjustment when thresholds and explainability requirements are met.",
+      "Keep recommendations draft-only until reviewed and implemented through existing mission architecture."
+    ],
+    "forbidden": [
+      "No direct runtime difficulty changes from the register.",
+      "No tuning based on protected attributes or sensitive data.",
+      "No user-level or household-level inference."
+    ]
+  },
+  "challengeRewardTuningBoundaries": {
+    "allowed": [
+      "Flag aggregate challenge pacing or internal reward-balance concerns as planning-only recommendations.",
+      "Recommend review of internal points/XP balance without changing final ledger authority.",
+      "Use existing economy guardrails and require human review for anything reward-adjacent."
+    ],
+    "forbidden": [
+      "No token, NFT, wallet, payment, betting, purchase, payout, staking, presale, trading, or marketplace activation.",
+      "No final reward authority, anti-cheat decisions, rare-item grants, inventory unlocks, or ledger writes.",
+      "No challenge outcome manipulation or financial-equivalent personalization."
+    ]
+  },
+  "fairnessAndSafetyRules": [
+    "Use aggregate cohorts only; never expose raw user data or raw identifiers to agents.",
+    "Do not create or infer protected classes, health status, child/minor status, exact location, biometric identity, financial status, or medical conditions.",
+    "Require human review for high or critical impact, reward-adjacent, privacy-adjacent, compliance-adjacent, or fairness-sensitive recommendations.",
+    "Prefer conservative recommendations; when aggregate signals conflict, choose no-change and request review.",
+    "Document known limitations, sample sizes, and excluded sensitive signals in every summary.",
+    "Keep the framework planning_only until a separate privacy, consent, data-retention, and server-authority review explicitly approves any implementation."
+  ],
+  "minimumSampleThresholds": {
+    "defaultCohortMinimum": 30,
+    "sensitiveOrFairnessAdjacentMinimum": 100,
+    "challengeRewardAdjacentMinimum": 100,
+    "minimumDistinctDays": 7,
+    "minimumDistinctMissionTemplates": 3,
+    "smallCohortAction": "Do not generate a recommendation; report insufficient aggregate sample and request more reviewed aggregate data.",
+    "kAnonymityRule": "No agent-visible summary may represent fewer than 30 users or a smaller cohort than the stricter category threshold."
+  },
+  "explainabilityRequirements": [
+    "State the aggregate signal categories used and cite the source register or report path.",
+    "State sample size, cohort window, threshold result, and excluded sensitive fields.",
+    "Explain why the recommendation is planning-only and whether runtime implementation is allowed or blocked.",
+    "List risks, fairness considerations, known limitations, and protected areas not touched.",
+    "Provide a reversible next safe task that extends existing mapped files only."
+  ],
+  "humanReviewRequiredTriggers": [
+    {
+      "riskLevel": "high",
+      "trigger": "Any high-risk, privacy-adjacent, fairness-sensitive, protected-topic-adjacent, or reward-adjacent recommendation.",
+      "requiredAction": "Human review required before implementation; keep implementationAllowed=false."
+    },
+    {
+      "riskLevel": "critical",
+      "trigger": "Any recommendation touching token, NFT, wallet, payment, betting, final reward authority, anti-cheat, health, child/minor, exact location, camera, biometric, medical, legal, privacy, or compliance areas.",
+      "requiredAction": "Stop and request explicit owner approval and review plan; do not implement."
+    },
+    {
+      "riskLevel": "high",
+      "trigger": "Minimum sample thresholds are not met or aggregate evidence is ambiguous.",
+      "requiredAction": "No-change recommendation and human review required."
+    }
+  ],
+  "agentVisibleSummarySchema": {
+    "id": "string",
+    "created": "YYYY-MM-DD",
+    "activationState": "planning_only",
+    "sourceRegisterRefs": [
+      "string"
+    ],
+    "aggregateSignalCategories": [
+      "string"
+    ],
+    "cohortWindow": "string",
+    "cohortSize": "number",
+    "thresholdStatus": "met | not_met | not_applicable",
+    "excludedSensitiveFields": [
+      "string"
+    ],
+    "summary": "string without raw user identifiers",
+    "limitations": [
+      "string"
+    ],
+    "rawUserIdentifiersAllowed": false,
+    "rawUserDataIncluded": false
+  },
+  "recommendationSchema": {
+    "id": "string",
+    "summaryRef": "string",
+    "recommendedChangeType": "mission | buddy | difficulty | challenge | internal_reward_balance | no_change",
+    "recommendation": "string",
+    "rationale": "string",
+    "riskLevel": "low | medium | high | critical",
+    "humanReviewRequired": "boolean",
+    "implementationAllowed": false,
+    "protectedAreasTouched": [
+      "string"
+    ],
+    "explainabilityNotes": [
+      "string"
+    ],
+    "nextSafeTask": "string"
+  },
+  "entries": []
+}
