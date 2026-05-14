@@ -674,18 +674,22 @@
         "todolist/CURRENT_PROJECT_STATE.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
-        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/visual-regression.json",
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+        "scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs"
       ],
       "current_blockers": [
         "Governance is active but must remain synchronized across human-readable docs, machine-readable registers, and quality-gate scripts."
       ],
-      "next_safe_task": "Maintain registers, task queue, Work Map, TODO index, and validation scripts without changing product behavior.",
+      "next_safe_task": "Maintain registers, task queue, Work Map, TODO index, validation scripts, and optional visual/screenshot QA plans without changing product behavior.",
       "do_not_duplicate_warning": "Do not create a competing agent workflow, task queue, quality gate, or architecture map.",
       "required_checks_before_status_can_advance": [
         "jq empty project-register/*.json",
         "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs",
         "jq empty project-register/product-readiness.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
         "npm run agent:quality-gate"
       ],
       "human_approval_required": false

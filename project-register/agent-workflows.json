@@ -31,7 +31,9 @@
         "project-register/user-feedback.json",
         "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
         "project-register/agent-work-log.json",
-        "project-register/agent-follow-ups.json"
+        "project-register/agent-follow-ups.json",
+        "project-register/visual-regression.json",
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md"
       ],
       "controlRegisters": [
         {
@@ -86,6 +88,14 @@
           ],
           "purpose": "Detect route/API/register drift and concept-to-code mapping gaps before agents create duplicate routes, APIs, architecture, or product systems.",
           "usage": "Run both scripts before adding routes, APIs, feature mappings, readiness changes, or concept-driven implementation work; resolve only safe registry gaps and leave high/critical areas for human review."
+        },
+        {
+          "id": "visual_regression_checks",
+          "registers": ["project-register/visual-regression.json", "project-register/routes.json"],
+          "architecture": "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+          "scripts": ["scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs"],
+          "purpose": "Optional route-register-backed visual screenshot smoke validation for public, mobile beta-preview, and protected app routes without changing product logic or making browser checks mandatory.",
+          "usage": "Run after perceptible UI changes and through quality gate report-only mode; if browser support or preview URL is unavailable, record the safe skip instead of failing the main build."
         }
       ],
       "additionalGovernanceInputs": [
@@ -119,6 +129,7 @@
         "npm run build",
         "npm --prefix functions run check",
         "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
         "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
         "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run",
@@ -186,8 +197,8 @@
           "requiredInputFiles": ["package.json", "functions/package.json", "scripts/wellfit-dev-agent/", "affected test/config files"],
           "allowedActions": ["run required checks", "evaluate output", "document environment limits"],
           "forbiddenActions": ["hide failures", "remove tests", "skip checks without reason"],
-          "requiredOutput": "Result list for npm run lint, npx tsc --noEmit, npm run build, npm --prefix functions run check, npm run agent:quality-gate, and product-readiness-check where relevant.",
-          "riskGates": ["PR may include failures only with transparent cause, risk, and next fix step."]
+          "requiredOutput": "Result list for npm run lint, npx tsc --noEmit, npm run build, npm --prefix functions run check, npm run agent:quality-gate, visual-route-smoke-check when visual/screenshot validation is relevant, and product-readiness-check where relevant.",
+          "riskGates": ["PR may include failures only with transparent cause, risk, and next fix step.", "Visual screenshot checks remain optional/report-only unless browser support and a safe preview URL are explicitly available."]
         },
         {
           "id": "fix_errors",
