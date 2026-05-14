@@ -2,7 +2,7 @@
 
 Status: active / governance documentation  
 Updated: 2026-05-14  
-Leading files: `AGENTS.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-workflows.json`, `project-register/agent-autopilot.json`, `project-register/agent-task-queue.json`, `project-register/agent-work-log.json`, `project-register/agent-follow-ups.json`
+Leading files: `AGENTS.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-workflows.json`, `project-register/agent-autopilot.json`, `project-register/agent-task-queue.json`, `project-register/agent-work-log.json`, `project-register/progress-log.json`, `project-register/agent-follow-ups.json`
 
 ## Purpose
 
@@ -32,7 +32,7 @@ Run the next-task picker:
 node scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs
 ```
 
-The picker reads `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `todolist/CURRENT_PROJECT_STATE.md`, and `todolist/WORK_MAP.md`. It selects the safest non-blocked task by skipping blocked, high-risk, and critical-risk candidates. The output includes the task title, reason, risk level, allowed files, forbidden files, required checks, expected PR output, and stop conditions.
+The picker reads `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/progress-log.json`, `project-register/agent-work-log.json`, `todolist/CURRENT_PROJECT_STATE.md`, and `todolist/WORK_MAP.md`. It selects the safest non-blocked task by skipping blocked, high-risk, critical-risk, and immediately recently completed candidates when another safe candidate exists. The output includes the task title, reason, risk level, recent-completion memory, allowed files, forbidden files, required checks, expected PR output, and stop conditions.
 
 Agents may override the suggestion only when the human request is narrower and still satisfies the same safety gates. High or critical risk tasks must not be selected automatically.
 
@@ -45,6 +45,13 @@ node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs
 ```
 
 The Autopilot dry run reads `project-register/agent-autopilot.json`, reuses the existing next-task suggestion script, reports the selected safe task, risk classification, definition-of-done evidence, required checks, affected registers/files, stop conditions, product readiness context, research recommendation context, adaptive insight context, and the no-merge/no-deploy rule. It is report-only and never writes files automatically. If risk is high, critical, unclear, or protected, the agent must stop before implementation and request human approval. See `docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md` for the full phase model.
+
+
+## 2b. Recently completed task cooldown
+
+`project-register/progress-log.json` and `project-register/agent-work-log.json` are task-selection memory inputs. When the newest relevant progress-log entry or the newest completed agent-work-log entry identifies a task ID as completed, the next picker run treats that task as recently completed. The picker should not immediately select the same baseline task again if another low/medium-risk, non-blocked task with a valid definition of done is available. This prevents loops such as repeatedly selecting `AGENT-DOC-BASELINE-CHECK` after it was completed and logged.
+
+The cooldown is deliberately narrow: it is not a permanent status change, does not delete queue candidates, and does not authorize runtime or protected work. If no alternative safe candidate exists, the picker can return the recently completed task and must state that no other safe candidate was available.
 
 ## 3. How an agent records work
 
@@ -139,4 +146,4 @@ For governance/script-only work, run the repository checks requested by `AGENTS.
 
 ## KI-Fortsetzungs-Prompt
 
-Lies `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-autopilot.json`, `docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md`, diese Datei und die Agent-Control-Register. Nutze zuerst `agent-autopilot-dry-run.mjs` report-only und danach bei Bedarf `suggest-next-agent-task.mjs`, waehle nur einen sicheren nicht-blockierten Task, validiere PR-Outcomes mit `pr-outcome-recorder.mjs --dry-run`, pruefe Follow-ups report-only mit `follow-up-detector.mjs`, dokumentiere Ergebnisse in `project-register/agent-work-log.json`, validiere TODO-Marker mit `todo-status-sync.mjs`, und erstelle Follow-ups nur in vorhandenen fuehrenden Dateien.
+Lies `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-autopilot.json`, `project-register/agent-task-queue.json`, `project-register/agent-work-log.json`, `project-register/progress-log.json`, `docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md`, diese Datei und die Agent-Control-Register. Nutze zuerst `agent-autopilot-dry-run.mjs` report-only und danach bei Bedarf `suggest-next-agent-task.mjs`, waehle nur einen sicheren nicht-blockierten Task, validiere PR-Outcomes mit `pr-outcome-recorder.mjs --dry-run`, pruefe Follow-ups report-only mit `follow-up-detector.mjs`, dokumentiere Ergebnisse in `project-register/agent-work-log.json`, validiere TODO-Marker mit `todo-status-sync.mjs`, und erstelle Follow-ups nur in vorhandenen fuehrenden Dateien.

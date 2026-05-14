@@ -32,6 +32,7 @@
     "project-register/product-readiness.json",
     "project-register/agent-follow-ups.json",
     "project-register/agent-work-log.json",
+    "project-register/progress-log.json",
     "project-register/visual-regression.json",
     "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
     "project-register/research-recommendations.json",
@@ -930,9 +931,21 @@
   ],
   "selectionRules": [
     "Choose the highest-priority candidate that matches the user request and does not violate stop conditions.",
+    "Read progress-log and agent-work-log memory before ranking candidates so the picker does not loop forever on a just-completed baseline task.",
+    "If the latest relevant log entry completed the top-ranked task, skip that task for one immediate selection pass unless no other safe non-blocked task exists.",
     "If a task touches protected areas, downgrade action to planning-only or stop for explicit human approval.",
     "If existing WORK_MAP or project-register entries already cover the area, continue those files instead of creating duplicates.",
     "If runtime code is needed but the user requested documentation/registry only, stop and report the mismatch.",
     "If checks cannot run because of environment limitations, document the exact command and reason in the PR and final report."
-  ]
+  ],
+  "repeatSelectionPolicy": {
+    "memorySources": [
+      "project-register/progress-log.json",
+      "project-register/agent-work-log.json"
+    ],
+    "recentlyCompletedRule": "Before selecting a task, inspect the latest progress-log entry and the latest completed agent-work-log entry. If either records a completed task ID, treat that task as recently completed for this selection pass.",
+    "cooldownGuidance": "Do not select a recently completed task again immediately when another non-blocked low/medium-risk candidate with a valid definition-of-done key is available.",
+    "fallbackWhenNoOtherSafeTaskExists": "If every otherwise safe candidate is recently completed, the picker may select the highest-ranked recently completed task and must explain that no alternative safe task exists.",
+    "completedTaskHandling": "Progress-log entries may identify a task by taskId, id, goal, notes, title, nextRecommendedTask, or another text field containing the queue task ID. Agent-work-log entries use status done plus taskId. Logs are memory inputs only and do not mark queue candidates as permanently done."
+  }
 }
