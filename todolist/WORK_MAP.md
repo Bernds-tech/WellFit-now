@@ -18,6 +18,13 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 
 
 
+## Master Roadmap import
+
+- `project-register/master-roadmap-tasks.json` ist die maschinenlesbare Import-Registry fuer die vom Nutzer bereitgestellte WellFit Master Roadmap / Developer To-Do List.
+- `docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md` dokumentiert den Import, die Schutzregeln und die naechsten sicheren registry-only Aufgaben.
+- `scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs` validiert Statusmarker, Pflichtfelder, Risk-/Human-Approval-Regeln und Work-Map/Product-Readiness-Mappings; der Check ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
+- Diese Importdateien erweitern die bestehende Agenten-Gedaechtnisstruktur; sie ersetzen nicht `CURRENT_PROJECT_STATE.md`, diese Work Map, `TODO_INDEX.md` oder bestehende Bereichs-TODOs.
+
 ## Product readiness matrix
 
 - `project-register/product-readiness.json` ist die maschinenlesbare Produktbereitschafts-Matrix fuer Modulstatus (`not_started`, `concept_only`, `planned`, `prototype`, `active_beta`, `blocked`, `review_required`, `production_ready`), Risiko, fuehrende Dateien, Blocker, naechste sichere Aufgabe, Duplicate-Warnung, Advancement-Checks und Human-Approval.

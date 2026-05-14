@@ -300,7 +300,9 @@
         "docs/architecture/BUDDY_KI_INTEGRATION.md",
         "docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md",
         "docs/architecture/BUDDY_KI_GUIDE_DATA_MODEL.md",
-        "project-register/features.json"
+        "project-register/features.json",
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
         "Buddy output must remain guidance/support; it cannot authorize rewards, medical advice, or mission completion."
@@ -333,7 +335,9 @@
         "app/mobile/analyse/page.tsx",
         "app/mobile/buddy/page.tsx",
         "project-register/routes.json",
-        "project-register/features.json"
+        "project-register/features.json",
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
         "Mobile UX must not activate token, NFT, trading, presale, live health tracking, location tracking, or final reward authority."
@@ -394,7 +398,9 @@
         "docs/architecture/AR_CONTEXTUAL_MISSION_REWARD_FLOW.md",
         "docs/architecture/AR_REWARD_PREVIEW_API.md",
         "project-register/internal-sources.json",
-        "todolist/WORK_MAP.md"
+        "todolist/WORK_MAP.md",
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
         "PR #13 must not be merged, closed, or depended on; Unity files must not be overwritten or deleted without explicit owner instruction."
@@ -423,7 +429,9 @@
         "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
         "docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md",
         "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md",
-        "firestore.rules"
+        "firestore.rules",
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
         "Internal points remain beta/draft/preview; final ledger writes, token/NFT migration, wallet, payment, and reward authority require explicit review."
@@ -608,7 +616,9 @@
         "docs/architecture/FIRESTORE_EMULATOR_TEST_PLAN.md",
         "scripts/wellfit-dev-agent/src/firebase-security-audit.mjs",
         "scripts/wellfit-dev-agent/src/firestore-emulator-test-plan-check.mjs",
-        "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs"
+        "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
         "Backend rules and final writes affect data security, rewards, economy, and privacy; emulator coverage and human review are needed before production readiness."
@@ -640,7 +650,9 @@
         "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
         "project-register/risk-classifier.json",
         "project-register/product-rules.json",
-        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL"
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
         "Legal, privacy, child safety, health, camera, location, payment, token, and compliance messaging require human/legal review."
@@ -677,7 +689,10 @@
         "scripts/wellfit-dev-agent/src/quality-gate.mjs",
         "project-register/visual-regression.json",
         "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
-        "scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs"
+        "scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md",
+        "scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs"
       ],
       "current_blockers": [
         "Governance is active but must remain synchronized across human-readable docs, machine-readable registers, and quality-gate scripts."

@@ -43,6 +43,12 @@ Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei erse
 - Blockchain, WFT, echte NFTs, Trading, Staking und DAO bleiben Backlog bis nach stabiler Beta/Testphase.
 - Firebase Emulator-Tests koennen lokale Voraussetzungen brauchen (Java, Ports, laufende Emulatoren, Login); Fehlschlaege immer klar als Umgebung oder Codeproblem dokumentieren.
 
+## Master Roadmap import pointer
+
+Stand: 2026-05-14
+
+Die vom Nutzer bereitgestellte WellFit Master Roadmap / Developer To-Do List wurde als Import- und Mapping-Register in `project-register/master-roadmap-tasks.json` erfasst und in `docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md` dokumentiert. Diese Dateien dienen als Agenten-Gedaechtnis und ersetzen nicht diesen aktuellen Projektzustand oder `todolist/WORK_MAP.md`. Geschuetzte Roadmap-Themen wie Unity/PR #13, Token/NFT/Wallet/Payment, Reward Authority, Health/Child/Location/Privacy und Legal/Compliance bleiben reviewpflichtig.
+
 ## First-read file order fuer kuenftige Agenten
 
 1. `AGENTS.md`

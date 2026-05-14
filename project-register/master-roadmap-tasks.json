@@ -1,0 +1,912 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "purpose": "Machine-readable reconciliation of the user-provided WellFit Master Roadmap / Developer To-Do List into existing WellFit agent memory and project registers. This import preserves current source-of-truth files and marks historical or protected items for review instead of overwriting current state.",
+  "sourceLabel": "WellFit Master Roadmap / Developer To-Do List",
+  "statusMarkerLegend": {
+    "[ ]": "open",
+    "[x]": "done",
+    "[~]": "in_progress",
+    "[!]": "blocked_or_critical",
+    "[>]": "later_backlog"
+  },
+  "phases": [
+    {
+      "phase": "Master rules / status system",
+      "taskGroups": [
+        {
+          "group": "Roadmap import governance",
+          "tasks": [
+            {
+              "taskId": "MR-001",
+              "title": "Preserve current source-of-truth hierarchy while importing the historical master roadmap",
+              "status": "[x]",
+              "phase": "Master rules / status system",
+              "topic": "Agents / Quality Gate / Governance",
+              "alreadyDone": [
+                "AGENTS.md and leading TODO files already define no-duplicate, no-delete and protected-area rules.",
+                "This registry is an import pointer, not a replacement for CURRENT_PROJECT_STATE.md or WORK_MAP.md."
+              ],
+              "openItems": [
+                "Keep this register linked from Work Map, TODO index and internal sources.",
+                "Use validation before future agents continue roadmap-derived work."
+              ],
+              "blockers": [],
+              "leadingFiles": [
+                "project-register/master-roadmap-tasks.json",
+                "todolist/WORK_MAP.md",
+                "todolist/TODO_INDEX.md"
+              ],
+              "supportingFiles": [
+                "AGENTS.md",
+                "todolist/CURRENT_PROJECT_STATE.md",
+                "todolist/WORK_MAP.md",
+                "todolist/TODO_INDEX.md"
+              ],
+              "mappedWorkMapTopic": "Agents / Quality Gate / Governance",
+              "mappedProductReadinessModule": "agent_governance",
+              "riskLevel": "low",
+              "doNotDuplicateWarnings": [
+                "Do not create a second roadmap authority.",
+                "Do not overwrite current state with historical roadmap language."
+              ],
+              "nextSafeWorkLocation": [
+                "project-register/master-roadmap-tasks.json",
+                "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
+              ],
+              "humanApprovalRequired": false,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            },
+            {
+              "taskId": "MR-002",
+              "title": "Use status markers consistently across imported roadmap tasks",
+              "status": "[x]",
+              "phase": "Master rules / status system",
+              "topic": "Agents / Quality Gate / Governance",
+              "alreadyDone": [
+                "Status legend captured in machine-readable form."
+              ],
+              "openItems": [
+                "Keep future imported tasks limited to [ ], [x], [~], [!], [>] markers."
+              ],
+              "blockers": [],
+              "leadingFiles": [
+                "project-register/master-roadmap-tasks.json"
+              ],
+              "supportingFiles": [
+                "scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs"
+              ],
+              "mappedWorkMapTopic": "Agents / Quality Gate / Governance",
+              "mappedProductReadinessModule": "agent_governance",
+              "riskLevel": "low",
+              "doNotDuplicateWarnings": [
+                "Do not invent competing TODO marker meanings."
+              ],
+              "nextSafeWorkLocation": [
+                "scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs"
+              ],
+              "humanApprovalRequired": false,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Login / registration / deployment",
+      "taskGroups": [
+        {
+          "group": "Auth and deployment baseline",
+          "tasks": [
+            {
+              "taskId": "B-LOGIN-001",
+              "title": "Reconcile login, registration and deployment roadmap items with existing Auth / Profil map",
+              "status": "[~]",
+              "phase": "Login / registration / deployment",
+              "topic": "Auth / Profil",
+              "alreadyDone": [
+                "Registration route and profile/settings files already exist.",
+                "Work Map maps Auth / Profil to app/register, settings and Firebase files."
+              ],
+              "openItems": [
+                "Only perform documentation or register alignment unless explicitly scoped for runtime work.",
+                "Re-run build/deployment baseline checks when asked to change deployment status."
+              ],
+              "blockers": [],
+              "leadingFiles": [
+                "app/register/page.tsx",
+                "app/einstellungen/page.tsx",
+                "lib/firebase.ts"
+              ],
+              "supportingFiles": [
+                "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+                "todolist/NEXT_ACTIONS.md"
+              ],
+              "mappedWorkMapTopic": "Auth / Profil",
+              "mappedProductReadinessModule": "registration_login",
+              "riskLevel": "medium",
+              "doNotDuplicateWarnings": [
+                "Do not add a second auth layer or profile source.",
+                "Do not change sensitive consent/settings logic without review."
+              ],
+              "nextSafeWorkLocation": [
+                "todolist/NEXT_ACTIONS.md",
+                "project-register/routes.json"
+              ],
+              "humanApprovalRequired": false,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Register schema and buddy assets",
+      "taskGroups": [
+        {
+          "group": "Register and asset reconciliation",
+          "tasks": [
+            {
+              "taskId": "REG-001",
+              "title": "Keep register schema updates in existing project-register files",
+              "status": "[~]",
+              "phase": "Register schema and buddy assets",
+              "topic": "Product readiness / Modulstatus",
+              "alreadyDone": [
+                "Feature, route, API, readiness, internal-source and agent registers already exist."
+              ],
+              "openItems": [
+                "Add references to imported roadmap only where they clarify existing modules."
+              ],
+              "blockers": [],
+              "leadingFiles": [
+                "project-register/features.json",
+                "project-register/routes.json",
+                "project-register/apis.json",
+                "project-register/product-readiness.json"
+              ],
+              "supportingFiles": [
+                "project-register/internal-sources.json",
+                "todolist/WORK_MAP.md"
+              ],
+              "mappedWorkMapTopic": "Product readiness / Modulstatus",
+              "mappedProductReadinessModule": "agent_governance",
+              "riskLevel": "low",
+              "doNotDuplicateWarnings": [
+                "Do not create duplicate architecture/register systems.",
+                "Do not make registry claims that runtime code does not support."
+              ],
+              "nextSafeWorkLocation": [
+                "project-register/*.json"
+              ],
+              "humanApprovalRequired": false,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            },
+            {
+              "taskId": "BUDDY-ASSET-001",
+              "title": "Map buddy avatar/asset tasks to existing Buddy modules before implementation",
+              "status": "[ ]",
+              "phase": "Register schema and buddy assets",
+              "topic": "Buddy / KI",
+              "alreadyDone": [
+                "Buddy pages, components, state helpers, KI API/provider docs and mission bridge are already registered."
+              ],
+              "openItems": [
+                "Inventory asset gaps in existing Buddy docs/registers before adding or changing assets."
+              ],
+              "blockers": [
+                "Asset use may touch avatar/Buddy UX and inventory economy boundaries."
+              ],
+              "leadingFiles": [
+                "app/buddy/page.tsx",
+                "app/mobile/buddy/page.tsx",
+                "components/buddy/",
+                "lib/buddyKi/"
+              ],
+              "supportingFiles": [
+                "docs/architecture/BUDDY_KI_INTEGRATION.md",
+                "docs/architecture/BUDDY_KI_GUIDE_DATA_MODEL.md"
+              ],
+              "mappedWorkMapTopic": "Buddy / KI",
+              "mappedProductReadinessModule": "buddy_ki_buddy",
+              "riskLevel": "medium",
+              "doNotDuplicateWarnings": [
+                "Do not create a second Buddy state model or KI provider layer.",
+                "Buddy must not authorize rewards or mission completion."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/BUDDY_KI_GUIDE_DATA_MODEL.md"
+              ],
+              "humanApprovalRequired": false,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Internal points economy before blockchain",
+      "taskGroups": [
+        {
+          "group": "Economy guardrails",
+          "tasks": [
+            {
+              "taskId": "G1-001",
+              "title": "Keep internal points/XP economy before blockchain/token work",
+              "status": "[~]",
+              "phase": "Internal points economy before blockchain",
+              "topic": "Economy / Punkte / Rewards",
+              "alreadyDone": [
+                "Internal economy guardrail docs, preview APIs, points shop and spend preview concepts exist.",
+                "Roadmap agrees that WFT/NFT/blockchain comes after stable beta/test phase."
+              ],
+              "openItems": [
+                "Define caps and EconomyHealthScore in documentation/test plans only unless approved.",
+                "Keep ledger authority server-side/draft/preview."
+              ],
+              "blockers": [
+                "Token, NFT, wallet, payment, purchase, payout, staking, trading and final ledger authority are protected critical areas."
+              ],
+              "leadingFiles": [
+                "lib/economy/",
+                "app/api/economy/",
+                "app/punkte-shop/page.tsx"
+              ],
+              "supportingFiles": [
+                "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
+                "docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md",
+                "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md"
+              ],
+              "mappedWorkMapTopic": "Economy / Punkte / Rewards",
+              "mappedProductReadinessModule": "economy_preview_internal_points",
+              "riskLevel": "critical",
+              "doNotDuplicateWarnings": [
+                "Do not create a parallel ledger or token service.",
+                "Do not activate real token/NFT/WFT/payment/wallet flows."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Refactor-first / modularization",
+      "taskGroups": [
+        {
+          "group": "Small safe modularization",
+          "tasks": [
+            {
+              "taskId": "REF-001",
+              "title": "Use refactor-first only inside existing modules and maps",
+              "status": "[ ]",
+              "phase": "Refactor-first / modularization",
+              "topic": "Agents / Quality Gate / Governance",
+              "alreadyDone": [
+                "Work Map already identifies leading files per topic."
+              ],
+              "openItems": [
+                "Before implementation, map affected module and run existing checks."
+              ],
+              "blockers": [
+                "Broad refactors risk duplicate systems or behavior changes."
+              ],
+              "leadingFiles": [
+                "todolist/WORK_MAP.md",
+                "project-register/agent-task-queue.json"
+              ],
+              "supportingFiles": [
+                "project-register/definition-of-done.json",
+                "project-register/risk-classifier.json"
+              ],
+              "mappedWorkMapTopic": "Agents / Quality Gate / Governance",
+              "mappedProductReadinessModule": "agent_governance",
+              "riskLevel": "medium",
+              "doNotDuplicateWarnings": [
+                "No parallel modules, shells, data models or design systems.",
+                "Do not refactor protected areas without explicit scope."
+              ],
+              "nextSafeWorkLocation": [
+                "project-register/agent-task-queue.json"
+              ],
+              "humanApprovalRequired": false,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Dashboard product modules",
+      "taskGroups": [
+        {
+          "group": "Dashboard and product modules",
+          "tasks": [
+            {
+              "taskId": "DASH-001",
+              "title": "Continue dashboard module work through existing dashboard files and readiness entries",
+              "status": "[~]",
+              "phase": "Dashboard product modules",
+              "topic": "Dashboard",
+              "alreadyDone": [
+                "Dashboard route, customization page, pin toggle and snapshot helper are mapped."
+              ],
+              "openItems": [
+                "Only make small scoped dashboard fixes after checking route/readiness registers."
+              ],
+              "blockers": [],
+              "leadingFiles": [
+                "app/dashboard/page.tsx",
+                "app/dashboard/anpassen/page.tsx",
+                "lib/economy/dashboardSnapshot.ts"
+              ],
+              "supportingFiles": [
+                "todolist/WF-DASH-PERSIST-001 - Dashboard Preferences lokal.md",
+                "todolist/J8.4E - PERSONALISIERBARES DASHBOARD UND PIN-CARDS.md"
+              ],
+              "mappedWorkMapTopic": "Dashboard",
+              "mappedProductReadinessModule": "dashboard",
+              "riskLevel": "medium",
+              "doNotDuplicateWarnings": [
+                "Do not create a second dashboard data source or preference system."
+              ],
+              "nextSafeWorkLocation": [
+                "app/dashboard/",
+                "project-register/routes.json"
+              ],
+              "humanApprovalRequired": false,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Mobile / PWA / camera / pose / face",
+      "taskGroups": [
+        {
+          "group": "Mobile guardrails",
+          "tasks": [
+            {
+              "taskId": "MOB-001",
+              "title": "Keep mobile/PWA/camera/pose/face tasks mapped to Mobile Web and privacy guardrails",
+              "status": "[~]",
+              "phase": "Mobile / PWA / camera / pose / face",
+              "topic": "Mobile Web",
+              "alreadyDone": [
+                "Mobile routes, motion/native activity helpers and health guardrails are mapped."
+              ],
+              "openItems": [
+                "Future camera/pose/face changes need explicit scope, privacy review and no token activation."
+              ],
+              "blockers": [
+                "Camera, health, child, location, biometric/face and privacy logic are protected areas."
+              ],
+              "leadingFiles": [
+                "app/mobile/page.tsx",
+                "app/mobile/bewegung/page.tsx",
+                "app/mobile/analyse/page.tsx",
+                "lib/mobileMotion/",
+                "lib/nativeActivity/"
+              ],
+              "supportingFiles": [
+                "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+                "todolist/H - MOBILE - AR - TRACKING - KI"
+              ],
+              "mappedWorkMapTopic": "Mobile Web",
+              "mappedProductReadinessModule": "mobile_web",
+              "riskLevel": "critical",
+              "doNotDuplicateWarnings": [
+                "Do not collect sensitive health/child/location/camera/face data without approval.",
+                "Do not activate mobile token/NFT/trading/presale features."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Mobile AR / 3D Flammi / Unity AR Foundation",
+      "taskGroups": [
+        {
+          "group": "AR separation",
+          "tasks": [
+            {
+              "taskId": "AR-UNITY-001",
+              "title": "Keep Unity AR Foundation and 3D Flammi roadmap items isolated from web beta work",
+              "status": "[!]",
+              "phase": "Mobile AR / 3D Flammi / Unity AR Foundation",
+              "topic": "AR / Unity / WellFitBuddyAR",
+              "alreadyDone": [
+                "Work Map and readiness register already mark Unity / WellFitBuddyAR as blocked/review-required.",
+                "Web/mobile AR fallback exists separately."
+              ],
+              "openItems": [
+                "Planning-only inventory is safe; Unity file edits require explicit human approval."
+              ],
+              "blockers": [
+                "PR #13 and native/unity/WellFitBuddyAR are protected. Unity must not decide rewards/completion/anti-cheat."
+              ],
+              "leadingFiles": [
+                "native/unity/WellFitBuddyAR",
+                "app/mobile/ar/page.tsx",
+                "lib/nativeAr/"
+              ],
+              "supportingFiles": [
+                "docs/architecture/AR_CONTEXTUAL_MISSION_REWARD_FLOW.md",
+                "docs/architecture/AR_REWARD_PREVIEW_API.md",
+                "todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY"
+              ],
+              "mappedWorkMapTopic": "AR / Unity / WellFitBuddyAR",
+              "mappedProductReadinessModule": "unity_wellfitbuddyar",
+              "riskLevel": "high",
+              "doNotDuplicateWarnings": [
+                "Do not delete, overwrite, scaffold replacement Unity files or merge/close PR #13.",
+                "Do not bridge Unity events directly to final rewards."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Mission reward context / server authority",
+      "taskGroups": [
+        {
+          "group": "Mission completion authority",
+          "tasks": [
+            {
+              "taskId": "MISSION-AUTH-001",
+              "title": "Continue mission reward context only with server-authority guardrails",
+              "status": "[~]",
+              "phase": "Mission reward context / server authority",
+              "topic": "Missionen",
+              "alreadyDone": [
+                "Mission routes, reward context docs and preview/anti-cheat architecture are mapped.",
+                "Current state says reward preview/anti-cheat foundation is established."
+              ],
+              "openItems": [
+                "Future final completion or ledger writes need server authority, tests and human review."
+              ],
+              "blockers": [
+                "Client-side mission completion, final rewards and anti-cheat authority are protected."
+              ],
+              "leadingFiles": [
+                "app/missionen/",
+                "lib/missionCompletion.ts",
+                "lib/rewards.ts"
+              ],
+              "supportingFiles": [
+                "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md",
+                "docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md"
+              ],
+              "mappedWorkMapTopic": "Missionen",
+              "mappedProductReadinessModule": "missionen",
+              "riskLevel": "critical",
+              "doNotDuplicateWarnings": [
+                "Do not create a parallel mission engine.",
+                "Do not final-authorize rewards or mission completion on the client."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Firebase / realtime / mission storage",
+      "taskGroups": [
+        {
+          "group": "Backend and storage",
+          "tasks": [
+            {
+              "taskId": "FIRE-001",
+              "title": "Validate Firebase/realtime/mission storage through existing backend plans",
+              "status": "[~]",
+              "phase": "Firebase / realtime / mission storage",
+              "topic": "Firebase / Backend / Firestore",
+              "alreadyDone": [
+                "Functions, Firestore rules, Firebase config and security/emulator checks are registered."
+              ],
+              "openItems": [
+                "Improve docs/test plans or run checks before runtime backend changes."
+              ],
+              "blockers": [
+                "Firestore rules, callable functions and ledger-like writes are critical protected areas."
+              ],
+              "leadingFiles": [
+                "functions/index.js",
+                "functions/lib/",
+                "firestore.rules",
+                "firebase.json"
+              ],
+              "supportingFiles": [
+                "docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md",
+                "docs/architecture/MISSION_DRAFT_FIRESTORE_RULES_DRAFT.md",
+                "todolist/F - FIREBASE  - REALTIME - MISSIONEN"
+              ],
+              "mappedWorkMapTopic": "Firebase / Backend / Firestore",
+              "mappedProductReadinessModule": "firebase_backend_firestore",
+              "riskLevel": "critical",
+              "doNotDuplicateWarnings": [
+                "Do not add parallel backend authority or alternate Firestore schemas.",
+                "Do not expose secrets to frontend code."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Reward system / system health / anti-cheat",
+      "taskGroups": [
+        {
+          "group": "Reward health and anti-cheat",
+          "tasks": [
+            {
+              "taskId": "REWARD-HEALTH-001",
+              "title": "Keep reward system, system health and anti-cheat as guarded preview/server work",
+              "status": "[~]",
+              "phase": "Reward system / system health / anti-cheat",
+              "topic": "Economy / Punkte / Rewards",
+              "alreadyDone": [
+                "Reward scoring, economy docs and static Firestore economy checks exist."
+              ],
+              "openItems": [
+                "Document caps/audits and expand tests before implementation."
+              ],
+              "blockers": [
+                "Anti-cheat, reward authority and rare-item grants must not be finalized client-side."
+              ],
+              "leadingFiles": [
+                "lib/rewards.ts",
+                "lib/rewardScore.ts",
+                "lib/economy/"
+              ],
+              "supportingFiles": [
+                "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
+                "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs"
+              ],
+              "mappedWorkMapTopic": "Economy / Punkte / Rewards",
+              "mappedProductReadinessModule": "economy_preview_internal_points",
+              "riskLevel": "critical",
+              "doNotDuplicateWarnings": [
+                "No client-final rewards, no parallel anti-cheat authority, no live token/economy activation."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Items / inventory / NFC / buddy capabilities",
+      "taskGroups": [
+        {
+          "group": "Inventory and capabilities",
+          "tasks": [
+            {
+              "taskId": "ITEMS-001",
+              "title": "Map items, inventory, NFC and Buddy capability tasks to existing economy/Buddy docs",
+              "status": "[ ]",
+              "phase": "Items / inventory / NFC / buddy capabilities",
+              "topic": "Marketplace / Punkte-Shop",
+              "alreadyDone": [
+                "Points shop, marketplace and Buddy inventory docs exist."
+              ],
+              "openItems": [
+                "Keep NFC/capability work planning-only until scope and privacy/economy boundaries are approved."
+              ],
+              "blockers": [
+                "Inventory unlocks, rare items, NFC, marketplace and capability grants can affect rewards/economy/privacy."
+              ],
+              "leadingFiles": [
+                "app/punkte-shop/page.tsx",
+                "app/marktplatz/page.tsx",
+                "lib/economy/shopItems.ts",
+                "components/buddy/"
+              ],
+              "supportingFiles": [
+                "docs/architecture/BUDDY_ITEMS_NFC_CAPABILITIES.md",
+                "docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md"
+              ],
+              "mappedWorkMapTopic": "Marketplace / Punkte-Shop",
+              "mappedProductReadinessModule": "points_shop",
+              "riskLevel": "high",
+              "doNotDuplicateWarnings": [
+                "Do not create parallel inventory, marketplace, NFC or capability-grant systems.",
+                "Do not activate payments, wallets, NFT ownership or rare-item final grants."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/BUDDY_ITEMS_NFC_CAPABILITIES.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "AI-generated missions / dimensions / item offers",
+      "taskGroups": [
+        {
+          "group": "AI mission planning",
+          "tasks": [
+            {
+              "taskId": "AI-MISSION-001",
+              "title": "Keep AI-generated missions/dimensions/item offers as recommendation/planning work",
+              "status": "[ ]",
+              "phase": "AI-generated missions / dimensions / item offers",
+              "topic": "Buddy / KI",
+              "alreadyDone": [
+                "KI Buddy mission engine, provider runbook and AI dimensions/economy docs exist."
+              ],
+              "openItems": [
+                "Use existing Buddy KI and mission docs before any implementation."
+              ],
+              "blockers": [
+                "Generated mission offers can affect rewards, inventory, privacy and economy if auto-authorized."
+              ],
+              "leadingFiles": [
+                "app/api/buddy-ki/route.ts",
+                "lib/buddyKi/",
+                "app/missionen/lib/missionBuddyBridge.ts"
+              ],
+              "supportingFiles": [
+                "docs/architecture/KI_BUDDY_MISSION_ENGINE.md",
+                "docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md"
+              ],
+              "mappedWorkMapTopic": "Buddy / KI",
+              "mappedProductReadinessModule": "buddy_ki_buddy",
+              "riskLevel": "high",
+              "doNotDuplicateWarnings": [
+                "Do not create a second AI mission engine or provider layer.",
+                "AI may recommend; it must not authorize rewards/items/completion."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/KI_BUDDY_MISSION_ENGINE.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Business / website / partner / legal",
+      "taskGroups": [
+        {
+          "group": "Business and compliance",
+          "tasks": [
+            {
+              "taskId": "BUS-LEGAL-001",
+              "title": "Treat business, website, partner and legal roadmap notes as review-required context",
+              "status": "[~]",
+              "phase": "Business / website / partner / legal",
+              "topic": "Legal / Privacy / Compliance",
+              "alreadyDone": [
+                "Public website, FAQ/help/legal pages and business/legal TODO source are mapped."
+              ],
+              "openItems": [
+                "Only update legal/compliance wording with explicit review plan."
+              ],
+              "blockers": [
+                "Public claims, partner commitments, token/investment language, AGB/Datenschutz/Impressum are protected."
+              ],
+              "leadingFiles": [
+                "app/page.tsx",
+                "app/faq/page.tsx",
+                "app/hilfe/page.tsx",
+                "app/agb/page.tsx",
+                "app/datenschutz/page.tsx",
+                "app/impressum/page.tsx"
+              ],
+              "supportingFiles": [
+                "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+                "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md"
+              ],
+              "mappedWorkMapTopic": "Legal / Privacy / Compliance",
+              "mappedProductReadinessModule": "legal_privacy_compliance",
+              "riskLevel": "high",
+              "doNotDuplicateWarnings": [
+                "Do not create a second website or add financial/legal claims without review.",
+                "Do not change compliance-critical messaging without explicit instruction."
+              ],
+              "nextSafeWorkLocation": [
+                "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "App Store / store-safe architecture",
+      "taskGroups": [
+        {
+          "group": "Store-safe mobile separation",
+          "tasks": [
+            {
+              "taskId": "STORE-001",
+              "title": "Keep App Store architecture free of token/NFT/trading/presale flows",
+              "status": "[~]",
+              "phase": "App Store / store-safe architecture",
+              "topic": "Mobile Web",
+              "alreadyDone": [
+                "AGENTS.md and NEXT_ACTIONS already state mobile must stay token/NFT/trading/presale-free."
+              ],
+              "openItems": [
+                "Future store review docs should link to mobile/legal/economy guardrails."
+              ],
+              "blockers": [
+                "Store-facing mobile changes touch compliance, payments and blockchain separation."
+              ],
+              "leadingFiles": [
+                "app/mobile/",
+                "app/page.tsx"
+              ],
+              "supportingFiles": [
+                "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md",
+                "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
+              ],
+              "mappedWorkMapTopic": "Mobile Web",
+              "mappedProductReadinessModule": "mobile_web",
+              "riskLevel": "high",
+              "doNotDuplicateWarnings": [
+                "Do not surface token, NFT, wallet, payment, trading or presale features in mobile."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Unity AR Buddy micro-task log",
+      "taskGroups": [
+        {
+          "group": "Unity micro-task log",
+          "tasks": [
+            {
+              "taskId": "UNITY-MICRO-001",
+              "title": "Preserve AR-Buddy micro-task log as historical/review-required context",
+              "status": "[!]",
+              "phase": "Unity AR Buddy micro-task log",
+              "topic": "AR / Unity / WellFitBuddyAR",
+              "alreadyDone": [
+                "Unity protection rules and AR docs are mapped."
+              ],
+              "openItems": [
+                "Link micro-task findings in docs/registers without touching Unity files unless explicitly approved."
+              ],
+              "blockers": [
+                "Unity files and PR #13 are protected."
+              ],
+              "leadingFiles": [
+                "native/unity/WellFitBuddyAR"
+              ],
+              "supportingFiles": [
+                "todolist/J8.2 - AR BUDDY EVENT SECURITY ADDENDUM.md",
+                "todolist/J8.3 - AR RAETSELRALLYE REWARD ALGORITHMUS ADDENDUM.md"
+              ],
+              "mappedWorkMapTopic": "AR / Unity / WellFitBuddyAR",
+              "mappedProductReadinessModule": "unity_wellfitbuddyar",
+              "riskLevel": "high",
+              "doNotDuplicateWarnings": [
+                "Do not overwrite Unity scripts with templates.",
+                "Do not merge, close or depend on PR #13."
+              ],
+              "nextSafeWorkLocation": [
+                "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
+              ],
+              "humanApprovalRequired": true,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "AR Buddy companion / avatar base logic",
+      "taskGroups": [
+        {
+          "group": "AR Buddy companion",
+          "tasks": [
+            {
+              "taskId": "AR-BUDDY-BASE-001",
+              "title": "Continue AR Buddy companion/avatar base logic through existing Buddy and AR docs",
+              "status": "[~]",
+              "phase": "AR Buddy companion / avatar base logic",
+              "topic": "Buddy / KI",
+              "alreadyDone": [
+                "K_AR-BUDDY companion doc, Buddy components and mobile AR fallback are mapped."
+              ],
+              "openItems": [
+                "Separate avatar UI/companion state from reward authority and Unity implementation."
+              ],
+              "blockers": [
+                "AR/Buddy/avatar work can cross Unity, privacy, inventory and reward boundaries."
+              ],
+              "leadingFiles": [
+                "app/buddy/",
+                "app/mobile/buddy/page.tsx",
+                "app/mobile/ar/page.tsx",
+                "components/buddy/"
+              ],
+              "supportingFiles": [
+                "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md",
+                "docs/architecture/BUDDY_KI_GUIDE_DATA_MODEL.md"
+              ],
+              "mappedWorkMapTopic": "Buddy / KI",
+              "mappedProductReadinessModule": "buddy_ki_buddy",
+              "riskLevel": "medium",
+              "doNotDuplicateWarnings": [
+                "Do not create second avatar state or AR companion system.",
+                "Do not let avatar state authorize economy/rewards."
+              ],
+              "nextSafeWorkLocation": [
+                "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md"
+              ],
+              "humanApprovalRequired": false,
+              "safeAutoWork": false,
+              "historicalOrReviewRequired": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -68,7 +68,9 @@
     "jq empty project-register/routes.json project-register/apis.json project-register/features.json project-register/internal-sources.json project-register/product-readiness.json",
     "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
     "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
-    "jq empty project-register/visual-regression.json"
+    "jq empty project-register/visual-regression.json",
+    "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
+    "jq empty project-register/master-roadmap-tasks.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -646,6 +648,70 @@
         "Report route-register validation and browser skip/pass result honestly.",
         "Confirm no product logic, protected compliance areas, or Unity files changed.",
         "Name the next safe visual QA hardening task."
+      ]
+    },
+    {
+      "id": "AGENT-MASTER-ROADMAP-REGISTRY-MAINTENANCE",
+      "title": "Maintain imported Master Roadmap task registry",
+      "status": "ready",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Keep the imported WellFit Master Roadmap task registry synchronized with Work Map, TODO index, Product Readiness and internal sources without changing product logic or protected areas.",
+      "allowedFiles": [
+        "project-register/master-roadmap-tasks.json",
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md",
+        "project-register/internal-sources.json",
+        "project-register/product-readiness.json",
+        "project-register/agent-task-queue.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/internal-sources.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json"
+      ],
+      "requiredChecks": [
+        "jq empty project-register/master-roadmap-tasks.json",
+        "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "runtime_product_logic_change_required",
+        "would_touch_unity_or_pr_13",
+        "roadmap_item_requires_token_wallet_payment_reward_authority_health_child_location_privacy_or_compliance_logic",
+        "would_create_duplicate_architecture_or_parallel_system",
+        "would_overwrite_current_state_or_work_map_source_of_truth"
+      ],
+      "expectedPrOutput": [
+        "List master-roadmap registry/doc/register files updated.",
+        "Confirm no runtime product logic, Unity files or protected compliance/economy/privacy areas changed.",
+        "Report master-roadmap-task-check and quality-gate results.",
+        "Name the next safe registry-only roadmap reconciliation task."
       ]
     }
   ],
