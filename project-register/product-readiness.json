@@ -1,0 +1,694 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "purpose": "Machine-readable WellFit product readiness matrix for future Codex/AI agents. It maps current product modules to readiness statuses, risk levels, leading files, blockers, safe next tasks, duplicate-system warnings, advancement checks, and human-approval needs so agents choose safer follow-up work without changing product logic or creating parallel architecture.",
+  "status_scale": {
+    "not_started": "No meaningful repo implementation or approved work plan exists yet.",
+    "concept_only": "Concept appears in planning/source material only; implementation must not be inferred without review.",
+    "planned": "Planned in registers/docs with known leading files, but implementation is not active enough for beta reliance.",
+    "prototype": "Prototype or preview exists; suitable for guarded iteration only, not final authority or production claims.",
+    "active_beta": "Usable beta baseline exists; safe changes must preserve guardrails and pass required checks.",
+    "blocked": "Work must stop until the named blocker or explicit human approval is resolved.",
+    "review_required": "Existing area needs human/legal/product/security review before material implementation or status advancement.",
+    "production_ready": "Production-ready by WellFit governance; do not assign this to critical or sensitive modules without explicit approval and evidence."
+  },
+  "required_modules": [
+    "landing_public_website",
+    "registration_login",
+    "dashboard",
+    "missionen",
+    "tagesmissionen",
+    "wochenmissionen",
+    "abenteuer",
+    "wettkaempfe_pvp",
+    "buddy_ki_buddy",
+    "mobile_web",
+    "mobile_ar_fallback",
+    "unity_wellfitbuddyar",
+    "economy_preview_internal_points",
+    "points_shop",
+    "marketplace",
+    "leaderboard",
+    "analytics",
+    "user_feedback",
+    "firebase_backend_firestore",
+    "legal_privacy_compliance",
+    "agent_governance"
+  ],
+  "global_rules": [
+    "Read AGENTS.md, CURRENT_PROJECT_STATE.md, WORK_MAP.md, TODO_INDEX.md, internal source maps, and relevant project-register files before planning implementation.",
+    "Do not modify product logic from this matrix; it is documentation, registry, and validation guidance only.",
+    "Do not duplicate existing architecture, app shells, mission engines, economy ledgers, Buddy provider layers, AR bridges, feedback loops, or agent governance.",
+    "Do not touch PR #13 or Unity files unless explicitly instructed by the repository owner.",
+    "Token, NFT, wallet, payment, betting, reward authority, health, child, location, privacy, and compliance-sensitive areas require explicit human approval before implementation."
+  ],
+  "modules": [
+    {
+      "id": "landing_public_website",
+      "name": "Landing / public website",
+      "status": "active_beta",
+      "risk_level": "medium",
+      "leading_files": [
+        "app/page.tsx",
+        "app/register/page.tsx",
+        "app/faq/page.tsx",
+        "app/hilfe/page.tsx"
+      ],
+      "supporting_files": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "todolist/WORK_MAP.md",
+        "docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md"
+      ],
+      "current_blockers": [
+        "Public messaging must stay beta-safe and avoid investment, token-sale, payment, or medical claims without review."
+      ],
+      "next_safe_task": "Tighten copy, route registration, accessibility, or responsive layout inside existing public pages without adding new public architecture.",
+      "do_not_duplicate_warning": "Do not create a second marketing site, app shell, navigation system, or public route map.",
+      "required_checks_before_status_can_advance": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": false
+    },
+    {
+      "id": "registration_login",
+      "name": "Registration / login",
+      "status": "active_beta",
+      "risk_level": "high",
+      "leading_files": [
+        "app/register/page.tsx",
+        "project-register/routes.json"
+      ],
+      "supporting_files": [
+        "firebase.json",
+        "firestore.rules",
+        "project-register/risk-classifier.json",
+        "todolist/WORK_MAP.md"
+      ],
+      "current_blockers": [
+        "Authentication and identity work can affect privacy, consent, account safety, and backend security."
+      ],
+      "next_safe_task": "Document the current registration route and auth expectations; only make UI-copy or validation-doc changes unless auth implementation is explicitly assigned.",
+      "do_not_duplicate_warning": "Do not add a parallel auth system, duplicate login flow, or client-exposed secret configuration.",
+      "required_checks_before_status_can_advance": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "status": "active_beta",
+      "risk_level": "medium",
+      "leading_files": [
+        "app/dashboard/page.tsx",
+        "app/dashboard/anpassen/page.tsx"
+      ],
+      "supporting_files": [
+        "app/components/AppShell.tsx",
+        "project-register/features.json",
+        "project-register/routes.json",
+        "app/api/economy/user-projection/route.ts"
+      ],
+      "current_blockers": [
+        "Dashboard can display beta progress but must not become final ledger, reward, or health-data authority."
+      ],
+      "next_safe_task": "Improve display consistency, empty states, and route/register alignment while keeping economy data preview-only.",
+      "do_not_duplicate_warning": "Do not create a second dashboard shell, progress model, or client-side source of reward truth.",
+      "required_checks_before_status_can_advance": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": false
+    },
+    {
+      "id": "missionen",
+      "name": "Missionen",
+      "status": "active_beta",
+      "risk_level": "high",
+      "leading_files": [
+        "app/missionen/page.tsx",
+        "lib/missions/index.ts",
+        "app/missionen/lib/missionBuddyBridge.ts"
+      ],
+      "supporting_files": [
+        "project-register/features.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md"
+      ],
+      "current_blockers": [
+        "Mission completion, anti-cheat, and rewards require server-side authority and evidence before any status advance."
+      ],
+      "next_safe_task": "Consolidate existing mission copy, registry references, or preview UI without changing completion authority.",
+      "do_not_duplicate_warning": "Do not create a parallel mission engine, reward-authority path, or anti-cheat model.",
+      "required_checks_before_status_can_advance": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "node scripts/wellfit-dev-agent/src/mission-buddy-economy-audit.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "tagesmissionen",
+      "name": "Tagesmissionen",
+      "status": "active_beta",
+      "risk_level": "high",
+      "leading_files": [
+        "app/missionen/tagesmissionen/page.tsx",
+        "lib/missions/index.ts"
+      ],
+      "supporting_files": [
+        "app/api/economy/reward-preview/route.ts",
+        "app/api/economy/complete-mission/route.ts",
+        "project-register/features.json"
+      ],
+      "current_blockers": [
+        "Daily missions must remain preview/beta and cannot authorize rewards entirely on the client."
+      ],
+      "next_safe_task": "Improve daily mission guidance, evidence wording, or beta-state clarity in the existing route.",
+      "do_not_duplicate_warning": "Do not fork daily missions into a separate client-only completion or reward subsystem.",
+      "required_checks_before_status_can_advance": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "node scripts/wellfit-dev-agent/src/mission-buddy-economy-audit.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "wochenmissionen",
+      "name": "Wochenmissionen",
+      "status": "active_beta",
+      "risk_level": "high",
+      "leading_files": [
+        "app/missionen/wochenmissionen/page.tsx",
+        "lib/missions/index.ts"
+      ],
+      "supporting_files": [
+        "project-register/features.json",
+        "project-register/routes.json",
+        "docs/architecture/KI_BUDDY_MISSION_ENGINE.md"
+      ],
+      "current_blockers": [
+        "Weekly aggregation and rewards need persistence, anti-cheat, and server review before production readiness."
+      ],
+      "next_safe_task": "Clarify weekly progress copy and registry links without adding final aggregation authority.",
+      "do_not_duplicate_warning": "Do not create a second weekly challenge engine or unreviewed persistence model.",
+      "required_checks_before_status_can_advance": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "node scripts/wellfit-dev-agent/src/mission-buddy-economy-audit.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "abenteuer",
+      "name": "Abenteuer",
+      "status": "prototype",
+      "risk_level": "medium",
+      "leading_files": [
+        "app/missionen/abenteuer/page.tsx",
+        "lib/missions/index.ts"
+      ],
+      "supporting_files": [
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md",
+        "project-register/features.json",
+        "todolist/WORK_MAP.md"
+      ],
+      "current_blockers": [
+        "Adventure sequencing, persistence, and content scope are not production-validated."
+      ],
+      "next_safe_task": "Document existing adventure route behavior and small content gaps before implementing new mechanics.",
+      "do_not_duplicate_warning": "Do not build a separate quest/adventure architecture outside the existing mission registry.",
+      "required_checks_before_status_can_advance": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": false
+    },
+    {
+      "id": "wettkaempfe_pvp",
+      "name": "Wettkaempfe / PvP",
+      "status": "review_required",
+      "risk_level": "critical",
+      "leading_files": [
+        "app/missionen/wettkaempfe/page.tsx",
+        "project-register/risk-classifier.json"
+      ],
+      "supporting_files": [
+        "project-register/features.json",
+        "project-register/routes.json",
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md"
+      ],
+      "current_blockers": [
+        "PvP can imply betting, stakes, payouts, anti-cheat, rankings, and financial-equivalent rewards; no production authority is approved."
+      ],
+      "next_safe_task": "Keep PvP as beta-safe planning/placeholder work; document guardrails and avoid stakes, payouts, or final reward claims.",
+      "do_not_duplicate_warning": "Do not create a PvP stakes, betting, payout, or competition-reward subsystem.",
+      "required_checks_before_status_can_advance": [
+        "human review of PvP safety model",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "buddy_ki_buddy",
+      "name": "Buddy / KI buddy",
+      "status": "active_beta",
+      "risk_level": "medium",
+      "leading_files": [
+        "app/buddy/page.tsx",
+        "app/mobile/buddy/page.tsx",
+        "app/api/buddy-ki/route.ts",
+        "lib/buddyKi/"
+      ],
+      "supporting_files": [
+        "docs/architecture/BUDDY_KI_INTEGRATION.md",
+        "docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md",
+        "docs/architecture/BUDDY_KI_GUIDE_DATA_MODEL.md",
+        "project-register/features.json"
+      ],
+      "current_blockers": [
+        "Buddy output must remain guidance/support; it cannot authorize rewards, medical advice, or mission completion."
+      ],
+      "next_safe_task": "Improve fallback messaging, provider documentation, or existing Buddy UI without adding reward authority.",
+      "do_not_duplicate_warning": "Do not create a second AI provider layer, Buddy state model, or mission recommendation engine.",
+      "required_checks_before_status_can_advance": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "node scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": false
+    },
+    {
+      "id": "mobile_web",
+      "name": "Mobile web",
+      "status": "active_beta",
+      "risk_level": "medium",
+      "leading_files": [
+        "app/mobile/page.tsx",
+        "app/mobile/missionen/page.tsx",
+        "app/mobile/bewegung/page.tsx",
+        "app/mobile/einstellungen/page.tsx"
+      ],
+      "supporting_files": [
+        "app/mobile/analyse/page.tsx",
+        "app/mobile/buddy/page.tsx",
+        "project-register/routes.json",
+        "project-register/features.json"
+      ],
+      "current_blockers": [
+        "Mobile UX must not activate token, NFT, trading, presale, live health tracking, location tracking, or final reward authority."
+      ],
+      "next_safe_task": "Stabilize existing mobile routes, copy, navigation, and responsive states without expanding sensitive data collection.",
+      "do_not_duplicate_warning": "Do not build a separate mobile app shell or duplicate mobile route map.",
+      "required_checks_before_status_can_advance": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "node scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": false
+    },
+    {
+      "id": "mobile_ar_fallback",
+      "name": "Mobile AR fallback",
+      "status": "prototype",
+      "risk_level": "high",
+      "leading_files": [
+        "app/mobile/ar/page.tsx",
+        "app/mobile/ar/components/ArBuddyOverlay.tsx"
+      ],
+      "supporting_files": [
+        "lib/arRiddle/",
+        "lib/nativeAr/",
+        "docs/architecture/AR_CONTEXTUAL_MISSION_REWARD_FLOW.md",
+        "docs/architecture/AR_REWARD_PREVIEW_API.md"
+      ],
+      "current_blockers": [
+        "Camera/location/native AR expansion and AR reward signals require privacy, safety, and authority review."
+      ],
+      "next_safe_task": "Improve existing web fallback messaging and non-authoritative preview states only.",
+      "do_not_duplicate_warning": "Do not add a second AR authority path, native bridge, camera capture, or location flow.",
+      "required_checks_before_status_can_advance": [
+        "privacy/safety review for camera and location scope",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "unity_wellfitbuddyar",
+      "name": "Unity / WellFitBuddyAR",
+      "status": "blocked",
+      "risk_level": "high",
+      "leading_files": [
+        "native/unity/WellFitBuddyAR"
+      ],
+      "supporting_files": [
+        "docs/architecture/AR_CONTEXTUAL_MISSION_REWARD_FLOW.md",
+        "docs/architecture/AR_REWARD_PREVIEW_API.md",
+        "project-register/internal-sources.json",
+        "todolist/WORK_MAP.md"
+      ],
+      "current_blockers": [
+        "PR #13 must not be merged, closed, or depended on; Unity files must not be overwritten or deleted without explicit owner instruction."
+      ],
+      "next_safe_task": "Planning-only inventory from outside Unity files; do not edit native/unity/WellFitBuddyAR unless explicitly instructed.",
+      "do_not_duplicate_warning": "Do not scaffold a replacement Unity project, overwrite Unity scripts, or bridge rewards directly from Unity events.",
+      "required_checks_before_status_can_advance": [
+        "explicit human approval for Unity/PR #13 scope",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "economy_preview_internal_points",
+      "name": "Economy preview / internal points",
+      "status": "prototype",
+      "risk_level": "critical",
+      "leading_files": [
+        "lib/economy/",
+        "app/api/economy/reward-preview/route.ts",
+        "app/api/economy/user-projection/route.ts",
+        "app/api/economy/persistence-status/route.ts"
+      ],
+      "supporting_files": [
+        "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
+        "docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md",
+        "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md",
+        "firestore.rules"
+      ],
+      "current_blockers": [
+        "Internal points remain beta/draft/preview; final ledger writes, token/NFT migration, wallet, payment, and reward authority require explicit review."
+      ],
+      "next_safe_task": "Strengthen documentation, previews, static guardrail checks, or emulator test plans without activating final writes.",
+      "do_not_duplicate_warning": "Do not create a parallel ledger, token service, wallet, payment, NFT, or reward-authorization path.",
+      "required_checks_before_status_can_advance": [
+        "human approval for economy authority",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "node scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "points_shop",
+      "name": "Points shop",
+      "status": "active_beta",
+      "risk_level": "critical",
+      "leading_files": [
+        "app/punkte-shop/page.tsx",
+        "app/api/economy/spend-preview/route.ts"
+      ],
+      "supporting_files": [
+        "project-register/features.json",
+        "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
+        "todolist/status/2026-05-12-points-shop-paid-points-backlog-not-active.md"
+      ],
+      "current_blockers": [
+        "Shop must remain internal-points preview only; no paid points, purchase, payout, token transfer, or real inventory grant is approved."
+      ],
+      "next_safe_task": "Clarify preview-only shop copy and register links without adding payment or final spend authority.",
+      "do_not_duplicate_warning": "Do not add a payment store, paid points purchase, NFT inventory, payout, or real purchase path.",
+      "required_checks_before_status_can_advance": [
+        "human approval for any paid or final-spend path",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "node scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "status": "review_required",
+      "risk_level": "critical",
+      "leading_files": [
+        "app/marktplatz/page.tsx",
+        "project-register/features.json"
+      ],
+      "supporting_files": [
+        "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md",
+        "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
+        "project-register/risk-classifier.json"
+      ],
+      "current_blockers": [
+        "Marketplace can imply NFT, token, trading, payment, payout, regulated economy, and settlement flows; no production marketplace is approved."
+      ],
+      "next_safe_task": "Keep route as placeholder/review-required and document what must be decided before implementation.",
+      "do_not_duplicate_warning": "Do not create NFT marketplace, token trading, wallet, payment, settlement, or escrow systems.",
+      "required_checks_before_status_can_advance": [
+        "explicit legal/compliance/economy review",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "leaderboard",
+      "name": "Leaderboard",
+      "status": "active_beta",
+      "risk_level": "medium",
+      "leading_files": [
+        "app/leaderboard/page.tsx",
+        "project-register/features.json"
+      ],
+      "supporting_files": [
+        "project-register/routes.json",
+        "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "current_blockers": [
+        "Leaderboard needs privacy-aware aggregation and anti-cheat review before production use."
+      ],
+      "next_safe_task": "Improve placeholder/beta presentation and privacy wording without exposing broad user data.",
+      "do_not_duplicate_warning": "Do not add a separate ranking service, public user dump, or final competition payout logic.",
+      "required_checks_before_status_can_advance": [
+        "privacy review for public rankings",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "analytics",
+      "name": "Analytics",
+      "status": "active_beta",
+      "risk_level": "high",
+      "leading_files": [
+        "app/analytics/page.tsx",
+        "app/mobile/analyse/page.tsx",
+        "project-register/user-feedback.json"
+      ],
+      "supporting_files": [
+        "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+        "project-register/feedback-analytics-loop.json",
+        "project-register/features.json"
+      ],
+      "current_blockers": [
+        "Analytics must avoid unreviewed tracking, third-party analytics, personal data exposure, or health-data expansion."
+      ],
+      "next_safe_task": "Keep analytics aggregate/beta-safe and improve feedback loop documentation or static registers.",
+      "do_not_duplicate_warning": "Do not introduce an unreviewed analytics SDK, parallel feedback database, or personal tracking pipeline.",
+      "required_checks_before_status_can_advance": [
+        "privacy review for tracking scope",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "node scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "user_feedback",
+      "name": "User feedback",
+      "status": "planned",
+      "risk_level": "medium",
+      "leading_files": [
+        "project-register/user-feedback.json",
+        "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md"
+      ],
+      "supporting_files": [
+        "project-register/feedback-analytics-loop.json",
+        "scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs",
+        "project-register/agent-follow-ups.json"
+      ],
+      "current_blockers": [
+        "Feedback storage and analysis must be privacy-aware and not become an unreviewed personal-data pipeline."
+      ],
+      "next_safe_task": "Update feedback registry and audit documentation; avoid adding data collection endpoints unless explicitly assigned.",
+      "do_not_duplicate_warning": "Do not create a second feedback register, analytics loop, or unreviewed feedback database.",
+      "required_checks_before_status_can_advance": [
+        "jq empty project-register/user-feedback.json",
+        "node scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": false
+    },
+    {
+      "id": "firebase_backend_firestore",
+      "name": "Firebase / backend / Firestore",
+      "status": "prototype",
+      "risk_level": "critical",
+      "leading_files": [
+        "firestore.rules",
+        "firebase.json",
+        "functions/index.js",
+        "app/api/economy/"
+      ],
+      "supporting_files": [
+        "docs/architecture/FIRESTORE_EMULATOR_TEST_PLAN.md",
+        "scripts/wellfit-dev-agent/src/firebase-security-audit.mjs",
+        "scripts/wellfit-dev-agent/src/firestore-emulator-test-plan-check.mjs",
+        "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs"
+      ],
+      "current_blockers": [
+        "Backend rules and final writes affect data security, rewards, economy, and privacy; emulator coverage and human review are needed before production readiness."
+      ],
+      "next_safe_task": "Run/static-improve Firebase security and emulator test-plan checks; do not activate final ledger writes.",
+      "do_not_duplicate_warning": "Do not add parallel backend authority, alternate Firestore schemas, or server secrets in frontend code.",
+      "required_checks_before_status_can_advance": [
+        "npm --prefix functions run check",
+        "node scripts/wellfit-dev-agent/src/firebase-security-audit.mjs",
+        "node scripts/wellfit-dev-agent/src/firestore-emulator-test-plan-check.mjs",
+        "node scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "legal_privacy_compliance",
+      "name": "Legal / privacy / compliance",
+      "status": "review_required",
+      "risk_level": "critical",
+      "leading_files": [
+        "app/datenschutz/page.tsx",
+        "app/agb/page.tsx",
+        "app/impressum/page.tsx"
+      ],
+      "supporting_files": [
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "project-register/risk-classifier.json",
+        "project-register/product-rules.json",
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL"
+      ],
+      "current_blockers": [
+        "Legal, privacy, child safety, health, camera, location, payment, token, and compliance messaging require human/legal review."
+      ],
+      "next_safe_task": "Planning-only cross-reference or typo-safe documentation updates; do not change legal meaning without explicit approval.",
+      "do_not_duplicate_warning": "Do not create duplicate legal pages, privacy policies, consent flows, or compliance frameworks.",
+      "required_checks_before_status_can_advance": [
+        "explicit legal/compliance approval",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "agent_governance",
+      "name": "Agent governance",
+      "status": "active_beta",
+      "risk_level": "low",
+      "leading_files": [
+        "AGENTS.md",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json"
+      ],
+      "supporting_files": [
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "current_blockers": [
+        "Governance is active but must remain synchronized across human-readable docs, machine-readable registers, and quality-gate scripts."
+      ],
+      "next_safe_task": "Maintain registers, task queue, Work Map, TODO index, and validation scripts without changing product behavior.",
+      "do_not_duplicate_warning": "Do not create a competing agent workflow, task queue, quality gate, or architecture map.",
+      "required_checks_before_status_can_advance": [
+        "jq empty project-register/*.json",
+        "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs",
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": false
+    }
+  ]
+}

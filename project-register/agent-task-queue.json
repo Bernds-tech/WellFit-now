@@ -27,6 +27,7 @@
     "project-register/agent-workflows.json",
     "project-register/risk-classifier.json",
     "project-register/definition-of-done.json",
+    "project-register/product-readiness.json",
     "project-register/agent-follow-ups.json",
     "project-register/agent-work-log.json"
   ],
@@ -50,6 +51,7 @@
     "npm run build",
     "npm --prefix functions run check",
     "npm run agent:quality-gate",
+    "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
     "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs",
     "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run"
   ],
@@ -134,7 +136,7 @@
       "priority": 2,
       "riskLevel": "low",
       "definitionOfDoneKey": "registry_task",
-      "purpose": "Update machine-readable registers so routes, APIs, features, source maps, workflow rules, and feedback constraints point to existing leading files.",
+      "purpose": "Update machine-readable registers so routes, APIs, features, product readiness, source maps, workflow rules, and feedback constraints point to existing leading files.",
       "allowedFiles": [
         "project-register/*.json",
         "todolist/WORK_MAP.md",
@@ -156,10 +158,12 @@
         "project-register/internal-sources.json",
         "project-register/routes.json",
         "project-register/apis.json",
-        "project-register/features.json"
+        "project-register/features.json",
+        "project-register/product-readiness.json"
       ],
       "requiredChecks": [
         "jq empty project-register/*.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
         "npm run agent:quality-gate"
       ],
       "stopConditions": [
@@ -459,6 +463,63 @@
         "Report-only follow-up detection.",
         "Dry-run PR outcome recording validation.",
         "Updated existing memory-loop registers and mapped TODO docs."
+      ]
+    },
+    {
+      "id": "AGENT-PRODUCT-READINESS-MATRIX-MAINTENANCE",
+      "title": "Maintain the WellFit product readiness matrix",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Keep product readiness statuses, risk levels, blockers, safe next tasks, and advancement checks synchronized with existing registers and Work Map without changing product logic.",
+      "allowedFiles": [
+        "project-register/product-readiness.json",
+        "docs/architecture/WELLFIT_PRODUCT_READINESS_MATRIX.md",
+        "scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/features.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredChecks": [
+        "jq empty project-register/product-readiness.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "module_status_change_requires_product_logic_claim",
+        "critical_sensitive_module_requested_as_production_ready",
+        "unity_or_pr_13_change_requested",
+        "new_register_would_duplicate_existing_register",
+        "protected_area_detected"
+      ],
+      "expectedPrOutput": [
+        "List readiness modules changed.",
+        "Identify status/risk/check changes and source files used.",
+        "Confirm no product logic or Unity files changed.",
+        "State any human-review-required module decisions as risks."
       ]
     }
   ],
