@@ -2,8 +2,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 
 const ROOT = process.cwd();
+const NODE = process.execPath;
 const ROUTES = path.join(ROOT, "project-register", "routes.json");
 const FEATURES = path.join(ROOT, "project-register", "features.json");
 const OUT = path.join(ROOT, "scripts", "wellfit-dev-agent", "output", "mobile-buddy-ux-audit.md");
@@ -51,6 +53,13 @@ function readPage(route) {
   const pagePath = route === "/" ? "app/page.tsx" : `app${route}/page.tsx`;
   const abs = path.join(ROOT, pagePath);
   return fs.existsSync(abs) ? fs.readFileSync(abs, "utf8") : "";
+}
+
+function runViewportAudit() {
+  const script = path.join(ROOT, "scripts", "wellfit-dev-agent", "src", "mobile-viewport-audit.mjs");
+  if (!fs.existsSync(script)) return { ok: false, stdout: "", stderr: "Missing mobile-viewport-audit.mjs" };
+  const result = spawnSync(NODE, [script], { cwd: ROOT, encoding: "utf8", shell: false });
+  return { ok: result.status === 0, stdout: result.stdout ?? "", stderr: result.stderr ?? "" };
 }
 
 function main() {
@@ -104,6 +113,9 @@ function main() {
     }
   }
 
+  const viewport = runViewportAudit();
+  if (!viewport.ok) issues.push("Mobile viewport audit failed. See mobile-viewport-audit.md.");
+
   const passed = issues.length === 0;
   const report = [
     "# Mobile / Buddy UX Audit",
@@ -113,7 +125,7 @@ function main() {
     "",
     "## Scope",
     "",
-    "This audit validates registered mobile routes, Buddy routes and mobile/AR fallback guardrails. It does not modify UI, product logic, APIs, Firestore rules or user data.",
+    "This audit validates registered mobile routes, Buddy routes, mobile viewport guardrails and mobile/AR fallback boundaries. It does not modify UI, product logic, APIs, Firestore rules or user data.",
     "",
     "## Issues",
     "",
@@ -123,11 +135,20 @@ function main() {
     "",
     warnings.length ? warnings.map((item) => `- ${item}`).join("\n") : "No warnings.",
     "",
+    "## Mobile Viewport Audit",
+    "",
+    viewport.ok ? "PASS" : "FAIL",
+    "",
+    "```text",
+    `${viewport.stdout.trim()}${viewport.stderr.trim() ? `\n${viewport.stderr.trim()}` : ""}`,
+    "```",
+    "",
     "## Required Standard",
     "",
     "- Mobile routes must exist and be registered.",
     "- Buddy routes must exist and be registered.",
     "- Mobile-Web must stay touch-first and performance-aware.",
+    "- Mobile viewport must avoid unreviewed horizontal scroll risks.",
     "- Web AR must be treated as fallback/preview, not native AR authority.",
     "- Buddy must not authorize rewards or completion."
   ].join("\n");
