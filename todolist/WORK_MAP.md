@@ -23,6 +23,7 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 - `project-register/definition-of-done.json` definiert maschinenlesbar, wann Dokumentations-, Registry-, UI-, API-, Mission-, Buddy/KI-, Firebase/Backend-, Feedback/Analytics-, Unity/AR-Planungs- und compliance-sensitive Planungsaufgaben erledigt sind.
 - `project-register/risk-classifier.json` klassifiziert WellFit-Arbeit in low/medium/high/critical risk, listet geschuetzte Bereiche und erzwingt automatische Stop- bzw. Planning-only-Regeln.
 - `docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md` erklaert diese Register fuer Menschen.
+- `scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs` validiert diese Register automatisch und ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
 - Diese Dateien erweitern `AGENTS.md`, `project-register/agent-workflows.json`, `project-register/internal-sources.json`, diese Work Map und `todolist/CURRENT_PROJECT_STATE.md`; sie ersetzen keine dieser fuehrenden Dateien.
 
 ## Topic-to-file map

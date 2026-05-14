@@ -7,6 +7,7 @@ Fuehrende maschinenlesbare Dateien:
 - `project-register/agent-task-queue.json`
 - `project-register/definition-of-done.json`
 - `project-register/risk-classifier.json`
+- `scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs`
 
 ## Zweck
 
@@ -65,6 +66,10 @@ Dieses Register klassifiziert Aufgaben in vier Risikostufen:
 
 Die hoechste passende Risikostufe gewinnt. Kritische Treffer fuehren standardmaessig zu Stop oder Planung-only mit expliziter menschlicher Freigabe.
 
+### `scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs`
+
+Dieser Check validiert die Agent-Control-Register automatisch. Er prueft, dass die erforderlichen JSON-Dateien existieren und parsebar sind, `agent-workflows.json` die drei Control-Register referenziert, Task-Queue, Definition-of-Done und Risk-Classifier die erwarteten Governance-Felder enthalten und `TODO_INDEX.md` sowie `WORK_MAP.md` auf die Control-Register und den Check zeigen. Der Check ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden, damit `npm run agent:quality-gate` defekte oder unvollstaendige autonome Agentensteuerung blockiert.
+
 ## Pflichtablauf fuer kuenftige Agenten
 
 1. Branch pruefen: nicht auf `main` arbeiten.
@@ -75,7 +80,7 @@ Die hoechste passende Risikostufe gewinnt. Kritische Treffer fuehren standardmae
 6. Definition-of-Done-Key aus `definition-of-done.json` auswaehlen.
 7. Stop-Bedingungen pruefen.
 8. Nur die erlaubten Dateien anfassen.
-9. Pflichtchecks ausfuehren oder klare Umgebungslimitierung dokumentieren.
+9. Pflichtchecks ausfuehren oder klare Umgebungslimitierung dokumentieren; `npm run agent:quality-gate` fuehrt dabei auch `agent-governance-control-check.mjs` aus.
 10. PR mit Zusammenfassung, Checks, Risiken und naechstem empfohlenem Task erstellen.
 
 ## Stop- und Planning-only-Regeln
@@ -105,6 +110,7 @@ Die neuen Kontrollen sind bewusst Querverweise, keine neue Produktlogik:
 - `project-register/internal-sources.json` bleibt die Internal-Source-to-Implementation-Map.
 - `project-register/routes.json`, `project-register/apis.json` und `project-register/features.json` bleiben die Route-/API-/Feature-Inventare.
 - `project-register/user-feedback.json` bleibt die fuehrende maschinenlesbare Grenze fuer Feedback- und Analytics-Planung.
+- `scripts/wellfit-dev-agent/src/quality-gate.mjs` bleibt die bestehende Kontrollkette und ruft den Agent-Governance-Control-Check mit auf.
 
 ## Nicht-Ziele
 

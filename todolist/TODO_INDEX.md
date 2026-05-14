@@ -188,7 +188,8 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `scripts/wellfit-dev-agent/src/site-quality-audit.mjs` | aktiv / Code | crawlt/prueft Site-Qualitaet, Routen und sichtbare Seitenqualitaet | Agent-Code / Site QA | nach sichtbaren Website-/Routen Aenderungen ausfuehren |
 | `scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs` | aktiv / Code | prueft statisch die Firestore-Economy-Rules-Guardrails | Agent-Code / Firestore QA | keine KI-Prompt-Pflicht |
 | `scripts/wellfit-dev-agent/src/apply-memory-prompts.mjs` | aktiv / Code | ergaenzt KI-Fortsetzungs-Prompts kontrolliert | Agent-Code | keine KI-Prompt-Pflicht |
-| `scripts/wellfit-dev-agent/src/quality-gate.mjs` | aktiv / Code | fuehrt Kontrollkette inklusive Firestore-Economy-Rules-Check aus und entscheidet PASS/FAIL | Agent-Code | keine KI-Prompt-Pflicht |
+| `scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs` | aktiv / Code | validiert Agent-Control-Register, Risk Classifier, Definition of Done, Task Queue sowie TODO_INDEX-/WORK_MAP-Verweise | `project-register/agent-task-queue.json`, `project-register/definition-of-done.json`, `project-register/risk-classifier.json` | wird durch Quality Gate ausgefuehrt |
+| `scripts/wellfit-dev-agent/src/quality-gate.mjs` | aktiv / Code | fuehrt Kontrollkette inklusive Agent-Governance-Control-Check und Firestore-Economy-Rules-Check aus und entscheidet PASS/FAIL | Agent-Code | keine KI-Prompt-Pflicht |
 
 ## Querverweis-Regel
 Jede wichtige TODO-Datei soll enthalten:
