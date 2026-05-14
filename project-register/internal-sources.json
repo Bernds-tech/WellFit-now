@@ -1,0 +1,498 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-14",
+  "purpose": "Machine-readable WellFit internal source-to-implementation map. Use this registry before planning or coding concept-derived work so agents continue existing implementation areas, respect guardrails, and avoid duplicate architecture or parallel systems.",
+  "governance": {
+    "readBeforeUse": [
+      "AGENTS.md",
+      "todolist/CURRENT_PROJECT_STATE.md",
+      "todolist/WORK_MAP.md",
+      "todolist/TODO_INDEX.md",
+      "project-register/internal-sources.json",
+      "docs/architecture/WELLFIT_INTERNAL_SOURCE_MAP.md"
+    ],
+    "canonicalMaps": [
+      "todolist/WORK_MAP.md",
+      "project-register/routes.json",
+      "project-register/apis.json",
+      "project-register/features.json",
+      "project-register/agent-workflows.json",
+      "project-register/user-feedback.json"
+    ],
+    "globalDoNotDuplicateWarnings": [
+      "Do not create a second app shell, navigation system, mission engine, reward ledger, economy model, Buddy KI provider layer, AR event authority path, feedback pipeline, or agent-governance system.",
+      "Do not activate token, NFT, wallet, payment, presale, trading, staking, payout, betting, or final reward authority flows from concept documents.",
+      "Do not expand health, child, location, camera, privacy, consent, or compliance logic from concept documents without an explicit reviewed task.",
+      "Do not touch PR #13 or overwrite/delete Unity files under native/unity/WellFitBuddyAR."
+    ]
+  },
+  "sourceGroups": [
+    {
+      "id": "master-concept-master-bibel",
+      "name": "Master concept / Master-Bibel",
+      "topics": ["product vision", "roadmap", "safe work order", "existing baseline", "module priorities"],
+      "supportingConceptFiles": [
+        "todolist/C - STRATEGISCHE GRUNDENTSCHEIDUNGEN",
+        "todolist/MASTER_OPEN_DONE_LIST.md",
+        "todolist/MASTER_PROMPT_FOR_AI.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/PROJECT_STRUCTURE.md"
+      ],
+      "alreadyStartedInRepo": [
+        "App shell, dashboard, mission routes, Buddy pages, mobile routes, points shop, marketplace, leaderboard, analytics, legal/help pages, project registers, and governance files already exist.",
+        "Route, API, feature, workflow, feedback, and cross-reference registers already provide machine-readable baselines."
+      ],
+      "notYetImplemented": [
+        "Full source-document taxonomy beyond current repository planning files.",
+        "Automated validation that every future concept source is linked to a leading implementation location."
+      ],
+      "leadingImplementationFiles": [
+        "app/components/AppShell.tsx",
+        "app/page.tsx",
+        "app/dashboard/page.tsx",
+        "app/missionen/page.tsx",
+        "app/buddy/page.tsx",
+        "app/mobile/page.tsx",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/features.json"
+      ],
+      "doNotDuplicateWarnings": [
+        "Use WORK_MAP.md as the topic-to-file router; do not introduce a competing master architecture map.",
+        "Extend existing app, registry, TODO, and architecture files in small steps."
+      ],
+      "nextSafeWorkLocation": [
+        "todolist/WORK_MAP.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/internal-sources.json"
+      ],
+      "riskLevel": "medium"
+    },
+    {
+      "id": "whitepaper-investor-documents",
+      "name": "Whitepaper / investor documents",
+      "topics": ["public narrative", "investor story", "market positioning", "business roadmap", "future economy claims"],
+      "supportingConceptFiles": [
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+        "docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md",
+        "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md",
+        "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md",
+        "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md"
+      ],
+      "alreadyStartedInRepo": [
+        "Public landing, registration, FAQ, help, legal pages, and beta-facing product modules exist.",
+        "Economy guardrails separate internal beta points from future blockchain/token narratives."
+      ],
+      "notYetImplemented": [
+        "No canonical investor whitepaper source file is registered as implementation-ready.",
+        "No live investor, token sale, purchase, payout, or regulated finance flow should be inferred from concept text."
+      ],
+      "leadingImplementationFiles": [
+        "app/page.tsx",
+        "app/register/page.tsx",
+        "app/faq/page.tsx",
+        "app/hilfe/page.tsx",
+        "app/agb/page.tsx",
+        "app/datenschutz/page.tsx",
+        "app/impressum/page.tsx"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not create a second marketing site or parallel public route structure.",
+        "Do not add financial, token-sale, presale, or investment claims without explicit legal/compliance review."
+      ],
+      "nextSafeWorkLocation": [
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+        "docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md"
+      ],
+      "riskLevel": "high"
+    },
+    {
+      "id": "presale-tokenomics-documents",
+      "name": "Pre-Sale / Tokenomics documents",
+      "topics": ["WFT", "tokenomics", "presale", "NFT", "blockchain migration", "internal points first"],
+      "supportingConceptFiles": [
+        "todolist/C - STRATEGISCHE GRUNDENTSCHEIDUNGEN",
+        "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
+        "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md",
+        "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
+        "docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md",
+        "docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md",
+        "todolist/status/2026-05-12-points-shop-paid-points-backlog-not-active.md"
+      ],
+      "alreadyStartedInRepo": [
+        "Internal points, XP, reward preview, spend preview, user projection, and persistence-status concepts are present as beta/draft/preview paths.",
+        "Points shop and marketplace routes exist as beta-safe internal/placeholder areas."
+      ],
+      "notYetImplemented": [
+        "No real token, NFT, wallet, payment, presale, staking, trading, purchase, payout, or marketplace settlement implementation is approved.",
+        "Final ledger authority and blockchain migration remain future guarded work."
+      ],
+      "leadingImplementationFiles": [
+        "lib/economy/",
+        "lib/rewards.ts",
+        "lib/rewardScore.ts",
+        "app/api/economy/",
+        "app/punkte-shop/page.tsx",
+        "app/marktplatz/page.tsx",
+        "firestore.rules"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not create a parallel ledger, token service, wallet module, NFT marketplace, purchase path, or presale page.",
+        "Keep beta economy language internal/draft/preview and server-authority oriented."
+      ],
+      "nextSafeWorkLocation": [
+        "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
+        "docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md",
+        "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md"
+      ],
+      "riskLevel": "critical"
+    },
+    {
+      "id": "avatar-ki-buddy-documents",
+      "name": "Avatar / KI-Buddy documents",
+      "topics": ["Buddy", "avatar", "AI guide", "mission recommendations", "care", "inventory", "provider layer"],
+      "supportingConceptFiles": [
+        "todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE",
+        "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md",
+        "docs/architecture/BUDDY_KI_INTEGRATION.md",
+        "docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md",
+        "docs/architecture/BUDDY_KI_GUIDE_DATA_MODEL.md",
+        "docs/architecture/KI_BUDDY_MISSION_ENGINE.md",
+        "docs/architecture/BUDDY_ITEMS_NFC_CAPABILITIES.md"
+      ],
+      "alreadyStartedInRepo": [
+        "Desktop Buddy page, mobile Buddy page, Buddy overlay components, Buddy state/care/recovery/economy/inventory helpers, and Buddy-KI API/provider files exist.",
+        "Mission-to-Buddy bridge and mobile AR Buddy preview/overlay components exist."
+      ],
+      "notYetImplemented": [
+        "No final autonomous Buddy reward or mission-completion authority is allowed.",
+        "Voice interaction, production-grade model provider operations, and full AR embodied Buddy behavior are future guarded work."
+      ],
+      "leadingImplementationFiles": [
+        "app/buddy/page.tsx",
+        "app/buddy/components/",
+        "app/buddy/lib/",
+        "app/mobile/buddy/page.tsx",
+        "app/api/buddy-ki/route.ts",
+        "components/buddy/",
+        "lib/buddyKi/",
+        "app/missionen/lib/missionBuddyBridge.ts"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not create a second Buddy state model, AI provider layer, mission recommendation engine, or avatar inventory model without reconciling existing files.",
+        "Buddy may explain and recommend; it must not authorize points, tokens, rewards, mission completion, or anti-cheat decisions."
+      ],
+      "nextSafeWorkLocation": [
+        "docs/architecture/BUDDY_KI_INTEGRATION.md",
+        "docs/architecture/BUDDY_KI_GUIDE_DATA_MODEL.md",
+        "app/buddy/",
+        "lib/buddyKi/"
+      ],
+      "riskLevel": "medium"
+    },
+    {
+      "id": "spielplaetze-kinder",
+      "name": "Spielplätze / Kinder",
+      "topics": ["children", "playgrounds", "family-safe missions", "AR rallies", "child safety", "location safety"],
+      "supportingConceptFiles": [
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY",
+        "todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "docs/architecture/CHECKPOINT_LOCATION_SAFETY_AND_PLACEMENT.md",
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md",
+        "docs/architecture/AR_LOCATION_RADIUS_AND_RALLY_GENERATION.md"
+      ],
+      "alreadyStartedInRepo": [
+        "Mobile mission, AR page, AR riddle/event libraries, and mission route scaffolds exist.",
+        "Privacy guardrails and checkpoint/location safety architecture exist for child/location-sensitive work."
+      ],
+      "notYetImplemented": [
+        "No production child profile, guardian consent, playground live location, camera capture, or child-targeted tracking expansion is approved.",
+        "Real-world checkpoint generation remains guarded by safety and privacy review."
+      ],
+      "leadingImplementationFiles": [
+        "app/mobile/missionen/page.tsx",
+        "app/mobile/ar/page.tsx",
+        "lib/arRiddle/",
+        "lib/nativeAr/",
+        "lib/missions/"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not create a separate child-safety model, location model, or AR mission engine.",
+        "Do not collect child, precise location, camera, biometric, or health data without explicit privacy/security review."
+      ],
+      "nextSafeWorkLocation": [
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "docs/architecture/CHECKPOINT_LOCATION_SAFETY_AND_PLACEMENT.md",
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md"
+      ],
+      "riskLevel": "critical"
+    },
+    {
+      "id": "erwachsene-active-breaks",
+      "name": "Erwachsene / Active Breaks",
+      "topics": ["adults", "active breaks", "movement", "daily missions", "workplace wellness", "health-adjacent data"],
+      "supportingConceptFiles": [
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/J8.4 - MISSIONSTYPEN UND KI MISSION ENGINE ADDENDUM.md",
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md"
+      ],
+      "alreadyStartedInRepo": [
+        "Daily, weekly, challenge, adventure, mobile movement, and mobile analysis routes exist.",
+        "Mobile motion/native activity/Health Connect helper areas exist, with privacy guardrails."
+      ],
+      "notYetImplemented": [
+        "No medical advice, diagnosis, treatment, raw health data ingestion expansion, or workplace analytics pipeline is approved.",
+        "Adaptive adult mission personalization remains draft/insight-agent planning."
+      ],
+      "leadingImplementationFiles": [
+        "app/missionen/tagesmissionen/page.tsx",
+        "app/missionen/wochenmissionen/page.tsx",
+        "app/mobile/bewegung/page.tsx",
+        "app/mobile/analyse/page.tsx",
+        "lib/mobileMotion/",
+        "lib/nativeActivity/",
+        "lib/healthConnect.ts"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not create another mission category engine or health data layer.",
+        "Keep health/watch data supportive and non-authoritative unless a reviewed task says otherwise."
+      ],
+      "nextSafeWorkLocation": [
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "app/mobile/bewegung/page.tsx"
+      ],
+      "riskLevel": "high"
+    },
+    {
+      "id": "familien",
+      "name": "Familien",
+      "topics": ["family challenges", "cooperative missions", "parent-child usage", "shared progress", "safe motivation"],
+      "supportingConceptFiles": [
+        "todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE",
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md",
+        "docs/architecture/MISSION_HISTORY_FAVORITES_SIDEQUESTS.md",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "docs/architecture/COMPETITION_INTERNAL_STAKES_GUARDRAILS.md"
+      ],
+      "alreadyStartedInRepo": [
+        "Mission families such as daily, weekly, adventure, challenge, competition, favorites, and history exist as routes.",
+        "Buddy copy and mission bridge areas can support family-friendly explanation patterns."
+      ],
+      "notYetImplemented": [
+        "No family account model, child/guardian consent workflow, household leaderboard, or shared reward authority is approved.",
+        "Family challenges must remain non-betting and non-payout unless explicitly reviewed."
+      ],
+      "leadingImplementationFiles": [
+        "app/missionen/",
+        "app/mobile/missionen/page.tsx",
+        "app/buddy/lib/buddyCopy.ts",
+        "lib/missions/"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not introduce a separate family profile, consent, or household economy system.",
+        "Do not add pressure/shame motivation or unsafe child competition mechanics."
+      ],
+      "nextSafeWorkLocation": [
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
+      ],
+      "riskLevel": "high"
+    },
+    {
+      "id": "ernaehrung-abnehmen",
+      "name": "Ernährung / Abnehmen",
+      "topics": ["nutrition", "weight loss", "habits", "coaching", "medical-adjacent content"],
+      "supportingConceptFiles": [
+        "todolist/C - STRATEGISCHE GRUNDENTSCHEIDUNGEN",
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md"
+      ],
+      "alreadyStartedInRepo": [
+        "There is general dashboard/mobile analytics and Buddy coaching infrastructure, but no dedicated nutrition/weight-loss product module registered as active.",
+        "Privacy guardrails already classify health-adjacent data as sensitive and review-bound."
+      ],
+      "notYetImplemented": [
+        "No nutrition tracking, calorie tracking, weight-loss plan, diagnosis, medical recommendation, or diet data model is approved.",
+        "No user weight, symptom, medication, biometric, or eating-disorder-sensitive data collection is approved."
+      ],
+      "leadingImplementationFiles": [
+        "app/analytics/page.tsx",
+        "app/mobile/analyse/page.tsx",
+        "app/buddy/page.tsx",
+        "lib/userAnalytics.ts"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not add a nutrition module, food database, weight-loss tracker, or medical coaching engine from concept text without a reviewed scope.",
+        "Do not store raw health, weight, symptom, medication, or biometric data in feedback or analytics."
+      ],
+      "nextSafeWorkLocation": [
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "critical"
+    },
+    {
+      "id": "soziales-ar-battle-gilden",
+      "name": "Soziales / AR Battle / Gilden",
+      "topics": ["social", "AR battle", "guilds", "PvP", "competitions", "leaderboards", "internal stakes"],
+      "supportingConceptFiles": [
+        "docs/architecture/COMPETITION_INTERNAL_STAKES_GUARDRAILS.md",
+        "docs/architecture/AVATAR_COMPETITION_AND_RARE_ITEMS_GUARDRAILS.md",
+        "docs/architecture/AR_CONTEXTUAL_MISSION_REWARD_FLOW.md",
+        "todolist/J8.3 - AR RAETSELRALLYE REWARD ALGORITHMUS ADDENDUM.md",
+        "todolist/status/2026-05-12-challenge-buddy-consistency-ok.md",
+        "todolist/status/2026-05-12-challenge-economy-path-prepared.md"
+      ],
+      "alreadyStartedInRepo": [
+        "Leaderboard, challenge, competition, and mobile mission surfaces exist.",
+        "Internal stakes and avatar/rare-item guardrails exist as architecture docs, with economy-preview paths prepared."
+      ],
+      "notYetImplemented": [
+        "No betting, payout, real stakes, guild economy, final PvP settlement, or client-authorized competition reward flow is approved.",
+        "Guilds/social graph are not registered as active implementation areas yet."
+      ],
+      "leadingImplementationFiles": [
+        "app/leaderboard/page.tsx",
+        "app/missionen/challenge/page.tsx",
+        "app/missionen/wettkaempfe/page.tsx",
+        "app/mobile/missionen/page.tsx",
+        "lib/economy/",
+        "app/api/economy/"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not create a parallel PvP, guild, leaderboard, stake, or payout system.",
+        "Keep competitions internal-preview only; no betting, wagering, payout, or financial-equivalent claims."
+      ],
+      "nextSafeWorkLocation": [
+        "docs/architecture/COMPETITION_INTERNAL_STAKES_GUARDRAILS.md",
+        "docs/architecture/AVATAR_COMPETITION_AND_RARE_ITEMS_GUARDRAILS.md",
+        "app/missionen/challenge/page.tsx"
+      ],
+      "riskLevel": "critical"
+    },
+    {
+      "id": "unity-wellfitbuddyar",
+      "name": "Unity / WellFitBuddyAR",
+      "topics": ["Unity", "ARCore", "ARKit", "WellFitBuddyAR", "native AR", "Buddy companion"],
+      "supportingConceptFiles": [
+        "todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY",
+        "todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE",
+        "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md",
+        "docs/architecture/AR_CONTEXTUAL_MISSION_REWARD_FLOW.md",
+        "docs/architecture/AR_REWARD_PREVIEW_API.md",
+        "docs/architecture/AR_RIDDLE_FIRESTORE_SECURITY_PLAN.md"
+      ],
+      "alreadyStartedInRepo": [
+        "native/unity/WellFitBuddyAR exists and is protected local Unity work.",
+        "Mobile AR web surfaces, native AR bridge libraries, and AR riddle architecture exist."
+      ],
+      "notYetImplemented": [
+        "No current task may merge PR #13, overwrite Unity scripts, or bind Unity directly to final reward authority.",
+        "Production ARCore/ARKit device validation remains separate from web beta work."
+      ],
+      "leadingImplementationFiles": [
+        "native/unity/WellFitBuddyAR",
+        "app/mobile/ar/page.tsx",
+        "lib/nativeAr/",
+        "lib/arRiddle/",
+        "native/ar/",
+        "native/android/",
+        "native/ios/"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not delete, overwrite, or template-replace Unity files.",
+        "Do not use Unity events as final reward, mission-completion, or anti-cheat authority."
+      ],
+      "nextSafeWorkLocation": [
+        "docs/architecture/AR_CONTEXTUAL_MISSION_REWARD_FLOW.md",
+        "docs/architecture/AR_REWARD_PREVIEW_API.md",
+        "todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY"
+      ],
+      "riskLevel": "critical"
+    },
+    {
+      "id": "business-model-b2b-monetization",
+      "name": "Business model / B2B / monetization",
+      "topics": ["B2B", "partners", "monetization", "billing", "paid points backlog", "web dashboard"],
+      "supportingConceptFiles": [
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+        "docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md",
+        "docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md",
+        "docs/architecture/BLOCKCHAIN_TOKEN_MIGRATION_GUARDRAILS.md",
+        "todolist/status/2026-05-12-points-shop-paid-points-backlog-not-active.md"
+      ],
+      "alreadyStartedInRepo": [
+        "Public pages, product modules, points shop, marketplace placeholder, analytics page, and internal billing/ledger architecture exist.",
+        "Paid points are explicitly documented as backlog/not active."
+      ],
+      "notYetImplemented": [
+        "No real billing, checkout, subscription, payment, partner settlement, payout, purchase, or B2B admin module is approved.",
+        "Business dashboard expansion remains future scoped work."
+      ],
+      "leadingImplementationFiles": [
+        "app/page.tsx",
+        "app/analytics/page.tsx",
+        "app/punkte-shop/page.tsx",
+        "app/marktplatz/page.tsx",
+        "lib/economy/"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not introduce payments, wallet, checkout, partner billing, or B2B admin systems outside reviewed scope.",
+        "Do not create a second analytics/business dashboard shell."
+      ],
+      "nextSafeWorkLocation": [
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+        "docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md",
+        "docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md"
+      ],
+      "riskLevel": "high"
+    },
+    {
+      "id": "feedback-analytics-optimization-loop",
+      "name": "Feedback / Analytics / Optimization loop",
+      "topics": ["user feedback", "analytics", "site quality", "insight agent", "optimization loop", "privacy-safe summaries"],
+      "supportingConceptFiles": [
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+        "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md",
+        "docs/architecture/WELLFIT_SITE_QUALITY_AUDIT_AGENT.md",
+        "project-register/agent-workflows.json"
+      ],
+      "alreadyStartedInRepo": [
+        "Analytics page, userAnalytics helper, feedback register, feedback architecture doc, site-quality audit agent, and Stufe-4 workflow register exist.",
+        "Feedback API is registered only as proposal/no-live-tracking, with privacy-minimizing aggregate summaries."
+      ],
+      "notYetImplemented": [
+        "No live raw feedback database writes, third-party analytics, session replay, heatmaps, raw user-data agent reports, or privacy-sensitive tracking pipeline is approved.",
+        "Insight agent remains planned and separated from Dev-Agent/code-writing authority."
+      ],
+      "leadingImplementationFiles": [
+        "app/analytics/page.tsx",
+        "lib/userAnalytics.ts",
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "scripts/wellfit-dev-agent/src/site-quality-audit.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "doNotDuplicateWarnings": [
+        "Do not create a second feedback pipeline, tracking layer, analytics SDK integration, or agent-readable raw-data channel.",
+        "Feedback and analytics work must exclude sensitive health, child, precise location, camera, biometric, wallet, payment, reward-evidence, and secret data."
+      ],
+      "nextSafeWorkLocation": [
+        "project-register/user-feedback.json",
+        "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
+        "project-register/feedback-analytics-loop.json"
+      ],
+      "riskLevel": "high"
+    }
+  ]
+}

@@ -154,6 +154,8 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/USER_ECONOMY_WRITE_SEARCH_NOTES.md` | aktiv / Security Notes | User Economy Write Search Notes | Backend/Economy | mit Client-Write-Refactor abgleichen |
 | `docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md` | aktiv / Feedback Privacy Architecture | Datenschutzsicherer Datenbank-Flow fuer User-Feedback, Aggregation und Agent-Auswertung ohne Live-Tracking | `project-register/user-feedback.json` | vor Feedback-API, Firestore-Writes oder Agent-Auswertung lesen; keine Rohdaten in Agentenreports |
 | `project-register/user-feedback.json` | aktiv / maschinenlesbares Register | Machine-readable Feedback-Datenbankplan mit erlaubten/verbotenen Feldern, Consent, Retention, Summary-Format und API-Vorschlag | `docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md` | bei Feedback-Datenmodell- oder API-Planung synchron halten |
+| `project-register/internal-sources.json` | aktiv / maschinenlesbares Register | Machine-readable Internal-Source-to-Implementation-Map fuer Konzeptgruppen, vorhandene Repo-Bereiche, Luecken, Do-not-duplicate-Warnungen und sichere Fortsetzungsorte | `docs/architecture/WELLFIT_INTERNAL_SOURCE_MAP.md`, `todolist/WORK_MAP.md` | vor Konzept-/Quellen-getriebener Featureplanung lesen und synchron halten |
+| `docs/architecture/WELLFIT_INTERNAL_SOURCE_MAP.md` | aktiv / Architektur-Erklaerung | Human-readable Erklaerung zur Internal-Source-Registry und Nutzung durch kuenftige Agenten | `project-register/internal-sources.json` | bei Aenderungen an der Registry synchron halten |
 
 ## Agenten-Modi und Workflows
 
