@@ -168,6 +168,11 @@ function main() {
     console.log(`- Suggestion exit code: ${suggestion.exitCode}`);
   }
   console.log("");
+  console.log("Task selection memory:");
+  console.log(`- Recently completed tasks considered: ${suggestion.fields["recently completed tasks considered"] ?? "not reported"}`);
+  console.log(`- Skipped by cooldown: ${suggestion.fields["skipped by cooldown"] ?? "not reported"}`);
+  console.log(`- Memory rule: ${autopilot.taskSelectionMemoryRule?.recentlyCompletedSkipRule ?? queue.repeatSelectionPolicy?.cooldownGuidance ?? "No memory rule configured."}`);
+  console.log("");
   console.log("Risk classification:");
   console.log(`- Level: ${normalizedRisk}`);
   console.log(`- Description: ${riskDefinition?.description ?? "No matching risk definition found; treat as high risk."}`);

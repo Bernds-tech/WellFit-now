@@ -18,7 +18,7 @@ Autopilot runs must honor the existing sources in this order:
 1. Direct human instructions for the current task.
 2. `AGENTS.md` and any scoped `AGENTS.md` files.
 3. Current-state and TODO governance: `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, and `todolist/NEXT_ACTIONS.md`.
-4. Agent governance registers: `project-register/agent-workflows.json`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, and `project-register/agent-work-log.json`.
+4. Agent governance and memory registers: `project-register/agent-workflows.json`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/agent-work-log.json`, and `project-register/progress-log.json`.
 5. Product readiness and evidence registers: `project-register/product-readiness.json`, `project-register/internal-sources.json`, `project-register/master-roadmap-tasks.json`, `project-register/user-feedback.json`, `project-register/adaptive-user-insights.json`, and `project-register/research-recommendations.json`.
 6. Architecture docs that are already referenced by the Work Map or registers.
 
@@ -38,6 +38,7 @@ Every Autopilot iteration starts by reading these files before planning changes:
 - `project-register/risk-classifier.json`
 - `project-register/definition-of-done.json`
 - `project-register/agent-work-log.json`
+- `project-register/progress-log.json`
 - `project-register/product-readiness.json`
 - `project-register/internal-sources.json`
 - `project-register/master-roadmap-tasks.json`
@@ -59,7 +60,12 @@ Confirm branch, dependency state, visible worktree changes, relevant Work Map en
 
 ### 3. `select_next_task`
 
-Use `project-register/agent-task-queue.json` and the existing suggestion script (`scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs`) to select the next non-blocked low/medium-risk task when the human request allows automatic selection. A narrower human request may override the suggestion only if it still satisfies the same safety gates.
+Use `project-register/agent-task-queue.json`, `project-register/progress-log.json`, `project-register/agent-work-log.json`, and the existing suggestion script (`scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs`) to select the next non-blocked low/medium-risk task when the human request allows automatic selection. The picker must treat the latest relevant completed task in progress/work logs as recently completed and skip it for the immediate next selection when another safe non-blocked candidate exists. A narrower human request may override the suggestion only if it still satisfies the same safety gates.
+
+
+### Task selection memory / cooldown
+
+Autopilot must not loop forever on the same completed baseline task. The task picker uses `project-register/progress-log.json` and `project-register/agent-work-log.json` as memory inputs before ranking candidates. If the latest relevant log entry identifies a completed task ID, such as `AGENT-DOC-BASELINE-CHECK`, the picker should skip that task once and prefer the next safe non-blocked low/medium-risk candidate with a valid definition-of-done key. If no other safe candidate exists, the picker may select the recently completed task again, but it must explain that fallback in its report. This cooldown does not permanently mark the queue task done and does not change the Autopilot `dry_run_only` state.
 
 ### 4. `classify_risk`
 
@@ -172,4 +178,4 @@ Autopilot dry-run output must include:
 
 ## KI-Fortsetzungs-Prompt
 
-Lies `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md`, `project-register/agent-autopilot.json`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/product-readiness.json`, `project-register/internal-sources.json`, `project-register/master-roadmap-tasks.json`, `project-register/user-feedback.json`, `project-register/adaptive-user-insights.json`, `project-register/research-recommendations.json`, und diese Runbook-Datei. Fuehre `node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs` aus, nutze nur bestehende fuehrende Dateien, stoppe bei hohem/kritischem/unklarem Risiko, implementiere nichts automatisch, merge/deploye nie, und liefere eine PR-Handoff-Zusammenfassung mit Checks, Risiken und naechstem sicheren Task.
+Lies `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md`, `project-register/agent-autopilot.json`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/agent-work-log.json`, `project-register/progress-log.json`, `project-register/product-readiness.json`, `project-register/internal-sources.json`, `project-register/master-roadmap-tasks.json`, `project-register/user-feedback.json`, `project-register/adaptive-user-insights.json`, `project-register/research-recommendations.json`, und diese Runbook-Datei. Fuehre `node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs` aus, nutze nur bestehende fuehrende Dateien, stoppe bei hohem/kritischem/unklarem Risiko, implementiere nichts automatisch, merge/deploye nie, und liefere eine PR-Handoff-Zusammenfassung mit Checks, Risiken und naechstem sicheren Task.
