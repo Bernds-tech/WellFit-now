@@ -1,4 +1,4 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -39,8 +39,8 @@ export async function calculateRewardMultipliers(userId: string): Promise<Reward
   const hoardingPressure = points >= 1000 && spendRatio < 0.1 ? 0.85 : points >= 500 && spendRatio < 0.15 ? 0.92 : 1;
   const spendingBonus = spendRatio >= 0.35 ? 1.06 : spendRatio >= 0.2 ? 1.03 : 1;
 
-  if (hoardingPressure < 1) reasons.push("Horten erkannt: persÃ¶nliche AusschÃ¼ttung wird stabilisiert");
-  if (spendingBonus > 1) reasons.push("Ã–kosystem-Nutzung Bonus");
+  if (hoardingPressure < 1) reasons.push("Horten erkannt: persönliche Ausschüttung wird stabilisiert");
+  if (spendingBonus > 1) reasons.push("Ökosystem-Nutzung Bonus");
 
   const userEconomyMultiplier = clamp(hoardingPressure * spendingBonus, 0.75, 1.08);
   const finalMultiplier = clamp(avatarMultiplier * userEconomyMultiplier, 0.65, 1.5);

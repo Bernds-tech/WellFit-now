@@ -16,6 +16,17 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Nur Governance- und Registerdateien angelegt. Keine Produktlogik, keine Firebase-Rules, keine UI-Refactors, kein Live-Deploy."
+    },
+    {
+      "id": "PROGRESS-SMOKE-2026-05-14-0001",
+      "date": "2026-05-14",
+      "branch": "smoke/ui-route-check-2026-05-14",
+      "issue": null,
+      "goal": "WellFit UI- und Routen-Smoke-Check vor weiterer Missionsentwicklung ausfuehren.",
+      "changedAreas": ["app routes", "encoding cleanup", "project-register", "todolist", "docs/architecture"],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "/missionen als Redirect auf /missionen/tagesmissionen registriert, sichtbare Mojibake-Texte in bestehenden UI-/Supportdateien korrigiert, Quality-Gate-Governance-Index repariert und angeforderte Checks inklusive Route-Smoke ausgefuehrt. Keine Mission-Feature-Entwicklung, keine Unity-Aenderungen, keine Economy-/Reward-Authority-Aenderungen."
     }
   ]
 }

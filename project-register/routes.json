@@ -19,6 +19,7 @@
     { "route": "/dashboard", "area": "Dashboard", "auth": "app-user-or-beta-preview", "status": "active" },
     { "route": "/dashboard/anpassen", "area": "Dashboard", "auth": "app-user-or-beta-preview", "status": "active" },
     { "route": "/buddy", "area": "Buddy", "auth": "app-user-or-beta-preview", "status": "active" },
+    { "route": "/missionen", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active-redirect" },
     { "route": "/missionen/tagesmissionen", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
     { "route": "/missionen/wochenmissionen", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
     { "route": "/missionen/abenteuer", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
