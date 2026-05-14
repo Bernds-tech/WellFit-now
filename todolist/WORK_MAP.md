@@ -56,6 +56,9 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 - `project-register/agent-work-log.json` ist das append-only Arbeitsprotokoll fuer abgeschlossene Agentenlaeufe, Checks, Follow-ups und die naechste empfohlene Aufgabe.
 - `project-register/agent-follow-ups.json` beschreibt die maschinenlesbaren Follow-up-Kategorien, Risk-Mappings, Review-Regeln, Beispiele und das leere `entries`-Array fuer zukuenftig erkannte Follow-ups.
 - `scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs` waehlt aus der bestehenden Task Queue den sichersten nicht-blockierten low/medium-risk Task und selektiert nie high/critical automatisch.
+- `project-register/agent-autopilot.json` ist der maschinenlesbare Dry-run-only Autopilot-Orchestrator fuer Memory-Read, Task-Auswahl, Risk Gate, Checks, PR-Handoff und Stop-before-merge/deploy.
+- `docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md` erklaert diesen Autopilot-Ablauf fuer Menschen und verweist auf bestehende Governance statt eine Parallelarchitektur einzufuehren.
+- `scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs` liest Autopilot, Task Queue, Risk Classifier, Definition of Done, Product Readiness, Research Recommendations und Adaptive User Insights report-only, schreibt keine Dateien automatisch und ist im Quality Gate eingebunden.
 - `scripts/wellfit-dev-agent/src/follow-up-detector.mjs` liest Work Map, Current State, Task Queue, Risk Classifier sowie optionale Internal-Source-/Feedback-Register und meldet Follow-up-Kategorien nur report-only ohne Dateien zu schreiben.
 - `scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs` validiert PR-Outcome-Daten im Dry-Run und kann nur mit explizitem lokalen Schreibflag an `project-register/agent-work-log.json` anhaengen.
 - `scripts/wellfit-dev-agent/src/todo-status-sync.mjs` validiert TODO-Statusmarker in `todolist/NEXT_ACTIONS.md` und `todolist/TODO_INDEX.md` ohne automatische Rewrite-Aenderungen.

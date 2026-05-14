@@ -67,7 +67,9 @@
     "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
     "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
     "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
-    "jq empty project-register/adaptive-user-insights.json"
+    "jq empty project-register/adaptive-user-insights.json",
+    "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
+    "jq empty project-register/agent-autopilot.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -858,6 +860,71 @@
         "Confirm no runtime product logic, live tracking, Unity/PR #13 files, or protected compliance/economy/privacy areas changed.",
         "List adaptive-user-insight-check, research-recommendation-check, JSON validation, and quality-gate results.",
         "Name the next safe registry-only or human-review task."
+      ]
+    },
+    {
+      "id": "AGENT-AUTOPILOT-RUNBOOK-ORCHESTRATOR",
+      "title": "Maintain WellFit Agent Autopilot runbook and dry-run orchestrator",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Keep the single Autopilot entrypoint aligned with existing WellFit agent governance without changing runtime product logic or protected systems.",
+      "allowedFiles": [
+        "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md",
+        "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
+        "project-register/agent-autopilot.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "package.json"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/agent-work-log.json",
+        "project-register/product-readiness.json",
+        "project-register/internal-sources.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/user-feedback.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
+        "jq empty project-register/agent-autopilot.json",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "orchestrator_would_write_files_automatically",
+        "runtime_product_logic_change_required",
+        "high_or_critical_risk_detected",
+        "protected_area_detected",
+        "would_merge_or_deploy",
+        "would_create_duplicate_architecture_or_parallel_system"
+      ],
+      "expectedPrOutput": [
+        "List Autopilot documentation, register, and script files changed.",
+        "State that the dry-run orchestrator does not write files, merge, deploy, or implement product logic.",
+        "Report Autopilot dry-run output and standard checks.",
+        "Name the next safe governance or registry task."
       ]
     }
   ],

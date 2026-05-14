@@ -37,7 +37,9 @@
         "project-register/research-recommendations.json",
         "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
         "project-register/adaptive-user-insights.json",
-        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md"
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "project-register/agent-autopilot.json",
+        "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md"
       ],
       "controlRegisters": [
         {
@@ -116,6 +118,14 @@
           "scripts": ["scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"],
           "purpose": "Planning-only governance for future aggregate Adaptive User Insight summaries without raw user data, live tracking, runtime personalization, or protected product logic changes.",
           "usage": "Use only aggregate cohorts above minimum thresholds, keep activationState=planning_only, expose no raw identifiers or sensitive fields to agents, and require human review for high/critical or protected-topic recommendations."
+        },
+        {
+          "id": "agent_autopilot_orchestrator",
+          "registers": ["project-register/agent-autopilot.json"],
+          "architecture": "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md",
+          "scripts": ["scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs"],
+          "purpose": "Single dry-run-only entrypoint that reads existing governance, selects the next safe task, classifies risk, reports checks/files/stop conditions, and stops before implementation, merge, or deploy.",
+          "usage": "Run after reading required memory files and before implementation planning. Treat output as report-only; stop on high/critical/unclear risk or protected areas."
         }
       ],
       "additionalGovernanceInputs": [
