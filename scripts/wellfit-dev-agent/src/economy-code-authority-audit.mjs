@@ -23,13 +23,14 @@ const warningPatterns = [
 ];
 
 const allowedNegativeCashoutPatterns = [
-  /keine\s+(echte\s+)?auszahlung/iu,
-  /keine\s+auszahlungen/iu,
+  /keine[^\n]{0,120}auszahlung(en)?/iu,
+  /ohne[^\n]{0,120}auszahlung(en)?/iu,
   /nicht\s+auszahlbar/iu,
-  /no\s+(real\s+)?cashout/iu,
-  /no\s+(real\s+)?withdrawal/iu,
-  /no\s+payout/iu,
-  /cashout\s*\/\s*echtgeldsprache\s+vermeiden/iu
+  /no[^\n]{0,120}cashout/iu,
+  /no[^\n]{0,120}withdrawal/iu,
+  /no[^\n]{0,120}payout/iu,
+  /cashout\s*\/\s*echtgeldsprache\s+vermeiden/iu,
+  /auszahlung(en)?[^\n]{0,120}(deaktiviert|inaktiv|nicht\s+aktiv|verboten|blockiert)/iu
 ];
 
 function norm(filePath) { return filePath.split(path.sep).join("/"); }
@@ -113,7 +114,7 @@ function main() {
     "## Required Standard",
     "",
     "- No active wallet/token/NFT/cashout code in beta.",
-    "- Negative safety wording such as 'keine Auszahlung' is allowed and should not fail the gate.",
+    "- Negative safety wording such as 'keine Auszahlung' or 'keine echten Auszahlungen' is allowed and should not fail the gate.",
     "- Firestore writes and points/xp/level assignments must be reviewed as preview, bridge or server-authority logic.",
     "- This audit does not modify product code."
   ].join("\n");
