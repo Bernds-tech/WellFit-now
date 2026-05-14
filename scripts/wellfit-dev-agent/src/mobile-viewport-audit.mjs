@@ -27,6 +27,8 @@ function scanFile(file) {
   const lower = text.toLowerCase();
   const issues = [];
   const warnings = [];
+  const isMobileArPage = file === "app/mobile/ar/page.tsx";
+  const isMobileArComponent = file.startsWith("app/mobile/ar/components/");
 
   if (file.endsWith("page.tsx") && !lower.includes("mobile") && !lower.includes("touch")) {
     warnings.push({ file, line: 1, id: "missing-mobile-context", reason: "Mobile page should clearly carry mobile/touch context." });
@@ -46,13 +48,12 @@ function scanFile(file) {
     warnings.push({ file, line: 1, id: "touch-target-review", reason: "Interactive elements should have clear touch target sizing or accessible label." });
   }
 
-  if (file.includes("/ar/") || file.endsWith("/ar/page.tsx")) {
-    if (!/(fallback|webgl|web|preview)/iu.test(text)) {
-      issues.push({ file, line: 1, id: "ar-fallback-missing", reason: "Mobile AR page must clearly communicate Web/PWA fallback boundaries." });
-    }
-    if (/(arkit|arcore|native\s+ar)/iu.test(text) && !/(nicht\s+native|kein\s+native|fallback|preview)/iu.test(text)) {
-      warnings.push({ file, line: 1, id: "native-ar-wording", reason: "Native AR wording must be clearly framed as not active in this Web block." });
-    }
+  if (isMobileArPage && !/(fallback|webgl|web|preview|browser-demo|kein echtes world tracking|kein echter raumanker)/iu.test(text)) {
+    issues.push({ file, line: 1, id: "ar-fallback-missing", reason: "Mobile AR page must clearly communicate Web/PWA fallback boundaries." });
+  }
+
+  if ((isMobileArPage || isMobileArComponent) && /(arkit|arcore|native\s+ar)/iu.test(text) && !/(nicht\s+native|kein\s+native|fallback|preview|folgt\s+nativ|brauchen\s+wir\s+arcore\/arkit)/iu.test(text)) {
+    warnings.push({ file, line: 1, id: "native-ar-wording", reason: "Native AR wording must be clearly framed as not active in this Web block." });
   }
 
   return { issues, warnings };
@@ -87,7 +88,8 @@ function main() {
     "",
     "- Mobile pages should avoid unreviewed fixed wide widths and accidental horizontal scroll.",
     "- Touch targets and interactive elements require review-friendly sizing/accessibility hints.",
-    "- Web AR routes must clearly remain fallback/preview and not imply native AR authority.",
+    "- Web AR route must clearly remain fallback/preview and not imply native AR authority.",
+    "- AR subcomponents may be technical, but native AR wording must remain clearly framed as not active in this Web block.",
     "- This audit does not modify UI or product logic."
   ].join("\n");
 
