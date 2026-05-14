@@ -59,6 +59,7 @@
     "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
     "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
     "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+    "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
     "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
   ],
   "jsonValidationChecks": [
@@ -72,7 +73,8 @@
     "jq empty project-register/visual-regression.json",
     "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
     "jq empty project-register/master-roadmap-tasks.json",
-    "project-register/adaptive-user-insights.json"
+    "project-register/adaptive-user-insights.json",
+    "project-register/research-recommendations.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -723,7 +725,7 @@
       "priority": 2,
       "riskLevel": "low",
       "definitionOfDoneKey": "registry_task",
-      "purpose": "Maintain the planning-only adaptive insight framework so future agents can propose personalized missions, buddy tone, difficulty tuning and product optimizations from aggregate anonymized signals without exposing raw or sensitive user data.",
+      "purpose": "Maintain the planning-only adaptive insight framework so future agents can propose personalized missions, buddy tone, difficulty tuning and product optimizations from aggregate anonymized signals without exposing raw or sensitive user data, while coexisting with PR #60 Research & Recommendation Agent governance.",
       "allowedFiles": [
         "project-register/adaptive-user-insights.json",
         "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
@@ -756,11 +758,14 @@
         "project-register/definition-of-done.json",
         "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
         "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
-        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md"
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "project-register/research-recommendations.json",
+        "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md"
       ],
       "requiredChecks": [
         "jq empty project-register/adaptive-user-insights.json",
         "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
         "npm run lint",
         "npx tsc --noEmit",
         "npm run build",
@@ -773,7 +778,8 @@
         "raw_user_data_or_sensitive_data_would_be_exposed_to_agents",
         "would_touch_unity_or_pr_13",
         "would_modify_token_wallet_payment_reward_authority_health_child_location_privacy_or_compliance_logic",
-        "would_create_duplicate_architecture_or_parallel_system"
+        "would_create_duplicate_architecture_or_parallel_system",
+        "would_overwrite_or_duplicate_pr_60_research_recommendation_governance"
       ],
       "expectedPrOutput": [
         "List adaptive-user-insight register, architecture, validation, workflow, task-queue and TODO mapping updates.",

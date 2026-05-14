@@ -35,6 +35,15 @@ Fuehrende Quellen:
 - `docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md`
 - `docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md`
 
+## Coexistence with Research & Recommendation Agent governance
+
+PR #60 introduced the Research & Recommendation Agent governance. This Adaptive User Insight framework must coexist with that system instead of replacing it:
+
+- research/recommendation governance may provide planning context and product-research recommendations;
+- adaptive user insight governance remains limited to aggregate user-feedback, gameplay-behavior and engagement-signal summaries;
+- both checks should run in the quality gate when `scripts/wellfit-dev-agent/src/research-recommendation-check.mjs` is present on the current main base;
+- do not copy research-register responsibilities into `project-register/adaptive-user-insights.json`; use source references and human-review gates instead.
+
 ## Planning-only: keine Live-Auswertung
 
 `project-register/adaptive-user-insights.json` hat `activationState: planning_only`. Das bedeutet:

@@ -29,6 +29,7 @@
         "project-register/features.json",
         "project-register/internal-sources.json",
         "project-register/user-feedback.json",
+        "project-register/research-recommendations.json",
         "project-register/adaptive-user-insights.json",
         "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
         "project-register/agent-work-log.json",
@@ -99,6 +100,14 @@
           "usage": "Run after perceptible UI changes and through quality gate report-only mode; if browser support or preview URL is unavailable, record the safe skip instead of failing the main build."
         },
         {
+          "id": "research_recommendation_agent",
+          "registers": ["project-register/research-recommendations.json"],
+          "architecture": "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
+          "scripts": ["scripts/wellfit-dev-agent/src/research-recommendation-check.mjs"],
+          "purpose": "PR #60 planning-only research and recommendation governance for future agents; kept separate from adaptive user insight personalization governance.",
+          "usage": "Run the research-recommendation check when present on the current main base; do not duplicate the research architecture from Adaptive User Insight work."
+        },
+        {
           "id": "adaptive_user_insight_agent",
           "registers": ["project-register/adaptive-user-insights.json", "project-register/user-feedback.json", "project-register/feedback-analytics-loop.json", "project-register/product-readiness.json"],
           "architecture": "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
@@ -112,6 +121,9 @@
         "project-register/",
         "todolist/",
         "docs/architecture/",
+        "project-register/research-recommendations.json",
+        "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
+        "scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
         "project-register/adaptive-user-insights.json",
         "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
         "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"

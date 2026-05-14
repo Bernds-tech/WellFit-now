@@ -12,7 +12,10 @@
     "project-register/definition-of-done.json",
     "project-register/agent-workflows.json",
     "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
-    "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
+    "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+    "project-register/research-recommendations.json",
+    "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
+    "scripts/wellfit-dev-agent/src/research-recommendation-check.mjs"
   ],
   "allowedAggregateSignals": [
     {
@@ -275,5 +278,15 @@
     "forbiddenDataCheck": "must state no raw/sensitive fields used",
     "implementationBoundary": "planning_only | docs_registry_only | requires_human_approval_before_runtime"
   },
+  "coexistingGovernanceSystems": [
+    {
+      "id": "research_recommendation_agent",
+      "status": "preserve_pr_60_governance_when_present",
+      "register": "project-register/research-recommendations.json",
+      "architecture": "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
+      "validation": "scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
+      "boundary": "Research/recommendation governance may inform planning context; Adaptive User Insight remains aggregate-only and planning_only."
+    }
+  ],
   "entries": []
 }

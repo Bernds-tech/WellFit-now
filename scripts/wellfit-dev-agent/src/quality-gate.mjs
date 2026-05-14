@@ -25,6 +25,7 @@ const agentSteps = [
   { label: "Site route audit", script: "scripts/wellfit-dev-agent/src/site-route-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/site-route-audit.mjs" },
   { label: "Mobile Buddy UX audit", script: "scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs" },
   { label: "Feedback loop audit", script: "scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs" },
+  { label: "Research recommendation check", script: "scripts/wellfit-dev-agent/src/research-recommendation-check.mjs", optionalWhenMissing: true, displayCommand: "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs" },
   { label: "Adaptive user insight check", script: "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs" },
   { label: "Firebase security audit", script: "scripts/wellfit-dev-agent/src/firebase-security-audit.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/firebase-security-audit.mjs" },
   { label: "Firestore emulator test plan check", script: "scripts/wellfit-dev-agent/src/firestore-emulator-test-plan-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/firestore-emulator-test-plan-check.mjs" },
@@ -39,6 +40,16 @@ const agentSteps = [
 
 function runNodeStep(step) {
   const scriptPath = path.join(ROOT, step.script);
+  if (step.optionalWhenMissing && !fs.existsSync(scriptPath)) {
+    return {
+      label: step.label,
+      command: step.displayCommand,
+      exitCode: 0,
+      stdout: "Result: SKIPPED_OPTIONAL_MISSING\nReason: optional PR #60 research recommendation check is not present on this local base.",
+      stderr: "",
+      ok: true
+    };
+  }
   const result = spawnSync(NODE_COMMAND, [scriptPath, ...(step.args ?? [])], { cwd: ROOT, encoding: "utf8", shell: false });
   return { label: step.label, command: step.displayCommand, exitCode: result.status ?? 1, stdout: result.stdout ?? "", stderr: result.stderr ?? "", ok: result.status === 0 };
 }
@@ -109,6 +120,7 @@ function main() {
   const siteRouteReport = readTextSafe("scripts/wellfit-dev-agent/output/site-route-audit-report.md");
   const mobileBuddyUxReport = readTextSafe("scripts/wellfit-dev-agent/output/mobile-buddy-ux-audit.md");
   const feedbackLoopReport = readTextSafe("scripts/wellfit-dev-agent/output/feedback-loop-audit.md");
+  const researchRecommendationReport = readTextSafe("scripts/wellfit-dev-agent/output/research-recommendation-check.md");
   const adaptiveUserInsightReport = readTextSafe("scripts/wellfit-dev-agent/output/adaptive-user-insight-check.md");
   const firebaseSecurityReport = readTextSafe("scripts/wellfit-dev-agent/output/firebase-security-audit.md");
   const emulatorPlanReport = readTextSafe("scripts/wellfit-dev-agent/output/firestore-emulator-test-plan-check.md");
@@ -126,6 +138,7 @@ function main() {
   const routeApiDriftStep = getStep(steps, "Route/API drift detector");
   const visualRouteSmokeStep = getStep(steps, "Visual route smoke check");
   const conceptToCodeGapStep = getStep(steps, "Concept-to-code gap analyzer");
+  const researchRecommendationStep = getStep(steps, "Research recommendation check");
 
   const covered = parseCoveredTracks(`${goalReport}\n${alphaStep?.stdout ?? ""}`);
   const missingIndex = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in TODO index/structure memory") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in index");
@@ -141,6 +154,7 @@ function main() {
   const routeApiDriftPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${routeApiDriftReport}\n${routeApiDriftStep?.stdout ?? ""}`);
   const visualRouteSmokePassed = /Result:\s*(?:PASS|PASS_WITH_WARNINGS|SKIPPED_BROWSER_UNAVAILABLE|SKIPPED_BASE_URL_UNAVAILABLE|REPORT_ONLY)/i.test(`${visualRouteSmokeReport}\n${visualRouteSmokeStep?.stdout ?? ""}`);
   const conceptToCodeGapPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${conceptToCodeGapReport}\n${conceptToCodeGapStep?.stdout ?? ""}`);
+  const researchRecommendationPassed = /Result:\s*(?:PASS|SKIPPED_OPTIONAL_MISSING)/i.test(`${researchRecommendationReport}\n${researchRecommendationStep?.stdout ?? ""}`);
 
   assertCondition(checks, "Alpha tracks fully covered", covered.covered !== null && covered.total !== null && covered.covered === covered.total, covered.covered === null ? "not found" : `${covered.covered}/${covered.total}`);
   assertCondition(checks, "TODO index has no missing files", missingIndex === 0, formatDetailCount(missingIndex, missingIndexFiles));
@@ -156,6 +170,7 @@ function main() {
   assertCondition(checks, "Site route audit passed", /Result:\s*PASS/i.test(siteRouteReport), /Result:\s*PASS/i.test(siteRouteReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Mobile Buddy UX audit passed", /Result:\s*PASS/i.test(mobileBuddyUxReport), /Result:\s*PASS/i.test(mobileBuddyUxReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Feedback loop audit passed", /Result:\s*PASS/i.test(feedbackLoopReport), /Result:\s*PASS/i.test(feedbackLoopReport) ? "PASS" : "not found or FAIL");
+  assertCondition(checks, "Research recommendation check passed or is absent only on pre-PR60 local base", researchRecommendationPassed, researchRecommendationPassed ? "PASS or SKIPPED_OPTIONAL_MISSING" : "not found or FAIL");
   assertCondition(checks, "Adaptive user insight check passed", /Result:\s*PASS/i.test(adaptiveUserInsightReport), /Result:\s*PASS/i.test(adaptiveUserInsightReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Firebase security audit passed", /Result:\s*PASS/i.test(firebaseSecurityReport), /Result:\s*PASS/i.test(firebaseSecurityReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Firestore emulator test plan check passed", /Result:\s*PASS/i.test(emulatorPlanReport), /Result:\s*PASS/i.test(emulatorPlanReport) ? "PASS" : "not found or FAIL");
