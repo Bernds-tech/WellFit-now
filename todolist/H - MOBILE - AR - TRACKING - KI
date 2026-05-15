@@ -16,6 +16,12 @@ AKTUELLER FOKUS:
 [x] Mobile AR bleibt vorerst ein sicherer PWA-/Kamera-Prototyp, bis echte AR-Technologieentscheidung getroffen ist.
 [x] Nutzerfeedback aufgenommen: Ziel ist kein 2D-Emoji, sondern ein kleiner animierter 3D-Drache im AR-Erlebnis.
 
+MOBILE-SAFETY-KLARSTELLUNG 2026-05-15:
+[!] Mobile/Beta nutzt nur interne Punkte, XP, Preview- und Anzeigezustaende; keine Token-, NFT-, Wallet-, Presale-, Trading-, Payment-, Payout- oder Marketplace-Aktivierung.
+[!] Mobile, Kamera, AR, Pose, Face, Motion, Health, Watch und Location duerfen keine finale Reward-, XP-, Punkte-, Leaderboard-, Inventory-, Rare-Item- oder Mission-Completion-Autoritaet erhalten.
+[!] Neue Health-/Child-/Location-/Camera-/Face-/Motion-/Privacy-/Consent-Felder oder Berechtigungen bleiben `review_required` und brauchen Datenminimierung, Einwilligung, Fallback und Human-Review.
+[!] Fehlende Items oder AR-Faehigkeiten duerfen in Mobile keinen Kaufdruck erzeugen; zuerst faire spielbare Detours/Fallbacks planen.
+
 TASK-ID: WF-MOBILE-001
 STATUS: [~] In Arbeit / PWA-Test-App umgesetzt
 ZIEL:

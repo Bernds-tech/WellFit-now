@@ -120,6 +120,12 @@ STATUS: [>] Später / wichtig vor Token-Veröffentlichung
 [ ] Keine Rendite-, Preis- oder Gewinnversprechen.
 [ ] Chain-Strategie historisch trennen: Solana/SPL-Dokumente vs. neuere SUI/Dynamic-Object-Strategie.
 
+REVIEW_REQUIRED-KLARSTELLUNG 2026-05-15:
+[!] Diese Dokumentationsrunde loest keine Rechts-/Compliance-Fragen und aendert keine Runtime-Legaltexte.
+[!] Token, NFT, Wallet, Payment, Trading, Payout, Presale, Marketplace, Health, Child-Safety, Location, Camera, Privacy, Consent und medizinisch/finanziell sensible Aussagen bleiben `review_required`.
+[!] Beta-/MVP-Kommunikation muss interne Punkte/XP klar von echten Token-, NFT-, Wallet-, Zahlungs-, Handels- oder Auszahlungsfunktionen trennen.
+[!] Mobile darf keine token-/presale-/trading-/NFT-marktplatznahen Features aktivieren oder bewerben; etwaige spaetere Web-/Dashboard-Konzepte brauchen separate Human-/Legal-/Compliance-Pruefung.
+
 ============================================================
 I3. Website / Landingpage / Business / Investoren / Pilot
 ============================================================

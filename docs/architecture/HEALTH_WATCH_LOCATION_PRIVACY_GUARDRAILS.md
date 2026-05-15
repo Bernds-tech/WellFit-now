@@ -17,6 +17,9 @@ Grundsatz: Diese Daten duerfen WellFit unterstuetzen, aber nicht unkontrolliert 
 - Keine dauerhafte Hintergrundueberwachung ohne klare Einwilligung.
 - Keine Kinder-/Jugenddaten ohne besondere Schutzlogik.
 - Keine clientseitige Autoritaet fuer Punkte, XP, Rewards, Mission Completion oder Anti-Cheat.
+- Keine finale Autoritaet fuer Leaderboards, Inventory Grants, Rare Items, Ledger-Writes oder payout-/tokennahe Entscheidungen aus Health-, Watch-, Kamera-, AR-, Standort-, Face- oder Motion-Signalen.
+- Keine Erweiterung von Health-, Child-, Location-, Camera-, Face-, Motion-, Privacy- oder Consent-Daten ohne expliziten Human-Review, Datenminimierung, Einwilligungskonzept und Fallback.
+- Alle rechtlich oder medizinisch sensiblen offenen Punkte bleiben `review_required`; diese Datei ersetzt keine Rechts-/Datenschutzpruefung und aktiviert keine Runtime-Logik.
 
 ## Datenkategorien
 

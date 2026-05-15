@@ -120,8 +120,8 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
-| `todolist/F - FIREBASE  - REALTIME - MISSIONEN` | aktiv / Bereichs-TODO | Firebase, Realtime, Missionen | `DATABASE_PLAN.md` | Datenbankplan damit abgleichen |
-| `todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS` | aktiv / Bereichs-TODO | Reward-System, System Health, Mechanics | Bereich Reward/Gamification | pruefen, aber keine echten Token/Transfers |
+| `todolist/F - FIREBASE  - REALTIME - MISSIONEN` | aktiv / Bereichs-TODO | Firebase, Realtime, Missionen inkl. Beta-internen Punkte-/XP- und Server-Authority-Grenzen | `DATABASE_PLAN.md` | Datenbankplan damit abgleichen; keine Client-Reward-/Mission-Authority aktivieren |
+| `todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS` | aktiv / Bereichs-TODO | Reward-System, System Health, Mechanics inkl. Safety-/Economy-Guardrails | Bereich Reward/Gamification | pruefen, aber keine echten Token/Transfers, keine finalen Client-Rewards und keine Ledger-Writes aktivieren |
 | `todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN` | aktiv / Bereichs-TODO | interne Punkteoekonomie vor Blockchain | Bereich Gamification | fuer Beta sehr wichtig |
 | `todolist/J8.3 - AR RAETSELRALLYE REWARD ALGORITHMUS ADDENDUM.md` | aktiv / Reward | AR-Raetselrallye Reward-Algorithmus | Bereich Mission/Reward | mit Reward-Safety abgleichen |
 | `todolist/J8.4 - MISSIONSTYPEN UND KI MISSION ENGINE ADDENDUM.md` | aktiv / Mission Engine | Missionstypen und KI Mission Engine | Bereich Mission/KI | priorisieren |
@@ -133,7 +133,7 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
 |---|---|---|---|---|
-| `todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL` | aktiv / Bereichs-TODO | Business, Website, Partner, Legal | Bereich Website/Legal | fuer Investor/Website wichtig |
+| `todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL` | aktiv / Bereichs-TODO | Business, Website, Partner, Legal inkl. review_required-Grenzen fuer sensible Claims | Bereich Website/Legal | fuer Investor/Website wichtig; Runtime-Legaltexte nicht ohne Review aendern |
 | `todolist/J8.4C - APPSHELL UND PRODUKTMODUL-SKALIERUNG ADDENDUM.md` | aktiv / AppShell | AppShell und Produktmodul-Skalierung | `ARCHITECTURE_RULES.md` | mit Modularitaet abgleichen |
 | `todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md` | aktiv / Setup | lokale Umgebung und Build Setup | Build/DevOps | mit Agent-Runbook abgleichen |
 | `todolist/J8.4E - PERSONALISIERBARES DASHBOARD UND PIN-CARDS.md` | aktiv / Dashboard | personalisierbares Dashboard, Pin-Cards | Bereich Dashboard | fuer Beta pruefen |
@@ -178,12 +178,13 @@ Status-Dateien sind historische Nachweise und Build-/Emulator-/PM2-/Test-Logs. S
 | `docs/architecture/STUFE_4_GOVERNANCE_BIS_G_ABSCHLUSS.md` | aktiv / Checkpoint | Stufe-4-Governance-Abschlussstand B-G, Quality-Gate-Pruefungen und Sicherheitsgrenzen | Agentenstrategie / Governance | vor groesseren Aenderungen als Governance-Anker nutzen |
 | `docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md` | aktiv | Self-hosted Dev-Agent Architektur inkl. PM2-/Server-Grenzen | Agentenstrategie | fuer Automatisierung nutzen; keine Deploys, PM2-Restarts oder Server-Env-Aenderungen ohne Human-Freigabe |
 | `docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md` | duplikat / verlinkt | Details stehen in der fuehrenden Research-Recommendation-/Adaptive-Insight-Sektion oben | `project-register/adaptive-user-insights.json` | nicht separat fortfuehren; oben synchron halten |
-| `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md` | aktiv / zu pruefen | Mission-/Reward-Kontextlogik | Missionen/Reward | mit Datenbankplan abgleichen |
+| `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md` | aktiv / Guardrail | Mission-/Reward-Kontextlogik mit Beta-Safety-Grenze, Preview-/Stub-Status und Server-Authority-Zielbild | Missionen/Reward | mit Datenbankplan abgleichen; keine finalen Ledger-Writes oder Client-Autoritaet aktivieren |
 | `docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md` | aktiv / Economy Guardrails | interne Punkte-/XP-/Reward-Leitplanken vor Blockchain | Economy/Reward | fuehrend fuer Beta-Economy-Regeln |
+| `docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md` | aktiv / Economy Guardrail | KI-generierte Dimensionen, Items, Detours und spaetere NFT-/Ownership-Grenzen mit MVP-/Beta-Economy-Safety | Economy/Items/KI | keine Token-/NFT-/Wallet-/Payment-/Trading-/Payout-Aktivierung; faire Detours vor Kaufdruck |
 | `docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md` | aktiv / Ledger und Abrechnung | internes Punkte-/XP-/Reward-Ledger vor Tokenisierung | Economy/Reward/Backend | fuehrend fuer interne Abrechnung |
 | `docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` | aktiv / Security | Server-Completion-Plan und Firestore-Haertung fuer interne Punkte, XP, Level, Avatar und Mission Completion | Backend/Economy | fuehrend fuer naechsten Server-Completion-Block |
 | `docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md` | aktiv / Testplan | Firestore Economy Rules Haertung, DENY/ALLOW Emulator-Stufen, Client-Write-Migration und Emulator-Voraussetzungen | Backend/Economy/QA | vor harter Rules-Aenderung nutzen; Emulator-Limits als Umgebung dokumentieren, nicht durch Rules-/Functions-Aenderungen umgehen |
-| `docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md` | aktiv / Privacy Guardrails | Health-, Watch-, Kamera-, AR-, Standort- und Kinder-/Jugenddaten | Datenschutz/Safety | fuehrend fuer sensible Daten und Berechtigungen |
+| `docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md` | aktiv / Privacy Guardrails | Health-, Watch-, Kamera-, AR-, Standort-, Face-/Motion- und Kinder-/Jugenddaten inkl. review_required-Grenzen | Datenschutz/Safety | fuehrend fuer sensible Daten und Berechtigungen; keine neuen Daten-/Consent-Flows ohne Review |
 | `docs/architecture/CHECKPOINT_LOCATION_SAFETY_AND_PLACEMENT.md` | aktiv / Checkpoint Safety | sichere echte Orte, verbotene Orte, 20-Meter-Radius und Standortplatzierung | Mission/Location/Safety | fuehrend fuer Checkpoint-Erzeugung nutzen |
 | `docs/architecture/COMPETITION_INTERNAL_STAKES_GUARDRAILS.md` | aktiv / Competition Stakes | interne Duell-Einsaetze, Punkte-/Item-Locks, keine echten Wetten/Auszahlungen | Wettkaempfe/Economy/Safety | fuehrend fuer Wettkampf-Einsaetze nutzen |
 | `docs/architecture/AVATAR_COMPETITION_AND_RARE_ITEMS_GUARDRAILS.md` | aktiv / Avatar Competition | Avatar-Duelle, seltene interne Items, Excalibur/Fairness, keine NFT/Token | Avatar/Wettkaempfe/Items/Safety | fuehrend fuer Avatar-Duelle und Rare Items nutzen |

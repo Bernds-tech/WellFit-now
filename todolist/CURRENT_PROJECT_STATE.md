@@ -22,6 +22,7 @@ Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei erse
 - Setup-/Env-Dokumentation wurde am 2026-05-15 auf Branch `docs/setup-env-alignment` als docs-only Produkt-Foundation-Task ausgerichtet: `README.md`, `.env.example` und `todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md` erklaeren lokale Setup-Schritte, Firebase-`NEXT_PUBLIC_*`-Variablen, CI-Build-Verhalten ohne echte Secrets, serverseitige Provider-Key-Grenzen und Agenten-Safety ohne Runtime-Code-Aenderungen.
 - Firebase-/PM2-/Emulator-Dokumentation wurde am 2026-05-15 auf Branch `docs/firebase-pm2-emulator-foundation` als zweiter docs-only Produkt-Foundation-Task geklaert: Root-App-Checks und `npm --prefix functions run check` sind getrennt, Emulator-Tests benoetigen Firebase CLI, Java, freie Ports, Login/Projektkontext und lokale Umgebung, PM2/Deployment bleibt human-approved, und Firestore Rules, Functions-Code, Runtime-Code, Reward-/Mission-Authority sowie Produktionswrites bleiben unveraendert.
 - Register/User/Profile/Settings-Schema-Dokumentation wurde am 2026-05-15 auf Branch `docs/register-profile-settings-schema` als dritter docs-only Produkt-Foundation-Task erstellt: `todolist/DATABASE_PLAN.md` beschreibt Registrierungs-, User-Dokument-, Profil-, Settings-, Avatar-/`profile.aiBuddy`-, Consent- und KI-relevante Feldannahmen, markiert sensitive/unklare Felder als `review_required`, dokumentiert Duplicate-/Wrong-Field-Risiken und bestaetigt, dass diese Felder keine Reward-, Mission-Completion-, Anti-Cheat-, medizinische, rechtliche oder Finanz-Autoritaet sind. Runtime-, Auth-, Firestore-, Profil-, Settings-, Functions-, Rules-, Public-Asset-, Package- und Unity-Dateien blieben unveraendert.
+- Safety-Wording-/Economy-Guardrail-Dokumentation wurde am 2026-05-15 auf Branch `docs/safety-economy-guardrails` als vierter docs-only Produkt-Foundation-Task ausgerichtet: bestehende Mobile-/Mission-/Economy-/Privacy-/Legal-Planungsquellen stellen klar, dass MVP/Beta nur interne Punkte/XP und Preview-/Anzeigezustaende nutzt, echte Token-/NFT-/Wallet-/Payment-/Trading-/Payout-/Presale-Logik deaktiviert und `review_required` bleibt, Clients keine Reward-/Mission-/Leaderboard-/Inventory-/Rare-Item-Autoritaet erhalten und Health-/Child-/Location-/Camera-/Face-/Motion-/Privacy-/Consent-Erweiterungen Human-Review, Datenminimierung und Fallbacks brauchen. Runtime-Code, Legal-Seiten, Functions, Rules, Package-Dateien, Public Assets und Unity blieben unveraendert.
 
 ## Abgeschlossene Arbeit / vorhandene Grundlagen
 
@@ -39,7 +40,7 @@ Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei erse
 
 - TODO-/Agent-Gedaechtnis weiter konsolidieren, ohne alte TODO-Dateien zu loeschen.
 - UI-Shell, Landing, Dashboard, Sidebar, Footer, mobile Navigation, Legal/Hilfe und bestehende Mission-Routen stabil halten.
-- Sicherheitswortlaut fuer Mobile/Beta pruefen: keine aktiven Token-, NFT-, Wallet-, Presale-, Trading- oder Zahlungsversprechen in Mobile/Beta-Flows.
+- Sicherheitswortlaut fuer Mobile/Beta ist docs-only nachgezogen; weiterhin keine aktiven Token-, NFT-, Wallet-, Presale-, Trading-, Zahlungs- oder Payout-Versprechen in Mobile/Beta-Flows.
 - Economy/Rewards weiter als interne Punkte-/XP-/Preview-Mechanik behandeln, bis serverseitige Autoritaet, Firestore-Regeln und Emulator-Tests bereit sind.
 - Daten-/Health-/Child-/Location-/Camera-/Consent-Bereiche nur mit explizitem Auftrag erweitern.
 - Backend-/Firestore-/Functions-Readiness in kleinen Schritten pruefen und dokumentieren.
@@ -78,7 +79,7 @@ Die vom Nutzer bereitgestellte WellFit Master Roadmap / Developer To-Do List wur
 3. Den dokumentierten Baseline-Lauf bei kuenftigen Aenderungen erneut ausfuehren: `npm run agent:autopilot:dry-run`, `npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm --prefix functions run check` und `npm run agent:quality-gate`.
 4. Als naechsten Autopilot-Kandidaten nach dieser Baseline-Aktualisierung erneut `npm run agent:autopilot:dry-run` verwenden; keine High-/Critical- oder geschuetzten Aufgaben automatisch umsetzen.
 5. UI-/Route-Smoke-Ergebnisse aus PR #45 bei Bedarf in passende Statusdateien einordnen, ohne neue Shells oder parallele Systeme zu erstellen.
-6. Mobile/Beta-Safety-Wording in bestehenden Dateien pruefen, aber Compliance-Logik nur nach explizitem Auftrag aendern.
+6. Als naechsten Produkt-Foundation-Schritt eine Data-Protection-Review-Dokumentationsrunde fuer Health-/Child-/Location-/Camera-/Face-/Motion-/Consent-Flows vorbereiten; weiterhin keine Runtime- oder Legaltext-Aenderungen ohne explizite Freigabe.
 7. Backend-/Firestore-Guardrails weiter dokumentiert vorbereiten, bevor Reward-/Mission-Autoritaet vom Client weg verlagert wird.
 8. Unity/AR-Arbeit separat planen und nur vorhandene Unity-Dateien inventarisieren, nicht ueberschreiben.
 

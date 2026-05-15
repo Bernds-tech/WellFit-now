@@ -19,6 +19,13 @@ Blockchain, echte NFTs und der echte WFT-Token werden erst nach stabiler Alpha-/
 [x] Die spaetere WFT-/NFT-/Blockchain-Schicht darf das Punkte-System nicht ersetzen muessen, sondern muss darauf aufsetzen koennen.
 [x] Blockchain ist spaeter Settlement-/Ownership-/External-Economy-Schicht, nicht Grundlage des fruehen Game Loops.
 
+SICHERHEITS-KLARSTELLUNG 2026-05-15:
+[!] MVP/Beta bedeutet ausschliesslich interne Punkte und XP; echte WFT-, Token-, NFT-, Blockchain-, Wallet-, Payment-, Trading-, Payout- oder Presale-Logik bleibt deaktiviert und review_required.
+[!] Mobile darf keine Token-/Presale-/Trading-/NFT-Marktplatz-/Wallet-/Payment-Features aktivieren oder als verfuegbar darstellen.
+[!] Punkte, XP, Leaderboards, Inventory Grants, Rare Items und Mission Completion sind nicht client-authoritativ; Client-/UI-Werte bleiben Simulation, Preview oder Anzeige.
+[!] Server-/Backend-/Audit-/Ledger-Autoritaet ist Pflichtziel, aber bis zur ausdruecklichen Freigabe nur geplant bzw. review_required; diese Dokumentation aktiviert keine finalen Ledger-Writes.
+[!] Health-, Child-, Location-, Camera-, Face-, Motion-, Privacy- und Consent-Erweiterungen bleiben geschuetzte Bereiche und brauchen Datenminimierungs-/Einwilligungs-/Human-Review vor Umsetzung.
+
 ============================================================
 2. 25-Mrd.-Supply zuerst als internes Modell
 ============================================================

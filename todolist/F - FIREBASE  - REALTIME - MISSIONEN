@@ -82,6 +82,9 @@ VERBINDLICHE MISSION-REWARD-REGEL:
 [!] KI darf Missionen, Dimensionen, Item-Bedarfe und Quest-Detours vorschlagen, aber keine finale Auszahlung bestimmen.
 [!] Backend entscheidet Mission Completion, Reward, XP, Punkte, Item Grant, Burn-/Reserve-Logik und spätere Token-/WFT-Bezüge.
 [!] Auszahlung orientiert sich an Mission, Nutzerkontext, Sicherheit, Beweisen, Systemreserve und Anti-Farming.
+[!] Beta/MVP bleibt bei internen Punkten und XP; keine echte WFT-/Token-/NFT-/Wallet-/Payment-/Trading-/Payout-Logik und keine finalen Ledger-Writes werden durch diese Planung aktiviert.
+[!] Firestore-/Backend-Planung fuer Mission Completion, Rewards, Leaderboards, Inventory Grants und Rare Items ist review_required, bis Server-Autoritaet, Audit-Events, Rules und Emulator-/Policy-Tests belastbar sind.
+[!] Clientseitige Mission-Abschluesse, Reward-Breakdowns und UI-Punkte sind nur MVP-/Preview-/Anzeigezustand und duerfen nicht als Produktionsautoritaet behandelt werden.
 
 KONTEXTFAKTOREN FÜR TAGESMISSIONEN:
 [ ] Alter / Altersgruppe berücksichtigen.

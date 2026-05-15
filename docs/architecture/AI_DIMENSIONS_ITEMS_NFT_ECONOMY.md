@@ -6,6 +6,14 @@ WellFit soll perspektivisch nicht nur feste Missionen ausspielen. Das KI-/Leitsy
 
 Der Buddy ist dabei die sichtbare Fuehrungsfigur fuer den Nutzer. Das Backend bleibt Autoritaet fuer Preise, Rewards, Items, Token-/WFT-Bezug, Missbrauchsschutz und Freischaltungen.
 
+## MVP-/Beta-Economy-Grenze 2026-05-15
+
+- In MVP/Beta sind nur interne Punkte und XP vorgesehen; echte WFT-/Token-/NFT-/Blockchain-/Wallet-/Payment-/Trading-/Payout- und Presale-Funktionen bleiben deaktiviert und `review_required`.
+- Mobile darf keine Token-, Presale-, Trading-, NFT-Marktplatz-, Wallet-, Payment- oder Payout-Features aktivieren.
+- KI-generierte Dimensionen, Item-Bedarfe, Angebote und Detours sind Vorschlaege. Rewards, XP, Punkte, Leaderboards, Inventory Grants, Rare Items und Mission Completion duerfen nicht client- oder KI-authoritativ sein.
+- Fehlende oder teure Items muessen zuerst faire spielbare Detours, Leih-/Earn-/Fallback-Optionen oder alternative Ziele anbieten; Kaufdruck, Paywall-Ketten und Frustrationsspiralen sind verboten.
+- Server-/Backend-/Audit-/Ledger-Autoritaet bleibt geplantes Zielbild und vor realer Aktivierung reviewpflichtig; diese Architektur aktiviert keine finalen Ledger-Writes.
+
 ## Begriffstrennung
 
 ### NFC Tags
