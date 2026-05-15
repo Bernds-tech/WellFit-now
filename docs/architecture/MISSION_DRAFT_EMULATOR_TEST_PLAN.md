@@ -86,6 +86,13 @@ Erwartung: PERMISSION_DENIED
 - [ ] Server can approve allowed Draft.
 - [ ] Server can reject unsafe Draft.
 
+## Emulator prerequisites and boundaries
+
+- MissionDraft emulator tests require a local Firebase emulator setup with Firebase CLI, Java, free Auth/Firestore/Functions ports and local-only environment configuration.
+- `npm --prefix functions run check` is only the Functions syntax check; it does not start emulators, publish Firestore rules, deploy Functions or prove MissionDraft runtime behavior.
+- Full emulator execution must use running services and must remain local/demo-project only. Do not point MissionDraft tests at production data.
+- A documentation-only pass may clarify these prerequisites, but must not edit `functions/**`, `firestore.rules`, `firebase.json`, deployment workflows or protected reward/mission-authority logic.
+
 ## Sicherheitsziel
 
 ```txt

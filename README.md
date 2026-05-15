@@ -66,15 +66,38 @@ Optional Buddy KI provider settings are server-side only unless a variable is ex
 
 Server-only provider keys, including `OPENAI_API_KEY`, must never use the `NEXT_PUBLIC_` prefix and must never be committed with real values. Keep production provider keys in server/deployment environment configuration only.
 
-## Firebase and Functions checks
+## Firebase, Functions, and emulator checks
 
-For Firebase Functions syntax checks, use the existing package script:
+WellFit currently separates root app checks from Firebase Functions checks:
+
+- Root app checks (`npm run lint`, `npx tsc --noEmit`, `npm run build`) validate the Next.js app and shared TypeScript surface from the repository root.
+- Functions checks run from the Functions package context and validate Firebase Functions JavaScript syntax without starting emulators or writing production data. Use the existing script from the repository root:
 
 ```bash
 npm --prefix functions run check
 ```
 
-Emulator-based tests may require local Firebase CLI setup, Java, available ports, and a single running emulator suite. If emulator checks cannot run in a given environment, report whether the limitation is environmental or code-related.
+The Functions syntax check is not a Firebase deployment and does not replace emulator tests. It should be used before any Firebase/Functions PR handoff because it catches syntax errors in `functions/index.js`, helper modules, seed scripts, and emulator test scripts without changing Firestore rules or backend runtime behavior.
+
+### Firebase project and environment expectations
+
+For local development, keep Firebase project identifiers and web-app configuration in `.env.local` or the deployment provider environment. Do not commit real project values, service-account keys, Firebase tokens, or production credentials. Public Firebase web config may use the `NEXT_PUBLIC_FIREBASE_*` names described above, but server credentials and provider keys must remain server-only.
+
+Documentation-only agent tasks must not run production writes, activate final ledger behavior, or turn on mission-completion authority. Any change to `firestore.rules`, `functions/**`, Firebase deployment settings, reward authorization, mission completion, or ledger persistence requires a separate explicit human-approved task and review plan.
+
+### Emulator prerequisites
+
+Emulator-based checks require more than `npm --prefix functions run check`:
+
+- Firebase CLI installed and available on `PATH`.
+- Java installed for Firebase emulators. Note: newer `firebase-tools` releases may require Java 21; if local tools reject an older JRE, treat that as an environment prerequisite, not an app-code failure.
+- Required local ports free before startup, especially emulator UI `4000`, Firestore `8080`, Auth `9099`, and Functions `5001`. Run only one emulator suite at a time.
+- Firebase login or local project context when a selected emulator command requires it; demo-project emulator flows may not require a production login, but deployment commands always require explicit human approval.
+- Local environment files configured for development only; never point agent-driven tests at production data.
+
+Root emulator startup scripts live in the root package (`npm run emulators`, `npm run emulators:rules`, `npm run emulators:firestore`). Functions emulator tests run from `functions/` and require the matching emulator services to already be running. In particular, `npm --prefix functions run test:emulator` and the callable/mission/evidence/pattern/cooldown emulator tests require running Auth, Firestore, and Functions emulator services; NFC and rules smoke tests require the Firestore emulator at `127.0.0.1:8080`.
+
+If emulator checks cannot run in a given environment, report whether the limitation is environmental or code-related. Do not compensate by loosening Firestore rules, modifying Functions code, changing deployment scripts, or writing to production.
 
 ## Agent and governance checks
 
@@ -89,9 +112,11 @@ node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs
 
 Auto-merge and auto-repair checks are report-only in this repository. They must not merge, repair, deploy, or approve work automatically.
 
-## Deployment notes
+## Deployment and PM2 notes
 
-Use deployment-specific environment configuration for Firebase public config and server-only keys. Do not deploy from an agent session unless the task explicitly authorizes deployment. For self-hosted/PM2 notes, preserve the existing status/TODO history and keep only one intended WellFit process running.
+Use deployment-specific environment configuration for Firebase public config and server-only keys. Do not deploy from an agent session unless the task explicitly authorizes deployment. Documentation, lint, build, Functions syntax, quality-gate, and report-only agent checks are not deployment approval.
+
+For self-hosted/PM2 operation, preserve the existing status/TODO history, keep only one intended WellFit process running, and verify process status before restarting. PM2 restarts, server environment changes, Firebase deploys, Firestore rules publishes, and production data migrations require explicit human approval and must not be bundled into documentation-only product-foundation tasks.
 
 ## Learn More
 

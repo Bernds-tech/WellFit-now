@@ -85,6 +85,9 @@ Quelle / fuehrende Dateien: `project-register/master-roadmap-tasks.json`, `docs/
 - [x] Setup-/README-/Env-Dokumentation am 2026-05-15 docs-only abgeglichen: lokale Setup-Schritte, `npm install`-Grenze, `npm run build`/`npm run dev`, Firebase-`NEXT_PUBLIC_*`, CI-Build ohne echte Secrets, serverseitige Keys ohne `NEXT_PUBLIC_`, `.env.local`-No-Commit-Regel und Agenten-Safety dokumentiert.
 Quelle: Dry-Run-Report, `todolist/README.md`, `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT`
 
+- [x] Firebase-/PM2-/Emulator-Voraussetzungen am 2026-05-15 docs-only nachgezogen: Root-App-Checks vs. Functions-Syntaxcheck getrennt, `npm --prefix functions run check` beschrieben, Emulator-Voraussetzungen (Firebase CLI, Java, Ports, Login/Projektkontext, lokale Umgebung) dokumentiert, PM2/Server-Deployment nur mit expliziter Human-Freigabe, keine Firestore-Rules-/Functions-/Runtime-/Reward-/Mission-Authority-Aenderung.
+Quelle: `README.md`, `docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md`, `docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md`, `docs/architecture/MISSION_DRAFT_EMULATOR_TEST_PLAN.md`
+
 - [x] 2026-05-14 aktuellen Baseline-Check ausgefuehrt: Lint, Typecheck, Build, Functions-Syntaxcheck und Quality Gate erfolgreich.
 - [~] Root-Installation bleibt unveraendert; `npm install` wurde nicht ausgefuehrt, weil Abhaengigkeiten fuer die Checks vorhanden waren.
 - [ ] `LAST_BUILD_STATUS.md` nur aktualisieren, wenn ein kuenftiger Auftrag diese Statusdatei ausdruecklich in den erlaubten Dateien einschliesst.
@@ -181,10 +184,10 @@ Quelle: `todolist/DATABASE_PLAN.md`, `todolist/F - FIREBASE  - REALTIME - MISSIO
 
 - [!] Bei `npm install` kann ENOTEMPTY in `node_modules` auftreten; wenn Build danach erfolgreich ist, ist es nicht zwingend blockierend.
 - [!] Bei wiederholten Fehlern `node_modules` bereinigen und neu installieren.
-- [!] Firebase CLI: Nicht eingeloggt ist fuer lokale Demo-Emulator-Tests nicht immer kritisch.
-- [!] Firebase CLI: Java < 21 wird ab firebase-tools@15 nicht mehr unterstuetzt; spaeter auf Java 21 wechseln.
+- [!] Firebase CLI: Nicht eingeloggt ist fuer lokale Demo-Emulator-Tests nicht immer kritisch; Deploys und produktive Projektzugriffe bleiben explizit human-approved.
+- [!] Firebase CLI: Java < 21 wird ab firebase-tools@15 nicht mehr unterstuetzt; spaeter auf Java 21 wechseln, falls lokale Emulatoren deshalb scheitern.
 - [!] Nur eine Emulator-Instanz parallel starten, sonst sind Ports 4000/8080/9099/5001 belegt.
-- [!] Nur eine PM2-Instanz `wellfit-now` starten.
+- [!] Nur eine PM2-Instanz `wellfit-now` starten; PM2-Restarts/Server-Env-Aenderungen nicht in docs-only Tasks ausfuehren.
 - [!] Nicht `next start` starten, solange `next build` noch laeuft oder `.next` unvollstaendig ist.
 - [!] Mobile-App darf keine App-Store-kritischen Token-/NFT-/Trading-Funktionen enthalten.
 - [!] Clientseitige Tagesmissions-Rewards sind MVP/UI-Logik, nicht langfristige Autoritaet.
