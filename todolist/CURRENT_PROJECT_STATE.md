@@ -78,3 +78,8 @@ Die vom Nutzer bereitgestellte WellFit Master Roadmap / Developer To-Do List wur
 ## Continuation prompt
 
 Lies zuerst `AGENTS.md`, dann `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md` und `todolist/NEXT_ACTIONS.md`. Arbeite vom aktuellen `main` auf einem neuen task-spezifischen Branch. Halte Aenderungen klein, dokumentations-only wenn der Auftrag das verlangt, und nutze die bestehenden Dateien aus `WORK_MAP.md`, statt neue Architektur oder parallele Systeme anzulegen. PR #13 und Unity-Dateien nicht anfassen. Produkt-, Reward-, Payment-, Wallet-, Health-, Child-, Location-, Privacy- und Compliance-Logik nur mit explizitem Auftrag bearbeiten.
+
+## Repository Inventory Pointer (2026-05-15)
+
+- The active full-repository inventory is `project-register/repository-inventory.json`, with human-readable guidance in `docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md` and report-only validation in `scripts/wellfit-dev-agent/src/repository-inventory-check.mjs`.
+- Future agents should use the inventory to identify mapped, protected, unmapped, stale, duplicate, route, and API coverage before changing files; protected runtime, compliance, and Unity areas remain untouched unless explicitly assigned.

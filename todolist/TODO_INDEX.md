@@ -261,3 +261,9 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 |---|---|---|---|
 | `todolist/CODEBASE_FEATURE_MAP.md` | aktiv | Bestandskarte vorhandener Codebereiche gegen Doppelarbeit | `MASTER_OPEN_DONE_LIST.md` | vor grossen Codebloecken pruefen |
 
+
+## Repository Inventory / Coverage Audit
+
+- [x] `project-register/repository-inventory.json` is the machine-readable full-repository inventory for mapped, protected, unmapped, stale/duplicate, module/topic, risk, and follow-up coverage.
+- [x] `docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md` documents how future agents should use the inventory without creating duplicate architecture or touching protected runtime areas.
+- [x] `scripts/wellfit-dev-agent/src/repository-inventory-check.mjs` validates inventory coverage in report-only mode and is included in the quality gate as warning-based triage.
