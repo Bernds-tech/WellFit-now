@@ -27,7 +27,10 @@
     "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
     "project-register/repository-inventory.json",
     "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
-    "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs"
+    "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+    "project-register/auto-merge-policy.json",
+    "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md",
+    "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -81,7 +84,8 @@
     "call_suggest_next_agent_task_for_task_selection",
     "print_selected_safe_task_risk_required_checks_affected_files_and_stop_conditions",
     "prepare_human_readable_plan_and_pr_handoff",
-    "update_autopilot_governance_docs_or_registers_only_when_explicitly_requested_by_human_task_outside_the_dry_run_script"
+    "update_autopilot_governance_docs_or_registers_only_when_explicitly_requested_by_human_task_outside_the_dry_run_script",
+    "run_auto_merge_eligibility_check_report_only"
   ],
   "forbiddenActions": [
     "write_files_automatically_from_agent_autopilot_dry_run",
@@ -92,7 +96,8 @@
     "modify_token_nft_wallet_payment_payout_marketplace_staking_presale_trading_or_betting_logic_without_explicit_human_approval",
     "modify_reward_authority_final_ledger_mission_completion_anticheat_inventory_unlock_or_rare_item_authority_without_explicit_human_approval",
     "modify_health_watch_child_location_camera_privacy_consent_medical_legal_agb_datenschutz_impressum_or_compliance_logic_without_explicit_human_approval",
-    "expose_secrets_or_server_api_keys"
+    "expose_secrets_or_server_api_keys",
+    "enable_or_perform_real_auto_merge_without_explicit_human_approval"
   ],
   "stopConditions": [
     "current_branch_is_main",
@@ -105,7 +110,8 @@
     "required_governance_file_missing_or_malformed",
     "definition_of_done_key_missing",
     "validation_check_fails_for_code_reason",
-    "human_approval_required_but_not_present"
+    "human_approval_required_but_not_present",
+    "auto_merge_policy_activation_state_is_not_report_only"
   ],
   "requiredChecks": [
     "npm run lint",
@@ -117,7 +123,9 @@
     "jq empty project-register/agent-autopilot.json",
     "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
     "jq empty project-register/cross-reference-maintenance.json",
-    "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs"
+    "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+    "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "jq empty project-register/auto-merge-policy.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -160,7 +168,8 @@
     "research_recommendation_context_when_present",
     "adaptive_user_insight_context_when_present",
     "no_merge_no_deploy_reminder",
-    "human_approval_rule"
+    "human_approval_rule",
+    "auto_merge_eligibility_report_only_result"
   ],
   "humanApprovalRules": {
     "requiredForRiskLevels": [

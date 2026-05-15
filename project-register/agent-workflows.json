@@ -8,7 +8,8 @@
     "extends": [
       "agents/AGENTS.md",
       "agents/modes/stufe-4.md"
-    ]
+    ],
+    "updated": "2026-05-15"
   },
   "workflows": [
     {
@@ -48,7 +49,10 @@
         "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
         "project-register/repository-inventory.json",
         "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
-        "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs"
+        "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+        "project-register/auto-merge-policy.json",
+        "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md",
+        "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -184,6 +188,18 @@
           ],
           "purpose": "Full repository inventory and coverage audit for mapped, protected, unmapped, stale, duplicate, route, and API coverage without changing runtime product code.",
           "usage": "Before broad repository work, inspect repository-inventory.json and run the repository inventory check; triage warnings through existing Work Map, Product Readiness, route/API, TODO, or project-register sources rather than creating parallel architecture."
+        },
+        {
+          "id": "auto_merge_eligibility_guard",
+          "registers": [
+            "project-register/auto-merge-policy.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs"
+          ],
+          "purpose": "Report-only auto-merge eligibility policy and validator for future PR safety assessment without enabling or performing merges.",
+          "usage": "Run as part of the quality gate or before PR handoff to print AUTO_MERGE_ELIGIBLE=true/false with reasons. Treat every output as report-only; do not merge, approve, deploy, or enable auto-merge without human approval."
         }
       ],
       "additionalGovernanceInputs": [
@@ -396,7 +412,9 @@
             "package.json",
             "functions/package.json",
             "scripts/wellfit-dev-agent/",
-            "affected test/config files"
+            "affected test/config files",
+            "project-register/auto-merge-policy.json",
+            "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs"
           ],
           "allowedActions": [
             "run required checks",
@@ -408,10 +426,11 @@
             "remove tests",
             "skip checks without reason"
           ],
-          "requiredOutput": "Result list for npm run lint, npx tsc --noEmit, npm run build, npm --prefix functions run check, npm run agent:quality-gate, visual-route-smoke-check when visual/screenshot validation is relevant, and product-readiness-check where relevant.",
+          "requiredOutput": "Result list for npm run lint, npx tsc --noEmit, npm run build, npm --prefix functions run check, npm run agent:quality-gate, visual-route-smoke-check when visual/screenshot validation is relevant, and product-readiness-check where relevant., auto-merge eligibility report-only result",
           "riskGates": [
             "PR may include failures only with transparent cause, risk, and next fix step.",
-            "Visual screenshot checks remain optional/report-only unless browser support and a safe preview URL are explicitly available."
+            "Visual screenshot checks remain optional/report-only unless browser support and a safe preview URL are explicitly available.",
+            "Auto-merge eligibility checks are report-only and must never enable or perform a merge."
           ]
         },
         {
