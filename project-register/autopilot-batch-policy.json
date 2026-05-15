@@ -173,5 +173,53 @@
     "mustNotMerge": true,
     "mustNotRepair": true,
     "mustNotDeploy": true
+  },
+  "humanApprovedManualSessionGuardrails": {
+    "scope": "Manual, human-approved Batch Autopilot work sessions may execute only the selected low-risk documentation/register/governance/inventory tasks; this does not change the dry-run script activation state.",
+    "currentApprovedSession": {
+      "id": "BATCH-AUTOPILOT-SESSION-2-2026-05-15",
+      "approvalSource": "User prompt on 2026-05-15 for the second real 30-60 minute WellFit Batch Autopilot low-risk work session.",
+      "maxTasks": 2,
+      "selectedTasks": [
+        "AGENT-AUTOPILOT-BATCH-DRY-RUN",
+        "AGENT-PR-REVIEW-POLICY-GOVERNANCE"
+      ],
+      "selectionBasis": "Selected from the current Batch Autopilot dry-run output because both tasks are low risk, use registry_task definition of done, and can be satisfied with existing documentation/register/governance files only.",
+      "secondTaskScopeDecision": "Executed because it shares the same agent-governance scope, does not require source-of-truth product decisions, and does not touch runtime or protected files."
+    },
+    "allowedFilesForApprovedSession": [
+      "project-register/*.json",
+      "todolist/*.md",
+      "docs/architecture/*.md",
+      "scripts/wellfit-dev-agent/src/*check.mjs",
+      "scripts/wellfit-dev-agent/src/*dry-run.mjs"
+    ],
+    "forbiddenForApprovedSession": [
+      "auto_merge",
+      "auto_repair",
+      "deployment",
+      "self_approval",
+      "runtime_product_code",
+      "protected_compliance_or_economy_logic",
+      "Unity_or_PR_13_work",
+      "package_manifest_or_lockfile_changes",
+      "public_asset_changes"
+    ],
+    "requiredPRDescriptionEvidence": [
+      "selected_tasks",
+      "why_each_task_was_safe",
+      "whether_one_or_two_tasks_were_executed",
+      "changed_files",
+      "checks_run",
+      "cross_reference_maintenance_applied",
+      "auto_merge_eligibility_report_result",
+      "auto_repair_decision_report_result",
+      "pr_review_policy_result",
+      "real_auto_merge_not_used",
+      "real_auto_repair_not_used",
+      "no_deployment_happened",
+      "runtime_product_protected_areas_untouched",
+      "next_recommended_task"
+    ]
   }
 }

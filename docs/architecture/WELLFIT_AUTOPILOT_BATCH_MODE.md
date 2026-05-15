@@ -87,6 +87,19 @@ The script must print:
 
 Real batch execution is intentionally not enabled. Any future activation would require a separate human-approved policy change, updated risk controls, explicit write boundaries, test evidence, PR review, and new stop-before-merge/deploy rules. This document and policy are not approval for that future work.
 
+## Human-approved manual session guardrail
+
+The dry-run policy remains `dry_run_only`; the dry-run script must still never write files, create PRs, merge, deploy, repair, or approve work. A human may separately approve a manual, bounded Batch Autopilot work session, but that session must stay inside the existing task queue and the existing governance/register architecture.
+
+For the controlled session `BATCH-AUTOPILOT-SESSION-2-2026-05-15`, the selected tasks are:
+
+1. `AGENT-AUTOPILOT-BATCH-DRY-RUN`
+2. `AGENT-PR-REVIEW-POLICY-GOVERNANCE`
+
+Both tasks are low-risk `registry_task` governance tasks from the current dry-run output. The second task is allowed in the same PR only because it shares the same agent-governance scope, requires no product source-of-truth decision, and can be completed through existing docs/register cross-reference maintenance. If any task requires runtime code, protected product areas, Unity/PR #13, package manifests, public assets, deployment, auto-merge, auto-repair, or unclear source-of-truth decisions, the session must stop instead of widening scope.
+
+The PR handoff for any approved manual session must list selected tasks, why each was safe, whether one or two tasks were executed, changed files, checks, cross-reference maintenance decisions, report-only auto-merge/auto-repair/PR-review results, and explicit confirmations that real auto-merge, real auto-repair, deployment, runtime product changes, and protected-area changes did not occur.
+
 ## KI-Fortsetzungs-Prompt
 
 Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/autopilot-batch-policy.json`, `project-register/agent-autopilot.json`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json`, `project-register/cross-reference-maintenance.json`, `project-register/repository-inventory.json`, `project-register/progress-log.json`, `project-register/agent-work-log.json` und `scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs`. Halte Batch Autopilot dry-run-only/report-only, aktiviere keine echte Batch-Ausfuehrung, kein Auto-Merge und kein Auto-Repair, schreibe aus dem Batch-Script keine Dateien, beruehre keine Runtime-/Unity-/PR-13-/Compliance-geschuetzten Bereiche und pflege neue Verweise nur in den bestehenden Work-Map-/TODO-/Registerdateien statt eine parallele Architektur anzulegen.
