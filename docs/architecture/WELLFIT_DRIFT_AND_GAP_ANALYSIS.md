@@ -55,6 +55,19 @@ npm run agent:quality-gate
 
 If warnings appear, continue work only in the existing mapped files named by `todolist/WORK_MAP.md`, `project-register/internal-sources.json`, and `project-register/product-readiness.json`. Do not create a parallel architecture map, route register, API register, feature register, economy ledger, buddy system, mission system, feedback system, or Unity bridge.
 
+## 2026-05-15 Batch Limited Execution probe review
+
+Selected task: `AGENT-DRIFT-GAP-REGISTER-FOLLOWUP` from the Batch Autopilot dry-run output. This was safe for the first controlled Limited Execution probe because it is low risk, registry/documentation-only, and does not require runtime product code, protected paths, Unity work, auto-merge, auto-repair, deployment, or self-approval.
+
+Reviewed generated reports:
+
+- `scripts/wellfit-dev-agent/output/route-api-drift-detector.md`: `PASS`; no missing route/API register entries, no stale route/API entries, and no route/API feature or risk metadata gaps were reported. No register change was required.
+- `scripts/wellfit-dev-agent/output/concept-to-code-gap-analyzer.md`: `PASS_WITH_WARNINGS`; no active beta concept group lacked a clear support/code mapping, no implementation area was missing from `todolist/WORK_MAP.md` or `project-register/product-readiness.json`, and the remaining duplicate-architecture warnings are guardrail reminders to continue the already mapped files. They were intentionally not auto-fixed because they do not identify a verified source-of-truth change and some referenced concepts include protected or high/critical planning areas.
+
+Decision for this probe: defer all duplicate-architecture guardrail warnings as report-only reminders, keep the canonical registers unchanged, and record that no product behavior, route, API, feature module, compliance area, Unity asset, auto-merge flow, or auto-repair flow was changed. This preserves the existing source-of-truth map and avoids creating parallel architecture.
+
+Next recommended Batch Autopilot task: run another low-risk registry/documentation-only pass on the next dry-run candidate, preferably a bounded cross-reference or repository-inventory audit, only if the candidate remains low risk and its source-of-truth can be verified without runtime or protected-area edits.
+
 ## Current expected warning categories
 
 The first detector baseline may report warnings for stale entries or incomplete cross-links that existed before this tool was added. Those warnings are intentionally visible so future PRs can resolve them in small registry-only follow-up tasks without changing product behavior.
