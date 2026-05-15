@@ -82,6 +82,7 @@ Quelle / fuehrende Dateien: `project-register/master-roadmap-tasks.json`, `docs/
 
 ## Prio 1 - Heute/Morgen: Build, Server, Beta-Basis
 
+- [x] Setup-/README-/Env-Dokumentation am 2026-05-15 docs-only abgeglichen: lokale Setup-Schritte, `npm install`-Grenze, `npm run build`/`npm run dev`, Firebase-`NEXT_PUBLIC_*`, CI-Build ohne echte Secrets, serverseitige Keys ohne `NEXT_PUBLIC_`, `.env.local`-No-Commit-Regel und Agenten-Safety dokumentiert.
 Quelle: Dry-Run-Report, `todolist/README.md`, `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT`
 
 - [x] 2026-05-14 aktuellen Baseline-Check ausgefuehrt: Lint, Typecheck, Build, Functions-Syntaxcheck und Quality Gate erfolgreich.
