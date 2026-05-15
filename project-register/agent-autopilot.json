@@ -39,7 +39,10 @@
     "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
     "project-register/autopilot-batch-execution-policy.json",
     "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
-    "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs"
+    "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+    "project-register/pr-review-policy.json",
+    "docs/architecture/WELLFIT_PR_REVIEW_AGENT.md",
+    "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -95,7 +98,8 @@
     "prepare_human_readable_plan_and_pr_handoff",
     "update_autopilot_governance_docs_or_registers_only_when_explicitly_requested_by_human_task_outside_the_dry_run_script",
     "run_auto_merge_eligibility_check_report_only",
-    "run_batch_autopilot_dry_run_report_only_for_multi_task_planning"
+    "run_batch_autopilot_dry_run_report_only_for_multi_task_planning",
+    "run_pr_review_policy_check_report_only"
   ],
   "forbiddenActions": [
     "write_files_automatically_from_agent_autopilot_dry_run",
@@ -115,7 +119,9 @@
     "approve_batch_autopilot_output_as_its_own_review",
     "enable_or_perform_real_batch_execution_without_explicit_human_approval",
     "create_pull_requests_from_batch_limited_execution_check",
-    "treat_limited_execution_readiness_as_human_approval"
+    "treat_limited_execution_readiness_as_human_approval",
+    "enable_or_perform_real_pr_auto_approval_without_explicit_human_approval",
+    "treat_pr_review_policy_ready_as_merge_approval"
   ],
   "stopConditions": [
     "current_branch_is_main",
@@ -136,7 +142,9 @@
     "batch_autopilot_candidate_touches_forbidden_path_or_topic",
     "batch_autopilot_would_write_create_pr_merge_deploy_repair_or_approve_work",
     "batch_limited_execution_policy_activation_state_is_not_limited_execution_planning",
-    "batch_limited_execution_would_execute_create_pr_merge_repair_deploy_or_self_approve"
+    "batch_limited_execution_would_execute_create_pr_merge_repair_deploy_or_self_approve",
+    "pr_review_policy_activation_state_is_not_report_only",
+    "pr_review_policy_would_approve_merge_repair_deploy_or_modify_files"
   ],
   "requiredChecks": [
     "npm run lint",
@@ -154,7 +162,9 @@
     "jq empty project-register/auto-repair-policy.json",
     "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
     "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
-    "jq empty project-register/autopilot-batch-policy.json"
+    "jq empty project-register/autopilot-batch-policy.json",
+    "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+    "jq empty project-register/pr-review-policy.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -199,7 +209,8 @@
     "no_merge_no_deploy_reminder",
     "human_approval_rule",
     "auto_merge_eligibility_report_only_result",
-    "auto_repair_decision_report_only_result"
+    "auto_repair_decision_report_only_result",
+    "pr_review_policy_report_only_result"
   ],
   "humanApprovalRules": {
     "requiredForRiskLevels": [

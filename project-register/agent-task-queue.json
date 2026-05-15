@@ -55,7 +55,10 @@
     "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
     "project-register/autopilot-batch-execution-policy.json",
     "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
-    "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs"
+    "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+    "project-register/pr-review-policy.json",
+    "docs/architecture/WELLFIT_PR_REVIEW_AGENT.md",
+    "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -93,7 +96,9 @@
     "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
     "jq empty project-register/auto-merge-policy.json",
     "jq empty project-register/auto-repair-policy.json",
-    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
+    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+    "jq empty project-register/pr-review-policy.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -1419,6 +1424,78 @@
         "Confirm real auto-merge, auto-repair, deployment, and self-approval are not enabled.",
         "Confirm runtime product, Unity/PR #13, compliance, economy, health, child, location, privacy, and other protected areas were untouched.",
         "Recommend the next human-reviewed task before any actual limited execution is enabled."
+      ]
+    },
+    {
+      "id": "AGENT-PR-REVIEW-POLICY-GOVERNANCE",
+      "title": "Maintain report-only PR Review Agent governance",
+      "category": "agent_governance_docs",
+      "taskCategory": "agent_governance_docs",
+      "riskLevel": "low",
+      "status": "ready",
+      "allowedFiles": [
+        "project-register/pr-review-policy.json",
+        "docs/architecture/WELLFIT_PR_REVIEW_AGENT.md",
+        "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**",
+        "package.json",
+        "package-lock.json",
+        "public/**"
+      ],
+      "definitionOfDoneKey": "registry_task",
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+        "jq empty project-register/pr-review-policy.json",
+        "npm run agent:autopilot:dry-run"
+      ],
+      "stopConditions": [
+        "auto_approval_auto_merge_auto_repair_or_deploy_would_be_enabled",
+        "runtime_product_or_protected_path_change_required",
+        "duplicate_pr_review_architecture_would_be_created",
+        "human_approval_required_for_protected_topic_but_missing"
+      ],
+      "priority": 2,
+      "purpose": "Maintain the report-only PR Review Agent policy, architecture note, validation script, quality-gate hook, and existing governance cross-references so future reviews consistently check protected areas, Work Map, TODO Index, Product Readiness, repository inventory, auto-merge eligibility, auto-repair decision, and no-duplicate-architecture rules.",
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/pr-review-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/repository-inventory.json",
+        "project-register/product-readiness.json",
+        "project-register/auto-merge-policy.json",
+        "project-register/auto-repair-policy.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json"
+      ],
+      "expectedPrOutput": [
+        "List PR review policy, architecture note, validation script, quality-gate, and cross-reference files updated.",
+        "Summarize required PR review checklist, protected-area checks, cross-reference/readiness/inventory checks, and report-only auto-merge/auto-repair requirements.",
+        "Confirm no auto-approval, auto-merge, auto-repair, or deployment is enabled.",
+        "Confirm runtime product, Unity/PR #13, compliance, economy, health, child, location, privacy, reward authority, mission authority, and other protected areas were untouched.",
+        "Recommend the next human-reviewed governance or product-readiness task."
       ]
     }
   ],

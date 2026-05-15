@@ -61,7 +61,10 @@
         "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
         "project-register/autopilot-batch-execution-policy.json",
         "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
-        "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs"
+        "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+        "project-register/pr-review-policy.json",
+        "docs/architecture/WELLFIT_PR_REVIEW_AGENT.md",
+        "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -221,6 +224,18 @@
           ],
           "purpose": "Report-only policy and decision check for whether future failed validation checks look safely auto-repairable without enabling real repairs.",
           "usage": "Use only after a failed check or quality-gate report exists; classify against safe categories, forbidden paths/topics, max attempts, and stop conditions, then stop for human review unless all report-only evidence is safe."
+        },
+        {
+          "id": "pr_review_agent_governance",
+          "registers": [
+            "project-register/pr-review-policy.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_PR_REVIEW_AGENT.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs"
+          ],
+          "purpose": "Report-only PR review governance for changed-file review, risk and definition-of-done evidence, protected-area checks, cross-reference maintenance, Product Readiness, repository inventory, auto-merge eligibility, auto-repair decision, and no-duplicate-architecture confirmation.",
+          "usage": "Run during quality gate and PR handoff. Treat output as non-authorizing: it never approves, merges, repairs, deploys, or bypasses human review."
         },
         {
           "id": "autopilot_batch_dry_run",

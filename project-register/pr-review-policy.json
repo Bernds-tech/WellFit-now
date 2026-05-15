@@ -1,0 +1,299 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-15",
+  "activationState": "report_only",
+  "purpose": "Machine-readable WellFit PR Review Agent governance for Codex Code Reviews and future WellFit agents. It defines the mandatory report-only review inputs, checklist, protected-area checks, cross-reference checks, readiness checks, repository inventory checks, auto-merge/auto-repair reporting, PR description fields, and human-review stops that every PR must be checked against before merge consideration. This policy never approves, merges, repairs, deploys, or authorizes protected runtime work.",
+  "sourceOfTruth": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "project-register/risk-classifier.json",
+    "project-register/definition-of-done.json",
+    "project-register/cross-reference-maintenance.json",
+    "project-register/repository-inventory.json",
+    "project-register/product-readiness.json",
+    "project-register/auto-merge-policy.json",
+    "project-register/auto-repair-policy.json",
+    "project-register/agent-task-queue.json",
+    "project-register/agent-workflows.json"
+  ],
+  "requiredReviewInputs": [
+    "git_changed_files_or_diff",
+    "pr_title_and_description",
+    "declared_risk_level_from_project_register_risk_classifier",
+    "declared_definition_of_done_key_from_project_register_definition_of_done",
+    "checks_run_and_results",
+    "protected_area_touch_report",
+    "work_map_todo_index_update_decision",
+    "product_readiness_update_decision",
+    "repository_inventory_consideration",
+    "cross_reference_maintenance_result",
+    "auto_merge_eligibility_report_only_result",
+    "auto_repair_decision_report_only_result",
+    "next_recommended_task"
+  ],
+  "requiredReviewChecklist": [
+    {
+      "id": "changed_files_listed",
+      "label": "Changed files are listed",
+      "requiredEvidence": "PR description or review report includes all changed files or a summarized file list with paths."
+    },
+    {
+      "id": "risk_level_stated",
+      "label": "Risk level is stated",
+      "requiredEvidence": "Risk level is declared using project-register/risk-classifier.json."
+    },
+    {
+      "id": "definition_of_done_key_stated",
+      "label": "Definition-of-done key is stated",
+      "requiredEvidence": "Definition-of-done key is declared using project-register/definition-of-done.json."
+    },
+    {
+      "id": "checks_run_listed",
+      "label": "Checks run are listed",
+      "requiredEvidence": "Commands and pass/fail/warning results are included; failed checks are not hidden."
+    },
+    {
+      "id": "protected_files_untouched_or_reviewed",
+      "label": "Protected files are untouched or explicitly reviewed",
+      "requiredEvidence": "Protected paths/topics are reported untouched, or explicitly marked for human review when touched."
+    },
+    {
+      "id": "work_map_todo_index_updated_when_relevant",
+      "label": "Work Map / TODO Index are updated when relevant",
+      "requiredEvidence": "todolist/WORK_MAP.md and todolist/TODO_INDEX.md are updated or a no-update rationale is stated."
+    },
+    {
+      "id": "product_readiness_updated_when_relevant",
+      "label": "product-readiness is updated when relevant",
+      "requiredEvidence": "project-register/product-readiness.json and docs/architecture/WELLFIT_PRODUCT_READINESS_MATRIX.md are updated or a no-update rationale is stated."
+    },
+    {
+      "id": "repository_inventory_considered_when_relevant",
+      "label": "Repository inventory is considered when relevant",
+      "requiredEvidence": "project-register/repository-inventory.json and repository inventory output are considered for broad repo, mapping, route/API, or file coverage changes."
+    },
+    {
+      "id": "cross_reference_maintenance_applied",
+      "label": "Cross-reference maintenance was applied",
+      "requiredEvidence": "project-register/cross-reference-maintenance.json categories were considered and the validator result or rationale is reported."
+    },
+    {
+      "id": "no_duplicate_architecture_or_parallel_system",
+      "label": "No duplicate architecture or parallel system was created",
+      "requiredEvidence": "Review confirms existing Work Map and architecture/register files were extended instead of creating duplicate systems."
+    },
+    {
+      "id": "auto_merge_eligibility_reported",
+      "label": "Auto-merge eligibility result is reported",
+      "requiredEvidence": "Report-only AUTO_MERGE_ELIGIBLE=true/false result is included; it is not treated as merge approval."
+    },
+    {
+      "id": "auto_repair_decision_reported",
+      "label": "Auto-repair decision result is reported",
+      "requiredEvidence": "Report-only AUTO_REPAIR_ALLOWED=true/false result is included; it is not treated as repair approval."
+    },
+    {
+      "id": "next_recommended_task_stated",
+      "label": "Next recommended task is stated",
+      "requiredEvidence": "PR description or review report includes a scoped next recommended task or states none."
+    }
+  ],
+  "protectedAreaChecks": [
+    {
+      "id": "PR_13",
+      "displayName": "PR #13",
+      "pathsOrTopics": ["PR #13"],
+      "requiredReviewAction": "Confirm untouched and not merged, closed, depended on, or used as a shortcut."
+    },
+    {
+      "id": "UNITY_WELLFIT_BUDDY_AR",
+      "displayName": "native/unity/WellFitBuddyAR/**",
+      "pathsOrTopics": ["native/unity/WellFitBuddyAR/**"],
+      "requiredReviewAction": "Confirm untouched unless explicit repository-owner approval exists."
+    },
+    {
+      "id": "APP_ROUTING_AND_RUNTIME",
+      "displayName": "app/**",
+      "pathsOrTopics": ["app/**"],
+      "requiredReviewAction": "Treat as runtime product surface; require explicit review and relevant Next.js guidance before API/routing/rendering changes."
+    },
+    {
+      "id": "COMPONENTS_RUNTIME_UI",
+      "displayName": "components/**",
+      "pathsOrTopics": ["components/**"],
+      "requiredReviewAction": "Treat as runtime UI surface; require scoped review and visual/screenshot consideration when perceptible."
+    },
+    {
+      "id": "LIB_RUNTIME_LOGIC",
+      "displayName": "lib/**",
+      "pathsOrTopics": ["lib/**"],
+      "requiredReviewAction": "Treat as runtime/shared logic; require risk review and protected-topic scan."
+    },
+    {
+      "id": "FIREBASE_FUNCTIONS",
+      "displayName": "functions/**",
+      "pathsOrTopics": ["functions/**"],
+      "requiredReviewAction": "Treat as backend authority surface; require Firebase Functions check and human review for authority-adjacent logic."
+    },
+    {
+      "id": "FIRESTORE_RULES",
+      "displayName": "firestore.rules",
+      "pathsOrTopics": ["firestore.rules"],
+      "requiredReviewAction": "Treat as security and economy guardrail surface; require explicit Firestore rules review."
+    },
+    {
+      "id": "TOKEN_NFT_WALLET_PAYMENT",
+      "displayName": "token/NFT/wallet/payment",
+      "pathsOrTopics": ["token", "NFT", "wallet", "payment", "purchase", "payout", "marketplace", "staking", "presale", "trading", "WFT"],
+      "requiredReviewAction": "Forbidden for auto-approval; require explicit human approval and compliance review."
+    },
+    {
+      "id": "REWARD_AUTHORITY",
+      "displayName": "reward authority",
+      "pathsOrTopics": ["reward authority", "final ledger", "XP authority", "points authority", "inventory unlock", "rare item grant"],
+      "requiredReviewAction": "Confirm no client-side final authorization; require human review for authority changes."
+    },
+    {
+      "id": "MISSION_COMPLETION_AUTHORITY",
+      "displayName": "mission completion authority",
+      "pathsOrTopics": ["mission completion authority", "anti-cheat", "mission evidence", "competition payout"],
+      "requiredReviewAction": "Confirm final authority remains server-side or explicitly draft/preview; require human review for authority changes."
+    },
+    {
+      "id": "SENSITIVE_COMPLIANCE_TOPICS",
+      "displayName": "health/child/location/privacy/legal/compliance",
+      "pathsOrTopics": ["health", "watch", "child", "location", "camera", "privacy", "consent", "medical", "legal", "AGB", "Datenschutz", "Impressum", "compliance"],
+      "requiredReviewAction": "Forbidden for auto-approval; require human review and clear compliance plan."
+    }
+  ],
+  "crossReferenceChecks": {
+    "sourceRegister": "project-register/cross-reference-maintenance.json",
+    "requiredFiles": [
+      "todolist/WORK_MAP.md",
+      "todolist/TODO_INDEX.md",
+      "project-register/agent-workflows.json",
+      "project-register/agent-task-queue.json"
+    ],
+    "requiredScript": "scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+    "reviewRequirement": "Map each PR to the relevant cross-reference change categories, update only existing leading files when relevant, and report the check result or no-update rationale."
+  },
+  "readinessChecks": {
+    "sourceRegister": "project-register/product-readiness.json",
+    "humanReadableDoc": "docs/architecture/WELLFIT_PRODUCT_READINESS_MATRIX.md",
+    "requiredScript": "scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+    "reviewRequirement": "If a PR changes module status, blockers, safe next tasks, beta/production readiness, or protected module scope, update/read product readiness and report the result."
+  },
+  "inventoryChecks": {
+    "sourceRegister": "project-register/repository-inventory.json",
+    "humanReadableDoc": "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
+    "requiredScript": "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+    "reviewRequirement": "For broad repo changes, route/API mapping, new files, or governance/script/docs inventory changes, consider repository inventory and report whether an inventory update is needed."
+  },
+  "autoMergeChecks": {
+    "sourcePolicy": "project-register/auto-merge-policy.json",
+    "requiredScript": "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "requiredOutputPattern": "AUTO_MERGE_ELIGIBLE=true/false",
+    "activationStateRequired": "report_only",
+    "neverApproves": true,
+    "neverMerges": true,
+    "reviewRequirement": "Report the eligibility result as information only; it cannot approve, merge, deploy, or bypass human review."
+  },
+  "autoRepairChecks": {
+    "sourcePolicy": "project-register/auto-repair-policy.json",
+    "requiredScript": "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "requiredOutputPattern": "AUTO_REPAIR_ALLOWED=true/false",
+    "activationStateRequired": "report_only",
+    "neverRepairs": true,
+    "neverApproves": true,
+    "neverMerges": true,
+    "reviewRequirement": "Report the repair decision as information only; it cannot change files, approve, merge, deploy, or run repair loops."
+  },
+  "requiredPRDescriptionFields": [
+    "changed_files",
+    "risk_level",
+    "definition_of_done_key",
+    "checks_run",
+    "protected_area_review",
+    "work_map_todo_index_decision",
+    "product_readiness_decision",
+    "repository_inventory_decision",
+    "cross_reference_maintenance_result",
+    "no_duplicate_architecture_confirmation",
+    "auto_merge_eligibility_result_report_only",
+    "auto_repair_decision_result_report_only",
+    "known_risks_or_skipped_checks",
+    "next_recommended_task"
+  ],
+  "humanReviewRequiredFor": [
+    "risk_level_high_or_critical",
+    "unclear_risk_level",
+    "protected_area_touched",
+    "runtime_product_code_changed",
+    "backend_or_firestore_authority_changed",
+    "product_readiness_status_advancement",
+    "repository_inventory_unclear_or_new_unmapped_area",
+    "cross_reference_gap_affecting_major_registers",
+    "auto_merge_would_be_needed",
+    "auto_repair_would_be_needed",
+    "failed_required_check_not_caused_by_environment_limitation",
+    "security_privacy_compliance_or_legal_topic",
+    "duplicate_architecture_or_parallel_system_risk"
+  ],
+  "forbiddenAutoApprovalTopics": [
+    "PR #13",
+    "native/unity/WellFitBuddyAR/**",
+    "token",
+    "NFT",
+    "wallet",
+    "payment",
+    "purchase",
+    "payout",
+    "marketplace",
+    "staking",
+    "presale",
+    "trading",
+    "betting",
+    "reward authority",
+    "mission completion authority",
+    "anti-cheat",
+    "health",
+    "watch data",
+    "child safety",
+    "location",
+    "camera",
+    "privacy",
+    "consent",
+    "medical",
+    "legal",
+    "AGB",
+    "Datenschutz",
+    "Impressum",
+    "compliance",
+    "secrets",
+    "server api keys"
+  ],
+  "reportOutputSchema": {
+    "mode": "REPORT_ONLY",
+    "prReviewPolicyReady": "boolean",
+    "changedFiles": "array_of_paths_or_summary",
+    "riskLevel": "low|medium|high|critical|unclear",
+    "definitionOfDoneKey": "string",
+    "checklistResults": "array_of_{id,status,evidence}",
+    "protectedAreaResults": "array_of_{id,status,evidence,humanReviewRequired}",
+    "crossReferenceResult": "pass|fail|not_relevant|needs_human_review",
+    "readinessResult": "pass|fail|not_relevant|needs_human_review",
+    "inventoryResult": "pass|fail|not_relevant|needs_human_review",
+    "autoMergeEligibilityResult": "AUTO_MERGE_ELIGIBLE=true|false plus reasons; report-only",
+    "autoRepairDecisionResult": "AUTO_REPAIR_ALLOWED=true|false plus reasons; report-only",
+    "humanReviewRequired": "boolean",
+    "forbiddenAutoApprovalDetected": "boolean",
+    "noDuplicateArchitectureConfirmed": "boolean",
+    "nextRecommendedTask": "string",
+    "neverApproves": true,
+    "neverMerges": true,
+    "neverRepairs": true,
+    "neverDeploys": true
+  }
+}
