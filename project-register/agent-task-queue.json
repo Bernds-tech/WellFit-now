@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-14",
+  "updated": "2026-05-15",
   "status": "active",
   "purpose": "Machine-readable task-selection queue for future WellFit Codex/AI agents. It converts existing governance, work-map, route/API/feature registers, and safety constraints into safe next-task candidates, required first reads, stop rules, checks, and expected PR outputs without creating a parallel product architecture.",
   "sourceOfTruth": {
@@ -151,7 +151,9 @@
         "State that no product logic changed.",
         "Report baseline commands and failures honestly.",
         "Name the next safe documentation or registry task."
-      ]
+      ],
+      "taskCategory": "documentation_baseline",
+      "category": "documentation_baseline"
     },
     {
       "id": "AGENT-REGISTRY-SYNC",
@@ -214,7 +216,9 @@
         "Identify source files used for each new or changed register entry.",
         "Explain anti-duplication checks performed.",
         "State any stale or uncertain entries as risks."
-      ]
+      ],
+      "taskCategory": "registry_sync",
+      "category": "registry_sync"
     },
     {
       "id": "AGENT-DRIFT-GAP-REGISTER-FOLLOWUP",
@@ -269,7 +273,9 @@
         "State that no product logic changed.",
         "State protected high/critical areas were not auto-fixed.",
         "Name the next safe registry-only task."
-      ]
+      ],
+      "taskCategory": "drift_gap_review",
+      "category": "drift_gap_review"
     },
     {
       "id": "AGENT-UI-ROUTE-STABILITY",
@@ -320,7 +326,9 @@
         "Describe UI behavior preserved or changed.",
         "Include screenshot or explain why unavailable for perceptible UI changes.",
         "State route/register alignment."
-      ]
+      ],
+      "taskCategory": "ui_route_stability",
+      "category": "ui_route_stability"
     },
     {
       "id": "AGENT-API-ROUTE-PLANNING",
@@ -366,7 +374,9 @@
         "State security constraints and no-secret posture.",
         "List affected features and registers.",
         "Identify explicit approvals needed before runtime work."
-      ]
+      ],
+      "taskCategory": "api_route_planning",
+      "category": "api_route_planning"
     },
     {
       "id": "AGENT-FEEDBACK-ANALYTICS-PLANNING",
@@ -413,7 +423,9 @@
         "Confirm no runtime tracking was added.",
         "Name consent, retention, and aggregation assumptions.",
         "List next approval needed for implementation."
-      ]
+      ],
+      "taskCategory": "feedback_analytics_planning",
+      "category": "feedback_analytics_planning"
     },
     {
       "id": "AGENT-UNITY-AR-PLANNING-ONLY",
@@ -460,7 +472,9 @@
         "Confirm PR #13 untouched.",
         "State AR emits events only and app/backend retain authority.",
         "List planning files updated."
-      ]
+      ],
+      "taskCategory": "unity_ar_planning",
+      "category": "unity_ar_planning"
     },
     {
       "id": "AGENT-COMPLIANCE-SENSITIVE-PLANNING",
@@ -555,7 +569,9 @@
         "Report-only follow-up detection.",
         "Dry-run PR outcome recording validation.",
         "Updated existing memory-loop registers and mapped TODO docs."
-      ]
+      ],
+      "taskCategory": "agent_memory_loop",
+      "category": "agent_memory_loop"
     },
     {
       "id": "AGENT-PRODUCT-READINESS-MATRIX-MAINTENANCE",
@@ -612,7 +628,9 @@
         "Identify status/risk/check changes and source files used.",
         "Confirm no product logic or Unity files changed.",
         "State any human-review-required module decisions as risks."
-      ]
+      ],
+      "taskCategory": "product_readiness_governance",
+      "category": "product_readiness_governance"
     },
     {
       "id": "AGENT-VISUAL-REGRESSION-QA",
@@ -674,7 +692,9 @@
         "Report route-register validation and browser skip/pass result honestly.",
         "Confirm no product logic, protected compliance areas, or Unity files changed.",
         "Name the next safe visual QA hardening task."
-      ]
+      ],
+      "taskCategory": "visual_regression_qa",
+      "category": "visual_regression_qa"
     },
     {
       "id": "AGENT-MASTER-ROADMAP-REGISTRY-MAINTENANCE",
@@ -738,7 +758,9 @@
         "Confirm no runtime product logic, Unity files or protected compliance/economy/privacy areas changed.",
         "Report master-roadmap-task-check and quality-gate results.",
         "Name the next safe registry-only roadmap reconciliation task."
-      ]
+      ],
+      "taskCategory": "master_roadmap_registry",
+      "category": "master_roadmap_registry"
     },
     {
       "id": "AGENT-RESEARCH-RECOMMENDATION-REVIEW",
@@ -801,7 +823,9 @@
         "Classify risk and mark humanReviewRequired for unclear, high, critical, or protected decisions.",
         "Confirm no runtime product logic, Unity/PR #13 files, or protected compliance/economy/privacy areas changed.",
         "Name the next safe review or registry-only task."
-      ]
+      ],
+      "taskCategory": "research_recommendation_review",
+      "category": "research_recommendation_review"
     },
     {
       "id": "AGENT-ADAPTIVE-USER-INSIGHT-GOVERNANCE",
@@ -875,7 +899,9 @@
         "Confirm no runtime product logic, live tracking, Unity/PR #13 files, or protected compliance/economy/privacy areas changed.",
         "List adaptive-user-insight-check, research-recommendation-check, JSON validation, and quality-gate results.",
         "Name the next safe registry-only or human-review task."
-      ]
+      ],
+      "taskCategory": "adaptive_user_insight_governance",
+      "category": "adaptive_user_insight_governance"
     },
     {
       "id": "AGENT-AUTOPILOT-RUNBOOK-ORCHESTRATOR",
@@ -940,7 +966,9 @@
         "State that the dry-run orchestrator does not write files, merge, deploy, or implement product logic.",
         "Report Autopilot dry-run output and standard checks.",
         "Name the next safe governance or registry task."
-      ]
+      ],
+      "taskCategory": "autopilot_governance",
+      "category": "autopilot_governance"
     }
   ],
   "selectionRules": [
@@ -957,9 +985,24 @@
       "project-register/progress-log.json",
       "project-register/agent-work-log.json"
     ],
-    "recentlyCompletedRule": "Before selecting a task, inspect the latest progress-log entry and the latest completed agent-work-log entry. If either records a completed task ID, treat that task as recently completed for this selection pass.",
-    "cooldownGuidance": "Do not select a recently completed task again immediately when another non-blocked low/medium-risk candidate with a valid definition-of-done key is available.",
+    "recentlyCompletedRule": "Before selecting a task, inspect the most recent completed task IDs from progress-log entries and completed agent-work-log entries. Treat that recent window as selection memory for this pass, including the latest baseline/registry pair when both appear.",
+    "cooldownGuidance": "Do not select a recently completed task again immediately when another non-blocked low/medium-risk candidate with a valid definition-of-done key is available. Prefer a different taskCategory when the recent window shows repeated governance work.",
     "fallbackWhenNoOtherSafeTaskExists": "If every otherwise safe candidate is recently completed, the picker may select the highest-ranked recently completed task and must explain that no alternative safe task exists.",
     "completedTaskHandling": "Progress-log entries may identify a task by taskId, id, goal, notes, title, nextRecommendedTask, or another text field containing the queue task ID. Agent-work-log entries use status done plus taskId. Logs are memory inputs only and do not mark queue candidates as permanently done."
+  },
+  "loopGuardPolicy": {
+    "memorySources": [
+      "project-register/progress-log.json",
+      "project-register/agent-work-log.json"
+    ],
+    "recentCompletedWindow": 4,
+    "guardedTaskPair": [
+      "AGENT-DOC-BASELINE-CHECK",
+      "AGENT-REGISTRY-SYNC"
+    ],
+    "guardName": "baseline_registry_pair_cooldown",
+    "rule": "If AGENT-DOC-BASELINE-CHECK and AGENT-REGISTRY-SYNC both appear in the recent completed-task window, skip both once when another non-blocked low/medium-risk task with a valid definition-of-done key exists.",
+    "differentCategoryPreference": "After the guarded pair, prefer the highest-ranked safe candidate whose taskCategory is not documentation_baseline or registry_sync. If no different-category candidate exists, select the safest available candidate and report the fallback reason.",
+    "dryRunOnly": true
   }
 }

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-14",
+  "updated": "2026-05-15",
   "purpose": "Single governed dry-run entrypoint for safe WellFit agent iterations from memory-read through task selection, risk check, validation planning, PR handoff, and stop-before-merge.",
   "activationState": "dry_run_only",
   "humanReadableSource": "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md",
@@ -176,8 +176,12 @@
       "project-register/progress-log.json",
       "project-register/agent-work-log.json"
     ],
-    "recentlyCompletedSkipRule": "When the latest relevant progress-log entry or latest completed agent-work-log entry identifies a completed task ID, the Autopilot task picker should skip that task for the immediate next selection if another safe non-blocked candidate exists.",
+    "recentlyCompletedSkipRule": "When recent progress-log or completed agent-work-log entries identify completed task IDs, the Autopilot task picker should skip those tasks for the immediate next selection if another safe non-blocked candidate exists.",
     "dryRunOnly": true,
-    "noPermanentCompletionState": "The cooldown is a selection-memory hint, not a permanent queue mutation; candidates remain governed by status, blockers, risk, and definition-of-done checks."
+    "noPermanentCompletionState": "The cooldown is a selection-memory hint, not a permanent queue mutation; candidates remain governed by status, blockers, risk, and definition-of-done checks.",
+    "recentCompletedWindow": 4,
+    "baselineRegistryLoopGuard": "If AGENT-DOC-BASELINE-CHECK and AGENT-REGISTRY-SYNC both appear in the recent completed-task window, skip both once and prefer the highest-ranked safe task from a different taskCategory when one exists.",
+    "repeatedCategoryAvoidanceRule": "When recent task memory shows repeated documentation_baseline or registry_sync work, prefer a safe low/medium-risk task in a different taskCategory before returning to the guarded pair.",
+    "fallbackWhenNoOtherSafeTaskExists": "If no other safe low/medium-risk candidate with a valid definition-of-done key exists, select the safest available task and report that the loop guard could not divert selection."
   }
 }

@@ -1,7 +1,7 @@
 # WellFit Agent Memory Loop
 
 Status: active / governance documentation  
-Updated: 2026-05-14  
+Updated: 2026-05-15  
 Leading files: `AGENTS.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-workflows.json`, `project-register/agent-autopilot.json`, `project-register/agent-task-queue.json`, `project-register/agent-work-log.json`, `project-register/progress-log.json`, `project-register/agent-follow-ups.json`
 
 ## Purpose
@@ -49,9 +49,15 @@ The Autopilot dry run reads `project-register/agent-autopilot.json`, reuses the 
 
 ## 2b. Recently completed task cooldown
 
-`project-register/progress-log.json` and `project-register/agent-work-log.json` are task-selection memory inputs. When the newest relevant progress-log entry or the newest completed agent-work-log entry identifies a task ID as completed, the next picker run treats that task as recently completed. The picker should not immediately select the same baseline task again if another low/medium-risk, non-blocked task with a valid definition of done is available. This prevents loops such as repeatedly selecting `AGENT-DOC-BASELINE-CHECK` after it was completed and logged.
+`project-register/progress-log.json` and `project-register/agent-work-log.json` are task-selection memory inputs. When recent progress-log entries or completed agent-work-log entries identify task IDs as completed, the next picker run treats those IDs as recently completed. The picker should not immediately select the same baseline task again if another low/medium-risk, non-blocked task with a valid definition of done is available. This prevents loops such as repeatedly selecting `AGENT-DOC-BASELINE-CHECK` after it was completed and logged.
 
 The cooldown is deliberately narrow: it is not a permanent status change, does not delete queue candidates, and does not authorize runtime or protected work. If no alternative safe candidate exists, the picker can return the recently completed task and must state that no other safe candidate was available.
+
+### Baseline / registry pair guard
+
+The Autopilot loop guard watches the recent completed-task window for the pair `AGENT-DOC-BASELINE-CHECK` and `AGENT-REGISTRY-SYNC`. When both are present, the next selection pass should skip both once and prefer the highest-ranked safe task from another `taskCategory`. This prevents the memory loop from bouncing between baseline documentation and registry synchronization when both were just completed.
+
+If a different-category safe candidate exists, the Autopilot should move there before returning to baseline or registry sync. If no different-category low/medium-risk candidate with a valid definition of done exists, the picker may fall back to the safest available task and must report why the loop guard could not avoid the guarded pair.
 
 ## 3. How an agent records work
 
