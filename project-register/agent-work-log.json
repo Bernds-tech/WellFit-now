@@ -179,6 +179,55 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_registry_validation"
+    },
+    {
+      "taskId": "AGENT-DOC-BASELINE-CHECK",
+      "title": "Second Batch Autopilot Limited Execution probe documentation baseline",
+      "status": "done",
+      "pr": {
+        "branch": "batch-autopilot-probe-2",
+        "number": null,
+        "url": null,
+        "title": "Document second batch autopilot limited execution probe"
+      },
+      "changedFiles": [
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "node scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+          "result": "pass",
+          "notes": "Report/check-only limited execution policy check passed before implementation."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+          "result": "pass",
+          "notes": "Dry run reported three planned low-risk governance candidates without writing files; this probe selected only AGENT-DOC-BASELINE-CHECK."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Autopilot dry run reported without writing files and selected a safe task."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Initial quality gate passed before documentation/register edits."
+        }
+      ],
+      "followUps": [
+        "Run the next Batch Autopilot probe only for a single explicitly safe docs/register candidate, preferably product-readiness governance if it can be limited to existing register/doc alignment without source-of-truth changes."
+      ],
+      "nextRecommendedTask": "Evaluate AGENT-PRODUCT-READINESS-MATRIX-MAINTENANCE in a separate docs/register-only PR, stopping if it requires module status decisions or script changes outside the allowed policy.",
+      "updatedTodoFiles": [
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task"
     }
   ]
 }
