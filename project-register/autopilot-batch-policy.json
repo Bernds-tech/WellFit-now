@@ -1,0 +1,162 @@
+{
+  "version": "0.1.0",
+  "updated": "2026-05-15",
+  "activationState": "dry_run_only",
+  "purpose": "Report-only policy for planning a short sequence of low-risk WellFit agent tasks without executing, repairing, merging, approving, deploying, or writing files.",
+  "maxPlannedTasks": 3,
+  "maxRuntimeMinutes": 5,
+  "allowedTaskRiskLevels": [
+    "low"
+  ],
+  "allowedTaskCategories": [
+    "documentation_baseline",
+    "registry_sync",
+    "drift_gap_review",
+    "agent_memory_loop",
+    "product_readiness_governance",
+    "autopilot_governance",
+    "documentation_registry_validation",
+    "agent_governance_docs",
+    "research_recommendation_governance"
+  ],
+  "forbiddenTaskCategories": [
+    "ui_route_stability",
+    "api_route_planning",
+    "feedback_analytics_planning",
+    "adaptive_user_insight_governance",
+    "unity_ar_planning",
+    "compliance_sensitive_planning",
+    "runtime_product_code",
+    "token_wallet_payment",
+    "reward_authority",
+    "privacy_health_child_location"
+  ],
+  "forbiddenPaths": [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "functions/**",
+    "firestore.rules",
+    "native/unity/WellFitBuddyAR/**",
+    "native/unity/WellFitBuddyAR/Assets/Scripts/**",
+    "package.json",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock"
+  ],
+  "forbiddenTopics": [
+    "PR #13",
+    "Unity runtime changes",
+    "token",
+    "NFT",
+    "wallet",
+    "payment",
+    "purchase",
+    "payout",
+    "marketplace",
+    "staking",
+    "presale",
+    "trading",
+    "betting",
+    "reward authority",
+    "mission completion authority",
+    "anti-cheat authority",
+    "final ledger writes",
+    "health data",
+    "watch data",
+    "child safety",
+    "location data",
+    "camera data",
+    "privacy logic",
+    "consent logic",
+    "legal compliance messaging"
+  ],
+  "requiredChecksPerTask": [
+    "task_has_valid_definition_of_done_key",
+    "task_risk_is_in_allowedTaskRiskLevels",
+    "task_category_is_in_allowedTaskCategories",
+    "task_allowed_files_do_not_intersect_forbiddenPaths",
+    "task_forbidden_files_include_protected_runtime_and_unity_paths",
+    "task_is_not_blocked_done_superseded_stale_or_recently_completed_when_alternative_exists",
+    "task_required_checks_are_reported_before_planning"
+  ],
+  "requiredChecksPerBatch": [
+    "read_project-register/autopilot-batch-policy.json",
+    "read_project-register/agent-task-queue.json",
+    "read_project-register/progress-log.json",
+    "read_project-register/agent-work-log.json",
+    "apply_existing_cooldown_and_loop_guard_rules",
+    "print_BATCH_AUTOPILOT_MODE=DRY_RUN",
+    "print_auto_merge_as_future_consideration_only",
+    "print_auto_repair_as_future_consideration_only",
+    "confirm_never_write_files_merge_repair_create_prs_or_deploy",
+    "run_node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+    "run_jq_empty_project-register/autopilot-batch-policy.json"
+  ],
+  "autoMergePolicyReference": {
+    "policy": "project-register/auto-merge-policy.json",
+    "script": "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "mode": "future_consideration_only",
+    "mustNotMerge": true
+  },
+  "autoRepairPolicyReference": {
+    "policy": "project-register/auto-repair-policy.json",
+    "script": "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "mode": "future_consideration_only",
+    "mustNotRepair": true
+  },
+  "stopConditions": [
+    "activationState_is_not_dry_run_only",
+    "maxPlannedTasks_missing_or_exceeded",
+    "maxRuntimeMinutes_missing_or_exceeded",
+    "candidate_risk_not_allowed",
+    "candidate_category_not_allowed_or_forbidden",
+    "candidate_allowed_files_touch_forbidden_paths",
+    "candidate_requires_runtime_product_code_or_protected_area",
+    "candidate_requires_package_manifest_change_without_explicit_approval",
+    "candidate_requires_unity_or_pr_13_work",
+    "candidate_requires_token_wallet_payment_betting_reward_authority_or_compliance_logic",
+    "candidate_definition_of_done_missing",
+    "quality_gate_rules_missing",
+    "auto_merge_or_auto_repair_would_be_enabled",
+    "batch_would_write_files_create_pr_merge_deploy_or_repair"
+  ],
+  "reportOutputSchema": {
+    "mode": "BATCH_AUTOPILOT_MODE=DRY_RUN",
+    "result": "DRY_RUN",
+    "plannedTasks": [
+      {
+        "taskId": "string",
+        "title": "string",
+        "riskLevel": "low",
+        "taskCategory": "string",
+        "definitionOfDoneKey": "string",
+        "allowedFiles": [
+          "string"
+        ],
+        "forbiddenFiles": [
+          "string"
+        ],
+        "requiredChecks": [
+          "string"
+        ],
+        "stopConditions": [
+          "string"
+        ],
+        "autoMergeEligibility": "future_consideration_only",
+        "autoRepair": "future_consideration_only"
+      }
+    ],
+    "batchStopConditions": [
+      "string"
+    ],
+    "safetyConfirmations": {
+      "neverWritesFiles": true,
+      "neverCreatesPullRequests": true,
+      "neverMerges": true,
+      "neverDeploys": true,
+      "neverRepairs": true,
+      "neverApprovesOwnWork": true
+    }
+  }
+}

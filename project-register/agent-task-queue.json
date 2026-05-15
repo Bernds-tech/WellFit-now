@@ -19,7 +19,9 @@
     "architectureDoc": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md",
     "agentFollowUps": "project-register/agent-follow-ups.json",
     "researchRecommendations": "project-register/research-recommendations.json",
-    "adaptiveUserInsights": "project-register/adaptive-user-insights.json"
+    "adaptiveUserInsights": "project-register/adaptive-user-insights.json",
+    "autopilotBatchPolicy": "project-register/autopilot-batch-policy.json",
+    "autopilotBatchArchitecture": "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md"
   },
   "globalRequiredFirstReadFiles": [
     "AGENTS.md",
@@ -47,7 +49,10 @@
     "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
     "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
     "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
-    "project-register/auto-repair-policy.json"
+    "project-register/auto-repair-policy.json",
+    "project-register/autopilot-batch-policy.json",
+    "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
+    "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -1262,6 +1267,79 @@
       ],
       "taskCategory": "agent_governance_docs",
       "category": "agent_governance_docs"
+    },
+    {
+      "id": "AGENT-AUTOPILOT-BATCH-DRY-RUN",
+      "title": "Create and maintain report-only Batch Autopilot planning controls",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Maintain the dry-run-only Batch Autopilot policy, architecture note, validation script, quality-gate hook, and TODO/Work Map cross-references without enabling real execution, merge, repair, deploy, or runtime product changes.",
+      "allowedFiles": [
+        "project-register/autopilot-batch-policy.json",
+        "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
+        "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**",
+        "package.json",
+        "package-lock.json",
+        "pnpm-lock.yaml",
+        "yarn.lock"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/agent-autopilot.json",
+        "project-register/agent-task-queue.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/auto-merge-policy.json",
+        "project-register/auto-repair-policy.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/repository-inventory.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+        "jq empty project-register/autopilot-batch-policy.json",
+        "npm run agent:autopilot:dry-run"
+      ],
+      "stopConditions": [
+        "would_enable_real_batch_execution",
+        "would_enable_real_auto_merge_or_auto_repair",
+        "would_write_files_from_the_batch_dry_run_script",
+        "runtime_product_or_protected_area_change_required",
+        "package_manifest_change_required_without_explicit_approval",
+        "unity_or_pr_13_work_required"
+      ],
+      "expectedPrOutput": [
+        "List batch policy, doc, script, quality-gate, and cross-reference files updated.",
+        "Include planned task examples from the dry run.",
+        "Confirm real batch execution, auto-merge, auto-repair, merge, deploy, PR creation, and self-approval are not enabled.",
+        "Confirm runtime product and protected areas were untouched."
+      ],
+      "taskCategory": "autopilot_governance",
+      "category": "autopilot_governance"
     }
   ],
   "selectionRules": [

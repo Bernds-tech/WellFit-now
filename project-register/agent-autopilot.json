@@ -33,7 +33,10 @@
     "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
     "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
     "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
-    "project-register/auto-repair-policy.json"
+    "project-register/auto-repair-policy.json",
+    "project-register/autopilot-batch-policy.json",
+    "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
+    "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs"
   ],
   "iterationPhases": [
     {
@@ -88,7 +91,8 @@
     "print_selected_safe_task_risk_required_checks_affected_files_and_stop_conditions",
     "prepare_human_readable_plan_and_pr_handoff",
     "update_autopilot_governance_docs_or_registers_only_when_explicitly_requested_by_human_task_outside_the_dry_run_script",
-    "run_auto_merge_eligibility_check_report_only"
+    "run_auto_merge_eligibility_check_report_only",
+    "run_batch_autopilot_dry_run_report_only_for_multi_task_planning"
   ],
   "forbiddenActions": [
     "write_files_automatically_from_agent_autopilot_dry_run",
@@ -102,7 +106,10 @@
     "expose_secrets_or_server_api_keys",
     "enable_or_perform_real_auto_merge_without_explicit_human_approval",
     "run_auto_repair_loops_from_report_only_policy",
-    "enable_or_perform_real_auto_repair_without_explicit_human_approval"
+    "enable_or_perform_real_auto_repair_without_explicit_human_approval",
+    "enable_real_batch_execution_without_explicit_human_approval",
+    "create_pull_requests_merge_deploy_or_repair_from_batch_autopilot_dry_run",
+    "approve_batch_autopilot_output_as_its_own_review"
   ],
   "stopConditions": [
     "current_branch_is_main",
@@ -118,7 +125,10 @@
     "human_approval_required_but_not_present",
     "auto_merge_policy_activation_state_is_not_report_only",
     "auto_repair_policy_not_report_only",
-    "auto_repair_decision_requires_forbidden_path_topic_or_runtime_product_change"
+    "auto_repair_decision_requires_forbidden_path_topic_or_runtime_product_change",
+    "batch_autopilot_policy_activation_state_is_not_dry_run_only",
+    "batch_autopilot_candidate_touches_forbidden_path_or_topic",
+    "batch_autopilot_would_write_create_pr_merge_deploy_repair_or_approve_work"
   ],
   "requiredChecks": [
     "npm run lint",
@@ -134,7 +144,9 @@
     "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
     "jq empty project-register/auto-merge-policy.json",
     "jq empty project-register/auto-repair-policy.json",
-    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
+    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+    "jq empty project-register/autopilot-batch-policy.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -199,5 +211,20 @@
     "deployAllowed": false,
     "message": "Autopilot prepares a report and PR handoff only; it never merges or deploys."
   },
-  "taskSelectionMemoryRule": "[object Object] After every selected task, map the work to project-register/cross-reference-maintenance.json categories and inspect/update the required cross-reference files before closing the PR."
+  "taskSelectionMemoryRule": "[object Object] After every selected task, map the work to project-register/cross-reference-maintenance.json categories and inspect/update the required cross-reference files before closing the PR.",
+  "batchAutopilotDryRunReference": {
+    "policy": "project-register/autopilot-batch-policy.json",
+    "architecture": "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
+    "script": "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+    "activationState": "dry_run_only",
+    "scope": "report-only multi-task planning for low-risk documentation/register/governance/inventory/analysis tasks",
+    "neverDoes": [
+      "write_files",
+      "create_pull_requests",
+      "merge",
+      "deploy",
+      "repair_files",
+      "approve_own_work"
+    ]
+  }
 }

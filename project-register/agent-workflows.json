@@ -55,7 +55,10 @@
         "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
         "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
         "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
-        "project-register/auto-repair-policy.json"
+        "project-register/auto-repair-policy.json",
+        "project-register/autopilot-batch-policy.json",
+        "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
+        "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs"
       ],
       "controlRegisters": [
         {
@@ -215,6 +218,18 @@
           ],
           "purpose": "Report-only policy and decision check for whether future failed validation checks look safely auto-repairable without enabling real repairs.",
           "usage": "Use only after a failed check or quality-gate report exists; classify against safe categories, forbidden paths/topics, max attempts, and stop conditions, then stop for human review unless all report-only evidence is safe."
+        },
+        {
+          "id": "autopilot_batch_dry_run",
+          "registers": [
+            "project-register/autopilot-batch-policy.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs"
+          ],
+          "purpose": "Report-only Batch Autopilot policy and validator for planning multiple safe low-risk WellFit agent tasks without executing, writing, repairing, merging, creating PRs, approving, or deploying.",
+          "usage": "Use after the single-task Autopilot controls when a future agent needs a sequenced plan. Treat output as dry-run planning only and stop before implementation or protected work."
         }
       ],
       "additionalGovernanceInputs": [
@@ -262,7 +277,9 @@
         "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run",
         "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
         "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
-        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs"
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+        "jq empty project-register/autopilot-batch-policy.json"
       ],
       "phases": [
         {
