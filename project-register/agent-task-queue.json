@@ -41,7 +41,10 @@
     "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
     "project-register/cross-reference-maintenance.json",
     "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
-    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md"
+    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+    "project-register/auto-merge-policy.json",
+    "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md",
+    "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -75,7 +78,9 @@
     "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
     "jq empty project-register/agent-autopilot.json",
     "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
-    "jq empty project-register/cross-reference-maintenance.json"
+    "jq empty project-register/cross-reference-maintenance.json",
+    "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "jq empty project-register/auto-merge-policy.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -1111,6 +1116,75 @@
         "Report repository-inventory-check, JSON validation, quality-gate, and standard build/check results honestly.",
         "Confirm runtime product code, protected compliance areas, Unity/PR #13, and product logic were untouched."
       ]
+    },
+    {
+      "id": "AGENT-AUTO-MERGE-ELIGIBILITY-GUARD",
+      "title": "Maintain report-only auto-merge eligibility guard",
+      "status": "completed_initial_policy",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_documentation_task",
+      "purpose": "Keep the WellFit Auto-Merge Eligibility Guard aligned with existing governance so future agents can report eligibility without enabling or performing real auto-merge.",
+      "allowedFiles": [
+        "project-register/auto-merge-policy.json",
+        "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md",
+        "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**",
+        "package.json unless explicitly approved",
+        "package-lock.json unless explicitly approved"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/agent-autopilot.json",
+        "project-register/agent-task-queue.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/repository-inventory.json",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+        "jq empty project-register/auto-merge-policy.json",
+        "npm run agent:autopilot:dry-run"
+      ],
+      "stopConditions": [
+        "activationState would change away from report_only",
+        "real auto-merge would be enabled",
+        "runtime product code change required",
+        "protected path or topic change required",
+        "would touch Unity/WellFitBuddyAR or PR #13",
+        "would create duplicate architecture or parallel merge system"
+      ],
+      "expectedPrOutput": [
+        "Changed files and checks run are listed.",
+        "Auto-merge policy summary is included.",
+        "Confirmation states real auto-merge is not enabled.",
+        "AUTO_MERGE_ELIGIBLE output and reasons are reported honestly."
+      ],
+      "taskCategory": "agent_governance_docs",
+      "category": "agent_governance_docs"
     }
   ],
   "selectionRules": [
