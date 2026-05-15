@@ -171,7 +171,13 @@ function main() {
   console.log("Task selection memory:");
   console.log(`- Recently completed tasks considered: ${suggestion.fields["recently completed tasks considered"] ?? "not reported"}`);
   console.log(`- Skipped by cooldown: ${suggestion.fields["skipped by cooldown"] ?? "not reported"}`);
+  console.log(`- Loop guard active: ${suggestion.fields["loop guard active"] ?? "not reported"}`);
+  console.log(`- Loop guard skipped: ${suggestion.fields["loop guard skipped"] ?? "not reported"}`);
+  console.log(`- Loop guard fallback: ${suggestion.fields["loop guard fallback"] ?? "not reported"}`);
+  console.log(`- Different-category unavailable: ${suggestion.fields["different-category unavailable"] ?? "not reported"}`);
+  console.log(`- Task category: ${suggestion.fields["task category"] ?? selectedTask?.taskCategory ?? selectedTask?.category ?? "not reported"}`);
   console.log(`- Memory rule: ${autopilot.taskSelectionMemoryRule?.recentlyCompletedSkipRule ?? queue.repeatSelectionPolicy?.cooldownGuidance ?? "No memory rule configured."}`);
+  console.log(`- Loop guard rule: ${autopilot.taskSelectionMemoryRule?.baselineRegistryLoopGuard ?? queue.loopGuardPolicy?.rule ?? "No loop guard configured."}`);
   console.log("");
   console.log("Risk classification:");
   console.log(`- Level: ${normalizedRisk}`);

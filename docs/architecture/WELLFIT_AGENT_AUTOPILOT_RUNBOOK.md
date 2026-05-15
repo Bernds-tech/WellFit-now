@@ -1,7 +1,7 @@
 # WellFit Agent Autopilot Runbook and Iteration Orchestrator
 
 Status: active / dry-run-only governance documentation  
-Updated: 2026-05-14  
+Updated: 2026-05-15  
 Machine-readable control: `project-register/agent-autopilot.json`  
 Dry-run entrypoint: `node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs`
 
@@ -65,7 +65,13 @@ Use `project-register/agent-task-queue.json`, `project-register/progress-log.jso
 
 ### Task selection memory / cooldown
 
-Autopilot must not loop forever on the same completed baseline task. The task picker uses `project-register/progress-log.json` and `project-register/agent-work-log.json` as memory inputs before ranking candidates. If the latest relevant log entry identifies a completed task ID, such as `AGENT-DOC-BASELINE-CHECK`, the picker should skip that task once and prefer the next safe non-blocked low/medium-risk candidate with a valid definition-of-done key. If no other safe candidate exists, the picker may select the recently completed task again, but it must explain that fallback in its report. This cooldown does not permanently mark the queue task done and does not change the Autopilot `dry_run_only` state.
+Autopilot must not loop forever on the same completed baseline task. The task picker uses `project-register/progress-log.json` and `project-register/agent-work-log.json` as memory inputs before ranking candidates. It now considers a small recent completed-task window instead of only one latest entry. If a recent relevant log entry identifies a completed task ID, such as `AGENT-DOC-BASELINE-CHECK`, the picker should skip that task once and prefer the next safe non-blocked low/medium-risk candidate with a valid definition-of-done key. If no other safe candidate exists, the picker may select the recently completed task again, but it must explain that fallback in its report. This cooldown does not permanently mark the queue task done and does not change the Autopilot `dry_run_only` state.
+
+### Baseline / registry loop guard
+
+The guarded pair is `AGENT-DOC-BASELINE-CHECK` plus `AGENT-REGISTRY-SYNC`. If both task IDs appear in the recent completed-task window, the picker treats that as a possible baseline/registry alternation loop. For the next selection pass only, it skips both guarded tasks when another safe low/medium-risk, non-blocked candidate with a valid definition-of-done key exists. When possible, the picker should also move to a different `taskCategory` rather than continuing the documentation-baseline or registry-sync category. With the current queue, this means a recently completed baseline/registry pair should move to the next safe different-category task, such as `AGENT-DRIFT-GAP-REGISTER-FOLLOWUP`, before returning to either guarded task.
+
+If every otherwise safe candidate is either part of the guarded pair or no different-category candidate exists, the picker may fall back to the safest available task and must report that the baseline/registry loop guard could not divert selection. This fallback remains report-only and does not authorize merge, deployment, runtime product edits, or protected work.
 
 ### 4. `classify_risk`
 
