@@ -224,7 +224,15 @@
     "auto_merge_eligibility_result_report_only",
     "auto_repair_decision_result_report_only",
     "known_risks_or_skipped_checks",
-    "next_recommended_task"
+    "next_recommended_task",
+    "selected_batch_tasks_when_batch_autopilot_session",
+    "why_each_selected_batch_task_was_safe",
+    "one_or_two_batch_tasks_executed",
+    "cross_reference_maintenance_applied",
+    "real_auto_merge_not_used_confirmation",
+    "real_auto_repair_not_used_confirmation",
+    "no_deployment_confirmation",
+    "runtime_product_protected_areas_untouched_confirmation"
   ],
   "humanReviewRequiredFor": [
     "risk_level_high_or_critical",
@@ -295,5 +303,36 @@
     "neverMerges": true,
     "neverRepairs": true,
     "neverDeploys": true
+  },
+  "batchAutopilotReviewRequirements": {
+    "appliesWhen": "A PR is produced from a human-approved Batch Autopilot work session.",
+    "requiredEvidence": [
+      "List the selected Batch Autopilot task IDs and state whether one or two tasks were executed.",
+      "Explain why each selected task stayed low-risk and within documentation/register/governance/inventory files.",
+      "List changed files and confirm no runtime product code, protected product areas, Unity files, PR #13, public assets, package manifests, or lockfiles were changed.",
+      "Report cross-reference maintenance decisions for changed files.",
+      "Report auto-merge eligibility, auto-repair decision, and PR review policy results as report-only evidence.",
+      "Confirm real auto-merge, real auto-repair, deployment, and self-approval were not used."
+    ],
+    "stopIf": [
+      "second_task_requires_source_of_truth_decision",
+      "second_task_would_widen_scope_beyond_current_governance_batch",
+      "runtime_or_protected_file_change_required",
+      "medium_high_or_critical_risk_detected",
+      "check_failure_cannot_be_safely_classified",
+      "duplicate_architecture_would_be_created"
+    ],
+    "currentSessionReview": {
+      "id": "BATCH-AUTOPILOT-SESSION-2-2026-05-15",
+      "selectedTasks": [
+        "AGENT-AUTOPILOT-BATCH-DRY-RUN",
+        "AGENT-PR-REVIEW-POLICY-GOVERNANCE"
+      ],
+      "reviewMode": "report_only_pr_handoff_review",
+      "autoApproval": false,
+      "autoMerge": false,
+      "autoRepair": false,
+      "deployment": false
+    }
   }
 }

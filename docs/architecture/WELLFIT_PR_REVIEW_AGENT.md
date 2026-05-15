@@ -126,6 +126,12 @@ A WellFit PR description should include:
 
 Future agents should extend this governance through `project-register/pr-review-policy.json`, this document, and `scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs`. Do not create a separate PR review architecture or a second review policy system.
 
+## Batch Autopilot PR review addendum
+
+When a PR comes from a human-approved Batch Autopilot work session, the PR Review Agent remains report-only and must not approve, merge, repair, deploy, or self-approve. The review must verify that the PR description includes the selected task IDs, the safety rationale for each task, whether one or two tasks were executed, changed files, checks run, cross-reference maintenance decisions, auto-merge eligibility result, auto-repair decision result, PR review policy result, and confirmations that real auto-merge, real auto-repair, deployment, runtime product changes, and protected-area changes did not occur.
+
+For `BATCH-AUTOPILOT-SESSION-2-2026-05-15`, the selected tasks are `AGENT-AUTOPILOT-BATCH-DRY-RUN` and `AGENT-PR-REVIEW-POLICY-GOVERNANCE`. Both are low-risk governance/register tasks. The second task remains in scope only while it updates existing PR-review governance and does not introduce a parallel review architecture, source-of-truth product decision, runtime file change, or protected-area change.
+
 ## KI-Fortsetzungs-Prompt
 
 Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/pr-review-policy.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/cross-reference-maintenance.json`, `project-register/repository-inventory.json`, `project-register/product-readiness.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json`, `project-register/agent-task-queue.json` und `project-register/agent-workflows.json`. Halte die PR-Review-Governance report-only, aktiviere keine Auto-Approval-, Auto-Merge-, Auto-Repair- oder Deploy-Funktion, beruehre keine Runtime-Produktdateien oder geschuetzten Bereiche ohne expliziten Auftrag, und fuehre `node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs` sowie relevante Quality-Gate-Checks aus. Aktualisiere nur bestehende Work-Map-/TODO-/Registereintraege und erstelle keine parallele PR-Review-Architektur.
