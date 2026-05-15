@@ -228,6 +228,104 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "AGENT-PRODUCT-READINESS-MATRIX-MAINTENANCE",
+      "title": "Maintain WellFit product readiness matrix after governance and inventory updates",
+      "status": "done",
+      "pr": {
+        "branch": "agent/product-readiness-matrix-maintenance",
+        "number": null,
+        "url": null,
+        "title": "Update product readiness governance metadata"
+      },
+      "changedFiles": [
+        "project-register/product-readiness.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json",
+        "todolist/WORK_MAP.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "docs/architecture/WELLFIT_PRODUCT_READINESS_MATRIX.md"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Initial Autopilot dry run reported DRY_RUN without writing files."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Product readiness validation passed before and after the readiness metadata update."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+          "result": "pass",
+          "notes": "Repository inventory validation passed with existing warning sections only."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Initial quality gate passed before edits."
+        },
+        {
+          "command": "jq empty project-register/product-readiness.json",
+          "result": "pass",
+          "notes": "Product readiness JSON parsed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax checks completed successfully."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass",
+          "notes": "Auto-merge eligibility check stayed report-only and did not merge."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass",
+          "notes": "Auto-repair decision check stayed report-only and did not repair."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Final Autopilot dry run reported DRY_RUN without writing files."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check completed successfully."
+        }
+      ],
+      "followUps": [
+        "Do not promote protected, high, critical, Unity/AR, token/wallet/payment/reward-authority, health/child/location/privacy/legal/compliance modules without explicit human source-of-truth review.",
+        "Continue repository-inventory triage only as scoped read-only mapping for explicitly approved groups; keep unclear files review_required.",
+        "Next safe Autopilot work should prefer AGENT-REGISTRY-SYNC or another low-risk registry/documentation task selected by the dry run after cooldown/loop-guard checks."
+      ],
+      "nextRecommendedTask": "Run AGENT-REGISTRY-SYNC or the next Autopilot-selected low-risk documentation/register task after confirming the dry-run output and cooldown/loop-guard state.",
+      "updatedTodoFiles": [
+        "todolist/WORK_MAP.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task"
     }
   ]
 }

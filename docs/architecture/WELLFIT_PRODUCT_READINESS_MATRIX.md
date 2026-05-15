@@ -3,7 +3,7 @@
 Status: aktiv / maschinenlesbare Produktbereitschafts-Matrix  
 Fuehrende maschinenlesbare Datei: `project-register/product-readiness.json`  
 Validation: `node scripts/wellfit-dev-agent/src/product-readiness-check.mjs`  
-Updated: 2026-05-14
+Updated: 2026-05-15
 
 ## Zweck
 
@@ -17,6 +17,7 @@ Die Datei ist **Dokumentation / Register / Validation-only**. Sie aendert keine 
 - `scripts/wellfit-dev-agent/src/product-readiness-check.mjs` validiert die Matrix.
 - `scripts/wellfit-dev-agent/src/quality-gate.mjs` fuehrt die Validierung im Agent Quality Gate mit aus.
 - `todolist/WORK_MAP.md` und `todolist/TODO_INDEX.md` verlinken die Matrix fuer Agenten-Navigation.
+- Governance-/Inventory-/Autopilot-Register wie `project-register/repository-inventory.json`, `project-register/cross-reference-maintenance.json`, Batch-Autopilot-, Auto-Merge-/Auto-Repair-Policies sowie `project-register/progress-log.json` und `project-register/agent-work-log.json` liefern Evidenz fuer das Modul `agent_governance`, ohne Runtime-Produktcode freizugeben.
 
 ## Status-Skala
 
