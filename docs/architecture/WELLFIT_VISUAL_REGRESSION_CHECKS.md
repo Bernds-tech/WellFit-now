@@ -1,8 +1,8 @@
 # WellFit Visual Regression and Screenshot Checks
 
-Status: active / optional QA plan  
-Updated: 2026-05-14  
-Leading register: `project-register/visual-regression.json`  
+Status: active / optional QA plan
+Updated: 2026-05-15
+Leading register: `project-register/visual-regression.json`
 Related files: `project-register/routes.json`, `scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs`, `scripts/wellfit-dev-agent/src/quality-gate.mjs`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`
 
 ## Purpose
@@ -48,6 +48,33 @@ The visual register currently defines two standard viewports:
 
 Future agents may add more viewports only through `project-register/visual-regression.json` and this document, not by creating a second screenshot plan.
 
+
+
+## Mobile/PWA device visual smoke plan
+
+The mobile/PWA device plan extends visual smoke expectations without turning them into strict pixel tests. It covers the existing routes `/mobile`, `/mobile/missionen`, `/mobile/missionen/squat`, `/mobile/buddy`, `/mobile/analyse`, `/mobile/bewegung`, `/mobile/einstellungen`, and `/mobile/ar` on these manual targets:
+
+- Android Chrome: `device_test_required` for QR/install dialog, PWA install affordance, camera permission acceptance/denial, MediaPipe pose/face loading, DeviceMotion, WebGL/3D Flammi, reload/offline smoke, and mobile navigation.
+- Samsung Internet: `device_test_required` for the same checks plus Samsung-specific install wording, camera/canvas overlay, and WebGL stability.
+- iPhone Safari: `device_test_required` for Add-to-Home-Screen guidance, camera permission, MediaPipe fallback, iOS DeviceMotion permission/limitations, WebGL/3D Flammi, and navigation/reload behavior.
+- Desktop responsive browser: `device_test_required` for a mobile viewport smoke of route reachability, scrollability, QR/install-dialog copy, and fallback states.
+
+Route expectations stay smoke/tolerant:
+
+- `/mobile` and `/mobile/einstellungen`: verify install/QR guidance, mobile shell, bottom navigation, privacy/beta wording, and absence of token/NFT/wallet/payment/trading/payout behavior.
+- `/mobile/missionen` and `/mobile/missionen/squat`: verify mission navigation, camera acceptance/denial, HUD visibility, timers/countdown, stop/complete controls, pose/skeleton fallback, and that camera/pose/motion/AR signals are not final reward or mission-completion authority.
+- `/mobile/buddy`: verify buddy status and touch/scroll states without strict avatar-frame matching.
+- `/mobile/analyse`: verify MediaPipe pose/face loading, camera denied/accepted states, local/ephemeral-data expectations, and fallback messaging; unclear device behavior is `review_required`.
+- `/mobile/bewegung`: verify DeviceMotion permission, weak-context/HTTPS limitations, sensor unavailable/denied states, and no raw-motion persistence or reward authority.
+- `/mobile/ar`: verify camera/WebGL canvas layering, 3D Flammi load/fallback, tap/call/move controls, and performance symptoms such as FPS, battery, and heat as `device_test_required` observations only.
+
+Screenshots from these routes are QA evidence only. Do not require strict pixel matching for AR/canvas, camera previews, avatar/buddy animation, mission timers, pose skeletons, or dynamic beta state. If browser support, real devices, HTTPS, permissions, camera, motion sensors, or WebGL are unavailable, record the limitation as `SKIPPED_BROWSER_UNAVAILABLE`, `device_test_required`, or `review_required` instead of changing runtime code.
+
+Safety boundaries for mobile screenshots and device notes:
+
+- Do not capture or commit real user data, raw images/video, face templates, biometric data, health/watch data, precise location, raw motion/sensor streams, wallet/payment state, or final reward-authority evidence.
+- Do not activate token, NFT, wallet, payment, trading, payout, marketplace, production tracking, new consent fields, service-worker behavior, or reward/mission authority while performing visual/device checks.
+- Keep generated screenshots, videos, traces, and notes out of source control unless a maintainer explicitly approves a curated non-sensitive artifact in a separate task.
 
 ## Optional screenshot comparison modes
 

@@ -258,6 +258,21 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Documentation/register-only backend-readiness pass. Clarified root app checks vs Functions syntax/static checks vs emulator tests, emulator prerequisites, server preview/status API boundaries, draft/preview persistence status, Firestore Rules guardrails, review_required points, and the separation between preview/draft APIs and final reward/mission/economy authority. Runtime code, app/components/lib/functions, firestore.rules, firebase.json, deployment workflows, package manifests, public assets, Unity/PR #13, secrets, production writes, final ledger, reward authority, mission-completion authority, inventory grants, leaderboards, anti-cheat, auto-merge, auto-repair, and deployment remained untouched."
+    },
+    {
+      "id": "PROGRESS-MOBILE-PWA-DEVICE-TEST-PLAN-2026-05-15-0001",
+      "date": "2026-05-15",
+      "branch": "docs/mobile-pwa-device-test-plan",
+      "issue": null,
+      "goal": "Execute the seventh low-risk WellFit product-foundation task: Mobile/PWA device test plan.",
+      "changedAreas": [
+        "architecture documentation",
+        "todolist",
+        "project-register"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Documentation/register-only Mobile/PWA device test planning pass. Existing mobile planning now covers Android Chrome, Samsung Internet, iPhone Safari, desktop responsive smoke, /mobile route checklist, QR/PWA install flow, camera accepted/denied behavior, MediaPipe pose/face loading and fallbacks, DeviceMotion weak-context and permission limitations, WebGL/3D Flammi loading/fallback checks, visual smoke without strict pixel matching, and privacy/safety boundaries. Unclear device/browser/permission/WebGL behavior is marked device_test_required or review_required. Runtime mobile code, app/components/lib/functions, firestore.rules, service worker, manifest/public assets, package files, tracking, consent flows, protected-data expansion, reward/mission authority, Unity/PR #13, auto-merge, auto-repair and deployment remained untouched."
     }
   ]
 }

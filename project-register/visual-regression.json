@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-14",
+  "updated": "2026-05-15",
   "purpose": "Machine-readable WellFit visual regression and screenshot smoke-check plan for future Codex/AI agents. It defines optional, non-product-logic browser validation for important public, mobile beta-preview, and protected app routes while keeping screenshots out of source control and avoiding flaky mandatory CI requirements.",
   "mode": {
     "default": "route-register-validation-with-optional-browser-smoke",
@@ -26,7 +26,7 @@
     },
     {
       "id": "mobile_beta_preview",
-      "description": "Mobile beta-preview routes that must preserve the current mobile shell and beta wording without activating protected economy, health, privacy, location, or camera logic.",
+      "description": "Mobile beta-preview and PWA device-test routes that must preserve the current mobile shell, install/QR guidance, permission fallback behavior, and beta wording without activating protected economy, health, privacy, location, camera, motion, AR, or reward-authority logic.",
       "auth": "mobile-beta-preview",
       "defaultScreenshotRequired": true,
       "routes": [
@@ -149,7 +149,8 @@
       ],
       "screenshotRequiredOnUiChange": true,
       "comparisonMode": "smoke",
-      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved."
+      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved.",
+      "deviceTestRequired": true
     },
     {
       "route": "/mobile/missionen",
@@ -159,7 +160,8 @@
       ],
       "screenshotRequiredOnUiChange": true,
       "comparisonMode": "smoke",
-      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved."
+      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved.",
+      "deviceTestRequired": true
     },
     {
       "route": "/mobile/buddy",
@@ -169,7 +171,8 @@
       ],
       "screenshotRequiredOnUiChange": true,
       "comparisonMode": "smoke",
-      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved."
+      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved.",
+      "deviceTestRequired": true
     },
     {
       "route": "/mobile/einstellungen",
@@ -179,7 +182,8 @@
       ],
       "screenshotRequiredOnUiChange": true,
       "comparisonMode": "smoke",
-      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved."
+      "comparisonNote": "Mobile beta, buddy, avatar, AR, and mission surfaces stay smoke-only until deterministic demo state and masks are approved.",
+      "deviceTestRequired": true
     },
     {
       "route": "/dashboard",
@@ -213,6 +217,50 @@
       "authLimitation": "requires approved test user/session or documented beta-preview blocker",
       "comparisonMode": "off",
       "comparisonNote": "Protected app comparison is off until an approved test-user/session plan and seeded demo data exist."
+    },
+    {
+      "route": "/mobile/analyse",
+      "group": "mobile_beta_preview",
+      "viewports": [
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "smoke",
+      "comparisonNote": "Mobile/PWA device smoke only; camera, pose, face, motion, AR/canvas, buddy animation, and mission timer states remain dynamic and require device_test_required/review_required instead of strict pixel matching.",
+      "deviceTestRequired": true
+    },
+    {
+      "route": "/mobile/bewegung",
+      "group": "mobile_beta_preview",
+      "viewports": [
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "smoke",
+      "comparisonNote": "Mobile/PWA device smoke only; camera, pose, face, motion, AR/canvas, buddy animation, and mission timer states remain dynamic and require device_test_required/review_required instead of strict pixel matching.",
+      "deviceTestRequired": true
+    },
+    {
+      "route": "/mobile/ar",
+      "group": "mobile_beta_preview",
+      "viewports": [
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "smoke",
+      "comparisonNote": "Mobile/PWA device smoke only; camera, pose, face, motion, AR/canvas, buddy animation, and mission timer states remain dynamic and require device_test_required/review_required instead of strict pixel matching.",
+      "deviceTestRequired": true
+    },
+    {
+      "route": "/mobile/missionen/squat",
+      "group": "mobile_beta_preview",
+      "viewports": [
+        "mobile"
+      ],
+      "screenshotRequiredOnUiChange": true,
+      "comparisonMode": "smoke",
+      "comparisonNote": "Mobile/PWA device smoke only; camera, pose, face, motion, AR/canvas, buddy animation, and mission timer states remain dynamic and require device_test_required/review_required instead of strict pixel matching.",
+      "deviceTestRequired": true
     }
   ],
   "protectedRoutesAndAuthLimitations": {
@@ -239,7 +287,8 @@
   "safetyRules": [
     "This plan and its checker are QA/documentation support only and must never rewrite product files.",
     "Do not modify token, NFT, wallet, payment, betting, reward authority, health, child, location, privacy, or compliance logic while using this plan.",
-    "Do not create duplicate route, architecture, visual-design, or browser-test systems; keep future additions mapped through this register, Work Map, and the existing wellfit-dev-agent quality gate."
+    "Do not create duplicate route, architecture, visual-design, or browser-test systems; keep future additions mapped through this register, Work Map, and the existing wellfit-dev-agent quality gate.",
+    "Mobile/PWA device tests must mark uncertain camera, pose, face, DeviceMotion, WebGL/AR, PWA install, browser, OS, or privacy behavior as device_test_required or review_required instead of inventing behavior or changing runtime code."
   ],
   "comparisonMode": "smoke",
   "allowedComparisonModes": [
@@ -277,5 +326,88 @@
       "mission progress widgets backed by seeded/demo state"
     ],
     "routeScopedPlaceholders": []
+  },
+  "mobilePwaDeviceTestPlan": {
+    "status": "planning_only_device_test_required",
+    "updated": "2026-05-15",
+    "purpose": "Manual device/browser test matrix for existing WellFit mobile/PWA routes, install flow, camera/pose/face/motion permissions, WebGL/AR fallbacks, and privacy/safety boundaries. This metadata is QA planning only and must not change runtime code, service worker, manifest, public assets, tracking, consent, protected data handling, or reward/mission authority.",
+    "devices": [
+      {
+        "id": "android_chrome",
+        "label": "Android Chrome",
+        "status": "device_test_required",
+        "checks": [
+          "QR/install dialog",
+          "PWA install affordance",
+          "camera accepted/denied",
+          "MediaPipe pose/face load/fallback",
+          "DeviceMotion permission/availability",
+          "WebGL/3D Flammi load/fallback",
+          "mobile navigation and scroll",
+          "reload/offline smoke"
+        ]
+      },
+      {
+        "id": "samsung_internet",
+        "label": "Samsung Internet",
+        "status": "device_test_required",
+        "checks": [
+          "QR/install dialog",
+          "Samsung-specific PWA install path",
+          "camera accepted/denied",
+          "MediaPipe pose/face load/fallback",
+          "DeviceMotion permission/availability",
+          "WebGL/canvas overlay stability",
+          "mobile navigation and scroll"
+        ]
+      },
+      {
+        "id": "iphone_safari",
+        "label": "iPhone Safari",
+        "status": "device_test_required",
+        "checks": [
+          "Add-to-Home-Screen guidance",
+          "camera accepted/denied",
+          "MediaPipe pose/face load/fallback",
+          "iOS DeviceMotion permission or limitations",
+          "WebGL/3D Flammi load/fallback",
+          "navigation, reload, and scroll"
+        ]
+      },
+      {
+        "id": "desktop_responsive",
+        "label": "Desktop responsive browser",
+        "status": "device_test_required",
+        "checks": [
+          "mobile viewport route smoke",
+          "QR/install-dialog copy",
+          "scroll and navigation",
+          "fallback states",
+          "no duplicate desktop/mobile shell"
+        ]
+      }
+    ],
+    "routes": [
+      "/mobile",
+      "/mobile/missionen",
+      "/mobile/missionen/squat",
+      "/mobile/buddy",
+      "/mobile/analyse",
+      "/mobile/bewegung",
+      "/mobile/einstellungen",
+      "/mobile/ar"
+    ],
+    "permissionAndFallbackChecks": {
+      "camera": "accepted and denied states are normal test cases; unclear behavior is review_required; no raw image/video storage may be introduced",
+      "poseFaceMediaPipe": "loading, failure, performance, and fallback behavior are device_test_required; no face templates or biometric persistence may be introduced",
+      "deviceMotion": "permission, sensor availability, and weak-context/HTTPS limitations are device_test_required/review_required; no raw motion history may be introduced",
+      "webglAr": "3D Flammi/canvas loading, camera overlay, tap/call/move controls, performance, battery, heat, and fallback behavior are device_test_required; no Unity dependency or reward authority may be introduced"
+    },
+    "safetyBoundaries": [
+      "no token/NFT/wallet/payment/trading/payout/marketplace activation in mobile",
+      "no protected data expansion, production tracking, new consent fields, raw images/video, face/biometric templates, health/location/raw sensor storage, or third-party analytics",
+      "no reward, XP, points, mission completion, anti-cheat, leaderboard, inventory, rare item, token, payment, or payout authority from camera, pose, face, motion, PWA install, or AR signals",
+      "screenshots are smoke/tolerant QA evidence only; strict pixel matching remains disallowed for camera, AR/canvas, buddy animation, pose skeleton, and mission timer surfaces"
+    ]
   }
 }
