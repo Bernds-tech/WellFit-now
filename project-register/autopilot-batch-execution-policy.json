@@ -1,0 +1,223 @@
+{
+  "version": "0.1.0",
+  "updated": "2026-05-15",
+  "activationState": "limited_execution_planning",
+  "purpose": "Report/check-only policy for a future strictly limited Batch Autopilot execution framework. This first version validates whether low-risk documentation, register, governance, and inventory tasks could be considered later; it does not execute tasks, create PRs, merge, repair, deploy, approve, or modify runtime product code.",
+  "maxExecutableTasks": 3,
+  "maxRuntimeMinutes": 5,
+  "allowedExecutionCategories": [
+    "documentation_baseline",
+    "registry_sync",
+    "repository_inventory_mapping",
+    "agent_governance_docs",
+    "progress_log_update",
+    "cross_reference_maintenance",
+    "product_readiness_registry_update",
+    "route_api_drift_registry_followup",
+    "concept_gap_registry_followup"
+  ],
+  "forbiddenExecutionCategories": [
+    "runtime_product_code",
+    "UI implementation",
+    "mission implementation",
+    "Buddy implementation",
+    "Firebase Functions implementation",
+    "Firestore Rules changes",
+    "Unity / AR implementation",
+    "reward authority",
+    "economy / token / wallet / payment",
+    "health / child / location / privacy / compliance / legal changes"
+  ],
+  "allowedPaths": [
+    "project-register/*.json",
+    "todolist/*.md",
+    "docs/architecture/*.md",
+    "scripts/wellfit-dev-agent/src/*check.mjs",
+    "scripts/wellfit-dev-agent/src/*dry-run.mjs"
+  ],
+  "forbiddenPaths": [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "functions/**",
+    "firestore.rules",
+    "native/unity/WellFitBuddyAR/**",
+    "package.json unless explicitly approved",
+    "package-lock.json unless explicitly approved",
+    "public/** unless explicitly approved"
+  ],
+  "forbiddenTopics": [
+    "PR #13",
+    "Unity runtime changes",
+    "token",
+    "NFT",
+    "wallet",
+    "payment",
+    "purchase",
+    "payout",
+    "marketplace",
+    "staking",
+    "presale",
+    "trading",
+    "betting",
+    "reward authority",
+    "mission completion authority",
+    "anti-cheat authority",
+    "final ledger writes",
+    "health data",
+    "watch data",
+    "child safety",
+    "location data",
+    "camera data",
+    "privacy logic",
+    "consent logic",
+    "legal compliance messaging",
+    "compliance logic"
+  ],
+  "requiredPreChecks": [
+    "read_AGENTS.md",
+    "read_todolist/CURRENT_PROJECT_STATE.md",
+    "read_todolist/WORK_MAP.md",
+    "read_todolist/TODO_INDEX.md",
+    "read_project-register/autopilot-batch-execution-policy.json",
+    "read_project-register/autopilot-batch-policy.json",
+    "read_project-register/auto-merge-policy.json",
+    "read_project-register/auto-repair-policy.json",
+    "read_project-register/agent-autopilot.json",
+    "read_project-register/agent-task-queue.json",
+    "read_project-register/risk-classifier.json",
+    "read_project-register/definition-of-done.json",
+    "read_project-register/progress-log.json",
+    "read_project-register/agent-work-log.json",
+    "run_report_check_mode_before_any_future_execution",
+    "confirm_branch_is_not_main",
+    "confirm_human_approval_is_present_before_any_future_execution"
+  ],
+  "requiredPostChecks": [
+    "npm run lint",
+    "npx tsc --noEmit",
+    "npm run build",
+    "npm --prefix functions run check",
+    "npm run agent:quality-gate",
+    "node scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+    "jq empty project-register/autopilot-batch-execution-policy.json",
+    "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+    "npm run agent:autopilot:dry-run"
+  ],
+  "requiredPerTaskChecks": [
+    "task_risk_is_low",
+    "task_category_is_in_allowedExecutionCategories",
+    "task_category_is_not_in_forbiddenExecutionCategories",
+    "task_allowed_files_match_allowedPaths",
+    "task_allowed_files_do_not_match_forbiddenPaths",
+    "task_title_description_and_files_do_not_reference_forbiddenTopics",
+    "task_definition_of_done_key_is_present",
+    "task_required_checks_are_listed",
+    "task_is_not_blocked_superseded_stale_done_or_review_required",
+    "task_does_not_require_runtime_product_code_or_protected_area_changes",
+    "task_does_not_require_auto_merge_auto_repair_deploy_or_self_approval"
+  ],
+  "branchRules": {
+    "mustCreateTaskBranch": true,
+    "forbiddenBranches": [
+      "main",
+      "master"
+    ],
+    "stopIfBranchIsMain": true,
+    "stopIfUnclearBranchState": true
+  },
+  "prCreationRules": {
+    "firstVersionNeverCreatesPullRequests": true,
+    "futureLimitedExecutionMayOnlyCreatePrAfterHumanApproval": true,
+    "pullRequestMustSummarizeChangedFilesChecksPolicySummarySafetyConfirmationsAndNextTask": true,
+    "pullRequestMustNotApproveMergeOrCloseItself": true
+  },
+  "noAutoMergeRule": {
+    "enabled": true,
+    "mustRemainDisabled": true,
+    "policyReference": "project-register/auto-merge-policy.json",
+    "scriptReference": "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "requiredActivationState": "report_only"
+  },
+  "noAutoRepairRule": {
+    "enabled": true,
+    "mustRemainDisabled": true,
+    "policyReference": "project-register/auto-repair-policy.json",
+    "scriptReference": "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "requiredActivationState": "report_only"
+  },
+  "noDeployRule": {
+    "enabled": true,
+    "deploymentForbidden": true,
+    "forbiddenActions": [
+      "firebase deploy",
+      "vercel deploy",
+      "npm run deploy",
+      "production release",
+      "preview promotion"
+    ]
+  },
+  "humanApprovalRules": {
+    "humanApprovalRequiredBeforeAnyFutureExecution": true,
+    "humanApprovalRequiredBeforePullRequestCreationByBatchExecutor": true,
+    "humanApprovalRequiredBeforeAnyPolicyActivationBeyondPlanning": true,
+    "selfApprovalForbidden": true,
+    "mergeApprovalOwnedByHumanReviewer": true
+  },
+  "stopConditions": [
+    "activationState_is_not_limited_execution_planning",
+    "missing_required_policy_or_register",
+    "json_policy_malformed",
+    "current_branch_is_main_or_unclear",
+    "human_approval_missing_for_future_execution",
+    "candidate_risk_is_medium_high_critical_or_unclear",
+    "candidate_category_not_allowed_or_forbidden",
+    "candidate_allowed_files_outside_allowedPaths",
+    "candidate_allowed_files_touch_forbiddenPaths",
+    "candidate_or_policy_mentions_forbidden_topic_as_work_to_execute",
+    "candidate_requires_runtime_product_code",
+    "candidate_requires_protected_area_edit",
+    "candidate_requires_unity_or_pr_13_work",
+    "candidate_requires_token_nft_wallet_payment_betting_reward_authority_or_compliance_logic",
+    "auto_merge_not_report_only_or_would_be_enabled",
+    "auto_repair_not_report_only_or_would_be_enabled",
+    "deployment_would_be_enabled_or_requested",
+    "real_batch_execution_would_start_in_first_version",
+    "pull_request_would_be_created_by_first_version",
+    "merge_repair_deploy_or_self_approval_would_occur",
+    "conflict_or_source_of_truth_disagreement_detected",
+    "required_check_failed_and_not_safely_classifiable"
+  ],
+  "reportOutputSchema": {
+    "mode": "REPORT_CHECK_ONLY",
+    "readyLine": "BATCH_LIMITED_EXECUTION_READY=true|false",
+    "activationState": "limited_execution_planning",
+    "reasons": [
+      "string"
+    ],
+    "candidateSummary": {
+      "executableCandidates": [
+        "string"
+      ],
+      "blockedCandidates": [
+        {
+          "taskId": "string",
+          "reasons": [
+            "string"
+          ]
+        }
+      ]
+    },
+    "safetyConfirmations": {
+      "neverExecutesTasksInFirstVersion": true,
+      "neverCreatesPullRequestsInFirstVersion": true,
+      "neverMerges": true,
+      "neverRepairs": true,
+      "neverDeploys": true,
+      "neverApprovesOwnWork": true,
+      "autoMergeRemainsDisabled": true,
+      "autoRepairRemainsDisabled": true,
+      "humanApprovalRequiredBeforeExecution": true
+    }
+  }
+}

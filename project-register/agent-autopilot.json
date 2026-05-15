@@ -36,7 +36,10 @@
     "project-register/auto-repair-policy.json",
     "project-register/autopilot-batch-policy.json",
     "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
-    "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs"
+    "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+    "project-register/autopilot-batch-execution-policy.json",
+    "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
+    "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -109,7 +112,10 @@
     "enable_or_perform_real_auto_repair_without_explicit_human_approval",
     "enable_real_batch_execution_without_explicit_human_approval",
     "create_pull_requests_merge_deploy_or_repair_from_batch_autopilot_dry_run",
-    "approve_batch_autopilot_output_as_its_own_review"
+    "approve_batch_autopilot_output_as_its_own_review",
+    "enable_or_perform_real_batch_execution_without_explicit_human_approval",
+    "create_pull_requests_from_batch_limited_execution_check",
+    "treat_limited_execution_readiness_as_human_approval"
   ],
   "stopConditions": [
     "current_branch_is_main",
@@ -128,7 +134,9 @@
     "auto_repair_decision_requires_forbidden_path_topic_or_runtime_product_change",
     "batch_autopilot_policy_activation_state_is_not_dry_run_only",
     "batch_autopilot_candidate_touches_forbidden_path_or_topic",
-    "batch_autopilot_would_write_create_pr_merge_deploy_repair_or_approve_work"
+    "batch_autopilot_would_write_create_pr_merge_deploy_repair_or_approve_work",
+    "batch_limited_execution_policy_activation_state_is_not_limited_execution_planning",
+    "batch_limited_execution_would_execute_create_pr_merge_repair_deploy_or_self_approve"
   ],
   "requiredChecks": [
     "npm run lint",
@@ -226,5 +234,16 @@
       "repair_files",
       "approve_own_work"
     ]
+  },
+  "batchAutopilotLimitedExecutionReference": {
+    "policy": "project-register/autopilot-batch-execution-policy.json",
+    "architecture": "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
+    "script": "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+    "mode": "report_check_only_planning",
+    "mustNotExecuteTasks": true,
+    "mustNotCreatePullRequests": true,
+    "mustNotMerge": true,
+    "mustNotRepair": true,
+    "mustNotDeploy": true
   }
 }

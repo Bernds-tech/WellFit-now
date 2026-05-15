@@ -58,7 +58,10 @@
         "project-register/auto-repair-policy.json",
         "project-register/autopilot-batch-policy.json",
         "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
-        "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs"
+        "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+        "project-register/autopilot-batch-execution-policy.json",
+        "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
+        "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -230,6 +233,22 @@
           ],
           "purpose": "Report-only Batch Autopilot policy and validator for planning multiple safe low-risk WellFit agent tasks without executing, writing, repairing, merging, creating PRs, approving, or deploying.",
           "usage": "Use after the single-task Autopilot controls when a future agent needs a sequenced plan. Treat output as dry-run planning only and stop before implementation or protected work."
+        },
+        {
+          "id": "batch_autopilot_limited_execution",
+          "registers": [
+            "project-register/autopilot-batch-execution-policy.json",
+            "project-register/autopilot-batch-policy.json",
+            "project-register/agent-task-queue.json",
+            "project-register/auto-merge-policy.json",
+            "project-register/auto-repair-policy.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs"
+          ],
+          "purpose": "Report/check-only safety boundary for future strictly limited batch execution of low-risk documentation, register, governance, and inventory tasks.",
+          "usage": "Run the checker before any future batch execution discussion; keep first version non-executing, non-PR-creating, non-merging, non-repairing, non-deploying, and human-approval-gated."
         }
       ],
       "additionalGovernanceInputs": [
