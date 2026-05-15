@@ -30,7 +30,10 @@
     "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
     "project-register/auto-merge-policy.json",
     "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md",
-    "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs"
+    "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
+    "project-register/auto-repair-policy.json"
   ],
   "iterationPhases": [
     {
@@ -97,7 +100,9 @@
     "modify_reward_authority_final_ledger_mission_completion_anticheat_inventory_unlock_or_rare_item_authority_without_explicit_human_approval",
     "modify_health_watch_child_location_camera_privacy_consent_medical_legal_agb_datenschutz_impressum_or_compliance_logic_without_explicit_human_approval",
     "expose_secrets_or_server_api_keys",
-    "enable_or_perform_real_auto_merge_without_explicit_human_approval"
+    "enable_or_perform_real_auto_merge_without_explicit_human_approval",
+    "run_auto_repair_loops_from_report_only_policy",
+    "enable_or_perform_real_auto_repair_without_explicit_human_approval"
   ],
   "stopConditions": [
     "current_branch_is_main",
@@ -111,7 +116,9 @@
     "definition_of_done_key_missing",
     "validation_check_fails_for_code_reason",
     "human_approval_required_but_not_present",
-    "auto_merge_policy_activation_state_is_not_report_only"
+    "auto_merge_policy_activation_state_is_not_report_only",
+    "auto_repair_policy_not_report_only",
+    "auto_repair_decision_requires_forbidden_path_topic_or_runtime_product_change"
   ],
   "requiredChecks": [
     "npm run lint",
@@ -125,7 +132,9 @@
     "jq empty project-register/cross-reference-maintenance.json",
     "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
     "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
-    "jq empty project-register/auto-merge-policy.json"
+    "jq empty project-register/auto-merge-policy.json",
+    "jq empty project-register/auto-repair-policy.json",
+    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -169,7 +178,8 @@
     "adaptive_user_insight_context_when_present",
     "no_merge_no_deploy_reminder",
     "human_approval_rule",
-    "auto_merge_eligibility_report_only_result"
+    "auto_merge_eligibility_report_only_result",
+    "auto_repair_decision_report_only_result"
   ],
   "humanApprovalRules": {
     "requiredForRiskLevels": [

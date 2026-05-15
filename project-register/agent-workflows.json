@@ -52,7 +52,10 @@
         "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
         "project-register/auto-merge-policy.json",
         "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md",
-        "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs"
+        "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+        "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+        "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
+        "project-register/auto-repair-policy.json"
       ],
       "controlRegisters": [
         {
@@ -200,6 +203,18 @@
           ],
           "purpose": "Report-only auto-merge eligibility policy and validator for future PR safety assessment without enabling or performing merges.",
           "usage": "Run as part of the quality gate or before PR handoff to print AUTO_MERGE_ELIGIBLE=true/false with reasons. Treat every output as report-only; do not merge, approve, deploy, or enable auto-merge without human approval."
+        },
+        {
+          "id": "auto_repair_decision_guard",
+          "registers": [
+            "project-register/auto-repair-policy.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
+          ],
+          "purpose": "Report-only policy and decision check for whether future failed validation checks look safely auto-repairable without enabling real repairs.",
+          "usage": "Use only after a failed check or quality-gate report exists; classify against safe categories, forbidden paths/topics, max attempts, and stop conditions, then stop for human review unless all report-only evidence is safe."
         }
       ],
       "additionalGovernanceInputs": [
