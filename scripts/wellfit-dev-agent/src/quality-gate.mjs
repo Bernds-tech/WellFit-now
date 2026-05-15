@@ -31,6 +31,7 @@ const agentSteps = [
   { label: "Firestore economy rules check", script: "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs", displayCommand: "npm run agent:firestore-economy-rules-check" },
   { label: "Next agent task suggestion", script: "scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs" },
   { label: "Agent Autopilot dry run", script: "scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs" },
+  { label: "Batch Autopilot dry run", script: "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs" },
   { label: "Auto-merge eligibility check", script: "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs" },
   { label: "Auto-repair decision check", script: "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs" },
   { label: "Follow-up detector", script: "scripts/wellfit-dev-agent/src/follow-up-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs" },
@@ -132,6 +133,7 @@ function main() {
   const rulesStep = getStep(steps, "Firestore economy rules check");
   const nextTaskStep = getStep(steps, "Next agent task suggestion");
   const autopilotDryRunStep = getStep(steps, "Agent Autopilot dry run");
+  const batchAutopilotDryRunStep = getStep(steps, "Batch Autopilot dry run");
   const autoMergeEligibilityStep = getStep(steps, "Auto-merge eligibility check");
   const autoRepairDecisionStep = getStep(steps, "Auto-repair decision check");
   const followUpDetectorStep = getStep(steps, "Follow-up detector");
@@ -150,6 +152,7 @@ function main() {
   const rulesReportPassed = /Result:\s*PASS/i.test(`${rulesReport}\n${rulesStep?.stdout ?? ""}`);
   const nextTaskSuggestionPassed = /Result:\s*TASK_SELECTED/i.test(nextTaskStep?.stdout ?? "");
   const autopilotDryRunPassed = /Result:\s*DRY_RUN/i.test(autopilotDryRunStep?.stdout ?? "") && /dry run completed without writing files/i.test(autopilotDryRunStep?.stdout ?? "");
+  const batchAutopilotDryRunPassed = /BATCH_AUTOPILOT_MODE=DRY_RUN/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /Result:\s*DRY_RUN/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /Never writes files:\s*true/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /Never merges:\s*true/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /Never repairs:\s*true/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /future consideration only/i.test(batchAutopilotDryRunStep?.stdout ?? "");
   const followUpDetectorPassed = /Result:\s*REPORT_ONLY/i.test(followUpDetectorStep?.stdout ?? "");
   const autoMergeEligibilityReportOnly = /Mode:\s*REPORT_ONLY/i.test(`${autoMergeEligibilityReport}\n${autoMergeEligibilityStep?.stdout ?? ""}`) && /Never merges:\s*true/i.test(`${autoMergeEligibilityReport}\n${autoMergeEligibilityStep?.stdout ?? ""}`) && /AUTO_MERGE_ELIGIBLE=(?:true|false)/i.test(`${autoMergeEligibilityReport}\n${autoMergeEligibilityStep?.stdout ?? ""}`);
   const autoRepairDecisionReportOnly = /Mode:\s*REPORT_ONLY/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /Never repairs:\s*true/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /Never merges:\s*true/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /AUTO_REPAIR_ALLOWED=(?:true|false)/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`);
@@ -179,6 +182,7 @@ function main() {
   assertCondition(checks, "Firestore economy rules check passed", rulesReportPassed, rulesReportPassed ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Next agent task suggestion selected a safe task", nextTaskSuggestionPassed, nextTaskSuggestionPassed ? "TASK_SELECTED" : "not found or STOP");
   assertCondition(checks, "Agent Autopilot dry run reported without rewriting", autopilotDryRunPassed, autopilotDryRunPassed ? "DRY_RUN" : "not found or unsafe output");
+  assertCondition(checks, "Batch Autopilot dry run reported without rewriting", batchAutopilotDryRunPassed, batchAutopilotDryRunPassed ? "DRY_RUN" : "not found or unsafe output");
   assertCondition(checks, "Auto-merge eligibility check reported without merging", autoMergeEligibilityReportOnly, autoMergeEligibilityReportOnly ? "REPORT_ONLY" : "not found or unsafe output");
   assertCondition(checks, "Auto-repair decision check reported without repairing", autoRepairDecisionReportOnly, autoRepairDecisionReportOnly ? "REPORT_ONLY" : "not found or unsafe output");
   assertCondition(checks, "Follow-up detector reported without rewriting", followUpDetectorPassed, followUpDetectorPassed ? "REPORT_ONLY" : "not found or FAIL");
