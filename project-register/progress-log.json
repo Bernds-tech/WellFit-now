@@ -12,7 +12,10 @@
       "branch": "feature/stufe-4-governance-layer",
       "issue": 19,
       "goal": "Stufe-4-Governance-Layer und Projektregister im bestehenden WellFit-Repo anlegen.",
-      "changedAreas": ["agents", "project-register"],
+      "changedAreas": [
+        "agents",
+        "project-register"
+      ],
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Nur Governance- und Registerdateien angelegt. Keine Produktlogik, keine Firebase-Rules, keine UI-Refactors, kein Live-Deploy."
@@ -23,7 +26,13 @@
       "branch": "smoke/ui-route-check-2026-05-14",
       "issue": null,
       "goal": "WellFit UI- und Routen-Smoke-Check vor weiterer Missionsentwicklung ausfuehren.",
-      "changedAreas": ["app routes", "encoding cleanup", "project-register", "todolist", "docs/architecture"],
+      "changedAreas": [
+        "app routes",
+        "encoding cleanup",
+        "project-register",
+        "todolist",
+        "docs/architecture"
+      ],
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "/missionen als Redirect auf /missionen/tagesmissionen registriert, sichtbare Mojibake-Texte in bestehenden UI-/Supportdateien korrigiert, Quality-Gate-Governance-Index repariert und angeforderte Checks inklusive Route-Smoke ausgefuehrt. Keine Mission-Feature-Entwicklung, keine Unity-Aenderungen, keine Economy-/Reward-Authority-Aenderungen."
@@ -34,7 +43,10 @@
       "branch": "agent-doc-baseline-check",
       "issue": null,
       "goal": "Refresh Autopilot-selected documentation/register baseline notes after recent agent-governance additions.",
-      "changedAreas": ["todolist", "project-register"],
+      "changedAreas": [
+        "todolist",
+        "project-register"
+      ],
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Documentation/register-only baseline refresh for AGENT-DOC-BASELINE-CHECK. Autopilot dry run, lint, TypeScript noEmit, Next build, Firebase Functions syntax check, and quality gate passed. Runtime product code, protected areas, Unity/PR #13, and compliance-critical logic were untouched."
@@ -45,10 +57,28 @@
       "branch": "agent-registry-sync",
       "issue": null,
       "goal": "Synchronize project-register entries with Work Map and current state for AGENT-REGISTRY-SYNC.",
-      "changedAreas": ["project-register"],
+      "changedAreas": [
+        "project-register"
+      ],
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Registry-only sync for AGENT-REGISTRY-SYNC. Removed the non-existent /api/feedback/submit route from active API/feature links while preserving the feedback proposal registers, linked existing public/settings/mission/mobile/economy/Buddy files to features and product readiness, and kept runtime product code, protected areas, Unity/PR #13, and compliance-critical logic untouched."
+    },
+    {
+      "id": "PROGRESS-CROSS-REFERENCE-MAINTENANCE-2026-05-15-0001",
+      "date": "2026-05-15",
+      "branch": "docs/cross-reference-maintenance-agent",
+      "issue": null,
+      "goal": "Create the WellFit Cross-Reference Maintenance Agent and current agent-system analysis.",
+      "changedAreas": [
+        "docs/architecture",
+        "project-register",
+        "scripts/wellfit-dev-agent",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Documentation/register/validation-only framework added so future agents know which existing registers, TODO files, Work Map entries, readiness files, docs, and checks to inspect/update after routes, APIs, modules, agent scripts, roadmap, feedback/insight, visual, Unity/AR, compliance, or governance changes. Runtime product code, protected areas, Unity/PR #13, and compliance-critical logic remained untouched."
     }
   ]
 }
