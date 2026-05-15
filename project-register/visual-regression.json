@@ -408,6 +408,69 @@
       "no protected data expansion, production tracking, new consent fields, raw images/video, face/biometric templates, health/location/raw sensor storage, or third-party analytics",
       "no reward, XP, points, mission completion, anti-cheat, leaderboard, inventory, rare item, token, payment, or payout authority from camera, pose, face, motion, PWA install, or AR signals",
       "screenshots are smoke/tolerant QA evidence only; strict pixel matching remains disallowed for camera, AR/canvas, buddy animation, pose skeleton, and mission timer surfaces"
-    ]
+    ],
+    "evidenceTemplate": {
+      "status": "documentation_only_ready_for_manual_use",
+      "document": "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md#manual-mobilepwa-device-evidence-template",
+      "defaultUntestedStatus": "device_test_required",
+      "allowedStatuses": [
+        "pass",
+        "fail",
+        "blocked",
+        "device_test_required",
+        "review_required"
+      ],
+      "severityScale": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "requiredFields": [
+        "test date",
+        "tester",
+        "device model",
+        "OS version",
+        "browser/app mode",
+        "route tested",
+        "expected result",
+        "actual result",
+        "status",
+        "screenshot/video evidence reference",
+        "notes",
+        "privacy/safety notes",
+        "follow-up action",
+        "severity"
+      ],
+      "deviceSections": [
+        "Android Chrome",
+        "Samsung Internet",
+        "iPhone Safari",
+        "Desktop responsive browser"
+      ],
+      "routeSections": [
+        "/mobile",
+        "/mobile/missionen",
+        "/mobile/missionen/squat",
+        "/mobile/buddy",
+        "/mobile/analyse",
+        "/mobile/bewegung",
+        "/mobile/einstellungen",
+        "/mobile/ar"
+      ],
+      "permissionSensitiveChecks": [
+        "camera accepted",
+        "camera denied",
+        "pose/face/MediaPipe loads",
+        "pose/face/MediaPipe fails",
+        "DeviceMotion permission accepted",
+        "DeviceMotion permission denied",
+        "WebGL/3D Flammi loads",
+        "WebGL unavailable fallback",
+        "PWA install/QR flow"
+      ],
+      "evidenceStorageRule": "Use placeholders or approved non-sensitive artifact links; do not commit raw sensitive screenshots, videos, people/faces, health/location/sensor data, account data, wallet/payment state, or reward-authority evidence.",
+      "runtimeChangeRule": "Manual evidence recording must not change runtime product code, service worker, manifest/public assets, tracking, consent, protected data handling, reward/mission authority, Unity files, deployment, auto-merge, or auto-repair."
+    }
   }
 }
