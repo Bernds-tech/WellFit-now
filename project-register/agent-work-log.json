@@ -1002,6 +1002,123 @@
       ],
       "riskLevel": "low-to-medium",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "SAFETY-ECONOMY-GUARDRAIL-DOCS",
+      "title": "Align safety wording and economy guardrail documentation",
+      "status": "done",
+      "pr": {
+        "branch": "docs/safety-economy-guardrails",
+        "number": null,
+        "url": null,
+        "title": "Clarify beta safety and economy guardrails"
+      },
+      "changedFiles": [
+        "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
+        "todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS",
+        "todolist/F - FIREBASE  - REALTIME - MISSIONEN",
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+        "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md",
+        "docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass_dry_run",
+          "notes": "Initial and final dry runs reported DRY_RUN and did not write files."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass_after_index_fix",
+          "notes": "Initial pre-change quality gate passed. First post-change run failed because TODO_INDEX did not reference docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md after editing it; TODO_INDEX was updated, and the rerun passed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Initial product readiness check passed; final quality gate also included this check."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+          "result": "pass_with_warnings",
+          "notes": "Initial analyzer passed with existing duplicate architecture warnings; no parallel architecture was created."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Initial cross-reference maintenance check passed; final quality gate also included this check."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check completed successfully after log append before commit."
+        },
+        {
+          "command": "jq empty project-register/product-readiness.json project-register/progress-log.json project-register/agent-work-log.json project-register/internal-sources.json",
+          "result": "pass",
+          "notes": "JSON validation completed successfully after log append before commit."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax check completed successfully without modifying functions."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass_report_only_not_eligible",
+          "notes": "Report-only check returned AUTO_MERGE_ELIGIBLE=false due scope/topic/path and changed-file-count guardrails; no merge was performed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass_report_only_not_allowed",
+          "notes": "Report-only check returned AUTO_REPAIR_ALLOWED=false; no repair was needed or performed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+          "result": "pass",
+          "notes": "PR review policy reported PR_REVIEW_POLICY_READY=true and remained report-only."
+        }
+      ],
+      "followUps": [
+        "Next product-foundation task: data-protection-review documentation pass for Health/Child/Location/Camera/Face/Motion/Consent flows in existing planning sources only.",
+        "Server/backend/audit/ledger authority, final reward writes, real token/NFT/wallet/payment/trading/payout/presale behavior and runtime legal/compliance changes remain review_required."
+      ],
+      "nextRecommendedTask": "Data-protection-review documentation pass for Health/Child/Location/Camera/Face/Motion/Consent flows in existing planning sources only; no runtime code, legal page, consent-flow or data-collection changes without explicit human/legal/privacy approval.",
+      "updatedTodoFiles": [
+        "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
+        "todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS",
+        "todolist/F - FIREBASE  - REALTIME - MISSIONEN",
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task"
     }
   ]
 }

@@ -65,6 +65,14 @@ STATUS: [~] In Arbeit
 [ ] Quest-Chain-Tiefe und Tagesumfang serverseitig begrenzen.
 [ ] missionRewardEvents als Audit-Collection planen.
 
+
+BETA-GUARDRAIL-KLARSTELLUNG 2026-05-15:
+[!] MVP/Beta-Rewards sind interne Punkte-/XP-Mechaniken; echte WFT-/Token-/NFT-/Wallet-/Payment-/Trading-/Payout- und Presale-Funktionen bleiben verschoben und `review_required`.
+[!] Reward-, XP-, Punkte-, Leaderboard-, Inventory-, Rare-Item- und Mission-Completion-Entscheidungen duerfen nicht vom Client final autorisiert werden.
+[!] Serverseitige Ledger-/Audit-/Reward-Authority bleibt geplantes Zielbild; bis zu separater Freigabe sind Preview-/Stub-/Dokumentationspfade keine Produktionsfreischaltung.
+[!] Fehlende oder teure Items muessen zuerst faire erspielbare Detours, Tagesmissionen oder Fallbacks anbieten; Kaufdruck, Paywall-Ketten und Frustrationsspiralen sind verboten.
+[!] Health-, Child-, Location-, Camera-, Face-, Motion-, Privacy- und Consent-Signale bleiben geschuetzt und duerfen ohne expliziten Review weder erweitert noch als alleinige Reward-/Completion-Autoritaet genutzt werden.
+
 ============================================================
 G2. Tokenomics / WFT / NFT – bewusst verschoben
 ============================================================

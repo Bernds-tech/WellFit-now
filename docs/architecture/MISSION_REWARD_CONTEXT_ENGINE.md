@@ -16,6 +16,13 @@ Aktuelle Tagesmissionen enthalten eine MVP-Rewardlogik:
 
 Diese Basis ist gut fuer MVP/UI, darf aber langfristig nicht finale Autoritaet sein.
 
+## Beta-Safety-Grenze 2026-05-15
+
+- MVP/Beta nutzt nur interne Punkte und XP; echte WFT-/Token-/NFT-/Blockchain-/Wallet-/Payment-/Trading-/Payout-/Presale-Logik bleibt deaktiviert und `review_required`.
+- Mission Completion, Rewards, XP, Punkte, Leaderboards, Inventory Grants und Rare Items sind nicht client-authoritativ. UI- oder Clientwerte sind nur MVP-Anzeige, Simulation oder Preview.
+- Serverseitige Backend-/Audit-/Ledger-Autoritaet ist das Zielbild, aber bis zu separater Freigabe nur geplant bzw. Stub/Preview; dieses Dokument aktiviert keine finalen Ledger-Writes und keine Produktionsauszahlung.
+- Health-, Child-, Location-, Camera-, Face-, Motion-, Privacy- und Consent-Signale duerfen nur datensparsam, einwilligungsbasiert und reviewpflichtig erweitert werden und nie allein finale Reward-/Completion-Entscheidungen tragen.
+
 ## Ziel
 
 Die finale Auszahlung / Punktevergabe / spaetere Token-nahe Bewertung wird durch eine serverseitige Mission Reward Engine entschieden.

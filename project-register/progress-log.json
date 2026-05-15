@@ -212,6 +212,21 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Documentation/register-only schema baseline. Documented registration fields, user document fields, profile/settings categories, avatar/profile.aiBuddy fields, consent fields, KI-relevant fields, sensitive/review_required fields, duplicate/wrong-field risks, and fields that must not be used for reward authority or medical/legal/financial decisions. Runtime product code, app/components/lib/functions, firestore.rules, public assets, package manifests, Unity/PR #13, protected token/wallet/payment/betting/reward/mission/health/child/location/privacy/legal/compliance logic, auto-merge, auto-repair, and deployment remained untouched."
+    },
+    {
+      "id": "PROGRESS-SAFETY-ECONOMY-GUARDRAILS-2026-05-15-0001",
+      "date": "2026-05-15",
+      "branch": "docs/safety-economy-guardrails",
+      "issue": null,
+      "goal": "Execute the fourth low-risk product-foundation documentation task for safety wording and economy guardrail alignment.",
+      "changedAreas": [
+        "todolist",
+        "architecture documentation",
+        "agent logs"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Documentation/register-only guardrail pass. Existing Mobile, Mission, Economy, Privacy and Legal planning sources now clarify that MVP/Beta uses internal points/XP and preview/display states only; real WFT/token/NFT/blockchain/wallet/payment/trading/payout/presale logic remains deferred and review_required; mobile must not activate token/presale/trading/NFT marketplace/wallet/payment features; rewards, XP, points, mission completion, leaderboards, inventory grants and rare items are not client-authoritative; server/backend/audit/ledger authority remains planned/review-required before real activation; missing or expensive items must offer fair playable detours before purchase pressure; health/child/location/camera/face/motion/privacy/consent expansion requires data-minimization, consent, fallback and human review. Runtime code, app/components/lib/functions, firestore.rules, runtime legal pages, public assets, package manifests, Unity/PR #13, auto-merge, auto-repair and deployment remained untouched."
     }
   ]
 }
