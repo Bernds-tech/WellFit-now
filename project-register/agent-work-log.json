@@ -1482,6 +1482,113 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "MOBILE-PWA-DEVICE-EVIDENCE-TEMPLATE",
+      "title": "Create Mobile/PWA manual device evidence template",
+      "status": "done",
+      "pr": {
+        "branch": "docs/mobile-pwa-device-evidence-template",
+        "number": null,
+        "url": null,
+        "title": "Document Mobile/PWA manual device evidence template"
+      },
+      "changedFiles": [
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+        "project-register/visual-regression.json",
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass_dry_run",
+          "notes": "Initial and final dry runs reported DRY_RUN and did not write files, merge, deploy, or self-approve."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Initial and final quality gates reported PASS."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Product-readiness register parsed and validated; no product-readiness metadata change was needed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+          "result": "warning",
+          "notes": "Route validation completed; browser execution reported SKIPPED_BROWSER_UNAVAILABLE because no browser runner is installed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Cross-reference maintenance registry and references passed during initial inspection."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check passed."
+        },
+        {
+          "command": "jq empty project-register/visual-regression.json project-register/product-readiness.json project-register/progress-log.json project-register/agent-work-log.json",
+          "result": "pass",
+          "notes": "JSON registers parsed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax/static check completed successfully."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass_report_only_ineligible",
+          "notes": "REPORT_ONLY; AUTO_MERGE_ELIGIBLE=false, with human review required by policy."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass_report_only_not_allowed",
+          "notes": "REPORT_ONLY; AUTO_REPAIR_ALLOWED=false because no failed check was detected and auto-repair never repairs/merges."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+          "result": "pass_report_only",
+          "notes": "PR_REVIEW_POLICY_READY=true; policy is report-only and does not approve, merge, repair, or modify files."
+        }
+      ],
+      "followUps": [
+        "Run real manual Mobile/PWA device tests on Android Chrome, Samsung Internet, iPhone Safari, and desktop responsive browsers using the new evidence template; record pass/fail/blocked/device_test_required/review_required without changing runtime code or protected areas."
+      ],
+      "nextRecommendedTask": "Manual Mobile/PWA device evidence pass using the documented template, or continue the next low-risk product-foundation documentation/register task selected by agent:autopilot:dry-run; do not change runtime mobile, service worker/manifest, protected data, reward/mission authority, or Unity files without explicit approval.",
+      "updatedTodoFiles": [
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task"
     }
   ]
 }

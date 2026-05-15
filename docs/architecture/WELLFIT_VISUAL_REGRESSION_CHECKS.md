@@ -76,6 +76,95 @@ Safety boundaries for mobile screenshots and device notes:
 - Do not activate token, NFT, wallet, payment, trading, payout, marketplace, production tracking, new consent fields, service-worker behavior, or reward/mission authority while performing visual/device checks.
 - Keep generated screenshots, videos, traces, and notes out of source control unless a maintainer explicitly approves a curated non-sensitive artifact in a separate task.
 
+
+## Manual Mobile/PWA device evidence template
+
+Use this template only when a human runs real Mobile/PWA checks on an actual target device or a desktop responsive browser. Codex/cloud agents must leave unknown outcomes as `device_test_required` and must not infer camera, motion, WebGL, PWA-install, performance, privacy, or browser behavior from local builds. Keep evidence references as placeholders or links to approved non-sensitive storage; do not commit raw screenshots/videos that expose people, faces, homes, health data, location, account data, wallet/payment state, or final reward evidence.
+
+Allowed status values for every row: `pass`, `fail`, `blocked`, `device_test_required`, `review_required`.
+Allowed severity values: `low`, `medium`, `high`, `critical`. Use `critical` only for safety, privacy, compliance, data exposure, protected-area, reward-authority, or security issues that need immediate human triage.
+
+Copy one row per route/device/browser/permission combination that was actually checked:
+
+| Field | Evidence entry |
+|---|---|
+| Test date | `YYYY-MM-DD` |
+| Tester | `name / role` |
+| Device model | `e.g. Pixel 8, Galaxy S24, iPhone 15, desktop model` |
+| OS version | `e.g. Android 15, One UI version, iOS 18.x, macOS/Windows/Linux version` |
+| Browser/app mode | `Android Chrome / Samsung Internet / iPhone Safari / Desktop responsive browser / installed PWA if applicable` |
+| Route tested | `/mobile`, `/mobile/missionen`, `/mobile/missionen/squat`, `/mobile/buddy`, `/mobile/analyse`, `/mobile/bewegung`, `/mobile/einstellungen`, or `/mobile/ar` |
+| Expected result | `Expected smoke behavior from the device test plan` |
+| Actual result | `Observed behavior only; do not guess` |
+| Status | `pass / fail / blocked / device_test_required / review_required` |
+| Screenshot/video evidence reference | `placeholder/link to approved non-sensitive artifact; do not commit raw sensitive media` |
+| Notes | `Browser/version quirks, network/HTTPS setup, viewport, reload/offline notes, repro steps` |
+| Privacy/safety notes | `Permission prompt behavior, no raw media/sensor/location/health/wallet/payment/reward evidence captured, or review need` |
+| Follow-up action | `None / docs note / runtime-fix proposal needing separate approval / privacy review / device retest` |
+| Severity | `low / medium / high / critical` |
+
+### Device/browser evidence sections
+
+Create one subsection for each target below and keep unchecked items as `device_test_required`:
+
+- **Android Chrome** — record Android version, Chrome version, HTTPS/localhost setup, QR/install prompt path, camera acceptance/denial, MediaPipe pose/face behavior, DeviceMotion behavior, WebGL/3D Flammi behavior, reload/offline smoke, navigation/scroll behavior, and any performance symptoms.
+- **Samsung Internet** — record Samsung device/One UI/browser versions, Samsung install path wording, camera/canvas overlay behavior, WebGL stability, mobile navigation/scroll behavior, and the same permission cases as Android Chrome.
+- **iPhone Safari** — record iPhone/iOS/Safari versions, Add-to-Home-Screen path, camera acceptance/denial, iOS DeviceMotion prompt/limitations, MediaPipe fallback behavior, WebGL/3D Flammi behavior, navigation/reload/scroll behavior, and any Safari-specific blockers.
+- **Desktop responsive browser** — record browser/version, viewport size, emulation/device-toolbar mode if used, route reachability, scroll/navigation, QR/install-dialog copy, fallback states, and whether desktop shell duplication is absent.
+
+### Route evidence sections
+
+Use these route sections without creating new routes or duplicate app shells:
+
+| Route | Expected manual evidence focus | Default untested status |
+|---|---|---|
+| `/mobile` | Mobile landing shell, bottom navigation, QR/install dialog, PWA guidance, responsive scroll, beta-safe wording, no token/NFT/wallet/payment/trading/payout activation. | `device_test_required` |
+| `/mobile/missionen` | Mission overview, touch targets, bottom navigation, path into Squat mission, no final client reward/mission-completion authority from device signals. | `device_test_required` |
+| `/mobile/missionen/squat` | Camera accepted/denied, HUD/countdown/timer, stop/finish controls, skeleton/pose fallback, small-screen usability, logged-out/Firestore-unavailable messaging as observed. | `device_test_required` / `review_required` |
+| `/mobile/buddy` | Buddy status, touch/scroll behavior, beta wording, no token/NFT/wallet/reward-authority behavior. | `device_test_required` |
+| `/mobile/analyse` | Camera accepted/denied, MediaPipe pose/face loading/failure, performance, local/ephemeral-processing expectations, safe non-camera fallback, no raw images/videos/face templates saved. | `device_test_required` / `review_required` |
+| `/mobile/bewegung` | DeviceMotion accepted/denied, HTTPS/weak-context behavior, sensor unavailable fallback, no raw-motion persistence or reward authority. | `device_test_required` / `review_required` |
+| `/mobile/einstellungen` | Mobile settings, install/PWA hints, privacy/beta wording, no consent expansion without review. | `device_test_required` |
+| `/mobile/ar` | Camera AR test mode, WebGL/3D Flammi canvas, rear-camera/canvas overlay, tap/call/move/pause controls, WebGL/camera fallback, performance/battery/heat observations, no Unity dependency or AR reward/mission authority. | `device_test_required` / `review_required` |
+
+### Permission-sensitive evidence checklist
+
+Record each of these as a separate evidence row when tested; otherwise leave `device_test_required`:
+
+| Check | Routes most likely involved | Evidence notes required | Default untested status |
+|---|---|---|---|
+| Camera accepted | `/mobile/missionen/squat`, `/mobile/analyse`, `/mobile/ar` | Permission prompt path, browser/OS wording summary, whether preview/overlay appears, no raw media committed. | `device_test_required` |
+| Camera denied | `/mobile/missionen/squat`, `/mobile/analyse`, `/mobile/ar` | Denial path, fallback copy/state, ability to recover or continue safely. | `device_test_required` |
+| Pose/face/MediaPipe loads | `/mobile/missionen/squat`, `/mobile/analyse` | Load state, visible fallback/skeleton/analysis behavior, performance symptoms, no biometric persistence. | `device_test_required` |
+| Pose/face/MediaPipe fails | `/mobile/missionen/squat`, `/mobile/analyse` | Failure state, user-facing fallback, browser console notes only if non-sensitive. | `device_test_required` / `review_required` |
+| DeviceMotion permission accepted | `/mobile/bewegung` | Prompt/permission path, HTTPS requirement, observed motion response, no raw sensor history captured. | `device_test_required` |
+| DeviceMotion permission denied | `/mobile/bewegung` | Denial/fallback behavior, clear safe messaging, no reward authority. | `device_test_required` |
+| WebGL/3D Flammi loads | `/mobile/ar` | Canvas/3D load, camera layering, controls, browser/device performance symptoms. | `device_test_required` |
+| WebGL unavailable fallback | `/mobile/ar` | Fallback copy/state, no crash/blank critical path, no Unity/native dependency introduced. | `device_test_required` / `review_required` |
+| PWA install/QR flow | `/mobile`, `/mobile/einstellungen` | QR dialog, browser install/Add-to-Home-Screen path, installed-PWA mode if actually tested, no app-store/payment/wallet claims. | `device_test_required` |
+
+### Evidence summary template
+
+At the end of a manual pass, add a short non-sensitive summary outside runtime code:
+
+```md
+Manual Mobile/PWA Device Evidence Summary
+Date:
+Tester:
+Preview URL / build reference:
+Devices/browsers covered:
+Routes covered:
+Permission-sensitive checks covered:
+Counts: pass=0 / fail=0 / blocked=0 / device_test_required=0 / review_required=0
+High/critical findings:
+Artifacts reference folder/link:
+Privacy/safety confirmation:
+Runtime/product/protected-code changes made: none
+Recommended follow-up:
+```
+
+Do not use this template to self-approve runtime fixes. A failed or review-required device finding should become a separate scoped task/PR with explicit allowed files and review plan.
+
 ## Optional screenshot comparison modes
 
 Pixel matching means comparing a newly captured **current** screenshot with an approved **baseline** screenshot and measuring how many rendered pixels differ. It is useful for catching unintended layout, spacing, color, typography, and responsive breakage that route-smoke checks may miss, but it can be noisy when fonts, animations, timestamps, browser binaries, seeded data, or device rendering are not deterministic.

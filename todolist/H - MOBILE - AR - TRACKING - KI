@@ -26,6 +26,7 @@ MOBILE-SAFETY-KLARSTELLUNG 2026-05-15:
 MOBILE/PWA DEVICE TESTPLAN 2026-05-15 (documentation-only / device_test_required):
 [!] Zweck: Dieser Plan beschreibt manuelle Geraete- und Browserpruefungen fuer die bestehenden Mobile-/PWA-Routen. Er aendert keine Runtime-Logik, keine Service-Worker-/Manifest-Dateien, keine Kamera-/Motion-/AR-/Tracking-/Consent-Logik und keine Reward-/Mission-Autoritaet.
 [!] Teststatus: Verhalten auf echten Zielgeraeten bleibt `device_test_required`; unklare Browser-, OS-, Sensor-, Permission- oder WebGL-Unterschiede bleiben `review_required` statt erfunden zu werden.
+[x] Manual Device Evidence Template 2026-05-15 ergaenzt in `docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md`: Menschen koennen Testdatum, Tester, Device/OS/Browser, Route, erwartetes/aktuelles Ergebnis, Status, Evidence-Referenz, Safety-Notizen, Follow-up und Severity pro Zielgeraet dokumentieren; ungetestete Zeilen bleiben `device_test_required`.
 
 Device-/Browser-Matrix:
 [ ] Android Chrome (aktuelles Android, HTTPS/localhost): QR-/Install-Dialog, PWA-Install-Banner oder Browser-Menue, Kamera-Permission, MediaPipe/Pose, DeviceMotion, WebGL/3D-Flammi und Offline-/Reload-Basissmoke pruefen. Status: device_test_required.
