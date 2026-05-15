@@ -15,6 +15,7 @@ Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei erse
 - Diese Datei und `todolist/WORK_MAP.md` duerfen nicht zu Parallelarchitektur ausgebaut werden; sie zeigen nur auf bestehende Dateien.
 - Baseline-Check am 2026-05-14 auf Branch `agent-doc-baseline-check`: `npm run agent:autopilot:dry-run`, `npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm --prefix functions run check` und `npm run agent:quality-gate` liefen erfolgreich; `agent:quality-gate` meldete PASS.
 - Autopilot waehlt weiterhin `AGENT-DOC-BASELINE-CHECK` als sichersten low-risk Dokumentations-Task; Umsetzung bleibt auf erlaubte Dokumentations-/Registerdateien begrenzt und schreibt keine Runtime-Produktlogik.
+- Zweiter Batch-Autopilot-Limited-Execution-Probe am 2026-05-15 auf Branch `batch-autopilot-probe-2`: ausgefuehrt wurde genau ein sicherer Low-Risk-Dokumentations-Task (`AGENT-DOC-BASELINE-CHECK`); `AGENT-PRODUCT-READINESS-MATRIX-MAINTENANCE` und `AGENT-AUTO-REPAIR-DECISION-GUARD` wurden nicht umgesetzt, weil dieser Probe auf Baseline-/Handoff-Dokumentation begrenzt bleibt. Auto-Merge, Auto-Repair, Deployment, Runtime-Produktcode, Unity/PR #13 und geschuetzte Compliance-/Reward-/Wallet-/Payment-Bereiche blieben unangetastet.
 
 ## Abgeschlossene Arbeit / vorhandene Grundlagen
 
