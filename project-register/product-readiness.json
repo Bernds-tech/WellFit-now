@@ -89,12 +89,15 @@
         "firebase.json",
         "firestore.rules",
         "project-register/risk-classifier.json",
-        "todolist/WORK_MAP.md"
+        "todolist/WORK_MAP.md",
+        "todolist/DATABASE_PLAN.md",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT"
       ],
       "current_blockers": [
-        "Authentication and identity work can affect privacy, consent, account safety, and backend security."
+        "Authentication and identity work can affect privacy, consent, account safety, and backend security.",
+        "Register/User/Profile/Settings schema assumptions are documented, but exact runtime field names, duplicate avatar/profile.aiBuddy source-of-truth, permissions-vs-consent boundaries, and health-adjacent fields remain review_required before implementation."
       ],
-      "next_safe_task": "Document the current registration route and auth expectations; only make UI-copy or validation-doc changes unless auth implementation is explicitly assigned.",
+      "next_safe_task": "After the docs-only schema baseline, perform an explicitly scoped read-only field-name reconciliation against existing registration/settings code and Firestore rules; do not change Auth, Firestore writes, profile/settings runtime behavior, or consent logic without a separate approved task.",
       "do_not_duplicate_warning": "Do not add a parallel auth system, duplicate login flow, or client-exposed secret configuration.",
       "required_checks_before_status_can_advance": [
         "npm run lint",

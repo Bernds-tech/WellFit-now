@@ -88,6 +88,11 @@ Quelle: Dry-Run-Report, `todolist/README.md`, `todolist/J - NÄCHSTE EMPFOHLENE 
 - [x] Firebase-/PM2-/Emulator-Voraussetzungen am 2026-05-15 docs-only nachgezogen: Root-App-Checks vs. Functions-Syntaxcheck getrennt, `npm --prefix functions run check` beschrieben, Emulator-Voraussetzungen (Firebase CLI, Java, Ports, Login/Projektkontext, lokale Umgebung) dokumentiert, PM2/Server-Deployment nur mit expliziter Human-Freigabe, keine Firestore-Rules-/Functions-/Runtime-/Reward-/Mission-Authority-Aenderung.
 Quelle: `README.md`, `docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md`, `docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md`, `docs/architecture/MISSION_DRAFT_EMULATOR_TEST_PLAN.md`
 
+- [x] Register/User/Profile/Settings Schema-Baseline am 2026-05-15 docs-only erstellt: Registrierungsfelder, User-Dokumentfelder, Profil-/Settings-Kategorien, Avatar-/`profile.aiBuddy`-Felder, Consent-Felder, KI-relevante Felder, sensitive Felder, Duplicate-/Wrong-Field-Risiken und Nicht-Autoritaetsgrenzen in `todolist/DATABASE_PLAN.md` dokumentiert; unklare Felder bleiben `review_required`. Keine Runtime-, Auth-, Firestore-, Profil-, Settings-, Functions-, Rules-, Public-Asset-, Package- oder Unity-Aenderung.
+Quelle: `todolist/DATABASE_PLAN.md`, `todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT`
+
+- [ ] Naechster sicherer Product-Foundation-Schritt: Safety-wording / economy-guardrail documentation pass in bestehenden Mobile-/Mission-/Economy-Planungsquellen; weiterhin keine Runtime-Logik, keine Legal-/Compliance-Texte, keine Reward-/Mission-Authority, keine Token-/NFT-/Wallet-/Payment-/Betting-Aktivierung.
+
 - [x] 2026-05-14 aktuellen Baseline-Check ausgefuehrt: Lint, Typecheck, Build, Functions-Syntaxcheck und Quality Gate erfolgreich.
 - [~] Root-Installation bleibt unveraendert; `npm install` wurde nicht ausgefuehrt, weil Abhaengigkeiten fuer die Checks vorhanden waren.
 - [ ] `LAST_BUILD_STATUS.md` nur aktualisieren, wenn ein kuenftiger Auftrag diese Statusdatei ausdruecklich in den erlaubten Dateien einschliesst.

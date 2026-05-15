@@ -893,6 +893,115 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "REGISTER-PROFILE-SETTINGS-SCHEMA-DOCS",
+      "title": "Document Register/User/Profile/Settings schema assumptions",
+      "status": "done",
+      "pr": {
+        "branch": "docs/register-profile-settings-schema",
+        "number": null,
+        "url": null,
+        "title": "Document Register/Profile/Settings schema assumptions"
+      },
+      "changedFiles": [
+        "todolist/DATABASE_PLAN.md",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/product-readiness.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass_dry_run",
+          "notes": "Initial and final Autopilot dry runs reported DRY_RUN and did not write files."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Initial and final quality gates passed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Initial product readiness check passed; final quality gate also included this check."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+          "result": "pass_with_existing_warnings",
+          "notes": "Initial repository inventory check passed with existing warning sections; no runtime/protected files were modified."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Initial cross-reference maintenance check passed."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check completed successfully."
+        },
+        {
+          "command": "jq empty project-register/product-readiness.json project-register/progress-log.json project-register/agent-work-log.json",
+          "result": "pass",
+          "notes": "JSON validation completed successfully; rerun after log append passed."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax check completed successfully without modifying functions."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass_report_only_not_eligible",
+          "notes": "Report-only check returned AUTO_MERGE_ELIGIBLE=false; forbidden topic/path keywords require human review and no merge was performed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass_report_only_not_allowed",
+          "notes": "Report-only check returned AUTO_REPAIR_ALLOWED=false; no repair was needed or performed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+          "result": "pass",
+          "notes": "PR review policy reported PR_REVIEW_POLICY_READY=true and remained report-only."
+        }
+      ],
+      "followUps": [
+        "Keep register/profile/settings schema assumptions in todolist/DATABASE_PLAN.md synchronized with sprint and product-readiness metadata.",
+        "Exact runtime field names, avatar/profile.aiBuddy source-of-truth, permissions-vs-consent semantics, and health-adjacent profile fields remain review_required before implementation."
+      ],
+      "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
+      "updatedTodoFiles": [
+        "todolist/DATABASE_PLAN.md",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low-to-medium",
+      "definitionOfDoneKey": "documentation_task"
     }
   ]
 }

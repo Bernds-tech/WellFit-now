@@ -105,15 +105,16 @@ UMSETZUNG:
 [ ] Mehrtab-Test für Session-Verhalten prüfen.
 
 TASK-ID: WF-REGISTER-SCHEMA-001
-STATUS: [ ] Offen / Wichtig für KI
+STATUS: [x] Dokumentationsbaseline erstellt / Wichtig für KI
 ZIEL:
 Firestore User-/Profile-/Settings-Schema dokumentieren und mit Einstellungen abgleichen.
 UMSETZUNG:
-[ ] Registerdaten-Schema dokumentieren.
-[ ] Settings-Schema dokumentieren.
-[ ] Avatar-Schema dokumentieren.
-[ ] Doppelte oder widersprüchliche Felder identifizieren.
-[ ] KI-relevante Felder markieren: Alter, Aktivität, Schlaf, Stress, Ernährung, Ziele, Interessen, Community-Modus, Buddy.
+[x] Registerdaten-Schema in `todolist/DATABASE_PLAN.md` als documentation-only Baseline dokumentieren.
+[x] Settings-Schema-Kategorien in `todolist/DATABASE_PLAN.md` dokumentieren und unklare Felder als `review_required` markieren.
+[x] Avatar-/`profile.aiBuddy`-Schemaannahmen dokumentieren und Doppelfeldrisiko markieren.
+[x] Doppelte oder widersprüchliche Feldkandidaten identifizieren: `avatar` vs. `profile.aiBuddy`/`buddy_id`, `name` vs. `nickname`, `birthDate` vs. Alter/Altersgruppe, `permissions` vs. `consent`, Health-/Gamification-/Demo-Wallet-Felder.
+[x] KI-relevante Felder markieren: Alter/Altersgruppe, Aktivität, Schlaf, Stress, Ernährung, Ziele, Interessen, Community-Modus, Buddy.
+[ ] Spaeterer Read-only-Abgleich mit vorhandenen Registrierungs-/Einstellungen-Dateien bleibt offen; keine Runtime-, Auth-, Firestore-, Settings- oder Profile-Code-Aenderung in diesem Task.
 
 TASK-ID: WF-REGISTER-BUDDY-002
 STATUS: [ ] Offen

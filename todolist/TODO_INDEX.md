@@ -25,7 +25,7 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `todolist/PROJECT_STRUCTURE.md` | aktiv | Datei- und Ordneruebersicht | gebaute Bereiche und Feature-Dateien |
 | `todolist/DONE_LOG.md` | aktiv | erledigte Arbeiten | geaenderte Dateien und abgeschlossene Aufgaben |
 | `todolist/ARCHITECTURE_RULES.md` | aktiv | Skalierbarkeit und kleine Dateien | Struktur- und Feature-Entscheidungen |
-| `todolist/DATABASE_PLAN.md` | aktiv | Datenbankplanung | Missionen, Nutzer, KI-Buddy, Wallet, Gamification |
+| `todolist/DATABASE_PLAN.md` | aktiv | Datenbankplanung inkl. Register/User/Profile/Settings-Schema-Baseline, Consent-/KI-Feldgrenzen und Duplicate-/Wrong-Field-Risiken | Missionen, Nutzer, KI-Buddy, Wallet, Gamification, Auth / Profil |
 | `todolist/LOCAL_AGENT_RUN_INSTRUCTIONS.md` | aktiv | lokale Anleitung zum Agentenlauf | Agent-Runbook, PowerShell-Skript |
 | `README.md` | aktiv / Setup | fuehrende Root-Setup-Dokumentation fuer lokale Entwicklung, Env-Variablen, Firebase-CI-Build-Verhalten und sichere Agenten-Grenzen; bei Setup-/Env-Doku-Aenderungen synchron halten und keine Runtime-Konfiguration aendern | `todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md`, `WORK_MAP.md` |
 | `.env.example` | aktiv / Env-Vorlage | committete Platzhalter-Vorlage fuer Firebase-Web-App-Variablen und optionale serverseitige Buddy-KI-Provider-Keys; keine echten Secrets oder Projektwerte eintragen, `.env.local` bleibt uncommitted | `README.md`, `todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md` |
