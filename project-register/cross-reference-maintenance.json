@@ -1,0 +1,737 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-15",
+  "purpose": "Machine-readable maintenance framework for future WellFit agents. It defines which registers, TODO files, Work Map entries, readiness files, validation scripts, and architecture docs must be inspected and updated whenever routes, APIs, product modules, agent scripts, roadmap items, feedback/insight systems, governance files, visual checks, Unity/AR plans, or protected compliance areas change.",
+  "status": "active_governance_registry",
+  "sourceOfTruthFiles": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "todolist/NEXT_ACTIONS.md",
+    "project-register/agent-autopilot.json",
+    "project-register/agent-task-queue.json",
+    "project-register/agent-workflows.json",
+    "project-register/agent-work-log.json",
+    "project-register/progress-log.json",
+    "project-register/product-readiness.json",
+    "project-register/internal-sources.json",
+    "project-register/master-roadmap-tasks.json",
+    "project-register/research-recommendations.json",
+    "project-register/adaptive-user-insights.json",
+    "project-register/user-feedback.json",
+    "project-register/features.json",
+    "project-register/routes.json",
+    "project-register/apis.json",
+    "project-register/visual-regression.json",
+    "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
+    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+    "scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+    "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+  ],
+  "globalMaintenanceRule": "After every future agent task, identify the matching change categories, inspect the listed files, update only the required targets that actually changed, preserve historical TODO/status context, append progress/work-log notes when useful, run the required validation commands, and state when a listed target was inspected but did not need changes.",
+  "globalAntiDuplicationRule": "Do not create duplicate architecture, a parallel register family, or a second agent/governance system. Extend the mapped source-of-truth files and cite this registry when a new file must be introduced.",
+  "changeCategories": {
+    "route_added_or_changed": {
+      "description": "A Next.js route, route group, page shell, navigation path, protected page, public page, mobile page, legal/help page, or route metadata changes.",
+      "requiredInspectFiles": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/internal-sources.json",
+        "project-register/visual-regression.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not create parallel app shells, duplicate navigation systems, or alternate route registries.",
+        "Do not auto-change legal, privacy, wallet, payment, reward-authority, health, child, location, or compliance routes without explicit human review.",
+        "Do not auto-modify app/** in documentation-only maintenance tasks."
+      ],
+      "humanReviewRules": [
+        "Require human review when route wording or behavior touches protected compliance, legal, privacy, token/NFT/wallet/payment, health, child, location, camera, reward authority, or betting topics.",
+        "Require human review before deleting, renaming, hiding, or merging established routes."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/route-api-register-check.mjs",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs --report-only",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Adding /mobile/buddy requires routes.json, features.json, visual-regression.json, WORK_MAP.md, TODO_INDEX.md, and progress-log review.",
+        "Changing a legal/help path requires human review before updating route metadata."
+      ]
+    },
+    "api_added_or_changed": {
+      "description": "An API route, callable endpoint, Firebase Functions surface, API registry entry, emulator test plan, or backend contract changes.",
+      "requiredInspectFiles": [
+        "project-register/apis.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/internal-sources.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/apis.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not expose secrets, server API keys, or privileged service-account details in frontend docs or registers.",
+        "Do not activate token, NFT, wallet, payment, payout, betting, final reward authorization, health, child, location, camera, privacy, or compliance APIs without explicit approval.",
+        "Do not auto-modify app/**, lib/**, functions/**, firestore.rules, or runtime API code in documentation-only maintenance tasks."
+      ],
+      "humanReviewRules": [
+        "Require human review for any API that writes ledgers, rewards, mission completion, anti-cheat decisions, purchases, payouts, personal data, health data, child data, or location/camera data.",
+        "Require human review before removing or changing compatibility expectations for an existing API."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/route-api-register-check.mjs",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "npm --prefix functions run check",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Adding /api/buddy/* requires apis.json, feature mapping, readiness status, Work Map, and API drift validation.",
+        "Changing Firebase Functions syntax requires functions check plus cross-reference maintenance validation."
+      ]
+    },
+    "feature_or_product_module_changed": {
+      "description": "A product module, feature map entry, readiness level, module ownership, beta boundary, or concept-to-code mapping changes.",
+      "requiredInspectFiles": [
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/internal-sources.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/internal-sources.json",
+        "project-register/master-roadmap-tasks.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not create parallel feature registries, second readiness matrices, or duplicate module taxonomies.",
+        "Do not advance protected or critical modules to implementation-ready without human review and evidence.",
+        "Do not rewrite historical roadmap/TODO context; mark stale or duplicate items instead."
+      ],
+      "humanReviewRules": [
+        "Require human review for module status changes involving protected topics or production readiness claims.",
+        "Require human review when a feature changes user-facing promises, monetization, rewards, compliance, privacy, or data collection boundaries."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Changing Buddy readiness requires features.json, product-readiness.json, internal-sources.json, roadmap mapping, and Work Map review.",
+        "Adding a new product module should map to existing route/API/doc sources before any new architecture file is created."
+      ]
+    },
+    "agent_script_added_or_changed": {
+      "description": "A script under scripts/wellfit-dev-agent/src, an agent workflow, agent task queue entry, work-log schema, follow-up flow, dry-run behavior, or package script changes.",
+      "requiredInspectFiles": [
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "project-register/internal-sources.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
+        "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not weaken safety gates, protected-area stop rules, loop guards, or dry-run-only constraints.",
+        "Do not create a parallel agent orchestrator when agent-autopilot and agent-workflows already define the flow.",
+        "Do not auto-run merge, deploy, live release, or production-write commands."
+      ],
+      "humanReviewRules": [
+        "Require human review before changing stop conditions, allowed/forbidden actions, risk gates, protected file rules, or no-merge/no-deploy rules.",
+        "Require human review before enabling any autopilot behavior beyond dry-run reporting."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
+        "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Adding a new registry validator requires agent-workflows, agent-task-queue, quality-gate, Work Map, TODO index, and this cross-reference registry to be updated together.",
+        "Changing autopilot selection behavior requires dry-run validation and human-review notes if risk gates change."
+      ]
+    },
+    "quality_gate_changed": {
+      "description": "The Quality Gate, required checks, validation report expectations, or required standard changes.",
+      "requiredInspectFiles": [
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not remove required checks to hide failures.",
+        "Do not downgrade protected-topic, risk, privacy, security, or governance validation without explicit review.",
+        "Do not make optional browser/screenshot checks block the whole gate unless browser support and preview requirements are deliberately approved."
+      ],
+      "humanReviewRules": [
+        "Require human review before removing, bypassing, or weakening an existing quality-gate check.",
+        "Require human review before changing PASS/FAIL semantics for protected areas."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build"
+      ],
+      "examples": [
+        "Integrating a new check requires adding it to agentSteps, asserting its report result, documenting the required standard, and mapping it in workflows and TODO files."
+      ]
+    },
+    "roadmap_task_added_or_changed": {
+      "description": "Master roadmap task imports, roadmap phase status, task safety mapping, TODO roadmap pointers, or next-action recommendations change.",
+      "requiredInspectFiles": [
+        "project-register/master-roadmap-tasks.json",
+        "project-register/product-readiness.json",
+        "project-register/internal-sources.json",
+        "project-register/agent-task-queue.json",
+        "project-register/research-recommendations.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/master-roadmap-tasks.json",
+        "project-register/product-readiness.json",
+        "project-register/internal-sources.json",
+        "project-register/agent-task-queue.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not overwrite current source-of-truth hierarchy with historical roadmap text.",
+        "Do not mark protected or unclear roadmap work as implementation-ready automatically.",
+        "Do not delete old TODO context; mark stale/duplicate when needed."
+      ],
+      "humanReviewRules": [
+        "Require human review for roadmap tasks involving Unity/PR #13, token/NFT/wallet/payment, reward authority, health, child, location, privacy, compliance, legal, or production readiness.",
+        "Require human review when roadmap priority conflicts with CURRENT_PROJECT_STATE.md or WORK_MAP.md."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Importing a new roadmap phase requires preserving existing hierarchy and linking tasks to product-readiness and internal-sources instead of creating a new roadmap system."
+      ]
+    },
+    "product_readiness_changed": {
+      "description": "Readiness statuses, blockers, safe next tasks, module advancement rules, duplicate warnings, or evidence fields change.",
+      "requiredInspectFiles": [
+        "project-register/product-readiness.json",
+        "project-register/features.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/agent-task-queue.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/product-readiness.json",
+        "project-register/features.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/agent-task-queue.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not promote blocked, critical, or protected modules without documented evidence and human review.",
+        "Do not use readiness changes to imply production launch, live deployment, legal approval, or final reward authority.",
+        "Do not create a second readiness matrix."
+      ],
+      "humanReviewRules": [
+        "Require human review for status advancement of high/critical or protected modules.",
+        "Require human review when readiness depends on emulator, security, privacy, legal, or payment/reward authority proof."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Moving a module from draft to beta-ready requires evidence, blockers review, Work Map/TODO references, and product-readiness validation."
+      ]
+    },
+    "feedback_or_analytics_changed": {
+      "description": "Feedback collection plans, aggregate analytics, user-feedback register, feedback loop audit, analytics route/docs, or privacy-safe summary rules change.",
+      "requiredInspectFiles": [
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not expose raw feedback, identifiers, health data, child data, location data, camera data, wallet/payment data, or reward-evidence data to agents.",
+        "Do not add third-party analytics or live tracking from a planning/register task.",
+        "Do not treat feedback as automatic product approval."
+      ],
+      "humanReviewRules": [
+        "Require human review for any new data collection, retention, deletion, export, consent, analytics, or feedback-processing rule.",
+        "Require human review before converting feedback themes into protected runtime behavior."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs",
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Adding a feedback summary field requires user-feedback, feedback-analytics-loop, adaptive-user-insights, Work Map, and privacy guardrail review."
+      ]
+    },
+    "adaptive_user_insight_changed": {
+      "description": "Adaptive User Insight governance, aggregate signal rules, cohort thresholds, recommendation schema, explainability, or planning-only boundaries change.",
+      "requiredInspectFiles": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "project-register/research-recommendations.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json",
+        "project-register/research-recommendations.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not change activationState away from planning_only without explicit approval.",
+        "Do not expose raw users, identifiers, sensitive fields, small cohorts, or protected categories to agents.",
+        "Do not implement runtime personalization from this register alone."
+      ],
+      "humanReviewRules": [
+        "Require human review for high/critical, protected-topic, fairness, privacy, consent, or automated decisioning recommendations.",
+        "Require human review before decreasing minimum sample thresholds or adding sensitive signal categories."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Changing k-anonymity thresholds requires adaptive-user-insights, user-feedback, feedback-loop, and research-recommendation review."
+      ]
+    },
+    "research_recommendation_changed": {
+      "description": "Research/recommendation governance, internal-first sources, external research policy, three-option format, risk model, or decision log entries change.",
+      "requiredInspectFiles": [
+        "project-register/research-recommendations.json",
+        "project-register/internal-sources.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/adaptive-user-insights.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/research-recommendations.json",
+        "project-register/internal-sources.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not use external research to override existing WellFit source-of-truth files without human review.",
+        "Do not implement a recommendation as product/runtime code in the same registry-only step.",
+        "Do not skip three options, exactly one recommendation, risk classification, or human-review fields."
+      ],
+      "humanReviewRules": [
+        "Require human review for high/critical recommendations, protected topics, external-source conflicts, or changes to anti-duplication/source hierarchy.",
+        "Require human review before making external research mandatory."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Adding an unclear architecture recommendation requires internal sources first, three options, one recommended option, risk classification, and human review."
+      ]
+    },
+    "internal_source_map_changed": {
+      "description": "The internal source-to-implementation map, concept source group, leading implementation file, or do-not-duplicate warning changes.",
+      "requiredInspectFiles": [
+        "project-register/internal-sources.json",
+        "project-register/features.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/product-readiness.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/research-recommendations.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/internal-sources.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/research-recommendations.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not map a concept to a new parallel implementation when a leading file already exists.",
+        "Do not remove do-not-duplicate warnings or protected-topic risk levels without review.",
+        "Do not infer implementation readiness from concept text alone."
+      ],
+      "humanReviewRules": [
+        "Require human review when changing leading implementation files for protected or high-risk source groups.",
+        "Require human review before lowering risk levels or marking not-yet-implemented source areas as ready."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Adding a source group for B2B requires linking existing docs/registers and warning future agents not to create a second B2B architecture."
+      ]
+    },
+    "visual_regression_changed": {
+      "description": "Visual regression registry, screenshot route set, browser smoke behavior, visual artifacts, or perceptible UI QA guidance changes.",
+      "requiredInspectFiles": [
+        "project-register/visual-regression.json",
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/visual-regression.json",
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not make optional/report-only screenshot checks fail the main quality gate because browser support is unavailable.",
+        "Do not store large generated screenshots in source-controlled docs unless explicitly requested.",
+        "Do not use visual checks to change runtime product behavior automatically."
+      ],
+      "humanReviewRules": [
+        "Require human review before changing visual baseline expectations for legal, payment, privacy, health, child, or protected routes.",
+        "Require human review before deleting a route from visual coverage."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs --report-only",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Adding a perceptible dashboard UI change requires route visual coverage review and screenshot/report-only notes when environment supports it."
+      ]
+    },
+    "documentation_baseline_changed": {
+      "description": "AGENTS.md, TODO index, Work Map, Current Project State, Next Actions, architecture docs, progress logs, or handoff/status memory changes.",
+      "requiredInspectFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-workflows.json",
+        "project-register/internal-sources.json",
+        "project-register/cross-reference-maintenance.json"
+      ],
+      "requiredUpdateTargets": [
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-workflows.json",
+        "project-register/cross-reference-maintenance.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not delete or rewrite historical TODO/status context.",
+        "Do not create a competing documentation baseline, second Work Map, or second TODO index.",
+        "Do not change AGENTS.md safety rules without explicit instruction."
+      ],
+      "humanReviewRules": [
+        "Require human review for changes to repository-wide rules, branch/PR rules, protected-area rules, or compliance wording.",
+        "Require human review when documentation changes would alter product commitments or public claims."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/memory-sync.mjs",
+        "node scripts/wellfit-dev-agent/src/todo-status-sync.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Adding this framework requires Work Map, TODO index, agent workflow, task queue, quality gate, and progress/work-log references rather than a duplicate governance map."
+      ]
+    },
+    "unity_or_ar_changed": {
+      "description": "Unity/AR planning, WellFitBuddyAR references, AR event mapping, Buddy AR roadmap, or native bridge documentation changes.",
+      "requiredInspectFiles": [
+        "AGENTS.md",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/internal-sources.json",
+        "project-register/product-readiness.json",
+        "project-register/features.json",
+        "project-register/research-recommendations.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/master-roadmap-tasks.json",
+        "project-register/internal-sources.json",
+        "project-register/product-readiness.json",
+        "project-register/features.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not touch, delete, overwrite, or template native/unity/WellFitBuddyAR/** without explicit owner instruction.",
+        "Do not merge, close, depend on, or shortcut through old Unity PR #13.",
+        "Do not let Unity/AR client events final-authorize rewards, mission completion, or anti-cheat."
+      ],
+      "humanReviewRules": [
+        "Require human review for any Unity file change, AR reward event change, native bridge change, or PR #13-related decision.",
+        "Require human review before connecting AR event output to backend reward authority."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "Inventorying Unity AR status is allowed in planning docs/registers, but native/unity/WellFitBuddyAR remains untouched unless explicitly requested."
+      ]
+    },
+    "compliance_or_privacy_changed": {
+      "description": "Legal, Datenschutz, Impressum, privacy, consent, health, child-safety, location, camera, wallet/payment, token/NFT, betting, reward-authority, anti-cheat, or compliance messaging changes.",
+      "requiredInspectFiles": [
+        "AGENTS.md",
+        "project-register/product-readiness.json",
+        "project-register/features.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/user-feedback.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/internal-sources.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ],
+      "requiredUpdateTargets": [
+        "project-register/product-readiness.json",
+        "project-register/features.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/user-feedback.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/internal-sources.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ],
+      "forbiddenAutoUpdates": [
+        "Do not modify compliance-critical logic or legal/privacy messaging without explicit instruction and a review plan.",
+        "Do not activate token, NFT, wallet, payment, purchase, payout, staking, presale, trading, betting, or final reward authority features in mobile/beta flows.",
+        "Do not collect or expose raw health, child, location, camera, biometric, wallet, payment, or reward-evidence data to agents."
+      ],
+      "humanReviewRules": [
+        "Human review is always required before implementing or changing protected compliance/privacy areas.",
+        "Human review is required before changing public legal/privacy text, consent behavior, sensitive data collection, or financial-equivalent mechanics."
+      ],
+      "validationRequirements": [
+        "node scripts/wellfit-dev-agent/src/firebase-security-audit.mjs",
+        "node scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs",
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "examples": [
+        "A Datenschutz wording change requires explicit human review and route/feature/readiness/user-feedback cross-reference updates if approved.",
+        "Reward-authority changes must remain server-side or draft/preview until emulator/security evidence and human approval exist."
+      ]
+    }
+  },
+  "forbiddenAutoUpdates": [
+    "Do not modify runtime product code from this maintenance framework alone.",
+    "Do not modify app/**, components/**, lib/**, functions/**, firestore.rules, or native/unity/WellFitBuddyAR/** during documentation/registry-only maintenance tasks.",
+    "Do not touch PR #13 or Unity assets without explicit owner instruction.",
+    "Do not enable merge, deployment, production writes, live analytics, real payments, wallets, tokens, NFTs, staking, trading, betting, payouts, or final reward authority automatically.",
+    "Do not create duplicate architecture, duplicate TODO indexes, duplicate Work Maps, or parallel register families."
+  ],
+  "humanReviewRequiredCategories": [
+    "unity_or_ar_changed",
+    "compliance_or_privacy_changed",
+    "quality_gate_changed when weakening/removing checks",
+    "agent_script_added_or_changed when changing stop conditions or dry-run-only constraints",
+    "route_added_or_changed when legal/privacy/protected routes change",
+    "api_added_or_changed when personal data, ledger-like writes, rewards, payments, or protected data are involved",
+    "product_readiness_changed when advancing high/critical/protected modules"
+  ],
+  "validationRequirements": [
+    "jq empty project-register/cross-reference-maintenance.json",
+    "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+    "npm run agent:quality-gate"
+  ],
+  "afterEveryAgentTaskChecklist": [
+    "Identify all applicable changeCategories.",
+    "Inspect each category's requiredInspectFiles before deciding whether updates are needed.",
+    "Update only relevant requiredUpdateTargets and preserve historical TODO/status context.",
+    "Record completion, skipped updates, risks, and next steps in existing progress/work-log/register files when useful.",
+    "Run category-specific validationRequirements plus the global cross-reference maintenance check.",
+    "Report runtime/product/protected areas touched or explicitly confirm they were untouched."
+  ],
+  "examples": [
+    {
+      "scenario": "New route and feature mapping",
+      "categories": ["route_added_or_changed", "feature_or_product_module_changed", "visual_regression_changed"],
+      "minimumCrossReferences": ["routes.json", "features.json", "product-readiness.json", "visual-regression.json", "WORK_MAP.md", "TODO_INDEX.md", "progress-log.json"]
+    },
+    {
+      "scenario": "New agent validation script",
+      "categories": ["agent_script_added_or_changed", "quality_gate_changed", "documentation_baseline_changed"],
+      "minimumCrossReferences": ["agent-workflows.json", "agent-task-queue.json", "agent-autopilot.json", "quality-gate.mjs", "WORK_MAP.md", "TODO_INDEX.md", "cross-reference-maintenance.json"]
+    },
+    {
+      "scenario": "Feedback insight planning change",
+      "categories": ["feedback_or_analytics_changed", "adaptive_user_insight_changed", "compliance_or_privacy_changed"],
+      "minimumCrossReferences": ["user-feedback.json", "feedback-analytics-loop.json", "adaptive-user-insights.json", "research-recommendations.json", "product-readiness.json", "WORK_MAP.md", "TODO_INDEX.md"]
+    }
+  ]
+}

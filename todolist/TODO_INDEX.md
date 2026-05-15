@@ -41,6 +41,16 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `todolist/README.md` | aktiv / Ueberblick | alter todolist-Ueberblick | `PROJECT_STRUCTURE.md` | pruefen und relevante Punkte uebernehmen |
 
 
+
+## Cross-Reference Maintenance / Agent-System Analysis
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `project-register/cross-reference-maintenance.json` | aktiv / Register | maschinenlesbares Cross-Reference-Maintenance-Register mit Change-Kategorien, Pflicht-Inspect-Dateien, Update-Zielen, Forbidden-Auto-Updates, Human-Review-Regeln, Validierungen und Beispielen | `todolist/WORK_MAP.md`, `project-register/agent-workflows.json`, `project-register/agent-task-queue.json` | nach jeder Agent-/Governance-/Route-/API-/Modul-/Roadmap-/Feedback-/Insight-/Visual-/Unity-/Compliance-Aenderung passende Kategorien pruefen und synchron halten |
+| `docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md` | aktiv / Architektur-Analyse | aktueller Agent-/Autopilot-/Governance-Systembericht mit Memory-Dateien, Task-Auswahl, Loop-Guards, Validation Scripts, Register-Familien, Schutzbereichen und Autopilot-Grenzen | `project-register/cross-reference-maintenance.json` | vor groesseren Agent-Governance-Aenderungen lesen; nicht als Ersatz fuer AGENTS.md oder Work Map verwenden |
+| `docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md` | aktiv / Agent Governance | human-readable Runbook fuer Cross-Reference-Maintenance-Agent und PR-Berichtspflichten | `project-register/cross-reference-maintenance.json` | bei kuenftigen PRs als Checkliste fuer Cross-Reference-Updates nutzen |
+| `scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs` | aktiv / Agent-Code | validiert Cross-Reference-Register, Pflichtkategorien, referenzierte Dateien, Work-Map-/TODO-Index-Verweise und Major-Register-Coverage | `project-register/cross-reference-maintenance.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | direkt nach Cross-Reference-/Governance-Aenderungen ausfuehren; im Quality Gate eingebunden |
+
 ## Master Roadmap Import / Registry
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |

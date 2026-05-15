@@ -38,7 +38,10 @@
     "project-register/research-recommendations.json",
     "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
     "project-register/adaptive-user-insights.json",
-    "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md"
+    "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+    "project-register/cross-reference-maintenance.json",
+    "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
+    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -70,7 +73,9 @@
     "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
     "jq empty project-register/adaptive-user-insights.json",
     "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
-    "jq empty project-register/agent-autopilot.json"
+    "jq empty project-register/agent-autopilot.json",
+    "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+    "jq empty project-register/cross-reference-maintenance.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -969,6 +974,68 @@
       ],
       "taskCategory": "autopilot_governance",
       "category": "autopilot_governance"
+    },
+    {
+      "id": "AGENT-CROSS-REFERENCE-MAINTENANCE",
+      "title": "Maintain WellFit cross-reference maintenance framework",
+      "category": "cross_reference_maintenance_governance",
+      "taskCategory": "documentation_registry_validation",
+      "priority": "high",
+      "riskLevel": "low",
+      "purpose": "Keep the cross-reference maintenance registry, docs, validator, workflows, task queue, Work Map, TODO index, and Quality Gate aligned so future agents update all relevant references after changes.",
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/cross-reference-maintenance.json",
+        "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+        "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json"
+      ],
+      "allowedFiles": [
+        "project-register/cross-reference-maintenance.json",
+        "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+        "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
+        "scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredChecks": [
+        "jq empty project-register/cross-reference-maintenance.json",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "Runtime product code is required.",
+        "Protected compliance, privacy, reward authority, payment, token/NFT/wallet, health, child, location, or Unity files need changes without explicit human approval.",
+        "The task would create a duplicate Work Map, TODO index, route/API registry, readiness matrix, or agent orchestrator."
+      ],
+      "expectedPrOutput": [
+        "List changed cross-reference, governance, TODO, and validation files.",
+        "Summarize the current agent-system analysis and how future agents must update cross-references.",
+        "Report checks run and any failures or warnings honestly.",
+        "Confirm runtime product code, protected areas, Unity/PR #13, and compliance-critical logic were untouched."
+      ],
+      "definitionOfDoneKey": "documentation_registry_validation"
     }
   ],
   "selectionRules": [

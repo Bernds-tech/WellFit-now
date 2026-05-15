@@ -21,7 +21,10 @@
     "project-register/master-roadmap-tasks.json",
     "project-register/user-feedback.json",
     "project-register/adaptive-user-insights.json",
-    "project-register/research-recommendations.json"
+    "project-register/research-recommendations.json",
+    "project-register/cross-reference-maintenance.json",
+    "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
+    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md"
   ],
   "iterationPhases": [
     {
@@ -108,7 +111,9 @@
     "npm --prefix functions run check",
     "npm run agent:quality-gate",
     "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
-    "jq empty project-register/agent-autopilot.json"
+    "jq empty project-register/agent-autopilot.json",
+    "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+    "jq empty project-register/cross-reference-maintenance.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -171,17 +176,5 @@
     "deployAllowed": false,
     "message": "Autopilot prepares a report and PR handoff only; it never merges or deploys."
   },
-  "taskSelectionMemoryRule": {
-    "memorySources": [
-      "project-register/progress-log.json",
-      "project-register/agent-work-log.json"
-    ],
-    "recentlyCompletedSkipRule": "When recent progress-log or completed agent-work-log entries identify completed task IDs, the Autopilot task picker should skip those tasks for the immediate next selection if another safe non-blocked candidate exists.",
-    "dryRunOnly": true,
-    "noPermanentCompletionState": "The cooldown is a selection-memory hint, not a permanent queue mutation; candidates remain governed by status, blockers, risk, and definition-of-done checks.",
-    "recentCompletedWindow": 4,
-    "baselineRegistryLoopGuard": "If AGENT-DOC-BASELINE-CHECK and AGENT-REGISTRY-SYNC both appear in the recent completed-task window, skip both once and prefer the highest-ranked safe task from a different taskCategory when one exists.",
-    "repeatedCategoryAvoidanceRule": "When recent task memory shows repeated documentation_baseline or registry_sync work, prefer a safe low/medium-risk task in a different taskCategory before returning to the guarded pair.",
-    "fallbackWhenNoOtherSafeTaskExists": "If no other safe low/medium-risk candidate with a valid definition-of-done key exists, select the safest available task and report that the loop guard could not divert selection."
-  }
+  "taskSelectionMemoryRule": "[object Object] After every selected task, map the work to project-register/cross-reference-maintenance.json categories and inspect/update the required cross-reference files before closing the PR."
 }
