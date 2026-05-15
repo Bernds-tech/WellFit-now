@@ -68,6 +68,8 @@ Quelle / fuehrende Dateien: `project-register/master-roadmap-tasks.json`, `docs/
 
 ## Prio 0 - TODO-/Agent-Gedaechtnis stabilisieren
 
+- [x] Cross-Reference Maintenance Framework erstellt: kuenftige Agenten sollen nach jeder Aenderung die passende Kategorie in `project-register/cross-reference-maintenance.json` pruefen und `node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs` ausfuehren.
+
 - [x] `todolist/TODO_INDEX.md` als zentralen Index mit Querverweisen angelegt.
 - [x] `todolist/TODO_CONSOLIDATION.md` als Konsolidierungsdatei angelegt.
 - [x] Gefundene Alt-TODOs in `TODO_INDEX.md` referenziert.

@@ -25,7 +25,8 @@ Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei erse
 - Economy-/Punkte-/Reward-Preview-Pfade sind als interne Beta-/Preview-Schicht vorhanden; finale Autoritaet bleibt serverseitig bzw. als Draft/Preview markiert.
 - Firestore-/Functions-/Rules-/Emulator-Planung und viele Statusdateien zu RewardPreview, Mission Completion, Evidence, Pattern und Cooldown sind vorhanden.
 - PR #45 hat einen UI- und Route-Smoke-Check eingebracht; darauf aufbauen, nicht neu inventarisieren, sofern nicht noetig.
-- Agent-Memory-Loop, Autopilot-Dry-Run, Research-Recommendation-Governance, Adaptive-User-Insight-Governance, Master-Roadmap-Import, Product-Readiness, Visual-Route-Smoke-Check, Drift-/Gap-Detektoren und TODO-Status-Sync sind in `WORK_MAP.md`/`TODO_INDEX.md` verlinkt und im Quality Gate eingebunden.
+- Agent-Memory-Loop, Autopilot-Dry-Run, Research-Recommendation-Governance, Adaptive-User-Insight-Governance, Master-Roadmap-Import, Product-Readiness, Visual-Route-Smoke-Check, Drift-/Gap-Detektoren, Cross-Reference-Maintenance und TODO-Status-Sync sind in `WORK_MAP.md`/`TODO_INDEX.md` verlinkt und im Quality Gate eingebunden.
+- Cross-Reference Maintenance ist als Agent-Governance-Erweiterung vorhanden: `project-register/cross-reference-maintenance.json`, `docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md`, `docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md` und `scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs` definieren, welche bestehenden Register/TODOs/Docs nach kuenftigen Aenderungen zu pruefen sind.
 
 ## Offene Arbeit / aktuelle Schwerpunkte
 

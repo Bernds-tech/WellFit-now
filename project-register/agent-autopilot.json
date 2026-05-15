@@ -21,7 +21,10 @@
     "project-register/master-roadmap-tasks.json",
     "project-register/user-feedback.json",
     "project-register/adaptive-user-insights.json",
-    "project-register/research-recommendations.json"
+    "project-register/research-recommendations.json",
+    "project-register/cross-reference-maintenance.json",
+    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+    "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md"
   ],
   "iterationPhases": [
     {
@@ -57,6 +60,10 @@
       "purpose": "Run validation/report-only checks required by the selected task, definition of done, and Autopilot governance; the dry-run script itself never writes files."
     },
     {
+      "id": "check_cross_references",
+      "purpose": "For any proposed file or register change, identify the matching cross-reference maintenance category and inspect/update only the existing mapped targets required by project-register/cross-reference-maintenance.json."
+    },
+    {
       "id": "report_followups",
       "purpose": "Report follow-ups from existing registers and report-only scripts; do not auto-create high/critical follow-ups or new TODO systems."
     },
@@ -75,7 +82,8 @@
     "call_suggest_next_agent_task_for_task_selection",
     "print_selected_safe_task_risk_required_checks_affected_files_and_stop_conditions",
     "prepare_human_readable_plan_and_pr_handoff",
-    "update_autopilot_governance_docs_or_registers_only_when_explicitly_requested_by_human_task_outside_the_dry_run_script"
+    "update_autopilot_governance_docs_or_registers_only_when_explicitly_requested_by_human_task_outside_the_dry_run_script",
+    "use_cross_reference_maintenance_register_to_plan_required_register_todo_doc_and_validation_updates"
   ],
   "forbiddenActions": [
     "write_files_automatically_from_agent_autopilot_dry_run",
@@ -99,7 +107,8 @@
     "required_governance_file_missing_or_malformed",
     "definition_of_done_key_missing",
     "validation_check_fails_for_code_reason",
-    "human_approval_required_but_not_present"
+    "human_approval_required_but_not_present",
+    "cross_reference_category_missing_or_required_update_target_unclear"
   ],
   "requiredChecks": [
     "npm run lint",
@@ -108,7 +117,9 @@
     "npm --prefix functions run check",
     "npm run agent:quality-gate",
     "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
-    "jq empty project-register/agent-autopilot.json"
+    "jq empty project-register/agent-autopilot.json",
+    "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+    "jq empty project-register/cross-reference-maintenance.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",

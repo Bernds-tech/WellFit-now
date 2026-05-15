@@ -19,7 +19,8 @@
     "architectureDoc": "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md",
     "agentFollowUps": "project-register/agent-follow-ups.json",
     "researchRecommendations": "project-register/research-recommendations.json",
-    "adaptiveUserInsights": "project-register/adaptive-user-insights.json"
+    "adaptiveUserInsights": "project-register/adaptive-user-insights.json",
+    "crossReferenceMaintenance": "project-register/cross-reference-maintenance.json"
   },
   "globalRequiredFirstReadFiles": [
     "AGENTS.md",
@@ -38,7 +39,10 @@
     "project-register/research-recommendations.json",
     "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md",
     "project-register/adaptive-user-insights.json",
-    "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md"
+    "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+    "project-register/cross-reference-maintenance.json",
+    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+    "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -70,7 +74,9 @@
     "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
     "jq empty project-register/adaptive-user-insights.json",
     "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
-    "jq empty project-register/agent-autopilot.json"
+    "jq empty project-register/agent-autopilot.json",
+    "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+    "jq empty project-register/cross-reference-maintenance.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -82,7 +88,9 @@
     "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
     "jq empty project-register/visual-regression.json",
     "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
-    "jq empty project-register/master-roadmap-tasks.json"
+    "jq empty project-register/master-roadmap-tasks.json",
+    "jq empty project-register/cross-reference-maintenance.json",
+    "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -276,6 +284,65 @@
       ],
       "taskCategory": "drift_gap_review",
       "category": "drift_gap_review"
+    },
+    {
+      "id": "AGENT-CROSS-REFERENCE-MAINTENANCE",
+      "title": "Maintain cross-reference framework after governance or register changes",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Keep cross-reference maintenance rules, agent-system analysis, Work Map/TODO pointers, and validation script alignment current without changing runtime product logic or protected areas.",
+      "allowedFiles": [
+        "project-register/cross-reference-maintenance.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+        "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
+        "scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/cross-reference-maintenance.json",
+        "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+        "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "jq empty project-register/cross-reference-maintenance.json",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "cross_reference_category_missing_or_unclear",
+        "required_update_would_touch_runtime_product_code",
+        "protected_area_detected",
+        "would_create_duplicate_architecture_or_parallel_system"
+      ],
+      "expectedPrOutput": [
+        "Name the cross-reference categories changed or validated.",
+        "List register/TODO/doc/script pointers updated.",
+        "State that runtime product code and protected areas were untouched.",
+        "Name the next safe cross-reference maintenance follow-up if any."
+      ],
+      "taskCategory": "cross_reference_maintenance",
+      "category": "cross_reference_maintenance"
     },
     {
       "id": "AGENT-UI-ROUTE-STABILITY",
