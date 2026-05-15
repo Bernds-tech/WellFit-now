@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-14",
+  "updated": "2026-05-15",
   "purpose": "Machine-readable WellFit product readiness matrix for future Codex/AI agents. It maps current product modules to readiness statuses, risk levels, leading files, blockers, safe next tasks, duplicate-system warnings, advancement checks, and human-approval needs so agents choose safer follow-up work without changing product logic or creating parallel architecture.",
   "status_scale": {
     "not_started": "No meaningful repo implementation or approved work plan exists yet.",
@@ -723,12 +723,33 @@
         "scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
         "project-register/adaptive-user-insights.json",
         "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
-        "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
+        "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json",
+        "project-register/cross-reference-maintenance.json",
+        "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+        "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
+        "scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "project-register/repository-inventory.json",
+        "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
+        "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+        "project-register/autopilot-batch-policy.json",
+        "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
+        "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+        "project-register/autopilot-batch-execution-policy.json",
+        "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
+        "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+        "project-register/auto-merge-policy.json",
+        "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md",
+        "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+        "project-register/auto-repair-policy.json",
+        "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
+        "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
       ],
       "current_blockers": [
-        "Governance is active but must remain synchronized across human-readable docs, machine-readable registers, and quality-gate scripts."
+        "Governance is active but must remain synchronized across human-readable docs, machine-readable registers, quality-gate scripts, inventory outputs, progress/work logs, and dry-run-only execution controls."
       ],
-      "next_safe_task": "Maintain registers, task queue, Work Map, TODO index, validation scripts, and optional visual/screenshot QA plans without changing product behavior.",
+      "next_safe_task": "Maintain existing governance, readiness, inventory, Work Map, TODO index, progress/work logs, dry-run autopilot, batch, auto-merge, and auto-repair registers without changing product runtime behavior.",
       "do_not_duplicate_warning": "Do not create a competing agent workflow, task queue, quality gate, or architecture map.",
       "required_checks_before_status_can_advance": [
         "jq empty project-register/*.json",
@@ -736,6 +757,12 @@
         "jq empty project-register/product-readiness.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
         "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+        "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+        "node scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+        "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+        "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
         "npm run agent:quality-gate",
         "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
         "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
