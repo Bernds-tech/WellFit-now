@@ -166,6 +166,22 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Executed exactly two low-risk governance/register tasks from the current Batch Autopilot output: AGENT-AUTOPILOT-BATCH-DRY-RUN and AGENT-PR-REVIEW-POLICY-GOVERNANCE. Added manual session guardrails and PR handoff evidence requirements to existing governance files only. Runtime product code, app/components/lib/functions, firestore.rules, public assets, package manifests, Unity/PR #13, token/wallet/payment/betting/reward-authority, mission-completion authority, health/child/location/privacy/legal/compliance logic, auto-merge, auto-repair, and deployment remained untouched."
+    },
+    {
+      "id": "PROGRESS-SETUP-ENV-DOCS-ALIGNMENT-2026-05-15-0001",
+      "date": "2026-05-15",
+      "branch": "docs/setup-env-alignment",
+      "issue": null,
+      "goal": "Execute the approved low-risk product-foundation documentation task for setup, README, and environment documentation alignment.",
+      "changedAreas": [
+        "README",
+        "environment documentation",
+        "todolist",
+        "agent logs"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Documentation/register-only setup alignment. Clarified local setup, npm install/build/dev checks, Firebase NEXT_PUBLIC_* placeholders, CI public prerender behavior without real Firebase secrets, real Auth/Firestore env requirements, server-only provider key boundaries, .env.local no-commit rule, and safe agent development boundaries. Runtime product code, app/components/lib/functions, firestore.rules, public assets, package manifests, Unity/PR #13, token/wallet/payment/betting/reward-authority, mission-completion authority, health/child/location/privacy/legal/compliance logic, auto-merge, auto-repair, and deployment remained untouched."
     }
   ]
 }

@@ -697,6 +697,104 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "registry_task"
+    },
+    {
+      "taskId": "SETUP-ENV-DOCS-ALIGNMENT",
+      "title": "Align setup, README, and environment documentation",
+      "status": "done",
+      "pr": {
+        "branch": "docs/setup-env-alignment",
+        "number": null,
+        "url": null,
+        "title": "Clarify setup and environment documentation"
+      },
+      "changedFiles": [
+        "README.md",
+        ".env.example",
+        "todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Initial and final Autopilot dry runs reported DRY_RUN without writing files; current automatic suggestion remains separate from this human-approved docs-only task."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Pre-change and post-change quality gates passed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+          "result": "pass_with_warnings",
+          "notes": "Repository inventory check passed with existing unmapped/stale/duplicate warning sections; no runtime or Unity files were modified."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Cross-reference maintenance validation passed after updating existing Work Map/TODO Index references."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check completed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully with public pages prerendered."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax check completed successfully."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass_report_only_not_eligible",
+          "notes": "Report-only check returned AUTO_MERGE_ELIGIBLE=false and did not merge."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass_report_only_not_allowed",
+          "notes": "Report-only check returned AUTO_REPAIR_ALLOWED=false; no repair was needed or performed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+          "result": "pass",
+          "notes": "PR review policy reported PR_REVIEW_POLICY_READY=true and remained report-only."
+        }
+      ],
+      "followUps": [
+        "Keep README.md, .env.example, and todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md synchronized for future setup/env documentation changes.",
+        "Next recommended product-foundation task: Firebase setup, PM2/server, and emulator prerequisite documentation without touching functions, firestore.rules, runtime code, or deployment."
+      ],
+      "nextRecommendedTask": "Prepare Firebase setup / PM2 server / emulator prerequisite documentation as a separate docs-only product-foundation PR.",
+      "updatedTodoFiles": [
+        "todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task"
     }
   ]
 }
