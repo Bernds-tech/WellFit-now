@@ -32,6 +32,7 @@ const agentSteps = [
   { label: "Next agent task suggestion", script: "scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs" },
   { label: "Agent Autopilot dry run", script: "scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs" },
   { label: "Auto-merge eligibility check", script: "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs" },
+  { label: "Auto-repair decision check", script: "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs" },
   { label: "Follow-up detector", script: "scripts/wellfit-dev-agent/src/follow-up-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs" },
   { label: "PR outcome recorder dry run", script: "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs", args: ["--dry-run"], displayCommand: "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run" },
   { label: "TODO status sync", script: "scripts/wellfit-dev-agent/src/todo-status-sync.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/todo-status-sync.mjs" },
@@ -123,6 +124,7 @@ function main() {
   const crossReferenceMaintenanceReport = readTextSafe("scripts/wellfit-dev-agent/output/cross-reference-maintenance-check.md");
   const repositoryInventoryReport = readTextSafe("scripts/wellfit-dev-agent/output/repository-inventory-check.md");
   const autoMergeEligibilityReport = readTextSafe("scripts/wellfit-dev-agent/output/auto-merge-eligibility-report.md");
+  const autoRepairDecisionReport = readTextSafe("scripts/wellfit-dev-agent/output/auto-repair-decision-report.md");
 
   const alphaStep = getStep(steps, "Alpha goal check");
   const dryRunStep = getStep(steps, "Dry run planning");
@@ -131,6 +133,7 @@ function main() {
   const nextTaskStep = getStep(steps, "Next agent task suggestion");
   const autopilotDryRunStep = getStep(steps, "Agent Autopilot dry run");
   const autoMergeEligibilityStep = getStep(steps, "Auto-merge eligibility check");
+  const autoRepairDecisionStep = getStep(steps, "Auto-repair decision check");
   const followUpDetectorStep = getStep(steps, "Follow-up detector");
   const prOutcomeRecorderStep = getStep(steps, "PR outcome recorder dry run");
   const todoStatusStep = getStep(steps, "TODO status sync");
@@ -149,6 +152,7 @@ function main() {
   const autopilotDryRunPassed = /Result:\s*DRY_RUN/i.test(autopilotDryRunStep?.stdout ?? "") && /dry run completed without writing files/i.test(autopilotDryRunStep?.stdout ?? "");
   const followUpDetectorPassed = /Result:\s*REPORT_ONLY/i.test(followUpDetectorStep?.stdout ?? "");
   const autoMergeEligibilityReportOnly = /Mode:\s*REPORT_ONLY/i.test(`${autoMergeEligibilityReport}\n${autoMergeEligibilityStep?.stdout ?? ""}`) && /Never merges:\s*true/i.test(`${autoMergeEligibilityReport}\n${autoMergeEligibilityStep?.stdout ?? ""}`) && /AUTO_MERGE_ELIGIBLE=(?:true|false)/i.test(`${autoMergeEligibilityReport}\n${autoMergeEligibilityStep?.stdout ?? ""}`);
+  const autoRepairDecisionReportOnly = /Mode:\s*REPORT_ONLY/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /Never repairs:\s*true/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /Never merges:\s*true/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /AUTO_REPAIR_ALLOWED=(?:true|false)/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`);
   const prOutcomeRecorderPassed = /Mode:\s*DRY_RUN/i.test(prOutcomeRecorderStep?.stdout ?? "");
   const todoStatusSyncPassed = /Result:\s*PASS/i.test(todoStatusStep?.stdout ?? "");
   const routeApiDriftPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${routeApiDriftReport}\n${routeApiDriftStep?.stdout ?? ""}`);
@@ -176,6 +180,7 @@ function main() {
   assertCondition(checks, "Next agent task suggestion selected a safe task", nextTaskSuggestionPassed, nextTaskSuggestionPassed ? "TASK_SELECTED" : "not found or STOP");
   assertCondition(checks, "Agent Autopilot dry run reported without rewriting", autopilotDryRunPassed, autopilotDryRunPassed ? "DRY_RUN" : "not found or unsafe output");
   assertCondition(checks, "Auto-merge eligibility check reported without merging", autoMergeEligibilityReportOnly, autoMergeEligibilityReportOnly ? "REPORT_ONLY" : "not found or unsafe output");
+  assertCondition(checks, "Auto-repair decision check reported without repairing", autoRepairDecisionReportOnly, autoRepairDecisionReportOnly ? "REPORT_ONLY" : "not found or unsafe output");
   assertCondition(checks, "Follow-up detector reported without rewriting", followUpDetectorPassed, followUpDetectorPassed ? "REPORT_ONLY" : "not found or FAIL");
   assertCondition(checks, "PR outcome recorder dry run completed", prOutcomeRecorderPassed, prOutcomeRecorderPassed ? "DRY_RUN" : "not found or FAIL");
   assertCondition(checks, "TODO status sync passed", todoStatusSyncPassed, todoStatusSyncPassed ? "PASS" : "not found or FAIL");

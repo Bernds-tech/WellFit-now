@@ -1,0 +1,152 @@
+{
+  "version": "0.1.0",
+  "updated": "2026-05-15",
+  "purpose": "Report-only guardrail policy for deciding whether a future WellFit agent may attempt a narrowly scoped automatic repair of failed validation checks. This policy does not enable or perform repairs, merges, deployments, or product/runtime changes.",
+  "activationState": "report_only",
+  "maxRepairAttempts": 2,
+  "safeRepairCategories": [
+    "markdown trailing whitespace",
+    "JSON formatting or parse error in project-register docs/register files",
+    "missing TODO_INDEX pointer for newly added governance doc",
+    "missing WORK_MAP pointer for newly added governance register",
+    "missing KI-Fortsetzungs-Prompt in newly added architecture doc",
+    "quality-gate registry pointer mismatch"
+  ],
+  "forbiddenRepairPaths": [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "functions/**",
+    "firestore.rules",
+    "native/unity/WellFitBuddyAR/**",
+    "package.json unless explicitly approved",
+    "package-lock.json unless explicitly approved"
+  ],
+  "forbiddenRepairTopics": [
+    "token",
+    "NFT",
+    "wallet",
+    "payment",
+    "betting",
+    "reward authority",
+    "mission completion authority",
+    "health",
+    "child",
+    "location",
+    "privacy",
+    "legal",
+    "compliance",
+    "Unity",
+    "PR #13"
+  ],
+  "allowedFailureTypes": [
+    {
+      "id": "markdown_trailing_whitespace",
+      "category": "markdown trailing whitespace",
+      "allowedPaths": ["docs/**/*.md", "todolist/**/*.md", "project-register/**/*.md", "agents/**/*.md"],
+      "requiredEvidence": ["failing command", "exact file path", "diff limited to whitespace-only markdown cleanup"]
+    },
+    {
+      "id": "project_register_json_parse_or_format",
+      "category": "JSON formatting or parse error in project-register docs/register files",
+      "allowedPaths": ["project-register/**/*.json"],
+      "requiredEvidence": ["failing jq or JSON parse output", "exact file path", "post-repair jq empty success"]
+    },
+    {
+      "id": "todo_index_pointer_missing_for_governance_doc",
+      "category": "missing TODO_INDEX pointer for newly added governance doc",
+      "allowedPaths": ["todolist/TODO_INDEX.md", "docs/architecture/**/*.md"],
+      "requiredEvidence": ["memory-sync missing-index output", "new governance doc path", "TODO_INDEX entry pointing to existing leading file"]
+    },
+    {
+      "id": "work_map_pointer_missing_for_governance_register",
+      "category": "missing WORK_MAP pointer for newly added governance register",
+      "allowedPaths": ["todolist/WORK_MAP.md", "project-register/**/*.json"],
+      "requiredEvidence": ["quality-gate or cross-reference output", "new governance register path", "WORK_MAP entry pointing to existing register and architecture note"]
+    },
+    {
+      "id": "architecture_doc_missing_continuation_prompt",
+      "category": "missing KI-Fortsetzungs-Prompt in newly added architecture doc",
+      "allowedPaths": ["docs/architecture/**/*.md"],
+      "requiredEvidence": ["memory-sync missing-prompt output", "new architecture doc path", "added KI-Fortsetzungs-Prompt only"]
+    },
+    {
+      "id": "quality_gate_registry_pointer_mismatch",
+      "category": "quality-gate registry pointer mismatch",
+      "allowedPaths": ["project-register/**/*.json", "todolist/WORK_MAP.md", "todolist/TODO_INDEX.md", "scripts/wellfit-dev-agent/src/quality-gate.mjs"],
+      "requiredEvidence": ["quality-gate failed check or step log", "existing source register path", "no runtime product file changes"]
+    }
+  ],
+  "forbiddenFailureTypes": [
+    "runtime product code failure",
+    "Next.js app routing/rendering failure",
+    "component behavior failure",
+    "library or data-model failure",
+    "Firebase Functions failure requiring code changes",
+    "Firestore rules failure",
+    "Unity or WellFitBuddyAR failure",
+    "dependency install, upgrade, downgrade, or lockfile repair",
+    "security, privacy, legal, compliance, child-safety, health, location, payment, token, NFT, wallet, betting, reward authority, or mission completion authority failure",
+    "test failure with ambiguous root cause",
+    "build failure that requires changing app/**, components/**, lib/**, functions/**, firestore.rules, native/unity/WellFitBuddyAR/**, package.json, or package-lock.json",
+    "any failure after maxRepairAttempts is reached"
+  ],
+  "stopConditions": [
+    "activationState is not report_only",
+    "failure does not match exactly one allowedFailureTypes entry",
+    "failure touches or appears to require a forbiddenRepairPaths path",
+    "failure touches or appears to require a forbiddenRepairTopics topic",
+    "required evidence is missing or ambiguous",
+    "repair would modify runtime product code or protected compliance/product logic",
+    "repair would require package.json or package-lock.json without explicit approval",
+    "repair would require dependency installation or network-dependent package changes",
+    "repair would require merge, deploy, branch rewrite, rebase, force-push, or PR #13 action",
+    "the same failure persists after maxRepairAttempts",
+    "new failure appears after a repair attempt",
+    "human reviewer requests stop or the agent cannot explain the root cause"
+  ],
+  "requiredEvidence": [
+    "failing command and exit code",
+    "quality-gate report path when available",
+    "exact failed check name or parser error",
+    "exact file paths involved",
+    "matched safeRepairCategories entry",
+    "confirmation no forbiddenRepairPaths matched",
+    "confirmation no forbiddenRepairTopics matched",
+    "attempt count before repair",
+    "post-repair command result if a future approved repair mode ever exists",
+    "human review note for any ineligible or stopped condition"
+  ],
+  "reportOutputSchema": {
+    "activationState": "string",
+    "mode": "REPORT_ONLY",
+    "autoRepairAllowed": "boolean",
+    "autoRepairAllowedLine": "AUTO_REPAIR_ALLOWED=true|false",
+    "reasons": ["string"],
+    "maxRepairAttempts": "number",
+    "detectedFailures": [
+      {
+        "source": "string",
+        "check": "string",
+        "details": "string",
+        "matchedCategory": "string|null",
+        "safelyRepairable": "boolean"
+      }
+    ],
+    "forbiddenPathMatches": [
+      {
+        "file": "string",
+        "pattern": "string"
+      }
+    ],
+    "forbiddenTopicMatches": [
+      {
+        "topic": "string",
+        "source": "path_or_report"
+      }
+    ],
+    "requiredEvidencePresent": "boolean",
+    "neverRepairs": true,
+    "neverMerges": true
+  }
+}

@@ -44,7 +44,10 @@
     "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
     "project-register/auto-merge-policy.json",
     "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md",
-    "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs"
+    "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
+    "project-register/auto-repair-policy.json"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -80,7 +83,9 @@
     "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
     "jq empty project-register/cross-reference-maintenance.json",
     "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
-    "jq empty project-register/auto-merge-policy.json"
+    "jq empty project-register/auto-merge-policy.json",
+    "jq empty project-register/auto-repair-policy.json",
+    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -92,7 +97,9 @@
     "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
     "jq empty project-register/visual-regression.json",
     "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
-    "jq empty project-register/master-roadmap-tasks.json"
+    "jq empty project-register/master-roadmap-tasks.json",
+    "jq empty project-register/auto-repair-policy.json",
+    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -1182,6 +1189,76 @@
         "Auto-merge policy summary is included.",
         "Confirmation states real auto-merge is not enabled.",
         "AUTO_MERGE_ELIGIBLE output and reasons are reported honestly."
+      ],
+      "taskCategory": "agent_governance_docs",
+      "category": "agent_governance_docs"
+    },
+    {
+      "id": "AGENT-AUTO-REPAIR-DECISION-GUARD",
+      "title": "Maintain report-only auto-repair decision guard",
+      "priority": 2,
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Keep the auto-repair policy, architecture note, and report-only decision script aligned without enabling real repairs or touching runtime product code.",
+      "allowedFiles": [
+        "project-register/auto-repair-policy.json",
+        "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
+        "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**",
+        "package.json unless explicitly approved",
+        "package-lock.json unless explicitly approved"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/auto-repair-policy.json",
+        "project-register/auto-merge-policy.json",
+        "project-register/agent-autopilot.json",
+        "project-register/agent-task-queue.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/repository-inventory.json",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+        "jq empty project-register/auto-repair-policy.json",
+        "npm run agent:autopilot:dry-run"
+      ],
+      "stopConditions": [
+        "real_auto_repair_would_be_enabled",
+        "runtime_product_code_change_required",
+        "protected_path_or_topic_detected",
+        "repair_attempt_would_run",
+        "merge_or_deploy_action_required",
+        "pr_13_or_unity_action_required"
+      ],
+      "expectedPrOutput": [
+        "List auto-repair policy, architecture, script, and registry files changed.",
+        "State that real auto-repair is not enabled and the script is report-only.",
+        "Report all required checks and any failures honestly.",
+        "Confirm runtime/product/protected areas were untouched."
       ],
       "taskCategory": "agent_governance_docs",
       "category": "agent_governance_docs"
