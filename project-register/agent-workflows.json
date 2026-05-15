@@ -45,7 +45,10 @@
         "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md",
         "project-register/cross-reference-maintenance.json",
         "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
-        "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md"
+        "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+        "project-register/repository-inventory.json",
+        "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
+        "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -169,6 +172,18 @@
           ],
           "purpose": "Machine-readable and human-readable framework that tells future agents which registers, TODO files, Work Map entries, readiness files, validation scripts, and docs to inspect/update whenever routes, APIs, modules, agent scripts, roadmap items, feedback/insight systems, visual checks, Unity/AR plans, compliance areas, or governance files change.",
           "usage": "After every agent task, identify matching change categories, inspect required files, update relevant required targets, preserve historical context, run the cross-reference maintenance check, and report protected/runtime areas touched or explicitly untouched."
+        },
+        {
+          "id": "repository_inventory_coverage_audit",
+          "registers": [
+            "project-register/repository-inventory.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs"
+          ],
+          "purpose": "Full repository inventory and coverage audit for mapped, protected, unmapped, stale, duplicate, route, and API coverage without changing runtime product code.",
+          "usage": "Before broad repository work, inspect repository-inventory.json and run the repository inventory check; triage warnings through existing Work Map, Product Readiness, route/API, TODO, or project-register sources rather than creating parallel architecture."
         }
       ],
       "additionalGovernanceInputs": [

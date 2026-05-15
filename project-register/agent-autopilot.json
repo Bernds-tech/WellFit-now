@@ -24,7 +24,10 @@
     "project-register/research-recommendations.json",
     "project-register/cross-reference-maintenance.json",
     "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md",
-    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md"
+    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+    "project-register/repository-inventory.json",
+    "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
+    "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -113,7 +116,8 @@
     "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
     "jq empty project-register/agent-autopilot.json",
     "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
-    "jq empty project-register/cross-reference-maintenance.json"
+    "jq empty project-register/cross-reference-maintenance.json",
+    "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",

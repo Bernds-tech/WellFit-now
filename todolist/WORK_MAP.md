@@ -120,3 +120,11 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 ## Continuation prompt
 
 Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, zuerst `todolist/TODO_INDEX.md`, `todolist/PROJECT_STRUCTURE.md`, `docs/architecture/` und `rg --files` pruefen. Danach die naechste kleine Aufgabe in den bestehenden Dateien umsetzen und Ergebnis in den passenden TODO-/Statusdateien dokumentieren. Keine doppelten Architekturen, keine parallelen Systeme, keine Produktlogik-Aenderungen ohne Auftrag.
+
+## Repository Inventory and Coverage Audit (active governance map)
+
+| Datei | Status | Zweck | Fuehrende Referenz | Naechste Aktion |
+| --- | --- | --- | --- | --- |
+| `project-register/repository-inventory.json` | aktiv / Register | Maschinenlesbare Full-Repository-Inventur fuer File-Gruppen, gemappte Dateien, ungemappte Dateien, geschuetzte Pfade, stale/duplicate Kandidaten, Modul-/Topic-Zuordnung, Risiko und Follow-ups | `docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md`, `scripts/wellfit-dev-agent/src/repository-inventory-check.mjs` | vor breiten Repo-Aenderungen lesen; nur in Registry-/Dokumentations-Tasks gezielt aktualisieren |
+| `docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md` | aktiv / Architektur-Notiz | Human-readable Runbook zur Repository-Inventur und Coverage-Triage ohne Runtime-Code-Aenderung | `project-register/repository-inventory.json` | bei Inventur-/Mapping-Policy-Aenderungen aktualisieren |
+| `scripts/wellfit-dev-agent/src/repository-inventory-check.mjs` | aktiv / Code | Report-only Scan fuer Repository-Dateien, WORK_MAP-/Product-Readiness-Mapping, Routen-/API-Registerdrift, geschuetzte Dateien und stale/duplicate Kandidaten | `project-register/repository-inventory.json`, `project-register/routes.json`, `project-register/apis.json` | nach Register-/Routen-/API-/Inventur-Aenderungen ausfuehren; Warnungen triagieren, nicht automatisch fixen |

@@ -1036,6 +1036,81 @@
         "Confirm runtime product code, protected areas, Unity/PR #13, and compliance-critical logic were untouched."
       ],
       "definitionOfDoneKey": "documentation_registry_validation"
+    },
+    {
+      "id": "AGENT-REPOSITORY-INVENTORY-COVERAGE-AUDIT",
+      "title": "Maintain WellFit full repository inventory and coverage audit",
+      "category": "repository_inventory_governance",
+      "taskCategory": "documentation_registry_validation",
+      "priority": "high",
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_registry_validation",
+      "purpose": "Keep the repository inventory, audit doc, and report-only validation aligned so future agents can see mapped, protected, unmapped, stale, duplicate, route, and API coverage before editing files.",
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/repository-inventory.json",
+        "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
+        "project-register/product-readiness.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json"
+      ],
+      "allowedFiles": [
+        "project-register/repository-inventory.json",
+        "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
+        "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**",
+        "token/NFT/wallet/payment/betting/reward authority/health/child/location/privacy/compliance runtime logic"
+      ],
+      "relatedRegisters": [
+        "project-register/repository-inventory.json",
+        "project-register/product-readiness.json",
+        "project-register/routes.json",
+        "project-register/apis.json",
+        "project-register/cross-reference-maintenance.json"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+        "jq empty project-register/repository-inventory.json",
+        "npm run agent:quality-gate"
+      ],
+      "stopConditions": [
+        "Runtime product code changes are required.",
+        "Protected compliance, privacy, reward authority, payment, token/NFT/wallet, health, child, location, or Unity files need changes without explicit human approval.",
+        "The task would create a duplicate Work Map, route/API register, product-readiness matrix, inventory architecture, or agent-governance system.",
+        "The task would auto-delete stale or duplicate historical TODO/status context."
+      ],
+      "expectedOutput": [
+        "Machine-readable repository inventory stays valid JSON.",
+        "Inventory check reports mapped, protected, unmapped, stale/duplicate, route, and API coverage without rewriting files.",
+        "Quality gate includes the inventory check as warning/report-based triage.",
+        "PR confirms runtime product code, protected areas, Unity/PR #13, and compliance-critical logic were untouched."
+      ],
+      "expectedPrOutput": [
+        "List changed repository-inventory, audit-doc, validation-script, quality-gate, workflow, task-queue, autopilot, Work Map, TODO Index, and Current State files.",
+        "Summarize inventory counts, protected coverage, unmapped warnings, and stale/duplicate warnings.",
+        "Report repository-inventory-check, JSON validation, quality-gate, and standard build/check results honestly.",
+        "Confirm runtime product code, protected compliance areas, Unity/PR #13, and product logic were untouched."
+      ]
     }
   ],
   "selectionRules": [
