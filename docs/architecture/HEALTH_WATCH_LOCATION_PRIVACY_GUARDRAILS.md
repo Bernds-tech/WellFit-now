@@ -41,6 +41,18 @@ Diese Dokumentationsrunde ist ausschliesslich eine Planungs-/Register-Klarstellu
 - Raw Images, Videos, Face Data, Face Templates, biometrische Rohdaten, exakte Standortverlaeufe, Health-Rohdaten und Kinderdetaildaten sind Default-`do_not_store`, solange keine separate Human-/Legal-/Privacy-Freigabe mit Datenmodell und Loeschkonzept vorliegt.
 - Diese Datei ist kein Datenschutztext fuer Nutzer und ersetzt keine AGB-/Datenschutz-/Impressum-Aenderung. Runtime-Legaltexte bleiben unveraendert, bis ein separater Review-Auftrag erteilt wird.
 
+
+## Mobile/PWA Device-Test Datenschutzgrenzen 2026-05-15
+
+Der Mobile/PWA-Geraetetest ist ein Dokumentations- und QA-Plan, keine Freigabe fuer neue Datenerfassung. Fuer Android Chrome, Samsung Internet, iPhone Safari und Desktop-Responsive-Smoke gilt:
+
+- Kamera-Permission accepted/denied, MediaPipe Pose/Face-Ladezustand, DeviceMotion-Permission, WebGL/AR-Fallbacks und PWA-Install-Hinweise duerfen beobachtet und als `device_test_required` dokumentiert werden, aber nicht durch Runtime-Code, neue Consent-Flows oder neue Tracking-SDKs erweitert werden.
+- Kamera-/Pose-/Face-/AR-/Motion-Signale bleiben lokal/ephemer bzw. beta-preview, soweit bereits vorhanden; Rohbilder, Videos, Face Templates, biometrische Rohdaten, exakte Standortdaten, Health-/Watch-Rohdaten und rohe Sensorhistorien duerfen in diesem Testplan nicht gespeichert oder als neue Felder geplant werden.
+- Permission-Ablehnung ist ein normaler Testfall. Zukuenftige Tester sollen Fallbacks, Demo-/Lernmodi, Nicht-Kamera-Missionen und klare Fehlerhinweise dokumentieren, statt Nutzer zu Kamera, Motion, Health, Location, Wallet oder Zahlung zu draengen.
+- DeviceMotion kann auf iOS, unsicheren Origins/weak contexts oder bestimmten Browsern fehlen oder eine Nutzerinteraktion erfordern; solche Unterschiede bleiben `device_test_required` oder `review_required`.
+- WebGL/3D-Flammi- und AR-Kamera-Fallbacks duerfen visuell smoke-getestet werden, aber AR/canvas, Kamera-Frames, Pose-Skeletons, Buddy-Animationen und Missionstimer duerfen nicht strict-pixel-gematcht oder als compliance-/authority-relevante Beweise behandelt werden.
+- Kein Testergebnis aus Kamera, Pose, Face, Motion, AR, PWA-Install, Health, Watch oder Location darf finale Rewards, XP, Punkte, Mission Completion, Anti-Cheat, Leaderboards, Inventory Grants, Rare Items, Token, Payments, Payouts oder medizinische Aussagen autorisieren.
+
 ## Datenkategorien
 
 ### Schritt- und Bewegungsdaten

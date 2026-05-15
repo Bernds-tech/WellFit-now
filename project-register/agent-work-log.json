@@ -1367,6 +1367,121 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "MOBILE-PWA-DEVICE-TEST-PLAN",
+      "title": "Create Mobile/PWA device test planning documentation",
+      "status": "done",
+      "pr": {
+        "branch": "docs/mobile-pwa-device-test-plan",
+        "number": null,
+        "url": null,
+        "title": "Document Mobile/PWA device test plan"
+      },
+      "changedFiles": [
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass_dry_run",
+          "notes": "Initial and final dry runs reported DRY_RUN and did not write files."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Initial and final quality gates reported PASS."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Product-readiness register parsed and validated after mobile metadata update."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+          "result": "pass_with_warnings",
+          "notes": "Initial inventory check passed with existing unmapped/stale/duplicate warning sections; no inventory mapping change was required."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+          "result": "warning",
+          "notes": "Route validation completed; browser execution reported SKIPPED_BROWSER_UNAVAILABLE because no browser runner is installed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Cross-reference registry and Work Map/TODO Index references passed."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass_after_trailing_whitespace_fix",
+          "notes": "Initial post-change run found trailing whitespace in WELLFIT_VISUAL_REGRESSION_CHECKS.md; whitespace was removed and rerun passed."
+        },
+        {
+          "command": "jq empty project-register/product-readiness.json project-register/visual-regression.json project-register/repository-inventory.json project-register/progress-log.json project-register/agent-work-log.json",
+          "result": "pass",
+          "notes": "JSON registers parsed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax/static check completed successfully."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass_report_only_ineligible",
+          "notes": "REPORT_ONLY; AUTO_MERGE_ELIGIBLE=false because changed file count exceeded policy maximum and sensitive-topic keywords require human review."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass_report_only_not_allowed",
+          "notes": "REPORT_ONLY; AUTO_REPAIR_ALLOWED=false because no failed check was detected and auto-repair never repairs/merges."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+          "result": "pass_report_only",
+          "notes": "PR_REVIEW_POLICY_READY=true; report-only policy does not approve, merge, repair, or modify files."
+        }
+      ],
+      "followUps": [
+        "Run the manual Mobile/PWA device test matrix on Android Chrome, Samsung Internet, iPhone Safari, and desktop responsive browsers when devices/HTTPS preview are available; record only device_test_required/review_required findings unless a separate runtime-fix task is approved."
+      ],
+      "nextRecommendedTask": "Manual Mobile/PWA device evidence pass using the documented plan, or continue the next low-risk product-foundation documentation/register task selected by agent:autopilot:dry-run; do not change runtime mobile, service worker/manifest, protected data, reward/mission authority, or Unity files without explicit approval.",
+      "updatedTodoFiles": [
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task"
     }
   ]
 }

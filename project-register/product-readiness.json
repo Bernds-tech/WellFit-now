@@ -349,19 +349,24 @@
         "project-register/routes.json",
         "project-register/features.json",
         "project-register/master-roadmap-tasks.json",
-        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md",
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+        "project-register/visual-regression.json",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
       ],
       "current_blockers": [
         "Mobile UX must not activate token, NFT, trading, presale, live health/watch tracking, precise location/GPS/radius/safe-zone tracking, camera/face/pose/biometric collection, raw motion/sensor collection, consent-flow expansion, or final reward/mission-completion authority.",
         "Health, child/minor/family, location, camera, face/pose/biometric, motion/raw sensor, privacy, and consent changes remain review_required before implementation."
       ],
-      "next_safe_task": "Stabilize existing mobile routes, copy, navigation, and responsive states without expanding sensitive data collection, permission prompts, tracking, or authority.",
+      "next_safe_task": "Run the documentation-defined Mobile/PWA device test plan on Android Chrome, Samsung Internet, iPhone Safari, and a desktop responsive browser; record device_test_required/review_required findings only, without changing runtime code, service worker/manifest/public assets, tracking, protected data, or reward/mission authority.",
       "do_not_duplicate_warning": "Do not build a separate mobile app shell or duplicate mobile route map.",
       "required_checks_before_status_can_advance": [
         "npm run lint",
         "npx tsc --noEmit",
         "npm run build",
         "node scripts/wellfit-dev-agent/src/mobile-buddy-ux-audit.mjs",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
         "jq empty project-register/product-readiness.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
         "npm run agent:quality-gate"
@@ -381,18 +386,23 @@
         "lib/arRiddle/",
         "lib/nativeAr/",
         "docs/architecture/AR_CONTEXTUAL_MISSION_REWARD_FLOW.md",
-        "docs/architecture/AR_REWARD_PREVIEW_API.md"
+        "docs/architecture/AR_REWARD_PREVIEW_API.md",
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+        "project-register/visual-regression.json",
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
       ],
       "current_blockers": [
         "Camera/location/native AR expansion, pose/face/biometric signals, raw image/video storage, and AR reward signals require privacy, safety, consent, and authority review."
       ],
-      "next_safe_task": "Improve existing web fallback messaging and non-authoritative preview states only; do not add camera capture, face/pose persistence, precise location, or reward authority.",
+      "next_safe_task": "Use the Mobile/PWA device test plan to manually verify existing /mobile/ar WebGL/camera fallback behavior on target browsers; keep unclear WebGL, camera, motion, performance, and fallback behavior device_test_required/review_required and do not add native Unity, camera persistence, location, or reward authority.",
       "do_not_duplicate_warning": "Do not add a second AR authority path, native bridge, camera capture, or location flow.",
       "required_checks_before_status_can_advance": [
         "privacy/safety review for camera and location scope",
         "npm run lint",
         "npx tsc --noEmit",
         "npm run build",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
         "jq empty project-register/product-readiness.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
         "npm run agent:quality-gate"

@@ -194,20 +194,24 @@ Tests:
 
 ### Mega-Block 20 – Mobile-Web-Beta ohne AR stabilisieren
 
+Status 2026-05-15: Mobile/PWA Device-Testplan documentation-only in `todolist/H - MOBILE - AR - TRACKING - KI`, `docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md` und `project-register/visual-regression.json` ergaenzt. Echte Geraetepruefung bleibt `device_test_required`; unklare Kamera-/Pose-/Face-/Motion-/WebGL-/PWA-Verhalten bleiben `review_required`.
+
 Ziel:
 - Mobile-Web-Seiten stabilisieren, ohne Unity/Buddy AR einzubeziehen.
 
 Umfang:
-- `/mobile`, `/mobile/missionen`, `/mobile/buddy`, `/mobile/bewegung`, `/mobile/einstellungen`.
+- `/mobile`, `/mobile/missionen`, `/mobile/missionen/squat`, `/mobile/buddy`, `/mobile/analyse`, `/mobile/bewegung`, `/mobile/einstellungen`.
 - `/mobile/ar` nur als bestehender Web-Fallback/Platzhalter pruefen, nicht als Unity-Arbeit.
+- Android Chrome, Samsung Internet, iPhone Safari und Desktop-Responsive-Smoke fuer QR-/PWA-Install, Kamera-Permission, MediaPipe Pose/Face, DeviceMotion, WebGL/3D-Flammi und Fallbacks dokumentieren.
 
 Akzeptanz:
 - Keine offensichtlichen Layoutbrueche.
 - Mobile-Web wirkt beta-testbar.
+- Keine Token-/NFT-/Wallet-/Payment-/Trading-/Payout-Aktivierung, keine Protected-Data-Erweiterung, keine Rohbild-/Video-/Sensor-Speicherung und keine Reward-/Mission-Autoritaet aus Kamera-/Motion-/AR-Signalen.
 
 Tests:
-- Lokal: Agent + Build.
-- Live: ja, Handy-Test auf wellfit-now.io.
+- Lokal: Agent + Build + `node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs` als smoke/report-only.
+- Live/Geraet: ja, Handy-Test auf wellfit-now.io; Ergebnisse als `device_test_required`/`review_required` dokumentieren, keine Runtime-Reparatur in diesem Block.
 
 ### Mega-Block 21 – Register/Login/Profile/Beta-Onboarding stabilisieren
 

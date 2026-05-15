@@ -45,6 +45,7 @@ Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei erse
 - Economy/Rewards weiter als interne Punkte-/XP-/Preview-Mechanik behandeln, bis serverseitige Autoritaet, Firestore-Regeln und Emulator-Tests bereit sind.
 - Daten-/Health-/Child-/Location-/Camera-/Consent-Bereiche nur mit explizitem Auftrag erweitern.
 - Backend-/Firestore-/Functions-Readiness wurde am 2026-05-15 docs/register-only nachgezogen: Root-App-Checks, Functions-Syntaxcheck, Emulator-Voraussetzungen, Preview-/Draft-APIs, Persistence-Status, Firestore-Rules-Guardrails und Final-Authority-Grenzen sind in bestehenden Docs/Registern verlinkt; Runtime-Code, Functions, Rules, Deployments, Produktionswrites und finale Ledger-/Reward-/Mission-Authority bleiben unveraendert und `review_required`.
+- Mobile/PWA Device-Testplanung wurde am 2026-05-15 docs/register-only nachgezogen: bestehende Mobile-Routen, Android Chrome, Samsung Internet, iPhone Safari, Desktop-Responsive-Smoke, QR-/PWA-Install, Kamera-Permission, MediaPipe/Pose/Face, DeviceMotion, WebGL/3D-Flammi, AR-Fallbacks, Screenshot-Smoke und Privacy-/Reward-Authority-Grenzen sind in bestehenden Planungsquellen und Registern als `device_test_required`/`review_required` dokumentiert. Runtime-Mobile-Code, Service Worker, Manifest/Public Assets, Tracking, Datenerfassung, Consent-Flows, Reward-/Mission-Authority, Functions/Rules, Unity/PR #13 und Produktlogik blieben unveraendert.
 - Unity/WellFitBuddyAR getrennt inventarisieren; keine Unity-Dateien loeschen, ueberschreiben oder mit alten PRs vermischen.
 
 ## Riskante oder blockierte Bereiche
@@ -81,9 +82,9 @@ Die vom Nutzer bereitgestellte WellFit Master Roadmap / Developer To-Do List wur
 4. Als naechsten Autopilot-Kandidaten nach dieser Baseline-Aktualisierung erneut `npm run agent:autopilot:dry-run` verwenden; keine High-/Critical- oder geschuetzten Aufgaben automatisch umsetzen.
 5. UI-/Route-Smoke-Ergebnisse aus PR #45 bei Bedarf in passende Statusdateien einordnen, ohne neue Shells oder parallele Systeme zu erstellen.
 6. Data-Protection-Review fuer Health-/Child-/Location-/Camera-/Face-/Motion-/Consent-Flows ist docs/register-only dokumentiert; weiterhin keine Runtime-, Legaltext-, Consent-Flow-, Tracking- oder Datenerfassungs-Aenderungen ohne explizite Freigabe.
-7. Als naechsten Produkt-Foundation-Schritt eine Backend-Readiness-Dokumentationsrunde fuer Firebase Functions syntax, Firestore Rules guardrails, server preview APIs and persistence status vorbereiten; weiterhin keine Functions-/Rules-/Runtime-/Ledger-/Reward-/Deploy-Aenderungen ohne explizite Freigabe.
-7. Backend-/Firestore-Guardrails weiter dokumentiert vorbereiten, bevor Reward-/Mission-Autoritaet vom Client weg verlagert wird.
-8. Unity/AR-Arbeit separat planen und nur vorhandene Unity-Dateien inventarisieren, nicht ueberschreiben.
+7. Als naechsten Produkt-Foundation-Schritt die Mobile/PWA-Geraetetests manuell auf Android Chrome, Samsung Internet, iPhone Safari und Desktop-Responsive-Browsern ausfuehren und Findings nur als `device_test_required`/`review_required` dokumentieren; weiterhin keine Runtime-Mobile-, Service-Worker-/Manifest-/Public-Asset-, Tracking-, Consent-, Reward-/Mission-Authority-, Functions-/Rules-/Deploy- oder Unity-Aenderungen ohne explizite Freigabe.
+8. Backend-/Firestore-Guardrails weiter dokumentiert vorbereiten, bevor Reward-/Mission-Autoritaet vom Client weg verlagert wird.
+9. Unity/AR-Arbeit separat planen und nur vorhandene Unity-Dateien inventarisieren, nicht ueberschreiben.
 
 ## Continuation prompt
 
