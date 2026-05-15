@@ -182,12 +182,26 @@
         "project-register/routes.json",
         "project-register/apis.json",
         "project-register/features.json",
-        "project-register/product-readiness.json"
+        "project-register/product-readiness.json",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/agent-autopilot.json",
+        "project-register/research-recommendations.json",
+        "project-register/adaptive-user-insights.json"
       ],
       "requiredChecks": [
         "jq empty project-register/*.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
-        "npm run agent:quality-gate"
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
+        "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:autopilot:dry-run"
       ],
       "stopConditions": [
         "new_register_would_duplicate_existing_register",
