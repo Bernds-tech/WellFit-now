@@ -52,7 +52,10 @@
     "project-register/auto-repair-policy.json",
     "project-register/autopilot-batch-policy.json",
     "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
-    "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs"
+    "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+    "project-register/autopilot-batch-execution-policy.json",
+    "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
+    "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -1340,6 +1343,83 @@
       ],
       "taskCategory": "autopilot_governance",
       "category": "autopilot_governance"
+    },
+    {
+      "id": "AGENT-AUTOPILOT-BATCH-LIMITED-EXECUTION",
+      "title": "Maintain report-only Batch Autopilot limited execution governance",
+      "category": "agent_governance_docs",
+      "taskCategory": "agent_governance_docs",
+      "riskLevel": "low",
+      "status": "ready",
+      "allowedFiles": [
+        "project-register/autopilot-batch-execution-policy.json",
+        "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
+        "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/autopilot-batch-policy.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**",
+        "package.json",
+        "package-lock.json",
+        "public/**"
+      ],
+      "definitionOfDoneKey": "registry_task",
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+        "jq empty project-register/autopilot-batch-execution-policy.json",
+        "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+        "npm run agent:autopilot:dry-run"
+      ],
+      "stopConditions": [
+        "real_batch_execution_would_be_enabled",
+        "auto_merge_or_auto_repair_would_be_enabled",
+        "runtime_product_or_protected_path_change_required",
+        "human_approval_missing_for_future_execution"
+      ],
+      "priority": 2,
+      "purpose": "Maintain the report/check-only Batch Autopilot limited execution policy, architecture note, validation script, quality-gate hook, and existing governance cross-references without enabling real execution, PR creation, auto-merge, auto-repair, deployment, self-approval, runtime product changes, Unity work, or protected-topic changes.",
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/autopilot-batch-execution-policy.json",
+        "project-register/autopilot-batch-policy.json",
+        "project-register/auto-merge-policy.json",
+        "project-register/auto-repair-policy.json",
+        "project-register/agent-autopilot.json",
+        "project-register/agent-task-queue.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/repository-inventory.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "expectedPrOutput": [
+        "List limited execution policy, architecture note, validation script, quality-gate, and cross-reference files updated.",
+        "Summarize allowed low-risk execution categories, path boundaries, and stop conditions.",
+        "Confirm real batch execution and PR creation are not enabled in this first version.",
+        "Confirm real auto-merge, auto-repair, deployment, and self-approval are not enabled.",
+        "Confirm runtime product, Unity/PR #13, compliance, economy, health, child, location, privacy, and other protected areas were untouched.",
+        "Recommend the next human-reviewed task before any actual limited execution is enabled."
+      ]
     }
   ],
   "selectionRules": [

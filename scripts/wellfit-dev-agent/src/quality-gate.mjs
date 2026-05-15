@@ -32,6 +32,7 @@ const agentSteps = [
   { label: "Next agent task suggestion", script: "scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs" },
   { label: "Agent Autopilot dry run", script: "scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs" },
   { label: "Batch Autopilot dry run", script: "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs" },
+  { label: "Batch Autopilot limited execution check", script: "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs" },
   { label: "Auto-merge eligibility check", script: "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs" },
   { label: "Auto-repair decision check", script: "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs" },
   { label: "Follow-up detector", script: "scripts/wellfit-dev-agent/src/follow-up-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs" },
@@ -126,6 +127,7 @@ function main() {
   const repositoryInventoryReport = readTextSafe("scripts/wellfit-dev-agent/output/repository-inventory-check.md");
   const autoMergeEligibilityReport = readTextSafe("scripts/wellfit-dev-agent/output/auto-merge-eligibility-report.md");
   const autoRepairDecisionReport = readTextSafe("scripts/wellfit-dev-agent/output/auto-repair-decision-report.md");
+  const batchLimitedExecutionReport = readTextSafe("scripts/wellfit-dev-agent/output/autopilot-batch-limited-execution-check.md");
 
   const alphaStep = getStep(steps, "Alpha goal check");
   const dryRunStep = getStep(steps, "Dry run planning");
@@ -134,6 +136,7 @@ function main() {
   const nextTaskStep = getStep(steps, "Next agent task suggestion");
   const autopilotDryRunStep = getStep(steps, "Agent Autopilot dry run");
   const batchAutopilotDryRunStep = getStep(steps, "Batch Autopilot dry run");
+  const batchLimitedExecutionStep = getStep(steps, "Batch Autopilot limited execution check");
   const autoMergeEligibilityStep = getStep(steps, "Auto-merge eligibility check");
   const autoRepairDecisionStep = getStep(steps, "Auto-repair decision check");
   const followUpDetectorStep = getStep(steps, "Follow-up detector");
@@ -153,6 +156,7 @@ function main() {
   const nextTaskSuggestionPassed = /Result:\s*TASK_SELECTED/i.test(nextTaskStep?.stdout ?? "");
   const autopilotDryRunPassed = /Result:\s*DRY_RUN/i.test(autopilotDryRunStep?.stdout ?? "") && /dry run completed without writing files/i.test(autopilotDryRunStep?.stdout ?? "");
   const batchAutopilotDryRunPassed = /BATCH_AUTOPILOT_MODE=DRY_RUN/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /Result:\s*DRY_RUN/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /Never writes files:\s*true/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /Never merges:\s*true/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /Never repairs:\s*true/i.test(batchAutopilotDryRunStep?.stdout ?? "") && /future consideration only/i.test(batchAutopilotDryRunStep?.stdout ?? "");
+  const batchLimitedExecutionPassed = /Mode:\s*REPORT_CHECK_ONLY/i.test(`${batchLimitedExecutionReport}\n${batchLimitedExecutionStep?.stdout ?? ""}`) && /BATCH_LIMITED_EXECUTION_READY=(?:true|false)/i.test(`${batchLimitedExecutionReport}\n${batchLimitedExecutionStep?.stdout ?? ""}`) && /Never executes tasks in first version:\s*true/i.test(`${batchLimitedExecutionReport}\n${batchLimitedExecutionStep?.stdout ?? ""}`) && /Never creates pull requests in first version:\s*true/i.test(`${batchLimitedExecutionReport}\n${batchLimitedExecutionStep?.stdout ?? ""}`) && /Never merges:\s*true/i.test(`${batchLimitedExecutionReport}\n${batchLimitedExecutionStep?.stdout ?? ""}`) && /Never repairs:\s*true/i.test(`${batchLimitedExecutionReport}\n${batchLimitedExecutionStep?.stdout ?? ""}`) && /Never deploys:\s*true/i.test(`${batchLimitedExecutionReport}\n${batchLimitedExecutionStep?.stdout ?? ""}`);
   const followUpDetectorPassed = /Result:\s*REPORT_ONLY/i.test(followUpDetectorStep?.stdout ?? "");
   const autoMergeEligibilityReportOnly = /Mode:\s*REPORT_ONLY/i.test(`${autoMergeEligibilityReport}\n${autoMergeEligibilityStep?.stdout ?? ""}`) && /Never merges:\s*true/i.test(`${autoMergeEligibilityReport}\n${autoMergeEligibilityStep?.stdout ?? ""}`) && /AUTO_MERGE_ELIGIBLE=(?:true|false)/i.test(`${autoMergeEligibilityReport}\n${autoMergeEligibilityStep?.stdout ?? ""}`);
   const autoRepairDecisionReportOnly = /Mode:\s*REPORT_ONLY/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /Never repairs:\s*true/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /Never merges:\s*true/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /AUTO_REPAIR_ALLOWED=(?:true|false)/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`);
@@ -183,6 +187,7 @@ function main() {
   assertCondition(checks, "Next agent task suggestion selected a safe task", nextTaskSuggestionPassed, nextTaskSuggestionPassed ? "TASK_SELECTED" : "not found or STOP");
   assertCondition(checks, "Agent Autopilot dry run reported without rewriting", autopilotDryRunPassed, autopilotDryRunPassed ? "DRY_RUN" : "not found or unsafe output");
   assertCondition(checks, "Batch Autopilot dry run reported without rewriting", batchAutopilotDryRunPassed, batchAutopilotDryRunPassed ? "DRY_RUN" : "not found or unsafe output");
+  assertCondition(checks, "Batch Autopilot limited execution check reported without executing", batchLimitedExecutionPassed, batchLimitedExecutionPassed ? "REPORT_CHECK_ONLY" : "not found or unsafe output");
   assertCondition(checks, "Auto-merge eligibility check reported without merging", autoMergeEligibilityReportOnly, autoMergeEligibilityReportOnly ? "REPORT_ONLY" : "not found or unsafe output");
   assertCondition(checks, "Auto-repair decision check reported without repairing", autoRepairDecisionReportOnly, autoRepairDecisionReportOnly ? "REPORT_ONLY" : "not found or unsafe output");
   assertCondition(checks, "Follow-up detector reported without rewriting", followUpDetectorPassed, followUpDetectorPassed ? "REPORT_ONLY" : "not found or FAIL");

@@ -91,7 +91,9 @@
     "print_auto_repair_as_future_consideration_only",
     "confirm_never_write_files_merge_repair_create_prs_or_deploy",
     "run_node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
-    "run_jq_empty_project-register/autopilot-batch-policy.json"
+    "run_jq_empty_project-register/autopilot-batch-policy.json",
+    "run_node scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+    "run_jq_empty_project-register/autopilot-batch-execution-policy.json"
   ],
   "autoMergePolicyReference": {
     "policy": "project-register/auto-merge-policy.json",
@@ -119,7 +121,9 @@
     "candidate_definition_of_done_missing",
     "quality_gate_rules_missing",
     "auto_merge_or_auto_repair_would_be_enabled",
-    "batch_would_write_files_create_pr_merge_deploy_or_repair"
+    "batch_would_write_files_create_pr_merge_deploy_or_repair",
+    "limited_execution_checker_would_execute_tasks_create_prs_merge_repair_deploy_or_self_approve",
+    "limited_execution_policy_activation_state_is_not_limited_execution_planning"
   ],
   "reportOutputSchema": {
     "mode": "BATCH_AUTOPILOT_MODE=DRY_RUN",
@@ -158,5 +162,16 @@
       "neverRepairs": true,
       "neverApprovesOwnWork": true
     }
+  },
+  "limitedExecutionPolicyReference": {
+    "policy": "project-register/autopilot-batch-execution-policy.json",
+    "architecture": "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
+    "script": "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+    "mode": "report_check_only_planning",
+    "mustNotExecuteTasksInFirstVersion": true,
+    "mustNotCreatePullRequestsInFirstVersion": true,
+    "mustNotMerge": true,
+    "mustNotRepair": true,
+    "mustNotDeploy": true
   }
 }
