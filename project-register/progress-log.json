@@ -93,6 +93,20 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Registry/documentation-only inventory maintenance. Mapped safe docs, todolist, project-register, scripts/wellfit-dev-agent, and public asset groups into existing repository inventory topics; reduced unmapped count from 421 to 275; marked sensitive or unclear safe files as review_required. Runtime product code, app/components/lib/functions, firestore.rules, Unity/PR #13, and compliance-critical logic were untouched."
+    },
+    {
+      "id": "PROGRESS-BATCH-LIMITED-PROBE-2026-05-15-0001",
+      "date": "2026-05-15",
+      "branch": "batch-autopilot-limited-probe-1",
+      "issue": null,
+      "goal": "Execute the first Batch Autopilot Limited Execution probe for one safe low-risk drift/gap register follow-up task.",
+      "changedAreas": [
+        "docs/architecture",
+        "project-register"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Executed exactly one documentation/register governance task, AGENT-DRIFT-GAP-REGISTER-FOLLOWUP. Reviewed route/API drift and concept-to-code gap outputs, documented that route/API drift had no warnings, deferred duplicate-architecture guardrail warnings as report-only, and left runtime product code, protected paths, Unity/PR #13, auto-merge, auto-repair, deployment, and compliance-critical logic untouched."
     }
   ]
 }
