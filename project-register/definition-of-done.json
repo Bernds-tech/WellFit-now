@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-14",
+  "updated": "2026-05-15",
   "status": "active",
   "purpose": "Machine-readable definition-of-done controls for WellFit task types. Future agents must select the matching key before implementation and report it in the PR output.",
   "sharedCriteria": [
@@ -47,6 +47,61 @@
       ],
       "requiredChecks": [
         "jq empty <changed-json-files>",
+        "npm run agent:quality-gate"
+      ]
+    },
+    "registry_documentation_task": {
+      "riskDefault": "low",
+      "aliases": [
+        "registry_task",
+        "documentation_task"
+      ],
+      "usedByQueueTasks": [
+        "AGENT-AUTO-MERGE-ELIGIBILITY-GUARD",
+        "AGENT-ADAPTIVE-USER-INSIGHT-GOVERNANCE"
+      ],
+      "doneWhen": [
+        "Registry and documentation changes are both required and remain limited to existing project-register, todolist, docs/architecture, or governance-script references.",
+        "JSON registry entries parse successfully and Markdown/docs point back to existing leading source-of-truth files instead of creating duplicate architecture.",
+        "The task remains report-only or planning/governance-only where applicable and does not enable runtime behavior, auto-merge, auto-repair, deployment, or self-approval.",
+        "No runtime code, product logic, protected Unity/PR #13 area, package manifest, compliance-critical logic, reward authority, token/NFT/wallet/payment/betting, health, child, location, privacy, or legal logic changed."
+      ],
+      "requiredEvidence": [
+        "jq validation commands for changed JSON files.",
+        "List of documentation or registry files changed.",
+        "Source files used to justify registry or documentation entries.",
+        "Anti-duplication and protected-area note."
+      ],
+      "requiredChecks": [
+        "jq empty <changed-json-files>",
+        "npm run agent:quality-gate"
+      ]
+    },
+    "documentation_registry_validation": {
+      "riskDefault": "low",
+      "aliases": [
+        "registry_task",
+        "documentation_task"
+      ],
+      "usedByQueueTasks": [
+        "AGENT-CROSS-REFERENCE-MAINTENANCE",
+        "AGENT-REPOSITORY-INVENTORY-COVERAGE-AUDIT"
+      ],
+      "doneWhen": [
+        "A documentation/register validation framework, inventory, or cross-reference register is aligned with existing Work Map, TODO Index, project-register, and architecture sources.",
+        "Validation scripts remain report-only unless explicitly scoped otherwise and do not rewrite files automatically.",
+        "Repository inventory or cross-reference updates classify existing files conservatively and keep protected runtime/native files inventory-only unless a separate human-approved task exists.",
+        "No duplicate Work Map, TODO Index, route/API registry, readiness matrix, repository inventory, or agent-governance system is created."
+      ],
+      "requiredEvidence": [
+        "jq validation commands for changed JSON files.",
+        "Validation script command results for the affected governance area.",
+        "Cross-reference maintenance note naming the existing leading files used.",
+        "Anti-duplication and protected-area note."
+      ],
+      "requiredChecks": [
+        "jq empty <changed-json-files>",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
         "npm run agent:quality-gate"
       ]
     },

@@ -326,6 +326,125 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "registry_task"
+    },
+    {
+      "taskId": "AGENT-REGISTRY-SYNC",
+      "title": "Synchronize definition-of-done registry keys with existing governance queue references",
+      "status": "done",
+      "pr": {
+        "branch": "batch-autopilot-registry-sync-1",
+        "number": null,
+        "url": null,
+        "title": "Sync registry definition-of-done governance keys"
+      },
+      "changedFiles": [
+        "project-register/definition-of-done.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "checks": [
+        {
+          "command": "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
+          "result": "pass",
+          "notes": "Preflight dry run selected AGENT-REGISTRY-SYNC as the first low-risk candidate and did not write files."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
+          "result": "pass",
+          "notes": "Report/check-only limited execution policy check passed on the task branch."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Initial Autopilot dry run selected AGENT-REGISTRY-SYNC and reported dry-run-only behavior."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Pre-change quality gate passed."
+        },
+        {
+          "command": "jq empty project-register/*.json",
+          "result": "pass",
+          "notes": "All project-register JSON files parsed successfully after the registry sync."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Product readiness validation passed; no module status was promoted."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+          "result": "pass",
+          "notes": "Repository inventory validation passed with existing warning sections only."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Cross-reference maintenance validation passed; no new architecture was created."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax check completed successfully."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Post-change quality gate passed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass_report_only_not_eligible",
+          "notes": "Report-only check did not merge; AUTO_MERGE_ELIGIBLE=false because protected-topic keywords in the governance diff require human review."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass_report_only_not_allowed",
+          "notes": "Report-only check did not repair; AUTO_REPAIR_ALLOWED=false because no failed check required repair."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+          "result": "pass",
+          "notes": "PR review policy reported PR_REVIEW_POLICY_READY=true and remained report-only."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Final Autopilot dry run reported dry-run-only behavior and selected the next safe candidate after this task entered memory."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check completed successfully."
+        }
+      ],
+      "followUps": [
+        "Keep future cross-reference or repository-inventory execution in separate PRs if selected by a later dry run; do not combine additional tasks into this one-task batch.",
+        "Continue to treat auto-merge, auto-repair, PR review, and Batch Autopilot execution controls as report-only unless explicit human approval changes the policy."
+      ],
+      "nextRecommendedTask": "Run the next Batch Autopilot dry-run after this PR; if it selects a different low-risk governance candidate, execute it in a separate one-task PR only after human approval.",
+      "updatedTodoFiles": [
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task"
     }
   ]
 }
