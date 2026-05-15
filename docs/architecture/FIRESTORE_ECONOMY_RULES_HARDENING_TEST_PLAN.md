@@ -156,6 +156,8 @@ Vorher muss in einem zweiten Terminal der Emulator laufen:
 npm run emulators
 ```
 
+Voraussetzungen fuer diesen Test sind Firebase CLI, Java, freie lokale Emulator-Ports und eine lokale Entwicklungsumgebung ohne Produktionsdaten. Wenn der Emulator wegen Login-, Java- oder Port-Konflikten nicht startet, ist das als Umgebungslimit zu dokumentieren; es ist kein Grund, Firestore Rules, Functions-Code, Deployment-Konfiguration oder Reward-/Mission-Autoritaet in derselben Aufgabe zu aendern.
+
 Der Test nutzt Firebase Auth + Firestore Emulator und prueft die wichtigsten Stufe-1-Faelle:
 
 ```txt

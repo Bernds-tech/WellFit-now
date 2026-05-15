@@ -139,6 +139,13 @@ Aktueller Stand:
 [ ] Phase 3 PM2-/Job-Queue-Agent offen.
 ```
 
+### PM2-/Server-Grenzen fuer Produkt-Foundation-Arbeit
+
+- PM2 darf in Agentenauftraegen nur als bestehender Serverbetriebs-Kontext dokumentiert werden, solange kein expliziter Deploy-/Betriebsauftrag vorliegt.
+- Ein Dokumentations- oder Quality-Gate-Lauf ist keine Freigabe fuer `pm2 restart`, Firebase Deploys, Firestore-Rules-Publish, Environment-Aenderungen auf dem Server oder Produktionsdaten-Migrationen.
+- Vor spaeteren PM2-Arbeiten muss geprueft werden, dass nur eine beabsichtigte `wellfit-now`-Instanz laeuft und dass Logs/Ports nicht von parallelen Emulator- oder Testprozessen blockiert sind.
+- Agenten duerfen PM2-/Serverhinweise in bestehenden Status-, TODO- und Architekturdateien pflegen, aber keine Deployment-Workflows, `firebase.json`, `functions/**`, `firestore.rules` oder Runtime-Produktlogik nebenbei aendern.
+
 ### 5.2 Provider-Abstraktion
 
 Der Agent darf nicht hart an einen einzigen KI-Anbieter gekoppelt werden.

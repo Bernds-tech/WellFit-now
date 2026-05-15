@@ -182,6 +182,22 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Documentation/register-only setup alignment. Clarified local setup, npm install/build/dev checks, Firebase NEXT_PUBLIC_* placeholders, CI public prerender behavior without real Firebase secrets, real Auth/Firestore env requirements, server-only provider key boundaries, .env.local no-commit rule, and safe agent development boundaries. Runtime product code, app/components/lib/functions, firestore.rules, public assets, package manifests, Unity/PR #13, token/wallet/payment/betting/reward-authority, mission-completion authority, health/child/location/privacy/legal/compliance logic, auto-merge, auto-repair, and deployment remained untouched."
+    },
+    {
+      "id": "PROGRESS-FIREBASE-PM2-EMULATOR-DOCS-2026-05-15-0001",
+      "date": "2026-05-15",
+      "branch": "docs/firebase-pm2-emulator-foundation",
+      "issue": null,
+      "goal": "Execute the second approved low-risk product-foundation documentation task for Firebase setup, Functions checks, emulator prerequisites, and PM2/server deployment boundaries.",
+      "changedAreas": [
+        "README",
+        "architecture documentation",
+        "todolist",
+        "agent logs"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Documentation/register-only pass. Clarified Firebase project/environment expectations, root app checks vs Functions syntax checks, npm --prefix functions run check usage, emulator prerequisites (Firebase CLI, Java, ports, login/project context, local environment), which emulator tests require running services, PM2/server deployment cautions, no deploy from agent without explicit human approval, no Firestore rules or Functions changes, no production writes, no final ledger, and no mission-completion/reward authority activation. Runtime product code, app/components/lib/functions, firestore.rules, firebase.json, deployment workflows, package manifests, public assets, Unity/PR #13, protected token/wallet/payment/betting/reward/mission/health/child/location/privacy/legal/compliance logic, auto-merge, auto-repair, and deployment remained untouched."
     }
   ]
 }
