@@ -108,6 +108,23 @@ SpendPreview -> PointsSink -> Ledger -> Audit -> UserProjection
 
 Diese Collections sind noch nicht echt beschrieben. Die APIs liefern aktuell nur Dry-Run-/Draft-Bundles und `writeNow: false`.
 
+
+## Backend-readiness Review vom 2026-05-15
+
+Status: `review_required` fuer Produktionsautoritaet. Dieser Dokumentationspass hat keine Firestore Rules, Functions, API-Routen, Deployments oder Produktionsdaten geaendert.
+
+Abgrenzung der Checks:
+
+- Root-App-Checks (`npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm run agent:quality-gate`) pruefen Web-App- und Governance-Baseline.
+- `npm --prefix functions run check` ist ein Functions-Syntax-/Static-Parse-Check fuer vorhandene JavaScript-Dateien. Er startet keine Emulatoren, prueft keine produktive Rules-Autoritaet und beweist keine Final-Ledger-Persistenz.
+- Emulator-Tests brauchen lokal laufende Firebase Emulator Services, Java, Firebase CLI, freie Ports, Projekt-/Demo-Kontext und lokale Environment-Konfiguration. Fehlen diese Voraussetzungen, ist das ein Umgebungslimit und kein Freibrief fuer Rules-/Functions-/Deployment-Aenderungen.
+
+Persistenz-/Autoritaetsstand:
+
+- `/api/economy/*` bleibt laut Register Preview-/Draft-/Status-/Projection-Read-Preview, solange keine separate Human-Approval-Entscheidung eine Backend-/Rules-/Audit-Umstellung autorisiert.
+- `ledgerEvents`, `auditEvents`, `userEconomyProjections`, `pointsSinkEvents`, finale Punkteausgaben, Inventory Grants, Leaderboards, Anti-Cheat, Reward Authority und Mission Completion bleiben server-reviewed und duerfen nicht client-authoritativ werden.
+- Jede Aktivierung finaler Writes benoetigt vorab einen genehmigten Backend-/Rules-/Emulator-/Audit-Plan; unklare Punkte bleiben `review_required`.
+
 ## Ausfuehrbare Guardrail-Vorstufe
 
 Mega-Block 23 fuegt einen statischen Agent-Check hinzu:

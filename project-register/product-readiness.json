@@ -159,7 +159,8 @@
         "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md"
       ],
       "current_blockers": [
-        "Mission completion, anti-cheat, and rewards require server-side authority and evidence before any status advance; protected health/child/location/camera/face/motion/consent signals may be only review_required context/evidence, never direct authority."
+        "Mission completion, anti-cheat, and rewards require server-side authority and evidence before any status advance; protected health/child/location/camera/face/motion/consent signals may be only review_required context/evidence, never direct authority.",
+        "Backend-readiness pass keeps persistence/final authority review_required; Functions syntax checks and preview APIs do not authorize final writes."
       ],
       "next_safe_task": "Consolidate existing mission copy, registry references, or preview UI without changing completion authority.",
       "do_not_duplicate_warning": "Do not create a parallel mission engine, reward-authority path, or anti-cheat model.",
@@ -189,7 +190,8 @@
         "project-register/features.json"
       ],
       "current_blockers": [
-        "Daily missions must remain preview/beta and cannot authorize rewards entirely on the client."
+        "Daily missions must remain preview/beta and cannot authorize rewards entirely on the client.",
+        "Backend-readiness pass keeps persistence/final authority review_required; Functions syntax checks and preview APIs do not authorize final writes."
       ],
       "next_safe_task": "Improve daily mission guidance, evidence wording, or beta-state clarity in the existing route.",
       "do_not_duplicate_warning": "Do not fork daily missions into a separate client-only completion or reward subsystem.",
@@ -449,7 +451,8 @@
         "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
-        "Internal points remain beta/draft/preview; final ledger writes, token/NFT migration, wallet, payment, reward authority, and protected-data-based reward/completion decisions require explicit review."
+        "Internal points remain beta/draft/preview; final ledger writes, token/NFT migration, wallet, payment, reward authority, and protected-data-based reward/completion decisions require explicit review.",
+        "Backend-readiness pass keeps persistence/final authority review_required; Functions syntax checks and preview APIs do not authorize final writes."
       ],
       "next_safe_task": "Strengthen documentation, previews, static guardrail checks, or emulator test plans without activating final writes.",
       "do_not_duplicate_warning": "Do not create a parallel ledger, token service, wallet, payment, NFT, or reward-authorization path.",
@@ -480,7 +483,8 @@
         "todolist/status/2026-05-12-points-shop-paid-points-backlog-not-active.md"
       ],
       "current_blockers": [
-        "Shop must remain internal-points preview only; no paid points, purchase, payout, token transfer, or real inventory grant is approved."
+        "Shop must remain internal-points preview only; no paid points, purchase, payout, token transfer, or real inventory grant is approved.",
+        "Backend-readiness pass keeps persistence/final authority review_required; Functions syntax checks and preview APIs do not authorize final writes."
       ],
       "next_safe_task": "Clarify preview-only shop copy and register links without adding payment or final spend authority.",
       "do_not_duplicate_warning": "Do not add a payment store, paid points purchase, NFT inventory, payout, or real purchase path.",
@@ -541,7 +545,8 @@
         "todolist/WORK_MAP.md"
       ],
       "current_blockers": [
-        "Leaderboard needs privacy-aware aggregation and anti-cheat review before production use."
+        "Leaderboard needs privacy-aware aggregation and anti-cheat review before production use.",
+        "Backend-readiness pass keeps persistence/final authority review_required; Functions syntax checks and preview APIs do not authorize final writes."
       ],
       "next_safe_task": "Improve placeholder/beta presentation and privacy wording without exposing broad user data.",
       "do_not_duplicate_warning": "Do not add a separate ranking service, public user dump, or final competition payout logic.",
@@ -644,12 +649,21 @@
         "scripts/wellfit-dev-agent/src/firestore-emulator-test-plan-check.mjs",
         "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
         "project-register/master-roadmap-tasks.json",
-        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
+        "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md",
+        "README.md",
+        "docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md",
+        "docs/architecture/MISSION_DRAFT_EMULATOR_TEST_PLAN.md",
+        "docs/architecture/MISSION_DRAFT_SECURITY_PLAN.md",
+        "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md",
+        "docs/architecture/TRACKING_BUDDY_SERVER_EVENTS.md",
+        "project-register/apis.json"
       ],
       "current_blockers": [
-        "Backend rules and final writes affect data security, rewards, economy, and privacy; emulator coverage and human review are needed before production readiness."
+        "Backend rules and final writes affect data security, rewards, economy, privacy, leaderboards, inventory, anti-cheat and mission completion; emulator coverage and human review are needed before production readiness.",
+        "`npm --prefix functions run check` is syntax/static evidence only and does not prove emulator authority, Firestore Rules hardening, deployment readiness, final persistence, reward authority or mission completion authority.",
+        "Existing server APIs remain preview/draft/status/projection-read-preview until an explicit approved backend/rules/audit plan verifies server-only writes and updates registers."
       ],
-      "next_safe_task": "Run/static-improve Firebase security and emulator test-plan checks; do not activate final ledger writes.",
+      "next_safe_task": "Plan Economy-Caps/Mission-Type-Caps/EconomyHealthScore in existing guardrail docs/registers only; do not activate final ledger writes, Firestore Rules hardening, Functions behavior, reward authority, mission completion, inventory grants, leaderboard authority, anti-cheat or deployments.",
       "do_not_duplicate_warning": "Do not add parallel backend authority, alternate Firestore schemas, or server secrets in frontend code.",
       "required_checks_before_status_can_advance": [
         "npm --prefix functions run check",
@@ -658,7 +672,10 @@
         "node scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs",
         "jq empty project-register/product-readiness.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
-        "npm run agent:quality-gate"
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs"
       ],
       "human_approval_required": true
     },

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-14",
+  "updated": "2026-05-15",
   "purpose": "Machine-readable WellFit internal source-to-implementation map. Use this registry before planning or coding concept-derived work so agents continue existing implementation areas, respect guardrails, and avoid duplicate architecture or parallel systems.",
   "governance": {
     "readBeforeUse": [
@@ -23,14 +23,21 @@
       "Do not create a second app shell, navigation system, mission engine, reward ledger, economy model, Buddy KI provider layer, AR event authority path, feedback pipeline, or agent-governance system.",
       "Do not activate token, NFT, wallet, payment, presale, trading, staking, payout, betting, or final reward authority flows from concept documents.",
       "Do not expand health, child, location, camera, privacy, consent, or compliance logic from concept documents without an explicit reviewed task.",
-      "Do not touch PR #13 or overwrite/delete Unity files under native/unity/WellFitBuddyAR."
+      "Do not touch PR #13 or overwrite/delete Unity files under native/unity/WellFitBuddyAR.",
+      "Do not treat Functions syntax checks, preview/status APIs, draft persistence, emulator plans, or documentation-only backend-readiness notes as final ledger, reward, mission-completion, inventory, leaderboard, anti-cheat, production-write, or deployment authority."
     ]
   },
   "sourceGroups": [
     {
       "id": "master-concept-master-bibel",
       "name": "Master concept / Master-Bibel",
-      "topics": ["product vision", "roadmap", "safe work order", "existing baseline", "module priorities"],
+      "topics": [
+        "product vision",
+        "roadmap",
+        "safe work order",
+        "existing baseline",
+        "module priorities"
+      ],
       "supportingConceptFiles": [
         "todolist/C - STRATEGISCHE GRUNDENTSCHEIDUNGEN",
         "todolist/MASTER_OPEN_DONE_LIST.md",
@@ -73,7 +80,13 @@
     {
       "id": "whitepaper-investor-documents",
       "name": "Whitepaper / investor documents",
-      "topics": ["public narrative", "investor story", "market positioning", "business roadmap", "future economy claims"],
+      "topics": [
+        "public narrative",
+        "investor story",
+        "market positioning",
+        "business roadmap",
+        "future economy claims"
+      ],
       "supportingConceptFiles": [
         "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
         "docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md",
@@ -111,7 +124,14 @@
     {
       "id": "presale-tokenomics-documents",
       "name": "Pre-Sale / Tokenomics documents",
-      "topics": ["WFT", "tokenomics", "presale", "NFT", "blockchain migration", "internal points first"],
+      "topics": [
+        "WFT",
+        "tokenomics",
+        "presale",
+        "NFT",
+        "blockchain migration",
+        "internal points first"
+      ],
       "supportingConceptFiles": [
         "todolist/C - STRATEGISCHE GRUNDENTSCHEIDUNGEN",
         "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
@@ -152,7 +172,15 @@
     {
       "id": "avatar-ki-buddy-documents",
       "name": "Avatar / KI-Buddy documents",
-      "topics": ["Buddy", "avatar", "AI guide", "mission recommendations", "care", "inventory", "provider layer"],
+      "topics": [
+        "Buddy",
+        "avatar",
+        "AI guide",
+        "mission recommendations",
+        "care",
+        "inventory",
+        "provider layer"
+      ],
       "supportingConceptFiles": [
         "todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE",
         "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md",
@@ -195,7 +223,14 @@
     {
       "id": "spielplaetze-kinder",
       "name": "Spielplätze / Kinder",
-      "topics": ["children", "playgrounds", "family-safe missions", "AR rallies", "child safety", "location safety"],
+      "topics": [
+        "children",
+        "playgrounds",
+        "family-safe missions",
+        "AR rallies",
+        "child safety",
+        "location safety"
+      ],
       "supportingConceptFiles": [
         "todolist/H - MOBILE - AR - TRACKING - KI",
         "todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY",
@@ -235,7 +270,14 @@
     {
       "id": "erwachsene-active-breaks",
       "name": "Erwachsene / Active Breaks",
-      "topics": ["adults", "active breaks", "movement", "daily missions", "workplace wellness", "health-adjacent data"],
+      "topics": [
+        "adults",
+        "active breaks",
+        "movement",
+        "daily missions",
+        "workplace wellness",
+        "health-adjacent data"
+      ],
       "supportingConceptFiles": [
         "todolist/H - MOBILE - AR - TRACKING - KI",
         "todolist/J8.4 - MISSIONSTYPEN UND KI MISSION ENGINE ADDENDUM.md",
@@ -274,7 +316,13 @@
     {
       "id": "familien",
       "name": "Familien",
-      "topics": ["family challenges", "cooperative missions", "parent-child usage", "shared progress", "safe motivation"],
+      "topics": [
+        "family challenges",
+        "cooperative missions",
+        "parent-child usage",
+        "shared progress",
+        "safe motivation"
+      ],
       "supportingConceptFiles": [
         "todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE",
         "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md",
@@ -309,7 +357,13 @@
     {
       "id": "ernaehrung-abnehmen",
       "name": "Ernährung / Abnehmen",
-      "topics": ["nutrition", "weight loss", "habits", "coaching", "medical-adjacent content"],
+      "topics": [
+        "nutrition",
+        "weight loss",
+        "habits",
+        "coaching",
+        "medical-adjacent content"
+      ],
       "supportingConceptFiles": [
         "todolist/C - STRATEGISCHE GRUNDENTSCHEIDUNGEN",
         "todolist/H - MOBILE - AR - TRACKING - KI",
@@ -343,7 +397,15 @@
     {
       "id": "soziales-ar-battle-gilden",
       "name": "Soziales / AR Battle / Gilden",
-      "topics": ["social", "AR battle", "guilds", "PvP", "competitions", "leaderboards", "internal stakes"],
+      "topics": [
+        "social",
+        "AR battle",
+        "guilds",
+        "PvP",
+        "competitions",
+        "leaderboards",
+        "internal stakes"
+      ],
       "supportingConceptFiles": [
         "docs/architecture/COMPETITION_INTERNAL_STAKES_GUARDRAILS.md",
         "docs/architecture/AVATAR_COMPETITION_AND_RARE_ITEMS_GUARDRAILS.md",
@@ -382,7 +444,14 @@
     {
       "id": "unity-wellfitbuddyar",
       "name": "Unity / WellFitBuddyAR",
-      "topics": ["Unity", "ARCore", "ARKit", "WellFitBuddyAR", "native AR", "Buddy companion"],
+      "topics": [
+        "Unity",
+        "ARCore",
+        "ARKit",
+        "WellFitBuddyAR",
+        "native AR",
+        "Buddy companion"
+      ],
       "supportingConceptFiles": [
         "todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY",
         "todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE",
@@ -422,7 +491,14 @@
     {
       "id": "business-model-b2b-monetization",
       "name": "Business model / B2B / monetization",
-      "topics": ["B2B", "partners", "monetization", "billing", "paid points backlog", "web dashboard"],
+      "topics": [
+        "B2B",
+        "partners",
+        "monetization",
+        "billing",
+        "paid points backlog",
+        "web dashboard"
+      ],
       "supportingConceptFiles": [
         "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
         "docs/architecture/INTERNAL_POINTS_LEDGER_AND_BILLING.md",
@@ -459,7 +535,14 @@
     {
       "id": "feedback-analytics-optimization-loop",
       "name": "Feedback / Analytics / Optimization loop",
-      "topics": ["user feedback", "analytics", "site quality", "insight agent", "optimization loop", "privacy-safe summaries"],
+      "topics": [
+        "user feedback",
+        "analytics",
+        "site quality",
+        "insight agent",
+        "optimization loop",
+        "privacy-safe summaries"
+      ],
       "supportingConceptFiles": [
         "project-register/user-feedback.json",
         "project-register/feedback-analytics-loop.json",
@@ -498,7 +581,17 @@
     {
       "id": "wellfit-master-roadmap-developer-todo-list-import",
       "name": "WellFit Master Roadmap / Developer To-Do List import",
-      "topics": ["master roadmap", "developer to-do list", "roadmap versions 3.1-3.7", "Unity AR Foundation notes", "KI-Buddy notes", "AR-Buddy micro-task log", "internal points economy", "business/legal/website notes", "implementation status reconciliation"],
+      "topics": [
+        "master roadmap",
+        "developer to-do list",
+        "roadmap versions 3.1-3.7",
+        "Unity AR Foundation notes",
+        "KI-Buddy notes",
+        "AR-Buddy micro-task log",
+        "internal points economy",
+        "business/legal/website notes",
+        "implementation status reconciliation"
+      ],
       "supportingConceptFiles": [
         "project-register/master-roadmap-tasks.json",
         "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md",

@@ -1233,6 +1233,140 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "BACKEND-READINESS-DOCS-REGISTER-PASS",
+      "title": "Backend readiness documentation and register pass",
+      "status": "done",
+      "pr": {
+        "branch": "product-foundation/backend-readiness-docs",
+        "number": null,
+        "url": null,
+        "title": "Clarify backend readiness documentation and registers"
+      },
+      "changedFiles": [
+        "README.md",
+        "docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md",
+        "docs/architecture/MISSION_DRAFT_EMULATOR_TEST_PLAN.md",
+        "docs/architecture/MISSION_DRAFT_SECURITY_PLAN.md",
+        "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md",
+        "docs/architecture/TRACKING_BUDDY_SERVER_EVENTS.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/apis.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/internal-sources.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Initial dry run reported DRY_RUN without writing files."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Post-change quality gate passed."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Functions syntax/static parse check completed successfully after edits; no emulator authority implied."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Product readiness validation passed before edits."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+          "result": "pass",
+          "notes": "Route/API drift detector passed before edits."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+          "result": "pass_with_warnings",
+          "notes": "Analyzer passed with existing duplicate-architecture warnings."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Cross-reference maintenance check passed before edits."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check completed successfully."
+        },
+        {
+          "command": "jq empty project-register/apis.json project-register/features.json project-register/product-readiness.json project-register/progress-log.json project-register/agent-work-log.json project-register/internal-sources.json",
+          "result": "pass",
+          "notes": "Edited JSON registers parsed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Functions syntax/static parse check completed successfully after edits; no emulator authority implied."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Post-change quality gate passed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass_report_only_not_eligible",
+          "notes": "Report-only check did not merge; AUTO_MERGE_ELIGIBLE=false due forbidden topic keyword and diff size."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass_report_only_not_allowed",
+          "notes": "Report-only check did not repair; AUTO_REPAIR_ALLOWED=false because no failed check required repair."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+          "result": "pass",
+          "notes": "PR review policy reported PR_REVIEW_POLICY_READY=true and remained report-only."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Final Autopilot dry run reported DRY_RUN and selected AGENT-DOC-BASELINE-CHECK as next low-risk documentation task."
+        }
+      ],
+      "followUps": [
+        "Keep backend-readiness changes documentation/register-only unless a future task explicitly approves runtime backend/rules work.",
+        "Before any final ledger, reward, mission-completion, inventory, leaderboard or anti-cheat authority, require backend/rules/audit plan, emulator coverage, register updates and human approval."
+      ],
+      "nextRecommendedTask": "Plan Economy-Caps, Mission-Type-Caps and EconomyHealthScore only in existing guardrail docs/registers; do not activate final authority or modify runtime backend files.",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task"
     }
   ]
 }

@@ -402,6 +402,27 @@ Danach wird serverseitig gecappt:
 finalReward = min(validatedReward, userDailyCap, systemDailyEmissionCap, missionTypeCap)
 ```
 
+
+## Backend-readiness / persistence boundary 2026-05-15
+
+Dieser Stand ist weiterhin Preview/Draft fuer Reward- und Mission-Authority. Vorhandene Callable-/Preview-Bausteine und `/api/economy/*`-Routen duerfen nur als Review-, Evidence-, Simulation-, Status- oder Projection-Read-Preview verstanden werden, solange keine genehmigte Backend-/Rules-/Audit-Umstellung dokumentiert und umgesetzt ist.
+
+Check-Grenzen:
+
+- Root-App-Checks belegen Build-/Type-/Lint-/Governance-Integritaet.
+- `npm --prefix functions run check` belegt nur Syntax/static parsing der Functions-Dateien und Emulator-Testdateien; es autorisiert keine finalen Rewards, Punkte, XP, Token, Inventory Grants oder Mission Completion.
+- Emulator-Tests belegen nur lokale Auth/Firestore/Functions-Faelle, wenn Firebase CLI, Java, Ports, Emulator Services, Projekt-/Demo-Kontext und lokale Environment korrekt vorhanden sind.
+
+Review-required vor Finalisierung:
+
+- finale Ledger Writes,
+- `missionRewardEvents` als echte Grant-/Audit-Quelle,
+- Punkte-Spending und PointsSink-Persistenz,
+- Inventory-/Capability-Grants,
+- Leaderboard- oder Anti-Cheat-Autoritaet,
+- Mission Completion als accepted/final,
+- jede Nutzung geschuetzter Health-/Child-/Location-/Camera-/Face-/Motion-/Consent-Daten fuer Autoritaet.
+
 ## Sicherheitsregeln
 
 - Client darf Mission Completion nicht final autorisieren.

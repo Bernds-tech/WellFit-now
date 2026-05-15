@@ -242,6 +242,22 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Documentation/register-only data-protection review pass. Clarified that health/watch, child/minor/family, exact location/GPS/radius/safe-zone, camera/AR image, pose/face/biometric, motion/DeviceMotion/raw sensor, and consent/permission data are protected and review_required; require data minimization, consent, fallback, retention/deletion planning, and human/legal/privacy review; raw images/videos/face/biometric/health/location/child details are default do_not_store; protected data must not directly authorize rewards, mission completion, anti-cheat, leaderboards, inventory, rare items, token/payment/payout, or medical decisions. Runtime code, legal pages, consent flows, tracking, data collection, functions, rules, package manifests, public assets, Unity/PR #13, auto-merge, auto-repair, deployment, and reward/mission authority remained untouched."
+    },
+    {
+      "id": "PROGRESS-BACKEND-READINESS-DOCS-2026-05-15-0001",
+      "date": "2026-05-15",
+      "branch": "product-foundation/backend-readiness-docs",
+      "issue": null,
+      "goal": "Execute the sixth low-risk WellFit product-foundation task: backend-readiness documentation and register pass.",
+      "changedAreas": [
+        "README",
+        "architecture documentation",
+        "todolist",
+        "project-register"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Documentation/register-only backend-readiness pass. Clarified root app checks vs Functions syntax/static checks vs emulator tests, emulator prerequisites, server preview/status API boundaries, draft/preview persistence status, Firestore Rules guardrails, review_required points, and the separation between preview/draft APIs and final reward/mission/economy authority. Runtime code, app/components/lib/functions, firestore.rules, firebase.json, deployment workflows, package manifests, public assets, Unity/PR #13, secrets, production writes, final ledger, reward authority, mission-completion authority, inventory grants, leaderboards, anti-cheat, auto-merge, auto-repair, and deployment remained untouched."
     }
   ]
 }

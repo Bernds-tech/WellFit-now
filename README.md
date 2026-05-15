@@ -99,6 +99,16 @@ Root emulator startup scripts live in the root package (`npm run emulators`, `np
 
 If emulator checks cannot run in a given environment, report whether the limitation is environmental or code-related. Do not compensate by loosening Firestore rules, modifying Functions code, changing deployment scripts, or writing to production.
 
+### Backend readiness and authority boundaries
+
+The current backend-readiness posture is documentation/register-only unless a task explicitly authorizes runtime changes. Treat the checks as separate evidence types:
+
+- Root app checks (`npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm run agent:quality-gate`) validate the web app and governance reports.
+- `npm --prefix functions run check` validates Functions JavaScript syntax/static parse coverage only. It is not an emulator run, production deploy, Firestore Rules proof, ledger write, reward authorization, mission-completion authorization, or persistence-readiness proof.
+- Emulator tests require local Firebase emulator services, Java, Firebase CLI, free local ports, project/demo context, and local environment setup before they can prove Auth/Firestore/Functions behavior.
+
+Existing `/api/economy/*` routes are registered as preview, draft, status, or projection-read-preview surfaces. They must not be treated as final ledger, points-spend, inventory-grant, leaderboard, anti-cheat, reward, or mission-completion authority unless a future human-approved backend/rules/audit plan updates the runtime code, Firestore Rules, emulator coverage, and registers together. Firestore Rules hardening, final server persistence, production writes, deployment, and any protected economy/mission authority remain `review_required`.
+
 ## Agent and governance checks
 
 For documentation/register work, prefer the existing governance checks:

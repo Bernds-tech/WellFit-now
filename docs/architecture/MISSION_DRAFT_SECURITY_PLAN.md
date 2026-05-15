@@ -18,6 +18,9 @@ nur erlaubte Drafts werden sichtbar
 Reward/Completion/Ledger bleiben serverseitig
 ```
 
+
+Backend-readiness status vom 2026-05-15: `review_required`. Dieser Plan beschreibt Guardrails; er aktiviert keine produktive MissionDraft-Persistenz, keine Firestore-Rules-Aenderung, keine Function, keine API-Verhaltensaenderung und keine Deployment-Freigabe. `npm --prefix functions run check` bleibt nur Syntax-/Static-Parse-Evidence; MissionDraft-Autoritaet braucht zusaetzlich lokale Emulator-Evidence, Rules-Review, Audit-/Rollback-Pfade und explizite Human Approval.
+
 ## Vorgeschlagene Collections
 
 ```txt
