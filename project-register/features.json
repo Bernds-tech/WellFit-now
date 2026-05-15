@@ -3,110 +3,246 @@
     "project": "WellFit-now",
     "purpose": "Maschinenlesbares Feature-Register gegen Doppelarbeit und fuer Stufe-4-Cross-References.",
     "issue": 19,
-    "status": "baseline-import"
+    "status": "baseline-import",
+    "updated": "2026-05-15",
+    "backendReadinessReview": "Backend-readiness documentation/register pass confirmed existing economy/mission features remain preview/draft/beta and not final authority."
   },
   "features": [
     {
       "id": "FEATURE-DASHBOARD",
       "name": "Dashboard",
       "status": "active-beta",
-      "routes": ["/dashboard", "/dashboard/anpassen"],
-      "apis": ["/api/economy/user-projection", "/api/economy/health-preview"],
-      "rules": ["progress-visible", "server-preview-before-final-authority"]
+      "routes": [
+        "/dashboard",
+        "/dashboard/anpassen"
+      ],
+      "apis": [
+        "/api/economy/user-projection",
+        "/api/economy/health-preview"
+      ],
+      "rules": [
+        "progress-visible",
+        "server-preview-before-final-authority"
+      ]
     },
     {
       "id": "FEATURE-MISSIONS",
       "name": "Missionen",
       "status": "active-beta",
-      "routes": ["/missionen", "/missionen/tagesmissionen", "/missionen/wochenmissionen", "/missionen/abenteuer", "/missionen/challenge", "/missionen/wettkaempfe", "/missionen/favoriten", "/missionen/history"],
-      "apis": ["/api/economy/complete-mission", "/api/economy/reward-preview", "/api/economy/user-projection"],
-      "rules": ["no-client-completion-authority", "evidence-before-reward", "no-token-reward"]
+      "routes": [
+        "/missionen",
+        "/missionen/tagesmissionen",
+        "/missionen/wochenmissionen",
+        "/missionen/abenteuer",
+        "/missionen/challenge",
+        "/missionen/wettkaempfe",
+        "/missionen/favoriten",
+        "/missionen/history"
+      ],
+      "apis": [
+        "/api/economy/complete-mission",
+        "/api/economy/reward-preview",
+        "/api/economy/user-projection"
+      ],
+      "rules": [
+        "no-client-completion-authority",
+        "evidence-before-reward",
+        "no-token-reward",
+        "backend-readiness-review-required-before-final-authority",
+        "preview-or-beta-not-production-authority"
+      ]
     },
     {
       "id": "FEATURE-BUDDY",
       "name": "Buddy",
       "status": "active-beta",
-      "routes": ["/buddy", "/mobile/buddy", "/mobile/ar"],
-      "apis": ["/api/buddy-ki", "/api/economy/buddy-sync-preview"],
-      "rules": ["guide-and-emotional-binding", "no-reward-authority", "server-provider-only"]
+      "routes": [
+        "/buddy",
+        "/mobile/buddy",
+        "/mobile/ar"
+      ],
+      "apis": [
+        "/api/buddy-ki",
+        "/api/economy/buddy-sync-preview"
+      ],
+      "rules": [
+        "guide-and-emotional-binding",
+        "no-reward-authority",
+        "server-provider-only",
+        "backend-readiness-review-required-before-final-authority",
+        "preview-or-beta-not-production-authority"
+      ]
     },
     {
       "id": "FEATURE-POINTS-SHOP",
       "name": "Punkte-Shop",
       "status": "active-beta-sink-preview",
-      "routes": ["/punkte-shop"],
-      "apis": ["/api/economy/spend-preview"],
-      "rules": ["internal-points-only", "no-real-purchase", "no-token-transfer"]
+      "routes": [
+        "/punkte-shop"
+      ],
+      "apis": [
+        "/api/economy/spend-preview"
+      ],
+      "rules": [
+        "internal-points-only",
+        "no-real-purchase",
+        "no-token-transfer",
+        "backend-readiness-review-required-before-final-authority",
+        "preview-or-beta-not-production-authority"
+      ]
     },
     {
       "id": "FEATURE-MARKETPLACE",
       "name": "Marktplatz",
       "status": "active-or-placeholder-review-required",
-      "routes": ["/marktplatz"],
+      "routes": [
+        "/marktplatz"
+      ],
       "apis": [],
-      "rules": ["no-token-nft-activation-in-mvp", "no-real-trading"]
+      "rules": [
+        "no-token-nft-activation-in-mvp",
+        "no-real-trading"
+      ]
     },
     {
       "id": "FEATURE-LEADERBOARD",
       "name": "Leaderboard",
       "status": "active-beta",
-      "routes": ["/leaderboard"],
+      "routes": [
+        "/leaderboard"
+      ],
       "apis": [],
-      "rules": ["privacy-aware", "no-global-user-dump", "future-aggregation-required"]
+      "rules": [
+        "privacy-aware",
+        "no-global-user-dump",
+        "future-aggregation-required",
+        "backend-readiness-review-required-before-final-authority",
+        "preview-or-beta-not-production-authority"
+      ]
     },
     {
       "id": "FEATURE-ANALYTICS",
       "name": "Analytics",
       "status": "active-beta",
-      "routes": ["/analytics", "/mobile/analyse"],
-      "apis": ["/api/economy/user-projection"],
-      "rules": ["user-progress", "privacy-aware", "feedback-db-planning-only", "aggregate-agent-summaries-only", "no-third-party-analytics"],
+      "routes": [
+        "/analytics",
+        "/mobile/analyse"
+      ],
+      "apis": [
+        "/api/economy/user-projection"
+      ],
+      "rules": [
+        "user-progress",
+        "privacy-aware",
+        "feedback-db-planning-only",
+        "aggregate-agent-summaries-only",
+        "no-third-party-analytics"
+      ],
       "feedbackRegister": "project-register/user-feedback.json"
     },
     {
       "id": "FEATURE-MOBILE-WEB",
       "name": "Mobile-Web",
       "status": "active-beta",
-      "routes": ["/mobile", "/mobile/analyse", "/mobile/ar", "/mobile/bewegung", "/mobile/buddy", "/mobile/einstellungen", "/mobile/missionen", "/mobile/missionen/squat"],
-      "apis": ["/api/buddy-ki", "/api/economy/reward-preview", "/api/economy/complete-mission"],
-      "rules": ["touch-first", "performance-aware", "webgl-fallback-not-native-ar-authority"]
+      "routes": [
+        "/mobile",
+        "/mobile/analyse",
+        "/mobile/ar",
+        "/mobile/bewegung",
+        "/mobile/buddy",
+        "/mobile/einstellungen",
+        "/mobile/missionen",
+        "/mobile/missionen/squat"
+      ],
+      "apis": [
+        "/api/buddy-ki",
+        "/api/economy/reward-preview",
+        "/api/economy/complete-mission"
+      ],
+      "rules": [
+        "touch-first",
+        "performance-aware",
+        "webgl-fallback-not-native-ar-authority",
+        "backend-readiness-review-required-before-final-authority",
+        "preview-or-beta-not-production-authority"
+      ]
     },
     {
       "id": "FEATURE-LEGAL",
       "name": "Rechtliche Seiten",
       "status": "active",
-      "routes": ["/datenschutz", "/agb", "/impressum", "/faq", "/hilfe"],
+      "routes": [
+        "/datenschutz",
+        "/agb",
+        "/impressum",
+        "/faq",
+        "/hilfe"
+      ],
       "apis": [],
-      "rules": ["public", "trust", "privacy-consistency"]
+      "rules": [
+        "public",
+        "trust",
+        "privacy-consistency"
+      ]
     },
     {
       "id": "FEATURE-ECONOMY-PREVIEW-APIS",
       "name": "Economy-Preview-APIs",
       "status": "active-draft-only",
       "routes": [],
-      "apis": ["/api/economy/buddy-sync-preview", "/api/economy/complete-mission", "/api/economy/health-preview", "/api/economy/persistence-status", "/api/economy/reward-preview", "/api/economy/security-plan", "/api/economy/spend-preview", "/api/economy/user-projection"],
-      "rules": ["preview-only", "draft-only", "no-final-firestore-write-until-approved"]
+      "apis": [
+        "/api/economy/buddy-sync-preview",
+        "/api/economy/complete-mission",
+        "/api/economy/health-preview",
+        "/api/economy/persistence-status",
+        "/api/economy/reward-preview",
+        "/api/economy/security-plan",
+        "/api/economy/spend-preview",
+        "/api/economy/user-projection"
+      ],
+      "rules": [
+        "preview-only",
+        "draft-only",
+        "no-final-firestore-write-until-approved",
+        "backend-readiness-review-required-before-final-authority",
+        "preview-or-beta-not-production-authority"
+      ]
     },
     {
       "id": "FEATURE-PUBLIC-ENTRY",
       "name": "Public entry and registration",
       "status": "active-beta",
-      "routes": ["/", "/register"],
+      "routes": [
+        "/",
+        "/register"
+      ],
       "apis": [],
-      "rules": ["public-entry", "registration-entry", "no-sensitive-profile-expansion"]
+      "rules": [
+        "public-entry",
+        "registration-entry",
+        "no-sensitive-profile-expansion"
+      ]
     },
     {
       "id": "FEATURE-SETTINGS",
       "name": "Settings",
       "status": "active-beta",
-      "routes": ["/einstellungen"],
+      "routes": [
+        "/einstellungen"
+      ],
       "apis": [],
-      "rules": ["profile-settings", "consent-sensitive-changes-require-review"]
+      "rules": [
+        "profile-settings",
+        "consent-sensitive-changes-require-review"
+      ]
     }
   ],
   "stufe4Rules": {
     "newFeaturesMustBeRegistered": true,
     "featureChangesRequireAffectedRoutesAndApis": true,
-    "avoidDuplicateFeatureModules": true
+    "avoidDuplicateFeatureModules": true,
+    "backendReadinessChangesRequireExistingRegisterUpdate": true,
+    "functionsSyntaxCheckDoesNotPromoteFeatureReadiness": true,
+    "emulatorAuthorityRequiresLocalServicesAndHumanReview": true
   }
 }

@@ -91,6 +91,9 @@ Weiterhin gilt:
 - Backend entscheidet spaeter final ueber Mission Completion, Rewards, XP, Punkte und Anti-Cheat.
 - WFT-/Token-/Burn-Logik bleibt ausserhalb der Mobile-App.
 
+- Persistenz- und Authority-Status bleibt Preview/Draft, bis vorhandene Register, Firestore Rules, lokale Emulator-Tests und ein genehmigter Audit-Plan Finalitaet nachweisen.
+- `npm --prefix functions run check` ist nur Syntax-/Static-Parse-Evidence und ersetzt keine Emulator-, Rules-, Deployment- oder Produktionsdatenpruefung.
+
 ## Naechster Schritt
 
 Auf dieser Grundlage kann spaeter geplant werden:

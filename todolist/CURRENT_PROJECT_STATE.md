@@ -44,7 +44,7 @@ Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei erse
 - Sicherheitswortlaut fuer Mobile/Beta ist docs-only nachgezogen; weiterhin keine aktiven Token-, NFT-, Wallet-, Presale-, Trading-, Zahlungs- oder Payout-Versprechen in Mobile/Beta-Flows.
 - Economy/Rewards weiter als interne Punkte-/XP-/Preview-Mechanik behandeln, bis serverseitige Autoritaet, Firestore-Regeln und Emulator-Tests bereit sind.
 - Daten-/Health-/Child-/Location-/Camera-/Consent-Bereiche nur mit explizitem Auftrag erweitern.
-- Backend-/Firestore-/Functions-Readiness in kleinen Schritten pruefen und dokumentieren.
+- Backend-/Firestore-/Functions-Readiness wurde am 2026-05-15 docs/register-only nachgezogen: Root-App-Checks, Functions-Syntaxcheck, Emulator-Voraussetzungen, Preview-/Draft-APIs, Persistence-Status, Firestore-Rules-Guardrails und Final-Authority-Grenzen sind in bestehenden Docs/Registern verlinkt; Runtime-Code, Functions, Rules, Deployments, Produktionswrites und finale Ledger-/Reward-/Mission-Authority bleiben unveraendert und `review_required`.
 - Unity/WellFitBuddyAR getrennt inventarisieren; keine Unity-Dateien loeschen, ueberschreiben oder mit alten PRs vermischen.
 
 ## Riskante oder blockierte Bereiche

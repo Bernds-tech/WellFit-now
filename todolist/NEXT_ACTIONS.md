@@ -95,7 +95,9 @@ Quelle: `todolist/DATABASE_PLAN.md`, `todolist/B - AKTUELLER SPRINT-STAND – LO
 
 - [x] Data-protection-review documentation pass am 2026-05-15 docs/register-only umgesetzt: Health-/Watch-, Child-/Family-, Location-/GPS-/Radius-/Safe-Zone-, Camera-/AR-/Pose-/Face-/Biometric-, Motion-/DeviceMotion- und Consent-/Permission-Bereiche sind als protected / `review_required` mit Datenminimierung, Consent, Fallback, Human-/Legal-/Privacy-Review und Nicht-Autoritaetsgrenzen dokumentiert. Keine Runtime-Code-, Legaltext-, Consent-Flow-, Tracking-, Datenerfassungs-, Reward- oder Mission-Authority-Aenderung wurde aktiviert.
 
-- [ ] Naechster sicherer Product-Foundation-Schritt: Backend-readiness documentation/register pass fuer Firebase Functions syntax, Firestore Rules guardrails, server preview APIs and persistence status; keine Runtime-Code-, Rules-, Functions-, Ledger-, Reward- oder Deployment-Aenderung ohne explizite Freigabe.
+- [x] Backend-readiness documentation/register pass am 2026-05-15 docs/register-only umgesetzt: Root-App-Checks vs. Functions-Syntaxcheck vs. Emulator-Tests, Firebase CLI/Java/Port/Projektkontext-Voraussetzungen, Preview-/Draft-/Status-API-Grenzen, Persistence-Status, Firestore-Rules-Guardrails und finale Ledger-/Reward-/Mission-Authority als `review_required` dokumentiert. Keine Runtime-Code-, Rules-, Functions-, API-Verhaltens-, Ledger-, Reward-, Mission-Authority-, Deployment- oder Produktionswrite-Aenderung.
+
+- [ ] Naechster sicherer Product-Foundation-Schritt: Product-readiness/Register follow-up fuer Economy-Caps, Mission-Type-Caps und EconomyHealthScore nur in bestehenden Guardrail-Dokumenten/Registern planen; keine finale Ledger-/Reward-/Mission-Authority, keine Runtime-Code-, Rules-, Functions- oder Deployment-Aenderung ohne explizite Freigabe.
 
 - [x] 2026-05-14 aktuellen Baseline-Check ausgefuehrt: Lint, Typecheck, Build, Functions-Syntaxcheck und Quality Gate erfolgreich.
 - [~] Root-Installation bleibt unveraendert; `npm install` wurde nicht ausgefuehrt, weil Abhaengigkeiten fuer die Checks vorhanden waren.

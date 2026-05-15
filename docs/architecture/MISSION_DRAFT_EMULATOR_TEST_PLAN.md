@@ -93,6 +93,14 @@ Erwartung: PERMISSION_DENIED
 - Full emulator execution must use running services and must remain local/demo-project only. Do not point MissionDraft tests at production data.
 - A documentation-only pass may clarify these prerequisites, but must not edit `functions/**`, `firestore.rules`, `firebase.json`, deployment workflows or protected reward/mission-authority logic.
 
+
+## Backend-readiness / authority boundary 2026-05-15
+
+- This plan remains `review_required` for production authority; it is not a deployment or runtime migration.
+- Server preview/status APIs may expose draft or review state only. They must not grant final rewards, XP, internal points, inventory, leaderboard standing, anti-cheat outcomes, or mission completion.
+- Firestore Rules guardrails for MissionDrafts must be proven in local emulator coverage before any production authority is considered.
+- Persistence readiness is draft/preview until existing registers and emulator evidence explicitly verify server-only writes, owner reads, audit events, rollback/rejection paths, and no client-authoritative fields.
+
 ## Sicherheitsziel
 
 ```txt
