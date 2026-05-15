@@ -79,6 +79,20 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Documentation/register/validation-only framework added so future agents know which existing registers, TODO files, Work Map entries, readiness files, docs, and checks to inspect/update after routes, APIs, modules, agent scripts, roadmap, feedback/insight, visual, Unity/AR, compliance, or governance changes. Runtime product code, protected areas, Unity/PR #13, and compliance-critical logic remained untouched."
+    },
+    {
+      "id": "PROGRESS-REPOSITORY-INVENTORY-TRIAGE-2026-05-15-0001",
+      "date": "2026-05-15",
+      "branch": "triage/repository-inventory-safe-docs",
+      "issue": null,
+      "goal": "Execute the first WellFit Repository Inventory Triage pass for safe documentation/register/public/script groups.",
+      "changedAreas": [
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Registry/documentation-only inventory maintenance. Mapped safe docs, todolist, project-register, scripts/wellfit-dev-agent, and public asset groups into existing repository inventory topics; reduced unmapped count from 421 to 275; marked sensitive or unclear safe files as review_required. Runtime product code, app/components/lib/functions, firestore.rules, Unity/PR #13, and compliance-critical logic were untouched."
     }
   ]
 }

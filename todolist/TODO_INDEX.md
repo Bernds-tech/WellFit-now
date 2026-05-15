@@ -267,3 +267,4 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - [x] `project-register/repository-inventory.json` is the machine-readable full-repository inventory for mapped, protected, unmapped, stale/duplicate, module/topic, risk, and follow-up coverage.
 - [x] `docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md` documents how future agents should use the inventory without creating duplicate architecture or touching protected runtime areas.
 - [x] `scripts/wellfit-dev-agent/src/repository-inventory-check.mjs` validates inventory coverage in report-only mode and is included in the quality gate as warning-based triage.
+- [x] 2026-05-15 first safe inventory triage pass mapped documentation/register/public/script groups into existing repository inventory topics, reduced unmapped inventory noise from 421 to 275, and marked sensitive/unclear safe files as `review_required` for later review without touching runtime product code.
