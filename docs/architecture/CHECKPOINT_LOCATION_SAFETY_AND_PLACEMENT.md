@@ -1,7 +1,7 @@
 # WellFit Checkpoint Location Safety and Placement
 
 Status: Beta-planend / verbindliche Sicherheitsgrundlage
-Stand: 2026-05-12
+Stand: 2026-05-15
 
 ## Ziel
 
@@ -80,6 +80,17 @@ Technische Beta-Toleranz:
 - GPS kann je nach Geraet, Gebaeude, Wetter und Umgebung ungenau sein.
 - Deshalb darf eine Beta-Pruefung intern kurzzeitig groessere Toleranzen verwenden.
 - Diese Toleranz darf aber nicht zur Produktregel werden.
+
+## Datenschutz- und Consent-Grenze 2026-05-15
+
+Diese Datei beschreibt sichere Platzierung und spaetere Pruefregeln. Sie aktiviert keine Standorterfassung, keine Live-Ortung, keine Safe-Zone-Logik, keine Produktionstracking-Funktion und keine Legaltext-Aenderung.
+
+- Exakter Standort, GPS-Koordinaten, Checkpoint-Radius, Safe-Zones, Bewegungsverlauf und Nutzernaehe zu Orten sind protected und bleiben `review_required`.
+- Standort darf nur fuer eine klar erklaerte Mission, mit Einwilligung, Datenminimierung, kurzer Speicherdauer und Fallback geplant werden.
+- Checkpoint-Standort oder Radius darf hoechstens Evidence-/Plausibilitaets-/Safety-Signal sein; keine finale Reward-, XP-, Punkte-, Anti-Cheat- oder Mission-Completion-Autoritaet darf allein aus GPS, Radius oder Safe-Zone abgeleitet werden.
+- Ablehnung einer Standortberechtigung darf die sichere Basisnutzung der App nicht blockieren, wenn ortsfreie Missionen, manuelle Review, QR/NFC-Alternativen oder Lern-/Bewegungsfallbacks moeglich sind.
+- Kinder-/Familien-/Schul-/Vereinsorte, Spielplaetze, private Flaechen, medizinisch/behoerdlich sensible Orte und partnerbezogene Safe-Zones brauchen Human-/Legal-/Privacy-/Safety-Review vor jeder Implementierung.
+- Keine dauerhafte Standorthistorie, kein Live-Tracking, keine Produktionserfassung und keine erweiterten Partner-/Werbe-/Versicherungsdaten werden durch diese Dokumentationsrunde erlaubt.
 
 ## Sicherheitsfilter vor Checkpoint-Freigabe
 

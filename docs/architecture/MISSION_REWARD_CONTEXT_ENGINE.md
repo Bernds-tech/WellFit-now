@@ -60,6 +60,27 @@ Die Auszahlung orientiert sich nicht nur an der Mission selbst, sondern an einem
 - Tageslimit
 - Quest-Chain-Tiefe
 
+## Protected-Data Authority Boundary 2026-05-15
+
+Kontextsignale koennen spaeter nur dann in eine serverseitige Bewertung einfliessen, wenn sie datensparsam, consent-basiert, geprueft und nicht allein entscheidend sind. Diese Dokumentationsrunde aktiviert keine Produktionsdatenerfassung, keine Legaltext-Aenderung, keine Consent-UI und keine finale Authority.
+
+| Signalbereich | Erlaubte Rolle im Zielbild | Verbotene Rolle | Review-/Consent-Grenze |
+|---|---|---|---|
+| Health, Watch, HealthKit, Health Connect, Wearables | Grober Kontext, Plausibilitaet, freiwillige Motivation | Direkte Reward-/Completion-/Anti-Cheat-/medizinische Autoritaet | `review_required`, explizite Einwilligung, Datenminimierung, Fallback |
+| Child, Minor, Family, Guardian, School/Club | Alters-/Safety-Kontext fuer risikoarme Missionen | Druck, Shame, Payout/PvP/Leaderboard-/Rare-Item-Autoritaet | `review_required`, Child-Safety-/Legal-/Privacy-Review |
+| Exact Location, GPS, Radius, Safe-Zone, Checkpoint | Sicherheits-/Evidence-Hinweis fuer Orte | Alleiniger Completion-/Reward-Beweis oder dauerhafte Standorthistorie | `review_required`, klare Mission, kurze Speicherung, Fallback |
+| Camera, AR image, Pose, Face, Mimic, Biometric, raw sensor/image/video | Lokale/ephemere Assistance, Preview, optionale Evidence | Speicherung von Rohbildern/-videos/Face Data als Default oder finale Autoritaet | `review_required`, ausdrueckliche Berechtigung, do-not-store Default |
+| Browser DeviceMotion / acceleration / rotation / simple steps | Schwaches Kontext-/Plausibilitaetssignal | Finaler Schritt-, Reward-, Completion- oder Anti-Cheat-Beweis | Transparent, freiwillig; native/Health/Core-Motion nur nach Review |
+| Consent / Permission status | Verarbeitungsgrenze und Audit-Hinweis | Reward-Booster, Druckmittel oder versteckte Tracking-Erlaubnis | Zweck, Zeitpunkt, Widerruf, Alternative und minimale Speicherung klaeren |
+
+Folge fuer Reward- und Mission-Policy:
+
+- Protected Data darf keinen Multiplikator, Bonus, Ausschluss oder Abschluss allein ausloesen.
+- Jede spaetere Policy muss mehrere serverseitig gepruefte Signale, Limits, Review-Pfade und Fallbacks kombinieren.
+- Permission-Denial muss als normaler Zustand behandelt werden; soweit moeglich sind sichere Non-Camera-/Non-GPS-/Non-Health-Missionen oder manuelle Review-Pfade vorzusehen.
+- Raw Images/Videos/Face Templates, exakte Standortverlaeufe, Health-Rohdaten und Child-Detaildaten bleiben Default-`do_not_store`, solange kein gesonderter Human-/Legal-/Privacy-Review mit Datenmodell vorliegt.
+
+
 ## Aktueller technischer Zwischenstand: Mission Context Evaluation
 
 `evaluateMissionContext` ist als serverseitiger Context-Evaluation-Stub angelegt.

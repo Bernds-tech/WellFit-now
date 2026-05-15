@@ -24,7 +24,7 @@ Danach je nach Aufgabe lesen:
 
 ## Aktueller Arbeitsfokus
 
-Stand: 2026-05-14
+Stand: 2026-05-15
 
 Bernd hat entschieden (uebernommener Fokus aus dem 2026-05-07-Kontext, als TODO-Kontext erhalten):
 - Mobile/AR/Unity/Handytests werden erst am Samstag weiterbearbeitet.
@@ -93,7 +93,9 @@ Quelle: `todolist/DATABASE_PLAN.md`, `todolist/B - AKTUELLER SPRINT-STAND – LO
 
 - [x] Safety-wording / economy-guardrail documentation pass am 2026-05-15 docs-only in bestehenden Mobile-/Mission-/Economy-/Privacy-/Legal-Planungsquellen umgesetzt: MVP/Beta bleibt interne Punkte/XP und Preview/Anzeige, echte Token-/NFT-/Wallet-/Payment-/Trading-/Payout-/Presale-Logik bleibt deaktiviert und `review_required`, Clients erhalten keine Reward-/Mission-/Leaderboard-/Inventory-/Rare-Item-Autoritaet, Health-/Child-/Location-/Camera-/Face-/Motion-/Privacy-/Consent-Erweiterungen bleiben reviewpflichtig. Keine Runtime-Logik, keine Legal-/Compliance-Seiten, keine Reward-/Mission-Authority und keine Token-/NFT-/Wallet-/Payment-/Betting-Aktivierung.
 
-- [ ] Naechster sicherer Product-Foundation-Schritt: Data-protection-review documentation pass fuer Health-/Child-/Location-/Camera-/Face-/Motion-/Consent-Flows in bestehenden Planungsquellen; keine Runtime-Code-, Legaltext-, Consent-Flow- oder Datenerfassungs-Aenderung ohne explizite Human-/Legal-/Privacy-Freigabe.
+- [x] Data-protection-review documentation pass am 2026-05-15 docs/register-only umgesetzt: Health-/Watch-, Child-/Family-, Location-/GPS-/Radius-/Safe-Zone-, Camera-/AR-/Pose-/Face-/Biometric-, Motion-/DeviceMotion- und Consent-/Permission-Bereiche sind als protected / `review_required` mit Datenminimierung, Consent, Fallback, Human-/Legal-/Privacy-Review und Nicht-Autoritaetsgrenzen dokumentiert. Keine Runtime-Code-, Legaltext-, Consent-Flow-, Tracking-, Datenerfassungs-, Reward- oder Mission-Authority-Aenderung wurde aktiviert.
+
+- [ ] Naechster sicherer Product-Foundation-Schritt: Backend-readiness documentation/register pass fuer Firebase Functions syntax, Firestore Rules guardrails, server preview APIs and persistence status; keine Runtime-Code-, Rules-, Functions-, Ledger-, Reward- oder Deployment-Aenderung ohne explizite Freigabe.
 
 - [x] 2026-05-14 aktuellen Baseline-Check ausgefuehrt: Lint, Typecheck, Build, Functions-Syntaxcheck und Quality Gate erfolgreich.
 - [~] Root-Installation bleibt unveraendert; `npm install` wurde nicht ausgefuehrt, weil Abhaengigkeiten fuer die Checks vorhanden waren.
@@ -113,10 +115,10 @@ Quelle: Dry-Run-Report, `todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN`, 
 
 Quelle: `todolist/CHAT_START_PROMPT.md`, `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md`, `docs/architecture/MISSION_DRAFT_SECURITY_PLAN.md`
 
-- [ ] Schritt-, Health- und Watch-Daten duerfen spaeter nur als unterstuetzende Validierungs-, Kontext- oder Plausibilitaetsdaten dienen.
-- [ ] Health-/Kinder-/Standortdaten besonders schuetzen.
-- [ ] Keine sensible Gesundheits-/Standortlogik als Beta-Hauptmechanik verwenden.
-- [ ] Mobile-App bleibt frei von Token-, NFT-, Trading- und Presale-Funktionen.
+- [x] Schritt-, Health- und Watch-Daten duerfen spaeter nur als unterstuetzende Validierungs-, Kontext- oder Plausibilitaetsdaten dienen; direkte Reward-/Mission-Authority bleibt verboten.
+- [x] Health-/Kinder-/Standort-/Kamera-/Face-/Motion-/Consent-Daten sind protected und `review_required` dokumentiert.
+- [x] Keine sensible Gesundheits-/Standort-/Kamera-/Face-/Motion-Logik als Beta-Hauptmechanik verwenden.
+- [x] Mobile-App bleibt frei von Token-, NFT-, Trading- und Presale-Funktionen.
 
 ## Prio 4 - Heute/Morgen: Chain-/Blockchain-Trennung
 

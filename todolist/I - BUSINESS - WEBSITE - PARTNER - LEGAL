@@ -120,6 +120,16 @@ STATUS: [>] Später / wichtig vor Token-Veröffentlichung
 [ ] Keine Rendite-, Preis- oder Gewinnversprechen.
 [ ] Chain-Strategie historisch trennen: Solana/SPL-Dokumente vs. neuere SUI/Dynamic-Object-Strategie.
 
+
+DATA-PROTECTION-REVIEW-KLARSTELLUNG 2026-05-15:
+[!] Diese Planungsnotiz aendert keine Datenschutzseite, AGB, Impressum, Runtime-Legaltexte, Consent-Flows oder Produktlogik.
+[!] Health-/Watch-/Wearable-/HealthKit-/Health-Connect-Daten, Kinder-/Familien-/Guardian-Daten, exakter Standort/GPS/Radius/Safe-Zones, Kamera/AR/Pose/Face/Mimik/Biometrie, rohe Bild-/Video-/Sensor-Daten, Browser-DeviceMotion und Consent-/Permission-Status bleiben protected und `review_required`.
+[!] Vor Umsetzung sind Zweckbindung, Datenminimierung, explizite Einwilligung, Fallback, Retention-/Loeschkonzept, Security-Regeln und Human-/Legal-/Privacy-Review erforderlich.
+[!] Rohbilder, Videos, Face Data, biometrische Rohdaten, Health-Rohdaten, exakte Standortverlaeufe und Child-Detaildaten duerfen nicht als Default gespeichert werden.
+[!] Protected Data darf nicht als direkte Reward-, XP-, Punkte-, Mission-Completion-, Anti-Cheat-, Leaderboard-, Inventory-, Rare-Item-, Token-, Payout-, Payment- oder medizinische Autoritaet dienen.
+[!] Berechtigungsverweigerung darf sichere Basisnutzung nicht blockieren, soweit nicht-sensitive Fallbacks moeglich sind.
+[!] Diese Dokumentationsrunde aktiviert kein Produktionstracking, keine erweiterte Sammlung und keine neue Legal-/Compliance-Freigabe.
+
 REVIEW_REQUIRED-KLARSTELLUNG 2026-05-15:
 [!] Diese Dokumentationsrunde loest keine Rechts-/Compliance-Fragen und aendert keine Runtime-Legaltexte.
 [!] Token, NFT, Wallet, Payment, Trading, Payout, Presale, Marketplace, Health, Child-Safety, Location, Camera, Privacy, Consent und medizinisch/finanziell sensible Aussagen bleiben `review_required`.
