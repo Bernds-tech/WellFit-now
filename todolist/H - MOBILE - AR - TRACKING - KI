@@ -90,6 +90,13 @@ OFFEN:
 H2. KAMERA / KI-TRAINING / POSE / FACE
 ============================================================
 
+
+DATEN-SCHUTZ-REVIEW 2026-05-15:
+[!] H2 bleibt protected / `review_required`: Kamera, AR-Kamerabild, Pose, Face, Mimik, Biometrie und rohe Bild-/Video-/Sensor-Daten duerfen nur mit ausdruecklichem Consent-Konzept, Datenminimierung, Fallback und Human-/Legal-/Privacy-Review erweitert werden.
+[!] Rohbilder, Videos, Face Data, Face Templates und biometrische Rohdaten duerfen nicht standardmaessig gespeichert werden; lokale/ephemere Verarbeitung ist zu bevorzugen.
+[!] Pose-/Face-/Mimik-/Kamera-Signale duerfen keine finale Reward-, XP-, Punkte-, Mission-Completion-, Anti-Cheat-, Leaderboard-, Inventory- oder Rare-Item-Autoritaet erhalten.
+[!] Kamera-/Face-/Pose-Verweigerung muss als normaler Zustand gelten; wo moeglich sichere Nicht-Kamera-Missionen, Preview-/Demo-Modi oder Lern-/Bewegungsfallbacks anbieten.
+
 TASK-ID: WF-AI-POSE-001
 STATUS: [x] Technische Basis umgesetzt / Gerätetest offen
 
@@ -200,6 +207,13 @@ EMPFEHLUNG:
 ============================================================
 H4. TRACKING / BEWEGUNG / HEALTH / WATCH
 ============================================================
+
+
+DATEN-SCHUTZ-REVIEW 2026-05-15:
+[!] Health-, Watch-, HealthKit-, Health-Connect-, CoreMotion-/CMPedometer- und Wearable-Daten sind protected / `review_required`; Erweiterungen brauchen Zweckbindung, Datenminimierung, Einwilligung, Retention-/Loeschkonzept, Fallback und Human-/Legal-/Privacy-Review.
+[!] Browser-DeviceMotion, Beschleunigung, Rotation und einfache Schrittpeaks sind nur schwache Kontext-/Plausibilitaetssignale; ohne native/consent/reviewpflichtige Freigabe duerfen sie Schritte, Aktivitaet, Rewards oder Mission Completion nicht final beweisen.
+[!] Aggregierte Statuswerte, Kategorien und kurze Speicherfenster sind Rohdaten, Sensordumps und Langzeitprofile vorzuziehen.
+[!] Nutzer ohne Health-/Watch-/Motion-Berechtigung duerfen die sichere Basis-App und nicht-sensitive Alternativmissionen weiter nutzen, wo ein Fallback moeglich ist.
 
 TASK-ID: WF-TRACK-001
 STATUS: [x] Fertig / Basis umgesetzt

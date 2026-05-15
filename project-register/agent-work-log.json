@@ -1119,6 +1119,120 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "DATA-PROTECTION-REVIEW-DOCS",
+      "title": "Health, child, location, camera, face, motion and consent data-protection review pass",
+      "status": "done",
+      "pr": {
+        "branch": "product-foundation-data-protection-review",
+        "number": null,
+        "url": null,
+        "title": "Clarify protected data guardrails"
+      },
+      "changedFiles": [
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "docs/architecture/CHECKPOINT_LOCATION_SAFETY_AND_PLACEMENT.md",
+        "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md",
+        "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md",
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/product-readiness.json",
+        "project-register/internal-sources.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass_dry_run",
+          "notes": "Initial dry run reported DRY_RUN and did not write files."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Initial quality gate passed before documentation/register edits."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Initial product readiness validation passed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+          "result": "pass_with_warnings",
+          "notes": "Initial analyzer passed with existing duplicate architecture warnings; no parallel architecture was created."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Initial cross-reference maintenance check passed."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check completed successfully."
+        },
+        {
+          "command": "jq empty project-register/product-readiness.json project-register/progress-log.json project-register/agent-work-log.json project-register/internal-sources.json",
+          "result": "pass",
+          "notes": "All edited JSON registers parsed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax check completed successfully without modifying functions."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass_report_only_not_eligible",
+          "notes": "Report-only check returned AUTO_MERGE_ELIGIBLE=false due changed file/path/topic/count guardrails; no merge was performed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass_report_only_not_allowed",
+          "notes": "Report-only check returned AUTO_REPAIR_ALLOWED=false because no failed check needed repair and a forbidden topic was present; no repair was performed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+          "result": "pass",
+          "notes": "PR review policy reported PR_REVIEW_POLICY_READY=true and stayed report-only."
+        }
+      ],
+      "followUps": [
+        "Next product-foundation task: Backend-readiness documentation/register pass for Firebase Functions syntax, Firestore Rules guardrails, server preview APIs and persistence status.",
+        "Do not implement protected data collection, consent flows, legal text changes, production tracking, reward authority, mission-completion authority, or runtime privacy/compliance logic without separate explicit human/legal/privacy approval."
+      ],
+      "nextRecommendedTask": "Backend-readiness documentation/register pass for Firebase Functions syntax, Firestore Rules guardrails, server preview APIs and persistence status; no runtime code, Functions, Firestore Rules, ledger, reward authority, mission-completion authority, deploy, auto-merge, or auto-repair changes without explicit approval.",
+      "updatedTodoFiles": [
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task"
     }
   ]
 }

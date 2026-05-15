@@ -1,6 +1,6 @@
 # WellFit – Mission Types & AR Side Quests
 
-Stand: 2026-04-28
+Stand: 2026-05-15
 Status: Architekturanker fuer vorhandene Missionsseiten, KI-generierte Missionen, AR-Buddy-Nebenmissionen und Reward-Abgrenzung
 
 ## Zweck
@@ -183,6 +183,28 @@ Sie erzeugen zuerst nur Evidence.
 ```txt
 Evidence -> Question Memory -> Reward Policy -> Server Ledger
 ```
+
+
+## Protected-Data Evidence Boundary 2026-05-15
+
+AR-Buddy-Nebenmissionen, Hauptmissionen, Abenteuer, Challenges und Wettkaempfe duerfen geschuetzte Daten nicht als Abkuerzung zur finalen Autoritaet nutzen. Diese Dokumentationsrunde aktiviert keine neue Datenerfassung und keine Runtime-/Legaltext-Aenderung.
+
+Protected Data fuer Missionen umfasst insbesondere:
+
+- Health-, Watch-, HealthKit-, Health-Connect- und Wearable-Daten.
+- Kinder-/Minderjaehrigen-/Familien-/Guardian-/Schul-/Vereinskontext.
+- Exakten Standort, GPS, Radius, Checkpoints, Safe-Zones und Standortverlauf.
+- Kamera, AR-Kamerabild, Pose, Face, Mimik, Biometrie, rohe Sensor-, Bild- oder Videodaten.
+- Browser-DeviceMotion, Beschleunigung, Rotation und einfache Bewegungsheuristiken.
+- Consent-, Privacy- und Permission-Status.
+
+Regeln:
+
+- Protected Data bleibt `review_required` und braucht Datenminimierung, Consent, Fallback, Retention-/Loeschkonzept sowie Human-/Legal-/Privacy-Review vor Implementierung.
+- Raw Images, Videos, Face Data, biometrische Rohdaten, exakte Standortverlaeufe, Health-Rohdaten und Child-Detaildaten duerfen nicht standardmaessig gespeichert werden.
+- DeviceMotion-/Browserbewegung ist nur ein schwaches Kontextsignal; ohne native/consent/reviewpflichtige Freigabe darf es weder Schritte noch Aktivitaet final beweisen.
+- Ablehnung von Kamera-, Face-, Motion-, Health-, Watch- oder Standortberechtigungen darf sichere Basisnutzung und nicht-sensitive Alternativmissionen nicht unnoetig blockieren.
+- Server/Policy kann geschuetzte Signale spaeter als Evidence-, Kontext-, Plausibilitaets- oder Safety-Hinweis pruefen, aber nie als alleinige Reward-, XP-, Punkte-, Anti-Cheat-, Leaderboard-, Inventory-, Rare-Item- oder Mission-Completion-Autoritaet.
 
 ## KI-Buddy-/Mission-Engine
 

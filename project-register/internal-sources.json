@@ -210,8 +210,8 @@
         "Privacy guardrails and checkpoint/location safety architecture exist for child/location-sensitive work."
       ],
       "notYetImplemented": [
-        "No production child profile, guardian consent, playground live location, camera capture, or child-targeted tracking expansion is approved.",
-        "Real-world checkpoint generation remains guarded by safety and privacy review."
+        "No production child profile, guardian consent, playground live location, safe-zone, camera capture, face/pose/biometric, raw motion, or child-targeted tracking expansion is approved.",
+        "Real-world checkpoint generation remains guarded by safety, consent, data-minimization, fallback, human/legal/privacy review, and server authority."
       ],
       "leadingImplementationFiles": [
         "app/mobile/missionen/page.tsx",
@@ -221,8 +221,9 @@
         "lib/missions/"
       ],
       "doNotDuplicateWarnings": [
-        "Do not create a separate child-safety model, location model, or AR mission engine.",
-        "Do not collect child, precise location, camera, biometric, or health data without explicit privacy/security review."
+        "Do not create a separate child-safety model, location model, consent model, or AR mission engine.",
+        "Do not collect child, precise location/GPS/radius/safe-zone, camera, face/pose/biometric, raw motion/sensor, or health/watch data without explicit privacy/security/legal review.",
+        "Do not use protected data as direct reward, mission-completion, anti-cheat, leaderboard, inventory, rare-item, token, payout, payment, or medical authority."
       ],
       "nextSafeWorkLocation": [
         "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
@@ -247,8 +248,8 @@
         "Mobile motion/native activity/Health Connect helper areas exist, with privacy guardrails."
       ],
       "notYetImplemented": [
-        "No medical advice, diagnosis, treatment, raw health data ingestion expansion, or workplace analytics pipeline is approved.",
-        "Adaptive adult mission personalization remains draft/insight-agent planning."
+        "No medical advice, diagnosis, treatment, raw health/watch data ingestion expansion, raw motion/sensor history, precise location tracking, camera/face/pose persistence, or workplace analytics pipeline is approved.",
+        "Adaptive adult mission personalization remains draft/insight-agent planning and protected data remains review_required."
       ],
       "leadingImplementationFiles": [
         "app/missionen/tagesmissionen/page.tsx",
@@ -260,8 +261,8 @@
         "lib/healthConnect.ts"
       ],
       "doNotDuplicateWarnings": [
-        "Do not create another mission category engine or health data layer.",
-        "Keep health/watch data supportive and non-authoritative unless a reviewed task says otherwise."
+        "Do not create another mission category engine, health/watch data layer, motion tracking authority path, or consent model.",
+        "Keep health/watch, DeviceMotion, camera/pose/face, and location data supportive, minimized, consent-based, fallback-capable, and non-authoritative unless a reviewed task says otherwise."
       ],
       "nextSafeWorkLocation": [
         "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md",
@@ -286,8 +287,8 @@
         "Buddy copy and mission bridge areas can support family-friendly explanation patterns."
       ],
       "notYetImplemented": [
-        "No family account model, child/guardian consent workflow, household leaderboard, or shared reward authority is approved.",
-        "Family challenges must remain non-betting and non-payout unless explicitly reviewed."
+        "No family account model, child/guardian consent workflow, household leaderboard, shared reward authority, child location tracking, or family camera/face/biometric collection is approved.",
+        "Family challenges must remain non-betting, non-payout, privacy-minimized, and review_required for protected data."
       ],
       "leadingImplementationFiles": [
         "app/missionen/",
@@ -484,8 +485,8 @@
         "scripts/wellfit-dev-agent/src/quality-gate.mjs"
       ],
       "doNotDuplicateWarnings": [
-        "Do not create a second feedback pipeline, tracking layer, analytics SDK integration, or agent-readable raw-data channel.",
-        "Feedback and analytics work must exclude sensitive health, child, precise location, camera, biometric, wallet, payment, reward-evidence, and secret data."
+        "Do not create a second feedback pipeline, tracking layer, analytics SDK integration, consent store, or agent-readable raw-data channel.",
+        "Feedback and analytics work must exclude sensitive health/watch, child/minor/family, precise location/GPS/radius/safe-zone, camera/face/pose/biometric, raw motion/sensor, wallet, payment, reward-evidence, permission/consent pressure, and secret data."
       ],
       "nextSafeWorkLocation": [
         "project-register/user-feedback.json",

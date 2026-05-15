@@ -40,7 +40,7 @@
     "Do not modify product logic from this matrix; it is documentation, registry, and validation guidance only.",
     "Do not duplicate existing architecture, app shells, mission engines, economy ledgers, Buddy provider layers, AR bridges, feedback loops, or agent governance.",
     "Do not touch PR #13 or Unity files unless explicitly instructed by the repository owner.",
-    "Token, NFT, wallet, payment, betting, reward authority, health, child, location, privacy, and compliance-sensitive areas require explicit human approval before implementation."
+    "Token, NFT, wallet, payment, betting, reward authority, mission-completion authority, health/watch, child/minor/family, exact location/GPS/radius/safe-zone, camera/AR image, face/pose/biometric, motion/raw sensor, privacy, consent, and compliance-sensitive areas require explicit human/legal/privacy approval before implementation."
   ],
   "modules": [
     {
@@ -159,7 +159,7 @@
         "docs/architecture/MISSION_TYPES_AND_AR_SIDE_QUESTS.md"
       ],
       "current_blockers": [
-        "Mission completion, anti-cheat, and rewards require server-side authority and evidence before any status advance."
+        "Mission completion, anti-cheat, and rewards require server-side authority and evidence before any status advance; protected health/child/location/camera/face/motion/consent signals may be only review_required context/evidence, never direct authority."
       ],
       "next_safe_task": "Consolidate existing mission copy, registry references, or preview UI without changing completion authority.",
       "do_not_duplicate_warning": "Do not create a parallel mission engine, reward-authority path, or anti-cheat model.",
@@ -350,9 +350,10 @@
         "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
-        "Mobile UX must not activate token, NFT, trading, presale, live health tracking, location tracking, or final reward authority."
+        "Mobile UX must not activate token, NFT, trading, presale, live health/watch tracking, precise location/GPS/radius/safe-zone tracking, camera/face/pose/biometric collection, raw motion/sensor collection, consent-flow expansion, or final reward/mission-completion authority.",
+        "Health, child/minor/family, location, camera, face/pose/biometric, motion/raw sensor, privacy, and consent changes remain review_required before implementation."
       ],
-      "next_safe_task": "Stabilize existing mobile routes, copy, navigation, and responsive states without expanding sensitive data collection.",
+      "next_safe_task": "Stabilize existing mobile routes, copy, navigation, and responsive states without expanding sensitive data collection, permission prompts, tracking, or authority.",
       "do_not_duplicate_warning": "Do not build a separate mobile app shell or duplicate mobile route map.",
       "required_checks_before_status_can_advance": [
         "npm run lint",
@@ -381,9 +382,9 @@
         "docs/architecture/AR_REWARD_PREVIEW_API.md"
       ],
       "current_blockers": [
-        "Camera/location/native AR expansion and AR reward signals require privacy, safety, and authority review."
+        "Camera/location/native AR expansion, pose/face/biometric signals, raw image/video storage, and AR reward signals require privacy, safety, consent, and authority review."
       ],
-      "next_safe_task": "Improve existing web fallback messaging and non-authoritative preview states only.",
+      "next_safe_task": "Improve existing web fallback messaging and non-authoritative preview states only; do not add camera capture, face/pose persistence, precise location, or reward authority.",
       "do_not_duplicate_warning": "Do not add a second AR authority path, native bridge, camera capture, or location flow.",
       "required_checks_before_status_can_advance": [
         "privacy/safety review for camera and location scope",
@@ -448,7 +449,7 @@
         "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
-        "Internal points remain beta/draft/preview; final ledger writes, token/NFT migration, wallet, payment, and reward authority require explicit review."
+        "Internal points remain beta/draft/preview; final ledger writes, token/NFT migration, wallet, payment, reward authority, and protected-data-based reward/completion decisions require explicit review."
       ],
       "next_safe_task": "Strengthen documentation, previews, static guardrail checks, or emulator test plans without activating final writes.",
       "do_not_duplicate_warning": "Do not create a parallel ledger, token service, wallet, payment, NFT, or reward-authorization path.",
@@ -575,7 +576,7 @@
         "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md"
       ],
       "current_blockers": [
-        "Analytics must avoid unreviewed tracking, third-party analytics, personal data exposure, or health-data expansion."
+        "Analytics must avoid unreviewed tracking, third-party analytics, personal data exposure, health/watch expansion, child/minor data, precise location, camera/face/biometric data, raw motion/sensor data, or permission/consent pressure."
       ],
       "next_safe_task": "Keep analytics aggregate/beta-safe and improve feedback or Adaptive User Insight planning documentation; do not add live tracking or raw user-data exposure.",
       "do_not_duplicate_warning": "Do not introduce an unreviewed analytics SDK, parallel feedback database, or personal tracking pipeline.",
@@ -680,9 +681,9 @@
         "docs/architecture/WELLFIT_MASTER_ROADMAP_IMPORT.md"
       ],
       "current_blockers": [
-        "Legal, privacy, child safety, health, camera, location, payment, token, and compliance messaging require human/legal review."
+        "Legal, privacy, child safety, health/watch, camera/face/pose/biometric, raw motion/sensor, precise location/GPS/radius/safe-zone, payment, token, consent, and compliance messaging require human/legal/privacy review."
       ],
-      "next_safe_task": "Planning-only cross-reference or typo-safe documentation updates; do not change legal meaning without explicit approval.",
+      "next_safe_task": "Planning-only cross-reference or typo-safe documentation updates; do not change runtime legal pages, consent flows, data collection, or legal meaning without explicit approval.",
       "do_not_duplicate_warning": "Do not create duplicate legal pages, privacy policies, consent flows, or compliance frameworks.",
       "required_checks_before_status_can_advance": [
         "explicit legal/compliance approval",
