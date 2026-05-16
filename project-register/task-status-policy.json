@@ -186,7 +186,8 @@
     "protected path or protected topic changes",
     "missing PR/check evidence on completed tasks",
     "blocked tasks involving compliance, reward authority, mission completion authority, payment, wallet, token, NFT, health, child, location, privacy, legal, or Unity/PR #13 areas",
-    "automatic TODO/register rewrites"
+    "automatic TODO/register rewrites",
+    "new agent/register/workflow family proposal or ambiguous extension ownership"
   ],
   "reportOutputSchema": {
     "mode": "REPORT_ONLY",
@@ -212,5 +213,17 @@
     "map": "project-register/continuity-dependency-map.json",
     "check": "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
     "rule": "When task work leaves open follow-ups, blocked dependencies, review_required points, or required next output files, preserve them in the Sentinel and reference the affected work/progress-log evidence."
+  },
+  "agentExtensionPolicyRules": {
+    "policy": "project-register/agent-extension-policy.json",
+    "check": "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+    "rule": "Completed governance tasks that add or change agent capabilities must record whether the work was an existing-agent extension or a proposal-required new-agent topic.",
+    "requiresWorkLogEvidence": [
+      "connected agents counted",
+      "connected registers counted",
+      "extension vs proposal decision recorded",
+      "forbidden auto-actions remained inactive",
+      "human-review requirement recorded when applicable"
+    ]
   }
 }

@@ -64,7 +64,10 @@
     "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
     "project-register/website-agent-backlog.json",
     "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
-    "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs"
+    "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+    "project-register/agent-extension-policy.json",
+    "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+    "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -150,7 +153,10 @@
     "use_pr_diff_review_as_merge_approval",
     "use_pr_diff_review_as_auto_repair_authorization",
     "enable_or_perform_website_runtime_changes_from_website_agent_framework",
-    "treat_website_readiness_as_human_legal_privacy_health_child_token_payment_reward_or_investor_approval"
+    "treat_website_readiness_as_human_legal_privacy_health_child_token_payment_reward_or_investor_approval",
+    "create_new_agent_without_agent_extension_policy_proposal",
+    "create_new_agent_register_without_human_review",
+    "create_new_workflow_family_without_human_review"
   ],
   "stopConditions": [
     "current_branch_is_main",
@@ -208,7 +214,8 @@
     "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
     "jq empty project-register/continuity-dependency-map.json",
     "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
-    "jq empty project-register/website-agent-backlog.json"
+    "jq empty project-register/website-agent-backlog.json",
+    "node scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -322,5 +329,21 @@
     "check": "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
     "mode": "report_only",
     "purpose": "Preserve open dependencies, blocked/review-required handoffs, and required next output files before selecting automation or next-agent work."
+  },
+  "agentExtensionPolicyReference": {
+    "policy": "project-register/agent-extension-policy.json",
+    "architecture": "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+    "script": "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+    "activationState": "report_only",
+    "rule": "Autopilot may extend existing agents only when the capability clearly fits one existing owner; new agent names, registers, workflow families, protected scope, runtime authority, auto-merge, auto-repair, deployment, or self-approval require a proposal and human review first.",
+    "neverDoes": [
+      "create agents automatically",
+      "create agent registers automatically",
+      "approve PRs",
+      "merge PRs",
+      "repair files",
+      "deploy",
+      "touch runtime/protected/Unity/PR #13 areas"
+    ]
   }
 }

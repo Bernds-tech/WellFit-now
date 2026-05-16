@@ -1,0 +1,253 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Define when future WellFit agents may extend an existing agent/framework and when they must instead create a new-agent proposal for human review before building anything new. This policy prevents duplicate architecture, silent new agent creation, protected-scope drift, and unauthorized runtime authority while allowing safe, scoped improvements to existing report-only governance.",
+  "sourceOfTruth": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "project-register/agent-workflows.json",
+    "project-register/agent-task-queue.json",
+    "project-register/agent-autopilot.json",
+    "project-register/continuity-dependency-map.json",
+    "project-register/cross-reference-maintenance.json",
+    "project-register/task-status-policy.json",
+    "project-register/pr-review-policy.json",
+    "project-register/website-agents.json",
+    "project-register/website-agent-backlog.json",
+    "project-register/product-readiness.json"
+  ],
+  "existingAgentExtensionRules": [
+    {
+      "id": "extend_existing_register_fields",
+      "allowedWhen": "Adding new fields to an existing agent register when the fields clearly match that register's existing purpose, schema style, safety boundaries, and source-of-truth links.",
+      "requiredEvidence": "Name the existing register, quote or summarize its purpose, and explain why the added fields are subordinate to that purpose rather than a new role."
+    },
+    {
+      "id": "extend_existing_validator_checks",
+      "allowedWhen": "Adding new validation checks to an existing agent validator when the checks validate the existing register/framework and stay report-only unless the existing policy explicitly permits otherwise.",
+      "requiredEvidence": "Update the existing validator and quality-gate references without creating a new validator family for the same domain."
+    },
+    {
+      "id": "compatible_status_values",
+      "allowedWhen": "Adding new status values only when compatible with the existing policy lifecycle and without weakening review, blocked, report-only, or protected-area semantics.",
+      "requiredEvidence": "Document compatibility with existing status transitions and human-review gates."
+    },
+    {
+      "id": "existing_domain_categories",
+      "allowedWhen": "Adding new backlog, finding, review, or evidence categories for an existing agent domain such as Website Agent Backlog, PR Review, Continuity Sentinel, Task Status Sync, Product Readiness, or Cross-Reference Maintenance.",
+      "requiredEvidence": "Map each new category to the existing domain and confirm it does not create a separate architecture."
+    },
+    {
+      "id": "mapped_cross_reference_rules",
+      "allowedWhen": "Adding cross-reference rules for existing mapped files and registers already represented in Work Map, TODO Index, continuity dependencies, or cross-reference maintenance.",
+      "requiredEvidence": "List connected files/registers and update their pointers only where needed."
+    },
+    {
+      "id": "improve_report_only_checks",
+      "allowedWhen": "Improving existing report-only checks, guard summaries, output schemas, or diagnostics without enabling auto-merge, auto-repair, deployment, approval, runtime execution, or product mutation.",
+      "requiredEvidence": "Validator output must continue to print report-only and forbidden-auto-action confirmations."
+    },
+    {
+      "id": "task_queue_required_reads_checks",
+      "allowedWhen": "Adding required reads, checks, or handoff evidence to existing task queue entries when the task category already exists and remains within the existing agent's domain.",
+      "requiredEvidence": "Update the existing task candidate or global read/check list instead of creating a new task queue family."
+    },
+    {
+      "id": "product_readiness_or_work_map_pointers",
+      "allowedWhen": "Updating Product Readiness or Work Map pointers for existing agents to keep source-of-truth relationships current.",
+      "requiredEvidence": "Keep edits concise, pointer-only, and synchronized with TODO Index and relevant registers."
+    }
+  ],
+  "newAgentProposalRules": [
+    {
+      "id": "new_agent_name_or_role",
+      "requiresProposalWhen": "Creating a new agent name, role, persona, autonomous capability, or durable agent responsibility not already covered by an existing WellFit agent/framework."
+    },
+    {
+      "id": "new_agent_register",
+      "requiresProposalWhen": "Creating a new agent register rather than extending an existing register that already governs the domain."
+    },
+    {
+      "id": "new_workflow_family",
+      "requiresProposalWhen": "Creating a new agent workflow family, mode, lifecycle, runner, orchestration layer, or governance family."
+    },
+    {
+      "id": "new_task_queue_category",
+      "requiresProposalWhen": "Creating a new task queue category not covered by existing agents, existing task candidates, or mapped Product Readiness modules."
+    },
+    {
+      "id": "overlap_two_or_more_agents",
+      "requiresProposalWhen": "The proposed capability overlaps with two or more existing agents/frameworks and cannot be cleanly assigned to one existing owner."
+    },
+    {
+      "id": "protected_or_high_risk_scope",
+      "requiresProposalWhen": "The proposed work touches protected or high-risk areas, including token, NFT, wallet, payment, betting, reward authority, mission completion authority, health, child, location, privacy, legal, compliance, camera, biometric, Unity, PR #13, runtime product code, Firebase Functions, Firestore rules, package manifests, or GitHub workflows."
+    },
+    {
+      "id": "runtime_execution_authority",
+      "requiresProposalWhen": "Adding runtime execution authority, product mutation authority, write-mode automation, external service action authority, or autonomous task execution beyond existing report-only checks."
+    },
+    {
+      "id": "automation_authority",
+      "requiresProposalWhen": "Adding auto-merge, auto-repair, deployment, self-approval, PR approval, PR close, branch deletion, release, or production-facing behavior."
+    },
+    {
+      "id": "protected_scope_change",
+      "requiresProposalWhen": "Changing reward, mission authority, health, child, location, privacy, legal, compliance, token, wallet, payment, betting, NFT, marketplace, Unity, or PR #13 scope."
+    }
+  ],
+  "allowedExtensionExamples": [
+    {
+      "example": "Website Agent Framework gets Website Agent Backlog",
+      "reason": "The backlog stores findings, blockers, evidence gaps, and safe next tasks for the already-defined website agent domain."
+    },
+    {
+      "example": "PR Review Agent gets PR Diff Review integration",
+      "reason": "PR Diff Review adds changed-file evidence to the existing PR review governance chain without approving, merging, repairing, or deploying."
+    },
+    {
+      "example": "Continuity Sentinel gets new must-not-forget entries",
+      "reason": "The entries preserve open points and dependencies inside the sentinel's existing continuity purpose."
+    },
+    {
+      "example": "Task Status Sync gets stricter work-log validation",
+      "reason": "The stricter validation enforces the existing task-status/work-log policy and does not create a new work tracking system."
+    },
+    {
+      "example": "Product Readiness gets updated next-safe-task metadata",
+      "reason": "The metadata refines existing readiness guidance for an existing module."
+    },
+    {
+      "example": "Cross-Reference Maintenance gets new file dependency rules",
+      "reason": "The rules extend the existing cross-reference map for mapped files and registers."
+    }
+  ],
+  "requiresProposalExamples": [
+    {
+      "example": "Human Motivation Engine",
+      "reason": "New behavioral-product capability with possible engagement, wellness, and ethics implications; must be proposed and reviewed before build."
+    },
+    {
+      "example": "Ethical Engagement Guard",
+      "reason": "Cross-cuts Product Readiness, Adaptive User Insight, Research/Recommendation, compliance, and user-safety governance; requires proposal to avoid overlap."
+    },
+    {
+      "example": "Mission Factory Agent",
+      "reason": "Could affect mission generation, reward assumptions, completion authority, and user-facing runtime flows."
+    },
+    {
+      "example": "Product Intelligence Agent",
+      "reason": "May overlap Repository Inventory, Product Readiness, Research/Recommendation, Adaptive User Insight, analytics, and roadmap governance."
+    },
+    {
+      "example": "Agent Architect & Proposal Agent",
+      "reason": "Would define or curate future agents and therefore needs explicit human approval before becoming an agent."
+    },
+    {
+      "example": "Auto-Merge Activation Agent",
+      "reason": "Would activate merge authority, currently forbidden without explicit human review and policy change."
+    },
+    {
+      "example": "Auto-Repair Execution Agent",
+      "reason": "Would move from report-only repair classification to file mutation authority."
+    },
+    {
+      "example": "Runtime Product Fix Agent",
+      "reason": "Would modify runtime product code and protected app behavior rather than governance/reporting only."
+    }
+  ],
+  "overlapDetectionRules": [
+    {
+      "id": "count_existing_agents",
+      "rule": "Before adding capability, list all existing agents/frameworks/registers that would read, validate, report, decide, or own the same evidence. Count any non-trivial owner as one connected agent."
+    },
+    {
+      "id": "single_owner_extension",
+      "rule": "If exactly one existing agent clearly owns the domain and the change fits that purpose, prefer an extension to that agent/register."
+    },
+    {
+      "id": "two_or_more_overlap_proposal",
+      "rule": "If two or more existing agents have plausible ownership and the change creates new responsibilities, require a new-agent proposal or an explicit human decision assigning the extension to one owner."
+    },
+    {
+      "id": "protected_topic_override",
+      "rule": "Protected/high-risk topics override extension eligibility and require human review even when an existing agent seems to own the area."
+    },
+    {
+      "id": "duplicate_architecture_stop",
+      "rule": "If the same purpose already exists in Work Map, TODO Index, Product Readiness, Cross-Reference Maintenance, Continuity Sentinel, PR Review, Website Agents, Research/Recommendation, Adaptive User Insight, Autopilot, Batch Execution Runner, or Repository Inventory, do not create a duplicate system."
+    }
+  ],
+  "connectedAgentImpactRules": [
+    "Always identify connected agents/frameworks by name before extending or proposing: Autopilot, Batch Execution Runner, PR Review, PR Diff Review, Post-PR Guard, Task Status Sync, Continuity Sentinel, Website Agent Framework, Website Agent Backlog, Product Readiness, Repository Inventory, Cross-Reference Maintenance, Research/Recommendation, Adaptive User Insight, or any newer registered framework.",
+    "For each connected agent, state whether the change is read-only/report-only, registry-only, validator-only, task-selection guidance, or proposed new execution authority.",
+    "If connected agents disagree or ownership is ambiguous, stop at proposal/reporting and request human review.",
+    "Do not let one agent silently grant authority to another; authority changes require explicit human review and updated source-of-truth registers."
+  ],
+  "connectedRegisterImpactRules": [
+    "Count connected registers when they are read, validated, referenced in output, or used to decide status/priority/risk.",
+    "At minimum consider agent-workflows, agent-task-queue, agent-autopilot, continuity-dependency-map, cross-reference-maintenance, task-status-policy, pr-review-policy, website-agents, website-agent-backlog, product-readiness, repository-inventory, risk-classifier, definition-of-done, and TODO/Work Map files.",
+    "Update Work Map and TODO Index pointers whenever a new policy/doc/script becomes a durable governance source.",
+    "Preserve historical TODO/status context; stale or duplicate items must be marked and linked, not deleted.",
+    "Register impact is not implementation approval; it is evidence for human review and future task selection."
+  ],
+  "humanReviewRequiredFor": [
+    "new agent name, role, persona, or durable agent responsibility",
+    "new agent register or workflow family",
+    "overlap with two or more existing agents/frameworks",
+    "protected or high-risk scope",
+    "runtime execution authority or product mutation authority",
+    "auto-merge, auto-repair, deployment, self-approval, PR approval, PR close, branch deletion, or release behavior",
+    "reward, mission completion authority, health, child, location, privacy, legal, compliance, token, NFT, wallet, payment, betting, Unity, or PR #13 impact",
+    "unclear ownership, unclear risk, or possible duplicate architecture",
+    "status transition that weakens review-required, blocked, report-only, or protected-area semantics"
+  ],
+  "forbiddenAutoActions": [
+    "create_new_agent_automatically",
+    "create_new_agent_register_automatically",
+    "create_new_workflow_family_automatically",
+    "approve_pr",
+    "merge_pr",
+    "enable_auto_merge",
+    "repair_files",
+    "deploy",
+    "self_approve",
+    "close_pr",
+    "delete_branch",
+    "modify_runtime_product_code",
+    "modify_protected_logic",
+    "modify_unity_or_pr_13_paths",
+    "change_reward_or_mission_authority",
+    "change_health_child_location_privacy_legal_or_compliance_logic",
+    "change_token_nft_wallet_payment_betting_or_trading_logic",
+    "create_duplicate_architecture_or_parallel_system"
+  ],
+  "reportOutputSchema": {
+    "path": "scripts/wellfit-dev-agent/output/agent-extension-policy-report.md",
+    "mode": "REPORT_ONLY",
+    "readyLine": "AGENT_EXTENSION_POLICY_READY=true|false",
+    "requiredSections": [
+      "Policy file validation",
+      "Extension rules",
+      "New-agent proposal rules",
+      "Allowed extension examples",
+      "Proposal-required examples",
+      "Forbidden auto actions",
+      "Work Map and TODO Index references",
+      "Boundaries and human review"
+    ],
+    "stdoutSignals": [
+      "Mode: REPORT_ONLY",
+      "Never creates agents: true",
+      "Never creates agent registers: true",
+      "Never approves PRs: true",
+      "Never merges PRs: true",
+      "Never repairs files: true",
+      "Never deploys: true",
+      "AGENT_EXTENSION_POLICY_READY=true|false"
+    ]
+  }
+}

@@ -83,7 +83,10 @@
         "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
         "project-register/website-agent-backlog.json",
         "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
-        "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "project-register/agent-extension-policy.json",
+        "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+        "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -662,7 +665,9 @@
             "todolist/TODO_INDEX.md",
             "todolist/WORK_MAP.md",
             "project-register/*.json",
-            "relevant docs/architecture files"
+            "relevant docs/architecture files",
+            "project-register/agent-extension-policy.json",
+            "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md"
           ],
           "allowedActions": [
             "update relevant registers",
@@ -673,7 +678,8 @@
           "forbiddenActions": [
             "delete historical TODOs",
             "replace leading files without reason",
-            "create duplicate architecture"
+            "create duplicate architecture",
+            "create new agent/register/workflow family without agent-extension proposal and human review"
           ],
           "requiredOutput": "Updated docs/registers or explicit note that no update is needed.",
           "riskGates": [
@@ -759,7 +765,14 @@
             "Do not start another iteration when tests/build are red without documented blocker/plan."
           ]
         }
-      ]
+      ],
+      "agentExtensionPolicyReference": {
+        "policy": "project-register/agent-extension-policy.json",
+        "architecture": "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+        "check": "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+        "mode": "report_only",
+        "purpose": "Decide existing-agent extension vs proposal-required new agent before adding agent/framework capability."
+      }
     }
   ]
 }

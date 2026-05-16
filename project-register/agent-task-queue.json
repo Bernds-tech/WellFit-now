@@ -25,7 +25,9 @@
     "taskStatusPolicy": "project-register/task-status-policy.json",
     "taskStatusArchitecture": "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
     "continuityDependencyMap": "project-register/continuity-dependency-map.json",
-    "continuityDependencyArchitecture": "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md"
+    "continuityDependencyArchitecture": "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
+    "agentExtensionPolicy": "project-register/agent-extension-policy.json",
+    "agentExtensionArchitecture": "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md"
   },
   "globalRequiredFirstReadFiles": [
     "AGENTS.md",
@@ -81,7 +83,10 @@
     "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
     "project-register/continuity-dependency-map.json",
     "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
-    "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
+    "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+    "project-register/agent-extension-policy.json",
+    "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+    "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -133,7 +138,8 @@
     "jq empty project-register/website-agents.json",
     "jq empty project-register/website-readiness.json",
     "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
-    "jq empty project-register/continuity-dependency-map.json"
+    "jq empty project-register/continuity-dependency-map.json",
+    "node scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -151,7 +157,8 @@
     "jq empty project-register/task-status-policy.json",
     "jq empty project-register/pr-post-creation-guard.json",
     "jq empty project-register/website-agents.json",
-    "jq empty project-register/website-readiness.json"
+    "jq empty project-register/website-readiness.json",
+    "jq empty project-register/agent-extension-policy.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -2054,6 +2061,76 @@
       "taskCategory": "website_governance",
       "category": "website_governance",
       "nextRecommendedTask": "Website Readiness Baseline Audit"
+    },
+    {
+      "id": "AGENT-EXTENSION-POLICY-GOVERNANCE",
+      "title": "Maintain Agent Extension vs New Agent Proposal Policy",
+      "status": "active",
+      "category": "agent_governance",
+      "riskLevel": "low",
+      "priority": "P1",
+      "allowedFiles": [
+        "project-register/agent-extension-policy.json",
+        "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+        "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/task-status-policy.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/agent-extension-policy.json",
+        "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+        "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/agent-extension-policy.json",
+        "git diff --check"
+      ],
+      "definitionOfDoneKey": "documentation_registry_script_only",
+      "stopConditions": [
+        "new agent would be created without proposal",
+        "protected/high-risk scope would change",
+        "auto-merge, auto-repair, approval, deployment, or runtime authority would be enabled"
+      ],
+      "expectedOutput": "Report-only policy/validator updates that distinguish safe existing-agent extensions from proposal-required new-agent work.",
+      "expectedPrOutput": [
+        "changed files",
+        "checks run",
+        "Agent Extension vs New Agent Proposal policy summary",
+        "examples of allowed extensions",
+        "examples that require new-agent proposal",
+        "report-only validator result",
+        "confirmation no new agents are created automatically",
+        "confirmation no runtime/product/protected areas were touched",
+        "next recommended task"
+      ]
     }
   ],
   "selectionRules": [

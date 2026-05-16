@@ -21,7 +21,10 @@
     "project-register/pr-diff-review-policy.json",
     "project-register/task-status-policy.json",
     "project-register/batch-execution-runner-policy.json",
-    "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+    "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+    "project-register/agent-extension-policy.json",
+    "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+    "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
   ],
   "monitoredRegisters": [
     "project-register/continuity-dependency-map.json",
@@ -40,7 +43,8 @@
     "project-register/agent-workflows.json",
     "project-register/agent-autopilot.json",
     "project-register/website-agents.json",
-    "project-register/website-readiness.json"
+    "project-register/website-readiness.json",
+    "project-register/agent-extension-policy.json"
   ],
   "monitoredDocs": [
     "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
@@ -52,7 +56,8 @@
     "todolist/WORK_MAP.md",
     "todolist/TODO_INDEX.md",
     "todolist/CURRENT_PROJECT_STATE.md",
-    "todolist/NEXT_ACTIONS.md"
+    "todolist/NEXT_ACTIONS.md",
+    "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md"
   ],
   "dependencyTypes": [
     "requires_followup_task",
@@ -120,12 +125,14 @@
     "Every mustNotForget entry must include a concrete nextRecommendedTask.",
     "Every mustNotForget entry must name affectedRegisters and requiredOutputLocations.",
     "Future agents must check this map before closing governance/framework tasks.",
-    "Do not mark entries done unless the referenced outputs and work/progress evidence exist."
+    "Do not mark entries done unless the referenced outputs and work/progress evidence exist.",
+    "Before creating a new agent name, role, register, workflow family, or execution authority, apply the Agent Extension Policy and preserve proposal-required open points for human review."
   ],
   "reviewRequiredRules": [
     "review_required and human_review_required entries require reason and humanReviewRequired=true unless explicitly documented as device-only evidence.",
     "Review-required items must be preserved in handoffs and not silently downgraded.",
-    "Protected topics and automation activation remain review-gated."
+    "Protected topics and automation activation remain review-gated.",
+    "Agent capabilities that overlap two or more existing agents or touch protected/high-risk scope require a new-agent proposal and human review before implementation."
   ],
   "blockedRules": [
     "blocked entries require reason, blocking dependency type, and nextRecommendedTask.",
@@ -155,7 +162,8 @@
     "never enable auto-repair",
     "never deploy",
     "never modify runtime product code",
-    "never modify Unity or PR #13 assets"
+    "never modify Unity or PR #13 assets",
+    "create_new_agent_or_agent_register_from_continuity_entry"
   ],
   "humanReviewRequiredFor": [
     "activation beyond report_only",
@@ -163,7 +171,8 @@
     "changing auto-merge or auto-repair from report-only",
     "controlled Batch Execution Runner activation",
     "protected/compliance/runtime/Unity/native work",
-    "closing review_required entries"
+    "closing review_required entries",
+    "new agent proposal or extension with ambiguous ownership per agent-extension-policy"
   ],
   "reportOutputSchema": {
     "path": "scripts/wellfit-dev-agent/output/continuity-dependency-report.md",
@@ -488,6 +497,57 @@
       ],
       "nextRecommendedTask": "Collect route-specific phone evidence with device model/browser/route/result fields before advancing Mobile/PWA readiness.",
       "humanReviewRequired": false
+    },
+    {
+      "id": "CONTINUITY-AGENT-EXTENSION-POLICY",
+      "title": "Agent Extension vs New Agent Proposal Policy must gate future agent/framework growth",
+      "status": "review_required",
+      "source": "project-register/agent-extension-policy.json",
+      "ownerAgent": "Continuity Sentinel",
+      "mustNotForget": true,
+      "reason": "Future WellFit agents may extend existing frameworks when one owner clearly fits, but new agent names/registers/workflow families/protected scope/execution authority require proposal and human review first.",
+      "dependencies": [
+        "requires_human_review",
+        "requires_register_update",
+        "requires_work_map_update",
+        "requires_todo_index_update",
+        "requires_validation_script",
+        "blocks_auto_merge",
+        "blocks_auto_repair"
+      ],
+      "humanReviewRequired": true,
+      "nextSafeAction": "Run the report-only policy check before adding or proposing new agent capability.",
+      "affectedRegisters": [
+        "project-register/agent-extension-policy.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/task-status-policy.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/agent-extension-policy.json",
+          "existsNow": true,
+          "purpose": "Machine-readable extension-vs-new-agent proposal policy."
+        },
+        {
+          "path": "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+          "existsNow": true,
+          "purpose": "Human-readable extension-vs-proposal decision runbook."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+          "existsNow": true,
+          "purpose": "Report-only validator for the policy."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/agent-extension-policy-report.md",
+          "existsNow": false,
+          "purpose": "Generated report-only validator output; do not commit generated output."
+        }
+      ],
+      "nextRecommendedTask": "If future priorities require a new agent such as Agent Architect & Proposal Agent or Human Motivation & Ethical Engagement Framework, create a proposal first and require human review before building."
     }
   ]
 }
