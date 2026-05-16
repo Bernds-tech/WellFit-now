@@ -363,3 +363,12 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - [x] 2026-05-16 Round 2 read-only inventory triage mapped `app/**`, `components/**`, `lib/**`, and `functions/**` runtime-adjacent files into existing repository inventory topics, reduced unmapped inventory noise from 275 to 71, and marked 103 sensitive or authority-adjacent runtime references as `review_required` without modifying product code.
 
 - [x] Erste Human-Mobile/PWA-Evidence am 2026-05-16 docs/register-only erfasst: Phone Chrome `/mobile/ar` Kamera und Buddy sichtbar = `pass`, Buddy final = `review_required`/`expected_incomplete`, fehlendes Device Model = `missing_device_metadata`/`device_test_required`, Desktop-Responsive-Screenshots als externe Smoke-Evidence dokumentiert; keine Screenshots/Binaries/Rohdaten oder Runtime-/Protected-Code-Aenderungen.
+
+## Approved Agent Build Runner and Merge Gate (2026-05-16)
+
+- [x] `project-register/approved-agent-build-runner-policy.json` — report-only Policy fuer kuenftige sequenzielle Approved-Agent-Builds mit Missing-Check-Merge-Blockade, Safe-Repair-Grenzen, Merge-Gate-Pflichtchecks und `maxAgentsPerRun: 1`.
+- [x] `project-register/agent-build-runner-state.json` — report-only Statusregister fuer Runner-Dry-Run, Repair- und Merge-Gate-Evidenz ohne Agent-Build, PR-Erstellung, Repair, Merge, Approval oder Deploy.
+- [x] `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md` — Architektur und KI-Fortsetzungs-Prompt fuer Runner, Merge Gate, PR-#109-Risiko, Missing-Check-Handling und Protected-Scope-Stopps.
+- [x] `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs` — report/check-only Validator fuer Policy, State, erlaubte/verbotene Pfade, Pflichtchecks, Safe Repair, Unsafe Stop, Missing Checks und Work-Map-/TODO-Index-Referenzen.
+- [x] `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs` — report-only Dry Run fuer die Auswahl genau eines naechsten already-approved Backlog-Agenten ohne Build, PR, Merge, Repair oder Deploy.
+- [x] `scripts/wellfit-dev-agent/src/quality-gate.mjs` — bindet Approved-Agent-Build-Runner-Check und Dry Run report-only in das bestehende Quality Gate ein.

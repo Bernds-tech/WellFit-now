@@ -54,7 +54,9 @@
     "project-register/agent-architect-policy.json",
     "project-register/agent-build-proposals.json",
     "project-register/ethical-engagement-guard.json",
-    "project-register/adaptive-difficulty-agent.json"
+    "project-register/adaptive-difficulty-agent.json",
+    "project-register/approved-agent-build-runner-policy.json",
+    "project-register/agent-build-runner-state.json"
   ],
   "monitoredDocs": [
     "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
@@ -70,7 +72,8 @@
     "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
     "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
     "docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md",
-    "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md"
+    "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md",
+    "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md"
   ],
   "dependencyTypes": [
     "requires_followup_task",
@@ -816,6 +819,76 @@
         }
       ],
       "nextRecommendedTask": "Create Multisensory Learning Engine as report-only validation framework; keep protected topics review_required.",
+      "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-016-approved-agent-build-runner-merge-gate",
+      "title": "Approved Agent Build Runner must block missing checks before any future one-agent merge",
+      "status": "open",
+      "source": "project-register/approved-agent-build-runner-policy.json",
+      "ownerAgent": "Approved Agent Build Runner and Merge Gate / Continuity Dependency Sentinel",
+      "mustNotForget": true,
+      "reason": "Future builds from the approved backlog may only proceed one agent at a time and must not repeat PR #109-style missing-check merges.",
+      "dependencies": [
+        "requires_register_update",
+        "requires_work_map_update",
+        "requires_todo_index_update",
+        "requires_validation_script",
+        "requires_work_log_entry",
+        "requires_progress_log_entry",
+        "requires_human_review",
+        "blocks_auto_merge",
+        "blocks_auto_repair",
+        "blocks_batch_execution"
+      ],
+      "affectedRegisters": [
+        "project-register/approved-agent-build-runner-policy.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-catalog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/auto-merge-policy.json",
+        "project-register/auto-repair-policy.json",
+        "project-register/pr-review-policy.json",
+        "project-register/pr-post-creation-guard.json",
+        "project-register/pr-diff-review-policy.json",
+        "project-register/task-status-policy.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/approved-agent-build-runner-policy.json",
+          "existsNow": true,
+          "purpose": "Machine-readable runner and merge-gate policy."
+        },
+        {
+          "path": "project-register/agent-build-runner-state.json",
+          "existsNow": true,
+          "purpose": "Report-only runner state ledger."
+        },
+        {
+          "path": "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md",
+          "existsNow": true,
+          "purpose": "Human-readable runner and merge-gate architecture."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
+          "existsNow": true,
+          "purpose": "Report/check-only policy validator."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs",
+          "existsNow": true,
+          "purpose": "Report-only next-approved-agent dry run."
+        }
+      ],
+      "nextRecommendedTask": "Controlled one-agent runner activation for Multisensory Learning Engine only after this framework merges.",
+      "protectedBoundaries": [
+        "no future agents built in framework task",
+        "missing checks block merge",
+        "no runtime/protected paths",
+        "no unrestricted auto-merge or auto-repair",
+        "no PR #13 or Unity changes"
+      ],
       "humanReviewRequired": true
     }
   ]
