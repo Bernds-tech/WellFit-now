@@ -77,6 +77,92 @@ Safety boundaries for mobile screenshots and device notes:
 - Keep generated screenshots, videos, traces, and notes out of source control unless a maintainer explicitly approves a curated non-sensitive artifact in a separate task.
 
 
+## Manual Mobile/PWA tester checklist handoff
+
+Status: `device_test_required` until a human tester reports real device results. This is a human handoff derived from the existing Mobile/PWA evidence template; it does not authorize runtime fixes, tracking, service-worker changes, permission-flow changes, reward/mission authority, deployment, auto-merge, or auto-repair.
+
+### 1. Start here
+
+1. Get the preview URL/build reference from the maintainer. Use this placeholder until supplied: `PREVIEW_URL_OR_LOCAL_HTTPS_TUNNEL`.
+2. Open the same URL on each target browser/device below. Use HTTPS whenever camera or motion permissions are being tested; if HTTPS or a real device is unavailable, mark the affected rows `blocked` or `device_test_required`.
+3. Test only the existing routes listed in this handoff. Do not create accounts with personal data, do not use real health/location/wallet/payment information, and do not change app settings beyond normal permission prompts.
+4. Keep every untested or uncertain row as `device_test_required`; use `review_required` for unclear privacy, permission, WebGL, camera, pose/face, motion, or authority behavior.
+
+### 2. Device/browser matrix
+
+| Target | Minimum evidence to collect | Starting status |
+|---|---|---|
+| Android Chrome | Android model/version, Chrome version, URL mode, QR/PWA install affordance, camera accepted/denied, MediaPipe pose/face, DeviceMotion, WebGL/3D Flammi, navigation/scroll, reload/offline smoke. | `device_test_required` |
+| Samsung Internet | Samsung model, One UI/browser versions, Samsung install wording/path, camera/canvas overlay, MediaPipe pose/face, DeviceMotion, WebGL stability, navigation/scroll. | `device_test_required` |
+| iPhone Safari | iPhone model, iOS/Safari versions, Add-to-Home-Screen guidance, camera accepted/denied, iOS DeviceMotion prompt/limitations, MediaPipe fallback, WebGL/3D Flammi, navigation/reload/scroll. | `device_test_required` |
+| Desktop responsive browser | Browser/version, viewport size near `390x844`, device-toolbar/emulation mode if used, route reachability, scroll/navigation, QR/install-dialog copy, fallback states. | `device_test_required` |
+
+### 3. Route-by-route checklist
+
+Use one row per device/browser/route. Mark untouched routes `device_test_required`.
+
+| Route | Checklist focus | Status to use until tested |
+|---|---|---|
+| `/mobile` | Page loads, mobile shell/bottom navigation works, QR/install guidance is understandable, responsive scroll works, beta-safe wording is present, no token/NFT/wallet/payment/trading/payout behavior appears. | `device_test_required` |
+| `/mobile/missionen` | Mission overview loads, touch targets are usable, bottom navigation works, Squat mission entry is reachable, no device signal is presented as final reward or mission-completion authority. | `device_test_required` |
+| `/mobile/missionen/squat` | Camera accept and deny paths, HUD/countdown/timer, stop/finish controls, pose/skeleton fallback, small-screen usability, any logged-out/Firestore-unavailable messaging as observed. | `device_test_required` / `review_required` |
+| `/mobile/buddy` | Buddy page loads, status/touch/scroll states are usable, beta wording remains safe, no token/NFT/wallet/reward-authority behavior appears. | `device_test_required` |
+| `/mobile/analyse` | Camera accept and deny paths, MediaPipe pose/face loading or fallback, performance symptoms, local/ephemeral-processing expectations, safe non-camera fallback, no raw image/video/face-template storage evidence. | `device_test_required` / `review_required` |
+| `/mobile/bewegung` | DeviceMotion permission accept/deny, HTTPS or weak-context limitation, sensor-unavailable fallback, no raw-motion persistence or reward authority. | `device_test_required` / `review_required` |
+| `/mobile/einstellungen` | Mobile settings load, install/PWA hints are visible, privacy/beta wording remains safe, no consent expansion or protected-data prompt appears without review. | `device_test_required` |
+| `/mobile/ar` | Camera/WebGL test mode, 3D Flammi/canvas load or fallback, camera/canvas layering, tap/call/move/pause controls, WebGL/camera fallback, performance/battery/heat notes, no Unity dependency or AR reward/mission authority. | `device_test_required` / `review_required` |
+
+### 4. Permission checklist
+
+| Permission/surface | Test both paths when possible | Required note | Default status |
+|---|---|---|---|
+| Camera | Accepted and denied on `/mobile/missionen/squat`, `/mobile/analyse`, `/mobile/ar`. | Browser/OS prompt summary, preview/fallback behavior, no raw media captured or committed. | `device_test_required` |
+| Pose/face/MediaPipe | Load and failure/fallback on `/mobile/missionen/squat`, `/mobile/analyse`. | Loading/fallback behavior, visible skeleton/analysis state if any, performance symptoms, no biometric persistence. | `device_test_required` / `review_required` |
+| DeviceMotion | Accepted and denied/unavailable on `/mobile/bewegung`. | HTTPS requirement, prompt path, observed safe response, no raw sensor history or reward authority. | `device_test_required` / `review_required` |
+| WebGL/3D Flammi | Load and unavailable/fallback on `/mobile/ar`. | Canvas/3D state, camera layering, controls, performance/heat/battery symptoms, no Unity/native dependency. | `device_test_required` / `review_required` |
+| PWA install/QR | Browser install/Add-to-Home-Screen path on `/mobile` and `/mobile/einstellungen`. | Prompt/menu wording, installed-PWA mode only if actually tested, no app-store/payment/wallet claims. | `device_test_required` |
+
+### 5. Screenshots, recordings, and privacy boundaries
+
+Capture only non-sensitive QA evidence that helps reproduce layout, install, permission, fallback, navigation, or performance issues. Good evidence: screenshots of generic UI, permission prompt wording summaries, browser/device versions, viewport notes, and links to approved non-sensitive artifacts.
+
+Do **not** record or upload real faces, homes, raw camera/video, face templates, biometric data, health/watch data, precise location, raw sensor streams, real account data, wallet/payment state, child data, secrets, or anything that could imply final reward, payout, anti-cheat, leaderboard, inventory, mission-completion, token, NFT, trading, staking, presale, or marketplace authority.
+
+### 6. Copy/paste tester result format
+
+Paste one block per meaningful finding or per route/device row. Leave unknown fields as `device_test_required`; do not invent outcomes.
+
+```md
+Mobile/PWA Manual Test Result
+Date: YYYY-MM-DD
+Tester:
+Preview URL / build reference: PREVIEW_URL_OR_LOCAL_HTTPS_TUNNEL
+Device/browser: Android Chrome | Samsung Internet | iPhone Safari | Desktop responsive browser
+Device model + OS/browser version:
+Route: /mobile | /mobile/missionen | /mobile/missionen/squat | /mobile/buddy | /mobile/analyse | /mobile/bewegung | /mobile/einstellungen | /mobile/ar
+Checklist item:
+Expected result:
+Actual result: device_test_required
+Status: device_test_required
+Severity: low | medium | high | critical
+Screenshot/video evidence reference: placeholder or approved non-sensitive link
+Privacy/safety notes: no sensitive face/video/health/location/sensor/wallet/payment/reward evidence captured
+Follow-up needed: none | device retest | docs clarification | runtime-fix proposal needing separate approval | privacy/security review
+```
+
+### 7. Status, severity, and follow-up rules
+
+- `pass`: observed behavior matches the checklist and no privacy/safety concern was found.
+- `fail`: observed behavior does not match the checklist and needs a scoped follow-up.
+- `blocked`: the tester could not complete the check because of missing device, browser, HTTPS, preview URL, permission, account/session, or environment setup.
+- `device_test_required`: not yet tested on a real target or not enough evidence to decide.
+- `review_required`: unclear behavior touching camera, face/pose, motion, location, privacy, safety, protected data, WebGL/AR, reward/mission authority, or compliance boundaries.
+
+Severity guidance: use `low` for copy/usability issues, `medium` for route-specific mobile/PWA breakage with a workaround, `high` for major route/permission/install failures or likely privacy confusion, and `critical` only for suspected sensitive-data exposure, security issues, protected-data expansion, or reward/mission/economy authority activation.
+
+Follow-up reporting: include route, device/browser, exact status, severity, safe artifact link or placeholder, reproduction steps, and whether the next task is docs clarification, device retest, runtime-fix proposal, or privacy/security review. Runtime fixes require a separate scoped task/PR with explicitly allowed files.
+
+
 ## Manual Mobile/PWA device evidence template
 
 Use this template only when a human runs real Mobile/PWA checks on an actual target device or a desktop responsive browser. Codex/cloud agents must leave unknown outcomes as `device_test_required` and must not infer camera, motion, WebGL, PWA-install, performance, privacy, or browser behavior from local builds. Keep evidence references as placeholders or links to approved non-sensitive storage; do not commit raw screenshots/videos that expose people, faces, homes, health data, location, account data, wallet/payment state, or final reward evidence.
