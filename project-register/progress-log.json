@@ -303,6 +303,21 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Documentation/register-only Mobile/PWA tester checklist handoff added to the existing visual/device evidence plan. The handoff covers how to start testing with a placeholder preview URL, Android Chrome, Samsung Internet, iPhone Safari, desktop responsive browser, existing /mobile routes, permission surfaces, safe screenshot/recording boundaries, copy/paste result format, status/severity/follow-up rules, and keeps all real outcomes pending/device_test_required until a human tester reports them. Runtime/mobile/service-worker/public/product code, tracking/data collection, privacy/legal/consent logic, reward/mission/economy authority, Functions/Rules, Unity/PR #13, auto-merge, auto-repair, and deployment remained untouched."
+    },
+    {
+      "id": "PROGRESS-MOBILE-PWA-FIRST-MANUAL-EVIDENCE-2026-05-16-0001",
+      "date": "2026-05-16",
+      "branch": "record-mobile-pwa-manual-evidence",
+      "issue": null,
+      "goal": "Record the first human-provided Mobile/PWA device evidence without changing runtime product code.",
+      "changedAreas": [
+        "architecture documentation",
+        "todolist",
+        "project-register"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Documentation/register-only evidence record for first human Mobile/PWA testing. Phone Chrome at https://wellfit-now.io/mobile recorded /mobile/ar camera starts pass and Buddy appears pass. Buddy final behavior remains review_required/expected_incomplete/not_complete. Missing device model, Android OS, Chrome version, and untested phone routes remain device_test_required/missing_device_metadata. Desktop responsive screenshots are recorded as external smoke evidence only; no screenshots, binaries, raw camera/video, face, biometric, health, location, raw sensor, wallet/payment, account, or reward-authority evidence was committed. Runtime mobile/product code, service worker/manifest/public assets, tracking/data collection, consent/privacy/legal logic, reward/mission authority, Functions/Rules, Unity/PR #13, deployment, auto-merge, and auto-repair remained untouched."
     }
   ]
 }

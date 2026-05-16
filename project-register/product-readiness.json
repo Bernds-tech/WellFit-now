@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-15",
+  "updated": "2026-05-16",
   "purpose": "Machine-readable WellFit product readiness matrix for future Codex/AI agents. It maps current product modules to readiness statuses, risk levels, leading files, blockers, safe next tasks, duplicate-system warnings, advancement checks, and human-approval needs so agents choose safer follow-up work without changing product logic or creating parallel architecture.",
   "status_scale": {
     "not_started": "No meaningful repo implementation or approved work plan exists yet.",
@@ -357,9 +357,10 @@
       ],
       "current_blockers": [
         "Mobile UX must not activate token, NFT, trading, presale, live health/watch tracking, precise location/GPS/radius/safe-zone tracking, camera/face/pose/biometric collection, raw motion/sensor collection, consent-flow expansion, or final reward/mission-completion authority.",
-        "Health, child/minor/family, location, camera, face/pose/biometric, motion/raw sensor, privacy, and consent changes remain review_required before implementation."
+        "Health, child/minor/family, location, camera, face/pose/biometric, motion/raw sensor, privacy, and consent changes remain review_required before implementation.",
+        "First manual Mobile/PWA evidence exists, but Android device model/OS/Chrome version and route-by-route phone coverage remain missing_device_metadata/device_test_required."
       ],
-      "next_safe_task": "Run the documentation-defined Mobile/PWA device test plan on Android Chrome, Samsung Internet, iPhone Safari, and a desktop responsive browser; record device_test_required/review_required findings only, without changing runtime code, service worker/manifest/public assets, tracking, protected data, or reward/mission authority.",
+      "next_safe_task": "First human Mobile/PWA evidence is recorded for Android Chrome /mobile/ar camera and Buddy appearance plus desktop responsive screenshots, but phone device model metadata and most phone route checks remain device_test_required; next run route-by-route phone tests for /mobile, /mobile/missionen, /mobile/buddy, /mobile/einstellungen, /mobile/bewegung, and /mobile/missionen/squat without changing runtime code, tracking, protected data, or reward/mission authority.",
       "do_not_duplicate_warning": "Do not build a separate mobile app shell or duplicate mobile route map.",
       "required_checks_before_status_can_advance": [
         "npm run lint",
@@ -393,9 +394,10 @@
         "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
       ],
       "current_blockers": [
-        "Camera/location/native AR expansion, pose/face/biometric signals, raw image/video storage, and AR reward signals require privacy, safety, consent, and authority review."
+        "Camera/location/native AR expansion, pose/face/biometric signals, raw image/video storage, and AR reward signals require privacy, safety, consent, and authority review.",
+        "First /mobile/ar phone evidence is pass for camera start and Buddy appearance, but Buddy/AR final behavior remains expected_incomplete/review_required and device metadata is missing."
       ],
-      "next_safe_task": "Use the Mobile/PWA device test plan to manually verify existing /mobile/ar WebGL/camera fallback behavior on target browsers; keep unclear WebGL, camera, motion, performance, and fallback behavior device_test_required/review_required and do not add native Unity, camera persistence, location, or reward authority.",
+      "next_safe_task": "Use the recorded first manual Android Chrome evidence as a starting point: /mobile/ar camera starts and Buddy appears, while Buddy final behavior remains review_required/expected_incomplete; next collect device model/OS/Chrome version, controls, WebGL/camera layering, performance, fallback, and safety notes without Unity, camera persistence, location, or reward authority changes.",
       "do_not_duplicate_warning": "Do not add a second AR authority path, native bridge, camera capture, or location flow.",
       "required_checks_before_status_can_advance": [
         "privacy/safety review for camera and location scope",
