@@ -17,7 +17,11 @@
     "project-register/pr-review-policy.json",
     "project-register/website-agents.json",
     "project-register/website-agent-backlog.json",
-    "project-register/product-readiness.json"
+    "project-register/product-readiness.json",
+    "project-register/agent-catalog.json",
+    "project-register/approved-agent-build-backlog.json",
+    "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+    "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
   ],
   "existingAgentExtensionRules": [
     {
@@ -249,5 +253,10 @@
       "Never deploys: true",
       "AGENT_EXTENSION_POLICY_READY=true|false"
     ]
+  },
+  "agentCatalogAndApprovedBacklogRules": {
+    "catalog": "project-register/agent-catalog.json",
+    "approvedBacklog": "project-register/approved-agent-build-backlog.json",
+    "rule": "Before creating new agent work, check whether the existing Agent Catalog has a clear owner. If not, use the approved backlog only as planning/build authorization for one explicitly tasked report-only agent at a time; do not build future agents automatically."
   }
 }

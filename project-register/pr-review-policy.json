@@ -22,7 +22,11 @@
     "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
     "project-register/agent-extension-policy.json",
     "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
-    "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
+    "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+    "project-register/agent-catalog.json",
+    "project-register/approved-agent-build-backlog.json",
+    "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+    "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
   ],
   "requiredReviewInputs": [
     "git_changed_files_or_diff",
@@ -437,5 +441,10 @@
     "requiredOutputPattern": "AGENT_EXTENSION_POLICY_READY=true|false",
     "activationStateRequired": "report_only",
     "reviewRequirement": "For agent/framework governance PRs, report whether changes extend one existing owner or require a new-agent proposal. The check never creates agents, approves, merges, repairs, or deploys."
-  }
+  },
+  "agentCatalogBacklogChecks": [
+    "If changed files touch agent governance, verify the existing Agent Catalog owner and Approved Agent Build Backlog entry instead of creating duplicate architecture.",
+    "Confirm no future agents were built automatically from backlog presence alone.",
+    "Confirm high/critical or protected-boundary backlog entries remain human-review-required and are not marked built without PR evidence."
+  ]
 }

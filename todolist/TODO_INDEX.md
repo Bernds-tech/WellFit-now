@@ -67,6 +67,16 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs` | aktiv / Agent-Code | report-only Validator fuer Website-Agent-Backlog-Schema, Source-Agent-Abgleich, Route-/Readiness-Mapping, Human-Review-Regeln und Work-Map-/TODO-Index-Verweise | `project-register/website-agent-backlog.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | nach Backlog-/Findings-Aenderungen ausfuehren; im Quality Gate report-only eingebunden |
 
 
+
+## Agent Catalog and Approved Agent Build Backlog
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `project-register/agent-catalog.json` | aktiv / Register / report_only | maschinenlesbarer Katalog bestehender WellFit-Agenten/Frameworks mit Owner-Bereich, primaeren Registern, Docs, Validatoren, Quality-Gate-Status, Related Agents/Registers, erlaubten Extension-Typen, Proposal-Pflichten und Protected Boundaries | `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md`, `project-register/agent-extension-policy.json` | vor Agent-/Framework-Erweiterungen lesen; bestehende Owner erweitern statt Parallelarchitektur anlegen |
+| `project-register/approved-agent-build-backlog.json` | aktiv / Register / approved_planning_backlog | maschinenlesbarer Backlog human-approved kuenftiger Agenten/Frameworks mit Prioritaet, Risiko, connectedAgents/-Registers, Pflichtoutputs, Allowed/Forbidden Files, Build-Reihenfolge und Human-Approval-Pflicht | `project-register/agent-catalog.json`, `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md` | kuenftige Agenten einzeln und report-only zuerst bauen; Backlog-Eintrag erzeugt keine Agenten automatisch |
+| `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md` | aktiv / Agent Governance | human-readable Runbook fuer Agent-Katalog, Approved Build Backlog, Extension-vs-New-Agent-Entscheidung, Connected-Count-Regeln, Built-Status, Protected-Scope-Stops und autonome Kontrolle | `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json` | bei Agent-Katalog-/Backlog-Aenderungen synchron halten |
+| `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs` | aktiv / Code | report-only Validator fuer Katalog-/Backlog-Top-Level-Felder, Pflichtentries, Entry-Felder, Human-Approval-Regeln, Connected Counts, High/Critical-not-built-Regel und Work-Map-/TODO-Index-Verweise | `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | im Quality Gate report-only ausfuehren; schreibt nur `scripts/wellfit-dev-agent/output/agent-catalog-backlog-report.md` |
+
 ## Agent Extension vs New Agent Proposal Policy
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |

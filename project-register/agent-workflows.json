@@ -86,7 +86,11 @@
         "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
         "project-register/agent-extension-policy.json",
         "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
-        "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
+        "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -395,6 +399,19 @@
           ],
           "purpose": "Report-only memory for open points, dependency chains, review-required/blocked items, required next files, affected registers, and next-agent handoffs.",
           "usage": "Read before closing governance/framework tasks; add entries for unresolved dependencies and required machine-readable outputs instead of creating parallel systems."
+        },
+        {
+          "id": "agent_catalog_approved_build_backlog",
+          "registers": [
+            "project-register/agent-catalog.json",
+            "project-register/approved-agent-build-backlog.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+          ],
+          "purpose": "Catalog existing WellFit agents/frameworks and record human-approved future agents/frameworks without building them automatically.",
+          "usage": "Before extending or proposing an agent, confirm existing owner domains, connected registers, approved future backlog status, protected boundaries, and report-only validator readiness."
         }
       ],
       "additionalGovernanceInputs": [
@@ -448,7 +465,10 @@
         "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
         "jq empty project-register/task-status-policy.json",
         "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
-        "jq empty project-register/pr-diff-review-policy.json"
+        "jq empty project-register/pr-diff-review-policy.json",
+        "node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "jq empty project-register/agent-catalog.json",
+        "jq empty project-register/approved-agent-build-backlog.json"
       ],
       "phases": [
         {

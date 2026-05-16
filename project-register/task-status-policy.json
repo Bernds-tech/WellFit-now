@@ -225,5 +225,11 @@
       "forbidden auto-actions remained inactive",
       "human-review requirement recorded when applicable"
     ]
+  },
+  "agentCatalogApprovedBacklogRules": {
+    "catalog": "project-register/agent-catalog.json",
+    "backlog": "project-register/approved-agent-build-backlog.json",
+    "validator": "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+    "policy": "Catalog/backlog status changes must preserve report-only evidence, PR checks, next recommended task, and human-review requirements for approved future agents."
   }
 }
