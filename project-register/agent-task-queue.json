@@ -86,7 +86,11 @@
     "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
     "project-register/agent-extension-policy.json",
     "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
-    "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
+    "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+    "project-register/agent-catalog.json",
+    "project-register/approved-agent-build-backlog.json",
+    "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+    "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -139,7 +143,8 @@
     "jq empty project-register/website-readiness.json",
     "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
     "jq empty project-register/continuity-dependency-map.json",
-    "node scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
+    "node scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+    "node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -158,7 +163,9 @@
     "jq empty project-register/pr-post-creation-guard.json",
     "jq empty project-register/website-agents.json",
     "jq empty project-register/website-readiness.json",
-    "jq empty project-register/agent-extension-policy.json"
+    "jq empty project-register/agent-extension-policy.json",
+    "jq empty project-register/agent-catalog.json",
+    "jq empty project-register/approved-agent-build-backlog.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -2128,6 +2135,82 @@
         "examples that require new-agent proposal",
         "report-only validator result",
         "confirmation no new agents are created automatically",
+        "confirmation no runtime/product/protected areas were touched",
+        "next recommended task"
+      ]
+    },
+    {
+      "id": "AGENT-CATALOG-APPROVED-BACKLOG-GOVERNANCE",
+      "title": "Maintain Agent Catalog and Approved Agent Build Backlog",
+      "status": "active",
+      "category": "agent_governance",
+      "riskLevel": "low",
+      "priority": "P0",
+      "allowedFiles": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/task-status-policy.json",
+        "project-register/pr-review-policy.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/agent-extension-policy.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "node scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+        "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/agent-catalog.json",
+        "jq empty project-register/approved-agent-build-backlog.json",
+        "git diff --check"
+      ],
+      "definitionOfDoneKey": "documentation_registry_script_only",
+      "stopConditions": [
+        "future agent would be built automatically",
+        "new runtime/product/protected behavior would be enabled",
+        "high/critical or protected-boundary backlog item would be marked built without human-reviewed PR evidence",
+        "auto-merge, auto-repair, approval, deployment, or runtime authority would be enabled"
+      ],
+      "expectedOutput": "Report-only catalog/backlog/validator updates that list existing agent owners and approved future agents without creating future agents automatically.",
+      "expectedPrOutput": [
+        "changed files",
+        "checks run",
+        "Agent Catalog summary",
+        "Approved Agent Build Backlog summary",
+        "PR #104 metadata repair summary if applicable",
+        "report-only validator result",
+        "confirmation no future agents were built automatically",
         "confirmation no runtime/product/protected areas were touched",
         "next recommended task"
       ]

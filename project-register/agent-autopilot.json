@@ -67,7 +67,11 @@
     "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
     "project-register/agent-extension-policy.json",
     "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
-    "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
+    "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+    "project-register/agent-catalog.json",
+    "project-register/approved-agent-build-backlog.json",
+    "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+    "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -215,7 +219,10 @@
     "jq empty project-register/continuity-dependency-map.json",
     "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
     "jq empty project-register/website-agent-backlog.json",
-    "node scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
+    "node scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
+    "node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+    "jq empty project-register/agent-catalog.json",
+    "jq empty project-register/approved-agent-build-backlog.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -345,5 +352,13 @@
       "deploy",
       "touch runtime/protected/Unity/PR #13 areas"
     ]
+  },
+  "agentCatalogApprovedBuildBacklogReference": {
+    "catalog": "project-register/agent-catalog.json",
+    "backlog": "project-register/approved-agent-build-backlog.json",
+    "architecture": "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+    "script": "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+    "mode": "report_only",
+    "usage": "Read before extending or proposing agent work; never build future agents automatically from backlog presence alone."
   }
 }

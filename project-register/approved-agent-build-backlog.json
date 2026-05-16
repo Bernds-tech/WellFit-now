@@ -1,0 +1,1270 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "approved_planning_backlog",
+  "purpose": "Machine-readable backlog of human-approved future WellFit agents/frameworks. Entries are approved to be planned, and selected low/medium-risk entries may be built one at a time when explicitly tasked; this backlog does not automatically create agents or grant runtime authority.",
+  "approvalSource": "Project owner request on 2026-05-16 confirming listed future agents/frameworks may be recorded in an approved build backlog after PR #104 policy work.",
+  "statuses": [
+    "proposed",
+    "approved_for_planning",
+    "approved_for_build",
+    "in_progress",
+    "built",
+    "blocked",
+    "rejected",
+    "duplicate",
+    "superseded"
+  ],
+  "buildOrderRules": [
+    "Do not build future agents in this catalog/backlog task.",
+    "Build one approved future agent/framework per PR unless Batch Execution Runner explicitly authorizes a bounded batch.",
+    "Keep first version report-only and docs/register/validator-only unless a later human-approved task says otherwise.",
+    "High/critical or protected-boundary entries require human review and cannot be automatically marked built.",
+    "Before built status, add required docs, registers, validation scripts, Work Map/TODO Index references, quality gate integration, passing checks, and PR evidence."
+  ],
+  "backlogEntrySchema": {
+    "id": "required",
+    "proposedAgentName": "required",
+    "status": "required",
+    "priority": "required",
+    "reason": "required",
+    "expectedBenefit": "required",
+    "riskLevel": "required",
+    "connectedAgents": "required",
+    "connectedRegisters": "required",
+    "connectedAgentCount": "required",
+    "connectedRegisterCount": "required",
+    "requiredDocs": "required",
+    "requiredRegisters": "required",
+    "requiredValidationScripts": "required",
+    "allowedFiles": "required",
+    "forbiddenFiles": "required",
+    "humanApprovalRequired": "required",
+    "alreadyHumanApproved": "required",
+    "suggestedBuildOrder": "required",
+    "nextRecommendedPromptType": "required",
+    "dependencies": "required",
+    "protectedBoundaries": "required"
+  },
+  "entries": [
+    {
+      "id": "agent-architect-proposal-agent",
+      "proposedAgentName": "Agent Architect & Proposal Agent",
+      "status": "approved_for_build",
+      "priority": "P0",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Agent Architect & Proposal Agent.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Agent Architect & Proposal Agent while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "agent-task-queue",
+        "continuity-dependency-sentinel"
+      ],
+      "connectedRegisters": [
+        "project-register/agent-extension-policy.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "connectedAgentCount": 2,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 1,
+      "nextRecommendedPromptType": "single_agent_build_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ]
+    },
+    {
+      "id": "human-motivation-engine",
+      "proposedAgentName": "Human Motivation Engine",
+      "status": "approved_for_planning",
+      "priority": "P1",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Human Motivation Engine.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Human Motivation Engine while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "research-recommendation-agent"
+      ],
+      "connectedRegisters": [
+        "project-register/research-recommendations.json",
+        "project-register/adaptive-user-insights.json"
+      ],
+      "connectedAgentCount": 2,
+      "connectedRegisterCount": 2,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/research-recommendations.json",
+        "project-register/adaptive-user-insights.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 2,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "ethical-engagement-guard",
+      "proposedAgentName": "Ethical Engagement Guard",
+      "status": "approved_for_planning",
+      "priority": "P1",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Ethical Engagement Guard.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Ethical Engagement Guard while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "risk-classifier",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 2,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 3,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "adaptive-difficulty-agent",
+      "proposedAgentName": "Adaptive Difficulty Agent",
+      "status": "approved_for_planning",
+      "priority": "P2",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Adaptive Difficulty Agent.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Adaptive Difficulty Agent while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "connectedAgentCount": 2,
+      "connectedRegisterCount": 2,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 4,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "multisensory-learning-engine",
+      "proposedAgentName": "Multisensory Learning Engine",
+      "status": "approved_for_planning",
+      "priority": "P3",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Multisensory Learning Engine.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Multisensory Learning Engine while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "research-recommendation-agent",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/research-recommendations.json",
+        "project-register/features.json"
+      ],
+      "connectedAgentCount": 2,
+      "connectedRegisterCount": 2,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/research-recommendations.json",
+        "project-register/features.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 5,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ]
+    },
+    {
+      "id": "mission-factory-agent",
+      "proposedAgentName": "Mission Factory Agent",
+      "status": "approved_for_planning",
+      "priority": "P2",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Mission Factory Agent.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Mission Factory Agent while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "concept-to-code-gap-analyzer",
+        "product-readiness-matrix",
+        "risk-classifier"
+      ],
+      "connectedRegisters": [
+        "project-register/product-readiness.json",
+        "project-register/features.json",
+        "project-register/risk-classifier.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/product-readiness.json",
+        "project-register/features.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 6,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "product-intelligence-agent",
+      "proposedAgentName": "Product Intelligence Agent",
+      "status": "approved_for_planning",
+      "priority": "P2",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Product Intelligence Agent.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Product Intelligence Agent while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "research-recommendation-agent",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/product-readiness.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 7,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ]
+    },
+    {
+      "id": "healthy-retention-agent",
+      "proposedAgentName": "Healthy Retention Agent",
+      "status": "approved_for_planning",
+      "priority": "P2",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Healthy Retention Agent.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Healthy Retention Agent while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "risk-classifier"
+      ],
+      "connectedRegisters": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "connectedAgentCount": 2,
+      "connectedRegisterCount": 2,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 8,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "reward-fairness-guard",
+      "proposedAgentName": "Reward Fairness Guard",
+      "status": "approved_for_planning",
+      "priority": "P1",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Reward Fairness Guard.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Reward Fairness Guard while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "product-readiness-matrix",
+        "pr-review-agent"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 9,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "child-safety-guard",
+      "proposedAgentName": "Child Safety Guard",
+      "status": "approved_for_planning",
+      "priority": "P1",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Child Safety Guard.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Child Safety Guard while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "trust-compliance-website-audit",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/website-agent-backlog.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/website-agent-backlog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 10,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "health-claims-guard",
+      "proposedAgentName": "Health Claims Guard",
+      "status": "approved_for_planning",
+      "priority": "P1",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Health Claims Guard.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Health Claims Guard while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "trust-compliance-website-audit",
+        "research-recommendation-agent"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agent-backlog.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agent-backlog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 11,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "location-safety-guard",
+      "proposedAgentName": "Location Safety Guard",
+      "status": "approved_for_planning",
+      "priority": "P1",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Location Safety Guard.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Location Safety Guard while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "product-readiness-matrix",
+        "continuity-dependency-sentinel"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 12,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "sponsor-integrity-guard",
+      "proposedAgentName": "Sponsor Integrity Guard",
+      "status": "approved_for_planning",
+      "priority": "P3",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Sponsor Integrity Guard.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Sponsor Integrity Guard while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "trust-compliance-website-audit",
+        "pr-review-agent",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/website-agent-backlog.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 13,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "trust-safe-monetization-agent",
+      "proposedAgentName": "Trust-Safe Monetization Agent",
+      "status": "approved_for_planning",
+      "priority": "P3",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Trust-Safe Monetization Agent.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Trust-Safe Monetization Agent while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "trust-compliance-website-audit",
+        "auto-merge-eligibility-guard"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/auto-merge-policy.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/auto-merge-policy.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 14,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "user-memory-governance-agent",
+      "proposedAgentName": "User Memory Governance Agent",
+      "status": "approved_for_planning",
+      "priority": "P2",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: User Memory Governance Agent.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for User Memory Governance Agent while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "user-feedback-database-flow",
+        "risk-classifier"
+      ],
+      "connectedRegisters": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 15,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "product-memory-agent",
+      "proposedAgentName": "Product Memory Agent",
+      "status": "approved_for_planning",
+      "priority": "P2",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Product Memory Agent.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Product Memory Agent while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "agent-work-log",
+        "progress-log",
+        "continuity-dependency-sentinel"
+      ],
+      "connectedRegisters": [
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 16,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ]
+    },
+    {
+      "id": "ai-buddy-personality-tone-guard",
+      "proposedAgentName": "AI Buddy Personality & Tone Guard",
+      "status": "approved_for_planning",
+      "priority": "P2",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: AI Buddy Personality & Tone Guard.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for AI Buddy Personality & Tone Guard while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "research-recommendation-agent",
+        "risk-classifier",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/research-recommendations.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/research-recommendations.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 17,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    },
+    {
+      "id": "recovery-pause-anti-overuse-guard",
+      "proposedAgentName": "Recovery / Pause / Anti-Overuse Guard",
+      "status": "approved_for_planning",
+      "priority": "P1",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Recovery / Pause / Anti-Overuse Guard.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Recovery / Pause / Anti-Overuse Guard while preserving existing agent boundaries and protected-scope stops.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "risk-classifier"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "connectedAgentCount": 2,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 18,
+      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "dependencies": [
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
+        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+      ]
+    }
+  ]
+}

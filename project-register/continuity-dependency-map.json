@@ -44,7 +44,9 @@
     "project-register/agent-autopilot.json",
     "project-register/website-agents.json",
     "project-register/website-readiness.json",
-    "project-register/agent-extension-policy.json"
+    "project-register/agent-extension-policy.json",
+    "project-register/agent-catalog.json",
+    "project-register/approved-agent-build-backlog.json"
   ],
   "monitoredDocs": [
     "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
@@ -57,7 +59,8 @@
     "todolist/TODO_INDEX.md",
     "todolist/CURRENT_PROJECT_STATE.md",
     "todolist/NEXT_ACTIONS.md",
-    "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md"
+    "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+    "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
   ],
   "dependencyTypes": [
     "requires_followup_task",
@@ -151,7 +154,27 @@
     "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
     "scripts/wellfit-dev-agent/output/continuity-dependency-report.md",
     "todolist/WORK_MAP.md",
-    "todolist/TODO_INDEX.md"
+    "todolist/TODO_INDEX.md",
+    {
+      "path": "project-register/agent-catalog.json",
+      "existsNow": true,
+      "purpose": "Machine-readable existing agent/framework catalog."
+    },
+    {
+      "path": "project-register/approved-agent-build-backlog.json",
+      "existsNow": true,
+      "purpose": "Machine-readable approved future agent/framework backlog."
+    },
+    {
+      "path": "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+      "existsNow": true,
+      "purpose": "Human-readable catalog/backlog governance runbook."
+    },
+    {
+      "path": "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+      "existsNow": true,
+      "purpose": "Report-only validator for catalog/backlog readiness."
+    }
   ],
   "forbiddenAutoUpdates": [
     "never modify files automatically",
@@ -548,6 +571,63 @@
         }
       ],
       "nextRecommendedTask": "If future priorities require a new agent such as Agent Architect & Proposal Agent or Human Motivation & Ethical Engagement Framework, create a proposal first and require human review before building."
+    },
+    {
+      "id": "CONTINUITY-AGENT-CATALOG-APPROVED-BACKLOG",
+      "title": "Agent Catalog and Approved Build Backlog must gate future agent construction",
+      "status": "review_required",
+      "source": "project-register/approved-agent-build-backlog.json",
+      "ownerAgent": "Continuity Sentinel",
+      "mustNotForget": true,
+      "reason": "Existing agents/frameworks now have a machine-readable catalog and human-approved future agents are tracked separately; future agent builds must remain one-at-a-time, report-only first, and human-reviewed for protected/high-risk boundaries.",
+      "dependencies": [
+        "requires_human_review",
+        "requires_register_update",
+        "requires_work_map_update",
+        "requires_todo_index_update",
+        "requires_validation_script",
+        "blocks_auto_merge",
+        "blocks_auto_repair",
+        "blocks_batch_execution"
+      ],
+      "humanReviewRequired": true,
+      "nextSafeAction": "Run the report-only catalog/backlog check before extending or building agent governance.",
+      "affectedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/agent-catalog.json",
+          "existsNow": true,
+          "purpose": "Machine-readable catalog of existing agents/frameworks."
+        },
+        {
+          "path": "project-register/approved-agent-build-backlog.json",
+          "existsNow": true,
+          "purpose": "Machine-readable backlog of human-approved future agents/frameworks."
+        },
+        {
+          "path": "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+          "existsNow": true,
+          "purpose": "Human-readable catalog/backlog governance runbook."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+          "existsNow": true,
+          "purpose": "Report-only catalog/backlog validator."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/agent-catalog-backlog-report.md",
+          "existsNow": false,
+          "purpose": "Generated report-only validator output; do not commit generated output."
+        }
+      ],
+      "nextRecommendedTask": "Build Agent Architect & Proposal Agent first as a report-only governance agent, or build the Human Motivation & Ethical Engagement Framework only after a scoped human-approved prompt confirms priority and protected boundaries."
     }
   ]
 }

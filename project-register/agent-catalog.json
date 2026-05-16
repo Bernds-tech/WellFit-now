@@ -1,0 +1,1378 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Machine-readable catalog of existing WellFit agents/frameworks, ownership areas, registers, docs, validators, extension boundaries, protected boundaries, and next safe maintenance tasks. This catalog prevents duplicate architecture and helps future agents decide whether to extend an existing agent domain or propose a new agent first.",
+  "catalogEntrySchema": {
+    "id": "required",
+    "name": "required",
+    "status": "required",
+    "agentType": "required",
+    "purpose": "required",
+    "ownerArea": "required",
+    "primaryRegisters": "required",
+    "humanReadableDocs": "required",
+    "validationScripts": "required",
+    "qualityGateIntegrated": "required",
+    "relatedAgents": "required",
+    "relatedRegisters": "required",
+    "allowedExtensionTypes": "required",
+    "requiresNewAgentProposalFor": "required",
+    "protectedBoundaries": "required",
+    "nextSafeMaintenanceTask": "required"
+  },
+  "lifecycleStatuses": [
+    "active",
+    "report_only",
+    "planning_only",
+    "deprecated",
+    "stale",
+    "duplicate",
+    "blocked",
+    "review_required"
+  ],
+  "agentTypes": [
+    "orchestrator",
+    "execution_guard",
+    "registry",
+    "risk_guard",
+    "memory_register",
+    "sync_guard",
+    "memory_guard",
+    "pr_guard",
+    "merge_guard",
+    "repair_guard",
+    "maintenance_agent",
+    "continuity_guard",
+    "inventory_guard",
+    "readiness_guard",
+    "drift_guard",
+    "gap_guard",
+    "visual_guard",
+    "research_agent",
+    "insight_agent",
+    "feedback_flow",
+    "website_agent_framework",
+    "website_backlog",
+    "website_readiness_guard",
+    "website_audit"
+  ],
+  "extensionPolicyReference": {
+    "policy": "project-register/agent-extension-policy.json",
+    "doc": "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
+    "validator": "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs"
+  },
+  "entries": [
+    {
+      "id": "autopilot-dry-run",
+      "name": "Autopilot Dry Run",
+      "status": "active",
+      "agentType": "orchestrator",
+      "purpose": "Dry-run-only next-task orchestration that reads existing governance and reports safe task selection without writing files.",
+      "ownerArea": "Agent Orchestration",
+      "primaryRegisters": [
+        "project-register/agent-autopilot.json",
+        "project-register/agent-task-queue.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [
+        "project-register/product-readiness.json",
+        "project-register/research-recommendations.json",
+        "project-register/adaptive-user-insights.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "batch-autopilot-dry-run",
+      "name": "Batch Autopilot Dry Run",
+      "status": "active",
+      "agentType": "orchestrator",
+      "purpose": "Report-only batch planning that selects multiple safe candidates without writing files or executing tasks.",
+      "ownerArea": "Agent Orchestration",
+      "primaryRegisters": [
+        "project-register/autopilot-batch-policy.json",
+        "project-register/agent-task-queue.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "Autopilot Dry Run",
+        "Batch Limited Execution Framework"
+      ],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "batch-limited-execution-framework",
+      "name": "Batch Limited Execution Framework",
+      "status": "active",
+      "agentType": "execution_guard",
+      "purpose": "Report-check-only framework for future limited batch execution readiness; first version never executes tasks.",
+      "ownerArea": "Agent Orchestration",
+      "primaryRegisters": [
+        "project-register/autopilot-batch-execution-policy.json",
+        "project-register/autopilot-batch-policy.json",
+        "project-register/agent-task-queue.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "Batch Autopilot Dry Run",
+        "Batch Execution Runner Framework"
+      ],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "batch-execution-runner-framework",
+      "name": "Batch Execution Runner Framework",
+      "status": "active",
+      "agentType": "execution_guard",
+      "purpose": "Report-check-only runner governance for future explicit batch execution; no automatic execution, PR creation, merge, repair, or deploy.",
+      "ownerArea": "Agent Orchestration",
+      "primaryRegisters": [
+        "project-register/batch-execution-runner-policy.json",
+        "project-register/agent-task-queue.json",
+        "project-register/autopilot-batch-execution-policy.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "Batch Limited Execution Framework"
+      ],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "agent-task-queue",
+      "name": "Agent Task Queue",
+      "status": "active",
+      "agentType": "registry",
+      "purpose": "Machine-readable queue of approved task candidates, required reads/checks, allowed/forbidden files, expected outputs, and selection rules.",
+      "ownerArea": "Task Governance",
+      "primaryRegisters": [
+        "project-register/agent-task-queue.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs",
+        "scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [
+        "project-register/definition-of-done.json",
+        "project-register/risk-classifier.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "definition-of-done",
+      "name": "Definition of Done",
+      "status": "active",
+      "agentType": "registry",
+      "purpose": "Canonical completion criteria by task family for documentation, registry, UI, API, mission, buddy/AI, backend, feedback, analytics, Unity/AR planning, and compliance-sensitive planning.",
+      "ownerArea": "Task Governance",
+      "primaryRegisters": [
+        "project-register/definition-of-done.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "risk-classifier",
+      "name": "Risk Classifier",
+      "status": "active",
+      "agentType": "risk_guard",
+      "purpose": "Risk classification, protected-area detection, stop rules, and human-review requirements for agent work.",
+      "ownerArea": "Risk Governance",
+      "primaryRegisters": [
+        "project-register/risk-classifier.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "agent-work-log",
+      "name": "Agent Work Log",
+      "status": "active",
+      "agentType": "memory_register",
+      "purpose": "Append-only handoff/work-history register for completed agent tasks, PRs, checks, changed files, follow-ups, and next recommendations.",
+      "ownerArea": "Agent Memory",
+      "primaryRegisters": [
+        "project-register/agent-work-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs",
+        "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "progress-log",
+      "name": "Progress Log",
+      "status": "active",
+      "agentType": "memory_register",
+      "purpose": "Project progress register used by batch/autopilot and status-sync checks to prevent looped or lost work.",
+      "ownerArea": "Agent Memory",
+      "primaryRegisters": [
+        "project-register/progress-log.json",
+        "project-register/progress-log-block-b.json",
+        "project-register/progress-log-block-c.json",
+        "project-register/progress-log-block-d.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+        "scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "task-status-work-log-sync",
+      "name": "Task Status & Work Log Sync",
+      "status": "active",
+      "agentType": "sync_guard",
+      "purpose": "Report-only synchronization rules for TODO statuses, agent work logs, progress logs, PR evidence, checks, follow-ups, and next tasks.",
+      "ownerArea": "Agent Memory",
+      "primaryRegisters": [
+        "project-register/task-status-policy.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "todo-status-sync",
+      "name": "TODO Status Sync",
+      "status": "active",
+      "agentType": "sync_guard",
+      "purpose": "Report-only TODO status marker validator that preserves historical TODO context without rewriting files.",
+      "ownerArea": "TODO Governance",
+      "primaryRegisters": [
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/todo-status-sync.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "follow-up-detector",
+      "name": "Follow-up Detector",
+      "status": "active",
+      "agentType": "memory_guard",
+      "purpose": "Report-only detector for follow-up categories from Work Map, Current State, Task Queue, internal sources, and feedback registers.",
+      "ownerArea": "Agent Memory",
+      "primaryRegisters": [
+        "project-register/agent-follow-ups.json",
+        "project-register/risk-classifier.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/follow-up-detector.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "pr-outcome-recorder",
+      "name": "PR Outcome Recorder",
+      "status": "active",
+      "agentType": "pr_guard",
+      "purpose": "Dry-run recorder that validates PR outcome data and defines append-only work-log evidence format.",
+      "ownerArea": "PR Governance",
+      "primaryRegisters": [
+        "project-register/agent-work-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "pr-review-agent",
+      "name": "PR Review Agent",
+      "status": "active",
+      "agentType": "pr_guard",
+      "purpose": "Report-only PR review governance for checklist, protected areas, cross-reference/readiness/inventory checks, and handoff evidence.",
+      "ownerArea": "PR Governance",
+      "primaryRegisters": [
+        "project-register/pr-review-policy.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_PR_REVIEW_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "pr-post-creation-mergeability-guard",
+      "name": "PR Post-Creation Mergeability Guard",
+      "status": "active",
+      "agentType": "pr_guard",
+      "purpose": "Report-only post-PR guard for mergeability, required checks, protected paths, safe repair boundaries, and next action.",
+      "ownerArea": "PR Governance",
+      "primaryRegisters": [
+        "project-register/pr-post-creation-guard.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_PR_POST_CREATION_MERGEABILITY_GUARD.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "pr-diff-review-report",
+      "name": "PR Diff Review Report",
+      "status": "active",
+      "agentType": "pr_guard",
+      "purpose": "Report-only changed-file review that classifies diffs against protected paths, readiness, inventory, cross references, and task status.",
+      "ownerArea": "PR Governance",
+      "primaryRegisters": [
+        "project-register/pr-diff-review-policy.json",
+        "project-register/repository-inventory.json",
+        "project-register/product-readiness.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "auto-merge-eligibility-guard",
+      "name": "Auto-Merge Eligibility Guard",
+      "status": "active",
+      "agentType": "merge_guard",
+      "purpose": "Report-only auto-merge eligibility policy that never merges and requires evidence before human consideration.",
+      "ownerArea": "PR Governance",
+      "primaryRegisters": [
+        "project-register/auto-merge-policy.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AUTO_MERGE_POLICY.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "auto-repair-policy-decision-guard",
+      "name": "Auto-Repair Policy / Decision Guard",
+      "status": "active",
+      "agentType": "repair_guard",
+      "purpose": "Report-only auto-repair decision guard that never repairs, merges, deploys, or bypasses protected-scope review.",
+      "ownerArea": "PR Governance",
+      "primaryRegisters": [
+        "project-register/auto-repair-policy.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "cross-reference-maintenance-agent",
+      "name": "Cross-Reference Maintenance Agent",
+      "status": "active",
+      "agentType": "maintenance_agent",
+      "purpose": "Machine-readable cross-reference maintenance framework for updating related registers, TODOs, docs, validation scripts, and readiness pointers after changes.",
+      "ownerArea": "Cross-Reference Governance",
+      "primaryRegisters": [
+        "project-register/cross-reference-maintenance.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+        "docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "continuity-dependency-sentinel",
+      "name": "Continuity & Dependency Sentinel",
+      "status": "active",
+      "agentType": "continuity_guard",
+      "purpose": "Report-only map of open points, follow-ups, review/blocker dependencies, required outputs, and next-agent handoffs.",
+      "ownerArea": "Continuity Governance",
+      "primaryRegisters": [
+        "project-register/continuity-dependency-map.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "repository-inventory-audit",
+      "name": "Repository Inventory Audit",
+      "status": "active",
+      "agentType": "inventory_guard",
+      "purpose": "Full-repository inventory and coverage audit for mapped, protected, unmapped, stale, duplicate, route, and API coverage.",
+      "ownerArea": "Inventory Governance",
+      "primaryRegisters": [
+        "project-register/repository-inventory.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "product-readiness-matrix",
+      "name": "Product Readiness Matrix",
+      "status": "active",
+      "agentType": "readiness_guard",
+      "purpose": "Module readiness matrix with risk, blockers, safe next tasks, duplicate warnings, and human-approval guidance.",
+      "ownerArea": "Product Governance",
+      "primaryRegisters": [
+        "project-register/product-readiness.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_PRODUCT_READINESS_MATRIX.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/product-readiness-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "route-api-drift-detector",
+      "name": "Route/API Drift Detector",
+      "status": "active",
+      "agentType": "drift_guard",
+      "purpose": "Detects route/API/register drift before agents create duplicate routes, APIs, architecture, or product systems.",
+      "ownerArea": "Route/API Governance",
+      "primaryRegisters": [
+        "project-register/routes.json",
+        "project-register/apis.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_DRIFT_AND_GAP_ANALYSIS.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "scripts/wellfit-dev-agent/src/route-api-register-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "concept-to-code-gap-analyzer",
+      "name": "Concept-to-Code Gap Analyzer",
+      "status": "active",
+      "agentType": "gap_guard",
+      "purpose": "Maps concepts to existing code/register coverage to prevent duplicate feature systems and identify safe registry-only gaps.",
+      "ownerArea": "Product Governance",
+      "primaryRegisters": [
+        "project-register/features.json",
+        "project-register/internal-sources.json",
+        "project-register/product-readiness.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_DRIFT_AND_GAP_ANALYSIS.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "visual-regression-screenshot-check-framework",
+      "name": "Visual Regression / Screenshot Check Framework",
+      "status": "active",
+      "agentType": "visual_guard",
+      "purpose": "Optional route-register-backed visual screenshot smoke validation for public, mobile beta-preview, and protected routes.",
+      "ownerArea": "Visual QA Governance",
+      "primaryRegisters": [
+        "project-register/visual-regression.json",
+        "project-register/routes.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "research-recommendation-agent",
+      "name": "Research & Recommendation Agent",
+      "status": "active",
+      "agentType": "research_agent",
+      "purpose": "Internal-first and optional external research governance for unclear product/technical questions; requires options, recommendation, risk, and human review.",
+      "ownerArea": "Research Governance",
+      "primaryRegisters": [
+        "project-register/research-recommendations.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/research-recommendation-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "adaptive-user-insight-agent",
+      "name": "Adaptive User Insight Agent",
+      "status": "active",
+      "agentType": "insight_agent",
+      "purpose": "Planning-only aggregate user insight governance without raw identifiers, live tracking, runtime personalization, or protected logic changes.",
+      "ownerArea": "Insight Governance",
+      "primaryRegisters": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_ADAPTIVE_USER_INSIGHT_AGENT.md",
+        "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "user-feedback-database-flow",
+      "name": "User Feedback Database Flow",
+      "status": "active",
+      "agentType": "feedback_flow",
+      "purpose": "Feedback database planning and analytics loop mapping for future report-only feedback and insight use.",
+      "ownerArea": "Feedback Governance",
+      "primaryRegisters": [
+        "project-register/user-feedback.json",
+        "project-register/feedback-analytics-loop.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/feedback-loop-audit.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "website-agent-framework",
+      "name": "Website Agent Framework",
+      "status": "active",
+      "agentType": "website_agent_framework",
+      "purpose": "Report-only website agent framework covering completion, route/link integrity, mobile/PWA, visual, content, trust/compliance, conversion, SEO, waitlist, investor, analytics, and self-improving planning.",
+      "ownerArea": "Website Governance",
+      "primaryRegisters": [
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "website-agent-backlog",
+      "name": "Website Agent Backlog",
+      "status": "active",
+      "agentType": "website_backlog",
+      "purpose": "Machine-readable findings/backlog register for website audits, route issues, conversion/content/SEO gaps, trust/compliance reviews, evidence gaps, blockers, and next safe tasks.",
+      "ownerArea": "Website Governance",
+      "primaryRegisters": [
+        "project-register/website-agent-backlog.json",
+        "project-register/website-readiness.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "website-readiness-baseline-audit",
+      "name": "Website Readiness Baseline Audit",
+      "status": "active",
+      "agentType": "website_readiness_guard",
+      "purpose": "Report-only baseline audit for public, legal, desktop beta, mobile/PWA, and protected route readiness.",
+      "ownerArea": "Website Governance",
+      "primaryRegisters": [
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "route-link-integrity-audit",
+      "name": "Route & Link Integrity Audit",
+      "status": "active",
+      "agentType": "website_audit",
+      "purpose": "Website route/link integrity audit that records findings and aliases without changing runtime routes automatically.",
+      "ownerArea": "Website Governance",
+      "primaryRegisters": [
+        "project-register/website-agent-backlog.json",
+        "project-register/routes.json",
+        "project-register/website-readiness.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/site-route-audit.mjs",
+        "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "schema-compatible metadata additions",
+        "report-only validator coverage",
+        "source-of-truth and Work Map/TODO Index pointers",
+        "handoff/report output clarifications within the same domain"
+      ],
+      "requiresNewAgentProposalFor": [
+        "new durable agent role or owner outside this domain",
+        "new runtime authority or product behavior",
+        "protected/high-risk scope ownership",
+        "overlap across two or more existing agents without one clear owner"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    },
+    {
+      "id": "trust-compliance-website-audit",
+      "name": "Trust & Compliance Website Audit",
+      "status": "active",
+      "agentType": "website_audit",
+      "purpose": "Website trust/compliance audit for protected public wording and readiness blockers; records review-required findings without editing legal or protected claims.",
+      "ownerArea": "Website Governance",
+      "primaryRegisters": [
+        "project-register/website-agent-backlog.json",
+        "project-register/website-readiness.json",
+        "project-register/product-readiness.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [],
+      "relatedRegisters": [],
+      "allowedExtensionTypes": [
+        "add report-only trust/compliance findings",
+        "update readiness evidence and blocked/review-required metadata",
+        "link protected-topic review outputs"
+      ],
+      "requiresNewAgentProposalFor": [
+        "editing legal/privacy/compliance wording",
+        "approving health, child, token, payment, reward, mission authority, or public investor claims",
+        "creating a new compliance authority agent outside Website Governance"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep register, documentation, Work Map, TODO Index, and report-only validation script references synchronized."
+    }
+  ]
+}
