@@ -1487,5 +1487,88 @@
       "Landingpage Conversion Audit"
     ],
     "runtimeChangeConfirmation": "No runtime route files, navigation components, legal pages, mobile/PWA code, protected product logic, package/config, public assets, Functions, Firestore rules, GitHub workflow files, Unity files, auto-merge, auto-repair, approval, or deployment behavior was changed."
+  },
+  "trustComplianceWebsiteAudit": {
+    "id": "TRUST-COMPLIANCE-WEBSITE-AUDIT-2026-05-16",
+    "date": "2026-05-16",
+    "mode": "report_only",
+    "sourceFiles": [
+      "project-register/website-agents.json",
+      "project-register/website-readiness.json",
+      "project-register/website-agent-backlog.json",
+      "project-register/product-readiness.json",
+      "project-register/internal-sources.json",
+      "project-register/master-roadmap-tasks.json",
+      "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+      "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+      "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+      "docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md",
+      "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md",
+      "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+      "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
+      "todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS",
+      "todolist/H - MOBILE - AR - TRACKING - KI"
+    ],
+    "routeGroupSummary": {
+      "publicPages": "/, /register, /faq, and /hilfe remain draft or usable only; public beta, support, CTA, SEO, analytics, and sponsor/partner claims need review before conversion_ready advancement when protected claims are involved.",
+      "legalPages": "/datenschutz, /agb, and /impressum remain review_required. This audit did not make legal conclusions or change legal/privacy/terms/imprint wording.",
+      "desktopBetaPages": "Desktop beta mission, dashboard, buddy, settings, points, marketplace, leaderboard, analytics, and challenge routes remain usable, draft, or review_required according to protected-topic metadata; none were advanced to beta_ready.",
+      "mobilePwaPages": "Mobile/PWA routes remain draft or review_required, with device/privacy/permission/health/camera/AR/AI Buddy/child/reward topics still review-gated and device-test evidence incomplete.",
+      "protectedOrReviewRequiredPages": "Token/NFT/wallet/payment/trading/payout, rewards/mission authority, PvP/betting/anti-cheat, analytics/privacy/consent, health/child/camera/location/biometric, legal, investor, and public-claim surfaces remain review_required or blocked."
+    },
+    "reviewRequiredRoutes": [
+      "/register",
+      "/datenschutz",
+      "/agb",
+      "/impressum",
+      "/faq",
+      "/hilfe",
+      "/dashboard",
+      "/buddy",
+      "/missionen",
+      "/missionen/tagesmissionen",
+      "/missionen/wochenmissionen",
+      "/missionen/abenteuer",
+      "/challenge",
+      "/missionen/challenge",
+      "/missionen/wettkaempfe",
+      "/punkte-shop",
+      "/marktplatz",
+      "/leaderboard",
+      "/analytics",
+      "/einstellungen",
+      "/dashboard/anpassen",
+      "/missionen/favoriten",
+      "/missionen/history",
+      "/mobile",
+      "/mobile/missionen",
+      "/mobile/missionen/squat",
+      "/mobile/buddy",
+      "/mobile/analyse",
+      "/mobile/bewegung",
+      "/mobile/einstellungen",
+      "/mobile/ar"
+    ],
+    "reviewRequiredItems": [
+      "public page claims and beta/waitlist promises",
+      "legal/privacy/terms/imprint review requirements",
+      "health or medical-adjacent movement and AI Buddy claims",
+      "child/family/minor protection claims",
+      "camera, location, biometric, raw sensor, permission, privacy, and consent claims",
+      "token/WFT/NFT/wallet/payment/trading/payout/presale/marketplace claims",
+      "reward, mission completion, anti-cheat, PvP/challenge, leaderboard, points, XP, and authority claims",
+      "investor, financial-equivalent, roadmap, sponsor, advertising, and partner claims",
+      "analytics, tracking, data-use, consent, and profiling claims"
+    ],
+    "blockedItems": [
+      "No route may be marked conversion_ready, investor_ready, or beta_ready from this audit while protected-topic review evidence is absent.",
+      "No runtime website/app/mobile/legal/public-copy/legal-wording/protected-logic changes are authorized by this audit.",
+      "No auto-merge, auto-repair, approval, deployment, legal conclusion, public claim approval, token/payment/reward authority activation, or sensitive data-flow expansion is enabled."
+    ],
+    "safeNextTasks": [
+      "Beta Waitlist / Register Flow Audit",
+      "Landingpage Conversion Audit"
+    ],
+    "runtimeChangeConfirmation": "No runtime website, app, mobile, legal, public asset, package, Firebase, GitHub workflow, Functions, Firestore rules, Unity, auto-merge, auto-repair, approval, deployment, or protected product/legal/compliance logic was changed."
   }
 }
