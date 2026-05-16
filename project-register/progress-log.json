@@ -397,6 +397,20 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Created report-only Sentinel map/doc/check with initial must-not-forget entries for Website Agent backlog/status/output mapping, Website Readiness machine-readable findings, PR Diff Review use in future batch runs, Batch Execution Runner controlled one-task activation, Auto-Merge/Auto-Repair mini-category gates, 4-hour low-risk session prerequisites, remaining repository inventory/native/Unity read-only triage, and Mobile/PWA device evidence gaps. Integrated the check into quality gate and existing governance registers. No runtime product code, app/components/lib/functions, Firestore rules, public assets, package/firebase/GitHub config, Unity/PR #13, compliance logic, auto-merge, auto-repair, approval, deployment, or automatic task creation was enabled."
+    },
+    {
+      "id": "PROGRESS-ROUTE-LINK-INTEGRITY-AUDIT-2026-05-16-0001",
+      "date": "2026-05-16",
+      "branch": "audit/route-link-integrity",
+      "issue": null,
+      "goal": "Run the report-only WellFit Route & Link Integrity Audit across public, legal, desktop beta, and mobile/PWA routes.",
+      "changedAreas": [
+        "docs/architecture",
+        "project-register"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Completed the Website Agent route/link audit as documentation/register output only. Marked WAB-003 done, preserved /challenge as a review_required alias to /missionen/challenge, recorded future runtime/browser/device validation needs, and recommended Trust & Compliance Website Audit or Landingpage Conversion Audit. No runtime route/navigation/legal/app/mobile code, protected logic, auto-merge, auto-repair, approval, deployment, Unity/PR #13 files, package/config, public assets, Functions, or Firestore rules were changed."
     }
   ]
 }

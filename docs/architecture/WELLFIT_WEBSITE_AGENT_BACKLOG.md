@@ -1,8 +1,8 @@
 # WellFit Website Agent Backlog and Findings Register
 
-Status: active / report-only governance  
-Register: `project-register/website-agent-backlog.json`  
-Validator: `scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs`  
+Status: active / report-only governance
+Register: `project-register/website-agent-backlog.json`
+Validator: `scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs`
 Updated: 2026-05-16
 
 ## Why this backlog exists
@@ -175,6 +175,100 @@ Scope: public pages, legal pages, desktop beta pages, mobile/PWA pages, protecte
 ### Next safe website task
 
 Recommended next task: **Route & Link Integrity Audit** if the team wants to resolve `/challenge` alias/navigation evidence and registered subroute link coverage first; otherwise **Landingpage Conversion Audit** is safe for public-page conversion/content/SEO planning only. Given the alias and visual evidence findings, Route & Link Integrity Audit is the safer immediate next task.
+
+
+## Route & Link Integrity Audit — 2026-05-16
+
+Status: completed as a report-only route/link integrity audit.
+Backlog entry: `WAB-003` marked `done` in `project-register/website-agent-backlog.json`.
+Scope: public routes, legal routes, desktop beta routes, mobile/PWA routes, route aliases, canonical route decisions, stale route references, review-required route risks, and safe follow-up tasks.
+
+### Evidence used
+
+- `project-register/routes.json` registers public, legal, desktop beta, mobile/PWA, and system route groups.
+- `project-register/website-readiness.json` contains 32 route readiness entries, including the preserved `/challenge` readiness alias that maps to `/missionen/challenge`.
+- `project-register/features.json`, `project-register/product-readiness.json`, `project-register/repository-inventory.json`, and `project-register/visual-regression.json` preserve product, protected-topic, inventory, and visual/device boundaries.
+- `node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs` reported no missing route/API register entries during the audit command run.
+- Static route/link inspection found registered internal route literals across the existing public/legal, desktop beta, and mobile/PWA surfaces; dynamic clickability, auth/preview behavior, redirect behavior, external links, and device/PWA permission flows still need future runtime/browser validation.
+
+### Public route integrity
+
+| Route | Integrity finding | Status | Next safe action |
+|---|---|---|---|
+| `/` | Registered as a public landing route and present in readiness metadata. Link/conversion evidence is still report-only. | `draft` / not `conversion_ready` | Handle CTA/content/link hierarchy in a future Landingpage Conversion Audit without editing runtime code in this audit. |
+| `/register` | Registered public route and linked from existing login/landing flow evidence. Privacy, consent, beta signup, and public-claim implications remain protected. | `review_required` | Keep consent/privacy findings human-review-required; use Beta Waitlist or Trust & Compliance audit before runtime changes. |
+| `/faq` and `/hilfe` | Registered public/help routes. Existing docs/registers support route presence, but no browser click-through evidence was generated. | `draft` / `usable` depending readiness entry | Future runtime link validation should verify header/sidebar/footer/help navigation behavior. |
+
+No supported public-route metadata change was made to `routes.json` or `features.json`; no duplicate public route was created.
+
+### Legal route integrity
+
+| Route | Integrity finding | Status | Next safe action |
+|---|---|---|---|
+| `/datenschutz` | Registered and preserved as legal/privacy route. Route presence can be inventoried, but wording and consent/privacy claims are legal-review controlled. | `review_required` | Trust & Compliance Website Audit; do not edit legal wording in an automated route/link task. |
+| `/agb` | Registered and preserved as legal/terms route with payment/reward-adjacent implications. | `review_required` | Human legal/compliance review before any wording or flow changes. |
+| `/impressum` | Registered and preserved as legal/public-claim route. | `review_required` | Human review for legal/public claim changes; future runtime validation may only test link reachability. |
+
+Legal pages remain route-present but not compliance-cleared. This audit changed no Datenschutz, AGB, Impressum, legal, privacy, consent, or compliance runtime wording.
+
+### Desktop beta route integrity
+
+| Route group | Integrity finding | Status | Next safe action |
+|---|---|---|---|
+| Dashboard/settings | `/dashboard`, `/dashboard/anpassen`, and `/einstellungen` are registered and represented in readiness metadata. Profile/progress/customization/privacy implications remain review-gated where applicable. | `usable` or `review_required` | Future runtime link validation should verify navigation and auth/preview behavior without moving authority client-side. |
+| Mission routes | `/missionen` is registered as `active-redirect`; mission subroutes are registered, including `/missionen/challenge`, `/missionen/favoriten`, and `/missionen/history`. | `usable`, `draft`, or `review_required` | Preserve existing mission architecture; validate redirects/click paths in browser evidence before proposing navigation changes. |
+| Economy/social/analytics routes | `/punkte-shop`, `/marktplatz`, `/leaderboard`, and `/analytics` are registered but protected by economy, reward, public ranking, privacy, analytics, and/or authority concerns. | `review_required` where sensitive | Trust & Compliance Website Audit before conversion or readiness advancement. |
+| Buddy route | `/buddy` is registered but AI Buddy and privacy/personalization implications remain review-gated. | `review_required` | Keep route/link audit report-only; do not change Buddy behavior or data flows. |
+
+Desktop beta routes have no supported route-register drift to fix in this audit. The audit does not authorize sidebar, footer, AppShell, mission navigation, reward, marketplace, leaderboard, analytics, Buddy, or settings runtime changes.
+
+### Mobile/PWA route integrity
+
+| Route group | Integrity finding | Status | Next safe action |
+|---|---|---|---|
+| Mobile home/navigation | `/mobile`, `/mobile/missionen`, `/mobile/buddy`, and `/mobile/einstellungen` are registered and readiness-mapped. | `draft` or `review_required` | Future mobile/browser evidence must verify bottom navigation, viewport, PWA install, and route-specific behavior. |
+| Mobile health/camera/AR | `/mobile/analyse`, `/mobile/bewegung`, `/mobile/ar`, and `/mobile/missionen/squat` are registered but involve health, motion, camera, AR, biometric/pose, permission, mission, and reward implications. | `review_required` / `device_test_required` | Collect route-specific device evidence; do not change camera, AR, health, consent, or reward logic. |
+
+Mobile/PWA route presence is documented, but device model, OS, browser, viewport, PWA install, permission, fallback, and screenshot evidence remain incomplete.
+
+### Route aliases and canonical route decisions
+
+| Alias or route | Canonical/register evidence | Audit decision |
+|---|---|---|
+| `/challenge` | `website-readiness.json` preserves `/challenge` as `not_registered_review_required_alias` mapped to `/missionen/challenge`; `routes.json` registers `/missionen/challenge`, not `/challenge`. | Keep `/challenge` as a review-required alias only. Do not create a duplicate route or redirect without human product/navigation review. |
+| `/missionen` | `routes.json` marks `/missionen` as `active-redirect`, and mission navigation/register evidence points to mission subroutes. | Treat `/missionen` as the existing redirect surface; future browser evidence should verify redirect behavior before any navigation proposal. |
+| `/missionen/challenge` | Registered protected mission route and readiness canonical for challenge content. | Keep canonical route review-required because challenge/PvP can imply competition, betting/stakes, mission completion, anti-cheat, and rewards. |
+
+### Stale route references and unclear mappings
+
+- **Stale/preserved alias:** `/challenge` is the only supported stale/alias route reference found by this report-only pass. It remains `review_required` and mapped to `/missionen/challenge`; no route/register/runtime change was made.
+- **No supported route-register drift:** the route/API drift detector reported no missing route/API register entries during this audit, so `routes.json` and `features.json` were not changed.
+- **Unclear runtime behavior:** literal route presence does not prove clickability, auth/preview handling, redirect behavior, PWA install behavior, permissions, or mobile device behavior. Those items require future runtime/browser/device validation and should stay report-only until evidence exists.
+
+### Routes needing human review
+
+- Legal and compliance routes: `/datenschutz`, `/agb`, `/impressum`.
+- Public/beta claim and consent surfaces: `/`, `/register`, `/faq`, `/hilfe`.
+- Desktop protected routes: `/buddy`, mission routes, `/missionen/challenge`, `/missionen/wettkaempfe`, `/punkte-shop`, `/marktplatz`, `/leaderboard`, `/analytics`, `/dashboard/anpassen`, and `/einstellungen` where privacy/profile/progress/economy/authority concerns are present.
+- Mobile/PWA protected routes: `/mobile/analyse`, `/mobile/bewegung`, `/mobile/ar`, `/mobile/missionen/squat`, `/mobile/buddy`, and `/mobile/missionen` where health, camera, AR, biometric/pose, child-safety, privacy, AI Buddy, mission, or reward implications may apply.
+
+### Routes needing future runtime link validation
+
+Future browser/device validation should verify registered route reachability, redirects, navigation affordances, protected-route behavior, external links, mobile/PWA install state, permissions, and screenshots for:
+
+- Public/legal/help: `/`, `/register`, `/datenschutz`, `/agb`, `/impressum`, `/faq`, `/hilfe`.
+- Desktop beta: `/dashboard`, `/dashboard/anpassen`, `/buddy`, `/missionen`, `/missionen/tagesmissionen`, `/missionen/wochenmissionen`, `/missionen/abenteuer`, `/missionen/challenge`, `/missionen/wettkaempfe`, `/missionen/favoriten`, `/missionen/history`, `/punkte-shop`, `/marktplatz`, `/leaderboard`, `/analytics`, `/einstellungen`.
+- Mobile/PWA: `/mobile`, `/mobile/missionen`, `/mobile/missionen/squat`, `/mobile/buddy`, `/mobile/analyse`, `/mobile/bewegung`, `/mobile/einstellungen`, `/mobile/ar`.
+
+### Machine-readable updates made
+
+- `project-register/website-agent-backlog.json` marks `WAB-003` as `done`, records `/challenge` as the preserved alias finding, and sets the next safe task to Trust & Compliance Website Audit or Landingpage Conversion Audit.
+- `project-register/website-readiness.json` adds a `routeLinkIntegrityAudit` report summary and keeps `/challenge` and `/missionen/challenge` review-required.
+- `routes.json` and `features.json` were left unchanged because no supported route/register drift requiring metadata changes was verified.
+
+### Safe next tasks
+
+Recommended next task: **Trust & Compliance Website Audit** because the route/link audit did not find a safe route-register fix, while legal/privacy, challenge/PvP, rewards/economy, analytics, health/camera/AR, AI Buddy, mobile/PWA, and public-claim surfaces remain `review_required`. If the team wants to start with lower-risk public-page optimization instead, the alternative is **Landingpage Conversion Audit** in report-only mode.
 
 ## KI-Fortsetzungs-Prompt
 
