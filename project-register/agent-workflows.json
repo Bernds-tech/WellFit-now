@@ -80,7 +80,10 @@
         "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
         "project-register/continuity-dependency-map.json",
         "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
-        "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
+        "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+        "project-register/website-agent-backlog.json",
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -367,14 +370,16 @@
             "project-register/routes.json",
             "project-register/product-readiness.json",
             "project-register/visual-regression.json",
-            "project-register/repository-inventory.json"
+            "project-register/repository-inventory.json",
+            "project-register/website-agent-backlog.json"
           ],
           "architecture": "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
           "scripts": [
-            "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs"
+            "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+            "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs"
           ],
-          "purpose": "Report-only website agent/readiness governance for public website, desktop beta, and mobile/PWA route readiness before runtime website changes.",
-          "usage": "Before website-readiness work, validate the framework, classify route group/status/protected topics, avoid duplicate architecture, and keep sensitive topics review_required."
+          "purpose": "Report-only website agent/readiness/backlog governance for public website, desktop beta, and mobile/PWA route findings before runtime website changes.",
+          "usage": "Before website-readiness work, validate the framework and backlog, classify route group/status/protected topics, record findings with next safe tasks, avoid duplicate architecture, and keep sensitive topics review_required."
         },
         {
           "id": "continuity_dependency_sentinel",

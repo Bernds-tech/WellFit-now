@@ -44,7 +44,8 @@
       "requiredChecks": [
         "website-agent-framework-check",
         "route-api-register-check",
-        "repository-inventory-check"
+        "repository-inventory-check",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "missing leading route file",
@@ -68,7 +69,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -102,7 +104,8 @@
       "requiredChecks": [
         "website-agent-framework-check",
         "route-api-drift-detector",
-        "site-route-audit"
+        "site-route-audit",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "route not in routes.json",
@@ -126,7 +129,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -161,7 +165,8 @@
       "requiredChecks": [
         "website-agent-framework-check",
         "visual-route-smoke-check --report-only",
-        "mobile Buddy UX audit"
+        "mobile Buddy UX audit",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "camera/AR/pose/device-motion topic",
@@ -183,7 +188,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -216,7 +222,8 @@
       "riskLevel": "medium",
       "requiredChecks": [
         "website-agent-framework-check",
-        "visual-route-smoke-check --report-only"
+        "visual-route-smoke-check --report-only",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "visible UI change proposed",
@@ -239,7 +246,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -272,7 +280,8 @@
       "riskLevel": "high",
       "requiredChecks": [
         "website-agent-framework-check",
-        "research-recommendation-check"
+        "research-recommendation-check",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "legal/privacy/health/child/token/payment/reward/investor/public claim",
@@ -295,7 +304,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -330,7 +340,8 @@
       "requiredChecks": [
         "website-agent-framework-check",
         "agent-governance-control-check",
-        "product-readiness-check"
+        "product-readiness-check",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "any legal/privacy/health/child/token/payment/reward topic",
@@ -353,7 +364,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -386,7 +398,8 @@
       "riskLevel": "medium",
       "requiredChecks": [
         "website-agent-framework-check",
-        "site-route-audit"
+        "site-route-audit",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "pricing/earnings/token/investor/public claim",
@@ -407,7 +420,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -440,7 +454,8 @@
       "riskLevel": "medium",
       "requiredChecks": [
         "website-agent-framework-check",
-        "repository-inventory-check"
+        "repository-inventory-check",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "medical/financial/investor/token claim",
@@ -462,7 +477,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -495,7 +511,8 @@
       "riskLevel": "high",
       "requiredChecks": [
         "website-agent-framework-check",
-        "product-readiness-check"
+        "product-readiness-check",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "consent/privacy/data collection/auth change",
@@ -517,7 +534,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -551,7 +569,8 @@
       "requiredChecks": [
         "website-agent-framework-check",
         "master-roadmap-task-check",
-        "research-recommendation-check"
+        "research-recommendation-check",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "investor claim",
@@ -573,7 +592,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -607,7 +627,8 @@
       "requiredChecks": [
         "website-agent-framework-check",
         "adaptive-user-insight-check",
-        "feedback-loop-audit"
+        "feedback-loop-audit",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "tracking/data collection requested",
@@ -631,7 +652,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     },
@@ -666,7 +688,8 @@
       "requiredChecks": [
         "website-agent-framework-check",
         "adaptive-user-insight-check",
-        "research-recommendation-check"
+        "research-recommendation-check",
+        "website-agent-backlog-check"
       ],
       "humanReviewRequiredTriggers": [
         "automatic optimization requested",
@@ -690,7 +713,8 @@
         "project-register/definition-of-done.json",
         "project-register/cross-reference-maintenance.json",
         "project-register/website-agents.json",
-        "project-register/website-readiness.json"
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json"
       ],
       "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
     }

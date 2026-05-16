@@ -1914,14 +1914,17 @@
       "priority": 2,
       "riskLevel": "medium",
       "definitionOfDoneKey": "documentation_task",
-      "purpose": "Use the website agent framework to produce a docs/register-only baseline audit for public website, desktop beta, and mobile/PWA route readiness before runtime website changes.",
+      "purpose": "Run a report-only Website Readiness Baseline Audit and record route-level findings in the Website Agent Backlog without runtime website changes.",
       "allowedFiles": [
         "project-register/website-agents.json",
         "project-register/website-readiness.json",
         "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
-        "todolist/CURRENT_PROJECT_STATE.md"
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/website-agent-backlog.json",
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs"
       ],
       "forbiddenFiles": [
         "app/**",
@@ -1955,7 +1958,9 @@
         "npm run agent:quality-gate",
         "jq empty project-register/website-agents.json",
         "jq empty project-register/website-readiness.json",
-        "git diff --check"
+        "git diff --check",
+        "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "jq empty project-register/website-agent-backlog.json"
       ],
       "stopConditions": [
         "runtime_product_code_change_required",
@@ -1975,11 +1980,11 @@
     },
     {
       "id": "WEBSITE-AGENT-BACKLOG-STATUS-OUTPUT-MAP",
-      "title": "Create Website Agent backlog/status/output mapping",
+      "title": "Create Website Agent Backlog and Findings Register",
       "priority": 1,
       "riskLevel": "low",
       "definitionOfDoneKey": "registry_task",
-      "purpose": "Continue the existing Website Agent Framework by adding machine-readable backlog/status/output registers so website-agent follow-ups and findings are not forgotten.",
+      "purpose": "Continue the existing Website Agent Framework by adding a machine-readable backlog/findings register so website-agent follow-ups and findings are not forgotten.",
       "allowedFiles": [
         "project-register/website-agents.json",
         "project-register/website-readiness.json",
@@ -1993,7 +1998,11 @@
         "todolist/TODO_INDEX.md",
         "todolist/CURRENT_PROJECT_STATE.md",
         "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
-        "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
+        "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+        "project-register/website-agent-backlog.json",
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
       ],
       "forbiddenFiles": [
         "app/**",
@@ -2018,14 +2027,17 @@
         "project-register/website-agents.json",
         "project-register/website-readiness.json",
         "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
-        "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md"
+        "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
+        "project-register/website-agent-backlog.json"
       ],
       "requiredChecks": [
         "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
         "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
         "npm run agent:quality-gate",
         "jq empty project-register/continuity-dependency-map.json",
-        "git diff --check"
+        "git diff --check",
+        "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "jq empty project-register/website-agent-backlog.json"
       ],
       "stopConditions": [
         "runtime_product_code_change_required",
@@ -2040,7 +2052,8 @@
         "Confirm no automatic rewriting, task creation, approval, merge, repair, or deployment was enabled."
       ],
       "taskCategory": "website_governance",
-      "category": "website_governance"
+      "category": "website_governance",
+      "nextRecommendedTask": "Website Readiness Baseline Audit"
     }
   ],
   "selectionRules": [

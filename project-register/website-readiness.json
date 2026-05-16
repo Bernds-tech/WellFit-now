@@ -1104,5 +1104,7 @@
       "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
     }
   ],
-  "globalDoNotDuplicateWarning": "This registry extends Product Readiness, Repository Inventory, Routes/API registers, Visual Regression, Cross-Reference Maintenance, and Agent Task Queue. It does not replace them and does not authorize runtime changes."
+  "globalDoNotDuplicateWarning": "This registry extends Product Readiness, Repository Inventory, Routes/API registers, Visual Regression, Cross-Reference Maintenance, and Agent Task Queue. It does not replace them and does not authorize runtime changes.",
+  "websiteBacklogRegister": "project-register/website-agent-backlog.json",
+  "websiteBacklogUsage": "Detailed route findings, review_required website gaps, blocked items, and next safe tasks live in the report-only Website Agent Backlog; this readiness register remains the route/status summary."
 }
