@@ -63,7 +63,10 @@
     "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
     "project-register/task-status-policy.json",
     "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
-    "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
+    "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+    "project-register/pr-post-creation-guard.json",
+    "docs/architecture/WELLFIT_PR_POST_CREATION_MERGEABILITY_GUARD.md",
+    "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -105,7 +108,8 @@
     "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
     "jq empty project-register/pr-review-policy.json",
     "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
-    "jq empty project-register/task-status-policy.json"
+    "jq empty project-register/task-status-policy.json",
+    "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -120,7 +124,8 @@
     "jq empty project-register/master-roadmap-tasks.json",
     "jq empty project-register/auto-repair-policy.json",
     "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
-    "jq empty project-register/task-status-policy.json"
+    "jq empty project-register/task-status-policy.json",
+    "jq empty project-register/pr-post-creation-guard.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -1594,6 +1599,94 @@
         "Include TASK_STATUS_SYNC_READY=true/false from the report-only validator.",
         "Confirm no automatic TODO/register rewriting, auto-merge, auto-repair, deployment, runtime product, Unity/PR #13, or protected-topic changes were enabled.",
         "Recommend the next human-reviewed step toward a real Batch Execution Runner."
+      ]
+    },
+    {
+      "id": "AGENT-PR-POST-CREATION-GUARD",
+      "title": "Maintain report-only PR post-creation mergeability guard",
+      "category": "agent_governance_docs",
+      "taskCategory": "agent_governance_docs",
+      "riskLevel": "low",
+      "status": "done",
+      "priority": 2,
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Maintain the report-only policy, architecture note, validator, quality-gate hook, and existing governance cross-references that require future WellFit agents to inspect newly created PR mergeability and required checks before stopping.",
+      "allowedFiles": [
+        "project-register/pr-post-creation-guard.json",
+        "docs/architecture/WELLFIT_PR_POST_CREATION_MERGEABILITY_GUARD.md",
+        "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/pr-review-policy.json",
+        "project-register/task-status-policy.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**",
+        "package.json",
+        "package-lock.json",
+        "public/**",
+        ".github/**",
+        "firebase.json"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/pr-review-policy.json",
+        "project-register/auto-merge-policy.json",
+        "project-register/auto-repair-policy.json",
+        "project-register/task-status-policy.json",
+        "project-register/agent-autopilot.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-workflows.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+        "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+        "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs"
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+        "jq empty project-register/pr-post-creation-guard.json",
+        "jq empty project-register/pr-review-policy.json",
+        "jq empty project-register/task-status-policy.json",
+        "npm run agent:autopilot:dry-run",
+        "git diff --check"
+      ],
+      "stopConditions": [
+        "would_enable_auto_merge_or_self_approval",
+        "would_enable_unrestricted_auto_repair",
+        "runtime_product_or_protected_path_change_required",
+        "unity_or_pr_13_work_required",
+        "deployment_or_github_workflow_change_required",
+        "package_manifest_change_required",
+        "repository_settings_change_required"
+      ],
+      "expectedPrOutput": [
+        "List PR post-creation guard policy, architecture note, validation script, quality-gate, register, TODO, progress-log, and work-log files updated.",
+        "Summarize required post-PR mergeability and required-check evidence.",
+        "Include PR_POST_CREATION_GUARD_READY=true/false from the report-only validator.",
+        "Explain how the guard would classify a PR #93-style non-mergeable PR and route to safe docs/register repair guidance, replacement PR, or human review.",
+        "Confirm no real auto-merge, unrestricted auto-repair, deployment, runtime product, protected path, Unity/PR #13, or repository-setting changes were enabled."
       ]
     }
   ],

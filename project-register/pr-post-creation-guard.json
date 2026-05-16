@@ -1,0 +1,204 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Machine-readable WellFit PR Post-Creation Mergeability Guard for future agents. After creating a PR, the agent must inspect the PR URL/number, branch, mergeability, required checks, changed files, protected paths, auto-merge eligibility, auto-repair decision, PR review policy, task/work-log evidence, and next action before stopping. This first version is policy-only/report-only and never merges, approves, deploys, changes repository settings, closes PR #13, modifies Unity files, or performs unrestricted auto-repair.",
+  "requiredPostPRChecks": [
+    {
+      "id": "pr_url_or_number_exists",
+      "label": "PR URL / number exists",
+      "requiredEvidence": "PR report includes a GitHub PR URL and/or PR number after creation."
+    },
+    {
+      "id": "pr_branch_is_not_main",
+      "label": "PR branch is not main",
+      "requiredEvidence": "PR report names the source branch and confirms it is not main."
+    },
+    {
+      "id": "mergeability_inspected_after_creation",
+      "label": "PR mergeability was inspected after creation",
+      "requiredEvidence": "Post-creation report records GitHub mergeability state, including unknown/pending if GitHub has not calculated it yet."
+    },
+    {
+      "id": "required_check_status_inspected_after_creation",
+      "label": "Required workflow/check status was inspected after creation",
+      "requiredEvidence": "Post-creation report records required workflow/check states using checkStatusStates."
+    },
+    {
+      "id": "changed_files_listed",
+      "label": "Changed files are listed",
+      "requiredEvidence": "PR description or post-creation report lists changed files or a complete summarized file list."
+    },
+    {
+      "id": "protected_paths_checked",
+      "label": "Protected paths are checked",
+      "requiredEvidence": "Report confirms protected paths/topics are untouched or stops for human review when touched."
+    },
+    {
+      "id": "auto_merge_eligibility_reported",
+      "label": "Auto-merge eligibility was reported",
+      "requiredEvidence": "Report-only AUTO_MERGE_ELIGIBLE=true/false result is included and is not treated as merge approval."
+    },
+    {
+      "id": "auto_repair_decision_reported",
+      "label": "Auto-repair decision was reported",
+      "requiredEvidence": "Report-only AUTO_REPAIR_ALLOWED=true/false result is included and is not treated as repair authorization unless separately allowed by policy and human/session rules."
+    },
+    {
+      "id": "pr_review_policy_reported",
+      "label": "PR review policy was reported",
+      "requiredEvidence": "PR_REVIEW_POLICY_READY=true/false result is included."
+    },
+    {
+      "id": "task_status_or_work_log_entry_present_or_deferred",
+      "label": "Task status/work-log entry is present or explicitly deferred",
+      "requiredEvidence": "Report names the progress-log/work-log entry or states why it is deferred."
+    },
+    {
+      "id": "next_recommended_action_stated",
+      "label": "Next recommended action is stated",
+      "requiredEvidence": "Report states mergeable/green handoff, safe docs/register repair guidance, replacement-PR strategy, or human-review stop."
+    }
+  ],
+  "mergeabilityStates": [
+    "mergeable",
+    "not_mergeable",
+    "unknown_pending_github_calculation",
+    "dirty_conflict",
+    "blocked_by_checks",
+    "blocked_by_review",
+    "blocked_by_policy",
+    "replaced"
+  ],
+  "checkStatusStates": [
+    "success",
+    "failure",
+    "pending",
+    "skipped",
+    "missing",
+    "unknown"
+  ],
+  "safeRepairEligibilityRules": {
+    "activationState": "future_guidance_only",
+    "requiresExplicitAllowance": true,
+    "allowedFutureRepairGuidance": [
+      "docs_register_only_merge_conflicts",
+      "stale_branch_after_main_changed",
+      "missing_todo_index_work_map_pointer",
+      "missing_ki_fortsetzungs_prompt_in_new_architecture_docs",
+      "json_formatting_or_parse_issue_in_project_register_files",
+      "trailing_whitespace_or_markdown_formatting",
+      "missing_progress_log_or_work_log_evidence_if_allowed_files_only"
+    ],
+    "forbiddenRepairAreas": [
+      "runtime_product_code_repair",
+      "app/**",
+      "components/**",
+      "lib/**",
+      "functions/**",
+      "firestore.rules",
+      "public/**",
+      "package.json",
+      "package-lock.json",
+      "firebase.json",
+      ".github/**",
+      "native/unity/**",
+      "native/unity/WellFitBuddyAR/**",
+      "token_nft_wallet_payment_betting_economy_authority_repair",
+      "reward_authority_or_mission_completion_authority_repair",
+      "health_child_location_privacy_legal_compliance_repair",
+      "pr_13_or_unity_repair",
+      "source_of_truth_judgment_beyond_docs_register_metadata"
+    ],
+    "requiredStopWhenForbiddenAreaTouched": true,
+    "noAutomaticFileWritesInThisVersion": true
+  },
+  "replacementPRRules": {
+    "allowedOnlyWhenOldBranchCannotBeSafelyRepaired": true,
+    "mustStartFromCurrentMain": true,
+    "mustPreserveApprovedDeliverable": true,
+    "mustStateWhichPRItReplaces": true,
+    "oldPRClosureRule": "Old PR should be closed only after the replacement PR is mergeable or human-approved.",
+    "noRuntimeOrProtectedScopeExpansionAllowed": true,
+    "requiresHumanReviewForProtectedOrHighRiskScope": true
+  },
+  "stopForHumanReviewRules": [
+    "mergeability or check failure touches runtime product code or protected paths",
+    "failure touches app/**, components/**, lib/**, functions/**, firestore.rules, public/**, package manifests, firebase.json, .github/**, native/unity/**, or native/unity/WellFitBuddyAR/**",
+    "failure touches token/NFT/wallet/payment/betting/economy authority, reward authority, mission completion authority, health, child, location, privacy, legal, or compliance areas",
+    "repair would require product, legal, compliance, data-protection, security, reward-authority, or source-of-truth judgment",
+    "PR #13 or Unity files are involved",
+    "required checks fail for reasons not classified as allowed docs/register metadata repair",
+    "GitHub mergeability remains unknown after reasonable retry/reporting window"
+  ],
+  "forbiddenAutoActions": [
+    "no auto-merge",
+    "no self-approval",
+    "no deployment",
+    "no protected runtime repair",
+    "no bypassing failed checks",
+    "no closing PR #13",
+    "no modifying Unity files",
+    "no changing repository settings"
+  ],
+  "requiredEvidence": [
+    "pr_url_or_number",
+    "branch_name",
+    "mergeability_state",
+    "check_status_summary",
+    "changed_files",
+    "protected_path_report",
+    "auto_merge_eligibility_result",
+    "auto_repair_decision_result",
+    "pr_review_policy_result",
+    "task_status_or_work_log_evidence",
+    "failure_classification_when_not_green",
+    "next_recommended_action"
+  ],
+  "requiredPRDescriptionFields": [
+    "changed_files",
+    "checks_run",
+    "pr_post_creation_guard_summary",
+    "mergeability_and_required_checks_status",
+    "failure_classification_and_safe_repair_or_replacement_guidance_when_relevant",
+    "confirmation_no_real_auto_merge_enabled",
+    "confirmation_no_unrestricted_auto_repair_enabled",
+    "confirmation_no_deployment_enabled",
+    "confirmation_runtime_product_protected_areas_untouched",
+    "next_recommended_step"
+  ],
+  "interactionWithAutoMergePolicy": {
+    "policy": "project-register/auto-merge-policy.json",
+    "script": "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "requiredOutputPattern": "AUTO_MERGE_ELIGIBLE=true/false",
+    "reportOnly": true,
+    "doesNotAuthorizeMerge": true
+  },
+  "interactionWithAutoRepairPolicy": {
+    "policy": "project-register/auto-repair-policy.json",
+    "script": "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "requiredOutputPattern": "AUTO_REPAIR_ALLOWED=true/false",
+    "reportOnly": true,
+    "doesNotAuthorizeRepairInThisVersion": true
+  },
+  "interactionWithTaskStatusPolicy": {
+    "policy": "project-register/task-status-policy.json",
+    "script": "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+    "requiresProgressOrWorkLogEvidenceOrExplicitDeferral": true,
+    "reportOnly": true
+  },
+  "reportOutputSchema": {
+    "mode": "REPORT_ONLY",
+    "readyOutputPattern": "PR_POST_CREATION_GUARD_READY=true/false",
+    "neverInspectsPrivateGitHubCredentials": true,
+    "neverMerges": true,
+    "neverApproves": true,
+    "neverRepairsFiles": true,
+    "neverDeploys": true,
+    "requiredSections": [
+      "PASS",
+      "FAIL",
+      "WARNING"
+    ]
+  }
+}

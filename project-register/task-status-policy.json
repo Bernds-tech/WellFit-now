@@ -4,13 +4,41 @@
   "activationState": "report_only",
   "purpose": "Defines the canonical report-only task status and work-log synchronization rules for TODO files, project-register/agent-task-queue.json, project-register/progress-log.json, project-register/agent-work-log.json, Autopilot dry runs, Batch Autopilot dry runs, PR outcome recording, PR review, auto-merge reporting, and auto-repair reporting without rewriting files automatically or enabling merge/repair/deploy behavior.",
   "canonicalStatusMarkers": [
-    { "marker": "[ ]", "status": "open", "meaning": "Task is known and not started." },
-    { "marker": "[>]", "status": "in_progress", "meaning": "Task is actively being worked or intentionally reserved by an agent/session." },
-    { "marker": "[x]", "status": "done", "meaning": "Task is completed with recorded evidence." },
-    { "marker": "[~]", "status": "partially_done", "meaning": "Task has useful completed parts but remaining scope or validation is explicit." },
-    { "marker": "[!]", "status": "blocked_or_review_required", "meaning": "Task is blocked, unsafe, unclear, protected, or requires human review before continuing." },
-    { "marker": "[-]", "status": "stale_or_superseded", "meaning": "Task/source is no longer leading and must point to the current canonical source when possible." },
-    { "marker": "[D]", "status": "duplicate", "meaning": "Task/source duplicates another canonical item and must link or name that leading item when possible." }
+    {
+      "marker": "[ ]",
+      "status": "open",
+      "meaning": "Task is known and not started."
+    },
+    {
+      "marker": "[>]",
+      "status": "in_progress",
+      "meaning": "Task is actively being worked or intentionally reserved by an agent/session."
+    },
+    {
+      "marker": "[x]",
+      "status": "done",
+      "meaning": "Task is completed with recorded evidence."
+    },
+    {
+      "marker": "[~]",
+      "status": "partially_done",
+      "meaning": "Task has useful completed parts but remaining scope or validation is explicit."
+    },
+    {
+      "marker": "[!]",
+      "status": "blocked_or_review_required",
+      "meaning": "Task is blocked, unsafe, unclear, protected, or requires human review before continuing."
+    },
+    {
+      "marker": "[-]",
+      "status": "stale_or_superseded",
+      "meaning": "Task/source is no longer leading and must point to the current canonical source when possible."
+    },
+    {
+      "marker": "[D]",
+      "status": "duplicate",
+      "meaning": "Task/source duplicates another canonical item and must link or name that leading item when possible."
+    }
   ],
   "taskStatusLifecycle": {
     "allowedTransitions": [
@@ -29,8 +57,17 @@
       "stale_or_superseded -> duplicate",
       "duplicate -> stale_or_superseded"
     ],
-    "terminalStatuses": ["done", "stale_or_superseded", "duplicate"],
-    "nonTerminalStatuses": ["open", "in_progress", "partially_done", "blocked_or_review_required"],
+    "terminalStatuses": [
+      "done",
+      "stale_or_superseded",
+      "duplicate"
+    ],
+    "nonTerminalStatuses": [
+      "open",
+      "in_progress",
+      "partially_done",
+      "blocked_or_review_required"
+    ],
     "statusMustRemainHumanReadableInTodoFiles": true,
     "machineRegistersMayUseCanonicalStatusNames": true
   },
@@ -48,7 +85,8 @@
     "protectedAreaConfirmation",
     "followUps",
     "nextRecommendedTask",
-    "timestampOrDate"
+    "timestampOrDate",
+    "postPrMergeabilityGuardResultWhenPrCreated"
   ],
   "requiredProgressLogFields": [
     "id",
@@ -59,7 +97,8 @@
     "productLogicChanged",
     "productionDeployTriggered",
     "notes",
-    "taskIdWhenApplicable"
+    "taskIdWhenApplicable",
+    "postPrMergeabilityGuardResultWhenPrCreated"
   ],
   "inProgressRules": {
     "maxAgeHoursWithoutExplanation": 24,
@@ -92,9 +131,16 @@
   },
   "PRLinkRules": {
     "completedTaskMustRecordPRWhenApplicable": true,
-    "acceptedFields": ["pr.number", "pr.url", "prNumber", "prUrl", "pullRequestUrl"],
+    "acceptedFields": [
+      "pr.number",
+      "pr.url",
+      "prNumber",
+      "prUrl",
+      "pullRequestUrl"
+    ],
     "missingPRAllowedOnlyWhenNoPRWasCreatedAndReasonIsRecorded": true,
-    "prReviewPolicyReference": "project-register/pr-review-policy.json"
+    "prReviewPolicyReference": "project-register/pr-review-policy.json",
+    "postCreationGuard": "When a PR is created, record or explicitly defer PR URL/number, source branch, mergeability state, required check status, PR_POST_CREATION_GUARD_READY result, and next recommended action."
   },
   "changedFileRules": {
     "changedFilesMustBeRelativePaths": true,

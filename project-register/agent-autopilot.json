@@ -45,7 +45,10 @@
     "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
     "project-register/task-status-policy.json",
     "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
-    "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
+    "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+    "project-register/pr-post-creation-guard.json",
+    "docs/architecture/WELLFIT_PR_POST_CREATION_MERGEABILITY_GUARD.md",
+    "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -172,7 +175,9 @@
     "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
     "jq empty project-register/pr-review-policy.json",
     "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
-    "jq empty project-register/task-status-policy.json"
+    "jq empty project-register/task-status-policy.json",
+    "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+    "jq empty project-register/pr-post-creation-guard.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -220,7 +225,9 @@
     "auto_repair_decision_report_only_result",
     "pr_review_policy_report_only_result",
     "task_status_sync_ready_result",
-    "confirmation_no_task_status_auto_rewrites"
+    "confirmation_no_task_status_auto_rewrites",
+    "pr_post_creation_guard_report_only_result",
+    "post_pr_mergeability_and_required_checks_next_action"
   ],
   "humanApprovalRules": {
     "requiredForRiskLevels": [
