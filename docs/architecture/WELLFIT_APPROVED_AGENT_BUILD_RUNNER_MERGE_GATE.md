@@ -102,3 +102,16 @@ The report is written to `scripts/wellfit-dev-agent/output/approved-agent-build-
 ## KI-Fortsetzungs-Prompt
 
 Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/approved-agent-build-runner-merge-gate.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-catalog.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json`, `project-register/pr-diff-review-policy.json` und `project-register/pr-post-creation-guard.json`. Waehle hoechstens einen approved Agent pro Run, erzwinge alle Pflichtchecks, setze `MERGE_READY=false`, sobald Check-Evidence fehlt, und aendere keine Runtime-, Protected-, Unity-, Package-, GitHub-Workflow- oder Deploy-Dateien ohne separate explizite Freigabe.
+
+## Exit-code and merge-readiness semantics
+
+The gate separates two different states:
+
+- **Gate configuration ready**: the policy, connected registers, hidden-character hygiene, validator invariants, Work Map/TODO references, and report-only safety signals are valid. The validator exits `0` in this state so normal CI and quality-gate checks can pass.
+- **Merge ready**: every required build check and PR guard check has recorded passing evidence for a concrete PR. This report-only validator does not prove that state and therefore keeps `MERGE_READY=false`.
+
+This separation fixes the unsafe/ambiguous merge-gate behavior where a safe `MERGE_READY=false` report could accidentally make the validator or quality gate fail. A missing check blocks merge-ready status, but missing future PR evidence must not be treated as a broken gate configuration.
+
+## Hidden Unicode review hygiene
+
+Gate-owned files are checked for hidden or bidirectional Unicode control characters. If GitHub warns that a gate file contains hidden or bidirectional Unicode text, the validator should fail until the hidden controls are removed. This keeps the merge gate reviewable and avoids hidden-character merge blockers.

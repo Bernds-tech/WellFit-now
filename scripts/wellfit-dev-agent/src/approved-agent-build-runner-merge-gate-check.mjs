@@ -43,7 +43,9 @@ const REQUIRED_TOP_LEVEL_FIELDS = [
   "mergeGateRules",
   "requiredOutputLines",
   "connectedPolicies",
-  "reportOutput"
+  "reportOutput",
+  "readinessSemantics",
+  "hiddenUnicodePolicy"
 ];
 
 const REQUIRED_BUILD_CHECKS = [
@@ -131,6 +133,22 @@ function renderResults(results) {
   return results.map((result) => `- ${result.passed ? "PASS" : "FAIL"}: ${result.name} — ${result.details}`).join("\n");
 }
 
+function findHiddenUnicode(relativePath) {
+  const text = readText(relativePath);
+  const findings = [];
+  for (const [index, char] of [...text].entries()) {
+    const codePoint = char.codePointAt(0);
+    const isForbiddenFormat = /[\u200E\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/u.test(char);
+    if (!isForbiddenFormat) continue;
+    const before = text.slice(0, index);
+    const line = before.split("\n").length;
+    const lastNewline = before.lastIndexOf("\n");
+    const column = index - lastNewline;
+    findings.push(`${relativePath}:${line}:${column}: U+${codePoint.toString(16).toUpperCase().padStart(4, "0")}`);
+  }
+  return findings;
+}
+
 function selectNextAgent(backlog, gate) {
   const eligibleStatuses = new Set(asArray(gate.allowedBacklogStatuses));
   return asArray(backlog.entries)
@@ -196,6 +214,14 @@ function validate(gate, backlog, catalog, proposals, policies) {
   addResult(results, "Missing checks explicitly block merge-ready", missingChecksBlock, missingChecksBlock ? "MISSING_CHECKS_BLOCK_MERGE=true" : "rule missing");
 
   addResult(results, "Human-readable doc exists", exists(PATHS.doc), PATHS.doc);
+
+  const semantics = gate.readinessSemantics ?? {};
+  addResult(results, "Gate separates configuration readiness from merge readiness", String(semantics.exitCodeRule ?? "").includes("exit 0") && String(semantics.mergeReady ?? "").includes("always false"), `exitCodeRule=${semantics.exitCodeRule ?? "missing"}`);
+
+  const hiddenPolicy = gate.hiddenUnicodePolicy ?? {};
+  const hiddenFindings = asArray(hiddenPolicy.checkedFiles).flatMap(findHiddenUnicode);
+  addResult(results, "Gate-owned files contain no hidden/bidirectional Unicode controls", hiddenPolicy.enabled === true && hiddenFindings.length === 0, hiddenFindings.length ? hiddenFindings.join(", ") : "clean");
+
   const workMap = readText(PATHS.workMap);
   const todoIndex = readText(PATHS.todoIndex);
   addResult(results, "Work Map references gate", workMap.includes(PATHS.gate) && workMap.includes(PATHS.doc), "Work Map pointers checked");
@@ -209,7 +235,7 @@ function validate(gate, backlog, catalog, proposals, policies) {
 
 function renderReport(results, selected, ready) {
   const selectedId = selected?.id ?? "none";
-  return `# Approved Agent Build Runner + Merge Gate Report\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_ONLY_MERGE_GATE\nResult: ${ready ? "PASS" : "FAIL"}\nAPPROVED_AGENT_BUILD_RUNNER_READY=${ready ? "true" : "false"}\nSELECTED_AGENT_BUILD_ID=${selectedId}\nMAX_AGENTS_PER_RUN=1\nMISSING_CHECKS_BLOCK_MERGE=true\nMERGE_READY=false\n\n## Selected Agent\n\n${selected ? `- ID: \`${selected.id}\`\n- Name: ${selected.proposedAgentName}\n- Status: \`${selected.status}\`\n- Risk level: \`${selected.riskLevel}\`\n- Suggested build order: \`${selected.suggestedBuildOrder}\`` : "No eligible approved agent selected."}\n\n## Gate Results\n\n${renderResults(results)}\n\n## Safety Confirmations\n\n- Never creates agents automatically: true\n- Never opens PRs automatically: true\n- Never approves PRs: true\n- Never merges PRs by itself: true\n- Never repairs runtime files: true\n- Never deploys: true\n\n## Merge Gate Decision\n\nMERGE_READY=false because this validator only proves the gate is configured. Future merge-ready status requires recorded passing evidence for every required build and PR guard check. Missing, failed, skipped, unknown, stale, or absent checks must keep MERGE_READY=false.\n`;
+  return `# Approved Agent Build Runner + Merge Gate Report\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_ONLY_MERGE_GATE\nResult: ${ready ? "PASS" : "FAIL"}\nAPPROVED_AGENT_BUILD_RUNNER_READY=${ready ? "true" : "false"}\nSELECTED_AGENT_BUILD_ID=${selectedId}\nMAX_AGENTS_PER_RUN=1\nMISSING_CHECKS_BLOCK_MERGE=true\nGATE_CONFIGURATION_READY=${ready ? "true" : "false"}\nMERGE_READY=false\n\n## Selected Agent\n\n${selected ? `- ID: \`${selected.id}\`\n- Name: ${selected.proposedAgentName}\n- Status: \`${selected.status}\`\n- Risk level: \`${selected.riskLevel}\`\n- Suggested build order: \`${selected.suggestedBuildOrder}\`` : "No eligible approved agent selected."}\n\n## Gate Results\n\n${renderResults(results)}\n\n## Safety Confirmations\n\n- Never creates agents automatically: true\n- Never opens PRs automatically: true\n- Never approves PRs: true\n- Never merges PRs by itself: true\n- Never repairs runtime files: true\n- Never deploys: true\n\n## Merge Gate Decision\n\nMERGE_READY=false because this validator only proves the gate is configured. Future merge-ready status requires recorded passing evidence for every required build and PR guard check. Missing, failed, skipped, unknown, stale, or absent checks must keep MERGE_READY=false.\n`;
 }
 
 function main() {
@@ -239,6 +265,7 @@ function main() {
   console.log(`SELECTED_AGENT_BUILD_ID=${selected?.id ?? "none"}`);
   console.log("MAX_AGENTS_PER_RUN=1");
   console.log("MISSING_CHECKS_BLOCK_MERGE=true");
+  console.log(`GATE_CONFIGURATION_READY=${ready ? "true" : "false"}`);
   console.log("MERGE_READY=false");
   console.log("Never creates agents automatically: true");
   console.log("Never opens PRs automatically: true");

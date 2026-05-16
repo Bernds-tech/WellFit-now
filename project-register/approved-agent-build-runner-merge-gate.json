@@ -99,6 +99,7 @@
     "SELECTED_AGENT_BUILD_ID=<id>|none",
     "MAX_AGENTS_PER_RUN=1",
     "MISSING_CHECKS_BLOCK_MERGE=true",
+    "GATE_CONFIGURATION_READY=true|false",
     "MERGE_READY=false",
     "Never creates agents automatically: true",
     "Never opens PRs automatically: true",
@@ -118,5 +119,23 @@
     "project-register/task-status-policy.json",
     "project-register/cross-reference-maintenance.json"
   ],
-  "reportOutput": "scripts/wellfit-dev-agent/output/approved-agent-build-runner-merge-gate-report.md"
+  "reportOutput": "scripts/wellfit-dev-agent/output/approved-agent-build-runner-merge-gate-report.md",
+  "readinessSemantics": {
+    "gateConfigurationReady": "true means the report-only gate is configured, connected, and safe to run in quality-gate checks",
+    "mergeReady": "always false in this report-only validator unless a future evidence recorder proves every required build and PR guard check passed",
+    "exitCodeRule": "exit 0 when gate configuration is valid even though MERGE_READY=false; exit non-zero only when the gate policy, connections, hidden-character hygiene, or validator invariants fail",
+    "missingCheckRule": "missing, failed, skipped, unknown, stale, or absent check evidence blocks merge-ready status but must not make the configuration validator fail by itself"
+  },
+  "hiddenUnicodePolicy": {
+    "enabled": true,
+    "reason": "GitHub flags files with hidden or bidirectional Unicode text; gate-owned files must stay free of format-control characters so reviewers can merge without hidden-character warnings.",
+    "forbiddenUnicodeCategories": [
+      "Cf"
+    ],
+    "checkedFiles": [
+      "project-register/approved-agent-build-runner-merge-gate.json",
+      "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE.md",
+      "scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs"
+    ]
+  }
 }
