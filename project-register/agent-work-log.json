@@ -1589,6 +1589,108 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "MOBILE-PWA-TESTER-HANDOFF",
+      "title": "Create Mobile/PWA manual tester checklist handoff",
+      "status": "done",
+      "pr": {
+        "branch": "docs/mobile-pwa-tester-handoff",
+        "number": null,
+        "url": null,
+        "title": "Add Mobile/PWA tester checklist handoff"
+      },
+      "changedFiles": [
+        "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
+        "project-register/visual-regression.json",
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass_dry_run",
+          "notes": "Initial and final dry runs reported DRY_RUN and did not write files, merge, deploy, or self-approve."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Initial and final quality gates reported PASS."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+          "result": "warning_skipped_browser_unavailable",
+          "notes": "Route validation completed; browser execution reported SKIPPED_BROWSER_UNAVAILABLE because no browser runner is installed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Cross-reference maintenance registry and references passed during initial inspection."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check passed."
+        },
+        {
+          "command": "jq empty project-register/visual-regression.json project-register/progress-log.json project-register/agent-work-log.json",
+          "result": "pass",
+          "notes": "JSON registers parsed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax/static check completed successfully."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass_report_only_ineligible",
+          "notes": "REPORT_ONLY; AUTO_MERGE_ELIGIBLE=false. Reasons reported: changed files not limited to documentation/registry/governance-script files, forbidden topic keyword detected in changed paths or diff, and changed file count 9 exceeds maxChangedFilesForAutoMerge 8; human review required."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass_report_only_not_allowed",
+          "notes": "REPORT_ONLY; AUTO_REPAIR_ALLOWED=false because no failed check was detected and auto-repair never repairs/merges."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+          "result": "pass_report_only",
+          "notes": "PR_REVIEW_POLICY_READY=true; policy is report-only and does not approve, merge, repair, or modify files."
+        }
+      ],
+      "followUps": [
+        "Run the Mobile/PWA tester handoff on real Android Chrome, Samsung Internet, iPhone Safari, and desktop responsive browser targets; paste non-sensitive results back with pass/fail/blocked/device_test_required/review_required statuses and do not change runtime code without a separate approved task."
+      ],
+      "nextRecommendedTask": "Manual Mobile/PWA real-device evidence collection using the tester handoff; keep runtime mobile, service worker/manifest/public assets, tracking/data collection, consent/privacy/legal, reward/mission/economy authority, Functions/Rules, Unity, auto-merge, auto-repair, and deployment untouched unless explicitly approved.",
+      "updatedTodoFiles": [
+        "todolist/H - MOBILE - AR - TRACKING - KI",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task"
     }
   ]
 }

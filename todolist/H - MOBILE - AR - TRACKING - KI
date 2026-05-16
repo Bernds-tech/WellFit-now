@@ -118,7 +118,7 @@ ERLEDIGT:
 [x] Doppelklick/Mehrfachspeichern während Speichern blockiert.
 
 OFFEN:
-[ ] Gerätetest auf Handy gemaess Mobile/PWA Device Testplan 2026-05-15 durchfuehren. Status: device_test_required.
+[ ] Gerätetest auf Handy gemaess Mobile/PWA Tester-Handoff 2026-05-15 durchfuehren. Status: device_test_required.
 [ ] Prüfen, ob HUD auf kleinen Displays zu groß ist.
 [ ] Nach Abschluss optional Zurück-Button zu /mobile/missionen ergänzen.
 [ ] Fehlerfälle verbessern: nicht eingeloggt, Kamera abgelehnt, MediaPipe lädt nicht, Firestore nicht erreichbar.
@@ -153,7 +153,7 @@ ERLEDIGT:
 [x] Analyse-Modul-Texte aktualisiert: Skeleton Tracking und Übungszählung stehen nicht mehr fälschlich nur auf geplant.
 
 OFFEN:
-[ ] Gerätetest Android/iPhone gemaess Mobile/PWA Device Testplan 2026-05-15 durchfuehren. Status: device_test_required.
+[ ] Gerätetest Android/iPhone gemaess Mobile/PWA Tester-Handoff 2026-05-15 durchfuehren. Status: device_test_required.
 [ ] MediaPipe Performance auf Zielgeräten prüfen.
 [ ] Web Worker prüfen, falls MediaPipe auf Handy ruckelt.
 [ ] Weitere Übungen vorbereiten: Liegestütz, Plank, Hampelmann.
@@ -219,7 +219,7 @@ ERLEDIGT:
 
 OFFEN / NÄCHSTER MOBILE-AR-SCHRITT:
 [ ] Build nach 3D-Flammi ausführen.
-[ ] Gerätetest Android/iPhone fuer /mobile/ar gemaess Mobile/PWA Device Testplan 2026-05-15 wiederholen. Status: device_test_required.
+[ ] Gerätetest Android/iPhone fuer /mobile/ar gemaess Mobile/PWA Tester-Handoff 2026-05-15 wiederholen. Status: device_test_required.
 [ ] Prüfen: WebGL lädt auf Samsung Internet / Chrome Mobile stabil.
 [ ] Prüfen: Rückkamera + 3D-Canvas liegen korrekt übereinander.
 [ ] Prüfen: Tap auf 3D-Flammi funktioniert zuverlässig.
