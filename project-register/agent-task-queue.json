@@ -90,7 +90,10 @@
     "project-register/agent-catalog.json",
     "project-register/approved-agent-build-backlog.json",
     "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
-    "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+    "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+    "project-register/adaptive-difficulty-agent.json",
+    "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md",
+    "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -144,7 +147,9 @@
     "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
     "jq empty project-register/continuity-dependency-map.json",
     "node scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
-    "node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+    "node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+    "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+    "jq empty project-register/adaptive-difficulty-agent.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -165,7 +170,9 @@
     "jq empty project-register/website-readiness.json",
     "jq empty project-register/agent-extension-policy.json",
     "jq empty project-register/agent-catalog.json",
-    "jq empty project-register/approved-agent-build-backlog.json"
+    "jq empty project-register/approved-agent-build-backlog.json",
+    "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+    "jq empty project-register/adaptive-difficulty-agent.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -2417,6 +2424,100 @@
       ],
       "humanApprovalRequired": true,
       "nextSafeStep": "Maintain report-only Ethical Engagement Guard references and continue with Adaptive Difficulty Agent next according to approved backlog order."
+    },
+    {
+      "id": "AGENT-ADAPTIVE-DIFFICULTY-FRAMEWORK",
+      "title": "Maintain Adaptive Difficulty Agent framework",
+      "status": "active",
+      "category": "agent_governance",
+      "riskLevel": "high",
+      "priority": "P0",
+      "allowedFiles": [
+        "project-register/adaptive-difficulty-agent.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/product-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/human-motivation-engine.json",
+        "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md",
+        "project-register/ethical-engagement-guard.json",
+        "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-architect-policy.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/agent-task-queue.json",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/adaptive-difficulty-agent.json",
+        "jq empty project-register/agent-catalog.json",
+        "jq empty project-register/approved-agent-build-backlog.json",
+        "git diff --check"
+      ],
+      "definitionOfDoneKey": "documentation_registry_script_only",
+      "stopConditions": [
+        "runtime personalization or difficulty tuning would be enabled",
+        "protected data would be profiled or used as reward/mission-completion authority",
+        "token, NFT, wallet, payment, betting, health, child/minor, location, camera, biometric, consent, privacy, legal, or compliance behavior would change",
+        "auto-merge, auto-repair, approval, deployment, or runtime authority would be enabled"
+      ],
+      "expectedOutput": "Report-only Adaptive Difficulty Agent register, architecture, validator, and mapping updates that keep difficulty suggestions planning-safe and review_required for protected contexts.",
+      "expectedPrOutput": [
+        "changed files",
+        "checks run",
+        "Adaptive Difficulty Agent summary",
+        "planning-safe signal summary",
+        "forbidden signal summary",
+        "age-appropriate design summary",
+        "protected/review_required boundaries",
+        "report-only validator result",
+        "confirmation no runtime personalization, difficulty tuning, reward authority, or mission-completion authority was enabled",
+        "confirmation runtime/product/protected areas were untouched",
+        "next recommended task: Multisensory Learning Engine"
+      ]
     }
   ],
   "selectionRules": [

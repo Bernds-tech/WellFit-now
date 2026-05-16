@@ -190,5 +190,10 @@
     "mode": "report_only",
     "summary": "Ethical engagement, age-appropriate design, recovery/pause, Buddy tone, mission/reward/social/website/sponsor/monetization, and protected-data boundaries must be checked before runtime implementation.",
     "reviewRequired": "Health, child/minor, family/guardian, location, camera, face, biometric, motion, consent, privacy, token, wallet, payment, payout, betting, reward-authority, mission-authority, sponsor, monetization, legal, and compliance behavior remains review_required."
+  },
+  "adaptiveDifficultyAgentBoundary": {
+    "register": "project-register/adaptive-difficulty-agent.json",
+    "rule": "Research recommendations touching difficulty, mission duration, Buddy tone, learning format, recovery, social mode, minors, health, location, rewards, or mission authority must apply the Adaptive Difficulty Agent and require human review for protected topics.",
+    "validator": "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
   }
 }

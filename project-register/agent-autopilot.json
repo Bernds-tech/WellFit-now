@@ -79,7 +79,10 @@
     "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
     "project-register/ethical-engagement-guard.json",
     "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md",
-    "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs"
+    "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs",
+    "project-register/adaptive-difficulty-agent.json",
+    "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md",
+    "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -235,7 +238,9 @@
     "node scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs",
     "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
     "node scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs",
-    "jq empty project-register/ethical-engagement-guard.json"
+    "jq empty project-register/ethical-engagement-guard.json",
+    "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+    "jq empty project-register/adaptive-difficulty-agent.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -390,5 +395,12 @@
     "mode": "report_only",
     "purpose": "Validate healthy, age-appropriate, recovery-aware, consent-preserving, non-manipulative engagement boundaries before runtime product work.",
     "protectedBoundary": "No runtime engagement, personalization, tracking, rewards, monetization, protected-data, approval, merge, repair, or deploy authority."
+  },
+  "adaptiveDifficultyAgentReference": {
+    "register": "project-register/adaptive-difficulty-agent.json",
+    "architecture": "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md",
+    "validator": "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+    "mode": "report_only",
+    "nextRecommendedTask": "Multisensory Learning Engine"
   }
 }

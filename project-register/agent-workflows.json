@@ -99,7 +99,10 @@
         "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
         "project-register/ethical-engagement-guard.json",
         "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md",
-        "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs"
+        "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs",
+        "project-register/adaptive-difficulty-agent.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -826,7 +829,9 @@
       "requiredChecks": [
         "node scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs",
         "node scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs",
-        "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
+        "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
+        "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+        "jq empty project-register/adaptive-difficulty-agent.json"
       ]
     }
   ]

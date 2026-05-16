@@ -224,6 +224,69 @@
       "createdDate": "2026-05-16",
       "updatedDate": "2026-05-16",
       "generatedBuildPromptLocation": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md"
+    },
+    {
+      "id": "proposal-adaptive-difficulty-agent-2026-05-16",
+      "proposedAgentName": "Adaptive Difficulty Agent",
+      "sourceApprovedBacklogId": "adaptive-difficulty-agent",
+      "status": "built",
+      "reason": "Human-approved next agent from the approved build backlog was implemented as a docs/register/validator-only framework in this task.",
+      "expectedBenefit": "Defines safe planning-only difficulty suggestions for mission intensity, length, Buddy tone, learning format, recovery, and social/solo modes while preserving consent, age-appropriate design, privacy, reward-authority boundaries, and mission-authority boundaries.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-user-insight-agent",
+        "research-recommendation-agent",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json"
+      ],
+      "connectedAgentCount": 5,
+      "connectedRegisterCount": 7,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md"
+      ],
+      "requiredRegisters": [
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanReviewRequired": true,
+      "buildPromptSummary": "Build only the report-only Adaptive Difficulty Agent framework; do not enable runtime personalization, difficulty tuning, protected-data profiling, reward authority, mission authority, monetization, token/wallet/payment/NFT/betting behavior, auto-repair, auto-merge, or product logic.",
+      "nextRecommendedAction": "Create the Multisensory Learning Engine next according to the approved backlog order, keeping protected topics review_required and first version report-only.",
+      "createdDate": "2026-05-16",
+      "updatedDate": "2026-05-16",
+      "generatedBuildPromptLocation": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md"
     }
   ]
 }

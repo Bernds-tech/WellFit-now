@@ -1533,6 +1533,58 @@
         "Forbidden engagement patterns include manipulative FOMO, shame/guilt pressure, sleep-deprivation pressure, social humiliation, gambling-like rewards, lootbox money-near mechanics, age-inappropriate monetization, child-targeted purchase pressure, hidden sponsor pressure, dark-pattern notifications, paywall mission chains, endless pressure loops, punishment for rest, medical/weight-loss overclaims, token/payout hype, and betting/wager language."
       ],
       "nextSafeMaintenanceTask": "Keep the Ethical Engagement Guard register, architecture doc, validator, Work Map, TODO Index, and quality-gate integration synchronized; next recommended task is Adaptive Difficulty Agent according to the approved backlog order."
+    },
+    {
+      "id": "adaptive-difficulty-agent",
+      "name": "Adaptive Difficulty Agent",
+      "status": "report_only",
+      "agentType": "planning_guardrail",
+      "purpose": "Report-only framework for safe mission difficulty, mission length, Buddy tone, learning format, activity intensity, recovery mode, and social/solo mode suggestions using aggregate-safe, consent-aware, review-required signals without runtime personalization or reward/mission authority.",
+      "ownerArea": "Mission Governance / Safety",
+      "primaryRegisters": [
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-user-insight-agent",
+        "research-recommendation-agent",
+        "product-readiness-matrix"
+      ],
+      "relatedRegisters": [
+        "project-register/research-recommendations.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible report-only difficulty dimensions",
+        "aggregate-safe signal taxonomy updates",
+        "protected review_required boundary clarifications",
+        "Work Map/TODO Index/quality-gate reference synchronization"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime personalization or difficulty tuning",
+        "protected-data profiling or new sensitive data collection",
+        "reward authority, mission-completion authority, anti-cheat authority, token/wallet/payment/betting behavior",
+        "child/minor, health, location, camera, biometric, consent, privacy, legal, or compliance behavior changes"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes, mission tuning, Buddy copy changes, or UI changes.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child/minor, location, camera, biometric, consent, privacy, legal, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected, age-sensitive, runtime, or high/critical scope."
+      ],
+      "nextSafeMaintenanceTask": "Build the Multisensory Learning Engine next as report-only planning/validation, inheriting Adaptive Difficulty, Human Motivation, and Ethical Engagement boundaries."
     }
   ]
 }
