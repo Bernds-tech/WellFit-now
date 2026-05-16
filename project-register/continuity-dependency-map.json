@@ -183,11 +183,11 @@
     {
       "id": "CDS-001-website-agent-backlog-status-output-map",
       "title": "Website Agent Framework must also create website-agent backlog/status/output mapping",
-      "status": "open",
+      "status": "in_progress",
       "source": "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
       "ownerAgent": "Website Agent Framework / Continuity Dependency Sentinel",
       "mustNotForget": true,
-      "reason": "The current Website Agent Framework defines agents and route readiness, but the next framework increment must add machine-readable backlog/status/output registers so follow-ups are not carried only in prose.",
+      "reason": "Website Agent Backlog/findings register now exists; future status/output registers remain optional follow-ups if separate run evidence indexing is needed.",
       "dependencies": [
         "requires_followup_task",
         "requires_register_update",
@@ -205,7 +205,7 @@
       "requiredOutputLocations": [
         {
           "path": "project-register/website-agent-backlog.json",
-          "existsNow": false,
+          "existsNow": true,
           "purpose": "Future machine-readable backlog for website-agent tasks."
         },
         {
@@ -219,7 +219,7 @@
           "purpose": "Future report/output index for website-agent findings."
         }
       ],
-      "nextRecommendedTask": "Create the Website Agent Framework backlog/status/output registers as docs/register/script-only work, then link them from WORK_MAP.md, TODO_INDEX.md, agent-task-queue, and quality gate checks.",
+      "nextRecommendedTask": "Use project-register/website-agent-backlog.json for the Website Readiness Baseline Audit; consider separate status/output indexes only if future run evidence requires them.",
       "humanReviewRequired": false
     },
     {

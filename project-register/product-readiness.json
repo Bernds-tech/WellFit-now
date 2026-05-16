@@ -98,7 +98,7 @@
         "project-register/risk-classifier.json",
         "todolist/WORK_MAP.md",
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT"
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT"
       ],
       "current_blockers": [
         "Authentication and identity work can affect privacy, consent, account safety, and backend security.",
@@ -360,7 +360,8 @@
         "todolist/H - MOBILE - AR - TRACKING - KI",
         "docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md",
         "project-register/visual-regression.json",
-        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
+        "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+        "project-register/website-agent-backlog.json"
       ],
       "current_blockers": [
         "Mobile UX must not activate token, NFT, trading, presale, live health/watch tracking, precise location/GPS/radius/safe-zone tracking, camera/face/pose/biometric collection, raw motion/sensor collection, consent-flow expansion, or final reward/mission-completion authority.",

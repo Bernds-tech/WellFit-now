@@ -61,7 +61,10 @@
     "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
     "project-register/continuity-dependency-map.json",
     "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
-    "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
+    "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+    "project-register/website-agent-backlog.json",
+    "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+    "scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -203,7 +206,9 @@
     "jq empty project-register/website-agents.json",
     "jq empty project-register/website-readiness.json",
     "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
-    "jq empty project-register/continuity-dependency-map.json"
+    "jq empty project-register/continuity-dependency-map.json",
+    "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+    "jq empty project-register/website-agent-backlog.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
