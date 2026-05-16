@@ -2214,6 +2214,87 @@
         "confirmation no runtime/product/protected areas were touched",
         "next recommended task"
       ]
+    },
+    {
+      "id": "AGENT-ARCHITECT-PROPOSAL-GOVERNANCE",
+      "title": "Maintain Agent Architect & Proposal Agent",
+      "status": "active",
+      "category": "agent_governance",
+      "riskLevel": "low",
+      "priority": "P0",
+      "allowedFiles": [
+        "project-register/agent-architect-policy.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md",
+        "scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs",
+        "scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/task-status-policy.json",
+        "project-register/pr-review-policy.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/product-readiness.json",
+        "project-register/task-status-policy.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs",
+        "node scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/agent-architect-policy.json",
+        "jq empty project-register/agent-build-proposals.json",
+        "git diff --check"
+      ],
+      "definitionOfDoneKey": "documentation_registry_script_only",
+      "stopConditions": [
+        "future agent would be built automatically",
+        "more than one future agent would be selected for a build prompt",
+        "runtime/product/protected behavior would be modified",
+        "auto-merge, auto-repair, approval, deployment, or runtime authority would be enabled"
+      ],
+      "expectedOutput": "Report-only Agent Architect proposal policy, proposal backlog, architecture doc, generator, validator, and quality-gate integration.",
+      "expectedPrOutput": [
+        "changed files",
+        "checks run",
+        "Agent Architect & Proposal Agent summary",
+        "generated next-agent build proposal summary",
+        "generated prompt output location",
+        "confirmation no future agents were built automatically",
+        "confirmation runtime/product/protected areas were untouched",
+        "next recommended task"
+      ]
     }
   ],
   "selectionRules": [

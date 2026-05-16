@@ -231,5 +231,10 @@
     "backlog": "project-register/approved-agent-build-backlog.json",
     "validator": "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
     "policy": "Catalog/backlog status changes must preserve report-only evidence, PR checks, next recommended task, and human-review requirements for approved future agents."
-  }
+  },
+  "agentArchitectProposalRules": [
+    "Treat generated next-agent build prompts as proposals until human review accepts exactly one future-agent build task.",
+    "Do not mark future proposal entries built without implementation evidence, passing report-only validation, and human-reviewed PR context.",
+    "Confirm no runtime/product/protected files, auto-merge, auto-repair, approval, merge, close, or deploy actions were enabled by proposal generation."
+  ]
 }

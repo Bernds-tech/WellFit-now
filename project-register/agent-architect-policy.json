@@ -1,0 +1,127 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Machine-readable policy for the WellFit Agent Architect & Proposal Agent. The agent reads existing governance sources, selects exactly one next approved future agent for human review, and generates a safe build-prompt draft without creating agents or modifying runtime product code.",
+  "requiredInputs": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "project-register/agent-catalog.json",
+    "project-register/approved-agent-build-backlog.json",
+    "project-register/agent-extension-policy.json",
+    "project-register/continuity-dependency-map.json",
+    "project-register/agent-task-queue.json",
+    "project-register/agent-workflows.json",
+    "project-register/agent-autopilot.json",
+    "project-register/risk-classifier.json",
+    "project-register/definition-of-done.json",
+    "project-register/product-readiness.json",
+    "project-register/task-status-policy.json",
+    "project-register/pr-review-policy.json"
+  ],
+  "selectionRules": [
+    {
+      "id": "approved_status_only",
+      "rule": "Select only entries from approved-agent-build-backlog.json with status approved_for_build or approved_for_planning."
+    },
+    {
+      "id": "suggested_build_order_first",
+      "rule": "Sort candidates by suggestedBuildOrder ascending, then priority, then id."
+    },
+    {
+      "id": "skip_built_blocked_or_rejected",
+      "rule": "Skip backlog entries with status built, blocked, rejected, duplicate, or superseded."
+    },
+    {
+      "id": "dependency_report_not_execution",
+      "rule": "Read dependencies and protected boundaries as proposal evidence; do not satisfy dependencies by creating files for the selected future agent."
+    },
+    {
+      "id": "one_agent_only",
+      "rule": "Select and report exactly one next agent at a time; if none are eligible, report NEXT_AGENT_BUILD_PROPOSAL_READY=false."
+    }
+  ],
+  "proposalRules": [
+    {
+      "id": "proposal_backlog_alignment",
+      "rule": "Proposal entries must map to a source approved backlog id and preserve reason, expected benefit, risk level, allowed files, forbidden files, required docs, required registers, required validation scripts, and human-review boundaries."
+    },
+    {
+      "id": "human_review_always_required",
+      "rule": "Every generated proposal must set humanReviewRequired to true even when a source backlog entry is already approved for planning or build sequencing."
+    },
+    {
+      "id": "no_future_agent_build",
+      "rule": "A proposal may describe a future build task but must not create the future agent, mark it built, approve a PR, merge, repair, or deploy."
+    }
+  ],
+  "promptGenerationRules": [
+    {
+      "id": "safe_codex_prompt",
+      "rule": "Generated prompts must include first-read files, allowed files, forbidden files, report-only first-version boundaries, required checks, human review, and explicit no-auto-build/no-auto-merge/no-auto-repair/no-deploy instructions."
+    },
+    {
+      "id": "exactly_one_agent",
+      "rule": "Generated prompts must scope implementation to exactly one selected agent and forbid building additional future agents in the same task."
+    },
+    {
+      "id": "output_locations",
+      "rule": "Write the generated prompt to scripts/wellfit-dev-agent/output/next-agent-build-prompt.md and the proposal report to scripts/wellfit-dev-agent/output/next-agent-build-proposal.md."
+    }
+  ],
+  "connectedAgentCountingRules": [
+    "Count unique connectedAgents from the selected approved backlog entry.",
+    "If a connected agent id is also present in agent-catalog.json, preserve that id in the generated report.",
+    "Do not infer new connected agents by creating parallel architecture; use existing catalog/backlog references only."
+  ],
+  "connectedRegisterCountingRules": [
+    "Count unique connectedRegisters from the selected approved backlog entry.",
+    "Include requiredRegisters separately in reports, but connectedRegisterCount must match the connectedRegisters array length.",
+    "Do not count generated output markdown files as connected registers."
+  ],
+  "riskClassificationRules": [
+    "Start with the riskLevel on the selected approved backlog entry.",
+    "Escalate proposal language to human-review-required when the selected entry is medium, high, critical, or protected-boundary related.",
+    "Consult risk-classifier.json and product-readiness.json for protected-area language, but do not modify protected logic."
+  ],
+  "forbiddenAutoActions": [
+    "create_future_agent_automatically",
+    "create_runtime_product_code",
+    "modify_app_components_lib_functions_public_or_unity_files",
+    "modify_token_nft_wallet_payment_betting_reward_mission_health_child_location_privacy_legal_or_compliance_logic",
+    "approve_pr",
+    "merge_pr",
+    "close_pr",
+    "enable_auto_merge",
+    "enable_auto_repair",
+    "repair_files",
+    "deploy",
+    "self_approve",
+    "create_duplicate_architecture_or_parallel_system"
+  ],
+  "humanReviewRequiredFor": [
+    "every generated next-agent proposal",
+    "every generated build prompt before it becomes a Codex implementation task",
+    "any high, critical, protected-boundary, runtime, compliance, privacy, child, health, location, reward, mission-authority, token, NFT, wallet, payment, betting, Unity, auto-merge, auto-repair, approval, merge, close, or deploy scope",
+    "marking a future backlog entry built after implementation evidence is available"
+  ],
+  "reportOutputSchema": {
+    "generatedAt": "required",
+    "mode": "required_report_only",
+    "selectedAgentId": "required_when_available",
+    "selectedAgentName": "required_when_available",
+    "sourceApprovedBacklogId": "required_when_available",
+    "riskLevel": "required_when_available",
+    "connectedAgents": "required_array",
+    "connectedRegisters": "required_array",
+    "connectedAgentCount": "required_number",
+    "connectedRegisterCount": "required_number",
+    "buildPromptLocation": "required_when_available",
+    "proposalReportLocation": "required",
+    "humanReviewRequired": "required_true",
+    "forbiddenAutoActionsConfirmed": "required_true",
+    "nextRecommendedAction": "required"
+  }
+}

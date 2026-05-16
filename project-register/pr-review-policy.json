@@ -446,5 +446,10 @@
     "If changed files touch agent governance, verify the existing Agent Catalog owner and Approved Agent Build Backlog entry instead of creating duplicate architecture.",
     "Confirm no future agents were built automatically from backlog presence alone.",
     "Confirm high/critical or protected-boundary backlog entries remain human-review-required and are not marked built without PR evidence."
+  ],
+  "agentArchitectProposalChecks": [
+    "Treat generated next-agent build prompts as proposals until human review accepts exactly one future-agent build task.",
+    "Do not mark future proposal entries built without implementation evidence, passing report-only validation, and human-reviewed PR context.",
+    "Confirm no runtime/product/protected files, auto-merge, auto-repair, approval, merge, close, or deploy actions were enabled by proposal generation."
   ]
 }
