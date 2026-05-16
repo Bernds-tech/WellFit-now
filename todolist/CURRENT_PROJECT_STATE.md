@@ -113,3 +113,9 @@ Lies zuerst `AGENTS.md`, dann `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WOR
 - Repository Inventory Triage Round 2 on 2026-05-16 mapped `app/**`, `components/**`, `lib/**`, and `functions/**` read-only references into existing inventory topics only. Unmapped inventory count moved from 275 to 71; 103 sensitive/runtime-authority-adjacent files remain `review_required`; app/components/lib/functions runtime files, Firestore rules, package/firebase config, public assets, protected compliance areas, Unity/PR #13, auto-merge, auto-repair, and deployment were untouched.
 
 - [x] Erste Human-Mobile/PWA-Evidence am 2026-05-16 docs/register-only erfasst: Phone Chrome `/mobile/ar` Kamera und Buddy sichtbar = `pass`, Buddy final = `review_required`/`expected_incomplete`, fehlendes Device Model = `missing_device_metadata`/`device_test_required`, Desktop-Responsive-Screenshots als externe Smoke-Evidence dokumentiert; keine Screenshots/Binaries/Rohdaten oder Runtime-/Protected-Code-Aenderungen.
+
+## Approved Agent Build Runner + Merge Gate status (2026-05-16)
+
+- Added the report-only Approved Agent Build Runner + Merge Gate foundation in `project-register/approved-agent-build-runner-merge-gate.json`, `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE.md`, and `scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs`.
+- The gate is designed to prevent the PR #109-style failure mode where missing checks could be interpreted as merge-ready: missing, failed, skipped, unknown, stale, or absent check evidence keeps `MERGE_READY=false`.
+- The gate is integrated into `project-register/agent-catalog.json`, `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`, and `scripts/wellfit-dev-agent/src/quality-gate.mjs`; it does not self-create agents, open PRs, approve, self-merge, deploy, repair runtime files, or touch protected/Unity areas.

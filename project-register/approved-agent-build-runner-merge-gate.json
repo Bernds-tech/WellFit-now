@@ -1,0 +1,122 @@
+{
+  "version": "0.1.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only_merge_gate",
+  "purpose": "Approved Agent Build Runner + Merge Gate policy for choosing exactly one approved agent-build backlog item, validating the required build/check/PR guard sequence, and refusing merge-ready status whenever checks are missing, failed, skipped, or unknown. This first implementation is a merge gate and readiness validator; it does not create agents automatically, run Codex, open PRs, approve, merge, deploy, or repair runtime files by itself.",
+  "maxAgentsPerRun": 1,
+  "allowedBacklogStatuses": [
+    "approved_for_build",
+    "approved_for_planning"
+  ],
+  "skippedBacklogStatuses": [
+    "built",
+    "blocked",
+    "rejected",
+    "duplicate",
+    "superseded"
+  ],
+  "inProgressPolicy": "skip_until_status_sync_or_explicit_single_agent_resume",
+  "selectionRules": [
+    "Read project-register/approved-agent-build-backlog.json.",
+    "Sort eligible entries by suggestedBuildOrder ascending.",
+    "Select exactly one entry per run.",
+    "Skip built, blocked, rejected, duplicate, superseded, and in_progress entries unless a later explicit resume task targets that exact entry.",
+    "Do not select high/critical protected-scope entries for runtime implementation; first versions remain docs/register/validator-only."
+  ],
+  "allowedFileScopes": [
+    "project-register/**",
+    "docs/architecture/**",
+    "scripts/wellfit-dev-agent/src/**",
+    "todolist/**"
+  ],
+  "forbiddenFileScopes": [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "functions/**",
+    "firestore.rules",
+    "public/**",
+    "firebase.json",
+    ".github/**",
+    "native/**",
+    "native/unity/WellFitBuddyAR/**"
+  ],
+  "safeRepairPolicy": {
+    "enabledForGateDecision": true,
+    "allowedCategories": [
+      "markdown_link_or_heading_fix",
+      "json_schema_metadata_fix",
+      "todo_work_map_reference_fix",
+      "expected_pr_output_or_handoff_text_fix",
+      "quality_gate_reference_sync"
+    ],
+    "forbiddenCategories": [
+      "runtime_product_code",
+      "ui_behavior",
+      "firebase_functions_logic",
+      "firestore_rules",
+      "package_or_lockfile_change",
+      "github_workflow_change",
+      "unity_or_native_change",
+      "legal_privacy_health_child_location_payment_reward_authority_change"
+    ],
+    "requiresSeparatePatch": true,
+    "neverRepairsByItself": true
+  },
+  "requiredPreRunChecks": [
+    "git status --short --branch",
+    "node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+    "node scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs",
+    "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs"
+  ],
+  "requiredBuildChecks": [
+    "npm run lint",
+    "npx tsc --noEmit",
+    "npm run build",
+    "npm --prefix functions run check",
+    "npm run agent:quality-gate",
+    "git diff --check"
+  ],
+  "requiredPRGuardChecks": [
+    "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+    "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+    "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+    "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs"
+  ],
+  "mergeGateRules": [
+    "MERGE_READY must be false if any required check is missing, failed, skipped, unknown, stale, or not recorded.",
+    "MERGE_READY must be false if changed files match forbiddenFileScopes.",
+    "MERGE_READY must be false for protected runtime topics unless a later human-reviewed PR explicitly approves that exact protected scope.",
+    "MERGE_READY must be false when PR diff review, PR post-creation guard, auto-merge eligibility, or auto-repair decision evidence is absent.",
+    "A passing gate can only say the merge gate is configured; it does not merge by itself."
+  ],
+  "requiredOutputLines": [
+    "Mode: REPORT_ONLY_MERGE_GATE",
+    "APPROVED_AGENT_BUILD_RUNNER_READY=true|false",
+    "SELECTED_AGENT_BUILD_ID=<id>|none",
+    "MAX_AGENTS_PER_RUN=1",
+    "MISSING_CHECKS_BLOCK_MERGE=true",
+    "MERGE_READY=false",
+    "Never creates agents automatically: true",
+    "Never opens PRs automatically: true",
+    "Never approves PRs: true",
+    "Never merges PRs by itself: true",
+    "Never deploys: true"
+  ],
+  "connectedPolicies": [
+    "project-register/approved-agent-build-backlog.json",
+    "project-register/agent-build-proposals.json",
+    "project-register/agent-catalog.json",
+    "project-register/batch-execution-runner-policy.json",
+    "project-register/auto-merge-policy.json",
+    "project-register/auto-repair-policy.json",
+    "project-register/pr-diff-review-policy.json",
+    "project-register/pr-post-creation-guard.json",
+    "project-register/task-status-policy.json",
+    "project-register/cross-reference-maintenance.json"
+  ],
+  "reportOutput": "scripts/wellfit-dev-agent/output/approved-agent-build-runner-merge-gate-report.md"
+}

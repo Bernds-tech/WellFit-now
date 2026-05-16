@@ -77,7 +77,8 @@ const REQUIRED_CATALOG_IDS = [
   "website-agent-backlog",
   "website-readiness-baseline-audit",
   "route-link-integrity-audit",
-  "trust-compliance-website-audit"
+  "trust-compliance-website-audit",
+  "approved-agent-build-runner-merge-gate"
 ];
 
 const REQUIRED_BACKLOG_TOP_LEVEL_FIELDS = [

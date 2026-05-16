@@ -1429,6 +1429,65 @@
       "nextSafeMaintenanceTask": "Review generated next-agent build prompt, then execute exactly one approved agent build only after human acceptance."
     },
     {
+      "id": "approved-agent-build-runner-merge-gate",
+      "name": "Approved Agent Build Runner + Merge Gate",
+      "status": "report_only",
+      "agentType": "merge_guard",
+      "purpose": "Report-only merge gate for selecting exactly one approved agent-build backlog item and blocking merge-ready status whenever required checks or PR guard evidence are missing, failed, skipped, unknown, or stale.",
+      "ownerArea": "Agent Build Execution Governance",
+      "primaryRegisters": [
+        "project-register/approved-agent-build-runner-merge-gate.json",
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "agent-architect-proposal-agent",
+        "batch-execution-runner-framework",
+        "pr-diff-review-report",
+        "pr-post-creation-mergeability-guard",
+        "auto-merge-eligibility-guard",
+        "auto-repair-policy-decision-guard"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-build-proposals.json",
+        "project-register/batch-execution-runner-policy.json",
+        "project-register/auto-merge-policy.json",
+        "project-register/auto-repair-policy.json",
+        "project-register/pr-diff-review-policy.json",
+        "project-register/pr-post-creation-guard.json",
+        "project-register/task-status-policy.json",
+        "project-register/cross-reference-maintenance.json"
+      ],
+      "allowedExtensionTypes": [
+        "single-agent selection metadata",
+        "required-check enforcement metadata",
+        "report-only merge gate validation",
+        "safe docs/register/governance repair classification",
+        "quality-gate reference synchronization"
+      ],
+      "requiresNewAgentProposalFor": [
+        "real Codex execution authority",
+        "automatic PR creation",
+        "automatic PR approval or merge",
+        "runtime product code repair",
+        "protected high/critical scope execution",
+        "deployment authority"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "Never treats missing, skipped, failed, unknown, stale, or absent checks as merge-ready.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, runtime repair, or deploy authority.",
+        "Report-only merge gate by default; future real execution requires separate human-reviewed policy and PR evidence."
+      ],
+      "nextSafeMaintenanceTask": "Keep the gate policy, validator, quality gate, Work Map, TODO Index, and approved backlog status synchronized before activating any one-agent runner probe."
+    },
+    {
       "id": "human-motivation-engine",
       "name": "Human Motivation Engine",
       "status": "report_only",

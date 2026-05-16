@@ -363,3 +363,9 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - [x] 2026-05-16 Round 2 read-only inventory triage mapped `app/**`, `components/**`, `lib/**`, and `functions/**` runtime-adjacent files into existing repository inventory topics, reduced unmapped inventory noise from 275 to 71, and marked 103 sensitive or authority-adjacent runtime references as `review_required` without modifying product code.
 
 - [x] Erste Human-Mobile/PWA-Evidence am 2026-05-16 docs/register-only erfasst: Phone Chrome `/mobile/ar` Kamera und Buddy sichtbar = `pass`, Buddy final = `review_required`/`expected_incomplete`, fehlendes Device Model = `missing_device_metadata`/`device_test_required`, Desktop-Responsive-Screenshots als externe Smoke-Evidence dokumentiert; keine Screenshots/Binaries/Rohdaten oder Runtime-/Protected-Code-Aenderungen.
+
+## Approved Agent Build Runner + Merge Gate
+
+- [x] Added report-only merge-gate policy and validator for the approved agent build backlog: `project-register/approved-agent-build-runner-merge-gate.json`, `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE.md`, and `scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs`.
+- [x] The gate enforces `maxAgentsPerRun = 1`, selects exactly one eligible next approved backlog item, and keeps `MERGE_READY=false` whenever required check evidence is missing, failed, skipped, unknown, stale, or absent.
+- [ ] Next safe follow-up: after this gate passes in CI/quality gate, run a dedicated one-agent planning/build PR for `multisensory-learning-engine` without runtime code changes.
