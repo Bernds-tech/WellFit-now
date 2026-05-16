@@ -275,6 +275,29 @@
           "usage": "Run the checker before any future batch execution discussion; keep first version non-executing, non-PR-creating, non-merging, non-repairing, non-deploying, and human-approval-gated."
         },
         {
+          "id": "batch_execution_runner_framework",
+          "registers": [
+            "project-register/batch-execution-runner-policy.json",
+            "project-register/autopilot-batch-execution-policy.json",
+            "project-register/autopilot-batch-policy.json",
+            "project-register/agent-task-queue.json",
+            "project-register/task-status-policy.json",
+            "project-register/pr-review-policy.json",
+            "project-register/pr-post-creation-guard.json",
+            "project-register/pr-diff-review-policy.json",
+            "project-register/auto-merge-policy.json",
+            "project-register/auto-repair-policy.json",
+            "project-register/cross-reference-maintenance.json",
+            "project-register/repository-inventory.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs"
+          ],
+          "purpose": "Framework-only Batch Execution Runner governance that connects approved low-risk task selection, allowed-file checks, task-status/work-log evidence, cross-reference maintenance, PR handoff, PR Diff Review Report, and PR Post-Creation Guard without enabling real execution, PR creation, auto-merge, auto-repair, self-approval, deployment, or protected-area changes.",
+          "usage": "Run in report/check-only mode through the quality gate or before any future runner activation discussion. Treat BATCH_EXECUTION_RUNNER_READY as evidence only; no autonomous execution is enabled until a separate human-approved one-task activation PR."
+        },
+        {
           "id": "task_status_work_log_sync_governance",
           "registers": [
             "project-register/task-status-policy.json",

@@ -3,7 +3,7 @@
   "updated": "2026-05-16",
   "activationState": "limited_execution_planning",
   "purpose": "Report/check-only policy for a future strictly limited Batch Autopilot execution framework. This first version validates whether low-risk documentation, register, governance, and inventory tasks could be considered later; it does not execute tasks, create PRs, merge, repair, deploy, approve, or modify runtime product code.",
-  "maxExecutableTasks": 3,
+  "maxExecutableTasks": 2,
   "maxRuntimeMinutes": 5,
   "allowedExecutionCategories": [
     "documentation_baseline",
@@ -14,7 +14,10 @@
     "cross_reference_maintenance",
     "product_readiness_registry_update",
     "route_api_drift_registry_followup",
-    "concept_gap_registry_followup"
+    "concept_gap_registry_followup",
+    "pr_review_governance",
+    "pr_diff_review_governance",
+    "task_status_governance"
   ],
   "forbiddenExecutionCategories": [
     "runtime_product_code",
@@ -25,6 +28,7 @@
     "Firestore Rules changes",
     "Unity / AR implementation",
     "reward authority",
+    "mission completion authority",
     "economy / token / wallet / payment",
     "health / child / location / privacy / compliance / legal changes"
   ],
@@ -33,7 +37,8 @@
     "todolist/*.md",
     "docs/architecture/*.md",
     "scripts/wellfit-dev-agent/src/*check.mjs",
-    "scripts/wellfit-dev-agent/src/*dry-run.mjs"
+    "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+    "scripts/wellfit-dev-agent/src/*report.mjs"
   ],
   "forbiddenPaths": [
     "app/**",
@@ -44,7 +49,11 @@
     "native/unity/WellFitBuddyAR/**",
     "package.json unless explicitly approved",
     "package-lock.json unless explicitly approved",
-    "public/** unless explicitly approved"
+    "public/** unless explicitly approved",
+    "firebase.json",
+    ".github/**",
+    "native/**",
+    "PR #13 / Unity paths"
   ],
   "forbiddenTopics": [
     "PR #13",
@@ -107,7 +116,10 @@
     "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
     "npm run agent:autopilot:dry-run",
     "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
-    "jq empty project-register/task-status-policy.json"
+    "jq empty project-register/task-status-policy.json",
+    "node scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
   ],
   "requiredPerTaskChecks": [
     "task_risk_is_low",
