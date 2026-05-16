@@ -906,8 +906,16 @@
         "project-register/multisensory-learning-engine.json",
         "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md",
         "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
+        "project-register/continuity-dependency-map.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/agent-task-queue.json",
+        "project-register/product-readiness.json",
         "todolist/WORK_MAP.md",
-        "todolist/TODO_INDEX.md"
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
       ],
       "blockedUntil": [
         "human-reviewed runtime scope",
@@ -915,19 +923,21 @@
         "backend authority design for any reward or completion evidence",
         "separate Unity/AR review if AR is proposed"
       ],
-      "nextRecommendedTask": "Controlled one-agent runner activation for Mission Factory Agent or Product Intelligence Agent depending on approved backlog order and risk review.",
+      "nextRecommendedTask": "Controlled one-agent runner activation for Mission Factory Agent or Product Intelligence Agent depending on approved backlog order and risk review, after quality-gate evidence for this PR #111 repair is clean.",
       "mustNotForget": true,
-      "reason": "The framework can only plan multisensory learning channels and must not enable runtime learning personalization, protected-data profiling/storage, AR/Unity behavior, reward authority, mission-completion authority, token/NFT/wallet/payment/betting mechanics, or protected-scope behavior.",
+      "reason": "PR #111 introduced the report-only Multisensory Learning Engine; CDS-017 must preserve complete metadata and block runtime learning personalization, protected-data profiling/storage, AR/Unity behavior, reward authority, mission-completion authority, token/NFT/wallet/payment/betting mechanics, or protected-scope behavior until separate human review approves a future runtime task.",
       "dependencies": [
         "requires_register_update",
         "requires_validation_script",
         "requires_work_map_update",
         "requires_todo_index_update",
         "requires_product_readiness_update",
+        "requires_task_queue_update",
+        "requires_human_review",
+        "requires_future_runtime_task",
         "blocks_auto_merge",
         "blocks_auto_repair",
-        "blocks_product_readiness_advance",
-        "requires_human_review"
+        "blocks_product_readiness_advance"
       ],
       "affectedRegisters": [
         "project-register/multisensory-learning-engine.json",
@@ -946,12 +956,12 @@
         {
           "path": "project-register/multisensory-learning-engine.json",
           "existsNow": true,
-          "purpose": "Machine-readable report-only Multisensory Learning Engine framework."
+          "purpose": "Machine-readable report-only Multisensory Learning Engine framework and protected-boundary register."
         },
         {
           "path": "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md",
           "existsNow": true,
-          "purpose": "Human-readable Multisensory Learning Engine architecture and safety boundaries."
+          "purpose": "Human-readable Multisensory Learning Engine architecture, safety boundaries, and KI-Fortsetzungs-Prompt."
         },
         {
           "path": "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
@@ -959,9 +969,69 @@
           "purpose": "Report-only validator for multisensory learning guardrails."
         },
         {
+          "path": "project-register/continuity-dependency-map.json",
+          "existsNow": true,
+          "purpose": "Continuity Dependency Sentinel metadata for CDS-017 and future protected-runtime handoff blockers."
+        },
+        {
+          "path": "project-register/agent-catalog.json",
+          "existsNow": true,
+          "purpose": "Agent catalog reference for the report-only Multisensory Learning Engine."
+        },
+        {
+          "path": "project-register/approved-agent-build-backlog.json",
+          "existsNow": true,
+          "purpose": "Approved backlog evidence showing the report-only runner selection and protected scope."
+        },
+        {
+          "path": "project-register/agent-build-proposals.json",
+          "existsNow": true,
+          "purpose": "Agent-build proposal state for report-only framework continuation."
+        },
+        {
+          "path": "project-register/agent-build-runner-state.json",
+          "existsNow": true,
+          "purpose": "Runner-state evidence for controlled report-only execution and follow-up readiness."
+        },
+        {
+          "path": "project-register/agent-task-queue.json",
+          "existsNow": true,
+          "purpose": "Task-queue context for future controlled one-agent runner activation without duplicate architecture."
+        },
+        {
+          "path": "project-register/product-readiness.json",
+          "existsNow": true,
+          "purpose": "Product readiness guardrail proving multisensory learning remains planning/report-only."
+        },
+        {
+          "path": "todolist/WORK_MAP.md",
+          "existsNow": true,
+          "purpose": "Mapped continuation location for existing architecture/register/validator files."
+        },
+        {
+          "path": "todolist/TODO_INDEX.md",
+          "existsNow": true,
+          "purpose": "TODO index reference preventing duplicate architecture and preserving historical planning context."
+        },
+        {
+          "path": "todolist/CURRENT_PROJECT_STATE.md",
+          "existsNow": true,
+          "purpose": "Current state reference for safe post-PR #111 quality-gate repair evidence."
+        },
+        {
           "path": "scripts/wellfit-dev-agent/output/multisensory-learning-engine-report.md",
           "existsNow": false,
-          "purpose": "Generated report-only validation output; do not commit generated output."
+          "purpose": "Generated report-only Multisensory Learning Engine validation output; do not commit generated output."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/continuity-dependency-report.md",
+          "existsNow": false,
+          "purpose": "Generated report-only Continuity Dependency Sentinel output; do not commit generated output."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/quality-gate-report.md",
+          "existsNow": false,
+          "purpose": "Generated quality-gate evidence output when the broader agent quality gate runs; do not commit generated output."
         }
       ],
       "humanReviewRequired": true
