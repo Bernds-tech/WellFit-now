@@ -66,6 +66,15 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md` | aktiv / Architektur-Notiz | human-readable Runbook fuer Website-Agent-Backlog, Findings-Erfassung, Readiness-Mapping, Task-Queue-Uebergabe, Review-required-Erhalt und Mobile/PWA-Evidence | `project-register/website-agent-backlog.json`, `scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs` | vor Website-Findings-/Baseline-Audits lesen; keine Runtime-Aenderungen aus dem Backlog ableiten |
 | `scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs` | aktiv / Agent-Code | report-only Validator fuer Website-Agent-Backlog-Schema, Source-Agent-Abgleich, Route-/Readiness-Mapping, Human-Review-Regeln und Work-Map-/TODO-Index-Verweise | `project-register/website-agent-backlog.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | nach Backlog-/Findings-Aenderungen ausfuehren; im Quality Gate report-only eingebunden |
 
+
+## Agent Extension vs New Agent Proposal Policy
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `project-register/agent-extension-policy.json` | aktiv / Register / report_only | maschinenlesbare Policy fuer Existing-Agent-Extension vs New-Agent-Proposal mit Extension-Regeln, Proposal-Triggern, Overlap-Erkennung, Connected-Agent-/Register-Regeln, Human-Review-Pflichten, verbotenen Auto-Aktionen und Report-Schema | `docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md`, `todolist/WORK_MAP.md`, `project-register/agent-workflows.json`, `project-register/agent-task-queue.json` | vor neuen Agentnamen, Agent-Registern, Workflow-Familien oder Agent-Faehigkeiten lesen; keine Agenten automatisch erstellen |
+| `docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md` | aktiv / Agent Governance | human-readable Regelwerk, wann bestehende Agenten erweitert werden duerfen und wann eine neue Agent-Proposal mit Human Review erforderlich ist | `project-register/agent-extension-policy.json` | bei Agent-/Framework-Governance-Aenderungen lesen; keine Duplicate Architecture anlegen |
+| `scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs` | aktiv / Agent-Code / report_only | validiert Agent-Extension-Policy, Pflichtbeispiele, verbotene Auto-Aktionen sowie Work-Map-/TODO-Index-Referenzen und schreibt `scripts/wellfit-dev-agent/output/agent-extension-policy-report.md` | `project-register/agent-extension-policy.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | nach Policy-Aenderungen und im Quality Gate ausfuehren; erstellt keine Agenten, approved/merged/repariert/deployed nicht |
+
 ## PR Review Agent Governance
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
