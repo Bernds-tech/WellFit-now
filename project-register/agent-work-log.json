@@ -103,6 +103,210 @@
   },
   "entries": [
     {
+      "taskId": "WEBSITE-READINESS-BASELINE-AUDIT",
+      "title": "Run Website Readiness Baseline Audit",
+      "status": "done",
+      "pr": {
+        "branch": "website-readiness-baseline-audit",
+        "number": null,
+        "url": null,
+        "title": "Add website readiness baseline audit"
+      },
+      "changedFiles": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/product-readiness.json",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Initial run found one trailing-whitespace documentation issue; after correction the rerun passed."
+        },
+        {
+          "command": "jq empty project-register/website-readiness.json project-register/website-agent-backlog.json project-register/product-readiness.json project-register/progress-log.json project-register/agent-work-log.json project-register/continuity-dependency-map.json",
+          "result": "pass",
+          "notes": "All audited JSON registers parsed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully; npm printed the existing unknown http-proxy env warning."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit completed successfully; npm printed the existing unknown http-proxy env warning."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax/static checks completed successfully."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Quality gate passed after baseline/register updates."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+          "result": "pass",
+          "notes": "Website Agent Framework reported WEBSITE_AGENT_FRAMEWORK_READY=true."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+          "result": "pass",
+          "notes": "Website Agent Backlog reported WEBSITE_AGENT_BACKLOG_READY=true."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+          "result": "pass",
+          "notes": "PR diff review ran in report-only mode and did not approve, merge, repair, or deploy."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+          "result": "pass",
+          "notes": "PR post-creation guard ran in report-only mode."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass",
+          "notes": "Auto-merge eligibility check ran report-only and did not enable merging."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass",
+          "notes": "Auto-repair decision check ran report-only and did not enable repairs."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Autopilot dry run reported without writing files, merging, repairing, approving, or deploying."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Product readiness check passed after the baseline next-task update."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+          "result": "pass",
+          "notes": "Route/API drift detector passed with no missing route/API register entries."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+          "result": "warning",
+          "notes": "Report-only visual smoke check returned SKIPPED_BROWSER_UNAVAILABLE because no browser runner is available; no screenshots were generated."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Cross-reference maintenance check passed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+          "result": "pass",
+          "notes": "Continuity Dependency Sentinel check passed."
+        }
+      ],
+      "followUps": [
+        "Run a report-only Route & Link Integrity Audit to resolve /challenge versus /missionen/challenge alias/navigation evidence and route-link coverage, or run a report-only Landingpage Conversion Audit if public conversion/content/SEO planning is prioritized.",
+        "Collect visual/mobile smoke screenshots and route-specific mobile/PWA device evidence in a prepared browser/device environment before readiness advancement."
+      ],
+      "nextRecommendedTask": "Route & Link Integrity Audit",
+      "updatedTodoFiles": [
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task",
+      "websiteReadinessBaselineAudit": {
+        "publicPages": "draft_or_usable_not_conversion_ready",
+        "legalPages": "review_required",
+        "desktopBetaPages": "usable_draft_or_review_required_not_beta_ready",
+        "mobilePwaPages": "draft_or_review_required_device_test_required",
+        "protectedPages": "review_required",
+        "readinessStatusesUpdated": [
+          "WAB-001 done",
+          "WAB-004 evidence refreshed",
+          "WAB-003 evidence refreshed",
+          "WAB-005 evidence refreshed",
+          "WAB-009 added",
+          "/dashboard/anpassen draft",
+          "/missionen/challenge review_required",
+          "/missionen/favoriten draft",
+          "/missionen/history draft"
+        ],
+        "blockedItems": [
+          "visual smoke screenshots unavailable without browser runner",
+          "mobile/PWA route-specific device evidence missing",
+          "protected/legal/privacy/health/child/token/payment/reward/investor/public-claim routes require human review"
+        ],
+        "runtimeCodeChanged": false
+      },
+      "checksRun": [
+        "git diff --check",
+        "jq empty project-register/website-readiness.json project-register/website-agent-backlog.json project-register/product-readiness.json project-register/progress-log.json project-register/agent-work-log.json project-register/continuity-dependency-map.json",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+        "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+        "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+        "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+        "npm run agent:autopilot:dry-run",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+        "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
+      ],
+      "checkResults": [
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "warning",
+        "pass",
+        "pass"
+      ],
+      "autoMergeEligibilityResult": "report_only_not_authorizing_merge",
+      "autoRepairDecisionResult": "report_only_not_authorizing_repair",
+      "protectedAreaConfirmation": "Runtime website/app/mobile/legal code, app/**, components/**, lib/**, functions/**, firestore.rules, public/**, package manifests, firebase config, GitHub workflows, Unity/PR #13, and protected token/NFT/wallet/payment/betting/reward/mission/health/child/location/camera/consent/privacy/legal/compliance logic were untouched.",
+      "date": "2026-05-16",
+      "timestamp": "2026-05-16T00:00:00.000Z"
+    },
+    {
       "taskId": "AGENT-PR-POST-CREATION-GUARD",
       "title": "Create report-only PR post-creation mergeability guard",
       "status": "done",
@@ -1033,7 +1237,7 @@
       },
       "changedFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -1121,7 +1325,7 @@
       "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
       "updatedTodoFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",

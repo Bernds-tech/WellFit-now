@@ -44,7 +44,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Complete baseline conversion/readiness audit without editing the landing page.",
       "requiredChecks": [
@@ -79,7 +80,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit waitlist copy, privacy/consent dependencies, and route-link evidence in docs/registers only.",
       "requiredChecks": [
@@ -117,7 +119,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Route must remain legal-review controlled; collect review evidence only.",
       "requiredChecks": [
@@ -155,7 +158,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Route must remain legal-review controlled; collect review evidence only.",
       "requiredChecks": [
@@ -194,7 +198,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Route must remain legal-review controlled; collect review evidence only.",
       "requiredChecks": [
@@ -232,7 +237,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit FAQ completeness and protected claims without editing runtime copy.",
       "requiredChecks": [
@@ -269,7 +275,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit help-page support coverage and protected claims without editing runtime copy.",
       "requiredChecks": [
@@ -307,7 +314,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Map dashboard beta gaps to product-readiness and visual evidence; no runtime changes.",
       "requiredChecks": [
@@ -345,7 +353,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Review AI Buddy beta messaging and protected-topic boundaries in docs/registers only.",
       "requiredChecks": [
@@ -384,7 +393,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Confirm redirect/landing behavior against existing mission routes; no mission authority changes.",
       "requiredChecks": [
@@ -421,7 +431,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit daily mission readiness evidence and server-authority caveats.",
       "requiredChecks": [
@@ -459,7 +470,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit weekly mission readiness evidence and server-authority caveats.",
       "requiredChecks": [
@@ -497,7 +509,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Map adventure-route beta gaps without creating a new mission system.",
       "requiredChecks": [
@@ -534,7 +547,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Requested /challenge entry is not registered in routes.json; existing mapped route is /missionen/challenge."
+        "Requested /challenge entry is not registered in routes.json; existing mapped route is /missionen/challenge.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Do not create a duplicate public challenge route; decide whether existing /missionen/challenge covers this alias.",
       "requiredChecks": [
@@ -573,7 +587,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Keep competition/PvP wording and authority review_required; collect gaps only.",
       "requiredChecks": [
@@ -612,7 +627,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Keep points shop/economy claims review_required; no payment/reward authority changes.",
       "requiredChecks": [
@@ -651,7 +667,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Keep marketplace/token/NFT/payment topics review_required; no runtime changes.",
       "requiredChecks": [
@@ -691,7 +708,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit leaderboard trust and anti-cheat caveats; do not change scoring logic.",
       "requiredChecks": [
@@ -730,7 +748,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Keep analytics planning-only; do not enable tracking or experiments.",
       "requiredChecks": [
@@ -768,7 +787,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit settings readiness and privacy dependencies without changing account/consent logic.",
       "requiredChecks": [
@@ -806,7 +826,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Run mobile/PWA evidence baseline planning; no service worker or manifest changes.",
       "requiredChecks": [
@@ -844,7 +865,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit mobile mission readiness and protected reward/health topics.",
       "requiredChecks": [
@@ -883,7 +905,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Keep squat/camera/pose/reward topics review_required; collect device evidence only.",
       "requiredChecks": [
@@ -924,7 +947,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit mobile Buddy trust/safety boundaries without changing AI or privacy logic.",
       "requiredChecks": [
@@ -965,7 +989,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Keep analysis/health/privacy topics review_required; no tracking changes.",
       "requiredChecks": [
@@ -1005,7 +1030,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit movement route device/health/reward caveats in readiness only.",
       "requiredChecks": [
@@ -1044,7 +1070,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Audit mobile settings readiness and privacy dependencies without runtime changes.",
       "requiredChecks": [
@@ -1084,7 +1111,8 @@
       ],
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
-        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
       ],
       "nextSafeTask": "Keep AR/camera/Unity-adjacent topics review_required; do not touch Unity or runtime AR code.",
       "requiredChecks": [
@@ -1102,9 +1130,236 @@
         "unity"
       ],
       "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/dashboard/anpassen",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/dashboard/anpassen",
+      "readinessStatus": "draft",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/dashboard/anpassen/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Route & Link Integrity Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Route is registered in routes.json and discovered by the route/API drift detector, but readiness evidence is limited to register/doc inspection.",
+        "Dashboard customization can touch profile, settings, privacy, and beta state expectations; keep review-gated until human evidence exists.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
+      ],
+      "nextSafeTask": "Audit dashboard customization route content, navigation, and privacy/settings assumptions in docs/registers before runtime changes.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "privacy",
+        "settings",
+        "profile",
+        "beta_public_claim"
+      ],
+      "doNotDuplicateWarning": "This registry extends Product Readiness, Repository Inventory, Routes/API registers, Visual Regression, Cross-Reference Maintenance, and Agent Task Queue. It does not replace them and does not authorize runtime changes."
+    },
+    {
+      "route": "/missionen/challenge",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/missionen/challenge",
+      "readinessStatus": "review_required",
+      "routeGroup": "protected_or_review_required_pages",
+      "leadingFiles": [
+        "app/missionen/challenge/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Route & Link Integrity Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Route is registered in routes.json and mapped from the legacy /challenge readiness alias.",
+        "Challenge/PvP language can imply competition, betting, mission completion, anti-cheat, and reward authority; keep review_required.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
+      ],
+      "nextSafeTask": "Resolve /challenge alias expectations through a route/link integrity audit without creating a duplicate route or changing PvP/reward authority.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "competition",
+        "reward",
+        "betting",
+        "mission_completion",
+        "anti_cheat"
+      ],
+      "doNotDuplicateWarning": "This registry extends Product Readiness, Repository Inventory, Routes/API registers, Visual Regression, Cross-Reference Maintenance, and Agent Task Queue. It does not replace them and does not authorize runtime changes."
+    },
+    {
+      "route": "/missionen/favoriten",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/missionen/favoriten",
+      "readinessStatus": "draft",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/missionen/favoriten/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Route & Link Integrity Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Route is registered in routes.json and discovered by the route/API drift detector, but route-specific readiness evidence is not yet recorded.",
+        "Mission favorite state can imply user data and mission progress expectations; keep beta/review evidence pending.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
+      ],
+      "nextSafeTask": "Audit favorites route navigation, empty states, and privacy/progress assumptions without changing mission runtime behavior.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mission_completion",
+        "reward",
+        "privacy"
+      ],
+      "doNotDuplicateWarning": "This registry extends Product Readiness, Repository Inventory, Routes/API registers, Visual Regression, Cross-Reference Maintenance, and Agent Task Queue. It does not replace them and does not authorize runtime changes."
+    },
+    {
+      "route": "/missionen/history",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/missionen/history",
+      "readinessStatus": "draft",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/missionen/history/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Route & Link Integrity Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Route is registered in routes.json and discovered by the route/API drift detector, but route-specific readiness evidence is not yet recorded.",
+        "Mission history can imply persistence, user activity, privacy, and reward/progress authority; keep evidence pending.",
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
+      ],
+      "nextSafeTask": "Audit history route navigation, empty states, privacy, and progress-authority assumptions without changing mission runtime behavior.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mission_completion",
+        "reward",
+        "privacy",
+        "user_activity"
+      ],
+      "doNotDuplicateWarning": "This registry extends Product Readiness, Repository Inventory, Routes/API registers, Visual Regression, Cross-Reference Maintenance, and Agent Task Queue. It does not replace them and does not authorize runtime changes."
     }
   ],
   "globalDoNotDuplicateWarning": "This registry extends Product Readiness, Repository Inventory, Routes/API registers, Visual Regression, Cross-Reference Maintenance, and Agent Task Queue. It does not replace them and does not authorize runtime changes.",
   "websiteBacklogRegister": "project-register/website-agent-backlog.json",
-  "websiteBacklogUsage": "Detailed route findings, review_required website gaps, blocked items, and next safe tasks live in the report-only Website Agent Backlog; this readiness register remains the route/status summary."
+  "websiteBacklogUsage": "Detailed route findings, review_required website gaps, blocked items, and next safe tasks live in the report-only Website Agent Backlog; this readiness register remains the route/status summary.",
+  "baselineAudit": {
+    "id": "WEBSITE-READINESS-BASELINE-2026-05-16",
+    "date": "2026-05-16",
+    "mode": "report_only",
+    "sourceFiles": [
+      "project-register/website-agents.json",
+      "project-register/website-readiness.json",
+      "project-register/website-agent-backlog.json",
+      "project-register/routes.json",
+      "project-register/features.json",
+      "project-register/product-readiness.json",
+      "project-register/repository-inventory.json",
+      "project-register/visual-regression.json",
+      "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+      "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+      "todolist/WORK_MAP.md",
+      "todolist/TODO_INDEX.md",
+      "todolist/CURRENT_PROJECT_STATE.md"
+    ],
+    "checksRun": [
+      "npm run agent:autopilot:dry-run",
+      "npm run agent:quality-gate",
+      "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+      "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+      "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+      "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+      "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+      "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+      "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
+    ],
+    "readinessSummary": {
+      "publicPages": "Registered public pages are draft or usable; none are conversion_ready because conversion, SEO, visual smoke, and protected-claim review evidence is incomplete.",
+      "legalPages": "Legal pages remain review_required; no legal wording or runtime legal pages were changed.",
+      "desktopBetaPages": "Desktop beta pages are usable, draft, or review_required depending on protected topics; no beta_ready advancement is recorded.",
+      "mobilePwaPages": "Mobile/PWA pages remain draft or review_required because manual route-by-route phone evidence and browser visual smoke evidence are incomplete.",
+      "protectedOrReviewRequiredPages": "Reward, mission completion, PvP/betting, marketplace/token/NFT/payment, analytics/privacy, health, camera/AR, and AI Buddy routes remain review_required."
+    },
+    "evidenceSummary": {
+      "routeApiDriftDetector": "PASS with 31 discovered app pages, 9 discovered API routes, 32 registered pages, and no missing route/API register entries.",
+      "visualRouteSmokeCheck": "SKIPPED_BROWSER_UNAVAILABLE; no screenshots generated and no baseline/current comparison evidence exists in this environment.",
+      "productReadinessCheck": "PASS; sensitive modules remain blocked or review_required where applicable and no critical module is production_ready.",
+      "websiteAgentFrameworkCheck": "PASS; report-only framework remains active and forbids runtime changes, auto-merge, auto-repair, approval, and deployment.",
+      "websiteAgentBacklogCheck": "PASS; backlog entries remain machine-readable and report-only.",
+      "qualityGate": "Initial quality gate reported FAIL only because PR diff review report exits with code 1 before a PR exists; all website framework/backlog/readiness checks ran safely."
+    },
+    "safeNextTasks": [
+      "Landingpage Conversion Audit",
+      "Route & Link Integrity Audit"
+    ],
+    "blockedOrReviewRequired": [
+      "Legal/privacy/compliance wording requires human review before status advancement.",
+      "Mobile/PWA readiness needs device model, OS, browser, viewport, PWA, permission, and route-specific manual evidence.",
+      "Protected economy, token/NFT, payment, PvP/betting, reward authority, mission completion, health, child, analytics, camera/AR, and AI Buddy routes require review and must not be marked conversion_ready, investor_ready, or beta_ready."
+    ],
+    "runtimeChangeConfirmation": "No runtime website, app, mobile, legal, package, Firebase, GitHub workflow, public asset, Functions, Firestore rules, or Unity files were changed."
+  }
 }

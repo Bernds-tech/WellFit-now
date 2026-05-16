@@ -8,6 +8,28 @@
   },
   "entries": [
     {
+      "id": "2026-05-16-website-readiness-baseline-audit",
+      "date": "2026-05-16",
+      "branch": "website-readiness-baseline-audit",
+      "goal": "Run the Website Readiness Baseline Audit as a report-only documentation/register task for public, legal, desktop beta, mobile/PWA, and protected/review-required routes.",
+      "changedAreas": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/product-readiness.json",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Report-only Website Readiness Baseline Audit. No runtime website/app/mobile/legal code, packages, Firebase config, Functions, Firestore rules, public assets, GitHub workflows, Unity/PR #13, auto-merge, auto-repair, approval, deployment, token/NFT/wallet/payment/betting/reward authority, mission completion authority, health, child, location, camera, consent, privacy, legal, or compliance logic was changed.",
+      "taskIdWhenApplicable": "WEBSITE-READINESS-BASELINE-AUDIT"
+    },
+    {
       "id": "2026-05-16-pr-post-creation-guard",
       "date": "2026-05-16",
       "branch": "task/pr-post-creation-guard",

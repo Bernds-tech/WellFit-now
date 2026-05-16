@@ -141,7 +141,7 @@
     {
       "id": "WAB-001",
       "title": "Website Readiness Baseline Audit across public, legal, desktop beta, and mobile/PWA routes",
-      "status": "open",
+      "status": "done",
       "severity": "medium",
       "findingType": "website_completion_gap",
       "route": "global",
@@ -165,9 +165,9 @@
         "project-register/agent-workflows.json"
       ],
       "finding": "A route-by-route website readiness baseline is still needed before advancing public, beta, or mobile route readiness states.",
-      "evidence": "Website Agent Framework and website-readiness registers exist, but this backlog is the first machine-readable findings register for future audit outputs.",
-      "recommendedAction": "Run a report-only baseline audit and record route-level findings in this backlog or a future derived findings register.",
-      "nextSafeTask": "Website Readiness Baseline Audit",
+      "evidence": "Baseline audit completed in docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md and project-register/website-readiness.json on 2026-05-16. Route/API drift passed; visual smoke was skipped because no browser runner is available; protected routes remain review-gated.",
+      "recommendedAction": "Use the baseline audit to choose the next report-only website task; do not advance protected readiness without human/device evidence.",
+      "nextSafeTask": "Landingpage Conversion Audit or Route & Link Integrity Audit",
       "allowedFiles": [
         "project-register/website-agent-backlog.json",
         "project-register/website-agents.json",
@@ -305,8 +305,8 @@
         "project-register/agent-workflows.json"
       ],
       "finding": "Registered website routes need a route/link integrity pass before website agents propose navigation or alias changes.",
-      "evidence": "routes.json and website-readiness.json provide route inventories, but no website backlog entry yet tracked link findings.",
-      "recommendedAction": "Compare registered routes, route groups, aliases, navigation expectations, and blocked/protected routes in report-only mode.",
+      "evidence": "Route/API drift detector passed with 31 discovered app pages, 9 discovered API routes, 32 registered pages, and no missing route/API register entries. Baseline audit added readiness metadata for registered /dashboard/anpassen, /missionen/challenge, /missionen/favoriten, and /missionen/history while preserving /challenge as a review-required alias to /missionen/challenge.",
+      "recommendedAction": "Run a dedicated Route & Link Integrity Audit next if the team wants to resolve alias, navigation, and route-link evidence before conversion work.",
       "nextSafeTask": "Run Route & Link Integrity Audit and write only machine-readable findings; do not create routes or redirects.",
       "allowedFiles": [
         "project-register/website-agent-backlog.json",
@@ -377,7 +377,7 @@
         "project-register/agent-workflows.json"
       ],
       "finding": "Legal/privacy/health/child/token/payment/reward/investor/public-claim wording must be audited and preserved as review_required findings before any conversion_ready or beta_ready advancement.",
-      "evidence": "AGENTS.md protects legal, privacy, health, child, token, payment, reward, and related compliance logic; website-readiness marks legal and protected routes review_required.",
+      "evidence": "Baseline audit confirmed legal, privacy, health, child, token/NFT/payment/economy, reward/mission authority, analytics, AI Buddy, camera/AR, competition/betting, investor, and public-claim topics remain review_required and were not advanced to conversion_ready, investor_ready, or beta_ready.",
       "recommendedAction": "Create report-only findings for risky wording or missing review evidence; do not auto-fix runtime legal or compliance text.",
       "nextSafeTask": "Run Trust & Compliance Website Audit and keep all protected topic wording changes human-review-required.",
       "allowedFiles": [
@@ -458,8 +458,8 @@
         "project-register/agent-workflows.json"
       ],
       "finding": "Mobile/PWA readiness still needs device model/OS/browser metadata and route-specific phone coverage evidence.",
-      "evidence": "product-readiness notes missing Android device model/OS/Chrome version and incomplete route-by-route phone coverage.",
-      "recommendedAction": "Collect manual device evidence and record route-specific results without changing mobile runtime code, permissions, camera, tracking, or reward authority.",
+      "evidence": "Visual route smoke check reported SKIPPED_BROWSER_UNAVAILABLE with 0 screenshots. Product readiness records first manual /mobile/ar evidence but missing Android device model/OS/Chrome metadata and route-by-route phone coverage remain device_test_required.",
+      "recommendedAction": "Collect route-specific mobile/PWA device evidence and browser visual smoke screenshots in a prepared environment without changing runtime code or protected data flows.",
       "nextSafeTask": "Run manual/report-only Mobile/PWA evidence collection for /mobile route group and record findings here.",
       "allowedFiles": [
         "project-register/website-agent-backlog.json",
@@ -734,6 +734,75 @@
         "payment",
         "reward",
         "financial_claim"
+      ],
+      "createdDate": "2026-05-16",
+      "updatedDate": "2026-05-16"
+    },
+    {
+      "id": "WAB-009",
+      "title": "Baseline visual and mobile smoke evidence remains unavailable in the current environment",
+      "status": "device_test_required",
+      "severity": "high",
+      "findingType": "visual_layout_issue",
+      "route": "global",
+      "routeGroup": "global",
+      "sourceAgent": "Visual Regression Website Agent",
+      "sourceFiles": [
+        "project-register/visual-regression.json",
+        "scripts/wellfit-dev-agent/output/visual-route-smoke-check.md",
+        "project-register/product-readiness.json"
+      ],
+      "relatedRegisters": [
+        "project-register/website-agent-backlog.json",
+        "project-register/website-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/product-readiness.json",
+        "project-register/routes.json"
+      ],
+      "finding": "The baseline audit cannot provide visual/mobile smoke screenshots because the visual route smoke checker has no browser runner in this environment and existing mobile evidence is incomplete.",
+      "evidence": "visual-route-smoke-check reported SKIPPED_BROWSER_UNAVAILABLE with 0 screenshots; product-readiness mobile_web/mobile_ar_fallback blockers preserve missing device metadata and route-by-route phone evidence.",
+      "recommendedAction": "Run visual/mobile smoke evidence collection in a prepared browser/device environment and record device model, OS, browser, viewport, PWA, permission, fallback, and screenshot evidence before readiness advancement.",
+      "nextSafeTask": "Route & Link Integrity Audit or Mobile/PWA Evidence Follow-up",
+      "allowedFiles": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "project-register/website-agent-backlog.json",
+        "project-register/website-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs",
+        "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agent-backlog.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mobile",
+        "pwa",
+        "camera",
+        "ar",
+        "health",
+        "privacy",
+        "consent",
+        "visual_evidence"
       ],
       "createdDate": "2026-05-16",
       "updatedDate": "2026-05-16"

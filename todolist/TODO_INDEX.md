@@ -304,6 +304,8 @@ Jede wichtige TODO-Datei soll enthalten:
 ## Uebernahme-Regel aus Alt-TODOs
 Wenn neue zentrale TODO-Dateien angelegt werden, muessen relevante Inhalte aus alten TODO-Dateien uebernommen oder zumindest hier verlinkt werden. Keine Alt-Datei darf ignoriert werden.
 
+- Website Readiness Baseline Audit wurde am 2026-05-16 docs/register-only auf Branch `website-readiness-baseline-audit` erfasst: `docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md` enthaelt den Report fuer Public-, Legal-, Desktop-Beta-, Mobile/PWA- und Protected-Routes; `project-register/website-readiness.json` enthaelt die Baseline-Summary und unterstuetzte Readiness-Eintraege fuer bereits registrierte Subroutes; `project-register/website-agent-backlog.json` markiert WAB-001 als erledigt und dokumentiert die Visual-/Mobile-Evidence-Luecke. Keine Runtime-/Legal-/Mobile-/Protected-Code-Aenderungen, keine Unity/PR-#13-Aenderungen, kein Auto-Merge, keine Auto-Repair, keine Approval- oder Deployment-Aktivierung.
+
 ## KI-Fortsetzungs-Prompt
 Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Dateien im Repository. Ergaenze gefundene Dateien in diesem Index. Uebertrage wichtige offene Aufgaben nach `NEXT_ACTIONS.md`. Loesche keine TODO-Dateien. Markiere doppelte oder veraltete Inhalte nur und setze Verweise auf die fuehrende Datei.
 
