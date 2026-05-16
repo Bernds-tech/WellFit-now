@@ -94,18 +94,19 @@
     "A passing gate can only say the merge gate is configured; it does not merge by itself."
   ],
   "requiredOutputLines": [
-    "Mode: REPORT_ONLY_MERGE_GATE",
-    "APPROVED_AGENT_BUILD_RUNNER_READY=true|false",
     "SELECTED_AGENT_BUILD_ID=<id>|none",
     "MAX_AGENTS_PER_RUN=1",
     "MISSING_CHECKS_BLOCK_MERGE=true",
     "GATE_CONFIGURATION_READY=true|false",
-    "MERGE_READY=false",
     "Never creates agents automatically: true",
     "Never opens PRs automatically: true",
     "Never approves PRs: true",
-    "Never merges PRs by itself: true",
-    "Never deploys: true"
+    "REPORT_ONLY_MERGE_GATE=true",
+    "MERGE_READY=true|false",
+    "SAFE_REPAIR_LIMITED=true",
+    "NEVER_MERGES=true",
+    "NEVER_DEPLOYS=true",
+    "APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY=true|false"
   ],
   "connectedPolicies": [
     "project-register/approved-agent-build-backlog.json",
@@ -121,10 +122,10 @@
   ],
   "reportOutput": "scripts/wellfit-dev-agent/output/approved-agent-build-runner-merge-gate-report.md",
   "readinessSemantics": {
-    "gateConfigurationReady": "true means the report-only gate is configured, connected, and safe to run in quality-gate checks",
-    "mergeReady": "always false in this report-only validator unless a future evidence recorder proves every required build and PR guard check passed",
-    "exitCodeRule": "exit 0 when gate configuration is valid even though MERGE_READY=false; exit non-zero only when the gate policy, connections, hidden-character hygiene, or validator invariants fail",
-    "missingCheckRule": "missing, failed, skipped, unknown, stale, or absent check evidence blocks merge-ready status but must not make the configuration validator fail by itself"
+    "gateConfigurationReady": "GATE_CONFIGURATION_READY=true means the report-only gate policy, register, doc, validator, connected policies, hidden-character hygiene, and quality-gate signals are valid; it does not mean a concrete PR is merge-ready.",
+    "mergeReady": "MERGE_READY=false is a safe normal report-only decision whenever required build/PR guard evidence is missing, failed, skipped, unknown, stale, absent, or the validator is only checking gate configuration. It blocks actual merging but must not fail a valid gate configuration.",
+    "missingCheckEvidenceBehavior": "Missing check evidence sets MERGE_READY=false and keeps validator exit 0 when GATE_CONFIGURATION_READY=true; it sets GATE_CONFIGURATION_READY=false only if required gate policy/configuration fields are invalid.",
+    "exitCodeRule": "Exit 0 when GATE_CONFIGURATION_READY=true even if MERGE_READY=false; exit 1 only when GATE_CONFIGURATION_READY=false."
   },
   "hiddenUnicodePolicy": {
     "enabled": true,
@@ -137,5 +138,9 @@
       "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE.md",
       "scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs"
     ]
-  }
+  },
+  "gateConfigurationReadySemantics": "GATE_CONFIGURATION_READY=true means the report-only gate policy, register, doc, validator, connected policies, hidden-character hygiene, and quality-gate signals are valid; it does not mean a concrete PR is merge-ready.",
+  "mergeReadyDecisionSemantics": "MERGE_READY=false is a safe normal report-only decision whenever required build/PR guard evidence is missing, failed, skipped, unknown, stale, absent, or the validator is only checking gate configuration. It blocks actual merging but must not fail a valid gate configuration.",
+  "missingCheckEvidenceBehavior": "Missing check evidence sets MERGE_READY=false and keeps validator exit 0 when GATE_CONFIGURATION_READY=true; it sets GATE_CONFIGURATION_READY=false only if required gate policy/configuration fields are invalid.",
+  "validatorExitBehavior": "Exit 0 when GATE_CONFIGURATION_READY=true even if MERGE_READY=false; exit 1 only when GATE_CONFIGURATION_READY=false."
 }

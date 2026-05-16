@@ -45,6 +45,10 @@ const REQUIRED_TOP_LEVEL_FIELDS = [
   "connectedPolicies",
   "reportOutput",
   "readinessSemantics",
+  "gateConfigurationReadySemantics",
+  "mergeReadyDecisionSemantics",
+  "missingCheckEvidenceBehavior",
+  "validatorExitBehavior",
   "hiddenUnicodePolicy"
 ];
 
@@ -156,6 +160,12 @@ function selectNextAgent(backlog, gate) {
     .sort((a, b) => Number(a.suggestedBuildOrder ?? 9999) - Number(b.suggestedBuildOrder ?? 9999))[0] ?? null;
 }
 
+function isSafeRepairLimited(gate) {
+  const safeRepair = gate.safeRepairPolicy ?? {};
+  const safeRepairForbiddenMissing = missingValues(safeRepair.forbiddenCategories, REQUIRED_SAFE_REPAIR_FORBIDDEN);
+  return safeRepair.enabledForGateDecision === true && safeRepair.neverRepairsByItself === true && safeRepair.requiresSeparatePatch === true && safeRepairForbiddenMissing.length === 0;
+}
+
 function validate(gate, backlog, catalog, proposals, policies) {
   const results = [];
   const missingTopFields = missingFields(gate, REQUIRED_TOP_LEVEL_FIELDS);
@@ -182,6 +192,7 @@ function validate(gate, backlog, catalog, proposals, policies) {
   const safeRepairForbiddenMissing = missingValues(safeRepair.forbiddenCategories, REQUIRED_SAFE_REPAIR_FORBIDDEN);
   addResult(results, "Safe repair is limited and never self-applies", safeRepair.enabledForGateDecision === true && safeRepair.neverRepairsByItself === true && safeRepair.requiresSeparatePatch === true, `enabled=${safeRepair.enabledForGateDecision}; neverRepairsByItself=${safeRepair.neverRepairsByItself}; requiresSeparatePatch=${safeRepair.requiresSeparatePatch}`);
   addResult(results, "Safe repair forbids runtime/protected categories", safeRepairForbiddenMissing.length === 0, safeRepairForbiddenMissing.join(", ") || "complete");
+  addResult(results, "SAFE_REPAIR_LIMITED output is backed by policy", isSafeRepairLimited(gate), `SAFE_REPAIR_LIMITED=${isSafeRepairLimited(gate)}`);
 
   const selected = selectNextAgent(backlog, gate);
   addResult(results, "Exactly one next approved agent can be selected", Boolean(selected), selected ? `${selected.id} (${selected.proposedAgentName})` : "none");
@@ -216,7 +227,9 @@ function validate(gate, backlog, catalog, proposals, policies) {
   addResult(results, "Human-readable doc exists", exists(PATHS.doc), PATHS.doc);
 
   const semantics = gate.readinessSemantics ?? {};
-  addResult(results, "Gate separates configuration readiness from merge readiness", String(semantics.exitCodeRule ?? "").includes("exit 0") && String(semantics.mergeReady ?? "").includes("always false"), `exitCodeRule=${semantics.exitCodeRule ?? "missing"}`);
+  const exactSemanticsPresent = typeof gate.gateConfigurationReadySemantics === "string" && typeof gate.mergeReadyDecisionSemantics === "string" && typeof gate.missingCheckEvidenceBehavior === "string" && typeof gate.validatorExitBehavior === "string";
+  const semanticsSeparateGateAndMerge = String(gate.validatorExitBehavior ?? semantics.exitCodeRule ?? "").includes("Exit 0") && String(gate.mergeReadyDecisionSemantics ?? semantics.mergeReady ?? "").includes("safe normal report-only") && String(gate.missingCheckEvidenceBehavior ?? "").includes("sets MERGE_READY=false");
+  addResult(results, "Gate separates configuration readiness from merge readiness", exactSemanticsPresent && semanticsSeparateGateAndMerge, `validatorExitBehavior=${gate.validatorExitBehavior ?? semantics.exitCodeRule ?? "missing"}`);
 
   const hiddenPolicy = gate.hiddenUnicodePolicy ?? {};
   const hiddenFindings = asArray(hiddenPolicy.checkedFiles).flatMap(findHiddenUnicode);
@@ -233,9 +246,53 @@ function validate(gate, backlog, catalog, proposals, policies) {
   return { results, selected };
 }
 
-function renderReport(results, selected, ready) {
+function renderReport(results, selected, ready, gate) {
   const selectedId = selected?.id ?? "none";
-  return `# Approved Agent Build Runner + Merge Gate Report\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_ONLY_MERGE_GATE\nResult: ${ready ? "PASS" : "FAIL"}\nAPPROVED_AGENT_BUILD_RUNNER_READY=${ready ? "true" : "false"}\nSELECTED_AGENT_BUILD_ID=${selectedId}\nMAX_AGENTS_PER_RUN=1\nMISSING_CHECKS_BLOCK_MERGE=true\nGATE_CONFIGURATION_READY=${ready ? "true" : "false"}\nMERGE_READY=false\n\n## Selected Agent\n\n${selected ? `- ID: \`${selected.id}\`\n- Name: ${selected.proposedAgentName}\n- Status: \`${selected.status}\`\n- Risk level: \`${selected.riskLevel}\`\n- Suggested build order: \`${selected.suggestedBuildOrder}\`` : "No eligible approved agent selected."}\n\n## Gate Results\n\n${renderResults(results)}\n\n## Safety Confirmations\n\n- Never creates agents automatically: true\n- Never opens PRs automatically: true\n- Never approves PRs: true\n- Never merges PRs by itself: true\n- Never repairs runtime files: true\n- Never deploys: true\n\n## Merge Gate Decision\n\nMERGE_READY=false because this validator only proves the gate is configured. Future merge-ready status requires recorded passing evidence for every required build and PR guard check. Missing, failed, skipped, unknown, stale, or absent checks must keep MERGE_READY=false.\n`;
+  const safeRepairLimited = isSafeRepairLimited(gate);
+  return `# Approved Agent Build Runner + Merge Gate Report
+
+Generated: ${new Date().toISOString()}
+REPORT_ONLY_MERGE_GATE=true
+Result: ${ready ? "PASS" : "FAIL"}
+GATE_CONFIGURATION_READY=${ready ? "true" : "false"}
+MERGE_READY=false
+MISSING_CHECKS_BLOCK_MERGE=true
+SAFE_REPAIR_LIMITED=${safeRepairLimited ? "true" : "false"}
+NEVER_MERGES=true
+NEVER_DEPLOYS=true
+APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY=${ready ? "true" : "false"}
+SELECTED_AGENT_BUILD_ID=${selectedId}
+MAX_AGENTS_PER_RUN=1
+
+## Selected Agent
+
+${selected ? `- ID: \`${selected.id}\`
+- Name: ${selected.proposedAgentName}
+- Status: \`${selected.status}\`
+- Risk level: \`${selected.riskLevel}\`
+- Suggested build order: \`${selected.suggestedBuildOrder}\`` : "No eligible approved agent selected."}
+
+## Gate Results
+
+${renderResults(results)}
+
+## Safety Confirmations
+
+- Report-only merge gate: true
+- Gate configuration ready: ${ready ? "true" : "false"}
+- Merge ready: false
+- Missing checks block merge: true
+- Safe repair limited: ${safeRepairLimited ? "true" : "false"}
+- Never creates agents automatically: true
+- Never opens PRs automatically: true
+- Never approves PRs: true
+- Never merges: true
+- Never deploys: true
+
+## Merge Gate Decision
+
+MERGE_READY=false is safe and expected for this report-only gate until a future evidence recorder proves every required build and PR guard check passed. A valid configuration exits successfully with GATE_CONFIGURATION_READY=true even when MERGE_READY=false. Missing, failed, skipped, unknown, stale, or absent check evidence must keep MERGE_READY=false without failing the validator by itself.
+`;
 }
 
 function main() {
@@ -257,21 +314,22 @@ function main() {
   const ready = results.every((result) => result.passed);
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-  fs.writeFileSync(OUTPUT_PATH, renderReport(results, selected, ready), "utf8");
+  fs.writeFileSync(OUTPUT_PATH, renderReport(results, selected, ready, gate), "utf8");
 
   console.log(`WellFit approved agent build runner merge gate report written: ${path.relative(ROOT, OUTPUT_PATH)}`);
-  console.log("Mode: REPORT_ONLY_MERGE_GATE");
-  console.log(`APPROVED_AGENT_BUILD_RUNNER_READY=${ready ? "true" : "false"}`);
-  console.log(`SELECTED_AGENT_BUILD_ID=${selected?.id ?? "none"}`);
-  console.log("MAX_AGENTS_PER_RUN=1");
-  console.log("MISSING_CHECKS_BLOCK_MERGE=true");
+  console.log("REPORT_ONLY_MERGE_GATE=true");
   console.log(`GATE_CONFIGURATION_READY=${ready ? "true" : "false"}`);
   console.log("MERGE_READY=false");
+  console.log("MISSING_CHECKS_BLOCK_MERGE=true");
+  console.log(`SAFE_REPAIR_LIMITED=${isSafeRepairLimited(gate) ? "true" : "false"}`);
+  console.log("NEVER_MERGES=true");
+  console.log("NEVER_DEPLOYS=true");
+  console.log(`APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY=${ready ? "true" : "false"}`);
+  console.log(`SELECTED_AGENT_BUILD_ID=${selected?.id ?? "none"}`);
+  console.log("MAX_AGENTS_PER_RUN=1");
   console.log("Never creates agents automatically: true");
   console.log("Never opens PRs automatically: true");
   console.log("Never approves PRs: true");
-  console.log("Never merges PRs by itself: true");
-  console.log("Never deploys: true");
   console.log(`Result: ${ready ? "PASS" : "FAIL"}`);
 
   if (!ready) {

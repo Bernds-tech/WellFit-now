@@ -115,3 +115,18 @@ This separation fixes the unsafe/ambiguous merge-gate behavior where a safe `MER
 ## Hidden Unicode review hygiene
 
 Gate-owned files are checked for hidden or bidirectional Unicode control characters. If GitHub warns that a gate file contains hidden or bidirectional Unicode text, the validator should fail until the hidden controls are removed. This keeps the merge gate reviewable and avoids hidden-character merge blockers.
+
+## Required machine output contract
+
+The validator must print and report these machine-readable lines:
+
+- `REPORT_ONLY_MERGE_GATE=true`
+- `GATE_CONFIGURATION_READY=true|false`
+- `MERGE_READY=true|false`
+- `MISSING_CHECKS_BLOCK_MERGE=true`
+- `SAFE_REPAIR_LIMITED=true`
+- `NEVER_MERGES=true`
+- `NEVER_DEPLOYS=true`
+- `APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY=true|false`
+
+For the current report-only implementation, a healthy gate normally reports `GATE_CONFIGURATION_READY=true`, `APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY=true`, and `MERGE_READY=false`. That combination is a passing validator state and a blocked actual-merge state.

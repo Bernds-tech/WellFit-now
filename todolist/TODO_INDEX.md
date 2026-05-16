@@ -370,3 +370,4 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - [x] The gate enforces `maxAgentsPerRun = 1`, selects exactly one eligible next approved backlog item, and keeps `MERGE_READY=false` whenever required check evidence is missing, failed, skipped, unknown, stale, or absent.
 - [ ] Next safe follow-up: after this gate passes in CI/quality gate, run a dedicated one-agent planning/build PR for `multisensory-learning-engine` without runtime code changes.
 - [x] Hardened merge-gate semantics so the validator/quality gate can pass for a valid report-only gate while still keeping concrete PR merge readiness false until all required evidence exists; gate-owned files are checked for hidden/bidirectional Unicode controls.
+- [x] PR #112 merge repair: validator and quality-gate expectations now use the explicit machine output contract and allow `MERGE_READY=false` when `GATE_CONFIGURATION_READY=true`.
