@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "id": "approved-agent-build-runner-merge-gate",
+  "purpose": "Record the report-only Approved Agent Build Runner Merge Gate semantics so gate configuration readiness is validated separately from concrete PR merge readiness.",
+  "semanticSplit": {
+    "gateConfigurationReadyMeaning": "Gate configuration readiness: the merge-gate policy, register, documentation, validator, and Quality Gate integration are internally consistent and safe to report.",
+    "mergeReadyMeaning": "A concrete pull request has all required local, post-PR, GitHub check, protected-scope, human-review, and mergeability evidence needed before a human may merge.",
+    "expectedReportOnlyState": "GATE_CONFIGURATION_READY=true with MERGE_READY=false is safe and expected while post-PR and required-check evidence is incomplete.",
+    "validatorExitRule": "The validator exits non-zero only when GATE_CONFIGURATION_READY=false; MERGE_READY=false is reported as a merge blocker, not as validator failure."
+  },
+  "signals": {
+    "REPORT_ONLY_MERGE_GATE": true,
+    "GATE_CONFIGURATION_READY": true,
+    "MERGE_READY": false,
+    "MISSING_CHECKS_BLOCK_MERGE": true,
+    "SAFE_REPAIR_LIMITED": true,
+    "NEVER_MERGES": true,
+    "NEVER_DEPLOYS": true,
+    "APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY": true
+  },
+  "mergeReadinessBlockers": [
+    "Missing post-PR mergeability evidence blocks actual merge readiness.",
+    "Missing required GitHub checks or unknown required-check status blocks actual merge readiness.",
+    "Missing local required-check evidence blocks actual merge readiness.",
+    "Protected or runtime product scope requires human review and blocks automated merge readiness.",
+    "Human PR review remains required before any merge."
+  ],
+  "missingCheckHandling": {
+    "missingChecksBlockActualMerge": true,
+    "missingChecksDoNotInvalidateGateConfiguration": true,
+    "qualityGateExpectation": "Quality Gate accepts MERGE_READY=false for this report-only gate when GATE_CONFIGURATION_READY=true and the non-authorizing safety signals are present."
+  },
+  "safeRepairBoundaries": {
+    "limited": true,
+    "allowedOnlyFor": [
+      "documentation/register/validator formatting",
+      "missing mapped references in TODO or Work Map files",
+      "project-register JSON parse/format corrections",
+      "report-only Quality Gate integration for governance validators"
+    ],
+    "forbiddenFor": [
+      "runtime product code",
+      "app/**",
+      "components/**",
+      "lib/**",
+      "functions/**",
+      "firestore.rules",
+      "public/**",
+      "package.json or package-lock.json",
+      "firebase.json",
+      ".github/**",
+      "native/unity/WellFitBuddyAR/**",
+      "PR approval, merge, unrestricted auto-merge, unrestricted auto-repair, or deployment"
+    ]
+  },
+  "protectedScopeConfirmation": {
+    "runtimeProductCodeTouched": false,
+    "protectedAreasTouched": false,
+    "unityOrPr13Touched": false,
+    "githubWorkflowTouched": false,
+    "packageOrDeployConfigTouched": false
+  },
+  "qualityGateIntegration": {
+    "script": "scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs",
+    "qualityGate": "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+    "acceptedReportOnlyFalseMergeReadyState": true
+  },
+  "nextRequiredEvidenceBeforeMergeReadyCanBecomeTrue": [
+    "Concrete PR branch is current with base and not main.",
+    "All required local checks pass and are recorded.",
+    "Post-PR mergeability guard evidence is available.",
+    "Required GitHub checks are success.",
+    "PR diff review confirms no runtime/protected/prohibited path scope.",
+    "Human review confirms merge approval outside of the agent."
+  ]
+}

@@ -4,6 +4,7 @@ Status: report-only framework
 Updated: 2026-05-16  
 Primary policy: `project-register/approved-agent-build-runner-policy.json`  
 State register: `project-register/agent-build-runner-state.json`
+Merge-gate register: `project-register/approved-agent-build-runner-merge-gate.json`
 
 ## Why this runner exists
 
@@ -33,6 +34,20 @@ The policy separates required checks into pre-build, build, post-build, post-PR,
 
 A PR must record exact commands and results. PR body claims must match executed checks. If a command was not run, the merge gate fails. If GitHub required checks are unavailable, unknown, pending, missing, or failing, the merge gate fails unless a separate explicit human override is present.
 
+
+## Corrected report-only merge-gate semantics
+
+The merge-gate validator now separates configuration readiness from concrete merge readiness:
+
+- `REPORT_ONLY_MERGE_GATE=true` means this gate only reports and validates safety semantics.
+- `GATE_CONFIGURATION_READY=true` means the gate configuration, register, documentation, validator output, and Quality Gate integration are valid.
+- `MERGE_READY=false` is the expected safe report-only state when a concrete PR still lacks post-PR mergeability evidence, required GitHub check success, complete local-check evidence, or human review.
+- `MISSING_CHECKS_BLOCK_MERGE=true` keeps missing, unknown, pending, skipped, failed, or environment-blocked checks as actual merge blockers.
+- `SAFE_REPAIR_LIMITED=true`, `NEVER_MERGES=true`, and `NEVER_DEPLOYS=true` keep the runner non-authorizing.
+- `APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY=true` is emitted only when the gate configuration is valid.
+
+The validator must exit `0` when `GATE_CONFIGURATION_READY=true`, even while `MERGE_READY=false`. It must exit non-zero only when `GATE_CONFIGURATION_READY=false`. Therefore a report-only PR can pass validation and Quality Gate while still reporting that actual merge readiness is blocked until complete evidence exists.
+
 ## Missing-check handling
 
 Missing required checks block merge. The runner must try to run missing checks before deciding. If a check cannot run because of environment or tooling limitations, the result is `environment_blocked` and the PR is not merge-ready. If a check fails for safe docs/register/governance reasons, a future activated runner may attempt safe repair within the same PR branch. If a check fails because of runtime, protected, high-risk, or product-judgment scope, the runner must stop, mark `repair_required`, and create a report/repair plan instead of merging.
@@ -59,8 +74,8 @@ Under this gate, a PR body that says checks were not executed and should be run 
 
 ## Future activation path
 
-After this report-only framework passes policy validation and quality gate checks, a separate human-approved task may activate controlled one-agent execution for the next eligible backlog entry. The next recommended activation target is the Multisensory Learning Engine, and only after this framework is merged. That future activation must still preserve `maxAgentsPerRun: 1`, report exact evidence, avoid protected/runtime paths, and pass the full merge gate before any merge.
+After this report-only framework passes policy validation and quality gate checks, a separate human-approved task may continue controlled one-agent execution for the next eligible backlog entry. Multisensory Learning Engine has already been selected by the first controlled activation; future activation should continue only from the approved backlog order, preserve `maxAgentsPerRun: 1`, report exact evidence, avoid protected/runtime paths, and pass the full merge gate before any merge.
 
 ## KI-Fortsetzungs-Prompt
 
-Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/approved-agent-build-runner-policy.json`, `project-register/agent-build-runner-state.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-catalog.json`, `project-register/agent-build-proposals.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json`, `project-register/pr-review-policy.json`, `project-register/pr-post-creation-guard.json`, `project-register/pr-diff-review-policy.json`, `project-register/task-status-policy.json`, `project-register/continuity-dependency-map.json`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs` und `scripts/wellfit-dev-agent/src/quality-gate.mjs`. Arbeite weiter nur am bestehenden Approved-Agent-Build-Runner- und Merge-Gate-Rahmen. Baue keine Future Agents automatisch, erstelle keine PRs aus dem Runner, merge nicht, repariere nicht automatisch, deploye nicht, fasse keine Runtime-/Protected-/Unity-/PR-#13-Dateien an und erweitere `maxAgentsPerRun` nicht ohne separate Freigabe.
+Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/approved-agent-build-runner-policy.json`, `project-register/approved-agent-build-runner-merge-gate.json`, `project-register/agent-build-runner-state.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-catalog.json`, `project-register/agent-build-proposals.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json`, `project-register/pr-review-policy.json`, `project-register/pr-post-creation-guard.json`, `project-register/pr-diff-review-policy.json`, `project-register/task-status-policy.json`, `project-register/continuity-dependency-map.json`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs` und `scripts/wellfit-dev-agent/src/quality-gate.mjs`. Arbeite weiter nur am bestehenden Approved-Agent-Build-Runner- und Merge-Gate-Rahmen. Baue keine Future Agents automatisch, erstelle keine PRs aus dem Runner, merge nicht, repariere nicht automatisch, deploye nicht, fasse keine Runtime-/Protected-/Unity-/PR-#13-Dateien an und erweitere `maxAgentsPerRun` nicht ohne separate Freigabe.
