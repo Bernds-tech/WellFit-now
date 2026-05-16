@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "updated": "2026-05-15",
+  "updated": "2026-05-16",
   "activationState": "limited_execution_planning",
   "purpose": "Report/check-only policy for a future strictly limited Batch Autopilot execution framework. This first version validates whether low-risk documentation, register, governance, and inventory tasks could be considered later; it does not execute tasks, create PRs, merge, repair, deploy, approve, or modify runtime product code.",
   "maxExecutableTasks": 3,
@@ -91,7 +91,10 @@
     "read_project-register/agent-work-log.json",
     "run_report_check_mode_before_any_future_execution",
     "confirm_branch_is_not_main",
-    "confirm_human_approval_is_present_before_any_future_execution"
+    "confirm_human_approval_is_present_before_any_future_execution",
+    "read_project-register/task-status-policy.json",
+    "read_docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
+    "run_task_status_work_log_sync_check_report_only"
   ],
   "requiredPostChecks": [
     "npm run lint",
@@ -102,7 +105,9 @@
     "node scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
     "jq empty project-register/autopilot-batch-execution-policy.json",
     "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
-    "npm run agent:autopilot:dry-run"
+    "npm run agent:autopilot:dry-run",
+    "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+    "jq empty project-register/task-status-policy.json"
   ],
   "requiredPerTaskChecks": [
     "task_risk_is_low",
@@ -115,7 +120,9 @@
     "task_required_checks_are_listed",
     "task_is_not_blocked_superseded_stale_done_or_review_required",
     "task_does_not_require_runtime_product_code_or_protected_area_changes",
-    "task_does_not_require_auto_merge_auto_repair_deploy_or_self_approval"
+    "task_does_not_require_auto_merge_auto_repair_deploy_or_self_approval",
+    "completed_task_records_structured_work_log_fields",
+    "blocked_task_records_blocker_or_human_review_note"
   ],
   "branchRules": {
     "mustCreateTaskBranch": true,
@@ -186,7 +193,9 @@
     "pull_request_would_be_created_by_first_version",
     "merge_repair_deploy_or_self_approval_would_occur",
     "conflict_or_source_of_truth_disagreement_detected",
-    "required_check_failed_and_not_safely_classifiable"
+    "required_check_failed_and_not_safely_classifiable",
+    "task_status_sync_policy_missing_or_malformed",
+    "task_status_validator_would_rewrite_files"
   ],
   "reportOutputSchema": {
     "mode": "REPORT_CHECK_ONLY",

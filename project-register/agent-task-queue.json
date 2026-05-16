@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-15",
+  "updated": "2026-05-16",
   "status": "active",
   "purpose": "Machine-readable task-selection queue for future WellFit Codex/AI agents. It converts existing governance, work-map, route/API/feature registers, and safety constraints into safe next-task candidates, required first reads, stop rules, checks, and expected PR outputs without creating a parallel product architecture.",
   "sourceOfTruth": {
@@ -21,7 +21,9 @@
     "researchRecommendations": "project-register/research-recommendations.json",
     "adaptiveUserInsights": "project-register/adaptive-user-insights.json",
     "autopilotBatchPolicy": "project-register/autopilot-batch-policy.json",
-    "autopilotBatchArchitecture": "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md"
+    "autopilotBatchArchitecture": "docs/architecture/WELLFIT_AUTOPILOT_BATCH_MODE.md",
+    "taskStatusPolicy": "project-register/task-status-policy.json",
+    "taskStatusArchitecture": "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md"
   },
   "globalRequiredFirstReadFiles": [
     "AGENTS.md",
@@ -58,7 +60,10 @@
     "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
     "project-register/pr-review-policy.json",
     "docs/architecture/WELLFIT_PR_REVIEW_AGENT.md",
-    "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs"
+    "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+    "project-register/task-status-policy.json",
+    "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
+    "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -98,7 +103,9 @@
     "jq empty project-register/auto-repair-policy.json",
     "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
     "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
-    "jq empty project-register/pr-review-policy.json"
+    "jq empty project-register/pr-review-policy.json",
+    "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+    "jq empty project-register/task-status-policy.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -112,7 +119,8 @@
     "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs",
     "jq empty project-register/master-roadmap-tasks.json",
     "jq empty project-register/auto-repair-policy.json",
-    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
+    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "jq empty project-register/task-status-policy.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -120,14 +128,19 @@
       "checks_run_with_results",
       "known_risks_or_skipped_checks",
       "dependencies_installed_or_unchanged",
-      "next_recommended_task"
+      "next_recommended_task",
+      "task_status_work_log_policy_summary"
     ],
     "mustMention": [
       "branch_name",
       "risk_level",
       "definition_of_done_key_used",
       "whether_product_logic_was_unchanged",
-      "whether_protected_areas_were_untouched"
+      "whether_protected_areas_were_untouched",
+      "task_status_sync_ready_result",
+      "whether_automatic_todo_rewrites_were_disabled",
+      "auto_merge_eligibility_result",
+      "auto_repair_decision_result"
     ]
   },
   "taskCandidates": [
@@ -1496,6 +1509,91 @@
         "Confirm no auto-approval, auto-merge, auto-repair, or deployment is enabled.",
         "Confirm runtime product, Unity/PR #13, compliance, economy, health, child, location, privacy, reward authority, mission authority, and other protected areas were untouched.",
         "Recommend the next human-reviewed governance or product-readiness task."
+      ]
+    },
+    {
+      "id": "AGENT-TASK-STATUS-WORK-LOG-SYNC-GOVERNANCE",
+      "title": "Maintain report-only task status and work-log sync governance",
+      "category": "agent_governance_docs",
+      "taskCategory": "agent_governance_docs",
+      "riskLevel": "low",
+      "status": "ready",
+      "priority": 2,
+      "definitionOfDoneKey": "registry_task",
+      "purpose": "Maintain the report-only task status policy, architecture note, validation script, quality-gate hook, and existing governance cross-references so longer Autopilot and Batch Autopilot sessions can track open, in-progress, done, partially done, blocked, stale, duplicate, PR, changed-file, check, follow-up, and next-task evidence without automatic rewrites.",
+      "allowedFiles": [
+        "project-register/task-status-policy.json",
+        "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
+        "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/autopilot-batch-policy.json",
+        "project-register/autopilot-batch-execution-policy.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**",
+        "package.json",
+        "package-lock.json",
+        "public/**",
+        ".github/**",
+        "firebase.json"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/agent-task-queue.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json",
+        "project-register/agent-autopilot.json",
+        "project-register/autopilot-batch-policy.json",
+        "project-register/autopilot-batch-execution-policy.json",
+        "project-register/pr-review-policy.json",
+        "scripts/wellfit-dev-agent/src/todo-status-sync.mjs",
+        "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+        "jq empty project-register/task-status-policy.json",
+        "jq empty project-register/agent-work-log.json",
+        "jq empty project-register/progress-log.json",
+        "npm run agent:autopilot:dry-run",
+        "git diff --check"
+      ],
+      "stopConditions": [
+        "would_enable_auto_merge_or_auto_repair",
+        "would_rewrite_todo_files_automatically",
+        "runtime_product_or_protected_path_change_required",
+        "unity_or_pr_13_work_required",
+        "deployment_or_github_workflow_change_required",
+        "package_manifest_change_required"
+      ],
+      "expectedPrOutput": [
+        "List task status policy, architecture note, validation script, quality-gate, register, TODO, progress-log, and work-log files updated.",
+        "Summarize canonical status markers and required completed-task evidence.",
+        "Include TASK_STATUS_SYNC_READY=true/false from the report-only validator.",
+        "Confirm no automatic TODO/register rewriting, auto-merge, auto-repair, deployment, runtime product, Unity/PR #13, or protected-topic changes were enabled.",
+        "Recommend the next human-reviewed step toward a real Batch Execution Runner."
       ]
     }
   ],

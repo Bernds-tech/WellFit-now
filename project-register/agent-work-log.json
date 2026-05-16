@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-15",
+  "updated": "2026-05-16",
   "purpose": "Machine-readable WellFit agent work log for recording completed agent runs, changed files, checks, follow-ups, and the next recommended safe task without creating duplicate architecture or parallel systems.",
   "governance": {
     "readBeforeUpdating": [
@@ -1691,6 +1691,197 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "AGENT-TASK-STATUS-WORK-LOG-SYNC-GOVERNANCE",
+      "title": "Create WellFit Structured Task Status and Work Log Sync governance",
+      "status": "done",
+      "branch": "task-status-work-log-governance",
+      "pr": {
+        "branch": "task-status-work-log-governance",
+        "number": null,
+        "url": null,
+        "title": "Add task status and work-log sync governance"
+      },
+      "noPrReason": "PR is created after the branch commit by the repository agent; no PR number/URL exists at local work-log write time.",
+      "changedFiles": [
+        "project-register/task-status-policy.json",
+        "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
+        "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/autopilot-batch-policy.json",
+        "project-register/autopilot-batch-execution-policy.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checksRun": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+        "jq empty project-register/task-status-policy.json",
+        "jq empty project-register/agent-work-log.json",
+        "jq empty project-register/progress-log.json",
+        "npm run agent:autopilot:dry-run",
+        "git diff --check"
+      ],
+      "checkResults": [
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully; npm emitted non-blocking unknown http-proxy config warning."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript completed successfully; npm emitted non-blocking unknown http-proxy config warning."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax check completed successfully; npm emitted non-blocking unknown http-proxy config warning."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Quality gate passed with task status/work-log sync check included report-only."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+          "result": "pass_with_warnings",
+          "notes": "TASK_STATUS_SYNC_READY=true; warnings are legacy missing optional PR/timestamp/auto-merge/auto-repair/protected-area fields and one legacy progress ID without inferable taskId."
+        },
+        {
+          "command": "jq empty project-register/task-status-policy.json",
+          "result": "pass",
+          "notes": "JSON valid."
+        },
+        {
+          "command": "jq empty project-register/agent-work-log.json",
+          "result": "pass",
+          "notes": "JSON valid."
+        },
+        {
+          "command": "jq empty project-register/progress-log.json",
+          "result": "pass",
+          "notes": "JSON valid."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Dry run completed without writing files and selected a safe low-risk documentation baseline task."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "No whitespace errors."
+        }
+      ],
+      "checks": [
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully; npm emitted non-blocking unknown http-proxy config warning."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript completed successfully; npm emitted non-blocking unknown http-proxy config warning."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax check completed successfully; npm emitted non-blocking unknown http-proxy config warning."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Quality gate passed with task status/work-log sync check included report-only."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+          "result": "pass_with_warnings",
+          "notes": "TASK_STATUS_SYNC_READY=true; warnings are legacy missing optional PR/timestamp/auto-merge/auto-repair/protected-area fields and one legacy progress ID without inferable taskId."
+        },
+        {
+          "command": "jq empty project-register/task-status-policy.json",
+          "result": "pass",
+          "notes": "JSON valid."
+        },
+        {
+          "command": "jq empty project-register/agent-work-log.json",
+          "result": "pass",
+          "notes": "JSON valid."
+        },
+        {
+          "command": "jq empty project-register/progress-log.json",
+          "result": "pass",
+          "notes": "JSON valid."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Dry run completed without writing files and selected a safe low-risk documentation baseline task."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "No whitespace errors."
+        }
+      ],
+      "autoMergeEligibilityResult": {
+        "mode": "report_only",
+        "enabled": false,
+        "result": "not_enabled_not_merged",
+        "evidence": "Auto-merge policy/check remains report-only; this task did not enable or perform auto-merge."
+      },
+      "autoRepairDecisionResult": {
+        "mode": "report_only",
+        "enabled": false,
+        "result": "not_enabled_not_repaired",
+        "evidence": "Auto-repair policy/check remains report-only; this task did not enable or perform auto-repair."
+      },
+      "protectedAreaConfirmation": {
+        "runtimeProductCodeTouched": false,
+        "protectedPathsTouched": false,
+        "unityOrPr13Touched": false,
+        "packageOrPublicOrGithubWorkflowTouched": false,
+        "complianceCriticalLogicTouched": false,
+        "notes": "Documentation/register/validation-script governance only; app, components, lib, functions, firestore.rules, public, package manifests, firebase.json, .github, Unity/PR #13, and protected token/wallet/payment/reward/mission/health/child/location/privacy/legal/compliance logic remained untouched."
+      },
+      "followUps": [
+        "Human-review a local-write-only structured task outcome appender before any real Batch Execution Runner writes work-log/progress entries automatically; keep TODO rewrites, auto-merge, auto-repair, deployment, runtime product code, Unity/PR #13, and protected-topic work disabled until separately approved."
+      ],
+      "nextRecommendedTask": "Design the next human-reviewed step toward a real Batch Execution Runner: a local-write-only validated outcome appender for structured progress-log and agent-work-log entries, still without automatic TODO rewriting, auto-merge, auto-repair, deployment, runtime product code, or protected-area changes.",
+      "updatedTodoFiles": [
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task",
+      "taskStatusPolicyVersion": "1.0.0",
+      "date": "2026-05-16",
+      "timestamp": "2026-05-16T09:28:33.803Z",
+      "workLogVersion": "1.0.0"
     }
   ]
 }

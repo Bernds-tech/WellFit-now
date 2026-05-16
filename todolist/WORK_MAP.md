@@ -26,6 +26,14 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 - `scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs` validiert die Policy, Pflicht-Checklistenfelder, Protected-Area-Checks, Work-Map-/TODO-Index-Verweise und report-only Auto-Merge-/Auto-Repair-Grenzen; der Check ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
 - Die PR-Review-Policy ist nicht autorisierend: Sie darf keine PRs approven, nicht mergen, keine Dateien reparieren, nicht deployen und keine Protected-Area- oder Compliance-Freigabe ersetzen.
 
+
+## Task status and work-log sync governance
+
+- `project-register/task-status-policy.json` ist die maschinenlesbare report-only Policy fuer kanonische TODO-Statusmarker, Task-Lifecycle, Work-Log-/Progress-Log-Pflichtfelder, PR-/Changed-File-/Check-/Follow-up-/Next-Task-Evidence und Batch-Session-Regeln.
+- `docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md` erklaert die Status-/Work-Log-Synchronisierung fuer Menschen und bestaetigt, dass dieser erste Schritt keine TODO-Dateien automatisch umschreibt.
+- `scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs` validiert Policy, `agent-work-log.json`, `progress-log.json`, `TODO_INDEX.md` und `NEXT_ACTIONS.md` report-only und gibt `TASK_STATUS_SYNC_READY=true/false` aus; der Check ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
+- Diese Governance erweitert den bestehenden Agent-Memory-Loop, Autopilot, Batch-Autopilot, PR Outcome Recorder, PR Review Agent, Auto-Merge-Report und Auto-Repair-Report; sie aktiviert weder Auto-Merge noch Auto-Repair und ersetzt keine bestehenden Fuehrungsdateien.
+
 ## Internal source map
 
 - `project-register/internal-sources.json` ist die maschinenlesbare WellFit Internal-Source-to-Implementation-Map. Sie verbindet interne Konzeptgruppen (Master-Bibel, Whitepaper/Investor, Tokenomics, Buddy, Kinder/Familien/Active Breaks, AR/Unity, B2B, Feedback/Analytics) mit vorhandenen Dateien aus dieser Work Map und den Project-Register-Dateien.

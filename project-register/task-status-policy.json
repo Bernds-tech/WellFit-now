@@ -1,0 +1,165 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Defines the canonical report-only task status and work-log synchronization rules for TODO files, project-register/agent-task-queue.json, project-register/progress-log.json, project-register/agent-work-log.json, Autopilot dry runs, Batch Autopilot dry runs, PR outcome recording, PR review, auto-merge reporting, and auto-repair reporting without rewriting files automatically or enabling merge/repair/deploy behavior.",
+  "canonicalStatusMarkers": [
+    { "marker": "[ ]", "status": "open", "meaning": "Task is known and not started." },
+    { "marker": "[>]", "status": "in_progress", "meaning": "Task is actively being worked or intentionally reserved by an agent/session." },
+    { "marker": "[x]", "status": "done", "meaning": "Task is completed with recorded evidence." },
+    { "marker": "[~]", "status": "partially_done", "meaning": "Task has useful completed parts but remaining scope or validation is explicit." },
+    { "marker": "[!]", "status": "blocked_or_review_required", "meaning": "Task is blocked, unsafe, unclear, protected, or requires human review before continuing." },
+    { "marker": "[-]", "status": "stale_or_superseded", "meaning": "Task/source is no longer leading and must point to the current canonical source when possible." },
+    { "marker": "[D]", "status": "duplicate", "meaning": "Task/source duplicates another canonical item and must link or name that leading item when possible." }
+  ],
+  "taskStatusLifecycle": {
+    "allowedTransitions": [
+      "open -> in_progress",
+      "open -> blocked_or_review_required",
+      "open -> stale_or_superseded",
+      "open -> duplicate",
+      "in_progress -> done",
+      "in_progress -> partially_done",
+      "in_progress -> blocked_or_review_required",
+      "partially_done -> in_progress",
+      "partially_done -> done",
+      "blocked_or_review_required -> open",
+      "blocked_or_review_required -> in_progress",
+      "blocked_or_review_required -> done",
+      "stale_or_superseded -> duplicate",
+      "duplicate -> stale_or_superseded"
+    ],
+    "terminalStatuses": ["done", "stale_or_superseded", "duplicate"],
+    "nonTerminalStatuses": ["open", "in_progress", "partially_done", "blocked_or_review_required"],
+    "statusMustRemainHumanReadableInTodoFiles": true,
+    "machineRegistersMayUseCanonicalStatusNames": true
+  },
+  "requiredWorkLogFields": [
+    "taskId",
+    "title",
+    "status",
+    "branch",
+    "prNumberOrUrlIfApplicable",
+    "changedFiles",
+    "checksRun",
+    "checkResults",
+    "autoMergeEligibilityResult",
+    "autoRepairDecisionResult",
+    "protectedAreaConfirmation",
+    "followUps",
+    "nextRecommendedTask",
+    "timestampOrDate"
+  ],
+  "requiredProgressLogFields": [
+    "id",
+    "date",
+    "branch",
+    "goal",
+    "changedAreas",
+    "productLogicChanged",
+    "productionDeployTriggered",
+    "notes",
+    "taskIdWhenApplicable"
+  ],
+  "inProgressRules": {
+    "maxAgeHoursWithoutExplanation": 24,
+    "requiresBranch": true,
+    "requiresOwnerOrSessionNote": true,
+    "requiresBlockedOrContinuationNoteWhenStale": true,
+    "mustNotReserveProtectedAreasWithoutHumanApproval": true
+  },
+  "doneRules": {
+    "requiresChangedFiles": true,
+    "requiresChecksRunAndResults": true,
+    "requiresPRNumberOrUrlWhenPRExists": true,
+    "requiresNoAutoMergeConfirmation": true,
+    "requiresNoAutoRepairConfirmation": true,
+    "requiresProtectedAreaConfirmation": true,
+    "requiresFollowUpsArray": true,
+    "requiresNextRecommendedTask": true
+  },
+  "blockedRules": {
+    "requiresBlockerReason": true,
+    "requiresHumanReviewNoteForProtectedAreas": true,
+    "requiresNextSafeActionOrStopCondition": true,
+    "mustNotBeAutoCleared": true
+  },
+  "duplicateStaleRules": {
+    "staleRequiresCanonicalPointerWhenKnown": true,
+    "duplicateRequiresCanonicalTaskOrFileWhenKnown": true,
+    "mustPreserveHistoricalContext": true,
+    "mustNotDeleteTodoOrPlanningFiles": true
+  },
+  "PRLinkRules": {
+    "completedTaskMustRecordPRWhenApplicable": true,
+    "acceptedFields": ["pr.number", "pr.url", "prNumber", "prUrl", "pullRequestUrl"],
+    "missingPRAllowedOnlyWhenNoPRWasCreatedAndReasonIsRecorded": true,
+    "prReviewPolicyReference": "project-register/pr-review-policy.json"
+  },
+  "changedFileRules": {
+    "changedFilesMustBeRelativePaths": true,
+    "mustListTouchedPlanningAndRegisterFiles": true,
+    "mustConfirmRuntimeProtectedAreasUntouchedWhenTaskIsDocsOnly": true,
+    "forbiddenForThisPolicyToModifyRuntimeProductCode": true
+  },
+  "checkResultRules": {
+    "checksMustIncludeCommandAndResult": true,
+    "failedChecksMustIncludeReasonAndClassification": true,
+    "environmentLimitationsMustBeMarkedAsWarnings": true,
+    "qualityGateMayConsumeReportOnlyResult": true
+  },
+  "followUpRules": {
+    "followUpsMustBeArray": true,
+    "emptyFollowUpsAllowedOnlyWhenExplicitlyNone": true,
+    "followUpsMustAvoidProtectedRuntimeImplementationUnlessApproved": true
+  },
+  "nextTaskRules": {
+    "nextRecommendedTaskRequiredForCompletedWork": true,
+    "mustPointToExistingWorkMapTodoIndexOrTaskQueueWhenKnown": true,
+    "mustNotRecommendAutoMergeAutoRepairDeployOrProtectedAreaWorkWithoutHumanApproval": true
+  },
+  "batchSessionRules": {
+    "batchDryRunMustReadProgressAndWorkLogBeforeSelectingTasks": true,
+    "batchExecutionMustRecordEveryExecutedTaskSeparately": true,
+    "batchSummaryMustRecordCompletedBlockedSkippedAndFollowUpTasks": true,
+    "mustPreserveCooldownAndLoopGuardEvidence": true,
+    "realBatchExecutionRequiresHumanApprovalUntilPolicyChanges": true
+  },
+  "forbiddenAutoUpdates": [
+    "Do not rewrite TODO files automatically in this first version.",
+    "Do not auto-update agent-task-queue.json statuses without explicit local-write tooling and human-reviewed output.",
+    "Do not enable auto-merge.",
+    "Do not enable auto-repair.",
+    "Do not deploy.",
+    "Do not modify runtime product code, protected compliance logic, Unity files, package manifests, public assets, Functions, Firestore Rules, or GitHub workflow files as part of this governance check."
+  ],
+  "humanReviewRequiredFor": [
+    "auto-merge enablement",
+    "auto-repair enablement",
+    "real batch execution beyond report/check-only planning",
+    "protected path or protected topic changes",
+    "missing PR/check evidence on completed tasks",
+    "blocked tasks involving compliance, reward authority, mission completion authority, payment, wallet, token, NFT, health, child, location, privacy, legal, or Unity/PR #13 areas",
+    "automatic TODO/register rewrites"
+  ],
+  "reportOutputSchema": {
+    "mode": "REPORT_ONLY",
+    "neverRewritesFiles": true,
+    "requiredTopLevelOutput": [
+      "WellFit Task Status Work Log Sync Check",
+      "Mode: REPORT_ONLY",
+      "Never rewrites files: true",
+      "TASK_STATUS_SYNC_READY=true|false",
+      "Errors",
+      "Warnings"
+    ],
+    "readyCriteria": [
+      "policy JSON parses and includes required governance fields",
+      "TODO_INDEX.md and NEXT_ACTIONS.md contain only canonical status markers in task-list lines",
+      "completed current-format work-log entries include task, branch, changed-file, check-result, auto-merge, auto-repair, protected-area, follow-up, next-task, and timestamp/date evidence",
+      "progress entries either include or infer task IDs where applicable",
+      "blocked entries include blocker or human-review evidence",
+      "validator remains report-only and does not rewrite files"
+    ]
+  }
+}
