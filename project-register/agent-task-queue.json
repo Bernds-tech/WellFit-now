@@ -2618,6 +2618,81 @@
         "confirmation runtime/product/protected areas were untouched",
         "next recommended task: controlled one-agent runner activation for Multisensory Learning Engine only after this framework is merged"
       ]
+    },
+    {
+      "id": "AGENT-MULTISENSORY-LEARNING-ENGINE",
+      "title": "Maintain Multisensory Learning Engine report-only framework",
+      "status": "active",
+      "category": "agent_governance",
+      "riskLevel": "medium",
+      "priority": "P2",
+      "allowedFiles": [
+        "project-register/multisensory-learning-engine.json",
+        "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md",
+        "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/continuity-dependency-map.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/approved-agent-build-runner-policy.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-catalog.json",
+        "project-register/agent-build-proposals.json"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/multisensory-learning-engine.json",
+        "jq empty project-register/agent-catalog.json",
+        "jq empty project-register/approved-agent-build-backlog.json",
+        "git diff --check"
+      ],
+      "definitionOfDoneKey": "documentation_registry_script_only",
+      "stopConditions": [
+        "runtime learning personalization, tracking, profiling, AR/Unity behavior, reward authority, or mission-completion authority would be enabled",
+        "protected data would be stored by default or used as reward/mission authority",
+        "token, NFT, wallet, payment, betting, health, child/minor, location, camera, biometric, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy behavior would change"
+      ],
+      "expectedOutput": "Report-only Multisensory Learning Engine register, architecture, validator, and mapping updates that keep learning channels planning-safe and review_required for protected contexts.",
+      "expectedPrOutput": [
+        "changed files",
+        "checks run",
+        "Multisensory Learning Engine summary",
+        "protected/review_required boundaries",
+        "runner dry-run result",
+        "merge gate evidence summary",
+        "confirmation no runtime personalization, AR/Unity behavior, learning runtime, reward authority, or mission-completion authority was enabled",
+        "confirmation runtime/product/protected areas were untouched",
+        "next recommended task: controlled one-agent runner activation for Mission Factory Agent or Product Intelligence Agent"
+      ]
     }
   ],
   "selectionRules": [

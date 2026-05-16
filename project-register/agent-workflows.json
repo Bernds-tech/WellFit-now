@@ -839,5 +839,9 @@
         "jq empty project-register/adaptive-difficulty-agent.json"
       ]
     }
+  ],
+  "requiredChecks": [
+    "node scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
+    "jq empty project-register/multisensory-learning-engine.json"
   ]
 }

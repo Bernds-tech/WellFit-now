@@ -1650,6 +1650,62 @@
         "no token/NFT/wallet/payment/reward/mission-authority/health/child/location/privacy/legal/compliance changes"
       ],
       "nextSafeMaintenanceTask": "After this framework merges, separately request controlled one-agent runner activation for Multisensory Learning Engine only."
+    },
+    {
+      "id": "multisensory-learning-engine",
+      "name": "Multisensory Learning Engine",
+      "status": "report_only",
+      "agentType": "multisensory_learning_guard",
+      "purpose": "Report-only framework for planning movement, visual, audio, story, quiz, social/family, environment, optional AR, reflection, and AI Buddy explanation learning experiences without runtime personalization, protected-data profiling, reward authority, or mission-completion authority.",
+      "ownerArea": "Learning / Human Motivation / Ethical Engagement",
+      "primaryRegisters": [
+        "project-register/multisensory-learning-engine.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-difficulty-agent",
+        "adaptive-user-insight-agent",
+        "research-recommendation-agent",
+        "product-readiness-matrix",
+        "website-agent-framework"
+      ],
+      "relatedRegisters": [
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible learning-channel rule additions",
+        "report-only validator coverage",
+        "Work Map/TODO Index/source-of-truth reference updates",
+        "human-review checklist additions for protected learning, AR, Buddy, reward, and mission boundaries"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime learning personalization or profiling",
+        "runtime AR, Unity, camera, location, or environment behavior",
+        "mission factory execution authority",
+        "reward or mission completion authority",
+        "protected child/minor, health, location, camera, face, biometric, motion, consent, privacy, legal, compliance, token, wallet, payment, NFT, betting, payout, or money-near behavior",
+        "new Product Intelligence or runtime learning-engine owner domains"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes, runtime personalization, runtime tracking/profiling, protected-data processing, AR/Unity behavior, reward authority, mission-completion authority, token/NFT/wallet/payment/betting behavior, approval, merge, repair, or deploy authority.",
+        "Health, child/minor, location, camera, face, biometric, motion, consent, privacy, Unity/AR, reward-authority, and mission-authority behavior remains review_required.",
+        "Learning completion, quiz, movement, AR, Buddy, social, visual, audio, and environment signals are not final reward or mission-completion authority."
+      ],
+      "nextSafeMaintenanceTask": "Keep the Multisensory Learning Engine register, architecture doc, validator, Work Map, TODO Index, approved backlog, proposals, runner state, and quality-gate integration synchronized; next recommended task is Mission Factory Agent or Product Intelligence Agent depending on backlog order and risk review."
     }
   ]
 }

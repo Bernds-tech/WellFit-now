@@ -372,3 +372,9 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - [x] `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs` — report/check-only Validator fuer Policy, State, erlaubte/verbotene Pfade, Pflichtchecks, Safe Repair, Unsafe Stop, Missing Checks und Work-Map-/TODO-Index-Referenzen.
 - [x] `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs` — report-only Dry Run fuer die Auswahl genau eines naechsten already-approved Backlog-Agenten ohne Build, PR, Merge, Repair oder Deploy.
 - [x] `scripts/wellfit-dev-agent/src/quality-gate.mjs` — bindet Approved-Agent-Build-Runner-Check und Dry Run report-only in das bestehende Quality Gate ein.
+
+## Multisensory Learning Engine / Approved Agent Build Runner Activation (2026-05-16)
+
+| Topic | Leading files | Status | Notes |
+|---|---|---|---|
+| Multisensory Learning Engine | `project-register/multisensory-learning-engine.json`, `docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md`, `scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs` | report_only / active | First controlled Approved Agent Build Runner activation built exactly one approved framework. No runtime learning personalization, AR/Unity behavior, protected-data tracking/profiling, reward authority, mission-completion authority, token/NFT/wallet/payment/betting behavior, auto-merge, auto-repair, approval, deploy, or PR #13 action is enabled. |

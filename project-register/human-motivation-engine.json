@@ -397,5 +397,12 @@
   "adaptiveDifficultyAgentBoundary": {
     "register": "project-register/adaptive-difficulty-agent.json",
     "rule": "Adaptive difficulty is downstream of healthy motivation and must remain balanced, recovery-first, user-controlled, age-appropriate, privacy-minimizing, no-shame/no-FOMO, and report-only until separate review."
+  },
+  "multisensoryLearningEngineBoundary": {
+    "register": "project-register/multisensory-learning-engine.json",
+    "architecture": "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md",
+    "check": "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
+    "mode": "report_only",
+    "boundary": "No runtime learning personalization, protected-data profiling, AR/Unity behavior, reward authority, or mission-completion authority is enabled."
   }
 }

@@ -287,6 +287,74 @@
       "createdDate": "2026-05-16",
       "updatedDate": "2026-05-16",
       "generatedBuildPromptLocation": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md"
+    },
+    {
+      "id": "proposal-multisensory-learning-engine-2026-05-16",
+      "proposedAgentName": "Multisensory Learning Engine",
+      "sourceApprovedBacklogId": "multisensory-learning-engine",
+      "status": "built",
+      "reason": "The first controlled Approved Agent Build Runner activation selected the next eligible approved backlog entry and implemented it as a docs/register/validator-only Multisensory Learning Engine framework.",
+      "expectedBenefit": "Creates a safe source of truth for learning-through-movement, embodied cognition, visual/audio/story/quiz/social/environment/Buddy explanation planning, accessibility fallbacks, protected-data minimization, and reward/mission authority boundaries before runtime learning personalization exists.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-difficulty-agent",
+        "adaptive-user-insight-agent",
+        "research-recommendation-agent",
+        "product-readiness-matrix",
+        "website-agent-framework"
+      ],
+      "connectedRegisters": [
+        "project-register/multisensory-learning-engine.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json"
+      ],
+      "connectedAgentCount": 7,
+      "connectedRegisterCount": 8,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md"
+      ],
+      "requiredRegisters": [
+        "project-register/multisensory-learning-engine.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanReviewRequired": true,
+      "buildPromptSummary": "Build only the report-only Multisensory Learning Engine framework; do not enable runtime learning personalization, tracking/profiling, AR/Unity behavior, protected-data storage, reward authority, mission authority, monetization, token/wallet/payment/NFT/betting behavior, auto-repair, auto-merge, or product logic.",
+      "generatedBuildPromptLocation": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md",
+      "nextRecommendedAction": "Run the next controlled one-agent activation for Mission Factory Agent or Product Intelligence Agent depending on approved backlog order, risk classification, and human-reviewed merge-gate evidence.",
+      "createdDate": "2026-05-16",
+      "updatedDate": "2026-05-16"
     }
   ]
 }

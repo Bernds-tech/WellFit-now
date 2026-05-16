@@ -99,7 +99,7 @@
         "project-register/risk-classifier.json",
         "todolist/WORK_MAP.md",
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT"
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT"
       ],
       "current_blockers": [
         "Authentication and identity work can affect privacy, consent, account safety, and backend security.",
@@ -882,5 +882,12 @@
       ],
       "human_approval_required": true
     }
-  ]
+  ],
+  "multisensoryLearningEngineReference": {
+    "register": "project-register/multisensory-learning-engine.json",
+    "architecture": "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md",
+    "check": "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
+    "mode": "report_only",
+    "boundary": "No runtime learning personalization, protected-data profiling, AR/Unity behavior, reward authority, or mission-completion authority is enabled."
+  }
 }
