@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Report-only state ledger for the future Approved Agent Build Runner. This initial state records dry-run and merge-gate evidence only; it never builds agents, creates PRs, repairs, merges, deploys, or approves.",
+  "lastEvaluatedBacklogEntry": null,
+  "lastGeneratedPrompt": null,
+  "lastRunnerDryRun": null,
+  "lastRepairAttempt": null,
+  "lastMergeGateEvaluation": null,
+  "entries": []
+}

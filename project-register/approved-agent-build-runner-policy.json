@@ -1,0 +1,275 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Govern the future Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can later be built one at a time only when required checks, missing-check evidence, safe-repair boundaries, PR diff review, mergeability, and protected-scope gates are green.",
+  "approvedBacklogSource": "project-register/approved-agent-build-backlog.json",
+  "maxAgentsPerRun": 1,
+  "allowedAgentBuildCategories": [
+    "report_only_agent_framework",
+    "documentation_register_validation_agent",
+    "governance_agent",
+    "planning_only_product_agent",
+    "website_agent_governance",
+    "motivation_ethics_agent_governance"
+  ],
+  "forbiddenAgentBuildCategories": [
+    "runtime_product_code",
+    "UI implementation",
+    "mission implementation",
+    "Buddy runtime implementation",
+    "Firebase Functions implementation",
+    "Firestore Rules changes",
+    "Unity / AR implementation",
+    "reward authority",
+    "mission completion authority",
+    "economy / token / wallet / payment",
+    "health / child / location / privacy / compliance / legal changes",
+    "package or deployment changes"
+  ],
+  "allowedPaths": [
+    "project-register/*.json",
+    "todolist/*.md",
+    "docs/architecture/*.md",
+    "scripts/wellfit-dev-agent/src/*check.mjs",
+    "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+    "scripts/wellfit-dev-agent/src/*report.mjs",
+    "scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
+  ],
+  "forbiddenPaths": [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "functions/**",
+    "firestore.rules",
+    "public/**",
+    "package.json",
+    "package-lock.json",
+    "firebase.json",
+    ".github/**",
+    "native/**",
+    "native/unity/WellFitBuddyAR/**",
+    "PR #13 / Unity paths"
+  ],
+  "requiredPreBuildChecks": [
+    "node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+    "node scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs",
+    "node scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs",
+    "npm run agent:autopilot:dry-run",
+    "npm run agent:quality-gate"
+  ],
+  "requiredBuildChecks": [
+    "git diff --check",
+    "jq empty on every changed project-register/*.json file",
+    "npm run lint",
+    "npx tsc --noEmit",
+    "npm run build",
+    "npm --prefix functions run check",
+    "npm run agent:quality-gate",
+    "any new agent-specific validator created by the build",
+    "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
+  ],
+  "requiredPostBuildChecks": [
+    "git status --short",
+    "git diff --check",
+    "jq empty on every changed project-register/*.json file",
+    "npm run agent:quality-gate",
+    "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
+  ],
+  "requiredPostPRChecks": [
+    "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+    "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+    "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+    "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+    "npm run agent:quality-gate"
+  ],
+  "requiredMergeGateChecks": [
+    "PR exists",
+    "PR branch is not main",
+    "PR is mergeable",
+    "required GitHub checks are success, not missing/pending/failure",
+    "required local checks were actually executed and passed",
+    "PR diff review reports no protected path findings",
+    "PR post-creation guard reports ready",
+    "auto-merge eligibility reports eligible or explicitly allowed by this policy for docs/register/governance-only approved-agent builds",
+    "auto-repair decision reports no unresolved repair required",
+    "task status/work-log evidence exists",
+    "agent catalog/backlog updated",
+    "continuity dependency map updated when needed",
+    "no runtime/protected files changed",
+    "no deploy/approval/self-approval occurred"
+  ],
+  "requiredCheckEvidenceRules": [
+    "A PR must not be considered merge-ready if any required check was skipped, not run, missing, unknown, pending or delegated to future CI without evidence.",
+    "The runner must record exact commands run and results.",
+    "PR body claims must match executed checks.",
+    "If a command was not run, merge gate fails.",
+    "If GitHub checks are unavailable, merge gate fails unless explicit human override is present.",
+    "The PR #109 pattern of checks not executed, should be run later must be classified as not_merge_ready."
+  ],
+  "missingCheckHandlingRules": [
+    "Missing required checks block merge.",
+    "The runner must attempt to run missing checks before deciding.",
+    "If checks fail for safe docs/register/governance reasons, attempt safe repair.",
+    "If checks fail for runtime/protected/high-risk reasons, stop merge and create repair report/plan.",
+    "If checks cannot run due environment/tooling issue, mark environment_blocked and do not merge."
+  ],
+  "safeRepairAttemptRules": [
+    {
+      "id": "markdown_trailing_whitespace",
+      "allowed": "markdown trailing whitespace"
+    },
+    {
+      "id": "missing_final_newline",
+      "allowed": "missing final newline"
+    },
+    {
+      "id": "json_formatting_or_parse_errors_project_register",
+      "allowed": "JSON formatting or parse errors in project-register/*.json"
+    },
+    {
+      "id": "missing_work_map_pointer",
+      "allowed": "missing Work Map pointer for new governance docs/registers"
+    },
+    {
+      "id": "missing_todo_index_pointer",
+      "allowed": "missing TODO Index pointer for new governance docs/registers"
+    },
+    {
+      "id": "missing_ki_fortsetzung_prompt",
+      "allowed": "missing KI-Fortsetzungs-Prompt in newly added architecture docs"
+    },
+    {
+      "id": "missing_expected_pr_output",
+      "allowed": "missing expectedPrOutput in an agent-task-queue entry"
+    },
+    {
+      "id": "missing_required_output_locations_or_next_task",
+      "allowed": "missing requiredOutputLocations or nextRecommendedTask in continuity-dependency-map.json"
+    },
+    {
+      "id": "missing_quality_gate_report_only_validator_registration",
+      "allowed": "missing report-only validator registration in quality-gate.mjs for a newly created governance agent"
+    },
+    {
+      "id": "missing_catalog_backlog_proposal_metadata",
+      "allowed": "missing catalog/backlog/proposal metadata for the newly built approved agent"
+    },
+    {
+      "id": "missing_progress_or_work_log_evidence",
+      "allowed": "missing progress-log or agent-work-log evidence when changes remain in allowed docs/register paths"
+    }
+  ],
+  "safeRepairExecutionRequirements": [
+    "attempt repair on a new commit in the same PR branch if safe",
+    "rerun the failed checks after repair",
+    "rerun full required build and post-PR checks after repair",
+    "record repair attempt in work log/progress log",
+    "do not merge until all required checks pass after repair"
+  ],
+  "unsafeRepairStopRules": [
+    "app/** changes",
+    "components/** changes",
+    "lib/** changes",
+    "functions/** changes",
+    "firestore.rules changes",
+    "public/** changes",
+    "package.json/package-lock.json changes",
+    "firebase.json or .github/** changes",
+    "native/** or Unity/PR #13 changes",
+    "token/NFT/wallet/payment/economy authority changes",
+    "reward authority or mission-completion authority changes",
+    "health/child/location/camera/biometric/consent/privacy/legal/compliance changes",
+    "source-of-truth ambiguity",
+    "high/critical risk",
+    "failed checks that require product/runtime judgment"
+  ],
+  "mergeEligibilityRules": [
+    "The runner may only merge approved-agent framework PRs that are docs/register/validator-only and pass every required check.",
+    "The runner must not merge if auto-merge eligibility is false due protected path findings.",
+    "The runner must not merge if auto-merge eligibility is false only because protected topic words are mentioned as safety boundaries unless PR diff review and protected path checks confirm no protected runtime files changed; in that case policy may allow merge only for report-only docs/register/validator agent-framework PRs.",
+    "The runner must not merge if GitHub mergeability is unknown, dirty, blocked, pending or failed.",
+    "The runner must not merge if any required check is missing.",
+    "The runner must not merge if repair_required remains unresolved."
+  ],
+  "autoMergeBoundaries": [
+    "Real auto-merge is limited to approved-agent framework PRs in allowed paths only.",
+    "No self-approval.",
+    "No deployment.",
+    "No bypassing failed checks.",
+    "No protected runtime changes.",
+    "No PR #13 or Unity changes.",
+    "No repository setting changes."
+  ],
+  "workLogUpdateRules": [
+    "record selected approved backlog entry",
+    "record exact commands and statuses",
+    "record missing checks and environment blocks",
+    "record safe repair attempts as new PR commits",
+    "record final merge-gate evaluation"
+  ],
+  "catalogBacklogUpdateRules": [
+    "update agent catalog only for the one built approved agent",
+    "update approved backlog status only for the one selected entry",
+    "do not mark built unless docs/register/validator outputs exist and checks pass",
+    "do not change unrelated future-agent statuses"
+  ],
+  "continuityUpdateRules": [
+    "update continuity-dependency-map.json when the built agent creates a new guardrail, dependency, source-of-truth pointer, or nextRecommendedTask",
+    "do not remove historical dependencies",
+    "mark blocked items rather than deleting them"
+  ],
+  "replacementPRRules": [
+    "do not close PRs by default",
+    "replacement PR workflow requires explicit human approval and validated safe replacement policy",
+    "never close PR #13 or Unity PRs"
+  ],
+  "stopConditions": [
+    "more than one agent selected",
+    "backlog entry is not alreadyHumanApproved",
+    "selected category not allowed",
+    "changed file outside allowedPaths",
+    "changed file matches forbiddenPaths",
+    "required check missing/skipped/unknown/pending/failing",
+    "GitHub checks unavailable without explicit human override",
+    "mergeability unknown/dirty/blocked",
+    "repair_required unresolved",
+    "environment_blocked",
+    "protected/runtime/high-risk finding",
+    "self-approval/deploy/repository-setting change attempted"
+  ],
+  "forbiddenAutoActions": [
+    "build multiple future agents",
+    "modify runtime product code",
+    "approve PRs",
+    "self-approve",
+    "close PRs without explicit validated replacement workflow",
+    "merge with missing checks",
+    "merge with pending/unknown/failing GitHub checks",
+    "merge protected/runtime changes",
+    "enable unrestricted auto-merge",
+    "enable unrestricted auto-repair",
+    "deploy",
+    "touch PR #13 or Unity files"
+  ],
+  "reportOutputSchema": {
+    "generatedAt": "ISO timestamp",
+    "mode": "REPORT_ONLY or REPORT_CHECK_ONLY",
+    "selectedBacklogEntryId": "string or null",
+    "selectedAgentName": "string or null",
+    "maxAgentsPerRun": "number",
+    "requiredFilesToCreateOrUpdate": "array",
+    "allowedFiles": "array",
+    "forbiddenFiles": "array",
+    "requiredChecks": "object grouped by phase",
+    "safeRepairCategories": "array",
+    "mergeGateRequirements": "array",
+    "missingCheckDecision": "ready/not_merge_ready/environment_blocked",
+    "protectedFindings": "array",
+    "repairDecision": "none/safe_repair_attempted/repair_required/unsafe_stop",
+    "ready": "boolean"
+  }
+}

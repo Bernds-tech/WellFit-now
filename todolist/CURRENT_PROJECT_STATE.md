@@ -113,3 +113,8 @@ Lies zuerst `AGENTS.md`, dann `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WOR
 - Repository Inventory Triage Round 2 on 2026-05-16 mapped `app/**`, `components/**`, `lib/**`, and `functions/**` read-only references into existing inventory topics only. Unmapped inventory count moved from 275 to 71; 103 sensitive/runtime-authority-adjacent files remain `review_required`; app/components/lib/functions runtime files, Firestore rules, package/firebase config, public assets, protected compliance areas, Unity/PR #13, auto-merge, auto-repair, and deployment were untouched.
 
 - [x] Erste Human-Mobile/PWA-Evidence am 2026-05-16 docs/register-only erfasst: Phone Chrome `/mobile/ar` Kamera und Buddy sichtbar = `pass`, Buddy final = `review_required`/`expected_incomplete`, fehlendes Device Model = `missing_device_metadata`/`device_test_required`, Desktop-Responsive-Screenshots als externe Smoke-Evidence dokumentiert; keine Screenshots/Binaries/Rohdaten oder Runtime-/Protected-Code-Aenderungen.
+
+## Approved Agent Build Runner / Merge Gate pointer (2026-05-16)
+
+- Report-only framework added for future one-at-a-time builds from `project-register/approved-agent-build-backlog.json`: `project-register/approved-agent-build-runner-policy.json`, `project-register/agent-build-runner-state.json`, `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs`, and `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs`.
+- The framework treats missing/skipped/not-run/unknown/pending/future-CI-only checks as `not_merge_ready`, blocks runtime/protected/Unity/PR-#13 changes, and remains report-only until a separate controlled one-agent activation is approved.

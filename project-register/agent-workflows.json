@@ -102,7 +102,12 @@
         "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs",
         "project-register/adaptive-difficulty-agent.json",
         "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md",
-        "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
+        "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+        "project-register/approved-agent-build-runner-policy.json",
+        "project-register/agent-build-runner-state.json",
+        "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md",
+        "scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
+        "scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs"
       ],
       "controlRegisters": [
         {
