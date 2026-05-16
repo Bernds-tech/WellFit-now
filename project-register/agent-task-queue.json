@@ -66,7 +66,10 @@
     "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
     "project-register/pr-post-creation-guard.json",
     "docs/architecture/WELLFIT_PR_POST_CREATION_MERGEABILITY_GUARD.md",
-    "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
+    "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+    "project-register/pr-diff-review-policy.json",
+    "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
+    "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -109,7 +112,9 @@
     "jq empty project-register/pr-review-policy.json",
     "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
     "jq empty project-register/task-status-policy.json",
-    "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
+    "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "jq empty project-register/pr-diff-review-policy.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -1687,6 +1692,110 @@
         "Include PR_POST_CREATION_GUARD_READY=true/false from the report-only validator.",
         "Explain how the guard would classify a PR #93-style non-mergeable PR and route to safe docs/register repair guidance, replacement PR, or human review.",
         "Confirm no real auto-merge, unrestricted auto-repair, deployment, runtime product, protected path, Unity/PR #13, or repository-setting changes were enabled."
+      ]
+    },
+    {
+      "id": "AGENT-PR-DIFF-REVIEW-REPORT-FRAMEWORK",
+      "title": "Create report-only PR Diff Review Report framework",
+      "status": "done",
+      "category": "agent_governance_docs",
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_documentation_task",
+      "summary": "Adds pr-diff-review-policy.json, a human-readable report guide, and a report-only script integrated into the quality gate to classify changed files and report protected/cross-reference/readiness/inventory/task-status and guard impacts before merge.",
+      "files": [
+        "project-register/pr-diff-review-policy.json",
+        "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
+        "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "forbiddenChanges": [
+        "runtime product code",
+        "protected paths",
+        "Unity/PR #13 work",
+        "auto-approval",
+        "auto-merge",
+        "auto-repair",
+        "deployment"
+      ],
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+        "jq empty project-register/pr-diff-review-policy.json",
+        "git diff --check"
+      ],
+      "nextRecommendedTask": "Prepare a report-only Batch Execution Readiness Report that consumes PR diff review output before any real Batch Execution Runner is considered.",
+      "taskCategory": "agent_governance_docs",
+      "priority": 2,
+      "purpose": "Create and maintain the report-only PR Diff Review Report framework that applies existing PR Review Agent policy to actual changed files and PR diffs without enabling approval, merge, repair, deploy, runtime, protected, or Unity/PR #13 actions.",
+      "allowedFiles": [
+        "project-register/pr-diff-review-policy.json",
+        "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
+        "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/pr-review-policy.json",
+        "project-register/pr-post-creation-guard.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "native/unity/WellFitBuddyAR/**",
+        "package.json",
+        "package-lock.json",
+        "public/**",
+        ".github/**",
+        "firebase.json"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/pr-review-policy.json",
+        "project-register/pr-post-creation-guard.json",
+        "project-register/auto-merge-policy.json",
+        "project-register/auto-repair-policy.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/repository-inventory.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/task-status-policy.json",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+        "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+        "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+        "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
+      ],
+      "stopConditions": [
+        "would_enable_auto_approval_or_self_approval",
+        "would_enable_auto_merge",
+        "would_enable_auto_repair",
+        "would_deploy",
+        "runtime_product_or_protected_path_change_required",
+        "unity_or_pr_13_work_required",
+        "github_workflow_or_repository_setting_change_required",
+        "package_manifest_change_required",
+        "duplicate_architecture_or_parallel_system_required"
+      ],
+      "expectedPrOutput": [
+        "List PR Diff Review Report policy, architecture note, script, quality-gate, register, and TODO files updated.",
+        "Include PR_DIFF_REVIEW_READY=true/false from the report-only script.",
+        "Summarize changed-file classification and protected path/topic reporting behavior.",
+        "Confirm auto-approval, auto-merge, auto-repair, deployment, runtime product, protected path, and Unity/PR #13 actions remain disabled.",
+        "State next recommended step toward a real Batch Execution Runner as a separate report-only readiness report."
       ]
     }
   ],
