@@ -160,6 +160,70 @@
       "createdDate": "2026-05-16",
       "updatedDate": "2026-05-16",
       "generatedBuildPromptLocation": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md"
+    },
+    {
+      "id": "proposal-ethical-engagement-guard-2026-05-16",
+      "proposedAgentName": "Ethical Engagement Guard",
+      "sourceApprovedBacklogId": "ethical-engagement-guard",
+      "status": "built",
+      "reason": "Human-approved next guard from the approved build backlog was implemented as a docs/register/validator-only framework in this task.",
+      "expectedBenefit": "Adds report-only ethical engagement validation for healthy retention, age-appropriate design, recovery, consent, AI Buddy tone, missions, rewards, website claims, sponsors, social features, and monetization proposals before runtime work.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "human-motivation-engine",
+        "adaptive-user-insight-agent",
+        "website-agent-framework",
+        "product-readiness-matrix",
+        "research-recommendation-agent"
+      ],
+      "connectedRegisters": [
+        "project-register/ethical-engagement-guard.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/product-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agents.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/risk-classifier.json"
+      ],
+      "connectedAgentCount": 5,
+      "connectedRegisterCount": 8,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md"
+      ],
+      "requiredRegisters": [
+        "project-register/ethical-engagement-guard.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanReviewRequired": true,
+      "buildPromptSummary": "Build only the report-only Ethical Engagement Guard framework; do not enable runtime engagement, personalization, protected-data use, reward authority, mission authority, monetization, token/wallet/payment/NFT/betting behavior, auto-repair, auto-merge, or product logic.",
+      "nextRecommendedAction": "Create the Adaptive Difficulty Agent next according to the approved backlog order, keeping protected topics review_required and first version report-only.",
+      "createdDate": "2026-05-16",
+      "updatedDate": "2026-05-16",
+      "generatedBuildPromptLocation": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md"
     }
   ]
 }

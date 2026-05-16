@@ -51,7 +51,8 @@
     "project-register/agent-catalog.json",
     "project-register/approved-agent-build-backlog.json",
     "project-register/agent-architect-policy.json",
-    "project-register/agent-build-proposals.json"
+    "project-register/agent-build-proposals.json",
+    "project-register/ethical-engagement-guard.json"
   ],
   "monitoredDocs": [
     "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
@@ -66,7 +67,8 @@
     "todolist/NEXT_ACTIONS.md",
     "docs/architecture/WELLFIT_AGENT_EXTENSION_POLICY.md",
     "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
-    "docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md"
+    "docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md",
+    "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md"
   ],
   "dependencyTypes": [
     "requires_followup_task",
@@ -728,6 +730,37 @@
         }
       ],
       "nextRecommendedTask": "Create Ethical Engagement Guard as report-only validation framework for forbidden engagement/dark-pattern checks.",
+      "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-014-ethical-engagement-guard-report-only-boundary",
+      "title": "Ethical Engagement Guard must remain report-only until separate human review approves runtime scope",
+      "status": "open",
+      "source": "project-register/ethical-engagement-guard.json",
+      "ownerAgent": "Ethical Engagement Guard / Continuity Dependency Sentinel",
+      "mustNotForget": true,
+      "reason": "The guard defines ethical engagement checks but must not enable runtime engagement, personalization, protected-data processing, monetization, reward authority, or mission authority.",
+      "dependencies": [
+        "requires_register_update",
+        "requires_validation_script",
+        "requires_work_map_update",
+        "requires_todo_index_update"
+      ],
+      "affectedRegisters": [
+        "project-register/ethical-engagement-guard.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/product-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/website-agents.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "scripts/wellfit-dev-agent/output/ethical-engagement-guard-report.md",
+          "existsNow": false,
+          "purpose": "Generated report-only validation output when the guard check runs."
+        }
+      ],
+      "nextRecommendedTask": "Use Ethical Engagement Guard findings as planning input for Adaptive Difficulty Agent; keep protected topics review_required.",
       "humanReviewRequired": true
     }
   ]

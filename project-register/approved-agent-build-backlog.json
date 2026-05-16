@@ -190,39 +190,46 @@
         "No runtime product code changes, runtime personalization, protected-data use, token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Do not create manipulative addiction mechanics, FOMO pressure, shame loops, sleep-deprivation pressure, child-targeted monetization, gambling-like rewards, lootbox money-near rewards, social humiliation, paywall mission chains, hidden sponsor pressure, dark-pattern notifications, or medical/weight-loss overclaims.",
         "Because risk is high/protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
-      ]
+      ],
+      "nextRecommendedAction": "Ethical Engagement Guard was the next approved framework and is now built report-only; continue to Adaptive Difficulty Agent when approved."
     },
     {
       "id": "ethical-engagement-guard",
       "proposedAgentName": "Ethical Engagement Guard",
-      "status": "approved_for_planning",
+      "status": "in_progress",
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Ethical Engagement Guard.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Ethical Engagement Guard while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved next WellFit guard/framework was implemented in this task as a report-only Ethical Engagement Guard register, architecture doc, validator, and quality-gate check.",
+      "expectedBenefit": "Creates a safe source of truth for healthy, age-appropriate, recovery-aware, consent-preserving, trust-preserving, non-manipulative engagement checks across missions, rewards, AI Buddy tone, retention mechanics, website claims, social features, sponsors, and monetization proposals.",
       "riskLevel": "high",
       "connectedAgents": [
+        "human-motivation-engine",
         "adaptive-user-insight-agent",
-        "risk-classifier",
-        "product-readiness-matrix"
+        "website-agent-framework",
+        "product-readiness-matrix",
+        "research-recommendation-agent"
       ],
       "connectedRegisters": [
-        "project-register/risk-classifier.json",
-        "project-register/product-readiness.json"
+        "project-register/ethical-engagement-guard.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/product-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agents.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/risk-classifier.json"
       ],
-      "connectedAgentCount": 3,
-      "connectedRegisterCount": 2,
+      "connectedAgentCount": 5,
+      "connectedRegisterCount": 8,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md"
       ],
       "requiredRegisters": [
+        "project-register/ethical-engagement-guard.json",
         "project-register/agent-catalog.json",
-        "project-register/approved-agent-build-backlog.json",
-        "project-register/agent-extension-policy.json",
-        "project-register/risk-classifier.json",
-        "project-register/product-readiness.json"
+        "project-register/approved-agent-build-backlog.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
@@ -253,11 +260,12 @@
         "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
       ],
       "protectedBoundaries": [
-        "No runtime product code changes without a scoped approved task.",
-        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "No runtime product code changes without a separately scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child/minor, location, camera, face, biometric, motion, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
-      ]
+        "Ethical Engagement Guard blocks manipulative FOMO, shame/guilt pressure, sleep deprivation, social humiliation, gambling-like rewards, lootbox mechanics, age-inappropriate monetization, hidden sponsor pressure, dark patterns, paywall pressure, and protected-data-sensitive mechanics."
+      ],
+      "nextRecommendedAction": "Continue with Adaptive Difficulty Agent next, then Multisensory Learning Engine, following approved backlog order and report-only protected-boundary rules."
     },
     {
       "id": "adaptive-difficulty-agent",
@@ -323,7 +331,8 @@
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
         "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
-      ]
+      ],
+      "nextRecommendedAction": "Next recommended task after Ethical Engagement Guard; keep first version report-only/planning-only and do not enable runtime personalization or protected-data use."
     },
     {
       "id": "multisensory-learning-engine",

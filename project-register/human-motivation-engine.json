@@ -385,5 +385,13 @@
       "safetyConfirmations"
     ],
     "outputPath": "scripts/wellfit-dev-agent/output/human-motivation-engine-report.md"
+  },
+  "ethicalEngagementGuardBoundary": {
+    "register": "project-register/ethical-engagement-guard.json",
+    "architecture": "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md",
+    "validator": "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs",
+    "mode": "report_only",
+    "summary": "Ethical engagement, age-appropriate design, recovery/pause, Buddy tone, mission/reward/social/website/sponsor/monetization, and protected-data boundaries must be checked before runtime implementation.",
+    "reviewRequired": "Health, child/minor, family/guardian, location, camera, face, biometric, motion, consent, privacy, token, wallet, payment, payout, betting, reward-authority, mission-authority, sponsor, monetization, legal, and compliance behavior remains review_required."
   }
 }
