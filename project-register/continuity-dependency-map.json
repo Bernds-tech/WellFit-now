@@ -674,6 +674,61 @@
       ],
       "nextRecommendedTask": "Review generated next-agent prompt before starting the next approved agent build.",
       "humanReviewRequired": true
+    },
+    {
+      "id": "CONTINUITY-HUMAN-MOTIVATION-ENGINE",
+      "title": "Human Motivation Engine must remain report-only before runtime personalization or engagement logic",
+      "status": "review_required",
+      "source": "project-register/human-motivation-engine.json",
+      "ownerAgent": "Human Motivation Engine / Continuity Dependency Sentinel",
+      "mustNotForget": true,
+      "reason": "Healthy motivation, adaptive difficulty inputs, Buddy support, recovery/pause, family/social connection, and forbidden addictive mechanics are now defined as planning-only boundaries; future Ethical Engagement Guard or runtime work must inherit these protections.",
+      "dependencies": [
+        "requires_human_review",
+        "requires_register_update",
+        "requires_work_map_update",
+        "requires_todo_index_update",
+        "requires_product_readiness_update",
+        "requires_task_queue_update",
+        "requires_validation_script",
+        "requires_future_runtime_task",
+        "blocks_auto_merge",
+        "blocks_auto_repair",
+        "blocks_product_readiness_advance"
+      ],
+      "affectedRegisters": [
+        "project-register/human-motivation-engine.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/human-motivation-engine.json",
+          "existsNow": true,
+          "purpose": "Machine-readable report-only Human Motivation Engine framework."
+        },
+        {
+          "path": "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md",
+          "existsNow": true,
+          "purpose": "Human-readable healthy motivation and anti-addictive-design architecture."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
+          "existsNow": true,
+          "purpose": "Report-only validator for the framework."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/human-motivation-engine-report.md",
+          "existsNow": false,
+          "purpose": "Generated report-only validator output; do not commit generated output."
+        }
+      ],
+      "nextRecommendedTask": "Create Ethical Engagement Guard as report-only validation framework for forbidden engagement/dark-pattern checks.",
+      "humanReviewRequired": true
     }
   ]
 }

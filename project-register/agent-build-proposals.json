@@ -99,6 +99,67 @@
       "nextRecommendedAction": "Review the generated next-agent build prompt and execute the next approved agent build only if a human accepts it.",
       "createdDate": "2026-05-16",
       "updatedDate": "2026-05-16"
+    },
+    {
+      "id": "proposal-human-motivation-engine-2026-05-16",
+      "proposedAgentName": "Human Motivation Engine",
+      "sourceApprovedBacklogId": "human-motivation-engine",
+      "status": "built",
+      "reason": "Human-approved next agent from the approved build backlog was implemented as a docs/register/validator-only framework in this task.",
+      "expectedBenefit": "Creates a safe source of truth for healthy motivation, adaptive difficulty inputs, AI Buddy motivation boundaries, recovery/pause logic, multisensory learning, and forbidden addictive mechanics before runtime personalization or mission/reward logic exists.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "research-recommendation-agent",
+        "website-agent-framework",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/human-motivation-engine.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agents.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 6,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md"
+      ],
+      "requiredRegisters": [
+        "project-register/human-motivation-engine.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanReviewRequired": true,
+      "buildPromptSummary": "Build only the report-only Human Motivation Engine framework; do not enable runtime personalization, addictive design, protected-data use, reward authority, mission authority, monetization, or product logic.",
+      "nextRecommendedAction": "Create the Ethical Engagement Guard as the next report-only protected-boundary framework.",
+      "createdDate": "2026-05-16",
+      "updatedDate": "2026-05-16",
+      "generatedBuildPromptLocation": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md"
     }
   ]
 }

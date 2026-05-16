@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-14",
+  "updated": "2026-05-16",
   "purpose": "Planning-only governance register for future Adaptive User Insight summaries: define how WellFit may later use privacy-preserving aggregate signals to recommend mission, buddy, difficulty, challenge, and internal reward-tuning ideas without exposing raw user data to agents or changing runtime product logic.",
   "activationState": "planning_only",
   "scope": "Documentation, registry, and validation-only governance. This register does not activate live tracking, data collection, personalization runtime, reward authority, or protected compliance logic.",
@@ -19,7 +19,8 @@
     "project-register/definition-of-done.json",
     "docs/architecture/USER_FEEDBACK_DATABASE_FLOW.md",
     "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md",
-    "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
+    "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+    "project-register/human-motivation-engine.json"
   ],
   "allowedAggregateSignals": [
     "aggregate anonymous cohort-level mission completion rates",
@@ -210,5 +211,10 @@
     ],
     "nextSafeTask": "string"
   },
-  "entries": []
+  "entries": [],
+  "humanMotivationEngineBoundary": {
+    "activationState": "report_only",
+    "register": "project-register/human-motivation-engine.json",
+    "rule": "Adaptive insight may reference motivation dimensions only as planning categories; no raw identifiers, protected data, runtime personalization, reward authority, or mission authority."
+  }
 }

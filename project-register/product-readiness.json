@@ -812,6 +812,41 @@
         "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
       ],
       "human_approval_required": false
+    },
+    {
+      "id": "human_motivation_engine",
+      "name": "Human Motivation Engine",
+      "status": "planned",
+      "risk_level": "high",
+      "leading_files": [
+        "project-register/human-motivation-engine.json",
+        "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md",
+        "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
+      ],
+      "supporting_files": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agents.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/risk-classifier.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "current_blockers": [
+        "Runtime personalization is not enabled and requires separate human-reviewed product/privacy/safety design.",
+        "Protected child, health, location, camera, biometric, consent, privacy, token, wallet, payment, betting, reward-authority, and mission-authority behavior remains review_required."
+      ],
+      "next_safe_task": "Create Ethical Engagement Guard as a report-only framework for forbidden engagement patterns before any runtime retention, mission, reward, Buddy, notification, or monetization behavior is implemented.",
+      "do_not_duplicate_warning": "Do not create a parallel motivation, retention, mission-personalization, reward-personalization, or engagement-optimization system; extend the Human Motivation Engine and existing Adaptive User Insight/Research governance instead.",
+      "required_checks_before_status_can_advance": [
+        "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
+        "jq empty project-register/human-motivation-engine.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
     }
   ]
 }

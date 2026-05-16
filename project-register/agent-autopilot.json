@@ -73,7 +73,10 @@
     "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
     "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
     "project-register/agent-architect-policy.json",
-    "project-register/agent-build-proposals.json"
+    "project-register/agent-build-proposals.json",
+    "project-register/human-motivation-engine.json",
+    "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md",
+    "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -226,7 +229,8 @@
     "jq empty project-register/agent-catalog.json",
     "jq empty project-register/approved-agent-build-backlog.json",
     "node scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs",
-    "node scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
+    "node scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs",
+    "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -366,5 +370,12 @@
     "usage": "Read before extending or proposing agent work; never build future agents automatically from backlog presence alone."
   },
   "agentArchitectProposalReference": "project-register/agent-architect-policy.json",
-  "agentBuildProposalsReference": "project-register/agent-build-proposals.json"
+  "agentBuildProposalsReference": "project-register/agent-build-proposals.json",
+  "humanMotivationEngineReference": {
+    "register": "project-register/human-motivation-engine.json",
+    "doc": "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md",
+    "validator": "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
+    "activationState": "report_only",
+    "nextRecommendedTask": "Ethical Engagement Guard"
+  }
 }

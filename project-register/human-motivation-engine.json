@@ -1,0 +1,389 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Defines a documentation/register/validation-only Human Motivation Engine for healthy WellFit habit loops, user autonomy, competence, relatedness, identity, progress, recovery, family/social connection, AI Buddy support, adaptive difficulty, and multisensory learning without manipulative addictive design or runtime personalization.",
+  "scope": {
+    "mode": "planning_and_validation_only",
+    "runtimePersonalizationEnabled": false,
+    "runtimeProductLogicEnabled": false,
+    "allowedFiles": [
+      "project-register/**",
+      "docs/architecture/**",
+      "scripts/wellfit-dev-agent/src/**",
+      "todolist/**"
+    ],
+    "forbiddenFiles": [
+      "app/**",
+      "components/**",
+      "lib/**",
+      "functions/**",
+      "firestore.rules",
+      "public/**",
+      "package.json",
+      "package-lock.json",
+      "firebase.json",
+      ".github/**",
+      "native/unity/WellFitBuddyAR/**"
+    ]
+  },
+  "motivationPrinciples": [
+    {
+      "id": "autonomy",
+      "description": "Users choose goals, pacing, reminders, social exposure, and rest options; motivation must preserve opt-in control."
+    },
+    {
+      "id": "competence",
+      "description": "WellFit should help users feel capable through achievable steps, clear learning cues, supportive feedback, and visible skill growth."
+    },
+    {
+      "id": "relatedness",
+      "description": "Social and family features should create encouragement, belonging, and shared joy without humiliation, coercion, or comparison pressure."
+    },
+    {
+      "id": "identity",
+      "description": "Habit loops may reinforce positive self-identity, such as learner, mover, helper, explorer, teammate, or family role model, without labels that shame users."
+    },
+    {
+      "id": "progress",
+      "description": "Progress should be visible, explainable, recoverable, and meaningful, emphasizing long-term growth over endless escalation."
+    },
+    {
+      "id": "recovery",
+      "description": "Rest, pauses, lower-energy days, and streak recovery are first-class healthy outcomes, not failures."
+    },
+    {
+      "id": "safe_social_connection",
+      "description": "Connection mechanics must support safe encouragement, consented sharing, family-appropriate participation, and anti-humiliation boundaries."
+    },
+    {
+      "id": "playful_learning",
+      "description": "Movement, quizzes, stories, avatars, AR concepts, sound, and visual cues may make learning playful without creating compulsion or overuse."
+    },
+    {
+      "id": "meaningful_rewards",
+      "description": "Rewards should clarify effort, learning, consistency, recovery, and teamwork while avoiding gambling-like uncertainty or money-near prize pressure."
+    },
+    {
+      "id": "consent_and_control",
+      "description": "Users must remain in control of reminders, data-sensitive suggestions, social sharing, family mode, and any future personalization scope."
+    }
+  ],
+  "healthyRetentionRules": {
+    "allowed": [
+      "gentle rituals that users can pause, mute, reschedule, or decline",
+      "visible progress that explains effort, learning, completion, recovery, and next small steps",
+      "family/social encouragement based on opt-in supportive messages and cooperative goals",
+      "avatar growth that reflects learning, movement, and care without purchase pressure",
+      "learning through movement using educational, playful, and multisensory prompts",
+      "fair streak recovery that treats rest, illness, travel, and low-energy days as valid human contexts",
+      "pause/recovery support that recommends lighter alternatives and celebrates safe rest",
+      "user-controlled reminders with clear frequency, timing, channel, and off switches"
+    ],
+    "forbidden": [
+      "shame loops or guilt-based copy that frames missed activity as personal failure",
+      "sleep-loss pressure or prompts that encourage activity instead of rest at unsafe times",
+      "manipulative FOMO that pressures users to act now or lose identity, status, friendship, or rewards",
+      "child-targeted monetization pressure or purchase prompts aimed at minors or family-mode children",
+      "gambling-like reward loops using variable-ratio pressure, near-miss design, or wager-style escalation",
+      "lootbox-style money-near rewards, paid randomness, or prize framing tied to mission engagement",
+      "endless pressure that removes natural stopping points or ignores fatigue and recovery",
+      "social humiliation, public shaming, or punitive leaderboards",
+      "punishment for rest, illness, recovery days, or user-controlled pauses",
+      "dark-pattern reminders that hide opt-out controls, nag after refusal, or exploit stress"
+    ],
+    "distinctionRule": "Healthy retention helps users return because WellFit is useful, respectful, social, playful, and recoverable; addictive design pressures users to return through fear, shame, scarcity, money-near uncertainty, social threat, or impaired choice."
+  },
+  "forbiddenEngagementPatterns": [
+    "addictive_design",
+    "manipulative_fomo",
+    "shame_or_guilt_pressure",
+    "sleep_deprivation_pressure",
+    "child_targeted_monetization",
+    "gambling_like_rewards",
+    "lootbox_money_near_mechanics",
+    "hidden_sponsor_pressure",
+    "dark_pattern_notifications",
+    "social_humiliation",
+    "paywall_mission_chains",
+    "medical_or_weight_loss_overclaim"
+  ],
+  "userMotivationDimensions": {
+    "motivationStyle": [
+      "gentle",
+      "playful",
+      "competitive",
+      "educational",
+      "social",
+      "family",
+      "exploratory"
+    ],
+    "energyState": [
+      "high",
+      "normal",
+      "low",
+      "tired",
+      "stressed",
+      "unknown"
+    ],
+    "learningStyle": [
+      "visual",
+      "auditory",
+      "movement",
+      "repetition",
+      "quiz",
+      "story",
+      "mixed"
+    ],
+    "socialPreference": [
+      "solo",
+      "family",
+      "friends",
+      "team",
+      "competition",
+      "unknown"
+    ],
+    "difficultyFit": [
+      "too_easy",
+      "balanced",
+      "too_hard",
+      "unknown"
+    ],
+    "dropOffRisk": [
+      "boredom",
+      "overload",
+      "shame",
+      "privacy_concern",
+      "technical_issue",
+      "time_constraint",
+      "low_motivation",
+      "unknown"
+    ],
+    "rewardPreference": [
+      "points",
+      "avatar_growth",
+      "story",
+      "social_recognition",
+      "learning_unlock",
+      "cosmetic",
+      "unknown"
+    ],
+    "sensitivityFlags": [
+      "child",
+      "family_mode",
+      "older_adult",
+      "health_sensitive",
+      "privacy_sensitive",
+      "low_confidence",
+      "unknown"
+    ]
+  },
+  "adaptiveDifficultyInputs": {
+    "allowedPlanningSignals": [
+      "self-reported difficulty fit",
+      "aggregate mission completion friction",
+      "explicit user choice for easier, balanced, or harder variants",
+      "non-sensitive session context such as available time chosen by the user",
+      "learning-format preference chosen by the user",
+      "opt-in family/team preference without child profiling"
+    ],
+    "forbiddenSignals": [
+      "raw health, watch, biometric, face, camera, precise location, child, payment, wallet, token, or private-message data without explicit human review",
+      "inferred medical conditions, weight-loss claims, disability status, stress diagnosis, or protected-class profiling",
+      "dark-pattern vulnerability scoring or pressure targeting"
+    ],
+    "suggestionRules": [
+      "Suggest a difficulty band only; do not auto-change mission authority or reward authority.",
+      "Offer easier and recovery options with equal dignity.",
+      "Use aggregate/planning signals first and require human review before sensitive personalization.",
+      "Explain why a difficulty suggestion exists in plain language."
+    ]
+  },
+  "buddySupportBoundaries": {
+    "allowed": [
+      "supportive encouragement that respects user choice",
+      "gentle reflection on effort, learning, progress, and recovery",
+      "suggesting rest, hydration, lighter missions, or help-seeking when users indicate overload",
+      "offering playful learning cues, stories, and avatar encouragement",
+      "asking for consent before reminders, social sharing, or sensitive-context suggestions"
+    ],
+    "forbidden": [
+      "pressure, shame, guilt, manipulation, or urgency based on fear of loss",
+      "medical advice, diagnosis, weight-loss overclaims, or treatment promises",
+      "child-directed monetization, sponsor pressure, or purchase nudges",
+      "using private or protected data to personalize at runtime in this first version",
+      "authorizing rewards, mission completion, anti-cheat, purchases, token/NFT/wallet flows, or ledger writes"
+    ],
+    "toneRule": "Buddy motivation must be opt-in, kind, calm, explainable, and safe to ignore."
+  },
+  "multisensoryLearningSignals": {
+    "allowed": [
+      "visual explanation preference",
+      "auditory cue preference",
+      "movement-based practice preference",
+      "repetition or quiz preference",
+      "story-led exploration preference",
+      "accessibility-friendly fallback preference"
+    ],
+    "boundaries": [
+      "Use preferences as user-controlled planning categories, not hidden profiling.",
+      "Do not infer disability, medical status, age, biometric traits, child status, or sensitive needs without review.",
+      "Provide alternatives for sound-off, motion-light, low-energy, and privacy-sensitive contexts."
+    ]
+  },
+  "familySocialConnectionRules": {
+    "allowed": [
+      "opt-in encouragement between family members or friends",
+      "cooperative goals where every participant can choose visibility and pace",
+      "team rituals that include recovery and lower-energy alternatives",
+      "family-mode planning that keeps child safety protected and review_required"
+    ],
+    "forbidden": [
+      "public shaming, social humiliation, coercive comparison, or pressure chains",
+      "child-targeted monetization, sponsored pressure, or purchase prompts",
+      "leaderboards or competitions that punish rest, illness, disability, or privacy choices",
+      "sharing protected data without explicit consent and human-reviewed design"
+    ]
+  },
+  "recoveryPauseRules": {
+    "allowed": [
+      "pause, skip, mute, lower intensity, and recovery suggestions",
+      "streak repair or grace mechanics that avoid punishment for rest",
+      "rest-positive copy and mission alternatives for low energy",
+      "clear user controls for reminder frequency and timing"
+    ],
+    "reviewRequiredFor": [
+      "health-sensitive rest recommendations",
+      "overuse-risk detection",
+      "child/family recovery flows",
+      "medical-adjacent claims or symptom language"
+    ],
+    "forbidden": [
+      "punishment for rest",
+      "sleep-deprivation pressure",
+      "ignoring user pause/mute choices",
+      "using recovery status to reduce user standing or social dignity"
+    ]
+  },
+  "identityProgressRules": {
+    "allowed": [
+      "identity cues based on chosen roles such as learner, explorer, helper, teammate, or family supporter",
+      "progress summaries that highlight effort, skill, consistency, cooperation, and recovery",
+      "avatar and story progression that remains cosmetic or educational in planning-only scope",
+      "user-editable goals and non-shaming language"
+    ],
+    "forbidden": [
+      "fixed negative labels, shame identities, or guilt-based self-comparison",
+      "endless escalation without natural completion or recovery milestones",
+      "tying identity status to payment, lootboxes, tokens, wallets, or money-near rewards"
+    ]
+  },
+  "childSafetyRules": {
+    "state": "protected_review_required",
+    "rules": [
+      "Child, minor, school, and family-mode motivation patterns require human review before runtime use.",
+      "No child-targeted monetization, sponsor pressure, dark patterns, gambling-like rewards, or social humiliation.",
+      "No hidden profiling of children, no precise location expansion, and no protected data collection in this framework.",
+      "Family encouragement must be consented, supportive, age-appropriate, and non-punitive."
+    ]
+  },
+  "healthPrivacyRules": {
+    "state": "protected_review_required",
+    "rules": [
+      "Health, watch, biometric, face, camera, location, consent, medical-adjacent, and privacy-sensitive behavior remain review_required.",
+      "This framework does not collect, process, store, or personalize with raw protected data.",
+      "Do not infer medical conditions, mental health, stress, weight-loss needs, disability, or recovery risk from behavior without explicit review.",
+      "Use data minimization, aggregate planning, and user-selected preferences before any future sensitive personalization."
+    ]
+  },
+  "rewardFairnessBoundaries": {
+    "allowed": [
+      "meaningful internal points/XP/reward concepts as planning language only",
+      "fair recognition of effort, learning, recovery, cooperation, and completion",
+      "explainable reward expectations without variable-ratio pressure"
+    ],
+    "forbidden": [
+      "client-authorized final rewards, mission completion, anti-cheat, rare-item grants, or ledger writes",
+      "gambling-like rewards, paid randomness, lootbox-style mechanics, wager-like escalation, or money-near prizes",
+      "reward tuning based on protected data, vulnerability targeting, or payment pressure"
+    ],
+    "authorityRule": "Final reward, XP, point, mission-completion, anti-cheat, inventory, and ledger authority remains server-side/review_required and is not changed by this framework."
+  },
+  "monetizationTrustRules": {
+    "allowed": [
+      "transparent future monetization planning that is separated from child, reward-authority, and protected-data flows",
+      "non-coercive premium explanations that do not block healthy core loops",
+      "sponsor disclosures that are explicit and review_required before product use"
+    ],
+    "forbidden": [
+      "child-targeted monetization",
+      "hidden sponsor pressure",
+      "paywall mission chains that exploit streaks, identity, social pressure, or recovery fear",
+      "token, NFT, wallet, payment, trading, payout, staking, presale, or money-near activation"
+    ]
+  },
+  "allowedOutputs": [
+    "report-only validation results",
+    "planning summaries",
+    "architecture documentation",
+    "register cross-references",
+    "human-review checklists",
+    "non-runtime recommendations for future Ethical Engagement Guard work"
+  ],
+  "forbiddenAutoActions": [
+    "modify runtime files",
+    "personalize users at runtime",
+    "collect protected user data",
+    "approve pull requests",
+    "merge pull requests",
+    "close pull requests",
+    "auto-repair files",
+    "enable auto-merge",
+    "deploy",
+    "change reward authority",
+    "change mission completion authority",
+    "enable token, NFT, wallet, payment, betting, or marketplace behavior"
+  ],
+  "humanReviewRequiredFor": [
+    "child",
+    "family_mode_child_behavior",
+    "health",
+    "watch_data",
+    "location",
+    "camera",
+    "face",
+    "biometric",
+    "consent",
+    "privacy",
+    "medical_or_weight_loss_claims",
+    "token",
+    "nft",
+    "wallet",
+    "payment",
+    "betting",
+    "marketplace",
+    "reward_authority",
+    "mission_completion_authority",
+    "anti_cheat",
+    "ledger",
+    "sponsor_or_monetization_pressure",
+    "runtime_personalization",
+    "protected_data_use"
+  ],
+  "reportOutputSchema": {
+    "mode": "REPORT_ONLY",
+    "readyFlag": "HUMAN_MOTIVATION_ENGINE_READY=true|false",
+    "requiredSections": [
+      "summary",
+      "topLevelFieldValidation",
+      "motivationPrincipleValidation",
+      "healthyRetentionValidation",
+      "forbiddenEngagementValidation",
+      "userMotivationDimensionValidation",
+      "protectedReviewBoundaryValidation",
+      "workMapTodoIndexValidation",
+      "safetyConfirmations"
+    ],
+    "outputPath": "scripts/wellfit-dev-agent/output/human-motivation-engine-report.md"
+  }
+}
