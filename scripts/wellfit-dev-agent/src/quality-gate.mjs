@@ -38,6 +38,7 @@ const agentSteps = [
   { label: "Follow-up detector", script: "scripts/wellfit-dev-agent/src/follow-up-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs" },
   { label: "PR outcome recorder dry run", script: "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs", args: ["--dry-run"], displayCommand: "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run" },
   { label: "TODO status sync", script: "scripts/wellfit-dev-agent/src/todo-status-sync.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/todo-status-sync.mjs" },
+  { label: "Task status work-log sync check", script: "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs" },
   { label: "Master roadmap task check", script: "scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/master-roadmap-task-check.mjs" },
   { label: "Research recommendation check", script: "scripts/wellfit-dev-agent/src/research-recommendation-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs" },
   { label: "Adaptive user insight check", script: "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs" },
@@ -129,6 +130,7 @@ function main() {
   const autoMergeEligibilityReport = readTextSafe("scripts/wellfit-dev-agent/output/auto-merge-eligibility-report.md");
   const autoRepairDecisionReport = readTextSafe("scripts/wellfit-dev-agent/output/auto-repair-decision-report.md");
   const batchLimitedExecutionReport = readTextSafe("scripts/wellfit-dev-agent/output/autopilot-batch-limited-execution-check.md");
+  const taskStatusWorkLogReport = readTextSafe("scripts/wellfit-dev-agent/output/task-status-work-log-check.md");
 
   const alphaStep = getStep(steps, "Alpha goal check");
   const dryRunStep = getStep(steps, "Dry run planning");
@@ -143,6 +145,7 @@ function main() {
   const followUpDetectorStep = getStep(steps, "Follow-up detector");
   const prOutcomeRecorderStep = getStep(steps, "PR outcome recorder dry run");
   const todoStatusStep = getStep(steps, "TODO status sync");
+  const taskStatusWorkLogStep = getStep(steps, "Task status work-log sync check");
   const routeApiDriftStep = getStep(steps, "Route/API drift detector");
   const visualRouteSmokeStep = getStep(steps, "Visual route smoke check");
   const conceptToCodeGapStep = getStep(steps, "Concept-to-code gap analyzer");
@@ -164,6 +167,7 @@ function main() {
   const autoRepairDecisionReportOnly = /Mode:\s*REPORT_ONLY/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /Never repairs:\s*true/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /Never merges:\s*true/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`) && /AUTO_REPAIR_ALLOWED=(?:true|false)/i.test(`${autoRepairDecisionReport}\n${autoRepairDecisionStep?.stdout ?? ""}`);
   const prOutcomeRecorderPassed = /Mode:\s*DRY_RUN/i.test(prOutcomeRecorderStep?.stdout ?? "");
   const todoStatusSyncPassed = /Result:\s*PASS/i.test(todoStatusStep?.stdout ?? "");
+  const taskStatusWorkLogReady = /Mode:\s*REPORT_ONLY/i.test(`${taskStatusWorkLogReport}\n${taskStatusWorkLogStep?.stdout ?? ""}`) && /Never rewrites files:\s*true/i.test(`${taskStatusWorkLogReport}\n${taskStatusWorkLogStep?.stdout ?? ""}`) && /TASK_STATUS_SYNC_READY=true/i.test(`${taskStatusWorkLogReport}\n${taskStatusWorkLogStep?.stdout ?? ""}`);
   const routeApiDriftPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${routeApiDriftReport}\n${routeApiDriftStep?.stdout ?? ""}`);
   const visualRouteSmokePassed = /Result:\s*(?:PASS|PASS_WITH_WARNINGS|SKIPPED_BROWSER_UNAVAILABLE|SKIPPED_BASE_URL_UNAVAILABLE|REPORT_ONLY)/i.test(`${visualRouteSmokeReport}\n${visualRouteSmokeStep?.stdout ?? ""}`);
   const conceptToCodeGapPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${conceptToCodeGapReport}\n${conceptToCodeGapStep?.stdout ?? ""}`);
@@ -196,6 +200,7 @@ function main() {
   assertCondition(checks, "Follow-up detector reported without rewriting", followUpDetectorPassed, followUpDetectorPassed ? "REPORT_ONLY" : "not found or FAIL");
   assertCondition(checks, "PR outcome recorder dry run completed", prOutcomeRecorderPassed, prOutcomeRecorderPassed ? "DRY_RUN" : "not found or FAIL");
   assertCondition(checks, "TODO status sync passed", todoStatusSyncPassed, todoStatusSyncPassed ? "PASS" : "not found or FAIL");
+  assertCondition(checks, "Task status/work-log sync check reported safely", taskStatusWorkLogReady, taskStatusWorkLogReady ? "REPORT_ONLY and TASK_STATUS_SYNC_READY=true" : "not found or unsafe output");
   assertCondition(checks, "Master roadmap task check passed", /Result:\s*PASS/i.test(masterRoadmapTaskReport), /Result:\s*PASS/i.test(masterRoadmapTaskReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Research recommendation check passed", /Result:\s*PASS/i.test(researchRecommendationReport), /Result:\s*PASS/i.test(researchRecommendationReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Adaptive user insight check passed", /Result:\s*PASS/i.test(adaptiveUserInsightReport), /Result:\s*PASS/i.test(adaptiveUserInsightReport) ? "PASS" : "not found or FAIL");

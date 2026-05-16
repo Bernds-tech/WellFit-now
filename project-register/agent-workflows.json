@@ -64,7 +64,10 @@
         "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
         "project-register/pr-review-policy.json",
         "docs/architecture/WELLFIT_PR_REVIEW_AGENT.md",
-        "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs"
+        "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+        "project-register/task-status-policy.json",
+        "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
+        "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -264,6 +267,21 @@
           ],
           "purpose": "Report/check-only safety boundary for future strictly limited batch execution of low-risk documentation, register, governance, and inventory tasks.",
           "usage": "Run the checker before any future batch execution discussion; keep first version non-executing, non-PR-creating, non-merging, non-repairing, non-deploying, and human-approval-gated."
+        },
+        {
+          "id": "task_status_work_log_sync_governance",
+          "registers": [
+            "project-register/task-status-policy.json",
+            "project-register/agent-work-log.json",
+            "project-register/progress-log.json",
+            "project-register/agent-task-queue.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
+          ],
+          "purpose": "Report-only task status and work-log sync governance for TODO markers, task lifecycle, completed-task evidence, blocked/stale/duplicate handling, PR/check/changed-file/follow-up/next-task recording, and Batch Autopilot memory consistency.",
+          "usage": "Run during quality gate and before longer Autopilot/Batch sessions. Treat output as report-only; do not rewrite TODO files automatically, merge, repair, deploy, or touch runtime/protected areas."
         }
       ],
       "additionalGovernanceInputs": [
@@ -313,7 +331,9 @@
         "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
         "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
         "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
-        "jq empty project-register/autopilot-batch-policy.json"
+        "jq empty project-register/autopilot-batch-policy.json",
+        "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+        "jq empty project-register/task-status-policy.json"
       ],
       "phases": [
         {

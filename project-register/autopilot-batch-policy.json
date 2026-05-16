@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "updated": "2026-05-15",
+  "updated": "2026-05-16",
   "activationState": "dry_run_only",
   "purpose": "Report-only policy for planning a short sequence of low-risk WellFit agent tasks without executing, repairing, merging, approving, deploying, or writing files.",
   "maxPlannedTasks": 3,
@@ -123,7 +123,9 @@
     "auto_merge_or_auto_repair_would_be_enabled",
     "batch_would_write_files_create_pr_merge_deploy_or_repair",
     "limited_execution_checker_would_execute_tasks_create_prs_merge_repair_deploy_or_self_approve",
-    "limited_execution_policy_activation_state_is_not_limited_execution_planning"
+    "limited_execution_policy_activation_state_is_not_limited_execution_planning",
+    "task_status_sync_policy_missing_or_malformed",
+    "task_status_validator_would_rewrite_files"
   ],
   "reportOutputSchema": {
     "mode": "BATCH_AUTOPILOT_MODE=DRY_RUN",
@@ -221,5 +223,17 @@
       "runtime_product_protected_areas_untouched",
       "next_recommended_task"
     ]
-  }
+  },
+  "requiredFirstReadFiles": [
+    "project-register/task-status-policy.json",
+    "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
+    "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
+  ],
+  "requiredPreChecks": [
+    "run_task_status_work_log_sync_check_report_only"
+  ],
+  "requiredPostChecks": [
+    "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+    "jq empty project-register/task-status-policy.json"
+  ]
 }
