@@ -19,6 +19,7 @@ const agentSteps = [
   { label: "Agent governance control check", script: "scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs" },
   { label: "Product readiness check", script: "scripts/wellfit-dev-agent/src/product-readiness-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs" },
   { label: "Website agent framework check", script: "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs" },
+  { label: "Continuity dependency sentinel check", script: "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs" },
   { label: "Route API register check", script: "scripts/wellfit-dev-agent/src/route-api-register-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/route-api-register-check.mjs" },
   { label: "Visual route smoke check", script: "scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs", args: ["--report-only"], displayCommand: "node scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs --report-only" },
   { label: "Route/API drift detector", script: "scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs" },
@@ -138,6 +139,7 @@ function main() {
   const batchLimitedExecutionReport = readTextSafe("scripts/wellfit-dev-agent/output/autopilot-batch-limited-execution-check.md");
   const batchExecutionRunnerReport = readTextSafe("scripts/wellfit-dev-agent/output/batch-execution-runner-check.md");
   const taskStatusWorkLogReport = readTextSafe("scripts/wellfit-dev-agent/output/task-status-work-log-check.md");
+  const continuityDependencyReport = readTextSafe("scripts/wellfit-dev-agent/output/continuity-dependency-report.md");
 
   const alphaStep = getStep(steps, "Alpha goal check");
   const dryRunStep = getStep(steps, "Dry run planning");
@@ -159,6 +161,7 @@ function main() {
   const conceptToCodeGapStep = getStep(steps, "Concept-to-code gap analyzer");
   const prReviewPolicyStep = getStep(steps, "PR review policy check");
   const prDiffReviewStep = getStep(steps, "PR diff review report");
+  const continuityDependencyStep = getStep(steps, "Continuity dependency sentinel check");
 
   const covered = parseCoveredTracks(`${goalReport}\n${alphaStep?.stdout ?? ""}`);
   const missingIndex = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in TODO index/structure memory") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in index");
@@ -184,6 +187,7 @@ function main() {
   const prReviewPolicyReady = /Mode:\s*REPORT_ONLY/i.test(prReviewPolicyStep?.stdout ?? "") && /Never approves PRs:\s*true/i.test(prReviewPolicyStep?.stdout ?? "") && /Never merges PRs:\s*true/i.test(prReviewPolicyStep?.stdout ?? "") && /Never repairs files:\s*true/i.test(prReviewPolicyStep?.stdout ?? "") && /Never modifies files:\s*true/i.test(prReviewPolicyStep?.stdout ?? "") && /PR_REVIEW_POLICY_READY=true/i.test(prReviewPolicyStep?.stdout ?? "");
   const prDiffReviewReady = /Mode:\s*REPORT_ONLY/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /Never approves PRs:\s*true/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /Never merges PRs:\s*true/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /Never repairs files:\s*true/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /Never deploys:\s*true/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /PR_DIFF_REVIEW_READY=(?:true|false)/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`);
   const websiteAgentFrameworkReady = /Mode:\s*REPORT_ONLY/i.test(websiteAgentFrameworkStep?.stdout ?? "") && /Never modifies files:\s*true/i.test(websiteAgentFrameworkStep?.stdout ?? "") && /Never updates runtime pages:\s*true/i.test(websiteAgentFrameworkStep?.stdout ?? "") && /Never approves PRs:\s*true/i.test(websiteAgentFrameworkStep?.stdout ?? "") && /Never merges:\s*true/i.test(websiteAgentFrameworkStep?.stdout ?? "") && /Never repairs:\s*true/i.test(websiteAgentFrameworkStep?.stdout ?? "") && /Never deploys:\s*true/i.test(websiteAgentFrameworkStep?.stdout ?? "") && /WEBSITE_AGENT_FRAMEWORK_READY=true/i.test(websiteAgentFrameworkStep?.stdout ?? "");
+  const continuityDependencyReady = /Mode:\s*REPORT_ONLY/i.test(`${continuityDependencyReport}\n${continuityDependencyStep?.stdout ?? ""}`) && /Never modifies files automatically:\s*true/i.test(`${continuityDependencyReport}\n${continuityDependencyStep?.stdout ?? ""}`) && /Never creates tasks automatically:\s*true/i.test(`${continuityDependencyReport}\n${continuityDependencyStep?.stdout ?? ""}`) && /Never approves PRs:\s*true/i.test(`${continuityDependencyReport}\n${continuityDependencyStep?.stdout ?? ""}`) && /Never merges PRs:\s*true/i.test(`${continuityDependencyReport}\n${continuityDependencyStep?.stdout ?? ""}`) && /Never repairs files:\s*true/i.test(`${continuityDependencyReport}\n${continuityDependencyStep?.stdout ?? ""}`) && /Never deploys:\s*true/i.test(`${continuityDependencyReport}\n${continuityDependencyStep?.stdout ?? ""}`) && /CONTINUITY_DEPENDENCY_SENTINEL_READY=true/i.test(`${continuityDependencyReport}\n${continuityDependencyStep?.stdout ?? ""}`);
 
   assertCondition(checks, "Alpha tracks fully covered", covered.covered !== null && covered.total !== null && covered.covered === covered.total, covered.covered === null ? "not found" : `${covered.covered}/${covered.total}`);
   assertCondition(checks, "TODO index has no missing files", missingIndex === 0, formatDetailCount(missingIndex, missingIndexFiles));
@@ -193,6 +197,7 @@ function main() {
   assertCondition(checks, "Agent governance control check passed", /Result:\s*PASS/i.test(agentGovernanceControlReport), /Result:\s*PASS/i.test(agentGovernanceControlReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Product readiness check passed", /Result:\s*PASS/i.test(productReadinessReport), /Result:\s*PASS/i.test(productReadinessReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Website agent framework check reported safely", websiteAgentFrameworkReady, websiteAgentFrameworkReady ? "REPORT_ONLY and WEBSITE_AGENT_FRAMEWORK_READY=true" : "not found or unsafe output");
+  assertCondition(checks, "Continuity dependency sentinel check reported safely", continuityDependencyReady, continuityDependencyReady ? "REPORT_ONLY and CONTINUITY_DEPENDENCY_SENTINEL_READY=true" : "not found or unsafe output");
   assertCondition(checks, "Route/API register check passed", /Result:\s*PASS/i.test(routeApiReport), /Result:\s*PASS/i.test(routeApiReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Route/API drift detector passed", routeApiDriftPassed, routeApiDriftPassed ? "PASS or PASS_WITH_WARNINGS" : "not found or FAIL");
   assertCondition(checks, "Visual route smoke check reported safely", visualRouteSmokePassed, visualRouteSmokePassed ? "PASS, PASS_WITH_WARNINGS, SKIPPED, or REPORT_ONLY" : "not found or unsafe FAIL");

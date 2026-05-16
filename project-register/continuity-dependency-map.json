@@ -1,0 +1,493 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Report-only continuity and dependency sentinel for preserving open points, follow-ups, review_required items, blocked tasks, dependency chains, required next files, affected registers, and logical next steps across WellFit agent/governance tasks. It does not create tasks, rewrite files, approve PRs, merge, repair, deploy, or modify runtime product code.",
+  "sourceOfTruthFiles": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "todolist/NEXT_ACTIONS.md",
+    "project-register/agent-task-queue.json",
+    "project-register/agent-work-log.json",
+    "project-register/progress-log.json",
+    "project-register/product-readiness.json",
+    "project-register/repository-inventory.json",
+    "project-register/cross-reference-maintenance.json",
+    "project-register/master-roadmap-tasks.json",
+    "project-register/pr-review-policy.json",
+    "project-register/pr-post-creation-guard.json",
+    "project-register/pr-diff-review-policy.json",
+    "project-register/task-status-policy.json",
+    "project-register/batch-execution-runner-policy.json",
+    "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+  ],
+  "monitoredRegisters": [
+    "project-register/continuity-dependency-map.json",
+    "project-register/agent-task-queue.json",
+    "project-register/agent-work-log.json",
+    "project-register/progress-log.json",
+    "project-register/product-readiness.json",
+    "project-register/repository-inventory.json",
+    "project-register/cross-reference-maintenance.json",
+    "project-register/master-roadmap-tasks.json",
+    "project-register/pr-review-policy.json",
+    "project-register/pr-post-creation-guard.json",
+    "project-register/pr-diff-review-policy.json",
+    "project-register/task-status-policy.json",
+    "project-register/batch-execution-runner-policy.json",
+    "project-register/agent-workflows.json",
+    "project-register/agent-autopilot.json",
+    "project-register/website-agents.json",
+    "project-register/website-readiness.json"
+  ],
+  "monitoredDocs": [
+    "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
+    "docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md",
+    "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
+    "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
+    "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md",
+    "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/NEXT_ACTIONS.md"
+  ],
+  "dependencyTypes": [
+    "requires_followup_task",
+    "requires_register_update",
+    "requires_work_map_update",
+    "requires_todo_index_update",
+    "requires_product_readiness_update",
+    "requires_repository_inventory_update",
+    "requires_task_queue_update",
+    "requires_work_log_entry",
+    "requires_progress_log_entry",
+    "requires_validation_script",
+    "requires_human_review",
+    "requires_future_runtime_task",
+    "blocks_auto_merge",
+    "blocks_auto_repair",
+    "blocks_batch_execution",
+    "blocks_product_readiness_advance"
+  ],
+  "statusValues": [
+    "open",
+    "in_progress",
+    "done",
+    "blocked",
+    "review_required",
+    "device_test_required",
+    "human_review_required",
+    "stale",
+    "duplicate",
+    "superseded"
+  ],
+  "openPointSchema": {
+    "id": "stable string",
+    "title": "short human title",
+    "status": "one of statusValues",
+    "source": "existing file that introduced or owns the point",
+    "ownerAgent": "agent or governance framework responsible for continuing it",
+    "mustNotForget": "boolean flag for handoff-critical items",
+    "reason": "required for blocked/review_required/human_review_required/device_test_required entries",
+    "dependencies": "array of dependencyTypes",
+    "affectedRegisters": "registers that should be checked when resolving the point",
+    "requiredOutputLocations": "array of output location objects with path, existsNow, purpose",
+    "nextRecommendedTask": "concrete next action for the next agent",
+    "humanReviewRequired": "boolean"
+  },
+  "followUpSchema": {
+    "id": "stable follow-up id",
+    "fromEntryId": "continuity map entry that created the follow-up",
+    "targetRegister": "existing register or TODO file to update",
+    "status": "statusValues item",
+    "requiredEvidence": [
+      "changed files",
+      "checks run",
+      "blocked/review reason",
+      "next task"
+    ]
+  },
+  "dependencySchema": {
+    "type": "dependencyTypes item",
+    "blocks": "what cannot advance until resolved",
+    "evidenceRequired": "file/report/check proving the dependency is satisfied",
+    "humanReviewRequired": "boolean"
+  },
+  "mustNotForgetRules": [
+    "Every mustNotForget entry must include a concrete nextRecommendedTask.",
+    "Every mustNotForget entry must name affectedRegisters and requiredOutputLocations.",
+    "Future agents must check this map before closing governance/framework tasks.",
+    "Do not mark entries done unless the referenced outputs and work/progress evidence exist."
+  ],
+  "reviewRequiredRules": [
+    "review_required and human_review_required entries require reason and humanReviewRequired=true unless explicitly documented as device-only evidence.",
+    "Review-required items must be preserved in handoffs and not silently downgraded.",
+    "Protected topics and automation activation remain review-gated."
+  ],
+  "blockedRules": [
+    "blocked entries require reason, blocking dependency type, and nextRecommendedTask.",
+    "Blocked automation entries must keep blocks_auto_merge, blocks_auto_repair, or blocks_batch_execution dependencies as applicable.",
+    "Blocked status is not a failure; it is a preserved stop condition."
+  ],
+  "nextAgentHandoffRules": [
+    "Read AGENTS.md, CURRENT_PROJECT_STATE.md, WORK_MAP.md, TODO_INDEX.md, NEXT_ACTIONS.md, then this map before new governance work.",
+    "Use entries to update existing agent-task-queue, work-log, progress-log, product-readiness, repository-inventory, and cross-reference files instead of creating parallel systems.",
+    "When a task resolves an entry, update this map in the same PR and cite the output evidence.",
+    "When a task creates a new framework, add machine-readable backlog/status/output dependencies here."
+  ],
+  "requiredOutputLocations": [
+    "project-register/continuity-dependency-map.json",
+    "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
+    "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+    "scripts/wellfit-dev-agent/output/continuity-dependency-report.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md"
+  ],
+  "forbiddenAutoUpdates": [
+    "never modify files automatically",
+    "never create agent-task-queue tasks automatically",
+    "never approve PRs",
+    "never merge PRs",
+    "never enable auto-merge",
+    "never enable auto-repair",
+    "never deploy",
+    "never modify runtime product code",
+    "never modify Unity or PR #13 assets"
+  ],
+  "humanReviewRequiredFor": [
+    "activation beyond report_only",
+    "marking blocked automation entries unblocked",
+    "changing auto-merge or auto-repair from report-only",
+    "controlled Batch Execution Runner activation",
+    "protected/compliance/runtime/Unity/native work",
+    "closing review_required entries"
+  ],
+  "reportOutputSchema": {
+    "path": "scripts/wellfit-dev-agent/output/continuity-dependency-report.md",
+    "mode": "REPORT_ONLY",
+    "readyLine": "CONTINUITY_DEPENDENCY_SENTINEL_READY=true|false",
+    "sections": [
+      "mode and forbidden actions",
+      "top-level field validation",
+      "status/dependency validation",
+      "entry validation",
+      "referenced file validation",
+      "WORK_MAP and TODO_INDEX references",
+      "open/review_required/blocked/device_test_required summary"
+    ]
+  },
+  "entries": [
+    {
+      "id": "CDS-001-website-agent-backlog-status-output-map",
+      "title": "Website Agent Framework must also create website-agent backlog/status/output mapping",
+      "status": "open",
+      "source": "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+      "ownerAgent": "Website Agent Framework / Continuity Dependency Sentinel",
+      "mustNotForget": true,
+      "reason": "The current Website Agent Framework defines agents and route readiness, but the next framework increment must add machine-readable backlog/status/output registers so follow-ups are not carried only in prose.",
+      "dependencies": [
+        "requires_followup_task",
+        "requires_register_update",
+        "requires_task_queue_update",
+        "requires_work_log_entry",
+        "requires_progress_log_entry"
+      ],
+      "affectedRegisters": [
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/website-agent-backlog.json",
+          "existsNow": false,
+          "purpose": "Future machine-readable backlog for website-agent tasks."
+        },
+        {
+          "path": "project-register/website-agent-status.json",
+          "existsNow": false,
+          "purpose": "Future status/evidence register for website-agent runs."
+        },
+        {
+          "path": "project-register/website-agent-outputs.json",
+          "existsNow": false,
+          "purpose": "Future report/output index for website-agent findings."
+        }
+      ],
+      "nextRecommendedTask": "Create the Website Agent Framework backlog/status/output registers as docs/register/script-only work, then link them from WORK_MAP.md, TODO_INDEX.md, agent-task-queue, and quality gate checks.",
+      "humanReviewRequired": false
+    },
+    {
+      "id": "CDS-002-website-readiness-baseline-machine-readable-findings",
+      "title": "Future Website Readiness Baseline Audit must produce machine-readable findings",
+      "status": "open",
+      "source": "project-register/website-readiness.json",
+      "ownerAgent": "Website Readiness Baseline Audit Agent",
+      "mustNotForget": true,
+      "reason": "A future audit must not leave findings only in markdown; findings need route, severity, status, owner, evidence, next task, and protected-topic flags.",
+      "dependencies": [
+        "requires_followup_task",
+        "requires_register_update",
+        "requires_validation_script",
+        "requires_work_map_update",
+        "requires_todo_index_update"
+      ],
+      "affectedRegisters": [
+        "project-register/website-readiness.json",
+        "project-register/agent-task-queue.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/website-readiness-findings.json",
+          "existsNow": false,
+          "purpose": "Future route-by-route readiness findings."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/website-readiness-baseline-report.md",
+          "existsNow": false,
+          "purpose": "Future report-only audit output. Generated by its report-only check when run."
+        }
+      ],
+      "nextRecommendedTask": "After website-agent backlog/status registers exist, run a report-only Website Readiness Baseline Audit that writes machine-readable findings and does not edit runtime routes.",
+      "humanReviewRequired": false
+    },
+    {
+      "id": "CDS-003-pr-diff-review-required-for-real-batch-runs",
+      "title": "PR Diff Review must be used by future real Batch Execution Runner runs",
+      "status": "review_required",
+      "source": "project-register/pr-diff-review-policy.json",
+      "ownerAgent": "Batch Execution Runner / PR Diff Review Agent",
+      "mustNotForget": true,
+      "reason": "Real runner activation would create PRs; every such PR must include PR Diff Review evidence before merge consideration.",
+      "dependencies": [
+        "requires_human_review",
+        "blocks_auto_merge",
+        "blocks_batch_execution",
+        "requires_work_log_entry",
+        "requires_progress_log_entry"
+      ],
+      "affectedRegisters": [
+        "project-register/pr-diff-review-policy.json",
+        "project-register/batch-execution-runner-policy.json",
+        "project-register/pr-post-creation-guard.json",
+        "project-register/agent-work-log.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "scripts/wellfit-dev-agent/output/pr-diff-review-report.md",
+          "existsNow": false,
+          "purpose": "Report-only PR diff review output. Generated by its report-only check when run."
+        }
+      ],
+      "nextRecommendedTask": "Before any real Batch Execution Runner activation, require `node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs` output and PR post-creation guard evidence in the runner handoff.",
+      "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-004-batch-execution-runner-controlled-one-task-activation",
+      "title": "Batch Execution Runner is framework-only and still needs controlled 1-task activation",
+      "status": "blocked",
+      "source": "project-register/batch-execution-runner-policy.json",
+      "ownerAgent": "Batch Execution Runner",
+      "mustNotForget": true,
+      "reason": "The runner policy remains framework-only/report-check-only; actual execution is blocked until explicit human approval and a one-task low-risk activation plan exist.",
+      "dependencies": [
+        "requires_human_review",
+        "requires_task_queue_update",
+        "blocks_batch_execution",
+        "blocks_auto_merge",
+        "blocks_auto_repair"
+      ],
+      "affectedRegisters": [
+        "project-register/batch-execution-runner-policy.json",
+        "project-register/agent-task-queue.json",
+        "project-register/task-status-policy.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "scripts/wellfit-dev-agent/output/batch-execution-runner-check.md",
+          "existsNow": false,
+          "purpose": "Runner readiness report. Generated by its report-only check when run."
+        }
+      ],
+      "nextRecommendedTask": "Prepare a separate human-reviewed one-task runner activation proposal after runner probes, task status evidence, PR diff review, and post-creation guard are green.",
+      "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-005-auto-merge-mini-categories-evidence-gate",
+      "title": "Auto-Merge Mini Categories must wait for task status/work-log evidence and PR diff review",
+      "status": "blocked",
+      "source": "project-register/pr-review-policy.json",
+      "ownerAgent": "Auto-Merge Eligibility Agent",
+      "mustNotForget": true,
+      "reason": "Auto-merge remains disabled; mini-category consideration requires task status evidence, work-log evidence, and PR Diff Review before any human-reviewed policy change.",
+      "dependencies": [
+        "requires_human_review",
+        "requires_work_log_entry",
+        "requires_progress_log_entry",
+        "blocks_auto_merge",
+        "requires_validation_script"
+      ],
+      "affectedRegisters": [
+        "project-register/auto-merge-policy.json",
+        "project-register/task-status-policy.json",
+        "project-register/pr-diff-review-policy.json",
+        "project-register/pr-post-creation-guard.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "scripts/wellfit-dev-agent/output/auto-merge-eligibility-report.md",
+          "existsNow": false,
+          "purpose": "Report-only auto-merge eligibility output. Generated by its report-only check when run."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/task-status-work-log-check.md",
+          "existsNow": false,
+          "purpose": "Task/work-log evidence report. Generated by its report-only check when run."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/pr-diff-review-report.md",
+          "existsNow": false,
+          "purpose": "PR diff review report. Generated by its report-only check when run."
+        }
+      ],
+      "nextRecommendedTask": "Keep auto-merge disabled until a later PR proves low-risk evidence with task-status/work-log sync and PR Diff Review, then ask for explicit human approval.",
+      "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-006-auto-repair-mini-categories-safe-failure-gate",
+      "title": "Auto-Repair Mini Categories must wait for task status/work-log evidence and safe failure classification",
+      "status": "blocked",
+      "source": "project-register/task-status-policy.json",
+      "ownerAgent": "Auto-Repair Decision Agent",
+      "mustNotForget": true,
+      "reason": "Auto-repair remains report-only; even mini repair categories need safe failure classification, changed-file boundaries, and work-log evidence.",
+      "dependencies": [
+        "requires_human_review",
+        "requires_work_log_entry",
+        "requires_progress_log_entry",
+        "blocks_auto_repair",
+        "requires_validation_script"
+      ],
+      "affectedRegisters": [
+        "project-register/auto-repair-policy.json",
+        "project-register/task-status-policy.json",
+        "project-register/repository-inventory.json",
+        "project-register/agent-work-log.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "scripts/wellfit-dev-agent/output/auto-repair-decision-report.md",
+          "existsNow": false,
+          "purpose": "Report-only auto-repair decision output. Generated by its report-only check when run."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/task-status-work-log-check.md",
+          "existsNow": false,
+          "purpose": "Task/work-log sync report. Generated by its report-only check when run."
+        }
+      ],
+      "nextRecommendedTask": "Do not enable repairs; first classify safe failure categories in a separate human-reviewed docs/register PR with repository-inventory and task-status evidence.",
+      "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-007-four-hour-low-risk-session-prerequisites",
+      "title": "4-hour Low-Risk Session must wait for runner probes, mini auto-repair, mini auto-merge or explicit human override",
+      "status": "blocked",
+      "source": "project-register/agent-autopilot.json",
+      "ownerAgent": "Batch Autopilot / Human Supervisor",
+      "mustNotForget": true,
+      "reason": "A longer low-risk session combines multiple automation layers; it is blocked until runner probes, mini auto-repair, mini auto-merge gates, or explicit human override are documented.",
+      "dependencies": [
+        "requires_human_review",
+        "blocks_batch_execution",
+        "blocks_auto_merge",
+        "blocks_auto_repair",
+        "requires_task_queue_update"
+      ],
+      "affectedRegisters": [
+        "project-register/agent-autopilot.json",
+        "project-register/autopilot-batch-policy.json",
+        "project-register/batch-execution-runner-policy.json",
+        "project-register/agent-task-queue.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "scripts/wellfit-dev-agent/output/autopilot-batch-dry-run-report.md",
+          "existsNow": false,
+          "purpose": "Future session planning/evidence output if implemented. Generated by its report-only check when run."
+        }
+      ],
+      "nextRecommendedTask": "Keep extended sessions disabled; after controlled one-task runner proof, create a separate human-reviewed session-readiness proposal.",
+      "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-008-remaining-repository-inventory-native-unity-triage",
+      "title": "Remaining repository inventory unmapped/native/Unity files require separate read-only triage, with Unity/PR #13 protected",
+      "status": "review_required",
+      "source": "project-register/repository-inventory.json",
+      "ownerAgent": "Repository Inventory Agent",
+      "mustNotForget": true,
+      "reason": "Remaining unmapped/native/Unity files need read-only triage only; Unity/PR #13 must not be modified, merged, closed, or used as a shortcut.",
+      "dependencies": [
+        "requires_followup_task",
+        "requires_repository_inventory_update",
+        "requires_human_review",
+        "requires_work_log_entry"
+      ],
+      "affectedRegisters": [
+        "project-register/repository-inventory.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/agent-task-queue.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/repository-inventory.json",
+          "existsNow": true,
+          "purpose": "Canonical inventory map."
+        },
+        {
+          "path": "docs/architecture/WELLFIT_REPOSITORY_INVENTORY_AUDIT.md",
+          "existsNow": true,
+          "purpose": "Inventory audit guide."
+        }
+      ],
+      "nextRecommendedTask": "Run a separate read-only inventory triage for remaining unmapped/native files, explicitly excluding Unity modifications and PR #13 actions.",
+      "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-009-manual-mobile-pwa-evidence-device-model-route-specific",
+      "title": "Manual Mobile/PWA evidence still needs device model and route-specific phone evidence",
+      "status": "device_test_required",
+      "source": "todolist/CURRENT_PROJECT_STATE.md",
+      "ownerAgent": "Manual Mobile/PWA Evidence Agent",
+      "mustNotForget": true,
+      "reason": "Existing mobile evidence is useful but incomplete: the device model is missing and additional route-specific phone evidence is still required.",
+      "dependencies": [
+        "requires_followup_task",
+        "requires_product_readiness_update",
+        "requires_work_log_entry",
+        "requires_progress_log_entry"
+      ],
+      "affectedRegisters": [
+        "project-register/product-readiness.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "scripts/wellfit-dev-agent/output/mobile-pwa-evidence-report.md",
+          "existsNow": false,
+          "purpose": "Future optional report-only evidence summary. Generated by its report-only check when run."
+        }
+      ],
+      "nextRecommendedTask": "Collect route-specific phone evidence with device model/browser/route/result fields before advancing Mobile/PWA readiness.",
+      "humanReviewRequired": false
+    }
+  ]
+}

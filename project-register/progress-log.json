@@ -358,6 +358,23 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Mapped 204 app/**, components/**, lib/**, and functions/** runtime-adjacent source references into existing repository inventory topics only. Unmapped inventory count moved from 275 to 71, and 103 sensitive or authority-adjacent runtime references were marked review_required. No runtime product code, app/components/lib/functions source files, Firestore rules, package/firebase configuration, public assets, GitHub workflow files, Unity/PR #13 files, protected compliance logic, auto-merge, auto-repair, or deployment was changed."
+    },
+    {
+      "id": "PROGRESS-CONTINUITY-DEPENDENCY-SENTINEL-2026-05-16-0001",
+      "date": "2026-05-16",
+      "branch": "continuity-dependency-sentinel",
+      "issue": null,
+      "goal": "Create a report-only Continuity & Dependency Sentinel Agent and machine-readable dependency map for open follow-ups, review_required/blocked items, required next files, affected registers, and next-agent handoffs.",
+      "changedAreas": [
+        "project-register",
+        "architecture documentation",
+        "agent validation script",
+        "quality gate",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Created report-only Sentinel map/doc/check with initial must-not-forget entries for Website Agent backlog/status/output mapping, Website Readiness machine-readable findings, PR Diff Review use in future batch runs, Batch Execution Runner controlled one-task activation, Auto-Merge/Auto-Repair mini-category gates, 4-hour low-risk session prerequisites, remaining repository inventory/native/Unity read-only triage, and Mobile/PWA device evidence gaps. Integrated the check into quality gate and existing governance registers. No runtime product code, app/components/lib/functions, Firestore rules, public assets, package/firebase/GitHub config, Unity/PR #13, compliance logic, auto-merge, auto-repair, approval, deployment, or automatic task creation was enabled."
     }
   ]
 }

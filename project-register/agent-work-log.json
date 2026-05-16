@@ -2007,6 +2007,107 @@
           "functions/**"
         ]
       }
+    },
+    {
+      "taskId": "CONTINUITY-DEPENDENCY-SENTINEL",
+      "title": "Create WellFit Continuity & Dependency Sentinel Agent",
+      "status": "done",
+      "pr": {
+        "branch": "continuity-dependency-sentinel",
+        "number": null,
+        "url": null,
+        "title": "Create Continuity & Dependency Sentinel Agent"
+      },
+      "changedFiles": [
+        "project-register/continuity-dependency-map.json",
+        "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
+        "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/batch-execution-runner-policy.json",
+        "project-register/task-status-policy.json",
+        "project-register/pr-review-policy.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "ESLint completed successfully."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "TypeScript no-emit check completed successfully."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Next.js production build completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Firebase Functions syntax/static check completed successfully."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Quality gate passed with Continuity Dependency Sentinel check included."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+          "result": "pass_report_only",
+          "notes": "CONTINUITY_DEPENDENCY_SENTINEL_READY=true; report-only and no task creation/approval/merge/repair/deploy."
+        },
+        {
+          "command": "jq empty project-register/continuity-dependency-map.json",
+          "result": "pass",
+          "notes": "Continuity dependency map parsed successfully."
+        },
+        {
+          "command": "jq empty project-register/batch-execution-runner-policy.json",
+          "result": "pass",
+          "notes": "Runner policy parsed successfully after Sentinel reference."
+        },
+        {
+          "command": "jq empty project-register/task-status-policy.json",
+          "result": "pass",
+          "notes": "Task status policy parsed successfully after Sentinel reference."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass_dry_run",
+          "notes": "Autopilot remained dry-run only and listed Sentinel first-read/check references."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+          "result": "pass_report_only",
+          "notes": "PR_DIFF_REVIEW_READY=true; human review required due documentation protected-topic findings; no approval/merge/repair/deploy."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "No whitespace errors."
+        }
+      ],
+      "followUps": [
+        "Next recommended task: Website Agent Framework with website-agent backlog/status/output register so website follow-ups can be continued from machine-readable files."
+      ],
+      "nextRecommendedTask": "Create Website Agent Framework backlog/status/output registers as docs/register/script-only work; keep auto task creation, auto-merge, auto-repair, approval, deployment, runtime/product changes, Unity/PR #13, and protected compliance areas disabled.",
+      "updatedTodoFiles": [
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "registry_task"
     }
   ]
 }
