@@ -1,0 +1,104 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "proposal_backlog",
+  "purpose": "Machine-readable backlog of Agent Architect & Proposal Agent outputs. Entries describe one proposed or built agent at a time and preserve human-review, report-only, no-runtime, no-auto-merge, no-auto-repair, and no-deploy boundaries.",
+  "proposalStatuses": [
+    "drafted",
+    "proposed",
+    "approved",
+    "rejected",
+    "superseded",
+    "built",
+    "blocked"
+  ],
+  "proposalSchema": {
+    "id": "required",
+    "proposedAgentName": "required",
+    "sourceApprovedBacklogId": "required",
+    "status": "required",
+    "reason": "required",
+    "expectedBenefit": "required",
+    "riskLevel": "required",
+    "connectedAgents": "required",
+    "connectedRegisters": "required",
+    "connectedAgentCount": "required",
+    "connectedRegisterCount": "required",
+    "requiredDocs": "required",
+    "requiredRegisters": "required",
+    "requiredValidationScripts": "required",
+    "allowedFiles": "required",
+    "forbiddenFiles": "required",
+    "humanReviewRequired": "required",
+    "buildPromptSummary": "required",
+    "generatedBuildPromptLocation": "required",
+    "nextRecommendedAction": "required",
+    "createdDate": "required",
+    "updatedDate": "required"
+  },
+  "entries": [
+    {
+      "id": "proposal-agent-architect-proposal-agent-2026-05-16",
+      "proposedAgentName": "Agent Architect & Proposal Agent",
+      "sourceApprovedBacklogId": "agent-architect-proposal-agent",
+      "status": "built",
+      "reason": "Human-approved first approved-backlog agent was implemented as a report-only proposal generator and validator in this task.",
+      "expectedBenefit": "Provides controlled one-agent-at-a-time planning, connected-agent/register counting, risk classification, and safe Codex prompt drafting without automatically building future agents.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "agent-task-queue",
+        "continuity-dependency-sentinel",
+        "agent-extension-policy",
+        "pr-review-agent"
+      ],
+      "connectedRegisters": [
+        "project-register/agent-extension-policy.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-architect-policy.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 6,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-architect-policy.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs",
+        "scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanReviewRequired": true,
+      "buildPromptSummary": "Build only the report-only Agent Architect & Proposal Agent with policy/register/doc/validation-script outputs; do not build future agents automatically.",
+      "generatedBuildPromptLocation": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md",
+      "nextRecommendedAction": "Review the generated next-agent build prompt and execute the next approved agent build only if a human accepts it.",
+      "createdDate": "2026-05-16",
+      "updatedDate": "2026-05-16"
+    }
+  ]
+}

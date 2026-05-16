@@ -90,7 +90,10 @@
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
         "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "project-register/agent-architect-policy.json",
+        "project-register/agent-build-proposals.json",
+        "docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md"
       ],
       "controlRegisters": [
         {
@@ -792,7 +795,11 @@
         "check": "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
         "mode": "report_only",
         "purpose": "Decide existing-agent extension vs proposal-required new agent before adding agent/framework capability."
-      }
+      },
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs",
+        "node scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
+      ]
     }
   ]
 }
