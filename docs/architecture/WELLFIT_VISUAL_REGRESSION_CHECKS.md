@@ -1,7 +1,7 @@
 # WellFit Visual Regression and Screenshot Checks
 
 Status: active / optional QA plan
-Updated: 2026-05-15
+Updated: 2026-05-16
 Leading register: `project-register/visual-regression.json`
 Related files: `project-register/routes.json`, `scripts/wellfit-dev-agent/src/visual-route-smoke-check.mjs`, `scripts/wellfit-dev-agent/src/quality-gate.mjs`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`
 
@@ -250,6 +250,59 @@ Recommended follow-up:
 ```
 
 Do not use this template to self-approve runtime fixes. A failed or review-required device finding should become a separate scoped task/PR with explicit allowed files and review plan.
+
+
+## Manual Mobile/PWA device evidence report — 2026-05-16
+
+Status: first human-provided evidence recorded / more device tests required
+Tester: human tester / project owner
+Evidence date: 2026-05-16
+Phone browser: Chrome
+Phone URL: `https://wellfit-now.io/mobile`
+Device model: `device_test_required` / missing device metadata; Android OS and Chrome version were not provided.
+Evidence storage: screenshots were human-provided externally for review, but no screenshots, binaries, raw camera/video, face, biometric, health, location, raw sensor, account, wallet/payment, or reward-authority data are committed to the repository.
+Runtime scope: documentation/register-only evidence recording; no runtime product code, service worker, manifest/public assets, tracking/data collection, consent/privacy/legal logic, reward/mission authority, Functions/Rules, Unity, deployment, auto-merge, or auto-repair changed.
+
+### Phone Chrome evidence
+
+| Route | Human-provided evidence | Classification | Follow-up |
+|---|---|---|---|
+| `/mobile/ar` | Camera starts on phone Chrome. | `pass` | Re-test with device model, Android version, Chrome version, permission prompt notes, WebGL/camera layering, controls, performance, battery/heat, and fallback notes. |
+| `/mobile/ar` | Buddy appears on phone Chrome. | `pass` | Keep Buddy final behavior separate from simple visibility. |
+| `/mobile/ar` | Buddy is not final yet; this is expected for the current state. | `review_required` / `expected_incomplete` / `not_complete` | Continue Buddy/AR review in a separate scoped task; do not treat this as a blocking runtime failure and do not auto-repair. |
+
+### Phone route coverage still required
+
+The human evidence did not explicitly cover these phone routes beyond related screenshot context, so they remain `device_test_required` rather than inferred as pass:
+
+| Route | Phone status | Reason |
+|---|---|---|
+| `/mobile` | `device_test_required` | Route was not explicitly evidenced on the phone; device model and browser version are missing. |
+| `/mobile/missionen` | `device_test_required` | Route was not explicitly evidenced on the phone; device model and browser version are missing. |
+| `/mobile/buddy` | `device_test_required` | Route was not explicitly evidenced on the phone; device model and browser version are missing. |
+| `/mobile/einstellungen` | `device_test_required` | Route was not explicitly evidenced on the phone; device model and browser version are missing. |
+| `/mobile/bewegung` | `device_test_required` | Route was not explicitly evidenced on the phone; DeviceMotion behavior still needs a real-device check. |
+| `/mobile/missionen/squat` | `device_test_required` | Route was not explicitly evidenced on the phone; camera accepted/denied and pose fallback behavior still need a real-device check. |
+
+### Desktop responsive screenshot evidence
+
+Desktop responsive screenshots were reported for the following existing mobile routes. They are smoke evidence only and do not replace phone-device checks.
+
+| Route | Desktop responsive classification | Notes |
+|---|---|---|
+| `/mobile` | `pass` / `screenshot_provided` | Screenshot evidence exists externally; no binary artifact is committed. |
+| `/mobile/missionen` | `pass` / `screenshot_provided` | Screenshot evidence exists externally; no binary artifact is committed. |
+| `/mobile/buddy` | `pass` / `screenshot_provided` | Screenshot evidence exists externally; no binary artifact is committed. |
+| `/mobile/einstellungen` | `pass` / `screenshot_provided` | Screenshot evidence exists externally; no binary artifact is committed. |
+| `/mobile/bewegung` | `pass` / `screenshot_provided` | Screenshot evidence exists externally; no binary artifact is committed. |
+| `/mobile/missionen/squat` | `desktop_camera_source_blocked_or_unavailable` | Camera/video source issue is visible in desktop responsive testing; classify as a desktop camera-source limitation, not as a phone failure. |
+| `/mobile/ar` | `pass_with_review_required` / `screenshot_provided` | Screenshot evidence exists externally; Buddy AR is not final and remains `review_required` / `expected_incomplete`. |
+
+### Evidence summary
+
+Counts for this evidence report: `pass=7`, `fail=0`, `blocked=1`, `device_test_required=8`, `review_required=2`. `blocked=1` is the desktop responsive `/mobile/missionen/squat` camera-source limitation, not a phone failure. `device_test_required=8` covers missing phone device metadata plus six untested phone routes and missing desktop browser/viewport metadata.
+
+Next recommended manual device test: collect the phone device model, Android version, Chrome version, viewport/PWA mode, and route-by-route phone evidence for `/mobile`, `/mobile/missionen`, `/mobile/buddy`, `/mobile/einstellungen`, `/mobile/bewegung`, and `/mobile/missionen/squat`; re-check `/mobile/ar` controls, WebGL/camera layering, performance, fallback behavior, and Buddy final behavior as `review_required` until complete.
 
 ## Optional screenshot comparison modes
 

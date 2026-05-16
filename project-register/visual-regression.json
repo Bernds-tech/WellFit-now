@@ -328,8 +328,8 @@
     "routeScopedPlaceholders": []
   },
   "mobilePwaDeviceTestPlan": {
-    "status": "planning_only_device_test_required",
-    "updated": "2026-05-15",
+    "status": "first_manual_evidence_recorded_more_device_tests_required",
+    "updated": "2026-05-16",
     "purpose": "Manual device/browser test matrix for existing WellFit mobile/PWA routes, install flow, camera/pose/face/motion permissions, WebGL/AR fallbacks, and privacy/safety boundaries. This metadata is QA planning only and must not change runtime code, service worker, manifest, public assets, tracking, consent, protected data handling, or reward/mission authority.",
     "devices": [
       {
@@ -528,6 +528,135 @@
       ],
       "runtimeChangeRule": "Tester handoff and result paste-back are documentation/register-only; they must not change runtime product code, service worker, manifest/public assets, tracking, consent, protected data handling, reward/mission authority, Unity files, deployment, auto-merge, or auto-repair.",
       "followUpRule": "Failures, blockers, review_required outcomes, and unclear permission/privacy/authority behavior become separate scoped follow-up tasks; do not auto-repair or invent outcomes."
-    }
+    },
+    "manualEvidence": [
+      {
+        "id": "MOBILE-PWA-MANUAL-EVIDENCE-2026-05-16-0001",
+        "date": "2026-05-16",
+        "tester": "human tester / project owner",
+        "previewUrl": "https://wellfit-now.io/mobile",
+        "evidenceType": "human_provided_phone_and_desktop_responsive_screenshots",
+        "artifactPolicy": "No screenshots, binaries, raw camera/video, face, biometric, location, health, sensor, account, wallet/payment, or reward-authority data are stored in this repository.",
+        "phoneEvidence": {
+          "device": "Android phone",
+          "browser": "Chrome",
+          "deviceModel": "device_test_required_not_provided",
+          "osVersion": "device_test_required_not_provided",
+          "url": "https://wellfit-now.io/mobile",
+          "routes": [
+            {
+              "route": "/mobile/ar",
+              "checks": [
+                {
+                  "item": "camera starts on phone Chrome",
+                  "status": "pass",
+                  "classification": "phone_camera_starts_pass",
+                  "severity": "low"
+                },
+                {
+                  "item": "Buddy appears on phone Chrome",
+                  "status": "pass",
+                  "classification": "phone_buddy_appears_pass",
+                  "severity": "low"
+                },
+                {
+                  "item": "Buddy final behavior",
+                  "status": "review_required",
+                  "classification": "expected_incomplete_not_complete",
+                  "severity": "low"
+                }
+              ]
+            },
+            {
+              "route": "/mobile",
+              "status": "device_test_required",
+              "classification": "untested_phone_route"
+            },
+            {
+              "route": "/mobile/missionen",
+              "status": "device_test_required",
+              "classification": "untested_phone_route"
+            },
+            {
+              "route": "/mobile/buddy",
+              "status": "device_test_required",
+              "classification": "untested_phone_route"
+            },
+            {
+              "route": "/mobile/einstellungen",
+              "status": "device_test_required",
+              "classification": "untested_phone_route"
+            },
+            {
+              "route": "/mobile/bewegung",
+              "status": "device_test_required",
+              "classification": "untested_phone_route"
+            },
+            {
+              "route": "/mobile/missionen/squat",
+              "status": "device_test_required",
+              "classification": "untested_phone_route"
+            }
+          ]
+        },
+        "desktopResponsiveEvidence": {
+          "browser": "desktop responsive browser",
+          "deviceModel": "desktop_responsive_browser_device_metadata_not_required_but_browser_version_viewport_still_device_test_required",
+          "routes": [
+            {
+              "route": "/mobile",
+              "status": "pass",
+              "classification": "screenshot_provided",
+              "severity": "low"
+            },
+            {
+              "route": "/mobile/missionen",
+              "status": "pass",
+              "classification": "screenshot_provided",
+              "severity": "low"
+            },
+            {
+              "route": "/mobile/buddy",
+              "status": "pass",
+              "classification": "screenshot_provided",
+              "severity": "low"
+            },
+            {
+              "route": "/mobile/einstellungen",
+              "status": "pass",
+              "classification": "screenshot_provided",
+              "severity": "low"
+            },
+            {
+              "route": "/mobile/bewegung",
+              "status": "pass",
+              "classification": "screenshot_provided",
+              "severity": "low"
+            },
+            {
+              "route": "/mobile/missionen/squat",
+              "status": "blocked",
+              "classification": "desktop_camera_source_blocked_or_unavailable_not_phone_failure",
+              "severity": "low"
+            },
+            {
+              "route": "/mobile/ar",
+              "status": "review_required",
+              "classification": "pass_with_review_required_screenshot_provided_buddy_ar_not_final",
+              "severity": "low"
+            }
+          ]
+        },
+        "summaryCounts": {
+          "pass": 7,
+          "fail": 0,
+          "blocked": 1,
+          "device_test_required": 8,
+          "review_required": 2
+        },
+        "safetyConfirmation": "Documentation/register-only evidence entry. No screenshots/binaries/raw sensitive data committed. No runtime code, service worker, public assets, tracking, data collection, consent, reward authority, mission authority, Unity, deployment, auto-merge, or auto-repair changed.",
+        "nextRecommendedManualDeviceTest": "Collect device model, Android OS, Chrome version, viewport/PWA mode, and route-by-route phone evidence for /mobile, /mobile/missionen, /mobile/buddy, /mobile/einstellungen, /mobile/bewegung, and /mobile/missionen/squat; re-check /mobile/ar Buddy/AR final behavior as review_required until complete."
+      }
+    ]
   }
 }

@@ -28,6 +28,15 @@ MOBILE/PWA DEVICE TESTPLAN 2026-05-15 (documentation-only / device_test_required
 [!] Teststatus: Verhalten auf echten Zielgeraeten bleibt `device_test_required`; unklare Browser-, OS-, Sensor-, Permission- oder WebGL-Unterschiede bleiben `review_required` statt erfunden zu werden.
 [x] Manual Device Evidence Template 2026-05-15 ergaenzt in `docs/architecture/WELLFIT_VISUAL_REGRESSION_CHECKS.md`: Menschen koennen Testdatum, Tester, Device/OS/Browser, Route, erwartetes/aktuelles Ergebnis, Status, Evidence-Referenz, Safety-Notizen, Follow-up und Severity pro Zielgeraet dokumentieren; ungetestete Zeilen bleiben `device_test_required`.
 
+
+MOBILE/PWA FIRST MANUAL EVIDENCE 2026-05-16 (documentation/register-only):
+[x] Erster Human-Test erfasst: Phone Chrome auf `https://wellfit-now.io/mobile`; `/mobile/ar` Kamera startet = `pass`, Buddy erscheint = `pass`.
+[!] Buddy-/AR-Endverhalten bleibt erwartbar unfertig: `review_required` / `expected_incomplete` / `not_complete`, kein blockierender Runtime-Fehler und keine Auto-Reparatur.
+[!] Device Model, Android-Version und Chrome-Version wurden nicht geliefert: `missing_device_metadata` / `device_test_required`.
+[x] Desktop-Responsive-Screenshot-Evidence extern vorhanden fuer `/mobile`, `/mobile/missionen`, `/mobile/buddy`, `/mobile/einstellungen`, `/mobile/bewegung` = `pass` / `screenshot_provided`; `/mobile/ar` = `pass_with_review_required` wegen nicht finalem Buddy AR; `/mobile/missionen/squat` = `desktop_camera_source_blocked_or_unavailable`, nicht als Phone-Fehler werten.
+[!] Phone-Routen `/mobile`, `/mobile/missionen`, `/mobile/buddy`, `/mobile/einstellungen`, `/mobile/bewegung`, `/mobile/missionen/squat` bleiben `device_test_required`, weil keine explizite Phone-Route-Evidence vorliegt.
+[!] Keine Screenshots/Binaries/Rohbilder/Videos/Face-/Biometrie-/Health-/Location-/Sensor-/Wallet-/Payment-/Reward-Evidence ins Repo aufgenommen; keine Runtime-, Service-Worker-/Manifest-/Public-, Tracking-, Consent-, Reward-/Mission-Authority-, Functions-/Rules-, Unity-, Deploy-, Auto-Merge- oder Auto-Repair-Aenderung.
+
 Device-/Browser-Matrix:
 [ ] Android Chrome (aktuelles Android, HTTPS/localhost): QR-/Install-Dialog, PWA-Install-Banner oder Browser-Menue, Kamera-Permission, MediaPipe/Pose, DeviceMotion, WebGL/3D-Flammi und Offline-/Reload-Basissmoke pruefen. Status: device_test_required.
 [ ] Samsung Internet (aktuelles Samsung/Android): gleiche Punkte wie Android Chrome, zusaetzlich Samsung-spezifische PWA-Install-Hinweise, WebGL-/Canvas-Stabilitaet und Kamera-Overlay pruefen. Status: device_test_required.
