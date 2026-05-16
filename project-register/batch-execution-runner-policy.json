@@ -1,0 +1,220 @@
+{
+  "version": "0.1.0",
+  "updated": "2026-05-16",
+  "activationState": "framework_only",
+  "purpose": "Strictly limited, policy-driven Batch Execution Runner framework for a future human-approved run of at most 1-2 low-risk documentation, register, governance, inventory, status/work-log, cross-reference, PR-diff, and post-PR guard tasks. This version is framework/check/report-only and does not execute tasks autonomously, create pull requests, merge, repair, deploy, approve, close PRs, change runtime product code, or touch protected areas.",
+  "maxTasksPerRun": 2,
+  "allowedTaskRiskLevels": [
+    "low"
+  ],
+  "allowedTaskCategories": [
+    "documentation_baseline",
+    "registry_sync",
+    "repository_inventory_mapping",
+    "agent_governance_docs",
+    "progress_log_update",
+    "cross_reference_maintenance",
+    "product_readiness_registry_update",
+    "route_api_drift_registry_followup",
+    "concept_gap_registry_followup",
+    "pr_review_governance",
+    "pr_diff_review_governance",
+    "task_status_governance"
+  ],
+  "forbiddenTaskCategories": [
+    "runtime_product_code",
+    "UI implementation",
+    "mission implementation",
+    "Buddy implementation",
+    "Firebase Functions implementation",
+    "Firestore Rules changes",
+    "Unity / AR implementation",
+    "reward authority",
+    "mission completion authority",
+    "economy / token / wallet / payment",
+    "health / child / location / privacy / compliance / legal changes"
+  ],
+  "allowedPaths": [
+    "project-register/*.json",
+    "todolist/*.md",
+    "docs/architecture/*.md",
+    "scripts/wellfit-dev-agent/src/*check.mjs",
+    "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+    "scripts/wellfit-dev-agent/src/*report.mjs"
+  ],
+  "forbiddenPaths": [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "functions/**",
+    "firestore.rules",
+    "public/**",
+    "package.json",
+    "package-lock.json",
+    "firebase.json",
+    ".github/**",
+    "native/unity/WellFitBuddyAR/**",
+    "native/**",
+    "PR #13 / Unity paths"
+  ],
+  "requiredPreRunChecks": [
+    "read_AGENTS.md",
+    "read_todolist/CURRENT_PROJECT_STATE.md",
+    "read_todolist/WORK_MAP.md",
+    "read_todolist/TODO_INDEX.md",
+    "read_project-register/batch-execution-runner-policy.json",
+    "read_project-register/autopilot-batch-execution-policy.json",
+    "read_project-register/autopilot-batch-policy.json",
+    "read_project-register/agent-task-queue.json",
+    "read_project-register/agent-autopilot.json",
+    "read_project-register/task-status-policy.json",
+    "read_project-register/pr-review-policy.json",
+    "read_project-register/pr-post-creation-guard.json",
+    "read_project-register/pr-diff-review-policy.json",
+    "read_project-register/auto-merge-policy.json",
+    "read_project-register/auto-repair-policy.json",
+    "read_project-register/cross-reference-maintenance.json",
+    "read_project-register/repository-inventory.json",
+    "confirm_branch_is_not_main_or_master",
+    "confirm_human_approval_exists_before_any_future_real_execution",
+    "run_node_scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs_report_only"
+  ],
+  "requiredPerTaskChecks": [
+    "task_risk_is_low",
+    "task_category_is_in_allowedTaskCategories",
+    "task_category_is_not_in_forbiddenTaskCategories",
+    "task_allowed_files_match_allowedPaths",
+    "task_allowed_files_do_not_match_forbiddenPaths",
+    "task_does_not_touch_runtime_product_code",
+    "task_does_not_touch_protected_topics_or_authority_logic",
+    "task_has_definition_of_done_key",
+    "task_lists_required_checks",
+    "task_status_is_ready_and_not_blocked_done_stale_superseded_or_review_required",
+    "task_has_work_log_or_deferred_work_log_evidence_plan",
+    "task_has_cross_reference_impact_review"
+  ],
+  "requiredPostRunChecks": [
+    "npm run lint",
+    "npx tsc --noEmit",
+    "npm run build",
+    "npm --prefix functions run check",
+    "npm run agent:quality-gate",
+    "node scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+    "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+    "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+    "git diff --check"
+  ],
+  "requiredPRHandoffChecks": [
+    "changed_files_listed",
+    "checks_run_with_pass_fail_warning_status",
+    "batch_execution_runner_policy_summary_included",
+    "report_only_script_result_included",
+    "no_real_task_execution_enabled_confirmation",
+    "no_auto_merge_auto_repair_self_approval_or_deployment_confirmation",
+    "runtime_product_and_protected_areas_untouched_confirmation",
+    "work_log_status_and_cross_reference_evidence_included",
+    "next_controlled_one_task_runner_activation_step_stated"
+  ],
+  "requiredPostPRChecks": [
+    "auto-merge eligibility check",
+    "auto-repair decision check",
+    "PR review policy check",
+    "PR post-creation guard check",
+    "PR diff review report",
+    "task-status/work-log check",
+    "quality gate"
+  ],
+  "workLogRequirements": {
+    "requiredEvidenceBeforeFutureExecution": [
+      "selected_task_ids",
+      "risk_and_category_evidence",
+      "allowed_and_forbidden_path_evidence",
+      "checks_run",
+      "changed_files",
+      "blocked_or_deferred_reason_when_not_ready",
+      "next_recommended_task"
+    ],
+    "sourceRegisters": [
+      "project-register/agent-work-log.json",
+      "project-register/progress-log.json",
+      "project-register/task-status-policy.json"
+    ],
+    "automaticRewritesForbidden": true
+  },
+  "taskStatusRequirements": {
+    "allowedInputStatuses": [
+      "ready"
+    ],
+    "blockedStatuses": [
+      "blocked",
+      "review_required",
+      "done",
+      "completed",
+      "completed_initial_policy",
+      "superseded",
+      "stale"
+    ],
+    "mustRunTaskStatusWorkLogCheck": true,
+    "statusAutoUpdateForbidden": true
+  },
+  "crossReferenceRequirements": {
+    "mustInspectCrossReferenceMaintenancePolicy": true,
+    "mustUpdateOnlyRelevantExistingWorkMapTodoIndexAndRegisterLinks": true,
+    "mustNotCreateDuplicateArchitecture": true,
+    "mustRunCrossReferenceMaintenanceCheck": true
+  },
+  "stopConditions": [
+    "activation_state_not_framework_only",
+    "max_tasks_per_run_above_2",
+    "non_low_risk_task_allowed",
+    "forbidden_category_or_path_missing_from_policy",
+    "selected_task_touches_forbidden_path_or_protected_topic",
+    "auto_merge_not_report_only_or_would_merge",
+    "auto_repair_not_report_only_or_would_repair",
+    "deployment_not_forbidden",
+    "human_review_before_merge_not_required",
+    "task_execution_pr_creation_merge_repair_deploy_or_approval_would_run",
+    "runtime_product_code_or_protected_area_change_required",
+    "PR_13_or_Unity_path_involved",
+    "work_log_status_or_cross_reference_evidence_missing"
+  ],
+  "forbiddenAutoActions": [
+    "execute tasks autonomously",
+    "create pull requests automatically",
+    "approve pull requests",
+    "merge pull requests",
+    "close pull requests",
+    "auto-repair files",
+    "deploy",
+    "promote previews",
+    "modify runtime product code",
+    "modify protected areas",
+    "bypass human review"
+  ],
+  "reportOutputSchema": {
+    "mode": "REPORT_CHECK_ONLY",
+    "readinessFlag": "BATCH_EXECUTION_RUNNER_READY=true|false",
+    "requiredFields": [
+      "activationState",
+      "maxTasksPerRun",
+      "allowedTaskRiskLevels",
+      "allowedTaskCategories",
+      "forbiddenTaskCategories",
+      "allowedPaths",
+      "forbiddenPaths",
+      "requiredPostPRChecks",
+      "autoMergeDisabled",
+      "autoRepairDisabled",
+      "deploymentForbidden",
+      "humanReviewRequiredBeforeMerge",
+      "neverExecutesTasks",
+      "neverCreatesPRs",
+      "neverMerges",
+      "neverRepairs",
+      "neverDeploys",
+      "reasons"
+    ]
+  }
+}

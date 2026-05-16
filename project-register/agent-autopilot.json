@@ -51,7 +51,10 @@
     "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
     "project-register/pr-diff-review-policy.json",
     "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
-    "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
+    "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "project-register/batch-execution-runner-policy.json",
+    "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md",
+    "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -184,7 +187,9 @@
     "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
     "jq empty project-register/pr-post-creation-guard.json",
     "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
-    "jq empty project-register/pr-diff-review-policy.json"
+    "jq empty project-register/pr-diff-review-policy.json",
+    "node scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+    "jq empty project-register/batch-execution-runner-policy.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -275,6 +280,17 @@
     "architecture": "docs/architecture/WELLFIT_AUTOPILOT_BATCH_LIMITED_EXECUTION.md",
     "script": "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs",
     "mode": "report_check_only_planning",
+    "mustNotExecuteTasks": true,
+    "mustNotCreatePullRequests": true,
+    "mustNotMerge": true,
+    "mustNotRepair": true,
+    "mustNotDeploy": true
+  },
+  "batchExecutionRunnerReference": {
+    "policy": "project-register/batch-execution-runner-policy.json",
+    "architecture": "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md",
+    "script": "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+    "mode": "framework_only_report_check",
     "mustNotExecuteTasks": true,
     "mustNotCreatePullRequests": true,
     "mustNotMerge": true,

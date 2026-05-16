@@ -234,6 +234,16 @@
   ],
   "requiredPostChecks": [
     "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
-    "jq empty project-register/task-status-policy.json"
-  ]
+    "jq empty project-register/task-status-policy.json",
+    "node scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+    "jq empty project-register/batch-execution-runner-policy.json"
+  ],
+  "batchExecutionRunnerPolicyReference": {
+    "policy": "project-register/batch-execution-runner-policy.json",
+    "architecture": "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md",
+    "script": "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+    "activationState": "framework_only",
+    "reportOnly": true,
+    "maxTasksPerRun": 2
+  }
 }

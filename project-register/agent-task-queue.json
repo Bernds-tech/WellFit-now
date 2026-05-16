@@ -69,7 +69,10 @@
     "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
     "project-register/pr-diff-review-policy.json",
     "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
-    "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
+    "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "project-register/batch-execution-runner-policy.json",
+    "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md",
+    "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -114,7 +117,9 @@
     "jq empty project-register/task-status-policy.json",
     "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
     "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
-    "jq empty project-register/pr-diff-review-policy.json"
+    "jq empty project-register/pr-diff-review-policy.json",
+    "node scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+    "jq empty project-register/batch-execution-runner-policy.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -1796,6 +1801,95 @@
         "Summarize changed-file classification and protected path/topic reporting behavior.",
         "Confirm auto-approval, auto-merge, auto-repair, deployment, runtime product, protected path, and Unity/PR #13 actions remain disabled.",
         "State next recommended step toward a real Batch Execution Runner as a separate report-only readiness report."
+      ]
+    },
+    {
+      "id": "AGENT-BATCH-EXECUTION-RUNNER-FRAMEWORK",
+      "title": "Maintain framework-only Batch Execution Runner governance",
+      "category": "agent_governance_docs",
+      "taskCategory": "agent_governance_docs",
+      "riskLevel": "low",
+      "status": "ready",
+      "allowedFiles": [
+        "project-register/batch-execution-runner-policy.json",
+        "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md",
+        "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/autopilot-batch-policy.json",
+        "project-register/autopilot-batch-execution-policy.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "definitionOfDoneKey": "registry_task",
+      "requiredChecks": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+        "jq empty project-register/batch-execution-runner-policy.json",
+        "jq empty project-register/autopilot-batch-execution-policy.json",
+        "npm run agent:autopilot:dry-run",
+        "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+        "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+        "git diff --check"
+      ],
+      "stopConditions": [
+        "real_task_execution_would_be_enabled",
+        "auto_merge_or_auto_repair_would_be_enabled",
+        "self_approval_or_deployment_would_be_enabled",
+        "runtime_product_or_protected_path_change_required",
+        "human_review_before_merge_would_not_be_required"
+      ],
+      "priority": 2,
+      "purpose": "Maintain the framework-only Batch Execution Runner policy, architecture note, validation script, quality-gate hook, and existing governance cross-references so future 1-task activation can connect task selection, status/work-log evidence, cross-reference maintenance, PR handoff, PR diff report, and post-creation guard without enabling autonomous execution.",
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/batch-execution-runner-policy.json",
+        "project-register/autopilot-batch-execution-policy.json",
+        "project-register/autopilot-batch-policy.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/task-status-policy.json",
+        "project-register/pr-review-policy.json",
+        "project-register/pr-post-creation-guard.json",
+        "project-register/pr-diff-review-policy.json",
+        "project-register/auto-merge-policy.json",
+        "project-register/auto-repair-policy.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/repository-inventory.json",
+        "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "expectedPrOutput": [
+        "List runner policy, architecture note, validation script, quality-gate, and cross-reference files updated.",
+        "Summarize maxTasksPerRun, allowed low-risk categories, path boundaries, required PR handoff checks, and required post-PR report checks.",
+        "Include BATCH_EXECUTION_RUNNER_READY=true/false from the report-only checker.",
+        "Confirm no real task execution, PR creation, auto-merge, auto-repair, self-approval, or deployment is enabled.",
+        "Confirm runtime product, package, GitHub workflow, native/Unity, PR #13, compliance, economy, health, child, privacy, legal, and other protected areas were untouched.",
+        "Recommend the next human-reviewed one-task runner activation plan."
       ]
     }
   ],

@@ -17,7 +17,10 @@ const REQUIRED_ALLOWED_CATEGORIES = [
   "cross_reference_maintenance",
   "product_readiness_registry_update",
   "route_api_drift_registry_followup",
-  "concept_gap_registry_followup"
+  "concept_gap_registry_followup",
+  "pr_review_governance",
+  "pr_diff_review_governance",
+  "task_status_governance"
 ];
 
 const REQUIRED_FORBIDDEN_CATEGORIES = [
@@ -29,6 +32,7 @@ const REQUIRED_FORBIDDEN_CATEGORIES = [
   "Firestore Rules changes",
   "Unity / AR implementation",
   "reward authority",
+  "mission completion authority",
   "economy / token / wallet / payment",
   "health / child / location / privacy / compliance / legal changes"
 ];
@@ -38,7 +42,8 @@ const REQUIRED_ALLOWED_PATHS = [
   "todolist/*.md",
   "docs/architecture/*.md",
   "scripts/wellfit-dev-agent/src/*check.mjs",
-  "scripts/wellfit-dev-agent/src/*dry-run.mjs"
+  "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+  "scripts/wellfit-dev-agent/src/*report.mjs"
 ];
 
 const REQUIRED_FORBIDDEN_PATH_PREFIXES = [
