@@ -35,6 +35,7 @@ const agentSteps = [
   { label: "Batch Autopilot limited execution check", script: "scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/autopilot-batch-limited-execution-check.mjs" },
   { label: "Auto-merge eligibility check", script: "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs" },
   { label: "Auto-repair decision check", script: "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs" },
+  { label: "PR post-creation guard check", script: "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs" },
   { label: "Follow-up detector", script: "scripts/wellfit-dev-agent/src/follow-up-detector.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/follow-up-detector.mjs" },
   { label: "PR outcome recorder dry run", script: "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs", args: ["--dry-run"], displayCommand: "node scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs --dry-run" },
   { label: "TODO status sync", script: "scripts/wellfit-dev-agent/src/todo-status-sync.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/todo-status-sync.mjs" },

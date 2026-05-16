@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-15",
+  "updated": "2026-05-16",
   "activationState": "report_only",
   "purpose": "Machine-readable WellFit PR Review Agent governance for Codex Code Reviews and future WellFit agents. It defines the mandatory report-only review inputs, checklist, protected-area checks, cross-reference checks, readiness checks, repository inventory checks, auto-merge/auto-repair reporting, PR description fields, and human-review stops that every PR must be checked against before merge consideration. This policy never approves, merges, repairs, deploys, or authorizes protected runtime work.",
   "sourceOfTruth": [
@@ -16,7 +16,8 @@
     "project-register/auto-merge-policy.json",
     "project-register/auto-repair-policy.json",
     "project-register/agent-task-queue.json",
-    "project-register/agent-workflows.json"
+    "project-register/agent-workflows.json",
+    "project-register/pr-post-creation-guard.json"
   ],
   "requiredReviewInputs": [
     "git_changed_files_or_diff",
@@ -31,7 +32,8 @@
     "cross_reference_maintenance_result",
     "auto_merge_eligibility_report_only_result",
     "auto_repair_decision_report_only_result",
-    "next_recommended_task"
+    "next_recommended_task",
+    "post_pr_mergeability_and_required_check_status_report"
   ],
   "requiredReviewChecklist": [
     {
@@ -98,73 +100,130 @@
       "id": "next_recommended_task_stated",
       "label": "Next recommended task is stated",
       "requiredEvidence": "PR description or review report includes a scoped next recommended task or states none."
+    },
+    {
+      "id": "post_creation_mergeability_guard_reported",
+      "label": "PR post-creation mergeability guard result is reported",
+      "requiredEvidence": "PR description or review report includes PR_POST_CREATION_GUARD_READY=true/false plus mergeability/check-status summary after PR creation."
     }
   ],
   "protectedAreaChecks": [
     {
       "id": "PR_13",
       "displayName": "PR #13",
-      "pathsOrTopics": ["PR #13"],
+      "pathsOrTopics": [
+        "PR #13"
+      ],
       "requiredReviewAction": "Confirm untouched and not merged, closed, depended on, or used as a shortcut."
     },
     {
       "id": "UNITY_WELLFIT_BUDDY_AR",
       "displayName": "native/unity/WellFitBuddyAR/**",
-      "pathsOrTopics": ["native/unity/WellFitBuddyAR/**"],
+      "pathsOrTopics": [
+        "native/unity/WellFitBuddyAR/**"
+      ],
       "requiredReviewAction": "Confirm untouched unless explicit repository-owner approval exists."
     },
     {
       "id": "APP_ROUTING_AND_RUNTIME",
       "displayName": "app/**",
-      "pathsOrTopics": ["app/**"],
+      "pathsOrTopics": [
+        "app/**"
+      ],
       "requiredReviewAction": "Treat as runtime product surface; require explicit review and relevant Next.js guidance before API/routing/rendering changes."
     },
     {
       "id": "COMPONENTS_RUNTIME_UI",
       "displayName": "components/**",
-      "pathsOrTopics": ["components/**"],
+      "pathsOrTopics": [
+        "components/**"
+      ],
       "requiredReviewAction": "Treat as runtime UI surface; require scoped review and visual/screenshot consideration when perceptible."
     },
     {
       "id": "LIB_RUNTIME_LOGIC",
       "displayName": "lib/**",
-      "pathsOrTopics": ["lib/**"],
+      "pathsOrTopics": [
+        "lib/**"
+      ],
       "requiredReviewAction": "Treat as runtime/shared logic; require risk review and protected-topic scan."
     },
     {
       "id": "FIREBASE_FUNCTIONS",
       "displayName": "functions/**",
-      "pathsOrTopics": ["functions/**"],
+      "pathsOrTopics": [
+        "functions/**"
+      ],
       "requiredReviewAction": "Treat as backend authority surface; require Firebase Functions check and human review for authority-adjacent logic."
     },
     {
       "id": "FIRESTORE_RULES",
       "displayName": "firestore.rules",
-      "pathsOrTopics": ["firestore.rules"],
+      "pathsOrTopics": [
+        "firestore.rules"
+      ],
       "requiredReviewAction": "Treat as security and economy guardrail surface; require explicit Firestore rules review."
     },
     {
       "id": "TOKEN_NFT_WALLET_PAYMENT",
       "displayName": "token/NFT/wallet/payment",
-      "pathsOrTopics": ["token", "NFT", "wallet", "payment", "purchase", "payout", "marketplace", "staking", "presale", "trading", "WFT"],
+      "pathsOrTopics": [
+        "token",
+        "NFT",
+        "wallet",
+        "payment",
+        "purchase",
+        "payout",
+        "marketplace",
+        "staking",
+        "presale",
+        "trading",
+        "WFT"
+      ],
       "requiredReviewAction": "Forbidden for auto-approval; require explicit human approval and compliance review."
     },
     {
       "id": "REWARD_AUTHORITY",
       "displayName": "reward authority",
-      "pathsOrTopics": ["reward authority", "final ledger", "XP authority", "points authority", "inventory unlock", "rare item grant"],
+      "pathsOrTopics": [
+        "reward authority",
+        "final ledger",
+        "XP authority",
+        "points authority",
+        "inventory unlock",
+        "rare item grant"
+      ],
       "requiredReviewAction": "Confirm no client-side final authorization; require human review for authority changes."
     },
     {
       "id": "MISSION_COMPLETION_AUTHORITY",
       "displayName": "mission completion authority",
-      "pathsOrTopics": ["mission completion authority", "anti-cheat", "mission evidence", "competition payout"],
+      "pathsOrTopics": [
+        "mission completion authority",
+        "anti-cheat",
+        "mission evidence",
+        "competition payout"
+      ],
       "requiredReviewAction": "Confirm final authority remains server-side or explicitly draft/preview; require human review for authority changes."
     },
     {
       "id": "SENSITIVE_COMPLIANCE_TOPICS",
       "displayName": "health/child/location/privacy/legal/compliance",
-      "pathsOrTopics": ["health", "watch", "child", "location", "camera", "privacy", "consent", "medical", "legal", "AGB", "Datenschutz", "Impressum", "compliance"],
+      "pathsOrTopics": [
+        "health",
+        "watch",
+        "child",
+        "location",
+        "camera",
+        "privacy",
+        "consent",
+        "medical",
+        "legal",
+        "AGB",
+        "Datenschutz",
+        "Impressum",
+        "compliance"
+      ],
       "requiredReviewAction": "Forbidden for auto-approval; require human review and clear compliance plan."
     }
   ],
@@ -232,7 +291,10 @@
     "real_auto_merge_not_used_confirmation",
     "real_auto_repair_not_used_confirmation",
     "no_deployment_confirmation",
-    "runtime_product_protected_areas_untouched_confirmation"
+    "runtime_product_protected_areas_untouched_confirmation",
+    "pr_post_creation_guard_summary",
+    "mergeability_and_required_checks_status",
+    "confirmation_no_unrestricted_auto_repair_enabled"
   ],
   "humanReviewRequiredFor": [
     "risk_level_high_or_critical",

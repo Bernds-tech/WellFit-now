@@ -67,7 +67,10 @@
         "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
         "project-register/task-status-policy.json",
         "docs/architecture/WELLFIT_TASK_STATUS_AND_WORK_LOG_SYNC.md",
-        "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
+        "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
+        "project-register/pr-post-creation-guard.json",
+        "docs/architecture/WELLFIT_PR_POST_CREATION_MERGEABILITY_GUARD.md",
+        "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -282,6 +285,26 @@
           ],
           "purpose": "Report-only task status and work-log sync governance for TODO markers, task lifecycle, completed-task evidence, blocked/stale/duplicate handling, PR/check/changed-file/follow-up/next-task recording, and Batch Autopilot memory consistency.",
           "usage": "Run during quality gate and before longer Autopilot/Batch sessions. Treat output as report-only; do not rewrite TODO files automatically, merge, repair, deploy, or touch runtime/protected areas."
+        },
+        {
+          "id": "pr_post_creation_mergeability_guard",
+          "registers": [
+            "project-register/pr-post-creation-guard.json",
+            "project-register/pr-review-policy.json",
+            "project-register/auto-merge-policy.json",
+            "project-register/auto-repair-policy.json",
+            "project-register/task-status-policy.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_PR_POST_CREATION_MERGEABILITY_GUARD.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+            "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+            "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+            "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs",
+            "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs"
+          ],
+          "purpose": "Report-only post-PR guard requiring future agents to inspect newly created PR mergeability, required checks, protected paths, auto-merge/auto-repair/PR-review results, task evidence, and next action before stopping.",
+          "usage": "Run after PR creation and in the quality gate. If a PR is not mergeable or checks are not green, classify the failure; only docs/register safe repair guidance may be considered when explicitly allowed, otherwise use replacement-PR guidance or stop for human review."
         }
       ],
       "additionalGovernanceInputs": [
