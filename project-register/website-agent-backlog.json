@@ -167,7 +167,7 @@
       "finding": "A route-by-route website readiness baseline is still needed before advancing public, beta, or mobile route readiness states.",
       "evidence": "Baseline audit completed in docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md and project-register/website-readiness.json on 2026-05-16. Route/API drift passed; visual smoke was skipped because no browser runner is available; protected routes remain review-gated.",
       "recommendedAction": "Use the baseline audit to choose the next report-only website task; do not advance protected readiness without human/device evidence.",
-      "nextSafeTask": "Landingpage Conversion Audit or Route & Link Integrity Audit",
+      "nextSafeTask": "Landingpage Conversion Audit or Trust & Compliance Website Audit",
       "allowedFiles": [
         "project-register/website-agent-backlog.json",
         "project-register/website-agents.json",
@@ -282,7 +282,7 @@
     {
       "id": "WAB-003",
       "title": "Route & Link Integrity Audit across registered routes",
-      "status": "open",
+      "status": "done",
       "severity": "medium",
       "findingType": "route_link_issue",
       "route": "global",
@@ -305,9 +305,9 @@
         "project-register/agent-workflows.json"
       ],
       "finding": "Registered website routes need a route/link integrity pass before website agents propose navigation or alias changes.",
-      "evidence": "Route/API drift detector passed with 31 discovered app pages, 9 discovered API routes, 32 registered pages, and no missing route/API register entries. Baseline audit added readiness metadata for registered /dashboard/anpassen, /missionen/challenge, /missionen/favoriten, and /missionen/history while preserving /challenge as a review-required alias to /missionen/challenge.",
-      "recommendedAction": "Run a dedicated Route & Link Integrity Audit next if the team wants to resolve alias, navigation, and route-link evidence before conversion work.",
-      "nextSafeTask": "Run Route & Link Integrity Audit and write only machine-readable findings; do not create routes or redirects.",
+      "evidence": "Route & Link Integrity Audit completed on 2026-05-16 in docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md. Route/API drift detector passed with 31 discovered app pages, 9 discovered API routes, 32 registered pages, and no missing route/API register entries. Static route/link inspection found registered internal literals for public/legal, desktop beta, and mobile/PWA groups; no supported runtime link change was made. The only preserved stale/alias route reference remains /challenge as a not-registered review_required readiness alias mapped to /missionen/challenge; protected route risks remain review_required.",
+      "recommendedAction": "Do not create a duplicate /challenge route or redirect from this audit. Keep /missionen/challenge as the canonical registered route unless a human product/navigation review explicitly decides otherwise; validate links at runtime in a future browser/device evidence task.",
+      "nextSafeTask": "Trust & Compliance Website Audit for legal/protected route claims, or Landingpage Conversion Audit if the team starts with public-page CTA/content evidence.",
       "allowedFiles": [
         "project-register/website-agent-backlog.json",
         "project-register/website-agents.json",
@@ -340,12 +340,21 @@
       "requiredChecks": [
         "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
         "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
         "npm run agent:quality-gate",
         "jq empty project-register/website-agent-backlog.json"
       ],
       "humanReviewRequired": true,
       "protectedTopics": [
-        "protected_route"
+        "protected_route",
+        "competition",
+        "reward",
+        "betting",
+        "mission_completion",
+        "legal",
+        "privacy",
+        "mobile",
+        "pwa"
       ],
       "createdDate": "2026-05-16",
       "updatedDate": "2026-05-16"
@@ -762,7 +771,7 @@
       "finding": "The baseline audit cannot provide visual/mobile smoke screenshots because the visual route smoke checker has no browser runner in this environment and existing mobile evidence is incomplete.",
       "evidence": "visual-route-smoke-check reported SKIPPED_BROWSER_UNAVAILABLE with 0 screenshots; product-readiness mobile_web/mobile_ar_fallback blockers preserve missing device metadata and route-by-route phone evidence.",
       "recommendedAction": "Run visual/mobile smoke evidence collection in a prepared browser/device environment and record device model, OS, browser, viewport, PWA, permission, fallback, and screenshot evidence before readiness advancement.",
-      "nextSafeTask": "Route & Link Integrity Audit or Mobile/PWA Evidence Follow-up",
+      "nextSafeTask": "Trust & Compliance Website Audit or Mobile/PWA Evidence Follow-up",
       "allowedFiles": [
         "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
         "project-register/website-agent-backlog.json",

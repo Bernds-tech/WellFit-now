@@ -548,9 +548,10 @@
       "currentKnownGaps": [
         "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
         "Requested /challenge entry is not registered in routes.json; existing mapped route is /missionen/challenge.",
-        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement.",
+        "Route & Link Integrity Audit 2026-05-16: preserved as a review_required alias only; do not create a duplicate /challenge route without human navigation/product review."
       ],
-      "nextSafeTask": "Do not create a duplicate public challenge route; decide whether existing /missionen/challenge covers this alias.",
+      "nextSafeTask": "Keep as review_required alias; use human review before any runtime alias, redirect, or navigation change.",
       "requiredChecks": [
         "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
         "npm run agent:quality-gate",
@@ -1196,9 +1197,10 @@
       "currentKnownGaps": [
         "Route is registered in routes.json and mapped from the legacy /challenge readiness alias.",
         "Challenge/PvP language can imply competition, betting, mission completion, anti-cheat, and reward authority; keep review_required.",
-        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement."
+        "Baseline audit 2026-05-16: readiness remains report-only; visual smoke screenshots are unavailable in this environment and protected-topic routes require human/device evidence before advancement.",
+        "Route & Link Integrity Audit 2026-05-16: remains the canonical registered challenge route for the preserved /challenge alias."
       ],
-      "nextSafeTask": "Resolve /challenge alias expectations through a route/link integrity audit without creating a duplicate route or changing PvP/reward authority.",
+      "nextSafeTask": "Keep canonical route review_required; validate route links in future runtime/browser evidence and review PvP/reward implications before changes.",
       "requiredChecks": [
         "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
         "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
@@ -1341,7 +1343,7 @@
       "legalPages": "Legal pages remain review_required; no legal wording or runtime legal pages were changed.",
       "desktopBetaPages": "Desktop beta pages are usable, draft, or review_required depending on protected topics; no beta_ready advancement is recorded.",
       "mobilePwaPages": "Mobile/PWA pages remain draft or review_required because manual route-by-route phone evidence and browser visual smoke evidence are incomplete.",
-      "protectedOrReviewRequiredPages": "Reward, mission completion, PvP/betting, marketplace/token/NFT/payment, analytics/privacy, health, camera/AR, and AI Buddy routes remain review_required."
+      "protectedOrReviewRequiredPages": "Reward, mission completion, PvP/betting, marketplace/token/NFT/payment, analytics/privacy, health, camera/AR, AI Buddy, legal/compliance, and /challenge alias risks remain review_required after the Route & Link Integrity Audit."
     },
     "evidenceSummary": {
       "routeApiDriftDetector": "PASS with 31 discovered app pages, 9 discovered API routes, 32 registered pages, and no missing route/API register entries.",
@@ -1349,11 +1351,12 @@
       "productReadinessCheck": "PASS; sensitive modules remain blocked or review_required where applicable and no critical module is production_ready.",
       "websiteAgentFrameworkCheck": "PASS; report-only framework remains active and forbids runtime changes, auto-merge, auto-repair, approval, and deployment.",
       "websiteAgentBacklogCheck": "PASS; backlog entries remain machine-readable and report-only.",
-      "qualityGate": "Initial quality gate reported FAIL only because PR diff review report exits with code 1 before a PR exists; all website framework/backlog/readiness checks ran safely."
+      "qualityGate": "Initial quality gate reported FAIL only because PR diff review report exits with code 1 before a PR exists; all website framework/backlog/readiness checks ran safely.",
+      "routeLinkIntegrityAudit": "DONE; no supported route/register drift was found, /challenge remains a review_required alias to /missionen/challenge, and all clickability/redirect/mobile/PWA behavior still needs future browser/device validation."
     },
     "safeNextTasks": [
-      "Landingpage Conversion Audit",
-      "Route & Link Integrity Audit"
+      "Trust & Compliance Website Audit",
+      "Landingpage Conversion Audit"
     ],
     "blockedOrReviewRequired": [
       "Legal/privacy/compliance wording requires human review before status advancement.",
@@ -1361,5 +1364,128 @@
       "Protected economy, token/NFT, payment, PvP/betting, reward authority, mission completion, health, child, analytics, camera/AR, and AI Buddy routes require review and must not be marked conversion_ready, investor_ready, or beta_ready."
     ],
     "runtimeChangeConfirmation": "No runtime website, app, mobile, legal, package, Firebase, GitHub workflow, public asset, Functions, Firestore rules, or Unity files were changed."
+  },
+  "routeLinkIntegrityAudit": {
+    "id": "ROUTE-LINK-INTEGRITY-AUDIT-2026-05-16",
+    "date": "2026-05-16",
+    "mode": "report_only",
+    "sourceFiles": [
+      "project-register/routes.json",
+      "project-register/features.json",
+      "project-register/website-readiness.json",
+      "project-register/website-agent-backlog.json",
+      "project-register/repository-inventory.json",
+      "project-register/product-readiness.json",
+      "project-register/visual-regression.json",
+      "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+      "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+      "todolist/WORK_MAP.md",
+      "todolist/TODO_INDEX.md",
+      "todolist/CURRENT_PROJECT_STATE.md"
+    ],
+    "checksRun": [
+      "npm run agent:autopilot:dry-run",
+      "npm run agent:quality-gate",
+      "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+      "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+      "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+      "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+      "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+      "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+      "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+      "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
+    ],
+    "routeGroupSummary": {
+      "publicPages": "Registered public routes /, /register, /faq, and /hilfe remain mapped in routes.json and website-readiness.json; conversion/content/SEO/link behavior still needs future browser validation before readiness advancement.",
+      "legalPages": "Registered legal routes /datenschutz, /agb, and /impressum remain review_required; this audit only confirms route presence and does not review or edit legal wording.",
+      "desktopBetaPages": "Registered desktop beta routes remain mapped; /missionen is an active-redirect route and mission navigation evidence points to registered mission subroutes, including canonical /missionen/challenge.",
+      "mobilePwaPages": "Registered mobile/PWA routes remain mapped; route-specific device, PWA, permission, and browser evidence is still required before readiness advancement.",
+      "protectedOrReviewRequiredPages": "Challenge/PvP, rewards, marketplace/economy, analytics/privacy, AI Buddy, camera/AR, health, mission completion, and legal/compliance routes remain review_required."
+    },
+    "aliasesAndCanonicalRoutes": [
+      {
+        "alias": "/challenge",
+        "canonicalRoute": "/missionen/challenge",
+        "status": "review_required",
+        "evidence": "website-readiness.json maps /challenge as not_registered_review_required_alias to registered /missionen/challenge; routes.json registers /missionen/challenge and does not register /challenge.",
+        "decision": "Keep /missionen/challenge canonical unless human review requests a runtime alias/redirect in a separate task."
+      },
+      {
+        "alias": "/missionen",
+        "canonicalRoute": "/missionen/tagesmissionen",
+        "status": "registered_active_redirect",
+        "evidence": "routes.json marks /missionen active-redirect; existing mission route readiness keeps it registered.",
+        "decision": "Treat /missionen as an existing redirect surface and validate redirect/link behavior in future runtime/browser evidence, not in this documentation-only audit."
+      }
+    ],
+    "staleRouteReferences": [
+      {
+        "route": "/challenge",
+        "status": "review_required",
+        "evidence": "Preserved as a readiness alias only; not registered in routes.json and not to be created as a duplicate route from this audit."
+      }
+    ],
+    "missingOrUnclearRouteMappings": [
+      {
+        "route": "runtime navigation/link coverage",
+        "status": "future_runtime_validation_required",
+        "evidence": "Static inspection can confirm literal registered route references, but clickability, auth/preview behavior, redirects, external links, and mobile/PWA install/permission behavior require future browser/device validation."
+      }
+    ],
+    "routesNeedingHumanReview": [
+      "/datenschutz",
+      "/agb",
+      "/impressum",
+      "/register",
+      "/buddy",
+      "/missionen/challenge",
+      "/missionen/wettkaempfe",
+      "/punkte-shop",
+      "/marktplatz",
+      "/leaderboard",
+      "/analytics",
+      "/mobile/analyse",
+      "/mobile/bewegung",
+      "/mobile/ar",
+      "/mobile/missionen/squat"
+    ],
+    "routesNeedingFutureRuntimeLinkValidation": [
+      "/",
+      "/register",
+      "/datenschutz",
+      "/agb",
+      "/impressum",
+      "/faq",
+      "/hilfe",
+      "/dashboard",
+      "/dashboard/anpassen",
+      "/buddy",
+      "/missionen",
+      "/missionen/tagesmissionen",
+      "/missionen/wochenmissionen",
+      "/missionen/abenteuer",
+      "/missionen/challenge",
+      "/missionen/wettkaempfe",
+      "/missionen/favoriten",
+      "/missionen/history",
+      "/punkte-shop",
+      "/marktplatz",
+      "/leaderboard",
+      "/analytics",
+      "/einstellungen",
+      "/mobile",
+      "/mobile/missionen",
+      "/mobile/missionen/squat",
+      "/mobile/buddy",
+      "/mobile/analyse",
+      "/mobile/bewegung",
+      "/mobile/einstellungen",
+      "/mobile/ar"
+    ],
+    "safeNextTasks": [
+      "Trust & Compliance Website Audit",
+      "Landingpage Conversion Audit"
+    ],
+    "runtimeChangeConfirmation": "No runtime route files, navigation components, legal pages, mobile/PWA code, protected product logic, package/config, public assets, Functions, Firestore rules, GitHub workflow files, Unity files, auto-merge, auto-repair, approval, or deployment behavior was changed."
   }
 }

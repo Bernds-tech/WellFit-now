@@ -2312,6 +2312,70 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "registry_task"
+    },
+    {
+      "taskId": "ROUTE-LINK-INTEGRITY-AUDIT",
+      "title": "Run WellFit Route & Link Integrity Audit",
+      "status": "done",
+      "pr": {
+        "branch": "audit/route-link-integrity",
+        "number": null,
+        "url": null,
+        "title": "Document route and link integrity audit"
+      },
+      "changedFiles": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "project-register/website-agent-backlog.json",
+        "project-register/website-readiness.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass_dry_run",
+          "notes": "Initial dry run reported DRY_RUN and did not write files, merge, deploy, or self-approve."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "fail_before_changes_expected_pr_diff",
+          "notes": "Initial quality gate failed only because pr-diff-review-report exits non-zero when no changed files exist; website framework/backlog/readiness checks ran safely."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+          "result": "pass",
+          "notes": "Report-only website framework boundaries remained valid."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+          "result": "pass",
+          "notes": "Website backlog register remained valid after audit updates."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+          "result": "pass",
+          "notes": "Route/API drift detector reported no missing route/API register entries."
+        }
+      ],
+      "followUps": [
+        "Run Trust & Compliance Website Audit for protected legal/privacy/challenge/economy/analytics/mobile claims, or run Landingpage Conversion Audit if the team prioritizes public-page conversion evidence.",
+        "Collect runtime browser/device route-link validation evidence in a separate task before changing navigation, aliases, redirects, or mobile/PWA behavior."
+      ],
+      "nextRecommendedTask": "Trust & Compliance Website Audit, with Landingpage Conversion Audit as the lower-risk public-page alternative.",
+      "updatedTodoFiles": [],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task",
+      "runtimeCodeChanged": false,
+      "protectedAreasTouched": false,
+      "routeLinkIntegrityAudit": {
+        "preservedAlias": "/challenge -> /missionen/challenge",
+        "routesJsonChanged": false,
+        "featuresJsonChanged": false,
+        "runtimeFilesChanged": false,
+        "autoMergeEnabled": false,
+        "autoRepairEnabled": false,
+        "deploymentTriggered": false
+      }
     }
   ]
 }
