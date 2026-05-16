@@ -77,7 +77,8 @@
     "read_project-register/repository-inventory.json",
     "confirm_branch_is_not_main_or_master",
     "confirm_human_approval_exists_before_any_future_real_execution",
-    "run_node_scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs_report_only"
+    "run_node_scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs_report_only",
+    "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
   ],
   "requiredPerTaskChecks": [
     "task_risk_is_low",
@@ -216,5 +217,11 @@
       "neverDeploys",
       "reasons"
     ]
+  },
+  "continuityDependencyRequirements": {
+    "requiredBeforeActivation": true,
+    "map": "project-register/continuity-dependency-map.json",
+    "check": "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+    "rule": "Future real runner activation must preserve open/blocked/review_required Sentinel entries and must not proceed while entries with blocks_batch_execution remain unresolved without explicit human override."
   }
 }

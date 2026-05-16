@@ -408,5 +408,16 @@
       "autoRepair": false,
       "deployment": false
     }
+  },
+  "continuityDependencyChecks": {
+    "map": "project-register/continuity-dependency-map.json",
+    "check": "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+    "requiredForGovernancePRs": true,
+    "reviewFocus": [
+      "must-not-forget entries remain visible",
+      "blocked/review_required entries include reasons",
+      "no auto-merge/auto-repair/deployment was enabled",
+      "next recommended task is preserved"
+    ]
   }
 }

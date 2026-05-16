@@ -41,6 +41,13 @@ Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser z
 - `scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs` validiert Policy, `agent-work-log.json`, `progress-log.json`, `TODO_INDEX.md` und `NEXT_ACTIONS.md` report-only und gibt `TASK_STATUS_SYNC_READY=true/false` aus; der Check ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
 - Diese Governance erweitert den bestehenden Agent-Memory-Loop, Autopilot, Batch-Autopilot, PR Outcome Recorder, PR Review Agent, Auto-Merge-Report und Auto-Repair-Report; sie aktiviert weder Auto-Merge noch Auto-Repair und ersetzt keine bestehenden Fuehrungsdateien.
 
+## Continuity & dependency sentinel
+
+- `project-register/continuity-dependency-map.json` ist die maschinenlesbare report-only Map fuer offene Punkte, Follow-ups, `review_required`-/`blocked`-Items, Dependency Chains, betroffene Register, erforderliche Output-Dateien und naechste Agenten-Handoffs.
+- `docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md` erklaert, wie der Sentinel Cross-Reference Maintenance und Task Status Sync ergaenzt, ohne eine Parallelarchitektur oder automatische Task-Erstellung anzulegen.
+- `scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs` validiert die Map, Pflichtstatuswerte, Dependency-Typen, Entry-Felder, Work-Map-/TODO-Index-Verweise und report-only Grenzen; der Check ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
+- Der Sentinel aktiviert keine automatische Dateiumschreibung, Task-Erstellung, PR-Approval, Merge, Auto-Repair oder Deployment. Future Agents sollen ihn vor Framework-/Governance-Abschluss lesen, damit machine-readable Backlogs/Status-/Output-Register und Review-/Blocker-Ketten nicht vergessen werden.
+
 ## Internal source map
 
 - `project-register/internal-sources.json` ist die maschinenlesbare WellFit Internal-Source-to-Implementation-Map. Sie verbindet interne Konzeptgruppen (Master-Bibel, Whitepaper/Investor, Tokenomics, Buddy, Kinder/Familien/Active Breaks, AR/Unity, B2B, Feedback/Analytics) mit vorhandenen Dateien aus dieser Work Map und den Project-Register-Dateien.

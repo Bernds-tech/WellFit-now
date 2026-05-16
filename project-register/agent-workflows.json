@@ -77,7 +77,10 @@
         "project-register/website-agents.json",
         "project-register/website-readiness.json",
         "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
-        "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs"
+        "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "project-register/continuity-dependency-map.json",
+        "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
+        "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -372,6 +375,18 @@
           ],
           "purpose": "Report-only website agent/readiness governance for public website, desktop beta, and mobile/PWA route readiness before runtime website changes.",
           "usage": "Before website-readiness work, validate the framework, classify route group/status/protected topics, avoid duplicate architecture, and keep sensitive topics review_required."
+        },
+        {
+          "id": "continuity_dependency_sentinel",
+          "registers": [
+            "project-register/continuity-dependency-map.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs"
+          ],
+          "purpose": "Report-only memory for open points, dependency chains, review-required/blocked items, required next files, affected registers, and next-agent handoffs.",
+          "usage": "Read before closing governance/framework tasks; add entries for unresolved dependencies and required machine-readable outputs instead of creating parallel systems."
         }
       ],
       "additionalGovernanceInputs": [

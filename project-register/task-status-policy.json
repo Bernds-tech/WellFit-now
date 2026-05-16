@@ -207,5 +207,10 @@
       "blocked entries include blocker or human-review evidence",
       "validator remains report-only and does not rewrite files"
     ]
+  },
+  "continuityDependencyRules": {
+    "map": "project-register/continuity-dependency-map.json",
+    "check": "scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs",
+    "rule": "When task work leaves open follow-ups, blocked dependencies, review_required points, or required next output files, preserve them in the Sentinel and reference the affected work/progress-log evidence."
   }
 }
