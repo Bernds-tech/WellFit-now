@@ -116,8 +116,9 @@ Lies zuerst `AGENTS.md`, dann `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WOR
 
 ## Approved Agent Build Runner / Merge Gate pointer (2026-05-16)
 
-- Report-only framework added for future one-at-a-time builds from `project-register/approved-agent-build-backlog.json`: `project-register/approved-agent-build-runner-policy.json`, `project-register/agent-build-runner-state.json`, `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs`, and `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs`.
-- The framework treats missing/skipped/not-run/unknown/pending/future-CI-only checks as `not_merge_ready`, blocks runtime/protected/Unity/PR-#13 changes, and remains report-only until a separate controlled one-agent activation is approved.
+- Report-only framework added for future one-at-a-time builds from `project-register/approved-agent-build-backlog.json`: `project-register/approved-agent-build-runner-policy.json`, `project-register/approved-agent-build-runner-merge-gate.json`, `project-register/agent-build-runner-state.json`, `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs`, and `scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs`.
+- Corrected Merge Gate semantics: `GATE_CONFIGURATION_READY=true` means the gate configuration is valid; `MERGE_READY=false` is an expected report-only state and does not fail validation or Quality Gate; missing/skipped/not-run/unknown/pending/future-CI-only checks still block actual merge readiness.
+- The framework blocks runtime/protected/Unity/PR-#13 changes and remains report-only until a separate controlled one-agent activation is approved.
 
 ## 2026-05-16 — Controlled Approved Agent Build Runner Activation: Multisensory Learning Engine
 

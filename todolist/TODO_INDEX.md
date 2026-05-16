@@ -368,10 +368,12 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 
 - [x] `project-register/approved-agent-build-runner-policy.json` — report-only Policy fuer kuenftige sequenzielle Approved-Agent-Builds mit Missing-Check-Merge-Blockade, Safe-Repair-Grenzen, Merge-Gate-Pflichtchecks und `maxAgentsPerRun: 1`.
 - [x] `project-register/agent-build-runner-state.json` — report-only Statusregister fuer Runner-Dry-Run, Repair- und Merge-Gate-Evidenz ohne Agent-Build, PR-Erstellung, Repair, Merge, Approval oder Deploy.
+- [x] `project-register/approved-agent-build-runner-merge-gate.json` — report-only Gate-Register mit korrigierter Semantik: `GATE_CONFIGURATION_READY=true` bedeutet gueltige Konfiguration; `MERGE_READY=false` bleibt erwarteter Merge-Readiness-Blocker, ohne Validator/Quality-Gate zu failen.
 - [x] `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md` — Architektur und KI-Fortsetzungs-Prompt fuer Runner, Merge Gate, PR-#109-Risiko, Missing-Check-Handling und Protected-Scope-Stopps.
 - [x] `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs` — report/check-only Validator fuer Policy, State, erlaubte/verbotene Pfade, Pflichtchecks, Safe Repair, Unsafe Stop, Missing Checks und Work-Map-/TODO-Index-Referenzen.
 - [x] `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs` — report-only Dry Run fuer die Auswahl genau eines naechsten already-approved Backlog-Agenten ohne Build, PR, Merge, Repair oder Deploy.
-- [x] `scripts/wellfit-dev-agent/src/quality-gate.mjs` — bindet Approved-Agent-Build-Runner-Check und Dry Run report-only in das bestehende Quality Gate ein.
+- [x] `scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs` — report-only Merge-Gate-Validator, der `MERGE_READY=false` bei `GATE_CONFIGURATION_READY=true` akzeptiert und fehlende Checks weiter als Merge-Blocker meldet.
+- [x] `scripts/wellfit-dev-agent/src/quality-gate.mjs` — bindet Approved-Agent-Build-Runner-Check, Dry Run und Merge-Gate-Check report-only in das bestehende Quality Gate ein.
 
 ## Multisensory Learning Engine / Approved Agent Build Runner Activation (2026-05-16)
 

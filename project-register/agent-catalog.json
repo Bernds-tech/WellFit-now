@@ -1591,10 +1591,11 @@
       "name": "Approved Agent Build Runner and Merge Gate",
       "status": "active",
       "agentType": "governance_agent",
-      "purpose": "Report-only first-version framework for future one-at-a-time approved agent builds with required-check evidence, missing-check blocking, safe-repair boundaries, PR diff review, mergeability, and merge-gate enforcement.",
+      "purpose": "Report-only first-version framework for future one-at-a-time approved agent builds with required-check evidence, missing-check blocking, safe-repair boundaries, PR diff review, mergeability, and a corrected semantic split between gate configuration readiness and concrete merge readiness.",
       "ownerArea": "Agent governance / Approved Future Agent Builds / Merge Safety",
       "primaryRegisters": [
         "project-register/approved-agent-build-runner-policy.json",
+        "project-register/approved-agent-build-runner-merge-gate.json",
         "project-register/agent-build-runner-state.json",
         "project-register/approved-agent-build-backlog.json"
       ],
@@ -1603,7 +1604,8 @@
       ],
       "validationScripts": [
         "scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
-        "scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs"
+        "scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs",
+        "scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs"
       ],
       "qualityGateIntegrated": true,
       "relatedAgents": [
@@ -1617,6 +1619,7 @@
         "batch-execution-runner-framework"
       ],
       "relatedRegisters": [
+        "project-register/approved-agent-build-runner-merge-gate.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
         "project-register/agent-build-proposals.json",
@@ -1632,7 +1635,9 @@
         "docs_register_validator_only",
         "merge_gate_evidence_rules",
         "safe_repair_policy_rules",
-        "dry_run_reporting"
+        "dry_run_reporting",
+        "report_only_merge_gate_semantics",
+        "gate_configuration_vs_merge_readiness_validation"
       ],
       "requiresNewAgentProposalFor": [
         "runtime agent execution",
@@ -1647,9 +1652,11 @@
         "no merge with missing checks",
         "no deployment",
         "no PR #13 or Unity changes",
-        "no token/NFT/wallet/payment/reward/mission-authority/health/child/location/privacy/legal/compliance changes"
+        "no token/NFT/wallet/payment/reward/mission-authority/health/child/location/privacy/legal/compliance changes",
+        "MERGE_READY=false is an expected report-only merge blocker and must not be treated as validator failure when GATE_CONFIGURATION_READY=true.",
+        "Missing required checks, unavailable GitHub checks, incomplete local evidence, and missing post-PR evidence still block actual merge readiness."
       ],
-      "nextSafeMaintenanceTask": "After this framework merges, separately request controlled one-agent runner activation for Multisensory Learning Engine only."
+      "nextSafeMaintenanceTask": "Use the report-only merge-gate validator to keep GATE_CONFIGURATION_READY separate from concrete MERGE_READY evidence before any future controlled one-agent activation or merge review."
     },
     {
       "id": "multisensory-learning-engine",
