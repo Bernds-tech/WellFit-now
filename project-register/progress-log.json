@@ -344,6 +344,20 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Documentation/register-only evidence record for first human Mobile/PWA testing. Phone Chrome at https://wellfit-now.io/mobile recorded /mobile/ar camera starts pass and Buddy appears pass. Buddy final behavior remains review_required/expected_incomplete/not_complete. Missing device model, Android OS, Chrome version, and untested phone routes remain device_test_required/missing_device_metadata. Desktop responsive screenshots are recorded as external smoke evidence only; no screenshots, binaries, raw camera/video, face, biometric, health, location, raw sensor, wallet/payment, account, or reward-authority evidence was committed. Runtime mobile/product code, service worker/manifest/public assets, tracking/data collection, consent/privacy/legal logic, reward/mission authority, Functions/Rules, Unity/PR #13, deployment, auto-merge, and auto-repair remained untouched."
+    },
+    {
+      "id": "PROGRESS-REPOSITORY-INVENTORY-RUNTIME-TRIAGE-ROUND-2-2026-05-16-0001",
+      "date": "2026-05-16",
+      "branch": "inventory-triage-round-2-runtime-map",
+      "issue": null,
+      "goal": "Execute Repository Inventory Triage Round 2 for app/components/lib/functions in read-only mapping mode.",
+      "changedAreas": [
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Mapped 204 app/**, components/**, lib/**, and functions/** runtime-adjacent source references into existing repository inventory topics only. Unmapped inventory count moved from 275 to 71, and 103 sensitive or authority-adjacent runtime references were marked review_required. No runtime product code, app/components/lib/functions source files, Firestore rules, package/firebase configuration, public assets, GitHub workflow files, Unity/PR #13 files, protected compliance logic, auto-merge, auto-repair, or deployment was changed."
     }
   ]
 }

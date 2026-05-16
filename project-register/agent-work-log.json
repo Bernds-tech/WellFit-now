@@ -1033,7 +1033,7 @@
       },
       "changedFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -1121,7 +1121,7 @@
       "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
       "updatedTodoFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -1926,6 +1926,87 @@
       ],
       "riskLevel": "low",
       "definitionOfDoneKey": "documentation_task"
+    },
+    {
+      "taskId": "REPOSITORY-INVENTORY-RUNTIME-TRIAGE-ROUND-2",
+      "title": "Map app/components/lib/functions inventory references read-only",
+      "status": "done",
+      "pr": {
+        "branch": "inventory-triage-round-2-runtime-map",
+        "number": null,
+        "url": null,
+        "title": "Map runtime-adjacent repository inventory references"
+      },
+      "changedFiles": [
+        "project-register/repository-inventory.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass_dry_run",
+          "notes": "Initial dry run reported DRY_RUN and did not write files, merge, deploy, or self-approve."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Initial quality gate reported PASS."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs",
+          "result": "pass_with_expected_warnings",
+          "notes": "Initial and post-mapping inventory checks passed; expected warning count moved from 274/275 stale generated/registry counts to 71 remaining unmapped native/Unity-oriented files."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+          "result": "pass",
+          "notes": "Initial product readiness check passed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/route-api-drift-detector.mjs",
+          "result": "pass",
+          "notes": "Initial route/API drift detector passed."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/concept-to-code-gap-analyzer.mjs",
+          "result": "pass_with_warnings",
+          "notes": "Initial concept-to-code gap analyzer reported PASS_WITH_WARNINGS for existing duplicate architecture risks."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs",
+          "result": "pass",
+          "notes": "Initial cross-reference maintenance check passed."
+        }
+      ],
+      "followUps": [
+        "Continue remaining native mobile and Unity inventory mapping only as a separate read-only pass; do not modify native/unity/WellFitBuddyAR or runtime product code."
+      ],
+      "nextRecommendedTask": "Run a scoped native mobile/Unity read-only inventory pass for the remaining unmapped files, preserving Unity/PR #13 and protected runtime areas without code changes.",
+      "updatedTodoFiles": [
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_task",
+      "runtimeCodeChanged": false,
+      "protectedAreasTouched": false,
+      "inventoryTriage": {
+        "unmappedBefore": 275,
+        "unmappedAfter": 71,
+        "filesTriaged": 204,
+        "reviewRequiredCount": 103,
+        "groupsReviewed": [
+          "app/**",
+          "components/**",
+          "lib/**",
+          "functions/**"
+        ]
+      }
     }
   ]
 }
