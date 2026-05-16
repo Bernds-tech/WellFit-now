@@ -8,6 +8,23 @@
   },
   "entries": [
     {
+      "id": "2026-05-16-trust-compliance-website-audit",
+      "date": "2026-05-16",
+      "branch": "trust-compliance-website-audit",
+      "goal": "Run the Trust & Compliance Website Audit as a report-only documentation/register task across public, legal, desktop beta, mobile/PWA, and protected website route metadata.",
+      "changedAreas": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Report-only Trust & Compliance Website Audit. Sensitive legal/privacy/health/child/token/payment/reward/investor/public-claim/analytics/sponsor-partner findings remain review_required or blocked. No runtime website/app/mobile/legal code, public/legal wording, protected logic, Unity/PR #13, auto-merge, auto-repair, approval, or deployment was changed.",
+      "taskIdWhenApplicable": "TRUST-COMPLIANCE-WEBSITE-AUDIT"
+    },
+    {
       "id": "2026-05-16-website-readiness-baseline-audit",
       "date": "2026-05-16",
       "branch": "website-readiness-baseline-audit",

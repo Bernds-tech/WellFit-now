@@ -270,6 +270,59 @@ Future browser/device validation should verify registered route reachability, re
 
 Recommended next task: **Trust & Compliance Website Audit** because the route/link audit did not find a safe route-register fix, while legal/privacy, challenge/PvP, rewards/economy, analytics, health/camera/AR, AI Buddy, mobile/PWA, and public-claim surfaces remain `review_required`. If the team wants to start with lower-risk public-page optimization instead, the alternative is **Landingpage Conversion Audit** in report-only mode.
 
+## Trust & Compliance Website Audit — 2026-05-16
+
+Status: completed as a report-only audit.
+Scope: public pages, legal pages, desktop beta pages, mobile/PWA pages, protected/review-required route metadata, Website Agent Framework, Website Readiness registry, Website Agent Backlog, Product Readiness, internal source mappings, guardrail docs, roadmap/TODO sources, and existing website audit findings.
+
+This audit is not legal advice and does not make legal, medical, financial, investment, privacy, child-safety, payment, token, or advertising conclusions. It only preserves supported risk surfaces and review requirements for human/legal/product review.
+
+### Sources inspected
+
+- Website governance and audit sources: `project-register/website-agents.json`, `project-register/website-readiness.json`, `project-register/website-agent-backlog.json`, `docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md`, and this backlog.
+- Product/source registries: `project-register/product-readiness.json`, `project-register/internal-sources.json`, and `project-register/master-roadmap-tasks.json`.
+- Guardrail architecture: `docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md`, `docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md`, and `docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md`.
+- Roadmap/TODO context: `todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL`, `todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN`, `todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS`, and `todolist/H - MOBILE - AR - TRACKING - KI`.
+
+### Trust and compliance findings by risk area
+
+| Risk area | Evidence from existing registers/docs | Audit status | Required handling |
+|---|---|---|---|
+| Public page claim risks | `website-readiness.json` keeps `/`, `/register`, `/faq`, `/hilfe`, `/mobile`, and dashboard customization surfaces below `conversion_ready` and flags beta/public-claim, privacy, consent, support, analytics, or profile topics where applicable. | `review_required` where protected claims are involved | Do not mark public claims safe or conversion-ready without explicit human/product/legal review evidence. |
+| Legal page review requirements | `/datenschutz`, `/agb`, and `/impressum` are registered as legal pages with `review_required`, `legal`, `privacy`, `terms`, `payment`, `reward`, `consent`, or `public_claim` topics. | `review_required` | Do not edit or approve legal/privacy/terms/imprint wording from website-agent audits. |
+| Health and medical-adjacent claim risks | Health/privacy guardrails and route readiness flag `/buddy`, mission pages, `/mobile/missionen`, `/mobile/missionen/squat`, `/mobile/buddy`, `/mobile/analyse`, and `/mobile/bewegung` for health, movement, AI Buddy, device-motion, biometric, mission, and reward topics. | `review_required` | Treat movement, wellbeing, analysis, AI Buddy, and mission language as review-required; do not make medical claims or health-data changes. |
+| Child/family/minor protection risks | Website readiness flags `/buddy` and `/mobile/buddy` with `child`; health/privacy guardrails preserve child/family/guardian data as protected. | `review_required` | Keep child/family/minor-facing claims and AI Buddy behavior review-required. |
+| Camera/location/biometric/privacy/consent risks | Mobile and guardrail docs preserve camera, AR, pose/face/biometric, exact location/GPS/radius/safe-zones, raw sensor, DeviceMotion, permission, privacy, and consent surfaces as protected. | `review_required` / `device_test_required` | Do not expand data collection, permissions, tracking, camera, location, biometric, or consent flows through website audits. |
+| Token/WFT/NFT/wallet/payment/trading/payout risks | Economy docs and internal-sources state MVP/Beta uses internal points/XP only and keeps real WFT/token/NFT/blockchain/wallet/payment/trading/payout/presale/marketplace settlement unapproved; `/marktplatz`, `/punkte-shop`, `/agb`, and investor planning remain sensitive. | `review_required` / `blocked` | Do not activate or publicly approve token, NFT, wallet, payment, trading, payout, presale, purchase, staking, or settlement claims. |
+| Reward/mission authority claim risks | Mission Reward Context and Website Readiness keep mission completion, rewards, points/XP, leaderboard, anti-cheat, PvP/challenge, and competition routes review-gated; final authority must not be client-side. | `review_required` | Do not imply final client-side reward, ledger, mission completion, anti-cheat, inventory, rare-item, or payout authority. |
+| Investor/public-claim risks | Website Agent Backlog keeps Investor Page Planning Audit `review_required`; master roadmap and business/legal TODOs treat investor, token, public-roadmap, and financial-equivalent statements as sensitive. | `review_required` | Keep investor-facing and public financial-equivalent claims for explicit human/legal/product review. |
+| Analytics/tracking/data-use risks | `/analytics`, `/register`, `/dashboard`, `/mobile/analyse`, settings routes, and privacy guardrails flag analytics, tracking, consent, profile, user-activity, and data-use topics. | `review_required` | Do not add analytics/tracking/data-use claims, profiling, experiments, or consent changes without review evidence. |
+| Sponsor/advertising/partner-claim risks | Business/website/partner/legal TODOs include pilot, event, sponsor/partner, B2B, and communication work, but no approval evidence for public partner/advertising claims was found in the inspected registers. | `review_required` | Keep sponsor, advertising, partner, pilot, and B2B claims report-only until explicit approval/source evidence exists. |
+
+### Route groups that remain review-gated
+
+- **Public/legal:** `/register`, `/datenschutz`, `/agb`, `/impressum`, `/faq`, and `/hilfe` need review for privacy, consent, public-claim, legal, terms, payment, reward, support, or imprint topics.
+- **Desktop beta:** `/dashboard`, `/buddy`, mission routes, `/missionen/challenge`, `/missionen/wettkaempfe`, `/punkte-shop`, `/marktplatz`, `/leaderboard`, `/analytics`, `/dashboard/anpassen`, `/einstellungen`, `/missionen/favoriten`, and `/missionen/history` need review where rewards, mission authority, AI Buddy, health, child, privacy, consent, competition, anti-cheat, payment, economy, marketplace, token/NFT, profile, or activity topics apply.
+- **Mobile/PWA:** `/mobile`, `/mobile/missionen`, `/mobile/missionen/squat`, `/mobile/buddy`, `/mobile/analyse`, `/mobile/bewegung`, `/mobile/einstellungen`, and `/mobile/ar` need review/device evidence for mobile/PWA, health, camera, AR, biometric, privacy, consent, AI Buddy, child, DeviceMotion, mission, reward, and public-claim topics.
+
+### Blocked items
+
+- Do not mark sensitive public, legal, investor, payment, token, health, child, reward, privacy, analytics, sponsor/partner, or mission-authority claims as safe without explicit human/legal/product review evidence.
+- Do not advance protected routes to `conversion_ready`, `investor_ready`, or `beta_ready` from this audit.
+- Do not change runtime website/app/mobile/legal code, public/legal wording, app components, legal pages, consent flows, analytics/tracking, payment/token/economy logic, reward/mission authority, health/child/camera/location/biometric/privacy logic, package/config files, GitHub workflows, Functions, Firestore rules, public assets, Unity files, or PR #13.
+- Do not enable auto-merge, auto-repair, approval, deployment, legal conclusions, public claim approval, or protected feature activation.
+
+### Machine-readable updates made
+
+- `project-register/website-agent-backlog.json` marks `WAB-004` as `done` for the completed report-only audit while preserving its protected findings as human-review-required.
+- `project-register/website-readiness.json` adds `trustComplianceWebsiteAudit` metadata summarizing review-required routes, blocked items, source evidence, and safe next tasks.
+- `project-register/progress-log.json` and `project-register/agent-work-log.json` record the report-only audit and confirm runtime/protected areas were untouched.
+- `product-readiness.json`, `internal-sources.json`, runtime routes, legal pages, public copy, product logic, package/config files, Functions, Firestore rules, public assets, GitHub workflows, Unity files, auto-merge, auto-repair, approval, and deployment settings were left unchanged.
+
+### Safe next tasks
+
+Recommended next task: **Beta Waitlist / Register Flow Audit** because `/register` is public-facing and explicitly carries privacy, consent, beta-public-claim, and analytics/tracking risks. The lower-risk alternative is **Landingpage Conversion Audit** for `/`, provided it remains report-only and does not change runtime public wording or mark protected claims safe.
+
 ## KI-Fortsetzungs-Prompt
 
 Naechste KI/Codex-Session: Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/website-agents.json`, `project-register/website-readiness.json`, `project-register/website-agent-backlog.json` und dieses Dokument. Fuehre `node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs` und `node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs` aus, bevor Website-Findings oder Website-Readiness-Aenderungen geplant werden. Nutze den Backlog fuer maschinenlesbare Findings, halte protected Topics `review_required`, erstelle keine parallele Website-Architektur, und aendere keine Runtime-Seiten, Legal-Texte, Tracking-, Reward-, Payment-, Token-, Health-, Child-, Camera-, Location-, Consent-, Unity-, Auto-Merge-, Auto-Repair-, Approval- oder Deployment-Logik.

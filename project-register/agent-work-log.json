@@ -103,6 +103,147 @@
   },
   "entries": [
     {
+      "taskId": "TRUST-COMPLIANCE-WEBSITE-AUDIT",
+      "title": "Run Trust & Compliance Website Audit",
+      "status": "done",
+      "pr": {
+        "branch": "trust-compliance-website-audit",
+        "number": null,
+        "url": null,
+        "title": "Add trust and compliance website audit"
+      },
+      "changedFiles": [
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+        "project-register/website-readiness.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "jq empty project-register/website-readiness.json project-register/website-agent-backlog.json project-register/product-readiness.json project-register/internal-sources.json project-register/progress-log.json project-register/agent-work-log.json project-register/continuity-dependency-map.json",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        },
+        {
+          "command": "npm run agent:autopilot:dry-run",
+          "result": "pass",
+          "notes": "Completed successfully in the final validation suite."
+        }
+      ],
+      "followUps": [
+        "Run Beta Waitlist / Register Flow Audit for /register consent/privacy and beta-public-claim evidence, or run Landingpage Conversion Audit if the next task stays lower-risk and report-only.",
+        "Keep legal/privacy/health/child/token/payment/reward/investor/public claims review_required until explicit human/legal/product review evidence exists."
+      ],
+      "nextRecommendedTask": "Beta Waitlist / Register Flow Audit",
+      "riskLevel": "medium",
+      "definitionOfDoneKey": "documentation_task",
+      "trustComplianceWebsiteAudit": {
+        "publicClaims": "review_required where beta, investor, sponsor/partner, health, reward, token/payment, or analytics claims are involved",
+        "legalPages": "review_required; no legal conclusions or wording changes",
+        "healthChildPrivacy": "review_required for health, medical-adjacent, child/family/minor, camera, location, biometric, permission, privacy, and consent surfaces",
+        "economyRewardsInvestor": "review_required or blocked for token/WFT/NFT/wallet/payment/trading/payout/presale, mission/reward authority, PvP/betting, anti-cheat, investor, financial-equivalent, marketplace, and public-claim surfaces",
+        "runtimeCodeChanged": false
+      },
+      "checksRun": [
+        "git diff --check",
+        "jq empty project-register/website-readiness.json project-register/website-agent-backlog.json project-register/product-readiness.json project-register/internal-sources.json project-register/progress-log.json project-register/agent-work-log.json project-register/continuity-dependency-map.json",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "node scripts/wellfit-dev-agent/src/website-agent-backlog-check.mjs",
+        "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+        "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+        "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
+        "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+        "npm run agent:autopilot:dry-run"
+      ],
+      "checkResults": [
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "pass"
+      ],
+      "autoMergeEligibilityResult": "report_only_not_authorizing_merge",
+      "autoRepairDecisionResult": "report_only_not_authorizing_repair",
+      "protectedAreaConfirmation": "Runtime website/app/mobile/legal code, public/legal wording, app/**, components/**, lib/**, functions/**, firestore.rules, public/**, package manifests, Firebase config, GitHub workflows, Unity/PR #13, and protected token/NFT/wallet/payment/betting/reward/mission/health/child/location/camera/consent/privacy/legal/compliance logic were untouched.",
+      "date": "2026-05-16",
+      "timestamp": "2026-05-16T00:00:00.000Z"
+    },
+    {
       "taskId": "WEBSITE-READINESS-BASELINE-AUDIT",
       "title": "Run Website Readiness Baseline Audit",
       "status": "done",

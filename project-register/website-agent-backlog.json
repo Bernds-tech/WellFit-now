@@ -362,7 +362,7 @@
     {
       "id": "WAB-004",
       "title": "Trust & Compliance Website Audit for protected public wording",
-      "status": "review_required",
+      "status": "done",
       "severity": "high",
       "findingType": "trust_compliance_review",
       "route": "global",
@@ -386,9 +386,9 @@
         "project-register/agent-workflows.json"
       ],
       "finding": "Legal/privacy/health/child/token/payment/reward/investor/public-claim wording must be audited and preserved as review_required findings before any conversion_ready or beta_ready advancement.",
-      "evidence": "Baseline audit confirmed legal, privacy, health, child, token/NFT/payment/economy, reward/mission authority, analytics, AI Buddy, camera/AR, competition/betting, investor, and public-claim topics remain review_required and were not advanced to conversion_ready, investor_ready, or beta_ready.",
-      "recommendedAction": "Create report-only findings for risky wording or missing review evidence; do not auto-fix runtime legal or compliance text.",
-      "nextSafeTask": "Run Trust & Compliance Website Audit and keep all protected topic wording changes human-review-required.",
+      "evidence": "Trust & Compliance Website Audit completed report-only on 2026-05-16 in docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md and project-register/website-readiness.json. Existing evidence from website-readiness, product-readiness, internal-sources, roadmap/TODO sources, health/privacy guardrails, economy guardrails, mission reward context, and the route/link audit confirms public/legal/privacy/health/child/camera/location/biometric/token/NFT/wallet/payment/trading/payout/reward/mission-authority/investor/analytics/sponsor-partner claim surfaces remain review_required or blocked; no runtime or legal wording changed.",
+      "recommendedAction": "Use the completed audit as the report-only evidence baseline for protected website claims. Keep all sensitive public/legal/investor/payment/token/health/child/reward/privacy findings human-review-required; do not auto-fix runtime copy, legal pages, consent, analytics, payment, token, reward, mission authority, or protected data flows.",
+      "nextSafeTask": "Beta Waitlist / Register Flow Audit for consent/privacy lead-flow evidence; Landingpage Conversion Audit is the lower-risk alternative only if public claims stay beta-safe and no protected wording changes are made.",
       "allowedFiles": [
         "project-register/website-agent-backlog.json",
         "project-register/website-agents.json",
@@ -438,7 +438,43 @@
         "consent"
       ],
       "createdDate": "2026-05-16",
-      "updatedDate": "2026-05-16"
+      "updatedDate": "2026-05-16",
+      "auditSummary": {
+        "auditId": "TRUST-COMPLIANCE-WEBSITE-AUDIT-2026-05-16",
+        "mode": "report_only",
+        "sourceFiles": [
+          "project-register/website-agents.json",
+          "project-register/website-readiness.json",
+          "project-register/website-agent-backlog.json",
+          "project-register/product-readiness.json",
+          "project-register/internal-sources.json",
+          "project-register/master-roadmap-tasks.json",
+          "docs/architecture/WELLFIT_WEBSITE_AGENT_BACKLOG.md",
+          "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+          "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+          "docs/architecture/AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md",
+          "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md",
+          "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL",
+          "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
+          "todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS",
+          "todolist/H - MOBILE - AR - TRACKING - KI"
+        ],
+        "reviewRequiredItems": [
+          "legal pages and public/legal wording for Datenschutz, AGB, Impressum, public claims, terms, payment, rewards, consent, and privacy",
+          "health, medical-adjacent, movement, watch, device motion, AI Buddy, child/family/minor, camera, AR, pose/face/biometric, location, GPS/radius/safe-zone, permission, and consent claims",
+          "token/WFT/NFT/wallet/payment/trading/payout/presale/marketplace/economy claims and any investor-facing or financial-equivalent wording",
+          "reward, points, XP, mission completion, anti-cheat, leaderboard, PvP/challenge, stake/betting, analytics/tracking, sponsor, advertising, and partner claims"
+        ],
+        "blockedItems": [
+          "marking sensitive routes conversion_ready, investor_ready, or beta_ready without human/legal/product review evidence",
+          "runtime edits to website/app/mobile/legal code or public/legal wording from this audit",
+          "auto-merge, auto-repair, approval, deployment, legal conclusions, or protected feature activation"
+        ],
+        "safeNextTasks": [
+          "Beta Waitlist / Register Flow Audit",
+          "Landingpage Conversion Audit"
+        ]
+      }
     },
     {
       "id": "WAB-005",
