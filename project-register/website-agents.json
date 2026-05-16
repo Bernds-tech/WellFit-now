@@ -1,0 +1,698 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "purpose": "Controlled website-focused agent registry for public website, desktop beta, and mobile/PWA readiness assessment before runtime website changes.",
+  "mode": "report_only_governance",
+  "neverEnables": [
+    "auto_merge",
+    "auto_repair",
+    "approval",
+    "deployment",
+    "runtime_page_updates"
+  ],
+  "agents": [
+    {
+      "name": "Website Completion Agent",
+      "purpose": "Find missing website completion evidence across public, desktop beta, and mobile/PWA routes before runtime implementation.",
+      "requiredInputs": [
+        "routes register",
+        "website-readiness register",
+        "product-readiness register",
+        "repository inventory",
+        "visual-regression register"
+      ],
+      "allowedOutputs": [
+        "readiness gap report",
+        "safe next-task proposal",
+        "route-to-file mapping notes"
+      ],
+      "allowedActions": [
+        "inspect registered routes",
+        "compare readiness statuses",
+        "recommend docs/register-only next tasks",
+        "flag duplicate-architecture risks"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "route-api-register-check",
+        "repository-inventory-check"
+      ],
+      "humanReviewRequiredTriggers": [
+        "missing leading route file",
+        "new route requested",
+        "route group unclear",
+        "protected topic present"
+      ],
+      "relatedRouteGroups": [
+        "public_pages",
+        "desktop_beta_pages",
+        "mobile_pwa_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Route & Link Integrity Agent",
+      "purpose": "Evaluate registered route coverage, navigation/link risks, and missing route aliases without changing pages.",
+      "requiredInputs": [
+        "routes register",
+        "website-readiness register",
+        "route/API drift detector output"
+      ],
+      "allowedOutputs": [
+        "route integrity report",
+        "missing/blocked route notes",
+        "link-risk checklist"
+      ],
+      "allowedActions": [
+        "compare website-readiness routes to routes.json",
+        "flag missing aliases such as public /challenge",
+        "recommend existing route reuse"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "route-api-drift-detector",
+        "site-route-audit"
+      ],
+      "humanReviewRequiredTriggers": [
+        "route not in routes.json",
+        "redirect/alias decision needed",
+        "legal or protected route involved"
+      ],
+      "relatedRouteGroups": [
+        "public_pages",
+        "legal_pages",
+        "desktop_beta_pages",
+        "mobile_pwa_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Mobile First Agent",
+      "purpose": "Assess mobile/PWA readiness evidence and device-test requirements before mobile runtime changes.",
+      "requiredInputs": [
+        "mobile routes from routes.json",
+        "website-readiness register",
+        "visual-regression register",
+        "manual mobile/PWA evidence templates"
+      ],
+      "allowedOutputs": [
+        "mobile readiness report",
+        "device-test blocker list",
+        "safe mobile follow-up task"
+      ],
+      "allowedActions": [
+        "classify mobile routes",
+        "request manual evidence",
+        "flag camera/AR/health/privacy topics as review_required"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "high",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "visual-route-smoke-check --report-only",
+        "mobile Buddy UX audit"
+      ],
+      "humanReviewRequiredTriggers": [
+        "camera/AR/pose/device-motion topic",
+        "health or child-safety implication",
+        "PWA install or permission claim"
+      ],
+      "relatedRouteGroups": [
+        "mobile_pwa_pages",
+        "protected_or_review_required_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Visual Regression Website Agent",
+      "purpose": "Coordinate website visual-smoke evidence through existing visual-regression governance only.",
+      "requiredInputs": [
+        "visual-regression register",
+        "routes register",
+        "website-readiness register"
+      ],
+      "allowedOutputs": [
+        "visual evidence matrix",
+        "screenshot-smoke recommendation",
+        "blocked-browser note"
+      ],
+      "allowedActions": [
+        "map routes to existing visual-smoke checks",
+        "record status model recommendations",
+        "avoid modifying UI"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "visual-route-smoke-check --report-only"
+      ],
+      "humanReviewRequiredTriggers": [
+        "visible UI change proposed",
+        "browser unavailable",
+        "legal/privacy or investor claim visible"
+      ],
+      "relatedRouteGroups": [
+        "public_pages",
+        "desktop_beta_pages",
+        "mobile_pwa_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Website Content Agent",
+      "purpose": "Review public and beta-facing copy structure for clarity while keeping protected claims review_required.",
+      "requiredInputs": [
+        "website-readiness register",
+        "internal sources register",
+        "product readiness matrix"
+      ],
+      "allowedOutputs": [
+        "content gap list",
+        "claim review queue",
+        "safe copy-outline task"
+      ],
+      "allowedActions": [
+        "identify incomplete copy areas",
+        "mark sensitive claims review_required",
+        "link to leading files"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "high",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "research-recommendation-check"
+      ],
+      "humanReviewRequiredTriggers": [
+        "legal/privacy/health/child/token/payment/reward/investor/public claim",
+        "medical or earnings implication"
+      ],
+      "relatedRouteGroups": [
+        "public_pages",
+        "desktop_beta_pages",
+        "mobile_pwa_pages",
+        "protected_or_review_required_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Trust & Compliance Agent",
+      "purpose": "Gate trust, safety, legal, privacy, health, child, token/economy, payment, and reward claims as human-review-required.",
+      "requiredInputs": [
+        "risk-classifier register",
+        "website-readiness register",
+        "product-readiness register",
+        "legal route entries"
+      ],
+      "allowedOutputs": [
+        "protected-topic report",
+        "human-review-required queue",
+        "no-runtime-change compliance note"
+      ],
+      "allowedActions": [
+        "classify protected topics",
+        "prevent conversion_ready/beta_ready without review_required",
+        "recommend legal review"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "critical",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "agent-governance-control-check",
+        "product-readiness-check"
+      ],
+      "humanReviewRequiredTriggers": [
+        "any legal/privacy/health/child/token/payment/reward topic",
+        "public trust or investor claim",
+        "compliance wording change requested"
+      ],
+      "relatedRouteGroups": [
+        "legal_pages",
+        "protected_or_review_required_pages",
+        "mobile_pwa_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Landingpage Conversion Agent",
+      "purpose": "Prepare landing-page conversion assessment criteria without changing landing runtime code.",
+      "requiredInputs": [
+        "website-readiness register",
+        "routes register",
+        "product readiness register"
+      ],
+      "allowedOutputs": [
+        "conversion-readiness checklist",
+        "CTA/waitlist gap report",
+        "safe next experiment plan"
+      ],
+      "allowedActions": [
+        "inspect readiness status",
+        "map conversion blockers",
+        "defer experiments until approved"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "site-route-audit"
+      ],
+      "humanReviewRequiredTriggers": [
+        "pricing/earnings/token/investor/public claim",
+        "A/B test or tracking requested",
+        "copy change touches legal/compliance"
+      ],
+      "relatedRouteGroups": [
+        "public_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "SEO & Discovery Agent",
+      "purpose": "Define search/discovery readiness checks using registered routes and existing governance before metadata/runtime changes.",
+      "requiredInputs": [
+        "routes register",
+        "website-readiness register",
+        "repository inventory"
+      ],
+      "allowedOutputs": [
+        "SEO discovery gap report",
+        "metadata review queue",
+        "safe no-runtime next task"
+      ],
+      "allowedActions": [
+        "inventory public routes",
+        "flag missing SEO evidence",
+        "require human review for sensitive claims"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "repository-inventory-check"
+      ],
+      "humanReviewRequiredTriggers": [
+        "medical/financial/investor/token claim",
+        "legal page SEO wording",
+        "structured-data implementation requested"
+      ],
+      "relatedRouteGroups": [
+        "public_pages",
+        "legal_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Beta Waitlist Agent",
+      "purpose": "Evaluate beta registration and waitlist readiness without changing auth, registration, consent, or runtime forms.",
+      "requiredInputs": [
+        "/register route entry",
+        "product-readiness register",
+        "risk-classifier register"
+      ],
+      "allowedOutputs": [
+        "waitlist readiness report",
+        "consent/privacy review queue",
+        "safe follow-up task"
+      ],
+      "allowedActions": [
+        "map /register readiness",
+        "flag consent/privacy dependencies",
+        "avoid modifying forms or data writes"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "high",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "product-readiness-check"
+      ],
+      "humanReviewRequiredTriggers": [
+        "consent/privacy/data collection/auth change",
+        "beta eligibility or public claim",
+        "child/health data implication"
+      ],
+      "relatedRouteGroups": [
+        "public_pages",
+        "protected_or_review_required_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Investor Page Agent",
+      "purpose": "Keep investor-facing claims and readiness evidence review_required until approved.",
+      "requiredInputs": [
+        "website-readiness register",
+        "master-roadmap-tasks register",
+        "internal-sources register"
+      ],
+      "allowedOutputs": [
+        "investor-readiness gap report",
+        "claim substantiation queue",
+        "safe documentation task"
+      ],
+      "allowedActions": [
+        "identify investor-sensitive routes/content",
+        "require source substantiation",
+        "block runtime investor claims"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "high",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "master-roadmap-task-check",
+        "research-recommendation-check"
+      ],
+      "humanReviewRequiredTriggers": [
+        "investor claim",
+        "fundraising/revenue/projection statement",
+        "token/economy claim"
+      ],
+      "relatedRouteGroups": [
+        "public_pages",
+        "protected_or_review_required_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Analytics & Experiment Agent",
+      "purpose": "Plan analytics and experiment governance without enabling tracking, A/B runtime, third-party analytics, or data collection.",
+      "requiredInputs": [
+        "feedback analytics loop register",
+        "adaptive user insights register",
+        "website-readiness register"
+      ],
+      "allowedOutputs": [
+        "experiment governance note",
+        "measurement readiness blocker list",
+        "privacy review queue"
+      ],
+      "allowedActions": [
+        "recommend aggregate-only planning",
+        "flag privacy/consent requirements",
+        "keep experiments disabled"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "high",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "adaptive-user-insight-check",
+        "feedback-loop-audit"
+      ],
+      "humanReviewRequiredTriggers": [
+        "tracking/data collection requested",
+        "consent/privacy topic",
+        "self-improving or personalization feature requested"
+      ],
+      "relatedRouteGroups": [
+        "public_pages",
+        "desktop_beta_pages",
+        "mobile_pwa_pages",
+        "protected_or_review_required_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    },
+    {
+      "name": "Self-Improving Website Agent",
+      "purpose": "Constrain future self-improving website concepts to planning/report-only mode until analytics, consent, review, and safety gates exist.",
+      "requiredInputs": [
+        "adaptive user insights register",
+        "research recommendations register",
+        "website-readiness register",
+        "risk-classifier register"
+      ],
+      "allowedOutputs": [
+        "self-improvement feasibility report",
+        "blocked capability list",
+        "human-review queue"
+      ],
+      "allowedActions": [
+        "classify self-improving ideas",
+        "prevent runtime optimization loops",
+        "require human approval before implementation"
+      ],
+      "forbiddenActions": [
+        "modify_runtime_product_code",
+        "modify_app_components_lib_functions_public_or_unity_files",
+        "change_legal_privacy_health_child_token_payment_reward_or_mission_authority_logic",
+        "enable_auto_merge_auto_repair_approval_or_deployment",
+        "create_duplicate_architecture_parallel_route_systems_or_parallel_registers",
+        "make_public_claims_without_required_human_review"
+      ],
+      "riskLevel": "critical",
+      "requiredChecks": [
+        "website-agent-framework-check",
+        "adaptive-user-insight-check",
+        "research-recommendation-check"
+      ],
+      "humanReviewRequiredTriggers": [
+        "automatic optimization requested",
+        "user data or analytics involved",
+        "legal/privacy/health/child/token/payment/reward claim"
+      ],
+      "relatedRouteGroups": [
+        "public_pages",
+        "desktop_beta_pages",
+        "mobile_pwa_pages",
+        "protected_or_review_required_pages"
+      ],
+      "relatedProjectRegisters": [
+        "project-register/routes.json",
+        "project-register/features.json",
+        "project-register/product-readiness.json",
+        "project-register/repository-inventory.json",
+        "project-register/visual-regression.json",
+        "project-register/internal-sources.json",
+        "project-register/risk-classifier.json",
+        "project-register/definition-of-done.json",
+        "project-register/cross-reference-maintenance.json",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json"
+      ],
+      "doNotDuplicateWarning": "Use existing WellFit route, readiness, product-readiness, repository-inventory, visual-regression, cross-reference, task-queue, and risk registers. Do not create a parallel website architecture, route registry, design system, analytics pipeline, legal review system, or runtime agent loop."
+    }
+  ]
+}

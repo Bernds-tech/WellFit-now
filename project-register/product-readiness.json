@@ -58,12 +58,16 @@
         "project-register/routes.json",
         "project-register/features.json",
         "todolist/WORK_MAP.md",
-        "docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md"
+        "docs/architecture/WEB_BETA_ROADMAP_NO_BUDDY_AR.md",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json",
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+        "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs"
       ],
       "current_blockers": [
         "Public messaging must stay beta-safe and avoid investment, token-sale, payment, or medical claims without review."
       ],
-      "next_safe_task": "Tighten copy, route registration, accessibility, or responsive layout inside existing public pages without adding new public architecture.",
+      "next_safe_task": "Run the Website Readiness Baseline Audit through the report-only website agent framework before any conversion, investor, SEO, analytics, or runtime page changes.",
       "do_not_duplicate_warning": "Do not create a second marketing site, app shell, navigation system, or public route map.",
       "required_checks_before_status_can_advance": [
         "npm run lint",
@@ -71,7 +75,10 @@
         "npm run build",
         "jq empty project-register/product-readiness.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
-        "npm run agent:quality-gate"
+        "npm run agent:quality-gate",
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
       ],
       "human_approval_required": false
     },

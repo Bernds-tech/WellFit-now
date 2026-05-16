@@ -53,6 +53,16 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md` | aktiv / Agent Governance | human-readable Runbook fuer Cross-Reference-Maintenance-Agent und PR-Berichtspflichten | `project-register/cross-reference-maintenance.json` | bei kuenftigen PRs als Checkliste fuer Cross-Reference-Updates nutzen |
 | `scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs` | aktiv / Agent-Code | validiert Cross-Reference-Register, Pflichtkategorien, referenzierte Dateien, Work-Map-/TODO-Index-Verweise und Major-Register-Coverage | `project-register/cross-reference-maintenance.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | direkt nach Cross-Reference-/Governance-Aenderungen ausfuehren; im Quality Gate eingebunden |
 
+
+## Website Agent Framework / Website Readiness
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `project-register/website-agents.json` | aktiv / Register | maschinenlesbares Website-Agentenregister fuer Website Completion, Route-/Link-Integritaet, Mobile First, Visual Regression, Content, Trust/Compliance, Conversion, SEO, Waitlist, Investor, Analytics/Experiment und Self-Improving-Planung | `docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md` | vor Website-Readiness-Arbeit lesen; report-only, keine Runtime-/Legal-/Tracking-/Reward-/Payment-/Token-/Unity-Aenderungen |
+| `project-register/website-readiness.json` | aktiv / Register | maschinenlesbare Readiness-Matrix fuer Public Pages, Legal Pages, Desktop-Beta, Mobile/PWA und protected/review-required Routen | `project-register/website-agents.json`, `project-register/routes.json`, `project-register/product-readiness.json` | bei Website-Baseline-Audits aktualisieren; geschuetzte Themen `review_required` halten |
+| `docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md` | aktiv / Architektur-Notiz | human-readable Runbook fuer das Website Agent Framework, Route-Gruppen, Readiness-Reports, Schutzthemen und Anschluss an bestehende Governance | `project-register/website-agents.json`, `project-register/website-readiness.json` | keine parallele Website-Architektur anlegen; vor kuenftigen Website-Agenten lesen |
+| `scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs` | aktiv / Agent-Code | report-only Validator fuer Website-Agenten, Website-Readiness, routes.json-Abgleich, Work-Map-/TODO-Index-Verweise und No-Runtime-/No-Merge-/No-Repair-/No-Deploy-Grenzen | `project-register/website-agents.json`, `project-register/website-readiness.json`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | direkt nach Website-Governance-Aenderungen ausfuehren; im Quality Gate eingebunden |
+
 ## PR Review Agent Governance
 
 | Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |

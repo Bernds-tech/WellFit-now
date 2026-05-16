@@ -72,7 +72,11 @@
     "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
     "project-register/batch-execution-runner-policy.json",
     "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md",
-    "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs"
+    "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+    "project-register/website-agents.json",
+    "project-register/website-readiness.json",
+    "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+    "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs"
   ],
   "globalForbiddenFiles": [
     "native/unity/WellFitBuddyAR/**",
@@ -119,7 +123,10 @@
     "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
     "jq empty project-register/pr-diff-review-policy.json",
     "node scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
-    "jq empty project-register/batch-execution-runner-policy.json"
+    "jq empty project-register/batch-execution-runner-policy.json",
+    "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+    "jq empty project-register/website-agents.json",
+    "jq empty project-register/website-readiness.json"
   ],
   "jsonValidationChecks": [
     "jq empty project-register/agent-task-queue.json",
@@ -135,7 +142,9 @@
     "jq empty project-register/auto-repair-policy.json",
     "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
     "jq empty project-register/task-status-policy.json",
-    "jq empty project-register/pr-post-creation-guard.json"
+    "jq empty project-register/pr-post-creation-guard.json",
+    "jq empty project-register/website-agents.json",
+    "jq empty project-register/website-readiness.json"
   ],
   "expectedPrOutput": {
     "requiredSections": [
@@ -1891,6 +1900,71 @@
         "Confirm runtime product, package, GitHub workflow, native/Unity, PR #13, compliance, economy, health, child, privacy, legal, and other protected areas were untouched.",
         "Recommend the next human-reviewed one-task runner activation plan."
       ]
+    },
+    {
+      "id": "WEBSITE-READINESS-BASELINE-AUDIT",
+      "title": "Website Readiness Baseline Audit",
+      "priority": 2,
+      "riskLevel": "medium",
+      "definitionOfDoneKey": "documentation_task",
+      "purpose": "Use the website agent framework to produce a docs/register-only baseline audit for public website, desktop beta, and mobile/PWA route readiness before runtime website changes.",
+      "allowedFiles": [
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json",
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json",
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+        "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json",
+        "git diff --check"
+      ],
+      "stopConditions": [
+        "runtime_product_code_change_required",
+        "legal_privacy_health_child_token_payment_reward_or_investor_claim_change_required",
+        "would_create_duplicate_architecture_or_parallel_system",
+        "auto_merge_auto_repair_approval_or_deployment_requested",
+        "protected_topic_cannot_remain_review_required"
+      ],
+      "expectedPrOutput": [
+        "Summarize website agent framework/readiness findings.",
+        "Confirm no runtime website/app/mobile/legal code changed.",
+        "Confirm no auto-merge, auto-repair, approval, or deployment was enabled.",
+        "Name next recommended task: Website Readiness Baseline Audit."
+      ],
+      "taskCategory": "website_governance",
+      "category": "website_governance"
     }
   ],
   "selectionRules": [

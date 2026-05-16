@@ -1,0 +1,1108 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "purpose": "Website route readiness registry for report-only assessment of public pages, legal pages, desktop beta pages, mobile/PWA pages, and protected/review-required website surfaces before runtime implementation.",
+  "mode": "report_only_governance",
+  "readinessStatuses": {
+    "empty": "No meaningful route evidence or content/readiness baseline exists yet.",
+    "draft": "Route exists or is planned but needs readiness evidence, content review, route/link checks, and visual/mobile checks.",
+    "usable": "Route appears usable as a beta/public surface but still needs conversion, investor, or device evidence before higher status.",
+    "conversion_ready": "Public conversion criteria, content clarity, route/link evidence, visual smoke, and protected-claim review are complete.",
+    "investor_ready": "Investor-facing claims are substantiated, reviewed, and linked to approved sources; protected topics remain reviewed.",
+    "beta_ready": "Beta route criteria, route/link evidence, visual/mobile evidence, and protected-topic reviews are complete.",
+    "blocked": "Route cannot advance until a documented blocker is resolved.",
+    "review_required": "Route or topic touches legal, privacy, health, child, token/economy, payment, reward, investor, public-claim, analytics, AI, camera/AR, or compliance-sensitive material."
+  },
+  "routeGroups": {
+    "public_pages": "Public website and acquisition/help/waitlist surfaces. Conversion and SEO work is planning-only until approved.",
+    "legal_pages": "Datenschutz, AGB, Impressum, and other legal/compliance pages. Always human-review-required for wording changes.",
+    "desktop_beta_pages": "Authenticated or beta-preview desktop application routes. No client authority changes through this framework.",
+    "mobile_pwa_pages": "Mobile/PWA routes requiring manual device, permission, viewport, PWA, and privacy evidence.",
+    "protected_or_review_required_pages": "Routes involving competition, rewards, economy, marketplace, analytics, AR/camera, health, child, payment, token/NFT, investor, or public-claim topics."
+  },
+  "routeEntries": [
+    {
+      "route": "/",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/",
+      "readinessStatus": "draft",
+      "routeGroup": "public_pages",
+      "leadingFiles": [
+        "app/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Landingpage Conversion Agent",
+        "SEO & Discovery Agent",
+        "Website Content Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Complete baseline conversion/readiness audit without editing the landing page.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": false,
+      "protectedTopics": [],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/register",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/register",
+      "readinessStatus": "draft",
+      "routeGroup": "public_pages",
+      "leadingFiles": [
+        "app/register/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Beta Waitlist Agent",
+        "Website Completion Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit waitlist copy, privacy/consent dependencies, and route-link evidence in docs/registers only.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "privacy",
+        "consent",
+        "beta_public_claim"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/datenschutz",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/datenschutz",
+      "readinessStatus": "review_required",
+      "routeGroup": "legal_pages",
+      "leadingFiles": [
+        "app/datenschutz/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Trust & Compliance Agent",
+        "SEO & Discovery Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Route must remain legal-review controlled; collect review evidence only.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "legal",
+        "privacy",
+        "consent"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/agb",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/agb",
+      "readinessStatus": "review_required",
+      "routeGroup": "legal_pages",
+      "leadingFiles": [
+        "app/agb/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Trust & Compliance Agent",
+        "SEO & Discovery Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Route must remain legal-review controlled; collect review evidence only.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "legal",
+        "terms",
+        "payment",
+        "reward"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/impressum",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/impressum",
+      "readinessStatus": "review_required",
+      "routeGroup": "legal_pages",
+      "leadingFiles": [
+        "app/impressum/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Trust & Compliance Agent",
+        "SEO & Discovery Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Route must remain legal-review controlled; collect review evidence only.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "legal",
+        "public_claim"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/faq",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/faq",
+      "readinessStatus": "usable",
+      "routeGroup": "public_pages",
+      "leadingFiles": [
+        "app/faq/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Content Agent",
+        "SEO & Discovery Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit FAQ completeness and protected claims without editing runtime copy.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "public_claim"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/hilfe",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/hilfe",
+      "readinessStatus": "usable",
+      "routeGroup": "public_pages",
+      "leadingFiles": [
+        "app/hilfe/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Content Agent",
+        "SEO & Discovery Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit help-page support coverage and protected claims without editing runtime copy.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "support",
+        "public_claim"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/dashboard",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/dashboard",
+      "readinessStatus": "usable",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/dashboard/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Route & Link Integrity Agent",
+        "Visual Regression Website Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Map dashboard beta gaps to product-readiness and visual evidence; no runtime changes.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "reward",
+        "analytics"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/buddy",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/buddy",
+      "readinessStatus": "draft",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/buddy/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Website Content Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Review AI Buddy beta messaging and protected-topic boundaries in docs/registers only.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "ai_buddy",
+        "health",
+        "child",
+        "privacy"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/missionen",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/missionen",
+      "readinessStatus": "usable",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/missionen/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Route & Link Integrity Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Confirm redirect/landing behavior against existing mission routes; no mission authority changes.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mission_completion",
+        "reward"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/missionen/tagesmissionen",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/missionen/tagesmissionen",
+      "readinessStatus": "usable",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/missionen/tagesmissionen/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit daily mission readiness evidence and server-authority caveats.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mission_completion",
+        "reward",
+        "health"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/missionen/wochenmissionen",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/missionen/wochenmissionen",
+      "readinessStatus": "usable",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/missionen/wochenmissionen/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit weekly mission readiness evidence and server-authority caveats.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mission_completion",
+        "reward",
+        "health"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/missionen/abenteuer",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/missionen/abenteuer",
+      "readinessStatus": "draft",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/missionen/abenteuer/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Website Content Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Map adventure-route beta gaps without creating a new mission system.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mission_completion",
+        "reward"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/challenge",
+      "routeRegistryStatus": "not_registered_review_required_alias",
+      "routeRegistryReference": "/missionen/challenge",
+      "readinessStatus": "review_required",
+      "routeGroup": "protected_or_review_required_pages",
+      "leadingFiles": [
+        "app/missionen/challenge/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Route & Link Integrity Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Requested /challenge entry is not registered in routes.json; existing mapped route is /missionen/challenge."
+      ],
+      "nextSafeTask": "Do not create a duplicate public challenge route; decide whether existing /missionen/challenge covers this alias.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "competition",
+        "reward",
+        "betting",
+        "mission_completion"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/missionen/wettkaempfe",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/missionen/wettkaempfe",
+      "readinessStatus": "review_required",
+      "routeGroup": "protected_or_review_required_pages",
+      "leadingFiles": [
+        "app/missionen/wettkaempfe/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Trust & Compliance Agent",
+        "Website Completion Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Keep competition/PvP wording and authority review_required; collect gaps only.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "competition",
+        "reward",
+        "betting",
+        "mission_completion"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/punkte-shop",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/punkte-shop",
+      "readinessStatus": "review_required",
+      "routeGroup": "protected_or_review_required_pages",
+      "leadingFiles": [
+        "app/punkte-shop/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Trust & Compliance Agent",
+        "Website Completion Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Keep points shop/economy claims review_required; no payment/reward authority changes.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "points",
+        "reward",
+        "payment",
+        "economy"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/marktplatz",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/marktplatz",
+      "readinessStatus": "review_required",
+      "routeGroup": "protected_or_review_required_pages",
+      "leadingFiles": [
+        "app/marktplatz/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Trust & Compliance Agent",
+        "Investor Page Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Keep marketplace/token/NFT/payment topics review_required; no runtime changes.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "marketplace",
+        "token",
+        "nft",
+        "payment",
+        "economy"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/leaderboard",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/leaderboard",
+      "readinessStatus": "review_required",
+      "routeGroup": "protected_or_review_required_pages",
+      "leadingFiles": [
+        "app/leaderboard/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Trust & Compliance Agent",
+        "Website Completion Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit leaderboard trust and anti-cheat caveats; do not change scoring logic.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "competition",
+        "reward",
+        "anti_cheat",
+        "public_claim"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/analytics",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/analytics",
+      "readinessStatus": "review_required",
+      "routeGroup": "protected_or_review_required_pages",
+      "leadingFiles": [
+        "app/analytics/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Analytics & Experiment Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Keep analytics planning-only; do not enable tracking or experiments.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "analytics",
+        "privacy",
+        "consent"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/einstellungen",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/einstellungen",
+      "readinessStatus": "draft",
+      "routeGroup": "desktop_beta_pages",
+      "leadingFiles": [
+        "app/einstellungen/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Website Completion Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit settings readiness and privacy dependencies without changing account/consent logic.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "privacy",
+        "consent",
+        "settings"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/mobile",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/mobile",
+      "readinessStatus": "draft",
+      "routeGroup": "mobile_pwa_pages",
+      "leadingFiles": [
+        "app/mobile/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Mobile First Agent",
+        "Visual Regression Website Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Run mobile/PWA evidence baseline planning; no service worker or manifest changes.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mobile",
+        "pwa",
+        "public_claim"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/mobile/missionen",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/mobile/missionen",
+      "readinessStatus": "draft",
+      "routeGroup": "mobile_pwa_pages",
+      "leadingFiles": [
+        "app/mobile/missionen/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Mobile First Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit mobile mission readiness and protected reward/health topics.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mobile",
+        "mission_completion",
+        "reward",
+        "health"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/mobile/missionen/squat",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/mobile/missionen/squat",
+      "readinessStatus": "review_required",
+      "routeGroup": "protected_or_review_required_pages",
+      "leadingFiles": [
+        "app/mobile/missionen/squat/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Mobile First Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Keep squat/camera/pose/reward topics review_required; collect device evidence only.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mobile",
+        "health",
+        "camera",
+        "biometric",
+        "mission_completion",
+        "reward"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/mobile/buddy",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/mobile/buddy",
+      "readinessStatus": "review_required",
+      "routeGroup": "mobile_pwa_pages",
+      "leadingFiles": [
+        "app/mobile/buddy/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Mobile First Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit mobile Buddy trust/safety boundaries without changing AI or privacy logic.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mobile",
+        "ai_buddy",
+        "health",
+        "child",
+        "privacy"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/mobile/analyse",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/mobile/analyse",
+      "readinessStatus": "review_required",
+      "routeGroup": "mobile_pwa_pages",
+      "leadingFiles": [
+        "app/mobile/analyse/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Mobile First Agent",
+        "Analytics & Experiment Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Keep analysis/health/privacy topics review_required; no tracking changes.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mobile",
+        "analytics",
+        "health",
+        "privacy",
+        "consent"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/mobile/bewegung",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/mobile/bewegung",
+      "readinessStatus": "review_required",
+      "routeGroup": "mobile_pwa_pages",
+      "leadingFiles": [
+        "app/mobile/bewegung/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Mobile First Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit movement route device/health/reward caveats in readiness only.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mobile",
+        "health",
+        "device_motion",
+        "reward"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/mobile/einstellungen",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/mobile/einstellungen",
+      "readinessStatus": "draft",
+      "routeGroup": "mobile_pwa_pages",
+      "leadingFiles": [
+        "app/mobile/einstellungen/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Mobile First Agent",
+        "Trust & Compliance Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Audit mobile settings readiness and privacy dependencies without runtime changes.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mobile",
+        "privacy",
+        "consent",
+        "settings"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    },
+    {
+      "route": "/mobile/ar",
+      "routeRegistryStatus": "registered",
+      "routeRegistryReference": "/mobile/ar",
+      "readinessStatus": "review_required",
+      "routeGroup": "protected_or_review_required_pages",
+      "leadingFiles": [
+        "app/mobile/ar/page.tsx"
+      ],
+      "supportingFiles": [
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "project-register/visual-regression.json",
+        "project-register/repository-inventory.json"
+      ],
+      "relatedWebsiteAgents": [
+        "Mobile First Agent",
+        "Trust & Compliance Agent",
+        "Visual Regression Website Agent"
+      ],
+      "currentKnownGaps": [
+        "Website readiness has not yet been baseline-audited with screenshots, route-link evidence, conversion evidence, and protected-claim review notes.",
+        "Runtime page exists in the existing route register; readiness evidence remains documentation/register-level until audited."
+      ],
+      "nextSafeTask": "Keep AR/camera/Unity-adjacent topics review_required; do not touch Unity or runtime AR code.",
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+        "npm run agent:quality-gate",
+        "jq empty project-register/website-agents.json",
+        "jq empty project-register/website-readiness.json"
+      ],
+      "humanReviewRequired": true,
+      "protectedTopics": [
+        "mobile",
+        "ar",
+        "camera",
+        "privacy",
+        "unity"
+      ],
+      "doNotDuplicateWarning": "Use the existing app route, project-register/routes.json entry, product-readiness module, visual-regression register, and website-readiness entry. Do not create a duplicate route, shell, design system, analytics pipeline, legal review flow, mission/economy authority path, or mobile/PWA architecture."
+    }
+  ],
+  "globalDoNotDuplicateWarning": "This registry extends Product Readiness, Repository Inventory, Routes/API registers, Visual Regression, Cross-Reference Maintenance, and Agent Task Queue. It does not replace them and does not authorize runtime changes."
+}

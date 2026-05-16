@@ -54,7 +54,11 @@
     "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
     "project-register/batch-execution-runner-policy.json",
     "docs/architecture/WELLFIT_BATCH_EXECUTION_RUNNER.md",
-    "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs"
+    "scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
+    "project-register/website-agents.json",
+    "project-register/website-readiness.json",
+    "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+    "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -138,7 +142,9 @@
     "rewrite_todo_statuses_automatically_from_task_status_validator",
     "enable_auto_merge_or_auto_repair_from_task_status_validator",
     "use_pr_diff_review_as_merge_approval",
-    "use_pr_diff_review_as_auto_repair_authorization"
+    "use_pr_diff_review_as_auto_repair_authorization",
+    "enable_or_perform_website_runtime_changes_from_website_agent_framework",
+    "treat_website_readiness_as_human_legal_privacy_health_child_token_payment_reward_or_investor_approval"
   ],
   "stopConditions": [
     "current_branch_is_main",
@@ -189,7 +195,10 @@
     "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
     "jq empty project-register/pr-diff-review-policy.json",
     "node scripts/wellfit-dev-agent/src/batch-execution-runner-check.mjs",
-    "jq empty project-register/batch-execution-runner-policy.json"
+    "jq empty project-register/batch-execution-runner-policy.json",
+    "node scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs",
+    "jq empty project-register/website-agents.json",
+    "jq empty project-register/website-readiness.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
