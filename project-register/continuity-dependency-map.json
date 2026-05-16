@@ -27,7 +27,8 @@
     "scripts/wellfit-dev-agent/src/agent-extension-policy-check.mjs",
     "docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md",
     "project-register/agent-architect-policy.json",
-    "project-register/agent-build-proposals.json"
+    "project-register/agent-build-proposals.json",
+    "project-register/adaptive-difficulty-agent.json"
   ],
   "monitoredRegisters": [
     "project-register/continuity-dependency-map.json",
@@ -52,7 +53,8 @@
     "project-register/approved-agent-build-backlog.json",
     "project-register/agent-architect-policy.json",
     "project-register/agent-build-proposals.json",
-    "project-register/ethical-engagement-guard.json"
+    "project-register/ethical-engagement-guard.json",
+    "project-register/adaptive-difficulty-agent.json"
   ],
   "monitoredDocs": [
     "docs/architecture/WELLFIT_CONTINUITY_DEPENDENCY_SENTINEL.md",
@@ -761,6 +763,59 @@
         }
       ],
       "nextRecommendedTask": "Use Ethical Engagement Guard findings as planning input for Adaptive Difficulty Agent; keep protected topics review_required.",
+      "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-015-adaptive-difficulty-agent-report-only-boundary",
+      "title": "Adaptive Difficulty Agent must remain report-only until separate human review approves runtime scope",
+      "status": "open",
+      "source": "project-register/adaptive-difficulty-agent.json",
+      "ownerAgent": "Adaptive Difficulty Agent / Continuity Dependency Sentinel",
+      "mustNotForget": true,
+      "reason": "The framework can only suggest planning-safe difficulty dimensions and must not enable runtime personalization, protected-data profiling, reward authority, mission-completion authority, manipulative engagement, or protected-scope behavior.",
+      "dependencies": [
+        "requires_register_update",
+        "requires_validation_script",
+        "requires_work_map_update",
+        "requires_todo_index_update",
+        "requires_product_readiness_update",
+        "blocks_auto_merge",
+        "blocks_auto_repair",
+        "blocks_product_readiness_advance"
+      ],
+      "affectedRegisters": [
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/product-readiness.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/adaptive-difficulty-agent.json",
+          "existsNow": true,
+          "purpose": "Machine-readable report-only Adaptive Difficulty Agent framework."
+        },
+        {
+          "path": "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md",
+          "existsNow": true,
+          "purpose": "Human-readable Adaptive Difficulty Agent architecture and safety boundaries."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+          "existsNow": true,
+          "purpose": "Report-only validator for adaptive difficulty guardrails."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/adaptive-difficulty-agent-report.md",
+          "existsNow": false,
+          "purpose": "Generated report-only validation output; do not commit generated output."
+        }
+      ],
+      "nextRecommendedTask": "Create Multisensory Learning Engine as report-only validation framework; keep protected topics review_required.",
       "humanReviewRequired": true
     }
   ]

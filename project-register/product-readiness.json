@@ -99,7 +99,7 @@
         "project-register/risk-classifier.json",
         "todolist/WORK_MAP.md",
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT"
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT"
       ],
       "current_blockers": [
         "Authentication and identity work can affect privacy, consent, account safety, and backend security.",
@@ -843,6 +843,40 @@
       "required_checks_before_status_can_advance": [
         "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
         "jq empty project-register/human-motivation-engine.json",
+        "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "human_approval_required": true
+    },
+    {
+      "id": "adaptive_difficulty_agent",
+      "name": "Adaptive Difficulty Agent",
+      "status": "planned",
+      "risk_level": "high",
+      "leading_files": [
+        "project-register/adaptive-difficulty-agent.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
+      ],
+      "supporting_files": [
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "current_blockers": [
+        "Runtime personalization and difficulty tuning are not enabled and require separate human-reviewed product/privacy/safety design.",
+        "Protected child/minor, health, location, camera, biometric, consent, privacy, token, wallet, payment, betting, reward-authority, and mission-authority behavior remains review_required."
+      ],
+      "next_safe_task": "Create Multisensory Learning Engine as a report-only framework using explicit preferences and aggregate-safe learning feedback only.",
+      "do_not_duplicate_warning": "Do not create a parallel personalization, mission tuning, Buddy tone, learning-format, social-mode, reward, or mission-authority system; extend the Adaptive Difficulty Agent and existing Human Motivation/Ethical Engagement/Adaptive User Insight governance instead.",
+      "required_checks_before_status_can_advance": [
+        "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
+        "jq empty project-register/adaptive-difficulty-agent.json",
         "node scripts/wellfit-dev-agent/src/product-readiness-check.mjs",
         "npm run agent:quality-gate"
       ],

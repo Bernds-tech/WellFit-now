@@ -191,7 +191,13 @@
         "Do not create manipulative addiction mechanics, FOMO pressure, shame loops, sleep-deprivation pressure, child-targeted monetization, gambling-like rewards, lootbox money-near rewards, social humiliation, paywall mission chains, hidden sponsor pressure, dark-pattern notifications, or medical/weight-loss overclaims.",
         "Because risk is high/protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
       ],
-      "nextRecommendedAction": "Ethical Engagement Guard was the next approved framework and is now built report-only; continue to Adaptive Difficulty Agent when approved."
+      "nextRecommendedAction": "Ethical Engagement Guard was the next approved framework and is now built report-only; continue to Adaptive Difficulty Agent when approved.",
+      "updatedDate": "2026-05-16",
+      "builtEvidence": [
+        "project-register/human-motivation-engine.json",
+        "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md",
+        "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
+      ]
     },
     {
       "id": "ethical-engagement-guard",
@@ -265,12 +271,18 @@
         "Report-only governance by default; human review required for protected or high/critical scope.",
         "Ethical Engagement Guard blocks manipulative FOMO, shame/guilt pressure, sleep deprivation, social humiliation, gambling-like rewards, lootbox mechanics, age-inappropriate monetization, hidden sponsor pressure, dark patterns, paywall pressure, and protected-data-sensitive mechanics."
       ],
-      "nextRecommendedAction": "Continue with Adaptive Difficulty Agent next, then Multisensory Learning Engine, following approved backlog order and report-only protected-boundary rules."
+      "nextRecommendedAction": "Continue with Adaptive Difficulty Agent next, then Multisensory Learning Engine, following approved backlog order and report-only protected-boundary rules.",
+      "updatedDate": "2026-05-16",
+      "builtEvidence": [
+        "project-register/ethical-engagement-guard.json",
+        "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md",
+        "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs"
+      ]
     },
     {
       "id": "adaptive-difficulty-agent",
       "proposedAgentName": "Adaptive Difficulty Agent",
-      "status": "approved_for_planning",
+      "status": "in_progress",
       "priority": "P2",
       "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Adaptive Difficulty Agent.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Adaptive Difficulty Agent while preserving existing agent boundaries and protected-scope stops.",
@@ -332,7 +344,13 @@
         "Report-only governance by default; human review required for protected or high/critical scope.",
         "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
       ],
-      "nextRecommendedAction": "Next recommended task after Ethical Engagement Guard; keep first version report-only/planning-only and do not enable runtime personalization or protected-data use."
+      "nextRecommendedAction": "Build Multisensory Learning Engine next as report-only planning/validation.",
+      "updatedDate": "2026-05-16",
+      "builtEvidence": [
+        "project-register/adaptive-difficulty-agent.json",
+        "docs/architecture/WELLFIT_ADAPTIVE_DIFFICULTY_AGENT.md",
+        "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
+      ]
     },
     {
       "id": "multisensory-learning-engine",

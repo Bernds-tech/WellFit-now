@@ -33,18 +33,54 @@
     ]
   },
   "ethicalEngagementPrinciples": [
-    { "id": "healthy_retention", "description": "Users should return because WellFit is useful, respectful, recoverable, safe, and meaningful, not because pressure exploits vulnerability." },
-    { "id": "autonomy", "description": "Users keep control over pace, goals, reminders, sharing, pauses, and future personalization scope." },
-    { "id": "consent_and_control", "description": "Sensitive contexts, reminders, social exposure, sponsor participation, and protected-data concepts require clear opt-in control and human review." },
-    { "id": "age_appropriate_design", "description": "Language, difficulty, mission length, Buddy tone, social exposure, rewards, sponsor content, and monetization concepts must be age-appropriate / altersgerecht." },
-    { "id": "dignity_and_no_shame", "description": "WellFit must protect user dignity and avoid shame, guilt, fear, humiliation, comparison pressure, or labels that frame rest or missed days as failure." },
-    { "id": "recovery_and_rest", "description": "Rest, lower-energy days, pauses, illness, travel, and recovery are valid parts of progress and must not be punished." },
-    { "id": "transparency", "description": "Mission goals, rewards, sponsor involvement, claims, limitations, and review_required boundaries must be clear before implementation." },
-    { "id": "fairness", "description": "Engagement, rewards, missions, and social features must consider safety, accessibility, anti-farming, age, context, and non-discrimination." },
-    { "id": "trust_preserving_rewards", "description": "Rewards should recognize effort, learning, cooperation, and recovery without gambling-like uncertainty, payout hype, or client-authoritative ledger effects." },
-    { "id": "safe_social_connection", "description": "Social features should build opt-in support and belonging without public shaming, coercive comparison, hidden advertising, or protected-data exposure." },
-    { "id": "privacy_minimization", "description": "Protected data use must be minimized, consented, fallback-friendly, review_required, and never enabled by this framework." },
-    { "id": "no_manipulative_pressure", "description": "WellFit must block FOMO, dark patterns, purchase pressure, gambling-like mechanics, sleep-loss pressure, endless loops, and protected-data-sensitive manipulation." }
+    {
+      "id": "healthy_retention",
+      "description": "Users should return because WellFit is useful, respectful, recoverable, safe, and meaningful, not because pressure exploits vulnerability."
+    },
+    {
+      "id": "autonomy",
+      "description": "Users keep control over pace, goals, reminders, sharing, pauses, and future personalization scope."
+    },
+    {
+      "id": "consent_and_control",
+      "description": "Sensitive contexts, reminders, social exposure, sponsor participation, and protected-data concepts require clear opt-in control and human review."
+    },
+    {
+      "id": "age_appropriate_design",
+      "description": "Language, difficulty, mission length, Buddy tone, social exposure, rewards, sponsor content, and monetization concepts must be age-appropriate / altersgerecht."
+    },
+    {
+      "id": "dignity_and_no_shame",
+      "description": "WellFit must protect user dignity and avoid shame, guilt, fear, humiliation, comparison pressure, or labels that frame rest or missed days as failure."
+    },
+    {
+      "id": "recovery_and_rest",
+      "description": "Rest, lower-energy days, pauses, illness, travel, and recovery are valid parts of progress and must not be punished."
+    },
+    {
+      "id": "transparency",
+      "description": "Mission goals, rewards, sponsor involvement, claims, limitations, and review_required boundaries must be clear before implementation."
+    },
+    {
+      "id": "fairness",
+      "description": "Engagement, rewards, missions, and social features must consider safety, accessibility, anti-farming, age, context, and non-discrimination."
+    },
+    {
+      "id": "trust_preserving_rewards",
+      "description": "Rewards should recognize effort, learning, cooperation, and recovery without gambling-like uncertainty, payout hype, or client-authoritative ledger effects."
+    },
+    {
+      "id": "safe_social_connection",
+      "description": "Social features should build opt-in support and belonging without public shaming, coercive comparison, hidden advertising, or protected-data exposure."
+    },
+    {
+      "id": "privacy_minimization",
+      "description": "Protected data use must be minimized, consented, fallback-friendly, review_required, and never enabled by this framework."
+    },
+    {
+      "id": "no_manipulative_pressure",
+      "description": "WellFit must block FOMO, dark patterns, purchase pressure, gambling-like mechanics, sleep-loss pressure, endless loops, and protected-data-sensitive manipulation."
+    }
   ],
   "allowedEngagementPatterns": [
     "gentle_daily_rituals",
@@ -235,5 +271,9 @@
     "neverRepairsFiles": true,
     "neverDeploys": true,
     "resultFlag": "ETHICAL_ENGAGEMENT_GUARD_READY=true|false"
+  },
+  "adaptiveDifficultyAgentBoundary": {
+    "register": "project-register/adaptive-difficulty-agent.json",
+    "rule": "Adaptive difficulty suggestions must inherit Ethical Engagement Guard prohibitions against manipulative FOMO, shame, gambling-like loops, sleep pressure, age-inappropriate monetization, public humiliation, and protected-data misuse."
   }
 }

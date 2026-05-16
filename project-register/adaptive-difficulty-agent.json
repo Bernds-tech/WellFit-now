@@ -1,0 +1,362 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Defines a documentation/register/validation-only Adaptive Difficulty Agent framework for safe WellFit mission difficulty, mission length, Buddy tone, learning format, activity intensity, recovery mode, and social/solo suggestions based on aggregate-safe, consent-aware, review-required signals without runtime personalization, protected-data profiling, reward authority, mission-completion authority, or manipulative engagement.",
+  "scope": {
+    "mode": "planning_and_validation_only",
+    "runtimePersonalizationEnabled": false,
+    "runtimeProductLogicEnabled": false,
+    "runtimeDifficultyTuningEnabled": false,
+    "protectedDataProfilingEnabled": false,
+    "allowedFiles": [
+      "project-register/**",
+      "docs/architecture/**",
+      "scripts/wellfit-dev-agent/src/**",
+      "todolist/**"
+    ],
+    "forbiddenFiles": [
+      "app/**",
+      "components/**",
+      "lib/**",
+      "functions/**",
+      "firestore.rules",
+      "public/**",
+      "package.json",
+      "package-lock.json",
+      "firebase.json",
+      ".github/**",
+      "native/unity/WellFitBuddyAR/**"
+    ]
+  },
+  "difficultyPrinciples": [
+    {
+      "id": "balanced_challenge",
+      "description": "Difficulty suggestions should keep missions achievable, meaningful, and non-escalatory instead of optimizing for maximum effort or time-on-platform."
+    },
+    {
+      "id": "user_control",
+      "description": "Users remain able to choose easier, shorter, solo, pause, recovery, or no-change options; the agent never forces a mode."
+    },
+    {
+      "id": "age_appropriate_adjustment",
+      "description": "Difficulty, language, intensity, Buddy tone, social exposure, AR/location scope, and learning load must be age-appropriate/altersgerecht and stricter for minors or family contexts."
+    },
+    {
+      "id": "recovery_before_pressure",
+      "description": "Low-energy, tired, stressed, missed-day, or overload signals can only reduce pressure or suggest recovery; they must not trigger harder missions."
+    },
+    {
+      "id": "safety_first",
+      "description": "Unsafe contexts, protected topics, low confidence, outdoor/location/AR risk, overtraining, sleep loss, or medical-adjacent cases become blocked or review_required."
+    },
+    {
+      "id": "accessibility",
+      "description": "Suggestions should support varied bodies, abilities, time constraints, learning formats, and assistive needs without inferring diagnoses."
+    },
+    {
+      "id": "privacy_minimization",
+      "description": "Only aggregate-safe, explicit, consent-aware, or review-required planning signals may be used; raw sensitive data and identifiers are forbidden."
+    },
+    {
+      "id": "no_shame_or_fomo",
+      "description": "Difficulty may not be escalated through guilt, shame, fear, comparison pressure, FOMO, gambling-like loops, money-near pressure, or punishment."
+    },
+    {
+      "id": "evidence_over_assumption",
+      "description": "A suggestion must explain the evidence category and confidence; low-confidence or sensitive evidence requires no action or review_required."
+    },
+    {
+      "id": "human_review_for_sensitive_cases",
+      "description": "Health, child/minor, location, camera, biometric, consent/privacy, token/wallet/payment, reward-authority, and mission-authority cases require human review before any runtime use."
+    }
+  ],
+  "allowedDifficultySignals": [
+    {
+      "id": "aggregate_completion_rate",
+      "description": "Planning-safe mission-level completion percentages after minimum sample thresholds; no user identifiers or protected cohorts.",
+      "runtimeUse": "not_enabled"
+    },
+    {
+      "id": "aggregate_drop_off_pattern",
+      "description": "Aggregate step or route drop-off patterns used to spot overload, unclear wording, or technical friction; no raw session trails.",
+      "runtimeUse": "not_enabled"
+    },
+    {
+      "id": "explicit_user_preference",
+      "description": "User-declared preference for easier/harder, shorter/longer, solo/social, format, tone, or recovery in a consented planning context.",
+      "runtimeUse": "not_enabled"
+    },
+    {
+      "id": "explicit_difficulty_feedback",
+      "description": "Direct feedback such as too_easy, balanced, too_hard, confusing, too_long, or needs_rest provided voluntarily.",
+      "runtimeUse": "not_enabled"
+    },
+    {
+      "id": "mission_rating",
+      "description": "Aggregate mission rating or review category after identifiers are removed and sample thresholds are met.",
+      "runtimeUse": "not_enabled"
+    },
+    {
+      "id": "optional_family_mode_flag",
+      "description": "Optional family-mode context used only to lower risk and mark guardian/privacy review needs; never used for pressure or monetization.",
+      "runtimeUse": "not_enabled"
+    },
+    {
+      "id": "non_sensitive_route_device_test_evidence",
+      "description": "QA or device/route test evidence such as broken layout, unclear route copy, or device capability mismatch without personal device IDs.",
+      "runtimeUse": "not_enabled"
+    },
+    {
+      "id": "documented_age_band_review_allowed",
+      "description": "Documented age band may be considered only when consent, guardian/privacy/legal review, and age-appropriate design approval allow it; otherwise review_required.",
+      "runtimeUse": "not_enabled"
+    },
+    {
+      "id": "planning_safe_buddy_feedback_category",
+      "description": "Aggregate-safe Buddy feedback category such as tone_too_intense, needs_explanation, playful_helpful, or recovery_needed without message logs or identifiers.",
+      "runtimeUse": "not_enabled"
+    },
+    {
+      "id": "review_required_protected_context_flags",
+      "description": "Protected-context flags may only mark review_required or blocked status; they cannot personalize, reward, complete missions, or increase difficulty.",
+      "runtimeUse": "not_enabled"
+    }
+  ],
+  "forbiddenDifficultySignals": [
+    "raw_health_data",
+    "raw_location_gps_history",
+    "raw_camera_video_image_data",
+    "face_biometric_data",
+    "child_minor_sensitive_data_without_guardian_privacy_review",
+    "exact_daily_routine",
+    "names_emails_user_ids_device_ids",
+    "payment_token_wallet_data",
+    "medical_diagnosis",
+    "weight_loss_claims",
+    "gambling_betting_behavior",
+    "protected_data_used_as_direct_reward_or_mission_completion_authority"
+  ],
+  "difficultyDimensions": {
+    "physicalIntensity": [
+      "low",
+      "moderate",
+      "high",
+      "review_required"
+    ],
+    "missionDuration": [
+      "short",
+      "medium",
+      "long",
+      "review_required"
+    ],
+    "cognitiveLoad": [
+      "simple",
+      "balanced",
+      "complex",
+      "review_required"
+    ],
+    "socialMode": [
+      "solo",
+      "family",
+      "team",
+      "competition",
+      "review_required"
+    ],
+    "buddyTone": [
+      "gentle",
+      "playful",
+      "coach",
+      "explanatory",
+      "recovery",
+      "review_required"
+    ],
+    "learningFormat": [
+      "visual",
+      "audio",
+      "movement",
+      "quiz",
+      "story",
+      "mixed",
+      "review_required"
+    ],
+    "locationSensitivity": [
+      "indoor",
+      "safe_outdoor",
+      "supervised_outdoor",
+      "review_required"
+    ],
+    "evidenceConfidence": [
+      "low",
+      "medium",
+      "high",
+      "review_required"
+    ]
+  },
+  "ageAppropriateDifficultyRules": [
+    "minors require stricter review before any difficulty, social, outdoor, AR, Buddy tone, reward, or family-mode suggestion moves beyond planning-only",
+    "family/guardian context remains review_required and must never expose child/minor information publicly",
+    "no pressure, shame, fear, gambling-like, money-near, token, wallet, payment, or reward-pressure difficulty escalation for minors",
+    "mission length, language, intensity, social exposure, learning load, and Buddy tone must be age-appropriate/altersgerecht",
+    "permission denial, privacy refusal, pause selection, or guardian limits must not increase difficulty, reduce dignity, or create punishment",
+    "all age-sensitive runtime behavior remains planning-only until human/legal/privacy review explicitly approves a future implementation"
+  ],
+  "recoveryModeRules": [
+    "rest can be progress and should be representable as a positive planning-safe outcome",
+    "tired, stressed, low-energy, overload, missed-day, or too_hard signals must never trigger harder pressure",
+    "missed days should suggest gentle return, shorter missions, recovery Buddy tone, or pause support instead of punishment",
+    "pause mode must remain available, visible, and non-punitive in any future implementation",
+    "recovery suggestions must not become medical advice, diagnosis, treatment, or health claims",
+    "overtraining, sleep loss, unsafe activity, unsafe time, or acute health concern signals must be blocked or review_required"
+  ],
+  "buddyToneAdjustmentRules": [
+    "adjust tone toward gentle or recovery when difficulty fit is too_hard, user-declared energy is low, aggregate drop-off suggests overload, or explicit feedback asks for less pressure",
+    "avoid comparison pressure, public ranking pressure, rivalry framing, humiliation, or team exclusion",
+    "avoid shame, guilt, scolding, fear, streak threats, and failure labels",
+    "explain why a mission is suggested easier, harder, shorter, longer, solo, social, or recovery when evidence is planning-safe and confidence is sufficient",
+    "preserve user control by offering no-change, easier, pause, solo, and feedback options",
+    "protected, age-sensitive, privacy-sensitive, medical-adjacent, location/AR, camera/biometric, token/payment, reward-authority, or mission-authority cases become review_required"
+  ],
+  "missionLengthRules": [
+    "shorter missions are preferred for explicit low energy, time constraint, too_hard feedback, aggregate overload, or unclear instructions",
+    "no long outdoor, AR, location-sensitive, or supervised_outdoor missions for minors without review_required guardian/privacy context",
+    "no night, unsafe-time, sleep-loss, fatigue, weather-risk, or unsafe-context escalation",
+    "no mission-length escalation based on payment, token, wallet, reward pressure, leaderboard pressure, streak fear, or monetization status",
+    "longer missions remain optional and review_required in sensitive contexts; users must be able to choose shorter or recovery alternatives"
+  ],
+  "learningFormatRules": [
+    "suggest formats based on explicit preferences, aggregate-safe feedback, or non-sensitive QA evidence only",
+    "avoid sensitive profiling from learning speed, mistakes, disability assumptions, health status, age, family status, language, or protected data",
+    "no medical, psychological, cognitive, attention, or learning-disability diagnosis may be inferred from learning behavior",
+    "allow mixed formats so visual, audio, movement, quiz, story, and explanatory options can coexist without forcing a profile",
+    "support multisensory learning without expanding protected-data collection, raw audio/camera processing, biometric inference, or runtime personalization"
+  ],
+  "socialModeRules": [
+    "social pressure must not be used to force participation, longer missions, competition, sharing, or public visibility",
+    "competition must remain optional, reversible, age-appropriate, and free from gambling-like or wager-like framing",
+    "leaderboards require fairness, anti-humiliation, accessibility, anti-cheat, privacy, and age-appropriate review before any runtime use",
+    "family mode requires privacy/guardian review and may only lower risk or add supervision boundaries in planning",
+    "team mode must avoid public shame, exclusion, comparison pressure, and penalties for rest, absence, disability, low energy, or privacy choices"
+  ],
+  "safetyAndConsentRules": [
+    "first version is report-only/planning-only and cannot change runtime missions, Buddy messages, rewards, notifications, or UI",
+    "explicit preference and feedback signals must be opt-in, revocable, explainable, and usable only within approved planning scope",
+    "consent denial, muted reminders, pause, or no-data choices must be respected and never used to escalate difficulty",
+    "difficulty suggestions must include evidence confidence, safety flags, protected review flags, and user-control notes",
+    "unsafe outdoor, AR, social, health-adjacent, child/minor, privacy, legal, token/payment, reward, or mission-authority proposals require human review"
+  ],
+  "protectedDataRules": [
+    "health, watch, medical, activity sensor, biometric, face, camera, location/GPS, child/minor, family/guardian, consent, privacy, legal, token, NFT, wallet, payment, betting, reward-authority, and mission-authority data are protected or review_required",
+    "protected data may mark a suggestion as blocked or review_required but may not directly personalize runtime difficulty",
+    "protected data may not be direct reward authority or mission-completion authority",
+    "names, emails, user IDs, device IDs, exact routines, raw logs, raw images/video/audio, and raw GPS traces are forbidden signals",
+    "any future protected-data use requires human/legal/privacy/security review, a separate implementation proposal, and explicit consent boundaries"
+  ],
+  "rewardAuthorityBoundaries": [
+    "Adaptive Difficulty Agent never grants, withholds, boosts, reduces, authorizes, or finalizes rewards, XP, points, inventory, rare items, tokens, NFTs, payouts, purchases, or money-near benefits",
+    "difficulty suggestions cannot be used as direct reward authority, reward multiplier authority, anti-cheat authority, or ledger authority",
+    "payment, token, wallet, stake, prize, or reward pressure must not influence difficulty escalation or mission length",
+    "future reward-related use remains server-authoritative, protected, and review_required"
+  ],
+  "missionCompletionAuthorityBoundaries": [
+    "Adaptive Difficulty Agent never completes, rejects, verifies, final-authorizes, or anti-cheat clears a mission",
+    "difficulty fit, Buddy tone, learning format, age band, protected context, or aggregate patterns cannot be direct mission-completion authority",
+    "mission completion and evidence review remain outside this framework and require server-side or explicitly approved authority",
+    "future mission-authority integration requires separate human review, tests, and protected-scope approval"
+  ],
+  "fairnessAndAccessibilityRules": [
+    "support easier, shorter, indoor, solo, explanatory, visual, audio, movement, story, quiz, mixed, and recovery alternatives where planning-safe",
+    "do not penalize disability, low energy, rest, privacy choices, guardian limits, time constraints, missed days, or device limitations",
+    "aggregate analysis must meet minimum sample thresholds and avoid protected-cohort profiling or public ranking harm",
+    "competition, team, leaderboard, and outdoor/AR difficulty must pass fairness, accessibility, anti-humiliation, and safety review",
+    "low confidence defaults to no action, safer option, or review_required rather than escalation"
+  ],
+  "humanReviewRequiredFor": [
+    "health",
+    "watch_data",
+    "medical_advice",
+    "child",
+    "minor",
+    "family_guardian",
+    "location",
+    "gps",
+    "camera",
+    "image",
+    "video",
+    "audio",
+    "face",
+    "biometric",
+    "consent",
+    "privacy",
+    "legal",
+    "token",
+    "nft",
+    "wallet",
+    "payment",
+    "payout",
+    "betting",
+    "reward_authority",
+    "mission_completion_authority",
+    "anti_cheat",
+    "leaderboard",
+    "competition",
+    "outdoor_ar",
+    "protected_data",
+    "runtime_personalization",
+    "runtime_difficulty_tuning",
+    "overtraining",
+    "sleep_loss",
+    "unsafe_activity",
+    "low_confidence_sensitive_case"
+  ],
+  "allowedOutputs": [
+    "report_only_difficulty_suggestion_schema",
+    "planning_safe_signal_inventory",
+    "review_required_flag_report",
+    "age_appropriate_boundary_note",
+    "recovery_mode_boundary_note",
+    "buddy_tone_suggestion_category",
+    "mission_length_suggestion_category",
+    "learning_format_suggestion_category",
+    "social_mode_suggestion_category",
+    "protected_topic_escalation_note",
+    "quality_gate_report"
+  ],
+  "forbiddenAutoActions": [
+    "modify_runtime_files",
+    "personalize_users_at_runtime",
+    "tune_difficulty_at_runtime",
+    "profile_protected_data",
+    "approve_prs",
+    "merge_prs",
+    "auto_repair_files",
+    "deploy",
+    "enable_product_logic",
+    "enable_reward_authority",
+    "enable_mission_completion_authority",
+    "enable_monetization",
+    "change_missions",
+    "change_buddy_messages",
+    "change_notifications",
+    "collect_new_protected_data",
+    "infer_medical_or_psychological_status",
+    "increase_pressure_after_rest_or_refusal"
+  ],
+  "reportOutputSchema": {
+    "mode": "REPORT_ONLY",
+    "ready": "boolean",
+    "suggestionId": "string",
+    "sourceEvidenceCategory": "aggregate_safe | explicit_preference | explicit_feedback | mission_rating | qa_evidence | review_required",
+    "evidenceConfidence": "low | medium | high | review_required",
+    "difficultyDimensions": "object with physicalIntensity, missionDuration, cognitiveLoad, socialMode, buddyTone, learningFormat, locationSensitivity",
+    "allowedSuggestion": "easier | same | harder_optional | shorter | longer_optional | recovery | solo | family_review_required | team_optional | competition_review_required | no_action",
+    "protectedReviewFlags": "array of protected/review_required topics",
+    "ageAppropriateBoundary": "string",
+    "recoveryBoundary": "string",
+    "rewardAuthorityEnabled": false,
+    "missionCompletionAuthorityEnabled": false,
+    "runtimePersonalizationEnabled": false,
+    "runtimeProductLogicEnabled": false,
+    "notes": "string"
+  }
+}

@@ -393,5 +393,9 @@
     "mode": "report_only",
     "summary": "Ethical engagement, age-appropriate design, recovery/pause, Buddy tone, mission/reward/social/website/sponsor/monetization, and protected-data boundaries must be checked before runtime implementation.",
     "reviewRequired": "Health, child/minor, family/guardian, location, camera, face, biometric, motion, consent, privacy, token, wallet, payment, payout, betting, reward-authority, mission-authority, sponsor, monetization, legal, and compliance behavior remains review_required."
+  },
+  "adaptiveDifficultyAgentBoundary": {
+    "register": "project-register/adaptive-difficulty-agent.json",
+    "rule": "Adaptive difficulty is downstream of healthy motivation and must remain balanced, recovery-first, user-controlled, age-appropriate, privacy-minimizing, no-shame/no-FOMO, and report-only until separate review."
   }
 }
