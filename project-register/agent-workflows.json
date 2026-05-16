@@ -73,7 +73,11 @@
         "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
         "project-register/pr-diff-review-policy.json",
         "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
-        "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
+        "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+        "project-register/website-agents.json",
+        "project-register/website-readiness.json",
+        "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+        "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -351,6 +355,23 @@
           ],
           "purpose": "Report-only changed-file/PR-diff inspection that classifies files, detects protected paths/topics, reports cross-reference/readiness/inventory/task-status impact, and summarizes PR guard signals before merge consideration.",
           "usage": "Run before PR handoff or through the quality gate. Treat output as evidence only; it never approves, merges, repairs, deploys, closes PRs, or authorizes protected/runtime work."
+        },
+        {
+          "id": "website_agent_framework",
+          "registers": [
+            "project-register/website-agents.json",
+            "project-register/website-readiness.json",
+            "project-register/routes.json",
+            "project-register/product-readiness.json",
+            "project-register/visual-regression.json",
+            "project-register/repository-inventory.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_WEBSITE_AGENT_FRAMEWORK.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/website-agent-framework-check.mjs"
+          ],
+          "purpose": "Report-only website agent/readiness governance for public website, desktop beta, and mobile/PWA route readiness before runtime website changes.",
+          "usage": "Before website-readiness work, validate the framework, classify route group/status/protected topics, avoid duplicate architecture, and keep sensitive topics review_required."
         }
       ],
       "additionalGovernanceInputs": [
