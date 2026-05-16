@@ -178,6 +178,7 @@ Quelle: `todolist/F - FIREBASE  - REALTIME - MISSIONEN`, `todolist/G - REWARD SY
 
 ## Prio 8 - Website / Dashboard / Navigation / Beta-Demo
 
+- [ ] Website Route & Link Integrity Audit report-only ausfuehren, um `/challenge`-/`/missionen/challenge`-Alias, Navigation, Route-Link-Evidence und Visual/Mobile-Smoke-Evidence-Luecken zu klaeren, ohne Runtime-/Legal-/Protected-Code zu aendern.
 Quelle: `todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL`, `PROJECT_STRUCTURE.md`
 
 - [ ] Startseite analysieren und verbessern.
