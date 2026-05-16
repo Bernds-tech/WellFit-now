@@ -355,33 +355,44 @@
     {
       "id": "multisensory-learning-engine",
       "proposedAgentName": "Multisensory Learning Engine",
-      "status": "approved_for_planning",
+      "status": "in_progress",
       "priority": "P3",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Multisensory Learning Engine.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Multisensory Learning Engine while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "First controlled Approved Agent Build Runner activation selected this approved future agent and implemented it as a report-only documentation/register/validator framework in this task.",
+      "expectedBenefit": "Defines safe multisensory learning planning across movement, visual, audio, story, quiz, social/family, environment, optional AR, reflection, and Buddy explanation channels while keeping protected data minimized/review_required and reward/mission authority blocked.",
       "riskLevel": "medium",
       "connectedAgents": [
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-difficulty-agent",
+        "adaptive-user-insight-agent",
         "research-recommendation-agent",
-        "product-readiness-matrix"
+        "product-readiness-matrix",
+        "website-agent-framework"
       ],
       "connectedRegisters": [
+        "project-register/multisensory-learning-engine.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/adaptive-user-insights.json",
         "project-register/research-recommendations.json",
-        "project-register/features.json"
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json"
       ],
-      "connectedAgentCount": 2,
-      "connectedRegisterCount": 2,
+      "connectedAgentCount": 7,
+      "connectedRegisterCount": 8,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md"
       ],
       "requiredRegisters": [
+        "project-register/multisensory-learning-engine.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
-        "project-register/agent-extension-policy.json",
-        "project-register/research-recommendations.json",
-        "project-register/features.json"
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
@@ -412,9 +423,16 @@
         "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
       ],
       "protectedBoundaries": [
-        "No runtime product code changes without a scoped approved task.",
-        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
-        "Report-only governance by default; human review required for protected or high/critical scope."
+        "No runtime product code changes, runtime personalization, runtime tracking/profiling, AR/Unity behavior, protected-data processing, token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child/minor, location, camera, face, biometric, motion, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Learning completion, quiz, movement, AR, Buddy, social, visual, audio, and environment signals are not final reward or mission-completion authority.",
+        "Raw images, videos, biometrics, health, and location data must not be stored by default; protected data use requires minimization, consent, fallback, and review."
+      ],
+      "nextRecommendedAction": "Continue with Mission Factory Agent or Product Intelligence Agent according to approved backlog order and risk review after merge-gate evidence is complete.",
+      "updatedDate": "2026-05-16",
+      "builtEvidence": [
+        "project-register/multisensory-learning-engine.json",
+        "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md",
+        "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs"
       ]
     },
     {

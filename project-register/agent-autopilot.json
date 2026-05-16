@@ -419,5 +419,12 @@
     "activationState": "report_only",
     "maxAgentsPerRun": 1,
     "nextRecommendedTask": "Controlled one-agent runner activation for Multisensory Learning Engine only after this framework merges."
+  },
+  "multisensoryLearningEngineReference": {
+    "register": "project-register/multisensory-learning-engine.json",
+    "architecture": "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md",
+    "check": "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
+    "mode": "report_only",
+    "purpose": "Planning-only multisensory learning guard; no runtime personalization, AR/Unity activation, reward authority, or mission-completion authority."
   }
 }

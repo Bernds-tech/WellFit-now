@@ -195,5 +195,12 @@
     "register": "project-register/adaptive-difficulty-agent.json",
     "rule": "Research recommendations touching difficulty, mission duration, Buddy tone, learning format, recovery, social mode, minors, health, location, rewards, or mission authority must apply the Adaptive Difficulty Agent and require human review for protected topics.",
     "validator": "scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs"
+  },
+  "multisensoryLearningEngineReference": {
+    "register": "project-register/multisensory-learning-engine.json",
+    "architecture": "docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md",
+    "check": "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
+    "mode": "report_only",
+    "boundary": "No runtime learning personalization, protected-data profiling, AR/Unity behavior, reward authority, or mission-completion authority is enabled."
   }
 }

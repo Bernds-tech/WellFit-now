@@ -1,0 +1,322 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Defines a documentation/register/validation-only Multisensory Learning Engine for WellFit learning-through-movement concepts across visual, audio, movement, story, quiz, social, environment, optional AR, reflection, and AI Buddy explanation formats without enabling runtime learning personalization, protected-data tracking, reward authority, or mission-completion authority.",
+  "scope": {
+    "mode": "planning_and_validation_only",
+    "runtimeLearningPersonalizationEnabled": false,
+    "runtimeTrackingEnabled": false,
+    "runtimeProductLogicEnabled": false,
+    "runtimeArBehaviorEnabled": false,
+    "runtimeUnityBehaviorEnabled": false,
+    "allowedFiles": [
+      "project-register/**",
+      "docs/architecture/**",
+      "scripts/wellfit-dev-agent/src/**",
+      "todolist/**"
+    ],
+    "forbiddenFiles": [
+      "app/**",
+      "components/**",
+      "lib/**",
+      "functions/**",
+      "firestore.rules",
+      "public/**",
+      "package.json",
+      "package-lock.json",
+      "firebase.json",
+      ".github/**",
+      "native/unity/WellFitBuddyAR/**"
+    ]
+  },
+  "learningPrinciples": [
+    {
+      "id": "learning_through_movement",
+      "description": "Movement can reinforce concepts through safe, optional, age-appropriate physical prompts that remain educational and non-authorizing."
+    },
+    {
+      "id": "embodied_cognition",
+      "description": "Concepts may be paired with gestures, posture, rhythm, and spatial metaphors so learners can connect ideas to body-aware experiences without health inference."
+    },
+    {
+      "id": "playful_discovery",
+      "description": "Learning should feel exploratory and playful rather than pressured, shaming, addictive, or money-near."
+    },
+    {
+      "id": "age_appropriate_explanation",
+      "description": "Content must match reviewed age bands, reading levels, family context, and guardian expectations before runtime use."
+    },
+    {
+      "id": "multimodal_reinforcement",
+      "description": "Visual, audio, movement, story, quiz, social, environment, Buddy, and reflection cues can reinforce the same learning objective in complementary ways."
+    },
+    {
+      "id": "autonomy",
+      "description": "Learners can opt for safer or quieter alternatives and should not be forced into movement, social, camera, location, or AR modes."
+    },
+    {
+      "id": "competence",
+      "description": "Activities should provide clear, achievable steps and explanations that help learners feel capable without ranking or humiliation."
+    },
+    {
+      "id": "relatedness",
+      "description": "Family and social prompts should support encouragement and cooperation without pressure, comparison, or public embarrassment."
+    },
+    {
+      "id": "reflection",
+      "description": "Learners should be invited to explain what they noticed, learned, tried, or would change, without sensitive profiling."
+    },
+    {
+      "id": "accessibility",
+      "description": "Every learning format needs accessible alternatives for mobility, sensory, language, attention, and device constraints."
+    },
+    {
+      "id": "privacy_minimization",
+      "description": "The framework uses minimized planning metadata only and does not store raw protected data by default."
+    },
+    {
+      "id": "no_medical_or_psychological_diagnosis",
+      "description": "Learning outputs must not diagnose, treat, profile, or infer medical or psychological status."
+    }
+  ],
+  "multisensoryChannels": [
+    "visual",
+    "audio",
+    "movement",
+    "story",
+    "quiz",
+    "social",
+    "environment",
+    "buddy_explanation",
+    "optional_ar",
+    "reflection"
+  ],
+  "movementLearningRules": {
+    "allowed": [
+      "planning-only movement prompts tied to an educational concept",
+      "low-pressure indoor or safe-place alternatives",
+      "opt-out and rest-friendly alternatives",
+      "reviewed age-appropriate physical intensity labels"
+    ],
+    "forbidden": [
+      "client-side movement proof as final mission-completion authority",
+      "movement signals as direct reward authority",
+      "overtraining, shame, streak pressure, night pressure, or unsafe route pressure",
+      "health inference, diagnosis, or biometric profiling"
+    ]
+  },
+  "visualLearningRules": {
+    "allowed": [
+      "icons, diagrams, color cues, progress metaphors, and simple examples that reinforce concepts",
+      "high-contrast and text-supported alternatives",
+      "reviewed visual prompts that avoid protected or manipulative claims"
+    ],
+    "forbidden": [
+      "visual dark patterns, fear/shame cues, or purchase pressure",
+      "face, camera, image, or biometric processing without explicit review_required approval",
+      "using raw images or videos as direct reward or mission authority"
+    ]
+  },
+  "audioLearningRules": {
+    "allowed": [
+      "optional narration, sound cues, rhythm, and recap prompts with captions or text fallback",
+      "volume-safe and quiet-mode alternatives",
+      "age-appropriate tone that supports understanding and reflection"
+    ],
+    "forbidden": [
+      "alarm-like pressure loops, shame audio, or compulsive notification patterns",
+      "voice analysis, diagnosis, or sensitive inference",
+      "audio signals as direct reward or mission-completion authority"
+    ]
+  },
+  "storyLearningRules": {
+    "allowed": [
+      "short stories, character scenarios, worldbuilding, and analogies that connect movement to learning objectives",
+      "family-friendly and age-reviewed language",
+      "non-commercial narratives that do not hide sponsor or monetization pressure"
+    ],
+    "forbidden": [
+      "medical, psychological, financial, legal, token, wallet, NFT, betting, or payout advice",
+      "shame, FOMO, social humiliation, sleep-loss, or unsafe activity narratives",
+      "claims that imply runtime personalization or protected-data profiling is active"
+    ]
+  },
+  "quizAndReflectionRules": {
+    "allowed": [
+      "planning-only quizzes for comprehension, recall, self-explanation, and reflection",
+      "non-sensitive self-reported preferences with opt-out and no protected profiling",
+      "reviewed feedback that explains why an answer fits the learning objective"
+    ],
+    "forbidden": [
+      "quiz results as final reward or mission-completion authority",
+      "tests that infer health, psychological state, child risk, location, biometric status, or legal/compliance status",
+      "leaderboard pressure, humiliation, or money-near outcomes based on quiz results"
+    ]
+  },
+  "arAndEnvironmentRules": {
+    "status": "planning_only",
+    "requirements": [
+      "AR/environment signals are planning-only in this framework.",
+      "Unity and PR #13 remain untouched.",
+      "Camera, location, and AR behavior remains review_required before any runtime use.",
+      "No unsafe routes, night pressure, street crossing pressure, or location-authority reward logic is allowed.",
+      "Environment tasks need safe fallback where possible, such as indoor, non-camera, non-location, or caregiver-supervised alternatives."
+    ],
+    "forbidden": [
+      "runtime AR behavior activation",
+      "Unity file changes",
+      "raw camera, image, video, face, location, GPS, or biometric storage by default",
+      "environment/location signals as final reward or mission-completion authority"
+    ]
+  },
+  "buddyExplanationRules": {
+    "requirements": [
+      "Buddy explanations must be age-appropriate.",
+      "Buddy must explain without pressure or shame.",
+      "Buddy must not give medical, psychological, financial, or legal advice.",
+      "Buddy can support learning, reflection, and motivation within Ethical Engagement boundaries.",
+      "Protected or sensitive cases remain review_required."
+    ],
+    "allowed": [
+      "explain concepts in simple language",
+      "offer reflection prompts and safe alternatives",
+      "encourage autonomy, competence, relatedness, recovery, and accessibility"
+    ],
+    "forbidden": [
+      "diagnosis, treatment, therapy, finance, law, token, wallet, NFT, betting, payout, or medical advice",
+      "shame, manipulation, urgency pressure, or hidden monetization",
+      "claims that Buddy output authorizes rewards, mission completion, or protected-data decisions"
+    ]
+  },
+  "socialFamilyLearningRules": {
+    "allowed": [
+      "cooperative family prompts and discussion questions",
+      "opt-in supportive sharing with safe fallback for solo mode",
+      "guardian-reviewed child/minor contexts before runtime use"
+    ],
+    "forbidden": [
+      "public embarrassment, comparison pressure, social ranking pressure, or coercive sharing",
+      "child/minor sensitive data collection without review and consent",
+      "social signals as final reward or mission-completion authority"
+    ]
+  },
+  "ageAppropriateLearningRules": {
+    "requirements": [
+      "Age bands, reading level, movement intensity, Buddy tone, quiz complexity, and family context require review before runtime implementation.",
+      "Child/minor contexts remain protected and review_required.",
+      "The framework does not infer age, maturity, health, or psychological status at runtime."
+    ],
+    "forbidden": [
+      "age-inappropriate monetization or sponsor pressure",
+      "unsupervised risky outdoor, camera, location, or AR tasks for minors",
+      "medical or psychological interpretation of learner behavior"
+    ]
+  },
+  "accessibilityRules": {
+    "requirements": [
+      "Provide non-movement alternatives where possible.",
+      "Provide captions or text fallback for audio.",
+      "Provide readable contrast and non-color-only visual cues.",
+      "Provide quiet, solo, indoor, low-intensity, and non-camera alternatives where possible.",
+      "Do not penalize users for using accessibility or safety fallbacks."
+    ]
+  },
+  "protectedDataRules": {
+    "requirements": [
+      "Health, child/minor, location, camera, face, biometric, motion, consent, and privacy data remain protected/review_required.",
+      "Raw images, videos, biometrics, health, and location data must not be stored by default.",
+      "Protected data may not be direct reward or mission-completion authority.",
+      "Data use requires minimization, consent, fallback, and review.",
+      "Runtime tracking, profiling, or personalization is not enabled by this framework."
+    ],
+    "reviewRequiredTopics": [
+      "health",
+      "child",
+      "minor",
+      "location",
+      "gps",
+      "camera",
+      "image",
+      "video",
+      "face",
+      "biometric",
+      "motion",
+      "consent",
+      "privacy",
+      "legal",
+      "compliance",
+      "runtime_tracking",
+      "runtime_profiling",
+      "runtime_personalization"
+    ]
+  },
+  "rewardAuthorityBoundaries": {
+    "requirements": [
+      "Learning completion does not authorize rewards directly.",
+      "Quiz, movement, AR, Buddy, social, environment, visual, and audio signals are not final reward authority.",
+      "Rewards remain server/backend/review-required in future runtime.",
+      "No token, payout, wallet, NFT, betting, trading, staking, presale, purchase, or money-near mechanics are enabled."
+    ]
+  },
+  "missionCompletionAuthorityBoundaries": {
+    "requirements": [
+      "Learning completion does not authorize mission completion directly.",
+      "Quiz, movement, AR, Buddy, social, environment, visual, and audio signals are not final mission-completion authority.",
+      "Mission completion remains server/backend/review-required in future runtime.",
+      "No token, payout, wallet, NFT, betting, trading, staking, presale, purchase, or money-near mechanics are enabled."
+    ]
+  },
+  "allowedOutputs": [
+    "report_only_learning_framework_assessment",
+    "multisensory_channel_mapping",
+    "learning_objective_to_channel_suggestions",
+    "protected_topic_review_required_flags",
+    "safe_fallback_recommendations",
+    "work_map_and_todo_index_reference_checks",
+    "human_review_handoff_notes"
+  ],
+  "forbiddenAutoActions": [
+    "modify_runtime_files",
+    "personalize_users_at_runtime",
+    "track_or_profile_users_at_runtime",
+    "activate_runtime_learning_engine",
+    "activate_ar_or_unity_behavior",
+    "store_raw_images_videos_biometrics_health_or_location_by_default",
+    "approve_prs",
+    "merge_prs",
+    "auto_repair_files",
+    "deploy",
+    "enable_reward_authority",
+    "enable_mission_completion_authority",
+    "enable_token_nft_wallet_payment_betting_or_money_near_mechanics"
+  ],
+  "humanReviewRequiredFor": [
+    "runtime learning personalization",
+    "runtime tracking or profiling",
+    "health data",
+    "child/minor data or age-band assumptions",
+    "location, GPS, environment authority, or route-sensitive tasks",
+    "camera, image, video, face, biometric, or motion data",
+    "consent and privacy changes",
+    "Unity, AR, or PR #13-related behavior",
+    "reward authority or mission-completion authority",
+    "token, payout, wallet, NFT, betting, trading, payment, purchase, staking, presale, or money-near mechanics",
+    "medical, psychological, financial, legal, compliance, or protected claims"
+  ],
+  "reportOutputSchema": {
+    "mode": "REPORT_ONLY",
+    "readyFlag": "MULTISENSORY_LEARNING_ENGINE_READY",
+    "requiredSections": [
+      "topLevelFieldValidation",
+      "learningPrincipleValidation",
+      "multisensoryChannelValidation",
+      "ruleSetValidation",
+      "protectedDataReviewValidation",
+      "rewardAndMissionAuthorityBoundaryValidation",
+      "workMapTodoIndexReferenceValidation",
+      "forbiddenRuntimeMutationValidation",
+      "humanReviewRequiredSummary"
+    ]
+  }
+}

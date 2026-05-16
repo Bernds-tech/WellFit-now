@@ -118,3 +118,10 @@ Lies zuerst `AGENTS.md`, dann `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WOR
 
 - Report-only framework added for future one-at-a-time builds from `project-register/approved-agent-build-backlog.json`: `project-register/approved-agent-build-runner-policy.json`, `project-register/agent-build-runner-state.json`, `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs`, and `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs`.
 - The framework treats missing/skipped/not-run/unknown/pending/future-CI-only checks as `not_merge_ready`, blocks runtime/protected/Unity/PR-#13 changes, and remains report-only until a separate controlled one-agent activation is approved.
+
+## 2026-05-16 — Controlled Approved Agent Build Runner Activation: Multisensory Learning Engine
+
+- Selected exactly one next eligible approved backlog entry: Multisensory Learning Engine.
+- Added report-only register/doc/validator references: `project-register/multisensory-learning-engine.json`, `docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md`, and `scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs`.
+- Runtime product code, Unity/PR #13, protected data behavior, runtime personalization, learning runtime, reward authority, mission-completion authority, and token/NFT/wallet/payment/betting mechanics remain untouched and disabled.
+- Next recommended task after merge-gate evidence: controlled one-agent runner activation for Mission Factory Agent or Product Intelligence Agent depending on backlog order and risk review.
