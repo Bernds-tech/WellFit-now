@@ -17,7 +17,9 @@
     "project-register/auto-repair-policy.json",
     "project-register/agent-task-queue.json",
     "project-register/agent-workflows.json",
-    "project-register/pr-post-creation-guard.json"
+    "project-register/pr-post-creation-guard.json",
+    "project-register/pr-diff-review-policy.json",
+    "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
   ],
   "requiredReviewInputs": [
     "git_changed_files_or_diff",
@@ -33,7 +35,9 @@
     "auto_merge_eligibility_report_only_result",
     "auto_repair_decision_report_only_result",
     "next_recommended_task",
-    "post_pr_mergeability_and_required_check_status_report"
+    "post_pr_mergeability_and_required_check_status_report",
+    "project-register/pr-diff-review-policy.json",
+    "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
   ],
   "requiredReviewChecklist": [
     {
@@ -105,6 +109,11 @@
       "id": "post_creation_mergeability_guard_reported",
       "label": "PR post-creation mergeability guard result is reported",
       "requiredEvidence": "PR description or review report includes PR_POST_CREATION_GUARD_READY=true/false plus mergeability/check-status summary after PR creation."
+    },
+    {
+      "id": "pr_diff_review_reported",
+      "label": "PR Diff Review Report is generated from changed files",
+      "requiredEvidence": "Report-only PR_DIFF_REVIEW_READY=true/false result and scripts/wellfit-dev-agent/output/pr-diff-review-report.md summary are included; output is not treated as merge approval."
     }
   ],
   "protectedAreaChecks": [
@@ -364,7 +373,10 @@
     "neverApproves": true,
     "neverMerges": true,
     "neverRepairs": true,
-    "neverDeploys": true
+    "neverDeploys": true,
+    "recommendedLinkedReports": [
+      "scripts/wellfit-dev-agent/output/pr-diff-review-report.md"
+    ]
   },
   "batchAutopilotReviewRequirements": {
     "appliesWhen": "A PR is produced from a human-approved Batch Autopilot work session.",

@@ -45,7 +45,8 @@ const agentSteps = [
   { label: "Adaptive user insight check", script: "scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs" },
   { label: "Cross-reference maintenance check", script: "scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs" },
   { label: "Repository inventory check", script: "scripts/wellfit-dev-agent/src/repository-inventory-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs" },
-  { label: "PR review policy check", script: "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs" }
+  { label: "PR review policy check", script: "scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs" },
+  { label: "PR diff review report", script: "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs", displayCommand: "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs" }
 ];
 
 function runNodeStep(step) {
@@ -130,6 +131,7 @@ function main() {
   const repositoryInventoryReport = readTextSafe("scripts/wellfit-dev-agent/output/repository-inventory-check.md");
   const autoMergeEligibilityReport = readTextSafe("scripts/wellfit-dev-agent/output/auto-merge-eligibility-report.md");
   const autoRepairDecisionReport = readTextSafe("scripts/wellfit-dev-agent/output/auto-repair-decision-report.md");
+  const prDiffReviewReport = readTextSafe("scripts/wellfit-dev-agent/output/pr-diff-review-report.md");
   const batchLimitedExecutionReport = readTextSafe("scripts/wellfit-dev-agent/output/autopilot-batch-limited-execution-check.md");
   const taskStatusWorkLogReport = readTextSafe("scripts/wellfit-dev-agent/output/task-status-work-log-check.md");
 
@@ -151,6 +153,7 @@ function main() {
   const visualRouteSmokeStep = getStep(steps, "Visual route smoke check");
   const conceptToCodeGapStep = getStep(steps, "Concept-to-code gap analyzer");
   const prReviewPolicyStep = getStep(steps, "PR review policy check");
+  const prDiffReviewStep = getStep(steps, "PR diff review report");
 
   const covered = parseCoveredTracks(`${goalReport}\n${alphaStep?.stdout ?? ""}`);
   const missingIndex = parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in TODO index/structure memory") ?? parseNumber(`${memoryReport}\n${memoryStep?.stdout ?? ""}`, "Missing in index");
@@ -173,6 +176,7 @@ function main() {
   const visualRouteSmokePassed = /Result:\s*(?:PASS|PASS_WITH_WARNINGS|SKIPPED_BROWSER_UNAVAILABLE|SKIPPED_BASE_URL_UNAVAILABLE|REPORT_ONLY)/i.test(`${visualRouteSmokeReport}\n${visualRouteSmokeStep?.stdout ?? ""}`);
   const conceptToCodeGapPassed = /Result:\s*PASS(?:_WITH_WARNINGS)?/i.test(`${conceptToCodeGapReport}\n${conceptToCodeGapStep?.stdout ?? ""}`);
   const prReviewPolicyReady = /Mode:\s*REPORT_ONLY/i.test(prReviewPolicyStep?.stdout ?? "") && /Never approves PRs:\s*true/i.test(prReviewPolicyStep?.stdout ?? "") && /Never merges PRs:\s*true/i.test(prReviewPolicyStep?.stdout ?? "") && /Never repairs files:\s*true/i.test(prReviewPolicyStep?.stdout ?? "") && /Never modifies files:\s*true/i.test(prReviewPolicyStep?.stdout ?? "") && /PR_REVIEW_POLICY_READY=true/i.test(prReviewPolicyStep?.stdout ?? "");
+  const prDiffReviewReady = /Mode:\s*REPORT_ONLY/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /Never approves PRs:\s*true/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /Never merges PRs:\s*true/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /Never repairs files:\s*true/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /Never deploys:\s*true/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`) && /PR_DIFF_REVIEW_READY=(?:true|false)/i.test(`${prDiffReviewReport}\n${prDiffReviewStep?.stdout ?? ""}`);
 
   assertCondition(checks, "Alpha tracks fully covered", covered.covered !== null && covered.total !== null && covered.covered === covered.total, covered.covered === null ? "not found" : `${covered.covered}/${covered.total}`);
   assertCondition(checks, "TODO index has no missing files", missingIndex === 0, formatDetailCount(missingIndex, missingIndexFiles));
@@ -208,6 +212,7 @@ function main() {
   assertCondition(checks, "Cross-reference maintenance check passed", /Result:\s*PASS/i.test(crossReferenceMaintenanceReport), /Result:\s*PASS/i.test(crossReferenceMaintenanceReport) ? "PASS" : "not found or FAIL");
   assertCondition(checks, "Repository inventory check reported safely", /Result:\s*PASS/i.test(repositoryInventoryReport), /Result:\s*PASS/i.test(repositoryInventoryReport) ? "PASS with warning sections allowed" : "not found or FAIL");
   assertCondition(checks, "PR review policy check reported safely", prReviewPolicyReady, prReviewPolicyReady ? "REPORT_ONLY and PR_REVIEW_POLICY_READY=true" : "not found or unsafe output");
+  assertCondition(checks, "PR diff review report ran safely", prDiffReviewReady, prDiffReviewReady ? "REPORT_ONLY and PR_DIFF_REVIEW_READY reported" : "not found or unsafe output");
 
   const passed = checks.every((check) => check.passed);
   const report = `# WellFit Agent Quality Gate Report\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Gate Checks\n\n${renderChecks(checks)}\n\n## Required Standard\n\n- Agent validation must pass.\n- Alpha goal check must cover all required tracks.\n- Memory sync must report zero missing indexed files.\n- Memory sync must report zero required missing KI-Fortsetzungs-Prompts.\n- Dry run must produce planned micro-tasks.\n- Stufe 4 governance check must pass.\n- Agent governance control check must pass.\n- Route/API register check must pass.\n- Visual route smoke check must report safely in optional/report-only mode and must not require browser support.\n- Site route audit must pass.\n- Mobile Buddy UX audit must pass.\n- Feedback loop audit must pass.\n- Firebase security audit must pass.\n- Firestore emulator test plan check must pass.\n- Mission Buddy Economy audit must pass.\n- Firestore economy rules check must pass the current beta allow/deny guardrails.\n- Next agent task suggestion must select a non-blocked safe task.\n- Auto-merge eligibility check must run in report-only mode and confirm it never merges.\n- TODO status sync must report no malformed or unknown status markers.\n- Master roadmap task check must validate imported roadmap task safety and mappings.\n- Research recommendation check must validate internal-first, optional external research, three-option recommendation, risk, human-review, and protected-topic rules.\n- Adaptive user insight check must validate planning-only, aggregate-only, no raw identifiers, sample thresholds, explainability, and high/critical human-review guardrails.\n- Cross-reference maintenance check must validate change categories, referenced files, Work Map/TODO Index links, and major register coverage.\n- PR review policy check must validate required review checklist, protected-area checks, Work Map/TODO Index links, auto-merge reporting, auto-repair reporting, and report-only/no-approval/no-merge/no-repair/no-file-modification boundaries.\n\n## Exact Memory Sync Failures\n\n### Files Missing In Index\n\n${missingIndexFiles.length ? missingIndexFiles.map((file) => `- \`${file}\``).join("\n") : "No missing index files reported."}\n\n### Files Missing KI-Fortsetzungs-Prompt\n\n${missingPromptFiles.length ? missingPromptFiles.map((file) => `- \`${file}\``).join("\n") : "No missing continuation prompts reported."}\n\n## Step Logs\n\n${steps.map(renderStep).join("\n\n")}\n\n## Next Action\n\n${passed ? "Quality gate passed. Continue with the next Beta-relevant task." : "Quality gate failed. Fix the failed checks before continuing with larger implementation work."}\n`;

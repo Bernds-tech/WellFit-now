@@ -9,7 +9,7 @@
       "agents/AGENTS.md",
       "agents/modes/stufe-4.md"
     ],
-    "updated": "2026-05-15"
+    "updated": "2026-05-16"
   },
   "workflows": [
     {
@@ -70,7 +70,10 @@
         "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
         "project-register/pr-post-creation-guard.json",
         "docs/architecture/WELLFIT_PR_POST_CREATION_MERGEABILITY_GUARD.md",
-        "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
+        "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+        "project-register/pr-diff-review-policy.json",
+        "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
+        "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
       ],
       "controlRegisters": [
         {
@@ -305,6 +308,26 @@
           ],
           "purpose": "Report-only post-PR guard requiring future agents to inspect newly created PR mergeability, required checks, protected paths, auto-merge/auto-repair/PR-review results, task evidence, and next action before stopping.",
           "usage": "Run after PR creation and in the quality gate. If a PR is not mergeable or checks are not green, classify the failure; only docs/register safe repair guidance may be considered when explicitly allowed, otherwise use replacement-PR guidance or stop for human review."
+        },
+        {
+          "id": "pr_diff_review_report_framework",
+          "registers": [
+            "project-register/pr-diff-review-policy.json",
+            "project-register/pr-review-policy.json",
+            "project-register/pr-post-creation-guard.json",
+            "project-register/auto-merge-policy.json",
+            "project-register/auto-repair-policy.json",
+            "project-register/cross-reference-maintenance.json",
+            "project-register/repository-inventory.json",
+            "project-register/product-readiness.json",
+            "project-register/task-status-policy.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
+          ],
+          "purpose": "Report-only changed-file/PR-diff inspection that classifies files, detects protected paths/topics, reports cross-reference/readiness/inventory/task-status impact, and summarizes PR guard signals before merge consideration.",
+          "usage": "Run before PR handoff or through the quality gate. Treat output as evidence only; it never approves, merges, repairs, deploys, closes PRs, or authorizes protected/runtime work."
         }
       ],
       "additionalGovernanceInputs": [
@@ -356,7 +379,9 @@
         "node scripts/wellfit-dev-agent/src/autopilot-batch-dry-run.mjs",
         "jq empty project-register/autopilot-batch-policy.json",
         "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
-        "jq empty project-register/task-status-policy.json"
+        "jq empty project-register/task-status-policy.json",
+        "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+        "jq empty project-register/pr-diff-review-policy.json"
       ],
       "phases": [
         {

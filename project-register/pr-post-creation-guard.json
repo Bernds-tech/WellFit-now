@@ -58,6 +58,11 @@
       "id": "next_recommended_action_stated",
       "label": "Next recommended action is stated",
       "requiredEvidence": "Report states mergeable/green handoff, safe docs/register repair guidance, replacement-PR strategy, or human-review stop."
+    },
+    {
+      "id": "pr_diff_review_report_available",
+      "label": "PR Diff Review Report is available",
+      "requiredEvidence": "Post-creation report or PR handoff includes PR_DIFF_REVIEW_READY=true/false and summarizes protected path/topic, classification, cross-reference, readiness, inventory, task-status, auto-merge, and auto-repair findings from scripts/wellfit-dev-agent/output/pr-diff-review-report.md."
     }
   ],
   "mergeabilityStates": [
@@ -153,7 +158,8 @@
     "pr_review_policy_result",
     "task_status_or_work_log_evidence",
     "failure_classification_when_not_green",
-    "next_recommended_action"
+    "next_recommended_action",
+    "report-only PR Diff Review Report result from scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
   ],
   "requiredPRDescriptionFields": [
     "changed_files",
@@ -200,5 +206,11 @@
       "FAIL",
       "WARNING"
     ]
+  },
+  "interactionWithPRDiffReviewPolicy": {
+    "mode": "report_only",
+    "policy": "project-register/pr-diff-review-policy.json",
+    "script": "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "requiredUse": "Use the PR Diff Review Report as changed-file/protected-impact evidence after PR creation; it does not approve, merge, repair, deploy, or replace human review."
   }
 }

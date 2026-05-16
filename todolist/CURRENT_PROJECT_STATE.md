@@ -77,6 +77,8 @@ Die vom Nutzer bereitgestellte WellFit Master Roadmap / Developer To-Do List wur
 7. `todolist/TODO_CONSOLIDATION.md`
 8. Relevante Bereichs-TODOs und Architekturdateien aus `todolist/WORK_MAP.md`
 
+- PR Diff Review Report framework is active as report-only governance: use `project-register/pr-diff-review-policy.json`, `docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md`, and `scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs` before PR merge consideration; it never approves, merges, repairs, deploys, or touches protected/runtime/Unity areas.
+
 ## Naechste sichere Tasks
 
 1. Nach jedem Rebase/Merge die Dokumentationsdateien `CURRENT_PROJECT_STATE.md`, `WORK_MAP.md`, `TODO_INDEX.md` und `NEXT_ACTIONS.md` konfliktfrei halten.

@@ -48,7 +48,10 @@
     "scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
     "project-register/pr-post-creation-guard.json",
     "docs/architecture/WELLFIT_PR_POST_CREATION_MERGEABILITY_GUARD.md",
-    "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs"
+    "scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
+    "project-register/pr-diff-review-policy.json",
+    "docs/architecture/WELLFIT_PR_DIFF_REVIEW_REPORT.md",
+    "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs"
   ],
   "iterationPhases": [
     {
@@ -130,7 +133,9 @@
     "enable_or_perform_real_pr_auto_approval_without_explicit_human_approval",
     "treat_pr_review_policy_ready_as_merge_approval",
     "rewrite_todo_statuses_automatically_from_task_status_validator",
-    "enable_auto_merge_or_auto_repair_from_task_status_validator"
+    "enable_auto_merge_or_auto_repair_from_task_status_validator",
+    "use_pr_diff_review_as_merge_approval",
+    "use_pr_diff_review_as_auto_repair_authorization"
   ],
   "stopConditions": [
     "current_branch_is_main",
@@ -177,7 +182,9 @@
     "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs",
     "jq empty project-register/task-status-policy.json",
     "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs",
-    "jq empty project-register/pr-post-creation-guard.json"
+    "jq empty project-register/pr-post-creation-guard.json",
+    "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
+    "jq empty project-register/pr-diff-review-policy.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",

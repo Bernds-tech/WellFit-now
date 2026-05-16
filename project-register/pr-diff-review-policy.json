@@ -1,0 +1,253 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-16",
+  "activationState": "report_only",
+  "purpose": "Machine-readable WellFit PR Diff Review Report policy. It applies existing PR Review Agent governance to actual changed files or PR diffs before merge consideration, classifies changed files, detects protected paths/topics, reports cross-reference/readiness/inventory/task-status impact, and summarizes auto-merge, auto-repair, and post-creation guard outcomes without approving, merging, repairing, deploying, or modifying product runtime code.",
+  "sourceOfTruth": [
+    "AGENTS.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "project-register/pr-review-policy.json",
+    "project-register/pr-post-creation-guard.json",
+    "project-register/auto-merge-policy.json",
+    "project-register/auto-repair-policy.json",
+    "project-register/cross-reference-maintenance.json",
+    "project-register/repository-inventory.json",
+    "project-register/product-readiness.json",
+    "project-register/risk-classifier.json",
+    "project-register/definition-of-done.json",
+    "project-register/task-status-policy.json"
+  ],
+  "requiredInputs": [
+    "git_changed_files_or_pr_diff",
+    "optional_base_ref_argument",
+    "project-register/pr-diff-review-policy.json",
+    "project-register/repository-inventory.json",
+    "project-register/product-readiness.json",
+    "project-register/cross-reference-maintenance.json",
+    "project-register/pr-review-policy.json",
+    "project-register/pr-post-creation-guard.json",
+    "project-register/auto-merge-policy.json",
+    "project-register/auto-repair-policy.json",
+    "project-register/task-status-policy.json"
+  ],
+  "changedFileClassificationRules": [
+    {
+      "classification": "docs_only",
+      "patterns": ["docs/**", "todolist/**", "agents/**", "*.md"],
+      "meaning": "Documentation, TODO, architecture, handoff, or agent instruction changes that do not modify product runtime code."
+    },
+    {
+      "classification": "registry_only",
+      "patterns": ["project-register/**"],
+      "meaning": "Machine-readable governance, readiness, inventory, route/API, feature, memory, or policy register changes."
+    },
+    {
+      "classification": "agent_script",
+      "patterns": ["scripts/wellfit-dev-agent/**"],
+      "meaning": "WellFit development-agent script, runbook, schema, or report-generation changes."
+    },
+    {
+      "classification": "runtime_app",
+      "patterns": ["app/**"],
+      "meaning": "Next.js app routes, layouts, route handlers, metadata, or runtime app shell."
+    },
+    {
+      "classification": "runtime_component",
+      "patterns": ["components/**"],
+      "meaning": "Reusable runtime UI components."
+    },
+    {
+      "classification": "runtime_lib",
+      "patterns": ["lib/**"],
+      "meaning": "Runtime domain, client, server, Firebase, economy, mission, Buddy, or utility libraries."
+    },
+    {
+      "classification": "firebase_functions",
+      "patterns": ["functions/**"],
+      "meaning": "Firebase Functions backend source, configuration, tests, or build inputs."
+    },
+    {
+      "classification": "firestore_rules",
+      "patterns": ["firestore.rules"],
+      "meaning": "Firestore security rules."
+    },
+    {
+      "classification": "public_assets",
+      "patterns": ["public/**"],
+      "meaning": "Public static assets exposed by the web app."
+    },
+    {
+      "classification": "package_manifest",
+      "patterns": ["package.json", "package-lock.json", "functions/package.json", "functions/package-lock.json", "firebase.json"],
+      "meaning": "Dependency manifests, lockfiles, Firebase project configuration, or script definitions."
+    },
+    {
+      "classification": "github_workflow",
+      "patterns": [".github/**"],
+      "meaning": "GitHub Actions, PR automation, issue templates, or repository workflow configuration."
+    },
+    {
+      "classification": "native_unity",
+      "patterns": ["native/unity/**", "native/unity/WellFitBuddyAR/**"],
+      "meaning": "Native Unity/AR assets or WellFitBuddyAR work, including PR #13-sensitive paths."
+    },
+    {
+      "classification": "unknown_or_review_required",
+      "patterns": ["**"],
+      "meaning": "Any path not matched by a more specific rule; requires human review and Work Map/inventory consideration."
+    }
+  ],
+  "protectedPathRules": [
+    { "pattern": "app/**", "reason": "Runtime Next.js app code requires explicit review; this framework must not modify it." },
+    { "pattern": "components/**", "reason": "Runtime UI components require explicit review; this framework must not modify them." },
+    { "pattern": "lib/**", "reason": "Runtime domain/client/server libraries require explicit review; this framework must not modify them." },
+    { "pattern": "functions/**", "reason": "Firebase Functions/backend logic requires explicit review; this framework must not modify it." },
+    { "pattern": "firestore.rules", "reason": "Security/compliance rules require explicit review; this framework must not modify them." },
+    { "pattern": "public/**", "reason": "Public assets can affect visible product output and require explicit review." },
+    { "pattern": "package.json", "reason": "Root scripts/dependencies can alter runtime/build behavior and require explicit review." },
+    { "pattern": "package-lock.json", "reason": "Root dependency lockfile changes require explicit review." },
+    { "pattern": "firebase.json", "reason": "Firebase project configuration can alter deployment/runtime behavior and requires explicit review." },
+    { "pattern": ".github/**", "reason": "Repository workflow automation can affect checks or merges and requires explicit review." },
+    { "pattern": "native/unity/WellFitBuddyAR/**", "reason": "Unity AR work is protected; do not delete, overwrite, merge, close, or depend on old PR #13." },
+    { "pattern": "native/unity/**", "reason": "Unity paths require explicit review and must stay isolated from web beta governance work." },
+    { "pattern": "PR #13 / Unity paths", "reason": "PR #13 and Unity work must not be merged, closed, overwritten, or used as a shortcut by this framework." }
+  ],
+  "protectedTopicRules": [
+    "token",
+    "NFT",
+    "wallet",
+    "payment",
+    "betting",
+    "reward authority",
+    "mission completion authority",
+    "health",
+    "child",
+    "location",
+    "privacy",
+    "legal",
+    "compliance",
+    "camera",
+    "face",
+    "biometric",
+    "motion",
+    "consent",
+    "Unity",
+    "PR #13"
+  ],
+  "crossReferenceImpactRules": [
+    {
+      "triggerClassifications": ["docs_only", "registry_only", "agent_script", "runtime_app", "runtime_component", "runtime_lib", "firebase_functions", "firestore_rules", "github_workflow", "native_unity", "unknown_or_review_required"],
+      "requiredAction": "Compare changed files with project-register/cross-reference-maintenance.json changeCategories and report likely required inspect/update targets. Do not auto-update files from the report script."
+    },
+    {
+      "triggerClassifications": ["agent_script"],
+      "requiredAction": "Report agent_script_added_or_changed and quality_gate_changed cross-reference considerations when a WellFit dev-agent script or quality gate changes."
+    },
+    {
+      "triggerClassifications": ["runtime_app", "runtime_component", "runtime_lib", "firebase_functions", "firestore_rules", "native_unity"],
+      "requiredAction": "Report that human review is expected before merge and that Work Map, TODO Index, readiness, route/API, inventory, and protected-area evidence may be required."
+    }
+  ],
+  "productReadinessImpactRules": [
+    {
+      "triggerClassifications": ["runtime_app", "runtime_component", "runtime_lib", "firebase_functions", "firestore_rules", "public_assets", "native_unity"],
+      "requiredAction": "Report likely product-readiness impact and require either product-readiness update evidence or a no-update rationale."
+    },
+    {
+      "triggerClassifications": ["docs_only", "registry_only", "agent_script"],
+      "requiredAction": "Report whether changed governance/docs alter module readiness, blockers, next safe tasks, or protected status."
+    }
+  ],
+  "repositoryInventoryImpactRules": [
+    {
+      "triggerClassifications": ["unknown_or_review_required"],
+      "requiredAction": "Report unmapped/unknown file coverage risk and require repository-inventory triage before merge consideration."
+    },
+    {
+      "triggerClassifications": ["docs_only", "registry_only", "agent_script", "runtime_app", "runtime_component", "runtime_lib", "firebase_functions", "firestore_rules", "public_assets", "package_manifest", "github_workflow", "native_unity"],
+      "requiredAction": "Report whether each changed path is already mapped in project-register/repository-inventory.json and whether inventory updates appear likely."
+    }
+  ],
+  "taskStatusImpactRules": [
+    {
+      "triggerClassifications": ["docs_only", "registry_only", "agent_script"],
+      "requiredAction": "Report that task-status/work-log evidence is expected for governance/documentation/script tasks and that historical TODO/status context must be preserved."
+    },
+    {
+      "triggerClassifications": ["runtime_app", "runtime_component", "runtime_lib", "firebase_functions", "firestore_rules", "native_unity", "unknown_or_review_required"],
+      "requiredAction": "Report that task-status/work-log evidence plus human review is expected for runtime, protected, Unity, or unknown changes."
+    }
+  ],
+  "autoMergeReportRules": {
+    "mode": "report_only",
+    "requiredSummary": "Include AUTO_MERGE_ELIGIBLE=true/false when available, but never treat it as approval or perform a merge.",
+    "mustReportProtectedPathImpact": true,
+    "mustReportProtectedTopicImpact": true
+  },
+  "autoRepairReportRules": {
+    "mode": "report_only",
+    "requiredSummary": "Include AUTO_REPAIR_ALLOWED=true/false when available, but never repair files, retry writes, or bypass human review.",
+    "mustReportForbiddenRepairPaths": true,
+    "mustReportForbiddenRepairTopics": true
+  },
+  "postCreationGuardReportRules": {
+    "mode": "report_only",
+    "requiredSummary": "Include PR_POST_CREATION_GUARD_READY=true/false when available and report mergeability/check-status evidence after PR creation without approving or merging.",
+    "replacementPRGuidanceOnly": true
+  },
+  "humanReviewRequiredFor": [
+    "any protected path match",
+    "any protected topic match outside explicit governance/reporting text",
+    "any runtime_app/runtime_component/runtime_lib/firebase_functions/firestore_rules/public_assets/package_manifest/github_workflow/native_unity/unknown_or_review_required classification",
+    "any Product Readiness status advancement or production-readiness claim",
+    "any repository-inventory unmapped file or unknown coverage impact",
+    "any cross-reference impact that suggests missing required targets",
+    "any auto-merge, auto-repair, deploy, approval, PR close, or PR #13 action",
+    "any token/NFT/wallet/payment/betting/reward authority/mission completion authority/health/child/location/privacy/legal/compliance/camera/face/biometric/motion/consent/Unity/PR #13 impact"
+  ],
+  "forbiddenAutoActions": [
+    "approve_pr",
+    "merge_pr",
+    "enable_auto_merge",
+    "repair_files",
+    "deploy",
+    "close_pr",
+    "modify_runtime_product_code",
+    "modify_protected_paths",
+    "modify_unity_or_pr_13_paths",
+    "rewrite_history_or_delete_todo_context",
+    "create_duplicate_architecture_or_parallel_system"
+  ],
+  "reportOutputSchema": {
+    "path": "scripts/wellfit-dev-agent/output/pr-diff-review-report.md",
+    "requiredFields": [
+      "generatedAt",
+      "mode",
+      "baseRef",
+      "changedFiles",
+      "classificationSummary",
+      "protectedPathFindings",
+      "protectedTopicFindings",
+      "crossReferenceImpact",
+      "productReadinessImpact",
+      "repositoryInventoryImpact",
+      "taskStatusImpact",
+      "autoMergeReport",
+      "autoRepairReport",
+      "postCreationGuardReport",
+      "humanReviewRequired",
+      "forbiddenAutoActionsConfirmed",
+      "PR_DIFF_REVIEW_READY"
+    ],
+    "stdoutSignals": [
+      "Mode: REPORT_ONLY",
+      "Never approves PRs: true",
+      "Never merges PRs: true",
+      "Never repairs files: true",
+      "Never deploys: true",
+      "PR_DIFF_REVIEW_READY=true|false"
+    ]
+  }
+}
