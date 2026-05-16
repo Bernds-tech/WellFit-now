@@ -2295,6 +2295,65 @@
         "confirmation runtime/product/protected areas were untouched",
         "next recommended task"
       ]
+    },
+    {
+      "id": "AGENT-HUMAN-MOTIVATION-ENGINE-FRAMEWORK",
+      "title": "Maintain report-only Human Motivation Engine framework",
+      "status": "active",
+      "priority": "P0",
+      "summary": "Healthy motivation and anti-addictive-design docs/register/validator framework; no runtime personalization or product/protected logic.",
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
+      ],
+      "humanReviewRequired": true,
+      "nextRecommendedTask": "Ethical Engagement Guard",
+      "category": "agent_governance",
+      "riskLevel": "high",
+      "requiredFirstReadFiles": [
+        "project-register/human-motivation-engine.json",
+        "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "definitionOfDoneKey": "documentation_registry_script_only",
+      "stopConditions": [
+        "runtime personalization or product logic would be enabled",
+        "protected child, health, location, camera, biometric, consent, privacy, token, wallet, payment, betting, reward-authority, or mission-authority behavior would be changed",
+        "addictive design, FOMO, shame, gambling-like, lootbox, sleep-deprivation, child monetization, or dark-pattern mechanics would be introduced",
+        "auto-merge, auto-repair, approval, deployment, PR closing, or Unity/PR #13 behavior would be touched"
+      ],
+      "expectedOutput": "Report-only Human Motivation Engine register, architecture doc, validator, and mapping updates without runtime personalization or product/protected behavior.",
+      "expectedPrOutput": [
+        "changed files",
+        "checks run",
+        "Human Motivation Engine summary",
+        "healthy retention vs addictive design summary",
+        "forbidden engagement patterns",
+        "protected/review_required boundaries",
+        "report-only validator result",
+        "confirmation no runtime personalization or product logic was enabled",
+        "confirmation runtime/product/protected areas were untouched",
+        "next recommended task: Ethical Engagement Guard"
+      ]
     }
   ],
   "selectionRules": [

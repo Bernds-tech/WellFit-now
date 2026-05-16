@@ -121,32 +121,41 @@
     {
       "id": "human-motivation-engine",
       "proposedAgentName": "Human Motivation Engine",
-      "status": "approved_for_planning",
+      "status": "in_progress",
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Human Motivation Engine.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Human Motivation Engine while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved future WellFit agent/framework now has a report-only framework implementation in progress: Human Motivation Engine. It remains high-risk/protected-boundary-adjacent and requires human-reviewed PR evidence before any built status or runtime use.",
+      "expectedBenefit": "Defines healthy motivation, adaptive difficulty inputs, AI Buddy boundaries, recovery/pause rules, multisensory learning signals, protected review boundaries, and forbidden addictive mechanics before any runtime personalization or mission/reward logic is implemented.",
       "riskLevel": "high",
       "connectedAgents": [
         "adaptive-user-insight-agent",
-        "research-recommendation-agent"
+        "research-recommendation-agent",
+        "website-agent-framework",
+        "product-readiness-matrix"
       ],
       "connectedRegisters": [
+        "project-register/human-motivation-engine.json",
         "project-register/research-recommendations.json",
-        "project-register/adaptive-user-insights.json"
+        "project-register/adaptive-user-insights.json",
+        "project-register/website-agents.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json"
       ],
-      "connectedAgentCount": 2,
-      "connectedRegisterCount": 2,
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 6,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md"
       ],
       "requiredRegisters": [
+        "project-register/human-motivation-engine.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
         "project-register/agent-extension-policy.json",
         "project-register/research-recommendations.json",
-        "project-register/adaptive-user-insights.json"
+        "project-register/adaptive-user-insights.json",
+        "project-register/risk-classifier.json"
       ],
       "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
         "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
       ],
       "allowedFiles": [
@@ -171,17 +180,16 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 2,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "ethical_engagement_guard_planning_prompt",
       "dependencies": [
-        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
-        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, Agent Architect Policy, Agent Extension Policy, Adaptive User Insights, Research Recommendations, Website Agents, Product Readiness, and Risk Classifier.",
+        "Build only documentation/register/validation outputs first; do not modify runtime product code or protected areas.",
+        "Keep child, health, location, camera, biometric, consent, privacy, token, wallet, payment, betting, reward-authority, and mission-completion-authority behavior protected/review_required."
       ],
       "protectedBoundaries": [
-        "No runtime product code changes without a scoped approved task.",
-        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
-        "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "No runtime product code changes, runtime personalization, protected-data use, token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Do not create manipulative addiction mechanics, FOMO pressure, shame loops, sleep-deprivation pressure, child-targeted monetization, gambling-like rewards, lootbox money-near rewards, social humiliation, paywall mission chains, hidden sponsor pressure, dark-pattern notifications, or medical/weight-loss overclaims.",
+        "Because risk is high/protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
       ]
     },
     {

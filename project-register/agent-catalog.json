@@ -55,7 +55,8 @@
     "website_agent_framework",
     "website_backlog",
     "website_readiness_guard",
-    "website_audit"
+    "website_audit",
+    "motivation_guard"
   ],
   "extensionPolicyReference": {
     "policy": "project-register/agent-extension-policy.json",
@@ -1426,6 +1427,58 @@
         "Report-only governance by default; human review required for every generated proposal and prompt."
       ],
       "nextSafeMaintenanceTask": "Review generated next-agent build prompt, then execute exactly one approved agent build only after human acceptance."
+    },
+    {
+      "id": "human-motivation-engine",
+      "name": "Human Motivation Engine",
+      "status": "report_only",
+      "agentType": "motivation_guard",
+      "purpose": "Report-only framework defining healthy habit loops, motivation dimensions, Buddy support boundaries, adaptive difficulty inputs, recovery rules, and forbidden addictive engagement patterns before runtime personalization or product logic exists.",
+      "ownerArea": "Human Motivation / Ethical Engagement",
+      "primaryRegisters": [
+        "project-register/human-motivation-engine.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "adaptive-user-insight-agent",
+        "research-recommendation-agent",
+        "website-agent-framework",
+        "website-agent-backlog",
+        "product-readiness-matrix"
+      ],
+      "relatedRegisters": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agents.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible motivation principle additions",
+        "report-only validator coverage",
+        "Work Map/TODO Index/source-of-truth reference updates",
+        "human-review checklist additions for protected motivation boundaries"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime personalization or adaptive product behavior",
+        "mission factory execution authority",
+        "reward or mission completion authority",
+        "protected child, health, location, camera, biometric, consent, privacy, token, wallet, payment, betting, or monetization behavior",
+        "new Ethical Engagement Guard or Product Intelligence owner domains"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes, runtime personalization, protected-data processing, reward authority, mission-completion authority, token/NFT/wallet/payment/betting behavior, Unity/PR #13 work, approval, merge, repair, or deploy authority.",
+        "Child, health, location, camera, biometric, consent, privacy, monetization, reward-authority, and mission-authority behavior remains review_required.",
+        "Forbidden engagement patterns include addictive design, manipulative FOMO, shame/guilt pressure, sleep-deprivation pressure, child-targeted monetization, gambling-like rewards, lootbox money-near mechanics, hidden sponsor pressure, dark-pattern notifications, social humiliation, paywall mission chains, and medical/weight-loss overclaims."
+      ],
+      "nextSafeMaintenanceTask": "Keep the Human Motivation Engine register, architecture doc, validator, Work Map, TODO Index, and quality-gate integration synchronized; next recommended task is Ethical Engagement Guard."
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-14",
+  "updated": "2026-05-16",
   "purpose": "Governance register for future WellFit Research & Recommendation Agent work: analyze unclear product or technical questions, read internal sources first, optionally use external research only when internet access is explicitly available, summarize three approaches, recommend one option, classify risk, and require human review before implementation.",
   "status": "active",
   "scope": "Documentation, registry, and validation-only recommendation governance. This register does not authorize runtime product logic changes.",
@@ -15,7 +15,8 @@
     "project-register/definition-of-done.json",
     "project-register/internal-sources.json",
     "project-register/master-roadmap-tasks.json",
-    "project-register/product-readiness.json"
+    "project-register/product-readiness.json",
+    "project-register/human-motivation-engine.json"
   ],
   "internalFirstRule": {
     "required": true,
@@ -102,7 +103,12 @@
   "requiredRecommendationField": "recommendedOptionId",
   "riskClassification": {
     "sourceOfTruth": "project-register/risk-classifier.json",
-    "allowedLevels": ["low", "medium", "high", "critical"],
+    "allowedLevels": [
+      "low",
+      "medium",
+      "high",
+      "critical"
+    ],
     "defaultWhenUnclear": "high",
     "protectedTopicMinimumRisk": "high",
     "criticalTopicExamples": [
@@ -114,7 +120,10 @@
   },
   "humanReviewRequiredRules": {
     "defaultForRecommendations": true,
-    "alwaysRequiredWhenRiskIs": ["high", "critical"],
+    "alwaysRequiredWhenRiskIs": [
+      "high",
+      "critical"
+    ],
     "alwaysRequiredForProtectedTopics": true,
     "highCriticalImplementationRule": "High- or critical-risk recommendations must never be implemented without explicit human approval and a clear review plan.",
     "unclearQuestionRule": "If the question remains unclear after internal review, mark humanReviewRequired=true and implementationAllowed=false.",
@@ -169,5 +178,9 @@
     "implementationAllowed": false,
     "nextSafeTask": "Create or update a recommendation report only; do not implement high/critical-risk decisions without explicit human approval."
   },
-  "decisionLogEntries": []
+  "decisionLogEntries": [],
+  "humanMotivationEngineBoundary": {
+    "register": "project-register/human-motivation-engine.json",
+    "rule": "Recommendations touching motivation, retention, Buddy encouragement, adaptive difficulty, rewards, monetization, child/family, health/privacy, or dark-pattern risk must apply the Human Motivation Engine and require human review for protected topics."
+  }
 }
