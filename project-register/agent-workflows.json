@@ -96,7 +96,10 @@
         "docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md",
         "project-register/human-motivation-engine.json",
         "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md",
-        "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
+        "scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
+        "project-register/ethical-engagement-guard.json",
+        "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md",
+        "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs"
       ],
       "controlRegisters": [
         {
@@ -418,6 +421,18 @@
           ],
           "purpose": "Catalog existing WellFit agents/frameworks and record human-approved future agents/frameworks without building them automatically.",
           "usage": "Before extending or proposing an agent, confirm existing owner domains, connected registers, approved future backlog status, protected boundaries, and report-only validator readiness."
+        },
+        {
+          "id": "ethical_engagement_guard",
+          "registers": [
+            "project-register/ethical-engagement-guard.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md",
+          "scripts": [
+            "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs"
+          ],
+          "purpose": "Report-only ethical engagement guard for healthy retention, age-appropriate design, recovery, consent, missions, rewards, Buddy tone, social features, sponsors, website claims, and monetization proposals.",
+          "usage": "Before planning engagement mechanics, validate against forbidden FOMO, shame, gambling/lootbox, sleep-deprivation, dark-pattern, age-inappropriate monetization, social humiliation, paywall pressure, protected-data-sensitive, and review_required boundaries."
         }
       ],
       "additionalGovernanceInputs": [

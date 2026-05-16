@@ -1479,6 +1479,60 @@
         "Forbidden engagement patterns include addictive design, manipulative FOMO, shame/guilt pressure, sleep-deprivation pressure, child-targeted monetization, gambling-like rewards, lootbox money-near mechanics, hidden sponsor pressure, dark-pattern notifications, social humiliation, paywall mission chains, and medical/weight-loss overclaims."
       ],
       "nextSafeMaintenanceTask": "Keep the Human Motivation Engine register, architecture doc, validator, Work Map, TODO Index, and quality-gate integration synchronized; next recommended task is Ethical Engagement Guard."
+    },
+    {
+      "id": "ethical-engagement-guard",
+      "name": "Ethical Engagement Guard",
+      "status": "report_only",
+      "agentType": "ethical_engagement_guard",
+      "purpose": "Report-only framework for checking WellFit missions, rewards, AI Buddy messaging, retention mechanics, website claims, learning loops, social features, sponsor ideas, and monetization proposals against healthy, age-appropriate, recovery-aware, consent-preserving, and non-manipulative engagement rules before runtime implementation.",
+      "ownerArea": "Human Motivation / Ethical Engagement / Trust and Safety",
+      "primaryRegisters": [
+        "project-register/ethical-engagement-guard.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "human-motivation-engine",
+        "adaptive-user-insight-agent",
+        "website-agent-framework",
+        "website-agent-backlog",
+        "product-readiness-matrix",
+        "research-recommendation-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/human-motivation-engine.json",
+        "project-register/product-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agents.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/risk-classifier.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible ethical engagement rule additions",
+        "report-only validator coverage",
+        "Work Map/TODO Index/source-of-truth reference updates",
+        "human-review checklist additions for protected engagement boundaries"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime personalization or adaptive product behavior",
+        "mission factory execution authority",
+        "reward or mission completion authority",
+        "protected child/minor, health, location, camera, face, biometric, motion, consent, privacy, token, wallet, payment, betting, sponsor, monetization, or legal/compliance behavior",
+        "new Product Intelligence or runtime ethical-scoring owner domains"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes, runtime personalization, runtime tracking/profiling, protected-data processing, reward authority, mission-completion authority, token/NFT/wallet/payment/betting behavior, Unity/PR #13 work, approval, merge, repair, or deploy authority.",
+        "Health, child/minor, family/guardian, location, camera, face, biometric, motion, consent, privacy, token, wallet, payment, reward-authority, mission-authority, sponsor, monetization, legal, and compliance behavior remains review_required.",
+        "Forbidden engagement patterns include manipulative FOMO, shame/guilt pressure, sleep-deprivation pressure, social humiliation, gambling-like rewards, lootbox money-near mechanics, age-inappropriate monetization, child-targeted purchase pressure, hidden sponsor pressure, dark-pattern notifications, paywall mission chains, endless pressure loops, punishment for rest, medical/weight-loss overclaims, token/payout hype, and betting/wager language."
+      ],
+      "nextSafeMaintenanceTask": "Keep the Ethical Engagement Guard register, architecture doc, validator, Work Map, TODO Index, and quality-gate integration synchronized; next recommended task is Adaptive Difficulty Agent according to the approved backlog order."
     }
   ]
 }

@@ -2354,6 +2354,69 @@
         "confirmation runtime/product/protected areas were untouched",
         "next recommended task: Ethical Engagement Guard"
       ]
+    },
+    {
+      "id": "AGENT-ETHICAL-ENGAGEMENT-GUARD-FRAMEWORK",
+      "title": "Ethical Engagement Guard framework",
+      "status": "active",
+      "priority": "P0",
+      "summary": "Report-only documentation/register/validator framework for ethical engagement checks across missions, rewards, AI Buddy tone, retention mechanics, website claims, social features, sponsors, and monetization ideas.",
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs"
+      ],
+      "humanReviewRequired": true,
+      "nextRecommendedTask": "Ethical Engagement Guard",
+      "category": "agent_governance",
+      "riskLevel": "high",
+      "requiredFirstReadFiles": [
+        "project-register/human-motivation-engine.json",
+        "docs/architecture/WELLFIT_HUMAN_MOTIVATION_ENGINE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "definitionOfDoneKey": "documentation_registry_script_only",
+      "stopConditions": [
+        "Any request to enable runtime product logic, personalization, tracking/profiling, protected-data use, reward authority, mission authority, monetization, token/wallet/payment/NFT/betting behavior, auto-merge, auto-repair, deploy, or Unity/PR #13 work."
+      ],
+      "expectedOutput": "Report-only Human Motivation Engine register, architecture doc, validator, and mapping updates without runtime personalization or product/protected behavior.",
+      "expectedPrOutput": [
+        "changed files",
+        "checks run",
+        "Human Motivation Engine summary",
+        "healthy retention vs addictive design summary",
+        "forbidden engagement patterns",
+        "protected/review_required boundaries",
+        "report-only validator result",
+        "confirmation no runtime personalization or product logic was enabled",
+        "confirmation runtime/product/protected areas were untouched",
+        "next recommended task: Ethical Engagement Guard"
+      ],
+      "leadingFiles": [
+        "project-register/ethical-engagement-guard.json",
+        "docs/architecture/WELLFIT_ETHICAL_ENGAGEMENT_GUARD.md",
+        "scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs"
+      ],
+      "humanApprovalRequired": true,
+      "nextSafeStep": "Maintain report-only Ethical Engagement Guard references and continue with Adaptive Difficulty Agent next according to approved backlog order."
     }
   ],
   "selectionRules": [
