@@ -1,0 +1,186 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "status": "reference_orientation",
+  "name": "WellFit Knowledge Core",
+  "markdownSource": "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md",
+  "purpose": "Machine-readable companion for the WellFit Knowledge Core. It summarizes product orientation by reference and connects the knowledge core to the report-only Concept Learning Agent.",
+  "sourcePolicy": {
+    "mode": "reference_first",
+    "duplicatesDetailedSourceContent": false,
+    "runtimeApproval": false,
+    "notes": "Use linked files as source of truth. This register is an orientation index, not an implementation authorization."
+  },
+  "canonicalSources": [
+    "todolist/MASTER_PROMPT_FOR_AI.md",
+    "todolist/CURRENT_PROJECT_STATE.md",
+    "todolist/CODEBASE_FEATURE_MAP.md",
+    "project-register/product-rules.json",
+    "project-register/features.json",
+    "project-register/mission-buddy-economy-flow.json"
+  ],
+  "agentConnections": {
+    "conceptLearningAgent": "project-register/concept-learning-agent.json",
+    "conceptLearningQuestions": "project-register/concept-learning-questions.json",
+    "allowedUse": [
+      "read_context",
+      "extract_known_facts_with_sources",
+      "detect_unknowns",
+      "prepare_bernd_questions",
+      "propose_knowledge_core_updates",
+      "derive_follow_up_task_candidates_after_approval"
+    ],
+    "forbiddenUse": [
+      "modify_runtime_files",
+      "change_product_behavior",
+      "enable_runtime_personalization",
+      "grant_rewards",
+      "complete_missions",
+      "authorize_anti_cheat",
+      "enable_token_wallet_payment_features",
+      "collect_protected_data",
+      "approve_prs",
+      "merge_prs",
+      "deploy"
+    ]
+  },
+  "sections": [
+    {
+      "id": "wellfit_vision",
+      "title": "WellFit Vision",
+      "summary": "WellFit combines movement, health, learning, gamification, AI guidance, community, missions, and later blockchain/token topics in safe staged increments toward beta.",
+      "references": [
+        "todolist/MASTER_PROMPT_FOR_AI.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/CODEBASE_FEATURE_MAP.md"
+      ]
+    },
+    {
+      "id": "move_learn_social_earn",
+      "title": "Move-Learn-Social-Earn Prinzip",
+      "summary": "Move, Learn, and Social are expressed through mobile movement, missions, Buddy guidance, community, leaderboards, challenges, and analytics; Earn currently means internal points/XP and previews only.",
+      "references": [
+        "project-register/features.json",
+        "project-register/product-rules.json",
+        "project-register/mission-buddy-economy-flow.json",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ]
+    },
+    {
+      "id": "buddy_role",
+      "title": "Buddy-Rolle",
+      "summary": "The Buddy is an emotional guide and learning/motivation anchor, but has no reward, XP, mission-completion, anti-cheat, or economy authority.",
+      "references": [
+        "project-register/product-rules.json",
+        "project-register/features.json",
+        "project-register/mission-buddy-economy-flow.json",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "relatedFeatureIds": ["FEATURE-BUDDY"]
+    },
+    {
+      "id": "missions",
+      "title": "Missionen",
+      "summary": "Missions are a central beta module for movement, learning, progress, adventures, challenges, and mobile use; completion, evidence, anti-cheat, and rewards remain preview/beta until server authority is reviewed and hardened.",
+      "references": [
+        "todolist/CODEBASE_FEATURE_MAP.md",
+        "project-register/features.json",
+        "project-register/mission-buddy-economy-flow.json",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "relatedFeatureIds": ["FEATURE-MISSIONS", "FEATURE-MOBILE-WEB"]
+    },
+    {
+      "id": "challenges",
+      "title": "Challenges",
+      "summary": "Challenges and competitions are social mission extensions, currently constrained to beta/preview or guardrail treatment without real betting, payouts, cashouts, final client rewards, token rewards, or NFT rewards.",
+      "references": [
+        "project-register/features.json",
+        "project-register/product-rules.json",
+        "project-register/mission-buddy-economy-flow.json",
+        "todolist/CODEBASE_FEATURE_MAP.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "relatedFeatureIds": ["FEATURE-MISSIONS", "FEATURE-LEADERBOARD"]
+    },
+    {
+      "id": "internal_points_xp",
+      "title": "Interne Punkte/XP",
+      "summary": "The current economy is internal points, XP, RewardPreview, SpendPreview, HealthPreview, UserProjection, and draft-only persistence status, not a final ledger or real purchase/token system.",
+      "references": [
+        "project-register/product-rules.json",
+        "project-register/features.json",
+        "project-register/mission-buddy-economy-flow.json",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "relatedFeatureIds": ["FEATURE-POINTS-SHOP", "FEATURE-ECONOMY-PREVIEW-APIS", "FEATURE-DASHBOARD"]
+    },
+    {
+      "id": "later_token_nft_boundaries",
+      "title": "Spaetere Token/NFT-Grenzen",
+      "summary": "Tokens, NFTs, wallets, WFT, marketplace trading, payments, payouts, real purchases, and cashout are future topics only and require stable server authority, ledger/audit, legal/security review, and explicit approval.",
+      "references": [
+        "project-register/product-rules.json",
+        "project-register/features.json",
+        "project-register/mission-buddy-economy-flow.json",
+        "todolist/MASTER_PROMPT_FOR_AI.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "relatedFeatureIds": ["FEATURE-MARKETPLACE", "FEATURE-POINTS-SHOP"]
+    },
+    {
+      "id": "safety_boundaries",
+      "title": "Safety Boundaries",
+      "summary": "Frontend may suggest and preview, but final authority must remain on reviewed server-side paths; protected areas include rewards, completion, anti-cheat, health/watch/location/camera/child/privacy/consent/legal, token/NFT/wallet/payment, PvP/betting/payout, Unity/AR, and planning-file protection.",
+      "references": [
+        "project-register/product-rules.json",
+        "project-register/mission-buddy-economy-flow.json",
+        "todolist/MASTER_PROMPT_FOR_AI.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ]
+    },
+    {
+      "id": "user_groups",
+      "title": "Nutzergruppen",
+      "summary": "User groups are inferred from existing modules: beta app users, mobile touch-first users, movement/learning/community scenarios, dashboard/analytics users, future B2B or partner cases, and future AR/Unity/economy expansion groups; concrete priorities require confirmed decisions or Concept Learning questions.",
+      "references": [
+        "project-register/features.json",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/CODEBASE_FEATURE_MAP.md",
+        "project-register/concept-learning-questions.json"
+      ]
+    },
+    {
+      "id": "open_product_questions",
+      "title": "Offene Produktfragen",
+      "summary": "Open questions include beta segment priority, mission/challenge authority, protected-data and consent boundaries, internal economy persistence, token/NFT readiness conditions, B2B/partner assumptions, and extension of existing modules instead of parallel systems.",
+      "references": [
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "project-register/product-rules.json",
+        "project-register/features.json",
+        "project-register/mission-buddy-economy-flow.json",
+        "project-register/concept-learning-agent.json",
+        "project-register/concept-learning-questions.json"
+      ]
+    }
+  ],
+  "openProductQuestionIds": [
+    "beta_user_group_priority",
+    "mission_challenge_authority_scope",
+    "protected_data_consent_boundaries",
+    "points_xp_server_authority_readiness",
+    "token_nft_wallet_payment_readiness",
+    "b2b_partner_assumption_status",
+    "existing_module_extension_target"
+  ],
+  "runtimeBoundaries": {
+    "frontendMaySuggest": true,
+    "frontendMayPreview": true,
+    "frontendMayFinalizeRewards": false,
+    "frontendMayFinalizeMissionCompletion": false,
+    "buddyMayAuthorizeRewards": false,
+    "tokensNftsWalletsActive": false,
+    "serverLedgerRequiredForFinalAuthority": true
+  },
+  "kiFortsetzungsPrompt": "Read AGENTS.md, docs/architecture/WELLFIT_KNOWLEDGE_CORE.md, this register, the canonical sources, and project-register/concept-learning-agent.json before updating. Keep this file reference-oriented, synchronized with the Markdown knowledge core, report-only, and non-runtime."
+}

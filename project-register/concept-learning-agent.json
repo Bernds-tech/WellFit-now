@@ -21,7 +21,9 @@
     "agentControlCenter": "project-register/agent-control-center.json",
     "agentFollowUps": "project-register/agent-follow-ups.json",
     "decisions": "project-register/decisions.json",
-    "researchRecommendations": "project-register/research-recommendations.json"
+    "researchRecommendations": "project-register/research-recommendations.json",
+    "knowledgeCoreMarkdown": "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md",
+    "knowledgeCoreRegister": "project-register/wellfit-knowledge-core.json"
   },
   "requiredPhases": [
     "read_wellfit_context",
@@ -41,7 +43,9 @@
         "AGENTS.md",
         "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
         "project-register/agent-control-center.json",
-        "project-register/decisions.json"
+        "project-register/decisions.json",
+        "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md",
+        "project-register/wellfit-knowledge-core.json"
       ],
       "allowedOutput": "context_inventory_report"
     },
@@ -67,7 +71,7 @@
     },
     {
       "id": "update_knowledge_core",
-      "purpose": "Propose updates to the knowledge core or related registers without deleting historical context.",
+      "purpose": "Propose synchronized updates to the Markdown knowledge core and machine-readable knowledge core register without deleting historical context.",
       "allowedOutput": "knowledge_core_update_candidate"
     },
     {
@@ -122,11 +126,13 @@
       "project-register/decisions.json",
       "project-register/agent-follow-ups.json",
       "project-register/research-recommendations.json",
-      "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"
+      "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
+      "project-register/wellfit-knowledge-core.json"
     ],
     "knowledgeCore": "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md",
     "taskCandidates": "project-register/agent-follow-ups.json",
-    "controlState": "project-register/agent-control-center.json"
+    "controlState": "project-register/agent-control-center.json",
+    "knowledgeCoreRegister": "project-register/wellfit-knowledge-core.json"
   },
   "approvalPolicy": {
     "adminApprovalRequiredBeforeImplementation": true,
@@ -169,7 +175,8 @@
     "knowledge_core_update_candidate",
     "follow_up_task_candidate",
     "approval_wait_state",
-    "quality_gate_report"
+    "quality_gate_report",
+    "knowledge_core_register_update_candidate"
   ],
   "forbiddenAutoActions": [
     "modify_runtime_files",
