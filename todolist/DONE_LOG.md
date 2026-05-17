@@ -216,6 +216,15 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 - `todolist/TODO_INDEX.md` um `apply-memory-prompts.mjs` und `quality-gate.mjs` erweitert.
 - `todolist/PROJECT_STRUCTURE.md` um wichtige Dateien aus `docs/architecture/` erweitert: Buddy-KI, Buddy-Datenmodell, Provider-Runbook, Tracking/Buddy-Events, Mission-UI-Status-Badges und AI-Dimensions/Items/NFC/NFT-Economy.
 
+
+### 2026-05-17
+- Datei `docs/architecture/WELLFIT_KNOWLEDGE_CORE.md` erweitert: referenzierende Zusammenfassung fuer Vision, Move-Learn-Social-Earn, Buddy, Missionen, Challenges, interne Punkte/XP, spaetere Token-/NFT-Grenzen, Safety Boundaries, Nutzergruppen und offene Produktfragen.
+- Datei `project-register/wellfit-knowledge-core.json` angelegt: maschinenlesbare Knowledge-Core-Begleitdatei mit Quellenpolitik, Abschnittsindex, offenen Produktfragen, Runtime-Boundaries und Concept-Learning-Agent-Verbindung.
+- Datei `project-register/concept-learning-agent.json` aktualisiert: Knowledge-Core-Markdown und Register als verbundene Quellen, Inputs und Storage-Ziele aufgenommen.
+- Dateien `todolist/PROJECT_STRUCTURE.md` und `todolist/TODO_INDEX.md` aktualisiert, damit die neuen Knowledge-Core-Artefakte auffindbar bleiben.
+- Keine Runtime-Dateien, keine UI, keine Reward-/Mission-Completion-Autoritaet, keine Token-/NFT-/Wallet-/Payment-Funktion und keine Deployments aktiviert.
+- Offener Folgepunkt: Knowledge Core und Begleitregister bei kuenftigen Produkt-/Feature-/Flow-Entscheidungen synchron halten.
+
 ## Offene Folgepunkte
 - Lokal erneut `git pull` und danach `npm run agent:code-inventory`, `powershell -ExecutionPolicy Bypass -File scripts/wellfit-dev-agent/run-agent-full.ps1` und `npm run build` ausfuehren.
 - Wenn Quality-Gate FAIL meldet, `scripts/wellfit-dev-agent/output/memory-sync-report.md` pruefen und neue fehlende Dateien in `TODO_INDEX.md` oder `PROJECT_STRUCTURE.md` aufnehmen.

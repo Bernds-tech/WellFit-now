@@ -157,6 +157,7 @@ Wichtige Dateien:
 - `WELLFIT_SELF_HOSTED_DEV_AGENT.md` - Architektur fuer eigenen Dev-Agenten
 - `WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md` - spaeterer Insight-/Mission-Agent
 - `MISSION_REWARD_CONTEXT_ENGINE.md` - Mission-/Reward-Kontextlogik
+- `WELLFIT_KNOWLEDGE_CORE.md` - referenzierender Produkt-/Architektur-Wegweiser fuer Vision, Move-Learn-Social-Earn, Buddy, Missionen, Challenges, interne Punkte/XP, Token-/NFT-Grenzen, Safety Boundaries, Nutzergruppen und offene Produktfragen; gekoppelt an `project-register/wellfit-knowledge-core.json` und den Concept Learning Agent
 - `INTERNAL_ECONOMY_GUARDRAILS.md` - interne Punkte-/XP-/Reward-Leitplanken vor Blockchain, inklusive 20-Meter-Checkpoint-Ziel und 25-Mrd.-Reserve-/Rueckflusslogik
 - `INTERNAL_POINTS_LEDGER_AND_BILLING.md` - internes Punkte-Ledger, Abrechnung, Audit und Korrektur vor Tokenisierung
 - `ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md` - Server-Completion-Plan und Firestore-Haertung fuer Economy-Felder
@@ -175,6 +176,13 @@ Wichtige Dateien:
 - `TRACKING_BUDDY_SERVER_EVENTS.md` - serverautorisierte Tracking-/Buddy-Events
 - `MISSION_UI_STATUS_BADGES.md` - Missionsstatus-Badges und UI-Regeln
 - `AI_DIMENSIONS_ITEMS_NFT_ECONOMY.md` - Dimensionen, Items, NFC und spaetere NFT-/Economy-Abgrenzung
+
+### `project-register/`
+Maschinenlesbare Produkt-, Governance- und Agentenregister.
+
+Wichtige Dateien:
+- `wellfit-knowledge-core.json` - maschinenlesbare Begleitdatei zum Knowledge Core mit Quellenpolitik, Abschnittsindex, offenen Produktfragen, Runtime-Boundaries und Concept-Learning-Agent-Anschluss
+- `concept-learning-agent.json` - report-only Concept Learning Agent; jetzt mit Knowledge-Core-Markdown und Begleitregister verbunden
 
 ### `native/unity/WellFitBuddyAR/`
 Separater Unity-/Native-AR-Arbeitsbereich.
