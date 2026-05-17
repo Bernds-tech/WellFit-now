@@ -51,6 +51,209 @@
     "native/unity/WellFitBuddyAR/**",
     "PR #13 / Unity paths"
   ],
+  "runtimeAllowedPathsByTaskTypePolicy": {
+    "purpose": "Define task-type-specific allowed-path tiers for future guarded runtime planning without granting blanket runtime authority.",
+    "precedenceRules": [
+      "Global forbiddenPaths override runtimeAllowedPathsByTaskType for every task type.",
+      "Sensitive protected topics override task-specific allowlists even when a path appears in an allowedPaths tier.",
+      "Task-specific allowlists never authorize firestore.rules, functions/**, lib/**, native/**, Unity/PR #13, wallet/payment/token/reward authority, mission-completion authority, health, child, location, camera, privacy, legal or compliance logic without dedicated human approval and a test plan."
+    ],
+    "currentlyActiveTaskType": "docs_register_only",
+    "inactiveTaskTypesRequireLaterExplicitActivation": [
+      "ui_copy_safe",
+      "route_register_sync",
+      "test_only"
+    ]
+  },
+  "runtimeAllowedPathsByTaskType": {
+    "docs_register_only": {
+      "purpose": "Active docs/register/check-script governance work under single_agent_docs_execution.",
+      "activationState": "active_under_single_agent_docs_execution",
+      "currentlyAllowed": true,
+      "allowedPaths": [
+        "project-register/*.json",
+        "todolist/*.md",
+        "docs/architecture/*.md",
+        "scripts/wellfit-dev-agent/src/*check.mjs",
+        "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+        "scripts/wellfit-dev-agent/src/*report.mjs",
+        "scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
+      ],
+      "blockedPaths": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/**",
+        "native/unity/WellFitBuddyAR/**",
+        "PR #13 / Unity paths"
+      ],
+      "blockedSensitiveTopics": [
+        "token/NFT/wallet/payment/trading/payout/staking/presale logic",
+        "reward authority or mission-completion authority",
+        "health, child, location, camera, face, biometric, consent, privacy, legal or compliance logic",
+        "Unity or PR #13 changes"
+      ],
+      "scopeLimits": [
+        "One approved low-risk docs/register/check-script governance task per branch.",
+        "No runtime product behavior changes.",
+        "No deploy, approval, self-approval, auto-merge or unrestricted auto-repair."
+      ],
+      "minimumRequiredChecks": [
+        "git diff --check",
+        "jq empty on every changed project-register/*.json file",
+        "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check"
+      ],
+      "requiresHumanApprovalForRuntime": false
+    },
+    "ui_copy_safe": {
+      "purpose": "Future profile for narrowly scoped non-functional UI copy edits only after later explicit activation.",
+      "activationState": "future_profile_only_not_active",
+      "currentlyAllowed": false,
+      "allowedPaths": [
+        "app/**",
+        "components/**"
+      ],
+      "blockedPaths": [
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/**",
+        "native/unity/WellFitBuddyAR/**",
+        "PR #13 / Unity paths"
+      ],
+      "blockedSensitiveTopics": [
+        "token/NFT/wallet/payment/trading/payout/staking/presale copy or logic",
+        "betting, reward authority or mission-completion authority",
+        "health, child, location, camera, face, biometric, consent, privacy, legal or compliance messaging",
+        "Unity or PR #13 changes"
+      ],
+      "scopeLimits": [
+        "Not active under current policy.",
+        "Would require exact file list, copy-only scope and screenshot/build evidence before use.",
+        "Must not alter routing, data access, state transitions, mission/reward authority or compliance/legal messaging."
+      ],
+      "minimumRequiredChecks": [
+        "git diff --check",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm run agent:quality-gate",
+        "screenshot or preview evidence for perceptible UI change"
+      ],
+      "requiresHumanApprovalForRuntime": true
+    },
+    "route_register_sync": {
+      "purpose": "Future profile for synchronizing route inventory/register documentation with existing routes after later explicit activation.",
+      "activationState": "future_profile_only_not_active",
+      "currentlyAllowed": false,
+      "allowedPaths": [
+        "project-register/*.json",
+        "todolist/*.md",
+        "docs/architecture/*.md"
+      ],
+      "blockedPaths": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/**",
+        "native/unity/WellFitBuddyAR/**",
+        "PR #13 / Unity paths"
+      ],
+      "blockedSensitiveTopics": [
+        "creating, deleting or changing product routes",
+        "token/NFT/wallet/payment/trading/payout/staking/presale logic",
+        "reward authority or mission-completion authority",
+        "health, child, location, camera, face, biometric, consent, privacy, legal or compliance logic",
+        "Unity or PR #13 changes"
+      ],
+      "scopeLimits": [
+        "Not active under current policy.",
+        "May document or register existing routes only after explicit activation.",
+        "Must not edit runtime route files or change navigation behavior."
+      ],
+      "minimumRequiredChecks": [
+        "git diff --check",
+        "jq empty on every changed project-register/*.json file",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build"
+      ],
+      "requiresHumanApprovalForRuntime": true
+    },
+    "test_only": {
+      "purpose": "Future profile for adding or updating tests without product implementation changes after later explicit activation.",
+      "activationState": "future_profile_only_not_active",
+      "currentlyAllowed": false,
+      "allowedPaths": [
+        "__tests__/**",
+        "tests/**",
+        "scripts/wellfit-dev-agent/src/*check.mjs",
+        "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+        "scripts/wellfit-dev-agent/src/*report.mjs"
+      ],
+      "blockedPaths": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/**",
+        "native/unity/WellFitBuddyAR/**",
+        "PR #13 / Unity paths"
+      ],
+      "blockedSensitiveTopics": [
+        "tests that encode approval for token/NFT/wallet/payment/trading/payout/staking/presale behavior",
+        "tests that bypass reward authority, mission-completion authority or anti-cheat boundaries",
+        "health, child, location, camera, face, biometric, consent, privacy, legal or compliance logic without a dedicated plan",
+        "Unity or PR #13 changes"
+      ],
+      "scopeLimits": [
+        "Not active under current policy.",
+        "May only add or update tests after explicit activation and exact test scope approval.",
+        "Must not change product implementation, fixtures that grant authority, package manifests, Firebase, Unity or deployment configuration."
+      ],
+      "minimumRequiredChecks": [
+        "git diff --check",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check",
+        "the specific test command for the touched test suite"
+      ],
+      "requiresHumanApprovalForRuntime": true
+    }
+  },
   "requiredPreBuildChecks": [
     "node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
     "node scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs",

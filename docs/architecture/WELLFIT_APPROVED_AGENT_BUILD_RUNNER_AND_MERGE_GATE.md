@@ -103,6 +103,23 @@ This framework is documentation/register/validation-script only. It does not aut
 
 Protected topics may be mentioned as safety boundaries in governance docs. They do not become implementation permission. If protected runtime files change, the runner must stop and report.
 
+## Safe Runtime Allowlist task tiers
+
+`runtimeAllowedPathsByTaskType` defines task-type path tiers for future guarded work. These profiles are not blanket runtime approval and do not override the global policy. Global `forbiddenPaths` always win over every task-specific `allowedPaths` entry, and protected sensitive topics always win even when a path appears in a future task profile.
+
+Current task profiles are:
+
+| Task type | Current state | Intended scope |
+| --- | --- | --- |
+| `docs_register_only` | Active under `single_agent_docs_execution` | One low-risk docs/register/check-script governance task per branch. |
+| `ui_copy_safe` | Future profile only, not active | Narrow non-functional UI copy edits after exact human activation, file list, checks, and preview/screenshot evidence. |
+| `route_register_sync` | Future profile only, not active | Synchronize route inventory/register documentation with already-existing routes after explicit activation; no route implementation edits. |
+| `test_only` | Future profile only, not active | Add or update tests after explicit activation and exact test-scope approval; no product implementation changes. |
+
+Only `docs_register_only` is active now. `ui_copy_safe`, `route_register_sync`, and `test_only` require a later explicit policy activation plus the task-specific minimum checks before they can be used. Their presence in the register is planning structure only; it does not activate runtime editing, unrestricted repair, auto-merge, deployment, approval, self-approval, or PR closing.
+
+The following remain blocked without dedicated human approval and a test/review plan: `firestore.rules`, `functions/**`, `lib/**`, `native/**`, Unity/PR #13, wallet/payment/token/reward authority, mission-completion authority, health, child, location, camera, privacy, legal, and compliance logic.
+
 ## Avoiding the PR #109 missing-check risk
 
 Under this gate, a PR body that says checks were not executed and should be run later is not merge-ready. The gate requires executed local check evidence and successful required GitHub checks. Delegating required checks to later CI without visible success evidence is treated the same as missing evidence. The runner must attempt to complete missing safe checks, attempt only allowed safe repairs if needed, and refuse merge until every required check is green.
