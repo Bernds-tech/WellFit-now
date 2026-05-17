@@ -1839,6 +1839,69 @@
         "Mission Factory extends mapped mission/product-readiness/continuity sources only and must not create duplicate architecture or parallel systems."
       ],
       "nextSafeMaintenanceTask": "Keep Mission Factory register, architecture doc, validator, quality-gate integration, backlog/proposal/runner evidence, Work Map, TODO Index, and continuity references synchronized; next approved backlog item is Healthy Retention Agent if Mission Factory PR merges."
+    },
+    {
+      "id": "healthy-retention-agent",
+      "name": "Healthy Retention Agent",
+      "status": "report_only",
+      "agentType": "healthy_retention_governance_guard",
+      "purpose": "Report-only framework for wellbeing-first retention reviews, pause/recovery checklists, user-agency/opt-out checks, dark-pattern boundary reports, and retention experiment planning briefs without runtime retention implementation, user profiling, notifications, reward authority, mission-completion authority, protected-data behavior, Unity/AR changes, or deployment.",
+      "ownerArea": "Healthy Retention / Ethical Engagement / Product Governance",
+      "primaryRegisters": [
+        "project-register/healthy-retention-agent.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-difficulty-agent",
+        "adaptive-user-insight-agent",
+        "product-intelligence-agent",
+        "product-readiness-matrix",
+        "continuity-dependency-sentinel",
+        "risk-classifier"
+      ],
+      "relatedRegisters": [
+        "project-register/healthy-retention-agent.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/product-intelligence-agent.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only healthy retention review schema additions",
+        "pause/recovery checklist refinements",
+        "dark-pattern boundary report templates",
+        "source-of-truth mapping updates",
+        "validator coverage for non-authority retention boundaries",
+        "human-review question templates"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime retention implementation",
+        "individual-user targeting or profiling",
+        "runtime personalization decisions",
+        "notification, streak, urgency, scarcity, loss-aversion, or reactivation automation",
+        "reward or XP authority",
+        "mission completion authority",
+        "health, child, location, camera, biometric, consent, privacy, legal, token, wallet, payment, betting, NFT, Unity, AR, or PR #13 implementation",
+        "duplicate retention engine or parallel architecture"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code, retention automation, notifications, streak/reward modification, mission-completion authority, reward authority, protected-data decisions, deployment, approval, merge, repair, Unity/AR, native WellFitBuddyAR, or PR #13 changes.",
+        "High/critical/protected retention proposals remain review_required until separately approved.",
+        "Healthy Retention extends mapped motivation/engagement/adaptive-insight/product-readiness/continuity sources only and must not create duplicate architecture or parallel systems."
+      ],
+      "nextSafeMaintenanceTask": "Keep Healthy Retention register, architecture doc, validator, quality-gate integration, backlog/proposal/runner evidence, Work Map, TODO Index, and continuity references synchronized; next approved backlog item is Reward Fairness Guard if eligible and still report-only."
     }
   ]
 }

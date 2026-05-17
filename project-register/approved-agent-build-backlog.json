@@ -594,33 +594,48 @@
     {
       "id": "healthy-retention-agent",
       "proposedAgentName": "Healthy Retention Agent",
-      "status": "approved_for_planning",
+      "status": "built",
       "priority": "P2",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Healthy Retention Agent.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Healthy Retention Agent while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Built as a high-risk but strictly report-only Healthy Retention Agent framework with human-reviewed PR evidence requirements and docs/register/validator/governance-only scope; runtime retention automation, individual-user profiling, notifications, streak/reward modification, mission authority, reward authority, protected implementation, Unity/AR, and deployment remain blocked.",
+      "expectedBenefit": "Adds wellbeing-first retention review, pause/recovery checklist, user-agency and opt-out checks, dark-pattern boundary reporting, aggregate feedback theme framing, and human-review questions before any future retention implementation.",
       "riskLevel": "high",
       "connectedAgents": [
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-difficulty-agent",
         "adaptive-user-insight-agent",
+        "product-intelligence-agent",
         "risk-classifier"
       ],
       "connectedRegisters": [
+        "project-register/healthy-retention-agent.json",
         "project-register/adaptive-user-insights.json",
-        "project-register/product-readiness.json"
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/product-intelligence-agent.json",
+        "project-register/continuity-dependency-map.json"
       ],
-      "connectedAgentCount": 2,
-      "connectedRegisterCount": 2,
+      "connectedAgentCount": 6,
+      "connectedRegisterCount": 9,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md"
       ],
       "requiredRegisters": [
+        "project-register/healthy-retention-agent.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
-        "project-register/agent-extension-policy.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json",
         "project-register/adaptive-user-insights.json",
-        "project-register/product-readiness.json"
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/continuity-dependency-map.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
@@ -644,17 +659,17 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 8,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "single_agent_build_prompt_after_merge",
       "dependencies": [
-        "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
-        "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Read AGENTS.md, Work Map, TODO Index, Current State, Adaptive User Insights, Product Readiness, Risk Classifier, Human Motivation Engine, Ethical Engagement Guard, Adaptive Difficulty Agent, Continuity Dependency Map, Agent Catalog, and Approved Agent Build Backlog.",
+        "Keep Healthy Retention report-only; runtime retention implementation, individual-user profiling, notification automation, streak/reward changes, protected-data behavior, deployment, approval, merge, or repair authority require separate scoped approval.",
+        "Build exactly one approved future agent/framework per PR and continue only after merge evidence is green."
       ],
       "protectedBoundaries": [
         "No runtime product code changes without a scoped approved task.",
-        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
-        "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "No retention automation, runtime personalization, individual-user profiling, notification triggers, streak/reward modification, mission completion authority, reward/XP authority, protected-data behavior, location/camera/health/child/privacy/legal/token/wallet/payment/betting/NFT behavior, Unity/AR/native WellFitBuddyAR/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; high/critical/protected retention topics remain review_required.",
+        "Because risk is high, built status covers only documentation/register/validator/governance framework evidence, not runtime retention capability."
       ]
     },
     {

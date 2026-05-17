@@ -904,5 +904,12 @@
     "check": "scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs",
     "status": "report_only",
     "boundary": "No runtime mission generation, completion authority, reward authority, anti-cheat authority, protected-data behavior, Unity/AR/native behavior, or deployment."
+  },
+  "healthyRetentionAgentReference": {
+    "register": "project-register/healthy-retention-agent.json",
+    "doc": "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
+    "check": "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs",
+    "status": "report_only",
+    "boundary": "No runtime retention automation, individual-user profiling, notification triggers, streak/reward modification, mission authority, reward authority, protected-data behavior, Unity/AR/native behavior, or deployment."
   }
 }

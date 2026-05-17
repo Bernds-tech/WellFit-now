@@ -3,7 +3,7 @@
   "updated": "2026-05-17",
   "activationState": "report_only",
   "purpose": "Report-only state ledger for the future Approved Agent Build Runner. This initial state records dry-run and merge-gate evidence only; it never builds agents, creates PRs, repairs, merges, deploys, or approves.",
-  "lastEvaluatedBacklogEntry": "mission-factory-agent",
+  "lastEvaluatedBacklogEntry": "healthy-retention-agent",
   "lastGeneratedPrompt": {
     "date": "2026-05-17",
     "selectedBacklogEntry": "mission-factory-agent",
@@ -11,34 +11,25 @@
     "scope": "report-only docs/register/validator/governance-only Mission Factory framework"
   },
   "lastRunnerDryRun": {
-    "date": "2026-05-17",
-    "selectedBacklogEntry": "mission-factory-agent",
-    "result": "selected_next_eligible_approved_agent",
-    "maxAgentsBuilt": 1,
-    "neverBuildsAutomatically": true
+    "selectedBacklogEntry": "healthy-retention-agent",
+    "selectedAgent": "Healthy Retention Agent",
+    "result": "built_report_only_one_agent",
+    "updatedDate": "2026-05-17",
+    "nextSelectedBacklogEntry": "reward-fairness-guard"
   },
   "lastRepairAttempt": {
-    "date": "2026-05-17",
-    "classification": "safe_repair_documentation_register_governance",
-    "safeRepairAttempted": true,
-    "runtimeOrProtectedScopeTouched": false,
-    "failures": [
-      "npm run agent:quality-gate initially failed after implementation because Product Intelligence task-queue candidate lacked governance-control fields requiredFirstReadFiles, stopConditions, and expectedPrOutput."
-    ],
-    "actions": [
-      "Completed Product Intelligence task-queue candidate governance fields only; reran agent-governance-control-check and npm run agent:quality-gate successfully."
-    ],
-    "rerunEvidence": [
-      "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs PASS",
-      "npm run agent:quality-gate PASS"
-    ]
+    "id": "repair-2026-05-17-healthy-retention-ki-prompt",
+    "classification": "safe_docs_governance_repair",
+    "failedCheck": "npm run agent:quality-gate initially reported one missing KI-Fortsetzungs-Prompt for docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
+    "repair": "Added KI-Fortsetzungs-Prompt section to the Healthy Retention architecture document without touching runtime/protected files.",
+    "rerunEvidence": "npm run agent:quality-gate PASS; full required suite rerun PASS",
+    "updatedDate": "2026-05-17"
   },
   "lastMergeGateEvaluation": {
-    "date": "2026-05-17",
-    "status": "local_checks_green_pr_creation_allowed_not_auto_merge_ready",
-    "protectedPathFindings": 0,
+    "selectedBacklogEntry": "healthy-retention-agent",
+    "localRequiredChecks": "passed",
     "mergeReady": false,
-    "reason": "All required local checks passed; concrete hosted PR merge readiness still requires post-creation/GitHub evidence and human review. AUTO_MERGE_ELIGIBLE=false is caused by protected-topic governance words, changed-file count, and additions, with protected path findings 0."
+    "reason": "Local required checks passed and protected path findings were zero. AUTO_MERGE_ELIGIBLE=false is from protected-topic governance words plus size thresholds; hosted PR mergeability/human-review evidence is still required before actual merge."
   },
   "entries": [
     {
@@ -327,6 +318,79 @@
         "node scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs PASS",
         "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs PASS",
         "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs PASS; post-build next selection is healthy-retention-agent",
+        "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs PASS with MERGE_READY=false as expected for report-only missing-check gate semantics",
+        "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs PASS/REPORT_ONLY with protected path findings 0 and human review required for protected-topic governance mentions",
+        "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs PASS",
+        "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs PASS",
+        "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs PASS/REPORT_ONLY with AUTO_MERGE_ELIGIBLE=false",
+        "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs PASS/REPORT_ONLY with AUTO_REPAIR_ALLOWED=false",
+        "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs PASS with legacy warnings only",
+        "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs PASS",
+        "npm run agent:autopilot:dry-run PASS/DRY_RUN",
+        "npm run agent:quality-gate PASS"
+      ],
+      "mergeGateDecisionReason": "Local required checks passed and protected path findings were zero. AUTO_MERGE_ELIGIBLE=false is from protected-topic governance words plus size thresholds, not protected path findings; hosted PR mergeability/human-review evidence is still required before actual merge.",
+      "autoMergeEligible": false,
+      "autoRepairAllowed": false
+    },
+    {
+      "id": "RUN-2026-05-17-healthy-retention-agent",
+      "selectedBacklogEntry": "healthy-retention-agent",
+      "selectedAgent": "Healthy Retention Agent",
+      "selectionResult": "selected_next_eligible_approved_agent_report_only_high_risk",
+      "activationMode": "controlled_one_agent_activation",
+      "maxAgentsBuilt": 1,
+      "builtAgents": [
+        "healthy-retention-agent"
+      ],
+      "changedFilesPlanned": [
+        "project-register/healthy-retention-agent.json",
+        "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
+        "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/product-readiness.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "preBuildEvidence": [
+        "approved-agent-build-runner-dry-run selected healthy-retention-agent by registered order after Mission Factory was built",
+        "owner explicitly preferred Healthy Retention Agent if eligible",
+        "Healthy Retention scope classified high risk but eligible only as docs/register/validator/governance-only"
+      ],
+      "selectionReason": "Healthy Retention Agent is next by backlog order, alreadyHumanApproved=true, and can be kept strictly report-only/planning-only with protected authority blocked; exactly one agent framework is built in this PR.",
+      "repairAttempts": [
+        {
+          "id": "repair-2026-05-17-healthy-retention-ki-prompt",
+          "classification": "safe_docs_governance_repair",
+          "failedCheck": "npm run agent:quality-gate initially reported one missing KI-Fortsetzungs-Prompt for docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
+          "repair": "Added KI-Fortsetzungs-Prompt section to the Healthy Retention architecture document without touching runtime/protected files.",
+          "rerunEvidence": "npm run agent:quality-gate PASS; full required suite rerun PASS",
+          "updatedDate": "2026-05-17"
+        }
+      ],
+      "mergeGateStatus": "local_checks_green_pr_creation_allowed_not_auto_merge_ready",
+      "protectedScopeResult": "planned changes stay within docs/register/governance/validation-script paths; runtime/protected files remain untouched",
+      "nextRecommendedTask": "Reward Fairness Guard becomes the next approved backlog item after this PR merges, but it must remain report-only and protected authority must stay blocked if selected.",
+      "updatedDate": "2026-05-17",
+      "localRequiredCheckEvidence": [
+        "git diff --check PASS",
+        "jq empty on every changed project-register/*.json PASS",
+        "npm run lint PASS",
+        "npx tsc --noEmit PASS",
+        "npm run build PASS",
+        "npm --prefix functions run check PASS",
+        "node scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs PASS",
+        "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs PASS",
+        "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs PASS; post-build next selection is reward-fairness-guard",
         "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs PASS with MERGE_READY=false as expected for report-only missing-check gate semantics",
         "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs PASS/REPORT_ONLY with protected path findings 0 and human review required for protected-topic governance mentions",
         "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs PASS",

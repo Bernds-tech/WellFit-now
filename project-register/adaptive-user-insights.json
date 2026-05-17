@@ -245,5 +245,11 @@
     "register": "project-register/mission-factory-agent.json",
     "allowedUse": "Aggregate, minimized insight summaries may inform report-only mission planning questions.",
     "forbiddenUse": "No raw identifiers, individual targeting, runtime mission generation, completion authority, reward authority, protected-data inference, or location/camera/health/child/privacy/legal behavior."
+  },
+  "healthyRetentionAgentBoundary": {
+    "register": "project-register/healthy-retention-agent.json",
+    "doc": "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
+    "check": "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs",
+    "boundary": "Healthy Retention may consume only aggregate/planning insight summaries for report-only wellbeing review; no individual-user profiling, runtime personalization, notifications, streak/reward changes, mission/reward authority, or protected-data decisions."
   }
 }

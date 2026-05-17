@@ -1248,6 +1248,114 @@
         "project-register/agent-build-runner-state.json",
         "project-register/continuity-dependency-map.json"
       ]
+    },
+    {
+      "id": "CDS-020-healthy-retention-agent",
+      "title": "Healthy Retention Agent report-only continuity",
+      "status": "open",
+      "dependencyType": "agent_governance",
+      "source": "project-register/healthy-retention-agent.json",
+      "dependsOn": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/product-intelligence-agent.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/healthy-retention-agent.json",
+          "existsNow": true,
+          "purpose": "Machine-readable Healthy Retention Agent report-only register and protected-boundary source of truth."
+        },
+        {
+          "path": "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
+          "existsNow": true,
+          "purpose": "Human-readable Healthy Retention architecture, boundaries, and KI-Fortsetzungs-Prompt."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs",
+          "existsNow": true,
+          "purpose": "Report-only validator for Healthy Retention required fields and non-authority boundaries."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/healthy-retention-agent-report.md",
+          "existsNow": false,
+          "purpose": "Generated report-only validation output; do not commit generated output."
+        }
+      ],
+      "reason": "Preserve Healthy Retention as a report-only wellbeing review layer that extends mapped motivation, engagement, adaptive insight, and product-readiness sources instead of creating duplicate retention engines or runtime authority.",
+      "humanReviewRequired": true,
+      "blockedRules": [
+        "No runtime retention implementation, individual-user profiling, runtime personalization, notification automation, streak/reward modification, mission completion authority, reward authority, protected-data behavior, Unity/AR/native/PR #13 changes, deployment, approval, merge, or repair authority."
+      ],
+      "nextReview": "Before any Healthy Retention runtime implementation, notification automation, personalization, streak/reward mechanics, protected data, or mission/reward authority scope.",
+      "ownerAgent": "Healthy Retention Agent / Continuity Dependency Sentinel",
+      "summary": "Healthy Retention is report-only for wellbeing-first retention reviews, pause/recovery checklists, user-agency/opt-out checks, dark-pattern boundary reports, and human-review questions; it cannot implement retention runtime, profile users, trigger notifications, modify rewards/streaks, authorize missions/rewards, deploy, or touch protected runtime scope.",
+      "affectedFiles": [
+        "project-register/healthy-retention-agent.json",
+        "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
+        "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/continuity-dependency-map.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/product-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "blockedUntil": [
+        "human-reviewed runtime retention scope",
+        "separate approval for notification or reactivation mechanics",
+        "separate approval for streak/reward or mission authority",
+        "privacy/legal/health/child/location review for protected topics",
+        "separate Unity/AR/native review if those areas are proposed"
+      ],
+      "nextRecommendedTask": "Reward Fairness Guard becomes the next approved backlog item after Healthy Retention merges, but it must remain report-only with protected authority blocked if selected.",
+      "mustNotForget": true,
+      "dependencies": [
+        "requires_register_update",
+        "requires_validation_script",
+        "requires_work_map_update",
+        "requires_todo_index_update",
+        "requires_product_readiness_update",
+        "requires_task_queue_update",
+        "requires_human_review",
+        "requires_future_runtime_task",
+        "blocks_auto_merge",
+        "blocks_auto_repair",
+        "blocks_product_readiness_advance"
+      ],
+      "affectedRegisters": [
+        "project-register/healthy-retention-agent.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/product-intelligence-agent.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/continuity-dependency-map.json"
+      ]
     }
   ]
 }
