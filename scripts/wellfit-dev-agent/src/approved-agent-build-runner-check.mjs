@@ -38,7 +38,8 @@ const MANDATORY_MERGE_TERMS = ["PR exists", "PR branch is not main", "PR is merg
 const SAFE_REPAIR_IDS = ["markdown_trailing_whitespace", "missing_final_newline", "json_formatting_or_parse_errors_project_register", "missing_work_map_pointer", "missing_todo_index_pointer", "missing_ki_fortsetzung_prompt", "missing_expected_pr_output", "missing_required_output_locations_or_next_task", "missing_quality_gate_report_only_validator_registration", "missing_catalog_backlog_proposal_metadata", "missing_progress_or_work_log_evidence"];
 const UNSAFE_STOP_TERMS = ["app/**", "components/**", "lib/**", "functions/**", "firestore.rules", "public/**", "package.json/package-lock.json", "firebase.json or .github/**", "native/** or Unity/PR #13", "reward authority", "mission-completion authority", "health/child/location/camera/biometric/consent/privacy/legal/compliance", "source-of-truth ambiguity", "high/critical risk"];
 const REQUIRED_REFERENCES = [POLICY_PATH, STATE_PATH, DOC_PATH, CHECK_PATH, DRY_RUN_PATH];
-const ALLOWED_POLICY_ACTIVATION_STATES = ["report_only", "single_agent_docs_execution", "single_agent_docs_register_build"];
+const ACTIVE_DOCS_REGISTER_BUILD_STATE = "single_agent_docs_register_build";
+const ALLOWED_POLICY_ACTIVATION_STATES = ["report_only", ACTIVE_DOCS_REGISTER_BUILD_STATE];
 
 function absolute(relativePath) { return path.join(ROOT, relativePath); }
 function readText(relativePath) { return fs.readFileSync(absolute(relativePath), "utf8"); }
@@ -65,7 +66,8 @@ function main() {
   add(results, "Policy has required top-level fields", missing(Object.keys(policy), REQUIRED_POLICY_FIELDS).length === 0, missing(Object.keys(policy), REQUIRED_POLICY_FIELDS).join(", ") || "complete");
   add(results, "State has required top-level fields", missing(Object.keys(state), REQUIRED_STATE_FIELDS).length === 0, missing(Object.keys(state), REQUIRED_STATE_FIELDS).join(", ") || "complete");
   add(results, "Policy activation is report-only or approved single-agent docs/register build execution", ALLOWED_POLICY_ACTIVATION_STATES.includes(policy.activationState), policy.activationState);
-  add(results, "State is report-only", state.activationState === "report_only", state.activationState);
+  add(results, "State uses active docs/register build stage", state.activationState === ACTIVE_DOCS_REGISTER_BUILD_STATE, state.activationState);
+  add(results, "Policy and state use same active docs/register build stage", policy.activationState === ACTIVE_DOCS_REGISTER_BUILD_STATE && state.activationState === ACTIVE_DOCS_REGISTER_BUILD_STATE, `policy=${policy.activationState}; state=${state.activationState}`);
   add(results, "maxAgentsPerRun is <= 1 for first activation", Number(policy.maxAgentsPerRun) <= 1, String(policy.maxAgentsPerRun));
   add(results, "Allowed categories are exactly approved governance categories", missing(policy.allowedAgentBuildCategories, REQUIRED_ALLOWED_CATEGORIES).length === 0 && missing(REQUIRED_ALLOWED_CATEGORIES, policy.allowedAgentBuildCategories).length === 0, JSON.stringify(policy.allowedAgentBuildCategories));
   add(results, "Forbidden categories include runtime/protected classes", containsAllText(policy.forbiddenAgentBuildCategories, FORBIDDEN_CATEGORY_TERMS).length === 0, containsAllText(policy.forbiddenAgentBuildCategories, FORBIDDEN_CATEGORY_TERMS).join(", ") || "complete");
@@ -96,7 +98,7 @@ function main() {
   console.log("Mode: REPORT_CHECK_ONLY");
   console.log("Policy allows docs/register/validator agent builds: true");
   console.log("Never builds runtime agents: true");
-  console.log(`Docs/register/check-script execution may be activated: ${["single_agent_docs_execution", "single_agent_docs_register_build"].includes(policy.activationState)}`);
+  console.log(`Docs/register/check-script execution may be activated: ${policy.activationState === ACTIVE_DOCS_REGISTER_BUILD_STATE}`);
   console.log("PR creation allowed for scoped docs/register agent builds: true");
   console.log("Never merges PRs: true");
   console.log("Never repairs files: true");
