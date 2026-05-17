@@ -167,6 +167,26 @@ Referenzen:
 - `project-register/wellfit-knowledge-core.json`
 - `project-register/concept-learning-questions.json`
 
+
+## Product Memory Agent Speicherziele
+
+Der Product Memory Agent darf Produktwissen als Review- und Planungsdaten vorschlagen und strukturieren. Er verwendet die Memory-Typen Produktvision, Bernd-Entscheidungen, offene Fragen, bestätigte Antworten, Agent-Erkenntnisse, abgelehnte Vorschläge, Sicherheitsgrenzen und nächste empfohlene Tasks.
+
+Erlaubte Speicherziele sind:
+
+- `project-register/decisions.json`
+- `project-register/agent-follow-ups.json`
+- `project-register/concept-learning-questions.json`
+- `project-register/wellfit-knowledge-core.json`
+- `docs/architecture/WELLFIT_KNOWLEDGE_CORE.md`
+
+Diese Speicherziele sind nicht ausführend. Der Agent darf Memory vorschlagen, quellenbasiert sortieren und Follow-up-Kandidaten formulieren, aber keine geschützte Runtime-Aktion automatisch auslösen.
+
+Referenzen:
+
+- `project-register/product-memory-agent.json`
+- `docs/architecture/WELLFIT_PRODUCT_MEMORY_AGENT.md`
+
 ## Pflegehinweis
 
 Wenn sich Produktvision, Feature-Register, Mission-Buddy-Economy-Flow oder Projektstatus aendern, soll diese Datei nur als kurzer Wegweiser angepasst werden. Detailwissen bleibt in den verlinkten Quellen. Die maschinenlesbare Datei `project-register/wellfit-knowledge-core.json` soll synchron zur Struktur dieser Markdown-Datei bleiben.

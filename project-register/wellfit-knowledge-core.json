@@ -23,26 +23,31 @@
     "conceptLearningAgent": "project-register/concept-learning-agent.json",
     "conceptLearningQuestions": "project-register/concept-learning-questions.json",
     "allowedUse": [
-      "read_context",
-      "extract_known_facts_with_sources",
+      "derive_follow_up_task_candidates_after_approval",
       "detect_unknowns",
+      "extract_known_facts_with_sources",
+      "link_memory_records_to_sources",
       "prepare_bernd_questions",
       "propose_knowledge_core_updates",
-      "derive_follow_up_task_candidates_after_approval"
+      "read_context",
+      "receive_confirmed_product_memory"
     ],
     "forbiddenUse": [
-      "modify_runtime_files",
-      "change_product_behavior",
-      "enable_runtime_personalization",
-      "grant_rewards",
-      "complete_missions",
-      "authorize_anti_cheat",
-      "enable_token_wallet_payment_features",
-      "collect_protected_data",
       "approve_prs",
+      "authorize_anti_cheat",
+      "auto_execute_memory_suggestions",
+      "change_product_behavior",
+      "collect_protected_data",
+      "complete_missions",
+      "deploy",
+      "enable_runtime_personalization",
+      "enable_token_wallet_payment_features",
+      "grant_rewards",
       "merge_prs",
-      "deploy"
-    ]
+      "modify_runtime_files",
+      "trigger_protected_runtime_actions"
+    ],
+    "productMemoryAgent": "project-register/product-memory-agent.json"
   },
   "sections": [
     {
@@ -76,7 +81,9 @@
         "project-register/mission-buddy-economy-flow.json",
         "todolist/CURRENT_PROJECT_STATE.md"
       ],
-      "relatedFeatureIds": ["FEATURE-BUDDY"]
+      "relatedFeatureIds": [
+        "FEATURE-BUDDY"
+      ]
     },
     {
       "id": "missions",
@@ -88,7 +95,10 @@
         "project-register/mission-buddy-economy-flow.json",
         "todolist/CURRENT_PROJECT_STATE.md"
       ],
-      "relatedFeatureIds": ["FEATURE-MISSIONS", "FEATURE-MOBILE-WEB"]
+      "relatedFeatureIds": [
+        "FEATURE-MISSIONS",
+        "FEATURE-MOBILE-WEB"
+      ]
     },
     {
       "id": "challenges",
@@ -101,7 +111,10 @@
         "todolist/CODEBASE_FEATURE_MAP.md",
         "todolist/CURRENT_PROJECT_STATE.md"
       ],
-      "relatedFeatureIds": ["FEATURE-MISSIONS", "FEATURE-LEADERBOARD"]
+      "relatedFeatureIds": [
+        "FEATURE-MISSIONS",
+        "FEATURE-LEADERBOARD"
+      ]
     },
     {
       "id": "internal_points_xp",
@@ -113,7 +126,11 @@
         "project-register/mission-buddy-economy-flow.json",
         "todolist/CURRENT_PROJECT_STATE.md"
       ],
-      "relatedFeatureIds": ["FEATURE-POINTS-SHOP", "FEATURE-ECONOMY-PREVIEW-APIS", "FEATURE-DASHBOARD"]
+      "relatedFeatureIds": [
+        "FEATURE-POINTS-SHOP",
+        "FEATURE-ECONOMY-PREVIEW-APIS",
+        "FEATURE-DASHBOARD"
+      ]
     },
     {
       "id": "later_token_nft_boundaries",
@@ -126,7 +143,10 @@
         "todolist/MASTER_PROMPT_FOR_AI.md",
         "todolist/CURRENT_PROJECT_STATE.md"
       ],
-      "relatedFeatureIds": ["FEATURE-MARKETPLACE", "FEATURE-POINTS-SHOP"]
+      "relatedFeatureIds": [
+        "FEATURE-MARKETPLACE",
+        "FEATURE-POINTS-SHOP"
+      ]
     },
     {
       "id": "safety_boundaries",
@@ -161,6 +181,19 @@
         "project-register/mission-buddy-economy-flow.json",
         "project-register/concept-learning-agent.json",
         "project-register/concept-learning-questions.json"
+      ]
+    },
+    {
+      "id": "product_memory_agent_targets",
+      "title": "Product Memory Agent Speicherziele",
+      "summary": "The Product Memory Agent may propose and structure product memory into approved planning targets only: decisions, agent follow-ups, concept-learning questions, the machine-readable knowledge core, and this human-readable knowledge core. These records do not authorize protected runtime actions.",
+      "references": [
+        "project-register/product-memory-agent.json",
+        "project-register/decisions.json",
+        "project-register/agent-follow-ups.json",
+        "project-register/concept-learning-questions.json",
+        "project-register/wellfit-knowledge-core.json",
+        "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md"
       ]
     }
   ],

@@ -46,6 +46,36 @@ Valid outputs are review artifacts only:
 
 Every protected or high-impact finding remains `review_required` until Bernd or another authorized owner approves an exact runtime scope, file allowlist, stop conditions, and tests.
 
+
+## Memory-Typen
+
+Der Product Memory Agent darf folgende Memory-Typen nur als Planungs- und Review-Daten strukturieren:
+
+- `Produktvision` / `product_vision`
+- `Bernd-Entscheidungen` / `bernd_decisions`
+- `offene Fragen` / `open_questions`
+- `bestätigte Antworten` / `confirmed_answers`
+- `Agent-Erkenntnisse` / `agent_insights`
+- `abgelehnte Vorschläge` / `rejected_suggestions`
+- `Sicherheitsgrenzen` / `safety_boundaries`
+- `nächste empfohlene Tasks` / `next_recommended_tasks`
+
+## Speicherziele
+
+Erlaubte Speicherziele sind ausschließlich Planungs-/Register- und Architekturdateien:
+
+- `project-register/decisions.json`
+- `project-register/agent-follow-ups.json`
+- `project-register/concept-learning-questions.json`
+- `project-register/wellfit-knowledge-core.json`
+- `docs/architecture/WELLFIT_KNOWLEDGE_CORE.md`
+
+Diese Ziele dürfen bestätigte Antworten, offene Fragen, Konzept-Erkenntnisse, Sicherheitsgrenzen und nächste Task-Vorschläge aufnehmen. Sie autorisieren keine Runtime-Änderung und keine geschützte Aktion.
+
+## Geschützte Runtime-Aktionen
+
+Der Agent darf Memory vorschlagen, sortieren, mit Quellen versehen und als Follow-up-Kandidat formulieren. Er darf aber keine geschützte Runtime-Aktion automatisch auslösen. Dazu zählen insbesondere App-Code-Änderungen, Produktionsdaten-Schreibzugriffe, Deployments, Merges, PR-Approvals, Reward- oder Mission-Authority, Anti-Cheat-Entscheidungen, Token-/Wallet-/NFT-/Payment-Aktionen, Legal-/Privacy-/Health-/Child-/Location-/Camera-Änderungen und Unity-Runtime-Änderungen. Jede solche Aktion braucht einen separaten explizit freigegebenen Task mit genauer Dateigrenze, Reviewplan, Stopbedingungen und Tests.
+
 ## Validator contract
 
 The validator at `scripts/wellfit-dev-agent/src/product-memory-agent-check.mjs` checks that the register, architecture document, catalog entry, backlog entry, and work-log evidence agree on report-only status, runtime denial, protected boundaries, and required artifact paths.
