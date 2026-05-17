@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "updated": "2026-05-17",
-  "purpose": "Governance register for future WellFit Research & Recommendation Agent work: analyze unclear product or technical questions, read internal sources first, optionally use external research only when internet access is explicitly available, summarize three approaches, recommend one option, classify risk, and require human review before implementation.",
+  "purpose": "Governance register for future WellFit Research & Recommendation Agent work: analyze unclear product or technical questions, read internal sources first, use Controlled Curiosity before any external research that may influence WellFit decisions, summarize three approaches, recommend one option, classify risk, and require human review before implementation or adoption.",
   "status": "active",
   "scope": "Documentation, registry, and validation-only recommendation governance. This register does not authorize runtime product logic changes.",
   "requiredInternalFirstReadSources": [
@@ -35,7 +35,26 @@
     "ifUnavailable": "Clearly report that external research was unavailable and rely only on cited internal sources.",
     "ifAvailable": "Use focused external research only after internal-source review, prefer primary/official sources, cite sources, and keep the final decision human-review-required before implementation.",
     "mustNotAssumeAvailability": true,
-    "mustNotBypassInternalFirstRule": true
+    "mustNotBypassInternalFirstRule": true,
+    "automaticInternetResearchDefault": "blocked_until_internal_first_review_and_controlled_curiosity_gate",
+    "blockedForHighCriticalOrProtectedWithoutExplicitApproval": true,
+    "explicitApprovalRequiredFor": [
+      "high_risk_research",
+      "critical_risk_research",
+      "protected_topics",
+      "research_that_may_influence_roadmap_website_investor_text_or_product_concept"
+    ],
+    "approvalRecordRequiredFields": [
+      "approver_role",
+      "approval_date",
+      "approved_scope",
+      "allowed_source_types",
+      "blocked_source_types",
+      "risk_level",
+      "affected_wellfit_areas",
+      "storage_location"
+    ],
+    "highCriticalProtectedResearchRule": "Automatic internet research is blocked for high/critical risk or protected WellFit areas unless an Admin/Owner gives explicit approval for the exact research proposal scope; critical and protected-scope research requires Owner-level approval."
   },
   "allowedSourceTypes": [
     "existing WellFit repository files and project registers",
@@ -67,7 +86,12 @@
       "riskClassification",
       "humanReviewRequired",
       "implementationAllowed",
-      "nextSafeTask"
+      "nextSafeTask",
+      "knowledgeGap",
+      "researchProposal",
+      "researchResultDocument",
+      "independentSourceRiskReviewStatus",
+      "adoptionAllowedAfterReviewOnly"
     ],
     "optionsRule": {
       "required": true,
@@ -177,6 +201,114 @@
     "humanReviewRequired": true,
     "implementationAllowed": false,
     "nextSafeTask": "Create or update a recommendation report only; do not implement high/critical-risk decisions without explicit human approval."
+  },
+  "controlledCuriosityFlow": {
+    "status": "active_governance_extension",
+    "purpose": "Convert curiosity or uncertainty into a controlled, reviewable research workflow instead of automatic internet research or a parallel research architecture.",
+    "flow": [
+      {
+        "step": 1,
+        "id": "detect_knowledge_gap",
+        "required_output": "Document the knowledge gap, related internal sources checked, why repository knowledge is insufficient, and whether the topic is duplicate-prone or protected."
+      },
+      {
+        "step": 2,
+        "id": "create_research_proposal",
+        "required_output": "Create a Research Proposal before external research; keep status pending_approval and do not browse automatically."
+      },
+      {
+        "step": 3,
+        "id": "document_proposal_scope",
+        "required_output": "Document purpose, allowed and forbidden source types, risk level, expected value, affected WellFit areas, storage location, reviewer/approver role, and stop conditions."
+      },
+      {
+        "step": 4,
+        "id": "require_admin_owner_approval",
+        "required_output": "Require Admin approval for eligible low/medium proposal scopes and Owner approval for high, critical, or protected scopes before internet research begins."
+      },
+      {
+        "step": 5,
+        "id": "store_research_result_document",
+        "required_output": "Save the research result as a document/report with internal-source context, external sources used, limitations, source dates when available, and no direct implementation authority."
+      },
+      {
+        "step": 6,
+        "id": "independent_source_and_risk_review",
+        "required_output": "Require an independent review of source quality, source independence, risk classification, protected-scope impact, claims, and applicability to WellFit."
+      },
+      {
+        "step": 7,
+        "id": "review_before_adoption",
+        "required_output": "Allow adoption into roadmap, website, investor text, or product concept only after review approval; otherwise keep as internal research context."
+      }
+    ],
+    "researchProposalRequiredFields": [
+      "knowledge_gap",
+      "purpose",
+      "allowed_source_types",
+      "forbidden_source_types",
+      "risk_level",
+      "expected_value",
+      "affected_wellfit_areas",
+      "protected_scope_assessment",
+      "requested_approver_role",
+      "storage_location",
+      "stop_conditions",
+      "adoption_targets_if_any"
+    ],
+    "approvalGate": {
+      "adminMayApprove": [
+        "low_risk_internal_or_public_non_protected_research",
+        "medium_risk_report_only_research_after_concept_review"
+      ],
+      "ownerMustApprove": [
+        "high_risk_research",
+        "critical_risk_research",
+        "protected_topics",
+        "research_for_public_claims_or_investor_materials"
+      ],
+      "systemAgentMayApprove": false,
+      "approvalMustBeExplicitAndScoped": true
+    },
+    "automaticInternetResearchBlock": {
+      "default": "blocked_until_proposal_review_when_external_research_may_influence_wellfit_decisions",
+      "blockedWithoutExplicitApprovalForRiskLevels": [
+        "high",
+        "critical"
+      ],
+      "blockedWithoutExplicitApprovalForProtectedTopics": true,
+      "protectedTopicsSource": "protectedTopics",
+      "rule": "No automatic internet research for High/Critical risk or protected WellFit areas without explicit Admin/Owner approval recorded against the Research Proposal; Owner approval is required for critical or protected scopes."
+    },
+    "resultDocumentPolicy": {
+      "mustStoreAsDocument": true,
+      "allowedStorageLocations": [
+        "docs/research/**",
+        "project-register/** report-only entries",
+        "todolist/** pointers when needed"
+      ],
+      "mustInclude": [
+        "proposal_id",
+        "approval_reference",
+        "sources_used",
+        "source_type_summary",
+        "risk_notes",
+        "limitations",
+        "affected_wellfit_areas",
+        "independent_review_status",
+        "adoption_status"
+      ]
+    },
+    "adoptionPolicy": {
+      "requiresIndependentSourceRiskReview": true,
+      "adoptionBlockedUntilReviewFor": [
+        "roadmap",
+        "website",
+        "investor_text",
+        "product_concept"
+      ],
+      "noDirectImplementationAuthority": true
+    }
   },
   "decisionLogEntries": [],
   "humanMotivationEngineBoundary": {

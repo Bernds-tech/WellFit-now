@@ -139,23 +139,77 @@
   },
   "controlled_curiosity": {
     "status": "proposal_approval_flow_required",
+    "purpose": "Controlled Curiosity keeps WellFit research inside the existing proposal, approval, risk, and review governance instead of allowing automatic internet research or a parallel research architecture.",
     "source_registers": [
       "project-register/research-recommendations.json"
     ],
+    "flow": [
+      "1_detect_knowledge_gap",
+      "2_create_research_proposal",
+      "3_document_purpose_source_types_risk_expected_value_and_affected_wellfit_areas",
+      "4_require_admin_or_owner_approval_before_external_research",
+      "5_store_research_result_as_document",
+      "6_require_independent_source_and_risk_review",
+      "7_allow_roadmap_website_investor_or_product_concept_adoption_only_after_review"
+    ],
     "required_research_proposal_fields": [
+      "knowledge_gap",
       "purpose",
       "allowed_source_types",
       "forbidden_source_types",
       "risk_level",
       "expected_value",
       "affected_wellfit_areas",
+      "protected_scope_assessment",
       "reviewer",
-      "storage_location"
+      "approver_role",
+      "storage_location",
+      "stop_conditions",
+      "adoption_targets_if_any"
     ],
+    "approval_gate": {
+      "admin_approval_allowed_for": [
+        "low_risk_non_protected_research",
+        "medium_risk_report_only_research_after_concept_review"
+      ],
+      "owner_approval_required_for": [
+        "high_risk_research",
+        "critical_risk_research",
+        "protected_scopes",
+        "public_claims",
+        "investor_materials"
+      ],
+      "system_agent_may_approve": false,
+      "approval_must_be_explicit_and_scope_bound": true
+    },
+    "automatic_internet_research": {
+      "default": "blocked_when_research_may_influence_wellfit_decisions_until_proposal_gate_passes",
+      "blocked_without_explicit_approval_for_risk_levels": [
+        "high",
+        "critical"
+      ],
+      "blocked_without_explicit_approval_for_protected_scopes": true,
+      "critical_or_protected_requires_owner_approval": true
+    },
+    "result_document_policy": {
+      "must_store_result_document": true,
+      "must_include_sources_risks_limitations_and_affected_areas": true,
+      "independent_source_risk_review_required": true,
+      "adoption_targets_blocked_until_review": [
+        "roadmap",
+        "website",
+        "investor_text",
+        "product_concept"
+      ]
+    },
     "rules": [
+      "Agent must detect and document the knowledge gap before proposing research.",
       "Agent must create a research proposal before external research when the result would influence product, roadmap, website, investor, legal, privacy, health, child-safety, location, camera, payment, token, reward, or mission-authority topics.",
-      "Admin or Owner must approve the research before it is used as product guidance.",
-      "A second review must check source quality, risks, and applicability before incorporation into roadmap, website, investor text, or product concept."
+      "The proposal must document purpose, source types, risk, expected value, and affected WellFit areas before approval.",
+      "Admin or Owner must approve the exact research scope before internet research begins; Owner approval is mandatory for high, critical, or protected scopes.",
+      "Automatic internet research is blocked for High/Critical risk or protected WellFit areas without explicit approval.",
+      "Research results must be saved as a document/report and cannot directly authorize implementation.",
+      "A second independent review must check source quality, source independence, risks, protected-scope impact, and applicability before incorporation into roadmap, website, investor text, or product concept."
     ]
   },
   "admin_ui_target": {

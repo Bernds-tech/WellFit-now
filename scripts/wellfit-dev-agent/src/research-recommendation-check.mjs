@@ -137,6 +137,50 @@ function validateRiskAndReview(data, results) {
   }
 }
 
+function validateControlledCuriosity(data, results) {
+  const flow = data?.controlledCuriosityFlow;
+  if (!flow || typeof flow !== "object") {
+    results.fail.push("controlledCuriosityFlow must be documented.");
+    return;
+  }
+
+  const flowText = stringify(flow).toLowerCase();
+  const requiredSignals = [
+    "knowledge_gap",
+    "research_proposal",
+    "purpose",
+    "allowed_source_types",
+    "forbidden_source_types",
+    "risk_level",
+    "expected_value",
+    "affected_wellfit_areas",
+    "owner",
+    "admin",
+    "store_research_result_document",
+    "independent_source_and_risk_review",
+    "roadmap",
+    "website",
+    "investor_text",
+    "product_concept"
+  ];
+  const missingSignals = requiredSignals.filter((signal) => !flowText.includes(signal));
+  if (missingSignals.length > 0) results.fail.push(`controlledCuriosityFlow is missing required signals: ${missingSignals.join(", ")}.`);
+
+  const block = flow?.automaticInternetResearchBlock;
+  if (!asArray(block?.blockedWithoutExplicitApprovalForRiskLevels).includes("high")) {
+    results.fail.push("controlledCuriosityFlow must block automatic internet research for high risk without explicit approval.");
+  }
+  if (!asArray(block?.blockedWithoutExplicitApprovalForRiskLevels).includes("critical")) {
+    results.fail.push("controlledCuriosityFlow must block automatic internet research for critical risk without explicit approval.");
+  }
+  if (block?.blockedWithoutExplicitApprovalForProtectedTopics !== true) {
+    results.fail.push("controlledCuriosityFlow must block automatic internet research for protected topics without explicit approval.");
+  }
+  if (flow?.adoptionPolicy?.requiresIndependentSourceRiskReview !== true) {
+    results.fail.push("controlledCuriosityFlow.adoptionPolicy must require independent source/risk review.");
+  }
+}
+
 function validateProtectedTopics(data, results) {
   const protectedText = `${asArray(data?.protectedTopics).join("\n")}\n${stringify(data?.humanReviewRequiredRules)}\n${stringify(data?.riskClassification)}`;
   for (const match of PROTECTED_TOPIC_MATCHES) {
@@ -186,6 +230,7 @@ function main() {
     validateSources(data, results);
     validateRecommendationFormat(data, results);
     validateRiskAndReview(data, results);
+    validateControlledCuriosity(data, results);
     validateProtectedTopics(data, results);
   }
 
