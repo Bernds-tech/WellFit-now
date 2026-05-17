@@ -1,0 +1,187 @@
+{
+  "name": "WellFit Agent Control Center",
+  "status": "planning_register_prepared",
+  "updated": "2026-05-17",
+  "purpose": "Connect existing WellFit agent catalog, task queue, approved build backlog, risk classifier, definition of done, research governance, quality gate, PR review, decision log, progress log, and work-log structures into one controlled proposal and approval model without creating a parallel runtime architecture.",
+  "roles": [
+    {
+      "id": "viewer",
+      "label": "Viewer",
+      "permissions": ["read_proposals", "read_check_results", "read_audit_history"],
+      "forbidden_actions": ["approve", "execute", "merge", "deploy", "modify_protected_scopes"]
+    },
+    {
+      "id": "agent_admin",
+      "label": "Agent Admin",
+      "permissions": ["review_low_medium_proposals", "request_revision", "approve_low_risk_when_policy_allows"],
+      "forbidden_actions": ["approve_own_work", "approve_high_or_critical", "merge", "deploy", "modify_protected_scopes"]
+    },
+    {
+      "id": "technical_admin",
+      "label": "Technical Admin",
+      "permissions": ["prepare_codex_task", "verify_allowed_paths", "verify_checks", "request_review_plan"],
+      "forbidden_actions": ["approve_own_work", "production_deploy_without_owner_release", "bypass_quality_gate", "modify_protected_scopes_without_explicit_approval"]
+    },
+    {
+      "id": "owner",
+      "label": "Owner",
+      "permissions": ["approve_high_risk_with_review_plan", "approve_critical_manual_only_with_audit_note", "reject", "request_revision"],
+      "forbidden_actions": ["bypass_required_checks", "bypass_audit_note", "self_approve_agent_output_as_system_agent"]
+    },
+    {
+      "id": "system_agent",
+      "label": "System Agent",
+      "permissions": ["create_proposal", "classify_risk", "suggest_checks", "prepare_report_only_codex_task_draft"],
+      "forbidden_actions": ["approve", "self_approve", "merge", "deploy", "activate_runtime_authority", "modify_protected_scopes_without_approval"]
+    }
+  ],
+  "proposal_statuses": [
+    "draft",
+    "pending_review",
+    "pending_approval",
+    "approved",
+    "rejected",
+    "needs_revision",
+    "execution_ready",
+    "execution_running",
+    "checks_running",
+    "pr_created",
+    "blocked",
+    "completed"
+  ],
+  "risk_levels": {
+    "low": {
+      "description": "Documentation, registers, report-only findings, safe metadata synchronization.",
+      "default_can_auto_execute": true,
+      "requires_human_approval": false,
+      "allowed_only_after_area_approval": true
+    },
+    "medium": {
+      "description": "New analysis scripts, new admin concepts, new agent extensions, report-only validators.",
+      "default_can_auto_execute": false,
+      "requires_human_approval": true,
+      "approval_type": "concept_approval"
+    },
+    "high": {
+      "description": "Runtime code, user data, rewards, mission completion, backend authority, protected-adjacent product behavior.",
+      "default_can_auto_execute": false,
+      "requires_human_approval": true,
+      "approval_type": "single_task_approval_with_review_plan"
+    },
+    "critical": {
+      "description": "Token, wallet, payment, presale, health, child safety, location, camera/biometric, legal, Firestore rules, production deployment.",
+      "default_can_auto_execute": false,
+      "requires_human_approval": true,
+      "approval_type": "owner_approval_audit_note_manual_only"
+    }
+  },
+  "approval_rules": [
+    "Low risk proposals may be prepared only after area approval and must remain inside allowed docs/register/report-only scopes.",
+    "Medium risk proposals need concept approval before any execution-ready task is generated.",
+    "High risk proposals require single-task approval, exact allowed paths, explicit blocked scopes, review plan, and required checks.",
+    "Critical risk proposals require Owner approval, audit note, manual-only execution, and must never auto-merge or auto-deploy.",
+    "No System Agent may approve its own proposal, execution, PR, merge, deploy, or repair.",
+    "Approved means the next controlled step may be prepared; it does not mean merge, deploy, runtime authority, protected-scope authority, or self-approval."
+  ],
+  "protected_scopes": [
+    "token_nft_wallet_payment_presale_trading_payout_staking_marketplace",
+    "health_child_location_camera_face_biometric_privacy_consent_legal_compliance",
+    "reward_authority_mission_completion_authority_anti_cheat_payouts_financial_equivalent_mechanics",
+    "firestore_rules_firebase_functions_production_data_deployment_config",
+    "unity_native_wellfitbuddyar_pr13",
+    "secrets_api_keys_local_paths_branch_protection_repository_settings"
+  ],
+  "allowed_low_risk_actions": [
+    "create_gap_analysis",
+    "create_or_update_docs_architecture_report",
+    "create_or_update_project_register_policy_metadata",
+    "create_report_only_validator",
+    "update_todo_index_or_work_map_pointer",
+    "run_quality_gate_and_static_checks",
+    "prepare_codex_task_draft_without_execution"
+  ],
+  "blocked_auto_actions": [
+    "auto_merge",
+    "auto_deploy",
+    "auto_approve",
+    "self_approve",
+    "modify_runtime_product_code_without_exact_allowlist",
+    "modify_protected_scopes_without_owner_approval",
+    "write_production_data",
+    "change_firestore_rules_or_functions_without_dedicated_review_plan",
+    "touch_unity_or_pr13_paths",
+    "change_package_dependencies_without_explicit_approval"
+  ],
+  "codex_task_generation": {
+    "status": "proposal_to_task_draft_only",
+    "required_fields": [
+      "first_read_files",
+      "allowed_paths",
+      "blocked_paths",
+      "scope",
+      "non_goals",
+      "checks_required",
+      "reporting_requirements",
+      "risk_level",
+      "expected_pr_diff_scope",
+      "stop_conditions",
+      "human_approval_required"
+    ],
+    "source_registers": [
+      "project-register/agent-task-queue.json",
+      "project-register/risk-classifier.json",
+      "project-register/definition-of-done.json",
+      "project-register/agent-catalog.json",
+      "project-register/approved-agent-build-backlog.json",
+      "project-register/pr-review-policy.json"
+    ],
+    "may_execute_without_human_review": false
+  },
+  "controlled_curiosity": {
+    "status": "proposal_approval_flow_required",
+    "source_registers": [
+      "project-register/research-recommendations.json"
+    ],
+    "required_research_proposal_fields": [
+      "purpose",
+      "allowed_source_types",
+      "forbidden_source_types",
+      "risk_level",
+      "expected_value",
+      "affected_wellfit_areas",
+      "reviewer",
+      "storage_location"
+    ],
+    "rules": [
+      "Agent must create a research proposal before external research when the result would influence product, roadmap, website, investor, legal, privacy, health, child-safety, location, camera, payment, token, reward, or mission-authority topics.",
+      "Admin or Owner must approve the research before it is used as product guidance.",
+      "A second review must check source quality, risks, and applicability before incorporation into roadmap, website, investor text, or product concept."
+    ]
+  },
+  "admin_ui_target": {
+    "status": "concept_only_not_built",
+    "preferred_path": "/admin/agent-center",
+    "alternative_path": "/admin/cognitive-core",
+    "must_not_create_in_this_task": [
+      "app/admin/agent-center/**",
+      "ui_components",
+      "api_routes",
+      "firebase_writes",
+      "auth_or_role_logic",
+      "approval_buttons",
+      "production_workflows"
+    ]
+  },
+  "human_approval_required_for": [
+    "medium_risk_execution",
+    "high_risk_execution",
+    "critical_risk_review_or_execution",
+    "runtime_code_changes",
+    "protected_scope_changes",
+    "merge",
+    "deployment",
+    "auto_repair_outside_safe_docs_register_json_format",
+    "dependency_or_package_changes",
+    "research_used_for_product_or_public_claims"
+  ]
+}

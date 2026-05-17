@@ -275,3 +275,9 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 
 - `single_agent_docs_register_build` is now the active governance mode for already-human-approved agent backlog entries.
 - Scope remains docs/register/validator/report artifacts only; runtime/protected work, auto-merge and deploy remain blocked.
+
+## Agent Control Center planning references - 2026-05-17
+
+| Topic | Leading files | Status | Notes |
+|---|---|---|---|
+| Agent Control Center | `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER_GAP_ANALYSIS.md`, `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER.md`, `project-register/agent-control-center.json`, `project-register/agent-proposals.json`, `scripts/wellfit-dev-agent/src/agent-control-center-check.mjs`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | planning_register_prepared / report_only | Centralizes proposal visibility, risk gates, human approval, controlled curiosity, and Codex task draft boundaries over existing agent catalog/task queue/backlog/risk/DoD structures. No Admin UI, runtime product logic, protected-scope writes, auto-merge, auto-approval, or deploy is enabled. |
