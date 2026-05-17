@@ -1,0 +1,194 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "agentId": "concept_learning_agent",
+  "name": "Concept Learning Agent",
+  "activationState": "report_only",
+  "purpose": "Maintain a safe, structured loop for reading WellFit context, identifying known facts and unknowns, asking Bernd concise clarification questions, storing approved answers, updating the knowledge core, and deriving scoped agent tasks only after admin approval.",
+  "scope": {
+    "mode": "REPORT_ONLY",
+    "runtimeProductLogicEnabled": false,
+    "runtimePersonalizationEnabled": false,
+    "mayAskBerndQuestions": true,
+    "mayStoreApprovedAnswers": true,
+    "mayDeriveTaskCandidates": true,
+    "mayModifyRuntimeFiles": false,
+    "mayApproveOrMerge": false,
+    "mayDeploy": false
+  },
+  "connectedReferences": {
+    "memoryLoop": "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
+    "agentControlCenter": "project-register/agent-control-center.json",
+    "agentFollowUps": "project-register/agent-follow-ups.json",
+    "decisions": "project-register/decisions.json",
+    "researchRecommendations": "project-register/research-recommendations.json"
+  },
+  "requiredPhases": [
+    "read_wellfit_context",
+    "extract_known_facts",
+    "detect_unknowns",
+    "ask_bernd_questions",
+    "store_answer",
+    "update_knowledge_core",
+    "derive_agent_task",
+    "wait_for_admin_approval"
+  ],
+  "phaseDefinitions": [
+    {
+      "id": "read_wellfit_context",
+      "purpose": "Read AGENTS.md, current project state, architecture notes, registers, TODO indices, and relevant planning files before asking or deriving anything.",
+      "requiredInputs": [
+        "AGENTS.md",
+        "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md",
+        "project-register/agent-control-center.json",
+        "project-register/decisions.json"
+      ],
+      "allowedOutput": "context_inventory_report"
+    },
+    {
+      "id": "extract_known_facts",
+      "purpose": "Summarize already documented WellFit facts with source references and confidence notes.",
+      "allowedOutput": "known_fact_list_with_sources"
+    },
+    {
+      "id": "detect_unknowns",
+      "purpose": "Identify missing decisions, contradictions, stale assumptions, and protected-scope uncertainties that should not be guessed.",
+      "allowedOutput": "unknowns_backlog"
+    },
+    {
+      "id": "ask_bernd_questions",
+      "purpose": "Convert important unknowns into concise, machine-readable questions for Bernd, limited to what is needed for a safe next step.",
+      "allowedOutput": "question_objects"
+    },
+    {
+      "id": "store_answer",
+      "purpose": "Store answers only after they are explicitly provided, source-tagged, and mapped to an approved storage target.",
+      "allowedOutput": "answer_storage_patch_candidate"
+    },
+    {
+      "id": "update_knowledge_core",
+      "purpose": "Propose updates to the knowledge core or related registers without deleting historical context.",
+      "allowedOutput": "knowledge_core_update_candidate"
+    },
+    {
+      "id": "derive_agent_task",
+      "purpose": "Derive one small, scoped, reviewable follow-up task candidate from an approved answer or documented knowledge gap.",
+      "allowedOutput": "follow_up_task_candidate"
+    },
+    {
+      "id": "wait_for_admin_approval",
+      "purpose": "Block implementation, runtime changes, protected-scope decisions, and task execution until explicit admin approval is recorded.",
+      "allowedOutput": "approval_wait_state"
+    }
+  ],
+  "questionFormat": {
+    "requiredFields": [
+      "id",
+      "question",
+      "why_it_matters",
+      "affected_area",
+      "risk_level",
+      "answer_type",
+      "storage_target",
+      "follow_up_task_candidate"
+    ],
+    "fieldRules": {
+      "id": "Stable machine id in snake_case, unique within the current question batch.",
+      "question": "Human-readable question for Bernd; must be concise and not bundle unrelated decisions.",
+      "why_it_matters": "Short explanation of the product, safety, architecture, or governance reason for asking.",
+      "affected_area": "One or more WellFit areas affected by the answer, for example architecture, mission, buddy, economy, privacy, child_safety, AR, Unity, website, legal, or governance.",
+      "risk_level": "One of low, medium, high, critical. High or critical requires explicit admin/owner review before task derivation.",
+      "answer_type": "One of free_text, yes_no, single_choice, multi_choice, number, date, file_reference, approval_decision.",
+      "storage_target": "Allowed target path or register key where an approved answer may be stored; must not be a runtime product file.",
+      "follow_up_task_candidate": "Optional scoped task candidate derived from a likely answer; it remains blocked until approval."
+    },
+    "example": {
+      "id": "mission_reward_authority_owner",
+      "question": "Wer soll die finale Autorität für Missionsbelohnungen im Beta-Flow halten?",
+      "why_it_matters": "Reward- und Mission-Completion-Authority darf nicht clientseitig oder ungeprüft erweitert werden.",
+      "affected_area": [
+        "mission",
+        "economy",
+        "governance"
+      ],
+      "risk_level": "high",
+      "answer_type": "single_choice",
+      "storage_target": "project-register/decisions.json",
+      "follow_up_task_candidate": "Draft a server-authority decision record and guarded implementation plan after admin approval."
+    }
+  },
+  "storageTargets": {
+    "answers": [
+      "project-register/decisions.json",
+      "project-register/agent-follow-ups.json",
+      "project-register/research-recommendations.json",
+      "docs/architecture/WELLFIT_AGENT_MEMORY_LOOP.md"
+    ],
+    "knowledgeCore": "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md",
+    "taskCandidates": "project-register/agent-follow-ups.json",
+    "controlState": "project-register/agent-control-center.json"
+  },
+  "approvalPolicy": {
+    "adminApprovalRequiredBeforeImplementation": true,
+    "adminApprovalRequiredBeforeRuntimeChanges": true,
+    "ownerApprovalRequiredForCriticalOrProtectedScope": true,
+    "systemAgentMayApprove": false,
+    "approvalMustReferenceQuestionId": true,
+    "approvalMustNameAllowedStorageTarget": true
+  },
+  "protectedScopeRules": {
+    "protectedAreas": [
+      "health",
+      "watch_data",
+      "location",
+      "camera",
+      "child_safety",
+      "privacy",
+      "consent",
+      "legal",
+      "token",
+      "NFT",
+      "wallet",
+      "payment",
+      "payout",
+      "betting",
+      "reward_authority",
+      "mission_completion_authority",
+      "anti_cheat",
+      "Unity_AR"
+    ],
+    "defaultRiskLevelForProtectedAreas": "high",
+    "rule": "Protected-scope questions may be asked and stored as report-only planning context, but they cannot trigger implementation, runtime behavior, reward authority, mission-completion authority, monetization, or deployment without explicit approval."
+  },
+  "allowedOutputs": [
+    "context_inventory_report",
+    "known_fact_list_with_sources",
+    "unknowns_backlog",
+    "question_objects",
+    "answer_storage_patch_candidate",
+    "knowledge_core_update_candidate",
+    "follow_up_task_candidate",
+    "approval_wait_state",
+    "quality_gate_report"
+  ],
+  "forbiddenAutoActions": [
+    "modify_runtime_files",
+    "change_product_behavior",
+    "enable_runtime_personalization",
+    "grant_rewards",
+    "complete_missions",
+    "authorize_anti_cheat",
+    "enable_token_wallet_payment_features",
+    "collect_protected_data",
+    "approve_prs",
+    "merge_prs",
+    "auto_repair_files",
+    "deploy"
+  ],
+  "validator": {
+    "script": "scripts/wellfit-dev-agent/src/concept-learning-agent-check.mjs",
+    "output": "scripts/wellfit-dev-agent/output/concept-learning-agent-report.md",
+    "qualityGateLabel": "Concept Learning Agent check"
+  },
+  "readySignal": "CONCEPT_LEARNING_AGENT_READY=true"
+}
