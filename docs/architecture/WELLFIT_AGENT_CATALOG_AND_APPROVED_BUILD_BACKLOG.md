@@ -1,14 +1,15 @@
 # WellFit Agent Catalog and Approved Agent Build Backlog
 
 Status: active / report-only governance  
-Updated: 2026-05-16
+Updated: 2026-05-17
 
 ## Purpose
 
-WellFit now keeps two separate machine-readable files for agent governance:
+WellFit now keeps three separate machine-readable files for agent governance:
 
-- `project-register/agent-catalog.json` catalogs existing WellFit agents, frameworks, validators, owned registers, human-readable docs, extension boundaries, protected boundaries, and next safe maintenance tasks.
+- `project-register/agent-catalog.json` catalogs existing WellFit agents, frameworks, validators, owned registers, human-readable docs, extension boundaries, protected boundaries, runtime capability labels, and next safe maintenance tasks.
 - `project-register/approved-agent-build-backlog.json` records human-approved future agents/frameworks that may be planned or built later, one at a time, without silently creating duplicate architecture.
+- `project-register/agent-build-proposals.json` records generated/accepted build proposals and carries the same runtime capability labels so a proposal marked `built` is not mistaken for autonomous runtime authority.
 
 This separation lets future agents understand **what already exists** before proposing or building anything new. It also preserves the PR #104 Extension Policy: an existing agent can be extended only inside its current domain; a new durable agent role must be tracked, justified, and validated before build work starts.
 
@@ -29,6 +30,28 @@ The catalog makes those responsibilities explicit. Every entry includes owned re
 Existing agents/frameworks are operational governance assets. They already have source files, docs, validation scripts, quality-gate wiring, and extension boundaries.
 
 Approved future agents are different: the owner has approved them as a backlog of desired future capabilities, but they are **not built by this task**. The backlog records priority, risk, connected existing agents/registers, required docs/registers/scripts, allowed/forbidden files, dependencies, build order, and protected boundaries. This prevents an approved idea from being mistaken for an active agent.
+
+
+## Runtime capability and status fields
+
+The lifecycle field `status` is still used for catalog/backlog workflow state (`active`, `approved_for_planning`, `built`, `superseded`, and similar values). It is **not** a runtime-autonomy indicator. To prevent the word `built` from being misread as execution authority, the catalog, approved backlog, and proposal register now include these explicit fields on every entry:
+
+- `artifactStatus`: implementation maturity of the artifact itself.
+  - `planned`: idea/backlog entry exists, but the governance artifact has not been implemented yet.
+  - `governance_built`: documentation/register governance exists, but there is no validator or runtime capability implied by this field alone.
+  - `validator_built`: documentation/register governance plus report-only validation/check scripts exist.
+  - `runtime_capable`: a later human-approved task has explicitly granted and documented runtime capability. This value must not be inferred from `status: built`.
+- `executionCapability`: maximum documented execution ability for the current artifact.
+  - `report_only`: may inspect/read and produce reports, but must not write product/runtime files automatically.
+  - `docs_register_write`: may write only approved documentation, register, TODO/planning, and validator-script scopes in a human-approved implementation task.
+  - `safe_runtime_write`: may write a specifically approved low-risk runtime scope, still bounded by explicit paths and review.
+  - `repair_capable`: may perform a specifically approved repair workflow; it must still respect protected-scope and human-review gates.
+  - `pr_capable`: may create or update PR artifacts only when a later task grants that ability; it does not imply merge, deploy, approval, or auto-repair authority.
+- `allowedWriteScopes`: path globs that may be written only when the selected task explicitly grants write execution. Empty lists mean no autonomous writes are granted by the catalog entry itself.
+- `forbiddenWriteScopes`: path globs that must not be written by that artifact/task. Forbidden scopes always override allowed scopes.
+- `requiresHumanApprovalForRuntime`: `true` means any runtime execution, product writes, repairs, PR creation, protected-scope change, or stronger capability must be explicitly approved by a human before use.
+
+Current WellFit agent governance should treat `validator_built + report_only` as the safe default for existing cataloged governance artifacts. Backlog/proposal entries that show `validator_built + docs_register_write` mean a scoped human build produced docs/register/validator outputs; they still do **not** authorize autonomous runtime behavior, reward authority, mission completion authority, protected data access, repairs, PR creation, merge, deployment, or product writes.
 
 ## Extension Policy: extend vs new agent
 
@@ -103,4 +126,4 @@ This supports safer autonomy by reducing ambiguity without granting automatic bu
 
 ## KI-Fortsetzungs-Prompt
 
-Read `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-extension-policy.json`, `project-register/agent-catalog.json`, and `project-register/approved-agent-build-backlog.json` before changing agent governance. Extend an existing cataloged agent only when one owner domain clearly fits; otherwise use the approved backlog or create a proposal with human review. Keep first versions report-only, build future agents one at a time, do not touch runtime/protected files, and run `node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs` plus the Quality Gate before PR handoff.
+Read `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-extension-policy.json`, `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, and `project-register/agent-build-proposals.json` before changing agent governance. Extend an existing cataloged agent only when one owner domain clearly fits; otherwise use the approved backlog or create a proposal with human review. Keep first versions report-only, build future agents one at a time, do not touch runtime/protected files, and run `node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs` plus the Quality Gate before PR handoff.

@@ -36,6 +36,11 @@ const REQUIRED_PROPOSAL_FIELDS = [
   "proposedAgentName",
   "sourceApprovedBacklogId",
   "status",
+  "artifactStatus",
+  "executionCapability",
+  "allowedWriteScopes",
+  "forbiddenWriteScopes",
+  "requiresHumanApprovalForRuntime",
   "reason",
   "expectedBenefit",
   "riskLevel",
@@ -57,6 +62,8 @@ const REQUIRED_PROPOSAL_FIELDS = [
 ];
 
 const REQUIRED_STATUSES = ["drafted", "proposed", "approved", "rejected", "superseded", "built", "blocked"];
+const REQUIRED_ARTIFACT_STATUSES = ["planned", "governance_built", "validator_built", "runtime_capable"];
+const REQUIRED_EXECUTION_CAPABILITIES = ["report_only", "docs_register_write", "safe_runtime_write", "repair_capable", "pr_capable"];
 const REQUIRED_REFERENCES = [POLICY_REL, PROPOSALS_REL, DOC_REL, CHECK_SCRIPT_REL, GENERATOR_SCRIPT_REL];
 const REQUIRED_FORBIDDEN_ACTIONS = [
   "create_future_agent_automatically",
@@ -107,6 +114,10 @@ function validateProposals(proposals, backlog, results) {
   const statuses = new Set(asArray(proposals?.proposalStatuses));
   const missingStatuses = REQUIRED_STATUSES.filter((status) => !statuses.has(status));
   add(results, "proposal statuses include required lifecycle", missingStatuses.length === 0, missingStatuses.length ? `missing: ${missingStatuses.join(", ")}` : `${REQUIRED_STATUSES.length} statuses present`);
+  const missingArtifactStatuses = REQUIRED_ARTIFACT_STATUSES.filter((status) => !asArray(proposals?.artifactStatuses).includes(status));
+  add(results, "proposal artifactStatuses include required values", missingArtifactStatuses.length === 0, missingArtifactStatuses.length ? `missing: ${missingArtifactStatuses.join(", ")}` : `${REQUIRED_ARTIFACT_STATUSES.length} values present`);
+  const missingExecutionCapabilities = REQUIRED_EXECUTION_CAPABILITIES.filter((capability) => !asArray(proposals?.executionCapabilities).includes(capability));
+  add(results, "proposal executionCapabilities include required values", missingExecutionCapabilities.length === 0, missingExecutionCapabilities.length ? `missing: ${missingExecutionCapabilities.join(", ")}` : `${REQUIRED_EXECUTION_CAPABILITIES.length} values present`);
 
   const schemaMissing = REQUIRED_PROPOSAL_FIELDS.filter((field) => proposals?.proposalSchema?.[field] === undefined);
   add(results, "proposalSchema requires required fields", schemaMissing.length === 0, schemaMissing.length ? `missing: ${schemaMissing.join(", ")}` : `${REQUIRED_PROPOSAL_FIELDS.length} schema fields present`);
@@ -119,6 +130,10 @@ function validateProposals(proposals, backlog, results) {
     const missing = REQUIRED_PROPOSAL_FIELDS.filter((field) => entry?.[field] === undefined || entry?.[field] === null || (typeof entry?.[field] === "string" && entry[field].trim() === ""));
     add(results, `proposal ${entry?.id ?? "<unknown>"} required fields`, missing.length === 0, missing.length ? `missing: ${missing.join(", ")}` : "all required fields present");
     add(results, `proposal ${entry?.id ?? "<unknown>"} status is allowed`, statuses.has(entry?.status), entry?.status ?? "missing");
+    add(results, `proposal ${entry?.id ?? "<unknown>"} artifactStatus is allowed`, asArray(proposals?.artifactStatuses).includes(entry?.artifactStatus), entry?.artifactStatus ?? "missing");
+    add(results, `proposal ${entry?.id ?? "<unknown>"} executionCapability is allowed`, asArray(proposals?.executionCapabilities).includes(entry?.executionCapability), entry?.executionCapability ?? "missing");
+    add(results, `proposal ${entry?.id ?? "<unknown>"} write scopes are arrays`, Array.isArray(entry?.allowedWriteScopes) && Array.isArray(entry?.forbiddenWriteScopes), `allowed=${Array.isArray(entry?.allowedWriteScopes)}; forbidden=${Array.isArray(entry?.forbiddenWriteScopes)}`);
+    add(results, `proposal ${entry?.id ?? "<unknown>"} runtime approval flag is boolean`, typeof entry?.requiresHumanApprovalForRuntime === "boolean", String(entry?.requiresHumanApprovalForRuntime));
     add(results, `proposal ${entry?.id ?? "<unknown>"} source backlog exists`, backlogIds.has(entry?.sourceApprovedBacklogId), entry?.sourceApprovedBacklogId ?? "missing");
     add(results, `proposal ${entry?.id ?? "<unknown>"} connectedAgentCount matches`, asArray(entry?.connectedAgents).length === entry?.connectedAgentCount, `${asArray(entry?.connectedAgents).length}/${entry?.connectedAgentCount}`);
     add(results, `proposal ${entry?.id ?? "<unknown>"} connectedRegisterCount matches`, asArray(entry?.connectedRegisters).length === entry?.connectedRegisterCount, `${asArray(entry?.connectedRegisters).length}/${entry?.connectedRegisterCount}`);

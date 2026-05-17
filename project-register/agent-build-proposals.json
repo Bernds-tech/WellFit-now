@@ -17,6 +17,11 @@
     "proposedAgentName": "required",
     "sourceApprovedBacklogId": "required",
     "status": "required",
+    "artifactStatus": "required",
+    "executionCapability": "required",
+    "allowedWriteScopes": "required",
+    "forbiddenWriteScopes": "required",
+    "requiresHumanApprovalForRuntime": "required",
     "reason": "required",
     "expectedBenefit": "required",
     "riskLevel": "required",
@@ -36,12 +41,71 @@
     "createdDate": "required",
     "updatedDate": "required"
   },
+  "artifactStatuses": [
+    "planned",
+    "governance_built",
+    "validator_built",
+    "runtime_capable"
+  ],
+  "executionCapabilities": [
+    "report_only",
+    "docs_register_write",
+    "safe_runtime_write",
+    "repair_capable",
+    "pr_capable"
+  ],
+  "runtimeCapabilityFieldDefinitions": {
+    "artifactStatus": {
+      "allowedValues": [
+        "planned",
+        "governance_built",
+        "validator_built",
+        "runtime_capable"
+      ],
+      "meaning": "Implementation maturity of the artifact. 'built' lifecycle status does not imply runtime autonomy."
+    },
+    "executionCapability": {
+      "allowedValues": [
+        "report_only",
+        "docs_register_write",
+        "safe_runtime_write",
+        "repair_capable",
+        "pr_capable"
+      ],
+      "meaning": "Maximum currently documented execution capability; use report_only unless a human-approved runtime scope explicitly exists."
+    },
+    "allowedWriteScopes": "Path globs the artifact/task is allowed to write when a human-approved task grants write execution.",
+    "forbiddenWriteScopes": "Path globs the artifact/task must not write; forbidden scopes override allowed scopes.",
+    "requiresHumanApprovalForRuntime": "True when runtime execution, product writes, repairs, PR creation, or protected-scope actions need explicit human approval before use."
+  },
   "entries": [
     {
       "id": "proposal-agent-architect-proposal-agent-2026-05-16",
       "proposedAgentName": "Agent Architect & Proposal Agent",
       "sourceApprovedBacklogId": "agent-architect-proposal-agent",
       "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
       "reason": "Human-approved first approved-backlog agent was implemented as a report-only proposal generator and validator in this task.",
       "expectedBenefit": "Provides controlled one-agent-at-a-time planning, connected-agent/register counting, risk classification, and safe Codex prompt drafting without automatically building future agents.",
       "riskLevel": "medium",
@@ -105,6 +169,28 @@
       "proposedAgentName": "Human Motivation Engine",
       "sourceApprovedBacklogId": "human-motivation-engine",
       "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
       "reason": "Human-approved next agent from the approved build backlog was implemented as a docs/register/validator-only framework in this task.",
       "expectedBenefit": "Creates a safe source of truth for healthy motivation, adaptive difficulty inputs, AI Buddy motivation boundaries, recovery/pause logic, multisensory learning, and forbidden addictive mechanics before runtime personalization or mission/reward logic exists.",
       "riskLevel": "high",
@@ -166,6 +252,28 @@
       "proposedAgentName": "Ethical Engagement Guard",
       "sourceApprovedBacklogId": "ethical-engagement-guard",
       "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
       "reason": "Human-approved next guard from the approved build backlog was implemented as a docs/register/validator-only framework in this task.",
       "expectedBenefit": "Adds report-only ethical engagement validation for healthy retention, age-appropriate design, recovery, consent, AI Buddy tone, missions, rewards, website claims, sponsors, social features, and monetization proposals before runtime work.",
       "riskLevel": "high",
@@ -230,6 +338,28 @@
       "proposedAgentName": "Adaptive Difficulty Agent",
       "sourceApprovedBacklogId": "adaptive-difficulty-agent",
       "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
       "reason": "Human-approved next agent from the approved build backlog was implemented as a docs/register/validator-only framework in this task.",
       "expectedBenefit": "Defines safe planning-only difficulty suggestions for mission intensity, length, Buddy tone, learning format, recovery, and social/solo modes while preserving consent, age-appropriate design, privacy, reward-authority boundaries, and mission-authority boundaries.",
       "riskLevel": "high",
@@ -293,6 +423,28 @@
       "proposedAgentName": "Multisensory Learning Engine",
       "sourceApprovedBacklogId": "multisensory-learning-engine",
       "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
       "reason": "The first controlled Approved Agent Build Runner activation selected the next eligible approved backlog entry and implemented it as a docs/register/validator-only Multisensory Learning Engine framework.",
       "expectedBenefit": "Creates a safe source of truth for learning-through-movement, embodied cognition, visual/audio/story/quiz/social/environment/Buddy explanation planning, accessibility fallbacks, protected-data minimization, and reward/mission authority boundaries before runtime learning personalization exists.",
       "riskLevel": "medium",
@@ -361,6 +513,28 @@
       "proposedAgentName": "Product Intelligence Agent",
       "sourceApprovedBacklogId": "product-intelligence-agent",
       "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
       "reason": "Controlled one-agent Approved Agent Build Loop selected Product Intelligence Agent over earlier Mission Factory Agent because Product Intelligence was eligible, already approved, medium risk, and safer than the critical Mission Factory Agent.",
       "expectedBenefit": "Creates a report-only product intelligence source of truth for roadmap gap analysis, website finding clustering, feedback theme synthesis, readiness prioritization, and risk-aware product decision briefs.",
       "riskLevel": "medium",
@@ -436,6 +610,28 @@
       "proposedAgentName": "Mission Factory Agent",
       "sourceApprovedBacklogId": "mission-factory-agent",
       "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
       "reason": "Controlled one-agent Approved Agent Build Loop selected the next eligible approved backlog item and kept the critical-risk Mission Factory Agent strictly report-only.",
       "expectedBenefit": "Creates a report-only mission planning source of truth for concept inventory, planning briefs, dependency maps, readiness checklists, safety boundary reports, and human-review questions before any runtime mission work.",
       "riskLevel": "critical",
@@ -510,6 +706,28 @@
       "proposedAgentName": "Healthy Retention Agent",
       "sourceApprovedBacklogId": "healthy-retention-agent",
       "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
       "reason": "Human-approved next agent from the approved build backlog was implemented as a docs/register/validator-only framework in this task.",
       "expectedBenefit": "Defines wellbeing-first retention planning reviews, pause/recovery checks, user-agency/opt-out checks, and dark-pattern boundaries before any runtime retention work.",
       "riskLevel": "high",
