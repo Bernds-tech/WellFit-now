@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "activationState": "ui_kpi_register_only",
+  "purpose": "Compact Agent Center source for mission proposal KPIs and row-level visibility. This register is documentation/UI data only and does not authorize mission creation, reward authority, mission completion authority, PR creation, merge, deploy, or protected-data processing.",
+  "statusSemantics": {
+    "gemacht": "Proposal has an existing beta route or documented implementation baseline; this is not final production approval.",
+    "verschieden": "Proposal is distinct/separate from the current beta route set or still needs separate scoping before implementation.",
+    "abgelehnt": "Proposal is rejected or blocked for Agent Center purposes and must not be started without a new owner decision."
+  },
+  "safetyDefaults": {
+    "canCreateMissionRuntime": false,
+    "canAuthorizeRewards": false,
+    "canAuthorizeMissionCompletion": false,
+    "canCreatePullRequest": false,
+    "canMergePullRequest": false,
+    "requiresOwnerWorkflowForPRAndMerge": true
+  },
+  "entries": [
+    {
+      "id": "mission-proposal-daily-missions",
+      "title": "Tagesmissionen",
+      "status": "gemacht",
+      "subject": "Bestehende Daily-Mission-Beta als sichtbare Missionseinheit im Agent Center zählen.",
+      "linkedRoute": "/missionen/tagesmissionen",
+      "sourceEvidence": ["project-register/routes.json"],
+      "riskLevel": "medium",
+      "decisionNote": "UI-Zählung nur aus Register-/Routenlage; keine neue Completion- oder Reward-Autorität."
+    },
+    {
+      "id": "mission-proposal-weekly-missions",
+      "title": "Wochenmissionen",
+      "status": "gemacht",
+      "subject": "Bestehende Weekly-Mission-Beta als sichtbare Missionseinheit im Agent Center zählen.",
+      "linkedRoute": "/missionen/wochenmissionen",
+      "sourceEvidence": ["project-register/routes.json"],
+      "riskLevel": "medium",
+      "decisionNote": "UI-Zählung nur aus Register-/Routenlage; keine neue Completion- oder Reward-Autorität."
+    },
+    {
+      "id": "mission-proposal-adventure-missions",
+      "title": "Abenteuer-Missionen",
+      "status": "gemacht",
+      "subject": "Bestehende Abenteuer-Mission-Beta als separate Missionseinheit im Agent Center zählen.",
+      "linkedRoute": "/missionen/abenteuer",
+      "sourceEvidence": ["project-register/routes.json"],
+      "riskLevel": "medium",
+      "decisionNote": "UI-Zählung nur aus Register-/Routenlage; keine neue Completion- oder Reward-Autorität."
+    },
+    {
+      "id": "mission-proposal-mission-factory-agent",
+      "title": "Mission Factory Agent Vorschläge",
+      "status": "verschieden",
+      "subject": "Mission Factory bleibt ein separater, report-only Planungsstrang und ist nicht automatisch mit Beta-Missionen gleichzusetzen.",
+      "linkedRegister": "project-register/mission-factory-agent.json",
+      "sourceEvidence": [
+        "project-register/agent-catalog.json",
+        "project-register/agent-task-queue.json"
+      ],
+      "riskLevel": "critical",
+      "decisionNote": "Nur als unterschiedlicher Vorschlagsstrom zählen; Runtime-Missionserstellung, Rewards, Completion und geschützte Daten bleiben review_required."
+    },
+    {
+      "id": "mission-proposal-auto-merge-runtime-missions",
+      "title": "Automatisch gemergte Runtime-Missionen",
+      "status": "abgelehnt",
+      "subject": "Missionen dürfen nicht durch einen einfachen Agent-Center-Zustimmen-Klick erstellt, gemergt oder live geschaltet werden.",
+      "sourceEvidence": [
+        "AGENTS.md",
+        "project-register/agent-build-proposals.json"
+      ],
+      "riskLevel": "critical",
+      "decisionNote": "Abgelehnt bis ein separater authentifizierter Owner-Workflow, Tests, PR-Review und Merge-Gate explizit freigegeben sind."
+    }
+  ]
+}

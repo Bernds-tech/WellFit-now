@@ -1,0 +1,50 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "activationState": "defined_not_automated",
+  "purpose": "Defines the safe Agent Center approval workflow boundary for future PR creation and merge-gate work. This file is governance only and grants no runtime, PR, merge, deploy, or approval authority to the UI.",
+  "workflowSteps": [
+    {
+      "id": "ui-intent",
+      "label": "UI-Entscheidung erfassen",
+      "description": "Agent Center may show Zustimmen/Ablehnen as a human intent field, but it stays local/UI-only until a backend owner workflow exists.",
+      "automated": false
+    },
+    {
+      "id": "owner-authentication",
+      "label": "Owner authentifizieren",
+      "description": "A future PR workflow must verify an authorized repository owner or maintainer before creating branches, commits, or PRs.",
+      "automated": false
+    },
+    {
+      "id": "scoped-pr-draft",
+      "label": "PR-Entwurf mit Scope-Grenzen",
+      "description": "PR creation requires a narrow task scope, changed-file inventory, safety classification, and explicit exclusion of protected runtime authority.",
+      "automated": false
+    },
+    {
+      "id": "quality-and-policy-gates",
+      "label": "Quality-/Policy-Gates",
+      "description": "Required checks must run and failures must be visible before review. Protected scopes require separate security, privacy, legal, or product review.",
+      "automated": false
+    },
+    {
+      "id": "human-merge-gate",
+      "label": "Human Merge-Gate",
+      "description": "Merge remains blocked until a human owner reviews the PR, confirms checks, confirms protected-scope boundaries, and explicitly merges outside the read-only Agent Center UI.",
+      "automated": false
+    }
+  ],
+  "hardBlocks": [
+    "No Agent Center button may directly create a PR, merge, deploy, approve protected runtime actions, authorize rewards, or authorize mission completion.",
+    "No Auto-Merge or Auto-Deploy is allowed from the compact approval list.",
+    "Mission, reward, token, wallet, payment, betting, health, child-safety, location, camera, legal, privacy, and Unity/AR protected scopes remain review_required."
+  ],
+  "futureImplementationRequirements": [
+    "Authenticated owner identity and audit trail",
+    "Server-side authorization checks",
+    "Explicit branch and changed-file scope",
+    "Quality gate result capture",
+    "Separate human merge confirmation"
+  ]
+}
