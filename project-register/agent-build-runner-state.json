@@ -1,65 +1,41 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "activationState": "report_only",
   "purpose": "Report-only state ledger for the future Approved Agent Build Runner. This initial state records dry-run and merge-gate evidence only; it never builds agents, creates PRs, repairs, merges, deploys, or approves.",
-  "lastEvaluatedBacklogEntry": "approved-agent-status-sync",
+  "lastEvaluatedBacklogEntry": "product-intelligence-agent",
   "lastGeneratedPrompt": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md",
   "lastRunnerDryRun": {
-    "date": "2026-05-16",
-    "selectedBacklogEntry": "status-sync-only",
-    "selectedAgent": "Existing built report-only agent status synchronization",
-    "result": "PASS",
-    "maxAgentsPerRun": 1,
-    "nextEligibleAfterSync": "mission-factory-agent or product-intelligence-agent pending safe sequencing/risk review"
+    "date": "2026-05-17",
+    "reportedSelectedBacklogEntry": "mission-factory-agent",
+    "selectionOverride": "product-intelligence-agent",
+    "overrideReason": "Mission Factory Agent is critical risk; Product Intelligence Agent was also eligible, already approved, medium risk, and safer for this report-only iteration.",
+    "maxAgentsPerRun": 1
   },
   "lastRepairAttempt": {
-    "date": "2026-05-16",
+    "date": "2026-05-17",
     "classification": "safe_repair_documentation_register_governance",
-    "scope": "docs/register/governance only",
+    "safeRepairAttempted": true,
+    "runtimeOrProtectedScopeTouched": false,
     "failures": [
-      "npm run agent:quality-gate failed because docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md lacked a KI-Fortsetzungs-Prompt",
-      "continuity-dependency-check failed because CDS-017 used incomplete/invalid Continuity Sentinel fields"
+      "npm run agent:quality-gate initially failed after implementation because Product Intelligence task-queue candidate lacked governance-control fields requiredFirstReadFiles, stopConditions, and expectedPrOutput."
     ],
     "actions": [
-      "Added KI-Fortsetzungs-Prompt to docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md",
-      "Completed CDS-017 continuity dependency fields with valid dependencies, output locations, reason, and humanReviewRequired=true"
+      "Completed Product Intelligence task-queue candidate governance fields only; reran agent-governance-control-check and npm run agent:quality-gate successfully."
     ],
     "rerunEvidence": [
-      "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs PASS",
-      "node scripts/wellfit-dev-agent/src/memory-sync.mjs Missing prompts: 0"
-    ],
-    "runtimeOrProtectedScopeTouched": false
+      "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs PASS",
+      "npm run agent:quality-gate PASS"
+    ]
   },
   "lastMergeGateEvaluation": {
-    "date": "2026-05-16",
-    "status": "pr_creation_allowed_not_auto_merge_ready",
-    "reason": "Phase 1 status synchronization checks passed and protected path findings are zero, but auto-merge remains false because the report-only diff contains protected-topic governance mentions and must receive human PR review before merge.",
-    "evidence": [
-      "git diff --check PASS",
-      "jq empty on every changed project-register/*.json PASS",
-      "npm run lint PASS",
-      "npx tsc --noEmit PASS",
-      "npm run build PASS",
-      "npm --prefix functions run check PASS",
-      "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs PASS",
-      "node scripts/wellfit-dev-agent/src/ethical-engagement-guard-check.mjs PASS",
-      "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs PASS",
-      "node scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs PASS",
-      "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs PASS",
-      "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs PASS; next selected mission-factory-agent",
-      "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs PASS with MERGE_READY=false as expected for report-only gate",
-      "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs PASS/REPORT_ONLY; protected path findings 0; protected topic findings require human review",
-      "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs PASS",
-      "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs PASS",
-      "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs PASS/REPORT_ONLY with AUTO_MERGE_ELIGIBLE=false due protected-topic governance mentions",
-      "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs PASS/REPORT_ONLY with AUTO_REPAIR_ALLOWED=false",
-      "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs PASS with legacy warnings only",
-      "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs PASS",
-      "npm run agent:autopilot:dry-run PASS/DRY_RUN",
-      "npm run agent:quality-gate PASS"
-    ],
-    "protectedScopeResult": "status-sync touched only project-register and todolist governance/planning files; no runtime/product/protected files changed",
+    "date": "2026-05-17",
+    "localStatus": "all_required_local_checks_passed",
+    "mergeReady": false,
+    "reason": "Local required checks passed and protected path findings were zero, but auto-merge remains false because protected-topic governance mentions, changed-file count, and additions require human review; post-creation GitHub mergeability cannot be proven in this environment before an actual hosted PR.",
+    "prDiffReviewReady": true,
+    "protectedPathFindings": 0,
+    "postCreationGuardReady": true,
     "autoMergeEligible": false,
     "autoRepairAllowed": false
   },
@@ -207,6 +183,95 @@
         "npm run agent:autopilot:dry-run PASS/DRY_RUN"
       ],
       "mergeGateDecisionReason": "Local required checks passed after safe repair, but auto-merge eligibility is false because protected-topic governance mentions, changed-file count, and additions require human review; therefore the runner must create the PR and not merge.",
+      "autoMergeEligible": false,
+      "autoRepairAllowed": false
+    },
+    {
+      "id": "RUN-2026-05-17-product-intelligence-agent",
+      "selectedBacklogEntry": "product-intelligence-agent",
+      "selectedAgent": "Product Intelligence Agent",
+      "selectionResult": "selected_safer_eligible_approved_agent_over_critical_order_predecessor",
+      "activationMode": "controlled_one_agent_activation",
+      "maxAgentsBuilt": 1,
+      "builtAgents": [
+        "product-intelligence-agent"
+      ],
+      "changedFilesPlanned": [
+        "project-register/product-intelligence-agent.json",
+        "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md",
+        "scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-autopilot.json",
+        "project-register/continuity-dependency-map.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "preBuildEvidence": [
+        "approved-agent-build-runner-check PASS",
+        "approved-agent-build-runner-dry-run PASS selected mission-factory-agent by order",
+        "approved-agent-build-runner-merge-gate-check PASS",
+        "agent-catalog-backlog-check PASS",
+        "agent-architect-proposal-check PASS",
+        "generate-next-agent-build-proposal PASS",
+        "agent:autopilot:dry-run DRY_RUN",
+        "agent:quality-gate pre-build failed only because PR diff review had no changed files/base before implementation"
+      ],
+      "selectionReason": "Product Intelligence Agent is approved_for_planning, alreadyHumanApproved=true, medium risk, report-only, and safer than critical Mission Factory Agent; exactly one agent was built.",
+      "repairAttempts": [
+        {
+          "date": "2026-05-17",
+          "classification": "safe_repair_documentation_register_governance",
+          "safeRepairAttempted": true,
+          "runtimeOrProtectedScopeTouched": false,
+          "failures": [
+            "npm run agent:quality-gate initially failed after implementation because Product Intelligence task-queue candidate lacked governance-control fields requiredFirstReadFiles, stopConditions, and expectedPrOutput."
+          ],
+          "actions": [
+            "Completed Product Intelligence task-queue candidate governance fields only; reran agent-governance-control-check and npm run agent:quality-gate successfully."
+          ],
+          "rerunEvidence": [
+            "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs PASS",
+            "npm run agent:quality-gate PASS"
+          ]
+        }
+      ],
+      "mergeGateStatus": "local_checks_green_pr_creation_allowed_not_auto_merge_ready",
+      "protectedScopeResult": "planned changes stay within docs/register/governance/validation-script paths; runtime/protected files remain untouched",
+      "nextRecommendedTask": "Mission Factory Agent remains the next backlog item by order, but it is critical-risk and must be report-only with protected authority blocked if selected.",
+      "updatedDate": "2026-05-17",
+      "postBuildEvidenceAfterRepair": [
+        "node scripts/wellfit-dev-agent/src/agent-governance-control-check.mjs PASS",
+        "npm run agent:quality-gate PASS"
+      ],
+      "localRequiredCheckEvidence": [
+        "git diff --check PASS",
+        "jq empty on every changed project-register/*.json PASS",
+        "npm run lint PASS",
+        "npx tsc --noEmit PASS",
+        "npm run build PASS",
+        "npm --prefix functions run check PASS",
+        "npm run agent:quality-gate PASS after safe governance repair",
+        "node scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs PASS",
+        "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs PASS",
+        "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs PASS; dry-run still selects mission-factory-agent by registered order",
+        "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs PASS with MERGE_READY=false as expected for report-only missing-check gate semantics",
+        "node scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs PASS/REPORT_ONLY with protected path findings 0 and human review required for protected-topic governance mentions",
+        "node scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs PASS",
+        "node scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs PASS",
+        "node scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs PASS/REPORT_ONLY with AUTO_MERGE_ELIGIBLE=false",
+        "node scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs PASS/REPORT_ONLY with AUTO_REPAIR_ALLOWED=false",
+        "node scripts/wellfit-dev-agent/src/task-status-work-log-check.mjs PASS with legacy warnings only",
+        "node scripts/wellfit-dev-agent/src/continuity-dependency-check.mjs PASS",
+        "npm run agent:autopilot:dry-run PASS/DRY_RUN"
+      ],
+      "mergeGateDecisionReason": "Local required checks passed and protected path findings were zero, but auto-merge remains false because protected-topic governance mentions, changed-file count, and additions require human review; post-creation GitHub mergeability cannot be proven in this environment before an actual hosted PR.",
       "autoMergeEligible": false,
       "autoRepairAllowed": false
     }

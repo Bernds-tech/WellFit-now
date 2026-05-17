@@ -9,7 +9,7 @@
       "agents/AGENTS.md",
       "agents/modes/stufe-4.md"
     ],
-    "updated": "2026-05-16"
+    "updated": "2026-05-17"
   },
   "workflows": [
     {
@@ -838,10 +838,34 @@
         "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
         "jq empty project-register/adaptive-difficulty-agent.json"
       ]
+    },
+    {
+      "id": "product-intelligence-agent-report-only",
+      "status": "active",
+      "purpose": "Validate Product Intelligence Agent report-only governance before runtime product intelligence work is considered.",
+      "requiredInputs": [
+        "project-register/product-intelligence-agent.json",
+        "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "forbiddenActions": [
+        "runtime_product_code",
+        "automatic_product_decisions",
+        "profiling",
+        "deployment",
+        "reward_authority",
+        "mission_completion_authority"
+      ],
+      "humanReviewRequired": true
     }
   ],
   "requiredChecks": [
     "node scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
-    "jq empty project-register/multisensory-learning-engine.json"
+    "jq empty project-register/multisensory-learning-engine.json",
+    "node scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
+    "jq empty project-register/product-intelligence-agent.json"
   ]
 }

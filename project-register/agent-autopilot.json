@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "purpose": "Single governed dry-run entrypoint for safe WellFit agent iterations from memory-read through task selection, risk check, validation planning, PR handoff, and stop-before-merge.",
   "activationState": "dry_run_only",
   "humanReadableSource": "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md",
@@ -87,7 +87,10 @@
     "project-register/agent-build-runner-state.json",
     "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md",
     "scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
-    "scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs"
+    "scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs",
+    "project-register/product-intelligence-agent.json",
+    "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md",
+    "scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs"
   ],
   "iterationPhases": [
     {
@@ -247,7 +250,9 @@
     "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
     "jq empty project-register/adaptive-difficulty-agent.json",
     "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
-    "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs"
+    "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs",
+    "node scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
+    "jq empty project-register/product-intelligence-agent.json"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -426,5 +431,11 @@
     "check": "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
     "mode": "report_only",
     "purpose": "Planning-only multisensory learning guard; no runtime personalization, AR/Unity activation, reward authority, or mission-completion authority."
+  },
+  "productIntelligenceAgentReference": {
+    "register": "project-register/product-intelligence-agent.json",
+    "doc": "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md",
+    "check": "scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
+    "purpose": "Report-only product intelligence guard; no product decisions, profiling, deployment, reward authority, or mission-completion authority."
   }
 }

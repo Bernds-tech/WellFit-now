@@ -127,3 +127,10 @@ Lies zuerst `AGENTS.md`, dann `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WOR
 - Added report-only register/doc/validator references: `project-register/multisensory-learning-engine.json`, `docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md`, and `scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs`.
 - Runtime product code, Unity/PR #13, protected data behavior, runtime personalization, learning runtime, reward authority, mission-completion authority, and token/NFT/wallet/payment/betting mechanics remain untouched and disabled.
 - Next recommended task after merge-gate evidence: controlled one-agent runner activation for Mission Factory Agent or Product Intelligence Agent depending on backlog order and risk review.
+
+## 2026-05-17 - Product Intelligence Agent report-only build loop iteration
+
+- Built exactly one approved report-only agent: Product Intelligence Agent.
+- Selection note: Mission Factory Agent remains earlier in registered order, but it is critical risk. Product Intelligence Agent was eligible, already approved, medium risk, and safer for this iteration.
+- Added `project-register/product-intelligence-agent.json`, `docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md`, and `scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs`; integrated the check into `scripts/wellfit-dev-agent/src/quality-gate.mjs`.
+- Runtime product code, protected authority, Unity/PR #13, deployment, user profiling, reward authority, and mission-completion authority remain untouched and review-required.
