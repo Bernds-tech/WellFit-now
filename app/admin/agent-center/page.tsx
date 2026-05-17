@@ -7,6 +7,7 @@ import agentControlCenter from "@/project-register/agent-control-center.json";
 import conceptLearningQuestions from "@/project-register/concept-learning-questions.json";
 import agentWorkLog from "@/project-register/agent-work-log.json";
 import approvedAgentBuildBacklog from "@/project-register/approved-agent-build-backlog.json";
+import adminUploadKnowledgeIntake from "@/project-register/admin-upload-knowledge-intake.json";
 
 type AgentEntry = {
   id?: string;
@@ -97,6 +98,57 @@ type WorkLogRegister = {
   entries?: WorkLogEntry[];
 };
 
+type UploadTypePolicy = {
+  id: string;
+  label: string;
+  extensions: string[];
+  status: string;
+  notes: string;
+};
+
+type BlockedUploadPolicy = {
+  id: string;
+  label: string;
+  examples: string[];
+  rule: string;
+};
+
+type AdminUploadKnowledgeIntakeRegister = {
+  name?: string;
+  status?: string;
+  updated?: string;
+  purpose?: string;
+  currentImplementation?: {
+    adminConsole?: string;
+    productiveFileStorage?: string;
+    fileHandlers?: string;
+    serverActionsOrApis?: string;
+    databaseWrites?: string;
+  };
+  allowedUploadTypes?: UploadTypePolicy[];
+  blockedUploads?: BlockedUploadPolicy[];
+  activationPrerequisites?: string[];
+  storagePolicy?: {
+    productiveFileStorageBeforePrerequisites?: string;
+    temporaryClientOnlySelection?: string;
+    mustNotCreate?: string[];
+  };
+  extractionPolicy?: {
+    target?: string;
+    currentWriteTarget?: string;
+    futureWriteTargets?: string[];
+    minimumMachineReadableFields?: string[];
+    humanReviewRequiredBeforeKnowledgeActivation?: boolean;
+  };
+  adminUiPreparation?: {
+    route?: string;
+    visibleState?: string;
+    copyRequirements?: string[];
+  };
+  riskLevel?: string;
+  nextRecommendedTask?: string;
+};
+
 type ApprovalOwner = {
   id?: string;
   displayName?: string;
@@ -159,6 +211,7 @@ const proposalsRegister = agentBuildProposals as RegisterWithEntries;
 const controlCenterRegister = agentControlCenter as ControlCenterRegister;
 const learningQuestionsRegister = conceptLearningQuestions as LearningQuestionsRegister;
 const workLogRegister = agentWorkLog as WorkLogRegister;
+const uploadKnowledgeIntakeRegister = adminUploadKnowledgeIntake as AdminUploadKnowledgeIntakeRegister;
 
 const registerSummaries: RegisterSummary[] = [
   {
@@ -520,22 +573,105 @@ function LearningQuestionsPanel() {
   );
 }
 
+function getUploadTypeTone(status: string): "neutral" | "safe" | "warn" | "danger" {
+  if (status === "allowed_after_prerequisites") return "safe";
+  if (status.startsWith("deferred")) return "warn";
+  return "neutral";
+}
+
 function UploadPreparationPanel() {
+  const allowedUploadTypes = uploadKnowledgeIntakeRegister.allowedUploadTypes ?? [];
+  const blockedUploads = uploadKnowledgeIntakeRegister.blockedUploads ?? [];
+  const activationPrerequisites = uploadKnowledgeIntakeRegister.activationPrerequisites ?? [];
+  const extractionPolicy = uploadKnowledgeIntakeRegister.extractionPolicy;
+
   return (
     <section className="rounded-3xl border border-white/12 bg-slate-950/35 p-5 shadow-xl shadow-slate-950/25">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Upload-Bereich als UI-Vorbereitung</h2>
-          <p className="mt-1 text-sm leading-6 text-cyan-50/75">Platzhalter für spätere Register-, Report- oder Audit-Artefakte. Der Bereich hat bewusst keinen Handler und keine Server-Anbindung.</p>
+          <h2 className="text-xl font-bold text-white">Knowledge-Intake Upload-Vorbereitung</h2>
+          <p className="mt-1 text-sm leading-6 text-cyan-50/75">
+            Statischer UI-Entwurf aus project-register/admin-upload-knowledge-intake.json. Es gibt bewusst keinen Upload-Handler, keine Server-Anbindung und keine produktive Dateispeicherung.
+          </p>
+          <p className="mt-2 font-mono text-xs text-cyan-100/65">Status: {uploadKnowledgeIntakeRegister.status ?? "ui_preparation_only"} · Stand: {uploadKnowledgeIntakeRegister.updated ?? "n/a"}</p>
         </div>
-        <Pill tone="warn">deaktiviert</Pill>
+        <div className="flex flex-wrap gap-2">
+          <Pill tone="warn">UI-only</Pill>
+          <Pill tone="danger">Storage gesperrt</Pill>
+        </div>
       </div>
+
       <div className="mt-5 rounded-3xl border border-dashed border-cyan-200/30 bg-cyan-300/[0.07] p-8 text-center">
         <p className="text-lg font-black text-white">Upload später möglich</p>
-        <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-cyan-50/75">Dateien werden aktuell nicht angenommen, nicht gespeichert und nicht verarbeitet. Spätere Aktivierung benötigt Auth, Rollenprüfung, Dateityp-Policy, Audit-Log und explizite Owner-Freigabe.</p>
+        <p className="mx-auto mt-2 max-w-3xl text-sm leading-6 text-cyan-50/75">
+          Dateien werden aktuell nicht angenommen, nicht gespeichert und nicht verarbeitet. Produktive Speicherung bleibt gesperrt, bis Auth, Storage Rules, Malware-/Dateitypprüfung und Audit-Log definiert und geprüft sind.
+        </p>
         <div className="mt-5 inline-flex cursor-not-allowed rounded-full border border-white/15 bg-white/10 px-5 py-2 text-sm font-bold text-white/55" aria-disabled="true">
           Upload gesperrt
         </div>
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-2">
+        <article className="rounded-3xl border border-emerald-200/20 bg-emerald-300/[0.07] p-5">
+          <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-emerald-100/75">Erlaubte / aufgeschobene Typen</h3>
+          <div className="mt-4 space-y-3">
+            {allowedUploadTypes.map((uploadType) => (
+              <div key={uploadType.id} className="rounded-2xl bg-white/[0.08] p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="font-bold text-white">{uploadType.label}</p>
+                    <p className="mt-1 font-mono text-xs text-cyan-100/70">{formatList(uploadType.extensions)}</p>
+                  </div>
+                  <Pill tone={getUploadTypeTone(uploadType.status)}>{uploadType.status}</Pill>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-cyan-50/75">{uploadType.notes}</p>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="rounded-3xl border border-rose-200/25 bg-rose-400/[0.08] p-5">
+          <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-rose-100/75">Blockierte Uploads</h3>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {blockedUploads.map((blockedUpload) => <Pill key={blockedUpload.id} tone="danger">{blockedUpload.label}</Pill>)}
+          </div>
+          <div className="mt-4 space-y-3">
+            {blockedUploads.map((blockedUpload) => (
+              <div key={blockedUpload.id} className="rounded-2xl bg-white/[0.08] p-4 text-sm leading-6 text-rose-50/85">
+                <p className="font-bold text-white">{blockedUpload.label}</p>
+                <p className="mt-1">{blockedUpload.rule}</p>
+                <p className="mt-1 text-xs text-rose-100/70">Beispiele: {formatList(blockedUpload.examples)}</p>
+              </div>
+            ))}
+          </div>
+        </article>
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_1.1fr]">
+        <article className="rounded-3xl border border-amber-200/25 bg-amber-300/[0.08] p-5">
+          <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-amber-100/75">Voraussetzungen vor Speicherung</h3>
+          <ul className="mt-4 space-y-2 text-sm leading-6 text-amber-50/85">
+            {activationPrerequisites.map((item) => <li key={item}>• {item}</li>)}
+          </ul>
+        </article>
+
+        <article className="rounded-3xl border border-cyan-200/25 bg-cyan-300/[0.07] p-5">
+          <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-cyan-100/75">Maschinenlesbare Extraktion</h3>
+          <p className="mt-3 text-sm leading-6 text-cyan-50/80">{extractionPolicy?.target ?? "Extrahierte Inhalte werden später in maschinenlesbarer Form in ein Register oder eine Datenbank geschrieben."}</p>
+          <dl className="mt-4 grid gap-3 text-sm leading-6 text-cyan-50/80 md:grid-cols-2">
+            <div className="rounded-2xl bg-white/[0.07] p-3">
+              <dt className="font-semibold text-white">Aktuelles Ziel</dt>
+              <dd className="break-words font-mono text-xs text-cyan-100/75">{extractionPolicy?.currentWriteTarget ?? "project-register/admin-upload-knowledge-intake.json"}</dd>
+            </div>
+            <div className="rounded-2xl bg-white/[0.07] p-3">
+              <dt className="font-semibold text-white">Review vor Aktivierung</dt>
+              <dd>{extractionPolicy?.humanReviewRequiredBeforeKnowledgeActivation ? "erforderlich" : "nicht dokumentiert"}</dd>
+            </div>
+          </dl>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(extractionPolicy?.minimumMachineReadableFields ?? []).slice(0, 12).map((field) => <Pill key={field}>{field}</Pill>)}
+          </div>
+        </article>
       </div>
     </section>
   );
@@ -607,7 +743,7 @@ export default function AgentCenterPage() {
           </header>
 
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            <StatCard label="Register" value={registerSummaries.length + 1} hint="Sechs lokale JSON-Register inklusive Fragenregister." />
+            <StatCard label="Register" value={registerSummaries.length + 2} hint="Sieben lokale JSON-Register inklusive Fragen- und Knowledge-Intake-Register." />
             <StatCard label="Agenten gesamt" value={sourceEntries.length} hint="Catalog, Backlog und Proposal-Einträge zusammengeführt." />
             <StatCard label="Offene Agenten" value={openAgents.length} hint="Planung, Review oder laufende Agenten aus den Registern." />
             <StatCard label="Blockiert" value={blockedAgents.length} hint="Status blocked; keine Ausführung in dieser UI." />

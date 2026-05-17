@@ -1,0 +1,143 @@
+{
+  "name": "Admin Upload Knowledge Intake",
+  "status": "ui_preparation_only_no_productive_uploads",
+  "updated": "2026-05-17",
+  "purpose": "Define safe intake boundaries for a future Admin Console upload flow that can collect source material, extract approved content, and write machine-readable knowledge records without storing real files productively before security and governance prerequisites are complete.",
+  "currentImplementation": {
+    "adminConsole": "UI preparation only in /admin/agent-center.",
+    "productiveFileStorage": "blocked",
+    "fileHandlers": "not_implemented",
+    "serverActionsOrApis": "not_implemented",
+    "databaseWrites": "not_implemented"
+  },
+  "allowedUploadTypes": [
+    {
+      "id": "markdown",
+      "label": "Markdown",
+      "extensions": [".md", ".markdown"],
+      "status": "allowed_after_prerequisites",
+      "notes": "Text-first source material suitable for later structured extraction."
+    },
+    {
+      "id": "text",
+      "label": "Text",
+      "extensions": [".txt"],
+      "status": "allowed_after_prerequisites",
+      "notes": "Plain text source material suitable for later structured extraction."
+    },
+    {
+      "id": "json",
+      "label": "JSON",
+      "extensions": [".json"],
+      "status": "allowed_after_prerequisites",
+      "notes": "Machine-readable source material that still requires schema validation and redaction checks."
+    },
+    {
+      "id": "pdf",
+      "label": "PDF",
+      "extensions": [".pdf"],
+      "status": "deferred_until_parser_decision",
+      "notes": "PDF intake is blocked until a parser, extraction boundary, file-size limit, and sanitization strategy are selected."
+    },
+    {
+      "id": "images",
+      "label": "Images",
+      "extensions": [".png", ".jpg", ".jpeg", ".webp"],
+      "status": "deferred_until_media_analysis_decision",
+      "notes": "Image intake is blocked until media analysis, metadata stripping, safety review, and OCR policy are selected."
+    }
+  ],
+  "blockedUploads": [
+    {
+      "id": "secrets",
+      "label": "Secrets",
+      "examples": ["API keys", "tokens", "passwords", "service account credentials"],
+      "rule": "Always reject and do not store."
+    },
+    {
+      "id": "private_keys",
+      "label": "Private Schlüssel",
+      "examples": ["SSH private keys", "wallet keys", "TLS private keys"],
+      "rule": "Always reject and do not store."
+    },
+    {
+      "id": "production_data",
+      "label": "Produktionsdaten",
+      "examples": ["live user exports", "production database dumps", "raw production logs"],
+      "rule": "Always reject unless a separate approved data-protection process exists."
+    },
+    {
+      "id": "sensitive_health_data",
+      "label": "Sensible Gesundheitsdaten",
+      "examples": ["diagnoses", "medication records", "biometric health exports"],
+      "rule": "Always reject for this admin knowledge-intake flow."
+    },
+    {
+      "id": "child_data",
+      "label": "Kinderdaten",
+      "examples": ["minor profiles", "guardian consent artifacts", "school or child location data"],
+      "rule": "Always reject for this admin knowledge-intake flow."
+    },
+    {
+      "id": "payment_data",
+      "label": "Zahlungsdaten",
+      "examples": ["card data", "bank accounts", "payment processor exports", "invoices with payment identifiers"],
+      "rule": "Always reject for this admin knowledge-intake flow."
+    }
+  ],
+  "activationPrerequisites": [
+    "Admin authentication and role checks are defined and enforced server-side.",
+    "Storage Rules are written, reviewed, and tested before any real file persistence.",
+    "Malware scanning and file-type verification are selected and documented.",
+    "Audit logging captures actor, timestamp, source, declared type, validation result, redaction state, and write target.",
+    "Size limits, retention rules, deletion flow, and failure handling are approved.",
+    "Redaction and blocked-content detection are defined before extracted text becomes searchable knowledge."
+  ],
+  "storagePolicy": {
+    "productiveFileStorageBeforePrerequisites": "forbidden",
+    "temporaryClientOnlySelection": "allowed_for_visual_ui_preparation_only_if_no_upload_handler_is_connected",
+    "mustNotCreate": [
+      "Firebase Storage writes",
+      "Firestore writes from the client",
+      "server upload endpoint",
+      "background parser job",
+      "public asset persistence"
+    ]
+  },
+  "extractionPolicy": {
+    "target": "Extracted approved content must be written in machine-readable form to this Knowledge-Intake register or to a later approved database.",
+    "currentWriteTarget": "project-register/admin-upload-knowledge-intake.json for planning metadata only",
+    "futureWriteTargets": [
+      "project-register/admin-upload-knowledge-intake.json as a static reviewed intake register",
+      "future server-authorized knowledge_intake database collection after Auth, Rules, malware/file-type checks, audit log, and retention policy exist"
+    ],
+    "minimumMachineReadableFields": [
+      "intakeId",
+      "sourceType",
+      "sourceName",
+      "classification",
+      "extractedSummary",
+      "structuredFacts",
+      "blockedContentFlags",
+      "redactionStatus",
+      "reviewStatus",
+      "reviewedBy",
+      "reviewedAt",
+      "writeTarget"
+    ],
+    "humanReviewRequiredBeforeKnowledgeActivation": true
+  },
+  "adminUiPreparation": {
+    "route": "/admin/agent-center",
+    "visibleState": "disabled_planning_panel",
+    "copyRequirements": [
+      "Make clear that uploads are not active.",
+      "Show allowed and deferred upload types.",
+      "Show blocked categories.",
+      "List prerequisites before productive storage.",
+      "State that extracted content must become machine-readable register/database content only after review."
+    ]
+  },
+  "riskLevel": "high_until_prerequisites_are_complete",
+  "nextRecommendedTask": "Design server-side Auth, Storage Rules, malware/file-type verification, audit-log schema, and retention policy before enabling any upload handler."
+}
