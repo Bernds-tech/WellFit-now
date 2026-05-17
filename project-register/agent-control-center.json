@@ -213,17 +213,29 @@
     ]
   },
   "admin_ui_target": {
-    "status": "concept_only_not_built",
-    "preferred_path": "/admin/agent-center",
+    "status": "read_only_overview_allowed_after_concept_update",
+    "implemented_path": "/admin/agent-center",
     "alternative_path": "/admin/cognitive-core",
+    "allowed_in_this_task": [
+      "app/admin/agent-center/page.tsx",
+      "static_register_imports_from_project_register",
+      "read_only_summary_cards",
+      "blocked_action_notices",
+      "follow_up_requirements_copy"
+    ],
     "must_not_create_in_this_task": [
-      "app/admin/agent-center/**",
-      "ui_components",
       "api_routes",
       "firebase_writes",
       "auth_or_role_logic",
       "approval_buttons",
+      "merge_deploy_auto_repair_or_runtime_execution",
       "production_workflows"
+    ],
+    "register_sources": [
+      "project-register/agent-catalog.json",
+      "project-register/approved-agent-build-backlog.json",
+      "project-register/agent-build-proposals.json",
+      "project-register/agent-control-center.json"
     ]
   },
   "human_approval_required_for": [
@@ -237,5 +249,55 @@
     "auto_repair_outside_safe_docs_register_json_format",
     "dependency_or_package_changes",
     "research_used_for_product_or_public_claims"
-  ]
+  ],
+  "authorized_approval_user": {
+    "displayName": "Guggenberger Bernd",
+    "allowedRoles": ["owner", "agent_admin"],
+    "roleResolution": "owner has highest authority; agent_admin is allowed only for low/medium, non-protected, policy-permitted concept approvals. Any real implementation must verify the authenticated user and role server-side before accepting an approval.",
+    "allowedApprovalTypes": [
+      "read_only_register_review_acknowledgement",
+      "low_risk_docs_register_scope_approval_when_policy_allows",
+      "medium_risk_concept_approval_when_no_protected_scope_is_touched",
+      "owner_single_task_approval_for_high_risk_with_exact_allowlist_review_plan_and_required_checks",
+      "owner_manual_critical_review_note_for_planning_only_or_separately_reviewed_tasks"
+    ],
+    "blockedActions": [
+      "approve_own_work",
+      "approve_without_auth_role_check",
+      "approve_without_audit_log",
+      "approve_without_exact_scope_and_stop_conditions",
+      "approve_protected_scope_changes_as_agent_admin",
+      "merge",
+      "deploy",
+      "auto_repair",
+      "runtime_execution",
+      "firebase_write",
+      "production_data_write",
+      "firestore_rules_or_functions_change_without_dedicated_review_plan",
+      "token_wallet_payment_or_reward_authority_activation",
+      "unity_or_pr13_changes"
+    ],
+    "currentImplementation": "concept_and_read_only_visibility_only_no_runtime_approval_capability"
+  },
+  "follow_up_required_for_real_approvals": {
+    "status": "separate_future_task_required",
+    "requiredBeforeAnyApprovalAction": [
+      "authenticated_user_identity_check",
+      "server_side_role_check_for_owner_or_agent_admin",
+      "audit_log_schema_and_append_only_storage",
+      "owner_review_for_high_critical_or_protected_scope",
+      "self_approval_block",
+      "exact_scope_allowlist_and_blocked_scope_validation",
+      "required_checks_and_review_plan_validation"
+    ],
+    "blockedUntilFollowUpIsApproved": [
+      "approval_buttons",
+      "approval_api_routes",
+      "firebase_or_production_writes",
+      "codex_runner_execution",
+      "merge",
+      "deploy",
+      "auto_repair"
+    ]
+  }
 }

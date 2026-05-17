@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-14",
+  "updated": "2026-05-17",
   "status": "active",
   "purpose": "Machine-readable WellFit risk classifier for future Codex/AI agents. Use before selecting work from project-register/agent-task-queue.json and before changing files.",
   "sourceOfTruth": [
@@ -33,7 +33,8 @@
         "existing_component_copy_or_layout_adjustment_without_compliance_copy",
         "api_planning_or_non_authority_api_change",
         "mission_or_buddy_preview_behavior_without_authority_change",
-        "feedback_or_analytics_planning_without_live_tracking"
+        "feedback_or_analytics_planning_without_live_tracking",
+        "new_read_only_admin_register_overview_without_actions"
       ],
       "allowedByDefault": false,
       "maximumDefaultAction": "scoped_existing_surface_change_when_user_explicitly_requests_runtime_work"
@@ -130,8 +131,28 @@
     "Changing health, watch, location, camera, child-safety, biometric, privacy, consent, medical-adjacent, legal, AGB, Datenschutz, Impressum, or compliance messaging/logic.",
     "Touching native/unity/WellFitBuddyAR, Unity scripts, native AR runtime behavior, or old Unity PR #13.",
     "Deploying, merging to main, live-enabling production services, or creating production data writes.",
-    "Introducing a new API, route, feature module, provider, external analytics service, data retention behavior, or Firestore write path that is not already covered by registers and architecture docs."
+    "Introducing a new API, route, feature module, provider, external analytics service, data retention behavior, or Firestore write path that is not already covered by registers and architecture docs.",
+    "Creating real admin approval actions without authenticated role checks, append-only audit logging, and Owner review for high/critical/protected scopes."
   ],
+  "adminUiRiskNotes": {
+    "readOnlyAgentCenterRoute": {
+      "path": "app/admin/agent-center/page.tsx",
+      "classification": "medium",
+      "allowedOnlyWhen": [
+        "uses_static_project_register_json_imports_or_other_read_only_sources",
+        "does_not_create_api_routes",
+        "does_not_create_firebase_writes",
+        "does_not_include_approval_buttons",
+        "does_not_execute_merge_deploy_auto_repair_or_runtime_tasks"
+      ],
+      "realApprovalActionsRequireFollowUp": [
+        "auth_role_check",
+        "audit_log",
+        "owner_review_for_high_critical_or_protected_scope",
+        "self_approval_block"
+      ]
+    }
+  },
   "classificationProcedure": [
     "Read global first-read files from agent-task-queue.json.",
     "Map requested files, keywords, routes, APIs, and features against protectedAreas.",

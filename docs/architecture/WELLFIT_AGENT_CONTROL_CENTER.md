@@ -1,7 +1,7 @@
 # WellFit Agent Control Center
 
 Stand: 2026-05-17
-Status: Konzept und Register-Vorbereitung, keine Runtime-Automatisierung.
+Status: Konzept, Register-Vorbereitung und read-only Admin-Übersicht; keine Runtime-Automatisierung.
 
 ## 1. Zweck
 
@@ -66,6 +66,27 @@ Wichtig: `approved` bedeutet nur fachliche Freigabe fuer den naechsten kontrolli
 - Auto-Deploy bleibt deaktiviert.
 - Runtime-Ausfuehrung braucht eine separate, exakte Allowlist.
 
+## 6.1 Freigabe-Nutzer und erlaubte Freigabearten
+
+Der aktuell eindeutig beschriebene Freigabe-Nutzer fuer spaetere Governance-Flows ist **Guggenberger Bernd**. Er darf in einem zukuenftigen, separat freigegebenen Approval-System nur als Rolle `owner` oder `agent_admin` aufgeloest werden. Die Rolle muss serverseitig ueber Auth-/Role-Check geprueft werden; der Anzeigename allein reicht nicht als Berechtigung.
+
+Erlaubte Freigabearten im Konzept:
+
+- Read-only Register-Review-Bestaetigung ohne Ausfuehrungswirkung.
+- Low-Risk Docs-/Register-Scope-Freigabe, wenn die Policy es erlaubt.
+- Medium-Risk Konzeptfreigabe, solange kein Protected Scope betroffen ist.
+- Als `owner`: High-Risk Einzel-Freigabe nur mit exakter Allowlist, Reviewplan, Stop-Bedingungen und erforderlichen Checks.
+- Als `owner`: Critical-Risk nur manuell, mit Audit-Hinweis und weiterhin ohne Auto-Merge oder Auto-Deploy.
+
+Blockierte Aktionen fuer diesen Nutzer in der aktuellen Umsetzung und fuer alle spaeteren Agent-Admin-Pfade:
+
+- Keine Freigabe ohne Auth-/Role-Check.
+- Keine Freigabe ohne append-only Audit-Log.
+- Keine Self-Approval-Freigabe eigener Arbeit oder eigener Agent-Ausgaben.
+- Keine Protected-Scope-Freigabe als `agent_admin`.
+- Kein Merge, Deploy, Auto-Repair, Runtime-Execution, Firebase Write oder Production-Data-Write.
+- Keine Aktivierung von Token-/Wallet-/Payment-, Reward-Authority-, Unity-/PR-13-, Firestore-Rules- oder Functions-Aenderungen ohne eigenen Reviewplan.
+
 ## 7. Controlled Curiosity / Research Flow
 
 Die KI soll nicht unkontrolliert im Internet lernen. Stattdessen gilt:
@@ -99,14 +120,25 @@ Der Generator darf nur vorhandene Strukturen nutzen: Agent Catalog, Task Queue, 
 
 ## 9. Admin UI Zielbild
 
-Dieses Kapitel beschreibt ausschliesslich das spaetere Admin-UI-Zielbild. In dieser Phase werden keine Dateien unter `app/admin/agent-center/**`, keine Runtime-Admin-UI, keine API-Routen und keine produktiven Approval- oder Ausfuehrungsmechanismen gebaut.
+Dieses Kapitel beschreibt das Admin-UI-Zielbild und die jetzt erlaubte kleinste Zwischenstufe. Erlaubt ist nur eine read-only Uebersicht unter `app/admin/agent-center/page.tsx`, die statische Register sichtbar macht. Weiterhin verboten bleiben Runtime-Admin-Funktionen, API-Routen, Firebase Writes, Approval-Buttons und produktive Approval- oder Ausfuehrungsmechanismen.
 
 ### 9.1 Route-Kandidaten
 
-Die spaetere UI darf erst nach separater Freigabe und stabiler Governance-Foundation geplant werden. Moegliche Route-Kandidaten sind:
+Die read-only Zwischenstufe darf den folgenden Pfad nutzen, solange sie keine Aktionen ausloest. Moegliche Route-Kandidaten bleiben:
 
-- `/admin/agent-center` als naheliegender Admin-Pfad fuer Agent-Vorschlaege und Kontrollstatus.
+- `/admin/agent-center` als jetzt verwendeter read-only Admin-Pfad fuer Agent-Vorschlaege und Kontrollstatus.
 - `/admin/cognitive-core` als alternativer Name, falls der Bereich breiter als Agent-Proposals gefasst wird.
+
+### 9.1.1 Read-only Zwischenstufe
+
+Die aktuelle kleine Admin-Route darf ausschliesslich folgende statische Register zusammenfassen:
+
+- `project-register/agent-catalog.json`
+- `project-register/approved-agent-build-backlog.json`
+- `project-register/agent-build-proposals.json`
+- `project-register/agent-control-center.json`
+
+Die Route darf nur Status, Zaehler, Risiko-/Capability-Hinweise, erlaubte und blockierte Scopes sowie Follow-up-Anforderungen anzeigen. Sie darf keine Buttons fuer Freigabe, Merge, Deploy, Auto-Repair oder Runtime-Ausfuehrung enthalten und darf keine API-Route oder Firebase-Write-Pfade anlegen.
 
 ### 9.2 Vorschlagsliste
 
@@ -151,7 +183,7 @@ Die UI soll den Ausfuehrungsstatus transparent, aber nicht selbst-autorisierend 
 
 ### 9.6 Harte Bauvoraussetzung
 
-Diese UI darf erst gebaut werden, wenn alle folgenden Grundlagen stabil, dokumentiert und reviewed sind:
+Echte Entscheidungs- und Ausfuehrungsfunktionen dieser UI duerfen erst gebaut werden, wenn alle folgenden Grundlagen stabil, dokumentiert und reviewed sind:
 
 - Register fuer Proposals, Risiken, Definition of Done, Audit Events und Task-Handoffs.
 - Validator fuer Schema, Risk-Gates, Scopes, Check-Pflichten und Audit-Vollstaendigkeit.
@@ -159,7 +191,7 @@ Diese UI darf erst gebaut werden, wenn alle folgenden Grundlagen stabil, dokumen
 - Human-Approval-Gate gegen Self-Approval, fehlende Reviewplaene und unklare Verantwortlichkeit.
 - Protected-Scope-Policies fuer Token, Wallet, Payment, Presale, Health, Child Safety, Location, Camera/Biometric, Legal, Firestore Rules, Production Deployments und weitere compliance-kritische Bereiche.
 
-Bis diese Voraussetzungen erfuellt sind, bleibt das Admin-UI-Zielbild reine Dokumentation und darf nicht als Runtime-Admin-UI implementiert werden.
+Bis diese Voraussetzungen erfuellt sind, bleibt die implementierte Route eine reine read-only Register-Uebersicht und darf nicht als Runtime-Admin-UI oder Approval-UI implementiert werden.
 
 ## 10. Grenzen
 
@@ -167,8 +199,8 @@ Dieses Konzept aktiviert keine direkte Runtime-Automatisierung, keine produktive
 
 Explizit nicht in dieser Phase:
 
-- Keine Dateien unter `app/admin/agent-center/**`.
-- Keine UI-Komponenten.
+- Keine weiteren Dateien unter `app/admin/agent-center/**` ausser der read-only `page.tsx`.
+- Keine interaktiven UI-Komponenten fuer Freigabe oder Ausfuehrung.
 - Keine API-Routen.
 - Keine Firebase Writes.
 - Keine Auth-/Role-Logik.
@@ -178,7 +210,7 @@ Explizit nicht in dieser Phase:
 
 ## 11. Naechster kleinster Schritt
 
-Nach Review dieses Konzepts sollte ein separater PR nur eine read-only Admin-UI-Spezifikation vorbereiten: Datenquellen, Felder, Rollenanzeige, Audit-Ansicht, aber weiterhin keine produktiven Writes und keine Approval-Buttons.
+Nach dieser read-only Uebersicht ist der naechste separate PR ein echter Approval-Follow-up: Auth-/Role-Check fuer `owner`/`agent_admin`, append-only Audit-Log, Self-Approval-Block, Owner-Review fuer High/Critical/Protected Scopes, exakte Scope-Allowlist, Pflichtchecks und Reviewplan. Erst danach duerfen echte Freigabeaktionen diskutiert werden; Merge, Deploy, Auto-Repair und Runtime-Ausfuehrung bleiben weiterhin getrennt freizugeben.
 
 
 ## 12. Phase model and SDK boundary
