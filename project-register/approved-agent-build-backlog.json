@@ -921,7 +921,7 @@
     {
       "id": "reward-fairness-guard-report-agent",
       "proposedAgentName": "Reward Fairness Guard Report Agent",
-      "status": "in_progress",
+      "status": "built",
       "artifactStatus": "validator_built",
       "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
@@ -945,7 +945,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Reward Fairness Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Reward Fairness Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Reward Fairness Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
@@ -1050,7 +1050,18 @@
           "validatorScript": "scripts/wellfit-dev-agent/src/reward-fairness-guard-report-agent-check.mjs"
         },
         "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
-      }
+      },
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "generatedArtifactSet": {
+        "status": "report_only_built_safe_live_active",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "reward-fairness-guard-implementation-agent",
@@ -1167,7 +1178,7 @@
     {
       "id": "child-safety-guard-report-agent",
       "proposedAgentName": "Child Safety Guard Report Agent",
-      "status": "in_progress",
+      "status": "built",
       "artifactStatus": "validator_built",
       "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
@@ -1191,7 +1202,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Child Safety Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Child Safety Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Child Safety Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
@@ -1296,7 +1307,18 @@
           "validatorScript": "scripts/wellfit-dev-agent/src/child-safety-guard-report-agent-check.mjs"
         },
         "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
-      }
+      },
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "generatedArtifactSet": {
+        "status": "report_only_built_safe_live_active",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "child-safety-guard-implementation-agent",
@@ -1413,7 +1435,7 @@
     {
       "id": "health-claims-guard-report-agent",
       "proposedAgentName": "Health Claims Guard Report Agent",
-      "status": "in_progress",
+      "status": "built",
       "artifactStatus": "validator_built",
       "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
@@ -1437,7 +1459,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Health Claims Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Health Claims Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Health Claims Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
@@ -1542,7 +1564,18 @@
           "validatorScript": "scripts/wellfit-dev-agent/src/health-claims-guard-report-agent-check.mjs"
         },
         "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
-      }
+      },
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "generatedArtifactSet": {
+        "status": "report_only_built_safe_live_active",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "health-claims-guard-implementation-agent",
@@ -1659,7 +1692,7 @@
     {
       "id": "location-safety-guard-report-agent",
       "proposedAgentName": "Location Safety Guard Report Agent",
-      "status": "in_progress",
+      "status": "built",
       "artifactStatus": "validator_built",
       "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
@@ -1683,7 +1716,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Location Safety Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Location Safety Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Location Safety Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
@@ -1788,7 +1821,18 @@
           "validatorScript": "scripts/wellfit-dev-agent/src/location-safety-guard-report-agent-check.mjs"
         },
         "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
-      }
+      },
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "generatedArtifactSet": {
+        "status": "report_only_built_safe_live_active",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "location-safety-guard-implementation-agent",
@@ -1905,9 +1949,9 @@
     {
       "id": "sponsor-integrity-guard-report-agent",
       "proposedAgentName": "Sponsor Integrity Guard Report Agent",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -1929,7 +1973,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P3",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Sponsor Integrity Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Sponsor Integrity Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Sponsor Integrity Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "high",
       "connectedAgents": [
@@ -2020,7 +2064,66 @@
         "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
         "Unity_AR_native_PR_13: review_required",
         "deployment_merge_approval_auto_merge_auto_repair: review_required"
-      ]
+      ],
+      "generatedArtifactSet": {
+        "generatedBy": "scripts/wellfit-dev-agent/src/build-approved-agent-artifacts.mjs",
+        "generated": "2026-05-17",
+        "status": "report_only_built_safe_live_active",
+        "generatedFiles": [
+          "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+          "project-register/agent-catalog.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-extension-policy.json",
+          "project-register/website-agent-backlog.json",
+          "project-register/pr-review-policy.json",
+          "project-register/product-readiness.json",
+          "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+          "todolist/WORK_MAP.md",
+          "todolist/TODO_INDEX.md"
+        ],
+        "requiredDocs": [
+          "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        ],
+        "requiredRegisters": [
+          "project-register/agent-catalog.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-extension-policy.json",
+          "project-register/website-agent-backlog.json",
+          "project-register/pr-review-policy.json",
+          "project-register/product-readiness.json"
+        ],
+        "requiredValidationScripts": [
+          "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        ],
+        "allowedFiles": [
+          "project-register/**",
+          "docs/architecture/**",
+          "scripts/wellfit-dev-agent/src/**",
+          "todolist/**"
+        ],
+        "forbiddenFiles": [
+          "app/**",
+          "components/**",
+          "lib/**",
+          "functions/**",
+          "firestore.rules",
+          "public/**",
+          "package.json",
+          "package-lock.json",
+          "firebase.json",
+          ".github/**",
+          "native/unity/WellFitBuddyAR/**"
+        ],
+        "note": "Generator prepared docs/register/validator governance artifacts only. High/critical or protected-boundary entries still require human-reviewed PR evidence before built status.",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "sponsor-integrity-guard-implementation-agent",
@@ -2137,9 +2240,9 @@
     {
       "id": "trust-safe-monetization-agent-report-agent",
       "proposedAgentName": "Trust-Safe Monetization Agent Report Agent",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -2161,7 +2264,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P3",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Trust-Safe Monetization Agent. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Trust-Safe Monetization Agent. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Trust-Safe Monetization Agent while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
@@ -2252,7 +2355,66 @@
         "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
         "Unity_AR_native_PR_13: review_required",
         "deployment_merge_approval_auto_merge_auto_repair: review_required"
-      ]
+      ],
+      "generatedArtifactSet": {
+        "generatedBy": "scripts/wellfit-dev-agent/src/build-approved-agent-artifacts.mjs",
+        "generated": "2026-05-17",
+        "status": "report_only_built_safe_live_active",
+        "generatedFiles": [
+          "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+          "project-register/agent-catalog.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-extension-policy.json",
+          "project-register/risk-classifier.json",
+          "project-register/website-agent-backlog.json",
+          "project-register/auto-merge-policy.json",
+          "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+          "todolist/WORK_MAP.md",
+          "todolist/TODO_INDEX.md"
+        ],
+        "requiredDocs": [
+          "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        ],
+        "requiredRegisters": [
+          "project-register/agent-catalog.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-extension-policy.json",
+          "project-register/risk-classifier.json",
+          "project-register/website-agent-backlog.json",
+          "project-register/auto-merge-policy.json"
+        ],
+        "requiredValidationScripts": [
+          "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        ],
+        "allowedFiles": [
+          "project-register/**",
+          "docs/architecture/**",
+          "scripts/wellfit-dev-agent/src/**",
+          "todolist/**"
+        ],
+        "forbiddenFiles": [
+          "app/**",
+          "components/**",
+          "lib/**",
+          "functions/**",
+          "firestore.rules",
+          "public/**",
+          "package.json",
+          "package-lock.json",
+          "firebase.json",
+          ".github/**",
+          "native/unity/WellFitBuddyAR/**"
+        ],
+        "note": "Generator prepared docs/register/validator governance artifacts only. High/critical or protected-boundary entries still require human-reviewed PR evidence before built status.",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "trust-safe-monetization-agent-implementation-agent",
@@ -2369,9 +2531,9 @@
     {
       "id": "user-memory-governance-agent-report-agent",
       "proposedAgentName": "User Memory Governance Agent Report Agent",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -2393,7 +2555,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P2",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: User Memory Governance Agent. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: User Memory Governance Agent. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for User Memory Governance Agent while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
@@ -2484,7 +2646,66 @@
         "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
         "Unity_AR_native_PR_13: review_required",
         "deployment_merge_approval_auto_merge_auto_repair: review_required"
-      ]
+      ],
+      "generatedArtifactSet": {
+        "generatedBy": "scripts/wellfit-dev-agent/src/build-approved-agent-artifacts.mjs",
+        "generated": "2026-05-17",
+        "status": "report_only_built_safe_live_active",
+        "generatedFiles": [
+          "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+          "project-register/agent-catalog.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-extension-policy.json",
+          "project-register/adaptive-user-insights.json",
+          "project-register/user-feedback.json",
+          "project-register/risk-classifier.json",
+          "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+          "todolist/WORK_MAP.md",
+          "todolist/TODO_INDEX.md"
+        ],
+        "requiredDocs": [
+          "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        ],
+        "requiredRegisters": [
+          "project-register/agent-catalog.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-extension-policy.json",
+          "project-register/adaptive-user-insights.json",
+          "project-register/user-feedback.json",
+          "project-register/risk-classifier.json"
+        ],
+        "requiredValidationScripts": [
+          "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        ],
+        "allowedFiles": [
+          "project-register/**",
+          "docs/architecture/**",
+          "scripts/wellfit-dev-agent/src/**",
+          "todolist/**"
+        ],
+        "forbiddenFiles": [
+          "app/**",
+          "components/**",
+          "lib/**",
+          "functions/**",
+          "firestore.rules",
+          "public/**",
+          "package.json",
+          "package-lock.json",
+          "firebase.json",
+          ".github/**",
+          "native/unity/WellFitBuddyAR/**"
+        ],
+        "note": "Generator prepared docs/register/validator governance artifacts only. High/critical or protected-boundary entries still require human-reviewed PR evidence before built status.",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "user-memory-governance-agent-implementation-agent",
@@ -2601,7 +2822,7 @@
     {
       "id": "product-memory-agent",
       "proposedAgentName": "Product Memory Agent",
-      "status": "in_progress",
+      "status": "built",
       "artifactStatus": "validator_built",
       "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
@@ -2625,7 +2846,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P2",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Product Memory Agent.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Product Memory Agent. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Product Memory Agent while preserving existing agent boundaries and protected-scope stops.",
       "riskLevel": "medium",
       "connectedAgents": [
@@ -2699,12 +2920,23 @@
           "validatorScript": "scripts/wellfit-dev-agent/src/product-memory-agent-check.mjs"
         },
         "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
-      }
+      },
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "generatedArtifactSet": {
+        "status": "report_only_built_safe_live_active",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "ai-buddy-personality-tone-guard",
       "proposedAgentName": "AI Buddy Personality & Tone Guard",
-      "status": "in_progress",
+      "status": "built",
       "artifactStatus": "validator_built",
       "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
@@ -2728,7 +2960,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P2",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: AI Buddy Personality & Tone Guard.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: AI Buddy Personality & Tone Guard. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for AI Buddy Personality & Tone Guard while preserving existing agent boundaries and protected-scope stops.",
       "riskLevel": "high",
       "connectedAgents": [
@@ -2816,14 +3048,25 @@
       "reviewOnlyRuntimeSurfaces": [
         "app/buddy/**",
         "app/api/buddy-ki/route.ts"
-      ]
+      ],
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "generatedArtifactSet": {
+        "status": "report_only_built_safe_live_active",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "recovery-pause-anti-overuse-guard-report-agent",
       "proposedAgentName": "Recovery / Pause / Anti-Overuse Guard Report Agent",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "built",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -2845,7 +3088,7 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Recovery / Pause / Anti-Overuse Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Recovery / Pause / Anti-Overuse Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority. Human-reviewed PR evidence pending in this branch: report-only safe live activation keeps Runtime/protected/authority/forbidden scopes review_required and grants no runtime authority.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Recovery / Pause / Anti-Overuse Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
@@ -2935,7 +3178,66 @@
         "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
         "Unity_AR_native_PR_13: review_required",
         "deployment_merge_approval_auto_merge_auto_repair: review_required"
-      ]
+      ],
+      "generatedArtifactSet": {
+        "generatedBy": "scripts/wellfit-dev-agent/src/build-approved-agent-artifacts.mjs",
+        "generated": "2026-05-17",
+        "status": "report_only_built_safe_live_active",
+        "generatedFiles": [
+          "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md",
+          "project-register/agent-catalog.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-extension-policy.json",
+          "project-register/risk-classifier.json",
+          "project-register/adaptive-user-insights.json",
+          "project-register/product-readiness.json",
+          "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+          "todolist/WORK_MAP.md",
+          "todolist/TODO_INDEX.md"
+        ],
+        "requiredDocs": [
+          "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        ],
+        "requiredRegisters": [
+          "project-register/agent-catalog.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-extension-policy.json",
+          "project-register/risk-classifier.json",
+          "project-register/adaptive-user-insights.json",
+          "project-register/product-readiness.json"
+        ],
+        "requiredValidationScripts": [
+          "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        ],
+        "allowedFiles": [
+          "project-register/**",
+          "docs/architecture/**",
+          "scripts/wellfit-dev-agent/src/**",
+          "todolist/**"
+        ],
+        "forbiddenFiles": [
+          "app/**",
+          "components/**",
+          "lib/**",
+          "functions/**",
+          "firestore.rules",
+          "public/**",
+          "package.json",
+          "package-lock.json",
+          "firebase.json",
+          ".github/**",
+          "native/unity/WellFitBuddyAR/**"
+        ],
+        "note": "Generator prepared docs/register/validator governance artifacts only. High/critical or protected-boundary entries still require human-reviewed PR evidence before built status.",
+        "liveActivated": "2026-05-17",
+        "adminConsolePath": "/admin/agent-center",
+        "runtimeAuthorityGranted": false
+      },
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "activationNote": "Built and live-active as report-only governance/validator/Admin Center evidence. Implementation/runtime authority remains blocked until a separate owner-approved task names exact files, checks, stop conditions, and review plan.",
+      "nextRecommendedAction": "Runtime protected authority remains forbidden; review_required before any implementation."
     },
     {
       "id": "recovery-pause-anti-overuse-guard-implementation-agent",
@@ -3047,6 +3349,109 @@
         "Unity_AR_native_PR_13: review_required",
         "deployment_merge_approval_auto_merge_auto_repair: review_required"
       ]
+    },
+    {
+      "id": "agent-os-owner-approval-runtime-workflow",
+      "proposedAgentName": "Agent OS Owner Approval Runtime Workflow",
+      "status": "approved_for_planning",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Next safe planning item after confirmed report agents: define owner-authenticated approval workflow evidence review before any real approval buttons, Runtime/protected authority, or production actions.",
+      "expectedBenefit": "Provides the next reviewable bridge from visible safe-live Agent OS to future authenticated approvals without enabling runtime authority.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "product-memory-agent",
+        "ai-buddy-personality-tone-guard",
+        "reward-fairness-guard-report-agent",
+        "child-safety-guard-report-agent",
+        "health-claims-guard-report-agent",
+        "location-safety-guard-report-agent"
+      ],
+      "connectedRegisters": [
+        "project-register/agent-control-center.json",
+        "project-register/agent-task-draft-schema.json",
+        "project-register/agent-work-log.json",
+        "project-register/risk-classifier.json"
+      ],
+      "connectedAgentCount": 6,
+      "connectedRegisterCount": 4,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CONTROL_CENTER.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-control-center.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": true,
+      "suggestedBuildOrder": 90,
+      "nextRecommendedPromptType": "owner_approval_workflow_planning_only",
+      "dependencies": [
+        "safe-live-report-only-agent-os-layer"
+      ],
+      "protectedBoundaries": [
+        "No approval buttons, no Firebase writes, no runtime authority, no protected scope implementation, no auto-merge, no auto-deploy."
+      ]
     }
-  ]
+  ],
+  "safeLiveActivation": {
+    "updated": "2026-05-17",
+    "status": "all_confirmed_report_agents_built_and_safe_live_active",
+    "activeAgentIds": [
+      "product-memory-agent",
+      "ai-buddy-personality-tone-guard",
+      "reward-fairness-guard-report-agent",
+      "child-safety-guard-report-agent",
+      "health-claims-guard-report-agent",
+      "location-safety-guard-report-agent",
+      "sponsor-integrity-guard-report-agent",
+      "trust-safe-monetization-agent-report-agent",
+      "user-memory-governance-agent-report-agent",
+      "recovery-pause-anti-overuse-guard-report-agent"
+    ],
+    "note": "All confirmed open report/planning agents are active in the governance layer, validator layer, and Admin Center visibility layer; unsafe runtime authority remains blocked."
+  }
 }

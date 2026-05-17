@@ -251,5 +251,89 @@
     "doc": "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
     "check": "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs",
     "boundary": "Healthy Retention may consume only aggregate/planning insight summaries for report-only wellbeing review; no individual-user profiling, runtime personalization, notifications, streak/reward changes, mission/reward authority, or protected-data decisions."
-  }
+  },
+  "approvedAgentBuildReferences": [
+    {
+      "id": "user-memory-governance-agent-report-agent",
+      "name": "User Memory Governance Agent Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/adaptive-user-insights.json; report-only governance evidence, no runtime/protected authority granted."
+    },
+    {
+      "id": "recovery-pause-anti-overuse-guard-report-agent",
+      "name": "Recovery / Pause / Anti-Overuse Guard Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/adaptive-user-insights.json; report-only governance evidence, no runtime/protected authority granted."
+    }
+  ]
 }

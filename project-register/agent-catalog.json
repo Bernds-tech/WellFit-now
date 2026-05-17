@@ -2662,7 +2662,7 @@
     {
       "id": "product-memory-agent",
       "name": "Product Memory Agent",
-      "status": "planning_only",
+      "status": "active",
       "artifactStatus": "validator_built",
       "executionCapability": "report_only",
       "allowedWriteScopes": [
@@ -2739,12 +2739,17 @@
         "no UI execution",
         "no merge/deploy/approval/auto-repair authority"
       ],
-      "nextSafeMaintenanceTask": "Keep product-memory-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+      "nextSafeMaintenanceTask": "Keep product-memory-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log.",
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
     },
     {
       "id": "ai-buddy-personality-tone-guard",
       "name": "AI Buddy Personality & Tone Guard",
-      "status": "review_required",
+      "status": "active",
       "artifactStatus": "validator_built",
       "executionCapability": "report_only",
       "allowedWriteScopes": [
@@ -2825,12 +2830,17 @@
       "reviewOnlyRuntimeSurfaces": [
         "app/buddy/**",
         "app/api/buddy-ki/route.ts"
-      ]
+      ],
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
     },
     {
       "id": "reward-fairness-guard-report-agent",
       "name": "Reward Fairness Guard Report Agent",
-      "status": "review_required",
+      "status": "active",
       "artifactStatus": "validator_built",
       "executionCapability": "report_only",
       "allowedWriteScopes": [
@@ -2907,12 +2917,17 @@
         "no UI execution",
         "no merge/deploy/approval/auto-repair authority"
       ],
-      "nextSafeMaintenanceTask": "Keep reward-fairness-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+      "nextSafeMaintenanceTask": "Keep reward-fairness-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log.",
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
     },
     {
       "id": "child-safety-guard-report-agent",
       "name": "Child Safety Guard Report Agent",
-      "status": "review_required",
+      "status": "active",
       "artifactStatus": "validator_built",
       "executionCapability": "report_only",
       "allowedWriteScopes": [
@@ -2989,12 +3004,17 @@
         "no UI execution",
         "no merge/deploy/approval/auto-repair authority"
       ],
-      "nextSafeMaintenanceTask": "Keep child-safety-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+      "nextSafeMaintenanceTask": "Keep child-safety-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log.",
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
     },
     {
       "id": "health-claims-guard-report-agent",
       "name": "Health Claims Guard Report Agent",
-      "status": "review_required",
+      "status": "active",
       "artifactStatus": "validator_built",
       "executionCapability": "report_only",
       "allowedWriteScopes": [
@@ -3071,12 +3091,17 @@
         "no UI execution",
         "no merge/deploy/approval/auto-repair authority"
       ],
-      "nextSafeMaintenanceTask": "Keep health-claims-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+      "nextSafeMaintenanceTask": "Keep health-claims-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log.",
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
     },
     {
       "id": "location-safety-guard-report-agent",
       "name": "Location Safety Guard Report Agent",
-      "status": "review_required",
+      "status": "active",
       "artifactStatus": "validator_built",
       "executionCapability": "report_only",
       "allowedWriteScopes": [
@@ -3153,7 +3178,590 @@
         "no UI execution",
         "no merge/deploy/approval/auto-repair authority"
       ],
-      "nextSafeMaintenanceTask": "Keep location-safety-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+      "nextSafeMaintenanceTask": "Keep location-safety-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log.",
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
+    },
+    {
+      "id": "sponsor-integrity-guard-report-agent",
+      "name": "Sponsor Integrity Guard Report Agent",
+      "status": "active",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "risk_guard",
+      "purpose": "Sponsor Integrity Guard Report Agent generated from the approved backlog as a report-only docs/register/validator governance artifact. Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Sponsor Integrity Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "trust-compliance-website-audit",
+        "pr-review-agent",
+        "product-readiness-matrix"
+      ],
+      "relatedRegisters": [
+        "project-register/website-agent-backlog.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings and governance evidence",
+        "schema-compatible metadata additions inside required registers",
+        "required docs/register/validator reference synchronization",
+        "review_required markers for protected or high-risk follow-up"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "reward authority, mission-completion authority, monetization, wallet, payment, token, NFT, or betting capability",
+        "merge, deploy, approval, auto-merge, auto-repair, or unrestricted repair authority"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep this generated report-only artifact synchronized with the approved backlog entry, required docs/registers/validators, Work Map, TODO Index, and PR evidence.",
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
+    },
+    {
+      "id": "trust-safe-monetization-agent-report-agent",
+      "name": "Trust-Safe Monetization Agent Report Agent",
+      "status": "active",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "risk_guard",
+      "purpose": "Trust-Safe Monetization Agent Report Agent generated from the approved backlog as a report-only docs/register/validator governance artifact. Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Trust-Safe Monetization Agent. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/auto-merge-policy.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "risk-classifier",
+        "trust-compliance-website-audit",
+        "auto-merge-eligibility-guard"
+      ],
+      "relatedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/auto-merge-policy.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings and governance evidence",
+        "schema-compatible metadata additions inside required registers",
+        "required docs/register/validator reference synchronization",
+        "review_required markers for protected or high-risk follow-up"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "reward authority, mission-completion authority, monetization, wallet, payment, token, NFT, or betting capability",
+        "merge, deploy, approval, auto-merge, auto-repair, or unrestricted repair authority"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep this generated report-only artifact synchronized with the approved backlog entry, required docs/registers/validators, Work Map, TODO Index, and PR evidence.",
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
+    },
+    {
+      "id": "user-memory-governance-agent-report-agent",
+      "name": "User Memory Governance Agent Report Agent",
+      "status": "active",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "risk_guard",
+      "purpose": "User Memory Governance Agent Report Agent generated from the approved backlog as a report-only docs/register/validator governance artifact. Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: User Memory Governance Agent. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "adaptive-user-insight-agent",
+        "user-feedback-database-flow",
+        "risk-classifier"
+      ],
+      "relatedRegisters": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings and governance evidence",
+        "schema-compatible metadata additions inside required registers",
+        "required docs/register/validator reference synchronization",
+        "review_required markers for protected or high-risk follow-up"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "reward authority, mission-completion authority, monetization, wallet, payment, token, NFT, or betting capability",
+        "merge, deploy, approval, auto-merge, auto-repair, or unrestricted repair authority"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep this generated report-only artifact synchronized with the approved backlog entry, required docs/registers/validators, Work Map, TODO Index, and PR evidence.",
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
+    },
+    {
+      "id": "recovery-pause-anti-overuse-guard-report-agent",
+      "name": "Recovery / Pause / Anti-Overuse Guard Report Agent",
+      "status": "active",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "risk_guard",
+      "purpose": "Recovery / Pause / Anti-Overuse Guard Report Agent generated from the approved backlog as a report-only docs/register/validator governance artifact. Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Recovery / Pause / Anti-Overuse Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "adaptive-user-insight-agent",
+        "risk-classifier"
+      ],
+      "relatedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings and governance evidence",
+        "schema-compatible metadata additions inside required registers",
+        "required docs/register/validator reference synchronization",
+        "review_required markers for protected or high-risk follow-up"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "reward authority, mission-completion authority, monetization, wallet, payment, token, NFT, or betting capability",
+        "merge, deploy, approval, auto-merge, auto-repair, or unrestricted repair authority"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without a scoped approved task.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
+        "Report-only governance by default; human review required for protected or high/critical scope.",
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "nextSafeMaintenanceTask": "Keep this generated report-only artifact synchronized with the approved backlog entry, required docs/registers/validators, Work Map, TODO Index, and PR evidence.",
+      "liveActivationState": "safe_live_active_report_only",
+      "runtimeAuthorityGranted": false,
+      "adminConsoleVisible": true,
+      "autonomyMode": "autonomous_reporting_and_task_draft_only",
+      "activationNote": "Live active in the Agent Center and quality checks as a report-only/safety-gated agent. No runtime product authority, merge, deploy, protected write, reward authority, mission-completion authority, or self-approval is granted."
+    },
+    {
+      "id": "agent-os-owner-approval-runtime-workflow",
+      "name": "Agent OS Owner Approval Runtime Workflow",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "approval_guard",
+      "purpose": "Planning-only next-step guard for future owner-authenticated approval workflow; no runtime authority.",
+      "ownerArea": "Agent OS",
+      "primaryRegisters": [
+        "project-register/agent-control-center.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AGENT_CONTROL_CENTER.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "product-memory-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "allowedExtensionTypes": [
+        "planning-only approval workflow schema notes"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime approvals",
+        "Firebase writes",
+        "approval buttons",
+        "protected-scope implementation"
+      ],
+      "protectedBoundaries": [
+        "No runtime approval execution before separate owner-approved implementation task."
+      ],
+      "nextSafeMaintenanceTask": "Define authenticated approval workflow evidence without enabling runtime approval actions."
     }
-  ]
+  ],
+  "approvedAgentBuildReferences": [
+    {
+      "id": "sponsor-integrity-guard-report-agent",
+      "name": "Sponsor Integrity Guard Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/agent-catalog.json; report-only governance evidence, no runtime/protected authority granted."
+    },
+    {
+      "id": "trust-safe-monetization-agent-report-agent",
+      "name": "Trust-Safe Monetization Agent Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/auto-merge-policy.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/agent-catalog.json; report-only governance evidence, no runtime/protected authority granted."
+    },
+    {
+      "id": "user-memory-governance-agent-report-agent",
+      "name": "User Memory Governance Agent Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/agent-catalog.json; report-only governance evidence, no runtime/protected authority granted."
+    },
+    {
+      "id": "recovery-pause-anti-overuse-guard-report-agent",
+      "name": "Recovery / Pause / Anti-Overuse Guard Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/agent-catalog.json; report-only governance evidence, no runtime/protected authority granted."
+    }
+  ],
+  "safeLiveActivation": {
+    "updated": "2026-05-17",
+    "status": "active_report_only_agent_os_layer",
+    "adminConsolePath": "/admin/agent-center",
+    "activeAgentIds": [
+      "product-memory-agent",
+      "ai-buddy-personality-tone-guard",
+      "reward-fairness-guard-report-agent",
+      "child-safety-guard-report-agent",
+      "health-claims-guard-report-agent",
+      "location-safety-guard-report-agent",
+      "sponsor-integrity-guard-report-agent",
+      "trust-safe-monetization-agent-report-agent",
+      "user-memory-governance-agent-report-agent",
+      "recovery-pause-anti-overuse-guard-report-agent"
+    ],
+    "runtimeAuthorityGranted": false,
+    "autonomousCapabilitiesEnabled": [
+      "read machine-readable registers",
+      "surface Agent Center status",
+      "ask and display concept-learning questions",
+      "prepare task drafts with allowed/blocked paths",
+      "run report-only validators and quality gates",
+      "record governance evidence in registers"
+    ],
+    "autonomousCapabilitiesBlocked": [
+      "auto-merge",
+      "auto-deploy",
+      "self-approval",
+      "protected runtime writes",
+      "reward authority",
+      "mission-completion authority",
+      "health/child/location/legal/payment/token runtime activation"
+    ]
+  }
 }

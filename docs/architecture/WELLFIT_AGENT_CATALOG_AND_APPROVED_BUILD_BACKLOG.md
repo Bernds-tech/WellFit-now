@@ -1,6 +1,6 @@
 # WellFit Agent Catalog and Approved Agent Build Backlog
 
-Status: active / report-only governance  
+Status: active / report-only governance
 Updated: 2026-05-17
 
 ## Purpose
@@ -136,3 +136,86 @@ This supports safer autonomy by reducing ambiguity without granting automatic bu
 ## KI-Fortsetzungs-Prompt
 
 Read `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/agent-extension-policy.json`, `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, and `project-register/agent-build-proposals.json` before changing agent governance. Extend an existing cataloged agent only when one owner domain clearly fits; otherwise use the approved backlog or create a proposal with human review. Keep first versions report-only, build future agents one at a time, do not touch runtime/protected files, and run `node scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs` plus the Quality Gate before PR handoff.
+
+<!-- WELLFIT-GENERATED-APPROVED-AGENT:sponsor-integrity-guard-report-agent:docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md -->
+
+## Generated approved-agent artifact: Sponsor Integrity Guard Report Agent
+
+Status: report-only generated planning/register/validator artifact
+Generated: 2026-05-17
+Backlog entry: `sponsor-integrity-guard-report-agent`
+
+This section records the approved backlog artifact set generated for the next single-agent build. It is governance evidence only and does not grant runtime product authority, protected-scope changes, merge, deploy, approval, auto-merge, auto-repair, reward authority, mission-completion authority, monetization capability, or Unity/PR #13 authority.
+
+Required artifact inputs considered from the backlog entry:
+
+- Required docs: `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md`
+- Required registers: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-extension-policy.json`, `project-register/website-agent-backlog.json`, `project-register/pr-review-policy.json`, `project-register/product-readiness.json`
+- Required validation scripts: `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`
+- Allowed files: `project-register/**`, `docs/architecture/**`, `scripts/wellfit-dev-agent/src/**`, `todolist/**`
+- Forbidden files: `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`, `package.json`, `package-lock.json`, `firebase.json`, `.github/**`, `native/unity/WellFitBuddyAR/**`
+
+Protected boundaries remain review-required for all runtime, product, compliance, data, economy, reward, mission authority, native, Unity, merge, deploy, approval, and repair behavior.
+
+
+<!-- WELLFIT-GENERATED-APPROVED-AGENT:trust-safe-monetization-agent-report-agent:docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md -->
+
+## Generated approved-agent artifact: Trust-Safe Monetization Agent Report Agent
+
+Status: report-only generated planning/register/validator artifact
+Generated: 2026-05-17
+Backlog entry: `trust-safe-monetization-agent-report-agent`
+
+This section records the approved backlog artifact set generated for the next single-agent build. It is governance evidence only and does not grant runtime product authority, protected-scope changes, merge, deploy, approval, auto-merge, auto-repair, reward authority, mission-completion authority, monetization capability, or Unity/PR #13 authority.
+
+Required artifact inputs considered from the backlog entry:
+
+- Required docs: `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md`
+- Required registers: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-extension-policy.json`, `project-register/risk-classifier.json`, `project-register/website-agent-backlog.json`, `project-register/auto-merge-policy.json`
+- Required validation scripts: `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`
+- Allowed files: `project-register/**`, `docs/architecture/**`, `scripts/wellfit-dev-agent/src/**`, `todolist/**`
+- Forbidden files: `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`, `package.json`, `package-lock.json`, `firebase.json`, `.github/**`, `native/unity/WellFitBuddyAR/**`
+
+Protected boundaries remain review-required for all runtime, product, compliance, data, economy, reward, mission authority, native, Unity, merge, deploy, approval, and repair behavior.
+
+
+<!-- WELLFIT-GENERATED-APPROVED-AGENT:user-memory-governance-agent-report-agent:docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md -->
+
+## Generated approved-agent artifact: User Memory Governance Agent Report Agent
+
+Status: report-only generated planning/register/validator artifact
+Generated: 2026-05-17
+Backlog entry: `user-memory-governance-agent-report-agent`
+
+This section records the approved backlog artifact set generated for the next single-agent build. It is governance evidence only and does not grant runtime product authority, protected-scope changes, merge, deploy, approval, auto-merge, auto-repair, reward authority, mission-completion authority, monetization capability, or Unity/PR #13 authority.
+
+Required artifact inputs considered from the backlog entry:
+
+- Required docs: `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md`
+- Required registers: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-extension-policy.json`, `project-register/adaptive-user-insights.json`, `project-register/user-feedback.json`, `project-register/risk-classifier.json`
+- Required validation scripts: `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`
+- Allowed files: `project-register/**`, `docs/architecture/**`, `scripts/wellfit-dev-agent/src/**`, `todolist/**`
+- Forbidden files: `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`, `package.json`, `package-lock.json`, `firebase.json`, `.github/**`, `native/unity/WellFitBuddyAR/**`
+
+Protected boundaries remain review-required for all runtime, product, compliance, data, economy, reward, mission authority, native, Unity, merge, deploy, approval, and repair behavior.
+
+
+<!-- WELLFIT-GENERATED-APPROVED-AGENT:recovery-pause-anti-overuse-guard-report-agent:docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md -->
+
+## Generated approved-agent artifact: Recovery / Pause / Anti-Overuse Guard Report Agent
+
+Status: report-only generated planning/register/validator artifact
+Generated: 2026-05-17
+Backlog entry: `recovery-pause-anti-overuse-guard-report-agent`
+
+This section records the approved backlog artifact set generated for the next single-agent build. It is governance evidence only and does not grant runtime product authority, protected-scope changes, merge, deploy, approval, auto-merge, auto-repair, reward authority, mission-completion authority, monetization capability, or Unity/PR #13 authority.
+
+Required artifact inputs considered from the backlog entry:
+
+- Required docs: `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md`
+- Required registers: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-extension-policy.json`, `project-register/risk-classifier.json`, `project-register/adaptive-user-insights.json`, `project-register/product-readiness.json`
+- Required validation scripts: `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`
+- Allowed files: `project-register/**`, `docs/architecture/**`, `scripts/wellfit-dev-agent/src/**`, `todolist/**`
+- Forbidden files: `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`, `package.json`, `package-lock.json`, `firebase.json`, `.github/**`, `native/unity/WellFitBuddyAR/**`
+
+Protected boundaries remain review-required for all runtime, product, compliance, data, economy, reward, mission authority, native, Unity, merge, deploy, approval, and repair behavior.

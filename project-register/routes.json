@@ -4,54 +4,250 @@
     "purpose": "Maschinenlesbares Register fuer Stufe-4-Nebenseiten-Crawl und Routen-Governance.",
     "baselineSource": "todolist/LAST_BUILD_STATUS.md und bestehende Next.js Routen",
     "issue": 19,
-    "status": "baseline-import"
+    "status": "baseline-import",
+    "updated": "2026-05-17"
   },
   "publicPages": [
-    { "route": "/", "area": "Landing", "auth": "public", "status": "active" },
-    { "route": "/register", "area": "Registration", "auth": "public", "status": "active" },
-    { "route": "/datenschutz", "area": "Legal", "auth": "public", "status": "active" },
-    { "route": "/agb", "area": "Legal", "auth": "public", "status": "active" },
-    { "route": "/impressum", "area": "Legal", "auth": "public", "status": "active" },
-    { "route": "/faq", "area": "Help", "auth": "public", "status": "active" },
-    { "route": "/hilfe", "area": "Help", "auth": "public", "status": "active" }
+    {
+      "route": "/",
+      "area": "Landing",
+      "auth": "public",
+      "status": "active"
+    },
+    {
+      "route": "/register",
+      "area": "Registration",
+      "auth": "public",
+      "status": "active"
+    },
+    {
+      "route": "/datenschutz",
+      "area": "Legal",
+      "auth": "public",
+      "status": "active"
+    },
+    {
+      "route": "/agb",
+      "area": "Legal",
+      "auth": "public",
+      "status": "active"
+    },
+    {
+      "route": "/impressum",
+      "area": "Legal",
+      "auth": "public",
+      "status": "active"
+    },
+    {
+      "route": "/faq",
+      "area": "Help",
+      "auth": "public",
+      "status": "active"
+    },
+    {
+      "route": "/hilfe",
+      "area": "Help",
+      "auth": "public",
+      "status": "active"
+    }
   ],
   "protectedAppPages": [
-    { "route": "/dashboard", "area": "Dashboard", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/dashboard/anpassen", "area": "Dashboard", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/buddy", "area": "Buddy", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/missionen", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active-redirect" },
-    { "route": "/missionen/tagesmissionen", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/missionen/wochenmissionen", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/missionen/abenteuer", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/missionen/challenge", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/missionen/wettkaempfe", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/missionen/favoriten", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/missionen/history", "area": "Missionen", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/punkte-shop", "area": "Punkte-Shop", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/marktplatz", "area": "Marketplace", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/leaderboard", "area": "Leaderboard", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/analytics", "area": "Analytics", "auth": "app-user-or-beta-preview", "status": "active" },
-    { "route": "/einstellungen", "area": "Settings", "auth": "app-user-or-beta-preview", "status": "active" }
+    {
+      "route": "/dashboard",
+      "area": "Dashboard",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/dashboard/anpassen",
+      "area": "Dashboard",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/buddy",
+      "area": "Buddy",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/missionen",
+      "area": "Missionen",
+      "auth": "app-user-or-beta-preview",
+      "status": "active-redirect"
+    },
+    {
+      "route": "/missionen/tagesmissionen",
+      "area": "Missionen",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/missionen/wochenmissionen",
+      "area": "Missionen",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/missionen/abenteuer",
+      "area": "Missionen",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/missionen/challenge",
+      "area": "Missionen",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/missionen/wettkaempfe",
+      "area": "Missionen",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/missionen/favoriten",
+      "area": "Missionen",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/missionen/history",
+      "area": "Missionen",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/punkte-shop",
+      "area": "Punkte-Shop",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/marktplatz",
+      "area": "Marketplace",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/leaderboard",
+      "area": "Leaderboard",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/analytics",
+      "area": "Analytics",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/einstellungen",
+      "area": "Settings",
+      "auth": "app-user-or-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/admin/agent-center",
+      "area": "Admin Agent Center",
+      "auth": "owner-or-admin-review-required",
+      "status": "active-safe-live-report-only",
+      "notes": "Live visible Agent OS console; reads static governance registers; no approval buttons, no runtime execution, no Firebase writes."
+    },
+    {
+      "route": "/admin/agent-center/task-proposals",
+      "area": "Admin Agent Task Proposals",
+      "auth": "owner-or-admin-review-required",
+      "status": "active-safe-live-report-only",
+      "notes": "Read-only task draft/proposal visibility; no approval or execution controls."
+    }
   ],
   "mobilePages": [
-    { "route": "/mobile", "area": "Mobile-Web", "auth": "mobile-beta-preview", "status": "active" },
-    { "route": "/mobile/analyse", "area": "Mobile-Web", "auth": "mobile-beta-preview", "status": "active" },
-    { "route": "/mobile/ar", "area": "Mobile-Web-AR", "auth": "mobile-beta-preview", "status": "active" },
-    { "route": "/mobile/bewegung", "area": "Mobile-Web", "auth": "mobile-beta-preview", "status": "active" },
-    { "route": "/mobile/buddy", "area": "Mobile-Web-Buddy", "auth": "mobile-beta-preview", "status": "active" },
-    { "route": "/mobile/einstellungen", "area": "Mobile-Web", "auth": "mobile-beta-preview", "status": "active" },
-    { "route": "/mobile/missionen", "area": "Mobile-Web-Missionen", "auth": "mobile-beta-preview", "status": "active" },
-    { "route": "/mobile/missionen/squat", "area": "Mobile-Web-Missionen", "auth": "mobile-beta-preview", "status": "active" }
+    {
+      "route": "/mobile",
+      "area": "Mobile-Web",
+      "auth": "mobile-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/mobile/analyse",
+      "area": "Mobile-Web",
+      "auth": "mobile-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/mobile/ar",
+      "area": "Mobile-Web-AR",
+      "auth": "mobile-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/mobile/bewegung",
+      "area": "Mobile-Web",
+      "auth": "mobile-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/mobile/buddy",
+      "area": "Mobile-Web-Buddy",
+      "auth": "mobile-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/mobile/einstellungen",
+      "area": "Mobile-Web",
+      "auth": "mobile-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/mobile/missionen",
+      "area": "Mobile-Web-Missionen",
+      "auth": "mobile-beta-preview",
+      "status": "active"
+    },
+    {
+      "route": "/mobile/missionen/squat",
+      "area": "Mobile-Web-Missionen",
+      "auth": "mobile-beta-preview",
+      "status": "active"
+    }
   ],
   "systemPages": [
-    { "route": "/admin/agent-center", "area": "Admin Agent Control Center", "auth": "admin-read-only-static-register-overview", "status": "read_only_no_actions" },
-    { "route": "/_not-found", "area": "System", "auth": "public", "status": "active" }
+    {
+      "route": "/admin/agent-center",
+      "area": "Admin Agent Control Center",
+      "auth": "admin-read-only-static-register-overview",
+      "status": "read_only_no_actions"
+    },
+    {
+      "route": "/_not-found",
+      "area": "System",
+      "auth": "public",
+      "status": "active"
+    }
   ],
   "viewports": [
-    { "name": "mobile-small", "width": 360, "height": 740 },
-    { "name": "mobile-standard", "width": 390, "height": 844 },
-    { "name": "tablet", "width": 768, "height": 1024 },
-    { "name": "desktop", "width": 1440, "height": 900 }
+    {
+      "name": "mobile-small",
+      "width": 360,
+      "height": 740
+    },
+    {
+      "name": "mobile-standard",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "tablet",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    }
   ],
   "stufe4Rules": {
     "crawlAllPublicPages": true,

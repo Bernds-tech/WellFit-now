@@ -90,19 +90,35 @@
   "consentRequirements": {
     "anonymousFeedback": {
       "allowed": true,
-      "requirements": ["clear notice", "data minimization warning", "no contact follow-up"]
+      "requirements": [
+        "clear notice",
+        "data minimization warning",
+        "no contact follow-up"
+      ]
     },
     "identifiedFeedback": {
       "allowed": "future-review-required",
-      "requirements": ["authenticated context", "explicit feedback storage consent", "pseudonymous userRef", "deletion path"]
+      "requirements": [
+        "authenticated context",
+        "explicit feedback storage consent",
+        "pseudonymous userRef",
+        "deletion path"
+      ]
     },
     "contactFollowUp": {
       "allowed": "optional-only",
-      "requirements": ["separate consent", "contactRef hidden from agent-readable summaries"]
+      "requirements": [
+        "separate consent",
+        "contactRef hidden from agent-readable summaries"
+      ]
     },
     "analyticsOrBehaviorTracking": {
       "allowed": false,
-      "requirements": ["separate privacy review", "separate consent", "no third-party analytics in this plan"]
+      "requirements": [
+        "separate privacy review",
+        "separate consent",
+        "no third-party analytics in this plan"
+      ]
     }
   },
   "retentionAndDeletion": {
@@ -118,7 +134,14 @@
   },
   "agentReadableSummaryFormat": {
     "collection": "userFeedbackSummaries",
-    "mustNotContain": ["user ids", "names", "contact details", "raw quotes", "unique incidents", "sensitive attributes"],
+    "mustNotContain": [
+      "user ids",
+      "names",
+      "contact details",
+      "raw quotes",
+      "unique incidents",
+      "sensitive attributes"
+    ],
     "fields": {
       "summaryId": "Server/admin generated id.",
       "period": "Date range, e.g. 2026-W20 or 2026-05.",
@@ -176,5 +199,49 @@
     "todoIndexSection": "Architecture / Security / Planning",
     "privacyGuardrails": "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
     "feedbackLoopRegister": "project-register/feedback-analytics-loop.json"
-  }
+  },
+  "updated": "2026-05-17",
+  "approvedAgentBuildReferences": [
+    {
+      "id": "user-memory-governance-agent-report-agent",
+      "name": "User Memory Governance Agent Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/user-feedback.json; report-only governance evidence, no runtime/protected authority granted."
+    }
+  ]
 }
