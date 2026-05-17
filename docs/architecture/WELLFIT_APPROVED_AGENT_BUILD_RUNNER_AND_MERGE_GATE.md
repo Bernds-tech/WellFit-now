@@ -1,7 +1,7 @@
 # WellFit Approved Agent Build Runner and Merge Gate
 
 Status: report-only framework
-Updated: 2026-05-17
+Updated: 2026-05-16
 Primary policy: `project-register/approved-agent-build-runner-policy.json`
 State register: `project-register/agent-build-runner-state.json`
 Merge-gate register: `project-register/approved-agent-build-runner-merge-gate.json`

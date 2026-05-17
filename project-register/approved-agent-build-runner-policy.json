@@ -1,6 +1,6 @@
 {
-  "version": "1.0.1",
-  "updated": "2026-05-17",
+  "version": "1.0.0",
+  "updated": "2026-05-16",
   "activationState": "report_only",
   "capabilityStateSeparation": {
     "currentState": "report_only",
@@ -58,7 +58,7 @@
       }
     }
   },
-  "purpose": "Govern the future Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can later be built one at a time while PR creation permission, merge recommendation permission, and real auto-merge permission remain separate states with required checks, evidence, review, and protected-scope gates.",
+  "purpose": "Govern the future Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can later be built one at a time only when required checks, missing-check evidence, safe-repair boundaries, PR diff review, mergeability, and protected-scope gates are green.",
   "approvedBacklogSource": "project-register/approved-agent-build-backlog.json",
   "maxAgentsPerRun": 1,
   "allowedAgentBuildCategories": [

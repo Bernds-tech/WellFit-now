@@ -1,7 +1,7 @@
 {
-  "version": "0.1.1",
-  "updated": "2026-05-17",
-  "purpose": "Report-only guardrail policy that separates PR creation, merge recommendation, and real auto-merge. PR creation is the first meaningful next step; merge recommendation requires all checks to be green; real auto-merge remains disabled until machine-readable GitHub checks, branch protection, review rules, and human approval evidence exist.",
+  "version": "0.1.0",
+  "updated": "2026-05-15",
+  "purpose": "Report-only guardrail policy for determining whether a future WellFit pull request would be eligible for automatic merge consideration. This policy never authorizes or performs a merge by itself.",
   "activationState": "report_only",
   "capabilityStateSeparation": {
     "currentState": "report_only",
@@ -113,12 +113,8 @@
     "activationState": "string",
     "autoMergeEligible": "boolean",
     "autoMergeEligibleLine": "AUTO_MERGE_ELIGIBLE=true|false",
-    "reasons": [
-      "string"
-    ],
-    "changedFiles": [
-      "string"
-    ],
+    "reasons": ["string"],
+    "changedFiles": ["string"],
     "changedFileCount": "number",
     "additions": "number",
     "deletions": "number",
@@ -136,9 +132,7 @@
         "source": "path_or_diff"
       }
     ],
-    "requiredChecks": [
-      "string"
-    ],
+    "requiredChecks": ["string"],
     "requiredChecksListed": "boolean",
     "neverMerges": true,
     "capabilityState": "report_only/pr_creation_allowed/merge_recommendation_allowed/auto_merge_allowed",
