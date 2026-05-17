@@ -458,6 +458,22 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Aligned remaining batch-runner, auto-repair, and auto-merge autonomy model references from the legacy docs-execution alias to the canonical single_agent_docs_register_build stage. Batch Execution Runner checks now validate the same stage name used by the approved runner, autopilot, and runner state. Runtime product code, protected compliance/economy/health/child/location/camera/Unity/PR #13 files, package/config files, auto-merge execution, deployment, and unrestricted auto-repair remained untouched."
+    },
+    {
+      "id": "PROGRESS-AGENT-CONTROL-CENTER-GAP-PREP-2026-05-17-0001",
+      "date": "2026-05-17",
+      "branch": "agent-control-center-gap-prep",
+      "issue": null,
+      "goal": "Prepare a controlled Agent Control Center gap analysis, concept, proposal registers, and report-only validator without building runtime UI or enabling merge/deploy.",
+      "changedAreas": [
+        "docs/architecture",
+        "project-register",
+        "scripts/wellfit-dev-agent",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Created Agent Control Center gap analysis and concept, added machine-readable control-center and proposal registers, integrated a report-only validator into quality gate, and linked Work Map/TODO Index. Existing Agent Catalog, Task Queue, Approved Build Backlog, Autopilot, Risk Classifier, Definition of Done, Research Governance, PR Review, Auto-Merge, Auto-Repair, and audit logs are reused instead of duplicated. No app/components/lib/functions runtime product code, Firestore rules, public assets, package/config files, Unity/PR #13 files, protected compliance/economy/health/child/location/camera/privacy/legal logic, auto-approval, auto-merge, deployment, or Admin UI was enabled."
     }
   ]
 }

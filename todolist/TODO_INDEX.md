@@ -409,3 +409,12 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 
 - `project-register/approved-agent-build-runner-policy.json` and `project-register/agent-autopilot.json` now describe `single_agent_docs_register_build` for already-human-approved docs/register/validator agent builds.
 - Follow-up: build approved agents one at a time, starting from the approved backlog order, without runtime/protected changes.
+
+## Agent Control Center planning references - 2026-05-17
+
+- [x] `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER_GAP_ANALYSIS.md` - gap analysis showing existing Agent Catalog, Task Queue, Approved Build Backlog, Autopilot, Risk Classifier, Definition of Done, Quality Gate, proposal, approval, research, audit and human-approval structures; recommends Phase 1 without OpenAI Agents SDK and Phase 2 SDK evaluation only if real orchestration/tracing/tool-runtime need appears.
+- [x] `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER.md` - concept for proposal visibility, admin/owner roles, proposal lifecycle, risk gates, controlled curiosity, Codex task draft generation and future read-only Admin UI path without runtime automation.
+- [x] `project-register/agent-control-center.json` - machine-readable Control Center policy for roles, statuses, risk levels, approval rules, protected scopes, blocked auto actions, Codex task generation and controlled curiosity.
+- [x] `project-register/agent-proposals.json` - initial UI-ready proposal examples for Product Intelligence Review, Website UX Audit, MVP Scope Check, Controlled Research Request, Codex Task Generation and Admin Agent Center UI Planning.
+- [x] `scripts/wellfit-dev-agent/src/agent-control-center-check.mjs` - report-only validator for Control Center registers, required proposal fields, high/critical auto-execute blocking, auto-merge/deploy false, protected-scope blocking, human approval and controlled curiosity boundaries.
+- [x] `scripts/wellfit-dev-agent/src/quality-gate.mjs` - integrates the Agent Control Center validator report-only into the existing quality gate.
