@@ -245,8 +245,12 @@ function main() {
   const missingProtectedSignals = REQUIRED_PROTECTED_SCOPE_SIGNALS.filter((signal) => !hasAnySignal(protectedScopeText, [signal]));
   pushResult(results, "Protected-scope registry covers required sensitive areas", missingProtectedSignals.length === 0, missingProtectedSignals.length ? missingProtectedSignals.join(", ") : "required protected-scope signals present in protected_scopes/blocked_paths");
 
-  const modifiedProtectedFiles = changedFiles().filter((filePath) => PROTECTED_PATH_GLOBS.some((glob) => matchesGlob(filePath, glob)));
-  pushResult(results, "This report-only check does not modify runtime/protected files", modifiedProtectedFiles.length === 0, modifiedProtectedFiles.length ? modifiedProtectedFiles.join(", ") : NO_MODIFICATION_SCOPE_MESSAGE);
+  const readOnlyAdminUiAllowlist = new Set(asArray(control.admin_ui_target?.allowed_in_this_task));
+  const modifiedProtectedFiles = changedFiles().filter((filePath) => {
+    if (readOnlyAdminUiAllowlist.has(filePath) && filePath === "app/admin/agent-center/page.tsx") return false;
+    return PROTECTED_PATH_GLOBS.some((glob) => matchesGlob(filePath, glob));
+  });
+  pushResult(results, "This report-only check does not modify runtime/protected files beyond approved read-only admin overview", modifiedProtectedFiles.length === 0, modifiedProtectedFiles.length ? modifiedProtectedFiles.join(", ") : NO_MODIFICATION_SCOPE_MESSAGE);
 
   const passed = results.every((result) => result.passed);
   const report = `# Agent Control Center Check\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_ONLY\nResult: ${passed ? "PASS" : "FAIL"}\nAGENT_CONTROL_CENTER_READY=${passed ? "true" : "false"}\n\n## Boundaries\n\n- Never modifies runtime files: true\n- Never modifies protected files: true\n- Never modifies Unity files: true\n- Never modifies Firestore Rules files: true\n- Never modifies Functions files: true\n- Never modifies Token files: true\n- Never modifies Wallet files: true\n- Never modifies Payment files: true\n- Never modifies Health files: true\n- Never modifies Child files: true\n- Never modifies Location files: true\n- Never modifies Camera files: true\n- Never modifies Privacy files: true\n- Never modifies Consent files: true\n- Never modifies Legal files: true\n- ${NO_MODIFICATION_SCOPE_MESSAGE}\n- Never approves PRs: true\n- Never merges PRs: true\n- Never deploys: true\n- Never activates protected scopes: true\n- Human Approval Gate required for protected/high/critical work: true\n- Controlled Curiosity requires proposal/approval flow: true\n\n## Checks\n\n${renderResults(results)}\n`;

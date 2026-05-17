@@ -44,6 +44,7 @@
     { "route": "/mobile/missionen/squat", "area": "Mobile-Web-Missionen", "auth": "mobile-beta-preview", "status": "active" }
   ],
   "systemPages": [
+    { "route": "/admin/agent-center", "area": "Admin Agent Control Center", "auth": "admin-read-only-static-register-overview", "status": "read_only_no_actions" },
     { "route": "/_not-found", "area": "System", "auth": "public", "status": "active" }
   ],
   "viewports": [
