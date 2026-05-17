@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wellfit.local/project-register/agent-task-draft-schema.json",
+  "title": "WellFit Agent-to-Task Draft",
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "description": "Machine-readable schema for report-only agent findings that may become reviewed WellFit task drafts. This schema does not authorize execution, writes, merge, deploy, reward, token, payment, health, child, privacy or location authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "task_id",
+    "source_agent",
+    "reason",
+    "affected_files",
+    "allowed_paths",
+    "blocked_paths",
+    "risk_level",
+    "required_checks",
+    "human_approval_required",
+    "stop_conditions",
+    "expected_diff_scope"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Stable machine-readable draft id."
+    },
+    "source_agent": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Agent or report that proposed this task."
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Why the task exists and what problem it solves."
+    },
+    "affected_files": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Files expected to be read or possibly touched after approval."
+    },
+    "allowed_paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Explicit path allowlist for the later task."
+    },
+    "blocked_paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Paths or scopes that remain blocked. Blocked paths override allowed paths."
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "required_checks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "human_approval_required": {
+      "type": "boolean",
+      "const": true,
+      "description": "All generated task drafts require human approval before execution."
+    },
+    "stop_conditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Conditions that stop execution and require review."
+    },
+    "expected_diff_scope": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Expected PR/diff scope after approval."
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "wellfitPolicy": {
+    "blockedAlways": [
+      "auto_merge",
+      "auto_deploy",
+      "self_approval",
+      "protected_scope_writes_without_explicit_review_plan",
+      "token_reward_payment_authority",
+      "health_child_location_privacy_runtime_authority"
+    ],
+    "adminConsoleMode": "read_only_visibility_only"
+  }
+}
