@@ -74,3 +74,7 @@ WellFit copy may use careful, non-clinical wording such as:
 ## Non-goals
 
 This document is not medical advice, not a user-facing privacy policy, not a diagnosis policy, and not approval to collect or process new health data. It is a governance guardrail for cautious copy, review escalation, and agent checks.
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst `AGENTS.md`, `docs/architecture/WELLFIT_HEALTH_CLAIMS_GUARD_REPORT_AGENT.md`, `project-register/health-claims-guard-report-agent.json`, `project-register/risk-classifier.json`, `project-register/product-rules.json` und diese Datei. Arbeite nur report-only weiter, solange kein explizit freigegebener Runtime-Scope mit medizinischer, rechtlicher und Owner-Review-Freigabe vorliegt. Keine Diagnose-, Therapie-, Heilversprechen- oder Health-Runtime-Aenderung aktivieren.

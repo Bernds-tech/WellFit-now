@@ -244,5 +244,39 @@
     "backendReadinessChangesRequireExistingRegisterUpdate": true,
     "functionsSyntaxCheckDoesNotPromoteFeatureReadiness": true,
     "emulatorAuthorityRequiresLocalServicesAndHumanReview": true
-  }
+  },
+  "entries": [
+    {
+      "id": "admin-agent-center-safe-live-agent-os",
+      "name": "Admin Agent Center Safe Live Agent OS",
+      "status": "active-safe-live-report-only",
+      "area": "Agent OS",
+      "routes": [
+        "/admin/agent-center",
+        "/admin/agent-center/task-proposals"
+      ],
+      "purpose": "Live visible admin console for confirmed WellFit agents, concept-learning questions, upload-intake policy, task proposals, audit evidence, and safety-gated report-only autonomy.",
+      "owner": "Guggenberger Bernd",
+      "runtimeAuthorityGranted": false,
+      "blockedAuthorities": [
+        "auto_merge",
+        "auto_deploy",
+        "self_approval",
+        "runtime_product_writes",
+        "reward_authority",
+        "mission_completion_authority",
+        "protected_scope_writes",
+        "firebase_writes",
+        "production_data_writes"
+      ],
+      "sourceRegisters": [
+        "project-register/agent-control-center.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/concept-learning-questions.json",
+        "project-register/admin-upload-knowledge-intake.json"
+      ]
+    }
+  ],
+  "updated": "2026-05-17"
 }

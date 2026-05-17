@@ -732,5 +732,42 @@
       "show_next_transition": true,
       "action_buttons_allowed": false
     }
+  },
+  "safe_live_activation": {
+    "updated": "2026-05-17",
+    "status": "active",
+    "mode": "live_agent_operating_system_with_safety_gates",
+    "adminConsolePath": "/admin/agent-center",
+    "owner": "Guggenberger Bernd",
+    "activeAgentIds": [
+      "product-memory-agent",
+      "ai-buddy-personality-tone-guard",
+      "reward-fairness-guard-report-agent",
+      "child-safety-guard-report-agent",
+      "health-claims-guard-report-agent",
+      "location-safety-guard-report-agent",
+      "sponsor-integrity-guard-report-agent",
+      "trust-safe-monetization-agent-report-agent",
+      "user-memory-governance-agent-report-agent",
+      "recovery-pause-anti-overuse-guard-report-agent"
+    ],
+    "enabledNow": [
+      "Admin Center visibility",
+      "Concept-learning question queue visibility",
+      "Knowledge upload intake policy visibility",
+      "Product memory and knowledge core governance",
+      "Report-only guard agents and validators",
+      "Task draft schema and proposal queue visibility"
+    ],
+    "blockedUntilDedicatedOwnerApprovedImplementationTask": [
+      "runtime product behavior changes",
+      "Firebase writes or production data writes",
+      "real file upload persistence",
+      "real approval buttons/actions",
+      "auto-merge/deploy/repair",
+      "reward/mission authority",
+      "health/child/location/legal/payment/token runtime activation"
+    ],
+    "whyThisIsStillLive": "The Agent OS is live as a visible, built, checkable, auditable operating layer in the app and registers. Safety gates prevent dangerous runtime authority while keeping agents active for reporting, learning questions, task drafting, and governance checks."
   }
 }

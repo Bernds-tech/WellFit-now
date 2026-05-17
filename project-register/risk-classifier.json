@@ -70,38 +70,91 @@
   "protectedAreas": [
     {
       "id": "UNITY_WELLFIT_BUDDY_AR",
-      "paths": ["native/unity/WellFitBuddyAR/**", "native/unity/WellFitBuddyAR/Assets/Scripts/**"],
+      "paths": [
+        "native/unity/WellFitBuddyAR/**",
+        "native/unity/WellFitBuddyAR/Assets/Scripts/**"
+      ],
       "classification": "critical",
       "defaultAction": "stop",
       "reason": "Local Unity work and old PR #13 must remain isolated unless the repository owner explicitly instructs otherwise."
     },
     {
       "id": "PR_13",
-      "paths": ["PR #13"],
+      "paths": [
+        "PR #13"
+      ],
       "classification": "critical",
       "defaultAction": "stop",
       "reason": "Do not merge, close, depend on, or use old Unity PR #13 as a shortcut."
     },
     {
       "id": "ECONOMY_REWARD_AUTHORITY",
-      "paths": ["lib/economy/**", "lib/rewards.ts", "lib/rewardScore.ts", "lib/missionCompletion.ts", "app/api/economy/**", "firestore.rules", "functions/**"],
+      "paths": [
+        "lib/economy/**",
+        "lib/rewards.ts",
+        "lib/rewardScore.ts",
+        "lib/missionCompletion.ts",
+        "app/api/economy/**",
+        "firestore.rules",
+        "functions/**"
+      ],
       "classification": "high",
       "defaultAction": "planning_only",
       "reason": "Points, XP, rewards, mission completion, anti-cheat, inventory unlocks, and rare-item grants must not become final client authority."
     },
     {
       "id": "FINANCIAL_OR_TOKENIZED_FEATURES",
-      "paths": ["app/marktplatz/**", "app/punkte-shop/**", "lib/economy/**", "project-register/product-rules.json"],
+      "paths": [
+        "app/marktplatz/**",
+        "app/punkte-shop/**",
+        "lib/economy/**",
+        "project-register/product-rules.json"
+      ],
       "classification": "critical",
-      "keywords": ["token", "NFT", "wallet", "payment", "purchase", "payout", "marketplace", "staking", "presale", "trading", "WFT"],
+      "keywords": [
+        "token",
+        "NFT",
+        "wallet",
+        "payment",
+        "purchase",
+        "payout",
+        "marketplace",
+        "staking",
+        "presale",
+        "trading",
+        "WFT"
+      ],
       "defaultAction": "stop_without_explicit_human_approval",
       "reason": "Mobile/beta must not activate token, NFT, trading, presale, wallet, payment, or financial-equivalent mechanics."
     },
     {
       "id": "SENSITIVE_DATA_AND_COMPLIANCE",
-      "paths": ["app/datenschutz/**", "app/agb/**", "app/impressum/**", "lib/healthConnect.ts", "lib/mobileMotion/**", "lib/nativeActivity/**", "app/mobile/**", "app/api/feedback/**", "project-register/user-feedback.json"],
+      "paths": [
+        "app/datenschutz/**",
+        "app/agb/**",
+        "app/impressum/**",
+        "lib/healthConnect.ts",
+        "lib/mobileMotion/**",
+        "lib/nativeActivity/**",
+        "app/mobile/**",
+        "app/api/feedback/**",
+        "project-register/user-feedback.json"
+      ],
       "classification": "critical",
-      "keywords": ["health", "watch", "location", "camera", "child", "privacy", "consent", "medical", "biometric", "Datenschutz", "AGB", "Impressum"],
+      "keywords": [
+        "health",
+        "watch",
+        "location",
+        "camera",
+        "child",
+        "privacy",
+        "consent",
+        "medical",
+        "biometric",
+        "Datenschutz",
+        "AGB",
+        "Impressum"
+      ],
       "defaultAction": "planning_only_or_stop",
       "reason": "Health, child-safety, location, camera, privacy, consent, and legal/compliance areas require explicit review."
     }
@@ -160,5 +213,130 @@
     "Select a task type from definition-of-done.json and a task candidate from agent-task-queue.json.",
     "If any automaticStopRules match, stop or convert to planning-only if documentationOnlyAllowedWhen applies.",
     "Before committing, verify git status and ensure only intentional documentation/register files changed for documentation-only tasks."
+  ],
+  "approvedAgentBuildReferences": [
+    {
+      "id": "trust-safe-monetization-agent-report-agent",
+      "name": "Trust-Safe Monetization Agent Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/auto-merge-policy.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/risk-classifier.json; report-only governance evidence, no runtime/protected authority granted."
+    },
+    {
+      "id": "user-memory-governance-agent-report-agent",
+      "name": "User Memory Governance Agent Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/risk-classifier.json; report-only governance evidence, no runtime/protected authority granted."
+    },
+    {
+      "id": "recovery-pause-anti-overuse-guard-report-agent",
+      "name": "Recovery / Pause / Anti-Overuse Guard Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/risk-classifier.json; report-only governance evidence, no runtime/protected authority granted."
+    }
   ]
 }

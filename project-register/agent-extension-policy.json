@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "activationState": "report_only",
   "purpose": "Define when future WellFit agents may extend an existing agent/framework and when they must instead create a new-agent proposal for human review before building anything new. This policy prevents duplicate architecture, silent new agent creation, protected-scope drift, and unauthorized runtime authority while allowing safe, scoped improvements to existing report-only governance.",
   "sourceOfTruth": [
@@ -258,5 +258,171 @@
     "catalog": "project-register/agent-catalog.json",
     "approvedBacklog": "project-register/approved-agent-build-backlog.json",
     "rule": "Before creating new agent work, check whether the existing Agent Catalog has a clear owner. If not, use the approved backlog only as planning/build authorization for one explicitly tasked report-only agent at a time; do not build future agents automatically."
-  }
+  },
+  "approvedAgentBuildReferences": [
+    {
+      "id": "sponsor-integrity-guard-report-agent",
+      "name": "Sponsor Integrity Guard Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/agent-extension-policy.json; report-only governance evidence, no runtime/protected authority granted."
+    },
+    {
+      "id": "trust-safe-monetization-agent-report-agent",
+      "name": "Trust-Safe Monetization Agent Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/auto-merge-policy.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/agent-extension-policy.json; report-only governance evidence, no runtime/protected authority granted."
+    },
+    {
+      "id": "user-memory-governance-agent-report-agent",
+      "name": "User Memory Governance Agent Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/agent-extension-policy.json; report-only governance evidence, no runtime/protected authority granted."
+    },
+    {
+      "id": "recovery-pause-anti-overuse-guard-report-agent",
+      "name": "Recovery / Pause / Anti-Overuse Guard Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/agent-extension-policy.json; report-only governance evidence, no runtime/protected authority granted."
+    }
+  ]
 }

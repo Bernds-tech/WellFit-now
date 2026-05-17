@@ -149,6 +149,17 @@ type AdminUploadKnowledgeIntakeRegister = {
   nextRecommendedTask?: string;
 };
 
+type SafeLiveActivation = {
+  status?: string;
+  mode?: string;
+  adminConsolePath?: string;
+  owner?: string;
+  activeAgentIds?: string[];
+  enabledNow?: string[];
+  blockedUntilDedicatedOwnerApprovedImplementationTask?: string[];
+  whyThisIsStillLive?: string;
+};
+
 type ApprovalOwner = {
   id?: string;
   displayName?: string;
@@ -180,6 +191,7 @@ type ControlCenterRegister = RegisterWithEntries & {
     blockedActions?: string[];
     currentImplementation?: string;
   };
+  safe_live_activation?: SafeLiveActivation;
   follow_up_required_for_real_approvals?: {
     status?: string;
     requiredBeforeAnyApprovalAction?: string[];
@@ -267,7 +279,7 @@ const allLearningQuestions = [...learningQuestions, ...archivedLearningQuestions
 
 export const metadata: Metadata = {
   title: "Agent Center | WellFit Admin",
-  description: "Read-only WellFit Agent Control Center aus statischen Governance-Registern.",
+  description: "Live sichtbares WellFit Agent Control Center mit sicher aktivierter report-only Agent-OS-Schicht.",
 };
 
 function countBy<T>(entries: T[], key: keyof T) {
@@ -390,6 +402,53 @@ function AgentList({ title, description, entries, tone = "neutral" }: { title: s
           </article>
         ))}
         {entries.length === 0 && <p className="rounded-2xl bg-white/[0.08] p-4 text-sm text-cyan-50/75">Keine passenden Einträge in den gelesenen Registern.</p>}
+      </div>
+    </section>
+  );
+}
+
+function SafeLiveActivationPanel() {
+  const activation = controlCenterRegister.safe_live_activation;
+  const activeAgentIds = activation?.activeAgentIds ?? [];
+  const enabledNow = activation?.enabledNow ?? [];
+  const blocked = activation?.blockedUntilDedicatedOwnerApprovedImplementationTask ?? [];
+
+  return (
+    <section className="rounded-3xl border border-emerald-200/25 bg-emerald-300/10 p-5 shadow-xl shadow-slate-950/25">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.22em] text-emerald-100/80">Safe Live Agent OS</p>
+          <h2 className="mt-2 text-2xl font-black text-white">Bestätigte Agenten sind live sichtbar und report-only aktiv</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-emerald-50/85">
+            {activation?.whyThisIsStillLive ?? "Die Agenten laufen als sichtbare, prüfbare und auditierbare Governance-Schicht. Gefährliche Runtime-Autorität bleibt geschützt."}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 lg:justify-end">
+          <Pill tone="safe">Status: {activation?.status ?? "active"}</Pill>
+          <Pill tone="safe">{activeAgentIds.length} aktive Agenten</Pill>
+          <Pill tone="warn">Owner: {activation?.owner ?? "Guggenberger Bernd"}</Pill>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_1fr_1.15fr]">
+        <article className="rounded-2xl bg-white/[0.08] p-4">
+          <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-emerald-100/75">Jetzt eingeschaltet</h3>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {enabledNow.map((item) => <Pill key={item} tone="safe">{item}</Pill>)}
+          </div>
+        </article>
+        <article className="rounded-2xl bg-white/[0.08] p-4">
+          <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-emerald-100/75">Aktive Agent IDs</h3>
+          <div className="mt-3 flex max-h-48 flex-wrap gap-2 overflow-y-auto">
+            {activeAgentIds.map((id) => <Pill key={id}>{id}</Pill>)}
+          </div>
+        </article>
+        <article className="rounded-2xl border border-rose-200/25 bg-rose-400/10 p-4">
+          <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-rose-100/80">Weiterhin bewusst gesperrt</h3>
+          <div className="mt-3 flex max-h-48 flex-wrap gap-2 overflow-y-auto">
+            {blocked.map((item) => <Pill key={item} tone="danger">{item}</Pill>)}
+          </div>
+        </article>
       </div>
     </section>
   );
@@ -776,6 +835,7 @@ export default function AgentCenterPage() {
             <AgentList title="Blockierte Agenten" description="Einträge mit blocked-Status; nächste Schritte brauchen menschliche Entscheidung." entries={blockedAgents} tone="danger" />
           </section>
 
+          <SafeLiveActivationPanel />
           <OwnerInfoBox />
           <ApprovalStatusPanel />
           <LearningQuestionsPanel />

@@ -281,3 +281,50 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 | Topic | Leading files | Status | Notes |
 |---|---|---|---|
 | Agent Control Center | `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER_GAP_ANALYSIS.md`, `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER.md`, `project-register/agent-control-center.json`, `project-register/agent-proposals.json`, `scripts/wellfit-dev-agent/src/agent-control-center-check.mjs`, `scripts/wellfit-dev-agent/src/quality-gate.mjs` | planning_register_prepared / report_only | Centralizes proposal visibility, risk gates, human approval, controlled curiosity, and Codex task draft boundaries over existing agent catalog/task queue/backlog/risk/DoD structures. No Admin UI, runtime product logic, protected-scope writes, auto-merge, auto-approval, or deploy is enabled. |
+
+<!-- WELLFIT-GENERATED-APPROVED-AGENT:sponsor-integrity-guard-report-agent:todolist/WORK_MAP.md -->
+
+## Generated approved-agent reference: Sponsor Integrity Guard Report Agent
+
+- Status: report-only artifact generated from `project-register/approved-agent-build-backlog.json` on 2026-05-17.
+- Backlog entry: `sponsor-integrity-guard-report-agent`.
+- Required docs: `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md`.
+- Required registers: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-extension-policy.json`, `project-register/website-agent-backlog.json`, `project-register/pr-review-policy.json`, `project-register/product-readiness.json`.
+- Required validation scripts: `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`.
+- Boundary: generated governance evidence only; no runtime/protected, merge, deploy, approval, reward-authority, mission-completion-authority, economy, native, Unity, or repair authority.
+
+
+<!-- WELLFIT-GENERATED-APPROVED-AGENT:trust-safe-monetization-agent-report-agent:todolist/WORK_MAP.md -->
+
+## Generated approved-agent reference: Trust-Safe Monetization Agent Report Agent
+
+- Status: report-only artifact generated from `project-register/approved-agent-build-backlog.json` on 2026-05-17.
+- Backlog entry: `trust-safe-monetization-agent-report-agent`.
+- Required docs: `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md`.
+- Required registers: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-extension-policy.json`, `project-register/risk-classifier.json`, `project-register/website-agent-backlog.json`, `project-register/auto-merge-policy.json`.
+- Required validation scripts: `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`.
+- Boundary: generated governance evidence only; no runtime/protected, merge, deploy, approval, reward-authority, mission-completion-authority, economy, native, Unity, or repair authority.
+
+
+<!-- WELLFIT-GENERATED-APPROVED-AGENT:user-memory-governance-agent-report-agent:todolist/WORK_MAP.md -->
+
+## Generated approved-agent reference: User Memory Governance Agent Report Agent
+
+- Status: report-only artifact generated from `project-register/approved-agent-build-backlog.json` on 2026-05-17.
+- Backlog entry: `user-memory-governance-agent-report-agent`.
+- Required docs: `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md`.
+- Required registers: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-extension-policy.json`, `project-register/adaptive-user-insights.json`, `project-register/user-feedback.json`, `project-register/risk-classifier.json`.
+- Required validation scripts: `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`.
+- Boundary: generated governance evidence only; no runtime/protected, merge, deploy, approval, reward-authority, mission-completion-authority, economy, native, Unity, or repair authority.
+
+
+<!-- WELLFIT-GENERATED-APPROVED-AGENT:recovery-pause-anti-overuse-guard-report-agent:todolist/WORK_MAP.md -->
+
+## Generated approved-agent reference: Recovery / Pause / Anti-Overuse Guard Report Agent
+
+- Status: report-only artifact generated from `project-register/approved-agent-build-backlog.json` on 2026-05-17.
+- Backlog entry: `recovery-pause-anti-overuse-guard-report-agent`.
+- Required docs: `docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md`.
+- Required registers: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-extension-policy.json`, `project-register/risk-classifier.json`, `project-register/adaptive-user-insights.json`, `project-register/product-readiness.json`.
+- Required validation scripts: `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`.
+- Boundary: generated governance evidence only; no runtime/protected, merge, deploy, approval, reward-authority, mission-completion-authority, economy, native, Unity, or repair authority.

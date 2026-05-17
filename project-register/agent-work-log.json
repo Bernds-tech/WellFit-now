@@ -103,6 +103,56 @@
   },
   "entries": [
     {
+      "taskId": "AGENT-OS-SAFE-LIVE-ACTIVATION-2026-05-17",
+      "title": "Activate confirmed WellFit agents as safe live report-only Agent OS layer",
+      "status": "completed",
+      "riskLevel": "high_governance_runtime_blocked",
+      "summary": "Confirmed open report/planning agents are now marked built/safe-live-active in catalog/backlog/control registers and visible through the Admin Agent Center. Runtime authority, approvals, upload persistence, protected writes, merge, deploy, and self-approval remain blocked.",
+      "changedFiles": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-control-center.json",
+        "project-register/agent-work-log.json",
+        "app/admin/agent-center/page.tsx"
+      ],
+      "checksRun": [
+        "npm install",
+        "git diff --check",
+        "jq empty changed json",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "agent guard checks",
+        "npm run agent:quality-gate"
+      ],
+      "followUps": [
+        "Add authenticated server-side owner approval workflow before real approval buttons.",
+        "Add storage rules and parser quarantine before productive file upload persistence.",
+        "Keep implementation agents blocked until exact owner-approved review plans exist."
+      ],
+      "updatedDate": "2026-05-17",
+      "branch": "agent-os-live-control-center",
+      "timestamp": "2026-05-17T00:00:00.000Z",
+      "date": "2026-05-17",
+      "nextRecommendedTask": "Plan authenticated owner approval workflow as a separate review-only task before enabling any real approval buttons or runtime actions.",
+      "checkResults": [
+        {
+          "command": "pending final rerun",
+          "result": "pending"
+        }
+      ],
+      "autoMergeEligibilityResult": "not_eligible_no_auto_merge",
+      "autoRepairDecisionResult": "not_used",
+      "protectedAreaConfirmation": "No runtime product writes, Firebase writes, reward authority, mission authority, health/child/location/legal/payment/token activation, Unity changes, merge, deploy, or self-approval.",
+      "pr": {
+        "branch": "agent-os-live-control-center",
+        "number": null,
+        "url": null,
+        "title": "Activate safe live Agent OS control center"
+      },
+      "noPrReason": "PR will be created after local checks and commit in this task."
+    },
+    {
       "taskId": "TRUST-COMPLIANCE-WEBSITE-AUDIT",
       "title": "Run Trust & Compliance Website Audit",
       "status": "done",

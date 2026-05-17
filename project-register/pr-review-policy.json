@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "activationState": "report_only",
   "purpose": "Machine-readable WellFit PR Review Agent governance for Codex Code Reviews and future WellFit agents. It defines the mandatory report-only review inputs, checklist, protected-area checks, cross-reference checks, readiness checks, repository inventory checks, auto-merge/auto-repair reporting, PR description fields, and human-review stops that every PR must be checked against before merge consideration. This policy never approves, merges, repairs, deploys, or authorizes protected runtime work.",
   "sourceOfTruth": [
@@ -451,5 +451,48 @@
     "Treat generated next-agent build prompts as proposals until human review accepts exactly one future-agent build task.",
     "Do not mark future proposal entries built without implementation evidence, passing report-only validation, and human-reviewed PR context.",
     "Confirm no runtime/product/protected files, auto-merge, auto-repair, approval, merge, close, or deploy actions were enabled by proposal generation."
+  ],
+  "approvedAgentBuildReferences": [
+    {
+      "id": "sponsor-integrity-guard-report-agent",
+      "name": "Sponsor Integrity Guard Report Agent",
+      "status": "referenced_for_report_only_artifact_generation",
+      "generated": "2026-05-17",
+      "requiredByBacklog": true,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "note": "Reference recorded in project-register/pr-review-policy.json; report-only governance evidence, no runtime/protected authority granted."
+    }
   ]
 }
