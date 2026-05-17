@@ -769,5 +769,128 @@
       "health/child/location/legal/payment/token runtime activation"
     ],
     "whyThisIsStillLive": "The Agent OS is live as a visible, built, checkable, auditable operating layer in the app and registers. Safety gates prevent dangerous runtime authority while keeping agents active for reporting, learning questions, task drafting, and governance checks."
+  },
+  "agentOsAutonomyLevels": {
+    "updated": "2026-05-17",
+    "policyDocument": "docs/architecture/WELLFIT_AGENT_OS_AUTONOMY_LEVELS.md",
+    "currentLevel": 2,
+    "currentLevelId": "level_2_docs_register_validator_commit_pr",
+    "currentLevelName": "Docs/Register/Validator execution with Commit/PR",
+    "currentLevelSummary": "Agents may update governance documentation, project registers, and report-only validators within an approved scope, then commit and create a PR handoff. This does not grant product runtime authority.",
+    "nextApprovableLevel": 3,
+    "nextApprovableLevelId": "level_3_safe_ui_copy_test_runtime_with_human_approval",
+    "nextApprovableLevelName": "Safe UI-/Copy-/Test-only runtime changes with human approval",
+    "runtimeAuthorityGranted": false,
+    "autoMergeDeployPolicyLevel": 5,
+    "autoMergeDeployStatus": "future_separate_policy_only",
+    "levels": [
+      {
+        "level": 0,
+        "id": "level_0_read_only_visibility",
+        "name": "Read-only visibility",
+        "allowed": [
+          "read_registers",
+          "read_docs",
+          "read_reports",
+          "display_existing_agent_center_state"
+        ],
+        "requiresHumanApproval": false,
+        "commitAllowed": false,
+        "prAllowed": false,
+        "runtimeChangesAllowed": false,
+        "runtimeAuthorityGranted": false
+      },
+      {
+        "level": 1,
+        "id": "level_1_task_draft_without_execution",
+        "name": "Task-draft creation without execution",
+        "allowed": [
+          "create_proposals",
+          "classify_risk",
+          "draft_allowed_blocked_paths",
+          "suggest_checks",
+          "draft_stop_conditions"
+        ],
+        "requiresHumanApproval": true,
+        "commitAllowed": false,
+        "prAllowed": false,
+        "runtimeChangesAllowed": false,
+        "runtimeAuthorityGranted": false
+      },
+      {
+        "level": 2,
+        "id": "level_2_docs_register_validator_commit_pr",
+        "name": "Docs/Register/Validator execution with Commit/PR",
+        "allowed": [
+          "docs_write",
+          "register_write",
+          "report_only_validator_execution",
+          "commit",
+          "pr_handoff"
+        ],
+        "requiresHumanApproval": false,
+        "commitAllowed": true,
+        "prAllowed": true,
+        "runtimeChangesAllowed": false,
+        "runtimeAuthorityGranted": false
+      },
+      {
+        "level": 3,
+        "id": "level_3_safe_ui_copy_test_runtime_with_human_approval",
+        "name": "Safe UI-/Copy-/Test-only runtime changes with human approval",
+        "allowed": [
+          "safe_ui_copy_changes",
+          "display_only_runtime_wiring",
+          "test_only_changes"
+        ],
+        "requiresHumanApproval": true,
+        "commitAllowed": true,
+        "prAllowed": true,
+        "runtimeChangesAllowed": "safe_ui_copy_test_only",
+        "runtimeAuthorityGranted": false
+      },
+      {
+        "level": 4,
+        "id": "level_4_protected_runtime_owner_approved",
+        "name": "Protected runtime work with Owner approval, review plan, and checks",
+        "allowed": [
+          "exact_owner_approved_protected_task_only"
+        ],
+        "requiresHumanApproval": true,
+        "requiresOwnerApproval": true,
+        "commitAllowed": true,
+        "prAllowed": true,
+        "runtimeChangesAllowed": "protected_exact_scope_only_after_all_runtime_authority_prerequisites",
+        "runtimeAuthorityGranted": false
+      },
+      {
+        "level": 5,
+        "id": "level_5_auto_merge_deploy_future_policy_only",
+        "name": "Auto-merge/deploy future policy only",
+        "allowed": [],
+        "requiresSeparateFuturePolicy": true,
+        "commitAllowed": false,
+        "prAllowed": false,
+        "runtimeChangesAllowed": false,
+        "runtimeAuthorityGranted": false
+      }
+    ],
+    "runtimeAuthorityPrerequisites": [
+      "server_side_role_check",
+      "append_only_audit_log",
+      "exact_allowlist_validation",
+      "stop_conditions",
+      "self_approval_block",
+      "required_checks_and_review_plan_validation",
+      "owner_escalation_for_high_critical_or_protected_scope"
+    ],
+    "blockedUntilRuntimeAuthorityPrerequisitesExist": [
+      "runtimeAuthorityGranted_true",
+      "protected_runtime_execution",
+      "approval_api_actions",
+      "firebase_or_production_writes",
+      "auto_merge",
+      "auto_deploy"
+    ]
   }
 }
