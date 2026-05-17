@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "activationState": "report_only",
   "purpose": "Govern the future Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can later be built one at a time only when required checks, missing-check evidence, safe-repair boundaries, PR diff review, mergeability, and protected-scope gates are green.",
   "approvedBacklogSource": "project-register/approved-agent-build-backlog.json",
@@ -36,6 +36,212 @@
     "scripts/wellfit-dev-agent/src/*report.mjs",
     "scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
   ],
+  "runtimeAllowedPathsByTaskType": {
+    "policyStatus": "graded_path_map_only_global_forbiddenPaths_still_override_all_task_type_paths",
+    "activationRule": "Only docs_register_only is enabled for the current report-only runner. ui_copy_safe, route_register_sync, and test_only require an explicit task-specific human approval, matching test plan, PR diff review, and merge-gate evidence before use.",
+    "blockedPathOverrideRule": "If a changed file matches forbiddenPaths, blockedSensitivePaths, blockedSensitiveTopics, or a task type blockedPaths entry, the runner must stop even when another task type allowedPaths entry would otherwise match.",
+    "blockedSensitivePaths": [
+      "firestore.rules",
+      "functions/**",
+      "lib/economy/**",
+      "lib/rewards.ts",
+      "lib/rewardScore.ts",
+      "lib/missionCompletion.ts",
+      "lib/healthConnect.ts",
+      "lib/tracking.ts",
+      "lib/userAnalytics.ts",
+      "lib/vision/**",
+      "lib/mobileMotion/**",
+      "lib/nativeActivity/**",
+      "lib/nativeAr/**",
+      "lib/arRiddle/**",
+      "app/datenschutz/**",
+      "app/agb/**",
+      "app/impressum/**",
+      "app/lib/deviceLocation.ts",
+      "app/components/DeviceLocationCard.tsx",
+      "app/components/LegalPageLayout.tsx",
+      "app/components/useLegalLanguage.tsx",
+      "native/**",
+      "native/unity/WellFitBuddyAR/**"
+    ],
+    "blockedSensitiveTopics": [
+      "wallet",
+      "payment",
+      "purchase",
+      "payout",
+      "marketplace trading",
+      "token",
+      "NFT",
+      "reward authority",
+      "mission completion authority",
+      "health data",
+      "child or minor safety",
+      "location or GPS",
+      "camera, image, video, audio, face, or biometric data",
+      "privacy, consent, legal, AGB, Datenschutz, Impressum, or compliance messaging",
+      "Unity / AR runtime implementation"
+    ],
+    "taskTypes": {
+      "docs_register_only": {
+        "status": "enabled_report_only",
+        "description": "Existing documentation, register, and governance-validator mode.",
+        "allowedPaths": [
+          "project-register/*.json",
+          "todolist/*.md",
+          "docs/architecture/*.md",
+          "scripts/wellfit-dev-agent/src/*check.mjs",
+          "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+          "scripts/wellfit-dev-agent/src/*report.mjs",
+          "scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
+        ],
+        "blockedPaths": [
+          "app/**",
+          "components/**",
+          "lib/**",
+          "functions/**",
+          "firestore.rules",
+          "public/**",
+          "native/**"
+        ],
+        "requiredChecks": [
+          "git diff --check",
+          "jq empty on every changed project-register/*.json file",
+          "npm run agent:quality-gate"
+        ]
+      },
+      "ui_copy_safe": {
+        "status": "planned_requires_explicit_task_approval_and_test_plan",
+        "description": "Small, non-sensitive copy or presentation-only fixes in existing UI surfaces; no behavior, routing, data, reward, wallet, health, privacy, legal, or Unity changes.",
+        "allowedPaths": [
+          "app/page.tsx",
+          "app/faq/page.tsx",
+          "app/hilfe/page.tsx",
+          "app/mobile/page.tsx",
+          "app/dashboard/page.tsx",
+          "app/buddy/page.tsx",
+          "app/missionen/page.tsx",
+          "app/leaderboard/page.tsx",
+          "app/einstellungen/page.tsx",
+          "app/components/ProductModulePlaceholderPage.tsx",
+          "app/components/PrimaryButton.tsx",
+          "app/components/AppInstallPrompt.tsx",
+          "app/components/UserProfileBadge.tsx",
+          "components/buddy/DesktopBuddyOverlay.tsx"
+        ],
+        "blockedPaths": [
+          "app/datenschutz/**",
+          "app/agb/**",
+          "app/impressum/**",
+          "app/marktplatz/**",
+          "app/punkte-shop/**",
+          "app/register/**",
+          "app/lib/**",
+          "app/components/DeviceLocationCard.tsx",
+          "app/components/LegalPageLayout.tsx",
+          "app/components/useLegalLanguage.tsx",
+          "lib/**",
+          "functions/**",
+          "firestore.rules",
+          "native/**"
+        ],
+        "scopeLimits": [
+          "copy, labels, helper text, aria text, or CSS class-level presentation only",
+          "no new data collection, business logic, server calls, route changes, dependency changes, or compliance wording changes",
+          "no token, NFT, wallet, payment, reward-authority, mission-completion, health, child, location, privacy, legal, or Unity/AR runtime changes"
+        ],
+        "minimumChecks": [
+          "git diff --check",
+          "npm run lint",
+          "npm run build",
+          "npm run agent:quality-gate",
+          "manual or screenshot review for perceptible UI changes when environment supports it"
+        ]
+      },
+      "route_register_sync": {
+        "status": "planned_requires_explicit_task_approval_and_test_plan",
+        "description": "Synchronize route/page/API inventory registers with existing routes without changing runtime route behavior.",
+        "allowedPaths": [
+          "project-register/routes.json",
+          "project-register/pages.json",
+          "project-register/apis.json",
+          "project-register/repository-inventory.json",
+          "todolist/WORK_MAP.md",
+          "todolist/TODO_INDEX.md",
+          "todolist/CURRENT_PROJECT_STATE.md",
+          "docs/architecture/*.md"
+        ],
+        "readOnlyReferencePaths": [
+          "app/**/page.tsx",
+          "app/**/layout.tsx",
+          "app/**/route.ts",
+          "app/**/route.tsx"
+        ],
+        "blockedPaths": [
+          "app/**",
+          "components/**",
+          "lib/**",
+          "functions/**",
+          "firestore.rules",
+          "native/**"
+        ],
+        "scopeLimits": [
+          "register and documentation synchronization only",
+          "no route creation, deletion, redirect, middleware, metadata, caching, or navigation behavior changes"
+        ],
+        "minimumChecks": [
+          "git diff --check",
+          "jq empty on every changed project-register/*.json file",
+          "npm run agent:quality-gate"
+        ]
+      },
+      "test_only": {
+        "status": "planned_requires_explicit_task_approval_and_test_plan",
+        "description": "Add or adjust tests for already-approved behavior without changing implementation or protected logic.",
+        "allowedPaths": [
+          "__tests__/**",
+          "tests/**",
+          "app/**/*.test.ts",
+          "app/**/*.test.tsx",
+          "app/**/*.spec.ts",
+          "app/**/*.spec.tsx",
+          "components/**/*.test.ts",
+          "components/**/*.test.tsx",
+          "components/**/*.spec.ts",
+          "components/**/*.spec.tsx",
+          "lib/**/*.test.ts",
+          "lib/**/*.spec.ts",
+          "scripts/wellfit-dev-agent/test/**"
+        ],
+        "blockedPaths": [
+          "functions/**",
+          "firestore.rules",
+          "lib/economy/**",
+          "lib/healthConnect.ts",
+          "lib/vision/**",
+          "lib/mobileMotion/**",
+          "lib/nativeActivity/**",
+          "lib/nativeAr/**",
+          "lib/arRiddle/**",
+          "native/**",
+          "package.json",
+          "package-lock.json"
+        ],
+        "scopeLimits": [
+          "test files only; no implementation edits and no dependency changes",
+          "tests may document protected behavior but must not create new protected authority or fixtures containing secrets or personal data"
+        ],
+        "minimumChecks": [
+          "git diff --check",
+          "npm run lint",
+          "npx tsc --noEmit",
+          "npm run build",
+          "npm run agent:quality-gate",
+          "the relevant test command named by the task-specific test plan"
+        ]
+      }
+    }
+  },
   "forbiddenPaths": [
     "app/**",
     "components/**",

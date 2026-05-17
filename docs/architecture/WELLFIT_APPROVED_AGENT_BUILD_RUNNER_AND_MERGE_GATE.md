@@ -1,7 +1,7 @@
 # WellFit Approved Agent Build Runner and Merge Gate
 
 Status: report-only framework  
-Updated: 2026-05-16  
+Updated: 2026-05-17
 Primary policy: `project-register/approved-agent-build-runner-policy.json`  
 State register: `project-register/agent-build-runner-state.json`
 Merge-gate register: `project-register/approved-agent-build-runner-merge-gate.json`
@@ -27,6 +27,22 @@ The runner reads `project-register/approved-agent-build-backlog.json` as the sou
 ## Generated prompts
 
 The runner remains compatible with `scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs`. That proposal script can create the next prompt from the approved backlog. The runner treats the prompt as build input, not as merge evidence. A generated prompt may guide a future one-agent implementation, but the future PR must still provide exact local and GitHub check evidence before the merge gate can pass.
+
+
+## Task-type path tiers
+
+The policy now carries a separate `runtimeAllowedPathsByTaskType` map in addition to the existing global `allowedPaths` and `forbiddenPaths`. This map is a graded planning boundary, not a blanket runtime authorization. The global `forbiddenPaths`, the shared `blockedSensitivePaths`, blocked sensitive topics, and each task type's own `blockedPaths` always override any task-type allowed-path entry. If a file is both allowed by a task profile and blocked by a protected-path rule, the runner must stop and report instead of editing, repairing, or merging.
+
+The current enabled mode remains `docs_register_only`: documentation, project-register, TODO/status, and governance-validator files only. `ui_copy_safe`, `route_register_sync`, and `test_only` are recorded as planned path profiles and may be used only after an explicit task-specific human approval, a matching test plan, PR diff review, and complete merge-gate evidence.
+
+The task profiles are intentionally narrow:
+
+- `docs_register_only` preserves the existing docs/register/governance-validator mode.
+- `ui_copy_safe` is limited to small non-sensitive copy or presentation-only changes on selected existing UI files; it excludes business logic, route behavior, dependencies, compliance wording, protected data flows, reward authority, wallet/token/payment surfaces, and Unity/AR runtime work.
+- `route_register_sync` allows route/page/API inventory register synchronization while treating app route files as read-only references; it must not create, delete, redirect, cache, or otherwise alter runtime routes.
+- `test_only` allows test-file additions or adjustments for already-approved behavior without implementation edits, dependency changes, protected fixtures, or new protected authority.
+
+Sensitive areas remain blocked until each area receives its own explicit approval and test plan. That includes `firestore.rules`, `functions/**`, wallet, reward, token, health, child-safety, location, privacy, legal, compliance, and Unity/AR areas.
 
 ## Required checks and evidence
 
@@ -64,9 +80,9 @@ The runner stops instead of merging when any protected/runtime path changes, any
 
 ## Runtime and protected changes remain blocked
 
-This framework is documentation/register/validation-script only. It does not authorize changes to `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`, `package.json`, `package-lock.json`, `firebase.json`, `.github/**`, `native/**`, `native/unity/WellFitBuddyAR/**`, PR #13, token/NFT/wallet/payment/economy authority, reward authority, mission completion authority, health, child, location, camera, biometric, consent, privacy, legal, or compliance logic.
+The active report-only framework is still documentation/register/validation-script only through `docs_register_only`. The new `runtimeAllowedPathsByTaskType` map records future, task-specific path tiers but does not override the active global block on `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`, `package.json`, `package-lock.json`, `firebase.json`, `.github/**`, `native/**`, `native/unity/WellFitBuddyAR/**`, PR #13, token/NFT/wallet/payment/economy authority, reward authority, mission completion authority, health, child, location, camera, biometric, consent, privacy, legal, or compliance logic.
 
-Protected topics may be mentioned as safety boundaries in governance docs. They do not become implementation permission. If protected runtime files change, the runner must stop and report.
+Protected topics may be mentioned as safety boundaries in governance docs. They do not become implementation permission. A future task profile can be used only when the task explicitly selects it and supplies the required approval and test plan. If protected runtime files change, or if a task touches a sensitive path/topic without its own area-specific approval, the runner must stop and report.
 
 ## Avoiding the PR #109 missing-check risk
 
