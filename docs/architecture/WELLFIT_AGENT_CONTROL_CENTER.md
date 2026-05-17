@@ -79,10 +79,11 @@ Diese Legende gilt fuer Statuswerte in Registern, Backlogs, Admin-Center-Anzeige
 - Auto-Merge bleibt deaktiviert.
 - Auto-Deploy bleibt deaktiviert.
 - Runtime-Ausfuehrung braucht eine separate, exakte Allowlist.
+- Jede Freigabe muss auditierbar und scope-bound sein: Actor, Rolle, Zeitstempel, Proposal/Task-ID, erlaubte Dateien/Scopes, Pflichtchecks, Reviewplan und Stop-Bedingungen muessen nachvollziehbar dokumentiert sein.
 
 ## 6.1 Freigabe-Nutzer und erlaubte Freigabearten
 
-Der aktuell eindeutig beschriebene Freigabe-Nutzer fuer spaetere Governance-Flows ist **Guggenberger Bernd**. Er darf in einem zukuenftigen, separat freigegebenen Approval-System nur als Rolle `owner` oder `agent_admin` aufgeloest werden. Die Rolle muss serverseitig ueber Auth-/Role-Check geprueft werden; der Anzeigename allein reicht nicht als Berechtigung.
+Der aktuell eindeutig beschriebene Freigabe-Nutzer fuer spaetere Governance-Flows ist **Guggenberger Bernd**. Er darf in einem zukuenftigen, separat freigegebenen Approval-System nur als Rolle `owner` oder `agent_admin` aufgeloest werden. Die Rolle muss serverseitig ueber Auth-/Role-Check geprueft werden; der Anzeigename allein reicht nicht als Berechtigung. Solange Firebase Auth und Rollen noch nicht produktiv angebunden sind, bleibt diese Auth-Anbindung ein separates Follow-up und die Admin Console darf nur read-only anzeigen, welche Freigabeart theoretisch moeglich waere.
 
 Erlaubte Freigabearten im Konzept:
 
@@ -205,7 +206,7 @@ Die spaetere UI kann Entscheidungsaktionen sichtbar machen, darf sie aber erst a
 - Ablehnung mit Begruendung.
 - Ueberarbeitung anfordern, inklusive konkreter Rueckfrage oder Aenderungsanforderung.
 
-Freigabe bedeutet weiterhin nur Freigabe des naechsten kontrollierten Schritts, nicht Auto-Merge, Auto-Deploy, Runtime-Autoritaet oder Protected-Scope-Freischaltung.
+Freigabe bedeutet weiterhin nur Freigabe des naechsten kontrollierten Schritts, nicht Auto-Merge, Auto-Deploy, Runtime-Autoritaet oder Protected-Scope-Freischaltung. Jede Entscheidungsaktion muss auditierbar und scope-bound bleiben; pauschale, zeitlich unbegrenzte oder scope-lose Freigaben sind ungueltig.
 
 ### 9.5 Ausfuehrungs- und Reviewstatus
 
@@ -224,6 +225,7 @@ Echte Entscheidungs- und Ausfuehrungsfunktionen dieser UI duerfen erst gebaut we
 - Validator fuer Schema, Risk-Gates, Scopes, Check-Pflichten und Audit-Vollstaendigkeit.
 - Rollenmodell mit Viewer, Agent Admin, Technical Admin, Owner und System Agent.
 - Human-Approval-Gate gegen Self-Approval, fehlende Reviewplaene und unklare Verantwortlichkeit.
+- Scope-bound Approval-Record mit Actor, Rolle, Zeitstempel, erlaubten Pfaden/Scopes, blockierten Scopes, Checkliste, Reviewplan und Audit-Event.
 - Protected-Scope-Policies fuer Token, Wallet, Payment, Presale, Health, Child Safety, Location, Camera/Biometric, Legal, Firestore Rules, Production Deployments und weitere compliance-kritische Bereiche.
 
 Bis diese Voraussetzungen erfuellt sind, bleibt die implementierte Route eine reine read-only Register-Uebersicht und darf nicht als Runtime-Admin-UI oder Approval-UI implementiert werden.
@@ -245,7 +247,7 @@ Explizit nicht in dieser Phase:
 
 ## 11. Naechster kleinster Schritt
 
-Nach dieser read-only Uebersicht ist der naechste separate PR ein echter Approval-Follow-up: Auth-/Role-Check fuer `owner`/`agent_admin`, append-only Audit-Log, Self-Approval-Block, Owner-Review fuer High/Critical/Protected Scopes, exakte Scope-Allowlist, Pflichtchecks und Reviewplan. Erst danach duerfen echte Freigabeaktionen diskutiert werden; Merge, Deploy, Auto-Repair und Runtime-Ausfuehrung bleiben weiterhin getrennt freizugeben.
+Nach dieser read-only Uebersicht ist der naechste separate PR ein echter Approval-Follow-up: Firebase Auth-/Role-Check fuer `owner`/`agent_admin`, append-only Audit-Log, Self-Approval-Block, Owner-Review fuer High/Critical/Protected Scopes, exakte Scope-Allowlist, Pflichtchecks und Reviewplan. Falls Firebase Auth/Rollen zu diesem Zeitpunkt noch nicht fertig angebunden sind, muss die Auth-/Rollen-Anbindung vor echten Freigabeaktionen als eigenes Follow-up umgesetzt und reviewed werden. Erst danach duerfen echte Freigabeaktionen diskutiert werden; Merge, Deploy, Auto-Repair und Runtime-Ausfuehrung bleiben weiterhin getrennt freizugeben.
 
 
 ## 12. Phase model and SDK boundary

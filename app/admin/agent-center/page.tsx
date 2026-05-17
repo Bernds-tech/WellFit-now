@@ -61,6 +61,16 @@ type WorkLogRegister = {
   entries?: WorkLogEntry[];
 };
 
+type ApprovalOwner = {
+  id?: string;
+  displayName?: string;
+  role?: string;
+  approvalScopes?: string[];
+  explicitlyBlocked?: string[];
+  approvalBoundaries?: string[];
+  currentApprovalCapability?: string;
+};
+
 type ControlCenterRegister = RegisterWithEntries & {
   name?: string;
   allowed_low_risk_actions?: string[];
@@ -74,6 +84,7 @@ type ControlCenterRegister = RegisterWithEntries & {
     permissions?: string[];
     forbidden_actions?: string[];
   }[];
+  owners?: ApprovalOwner[];
   authorized_approval_user?: {
     displayName?: string;
     allowedRoles?: string[];
@@ -85,6 +96,7 @@ type ControlCenterRegister = RegisterWithEntries & {
     status?: string;
     requiredBeforeAnyApprovalAction?: string[];
     blockedUntilFollowUpIsApproved?: string[];
+    separateAuthFollowUp?: string;
   };
   admin_ui_target?: {
     status?: string;
@@ -294,6 +306,52 @@ function AgentList({ title, description, entries, tone = "neutral" }: { title: s
   );
 }
 
+function OwnerInfoBox() {
+  const owner = controlCenterRegister.owners?.[0];
+  const followUp = controlCenterRegister.follow_up_required_for_real_approvals;
+
+  return (
+    <article className="rounded-3xl border border-cyan-200/25 bg-cyan-300/10 p-5 shadow-xl shadow-slate-950/25">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-white">Owner-Freigabe-Infobox</h2>
+          <p className="mt-2 text-sm leading-6 text-cyan-50/80">
+            Zeigt read-only, welche Freigabeart aktuell im Governance-Modell moeglich waere. Es gibt keine Approval-Aktion und keine Runtime-Aktivierung.
+          </p>
+        </div>
+        <Pill tone="warn">Auth-Follow-up offen</Pill>
+      </div>
+
+      <dl className="mt-4 grid gap-4 text-sm leading-6 text-cyan-50/85 md:grid-cols-2">
+        <div className="rounded-2xl bg-white/[0.08] p-4">
+          <dt className="font-semibold text-white">Owner</dt>
+          <dd>{owner?.displayName ?? "Nicht gesetzt"} · {owner?.role ?? "role n/a"}</dd>
+        </div>
+        <div className="rounded-2xl bg-white/[0.08] p-4">
+          <dt className="font-semibold text-white">Aktuell moeglich</dt>
+          <dd>Agent Proposals sowie Low-/Medium-Agenten nur scope-bound; High/Critical nur mit Reviewplan.</dd>
+        </div>
+        <div className="rounded-2xl bg-white/[0.08] p-4 md:col-span-2">
+          <dt className="font-semibold text-white">Freigabebereiche</dt>
+          <dd>{formatList(owner?.approvalScopes)}</dd>
+        </div>
+        <div className="rounded-2xl bg-white/[0.08] p-4 md:col-span-2">
+          <dt className="font-semibold text-white">Audit-/Scope-Grenzen</dt>
+          <dd>{formatList(owner?.approvalBoundaries)}</dd>
+        </div>
+        <div className="rounded-2xl bg-white/[0.08] p-4 md:col-span-2">
+          <dt className="font-semibold text-white">Separates Follow-up</dt>
+          <dd>{followUp?.separateAuthFollowUp ?? "Firebase Auth-/Rollen-Anbindung bleibt vor echten Freigaben separat zu klaeren."}</dd>
+        </div>
+      </dl>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {(owner?.explicitlyBlocked ?? []).map((action) => <Pill key={action} tone="danger">{action}</Pill>)}
+      </div>
+    </article>
+  );
+}
+
 function ApprovalStatusPanel() {
   const approvalUser = controlCenterRegister.authorized_approval_user;
   const followUp = controlCenterRegister.follow_up_required_for_real_approvals;
@@ -492,6 +550,7 @@ export default function AgentCenterPage() {
             <AgentList title="Blockierte Agenten" description="Einträge mit blocked-Status; nächste Schritte brauchen menschliche Entscheidung." entries={blockedAgents} tone="danger" />
           </section>
 
+          <OwnerInfoBox />
           <ApprovalStatusPanel />
           <LearningQuestionsPanel />
           <UploadPreparationPanel />
