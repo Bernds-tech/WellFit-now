@@ -46,6 +46,20 @@ Statusmodell:
 
 Wichtig: `approved` bedeutet nur fachliche Freigabe fuer den naechsten kontrollierten Schritt. Es bedeutet **nicht** Auto-Merge, Auto-Deploy, Runtime-Autoritaet oder Schutzbereichsfreigabe.
 
+### 4.1 Statuslegende fuer Agent-/Backlog-/Admin-Center-Flags
+
+Diese Legende gilt fuer Statuswerte in Registern, Backlogs, Admin-Center-Anzeigen und Agent-Handoffs:
+
+| Status | Menschenlesbare Bedeutung |
+| --- | --- |
+| `built` | Framework, Register, Validator oder read-only Sicht sind vorhanden. Dies bedeutet keine Runtime-Autoritaet, keine Produktfreigabe, keinen Merge, keinen Deploy und keine Protected-Scope-Freischaltung. |
+| `approved_for_planning` | Ein Konzept-, Report- oder Planungs-Agent darf einen Vorschlag, Bericht, Scope-Entwurf oder Reviewplan vorbereiten. Dies erlaubt keine Produkt- oder Runtime-Aenderung. |
+| `approved_for_build` | Eine exakt freigegebene, einzelne Build-Aufgabe darf nur in den benannten Pfaden und mit den benannten Tests/Checks umgesetzt werden. Kritische Bereiche benoetigen Owner-Freigabe, Reviewplan und Stop-Bedingungen. |
+| `blocked` | Der naechste Schritt ist gesperrt, bis eine menschliche Entscheidung, fehlende Information, exakte Scope-Allowlist, Tests oder ein Reviewplan nachgereicht wurde. |
+| `report_only` | Der Agent darf nur lesen, analysieren und berichten. Es duerfen keine Produktdateien, Runtime-Pfade, Daten, APIs, Firebase Writes, Merge-/Deploy-Flows oder Protected Scopes veraendert werden. |
+| `docs_register_write` | Nur die explizit erlaubten Dokumentations- oder Registerdateien duerfen aktualisiert werden. Dies ist keine Erlaubnis fuer Produktlogik, Runtime-Code, Compliance-Logik, UI-Aktionen oder produktive Writes. |
+| `runtime_blocked` | Runtime-Ausfuehrung, Produktwirkung, Server-/Firebase-Writes, Autoritaetslogik, Merge, Deploy und Protected-Scope-Aktivierung bleiben gesperrt, bis Bernd/Owner eine exakte Einzelaufgabe mit Pfaden, Tests und Reviewplan freigibt. |
+
 ## 5. Risk-Gate
 
 | Risk Level | Bedeutung | Default-Automation |
@@ -86,6 +100,27 @@ Blockierte Aktionen fuer diesen Nutzer in der aktuellen Umsetzung und fuer alle 
 - Keine Protected-Scope-Freigabe als `agent_admin`.
 - Kein Merge, Deploy, Auto-Repair, Runtime-Execution, Firebase Write oder Production-Data-Write.
 - Keine Aktivierung von Token-/Wallet-/Payment-, Reward-Authority-, Unity-/PR-13-, Firestore-Rules- oder Functions-Aenderungen ohne eigenen Reviewplan.
+
+### 6.2 Was darf Bernd im Admin Center freigeben?
+
+Das Admin Center darf Bernd nur kontrollierte Governance-Schritte freigeben lassen. Die aktuelle Umsetzung bleibt read-only; echte Freigabeaktionen brauchen weiterhin einen separaten, reviewed Follow-up mit Auth-/Role-Check, append-only Audit-Log, Self-Approval-Block, Scope-Validierung und Pflichtchecks.
+
+Bernd darf im Zielbild freigeben:
+
+- Read-only Register-Review-Bestaetigungen ohne Ausfuehrungswirkung.
+- Low-Risk Docs-/Register-Scope-Freigaben, wenn die Policy es erlaubt.
+- Medium-Risk Konzept-, Report- oder Planungs-Agenten, solange kein Protected Scope betroffen ist.
+- Als `owner`: eine einzelne High-Risk Build-Aufgabe nur mit exakter Aufgabenbeschreibung, erlaubten Pfaden, blockierten Pfaden/Protected Scopes, erforderlichen Tests/Checks, Stop-Bedingungen und Reviewplan.
+- Als `owner`: Critical-Risk nur manuell als Audit-/Review-Hinweis oder als separat reviewte Einzelaufgabe; dies aktiviert weiterhin kein Auto-Merge, Auto-Deploy und keine Runtime-Autoritaet.
+
+Bernd darf im Admin Center nicht pauschal freigeben:
+
+- Keine Runtime-Autoritaet, produktive Ausfuehrung, Merge-, Deploy-, Firebase- oder Production-Data-Writes.
+- Keine Token-/Wallet-/Payment-/Presale-/Trading-, Reward-Authority-, Health-/Child-/Location-/Camera-/Biometric-/Legal-/Compliance-Aktivierung ohne dedizierten Reviewplan.
+- Keine Self-Approval- oder Agent-Auto-Approval-Pfade.
+- Keine Implementation-Agenten in kritischen Bereichen ohne exakte Einzelaufgabe.
+
+Implementation-Agenten in kritischen oder Protected-Scope-Bereichen bleiben blockiert, bis Bernd/Owner eine exakte Einzelaufgabe mit Pfaden, Tests/Checks, Stop-Bedingungen und Reviewplan freigibt. Eine Freigabe fuer `approved_for_planning` erlaubt nur Konzept-/Report-Vorbereitung und schaltet keine Produktaenderung oder Runtime-Autoritaet frei.
 
 ## 7. Controlled Curiosity / Research Flow
 

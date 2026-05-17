@@ -49,6 +49,15 @@
     "blocked",
     "completed"
   ],
+  "status_legend": {
+    "built": "Framework, Register, Validator oder read-only Sicht sind vorhanden. Dies bedeutet keine Runtime-Autoritaet, keine Produktfreigabe, keinen Merge, keinen Deploy und keine Protected-Scope-Freischaltung.",
+    "approved_for_planning": "Ein Konzept-, Report- oder Planungs-Agent darf einen Vorschlag, Bericht, Scope-Entwurf oder Reviewplan vorbereiten. Dies erlaubt keine Produkt- oder Runtime-Aenderung.",
+    "approved_for_build": "Eine exakt freigegebene, einzelne Build-Aufgabe darf nur in den benannten Pfaden und mit den benannten Tests/Checks umgesetzt werden. Kritische Bereiche benoetigen Owner-Freigabe, Reviewplan und Stop-Bedingungen.",
+    "blocked": "Der naechste Schritt ist gesperrt, bis eine menschliche Entscheidung, fehlende Information, exakte Scope-Allowlist, Tests oder ein Reviewplan nachgereicht wurde.",
+    "report_only": "Der Agent darf nur lesen, analysieren und berichten. Es duerfen keine Produktdateien, Runtime-Pfade, Daten, APIs, Firebase Writes, Merge-/Deploy-Flows oder Protected Scopes veraendert werden.",
+    "docs_register_write": "Nur die explizit erlaubten Dokumentations- oder Registerdateien duerfen aktualisiert werden. Dies ist keine Erlaubnis fuer Produktlogik, Runtime-Code, Compliance-Logik, UI-Aktionen oder produktive Writes.",
+    "runtime_blocked": "Runtime-Ausfuehrung, Produktwirkung, Server-/Firebase-Writes, Autoritaetslogik, Merge, Deploy und Protected-Scope-Aktivierung bleiben gesperrt, bis Bernd/Owner eine exakte Einzelaufgabe mit Pfaden, Tests und Reviewplan freigibt."
+  },
   "risk_levels": {
     "low": {
       "description": "Documentation, registers, report-only findings, safe metadata synchronization.",
@@ -298,6 +307,35 @@
       "merge",
       "deploy",
       "auto_repair"
+    ]
+  },
+  "bernd_admin_center_release_scope": {
+    "purpose": "Clarify what Bernd may release in the future Admin Center without turning the read-only register overview into runtime authority.",
+    "may_release": [
+      "read_only_register_review_acknowledgement",
+      "low_risk_docs_register_scope_approval_when_policy_allows",
+      "medium_risk_concept_or_report_agent_planning_when_no_protected_scope_is_touched",
+      "owner_single_task_build_approval_only_with_exact_paths_required_tests_stop_conditions_and_review_plan",
+      "owner_manual_critical_review_note_for_planning_or_separately_reviewed_single_tasks"
+    ],
+    "must_include_for_implementation_agents": [
+      "exact_single_task_description",
+      "allowed_paths",
+      "blocked_paths_and_protected_scopes",
+      "required_tests_or_checks",
+      "review_plan",
+      "stop_conditions",
+      "responsible_owner_or_reviewer"
+    ],
+    "critical_area_rule": "Implementation agents in critical or protected areas remain blocked until Bernd/Owner explicitly releases one exact single task with paths, tests/checks and a review plan. Concept/report planning approval does not unlock implementation.",
+    "must_not_release_from_admin_center": [
+      "runtime_authority",
+      "product_runtime_execution",
+      "merge_or_deploy",
+      "firebase_or_production_data_writes",
+      "token_wallet_payment_presale_trading_or_reward_authority_activation",
+      "health_child_location_camera_biometric_legal_or_compliance_changes_without_dedicated_review_plan",
+      "self_approval_or_agent_auto_approval"
     ]
   }
 }
