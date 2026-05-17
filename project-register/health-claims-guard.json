@@ -1,0 +1,90 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "status": "active",
+  "id": "health-claims-guard",
+  "name": "WellFit Health Claims Guard",
+  "purpose": "Machine-readable guardrail for WellFit health, fitness, buddy, mission, and marketing wording so beta-facing language stays motivational, non-medical, and review-first.",
+  "scope": [
+    "health-adjacent product copy",
+    "fitness and movement mission text",
+    "AI buddy wellbeing language",
+    "research or recommendation summaries",
+    "marketing, onboarding, dashboard, mobile, and challenge wording before release"
+  ],
+  "activationState": "governance_active",
+  "runtimeAuthorityGranted": false,
+  "requiresHumanReviewForMedicalAdjacentClaims": true,
+  "claimRiskLevel": "critical",
+  "forbiddenClaims": [
+    {
+      "id": "FORBIDDEN-MEDICAL-CURE-PROMISES",
+      "label": "medizinische Heilversprechen",
+      "rule": "Do not claim that WellFit, movement missions, the buddy, AR experiences, rewards, or learning modules cure, heal, reverse, eliminate, prevent, or treat medical conditions."
+    },
+    {
+      "id": "FORBIDDEN-DIAGNOSIS",
+      "label": "Diagnose",
+      "rule": "Do not diagnose users, infer diseases, label medical status, or present app signals, watch data, camera data, location context, or questionnaire answers as a diagnosis."
+    },
+    {
+      "id": "FORBIDDEN-THERAPY-REPLACEMENT",
+      "label": "Therapieersatz",
+      "rule": "Do not state or imply that WellFit replaces physicians, therapists, prescribed treatment, medication, emergency care, rehabilitation, or professional medical advice."
+    },
+    {
+      "id": "FORBIDDEN-GUARANTEED-HEALTH-EFFECT",
+      "label": "garantierte Gesundheitswirkung",
+      "rule": "Do not guarantee weight loss, pain relief, lower stress, better sleep, recovery, symptom improvement, disease prevention, or any other health outcome."
+    },
+    {
+      "id": "FORBIDDEN-UNREVIEWED-DISEASE-CLAIMS",
+      "label": "krankheitsbezogene Aussagen ohne Prüfung",
+      "rule": "Do not publish disease-, symptom-, recovery-, injury-, mental-health-, or treatment-related claims unless a separate human medical/legal/product review explicitly approves the exact wording and evidence basis."
+    }
+  ],
+  "allowedCautiousLanguage": [
+    {
+      "id": "ALLOWED-MOVEMENT-CAN-SUPPORT",
+      "label": "Bewegung kann unterstützen",
+      "pattern": "Movement can support routines, energy, learning breaks, and a more active day when suitable for the user."
+    },
+    {
+      "id": "ALLOWED-MOTIVATION",
+      "label": "Motivation",
+      "pattern": "WellFit may motivate users with reminders, missions, streaks, playful feedback, and optional social encouragement."
+    },
+    {
+      "id": "ALLOWED-GENERAL-WELLBEING",
+      "label": "allgemeines Wohlbefinden",
+      "pattern": "Use broad wellbeing language such as general wellbeing, feeling active, balanced routines, confidence, focus, or enjoyment without promising clinical outcomes."
+    },
+    {
+      "id": "ALLOWED-NO-MEDICAL-ADVICE",
+      "label": "keine medizinische Beratung",
+      "pattern": "State clearly that WellFit does not provide medical advice, diagnosis, or treatment and that users should consult qualified professionals for medical questions."
+    }
+  ],
+  "reviewRules": [
+    "Use cautious, non-guaranteed wording for movement, motivation, and general wellbeing.",
+    "Mark medical-adjacent wording as review_required when it mentions disease, symptoms, injury, recovery, therapy, diagnosis, treatment, medication, pain, mental health, biometric interpretation, or guaranteed outcomes.",
+    "Keep health, watch, camera, AR, and location data as context or safety signals only; they must not become medical authority or final reward authority.",
+    "Prefer beta-safe disclaimers and alternatives over pressure, urgency, fear, or certainty.",
+    "Escalate exact copy and evidence requirements before publishing any claim that could be interpreted as medical, disease-related, or therapeutic."
+  ],
+  "connectedGuardrails": [
+    "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+    "project-register/risk-classifier.json",
+    "project-register/product-rules.json"
+  ],
+  "artifactSet": {
+    "architectureDoc": "docs/architecture/WELLFIT_HEALTH_CLAIMS_GUARD.md",
+    "register": "project-register/health-claims-guard.json",
+    "validatorScript": "scripts/wellfit-dev-agent/src/health-claims-guard-check.mjs"
+  },
+  "validator": {
+    "path": "scripts/wellfit-dev-agent/src/health-claims-guard-check.mjs",
+    "expectedReadyToken": "HEALTH_CLAIMS_GUARD_READY=true"
+  },
+  "nextSafeMaintenanceTask": "Run the health claims guard check when changing health-adjacent copy, then escalate review_required wording before user-facing release."
+}
