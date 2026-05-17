@@ -4,6 +4,7 @@ import AppShell from "@/app/components/AppShell";
 import agentBuildProposals from "@/project-register/agent-build-proposals.json";
 import agentCatalog from "@/project-register/agent-catalog.json";
 import agentControlCenter from "@/project-register/agent-control-center.json";
+import conceptLearningQuestions from "@/project-register/concept-learning-questions.json";
 import agentWorkLog from "@/project-register/agent-work-log.json";
 import approvedAgentBuildBacklog from "@/project-register/approved-agent-build-backlog.json";
 
@@ -28,6 +29,41 @@ type AgentEntry = {
   forbiddenWriteScopes?: string[];
   connectedAgents?: string[];
   connectedRegisters?: string[];
+};
+
+
+type LearningQuestionStatus = "offen" | "beantwortet" | "braucht Rückfrage" | "umgesetzt";
+
+type LearningQuestion = {
+  id: string;
+  status: LearningQuestionStatus;
+  category?: "open" | "answered" | "archived";
+  question: string;
+  whyImportant: string;
+  risk: string;
+  affectedWellFitArea: string[];
+  proposedStorageLocation: string;
+  answerPreparation?: {
+    mode?: "lokal_statisch_vorbereitet" | "api_follow_up_spaeter";
+    draftAnswer?: string;
+    apiFollowUpRequired?: boolean;
+    apiFollowUpNote?: string;
+  };
+  followUp?: string;
+  archivedReason?: string;
+};
+
+type LearningQuestionsRegister = {
+  updated?: string;
+  status?: string;
+  name?: string;
+  purpose?: string;
+  dataPolicy?: {
+    containsSensitiveUserData?: boolean;
+    rule?: string;
+  };
+  questions?: LearningQuestion[];
+  archivedQuestions?: LearningQuestion[];
 };
 
 type RegisterWithEntries = {
@@ -121,6 +157,7 @@ const catalogRegister = agentCatalog as RegisterWithEntries;
 const backlogRegister = approvedAgentBuildBacklog as RegisterWithEntries;
 const proposalsRegister = agentBuildProposals as RegisterWithEntries;
 const controlCenterRegister = agentControlCenter as ControlCenterRegister;
+const learningQuestionsRegister = conceptLearningQuestions as LearningQuestionsRegister;
 const workLogRegister = agentWorkLog as WorkLogRegister;
 
 const registerSummaries: RegisterSummary[] = [
@@ -171,13 +208,16 @@ const confirmedAgents = sourceEntries.filter((entry) => confirmedStatuses.has(en
 const blockedAgents = sourceEntries.filter((entry) => blockedStatuses.has(entry.status ?? ""));
 const approvalGatedAgents = sourceEntries.filter((entry) => entry.requiresHumanApprovalForRuntime || entry.humanReviewRequired);
 const workLogEntries = workLogRegister.entries ?? [];
+const learningQuestions = learningQuestionsRegister.questions ?? [];
+const archivedLearningQuestions = learningQuestionsRegister.archivedQuestions ?? [];
+const allLearningQuestions = [...learningQuestions, ...archivedLearningQuestions];
 
 export const metadata: Metadata = {
   title: "Agent Center | WellFit Admin",
   description: "Read-only WellFit Agent Control Center aus statischen Governance-Registern.",
 };
 
-function countBy<T extends Record<string, unknown>>(entries: T[], key: keyof T) {
+function countBy<T>(entries: T[], key: keyof T) {
   return entries.reduce<Record<string, number>>((accumulator, entry) => {
     const value = entry[key];
     if (typeof value !== "string" || value.length === 0) return accumulator;
@@ -193,10 +233,6 @@ function formatList(items: string[] | undefined, fallback = "Nicht dokumentiert"
 
 function getEntryTitle(entry: AgentEntry) {
   return entry.name ?? entry.proposedAgentName ?? entry.id ?? "Unbenannter Eintrag";
-}
-
-function getQuestionSeed(entry: SourceEntry) {
-  return entry.nextRecommendedAction ?? entry.nextSafeMaintenanceTask ?? entry.reason ?? entry.expectedBenefit ?? entry.purpose ?? "Bernd-Review für nächsten sicheren Schritt erforderlich.";
 }
 
 function Pill({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "safe" | "warn" | "danger" }) {
@@ -403,29 +439,83 @@ function ApprovalStatusPanel() {
   );
 }
 
+function getLearningQuestionTone(status: LearningQuestionStatus): "neutral" | "safe" | "warn" | "danger" {
+  if (status === "beantwortet" || status === "umgesetzt") return "safe";
+  if (status === "braucht Rückfrage") return "danger";
+  return "warn";
+}
+
 function LearningQuestionsPanel() {
-  const questionEntries = [...blockedAgents, ...openAgents, ...approvalGatedAgents]
-    .filter((entry, index, entries) => entries.findIndex((candidate) => candidate.id === entry.id && candidate.source === entry.source) === index)
-    .slice(0, 8);
+  const statusCounts = countBy(allLearningQuestions, "status");
+  const containsSensitiveUserData = learningQuestionsRegister.dataPolicy?.containsSensitiveUserData === true;
 
   return (
     <section className="rounded-3xl border border-white/12 bg-slate-950/35 p-5 shadow-xl shadow-slate-950/25">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Lernfragen an Bernd</h2>
-          <p className="mt-1 text-sm leading-6 text-cyan-50/75">Vorbereitete Review-Fragen aus offenen, blockierten und approval-gated Registereinträgen. Es wird nichts automatisch gesendet.</p>
+          <h2 className="text-xl font-bold text-white">Fragen an Bernd</h2>
+          <p className="mt-1 text-sm leading-6 text-cyan-50/75">
+            Statischer Auszug aus project-register/concept-learning-questions.json. Antworten sind lokal vorbereitet oder als späterer API-Follow-up markiert; es wird nichts automatisch gesendet.
+          </p>
         </div>
-        <Pill tone="warn">Entwurf · nicht versendet</Pill>
+        <div className="flex flex-wrap gap-2">
+          <Pill tone="warn">{allLearningQuestions.length} Fragen</Pill>
+          <Pill tone={containsSensitiveUserData ? "danger" : "safe"}>{containsSensitiveUserData ? "Datenprüfung nötig" : "keine sensiblen Nutzerdaten"}</Pill>
+        </div>
       </div>
-      <ol className="mt-4 space-y-3">
-        {questionEntries.map((entry) => (
-          <li key={`${entry.source}-question-${entry.id ?? getEntryTitle(entry)}`} className="rounded-2xl border border-white/10 bg-white/[0.08] p-4">
-            <p className="text-sm font-bold text-white">{getEntryTitle(entry)}</p>
-            <p className="mt-2 text-sm leading-6 text-cyan-50/78">Welche Freigabe, Scope-Allowlist oder Stop-Bedingung soll für „{getQuestionSeed(entry)}“ gelten?</p>
-            <p className="mt-2 font-mono text-xs text-cyan-100/60">Quelle: {entry.source}</p>
-          </li>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_1.2fr]">
+        <div className="rounded-2xl border border-cyan-200/20 bg-cyan-300/[0.07] p-4">
+          <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-cyan-100/75">Register-Regel</h3>
+          <p className="mt-2 text-sm leading-6 text-cyan-50/80">{learningQuestionsRegister.dataPolicy?.rule ?? "Nur planning-only Fragen ohne sensible Nutzerdaten speichern."}</p>
+          <p className="mt-3 font-mono text-xs text-cyan-100/60">Stand: {learningQuestionsRegister.updated ?? "n/a"}</p>
+        </div>
+        <StatusPillGroup title="Fragenstatus" counts={statusCounts} emptyLabel="keine Fragen" />
+      </div>
+
+      <div className="mt-5 space-y-4">
+        {allLearningQuestions.map((entry) => (
+          <article key={entry.id} className="rounded-2xl border border-white/10 bg-white/[0.08] p-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="font-mono text-xs text-cyan-100/60">{entry.id}{entry.category === "archived" ? " · archiviert" : ""}</p>
+                <h3 className="mt-2 text-base font-bold text-white">{entry.question}</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Pill tone={getLearningQuestionTone(entry.status)}>{entry.status}</Pill>
+                <Pill tone={entry.risk === "high" || entry.risk === "critical" ? "danger" : entry.risk === "medium" ? "warn" : "neutral"}>Risiko: {entry.risk}</Pill>
+                <Pill>{entry.answerPreparation?.mode === "api_follow_up_spaeter" ? "API-Follow-up später" : "lokal/statisch"}</Pill>
+              </div>
+            </div>
+
+            <dl className="mt-4 grid gap-3 text-sm leading-6 text-cyan-50/80 lg:grid-cols-2">
+              <div className="rounded-2xl bg-white/[0.07] p-3">
+                <dt className="font-semibold text-white">Warum wichtig</dt>
+                <dd>{entry.whyImportant}</dd>
+              </div>
+              <div className="rounded-2xl bg-white/[0.07] p-3">
+                <dt className="font-semibold text-white">Betroffener WellFit-Bereich</dt>
+                <dd>{formatList(entry.affectedWellFitArea)}</dd>
+              </div>
+              <div className="rounded-2xl bg-white/[0.07] p-3">
+                <dt className="font-semibold text-white">Vorgeschlagener Speicherort</dt>
+                <dd className="break-words font-mono text-xs text-cyan-100/75">{entry.proposedStorageLocation}</dd>
+              </div>
+              <div className="rounded-2xl bg-white/[0.07] p-3">
+                <dt className="font-semibold text-white">Antwort / Follow-up</dt>
+                <dd>{entry.answerPreparation?.draftAnswer ?? entry.followUp ?? "Noch keine Antwort vorbereitet."}</dd>
+                {entry.answerPreparation?.apiFollowUpNote && <dd className="mt-2 text-xs text-amber-100/80">{entry.answerPreparation.apiFollowUpNote}</dd>}
+              </div>
+              {entry.archivedReason && (
+                <div className="rounded-2xl bg-white/[0.07] p-3 lg:col-span-2">
+                  <dt className="font-semibold text-white">Archivgrund</dt>
+                  <dd>{entry.archivedReason}</dd>
+                </div>
+              )}
+            </dl>
+          </article>
         ))}
-      </ol>
+      </div>
     </section>
   );
 }
@@ -517,7 +607,7 @@ export default function AgentCenterPage() {
           </header>
 
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            <StatCard label="Register" value={registerSummaries.length} hint="Fünf lokale JSON-Register aus project-register/." />
+            <StatCard label="Register" value={registerSummaries.length + 1} hint="Sechs lokale JSON-Register inklusive Fragenregister." />
             <StatCard label="Agenten gesamt" value={sourceEntries.length} hint="Catalog, Backlog und Proposal-Einträge zusammengeführt." />
             <StatCard label="Offene Agenten" value={openAgents.length} hint="Planung, Review oder laufende Agenten aus den Registern." />
             <StatCard label="Blockiert" value={blockedAgents.length} hint="Status blocked; keine Ausführung in dieser UI." />
