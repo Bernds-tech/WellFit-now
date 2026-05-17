@@ -25,6 +25,18 @@
     "decisions": {
       "path": "project-register/decisions.json",
       "relationship": "Durable owner/admin decisions and accepted concept deltas must be reflected in the decision log when approved by Bernd or another authorized owner/admin."
+    },
+    "conceptLearningQuestions": {
+      "path": "project-register/concept-learning-questions.json",
+      "relationship": "Open product learning questions that need Bernd/admin answers remain question records until approved answers are available."
+    },
+    "wellfitKnowledgeCoreRegister": {
+      "path": "project-register/wellfit-knowledge-core.json",
+      "relationship": "Machine-readable product orientation target for confirmed knowledge only; it remains reference-first and never authorizes runtime behavior."
+    },
+    "wellfitKnowledgeCoreDoc": {
+      "path": "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md",
+      "relationship": "Human-readable product orientation target for confirmed knowledge only; it stays a guide to sources and not a runtime specification."
     }
   },
   "operatingPrinciples": [
@@ -131,26 +143,33 @@
   },
   "answerStoragePolicy": {
     "allowedTargets": [
-      "project-register/product-memory-agent.json",
       "project-register/decisions.json",
       "project-register/agent-follow-ups.json",
-      "project-register/research-recommendations.json"
+      "project-register/concept-learning-questions.json",
+      "project-register/wellfit-knowledge-core.json",
+      "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md"
     ],
     "requiredMetadata": [
-      "answered_by",
-      "answer_date",
+      "memory_type",
+      "source",
+      "captured_by",
+      "capture_date",
+      "answered_by_or_source_owner",
       "source_question_id",
       "risk_level",
       "review_status",
-      "linked_sources"
+      "linked_sources",
+      "runtime_execution_authorized"
     ],
     "forbiddenStorage": [
       "runtime code",
       "production databases",
       "client-visible product copy",
       "secret stores",
-      "external tools without approval"
-    ]
+      "external tools without approval",
+      "automatic protected runtime actions"
+    ],
+    "defaultRuntimeExecutionAuthorized": false
   },
   "openLearningQuestionsForBernd": {
     "status": "static_initial_output",
@@ -249,29 +268,40 @@
     "continuity-dependency-sentinel"
   ],
   "connectedRegisters": [
+    "project-register/agent-follow-ups.json",
     "project-register/agent-work-log.json",
+    "project-register/concept-learning-questions.json",
+    "project-register/continuity-dependency-map.json",
+    "project-register/decisions.json",
     "project-register/progress-log.json",
-    "project-register/continuity-dependency-map.json"
+    "project-register/wellfit-knowledge-core.json"
   ],
   "allowedOutputs": [
-    "concept_unknowns",
-    "owner_questions",
     "approved_answer_records",
     "concept_delta_summaries",
-    "follow_up_task_candidates"
+    "concept_unknowns",
+    "follow_up_task_candidates",
+    "memory_type_records",
+    "owner_questions",
+    "structured_memory_proposals"
   ],
   "forbiddenActions": [
-    "modify_app_runtime",
-    "execute_ui",
-    "profile_users",
-    "change_firestore_rules",
+    "approve_merge_deploy_or_auto_repair",
+    "approve_pr",
+    "authorize_rewards_or_missions",
     "change_firebase_functions",
-    "change_reward_authority",
-    "change_mission_completion_authority",
+    "change_firestore_rules",
     "change_health_child_location_compliance_logic",
+    "change_mission_completion_authority",
+    "change_reward_authority",
     "change_token_wallet_payment_nft_betting_logic",
     "change_unity_files",
-    "approve_merge_deploy_or_auto_repair"
+    "deploy_or_merge",
+    "execute_ui",
+    "modify_app_runtime",
+    "profile_users",
+    "trigger_protected_runtime_action",
+    "write_production_data"
   ],
   "protectedBoundaries": [
     "report_only",
@@ -303,5 +333,153 @@
     "workLogEntryRequired": true,
     "lastChecked": "2026-05-17"
   },
-  "nextSafeMaintenanceTask": "Keep report-only artifacts synchronized and block runtime work until a later explicit human-approved scope names exact files, boundaries, and tests."
+  "nextSafeMaintenanceTask": "Keep report-only artifacts synchronized and block runtime work until a later explicit human-approved scope names exact files, boundaries, and tests.",
+  "memoryTypes": [
+    {
+      "id": "product_vision",
+      "label": "Produktvision",
+      "description": "Long-lived vision statements and orientation that describe what WellFit is trying to become, with source references and review status.",
+      "defaultStatus": "review_required"
+    },
+    {
+      "id": "bernd_decisions",
+      "label": "Bernd-Entscheidungen",
+      "description": "Owner/admin decisions attributed to Bernd or another authorized owner/admin; must include date, source, scope, and whether implementation is still gated.",
+      "defaultStatus": "review_required"
+    },
+    {
+      "id": "open_questions",
+      "label": "offene Fragen",
+      "description": "Unanswered product, roadmap, safety, or architecture questions that need Bernd/admin clarification before becoming decisions or runtime work.",
+      "defaultStatus": "open"
+    },
+    {
+      "id": "confirmed_answers",
+      "label": "bestätigte Antworten",
+      "description": "Human-confirmed answers that can update planning memory, decisions, or knowledge-core orientation but still do not execute protected runtime actions.",
+      "defaultStatus": "review_required"
+    },
+    {
+      "id": "agent_insights",
+      "label": "Agent-Erkenntnisse",
+      "description": "Source-backed observations, conflicts, stale-context notes, and concept deltas produced by agents as reviewable planning evidence only.",
+      "defaultStatus": "proposal_only"
+    },
+    {
+      "id": "rejected_suggestions",
+      "label": "abgelehnte Vorschläge",
+      "description": "Ideas or proposals explicitly rejected or deferred so future agents do not reintroduce them as assumptions.",
+      "defaultStatus": "rejected_or_deferred"
+    },
+    {
+      "id": "safety_boundaries",
+      "label": "Sicherheitsgrenzen",
+      "description": "Protected topic boundaries for health, child safety, privacy, location, camera, legal, token/economy, rewards, anti-cheat, Unity, deploy, and runtime authority.",
+      "defaultStatus": "active_guardrail"
+    },
+    {
+      "id": "next_recommended_tasks",
+      "label": "nächste empfohlene Tasks",
+      "description": "Small, scoped follow-up candidates with risk classification, dependencies, owner-review status, and no automatic execution authority.",
+      "defaultStatus": "proposal_only"
+    }
+  ],
+  "storageTargets": [
+    {
+      "path": "project-register/decisions.json",
+      "allowedMemoryTypes": [
+        "bernd_decisions",
+        "confirmed_answers",
+        "rejected_suggestions",
+        "safety_boundaries"
+      ],
+      "purpose": "Durable approved owner/admin decisions, confirmed answers with decision impact, explicit rejections, and safety boundaries when approved for the decision log.",
+      "runtimeAuthority": "none",
+      "writeMode": "planning_register_or_documentation_only",
+      "requiresHumanApprovalBeforeRuntime": true
+    },
+    {
+      "path": "project-register/agent-follow-ups.json",
+      "allowedMemoryTypes": [
+        "open_questions",
+        "agent_insights",
+        "next_recommended_tasks",
+        "safety_boundaries"
+      ],
+      "purpose": "Follow-up candidates, unresolved questions, agent findings, and next tasks; proposal-only until separately approved.",
+      "runtimeAuthority": "none",
+      "writeMode": "planning_register_or_documentation_only",
+      "requiresHumanApprovalBeforeRuntime": true
+    },
+    {
+      "path": "project-register/concept-learning-questions.json",
+      "allowedMemoryTypes": [
+        "open_questions",
+        "confirmed_answers",
+        "agent_insights"
+      ],
+      "purpose": "Structured questions and answer records for concept learning; does not trigger implementation.",
+      "runtimeAuthority": "none",
+      "writeMode": "planning_register_or_documentation_only",
+      "requiresHumanApprovalBeforeRuntime": true
+    },
+    {
+      "path": "project-register/wellfit-knowledge-core.json",
+      "allowedMemoryTypes": [
+        "product_vision",
+        "confirmed_answers",
+        "agent_insights",
+        "safety_boundaries"
+      ],
+      "purpose": "Machine-readable knowledge-core orientation for confirmed product understanding and guardrails, reference-first only.",
+      "runtimeAuthority": "none",
+      "writeMode": "planning_register_or_documentation_only",
+      "requiresHumanApprovalBeforeRuntime": true
+    },
+    {
+      "path": "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md",
+      "allowedMemoryTypes": [
+        "product_vision",
+        "confirmed_answers",
+        "agent_insights",
+        "safety_boundaries"
+      ],
+      "purpose": "Human-readable knowledge-core orientation and source guide; detail remains in linked registers and docs.",
+      "runtimeAuthority": "none",
+      "writeMode": "planning_register_or_documentation_only",
+      "requiresHumanApprovalBeforeRuntime": true
+    }
+  ],
+  "protectedRuntimeActionGuard": {
+    "agentMay": [
+      "suggest_memory",
+      "structure_memory",
+      "prepare_owner_questions",
+      "draft_concept_deltas",
+      "draft_follow_up_candidates",
+      "validate_planning_artifacts"
+    ],
+    "agentMustNotAutomaticallyTrigger": [
+      "runtime_code_change",
+      "data_migration",
+      "production_database_write",
+      "deployment",
+      "merge",
+      "pull_request_approval",
+      "reward_authorization",
+      "mission_completion",
+      "anti_cheat_decision",
+      "payment_or_token_action",
+      "wallet_or_nft_action",
+      "legal_policy_change",
+      "health_child_location_camera_privacy_change",
+      "unity_runtime_change"
+    ],
+    "approvalGate": "Every protected runtime action requires a separate explicit owner-approved task with exact file scope, safety review plan, stop conditions, and tests.",
+    "defaultOnAmbiguity": "record_open_question_and_wait"
+  },
+  "connectedDocs": [
+    "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md",
+    "docs/architecture/WELLFIT_PRODUCT_MEMORY_AGENT.md"
+  ]
 }
