@@ -1,8 +1,64 @@
 {
-  "version": "1.0.0",
-  "updated": "2026-05-16",
+  "version": "1.0.1",
+  "updated": "2026-05-17",
   "activationState": "report_only",
-  "purpose": "Govern the future Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can later be built one at a time only when required checks, missing-check evidence, safe-repair boundaries, PR diff review, mergeability, and protected-scope gates are green.",
+  "capabilityStateSeparation": {
+    "currentState": "report_only",
+    "nextRecommendedState": "pr_creation_allowed",
+    "states": {
+      "pr_creation_allowed": {
+        "allowed": true,
+        "meaning": "Agent may create a pull request for an approved, in-scope branch after required pre-build/build/post-build evidence is recorded, but must not merge, approve, self-approve, deploy, close replacement PRs, or treat PR creation as merge readiness.",
+        "requiredEvidence": [
+          "task-specific non-main branch",
+          "changed files limited to allowedPaths and outside forbiddenPaths",
+          "required local checks executed or explicitly recorded as blockers",
+          "PR body records exact commands, results, risks, skipped checks, and human-review requirement"
+        ],
+        "forbiddenActions": [
+          "merge PR",
+          "approve PR",
+          "self-approve",
+          "enable auto-merge",
+          "deploy",
+          "bypass missing, pending, failing, unknown, or skipped checks"
+        ]
+      },
+      "merge_recommendation_allowed": {
+        "allowed": true,
+        "meaning": "Agent may recommend merge only after the PR exists, every required local and GitHub check is green, mergeability is clean, review rules are satisfied, branch protection is respected, and no protected/runtime findings remain.",
+        "requiredEvidence": [
+          "PR exists on a non-main branch",
+          "all required local checks passed with exact command evidence",
+          "all required GitHub checks are success",
+          "branch protection and review rules are satisfied",
+          "human approval or required review evidence is present",
+          "PR diff review, post-creation guard, auto-repair decision, and task status/work-log checks are clean"
+        ],
+        "forbiddenActions": [
+          "perform merge",
+          "approve PR",
+          "self-approve",
+          "recommend merge with missing evidence",
+          "recommend merge with pending, unknown, skipped, failed, or environment-blocked checks"
+        ]
+      },
+      "auto_merge_allowed": {
+        "allowed": false,
+        "meaning": "Real automatic merge remains disabled.",
+        "disabledUntil": "GitHub checks, branch protection, review rules, and human approval are machine-readably proven for the concrete PR and a separate human-approved policy update enables this state.",
+        "requiredMachineReadableEvidence": [
+          "required GitHub check conclusions are success",
+          "branch protection requirements are available and satisfied",
+          "review decision and required approvals are available and satisfied",
+          "human approval for auto-merge is recorded in machine-readable form",
+          "mergeability is clean and base branch is valid",
+          "no forbidden paths, topics, or protected/runtime scope are changed"
+        ]
+      }
+    }
+  },
+  "purpose": "Govern the future Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can later be built one at a time while PR creation permission, merge recommendation permission, and real auto-merge permission remain separate states with required checks, evidence, review, and protected-scope gates.",
   "approvedBacklogSource": "project-register/approved-agent-build-backlog.json",
   "maxAgentsPerRun": 1,
   "allowedAgentBuildCategories": [
@@ -94,7 +150,7 @@
     "required local checks were actually executed and passed",
     "PR diff review reports no protected path findings",
     "PR post-creation guard reports ready",
-    "auto-merge eligibility reports eligible or explicitly allowed by this policy for docs/register/governance-only approved-agent builds",
+    "merge recommendation eligibility reports all required local checks, GitHub checks, branch protection, review rules, human approval evidence, and protected-scope gates are satisfied; auto_merge_allowed remains false",
     "auto-repair decision reports no unresolved repair required",
     "task status/work-log evidence exists",
     "agent catalog/backlog updated",
@@ -188,15 +244,20 @@
     "failed checks that require product/runtime judgment"
   ],
   "mergeEligibilityRules": [
-    "The runner may only merge approved-agent framework PRs that are docs/register/validator-only and pass every required check.",
-    "The runner must not merge if auto-merge eligibility is false due protected path findings.",
-    "The runner must not merge if auto-merge eligibility is false only because protected topic words are mentioned as safety boundaries unless PR diff review and protected path checks confirm no protected runtime files changed; in that case policy may allow merge only for report-only docs/register/validator agent-framework PRs.",
-    "The runner must not merge if GitHub mergeability is unknown, dirty, blocked, pending or failed.",
-    "The runner must not merge if any required check is missing.",
-    "The runner must not merge if repair_required remains unresolved."
+    "The runner may create a PR only in pr_creation_allowed state for approved-agent framework changes that are docs/register/validator-only and remain inside allowed paths.",
+    "The runner may recommend merge only in merge_recommendation_allowed state when every required local check and GitHub check is green, mergeability is clean, branch protection and review rules are satisfied, human approval evidence is present, and protected-scope gates are clear.",
+    "The runner must not perform an automatic merge while auto_merge_allowed is false.",
+    "The runner must not merge or recommend merge if auto-merge eligibility is false due protected path findings.",
+    "The runner must not recommend merge if protected topic words are mentioned as safety boundaries unless PR diff review and protected path checks confirm no protected runtime files changed.",
+    "The runner must not recommend merge if GitHub mergeability is unknown, dirty, blocked, pending or failed.",
+    "The runner must not recommend merge if any required check is missing, skipped, unknown, pending, failed, delegated to future CI without evidence, or environment_blocked.",
+    "The runner must not recommend merge if repair_required remains unresolved."
   ],
   "autoMergeBoundaries": [
-    "Real auto-merge is limited to approved-agent framework PRs in allowed paths only.",
+    "pr_creation_allowed is the first meaningful next step and permits PR creation only; it is not merge permission.",
+    "merge_recommendation_allowed permits a merge recommendation only after all checks, GitHub checks, branch protection, review rules, human approval evidence, and protected-scope gates are green.",
+    "auto_merge_allowed remains disabled until GitHub checks, branch protection, review rules, and human approval are machine-readably proven and separately approved.",
+    "Real auto-merge is not enabled by this policy.",
     "No self-approval.",
     "No deployment.",
     "No bypassing failed checks.",
@@ -270,6 +331,11 @@
     "missingCheckDecision": "ready/not_merge_ready/environment_blocked",
     "protectedFindings": "array",
     "repairDecision": "none/safe_repair_attempted/repair_required/unsafe_stop",
-    "ready": "boolean"
+    "ready": "boolean",
+    "capabilityState": "report_only/pr_creation_allowed/merge_recommendation_allowed/auto_merge_allowed",
+    "prCreationAllowed": "boolean",
+    "mergeRecommendationAllowed": "boolean",
+    "autoMergeAllowed": false,
+    "machineReadableAutoMergeEvidence": "object or null"
   }
 }

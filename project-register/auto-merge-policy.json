@@ -1,8 +1,25 @@
 {
-  "version": "0.1.0",
-  "updated": "2026-05-15",
-  "purpose": "Report-only guardrail policy for determining whether a future WellFit pull request would be eligible for automatic merge consideration. This policy never authorizes or performs a merge by itself.",
+  "version": "0.1.1",
+  "updated": "2026-05-17",
+  "purpose": "Report-only guardrail policy that separates PR creation, merge recommendation, and real auto-merge. PR creation is the first meaningful next step; merge recommendation requires all checks to be green; real auto-merge remains disabled until machine-readable GitHub checks, branch protection, review rules, and human approval evidence exist.",
   "activationState": "report_only",
+  "capabilityStateSeparation": {
+    "currentState": "report_only",
+    "nextRecommendedState": "pr_creation_allowed",
+    "pr_creation_allowed": {
+      "allowed": true,
+      "scope": "Agent may create a PR for in-scope docs/register/governance changes after required local evidence is recorded, but may not merge, approve, self-approve, deploy, or claim merge readiness from PR creation alone."
+    },
+    "merge_recommendation_allowed": {
+      "allowed": true,
+      "scope": "Agent may recommend merge only when all required local checks and GitHub checks are green, the branch is mergeable and up to date, branch protection and review rules are satisfied, human approval evidence is present, and protected-scope gates are clear."
+    },
+    "auto_merge_allowed": {
+      "allowed": false,
+      "scope": "Real automatic merge is disabled.",
+      "disabledUntil": "Required GitHub checks, branch protection, review rules, and human approval are machine-readably proven for the concrete PR and a separate human-approved policy update enables auto-merge."
+    }
+  },
   "allowedAutoMergeCategories": [
     "documentation_baseline",
     "registry_sync",
@@ -54,9 +71,30 @@
     "branchUpToDateWithBase": true,
     "reviewDecision": "approved_or_human_reviewed",
     "humanReviewRequiredWhenIneligible": true,
-    "realAutoMergeEnabled": false
+    "realAutoMergeEnabled": false,
+    "prCreationAllowedBeforeMergeEvidence": true,
+    "mergeRecommendationRequiresAllChecksGreen": true,
+    "machineReadableGitHubChecksRequiredForAutoMerge": true,
+    "machineReadableBranchProtectionRequiredForAutoMerge": true,
+    "machineReadableReviewRulesRequiredForAutoMerge": true,
+    "machineReadableHumanApprovalRequiredForAutoMerge": true
   },
+  "requiredMachineReadableAutoMergeEvidence": [
+    "required GitHub check names and conclusions are available and success",
+    "branch protection requirements are available and satisfied",
+    "review rules, required approvals, and review decision are available and satisfied",
+    "human approval for auto-merge is recorded in machine-readable form",
+    "PR mergeability is clean and base branch is protected as expected",
+    "no forbidden paths, forbidden topics, protected/runtime scope, Unity/PR #13 scope, or deployment changes are present"
+  ],
+  "stateTransitionRules": [
+    "The first meaningful next step is pr_creation_allowed, not auto_merge_allowed.",
+    "pr_creation_allowed permits PR creation but never merge, approval, self-approval, deployment, or auto-merge enablement.",
+    "merge_recommendation_allowed permits only a recommendation after all required local checks and GitHub checks are green and review/branch-protection/human-approval evidence is present.",
+    "auto_merge_allowed remains false until machine-readable GitHub checks, branch protection, review rules, and human approval are proven and separately human-approved."
+  ],
   "humanApprovalAlwaysRequiredFor": [
+    "any attempt to enable auto_merge_allowed",
     "any activationState other than report_only",
     "any forbiddenAutoMergePath match",
     "any forbiddenAutoMergeTopic match",
@@ -75,8 +113,12 @@
     "activationState": "string",
     "autoMergeEligible": "boolean",
     "autoMergeEligibleLine": "AUTO_MERGE_ELIGIBLE=true|false",
-    "reasons": ["string"],
-    "changedFiles": ["string"],
+    "reasons": [
+      "string"
+    ],
+    "changedFiles": [
+      "string"
+    ],
     "changedFileCount": "number",
     "additions": "number",
     "deletions": "number",
@@ -94,8 +136,17 @@
         "source": "path_or_diff"
       }
     ],
-    "requiredChecks": ["string"],
+    "requiredChecks": [
+      "string"
+    ],
     "requiredChecksListed": "boolean",
-    "neverMerges": true
+    "neverMerges": true,
+    "capabilityState": "report_only/pr_creation_allowed/merge_recommendation_allowed/auto_merge_allowed",
+    "prCreationAllowed": "boolean",
+    "mergeRecommendationAllowed": "boolean",
+    "autoMergeAllowed": false,
+    "requiredMachineReadableAutoMergeEvidence": [
+      "string"
+    ]
   }
 }
