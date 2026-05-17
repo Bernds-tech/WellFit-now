@@ -22,6 +22,9 @@ const REQUIRED_CATALOG_TOP_LEVEL_FIELDS = [
   "lifecycleStatuses",
   "agentTypes",
   "extensionPolicyReference",
+  "artifactStatuses",
+  "executionCapabilities",
+  "runtimeCapabilityFieldDefinitions",
   "entries"
 ];
 
@@ -29,6 +32,11 @@ const REQUIRED_CATALOG_ENTRY_FIELDS = [
   "id",
   "name",
   "status",
+  "artifactStatus",
+  "executionCapability",
+  "allowedWriteScopes",
+  "forbiddenWriteScopes",
+  "requiresHumanApprovalForRuntime",
   "agentType",
   "purpose",
   "ownerArea",
@@ -89,6 +97,9 @@ const REQUIRED_BACKLOG_TOP_LEVEL_FIELDS = [
   "statuses",
   "buildOrderRules",
   "backlogEntrySchema",
+  "artifactStatuses",
+  "executionCapabilities",
+  "runtimeCapabilityFieldDefinitions",
   "entries"
 ];
 
@@ -96,6 +107,11 @@ const REQUIRED_BACKLOG_ENTRY_FIELDS = [
   "id",
   "proposedAgentName",
   "status",
+  "artifactStatus",
+  "executionCapability",
+  "allowedWriteScopes",
+  "forbiddenWriteScopes",
+  "requiresHumanApprovalForRuntime",
   "priority",
   "reason",
   "expectedBenefit",
@@ -128,6 +144,9 @@ const REQUIRED_BACKLOG_STATUSES = [
   "duplicate",
   "superseded"
 ];
+
+const REQUIRED_ARTIFACT_STATUSES = ["planned", "governance_built", "validator_built", "runtime_capable"];
+const REQUIRED_EXECUTION_CAPABILITIES = ["report_only", "docs_register_write", "safe_runtime_write", "repair_capable", "pr_capable"];
 
 const REQUIRED_BACKLOG_IDS = [
   "agent-architect-proposal-agent",
@@ -217,6 +236,25 @@ function validateEntryRequiredFields(results, entries, requiredFields, label) {
   }
 }
 
+function validateRuntimeCapabilityFields(results, container, entries, schemaKey, label) {
+  const missingArtifactStatuses = missingValues(container.artifactStatuses, REQUIRED_ARTIFACT_STATUSES);
+  addResult(results, `${label} artifactStatuses include required values`, missingArtifactStatuses.length === 0, missingArtifactStatuses.length ? `missing: ${missingArtifactStatuses.join(", ")}` : `${REQUIRED_ARTIFACT_STATUSES.length} values present`);
+  const missingExecutionCapabilities = missingValues(container.executionCapabilities, REQUIRED_EXECUTION_CAPABILITIES);
+  addResult(results, `${label} executionCapabilities include required values`, missingExecutionCapabilities.length === 0, missingExecutionCapabilities.length ? `missing: ${missingExecutionCapabilities.join(", ")}` : `${REQUIRED_EXECUTION_CAPABILITIES.length} values present`);
+  const schemaMissing = ["artifactStatus", "executionCapability", "allowedWriteScopes", "forbiddenWriteScopes", "requiresHumanApprovalForRuntime"].filter((field) => container?.[schemaKey]?.[field] === undefined);
+  addResult(results, `${label} schema includes runtime capability fields`, schemaMissing.length === 0, schemaMissing.length ? `missing: ${schemaMissing.join(", ")}` : "complete");
+
+  const artifactStatuses = new Set(asArray(container.artifactStatuses));
+  const executionCapabilities = new Set(asArray(container.executionCapabilities));
+  for (const entry of entries) {
+    addResult(results, `${label} entry ${entry.id} artifactStatus is allowed`, artifactStatuses.has(entry.artifactStatus), entry.artifactStatus ?? "missing");
+    addResult(results, `${label} entry ${entry.id} executionCapability is allowed`, executionCapabilities.has(entry.executionCapability), entry.executionCapability ?? "missing");
+    addResult(results, `${label} entry ${entry.id} write scopes are arrays`, Array.isArray(entry.allowedWriteScopes) && Array.isArray(entry.forbiddenWriteScopes), `allowed=${Array.isArray(entry.allowedWriteScopes)}; forbidden=${Array.isArray(entry.forbiddenWriteScopes)}`);
+    addResult(results, `${label} entry ${entry.id} runtime approval flag is boolean`, typeof entry.requiresHumanApprovalForRuntime === "boolean", String(entry.requiresHumanApprovalForRuntime));
+    addResult(results, `${label} entry ${entry.id} runtime-capable requires explicit human approval`, entry.artifactStatus !== "runtime_capable" || entry.requiresHumanApprovalForRuntime === true, `artifactStatus=${entry.artifactStatus}; requiresHumanApprovalForRuntime=${entry.requiresHumanApprovalForRuntime}`);
+  }
+}
+
 function validateCatalog(catalog, results) {
   const missingTopLevel = missingFields(catalog, REQUIRED_CATALOG_TOP_LEVEL_FIELDS);
   addResult(results, "catalog required top-level fields exist", missingTopLevel.length === 0, missingTopLevel.length ? `missing: ${missingTopLevel.join(", ")}` : `${REQUIRED_CATALOG_TOP_LEVEL_FIELDS.length} fields present`);
@@ -230,6 +268,7 @@ function validateCatalog(catalog, results) {
   addResult(results, "catalog entry IDs are unique", duplicates.length === 0, duplicates.length ? `duplicates: ${duplicates.join(", ")}` : "unique");
 
   validateEntryRequiredFields(results, entries, REQUIRED_CATALOG_ENTRY_FIELDS, "catalog entry");
+  validateRuntimeCapabilityFields(results, catalog, entries, "catalogEntrySchema", "catalog");
 
   const missingEntryEvidence = [];
   for (const entry of entries) {
@@ -259,6 +298,7 @@ function validateBacklog(backlog, catalog, results) {
   addResult(results, "backlog entry IDs are unique", duplicates.length === 0, duplicates.length ? `duplicates: ${duplicates.join(", ")}` : "unique");
 
   validateEntryRequiredFields(results, entries, REQUIRED_BACKLOG_ENTRY_FIELDS, "backlog entry");
+  validateRuntimeCapabilityFields(results, backlog, entries, "backlogEntrySchema", "backlog");
 
   const catalogIds = new Set(asArray(catalog.entries).map((entry) => entry.id));
   for (const entry of entries) {
