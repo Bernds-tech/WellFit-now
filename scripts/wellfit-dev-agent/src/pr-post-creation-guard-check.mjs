@@ -4,11 +4,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const MODE = "REPORT_ONLY";
+const MODE = "PR_HANDOFF_ALLOWED_NO_MERGE";
 const NEVER_INSPECTS_PRIVATE_GITHUB_CREDENTIALS = true;
 const NEVER_MERGES = true;
 const NEVER_APPROVES = true;
-const NEVER_REPAIRS_FILES = true;
+const NEVER_REPAIRS_FILES = false;
 const NEVER_DEPLOYS = true;
 
 const POLICY_REL = "project-register/pr-post-creation-guard.json";
@@ -133,7 +133,7 @@ function validateTopLevel(policy, results) {
   for (const field of requiredTopLevelFields) {
     if (!(field in policy)) results.fail.push(`Missing top-level field: ${field}`);
   }
-  if (policy.activationState !== "report_only") results.fail.push("activationState must be report_only.");
+  if (policy.activationState !== "pr_handoff_allowed_no_merge") results.fail.push("activationState must be pr_handoff_allowed_no_merge.");
   if (!hasText(policy.purpose)) results.fail.push("purpose must be a non-empty string.");
 }
 
@@ -161,9 +161,8 @@ function validateStateList(policy, field, requiredValues, results) {
 
 function validateSafeRepairRules(policy, results) {
   const rules = policy.safeRepairEligibilityRules ?? {};
-  if (rules.activationState !== "future_guidance_only") results.fail.push("safeRepairEligibilityRules.activationState must be future_guidance_only.");
-  if (rules.requiresExplicitAllowance !== true) results.fail.push("safeRepairEligibilityRules.requiresExplicitAllowance must be true.");
-  if (rules.noAutomaticFileWritesInThisVersion !== true) results.fail.push("safeRepairEligibilityRules.noAutomaticFileWritesInThisVersion must be true.");
+  if (rules.activationState !== "safe_docs_register_json_format_repair_allowed") results.fail.push("safeRepairEligibilityRules.activationState must be safe_docs_register_json_format_repair_allowed.");
+  if (rules.repairMustRemainWithinAllowedDocsRegisterScope !== true) results.fail.push("safeRepairEligibilityRules.repairMustRemainWithinAllowedDocsRegisterScope must be true.");
 
   const forbiddenAreas = new Set(asArray(rules.forbiddenRepairAreas));
   for (const requiredArea of requiredForbiddenRepairAreas) {
@@ -198,13 +197,13 @@ function validateForbiddenAutoActions(policy, results) {
 function validatePolicyInteractions(policy, results) {
   const interactions = [
     ["interactionWithAutoMergePolicy", "AUTO_MERGE_ELIGIBLE", "doesNotAuthorizeMerge"],
-    ["interactionWithAutoRepairPolicy", "AUTO_REPAIR_ALLOWED", "doesNotAuthorizeRepairInThisVersion"],
+    ["interactionWithAutoRepairPolicy", "AUTO_REPAIR_ALLOWED", "authorizesOnlySafeDocsRegisterJsonRepairs"],
     ["interactionWithTaskStatusPolicy", "task-status-work-log-check.mjs", "requiresProgressOrWorkLogEvidenceOrExplicitDeferral"]
   ];
 
   for (const [field, outputPattern, guardField] of interactions) {
     const section = policy[field] ?? {};
-    if (section.reportOnly !== true) results.fail.push(`${field}.reportOnly must be true.`);
+    if (field !== "interactionWithAutoRepairPolicy" && section.reportOnly !== true) results.fail.push(`${field}.reportOnly must be true.`);
     if (!String(section.requiredOutputPattern ?? section.script ?? "").includes(outputPattern)) results.fail.push(`${field} must reference ${outputPattern}.`);
     if (section[guardField] !== true) results.fail.push(`${field}.${guardField} must be true.`);
   }
@@ -212,12 +211,12 @@ function validatePolicyInteractions(policy, results) {
 
 function validateReportSchema(policy, results) {
   const schema = policy.reportOutputSchema ?? {};
-  if (schema.mode !== MODE) results.fail.push("reportOutputSchema.mode must be REPORT_ONLY.");
+  if (schema.mode !== MODE) results.fail.push("reportOutputSchema.mode must be PR_HANDOFF_ALLOWED_NO_MERGE.");
   if (!String(schema.readyOutputPattern ?? "").includes("PR_POST_CREATION_GUARD_READY")) results.fail.push("reportOutputSchema.readyOutputPattern must mention PR_POST_CREATION_GUARD_READY.");
   if (schema.neverInspectsPrivateGitHubCredentials !== true) results.fail.push("reportOutputSchema.neverInspectsPrivateGitHubCredentials must be true.");
   if (schema.neverMerges !== true) results.fail.push("reportOutputSchema.neverMerges must be true.");
   if (schema.neverApproves !== true) results.fail.push("reportOutputSchema.neverApproves must be true.");
-  if (schema.neverRepairsFiles !== true) results.fail.push("reportOutputSchema.neverRepairsFiles must be true.");
+  if (schema.repairsOnlyWhenAutoRepairPolicyAllowsSafeDocsRegisterJsonFixes !== true) results.fail.push("reportOutputSchema.repairsOnlyWhenAutoRepairPolicyAllowsSafeDocsRegisterJsonFixes must be true.");
   if (schema.neverDeploys !== true) results.fail.push("reportOutputSchema.neverDeploys must be true.");
 }
 
@@ -258,7 +257,7 @@ function main() {
     results.pass.push(`${POLICY_REL} parsed successfully.`);
     results.pass.push(`All ${requiredPostPRCheckIds.length} required post-PR checks exist.`);
     results.pass.push("All required mergeability and check status states exist.");
-    results.pass.push("Safe repair forbidden areas, replacement PR rules, and forbidden auto actions are present.");
+    results.pass.push("Safe repair docs/register boundary, replacement PR rules, and forbidden auto actions are present.");
     results.pass.push(`${WORK_MAP_REL} and ${TODO_INDEX_REL} reference the policy, doc, and script.`);
   }
 
@@ -267,7 +266,7 @@ function main() {
   console.log(`Never inspects private GitHub credentials: ${NEVER_INSPECTS_PRIVATE_GITHUB_CREDENTIALS}`);
   console.log(`Never merges PRs: ${NEVER_MERGES}`);
   console.log(`Never approves PRs: ${NEVER_APPROVES}`);
-  console.log(`Never repairs files: ${NEVER_REPAIRS_FILES}`);
+  console.log(`Repairs limited to auto-repair policy safe docs/register JSON fixes: ${!NEVER_REPAIRS_FILES}`);
   console.log(`Never deploys: ${NEVER_DEPLOYS}`);
   console.log(`PR_POST_CREATION_GUARD_READY=${ready ? "true" : "false"}`);
   console.log("\nPASS");

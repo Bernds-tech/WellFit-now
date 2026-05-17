@@ -1,16 +1,15 @@
 {
   "version": "0.1.0",
   "updated": "2026-05-17",
-  "purpose": "Report-only guardrail policy for deciding whether a future WellFit agent may attempt a narrowly scoped automatic repair of failed validation checks. This policy does not enable or perform repairs, merges, deployments, or product/runtime changes.",
-  "activationState": "report_only",
+  "purpose": "Guardrail policy for narrowly scoped WellFit automatic repair. This stage allows only safe documentation/register/JSON-format repair attempts for already allowed docs/register/validator governance work, with a same-branch commit and rerun evidence. It does not enable runtime product repairs, protected-scope repairs, Unity/PR #13 changes, token/reward/payment authority changes, merges, deployments, dependency changes, or repository-setting changes.",
+  "activationState": "safe_docs_register_json_format_repair_allowed",
   "maxRepairAttempts": 2,
   "safeRepairCategories": [
-    "markdown trailing whitespace",
-    "JSON formatting or parse error in project-register docs/register files",
-    "missing TODO_INDEX pointer for newly added governance doc",
-    "missing WORK_MAP pointer for newly added governance register",
+    "markdown trailing whitespace or final-newline formatting in docs/register markdown",
+    "JSON formatting or parse error in project-register files",
+    "missing TODO_INDEX or WORK_MAP pointer for newly added governance docs/register artifacts",
     "missing KI-Fortsetzungs-Prompt in newly added architecture doc",
-    "quality-gate registry pointer mismatch"
+    "missing progress-log or work-log evidence when all changed files remain in allowed docs/register scope"
   ],
   "forbiddenRepairPaths": [
     "app/**",
@@ -20,7 +19,12 @@
     "firestore.rules",
     "native/unity/WellFitBuddyAR/**",
     "package.json unless explicitly approved",
-    "package-lock.json unless explicitly approved"
+    "package-lock.json unless explicitly approved",
+    "public/**",
+    "firebase.json",
+    ".github/**",
+    "native/**",
+    "native/unity/**"
   ],
   "forbiddenRepairTopics": [
     "token",
@@ -42,12 +46,11 @@
   "allowedFailureTypes": [
     {
       "id": "markdown_trailing_whitespace",
-      "category": "markdown trailing whitespace",
+      "category": "markdown trailing whitespace or final-newline formatting in docs/register markdown",
       "allowedPaths": [
         "docs/**/*.md",
         "todolist/**/*.md",
-        "project-register/**/*.md",
-        "agents/**/*.md"
+        "project-register/**/*.md"
       ],
       "requiredEvidence": [
         "failing command",
@@ -57,7 +60,7 @@
     },
     {
       "id": "project_register_json_parse_or_format",
-      "category": "JSON formatting or parse error in project-register docs/register files",
+      "category": "JSON formatting or parse error in project-register files",
       "allowedPaths": [
         "project-register/**/*.json"
       ],
@@ -106,18 +109,18 @@
       ]
     },
     {
-      "id": "quality_gate_registry_pointer_mismatch",
-      "category": "quality-gate registry pointer mismatch",
+      "id": "progress_or_work_log_evidence_missing_for_allowed_docs_register_scope",
+      "category": "missing progress-log or work-log evidence when all changed files remain in allowed docs/register scope",
       "allowedPaths": [
+        "project-register/progress-log.json",
         "project-register/**/*.json",
-        "todolist/WORK_MAP.md",
-        "todolist/TODO_INDEX.md",
-        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+        "todolist/**/*.md",
+        "docs/architecture/**/*.md"
       ],
       "requiredEvidence": [
-        "quality-gate failed check or step log",
-        "existing source register path",
-        "no runtime product file changes"
+        "task-status-work-log-check output",
+        "complete changed-file list proving docs/register-only scope",
+        "post-repair jq/markdown/check rerun success"
       ]
     }
   ],
@@ -136,7 +139,7 @@
     "any failure after maxRepairAttempts is reached"
   ],
   "stopConditions": [
-    "activationState is not report_only",
+    "activationState is not safe_docs_register_json_format_repair_allowed",
     "failure does not match exactly one allowedFailureTypes entry",
     "failure touches or appears to require a forbiddenRepairPaths path",
     "failure touches or appears to require a forbiddenRepairTopics topic",
@@ -147,7 +150,10 @@
     "repair would require merge, deploy, branch rewrite, rebase, force-push, or PR #13 action",
     "the same failure persists after maxRepairAttempts",
     "new failure appears after a repair attempt",
-    "human reviewer requests stop or the agent cannot explain the root cause"
+    "human reviewer requests stop or the agent cannot explain the root cause",
+    "repair would modify scripts outside an explicitly allowed validator/check/report task scope",
+    "repair would expand the approved task scope beyond docs/register/JSON-format evidence fixes",
+    "repair would require editing public assets, GitHub workflows, Firebase configuration, native files, Unity files, or protected authority areas"
   ],
   "requiredEvidence": [
     "failing command and exit code",
@@ -158,7 +164,7 @@
     "confirmation no forbiddenRepairPaths matched",
     "confirmation no forbiddenRepairTopics matched",
     "attempt count before repair",
-    "post-repair command result if a future approved repair mode ever exists",
+    "post-repair command result and same-branch repair commit evidence",
     "human review note for any ineligible or stopped condition"
   ],
   "reportOutputSchema": {
@@ -304,20 +310,20 @@
     "stageOrderMustNotBeSkipped": true,
     "higherStageRequiresSeparateHumanApproval": true,
     "currentRelease": {
-      "approvedStage": "single_agent_docs_execution",
+      "approvedStage": "safe_docs_register_json_format_repair_allowed",
       "approvedOn": "2026-05-17",
       "approvedBy": "human_requested_policy_update",
-      "scope": "Only one-agent docs/register/check-script governance execution is activated for approved low-risk tasks. Runtime execution, auto-repair, auto-merge and deploy remain disabled unless their own policy activationState is explicitly raised in a later human-approved change.",
+      "scope": "One-agent docs/register/validator governance execution is active, and auto-repair is limited to allowlisted docs/register/JSON-format evidence fixes only. Runtime execution, protected-scope repair, auto-merge and deploy remain disabled.",
       "maxAgentsPerRun": 1
     }
   },
   "activationDecision": {
-    "selectedStage": "report_only",
+    "selectedStage": "safe_docs_register_json_format_repair_allowed",
     "decisionDate": "2026-05-17",
-    "reason": "Align the runner policy set to the staged autonomy model requested on 2026-05-17.",
-    "effectiveScope": "Report-only guard remains in force for this policy.",
+    "reason": "Activate only the small safe repair tier requested for docs/register/JSON-format evidence failures while keeping runtime, protected, Unity, reward, token, payment, merge, and deploy actions blocked.",
+    "effectiveScope": "Automatic repair may only touch allowlisted docs/register markdown or project-register JSON evidence/formatting files for the active single_agent_docs_register_build PR scope.",
     "runtimeExecutionAllowed": false,
-    "autoRepairAllowed": false,
+    "autoRepairAllowed": true,
     "autoMergeAllowed": false,
     "deployAllowed": false,
     "requiresSeparateHumanApprovalForHigherStage": true

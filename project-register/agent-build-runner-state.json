@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "updated": "2026-05-17",
   "activationState": "single_agent_docs_register_build",
-  "purpose": "State ledger for the active Approved Agent Build Runner stage. The current stage allows exactly one already-human-approved docs/register/validator/check-script agent-build task per branch in allowlisted governance paths; it still never authorizes runtime product changes, protected-scope changes, automatic repair, automatic merge, deployment, approval, or PR closing.",
+  "purpose": "State ledger for the active Approved Agent Build Runner stage. The current stage permits exactly one already-human-approved docs/register/validator/check-script agent-build task per branch in allowlisted governance paths, including branch, commit, and PR handoff; it still never authorizes merge, deploy, runtime product changes, protected-scope changes, Unity/PR #13 changes, token/reward/payment authority changes, or unrestricted repair.",
   "lastEvaluatedBacklogEntry": "healthy-retention-agent",
   "lastGeneratedPrompt": {
     "date": "2026-05-17",
@@ -406,5 +406,25 @@
       "autoMergeEligible": false,
       "autoRepairAllowed": false
     }
-  ]
+  ],
+  "currentPolicyStage": {
+    "id": "single_agent_docs_register_build_pr_handoff_safe_repair_boundary",
+    "basedOn": "single_agent_docs_register_build",
+    "allowed": [
+      "one already-human-approved docs/register/validator/check-script build per branch",
+      "commit on a task-specific non-main branch",
+      "create a PR handoff with exact changed-file and check evidence",
+      "attempt only allowlisted docs/register/JSON-format safe repairs when auto-repair policy also allows them"
+    ],
+    "forbidden": [
+      "merge or auto-merge",
+      "deploy",
+      "runtime product edits",
+      "protected-scope edits",
+      "Unity or PR #13 edits",
+      "token, NFT, wallet, reward, payment, betting, economy-authority, mission-completion-authority, health, child, location, camera, privacy, legal, or compliance edits"
+    ],
+    "maxAgentsPerRun": 1,
+    "requiresHumanReviewBeforeMerge": true
+  }
 }

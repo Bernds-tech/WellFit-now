@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
   "updated": "2026-05-17",
-  "purpose": "Report-only guardrail policy for determining whether a future WellFit pull request would be eligible for automatic merge consideration. This policy never authorizes or performs a merge by itself.",
+  "purpose": "Report-only guardrail policy for determining whether a future WellFit pull request would be eligible for automatic merge consideration. In the current small policy tier, docs/register/validator build, commit, PR handoff, and narrowly scoped safe repair may be allowed elsewhere, but this policy never authorizes or performs a merge by itself.",
   "activationState": "report_only",
   "allowedAutoMergeCategories": [
     "documentation_baseline",
@@ -135,7 +135,8 @@
       "Runtime, protected, product, Unity, deployment, package, Firebase, GitHub workflow, token/NFT/wallet/payment/betting/reward-authority/mission-authority/health/child/location/camera/biometric/consent/privacy/legal/compliance changes remain blocked."
     ],
     "currentState": "report_only",
-    "nextRecommendedState": "pr_creation_allowed"
+    "nextRecommendedState": "pr_creation_allowed",
+    "autoMergeCapabilityState": "report_only_until_github_checks_review_and_mergeability_reliable"
   },
   "humanApprovalAlwaysRequiredFor": [
     "any activationState other than report_only",
@@ -297,20 +298,21 @@
       "approvedStage": "single_agent_docs_execution",
       "approvedOn": "2026-05-17",
       "approvedBy": "human_requested_policy_update",
-      "scope": "Only one-agent docs/register/check-script governance execution is activated for approved low-risk tasks. Runtime execution, auto-repair, auto-merge and deploy remain disabled unless their own policy activationState is explicitly raised in a later human-approved change.",
+      "scope": "Docs/register/validator PR handoff and safe docs/register/JSON-format repair may be allowed by adjacent policies, but auto-merge remains report_only until GitHub checks, review evidence, and mergeability are reliably readable.",
       "maxAgentsPerRun": 1
     }
   },
   "activationDecision": {
     "selectedStage": "report_only",
     "decisionDate": "2026-05-17",
-    "reason": "Align the runner policy set to the staged autonomy model requested on 2026-05-17.",
-    "effectiveScope": "Report-only guard remains in force for this policy.",
+    "reason": "Keep auto-merge disabled until GitHub checks, review evidence, and mergeability are reliably readable and enforceable.",
+    "effectiveScope": "AUTO_MERGE_ELIGIBLE remains a report-only signal; no merge, approval, auto-merge enablement, deploy, repository-setting change, or PR close is authorized.",
     "runtimeExecutionAllowed": false,
     "autoRepairAllowed": false,
     "autoMergeAllowed": false,
     "deployAllowed": false,
-    "requiresSeparateHumanApprovalForHigherStage": true
+    "requiresSeparateHumanApprovalForHigherStage": true,
+    "autoRepairPolicyDependency": "Safe docs/register/JSON-format repair may be allowed by project-register/auto-repair-policy.json, but the auto-merge policy treats it only as evidence and still does not authorize merge."
   },
   "governanceProtectedTopicWordingPolicy": {
     "autoMergeEligibleFalseIsAcceptable": true,

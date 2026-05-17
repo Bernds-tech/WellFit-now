@@ -9,17 +9,17 @@ const POLICY_PATH = path.join(ROOT, "project-register", "auto-repair-policy.json
 const OUTPUT_DIR = path.join(ROOT, "scripts", "wellfit-dev-agent", "output");
 const REPORT_PATH = path.join(OUTPUT_DIR, "auto-repair-decision-report.md");
 const QUALITY_REPORT_PATH = path.join(OUTPUT_DIR, "quality-gate-report.md");
-const MODE = "REPORT_ONLY";
-const NEVER_REPAIRS = true;
+const MODE = "SAFE_DOCS_REGISTER_JSON_FORMAT_REPAIR_ALLOWED";
+const NEVER_REPAIRS = false;
 const NEVER_MERGES = true;
 
 const safeClassifiers = [
   {
-    category: "markdown trailing whitespace",
-    test: (text) => /markdown/i.test(text) && /trailing whitespace|no-trailing-spaces|MD009/i.test(text)
+    category: "markdown trailing whitespace or final-newline formatting in docs/register markdown",
+    test: (text) => /markdown/i.test(text) && /trailing whitespace|no-trailing-spaces|MD009|final newline|no-newline/i.test(text)
   },
   {
-    category: "JSON formatting or parse error in project-register docs/register files",
+    category: "JSON formatting or parse error in project-register files",
     test: (text) => /project-register\/.*\.json/i.test(text) && /json|jq|parse|format/i.test(text)
   },
   {
@@ -35,8 +35,8 @@ const safeClassifiers = [
     test: (text) => /KI-Fortsetzungs-Prompt|Missing KI-Fortsetzungs-Prompt|missing continuation prompt/i.test(text) && /docs\/architecture|architecture doc/i.test(text)
   },
   {
-    category: "quality-gate registry pointer mismatch",
-    test: (text) => /quality gate|quality-gate|registry pointer|pointer mismatch|cross-reference|memory sync/i.test(text) && /project-register|todolist|TODO_INDEX|WORK_MAP|quality-gate\.mjs/i.test(text)
+    category: "missing progress-log or work-log evidence when all changed files remain in allowed docs/register scope",
+    test: (text) => /progress-log|work-log|task-status|task status/i.test(text) && /project-register|todolist|docs\/architecture/i.test(text)
   }
 ];
 
@@ -143,7 +143,7 @@ function classifyFailure(failure) {
 function findForbiddenPathMatches(policy, changedFiles, failures) {
   const patterns = policy.forbiddenRepairPaths ?? [];
   const candidatePaths = new Set(changedFiles);
-  const pathPattern = /(?:^|[\s`'"(])((?:app|components|lib|functions|native\/unity\/WellFitBuddyAR)\/[^\s`'"),]+|firestore\.rules|package(?:-lock)?\.json)(?=$|[\s`'"),])/giu;
+  const pathPattern = /(?:^|[\s`'"(])((?:app|components|lib|functions|public|native|native\/unity|native\/unity\/WellFitBuddyAR|\.github)\/[^\s`'"),]+|firestore\.rules|firebase\.json|package(?:-lock)?\.json)(?=$|[\s`'"),])/giu;
   for (const failure of failures) {
     const text = `${failure.source}\n${failure.check}\n${failure.details}`;
     for (const match of text.matchAll(pathPattern)) candidatePaths.add(normalizePath(match[1]));
@@ -200,9 +200,12 @@ function main() {
     reasons.push(`Policy could not be read: ${error instanceof Error ? error.message : String(error)}`);
   }
 
-  if (policy.activationState !== "report_only") reasons.push(`activationState must remain report_only; found ${policy.activationState}`);
+  if (policy.activationState !== "safe_docs_register_json_format_repair_allowed") reasons.push(`activationState must be safe_docs_register_json_format_repair_allowed; found ${policy.activationState}`);
 
-  const qualityReport = readTextSafe(QUALITY_REPORT_PATH);
+  // The quality gate invokes this checker as one of its own steps. Avoid reading a stale
+  // quality-gate report from a previous invocation, otherwise old failures can make
+  // the current safe-repair decision self-referential and inaccurate.
+  const qualityReport = "";
   const changedFiles = getChangedFiles();
   const detectedFailures = uniqueFailures([
     ...extractQualityGateFailures(qualityReport),
@@ -213,7 +216,7 @@ function main() {
   const forbiddenTopicMatches = findForbiddenTopicMatches(policy, failureAndPathText);
   const requiredEvidencePresent = hasRequiredEvidence(detectedFailures);
 
-  if (!qualityReport) reasons.push("No quality-gate report was available; inspected individual output reports only.");
+  if (!qualityReport) reasons.push("No current quality-gate report was used; inspected individual output reports only to avoid stale self-referential quality-gate failures.");
   if (!detectedFailures.length) reasons.push("No failed check was detected; no automatic repair is needed or allowed.");
   for (const failure of detectedFailures.filter((entry) => !entry.safelyRepairable)) reasons.push(`Failure is not in the safe repair allow-list: ${failure.check} (${failure.details})`);
   if (forbiddenPathMatches.length) reasons.push(`Forbidden repair path match found: ${forbiddenPathMatches.map((match) => `${match.file} -> ${match.pattern}`).join(", ")}`);
@@ -222,16 +225,16 @@ function main() {
   if (!policyRead) reasons.push("Policy read failure requires human review.");
 
   const autoRepairAllowed = policyRead
-    && policy.activationState === "report_only"
+    && policy.activationState === "safe_docs_register_json_format_repair_allowed"
     && detectedFailures.length > 0
     && detectedFailures.every((failure) => failure.safelyRepairable)
     && forbiddenPathMatches.length === 0
     && forbiddenTopicMatches.length === 0
     && requiredEvidencePresent;
 
-  if (autoRepairAllowed) reasons.push("All detected failures match report-only safe repair categories, with no forbidden path or topic matches. No repair was run.");
+  if (autoRepairAllowed) reasons.push("All detected failures match safe docs/register/JSON-format repair categories, with no forbidden path or topic matches. This checker only reports the decision; any repair must be a same-branch commit followed by rerun evidence.");
 
-  const report = `# WellFit Auto-Repair Decision Report\n\nGenerated: ${new Date().toISOString()}\nMode: ${MODE}\nActivation state: ${policy.activationState}\nAUTO_REPAIR_ALLOWED=${autoRepairAllowed ? "true" : "false"}\nMax repair attempts: ${policy.maxRepairAttempts ?? 0}\nNever repairs: ${NEVER_REPAIRS}\nNever merges: ${NEVER_MERGES}\n\n## Reasons\n\n${renderList(reasons)}\n\n## Detected Failures\n\n${renderDetectedFailures(detectedFailures)}\n\n## Forbidden Path Matches\n\n${forbiddenPathMatches.length ? forbiddenPathMatches.map((match) => `- ${match.file} -> ${match.pattern}`).join("\n") : "No forbidden repair path matches detected."}\n\n## Forbidden Topic Matches\n\n${forbiddenTopicMatches.length ? forbiddenTopicMatches.map((match) => `- ${match.topic} (${match.source})`).join("\n") : "No forbidden repair topic matches detected."}\n\n## Report-Only Boundary\n\nThis script never modifies files, never runs repairs, never merges, and never deploys.\n`;
+  const report = `# WellFit Auto-Repair Decision Report\n\nGenerated: ${new Date().toISOString()}\nMode: ${MODE}\nActivation state: ${policy.activationState}\nAUTO_REPAIR_ALLOWED=${autoRepairAllowed ? "true" : "false"}\nMax repair attempts: ${policy.maxRepairAttempts ?? 0}\nNever repairs: ${NEVER_REPAIRS}\nNever merges: ${NEVER_MERGES}\n\n## Reasons\n\n${renderList(reasons)}\n\n## Detected Failures\n\n${renderDetectedFailures(detectedFailures)}\n\n## Forbidden Path Matches\n\n${forbiddenPathMatches.length ? forbiddenPathMatches.map((match) => `- ${match.file} -> ${match.pattern}`).join("\n") : "No forbidden repair path matches detected."}\n\n## Forbidden Topic Matches\n\n${forbiddenTopicMatches.length ? forbiddenTopicMatches.map((match) => `- ${match.topic} (${match.source})`).join("\n") : "No forbidden repair topic matches detected."}\n\n## Safe-Repair Boundary\n\nThis script only reports whether a safe docs/register/JSON-format repair is allowed. Repairs remain limited to the policy allowlist, require a same-branch commit and rerun evidence, and must never merge or deploy.\n`;
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(REPORT_PATH, report, "utf8");
