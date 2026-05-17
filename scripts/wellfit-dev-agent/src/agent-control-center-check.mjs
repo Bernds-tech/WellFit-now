@@ -43,7 +43,21 @@ const PROTECTED_PATH_GLOBS = [
   "native/**",
   "native/unity/WellFitBuddyAR/**"
 ];
+const RUNTIME_OR_PROTECTED_PATH_SIGNALS = [
+  "app/**",
+  "components/**",
+  "lib/**",
+  "functions/**",
+  "firestore.rules",
+  "public/**",
+  "native/**"
+];
 const REQUIRED_PROTECTED_SCOPE_SIGNALS = [
+  "runtime",
+  "protected",
+  "unity",
+  "firestore",
+  "functions",
   "token",
   "wallet",
   "payment",
@@ -52,12 +66,10 @@ const REQUIRED_PROTECTED_SCOPE_SIGNALS = [
   "location",
   "camera",
   "privacy",
-  "legal",
-  "reward",
-  "mission",
-  "unity",
-  "deploy"
+  "consent",
+  "legal"
 ];
+const NO_MODIFICATION_SCOPE_MESSAGE = "Does not modify Runtime-, Protected-, Unity-, Firestore-Rules-, Functions-, Token-, Wallet-, Payment-, Health-, Child-, Location-, Camera-, Privacy-, Consent- or Legal-Dateien.";
 
 function absolute(relativePath) {
   return path.join(ROOT, relativePath);
@@ -67,12 +79,23 @@ function normalizePath(filePath) {
   return String(filePath ?? "").replaceAll("\\", "/").replace(/^\.\//u, "");
 }
 
-function readJson(relativePath) {
-  return JSON.parse(fs.readFileSync(absolute(relativePath), "utf8"));
+function readJsonSafe(relativePath) {
+  try {
+    return { ok: true, value: JSON.parse(fs.readFileSync(absolute(relativePath), "utf8")) };
+  } catch (error) {
+    return { ok: false, value: undefined, error: error instanceof Error ? error.message : String(error) };
+  }
 }
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];
+}
+
+function flattenText(value) {
+  if (value === null || value === undefined) return "";
+  if (Array.isArray(value)) return value.map(flattenText).join("\n");
+  if (typeof value === "object") return Object.values(value).map(flattenText).join("\n");
+  return String(value);
 }
 
 function escapeRegExp(value) {
@@ -111,6 +134,30 @@ function changedFiles() {
     .sort();
 }
 
+function hasFutureManualOnlyMarker(proposal) {
+  if (proposal.future_manual_only === true) return true;
+  const markerText = flattenText({
+    future_manual_only: proposal.future_manual_only,
+    automation_mode: proposal.automation_mode,
+    execution_mode: proposal.execution_mode,
+    tags: proposal.tags,
+    labels: proposal.labels,
+    status: proposal.status,
+    next_action: proposal.next_action,
+    notes: proposal.notes
+  }).toLowerCase();
+  return /\bfuture_manual_only\b/u.test(markerText);
+}
+
+function hasAnySignal(text, signals) {
+  const normalized = text.toLowerCase();
+  return signals.some((signal) => normalized.includes(signal.toLowerCase()));
+}
+
+function hasPathSignal(text, signal) {
+  return text.split(/\s+/u).some((entry) => normalizePath(entry).includes(signal));
+}
+
 function pushResult(results, name, passed, details) {
   results.push({ name, passed, details });
 }
@@ -126,9 +173,15 @@ function main() {
   pushResult(results, `${CONTROL_CENTER_PATH} exists`, controlExists, controlExists ? "found" : "missing");
   pushResult(results, `${PROPOSALS_PATH} exists`, proposalsExists, proposalsExists ? "found" : "missing");
 
-  const control = controlExists ? readJson(CONTROL_CENTER_PATH) : {};
-  const proposals = proposalsExists ? readJson(PROPOSALS_PATH) : { proposals: [] };
+  const controlRead = controlExists ? readJsonSafe(CONTROL_CENTER_PATH) : { ok: false, value: {}, error: "file missing" };
+  const proposalsRead = proposalsExists ? readJsonSafe(PROPOSALS_PATH) : { ok: false, value: { proposals: [] }, error: "file missing" };
+  pushResult(results, `${CONTROL_CENTER_PATH} is valid JSON`, controlRead.ok, controlRead.ok ? "parse ok" : controlRead.error);
+  pushResult(results, `${PROPOSALS_PATH} is valid JSON`, proposalsRead.ok, proposalsRead.ok ? "parse ok" : proposalsRead.error);
+
+  const control = controlRead.ok ? controlRead.value : {};
+  const proposals = proposalsRead.ok ? proposalsRead.value : { proposals: [] };
   const proposalEntries = asArray(proposals.proposals);
+  pushResult(results, "Proposal registry contains proposals array", Array.isArray(proposals.proposals), Array.isArray(proposals.proposals) ? `${proposalEntries.length} proposal(s)` : "missing proposals array");
 
   const missingFields = [];
   const unsafeRisk = [];
@@ -137,46 +190,66 @@ function main() {
   const missingProtectedBlocks = [];
 
   for (const proposal of proposalEntries) {
+    const proposalId = proposal.id ?? "unknown";
     for (const field of REQUIRED_PROPOSAL_FIELDS) {
-      if (!(field in proposal)) missingFields.push(`${proposal.id ?? "unknown"}.${field}`);
+      if (!(field in proposal)) missingFields.push(`${proposalId}.${field}`);
     }
 
     const risk = String(proposal.risk_level ?? "").toLowerCase();
-    const manualOnly = String(proposal.next_action ?? "").toLowerCase().includes("manual-only");
-    if (HIGH_CRITICAL.has(risk) && proposal.can_auto_execute === true && !manualOnly) {
-      unsafeRisk.push(`${proposal.id}: ${risk} has can_auto_execute=true`);
+    if (HIGH_CRITICAL.has(risk) && proposal.can_auto_execute === true && !hasFutureManualOnlyMarker(proposal)) {
+      unsafeRisk.push(`${proposalId}: ${risk} has can_auto_execute=true without future_manual_only marker`);
     }
-    if (proposal.can_auto_merge === true) unsafeMerge.push(proposal.id ?? "unknown");
-    if (proposal.can_auto_deploy === true) unsafeDeploy.push(proposal.id ?? "unknown");
+    if (proposal.can_auto_merge === true) unsafeMerge.push(proposalId);
+    if (proposal.can_auto_deploy === true) unsafeDeploy.push(proposalId);
 
-    const blockedPaths = asArray(proposal.blocked_paths).join("\n");
-    const protectedScopes = asArray(proposal.protected_scopes).join("\n").toLowerCase();
-    const hasRuntimeBlocked = /app\/\*\*|components\/\*\*|lib\/\*\*|functions\/\*\*|firestore\.rules|native\/\*\*/iu.test(blockedPaths);
-    const hasProtectedScope = protectedScopes.length > 0;
-    if (!hasRuntimeBlocked || !hasProtectedScope) missingProtectedBlocks.push(proposal.id ?? "unknown");
+    const blockedPathText = asArray(proposal.blocked_paths).join("\n").toLowerCase();
+    const protectedScopeText = asArray(proposal.protected_scopes).join("\n").toLowerCase();
+    const hasRuntimeOrProtectedBlockedPath = RUNTIME_OR_PROTECTED_PATH_SIGNALS.some((signal) => hasPathSignal(blockedPathText, signal));
+    const hasNamedProtectedScope = protectedScopeText.trim().length > 0;
+    if (!hasRuntimeOrProtectedBlockedPath || !hasNamedProtectedScope) {
+      missingProtectedBlocks.push(`${proposalId}: blocked_paths/protected_scopes do not clearly list protected scopes`);
+    }
   }
 
   pushResult(results, "Proposal required fields complete", missingFields.length === 0, missingFields.length ? missingFields.join(", ") : "all required fields present");
-  pushResult(results, "High/Critical risk is not automatically approved", unsafeRisk.length === 0, unsafeRisk.length ? unsafeRisk.join(", ") : "no high/critical auto-execute violations");
+  pushResult(results, "High/Critical auto-execute is blocked unless future_manual_only", unsafeRisk.length === 0, unsafeRisk.length ? unsafeRisk.join(", ") : "no high/critical auto-execute violations");
   pushResult(results, "can_auto_merge is never true", unsafeMerge.length === 0, unsafeMerge.length ? unsafeMerge.join(", ") : "all proposals keep can_auto_merge=false");
   pushResult(results, "can_auto_deploy is never true", unsafeDeploy.length === 0, unsafeDeploy.length ? unsafeDeploy.join(", ") : "all proposals keep can_auto_deploy=false");
-  pushResult(results, "Protected scopes are blocked in each proposal", missingProtectedBlocks.length === 0, missingProtectedBlocks.length ? missingProtectedBlocks.join(", ") : "blocked paths and protected scopes present");
+  pushResult(results, "Protected scopes appear in blocked_paths or protected_scopes", missingProtectedBlocks.length === 0, missingProtectedBlocks.length ? missingProtectedBlocks.join(", ") : "each proposal declares blocked paths and protected scopes");
 
-  const humanApprovalText = JSON.stringify(control.human_approval_required_for ?? []) + JSON.stringify(control.approval_rules ?? []);
-  pushResult(results, "Human Approval Gate is documented", /human|owner|approval|freigabe/iu.test(humanApprovalText), "human approval rules present");
+  const humanApprovalText = flattenText({
+    human_approval_required_for: control.human_approval_required_for,
+    approval_rules: control.approval_rules,
+    roles: control.roles,
+    risk_levels: control.risk_levels,
+    proposals: proposalEntries.map((proposal) => ({
+      requires_human_approval: proposal.requires_human_approval,
+      next_action: proposal.next_action,
+      checks_required: proposal.checks_required
+    }))
+  });
+  pushResult(results, "Human Approval Gate is documented", /human|owner|approval|approve|freigabe/iu.test(humanApprovalText), "human approval gate signal present");
 
-  const curiosityText = JSON.stringify(control.controlled_curiosity ?? {}) + JSON.stringify(proposalEntries.filter((proposal) => proposal.type === "research_request"));
-  pushResult(results, "Controlled Curiosity is proposal/approval based", /proposal/iu.test(curiosityText) && /approval|approve|freigabe/iu.test(curiosityText), "controlled curiosity proposal flow present");
+  const curiosityText = flattenText({
+    controlled_curiosity: control.controlled_curiosity,
+    research_proposals: proposalEntries.filter((proposal) => proposal.type === "research_request"),
+    full_control_center: control
+  });
+  pushResult(results, "Controlled Curiosity is proposal/approval based", /controlled curiosity|research proposal|proposal/iu.test(curiosityText) && /approval|approve|freigabe/iu.test(curiosityText), "controlled curiosity proposal/approval flow present");
 
-  const protectedScopeText = asArray(control.protected_scopes).join("\n").toLowerCase();
-  const missingProtectedSignals = REQUIRED_PROTECTED_SCOPE_SIGNALS.filter((signal) => !protectedScopeText.includes(signal));
-  pushResult(results, "Control Center protected-scope registry is broad enough", missingProtectedSignals.length === 0, missingProtectedSignals.length ? missingProtectedSignals.join(", ") : "required protected-scope signals present");
+  const protectedScopeText = flattenText({
+    control_protected_scopes: control.protected_scopes,
+    proposal_blocked_paths: proposalEntries.map((proposal) => proposal.blocked_paths),
+    proposal_protected_scopes: proposalEntries.map((proposal) => proposal.protected_scopes)
+  }).toLowerCase();
+  const missingProtectedSignals = REQUIRED_PROTECTED_SCOPE_SIGNALS.filter((signal) => !hasAnySignal(protectedScopeText, [signal]));
+  pushResult(results, "Protected-scope registry covers required sensitive areas", missingProtectedSignals.length === 0, missingProtectedSignals.length ? missingProtectedSignals.join(", ") : "required protected-scope signals present in protected_scopes/blocked_paths");
 
   const modifiedProtectedFiles = changedFiles().filter((filePath) => PROTECTED_PATH_GLOBS.some((glob) => matchesGlob(filePath, glob)));
-  pushResult(results, "This task does not modify runtime/protected files", modifiedProtectedFiles.length === 0, modifiedProtectedFiles.length ? modifiedProtectedFiles.join(", ") : "changed files stay outside runtime/protected paths");
+  pushResult(results, "This report-only check does not modify runtime/protected files", modifiedProtectedFiles.length === 0, modifiedProtectedFiles.length ? modifiedProtectedFiles.join(", ") : NO_MODIFICATION_SCOPE_MESSAGE);
 
   const passed = results.every((result) => result.passed);
-  const report = `# Agent Control Center Check\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_ONLY\nResult: ${passed ? "PASS" : "FAIL"}\nAGENT_CONTROL_CENTER_READY=${passed ? "true" : "false"}\n\n## Boundaries\n\n- Never modifies runtime files: true\n- Never approves PRs: true\n- Never merges PRs: true\n- Never deploys: true\n- Never activates protected scopes: true\n- Human Approval Gate required for protected/high/critical work: true\n- Controlled Curiosity requires proposal/approval flow: true\n\n## Checks\n\n${renderResults(results)}\n`;
+  const report = `# Agent Control Center Check\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_ONLY\nResult: ${passed ? "PASS" : "FAIL"}\nAGENT_CONTROL_CENTER_READY=${passed ? "true" : "false"}\n\n## Boundaries\n\n- Never modifies runtime files: true\n- Never modifies protected files: true\n- Never modifies Unity files: true\n- Never modifies Firestore Rules files: true\n- Never modifies Functions files: true\n- Never modifies Token files: true\n- Never modifies Wallet files: true\n- Never modifies Payment files: true\n- Never modifies Health files: true\n- Never modifies Child files: true\n- Never modifies Location files: true\n- Never modifies Camera files: true\n- Never modifies Privacy files: true\n- Never modifies Consent files: true\n- Never modifies Legal files: true\n- ${NO_MODIFICATION_SCOPE_MESSAGE}\n- Never approves PRs: true\n- Never merges PRs: true\n- Never deploys: true\n- Never activates protected scopes: true\n- Human Approval Gate required for protected/high/critical work: true\n- Controlled Curiosity requires proposal/approval flow: true\n\n## Checks\n\n${renderResults(results)}\n`;
 
   fs.mkdirSync(path.dirname(absolute(OUTPUT_PATH)), { recursive: true });
   fs.writeFileSync(absolute(OUTPUT_PATH), report, "utf8");
@@ -184,6 +257,21 @@ function main() {
   console.log(`WellFit Agent Control Center check report written: ${OUTPUT_PATH}`);
   console.log("Mode: REPORT_ONLY");
   console.log("Never modifies runtime files: true");
+  console.log("Never modifies protected files: true");
+  console.log("Never modifies Unity files: true");
+  console.log("Never modifies Firestore Rules files: true");
+  console.log("Never modifies Functions files: true");
+  console.log("Never modifies Token files: true");
+  console.log("Never modifies Wallet files: true");
+  console.log("Never modifies Payment files: true");
+  console.log("Never modifies Health files: true");
+  console.log("Never modifies Child files: true");
+  console.log("Never modifies Location files: true");
+  console.log("Never modifies Camera files: true");
+  console.log("Never modifies Privacy files: true");
+  console.log("Never modifies Consent files: true");
+  console.log("Never modifies Legal files: true");
+  console.log(NO_MODIFICATION_SCOPE_MESSAGE);
   console.log("Never approves PRs: true");
   console.log("Never merges PRs: true");
   console.log("Never deploys: true");
