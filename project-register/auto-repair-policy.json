@@ -220,7 +220,7 @@
         ]
       },
       {
-        "id": "single_agent_docs_execution",
+        "id": "single_agent_docs_register_build",
         "order": 2,
         "permission": "One agent may execute exactly one approved low-risk docs/register/check-script task per branch within allowed governance paths.",
         "mayChange": [

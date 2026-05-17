@@ -205,7 +205,7 @@
         ]
       },
       {
-        "id": "single_agent_docs_execution",
+        "id": "single_agent_docs_register_build",
         "order": 2,
         "permission": "One agent may execute exactly one approved low-risk docs/register/check-script task per branch within allowed governance paths.",
         "mayChange": [
@@ -295,7 +295,7 @@
     "stageOrderMustNotBeSkipped": true,
     "higherStageRequiresSeparateHumanApproval": true,
     "currentRelease": {
-      "approvedStage": "single_agent_docs_execution",
+      "approvedStage": "single_agent_docs_register_build",
       "approvedOn": "2026-05-17",
       "approvedBy": "human_requested_policy_update",
       "scope": "Docs/register/validator PR handoff and safe docs/register/JSON-format repair may be allowed by adjacent policies, but auto-merge remains report_only until GitHub checks, review evidence, and mergeability are reliably readable.",
