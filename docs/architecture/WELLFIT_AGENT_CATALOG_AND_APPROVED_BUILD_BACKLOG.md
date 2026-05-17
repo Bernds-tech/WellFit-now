@@ -31,6 +31,15 @@ Existing agents/frameworks are operational governance assets. They already have 
 
 Approved future agents are different: the owner has approved them as a backlog of desired future capabilities, but they are **not built by this task**. The backlog records priority, risk, connected existing agents/registers, required docs/registers/scripts, allowed/forbidden files, dependencies, build order, and protected boundaries. This prevents an approved idea from being mistaken for an active agent.
 
+## Critical/high-risk two-phase backlog split
+
+Critical and high-risk approved backlog families are split into explicit `*-report-agent` and `*-implementation-agent` phases when they could otherwise be mistaken for runtime/product authority. The split currently covers reward fairness, child/age-appropriate safety, health claims, location safety, sponsor integrity, trust-safe monetization, user-memory governance, and recovery/pause/anti-overuse governance. The already built Mission Factory Agent remains report-only and does not imply runtime mission generation authority.
+
+A `*-report-agent` entry is limited to governance evidence: analysis, findings, rule checks, register updates, documentation updates, validation-script policy checks, and `review_required` markers. It may use only docs/register/validator scopes in a human-approved documentation task. It must not implement product behavior, protected logic, reward authority, mission completion authority, anti-cheat authority, monetization/payment/wallet/token/NFT/betting behavior, protected-data handling, deployment, approval, merge, auto-merge, auto-repair, or unrestricted repair. Report-agent status therefore does **not** imply implementation authority.
+
+A `*-implementation-agent` entry is intentionally `blocked`. Its active runtime write allowlist is empty, and it remains unavailable until a later explicit human approval names that implementation entry and provides all required evidence. Before activation, the task must include a dedicated test strategy, exact path allowlist, rollback/review plan, protected-topic review plan, and PR review evidence. Until those items exist, protected areas remain blocked and the paired report-agent remains the only safe governance phase.
+
+The validator enforces this separation by checking that each required split family has both phase IDs, report-agent entries include `allowedActions`, `forbiddenActions`, and `requiredHumanApproval`, implementation-agent entries remain blocked with no active runtime writes, and built/report-only entries are not interpreted as runtime-capable.
 
 ## Runtime capability and status fields
 

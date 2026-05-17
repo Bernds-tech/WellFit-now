@@ -148,6 +148,17 @@ const REQUIRED_BACKLOG_STATUSES = [
 const REQUIRED_ARTIFACT_STATUSES = ["planned", "governance_built", "validator_built", "runtime_capable"];
 const REQUIRED_EXECUTION_CAPABILITIES = ["report_only", "docs_register_write", "safe_runtime_write", "repair_capable", "pr_capable"];
 
+const REQUIRED_PHASE_SPLIT_BACKLOG_BASE_IDS = [
+  "reward-fairness-guard",
+  "child-safety-guard",
+  "health-claims-guard",
+  "location-safety-guard",
+  "sponsor-integrity-guard",
+  "trust-safe-monetization-agent",
+  "user-memory-governance-agent",
+  "recovery-pause-anti-overuse-guard"
+];
+
 const REQUIRED_BACKLOG_IDS = [
   "agent-architect-proposal-agent",
   "human-motivation-engine",
@@ -157,16 +168,12 @@ const REQUIRED_BACKLOG_IDS = [
   "mission-factory-agent",
   "product-intelligence-agent",
   "healthy-retention-agent",
-  "reward-fairness-guard",
-  "child-safety-guard",
-  "health-claims-guard",
-  "location-safety-guard",
-  "sponsor-integrity-guard",
-  "trust-safe-monetization-agent",
-  "user-memory-governance-agent",
+  ...REQUIRED_PHASE_SPLIT_BACKLOG_BASE_IDS.flatMap((baseId) => [
+    `${baseId}-report-agent`,
+    `${baseId}-implementation-agent`
+  ]),
   "product-memory-agent",
-  "ai-buddy-personality-tone-guard",
-  "recovery-pause-anti-overuse-guard"
+  "ai-buddy-personality-tone-guard"
 ];
 
 const REQUIRED_REFERENCED_FILES = [CATALOG_PATH, BACKLOG_PATH, DOC_PATH, SCRIPT_PATH];
@@ -299,6 +306,8 @@ function validateBacklog(backlog, catalog, results) {
 
   validateEntryRequiredFields(results, entries, REQUIRED_BACKLOG_ENTRY_FIELDS, "backlog entry");
   validateRuntimeCapabilityFields(results, backlog, entries, "backlogEntrySchema", "backlog");
+  validateRequiredPhaseSplitEntries(results, entries);
+  validateBuiltReportOnlyEntries(results, entries);
 
   const catalogIds = new Set(asArray(catalog.entries).map((entry) => entry.id));
   for (const entry of entries) {
@@ -328,6 +337,63 @@ function validateBacklog(backlog, catalog, results) {
       !protectedOrHighCritical || entry.status !== "built" || builtWithHumanReviewedEvidence,
       protectedOrHighCritical ? `status=${entry.status}; evidence=${builtWithHumanReviewedEvidence}` : "not high/critical/protected"
     );
+  }
+}
+
+
+function validateRequiredPhaseSplitEntries(results, entries) {
+  const byId = new Map(entries.map((entry) => [entry.id, entry]));
+  for (const baseId of REQUIRED_PHASE_SPLIT_BACKLOG_BASE_IDS) {
+    const reportId = `${baseId}-report-agent`;
+    const implementationId = `${baseId}-implementation-agent`;
+    const reportEntry = byId.get(reportId);
+    const implementationEntry = byId.get(implementationId);
+
+    addResult(results, `phase split ${baseId} has report-agent entry`, Boolean(reportEntry), reportEntry ? "present" : "missing");
+    addResult(results, `phase split ${baseId} has implementation-agent entry`, Boolean(implementationEntry), implementationEntry ? "present" : "missing");
+
+    if (reportEntry) {
+      const reportHasActionMetadata = Array.isArray(reportEntry.allowedActions)
+        && reportEntry.allowedActions.length > 0
+        && Array.isArray(reportEntry.forbiddenActions)
+        && reportEntry.forbiddenActions.length > 0
+        && reportEntry.requiredHumanApproval
+        && typeof reportEntry.requiredHumanApproval === "object";
+      addResult(results, `report-agent ${reportId} includes allowed/forbidden/human-approval metadata`, reportHasActionMetadata, reportHasActionMetadata ? "complete" : "missing phase metadata");
+      addResult(results, `report-agent ${reportId} remains report/docs scoped`, ["report_only", "docs_register_write"].includes(reportEntry.executionCapability), reportEntry.executionCapability ?? "missing");
+      const reportRuntimeAllowed = validatesNoProtectedAllowedFiles(reportEntry).concat(asArray(reportEntry.allowedWriteScopes).filter(isRuntimeFilePattern));
+      addResult(results, `report-agent ${reportId} does not allow runtime/protected writes`, reportRuntimeAllowed.length === 0, reportRuntimeAllowed.length ? `runtime write scopes: ${reportRuntimeAllowed.join(", ")}` : "safe report-only scopes");
+      const reportForbiddenText = `${asArray(reportEntry.forbiddenActions).join(" ")} ${asArray(reportEntry.protectedBoundaries).join(" ")}`;
+      addResult(results, `report-agent ${reportId} forbids authority/deploy/repair/merge escalation`, /runtime/i.test(reportForbiddenText) && /authority/i.test(reportForbiddenText) && /deploy/i.test(reportForbiddenText) && /auto-merge/i.test(reportForbiddenText) && /auto-repair|repair/i.test(reportForbiddenText), "forbidden boundary text checked");
+      const protectedTopicsReviewRequired = asArray(reportEntry.protectedTopics).length > 0 && asArray(reportEntry.protectedTopics).every((topic) => /review_required/i.test(String(topic)));
+      addResult(results, `report-agent ${reportId} keeps protected topics review_required`, protectedTopicsReviewRequired, protectedTopicsReviewRequired ? "all protected topics require review" : "missing review_required topics");
+    }
+
+    if (implementationEntry) {
+      addResult(results, `implementation-agent ${implementationId} is blocked`, implementationEntry.status === "blocked", implementationEntry.status ?? "missing");
+      const activeRuntimeWrites = asArray(implementationEntry.allowedFiles).filter(isRuntimeFilePattern).concat(asArray(implementationEntry.allowedWriteScopes).filter(isRuntimeFilePattern));
+      addResult(results, `implementation-agent ${implementationId} has no active allowed runtime writes`, activeRuntimeWrites.length === 0 && asArray(implementationEntry.allowedFiles).length === 0 && asArray(implementationEntry.allowedWriteScopes).length === 0, activeRuntimeWrites.length ? `runtime writes: ${activeRuntimeWrites.join(", ")}` : `allowedFiles=${asArray(implementationEntry.allowedFiles).length}; allowedWriteScopes=${asArray(implementationEntry.allowedWriteScopes).length}`);
+      const approval = implementationEntry.requiredHumanApproval ?? {};
+      const requiresApproval = implementationEntry.humanApprovalRequired === true
+        && implementationEntry.requiresHumanApprovalForRuntime === true
+        && /required/i.test(String(approval.explicitFutureHumanApproval ?? ""));
+      addResult(results, `implementation-agent ${implementationId} requires future human approval`, requiresApproval, JSON.stringify(approval));
+      const activationRequirements = `${asArray(implementationEntry.activationRequirements).join(" ")} ${asArray(implementationEntry.dependencies).join(" ")} ${JSON.stringify(approval)}`;
+      addResult(results, `implementation-agent ${implementationId} requires test strategy`, /test strategy|required_before_activation/i.test(activationRequirements), "test strategy requirement checked");
+      addResult(results, `implementation-agent ${implementationId} requires exact path allowlist`, /exact path allowlist|required_before_activation/i.test(activationRequirements), "path allowlist requirement checked");
+      addResult(results, `implementation-agent ${implementationId} requires rollback/review plan`, /rollback.*review|review.*rollback/i.test(activationRequirements), "rollback/review requirement checked");
+      const protectedBlocked = asArray(implementationEntry.protectedBoundaries).some((boundary) => /protected areas remain blocked|Protected areas remain blocked|blocked until/i.test(String(boundary)));
+      addResult(results, `implementation-agent ${implementationId} preserves protected areas as blocked`, protectedBlocked, protectedBlocked ? "blocked boundary present" : "missing blocked protected boundary");
+    }
+  }
+}
+
+function validateBuiltReportOnlyEntries(results, entries) {
+  for (const entry of entries.filter((candidate) => candidate.status === "built")) {
+    const reportScoped = ["report_only", "docs_register_write"].includes(entry.executionCapability)
+      && entry.artifactStatus !== "runtime_capable"
+      && entry.requiresHumanApprovalForRuntime === true;
+    addResult(results, `built/report-only entry ${entry.id} is not runtime-capable`, reportScoped, `artifactStatus=${entry.artifactStatus}; executionCapability=${entry.executionCapability}; requiresHumanApprovalForRuntime=${entry.requiresHumanApprovalForRuntime}`);
   }
 }
 
