@@ -444,6 +444,20 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Enabled single_agent_docs_register_build for one already-human-approved agent per branch within docs/register/validator/check-script paths, allowed branch/commit/PR handoff, preserved runtime/protected/Unity/PR #13/auto-merge/deploy blocks, and changed PR diff review no-diff handling so analysis runs do not fail solely because no files changed."
+    },
+    {
+      "id": "PROGRESS-AUTONOMY-STAGE-ALIAS-CLEANUP-2026-05-17-0001",
+      "date": "2026-05-17",
+      "branch": "fix/autonomy-final-gaps",
+      "issue": null,
+      "goal": "Close the remaining autonomy-stage naming gap after enabling single-agent docs/register build autonomy.",
+      "changedAreas": [
+        "project-register",
+        "scripts/wellfit-dev-agent"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Aligned remaining batch-runner, auto-repair, and auto-merge autonomy model references from the legacy docs-execution alias to the canonical single_agent_docs_register_build stage. Batch Execution Runner checks now validate the same stage name used by the approved runner, autopilot, and runner state. Runtime product code, protected compliance/economy/health/child/location/camera/Unity/PR #13 files, package/config files, auto-merge execution, deployment, and unrestricted auto-repair remained untouched."
     }
   ]
 }

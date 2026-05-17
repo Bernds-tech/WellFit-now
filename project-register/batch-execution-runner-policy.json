@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
   "updated": "2026-05-17",
-  "activationState": "single_agent_docs_execution",
+  "activationState": "single_agent_docs_register_build",
   "purpose": "Strictly limited, policy-driven Batch Execution Runner framework for a future human-approved run of at most 1-2 low-risk documentation, register, governance, inventory, status/work-log, cross-reference, PR-diff, and post-PR guard tasks. This version is framework/check/report-only and does not execute tasks autonomously, create pull requests, merge, repair, deploy, approve, close PRs, change runtime product code, or touch protected areas.",
   "maxTasksPerRun": 2,
   "allowedTaskRiskLevels": [
@@ -243,7 +243,7 @@
         ]
       },
       {
-        "id": "single_agent_docs_execution",
+        "id": "single_agent_docs_register_build",
         "order": 2,
         "permission": "One agent may execute exactly one approved low-risk docs/register/check-script task per branch within allowed governance paths.",
         "mayChange": [
@@ -333,7 +333,7 @@
     "stageOrderMustNotBeSkipped": true,
     "higherStageRequiresSeparateHumanApproval": true,
     "currentRelease": {
-      "approvedStage": "single_agent_docs_execution",
+      "approvedStage": "single_agent_docs_register_build",
       "approvedOn": "2026-05-17",
       "approvedBy": "human_requested_policy_update",
       "scope": "Only one-agent docs/register/check-script governance execution is activated for approved low-risk tasks. Runtime execution, auto-repair, auto-merge and deploy remain disabled unless their own policy activationState is explicitly raised in a later human-approved change.",
@@ -341,7 +341,7 @@
     }
   },
   "activationDecision": {
-    "selectedStage": "single_agent_docs_execution",
+    "selectedStage": "single_agent_docs_register_build",
     "decisionDate": "2026-05-17",
     "reason": "Align the runner policy set to the staged autonomy model requested on 2026-05-17.",
     "effectiveScope": "Docs/register/check-script governance execution only",
