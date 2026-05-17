@@ -14,9 +14,18 @@ Ziel verstehen -> Konzept pruefen -> Struktur ableiten -> Seiten erfassen -> Auf
 
 Er verhindert doppelte Architektur, parallele Systeme und unkontrollierte Produktlogik-Aenderungen. Er ergaenzt `agents/modes/stufe-4.md` als detaillierter, phasenbasierter Arbeitsstandard.
 
-## Autonomiegrenze
+## Autonomiegrenze und Stufe-4-Teilmodi
 
-Codex/KI-Agenten duerfen im Stufe-4-Modus autonom arbeiten bis zur Lieferung von Pull Request, Preview-Hinweisen und Abschlussbericht.
+`Stufe 4` ist kein pauschaler End-to-End-Autonomieauftrag. Jede Ausfuehrung muss vorab einer der folgenden Teilstufen zugeordnet werden. Die jeweils genannte Policy-Datei im `project-register/` ist vor Planung und Umsetzung verbindlich zu pruefen.
+
+| Teilstufe | Bedeutung | Zustaendige Policy-Datei | Erlaubter Zielzustand | Harte Grenze |
+| --- | --- | --- | --- | --- |
+| `Stufe 4A` | Autonome Analyse und Task-Erstellung | `project-register/agent-autopilot.json` | Analyse, Risikoklasse, betroffene Dateien/Register, Definition-of-Done und naechster sicherer Task als Report | Keine Datei-Aenderungen durch den Dry-Run, kein PR-Zwang, kein Merge/Deploy |
+| `Stufe 4B` | Autonome Docs-/Register-Aenderungen mit PR | `project-register/agent-workflows.json` | Kleine Governance-, Dokumentations-, Register- oder Report-only-Script-Aenderung mit Commit, PR und Handoff | Keine Runtime-Produktlogik, keine geschuetzten Bereiche, kein Merge/Deploy |
+| `Stufe 4C` | Begrenzte Runtime-Aenderungen mit Allowlist | `project-register/approved-agent-build-runner-policy.json` | Nur vorab erlaubte, niedrig-riskante Runtime-Dateien aus einer expliziten Allowlist und mit passenden Checks | Keine nicht erlaubten Dateien, keine Schutzthemen, keine Reward-/Ledger-/Health-/Privacy-/Payment-Autoritaet |
+| `Stufe 4D` | Sichere Auto-Reparaturen | `project-register/auto-repair-policy.json` | Eng begrenzte Reparatur eines validierten Fehlers, sofern Policy und Scope dies zulassen | Keine breiten Refactors, keine Testentfernung, keine Runtime-/Schutzbereichs-Ausweitung |
+| `Stufe 4E` | Merge-Empfehlung | `project-register/auto-merge-policy.json` | Report-only Bewertung, ob ein PR fuer menschliche Merge-Pruefung geeignet wirkt | Keine automatische Freigabe, kein Merge, keine Branch- oder Repo-Settings-Aenderung |
+| `Stufe 4F` | Auto-Merge, derzeit deaktiviert | `project-register/auto-merge-policy.json` | Kein aktiver Zielzustand; nur dokumentierte Deaktivierung und Stop fuer menschliche Freigabe | Auto-Merge ist deaktiviert und darf nicht ausgefuehrt oder durch andere Stufen implizit aktiviert werden |
 
 Codex/KI-Agenten duerfen ohne ausdrueckliche menschliche Freigabe niemals:
 
