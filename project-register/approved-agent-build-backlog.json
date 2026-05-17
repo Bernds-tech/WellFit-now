@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "activationState": "approved_planning_backlog",
   "purpose": "Machine-readable backlog of human-approved future WellFit agents/frameworks. Entries are approved to be planned, and selected low/medium-risk entries may be built one at a time when explicitly tasked; this backlog does not automatically create agents or grant runtime authority.",
   "approvalSource": "Project owner request on 2026-05-16 confirming listed future agents/frameworks may be recorded in an approved build backlog after PR #104 policy work.",
@@ -507,36 +507,51 @@
     {
       "id": "product-intelligence-agent",
       "proposedAgentName": "Product Intelligence Agent",
-      "status": "approved_for_planning",
+      "status": "built",
       "priority": "P2",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Product Intelligence Agent.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Product Intelligence Agent while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Built in this iteration as a report-only Product Intelligence Agent because it was already human-approved, medium risk, eligible, and safer than the earlier critical-risk Mission Factory Agent. The runner dry-run still lists Mission Factory first by order, but this controlled iteration selected Product Intelligence first by risk and safety review. Human-reviewed evidence from this approved prompt and PR evidence confirms report-only scope; Runtime/protected authority remains forbidden and review_required.",
+      "expectedBenefit": "Adds evidence-based product prioritization, roadmap gap analysis, website finding clustering, feedback theme synthesis, dependency review, and product brief drafting while preserving no-runtime-authority and protected review-required boundaries.",
       "riskLevel": "medium",
       "connectedAgents": [
+        "product-readiness-matrix",
+        "website-agent-backlog",
         "adaptive-user-insight-agent",
         "research-recommendation-agent",
-        "product-readiness-matrix"
+        "continuity-dependency-sentinel",
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-difficulty-agent",
+        "multisensory-learning-engine"
       ],
       "connectedRegisters": [
-        "project-register/adaptive-user-insights.json",
-        "project-register/research-recommendations.json",
-        "project-register/product-readiness.json"
-      ],
-      "connectedAgentCount": 3,
-      "connectedRegisterCount": 3,
-      "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
-      ],
-      "requiredRegisters": [
+        "project-register/product-intelligence-agent.json",
+        "project-register/product-readiness.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
-        "project-register/agent-extension-policy.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/website-readiness.json",
         "project-register/adaptive-user-insights.json",
         "project-register/research-recommendations.json",
-        "project-register/product-readiness.json"
+        "project-register/continuity-dependency-map.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/internal-sources.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "connectedAgentCount": 9,
+      "connectedRegisterCount": 13,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md"
+      ],
+      "requiredRegisters": [
+        "project-register/product-intelligence-agent.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
@@ -560,7 +575,7 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 7,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "mission_factory_agent_report_only_review_prompt",
       "dependencies": [
         "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
         "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
@@ -570,7 +585,8 @@
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope."
-      ]
+      ],
+      "nextRecommendedAction": "Mission Factory Agent remains next by order, but critical-risk scope requires human-reviewed report-only PR evidence and runtime/protected authority stays forbidden/review_required."
     },
     {
       "id": "healthy-retention-agent",

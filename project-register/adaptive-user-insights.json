@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "purpose": "Planning-only governance register for future Adaptive User Insight summaries: define how WellFit may later use privacy-preserving aggregate signals to recommend mission, buddy, difficulty, challenge, and internal reward-tuning ideas without exposing raw user data to agents or changing runtime product logic.",
   "activationState": "planning_only",
   "scope": "Documentation, registry, and validation-only governance. This register does not activate live tracking, data collection, personalization runtime, reward authority, or protected compliance logic.",
@@ -236,5 +236,9 @@
     "check": "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
     "mode": "report_only",
     "boundary": "No runtime learning personalization, protected-data profiling, AR/Unity behavior, reward authority, or mission-completion authority is enabled."
+  },
+  "productIntelligenceAgentBoundary": {
+    "register": "project-register/product-intelligence-agent.json",
+    "purpose": "May use aggregate insight summaries for product briefs only; no runtime personalization, profiling, or protected inference."
   }
 }

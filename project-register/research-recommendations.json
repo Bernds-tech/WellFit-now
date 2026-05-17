@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "purpose": "Governance register for future WellFit Research & Recommendation Agent work: analyze unclear product or technical questions, read internal sources first, optionally use external research only when internet access is explicitly available, summarize three approaches, recommend one option, classify risk, and require human review before implementation.",
   "status": "active",
   "scope": "Documentation, registry, and validation-only recommendation governance. This register does not authorize runtime product logic changes.",
@@ -202,5 +202,9 @@
     "check": "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
     "mode": "report_only",
     "boundary": "No runtime learning personalization, protected-data profiling, AR/Unity behavior, reward authority, or mission-completion authority is enabled."
+  },
+  "productIntelligenceAgentBoundary": {
+    "register": "project-register/product-intelligence-agent.json",
+    "purpose": "May use research recommendations for evidence-strength framing only; no automated medical, psychological, financial, legal, compliance, or product decisions."
   }
 }

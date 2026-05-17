@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "status": "active",
   "purpose": "Machine-readable task-selection queue for future WellFit Codex/AI agents. It converts existing governance, work-map, route/API/feature registers, and safety constraints into safe next-task candidates, required first reads, stop rules, checks, and expected PR outputs without creating a parallel product architecture.",
   "sourceOfTruth": {
@@ -2692,6 +2692,65 @@
         "confirmation no runtime personalization, AR/Unity behavior, learning runtime, reward authority, or mission-completion authority was enabled",
         "confirmation runtime/product/protected areas were untouched",
         "next recommended task: controlled one-agent runner activation for Mission Factory Agent or Product Intelligence Agent"
+      ]
+    },
+    {
+      "id": "PRODUCT-INTELLIGENCE-AGENT-MAINTENANCE",
+      "title": "Maintain Product Intelligence Agent report-only source of truth",
+      "status": "ready",
+      "priority": 2,
+      "riskLevel": "medium",
+      "definitionOfDone": "documentation_task",
+      "allowedFiles": [
+        "project-register/product-intelligence-agent.json",
+        "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md",
+        "scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "notes": "Report-only product intelligence only; no runtime product decisions or protected authority.",
+      "requiredFirstReadFiles": [
+        "AGENTS.md",
+        "todolist/CURRENT_PROJECT_STATE.md",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/product-intelligence-agent.json",
+        "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md",
+        "project-register/product-readiness.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "stopConditions": [
+        "runtime_code_change_required",
+        "protected_topic_decision_required",
+        "automatic_product_decision_required",
+        "deployment_required",
+        "reward_or_mission_authority_required",
+        "unity_or_pr_13_change_required",
+        "duplicate_architecture_risk"
+      ],
+      "expectedPrOutput": [
+        "Changed Product Intelligence docs/register/validator references",
+        "Checks run and results",
+        "Confirmation runtime/protected areas untouched",
+        "Next recommended approved agent or stop reason"
       ]
     }
   ],

@@ -381,3 +381,10 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 | Topic | Leading files | Status | Notes |
 |---|---|---|---|
 | Multisensory Learning Engine | `project-register/multisensory-learning-engine.json`, `docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md`, `scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs` | report_only / active | First controlled Approved Agent Build Runner activation built exactly one approved framework. No runtime learning personalization, AR/Unity behavior, protected-data tracking/profiling, reward authority, mission-completion authority, token/NFT/wallet/payment/betting behavior, auto-merge, auto-repair, approval, deploy, or PR #13 action is enabled. |
+
+## Product Intelligence Agent report-only references - 2026-05-17
+
+- `project-register/product-intelligence-agent.json` - canonical report-only Product Intelligence Agent register for evidence-based product prioritization and decision-brief boundaries.
+- `docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md` - architecture explanation and continuation prompt for Product Intelligence without runtime authority.
+- `scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs` - validator that writes `scripts/wellfit-dev-agent/output/product-intelligence-agent-report.md` and reports `PRODUCT_INTELLIGENCE_AGENT_READY=true/false`.
+- Related governance references: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-build-proposals.json`, `project-register/agent-build-runner-state.json`, `project-register/agent-workflows.json`, `project-register/agent-task-queue.json`, `project-register/agent-autopilot.json`, `project-register/continuity-dependency-map.json`.

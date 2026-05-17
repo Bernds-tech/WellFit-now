@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "activationState": "report_only",
   "purpose": "Report-only continuity and dependency sentinel for preserving open points, follow-ups, review_required items, blocked tasks, dependency chains, required next files, affected registers, and logical next steps across WellFit agent/governance tasks. It does not create tasks, rewrite files, approve PRs, merge, repair, deploy, or modify runtime product code.",
   "sourceOfTruthFiles": [
@@ -1035,6 +1035,117 @@
         }
       ],
       "humanReviewRequired": true
+    },
+    {
+      "id": "CDS-018-product-intelligence-agent",
+      "title": "Product Intelligence Agent report-only continuity",
+      "status": "open",
+      "dependencyType": "agent_governance",
+      "source": "project-register/product-intelligence-agent.json",
+      "dependsOn": [
+        "project-register/product-readiness.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/website-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/internal-sources.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "requiredOutputLocations": [
+        {
+          "path": "project-register/product-intelligence-agent.json",
+          "existsNow": true,
+          "purpose": "Machine-readable Product Intelligence Agent report-only register and protected-boundary source of truth."
+        },
+        {
+          "path": "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md",
+          "existsNow": true,
+          "purpose": "Human-readable Product Intelligence architecture, boundaries, and KI-Fortsetzungs-Prompt."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
+          "existsNow": true,
+          "purpose": "Report-only validator for Product Intelligence required fields and non-authority boundaries."
+        },
+        {
+          "path": "project-register/continuity-dependency-map.json",
+          "existsNow": true,
+          "purpose": "Continuity metadata for Product Intelligence and future runtime/product-decision blockers."
+        },
+        {
+          "path": "scripts/wellfit-dev-agent/output/product-intelligence-agent-report.md",
+          "existsNow": false,
+          "purpose": "Generated report-only validation output; do not commit generated output."
+        }
+      ],
+      "reason": "Preserve Product Intelligence as a report-only synthesis layer that extends mapped sources instead of creating duplicate architecture.",
+      "humanReviewRequired": true,
+      "blockedRules": [
+        "No runtime product code, profiling, deployment, reward authority, mission-completion authority, protected-topic decision, or Unity/PR #13 changes."
+      ],
+      "nextReview": "Before any Product Intelligence runtime implementation or protected-topic product decision.",
+      "ownerAgent": "Product Intelligence Agent / Continuity Dependency Sentinel",
+      "summary": "Product Intelligence is report-only for evidence clustering and product briefs; it cannot make final product decisions, profile users, deploy, authorize rewards, authorize mission completion, or touch protected runtime scope.",
+      "affectedFiles": [
+        "project-register/product-intelligence-agent.json",
+        "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md",
+        "scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
+        "project-register/continuity-dependency-map.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/agent-task-queue.json",
+        "project-register/product-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/CURRENT_PROJECT_STATE.md"
+      ],
+      "blockedUntil": [
+        "human-reviewed runtime scope",
+        "separate approval for any product decision automation",
+        "privacy/consent/legal review for protected topics",
+        "separate reward/mission/Unity review if those areas are proposed"
+      ],
+      "nextRecommendedTask": "Mission Factory Agent remains next by backlog order, but critical-risk scope must stay report-only and protected authority must remain blocked unless separately approved.",
+      "mustNotForget": true,
+      "dependencies": [
+        "requires_register_update",
+        "requires_validation_script",
+        "requires_work_map_update",
+        "requires_todo_index_update",
+        "requires_product_readiness_update",
+        "requires_task_queue_update",
+        "requires_human_review",
+        "requires_future_runtime_task",
+        "blocks_auto_merge",
+        "blocks_auto_repair",
+        "blocks_product_readiness_advance"
+      ],
+      "affectedRegisters": [
+        "project-register/product-intelligence-agent.json",
+        "project-register/product-readiness.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-build-proposals.json",
+        "project-register/agent-build-runner-state.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/website-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/internal-sources.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ]
     }
   ]
 }

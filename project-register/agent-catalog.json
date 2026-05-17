@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "activationState": "report_only",
   "purpose": "Machine-readable catalog of existing WellFit agents/frameworks, ownership areas, registers, docs, validators, extension boundaries, protected boundaries, and next safe maintenance tasks. This catalog prevents duplicate architecture and helps future agents decide whether to extend an existing agent domain or propose a new agent first.",
   "catalogEntrySchema": {
@@ -1713,6 +1713,69 @@
         "Learning completion, quiz, movement, AR, Buddy, social, visual, audio, and environment signals are not final reward or mission-completion authority."
       ],
       "nextSafeMaintenanceTask": "Keep the Multisensory Learning Engine register, architecture doc, validator, Work Map, TODO Index, approved backlog, proposals, runner state, and quality-gate integration synchronized; next recommended task is Mission Factory Agent or Product Intelligence Agent depending on backlog order and risk review."
+    },
+    {
+      "id": "product-intelligence-agent",
+      "name": "Product Intelligence Agent",
+      "status": "report_only",
+      "agentType": "product_intelligence_reporter",
+      "purpose": "Report-only framework for evidence-based product prioritization, website finding clustering, feedback theme synthesis, roadmap gap analysis, and product-decision brief drafting without runtime authority, profiling, deployment, reward authority, or mission-completion authority.",
+      "ownerArea": "Product Intelligence / Roadmap / Governance",
+      "primaryRegisters": [
+        "project-register/product-intelligence-agent.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "product-readiness-matrix",
+        "website-agent-backlog",
+        "adaptive-user-insight-agent",
+        "research-recommendation-agent",
+        "continuity-dependency-sentinel",
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-difficulty-agent",
+        "multisensory-learning-engine",
+        "mission-factory-agent",
+        "product-memory-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/product-readiness.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/website-readiness.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/research-recommendations.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/master-roadmap-tasks.json",
+        "project-register/internal-sources.json",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only product evidence clustering",
+        "prioritization scoring schema additions",
+        "human-review product brief templates",
+        "Work Map/TODO Index/source-of-truth reference updates",
+        "validator coverage for non-authority product intelligence boundaries"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product intelligence implementation",
+        "automated product decisions",
+        "individual-user targeting or profiling",
+        "protected health, child/minor, location, camera, biometric, consent, privacy, legal, token, wallet, payment, reward-authority, mission-authority, Unity, AR, or PR #13 scope",
+        "revenue optimization that could affect trust or dark-pattern boundaries"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes, product decisions, profiling, targeting, deployment, reward authority, mission-completion authority, token/NFT/wallet/payment/betting behavior, approval, merge, repair, or Unity/PR #13 authority.",
+        "High/critical/protected topics remain review_required and require separate scoped approval before implementation.",
+        "Product Intelligence extends mapped sources only and must not create duplicate architecture or parallel systems."
+      ],
+      "nextSafeMaintenanceTask": "Keep Product Intelligence register, architecture doc, validator, quality-gate integration, approved backlog, proposals, runner state, continuity map, Work Map, and TODO Index synchronized; next runner candidate is Mission Factory Agent, but it is critical-risk and must remain report-only if selected."
     }
   ]
 }

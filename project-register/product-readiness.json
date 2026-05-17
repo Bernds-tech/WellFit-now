@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "purpose": "Machine-readable WellFit product readiness matrix for future Codex/AI agents. It maps current product modules to readiness statuses, risk levels, leading files, blockers, safe next tasks, duplicate-system warnings, advancement checks, and human-approval needs so agents choose safer follow-up work without changing product logic or creating parallel architecture.",
   "status_scale": {
     "not_started": "No meaningful repo implementation or approved work plan exists yet.",
@@ -889,5 +889,9 @@
     "check": "scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
     "mode": "report_only",
     "boundary": "No runtime learning personalization, protected-data profiling, AR/Unity behavior, reward authority, or mission-completion authority is enabled."
+  },
+  "productIntelligenceAgentReference": {
+    "register": "project-register/product-intelligence-agent.json",
+    "purpose": "Report-only prioritization consumer of readiness evidence; does not change readiness state automatically."
   }
 }
