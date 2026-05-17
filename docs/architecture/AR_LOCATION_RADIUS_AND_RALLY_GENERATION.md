@@ -156,6 +156,13 @@ Punkte entstehen erst spaeter:
 Evidence -> Question Memory -> Reward Policy -> Server Ledger
 ```
 
+
+## Location Safety Guard Verbindung
+
+AR-Radius- und Rallye-Generierung ist mit `docs/architecture/WELLFIT_LOCATION_SAFETY_GUARD.md` und `project-register/location-safety-guard.json` verbunden.
+
+Rallye-Entwuerfe duerfen keine Live-Standortverarbeitung, keine automatische Missionserzeugung an Risikopunkten und keine Kinder-Standortfreigabe aktivieren, bevor Consent, Datenschutz und Safety Rules umgesetzt und geprueft sind. Waypoints muessen private Wohnorte, gefaehrliche Orte sowie Strassen-/Bahn-/Risikobereiche blockieren.
+
 ## Akzeptanzkriterien v1
 
 - [ ] Rallye bleibt im Nahbereich des Nutzers.

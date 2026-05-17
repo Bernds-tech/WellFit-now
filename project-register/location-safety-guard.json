@@ -1,0 +1,104 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "id": "location-safety-guard",
+  "name": "Location Safety Guard",
+  "status": "planning_only",
+  "riskLevel": "critical",
+  "activationState": "not_runtime_enabled",
+  "runtimeAuthorityGranted": false,
+  "requiresConsentPrivacyAndSafetyRulesBeforeRuntime": true,
+  "purpose": "Defines non-negotiable planning guardrails for public mission placement, AR/rally location radius design, privacy boundaries, and child/location safety before any live location processing is enabled.",
+  "linkedArchitectureDocs": [
+    "docs/architecture/WELLFIT_LOCATION_SAFETY_GUARD.md",
+    "docs/architecture/CHECKPOINT_LOCATION_SAFETY_AND_PLACEMENT.md",
+    "docs/architecture/AR_LOCATION_RADIUS_AND_RALLY_GENERATION.md",
+    "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md"
+  ],
+  "validator": {
+    "path": "scripts/wellfit-dev-agent/src/location-safety-guard-check.mjs",
+    "expectedReadyToken": "LOCATION_SAFETY_GUARD_READY=true"
+  },
+  "reviewAreas": [
+    {
+      "id": "no_dangerous_places",
+      "label": "keine gefaehrlichen Orte",
+      "requiredDecision": "block",
+      "mustRejectExamples": [
+        "roads_and_intersections",
+        "rail_or_track_areas",
+        "construction_or_restricted_zones",
+        "water_without_safe_platform",
+        "cliffs_or_fall_risk",
+        "industrial_medical_military_or_authority_sensitive_areas"
+      ]
+    },
+    {
+      "id": "no_private_residences_as_public_missions",
+      "label": "keine privaten Wohnorte als oeffentliche Missionen",
+      "requiredDecision": "block_public_mission",
+      "mustRejectExamples": [
+        "private_home_address",
+        "apartment_building_entrance",
+        "private_garden_or_driveway",
+        "residential_safe_zone_without_explicit_approval"
+      ]
+    },
+    {
+      "id": "no_child_location_sharing",
+      "label": "keine Kinder-Standortfreigabe",
+      "requiredDecision": "block",
+      "mustRejectExamples": [
+        "live_child_location_sharing",
+        "public_child_location_visibility",
+        "guardian_unreviewed_child_tracking",
+        "school_or_club_location_exposure"
+      ]
+    },
+    {
+      "id": "no_precise_location_history_without_consent",
+      "label": "keine genaue Standorthistorie ohne Consent",
+      "requiredDecision": "block_storage_or_processing",
+      "mustRejectExamples": [
+        "precise_gps_history_without_explicit_consent",
+        "continuous_background_tracking",
+        "retention_without_purpose_and_duration",
+        "partner_or_advertising_use_without_review"
+      ]
+    },
+    {
+      "id": "no_missions_in_road_rail_or_risk_areas",
+      "label": "keine Missionen in Strassen-/Bahn-/Risikobereichen",
+      "requiredDecision": "block_mission_generation",
+      "mustRejectExamples": [
+        "mission_target_on_roadway",
+        "mission_target_on_train_tracks",
+        "mission_target_near_unsafe_crossing",
+        "route_that_requires_risky_behavior"
+      ]
+    }
+  ],
+  "runtimeBlockers": [
+    "No live location processing may be enabled before explicit consent UX is implemented and reviewed.",
+    "No live location processing may be enabled before Datenschutz/privacy documentation and data retention rules are reviewed.",
+    "No live location processing may be enabled before safety placement rules, blocked-place rules, and review ownership are implemented.",
+    "No child location sharing, precise location history, public private-residence missions, or road/rail/risk-area missions may be enabled from this register."
+  ],
+  "allowedCurrentUse": [
+    "planning",
+    "architecture_review",
+    "register_validation",
+    "manual_safety_checklists",
+    "blocked_implementation_notes"
+  ],
+  "forbiddenCurrentUse": [
+    "live_location_processing",
+    "background_tracking",
+    "precise_location_history_storage",
+    "child_location_sharing",
+    "public_private_residence_missions",
+    "road_rail_or_risk_area_mission_generation",
+    "client_side_reward_or_completion_authority_from_location"
+  ],
+  "nextSafeTask": "Draft consent, Datenschutz/privacy retention, blocked-place taxonomy, reviewer ownership, and server-side safety-rule test plan before any runtime location processing is proposed."
+}

@@ -180,6 +180,13 @@ In der aktuellen Web-Beta duerfen Checkpoints sichtbar vorbereitet werden, aber 
 
 Keine finale Mission Completion nur durch Client-Standort.
 
+
+## Location Safety Guard Verbindung
+
+Dieser Checkpoint-Placement-Plan ist mit `docs/architecture/WELLFIT_LOCATION_SAFETY_GUARD.md` und `project-register/location-safety-guard.json` verbunden.
+
+Bis Consent, Datenschutz und Safety Rules umgesetzt und geprueft sind, bleibt diese Datei planning-only fuer Live-Standortverarbeitung. Insbesondere duerfen keine gefaehrlichen Orte, privaten Wohnorte als oeffentliche Missionen, Kinder-Standortfreigaben, genaue Standorthistorien ohne Consent oder Missionen in Strassen-/Bahn-/Risikobereichen aktiviert werden.
+
 ## Offene Folgeaufgaben
 
 - [ ] Checkpoint-Datenmodell als Draft in Code/Schema vorbereiten.
