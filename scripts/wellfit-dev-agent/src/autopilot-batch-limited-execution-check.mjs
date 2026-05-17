@@ -188,7 +188,7 @@ function main() {
   if (policy.activationState !== "limited_execution_planning") reasons.push("activationState_is_not_limited_execution_planning");
   if (batchDryRunPolicy.activationState !== "dry_run_only") reasons.push("batch_dry_run_policy_not_dry_run_only");
   if (autoMergePolicy.activationState !== "report_only") reasons.push("auto_merge_policy_not_report_only");
-  if (autoRepairPolicy.activationState !== "report_only") reasons.push("auto_repair_policy_not_report_only");
+  if (!["report_only", "safe_docs_register_json_format_repair_allowed"].includes(autoRepairPolicy.activationState)) reasons.push("auto_repair_policy_not_report_only_or_safe_docs_register_repair");
 
   const missingAllowedCategories = includesAll(policy.allowedExecutionCategories, REQUIRED_ALLOWED_CATEGORIES);
   const unexpectedAllowedCategories = asArray(policy.allowedExecutionCategories).filter((category) => !REQUIRED_ALLOWED_CATEGORIES.includes(category));
@@ -239,7 +239,7 @@ function main() {
     "Never deploys: true",
     "Never approves own work: true",
     "Auto-merge remains disabled: true",
-    "Auto-repair remains disabled: true",
+    `Auto-repair limited to safe docs/register tier or disabled: ${["report_only", "safe_docs_register_json_format_repair_allowed"].includes(autoRepairPolicy.activationState)}`,
     "Human approval required before execution: true"
   ];
 
@@ -274,7 +274,7 @@ function main() {
   console.log("Never deploys: true");
   console.log("Never approves own work: true");
   console.log("Auto-merge remains disabled: true");
-  console.log("Auto-repair remains disabled: true");
+  console.log(`Auto-repair limited to safe docs/register tier or disabled: ${["report_only", "safe_docs_register_json_format_repair_allowed"].includes(autoRepairPolicy.activationState)}`);
   console.log("Human approval required before execution: true");
   console.log(`Executable candidates: ${executableCandidates.length}`);
   for (const candidate of executableCandidates) console.log(`- ${candidate.id}: ${candidate.title} (${candidate.category})`);

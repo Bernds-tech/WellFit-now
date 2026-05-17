@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
-  "activationState": "report_only",
-  "purpose": "Machine-readable WellFit PR Post-Creation Mergeability Guard for future agents. After creating a PR, the agent must inspect the PR URL/number, branch, mergeability, required checks, changed files, protected paths, auto-merge eligibility, auto-repair decision, PR review policy, task/work-log evidence, and next action before stopping. This first version is policy-only/report-only and never merges, approves, deploys, changes repository settings, closes PR #13, modifies Unity files, or performs unrestricted auto-repair.",
+  "updated": "2026-05-17",
+  "activationState": "pr_handoff_allowed_no_merge",
+  "purpose": "Machine-readable WellFit PR Post-Creation Mergeability Guard. For the single_agent_docs_register_build stage, an agent may create a PR handoff for allowed docs/register/validator governance work and must inspect/report the PR URL/number, branch, mergeability, required checks, changed files, protected paths, auto-merge eligibility, auto-repair decision, PR review policy, task/work-log evidence, and next action before stopping. This policy still never merges, approves, deploys, changes repository settings, closes PR #13, modifies Unity files, or performs unrestricted auto-repair.",
   "requiredPostPRChecks": [
     {
       "id": "pr_url_or_number_exists",
@@ -84,17 +84,8 @@
     "unknown"
   ],
   "safeRepairEligibilityRules": {
-    "activationState": "future_guidance_only",
-    "requiresExplicitAllowance": true,
-    "allowedFutureRepairGuidance": [
-      "docs_register_only_merge_conflicts",
-      "stale_branch_after_main_changed",
-      "missing_todo_index_work_map_pointer",
-      "missing_ki_fortsetzungs_prompt_in_new_architecture_docs",
-      "json_formatting_or_parse_issue_in_project_register_files",
-      "trailing_whitespace_or_markdown_formatting",
-      "missing_progress_log_or_work_log_evidence_if_allowed_files_only"
-    ],
+    "activationState": "safe_docs_register_json_format_repair_allowed",
+    "requiresExplicitAllowance": false,
     "forbiddenRepairAreas": [
       "runtime_product_code_repair",
       "app/**",
@@ -116,7 +107,15 @@
       "source_of_truth_judgment_beyond_docs_register_metadata"
     ],
     "requiredStopWhenForbiddenAreaTouched": true,
-    "noAutomaticFileWritesInThisVersion": true
+    "noAutomaticFileWritesInThisVersion": false,
+    "allowedRepairGuidance": [
+      "markdown_formatting_in_docs_or_register_markdown",
+      "json_formatting_or_parse_issue_in_project_register_files",
+      "missing_todo_index_work_map_pointer_for_new_docs_register_governance_artifacts",
+      "missing_ki_fortsetzungs_prompt_in_new_architecture_docs",
+      "missing_progress_log_or_work_log_evidence_if_allowed_files_only"
+    ],
+    "repairMustRemainWithinAllowedDocsRegisterScope": true
   },
   "replacementPRRules": {
     "allowedOnlyWhenOldBranchCannotBeSafelyRepaired": true,
@@ -184,8 +183,9 @@
     "policy": "project-register/auto-repair-policy.json",
     "script": "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
     "requiredOutputPattern": "AUTO_REPAIR_ALLOWED=true/false",
-    "reportOnly": true,
-    "doesNotAuthorizeRepairInThisVersion": true
+    "reportOnly": false,
+    "doesNotAuthorizeRepairInThisVersion": false,
+    "authorizesOnlySafeDocsRegisterJsonRepairs": true
   },
   "interactionWithTaskStatusPolicy": {
     "policy": "project-register/task-status-policy.json",
@@ -194,23 +194,63 @@
     "reportOnly": true
   },
   "reportOutputSchema": {
-    "mode": "REPORT_ONLY",
+    "mode": "PR_HANDOFF_ALLOWED_NO_MERGE",
     "readyOutputPattern": "PR_POST_CREATION_GUARD_READY=true/false",
     "neverInspectsPrivateGitHubCredentials": true,
     "neverMerges": true,
     "neverApproves": true,
-    "neverRepairsFiles": true,
+    "neverRepairsFiles": false,
     "neverDeploys": true,
     "requiredSections": [
       "PASS",
       "FAIL",
       "WARNING"
-    ]
+    ],
+    "repairsOnlyWhenAutoRepairPolicyAllowsSafeDocsRegisterJsonFixes": true
   },
   "interactionWithPRDiffReviewPolicy": {
     "mode": "report_only",
     "policy": "project-register/pr-diff-review-policy.json",
     "script": "scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs",
     "requiredUse": "Use the PR Diff Review Report as changed-file/protected-impact evidence after PR creation; it does not approve, merge, repair, deploy, or replace human review."
+  },
+  "allowedPRHandoffScope": {
+    "activationState": "pr_handoff_allowed_no_merge",
+    "allowedOnlyForActivationStates": [
+      "single_agent_docs_register_build"
+    ],
+    "allowedChangedFileScopes": [
+      "docs/architecture/**/*.md",
+      "project-register/**/*.json",
+      "todolist/**/*.md",
+      "scripts/wellfit-dev-agent/src/*check.mjs",
+      "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+      "scripts/wellfit-dev-agent/src/*report.mjs"
+    ],
+    "requiredBeforePR": [
+      "task-specific non-main branch",
+      "one approved docs/register/validator build task",
+      "local changed-file review",
+      "no forbidden runtime/protected path changes",
+      "no protected authority expansion"
+    ],
+    "requiredInPRHandoff": [
+      "changed files",
+      "checks run with exact results",
+      "post-creation mergeability/check-state report",
+      "auto-merge remains report_only",
+      "safe-repair decision if relevant",
+      "explicit no-merge/no-deploy/no-runtime/protected-edit statement"
+    ],
+    "forbidden": [
+      "merge",
+      "auto-merge",
+      "self-approval",
+      "deploy",
+      "runtime edit",
+      "protected-scope edit",
+      "Unity/PR #13 edit",
+      "token/reward/payment authority edit"
+    ]
   }
 }
