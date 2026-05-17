@@ -3762,6 +3762,25 @@
       "reward authority",
       "mission-completion authority",
       "health/child/location/legal/payment/token runtime activation"
+    ],
+    "currentAutonomyLevel": 2,
+    "nextApprovableAutonomyLevel": 3,
+    "autonomyPolicyDocument": "docs/architecture/WELLFIT_AGENT_OS_AUTONOMY_LEVELS.md"
+  },
+  "autonomyLevelState": {
+    "updated": "2026-05-17",
+    "sourceOfTruth": "project-register/agent-control-center.json#/agentOsAutonomyLevels",
+    "policyDocument": "docs/architecture/WELLFIT_AGENT_OS_AUTONOMY_LEVELS.md",
+    "currentLevel": 2,
+    "currentLevelId": "level_2_docs_register_validator_commit_pr",
+    "nextApprovableLevel": 3,
+    "nextApprovableLevelId": "level_3_safe_ui_copy_test_runtime_with_human_approval",
+    "runtimeAuthorityGranted": false,
+    "mustRemainFalseUntil": [
+      "server_side_role_check",
+      "append_only_audit_log",
+      "exact_allowlist_validation",
+      "stop_conditions"
     ]
   }
 }
