@@ -204,6 +204,81 @@
     "No PR #13 or Unity changes.",
     "No repository setting changes."
   ],
+  "capabilityStateSeparation": {
+    "canonicalSource": "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md#pr-creation-merge-recommendation-and-auto-merge-capability-states",
+    "states": {
+      "pr_creation_allowed": {
+        "notPermissionFor": [
+          "merge",
+          "approval",
+          "self-approval",
+          "auto-merge",
+          "deployment",
+          "runtime/protected/product changes"
+        ],
+        "currentState": "defined_not_active",
+        "currentlyAllowedByRunner": false,
+        "meaningWhenActivated": "An agent may create a reviewable pull request for allowed docs/register/validator/governance work only.",
+        "activationRequirement": "A later explicit policy activation may make this the first meaningful next state; defining it here does not grant the current runner PR-creation authority."
+      },
+      "merge_recommendation_allowed": {
+        "requiredEvidence": [
+          "all required local checks passed with exact command/result evidence",
+          "machine-readable GitHub required checks are present and successful",
+          "branch protection and review-rule evidence are satisfied",
+          "PR is mergeable against the base branch",
+          "PR diff review reports no runtime/protected path findings"
+        ],
+        "blockedBy": [
+          "missing checks",
+          "pending checks",
+          "skipped checks",
+          "unknown checks",
+          "failed checks",
+          "environment-blocked checks"
+        ],
+        "notPermissionFor": [
+          "auto-merge",
+          "approval",
+          "self-approval",
+          "deployment"
+        ],
+        "currentState": "defined_not_active",
+        "currentlyAllowedByRunner": false,
+        "meaningWhenActivated": "An agent may recommend merge only when full machine-readable local and GitHub evidence is green.",
+        "activationRequirement": "May activate only after pr_creation_allowed is active and full machine-readable local/GitHub evidence, branch protection, review rules, and mergeability evidence are proven."
+      },
+      "auto_merge_allowed": {
+        "requiresBeforeEnablement": [
+          "separate explicit human approval",
+          "machine-readable GitHub required-check success evidence",
+          "branch protection evidence",
+          "review-rule evidence",
+          "mergeability evidence",
+          "no missing/pending/skipped/unknown/failed/environment-blocked checks"
+        ],
+        "notCurrentlyAllowed": [
+          "auto-merge",
+          "repository auto-merge setting changes",
+          "self-approval",
+          "deployment",
+          "unrestricted auto-repair"
+        ],
+        "currentState": "disabled",
+        "currentlyAllowedByRunner": false,
+        "meaningWhenActivated": "Real auto-merge remains disabled until a separate explicit human approval enables it after machine-readable GitHub checks, branch protection, review rules, mergeability evidence, and human approval are proven."
+      }
+    },
+    "separationRules": [
+      "PR creation is not merge permission.",
+      "Merge recommendation is not auto-merge.",
+      "Auto-merge remains disabled.",
+      "Missing, pending, skipped, unknown, failed, or environment-blocked checks block merge recommendation and auto-merge.",
+      "Runtime, protected, product, Unity, deployment, package, Firebase, GitHub workflow, token/NFT/wallet/payment/betting/reward-authority/mission-authority/health/child/location/camera/biometric/consent/privacy/legal/compliance changes remain blocked."
+    ],
+    "currentState": "report_only",
+    "nextRecommendedState": "pr_creation_allowed"
+  },
   "workLogUpdateRules": [
     "record selected approved backlog entry",
     "record exact commands and statuses",
