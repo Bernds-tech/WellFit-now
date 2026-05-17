@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 const ROOT = process.cwd();
 const POLICY_PATH = "project-register/approved-agent-build-runner-policy.json";
 const BACKLOG_PATH = "project-register/approved-agent-build-backlog.json";
-const EXECUTION_STATE = "single_agent_docs_execution";
+const EXECUTION_STATE = "single_agent_docs_register_build";
 const PROTECTED_BRANCHES = new Set(["main", "master"]);
 const ELIGIBLE_STATUSES = new Set(["approved_for_build", "approved_for_planning"]);
 const EXISTING_AGENT_CHECKS = [

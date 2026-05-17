@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "updated": "2026-05-17",
-  "activationState": "report_only",
-  "purpose": "Report-only state ledger for the future Approved Agent Build Runner. This initial state records dry-run and merge-gate evidence only; it never builds agents, creates PRs, repairs, merges, deploys, or approves.",
+  "activationState": "single_agent_docs_register_build",
+  "purpose": "State ledger for the active Approved Agent Build Runner stage. The current stage allows exactly one already-human-approved docs/register/validator/check-script agent-build task per branch in allowlisted governance paths; it still never authorizes runtime product changes, protected-scope changes, automatic repair, automatic merge, deployment, approval, or PR closing.",
   "lastEvaluatedBacklogEntry": "healthy-retention-agent",
   "lastGeneratedPrompt": {
     "date": "2026-05-17",
