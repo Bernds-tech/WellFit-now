@@ -860,12 +860,38 @@
         "mission_completion_authority"
       ],
       "humanReviewRequired": true
+    },
+    {
+      "id": "mission-factory-agent-report-only",
+      "status": "active",
+      "purpose": "Validate Mission Factory Agent report-only governance before runtime mission work is considered.",
+      "requiredInputs": [
+        "project-register/mission-factory-agent.json",
+        "docs/architecture/WELLFIT_MISSION_FACTORY_AGENT.md"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "forbiddenActions": [
+        "runtime_mission_generation",
+        "mission_completion_authority",
+        "reward_authority",
+        "anti_cheat_authority",
+        "protected_data_behavior",
+        "deployment",
+        "unity_or_ar_behavior"
+      ],
+      "humanReviewRequired": true
     }
   ],
   "requiredChecks": [
     "node scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs",
     "jq empty project-register/multisensory-learning-engine.json",
     "node scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
-    "jq empty project-register/product-intelligence-agent.json"
-  ]
+    "jq empty project-register/product-intelligence-agent.json",
+    "node scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs",
+    "jq empty project-register/mission-factory-agent.json"
+  ],
+  "updated": "2026-05-17"
 }

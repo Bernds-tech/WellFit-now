@@ -423,7 +423,7 @@
     "dryRun": "scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs",
     "activationState": "report_only",
     "maxAgentsPerRun": 1,
-    "nextRecommendedTask": "Controlled one-agent runner activation for Multisensory Learning Engine only after this framework merges."
+    "nextRecommendedTask": "Controlled one-agent runner activation for Healthy Retention Agent only after Mission Factory Agent merges and remains report-only."
   },
   "multisensoryLearningEngineReference": {
     "register": "project-register/multisensory-learning-engine.json",
@@ -437,5 +437,11 @@
     "doc": "docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md",
     "check": "scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
     "purpose": "Report-only product intelligence guard; no product decisions, profiling, deployment, reward authority, or mission-completion authority."
+  },
+  "missionFactoryAgentReference": {
+    "register": "project-register/mission-factory-agent.json",
+    "doc": "docs/architecture/WELLFIT_MISSION_FACTORY_AGENT.md",
+    "check": "scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs",
+    "purpose": "Report-only mission planning guard; no runtime mission generation, completion authority, reward authority, anti-cheat authority, protected-data behavior, Unity/AR behavior, or deployment."
   }
 }

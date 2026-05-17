@@ -388,3 +388,10 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - `docs/architecture/WELLFIT_PRODUCT_INTELLIGENCE_AGENT.md` - architecture explanation and continuation prompt for Product Intelligence without runtime authority.
 - `scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs` - validator that writes `scripts/wellfit-dev-agent/output/product-intelligence-agent-report.md` and reports `PRODUCT_INTELLIGENCE_AGENT_READY=true/false`.
 - Related governance references: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-build-proposals.json`, `project-register/agent-build-runner-state.json`, `project-register/agent-workflows.json`, `project-register/agent-task-queue.json`, `project-register/agent-autopilot.json`, `project-register/continuity-dependency-map.json`.
+
+### Mission Factory Agent report-only framework (2026-05-17)
+
+- `project-register/mission-factory-agent.json` - canonical report-only Mission Factory Agent register for mission concept inventory, planning briefs, dependency maps, readiness checklists, safety boundary reports, human-review questions, server-authority boundaries, and protected-topic review stops.
+- `docs/architecture/WELLFIT_MISSION_FACTORY_AGENT.md` - human-readable Mission Factory architecture note and KI-Fortsetzungs-Prompt; no runtime mission generation, mission-completion authority, reward authority, anti-cheat authority, protected-data behavior, Unity/AR/native behavior, or deployment.
+- `scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs` - validator that writes `scripts/wellfit-dev-agent/output/mission-factory-agent-report.md` and reports `MISSION_FACTORY_AGENT_READY=true/false`.
+- `scripts/wellfit-dev-agent/src/quality-gate.mjs` - now includes the Mission Factory Agent validator as a required report-only governance check.
