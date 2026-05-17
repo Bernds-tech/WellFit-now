@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "updated": "2026-05-17",
   "activationState": "approved_planning_backlog",
-  "purpose": "Machine-readable backlog of human-approved future WellFit agents/frameworks. Entries are approved to be planned, and selected low/medium-risk entries may be built one at a time when explicitly tasked; this backlog does not automatically create agents or grant runtime authority.",
+  "purpose": "Machine-readable backlog of human-approved future WellFit agents/frameworks. Entries marked alreadyHumanApproved are approved to be built one at a time as docs/register/validator/report artifacts under single_agent_docs_register_build; this does not grant runtime, merge, deploy, protected-scope, or self-approval authority.",
   "approvalSource": "Project owner request on 2026-05-16 confirming listed future agents/frameworks may be recorded in an approved build backlog after PR #104 policy work.",
   "statuses": [
     "proposed",
@@ -16,11 +16,13 @@
     "superseded"
   ],
   "buildOrderRules": [
-    "Do not build future agents in this catalog/backlog task.",
+    "Do not build more than one future agent per branch; alreadyHumanApproved entries may be built under single_agent_docs_register_build as docs/register/validator/report artifacts.",
     "Build one approved future agent/framework per PR unless Batch Execution Runner explicitly authorizes a bounded batch.",
     "Keep first version report-only and docs/register/validator-only unless a later human-approved task says otherwise.",
     "High/critical or protected-boundary entries require human review and cannot be automatically marked built.",
-    "Before built status, add required docs, registers, validation scripts, Work Map/TODO Index references, quality gate integration, passing checks, and PR evidence."
+    "Before built status, add required docs, registers, validation scripts, Work Map/TODO Index references, quality gate integration, passing checks, and PR evidence.",
+    "New agents not already present and human-approved in this backlog still require presentation and explicit owner approval before build.",
+    "High/critical domain-risk report agents may be built only as no-runtime guard/report artifacts; implementation-risk remains blocked if runtime/protected authority would be needed."
   ],
   "backlogEntrySchema": {
     "id": "required",

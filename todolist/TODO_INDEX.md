@@ -403,3 +403,9 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - `scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs` - validator for Healthy Retention register fields, source references, non-authorizing signals, Work Map/TODO Index links, and quality-gate readiness.
 - `scripts/wellfit-dev-agent/src/quality-gate.mjs` - includes the Healthy Retention Agent validator as a required report-only governance check.
 - Status: `report_only / built`; no runtime product files, retention automation, user profiling, notification triggers, streak/reward modifications, reward authority, mission-completion authority, protected data logic, Unity/PR #13, deployment, approval, merge, or repair authority were added.
+
+
+## Agent autonomy update 2026-05-17
+
+- `project-register/approved-agent-build-runner-policy.json` and `project-register/agent-autopilot.json` now describe `single_agent_docs_register_build` for already-human-approved docs/register/validator agent builds.
+- Follow-up: build approved agents one at a time, starting from the approved backlog order, without runtime/protected changes.

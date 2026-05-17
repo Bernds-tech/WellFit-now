@@ -428,6 +428,22 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Completed the Website Agent route/link audit as documentation/register output only. Marked WAB-003 done, preserved /challenge as a review_required alias to /missionen/challenge, recorded future runtime/browser/device validation needs, and recommended Trust & Compliance Website Audit or Landingpage Conversion Audit. No runtime route/navigation/legal/app/mobile code, protected logic, auto-merge, auto-repair, approval, deployment, Unity/PR #13 files, package/config, public assets, Functions, or Firestore rules were changed."
+    },
+    {
+      "id": "PROGRESS-AGENT-AUTONOMY-DOCS-REGISTER-BUILD-2026-05-17-0001",
+      "date": "2026-05-17",
+      "branch": "agent/autonomy-execution-policy",
+      "issue": null,
+      "goal": "Activate scoped autonomy for already-human-approved agent backlog entries as docs/register/validator builds.",
+      "changedAreas": [
+        "project-register",
+        "scripts/wellfit-dev-agent",
+        "docs/architecture",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Enabled single_agent_docs_register_build for one already-human-approved agent per branch within docs/register/validator/check-script paths, allowed branch/commit/PR handoff, preserved runtime/protected/Unity/PR #13/auto-merge/deploy blocks, and changed PR diff review no-diff handling so analysis runs do not fail solely because no files changed."
     }
   ]
 }

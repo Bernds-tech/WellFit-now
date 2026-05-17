@@ -145,10 +145,20 @@ function validateTodoMutationPolicy(config) {
 
 function validateWritePolicy(config) {
   const policy = config.writePolicy ?? {};
+  const scopedBuildMode = policy.allowedAutonomousWriteMode === "single_agent_docs_register_build";
 
   if (policy.canDeployProduction !== false) fail("writePolicy.canDeployProduction must be false.");
-  if (policy.canModifyCode !== false) warn("Dry-run MVP should keep writePolicy.canModifyCode false.");
-  if (policy.canCreatePullRequest !== false) warn("Dry-run MVP should keep writePolicy.canCreatePullRequest false.");
+
+  if (scopedBuildMode) {
+    if (policy.canModifyCode !== true) fail("single_agent_docs_register_build requires writePolicy.canModifyCode true for scoped governance artifacts.");
+    if (policy.canCreateBranch !== true) fail("single_agent_docs_register_build requires writePolicy.canCreateBranch true.");
+    if (policy.canCreatePullRequest !== true) fail("single_agent_docs_register_build requires writePolicy.canCreatePullRequest true.");
+    if (!Array.isArray(policy.allowedWriteScopes) || policy.allowedWriteScopes.length === 0) fail("single_agent_docs_register_build requires allowedWriteScopes.");
+    if (!Array.isArray(policy.forbiddenWriteScopes) || policy.forbiddenWriteScopes.length === 0) fail("single_agent_docs_register_build requires forbiddenWriteScopes.");
+  } else {
+    if (policy.canModifyCode !== false) warn("Dry-run MVP should keep writePolicy.canModifyCode false unless scoped autonomy is active.");
+    if (policy.canCreatePullRequest !== false) warn("Dry-run MVP should keep writePolicy.canCreatePullRequest false unless scoped autonomy is active.");
+  }
 
   info("write policy checked.");
 }

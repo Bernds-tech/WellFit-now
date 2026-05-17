@@ -1,7 +1,7 @@
 {
   "agentName": "wellfit-dev-agent",
-  "version": "0.5.0",
-  "mode": "dry-run",
+  "version": "0.6.0",
+  "mode": "single_agent_docs_register_build",
   "repository": "Bernds-tech/WellFit-now",
   "sourceOfTruth": [
     "todolist/MASTER_PROMPT_FOR_AI.md",
@@ -101,49 +101,177 @@
       {
         "id": "login_profile",
         "label": "Login / Registrierung / Nutzerprofil",
-        "keywords": ["login", "registrierung", "register", "auth", "profil", "user profile", "firebase auth"]
+        "keywords": [
+          "login",
+          "registrierung",
+          "register",
+          "auth",
+          "profil",
+          "user profile",
+          "firebase auth"
+        ]
       },
       {
         "id": "mobile_ar_buddy",
         "label": "Mobile / AR / sichtbarer Buddy",
-        "keywords": ["mobile", "ar", "unity", "android", "arcore", "buddy", "avatar", "kamera", "camera", "placement", "call buddy"]
+        "keywords": [
+          "mobile",
+          "ar",
+          "unity",
+          "android",
+          "arcore",
+          "buddy",
+          "avatar",
+          "kamera",
+          "camera",
+          "placement",
+          "call buddy"
+        ]
       },
       {
         "id": "missions_challenges",
         "label": "Missionen / Challenges spielbar",
-        "keywords": ["mission", "challenge", "tagesmission", "history", "favoriten", "guide", "mission event"]
+        "keywords": [
+          "mission",
+          "challenge",
+          "tagesmission",
+          "history",
+          "favoriten",
+          "guide",
+          "mission event"
+        ]
       },
       {
         "id": "internal_points_xp",
         "label": "Interne Punkte / XP ohne Token",
-        "keywords": ["punkte", "xp", "reward", "ledger", "internal", "preview", "streak"]
+        "keywords": [
+          "punkte",
+          "xp",
+          "reward",
+          "ledger",
+          "internal",
+          "preview",
+          "streak"
+        ]
       },
       {
         "id": "backend_security",
         "label": "Backend / Firebase / Security Rules / Completion",
-        "keywords": ["backend", "firebase", "firestore", "rules", "functions", "serverseitig", "completion", "security", "emulator"]
+        "keywords": [
+          "backend",
+          "firebase",
+          "firestore",
+          "rules",
+          "functions",
+          "serverseitig",
+          "completion",
+          "security",
+          "emulator"
+        ]
       },
       {
         "id": "deployment_qa",
         "label": "Deployment / Debug / QA / Testläufe",
-        "keywords": ["deployment", "deploy", "pm2", "build", "debug", "qa", "test", "smoke", "emulator"]
+        "keywords": [
+          "deployment",
+          "deploy",
+          "pm2",
+          "build",
+          "debug",
+          "qa",
+          "test",
+          "smoke",
+          "emulator"
+        ]
       },
       {
         "id": "privacy_appstore",
         "label": "Datenschutz / App-Store-Konformität",
-        "keywords": ["datenschutz", "privacy", "app-store", "app store", "legal", "consent", "kamera", "health", "kinder"]
+        "keywords": [
+          "datenschutz",
+          "privacy",
+          "app-store",
+          "app store",
+          "legal",
+          "consent",
+          "kamera",
+          "health",
+          "kinder"
+        ]
       }
     ],
-    "backlogSignals": ["nft", "token", "wft", "blockchain", "marketplace", "trading", "staking", "dao", "depin", "whitelabel", "b2b", "pharma"],
+    "backlogSignals": [
+      "nft",
+      "token",
+      "wft",
+      "blockchain",
+      "marketplace",
+      "trading",
+      "staking",
+      "dao",
+      "depin",
+      "whitelabel",
+      "b2b",
+      "pharma"
+    ],
     "minimumCoverageWarningThreshold": 5
   },
   "alphaScope": {
     "enabled": true,
     "priorityKeywords": [
-      "alpha", "beta", "mobile", "ar", "unity", "android", "buddy", "mission", "challenge", "punkte", "xp", "reward", "completion", "firebase", "backend", "security", "rules", "login", "registrierung", "profil", "deployment", "datenschutz", "app-store", "test", "qa", "debug", "todo", "todolist", "project structure", "database"
+      "alpha",
+      "beta",
+      "mobile",
+      "ar",
+      "unity",
+      "android",
+      "buddy",
+      "mission",
+      "challenge",
+      "punkte",
+      "xp",
+      "reward",
+      "completion",
+      "firebase",
+      "backend",
+      "security",
+      "rules",
+      "login",
+      "registrierung",
+      "profil",
+      "deployment",
+      "datenschutz",
+      "app-store",
+      "test",
+      "qa",
+      "debug",
+      "todo",
+      "todolist",
+      "project structure",
+      "database"
     ],
     "backlogKeywords": [
-      "nft", "token", "wft", "blockchain", "marketplace", "trading", "staking", "dao", "depin", "compute", "whitelabel", "b2b", "voice wake", "wake word", "vererbung", "lebenslanger avatar", "partnerplattform", "museum", "städte", "stadt", "pharma"
+      "nft",
+      "token",
+      "wft",
+      "blockchain",
+      "marketplace",
+      "trading",
+      "staking",
+      "dao",
+      "depin",
+      "compute",
+      "whitelabel",
+      "b2b",
+      "voice wake",
+      "wake word",
+      "vererbung",
+      "lebenslanger avatar",
+      "partnerplattform",
+      "museum",
+      "städte",
+      "stadt",
+      "pharma"
     ]
   },
   "coderAssignment": {
@@ -154,26 +282,103 @@
       {
         "id": "coder1",
         "displayName": "Coder 1",
-        "selfNames": ["coder 1", "coder1", "c1"],
+        "selfNames": [
+          "coder 1",
+          "coder1",
+          "c1"
+        ],
         "role": "Mobile / AR / Buddy / Unity",
-        "focusKeywords": ["mobile", "ar", "unity", "android", "buddy", "avatar", "kamera", "camera", "debug", "qa"],
-        "avoidKeywords": ["reward", "punkte", "xp", "completion", "firestore rules", "token", "nft"]
+        "focusKeywords": [
+          "mobile",
+          "ar",
+          "unity",
+          "android",
+          "buddy",
+          "avatar",
+          "kamera",
+          "camera",
+          "debug",
+          "qa"
+        ],
+        "avoidKeywords": [
+          "reward",
+          "punkte",
+          "xp",
+          "completion",
+          "firestore rules",
+          "token",
+          "nft"
+        ]
       },
       {
         "id": "coder2",
         "displayName": "Coder 2",
-        "selfNames": ["coder 2", "coder2", "c2"],
+        "selfNames": [
+          "coder 2",
+          "coder2",
+          "c2"
+        ],
         "role": "Backend / Firebase / Mission Completion / Security",
-        "focusKeywords": ["backend", "firebase", "firestore", "rules", "functions", "serverseitig", "completion", "reward", "punkte", "xp", "ledger", "mission", "security", "emulator", "database"],
-        "avoidKeywords": ["nft", "token", "trading", "marketplace", "depin"]
+        "focusKeywords": [
+          "backend",
+          "firebase",
+          "firestore",
+          "rules",
+          "functions",
+          "serverseitig",
+          "completion",
+          "reward",
+          "punkte",
+          "xp",
+          "ledger",
+          "mission",
+          "security",
+          "emulator",
+          "database"
+        ],
+        "avoidKeywords": [
+          "nft",
+          "token",
+          "trading",
+          "marketplace",
+          "depin"
+        ]
       },
       {
         "id": "coder3",
         "displayName": "Coder 3",
-        "selfNames": ["coder 3", "coder3", "c3"],
+        "selfNames": [
+          "coder 3",
+          "coder3",
+          "c3"
+        ],
         "role": "Website / UX / QA / Datenschutz / Dokumentation / Agent",
-        "focusKeywords": ["website", "business", "legal", "datenschutz", "app-store", "ux", "ui", "qa", "test", "doku", "documentation", "agent", "prompt", "deployment", "todo", "todolist"],
-        "avoidKeywords": ["reward", "completion", "anti-cheat", "firestore rules", "token", "nft"]
+        "focusKeywords": [
+          "website",
+          "business",
+          "legal",
+          "datenschutz",
+          "app-store",
+          "ux",
+          "ui",
+          "qa",
+          "test",
+          "doku",
+          "documentation",
+          "agent",
+          "prompt",
+          "deployment",
+          "todo",
+          "todolist"
+        ],
+        "avoidKeywords": [
+          "reward",
+          "completion",
+          "anti-cheat",
+          "firestore rules",
+          "token",
+          "nft"
+        ]
       }
     ],
     "defaultCoderId": "coder3",
@@ -181,12 +386,39 @@
   },
   "writePolicy": {
     "dryRunCanWriteReport": true,
-    "canModifyCode": false,
-    "canCreateBranch": false,
-    "canCreatePullRequest": false,
+    "canModifyCode": true,
+    "canCreateBranch": true,
+    "canCreatePullRequest": true,
     "canDeployProduction": false,
     "chatgptUiApprovalsCannotBeAutoConfirmed": true,
-    "futureCodexOrSelfHostedAgentMayWriteWithScopedToken": false
+    "futureCodexOrSelfHostedAgentMayWriteWithScopedToken": true,
+    "allowedAutonomousWriteMode": "single_agent_docs_register_build",
+    "maxAgentsPerBranch": 1,
+    "allowedWriteScopes": [
+      "project-register/*.json",
+      "todolist/*.md",
+      "docs/architecture/*.md",
+      "scripts/wellfit-dev-agent/src/*check.mjs",
+      "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+      "scripts/wellfit-dev-agent/src/*report.mjs",
+      "scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
+    ],
+    "forbiddenWriteScopes": [
+      "app/**",
+      "components/**",
+      "lib/**",
+      "functions/**",
+      "firestore.rules",
+      "public/**",
+      "package.json",
+      "package-lock.json",
+      "firebase.json",
+      ".github/**",
+      "native/**",
+      "native/unity/WellFitBuddyAR/**",
+      "PR #13 / Unity paths"
+    ],
+    "scopeNote": "Autonomous writes are allowed only for one already-human-approved agent backlog entry per branch as docs/register/validator/report artifacts. Runtime product logic, protected topics, auto-merge and deploy remain forbidden."
   },
   "protectedAreas": [
     "firestore.rules",

@@ -13,8 +13,9 @@ Der Agent ist zuerst bewusst als Dry-Run-Agent gebaut:
 - Er erzeugt einen Markdown-Report.
 - Er erzeugt Coder-spezifische Prompts.
 - Er validiert die Coder-Registry und Agent-Policies.
-- Er schreibt noch keinen produktiven Code.
-- Er erstellt noch keine Branches oder Pull Requests.
+- Er schreibt selbst keine Runtime-Produktlogik.
+- Fuer bereits human-approved Agent-Backlog-Eintraege darf der Runner in `single_agent_docs_register_build` genau einen Docs-/Register-/Validator-Agenten pro Branch vorbereiten, committen und als PR-Handoff liefern.
+- Neue nicht freigegebene Agenten, Runtime-Code, Auto-Merge und Deploy bleiben gesperrt.
 
 ---
 
@@ -177,6 +178,10 @@ Für Nutzeranalyse und adaptive Missionen ist separat vorgesehen:
 ```txt
 docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md
 ```
+
+## Autonomie-Modus `single_agent_docs_register_build`
+
+Bernd hat am 2026-05-17 freigegeben, dass bereits besprochene und im Approved-Agent-Build-Backlog als human-approved gefuehrte Agenten autonom als Docs-/Register-/Validator-/Report-Agenten gebaut werden duerfen. Pro Branch gilt maximal ein Agent. Erlaubt sind Branch, Commit und PR-Handoff innerhalb der erlaubten Governance-Pfade. Nicht erlaubt bleiben Runtime-Produktlogik, geschuetzte Compliance-/Economy-/Reward-/Mission-/Health-/Child-/Location-/Camera-/Legal-/Privacy-/Unity-Bereiche, Auto-Merge, Deploy und Selbstfreigabe. Neue Agenten ausserhalb des freigegebenen Backlogs brauchen weiterhin eine explizite Vorstellung und Freigabe.
 
 ## Harte Regeln
 
