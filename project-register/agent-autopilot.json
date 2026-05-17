@@ -4,6 +4,49 @@
   "purpose": "Single governed entrypoint for safe WellFit agent iterations from memory-read through task selection, risk check, docs/register/validator implementation for already-approved agents, validation planning, PR handoff, and stop-before-merge.",
   "activationState": "single_agent_docs_register_build",
   "humanReadableSource": "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md",
+  "routingRule": {
+    "id": "single_entrypoint_queue_vs_approved_agent_build_router",
+    "entrypointScript": "scripts/wellfit-dev-agent/src/agent-autopilot-orchestrator.mjs",
+    "npmEntrypoint": "npm run agent:autopilot:dry-run",
+    "purpose": "Decide whether the next Autopilot run is a general repo/documentation/register task from agent-task-queue or a build of one already human-approved docs/register/validator agent from approved-agent-build-backlog; select exactly one path before reporting work.",
+    "decisionOrder": [
+      {
+        "mode": "approved_agent_build",
+        "source": "project-register/approved-agent-build-backlog.json",
+        "conditions": [
+          "project-register/approved-agent-build-runner-policy.json activationState is single_agent_docs_register_build",
+          "project-register/agent-build-runner-state.json activationState is single_agent_docs_register_build",
+          "maxAgentsPerRun is 1",
+          "at least one approved-agent backlog entry has alreadyHumanApproved true and status approved_for_build or approved_for_planning"
+        ],
+        "selectionRule": "Choose the eligible approved-agent backlog entry with the lowest suggestedBuildOrder, matching the Approved-Agent-Build-Runner dry-run."
+      },
+      {
+        "mode": "repo_task",
+        "source": "project-register/agent-task-queue.json",
+        "conditions": [
+          "approved_agent_build conditions are not all satisfied",
+          "suggest-next-agent-task selects a low/medium risk non-blocked queue task"
+        ],
+        "selectionRule": "Use scripts/wellfit-dev-agent/src/suggest-next-agent-task.mjs only as the fallback repo/task queue selector."
+      }
+    ],
+    "conflictResolution": "If an eligible human-approved agent build is available while the approved build runner policy and state are single_agent_docs_register_build, Autopilot must choose approved_agent_build and must not also choose a repo/task-queue item; otherwise it falls back to repo_task.",
+    "repoTaskFallback": "No eligible approved-agent build route is available; select the next safe general repo/documentation/register task from project-register/agent-task-queue.json.",
+    "requiredReportFields": [
+      "chosen mode",
+      "chosen source",
+      "chosen task or agent",
+      "allowed files",
+      "stop conditions",
+      "checks to run",
+      "whether writing is allowed",
+      "whether commit is allowed",
+      "whether PR handoff is allowed"
+    ],
+    "dryRunRule": "The orchestrator dry run is always non-mutating even when the selected workflow path permits scoped writes, commits, or PR handoff after the dry run.",
+    "singlePathRule": "Exactly one of approved_agent_build or repo_task may be selected in a single Autopilot report."
+  },
   "requiredFirstReadFiles": [
     "AGENTS.md",
     "todolist/CURRENT_PROJECT_STATE.md",
