@@ -235,6 +235,12 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - `scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs` validiert die report-only Merge-Gate-Signale `REPORT_ONLY_MERGE_GATE=true`, `GATE_CONFIGURATION_READY=true`, `MERGE_READY=false`, `MISSING_CHECKS_BLOCK_MERGE=true`, `SAFE_REPAIR_LIMITED=true`, `NEVER_MERGES=true`, `NEVER_DEPLOYS=true` und `APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY=true`; es beendet nur bei ungueltiger Gate-Konfiguration non-zero.
 - Die Runner- und Merge-Gate-Scripts sind report-only in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden. Eine spaetere echte Aktivierung braucht eine separate Freigabe und darf weiterhin nur einen approved docs/register/validator Agent pro Lauf bearbeiten.
 
+## Approved Agent Build Loop Phase 1 Status Sync (2026-05-16)
+
+- `project-register/approved-agent-build-backlog.json` synchronisiert `human-motivation-engine`, `ethical-engagement-guard`, `adaptive-difficulty-agent` und `multisensory-learning-engine` auf `built`, weil Register, Architekturdoc, Validator, Quality-Gate-Integration, Katalog-/Proposal-/Backlog-Evidenz und Continuity-Eintrag vorhanden sind.
+- `project-register/agent-build-runner-state.json` dokumentiert den Status-Sync als Phase-1-Governance-Lauf ohne gebauten neuen Agenten und ohne Runtime-/Protected-/Unity-/PR-#13-Aenderungen.
+- Naechster Loop-Schritt nach Merge dieses Status-Sync-PRs: genau einen weiteren bereits genehmigten report-only Agenten pro PR bauen, bevorzugt Product Intelligence Agent wenn sichere Sequenzierung passt, sonst nach Backlog-Reihenfolge mit kritischen/protected Eintraegen strikt report-only oder blocked/review_required.
+
 ## Multisensory Learning Engine (2026-05-16)
 
 - `project-register/multisensory-learning-engine.json` defines the report-only Multisensory Learning Engine for movement, visual, audio, story, quiz/reflection, social/family, environment, optional AR, and AI Buddy explanation planning. It keeps runtime learning personalization, runtime tracking/profiling, AR/Unity behavior, reward authority, mission-completion authority, and token/NFT/wallet/payment/betting/money-near mechanics disabled.
