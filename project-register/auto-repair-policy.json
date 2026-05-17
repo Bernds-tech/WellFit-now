@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "updated": "2026-05-15",
+  "updated": "2026-05-17",
   "purpose": "Report-only guardrail policy for deciding whether a future WellFit agent may attempt a narrowly scoped automatic repair of failed validation checks. This policy does not enable or perform repairs, merges, deployments, or product/runtime changes.",
   "activationState": "report_only",
   "maxRepairAttempts": 2,
@@ -43,38 +43,82 @@
     {
       "id": "markdown_trailing_whitespace",
       "category": "markdown trailing whitespace",
-      "allowedPaths": ["docs/**/*.md", "todolist/**/*.md", "project-register/**/*.md", "agents/**/*.md"],
-      "requiredEvidence": ["failing command", "exact file path", "diff limited to whitespace-only markdown cleanup"]
+      "allowedPaths": [
+        "docs/**/*.md",
+        "todolist/**/*.md",
+        "project-register/**/*.md",
+        "agents/**/*.md"
+      ],
+      "requiredEvidence": [
+        "failing command",
+        "exact file path",
+        "diff limited to whitespace-only markdown cleanup"
+      ]
     },
     {
       "id": "project_register_json_parse_or_format",
       "category": "JSON formatting or parse error in project-register docs/register files",
-      "allowedPaths": ["project-register/**/*.json"],
-      "requiredEvidence": ["failing jq or JSON parse output", "exact file path", "post-repair jq empty success"]
+      "allowedPaths": [
+        "project-register/**/*.json"
+      ],
+      "requiredEvidence": [
+        "failing jq or JSON parse output",
+        "exact file path",
+        "post-repair jq empty success"
+      ]
     },
     {
       "id": "todo_index_pointer_missing_for_governance_doc",
       "category": "missing TODO_INDEX pointer for newly added governance doc",
-      "allowedPaths": ["todolist/TODO_INDEX.md", "docs/architecture/**/*.md"],
-      "requiredEvidence": ["memory-sync missing-index output", "new governance doc path", "TODO_INDEX entry pointing to existing leading file"]
+      "allowedPaths": [
+        "todolist/TODO_INDEX.md",
+        "docs/architecture/**/*.md"
+      ],
+      "requiredEvidence": [
+        "memory-sync missing-index output",
+        "new governance doc path",
+        "TODO_INDEX entry pointing to existing leading file"
+      ]
     },
     {
       "id": "work_map_pointer_missing_for_governance_register",
       "category": "missing WORK_MAP pointer for newly added governance register",
-      "allowedPaths": ["todolist/WORK_MAP.md", "project-register/**/*.json"],
-      "requiredEvidence": ["quality-gate or cross-reference output", "new governance register path", "WORK_MAP entry pointing to existing register and architecture note"]
+      "allowedPaths": [
+        "todolist/WORK_MAP.md",
+        "project-register/**/*.json"
+      ],
+      "requiredEvidence": [
+        "quality-gate or cross-reference output",
+        "new governance register path",
+        "WORK_MAP entry pointing to existing register and architecture note"
+      ]
     },
     {
       "id": "architecture_doc_missing_continuation_prompt",
       "category": "missing KI-Fortsetzungs-Prompt in newly added architecture doc",
-      "allowedPaths": ["docs/architecture/**/*.md"],
-      "requiredEvidence": ["memory-sync missing-prompt output", "new architecture doc path", "added KI-Fortsetzungs-Prompt only"]
+      "allowedPaths": [
+        "docs/architecture/**/*.md"
+      ],
+      "requiredEvidence": [
+        "memory-sync missing-prompt output",
+        "new architecture doc path",
+        "added KI-Fortsetzungs-Prompt only"
+      ]
     },
     {
       "id": "quality_gate_registry_pointer_mismatch",
       "category": "quality-gate registry pointer mismatch",
-      "allowedPaths": ["project-register/**/*.json", "todolist/WORK_MAP.md", "todolist/TODO_INDEX.md", "scripts/wellfit-dev-agent/src/quality-gate.mjs"],
-      "requiredEvidence": ["quality-gate failed check or step log", "existing source register path", "no runtime product file changes"]
+      "allowedPaths": [
+        "project-register/**/*.json",
+        "todolist/WORK_MAP.md",
+        "todolist/TODO_INDEX.md",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "requiredEvidence": [
+        "quality-gate failed check or step log",
+        "existing source register path",
+        "no runtime product file changes"
+      ]
     }
   ],
   "forbiddenFailureTypes": [
@@ -122,7 +166,9 @@
     "mode": "REPORT_ONLY",
     "autoRepairAllowed": "boolean",
     "autoRepairAllowedLine": "AUTO_REPAIR_ALLOWED=true|false",
-    "reasons": ["string"],
+    "reasons": [
+      "string"
+    ],
     "maxRepairAttempts": "number",
     "detectedFailures": [
       {
@@ -148,5 +194,132 @@
     "requiredEvidencePresent": "boolean",
     "neverRepairs": true,
     "neverMerges": true
+  },
+  "autonomyModel": {
+    "canonicalSource": "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md#autonomie-modell",
+    "stages": [
+      {
+        "id": "report_only",
+        "order": 1,
+        "permission": "Analyse, dry-runs, reports, eligibility decisions and governance validation only; no file writes except generated reports explicitly owned by the invoked checker.",
+        "mayChange": [],
+        "mustNot": [
+          "implement tasks",
+          "repair files",
+          "change runtime files",
+          "create pull requests from a runner",
+          "approve",
+          "merge",
+          "deploy"
+        ]
+      },
+      {
+        "id": "single_agent_docs_execution",
+        "order": 2,
+        "permission": "One agent may execute exactly one approved low-risk docs/register/check-script task per branch within allowed governance paths.",
+        "mayChange": [
+          "project-register/*.json",
+          "todolist/*.md",
+          "docs/architecture/*.md",
+          "scripts/wellfit-dev-agent/src/*check.mjs",
+          "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+          "scripts/wellfit-dev-agent/src/*report.mjs"
+        ],
+        "mustNot": [
+          "change runtime product files",
+          "change protected compliance/economy/health/child/location/camera/Unity areas",
+          "auto-repair beyond explicitly requested task scope",
+          "auto-merge",
+          "deploy"
+        ],
+        "requiredEvidence": [
+          "human-approved task or backlog entry",
+          "one-agent branch",
+          "exact command/result log",
+          "git diff review",
+          "json validation for changed policy/register files"
+        ]
+      },
+      {
+        "id": "single_agent_safe_runtime_execution",
+        "order": 3,
+        "permission": "One agent may modify only runtime files explicitly allowlisted by a separate human approval for a concrete task.",
+        "mayChange": [
+          "explicitly approved runtime files only"
+        ],
+        "mustNot": [
+          "touch protected compliance/economy/health/child/location/camera/Unity/PR #13 areas unless separately approved with review plan",
+          "auto-repair",
+          "auto-merge",
+          "deploy"
+        ],
+        "requiredEvidence": [
+          "separate human approval naming exact runtime files",
+          "risk review",
+          "full relevant checks",
+          "human review before merge"
+        ]
+      },
+      {
+        "id": "auto_repair_allowed",
+        "order": 4,
+        "permission": "Only narrowly defined repairs from the auto-repair policy may be attempted after failed evidence checks.",
+        "mayChange": [
+          "files already within the approved task scope and safe repair categories"
+        ],
+        "mustNot": [
+          "repair runtime/protected files",
+          "hide failures",
+          "merge",
+          "deploy"
+        ],
+        "requiredEvidence": [
+          "detected failure type is allowlisted",
+          "repair attempt record",
+          "new commit on same branch",
+          "rerun failed and full required checks"
+        ]
+      },
+      {
+        "id": "auto_merge_allowed",
+        "order": 5,
+        "permission": "Auto-merge may be considered only after complete local check evidence, successful required GitHub checks, mergeability, PR diff review, auto-repair decision, and human review evidence required by policy.",
+        "mayChange": [],
+        "mustNot": [
+          "merge with missing/unknown/pending/skipped/failed/environment-blocked checks",
+          "self-approve",
+          "deploy",
+          "merge protected/runtime-risk changes without explicit review evidence"
+        ],
+        "requiredEvidence": [
+          "complete required local checks passed",
+          "required GitHub checks passed",
+          "mergeable branch",
+          "review evidence",
+          "no protected path findings",
+          "auto-repair resolved or not required"
+        ]
+      }
+    ],
+    "stageOrderMustNotBeSkipped": true,
+    "higherStageRequiresSeparateHumanApproval": true,
+    "currentRelease": {
+      "approvedStage": "single_agent_docs_execution",
+      "approvedOn": "2026-05-17",
+      "approvedBy": "human_requested_policy_update",
+      "scope": "Only one-agent docs/register/check-script governance execution is activated for approved low-risk tasks. Runtime execution, auto-repair, auto-merge and deploy remain disabled unless their own policy activationState is explicitly raised in a later human-approved change.",
+      "maxAgentsPerRun": 1
+    }
+  },
+  "activationDecision": {
+    "selectedStage": "report_only",
+    "decisionDate": "2026-05-17",
+    "reason": "Align the runner policy set to the staged autonomy model requested on 2026-05-17.",
+    "effectiveScope": "Report-only guard remains in force for this policy.",
+    "runtimeExecutionAllowed": false,
+    "autoRepairAllowed": false,
+    "autoMergeAllowed": false,
+    "deployAllowed": false,
+    "requiresSeparateHumanApprovalForHigherStage": true
   }
 }

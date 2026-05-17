@@ -1,8 +1,8 @@
 # WellFit Approved Agent Build Runner and Merge Gate
 
-Status: report-only framework  
-Updated: 2026-05-16  
-Primary policy: `project-register/approved-agent-build-runner-policy.json`  
+Status: single-agent docs/register/check-script execution approved; runtime, auto-repair, auto-merge and deploy remain disabled
+Updated: 2026-05-17
+Primary policy: `project-register/approved-agent-build-runner-policy.json`
 State register: `project-register/agent-build-runner-state.json`
 Merge-gate register: `project-register/approved-agent-build-runner-merge-gate.json`
 
@@ -16,7 +16,30 @@ The immediate risk addressed by this framework is the PR #109 pattern: a PR body
 
 The Agent Architect & Proposal Agent proposes the next safe future-agent build by reading the catalog, approved backlog, extension policy, risk sources, and continuity map. It generates a human-readable build prompt but does not execute that prompt.
 
-The Approved Agent Build Runner is the later governed execution and merge-gate layer. Its first version is still report-only: it validates policy, selects the next eligible approved backlog entry during dry run, lists the files and checks that would be required, and refuses to build, repair, create PRs, merge, approve, close PRs, or deploy.
+The Approved Agent Build Runner is the later governed execution and merge-gate layer. The current approved autonomy stage is `single_agent_docs_execution`: one agent may execute exactly one approved low-risk docs/register/check-script governance task per branch inside the policy allowlist. Runtime product changes, protected-scope changes, automatic repair, automatic merge, approval, closing PRs, and deployment remain disabled unless a later human-approved policy change raises the relevant policy to a higher stage.
+
+## Autonomie-Modell
+
+The policy set now uses a single ordered autonomy model. The active release stage on 2026-05-17 is `single_agent_docs_execution` for the Approved Agent Build Runner, Agent Autopilot, and Batch Execution Runner policies. Auto-repair and auto-merge stay at `report_only`; therefore the docs/register execution release does not authorize repairs, merges, runtime edits, approvals, PR closing, or deployment.
+
+| Stage | Activation value | Allowed autonomy | Explicit blockers |
+| --- | --- | --- | --- |
+| 1 | `report_only` | Analyse, dry-runs, reports, eligibility decisions, and governance validation only. | No implementation, repair, runtime edits, runner-created PRs, approval, merge, or deploy. |
+| 2 | `single_agent_docs_execution` | Exactly one agent may execute one approved low-risk docs/register/check-script task per branch in allowlisted governance paths. | No runtime product files, protected compliance/economy/health/child/location/camera/Unity/PR #13 areas, automatic repair, automatic merge, or deploy. |
+| 3 | `single_agent_safe_runtime_execution` | Exactly one agent may change only runtime files named by a separate human approval for a concrete task. | No protected high-risk areas without their own review plan; no auto-repair, auto-merge, or deploy. |
+| 4 | `auto_repair_allowed` | Only allowlisted safe repairs may be attempted after failed checks, with a repair record, a new same-branch commit, and rerun evidence. | No runtime/protected repairs, hidden failures, merge, or deploy. |
+| 5 | `auto_merge_allowed` | Auto-merge may be considered only after complete local-check evidence, successful required GitHub checks, mergeability, PR diff review, auto-repair decision evidence, and required review evidence. | No merge with missing, unknown, pending, skipped, failed, environment-blocked, or self-approved evidence; no deploy. |
+
+Stages must be raised in order and any move above the currently approved stage requires a separate human-approved policy update. `maxAgentsPerRun` remains `1`.
+
+## Freigabe 2026-05-17
+
+The approved stage for this policy family is `single_agent_docs_execution`. The release is intentionally narrow:
+
+- `project-register/approved-agent-build-runner-policy.json`, `project-register/agent-autopilot.json`, and `project-register/batch-execution-runner-policy.json` use `activationState: single_agent_docs_execution`.
+- `project-register/auto-repair-policy.json` remains `activationState: report_only`, so no automatic repair is enabled by this release.
+- `project-register/auto-merge-policy.json` remains `activationState: report_only`, so no automatic merge is enabled by this release.
+- Runtime execution (`single_agent_safe_runtime_execution`), auto-repair (`auto_repair_allowed`), and auto-merge (`auto_merge_allowed`) are defined only as future gated stages and require separate human approval before activation.
 
 ## Approved backlog source and one-agent selection
 
@@ -74,8 +97,8 @@ Under this gate, a PR body that says checks were not executed and should be run 
 
 ## Future activation path
 
-After this report-only framework passes policy validation and quality gate checks, a separate human-approved task may continue controlled one-agent execution for the next eligible backlog entry. Multisensory Learning Engine has already been selected by the first controlled activation; future activation should continue only from the approved backlog order, preserve `maxAgentsPerRun: 1`, report exact evidence, avoid protected/runtime paths, and pass the full merge gate before any merge.
+After this staged framework passes policy validation and quality gate checks, future work may continue controlled one-agent docs/register/check-script execution for the next eligible approved backlog entry. Multisensory Learning Engine has already been selected by the first controlled activation; future activation should continue only from the approved backlog order, preserve `maxAgentsPerRun: 1`, report exact evidence, avoid protected/runtime paths, and pass the full merge gate before any merge. Runtime execution, automatic repair, and automatic merge require separate human-approved policy changes before activation.
 
 ## KI-Fortsetzungs-Prompt
 
-Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/approved-agent-build-runner-policy.json`, `project-register/approved-agent-build-runner-merge-gate.json`, `project-register/agent-build-runner-state.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-catalog.json`, `project-register/agent-build-proposals.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json`, `project-register/pr-review-policy.json`, `project-register/pr-post-creation-guard.json`, `project-register/pr-diff-review-policy.json`, `project-register/task-status-policy.json`, `project-register/continuity-dependency-map.json`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs` und `scripts/wellfit-dev-agent/src/quality-gate.mjs`. Arbeite weiter nur am bestehenden Approved-Agent-Build-Runner- und Merge-Gate-Rahmen. Baue keine Future Agents automatisch, erstelle keine PRs aus dem Runner, merge nicht, repariere nicht automatisch, deploye nicht, fasse keine Runtime-/Protected-/Unity-/PR-#13-Dateien an und erweitere `maxAgentsPerRun` nicht ohne separate Freigabe.
+Lies zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `project-register/approved-agent-build-runner-policy.json`, `project-register/approved-agent-build-runner-merge-gate.json`, `project-register/agent-build-runner-state.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-catalog.json`, `project-register/agent-build-proposals.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json`, `project-register/pr-review-policy.json`, `project-register/pr-post-creation-guard.json`, `project-register/pr-diff-review-policy.json`, `project-register/task-status-policy.json`, `project-register/continuity-dependency-map.json`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs`, `scripts/wellfit-dev-agent/src/approved-agent-build-runner-merge-gate-check.mjs` und `scripts/wellfit-dev-agent/src/quality-gate.mjs`. Arbeite weiter nur am bestehenden Approved-Agent-Build-Runner- und Merge-Gate-Rahmen. Nutze `single_agent_docs_execution` nur fuer einen einzelnen genehmigten Docs/Register/Check-Skript-Task pro Branch. Erstelle keine PRs aus dem Runner, merge nicht, repariere nicht automatisch, deploye nicht, fasse keine Runtime-/Protected-/Unity-/PR-#13-Dateien an und erweitere `maxAgentsPerRun` nicht ohne separate Freigabe.

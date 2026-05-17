@@ -87,6 +87,7 @@ const REQUIRED_FORBIDDEN_AUTO_ACTIONS = [
   "modify protected areas",
   "bypass human review"
 ];
+const ALLOWED_RUNNER_ACTIVATION_STATES = ["framework_only", "single_agent_docs_execution"];
 
 function absolutePath(relativePath) {
   return path.join(ROOT, relativePath);
@@ -128,7 +129,7 @@ function collectPolicyChecks(policy, batchExecutionPolicy, batchPolicy, taskQueu
   const missingPostPrChecks = includesAll(policy.requiredPostPRChecks, REQUIRED_POST_PR_CHECKS);
   const missingForbiddenAutoActions = includesAll(policy.forbiddenAutoActions, REQUIRED_FORBIDDEN_AUTO_ACTIONS);
 
-  add("Runner activation state is framework_only", policy.activationState === "framework_only", policy.activationState ?? "missing");
+  add("Runner activation state is framework_only or approved single-agent docs execution", ALLOWED_RUNNER_ACTIVATION_STATES.includes(policy.activationState), policy.activationState ?? "missing");
   add("Runner maxTasksPerRun is <= 2", Number.isInteger(policy.maxTasksPerRun) && policy.maxTasksPerRun <= 2, String(policy.maxTasksPerRun ?? "missing"));
   add("Runner only allows low risk", includesAll(policy.allowedTaskRiskLevels, REQUIRED_ALLOWED_RISK_LEVELS).length === 0 && hasOnly(policy.allowedTaskRiskLevels, REQUIRED_ALLOWED_RISK_LEVELS).length === 0, `allowed=${asArray(policy.allowedTaskRiskLevels).join(",") || "missing"}`);
   add("Runner allowed categories are the approved low-risk governance set", missingAllowedCategories.length === 0 && extraAllowedCategories.length === 0, `missing=${missingAllowedCategories.join(",") || "none"}; extra=${extraAllowedCategories.join(",") || "none"}`);
@@ -178,6 +179,8 @@ function main() {
   console.log(`Result: ${ready ? "PASS" : "FAIL"}`);
   console.log(`BATCH_EXECUTION_RUNNER_READY=${ready ? "true" : "false"}`);
   console.log("Never executes tasks: true");
+  console.log("Never executes runtime/protected tasks: true");
+  console.log(`Docs/register/check-script execution may be activated: ${policy.activationState === "single_agent_docs_execution"}`);
   console.log("Never creates PRs: true");
   console.log("Never merges: true");
   console.log("Never repairs: true");
