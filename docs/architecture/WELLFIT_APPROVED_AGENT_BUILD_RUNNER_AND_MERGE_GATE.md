@@ -32,6 +32,18 @@ The policy set now uses a single ordered autonomy model. The active release stag
 
 Stages must be raised in order and any move above the currently approved stage requires a separate human-approved policy update. `maxAgentsPerRun` remains `1`.
 
+## PR creation, merge recommendation, and auto-merge capability states
+
+The merge gate deliberately separates three capability states so a reviewable PR can exist without implying merge permission:
+
+| Capability state | Meaning | Current policy result |
+| --- | --- | --- |
+| `pr_creation_allowed` | An agent may create a reviewable PR for allowed docs/register/validator/governance work only. | This is the first meaningful next state for the current docs/register governance runner. It does not bypass review, branch protection, required checks, or merge gates. |
+| `merge_recommendation_allowed` | An agent may recommend merge only when full machine-readable evidence is green. | A recommendation requires exact local command evidence, successful machine-readable GitHub required checks, mergeability, satisfied branch protection, satisfied review rules, and no runtime/protected path findings. Missing, pending, skipped, unknown, failed, or environment-blocked checks block the recommendation. |
+| `auto_merge_allowed` | Real auto-merge would allow a merge action only after all higher evidence and approval gates are proven. | Disabled. It requires a separate explicit human approval plus machine-readable GitHub checks, branch protection, review rules, mergeability evidence, and human approval evidence before any future activation. |
+
+PR creation is not merge permission. Merge recommendation is not auto-merge. Auto-merge remains disabled, and PR creation does not bypass human review, branch protection, required GitHub checks, local evidence, protected-path review, or any merge gate. Runtime/product/protected paths remain blocked.
+
 ## Freigabe 2026-05-17
 
 The approved stage for this policy family is `single_agent_docs_execution`. The release is intentionally narrow:
