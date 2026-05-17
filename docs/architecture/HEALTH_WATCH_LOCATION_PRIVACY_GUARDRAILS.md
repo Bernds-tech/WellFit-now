@@ -174,6 +174,13 @@ Mobile-App bleibt frei von:
 - echten Auszahlungen
 - spekulativen Finanzmechaniken
 
+
+## Location Safety Guard Verbindung
+
+Diese Privacy-Guardrails sind mit `docs/architecture/WELLFIT_LOCATION_SAFETY_GUARD.md` und `project-register/location-safety-guard.json` verbunden.
+
+Standortdaten bleiben planning-only fuer Live-Verarbeitung, solange Consent, Datenschutz und Safety Rules nicht umgesetzt und geprueft sind. Verboten bleiben insbesondere Kinder-Standortfreigabe, genaue Standorthistorie ohne Consent, private Wohnorte als oeffentliche Missionen sowie Missionen in Strassen-/Bahn-/Risikobereichen.
+
 ## Datenbankbezug
 
 Abzugleichen mit:
