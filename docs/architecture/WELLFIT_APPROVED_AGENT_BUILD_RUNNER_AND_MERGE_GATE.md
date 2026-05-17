@@ -68,6 +68,16 @@ The approved stage for this policy family is `single_agent_docs_register_build`.
 - `project-register/auto-merge-policy.json` remains `activationState: report_only`, so no automatic merge is enabled by this release.
 - Runtime execution (`single_agent_safe_runtime_execution`), protected-scope repair or unrestricted repair (`auto_repair_allowed` beyond the safe docs/register tier), and auto-merge (`auto_merge_allowed`) are future gated stages and require separate human approval before activation.
 
+## NPM command sequence for approved runner handoff
+
+The approved runner flow must be discoverable through `npm run ...` commands, not only through direct `node scripts/...` paths. Use the commands below in this order so the allowed sequence is auditable from `package.json`:
+
+1. **Dry-run command:** `npm run agent:approved-runner:dry-run` selects at most one already-human-approved backlog entry, writes the report-only dry-run evidence, and does not modify governance artifacts, commit, create PRs, merge, or deploy.
+2. **Artifact build/generator command:** `npm run agent:approved-runner:generate-artifacts -- --dry-run` previews the docs/register/validator artifact changes for the selected entry. When the dry-run evidence is reviewed and the branch is correct, `npm run agent:approved-runner:generate-artifacts -- --entry-id <approved-backlog-id>` may generate only the allowed docs/register/validator artifacts for that one entry.
+3. **Execute/commit command:** `npm run agent:approved-runner:execute` is the governed one-step executor. It reselects exactly one eligible approved entry, generates allowed docs/register/validator artifacts, validates changed paths, runs required local governance checks, and creates a branch commit when all executor checks pass. It must be run only on a task branch, never on `main` or another protected branch.
+4. **PR handoff rule:** after the execute command creates the scoped commit, open a reviewable PR by handoff with exact command evidence, changed files, known risks, skipped/environment-blocked checks, and a clear statement that PR creation is not merge permission. The PR remains human-review and merge-gate controlled.
+5. **Stop rules for merge, deploy, runtime, and protected scope:** stop without merge, deploy, approval, self-approval, or repair if any required check is missing, pending, skipped, unknown, failed, or environment-blocked; if GitHub mergeability or required checks are unavailable; if runtime/product/protected paths or topics are touched; if package/dependency, workflow, Firebase, native/Unity, PR #13, token/NFT/wallet/payment/economy authority, reward authority, mission-completion authority, health, child-safety, location, camera, biometric, consent, privacy, legal, or compliance logic changes appear; or if the requested action includes merge, deploy, release, repository settings, branch protection changes, or broader auto-repair.
+
 ## Approved backlog source and one-agent selection
 
 The runner reads `project-register/approved-agent-build-backlog.json` as the source of already human-approved future-agent candidates. It sorts eligible entries by `suggestedBuildOrder` and selects only the first entry whose status remains eligible for planning/build and whose `alreadyHumanApproved` flag is true.
