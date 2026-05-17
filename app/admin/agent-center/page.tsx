@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import AppShell from "@/app/components/AppShell";
 import agentBuildProposals from "@/project-register/agent-build-proposals.json";
 import agentCatalog from "@/project-register/agent-catalog.json";
+import approvalWorkflowJson from "@/project-register/agent-center-approval-workflow.json";
+import missionProposalsJson from "@/project-register/agent-center-mission-proposals.json";
 import approvedAgentBuildBacklog from "@/project-register/approved-agent-build-backlog.json";
 import routesRegisterJson from "@/project-register/routes.json";
 
@@ -27,6 +29,17 @@ type AgentEntry = {
   forbiddenWriteScopes?: string[];
   connectedAgents?: string[];
   connectedRegisters?: string[];
+};
+
+type MissionProposalEntry = {
+  id: string;
+  title: string;
+  status: "gemacht" | "verschieden" | "abgelehnt" | string;
+  subject: string;
+  linkedRoute?: string;
+  linkedRegister?: string;
+  riskLevel?: string;
+  decisionNote?: string;
 };
 
 
@@ -54,9 +67,20 @@ type RoutesRegister = {
   mobilePages?: RouteEntry[];
 };
 
+type MissionProposalRegister = {
+  entries?: MissionProposalEntry[];
+};
+
+type ApprovalWorkflowRegister = {
+  activationState?: string;
+  workflowSteps?: { id: string; label: string; description: string; automated: boolean }[];
+};
+
 const catalogRegister = agentCatalog as RegisterWithEntries;
 const backlogRegister = approvedAgentBuildBacklog as RegisterWithEntries;
 const proposalsRegister = agentBuildProposals as RegisterWithEntries;
+const missionProposalRegister = missionProposalsJson as MissionProposalRegister;
+const approvalWorkflow = approvalWorkflowJson as ApprovalWorkflowRegister;
 const routesRegister = routesRegisterJson as RoutesRegister;
 
 const sourceEntries: SourceEntry[] = [
@@ -74,9 +98,7 @@ const completedStatuses = new Set(["active", "built", "report_only", "superseded
 const missionRouteEntries = [...(routesRegister.protectedAppPages ?? []), ...(routesRegister.mobilePages ?? [])].filter((route) =>
   route.route.includes("/missionen") || route.area?.toLowerCase().includes("mission"),
 );
-const missionProposalSources = [proposalsRegister, backlogRegister, catalogRegister].flatMap((register) => register.entries ?? []).filter((entry) =>
-  `${entry.id ?? ""} ${entry.name ?? ""} ${entry.proposedAgentName ?? ""} ${entry.purpose ?? ""} ${entry.reason ?? ""} ${entry.expectedBenefit ?? ""}`.toLowerCase().includes("mission"),
-);
+const missionProposalEntries = missionProposalRegister.entries ?? [];
 
 function getEntryKey(entry: SourceEntry) {
   return entry.id ?? entry.proposedAgentName ?? entry.name ?? `${entry.source}-${getEntryTitle(entry)}`;
@@ -101,7 +123,9 @@ const pendingApprovalAgents = uniqueAgents.filter((entry) => {
   return pendingApprovalStatuses.has(status) || entry.requiresHumanApprovalForRuntime || entry.humanReviewRequired;
 });
 const rejectedAgents = uniqueAgents.filter((entry) => rejectedStatuses.has(entry.status ?? ""));
-const rejectedMissionSources = missionProposalSources.filter((entry) => rejectedStatuses.has(entry.status ?? ""));
+const rejectedMissionProposals = missionProposalEntries.filter((entry) => entry.status === "abgelehnt" || rejectedStatuses.has(entry.status ?? ""));
+const doneMissionProposals = missionProposalEntries.filter((entry) => entry.status === "gemacht");
+const distinctMissionProposals = missionProposalEntries.filter((entry) => entry.status === "verschieden");
 const distinctMissionRoutes = Array.from(new Map(missionRouteEntries.map((route) => [route.route, route])).values());
 const approvalQueueRows = [...pendingApprovalAgents, ...rejectedAgents].sort((first, second) => {
   const firstRejected = rejectedStatuses.has(first.status ?? "");
@@ -149,9 +173,9 @@ function ApprovalTopPanel() {
         <StatCard label="Abgelehnt / blockiert" value={rejectedAgents.length} hint="Status rejected, declined, abgelehnt oder blocked." />
       </div>
       <div className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Missionsvorschläge" value={missionProposalSources.length} hint="Agenten-/Registereinträge, die Missionen erwähnen." />
-        <StatCard label="Verschiedene Missionen" value={distinctMissionRoutes.length} hint="Aktive Missionsrouten aus dem Routenregister." />
-        <StatCard label="Missionen abgelehnt" value={rejectedMissionSources.length} hint="Mission-bezogene Einträge mit rejected/blocked-Status." />
+        <StatCard label="Missionsvorschläge" value={missionProposalEntries.length} hint="Klare Datenquelle: Agent-Center-Mission-Proposal-Register." />
+        <StatCard label="Missionen" value={`${doneMissionProposals.length}/${distinctMissionRoutes.length}`} hint={`${distinctMissionProposals.length} verschieden markiert; aktive Routen rechts im Nenner.`} />
+        <StatCard label="Missionen abgelehnt" value={rejectedMissionProposals.length} hint="Status abgelehnt/blocked; bleibt sichtbar, aber nicht startbar." />
       </div>
     </section>
   );
@@ -171,6 +195,48 @@ function RejectedOverviewBox({ title, entries, emptyText }: { title: string; ent
         {entries.length > 0 ? entries.slice(0, 12).map((entry) => <Pill key={entry.id ?? getEntryTitle(entry)} tone="danger">{getEntryTitle(entry)}</Pill>) : <Pill>{emptyText}</Pill>}
       </div>
     </article>
+  );
+}
+
+function MissionProposalOverviewBox() {
+  return (
+    <article className="rounded-3xl border border-rose-200/25 bg-rose-400/10 p-5 shadow-xl shadow-slate-950/25">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-white">Abgelehnte Missionsvorschläge</h2>
+          <p className="mt-1 text-sm leading-6 text-rose-50/80">Direkt aus dem Mission-Proposal-Register; abgelehnte Vorschläge dürfen nicht per Agent-Center-Klick gestartet werden.</p>
+        </div>
+        <Pill tone="danger">{rejectedMissionProposals.length} Einträge</Pill>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {rejectedMissionProposals.length > 0 ? rejectedMissionProposals.map((entry) => <Pill key={entry.id} tone="danger">{entry.title}</Pill>) : <Pill>Keine abgelehnten Missionsvorschläge dokumentiert.</Pill>}
+      </div>
+    </article>
+  );
+}
+
+function ApprovalWorkflowBox() {
+  const steps = approvalWorkflow.workflowSteps ?? [];
+
+  return (
+    <section className="rounded-3xl border border-amber-200/25 bg-amber-300/10 p-5 shadow-xl shadow-slate-950/25">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-white">Sicherer PR-/Merge-Gate-Workflow</h2>
+          <p className="mt-1 text-sm leading-6 text-amber-50/85">Zustimmen ist nur ein UI-Feld. PR-Erstellung und Merge bleiben separat, authentifiziert und human-reviewed.</p>
+        </div>
+        <Pill tone="warn">{approvalWorkflow.activationState ?? "defined_not_automated"}</Pill>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-5">
+        {steps.map((step, index) => (
+          <div key={step.id} className="rounded-2xl border border-white/10 bg-white/[0.07] p-3">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-100/70">Schritt {index + 1}</p>
+            <p className="mt-2 font-bold text-white">{step.label}</p>
+            <p className="mt-2 text-xs leading-5 text-amber-50/75">{step.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -199,7 +265,7 @@ function ApprovalScopeDocument({ entry }: { entry: SourceEntry }) {
           </div>
           <div className="rounded-2xl border border-amber-200/20 bg-amber-300/10 p-4">
             <h4 className="font-bold text-amber-50">Freigabeumfang</h4>
-            <p className="mt-2 text-sm leading-6 text-amber-50/85">Zustimmung bedeutet fachliche Freigabe für Erstellung, PR-Vorbereitung und Merge-Prüfung. Diese Oberfläche führt weiterhin nichts automatisch aus.</p>
+            <p className="mt-2 text-sm leading-6 text-amber-50/85">Zustimmung bedeutet nur fachliche Intent-Erfassung. PR-Erstellung und Merge-Prüfung folgen erst über den separaten Owner-Workflow; diese Oberfläche führt weiterhin nichts automatisch aus.</p>
           </div>
         </div>
 
@@ -301,9 +367,11 @@ export default function AgentCenterPage() {
 
           <ApprovalTopPanel />
 
+          <ApprovalWorkflowBox />
+
           <section className="grid gap-5 xl:grid-cols-2">
             <RejectedOverviewBox title="Abgelehnte Agenten" entries={rejectedAgents} emptyText="Keine abgelehnten Agenten dokumentiert." />
-            <RejectedOverviewBox title="Abgelehnte Missionsvorschläge" entries={rejectedMissionSources} emptyText="Keine abgelehnten Missionsvorschläge dokumentiert." />
+            <MissionProposalOverviewBox />
           </section>
 
           <AgentApprovalQueue />
