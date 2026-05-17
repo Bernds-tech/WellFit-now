@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "updated": "2026-05-17",
-  "activationState": "single_agent_docs_execution",
-  "purpose": "Govern the future Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can later be built one at a time only when required checks, missing-check evidence, safe-repair boundaries, PR diff review, mergeability, and protected-scope gates are green.",
+  "activationState": "single_agent_docs_register_build",
+  "purpose": "Govern the Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can be built one at a time as docs/register/validator agents when required checks, safe-repair boundaries, PR diff review, mergeability, and protected-scope gates are green.",
   "approvedBacklogSource": "project-register/approved-agent-build-backlog.json",
   "maxAgentsPerRun": 1,
   "allowedAgentBuildCategories": [
@@ -58,17 +58,18 @@
       "Sensitive protected topics override task-specific allowlists even when a path appears in an allowedPaths tier.",
       "Task-specific allowlists never authorize firestore.rules, functions/**, lib/**, native/**, Unity/PR #13, wallet/payment/token/reward authority, mission-completion authority, health, child, location, camera, privacy, legal or compliance logic without dedicated human approval and a test plan."
     ],
-    "currentlyActiveTaskType": "docs_register_only",
+    "currentlyActiveTaskType": "docs_register_agent_build",
     "inactiveTaskTypesRequireLaterExplicitActivation": [
       "ui_copy_safe",
       "route_register_sync",
-      "test_only"
+      "test_only",
+      "single_agent_safe_runtime_execution"
     ]
   },
   "runtimeAllowedPathsByTaskType": {
     "docs_register_only": {
-      "purpose": "Active docs/register/check-script governance work under single_agent_docs_execution.",
-      "activationState": "active_under_single_agent_docs_execution",
+      "purpose": "Legacy alias for active docs/register/check-script governance work; superseded by docs_register_agent_build for approved agent artifacts.",
+      "activationState": "legacy_alias_active_under_single_agent_docs_register_build",
       "currentlyAllowed": true,
       "allowedPaths": [
         "project-register/*.json",
@@ -252,6 +253,63 @@
         "the specific test command for the touched test suite"
       ],
       "requiresHumanApprovalForRuntime": true
+    },
+    "docs_register_agent_build": {
+      "purpose": "Active profile for building one already-human-approved WellFit agent artifact as docs/register/validator/check-script work only.",
+      "activationState": "active_under_single_agent_docs_register_build",
+      "currentlyAllowed": true,
+      "allowedPaths": [
+        "project-register/*.json",
+        "todolist/*.md",
+        "docs/architecture/*.md",
+        "scripts/wellfit-dev-agent/src/*check.mjs",
+        "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+        "scripts/wellfit-dev-agent/src/*report.mjs",
+        "scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
+      ],
+      "blockedPaths": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/**",
+        "native/unity/WellFitBuddyAR/**",
+        "PR #13 / Unity paths"
+      ],
+      "blockedSensitiveTopics": [
+        "token/NFT/wallet/payment/trading/payout/staking/presale logic",
+        "reward authority or mission-completion authority",
+        "health, child, location, camera, face, biometric, consent, privacy, legal or compliance logic",
+        "Unity or PR #13 changes"
+      ],
+      "scopeLimits": [
+        "One already-human-approved agent/backlog entry per branch.",
+        "May create or update agent docs, registers, validators, reports, Work Map/TODO Index references, progress/work-log evidence, and quality-gate registration inside allowed paths.",
+        "High/critical domain-risk report agents may be built only when implementation stays docs/register/validator-only and grants no runtime authority.",
+        "No runtime product behavior changes.",
+        "No deploy, approval, self-approval, auto-merge, unrestricted auto-repair, token/wallet/payment/reward-authority/mission-authority, legal/privacy/health/child/location/camera, Unity, or PR #13 changes."
+      ],
+      "minimumRequiredChecks": [
+        "git diff --check",
+        "jq empty on every changed project-register/*.json file",
+        "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm --prefix functions run check"
+      ],
+      "requiresHumanApprovalForRuntime": false,
+      "requiresAlreadyHumanApprovedBacklogEntry": true,
+      "commitAndPullRequestAllowed": true,
+      "mergeAllowed": false,
+      "deployAllowed": false
     }
   },
   "requiredPreBuildChecks": [
@@ -569,30 +627,29 @@
         ]
       },
       {
-        "id": "single_agent_docs_execution",
+        "id": "single_agent_docs_register_build",
         "order": 2,
-        "permission": "One agent may execute exactly one approved low-risk docs/register/check-script task per branch within allowed governance paths.",
+        "permission": "One agent may execute exactly one already-human-approved docs/register/check-script agent-build task per branch within allowed governance paths, including commit and PR creation.",
         "mayChange": [
           "project-register/*.json",
           "todolist/*.md",
           "docs/architecture/*.md",
           "scripts/wellfit-dev-agent/src/*check.mjs",
           "scripts/wellfit-dev-agent/src/*dry-run.mjs",
-          "scripts/wellfit-dev-agent/src/*report.mjs"
+          "scripts/wellfit-dev-agent/src/*report.mjs",
+          "scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs"
         ],
         "mustNot": [
-          "change runtime product files",
-          "change protected compliance/economy/health/child/location/camera/Unity areas",
-          "auto-repair beyond explicitly requested task scope",
-          "auto-merge",
-          "deploy"
+          "No runtime product behavior changes.",
+          "No deploy, approval, self-approval, auto-merge, unrestricted auto-repair, token/wallet/payment/reward-authority/mission-authority, legal/privacy/health/child/location/camera, Unity, or PR #13 changes."
         ],
         "requiredEvidence": [
-          "human-approved task or backlog entry",
+          "already-human-approved backlog entry or explicit human approval naming the agent",
           "one-agent branch",
           "exact command/result log",
           "git diff review",
-          "json validation for changed policy/register files"
+          "json validation for changed policy/register files",
+          "commit and PR handoff evidence"
         ]
       },
       {
@@ -659,22 +716,27 @@
     "stageOrderMustNotBeSkipped": true,
     "higherStageRequiresSeparateHumanApproval": true,
     "currentRelease": {
-      "approvedStage": "single_agent_docs_execution",
+      "approvedStage": "single_agent_docs_register_build",
       "approvedOn": "2026-05-17",
       "approvedBy": "human_requested_policy_update",
-      "scope": "Only one-agent docs/register/check-script governance execution is activated for approved low-risk tasks. Runtime execution, auto-repair, auto-merge and deploy remain disabled unless their own policy activationState is explicitly raised in a later human-approved change.",
+      "scope": "One already-human-approved agent/backlog entry may be built per branch as docs/register/validator/check-script governance artifacts. Runtime execution, protected product logic, auto-merge and deploy remain disabled unless separately approved.",
       "maxAgentsPerRun": 1
     }
   },
   "activationDecision": {
-    "selectedStage": "single_agent_docs_execution",
+    "selectedStage": "single_agent_docs_register_build",
     "decisionDate": "2026-05-17",
-    "reason": "Align the runner policy set to the staged autonomy model requested on 2026-05-17.",
-    "effectiveScope": "Docs/register/check-script governance execution only",
+    "reason": "Project owner approved moving already-approved agent backlog entries from report-only planning into autonomous docs/register/validator agent builds on 2026-05-17.",
+    "effectiveScope": "Autonomous docs/register/check-script agent build with commit and PR handoff only",
     "runtimeExecutionAllowed": false,
     "autoRepairAllowed": false,
     "autoMergeAllowed": false,
     "deployAllowed": false,
-    "requiresSeparateHumanApprovalForHigherStage": true
+    "requiresSeparateHumanApprovalForHigherStage": true,
+    "prCreationAllowed": true
+  },
+  "runnerLifecycle": {
+    "currentState": "pr_creation_allowed_for_docs_register_agent_build",
+    "nextRecommendedState": "merge_recommendation_allowed_after_machine_readable_checks"
   }
 }

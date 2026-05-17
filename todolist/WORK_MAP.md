@@ -269,3 +269,9 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - `scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs` validates the Healthy Retention register, documentation links, Work Map/TODO Index references, non-authorizing signals, and quality-gate integration.
 - `scripts/wellfit-dev-agent/src/quality-gate.mjs` includes the Healthy Retention validator as a report-only governance check.
 - Approved Agent Build Loop selected Healthy Retention Agent after Mission Factory merged because it is next by backlog order and can be kept strictly report-only. Exactly one agent is built in this PR; runtime product files, runtime retention automation, profiling, notifications, streak/reward modification, reward authority, mission-completion authority, protected data logic, Unity/PR #13, deployment, approval, merge, and repair authority remain untouched and `review_required`.
+
+
+## Agent autonomy update 2026-05-17
+
+- `single_agent_docs_register_build` is now the active governance mode for already-human-approved agent backlog entries.
+- Scope remains docs/register/validator/report artifacts only; runtime/protected work, auto-merge and deploy remain blocked.

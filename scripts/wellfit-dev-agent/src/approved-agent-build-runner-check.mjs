@@ -38,7 +38,7 @@ const MANDATORY_MERGE_TERMS = ["PR exists", "PR branch is not main", "PR is merg
 const SAFE_REPAIR_IDS = ["markdown_trailing_whitespace", "missing_final_newline", "json_formatting_or_parse_errors_project_register", "missing_work_map_pointer", "missing_todo_index_pointer", "missing_ki_fortsetzung_prompt", "missing_expected_pr_output", "missing_required_output_locations_or_next_task", "missing_quality_gate_report_only_validator_registration", "missing_catalog_backlog_proposal_metadata", "missing_progress_or_work_log_evidence"];
 const UNSAFE_STOP_TERMS = ["app/**", "components/**", "lib/**", "functions/**", "firestore.rules", "public/**", "package.json/package-lock.json", "firebase.json or .github/**", "native/** or Unity/PR #13", "reward authority", "mission-completion authority", "health/child/location/camera/biometric/consent/privacy/legal/compliance", "source-of-truth ambiguity", "high/critical risk"];
 const REQUIRED_REFERENCES = [POLICY_PATH, STATE_PATH, DOC_PATH, CHECK_PATH, DRY_RUN_PATH];
-const ALLOWED_POLICY_ACTIVATION_STATES = ["report_only", "single_agent_docs_execution"];
+const ALLOWED_POLICY_ACTIVATION_STATES = ["report_only", "single_agent_docs_execution", "single_agent_docs_register_build"];
 
 function absolute(relativePath) { return path.join(ROOT, relativePath); }
 function readText(relativePath) { return fs.readFileSync(absolute(relativePath), "utf8"); }
@@ -64,7 +64,7 @@ function main() {
 
   add(results, "Policy has required top-level fields", missing(Object.keys(policy), REQUIRED_POLICY_FIELDS).length === 0, missing(Object.keys(policy), REQUIRED_POLICY_FIELDS).join(", ") || "complete");
   add(results, "State has required top-level fields", missing(Object.keys(state), REQUIRED_STATE_FIELDS).length === 0, missing(Object.keys(state), REQUIRED_STATE_FIELDS).join(", ") || "complete");
-  add(results, "Policy activation is report-only or approved single-agent docs execution", ALLOWED_POLICY_ACTIVATION_STATES.includes(policy.activationState), policy.activationState);
+  add(results, "Policy activation is report-only or approved single-agent docs/register build execution", ALLOWED_POLICY_ACTIVATION_STATES.includes(policy.activationState), policy.activationState);
   add(results, "State is report-only", state.activationState === "report_only", state.activationState);
   add(results, "maxAgentsPerRun is <= 1 for first activation", Number(policy.maxAgentsPerRun) <= 1, String(policy.maxAgentsPerRun));
   add(results, "Allowed categories are exactly approved governance categories", missing(policy.allowedAgentBuildCategories, REQUIRED_ALLOWED_CATEGORIES).length === 0 && missing(REQUIRED_ALLOWED_CATEGORIES, policy.allowedAgentBuildCategories).length === 0, JSON.stringify(policy.allowedAgentBuildCategories));
@@ -88,16 +88,16 @@ function main() {
   add(results, "Quality gate includes runner dry run", qualityGate.includes(DRY_RUN_PATH), DRY_RUN_PATH);
 
   const ready = results.every((r) => r.passed);
-  const report = `# Approved Agent Build Runner Check Report\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_CHECK_ONLY\nResult: ${ready ? "PASS" : "FAIL"}\nAPPROVED_AGENT_BUILD_RUNNER_READY=${ready ? "true" : "false"}\n\n## Safety Confirmations\n\n- Never builds agents: true\n- Never creates PRs: true\n- Never merges PRs: true\n- Never repairs files: true\n- Never deploys: true\n- Missing checks are not merge-ready: true\n- PR #109-style future-CI-only check evidence is not_merge_ready: true\n\n## Validation Results\n\n${renderResults(results)}\n\n## Required References\n\n${renderList(REQUIRED_REFERENCES)}\n`;
+  const report = `# Approved Agent Build Runner Check Report\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_CHECK_ONLY\nResult: ${ready ? "PASS" : "FAIL"}\nAPPROVED_AGENT_BUILD_RUNNER_READY=${ready ? "true" : "false"}\n\n## Safety Confirmations\n\n- Policy allows docs/register/validator agent builds: true\n- Never builds runtime agents: true\n- PR creation allowed for scoped docs/register agent builds: true\n- Never merges PRs: true\n- Never repairs files: true\n- Never deploys: true\n- Missing checks are not merge-ready: true\n- PR #109-style future-CI-only check evidence is not_merge_ready: true\n\n## Validation Results\n\n${renderResults(results)}\n\n## Required References\n\n${renderList(REQUIRED_REFERENCES)}\n`;
   fs.mkdirSync(path.dirname(absolute(OUTPUT_PATH)), { recursive: true });
   fs.writeFileSync(absolute(OUTPUT_PATH), report, "utf8");
 
   console.log(`WellFit approved agent build runner check report written: ${OUTPUT_PATH}`);
   console.log("Mode: REPORT_CHECK_ONLY");
-  console.log("Never builds agents: true");
+  console.log("Policy allows docs/register/validator agent builds: true");
   console.log("Never builds runtime agents: true");
-  console.log(`Docs/register/check-script execution may be activated: ${policy.activationState === "single_agent_docs_execution"}`);
-  console.log("Never creates PRs: true");
+  console.log(`Docs/register/check-script execution may be activated: ${["single_agent_docs_execution", "single_agent_docs_register_build"].includes(policy.activationState)}`);
+  console.log("PR creation allowed for scoped docs/register agent builds: true");
   console.log("Never merges PRs: true");
   console.log("Never repairs files: true");
   console.log("Never deploys: true");

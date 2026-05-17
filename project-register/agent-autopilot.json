@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "updated": "2026-05-17",
-  "purpose": "Single governed dry-run entrypoint for safe WellFit agent iterations from memory-read through task selection, risk check, validation planning, PR handoff, and stop-before-merge.",
-  "activationState": "single_agent_docs_execution",
+  "purpose": "Single governed entrypoint for safe WellFit agent iterations from memory-read through task selection, risk check, docs/register/validator implementation for already-approved agents, validation planning, PR handoff, and stop-before-merge.",
+  "activationState": "single_agent_docs_register_build",
   "humanReadableSource": "docs/architecture/WELLFIT_AGENT_AUTOPILOT_RUNBOOK.md",
   "requiredFirstReadFiles": [
     "AGENTS.md",
@@ -148,10 +148,12 @@
     "run_auto_merge_eligibility_check_report_only",
     "run_batch_autopilot_dry_run_report_only_for_multi_task_planning",
     "run_pr_review_policy_check_report_only",
-    "run_task_status_work_log_sync_check_report_only"
+    "run_task_status_work_log_sync_check_report_only",
+    "build_one_already_human_approved_agent_as_docs_register_validator_artifact",
+    "create_branch_commit_and_pull_request_for_allowed_docs_register_agent_build"
   ],
   "forbiddenActions": [
-    "write_files_automatically_from_agent_autopilot_dry_run",
+    "write_runtime_or_protected_files_from_agent_autopilot",
     "merge_deploy_publish_or_close_pull_requests",
     "touch_pr_13_or_native_unity_wellfitbuddyar_files",
     "modify_runtime_product_logic_for_documentation_registry_script_only_tasks",
@@ -278,7 +280,9 @@
       "defaultAction": "stop_and_report_for_human_approval",
       "dryRunAction": "stop_before_implementation"
     },
-    "defaultWhenUnclear": "high"
+    "defaultWhenUnclear": "high",
+    "docsRegisterAgentBuildAllowedForAlreadyApprovedBacklog": true,
+    "highCriticalDomainRiskReportAgentRule": "High/critical domain-risk agents may be built only as docs/register/validator/report-only guard agents when the backlog entry is already human-approved and no runtime/protected authority is granted."
   },
   "requiredReportOutput": [
     "activation_state",
@@ -470,9 +474,9 @@
         ]
       },
       {
-        "id": "single_agent_docs_execution",
+        "id": "single_agent_docs_register_build",
         "order": 2,
-        "permission": "One agent may execute exactly one approved low-risk docs/register/check-script task per branch within allowed governance paths.",
+        "permission": "One agent may execute exactly one already-human-approved docs/register/check-script agent-build task per branch within allowed governance paths, including commit and PR handoff.",
         "mayChange": [
           "project-register/*.json",
           "todolist/*.md",
@@ -489,11 +493,12 @@
           "deploy"
         ],
         "requiredEvidence": [
-          "human-approved task or backlog entry",
+          "already-human-approved backlog entry or explicit human approval naming the agent",
           "one-agent branch",
           "exact command/result log",
           "git diff review",
-          "json validation for changed policy/register files"
+          "json validation for changed policy/register files",
+          "commit and PR handoff evidence"
         ]
       },
       {
@@ -560,22 +565,23 @@
     "stageOrderMustNotBeSkipped": true,
     "higherStageRequiresSeparateHumanApproval": true,
     "currentRelease": {
-      "approvedStage": "single_agent_docs_execution",
+      "approvedStage": "single_agent_docs_register_build",
       "approvedOn": "2026-05-17",
       "approvedBy": "human_requested_policy_update",
-      "scope": "Only one-agent docs/register/check-script governance execution is activated for approved low-risk tasks. Runtime execution, auto-repair, auto-merge and deploy remain disabled unless their own policy activationState is explicitly raised in a later human-approved change.",
+      "scope": "One already-human-approved agent/backlog entry may be built per branch as docs/register/validator/check-script governance artifacts. Runtime execution, protected product logic, auto-merge and deploy remain disabled unless separately approved.",
       "maxAgentsPerRun": 1
     }
   },
   "activationDecision": {
-    "selectedStage": "single_agent_docs_execution",
+    "selectedStage": "single_agent_docs_register_build",
     "decisionDate": "2026-05-17",
-    "reason": "Align the runner policy set to the staged autonomy model requested on 2026-05-17.",
-    "effectiveScope": "Docs/register/check-script governance execution only",
+    "reason": "Project owner approved moving already-approved agent backlog entries from report-only planning into autonomous docs/register/validator agent builds on 2026-05-17.",
+    "effectiveScope": "Autonomous docs/register/check-script agent build with commit and PR handoff only",
     "runtimeExecutionAllowed": false,
     "autoRepairAllowed": false,
     "autoMergeAllowed": false,
     "deployAllowed": false,
-    "requiresSeparateHumanApprovalForHigherStage": true
+    "requiresSeparateHumanApprovalForHigherStage": true,
+    "prCreationAllowed": true
   }
 }

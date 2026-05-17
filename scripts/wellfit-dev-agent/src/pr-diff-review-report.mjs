@@ -278,7 +278,7 @@ function renderList(items, renderItem = (item) => String(item)) {
 }
 
 function renderMarkdown(data) {
-  return `# WellFit PR Diff Review Report\n\nGenerated: ${data.generatedAt}\nMode: REPORT_ONLY\nActivation state: ${data.activationState}\nBase ref: ${data.baseRef ?? "not provided"}\nPR_DIFF_REVIEW_READY=${data.ready}\n\n## Non-Authorizing Boundary\n\n- Never approves PRs: true\n- Never merges PRs: true\n- Never enables auto-merge: true\n- Never repairs files: true\n- Never deploys: true\n- Never closes PRs: true\n- Never modifies runtime product code: true\n\n## Git Inputs\n\n${renderList(data.gitSources)}\n\n## Changed Files\n\n${renderList(data.classifiedFiles, (entry) => `\`${entry.file}\` — ${entry.classification}`)}\n\n## Classification Summary\n\n${renderList(data.classificationSummary, (entry) => `${entry.classification}: ${entry.count}`)}\n\n## Protected Path Findings\n\n${renderList(data.protectedPathFindings, (entry) => `\`${entry.file}\` matched \`${entry.pattern}\` (${entry.source}) — ${entry.reason}`)}\n\n## Protected Topic Findings\n\n${renderList(data.protectedTopicFindings, (entry) => `${entry.topic} — ${entry.note}`)}\n\n## Cross-Reference Impact\n\n${renderList(data.crossReferenceImpact, (entry) => `${entry.category}: ${entry.reason}`)}\n\n## Product Readiness Impact\n\n- Likely impact: ${data.productReadinessImpact.likelyImpact}\n- Touched readiness source: ${data.productReadinessImpact.touchedReadinessSource}\n- Protected module count in matrix: ${data.productReadinessImpact.protectedModuleCount}\n- Reason: ${data.productReadinessImpact.reason}\n\n## Repository Inventory Impact\n\n${renderList(data.repositoryInventoryImpact, (entry) => `\`${entry.file}\` — mapped=${entry.mapped}, protected=${entry.protected}, risk=${entry.riskLevel}`)}\n\n## Task Status / Work-Log Impact\n\n- Evidence expected: ${data.taskStatusImpact.expected}\n- Reason: ${data.taskStatusImpact.reason}\n- Runtime or unknown files: ${data.taskStatusImpact.runtimeOrUnknownFiles.length ? data.taskStatusImpact.runtimeOrUnknownFiles.map((file) => `\`${file}\``).join(", ") : "none"}\n\n## Auto-Merge Report\n\n- AUTO_MERGE_ELIGIBLE=${data.externalGuards.autoMerge.signal}\n- Report available: ${data.externalGuards.autoMerge.reportAvailable}\n- ${data.externalGuards.autoMerge.note}\n\n## Auto-Repair Report\n\n- AUTO_REPAIR_ALLOWED=${data.externalGuards.autoRepair.signal}\n- Report available: ${data.externalGuards.autoRepair.reportAvailable}\n- ${data.externalGuards.autoRepair.note}\n\n## Post-Creation Guard Report\n\n- PR_POST_CREATION_GUARD_READY=${data.externalGuards.postCreationGuard.signal}\n- Report available: ${data.externalGuards.postCreationGuard.reportAvailable}\n- ${data.externalGuards.postCreationGuard.note}\n\n## Human Review Required\n\n- Required: ${data.humanReviewRequired}\n- Reasons:\n${renderList(data.humanReviewReasons)}\n\n## Forbidden Auto Actions Confirmed\n\n${renderList(data.forbiddenAutoActionsConfirmed)}\n\n## Result\n\nPR_DIFF_REVIEW_READY=${data.ready}\n`;
+  return `# WellFit PR Diff Review Report\n\nGenerated: ${data.generatedAt}\nMode: REPORT_ONLY\nActivation state: ${data.activationState}\nBase ref: ${data.baseRef ?? "not provided"}\nPR_DIFF_REVIEW_READY=${data.ready}\nPR_DIFF_REVIEW_NO_DIFF=${data.noDiff}\n\n## Non-Authorizing Boundary\n\n- Never approves PRs: true\n- Never merges PRs: true\n- Never enables auto-merge: true\n- Never repairs files: true\n- Never deploys: true\n- Never closes PRs: true\n- Never modifies runtime product code: true\n\n## Git Inputs\n\n${renderList(data.gitSources)}\n\n## Changed Files\n\n${renderList(data.classifiedFiles, (entry) => `\`${entry.file}\` — ${entry.classification}`)}\n\n## Classification Summary\n\n${renderList(data.classificationSummary, (entry) => `${entry.classification}: ${entry.count}`)}\n\n## Protected Path Findings\n\n${renderList(data.protectedPathFindings, (entry) => `\`${entry.file}\` matched \`${entry.pattern}\` (${entry.source}) — ${entry.reason}`)}\n\n## Protected Topic Findings\n\n${renderList(data.protectedTopicFindings, (entry) => `${entry.topic} — ${entry.note}`)}\n\n## Cross-Reference Impact\n\n${renderList(data.crossReferenceImpact, (entry) => `${entry.category}: ${entry.reason}`)}\n\n## Product Readiness Impact\n\n- Likely impact: ${data.productReadinessImpact.likelyImpact}\n- Touched readiness source: ${data.productReadinessImpact.touchedReadinessSource}\n- Protected module count in matrix: ${data.productReadinessImpact.protectedModuleCount}\n- Reason: ${data.productReadinessImpact.reason}\n\n## Repository Inventory Impact\n\n${renderList(data.repositoryInventoryImpact, (entry) => `\`${entry.file}\` — mapped=${entry.mapped}, protected=${entry.protected}, risk=${entry.riskLevel}`)}\n\n## Task Status / Work-Log Impact\n\n- Evidence expected: ${data.taskStatusImpact.expected}\n- Reason: ${data.taskStatusImpact.reason}\n- Runtime or unknown files: ${data.taskStatusImpact.runtimeOrUnknownFiles.length ? data.taskStatusImpact.runtimeOrUnknownFiles.map((file) => `\`${file}\``).join(", ") : "none"}\n\n## Auto-Merge Report\n\n- AUTO_MERGE_ELIGIBLE=${data.externalGuards.autoMerge.signal}\n- Report available: ${data.externalGuards.autoMerge.reportAvailable}\n- ${data.externalGuards.autoMerge.note}\n\n## Auto-Repair Report\n\n- AUTO_REPAIR_ALLOWED=${data.externalGuards.autoRepair.signal}\n- Report available: ${data.externalGuards.autoRepair.reportAvailable}\n- ${data.externalGuards.autoRepair.note}\n\n## Post-Creation Guard Report\n\n- PR_POST_CREATION_GUARD_READY=${data.externalGuards.postCreationGuard.signal}\n- Report available: ${data.externalGuards.postCreationGuard.reportAvailable}\n- ${data.externalGuards.postCreationGuard.note}\n\n## Human Review Required\n\n- Required: ${data.humanReviewRequired}\n- Reasons:\n${renderList(data.humanReviewReasons)}\n\n## Forbidden Auto Actions Confirmed\n\n${renderList(data.forbiddenAutoActionsConfirmed)}\n\n## Result\n\nPR_DIFF_REVIEW_READY=${data.ready}\nPR_DIFF_REVIEW_NO_DIFF=${data.noDiff}\n${data.noDiff ? "No-diff analysis result: SKIPPED_NO_DIFF (not a PR approval and not merge evidence).\\n" : ""}`;
 }
 
 function main() {
@@ -304,7 +304,7 @@ function main() {
   if (policy.activationState !== "report_only") reasons.push(`Policy activationState must be report_only; found ${policy.activationState}`);
 
   const { files, gitSources } = getChangedFiles(baseRef);
-  if (!files.length) reasons.push("No changed files were detected from git diff, staged diff, or untracked files.");
+  const noDiff = files.length === 0;
 
   const classifiedFiles = files.map((file) => ({ file, classification: classifyFile(file, policy) }));
   const classificationSummary = summarizeClassifications(classifiedFiles);
@@ -325,6 +325,7 @@ function main() {
   const unmapped = repositoryInventoryImpact.filter((entry) => !entry.mapped);
   if (unmapped.length) humanReviewReasons.push(`Repository inventory has unmapped changed files: ${unmapped.map((entry) => entry.file).join(", ")}.`);
   if (productReadinessImpact.likelyImpact) humanReviewReasons.push("Product readiness impact or direct readiness source change was detected.");
+  if (noDiff) humanReviewReasons.push("No changed files were detected; PR diff review is not applicable for this analysis/no-diff run.");
   if (!humanReviewReasons.length) humanReviewReasons.push("No protected/runtime/unknown impact detected; normal human PR review still applies before merge.");
 
   const ready = reasons.length === 0;
@@ -334,6 +335,7 @@ function main() {
     activationState: policy.activationState,
     baseRef,
     ready,
+    noDiff,
     gitSources,
     classifiedFiles,
     classificationSummary,
@@ -360,10 +362,12 @@ function main() {
   console.log("Never repairs files: true");
   console.log("Never deploys: true");
   console.log(`Changed files: ${files.length}`);
+  console.log(`No-diff analysis: ${noDiff}`);
   console.log(`Protected path findings: ${protectedPathFindings.length}`);
   console.log(`Protected topic findings: ${protectedTopicFindings.length}`);
   console.log(`Human review required: ${data.humanReviewRequired}`);
   console.log(`PR_DIFF_REVIEW_READY=${ready}`);
+  console.log(`PR_DIFF_REVIEW_NO_DIFF=${noDiff}`);
   if (!ready) {
     for (const reason of reasons) console.log(`- ${reason}`);
     process.exit(1);
