@@ -433,10 +433,10 @@
     },
     {
       "id": "proposal-mission-factory-agent-2026-05-17",
-      "proposedAgentName": "Mission Factory Agent",
-      "sourceApprovedBacklogId": "mission-factory-agent",
+      "proposedAgentName": "Mission Factory Report Agent",
+      "sourceApprovedBacklogId": "mission-factory-report-agent",
       "status": "built",
-      "reason": "Controlled one-agent Approved Agent Build Loop selected the next eligible approved backlog item and kept the critical-risk Mission Factory Agent strictly report-only.",
+      "reason": "Controlled one-agent Approved Agent Build Loop selected the next eligible approved backlog item and kept the critical-risk Mission Factory Agent strictly report-only. Source backlog now points to the split report-agent phase; the paired implementation-agent remains blocked.",
       "expectedBenefit": "Creates a report-only mission planning source of truth for concept inventory, planning briefs, dependency maps, readiness checklists, safety boundary reports, and human-review questions before any runtime mission work.",
       "riskLevel": "critical",
       "connectedAgents": [

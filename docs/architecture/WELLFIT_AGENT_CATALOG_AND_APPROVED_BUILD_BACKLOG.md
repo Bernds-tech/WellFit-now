@@ -1,7 +1,7 @@
 # WellFit Agent Catalog and Approved Agent Build Backlog
 
 Status: active / report-only governance  
-Updated: 2026-05-16
+Updated: 2026-05-17
 
 ## Purpose
 
@@ -43,6 +43,15 @@ The catalog gives future agents the evidence needed to decide which side of that
 ## Approved backlog build sequencing
 
 The approved backlog is not a batch-build authorization. Even when `alreadyHumanApproved` is `true`, each entry keeps `humanApprovalRequired: true` because build work still needs a scoped prompt, PR review, and evidence.
+
+## Critical-agent two-phase split
+
+Critical backlog entries are split into two explicit phases so report-only governance cannot be confused with implementation authority:
+
+1. `*-report-agent` entries may only analyze existing docs/registers/validators, check governance and protected-boundary rules, emit findings and human-review questions, update report-only registers/docs inside their allowed path scope, and run or reference report-only validation scripts. They cannot modify runtime code, grant reward or mission authority, touch protected data behavior, approve, merge, repair, deploy, or mark implementation complete.
+2. `*-implementation-agent` entries remain `blocked` with no allowed file writes until a later explicit Human-Approval records the approving human/date, exact implementation scope, test strategy, required validation scripts, rollback/review plan, and path allowlist. The implementation phase cannot move out of `blocked` merely because the report phase exists or because the idea was approved for planning.
+
+The backlog records this split through `allowedActions`, `forbiddenActions`, `requiredHumanApproval`, `requiredValidationScripts`, `status`, and `riskLevel` on each critical phase entry. Report agents remain critical-domain governance entries, while paired implementation agents are critical and blocked by default.
 
 Future agents must build approved backlog items one at a time unless the Batch Execution Runner is explicitly authorized for that exact scope. A later build task should:
 

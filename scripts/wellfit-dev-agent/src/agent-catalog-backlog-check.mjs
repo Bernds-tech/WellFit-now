@@ -135,19 +135,27 @@ const REQUIRED_BACKLOG_IDS = [
   "ethical-engagement-guard",
   "adaptive-difficulty-agent",
   "multisensory-learning-engine",
-  "mission-factory-agent",
+  "mission-factory-report-agent",
+  "mission-factory-implementation-agent",
   "product-intelligence-agent",
   "healthy-retention-agent",
-  "reward-fairness-guard",
-  "child-safety-guard",
-  "health-claims-guard",
-  "location-safety-guard",
+  "reward-fairness-report-agent",
+  "reward-fairness-implementation-agent",
+  "child-safety-report-agent",
+  "child-safety-implementation-agent",
+  "health-claims-report-agent",
+  "health-claims-implementation-agent",
+  "location-safety-report-agent",
+  "location-safety-implementation-agent",
   "sponsor-integrity-guard",
-  "trust-safe-monetization-agent",
-  "user-memory-governance-agent",
+  "trust-safe-monetization-report-agent",
+  "trust-safe-monetization-implementation-agent",
+  "user-memory-governance-report-agent",
+  "user-memory-governance-implementation-agent",
   "product-memory-agent",
   "ai-buddy-personality-tone-guard",
-  "recovery-pause-anti-overuse-guard"
+  "recovery-pause-anti-overuse-report-agent",
+  "recovery-pause-anti-overuse-implementation-agent"
 ];
 
 const REQUIRED_REFERENCED_FILES = [CATALOG_PATH, BACKLOG_PATH, DOC_PATH, SCRIPT_PATH];
@@ -267,6 +275,20 @@ function validateBacklog(backlog, catalog, results) {
     addResult(results, `backlog entry ${entry.id} connectedAgentCount matches`, entry.connectedAgentCount === connectedAgents.length, `${entry.connectedAgentCount} vs ${connectedAgents.length}`);
     addResult(results, `backlog entry ${entry.id} connectedRegisterCount matches`, entry.connectedRegisterCount === connectedRegisters.length, `${entry.connectedRegisterCount} vs ${connectedRegisters.length}`);
     addResult(results, `backlog entry ${entry.id} already-approved still requires human approval`, entry.alreadyHumanApproved !== true || entry.humanApprovalRequired === true, `alreadyHumanApproved=${entry.alreadyHumanApproved}; humanApprovalRequired=${entry.humanApprovalRequired}`);
+
+    const isCriticalSplitEntry = /-(report|implementation)-agent$/u.test(String(entry.id ?? "")) && String(entry.riskLevel ?? "").toLowerCase() === "critical";
+    addResult(
+      results,
+      `critical split entry ${entry.id} has phase action and approval fields`,
+      !isCriticalSplitEntry || (asArray(entry.allowedActions).length > 0 && asArray(entry.forbiddenActions).length > 0 && hasString(entry.requiredHumanApproval)),
+      isCriticalSplitEntry ? `allowedActions=${asArray(entry.allowedActions).length}; forbiddenActions=${asArray(entry.forbiddenActions).length}; requiredHumanApproval=${hasString(entry.requiredHumanApproval)}` : "not a critical split entry"
+    );
+    addResult(
+      results,
+      `critical implementation entry ${entry.id} is blocked until approval/test/path allowlist`,
+      !/-implementation-agent$/u.test(String(entry.id ?? "")) || (entry.status === "blocked" && entry.alreadyHumanApproved === false && asArray(entry.allowedFiles).length === 0 && String(entry.requiredHumanApproval ?? "").includes("test strategy") && String(entry.requiredHumanApproval ?? "").includes("path allowlist")),
+      /-implementation-agent$/u.test(String(entry.id ?? "")) ? `status=${entry.status}; alreadyHumanApproved=${entry.alreadyHumanApproved}; allowedFiles=${asArray(entry.allowedFiles).length}` : "not an implementation entry"
+    );
 
     const unknownAgents = connectedAgents.filter((agentId) => !catalogIds.has(agentId));
     addResult(results, `backlog entry ${entry.id} connected agents exist in catalog`, unknownAgents.length === 0, unknownAgents.length ? `unknown: ${unknownAgents.join(", ")}` : "all connected agents cataloged");
