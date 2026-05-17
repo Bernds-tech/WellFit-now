@@ -1,0 +1,190 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "activationState": "report_only",
+  "id": "reward-fairness-guard",
+  "name": "Reward Fairness Guard",
+  "riskLevel": "critical",
+  "agentType": "report_guard",
+  "purpose": "Defines a report-only guard for reviewing internal points, XP, streaks, mission completion, challenge rewards, anti-cheat, beginner/advanced fairness, and no-pay-to-win boundaries before WellFit reward concepts move toward runtime implementation.",
+  "scope": {
+    "mode": "planning_and_validation_only",
+    "runtimeProductLogicEnabled": false,
+    "runtimeRewardWritesEnabled": false,
+    "runtimeCompletionAuthorityEnabled": false,
+    "runtimeAntiCheatAuthorityEnabled": false,
+    "runtimePersonalizationEnabled": false,
+    "runtimeTrackingEnabled": false,
+    "runtimeProfilingEnabled": false,
+    "autoRepairEnabled": false,
+    "autoMergeEnabled": false,
+    "deploymentEnabled": false,
+    "allowedFiles": [
+      "project-register/reward-fairness-guard.json",
+      "docs/architecture/WELLFIT_REWARD_FAIRNESS_GUARD.md",
+      "scripts/wellfit-dev-agent/src/reward-fairness-guard-check.mjs"
+    ],
+    "forbiddenFiles": [
+      "app/**",
+      "components/**",
+      "lib/**",
+      "functions/**",
+      "firestore.rules",
+      "public/**",
+      "package.json",
+      "package-lock.json",
+      "firebase.json",
+      ".github/**",
+      "native/unity/WellFitBuddyAR/**"
+    ]
+  },
+  "connectedSources": [
+    {
+      "path": "project-register/mission-buddy-economy-flow.json",
+      "usage": "Inherit preview-only Mission/Buddy/Economy authority boundaries and server-ledger requirements."
+    },
+    {
+      "path": "project-register/risk-classifier.json",
+      "usage": "Classify reward, mission completion, anti-cheat, token/payment, protected-data, and authority changes as high or critical until explicit review approves scoped implementation."
+    },
+    {
+      "path": "docs/architecture/INTERNAL_ECONOMY_GUARDRAILS.md",
+      "usage": "Align internal points, XP, streaks, and beta economy language with internal-only, non-money-near guardrails."
+    },
+    {
+      "path": "docs/architecture/ECONOMY_SERVER_COMPLETION_AND_FIRESTORE_HARDENING.md",
+      "usage": "Align reward and completion findings with server-authoritative completion and Firestore hardening requirements."
+    }
+  ],
+  "artifactSet": {
+    "architectureDoc": "docs/architecture/WELLFIT_REWARD_FAIRNESS_GUARD.md",
+    "register": "project-register/reward-fairness-guard.json",
+    "validatorScript": "scripts/wellfit-dev-agent/src/reward-fairness-guard-check.mjs",
+    "reportOutput": "scripts/wellfit-dev-agent/output/reward-fairness-guard-report.md"
+  },
+  "reviewAreas": [
+    {
+      "id": "internal_points",
+      "label": "Interne Punkte",
+      "checks": [
+        "Points remain internal beta mechanics and do not become tokens, cash, payout balance, or final ledger writes from the client.",
+        "Point earning and spending concepts remain server-authoritative or clearly preview-only until backend authority is approved.",
+        "Point totals do not grant unfair completion authority, anti-cheat bypass, or paid advantage."
+      ]
+    },
+    {
+      "id": "xp",
+      "label": "XP",
+      "checks": [
+        "XP recognizes effort, learning, consistency, and safe recovery without medical or guaranteed outcome claims.",
+        "XP changes are not final-authorized by the frontend, Buddy, AR client, or local-only code.",
+        "XP curves do not force excessive activity, sleep loss, shame loops, or unfair beginner exclusion."
+      ]
+    },
+    {
+      "id": "streaks",
+      "label": "Streaks",
+      "checks": [
+        "Streaks support recovery, pauses, illness, travel, and lower-energy days without punishment-for-rest mechanics.",
+        "Streak repair or protection cannot be purchased in a way that creates pay-to-win progress.",
+        "Streak language avoids shame, guilt, manipulation, and dark-pattern pressure."
+      ]
+    },
+    {
+      "id": "mission_completion",
+      "label": "Mission Completion",
+      "checks": [
+        "Mission completion remains evidence submission, preview, or server-authoritative finalization only.",
+        "Client, Buddy, AR, and UI flows must not final-authorize mission completion.",
+        "Protected data such as health, location, camera, biometric, or child/minor signals cannot be direct completion authority without explicit reviewed design."
+      ]
+    },
+    {
+      "id": "challenge_rewards",
+      "label": "Challenge Rewards",
+      "checks": [
+        "Challenge rewards remain fair, transparent, internal, non-cash, non-token, and non-betting by default.",
+        "Leaderboards and PvP/challenge concepts must avoid humiliation, coercive comparison, wagering, payouts, and overtraining pressure.",
+        "Reward distribution accounts for accessibility, novice paths, recovery, team balance, and anti-farming limits."
+      ]
+    },
+    {
+      "id": "anti_cheat",
+      "label": "Anti-Cheat",
+      "checks": [
+        "Anti-cheat can produce report-only flags in this guard, not enforcement decisions or final denials.",
+        "Anti-cheat design requires server-side authority, explainability, appeal/review planning, and protected-data minimization.",
+        "Anti-cheat cannot rely solely on client-controlled values, paid status, or protected data."
+      ]
+    },
+    {
+      "id": "beginner_advanced_fairness",
+      "label": "Fairness fuer Anfaenger/Fortgeschrittene",
+      "checks": [
+        "Beginners receive achievable paths, safe alternatives, onboarding-friendly XP/points, and protection from social humiliation.",
+        "Advanced users can pursue mastery without making beginner progress irrelevant or unsafe.",
+        "Difficulty, rewards, streaks, and challenges should account for accessibility, recovery, age-appropriate design, and context without runtime profiling by this guard."
+      ]
+    },
+    {
+      "id": "no_pay_to_win",
+      "label": "Keine Pay-to-win Mechanik",
+      "checks": [
+        "Payment, purchases, subscriptions, sponsors, tokens, NFTs, wallets, payouts, and marketplace features must not buy mission completion, challenge wins, anti-cheat bypass, XP superiority, or reward authority.",
+        "Paid or sponsored concepts require fair non-purchase alternatives and explicit human review before implementation.",
+        "No scarcity timers, paid streak rescue loops, lootbox-like rewards, betting, wagering, or money-near advantage mechanics are allowed by this guard."
+      ]
+    }
+  ],
+  "allowedOutputs": [
+    "reward_fairness_report",
+    "fairness_blockers",
+    "server_authority_flags",
+    "pay_to_win_flags",
+    "anti_cheat_review_flags",
+    "beginner_advanced_balance_notes",
+    "human_review_required_questions"
+  ],
+  "forbiddenActions": [
+    "write_rewards",
+    "write_points",
+    "write_xp",
+    "write_streaks",
+    "authorize_mission_completion",
+    "authorize_challenge_rewards",
+    "authorize_anti_cheat_enforcement",
+    "modify_runtime_files",
+    "change_firestore_rules",
+    "change_firebase_functions",
+    "enable_token_wallet_payment_nft_betting_logic",
+    "enable_pay_to_win_mechanics",
+    "profile_users_at_runtime",
+    "approve_prs",
+    "merge_prs",
+    "deploy"
+  ],
+  "humanReviewRequiredFor": [
+    "reward_authority",
+    "mission_completion_authority",
+    "challenge_reward_authority",
+    "anti_cheat_authority",
+    "points_or_xp_final_ledger_writes",
+    "streak_repair_or_protection_mechanics",
+    "beginner_advanced_balancing_changes",
+    "paid_or_sponsored_reward_advantage",
+    "token_nft_wallet_payment_payout_betting_or_marketplace_features",
+    "health_child_location_camera_biometric_or_privacy_sensitive_reward_inputs"
+  ],
+  "reportOutputSchema": {
+    "mode": "REPORT_ONLY",
+    "ready": "boolean",
+    "reviewAreasCovered": "boolean",
+    "connectedSourcesPresent": "boolean",
+    "canWriteRewards": false,
+    "canAuthorizeCompletion": false,
+    "canAuthorizeAntiCheat": false,
+    "runtimeFilesChanged": false,
+    "resultFlag": "REWARD_FAIRNESS_GUARD_READY=true|false"
+  },
+  "nextSafeMaintenanceTask": "Keep the reward fairness guard synchronized with mission/buddy/economy, risk, internal economy, and server completion guardrails before any reward runtime work proceeds."
+}
