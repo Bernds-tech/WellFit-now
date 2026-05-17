@@ -23,6 +23,21 @@ The guard extends the existing agent governance, task queue, risk classifier, de
 
 Any attempt to change the policy away from `report_only` requires explicit human approval and a separate review plan.
 
+## Numbered autonomy stages
+
+This policy intentionally distinguishes the desired autonomy roadmap from the currently safe operating mode. The current auto-merge policy remains `activationState: report_only`; the numbered stages below are governance vocabulary, not automatic activation.
+
+| Stage | Activation value | Auto-merge/deploy effect | Current status |
+| --- | --- | --- | --- |
+| 1.0 | `report_only` | Report-only analysis of scope, checks, and blockers. | Active for the auto-merge policy. |
+| 1.1 | `docs_register_check_script_pr_handoff` | Allows only docs/register/check-script branch, commit, and PR handoff in the separate approved runner policy; it does not merge. | Allowed only where the runner policy separately permits it. |
+| 1.2 | `safe_docs_register_json_format_repair_with_rerun_evidence` | Allows only safe docs/register JSON-format repair with same-branch commit and rerun evidence in the separate repair policy; it does not merge. | Allowed only where the safe-repair policy separately permits it. |
+| 1.3 | `merge_deploy_eligibility_report_only` | May produce eligibility reports for merge/deploy readiness, including missing evidence and blockers. | Report-only target; no actual merge, deploy, approval, PR close, repository-setting change, or environment mutation. |
+| 2.0 | `manual_merge_assistant_future_optional` | Optional future manual merge assistant may prepare human-facing merge handoff only after explicit owner approval. | Not active; no autonomous merge or self-approval. |
+| 3.0 | `deploy_assistant_future_optional` | Optional future deploy assistant may prepare deploy handoff only after explicit owner approval, hosted CI evidence, rollback plan, environment separation, and protected-scope exclusion. | Not active; no autonomous deploy. |
+
+The discrepancy is intentional: WellFit may want a future merge/deploy assistant, but the current safety posture supports only report-only eligibility for those actions. Missing, pending, skipped, unknown, failed, environment-blocked, self-approved, or local-only evidence must keep merge/deploy execution disabled.
+
 ## Eligible categories
 
 A future PR can only be considered eligible when its category is one of the policy allow-list entries:

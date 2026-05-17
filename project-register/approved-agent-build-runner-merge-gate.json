@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-16",
+  "updated": "2026-05-17",
   "activationState": "report_only",
   "id": "approved-agent-build-runner-merge-gate",
-  "purpose": "Record the report-only Approved Agent Build Runner Merge Gate semantics so gate configuration readiness is validated separately from concrete PR merge readiness.",
+  "purpose": "Record the report-only Approved Agent Build Runner Merge Gate semantics and the numbered autonomy stage model so gate configuration readiness is validated separately from concrete PR merge/deploy execution readiness.",
   "semanticSplit": {
     "gateConfigurationReadyMeaning": "Gate configuration readiness: the merge-gate policy, register, documentation, validator, and Quality Gate integration are internally consistent and safe to report.",
     "mergeReadyMeaning": "A concrete pull request has all required local, post-PR, GitHub check, protected-scope, human-review, and mergeability evidence needed before a human may merge.",
@@ -18,14 +18,20 @@
     "SAFE_REPAIR_LIMITED": true,
     "NEVER_MERGES": true,
     "NEVER_DEPLOYS": true,
-    "APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY": true
+    "APPROVED_AGENT_BUILD_RUNNER_MERGE_GATE_READY": true,
+    "MERGE_DEPLOY_ELIGIBILITY_REPORT_ONLY": true,
+    "ACTUAL_MERGE_ALLOWED": false,
+    "ACTUAL_DEPLOY_ALLOWED": false,
+    "MANUAL_MERGE_ASSISTANT_ACTIVE": false,
+    "DEPLOY_ASSISTANT_ACTIVE": false
   },
   "mergeReadinessBlockers": [
     "Missing post-PR mergeability evidence blocks actual merge readiness.",
     "Missing required GitHub checks or unknown required-check status blocks actual merge readiness.",
     "Missing local required-check evidence blocks actual merge readiness.",
     "Protected or runtime product scope requires human review and blocks automated merge readiness.",
-    "Human PR review remains required before any merge."
+    "Human PR review remains required before any merge.",
+    "Stage 1.3 merge/deploy eligibility output is report-only and cannot execute merge, deploy, approval, PR close, repository-setting change, or environment mutation."
   ],
   "missingCheckHandling": {
     "missingChecksBlockActualMerge": true,
@@ -73,6 +79,176 @@
     "Post-PR mergeability guard evidence is available.",
     "Required GitHub checks are success.",
     "PR diff review confirms no runtime/protected/prohibited path scope.",
-    "Human review confirms merge approval outside of the agent."
-  ]
+    "Human review confirms merge approval outside of the agent.",
+    "Separate owner approval exists for any future Stage 2.0 manual merge assistant before it is implemented or activated.",
+    "Separate owner approval, hosted CI evidence, rollback plan, environment separation, and protected-scope exclusion exist before any future Stage 3.0 deploy assistant is implemented or activated."
+  ],
+  "autonomyStageModel": {
+    "canonicalSource": "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md#autonomie-modell",
+    "currentAutoMergeActivationState": "report_only",
+    "currentAllowedExecutionStages": [
+      "1.1",
+      "1.2"
+    ],
+    "currentReportOnlyVisibilityStages": [
+      "1.0",
+      "1.3"
+    ],
+    "notActiveFutureOptionalStages": [
+      "2.0",
+      "3.0"
+    ],
+    "stages": [
+      {
+        "stage": "1.0",
+        "id": "report_only",
+        "activationValue": "report_only",
+        "permission": "Analyse, dry-runs, reports, eligibility decisions, and governance validation only.",
+        "mayChange": [],
+        "mustNot": [
+          "implement tasks",
+          "repair files",
+          "change runtime files",
+          "create pull requests from a runner",
+          "approve",
+          "merge",
+          "deploy"
+        ],
+        "currentStatus": "Baseline safe mode; active for auto-merge itself."
+      },
+      {
+        "stage": "1.1",
+        "id": "docs_register_check_script_pr_handoff",
+        "legacyActivationValues": [
+          "single_agent_docs_register_build"
+        ],
+        "activationValue": "docs_register_check_script_pr_handoff",
+        "permission": "Exactly one already-human-approved docs/register/check-script task may use a task branch, commit, and PR handoff within allowlisted governance paths.",
+        "mayChange": [
+          "project-register/*.json",
+          "todolist/*.md",
+          "docs/architecture/*.md",
+          "scripts/wellfit-dev-agent/src/*check.mjs",
+          "scripts/wellfit-dev-agent/src/*dry-run.mjs",
+          "scripts/wellfit-dev-agent/src/*report.mjs"
+        ],
+        "mustNot": [
+          "change runtime product files",
+          "change protected compliance/economy/health/child/location/camera/Unity areas",
+          "approve",
+          "merge",
+          "deploy"
+        ],
+        "requiredEvidence": [
+          "human-approved task or backlog entry",
+          "one-agent branch",
+          "exact command/result log",
+          "git diff review",
+          "json validation for changed policy/register files"
+        ],
+        "currentStatus": "Allowed only for the narrow approved docs/register/check-script runner scope."
+      },
+      {
+        "stage": "1.2",
+        "id": "safe_docs_register_json_format_repair_with_rerun_evidence",
+        "legacyActivationValues": [
+          "safe_docs_register_json_format_repair_allowed"
+        ],
+        "activationValue": "safe_docs_register_json_format_repair_with_rerun_evidence",
+        "permission": "Only safe docs/register JSON parse/format repair may be attempted inside approved docs/register scope, with same-branch commit and rerun evidence.",
+        "mayChange": [
+          "docs/register JSON-format evidence files already within approved task scope"
+        ],
+        "mustNot": [
+          "repair runtime/protected files",
+          "rewrite scripts outside the approved validator scope",
+          "hide failures",
+          "merge",
+          "deploy",
+          "change dependencies",
+          "touch Unity or PR #13",
+          "change token/reward/payment authority"
+        ],
+        "requiredEvidence": [
+          "detected failure type is allowlisted",
+          "repair attempt record",
+          "new commit on same branch",
+          "rerun failed check and full required checks"
+        ],
+        "currentStatus": "Allowed only as narrow evidence repair where the safe-repair policy explicitly permits it."
+      },
+      {
+        "stage": "1.3",
+        "id": "merge_deploy_eligibility_report_only",
+        "activationValue": "merge_deploy_eligibility_report_only",
+        "permission": "Produce merge/deploy eligibility reports that show present and missing evidence.",
+        "mayChange": [],
+        "mustNot": [
+          "merge",
+          "approve",
+          "close PRs",
+          "change repository settings",
+          "deploy",
+          "mutate secrets or environments",
+          "bypass missing/unknown/pending/skipped/failed/environment-blocked evidence"
+        ],
+        "requiredEvidence": [
+          "report states no execution authority",
+          "required local check evidence summary",
+          "GitHub required-check status summary when available",
+          "mergeability and review evidence summary when available",
+          "deploy evidence gap summary when deploy is discussed"
+        ],
+        "currentStatus": "Report-only visibility target; no actual merge or deploy."
+      },
+      {
+        "stage": "2.0",
+        "id": "manual_merge_assistant_future_optional",
+        "activationValue": "manual_merge_assistant_future_optional",
+        "permission": "Optional future assistant may prepare human-facing merge checklist, command suggestion, or handoff after explicit owner approval.",
+        "mayChange": [],
+        "mustNot": [
+          "autonomously merge",
+          "self-approve",
+          "bypass branch protection",
+          "merge with missing checks or reviews",
+          "merge protected/runtime scope without named review evidence"
+        ],
+        "requiredEvidence": [
+          "separate explicit owner approval",
+          "machine-readable required GitHub checks",
+          "human review evidence",
+          "mergeability evidence",
+          "protected-scope diff review"
+        ],
+        "currentStatus": "Not active; future optional stage only."
+      },
+      {
+        "stage": "3.0",
+        "id": "deploy_assistant_future_optional",
+        "activationValue": "deploy_assistant_future_optional",
+        "permission": "Optional future assistant may prepare deploy checklist or handoff only after explicit owner approval, hosted CI evidence, rollback plan, environment separation, and protected-scope exclusion.",
+        "mayChange": [],
+        "mustNot": [
+          "autonomously deploy",
+          "access or mutate production secrets",
+          "mix environments",
+          "deploy protected scope",
+          "change Firebase/package/workflow/deploy config unless separately approved",
+          "deploy from local-only evidence"
+        ],
+        "requiredEvidence": [
+          "separate explicit owner approval",
+          "hosted CI evidence",
+          "rollback plan",
+          "environment separation plan",
+          "protected-scope exclusion",
+          "human deployment owner"
+        ],
+        "currentStatus": "Not active; future optional stage only."
+      }
+    ],
+    "noActualMergeOrDeployActivatedByThisRegister": true,
+    "discrepancyStatement": "The target direction can discuss future manual merge and deploy assistance, but the present safety state permits only docs/register/check-script handoff, narrow JSON-format repair with rerun evidence, and merge/deploy eligibility reports without execution."
+  }
 }

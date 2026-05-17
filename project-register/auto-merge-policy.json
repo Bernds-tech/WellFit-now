@@ -190,9 +190,10 @@
     "canonicalSource": "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md#autonomie-modell",
     "stages": [
       {
+        "stage": "1.0",
         "id": "report_only",
-        "order": 1,
-        "permission": "Analyse, dry-runs, reports, eligibility decisions and governance validation only; no file writes except generated reports explicitly owned by the invoked checker.",
+        "activationValue": "report_only",
+        "permission": "Analyse, dry-runs, reports, eligibility decisions, and governance validation only.",
         "mayChange": [],
         "mustNot": [
           "implement tasks",
@@ -202,12 +203,17 @@
           "approve",
           "merge",
           "deploy"
-        ]
+        ],
+        "currentStatus": "Baseline safe mode; active for auto-merge itself."
       },
       {
-        "id": "single_agent_docs_register_build",
-        "order": 2,
-        "permission": "One agent may execute exactly one approved low-risk docs/register/check-script task per branch within allowed governance paths.",
+        "stage": "1.1",
+        "id": "docs_register_check_script_pr_handoff",
+        "legacyActivationValues": [
+          "single_agent_docs_register_build"
+        ],
+        "activationValue": "docs_register_check_script_pr_handoff",
+        "permission": "Exactly one already-human-approved docs/register/check-script task may use a task branch, commit, and PR handoff within allowlisted governance paths.",
         "mayChange": [
           "project-register/*.json",
           "todolist/*.md",
@@ -219,8 +225,8 @@
         "mustNot": [
           "change runtime product files",
           "change protected compliance/economy/health/child/location/camera/Unity areas",
-          "auto-repair beyond explicitly requested task scope",
-          "auto-merge",
+          "approve",
+          "merge",
           "deploy"
         ],
         "requiredEvidence": [
@@ -229,90 +235,149 @@
           "exact command/result log",
           "git diff review",
           "json validation for changed policy/register files"
-        ]
+        ],
+        "currentStatus": "Allowed only for the narrow approved docs/register/check-script runner scope."
       },
       {
-        "id": "single_agent_safe_runtime_execution",
-        "order": 3,
-        "permission": "One agent may modify only runtime files explicitly allowlisted by a separate human approval for a concrete task.",
-        "mayChange": [
-          "explicitly approved runtime files only"
+        "stage": "1.2",
+        "id": "safe_docs_register_json_format_repair_with_rerun_evidence",
+        "legacyActivationValues": [
+          "safe_docs_register_json_format_repair_allowed"
         ],
-        "mustNot": [
-          "touch protected compliance/economy/health/child/location/camera/Unity/PR #13 areas unless separately approved with review plan",
-          "auto-repair",
-          "auto-merge",
-          "deploy"
-        ],
-        "requiredEvidence": [
-          "separate human approval naming exact runtime files",
-          "risk review",
-          "full relevant checks",
-          "human review before merge"
-        ]
-      },
-      {
-        "id": "auto_repair_allowed",
-        "order": 4,
-        "permission": "Only narrowly defined repairs from the auto-repair policy may be attempted after failed evidence checks.",
+        "activationValue": "safe_docs_register_json_format_repair_with_rerun_evidence",
+        "permission": "Only safe docs/register JSON parse/format repair may be attempted inside approved docs/register scope, with same-branch commit and rerun evidence.",
         "mayChange": [
-          "files already within the approved task scope and safe repair categories"
+          "docs/register JSON-format evidence files already within approved task scope"
         ],
         "mustNot": [
           "repair runtime/protected files",
+          "rewrite scripts outside the approved validator scope",
           "hide failures",
           "merge",
-          "deploy"
+          "deploy",
+          "change dependencies",
+          "touch Unity or PR #13",
+          "change token/reward/payment authority"
         ],
         "requiredEvidence": [
           "detected failure type is allowlisted",
           "repair attempt record",
           "new commit on same branch",
-          "rerun failed and full required checks"
-        ]
+          "rerun failed check and full required checks"
+        ],
+        "currentStatus": "Allowed only as narrow evidence repair where the safe-repair policy explicitly permits it."
       },
       {
-        "id": "auto_merge_allowed",
-        "order": 5,
-        "permission": "Auto-merge may be considered only after complete local check evidence, successful required GitHub checks, mergeability, PR diff review, auto-repair decision, and human review evidence required by policy.",
+        "stage": "1.3",
+        "id": "merge_deploy_eligibility_report_only",
+        "activationValue": "merge_deploy_eligibility_report_only",
+        "permission": "Produce merge/deploy eligibility reports that show present and missing evidence.",
         "mayChange": [],
         "mustNot": [
-          "merge with missing/unknown/pending/skipped/failed/environment-blocked checks",
-          "self-approve",
+          "merge",
+          "approve",
+          "close PRs",
+          "change repository settings",
           "deploy",
-          "merge protected/runtime-risk changes without explicit review evidence"
+          "mutate secrets or environments",
+          "bypass missing/unknown/pending/skipped/failed/environment-blocked evidence"
         ],
         "requiredEvidence": [
-          "complete required local checks passed",
-          "required GitHub checks passed",
-          "mergeable branch",
-          "review evidence",
-          "no protected path findings",
-          "auto-repair resolved or not required"
-        ]
+          "report states no execution authority",
+          "required local check evidence summary",
+          "GitHub required-check status summary when available",
+          "mergeability and review evidence summary when available",
+          "deploy evidence gap summary when deploy is discussed"
+        ],
+        "currentStatus": "Report-only visibility target; no actual merge or deploy."
+      },
+      {
+        "stage": "2.0",
+        "id": "manual_merge_assistant_future_optional",
+        "activationValue": "manual_merge_assistant_future_optional",
+        "permission": "Optional future assistant may prepare human-facing merge checklist, command suggestion, or handoff after explicit owner approval.",
+        "mayChange": [],
+        "mustNot": [
+          "autonomously merge",
+          "self-approve",
+          "bypass branch protection",
+          "merge with missing checks or reviews",
+          "merge protected/runtime scope without named review evidence"
+        ],
+        "requiredEvidence": [
+          "separate explicit owner approval",
+          "machine-readable required GitHub checks",
+          "human review evidence",
+          "mergeability evidence",
+          "protected-scope diff review"
+        ],
+        "currentStatus": "Not active; future optional stage only."
+      },
+      {
+        "stage": "3.0",
+        "id": "deploy_assistant_future_optional",
+        "activationValue": "deploy_assistant_future_optional",
+        "permission": "Optional future assistant may prepare deploy checklist or handoff only after explicit owner approval, hosted CI evidence, rollback plan, environment separation, and protected-scope exclusion.",
+        "mayChange": [],
+        "mustNot": [
+          "autonomously deploy",
+          "access or mutate production secrets",
+          "mix environments",
+          "deploy protected scope",
+          "change Firebase/package/workflow/deploy config unless separately approved",
+          "deploy from local-only evidence"
+        ],
+        "requiredEvidence": [
+          "separate explicit owner approval",
+          "hosted CI evidence",
+          "rollback plan",
+          "environment separation plan",
+          "protected-scope exclusion",
+          "human deployment owner"
+        ],
+        "currentStatus": "Not active; future optional stage only."
       }
     ],
     "stageOrderMustNotBeSkipped": true,
+    "legacyActivationValuesAreCompatibilityAliasesOnly": true,
     "higherStageRequiresSeparateHumanApproval": true,
     "currentRelease": {
-      "approvedStage": "single_agent_docs_register_build",
+      "approvedExecutionStages": [
+        "1.1",
+        "1.2"
+      ],
+      "autoMergePolicyStage": "1.0",
+      "mergeDeployVisibilityStage": "1.3",
       "approvedOn": "2026-05-17",
       "approvedBy": "human_requested_policy_update",
-      "scope": "Docs/register/validator PR handoff and safe docs/register/JSON-format repair may be allowed by adjacent policies, but auto-merge remains report_only until GitHub checks, review evidence, and mergeability are reliably readable.",
+      "scope": "Docs/register/check-script PR handoff and safe docs/register JSON-format repair may be allowed by adjacent policies; merge/deploy eligibility may be reported only. No actual merge or deploy is authorized.",
       "maxAgentsPerRun": 1
+    },
+    "futureOptionalStages": {
+      "2.0": "Manual merge assistant after separate explicit owner approval only.",
+      "3.0": "Deploy assistant after separate explicit owner approval, hosted CI evidence, rollback plan, environment separation, and protected-scope exclusion only."
     }
   },
   "activationDecision": {
-    "selectedStage": "report_only",
+    "selectedStage": "1.0",
     "decisionDate": "2026-05-17",
     "reason": "Keep auto-merge disabled until GitHub checks, review evidence, and mergeability are reliably readable and enforceable.",
-    "effectiveScope": "AUTO_MERGE_ELIGIBLE remains a report-only signal; no merge, approval, auto-merge enablement, deploy, repository-setting change, or PR close is authorized.",
+    "effectiveScope": "AUTO_MERGE_ELIGIBLE and any merge/deploy eligibility output remain report-only signals; no merge, approval, auto-merge enablement, deploy, repository-setting change, environment mutation, or PR close is authorized.",
     "runtimeExecutionAllowed": false,
     "autoRepairAllowed": false,
     "autoMergeAllowed": false,
     "deployAllowed": false,
     "requiresSeparateHumanApprovalForHigherStage": true,
-    "autoRepairPolicyDependency": "Safe docs/register/JSON-format repair may be allowed by project-register/auto-repair-policy.json, but the auto-merge policy treats it only as evidence and still does not authorize merge."
+    "autoRepairPolicyDependency": "Safe docs/register/JSON-format repair may be allowed by project-register/auto-repair-policy.json, but the auto-merge policy treats it only as evidence and still does not authorize merge.",
+    "selectedActivationValue": "report_only",
+    "mergeDeployEligibilityReportOnlyAllowed": true,
+    "manualMergeAssistantAllowed": false,
+    "deployAssistantAllowed": false,
+    "futureOwnerApprovalRequiredForStages": [
+      "2.0",
+      "3.0"
+    ],
+    "discrepancyStatement": "Desired future direction may include manual merge and deploy assistants, but current safety evidence supports only Stage 1.3 report-only eligibility for those actions."
   },
   "governanceProtectedTopicWordingPolicy": {
     "autoMergeEligibleFalseIsAcceptable": true,
