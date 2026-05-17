@@ -891,8 +891,8 @@
       ]
     },
     {
-      "id": "reward-fairness-guard",
-      "proposedAgentName": "Reward Fairness Guard",
+      "id": "reward-fairness-guard-report-agent",
+      "proposedAgentName": "Reward Fairness Guard Report Agent",
       "status": "approved_for_planning",
       "artifactStatus": "planned",
       "executionCapability": "report_only",
@@ -917,8 +917,8 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Reward Fairness Guard.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Reward Fairness Guard while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Reward Fairness Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Reward Fairness Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
         "risk-classifier",
@@ -968,22 +968,163 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 9,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "single_agent_report_prompt",
       "dependencies": [
         "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
         "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only.",
+        "Report-agent phase only: produce analysis, findings, rule checks, register updates, validation-script policy checks, and review_required markers; do not implement runtime/product/protected behavior.",
+        "Implementation remains blocked in the paired implementation-agent entry until explicit human approval, a dedicated test strategy, an exact path allowlist, and rollback/review evidence are provided."
       ],
       "protectedBoundaries": [
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "allowedActions": [
+        "Analyze existing docs, registers, rules, findings, and policy metadata.",
+        "Record report-only findings, review_required markers, human-review questions, and governance recommendations.",
+        "Update allowed project-register, docs/architecture, todolist, and validation-script policy files only within an explicitly scoped task.",
+        "Run validation scripts and quality checks that do not modify runtime/product behavior."
+      ],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair."
+      ],
+      "requiredHumanApproval": {
+        "runtimeImplementation": "required_before_any_runtime_or_product_work",
+        "protectedScopeChange": "required_before_any_protected_logic_or_policy_change",
+        "deploymentMergeApprovalRepair": "required_before_any_deploy_merge_approval_auto_merge_or_repair_capability",
+        "currentPhaseApproval": "approved_for_report_only_planning_metadata"
+      },
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
       ]
     },
     {
-      "id": "child-safety-guard",
-      "proposedAgentName": "Child Safety Guard",
+      "id": "reward-fairness-guard-implementation-agent",
+      "proposedAgentName": "Reward Fairness Guard Implementation Agent",
+      "status": "blocked",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Blocked implementation phase for Reward Fairness Guard. This entry preserves the future implementation concept but authorizes no runtime/product/protected work until explicit human approval, dedicated tests, exact path allowlist, and rollback/review evidence exist.",
+      "expectedBenefit": "Keeps any future Reward Fairness Guard implementation separated from report-only governance so protected runtime authority cannot be inferred from planning evidence.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "product-readiness-matrix",
+        "pr-review-agent"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 9,
+      "nextRecommendedPromptType": "blocked_until_explicit_human_implementation_approval",
+      "dependencies": [
+        "Blocked: do not start implementation from this backlog entry without a new explicit human-approved prompt naming this implementation-agent ID.",
+        "Before activation, provide a dedicated test strategy, exact path allowlist, rollback/review plan, protected-topic review plan, and PR review evidence.",
+        "Until those items exist, preserve report-only governance in the paired report-agent and do not touch runtime/product/protected files."
+      ],
+      "protectedBoundaries": [
+        "Implementation is blocked; no runtime product code changes are allowed from this entry.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, camera, face, biometric, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, auto-merge, unrestricted auto-repair, or deploy authority.",
+        "Allowed runtime file writes are empty until a later explicit human approval provides an exact path allowlist.",
+        "Protected areas remain blocked until the later approval includes dedicated tests, rollback/review plan, and human-reviewed evidence."
+      ],
+      "allowedActions": [],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair.",
+        "Do not use this blocked implementation-agent as permission to write runtime files.",
+        "Do not begin implementation without an exact human-approved path allowlist and dedicated test strategy."
+      ],
+      "requiredHumanApproval": {
+        "currentStatus": "blocked",
+        "explicitFutureHumanApproval": "required",
+        "dedicatedTestStrategy": "required_before_activation",
+        "exactPathAllowlist": "required_before_activation",
+        "rollbackReviewPlan": "required_before_activation",
+        "protectedTopicReview": "required_before_activation"
+      },
+      "activationRequirements": [
+        "Explicit future human approval naming this implementation-agent ID.",
+        "Dedicated test strategy for the exact implementation scope.",
+        "Exact path allowlist; no wildcard runtime writes by default.",
+        "Rollback and human-review plan before any protected/runtime work.",
+        "Evidence that protected areas remain blocked unless specifically approved."
+      ],
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
+      ]
+    },
+    {
+      "id": "child-safety-guard-report-agent",
+      "proposedAgentName": "Child Safety Guard Report Agent",
       "status": "approved_for_planning",
       "artifactStatus": "planned",
       "executionCapability": "report_only",
@@ -1008,8 +1149,8 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Child Safety Guard.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Child Safety Guard while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Child Safety Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Child Safety Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
         "risk-classifier",
@@ -1059,22 +1200,163 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 10,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "single_agent_report_prompt",
       "dependencies": [
         "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
         "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only.",
+        "Report-agent phase only: produce analysis, findings, rule checks, register updates, validation-script policy checks, and review_required markers; do not implement runtime/product/protected behavior.",
+        "Implementation remains blocked in the paired implementation-agent entry until explicit human approval, a dedicated test strategy, an exact path allowlist, and rollback/review evidence are provided."
       ],
       "protectedBoundaries": [
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "allowedActions": [
+        "Analyze existing docs, registers, rules, findings, and policy metadata.",
+        "Record report-only findings, review_required markers, human-review questions, and governance recommendations.",
+        "Update allowed project-register, docs/architecture, todolist, and validation-script policy files only within an explicitly scoped task.",
+        "Run validation scripts and quality checks that do not modify runtime/product behavior."
+      ],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair."
+      ],
+      "requiredHumanApproval": {
+        "runtimeImplementation": "required_before_any_runtime_or_product_work",
+        "protectedScopeChange": "required_before_any_protected_logic_or_policy_change",
+        "deploymentMergeApprovalRepair": "required_before_any_deploy_merge_approval_auto_merge_or_repair_capability",
+        "currentPhaseApproval": "approved_for_report_only_planning_metadata"
+      },
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
       ]
     },
     {
-      "id": "health-claims-guard",
-      "proposedAgentName": "Health Claims Guard",
+      "id": "child-safety-guard-implementation-agent",
+      "proposedAgentName": "Child Safety Guard Implementation Agent",
+      "status": "blocked",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Blocked implementation phase for Child Safety Guard. This entry preserves the future implementation concept but authorizes no runtime/product/protected work until explicit human approval, dedicated tests, exact path allowlist, and rollback/review evidence exist.",
+      "expectedBenefit": "Keeps any future Child Safety Guard implementation separated from report-only governance so protected runtime authority cannot be inferred from planning evidence.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "trust-compliance-website-audit",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/website-agent-backlog.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/website-agent-backlog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 10,
+      "nextRecommendedPromptType": "blocked_until_explicit_human_implementation_approval",
+      "dependencies": [
+        "Blocked: do not start implementation from this backlog entry without a new explicit human-approved prompt naming this implementation-agent ID.",
+        "Before activation, provide a dedicated test strategy, exact path allowlist, rollback/review plan, protected-topic review plan, and PR review evidence.",
+        "Until those items exist, preserve report-only governance in the paired report-agent and do not touch runtime/product/protected files."
+      ],
+      "protectedBoundaries": [
+        "Implementation is blocked; no runtime product code changes are allowed from this entry.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, camera, face, biometric, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, auto-merge, unrestricted auto-repair, or deploy authority.",
+        "Allowed runtime file writes are empty until a later explicit human approval provides an exact path allowlist.",
+        "Protected areas remain blocked until the later approval includes dedicated tests, rollback/review plan, and human-reviewed evidence."
+      ],
+      "allowedActions": [],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair.",
+        "Do not use this blocked implementation-agent as permission to write runtime files.",
+        "Do not begin implementation without an exact human-approved path allowlist and dedicated test strategy."
+      ],
+      "requiredHumanApproval": {
+        "currentStatus": "blocked",
+        "explicitFutureHumanApproval": "required",
+        "dedicatedTestStrategy": "required_before_activation",
+        "exactPathAllowlist": "required_before_activation",
+        "rollbackReviewPlan": "required_before_activation",
+        "protectedTopicReview": "required_before_activation"
+      },
+      "activationRequirements": [
+        "Explicit future human approval naming this implementation-agent ID.",
+        "Dedicated test strategy for the exact implementation scope.",
+        "Exact path allowlist; no wildcard runtime writes by default.",
+        "Rollback and human-review plan before any protected/runtime work.",
+        "Evidence that protected areas remain blocked unless specifically approved."
+      ],
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
+      ]
+    },
+    {
+      "id": "health-claims-guard-report-agent",
+      "proposedAgentName": "Health Claims Guard Report Agent",
       "status": "approved_for_planning",
       "artifactStatus": "planned",
       "executionCapability": "report_only",
@@ -1099,8 +1381,8 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Health Claims Guard.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Health Claims Guard while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Health Claims Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Health Claims Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
         "risk-classifier",
@@ -1150,22 +1432,163 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 11,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "single_agent_report_prompt",
       "dependencies": [
         "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
         "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only.",
+        "Report-agent phase only: produce analysis, findings, rule checks, register updates, validation-script policy checks, and review_required markers; do not implement runtime/product/protected behavior.",
+        "Implementation remains blocked in the paired implementation-agent entry until explicit human approval, a dedicated test strategy, an exact path allowlist, and rollback/review evidence are provided."
       ],
       "protectedBoundaries": [
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "allowedActions": [
+        "Analyze existing docs, registers, rules, findings, and policy metadata.",
+        "Record report-only findings, review_required markers, human-review questions, and governance recommendations.",
+        "Update allowed project-register, docs/architecture, todolist, and validation-script policy files only within an explicitly scoped task.",
+        "Run validation scripts and quality checks that do not modify runtime/product behavior."
+      ],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair."
+      ],
+      "requiredHumanApproval": {
+        "runtimeImplementation": "required_before_any_runtime_or_product_work",
+        "protectedScopeChange": "required_before_any_protected_logic_or_policy_change",
+        "deploymentMergeApprovalRepair": "required_before_any_deploy_merge_approval_auto_merge_or_repair_capability",
+        "currentPhaseApproval": "approved_for_report_only_planning_metadata"
+      },
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
       ]
     },
     {
-      "id": "location-safety-guard",
-      "proposedAgentName": "Location Safety Guard",
+      "id": "health-claims-guard-implementation-agent",
+      "proposedAgentName": "Health Claims Guard Implementation Agent",
+      "status": "blocked",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Blocked implementation phase for Health Claims Guard. This entry preserves the future implementation concept but authorizes no runtime/product/protected work until explicit human approval, dedicated tests, exact path allowlist, and rollback/review evidence exist.",
+      "expectedBenefit": "Keeps any future Health Claims Guard implementation separated from report-only governance so protected runtime authority cannot be inferred from planning evidence.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "trust-compliance-website-audit",
+        "research-recommendation-agent"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agent-backlog.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/research-recommendations.json",
+        "project-register/website-agent-backlog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 11,
+      "nextRecommendedPromptType": "blocked_until_explicit_human_implementation_approval",
+      "dependencies": [
+        "Blocked: do not start implementation from this backlog entry without a new explicit human-approved prompt naming this implementation-agent ID.",
+        "Before activation, provide a dedicated test strategy, exact path allowlist, rollback/review plan, protected-topic review plan, and PR review evidence.",
+        "Until those items exist, preserve report-only governance in the paired report-agent and do not touch runtime/product/protected files."
+      ],
+      "protectedBoundaries": [
+        "Implementation is blocked; no runtime product code changes are allowed from this entry.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, camera, face, biometric, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, auto-merge, unrestricted auto-repair, or deploy authority.",
+        "Allowed runtime file writes are empty until a later explicit human approval provides an exact path allowlist.",
+        "Protected areas remain blocked until the later approval includes dedicated tests, rollback/review plan, and human-reviewed evidence."
+      ],
+      "allowedActions": [],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair.",
+        "Do not use this blocked implementation-agent as permission to write runtime files.",
+        "Do not begin implementation without an exact human-approved path allowlist and dedicated test strategy."
+      ],
+      "requiredHumanApproval": {
+        "currentStatus": "blocked",
+        "explicitFutureHumanApproval": "required",
+        "dedicatedTestStrategy": "required_before_activation",
+        "exactPathAllowlist": "required_before_activation",
+        "rollbackReviewPlan": "required_before_activation",
+        "protectedTopicReview": "required_before_activation"
+      },
+      "activationRequirements": [
+        "Explicit future human approval naming this implementation-agent ID.",
+        "Dedicated test strategy for the exact implementation scope.",
+        "Exact path allowlist; no wildcard runtime writes by default.",
+        "Rollback and human-review plan before any protected/runtime work.",
+        "Evidence that protected areas remain blocked unless specifically approved."
+      ],
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
+      ]
+    },
+    {
+      "id": "location-safety-guard-report-agent",
+      "proposedAgentName": "Location Safety Guard Report Agent",
       "status": "approved_for_planning",
       "artifactStatus": "planned",
       "executionCapability": "report_only",
@@ -1190,8 +1613,8 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Location Safety Guard.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Location Safety Guard while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Location Safety Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Location Safety Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
         "risk-classifier",
@@ -1241,22 +1664,163 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 12,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "single_agent_report_prompt",
       "dependencies": [
         "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
         "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only.",
+        "Report-agent phase only: produce analysis, findings, rule checks, register updates, validation-script policy checks, and review_required markers; do not implement runtime/product/protected behavior.",
+        "Implementation remains blocked in the paired implementation-agent entry until explicit human approval, a dedicated test strategy, an exact path allowlist, and rollback/review evidence are provided."
       ],
       "protectedBoundaries": [
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "allowedActions": [
+        "Analyze existing docs, registers, rules, findings, and policy metadata.",
+        "Record report-only findings, review_required markers, human-review questions, and governance recommendations.",
+        "Update allowed project-register, docs/architecture, todolist, and validation-script policy files only within an explicitly scoped task.",
+        "Run validation scripts and quality checks that do not modify runtime/product behavior."
+      ],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair."
+      ],
+      "requiredHumanApproval": {
+        "runtimeImplementation": "required_before_any_runtime_or_product_work",
+        "protectedScopeChange": "required_before_any_protected_logic_or_policy_change",
+        "deploymentMergeApprovalRepair": "required_before_any_deploy_merge_approval_auto_merge_or_repair_capability",
+        "currentPhaseApproval": "approved_for_report_only_planning_metadata"
+      },
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
       ]
     },
     {
-      "id": "sponsor-integrity-guard",
-      "proposedAgentName": "Sponsor Integrity Guard",
+      "id": "location-safety-guard-implementation-agent",
+      "proposedAgentName": "Location Safety Guard Implementation Agent",
+      "status": "blocked",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Blocked implementation phase for Location Safety Guard. This entry preserves the future implementation concept but authorizes no runtime/product/protected work until explicit human approval, dedicated tests, exact path allowlist, and rollback/review evidence exist.",
+      "expectedBenefit": "Keeps any future Location Safety Guard implementation separated from report-only governance so protected runtime authority cannot be inferred from planning evidence.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "product-readiness-matrix",
+        "continuity-dependency-sentinel"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 12,
+      "nextRecommendedPromptType": "blocked_until_explicit_human_implementation_approval",
+      "dependencies": [
+        "Blocked: do not start implementation from this backlog entry without a new explicit human-approved prompt naming this implementation-agent ID.",
+        "Before activation, provide a dedicated test strategy, exact path allowlist, rollback/review plan, protected-topic review plan, and PR review evidence.",
+        "Until those items exist, preserve report-only governance in the paired report-agent and do not touch runtime/product/protected files."
+      ],
+      "protectedBoundaries": [
+        "Implementation is blocked; no runtime product code changes are allowed from this entry.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, camera, face, biometric, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, auto-merge, unrestricted auto-repair, or deploy authority.",
+        "Allowed runtime file writes are empty until a later explicit human approval provides an exact path allowlist.",
+        "Protected areas remain blocked until the later approval includes dedicated tests, rollback/review plan, and human-reviewed evidence."
+      ],
+      "allowedActions": [],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair.",
+        "Do not use this blocked implementation-agent as permission to write runtime files.",
+        "Do not begin implementation without an exact human-approved path allowlist and dedicated test strategy."
+      ],
+      "requiredHumanApproval": {
+        "currentStatus": "blocked",
+        "explicitFutureHumanApproval": "required",
+        "dedicatedTestStrategy": "required_before_activation",
+        "exactPathAllowlist": "required_before_activation",
+        "rollbackReviewPlan": "required_before_activation",
+        "protectedTopicReview": "required_before_activation"
+      },
+      "activationRequirements": [
+        "Explicit future human approval naming this implementation-agent ID.",
+        "Dedicated test strategy for the exact implementation scope.",
+        "Exact path allowlist; no wildcard runtime writes by default.",
+        "Rollback and human-review plan before any protected/runtime work.",
+        "Evidence that protected areas remain blocked unless specifically approved."
+      ],
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
+      ]
+    },
+    {
+      "id": "sponsor-integrity-guard-report-agent",
+      "proposedAgentName": "Sponsor Integrity Guard Report Agent",
       "status": "approved_for_planning",
       "artifactStatus": "planned",
       "executionCapability": "report_only",
@@ -1281,8 +1845,8 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P3",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Sponsor Integrity Guard.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Sponsor Integrity Guard while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Sponsor Integrity Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Sponsor Integrity Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "high",
       "connectedAgents": [
         "trust-compliance-website-audit",
@@ -1332,22 +1896,163 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 13,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "single_agent_report_prompt",
       "dependencies": [
         "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
         "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only.",
+        "Report-agent phase only: produce analysis, findings, rule checks, register updates, validation-script policy checks, and review_required markers; do not implement runtime/product/protected behavior.",
+        "Implementation remains blocked in the paired implementation-agent entry until explicit human approval, a dedicated test strategy, an exact path allowlist, and rollback/review evidence are provided."
       ],
       "protectedBoundaries": [
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "allowedActions": [
+        "Analyze existing docs, registers, rules, findings, and policy metadata.",
+        "Record report-only findings, review_required markers, human-review questions, and governance recommendations.",
+        "Update allowed project-register, docs/architecture, todolist, and validation-script policy files only within an explicitly scoped task.",
+        "Run validation scripts and quality checks that do not modify runtime/product behavior."
+      ],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair."
+      ],
+      "requiredHumanApproval": {
+        "runtimeImplementation": "required_before_any_runtime_or_product_work",
+        "protectedScopeChange": "required_before_any_protected_logic_or_policy_change",
+        "deploymentMergeApprovalRepair": "required_before_any_deploy_merge_approval_auto_merge_or_repair_capability",
+        "currentPhaseApproval": "approved_for_report_only_planning_metadata"
+      },
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
       ]
     },
     {
-      "id": "trust-safe-monetization-agent",
-      "proposedAgentName": "Trust-Safe Monetization Agent",
+      "id": "sponsor-integrity-guard-implementation-agent",
+      "proposedAgentName": "Sponsor Integrity Guard Implementation Agent",
+      "status": "blocked",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P3",
+      "reason": "Blocked implementation phase for Sponsor Integrity Guard. This entry preserves the future implementation concept but authorizes no runtime/product/protected work until explicit human approval, dedicated tests, exact path allowlist, and rollback/review evidence exist.",
+      "expectedBenefit": "Keeps any future Sponsor Integrity Guard implementation separated from report-only governance so protected runtime authority cannot be inferred from planning evidence.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "trust-compliance-website-audit",
+        "pr-review-agent",
+        "product-readiness-matrix"
+      ],
+      "connectedRegisters": [
+        "project-register/website-agent-backlog.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/pr-review-policy.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 13,
+      "nextRecommendedPromptType": "blocked_until_explicit_human_implementation_approval",
+      "dependencies": [
+        "Blocked: do not start implementation from this backlog entry without a new explicit human-approved prompt naming this implementation-agent ID.",
+        "Before activation, provide a dedicated test strategy, exact path allowlist, rollback/review plan, protected-topic review plan, and PR review evidence.",
+        "Until those items exist, preserve report-only governance in the paired report-agent and do not touch runtime/product/protected files."
+      ],
+      "protectedBoundaries": [
+        "Implementation is blocked; no runtime product code changes are allowed from this entry.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, camera, face, biometric, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, auto-merge, unrestricted auto-repair, or deploy authority.",
+        "Allowed runtime file writes are empty until a later explicit human approval provides an exact path allowlist.",
+        "Protected areas remain blocked until the later approval includes dedicated tests, rollback/review plan, and human-reviewed evidence."
+      ],
+      "allowedActions": [],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair.",
+        "Do not use this blocked implementation-agent as permission to write runtime files.",
+        "Do not begin implementation without an exact human-approved path allowlist and dedicated test strategy."
+      ],
+      "requiredHumanApproval": {
+        "currentStatus": "blocked",
+        "explicitFutureHumanApproval": "required",
+        "dedicatedTestStrategy": "required_before_activation",
+        "exactPathAllowlist": "required_before_activation",
+        "rollbackReviewPlan": "required_before_activation",
+        "protectedTopicReview": "required_before_activation"
+      },
+      "activationRequirements": [
+        "Explicit future human approval naming this implementation-agent ID.",
+        "Dedicated test strategy for the exact implementation scope.",
+        "Exact path allowlist; no wildcard runtime writes by default.",
+        "Rollback and human-review plan before any protected/runtime work.",
+        "Evidence that protected areas remain blocked unless specifically approved."
+      ],
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
+      ]
+    },
+    {
+      "id": "trust-safe-monetization-agent-report-agent",
+      "proposedAgentName": "Trust-Safe Monetization Agent Report Agent",
       "status": "approved_for_planning",
       "artifactStatus": "planned",
       "executionCapability": "report_only",
@@ -1372,8 +2077,8 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P3",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Trust-Safe Monetization Agent.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Trust-Safe Monetization Agent while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Trust-Safe Monetization Agent. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Trust-Safe Monetization Agent while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
         "risk-classifier",
@@ -1423,22 +2128,163 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 14,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "single_agent_report_prompt",
       "dependencies": [
         "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
         "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only.",
+        "Report-agent phase only: produce analysis, findings, rule checks, register updates, validation-script policy checks, and review_required markers; do not implement runtime/product/protected behavior.",
+        "Implementation remains blocked in the paired implementation-agent entry until explicit human approval, a dedicated test strategy, an exact path allowlist, and rollback/review evidence are provided."
       ],
       "protectedBoundaries": [
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "allowedActions": [
+        "Analyze existing docs, registers, rules, findings, and policy metadata.",
+        "Record report-only findings, review_required markers, human-review questions, and governance recommendations.",
+        "Update allowed project-register, docs/architecture, todolist, and validation-script policy files only within an explicitly scoped task.",
+        "Run validation scripts and quality checks that do not modify runtime/product behavior."
+      ],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair."
+      ],
+      "requiredHumanApproval": {
+        "runtimeImplementation": "required_before_any_runtime_or_product_work",
+        "protectedScopeChange": "required_before_any_protected_logic_or_policy_change",
+        "deploymentMergeApprovalRepair": "required_before_any_deploy_merge_approval_auto_merge_or_repair_capability",
+        "currentPhaseApproval": "approved_for_report_only_planning_metadata"
+      },
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
       ]
     },
     {
-      "id": "user-memory-governance-agent",
-      "proposedAgentName": "User Memory Governance Agent",
+      "id": "trust-safe-monetization-agent-implementation-agent",
+      "proposedAgentName": "Trust-Safe Monetization Agent Implementation Agent",
+      "status": "blocked",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P3",
+      "reason": "Blocked implementation phase for Trust-Safe Monetization Agent. This entry preserves the future implementation concept but authorizes no runtime/product/protected work until explicit human approval, dedicated tests, exact path allowlist, and rollback/review evidence exist.",
+      "expectedBenefit": "Keeps any future Trust-Safe Monetization Agent implementation separated from report-only governance so protected runtime authority cannot be inferred from planning evidence.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "risk-classifier",
+        "trust-compliance-website-audit",
+        "auto-merge-eligibility-guard"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/auto-merge-policy.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/website-agent-backlog.json",
+        "project-register/auto-merge-policy.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 14,
+      "nextRecommendedPromptType": "blocked_until_explicit_human_implementation_approval",
+      "dependencies": [
+        "Blocked: do not start implementation from this backlog entry without a new explicit human-approved prompt naming this implementation-agent ID.",
+        "Before activation, provide a dedicated test strategy, exact path allowlist, rollback/review plan, protected-topic review plan, and PR review evidence.",
+        "Until those items exist, preserve report-only governance in the paired report-agent and do not touch runtime/product/protected files."
+      ],
+      "protectedBoundaries": [
+        "Implementation is blocked; no runtime product code changes are allowed from this entry.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, camera, face, biometric, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, auto-merge, unrestricted auto-repair, or deploy authority.",
+        "Allowed runtime file writes are empty until a later explicit human approval provides an exact path allowlist.",
+        "Protected areas remain blocked until the later approval includes dedicated tests, rollback/review plan, and human-reviewed evidence."
+      ],
+      "allowedActions": [],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair.",
+        "Do not use this blocked implementation-agent as permission to write runtime files.",
+        "Do not begin implementation without an exact human-approved path allowlist and dedicated test strategy."
+      ],
+      "requiredHumanApproval": {
+        "currentStatus": "blocked",
+        "explicitFutureHumanApproval": "required",
+        "dedicatedTestStrategy": "required_before_activation",
+        "exactPathAllowlist": "required_before_activation",
+        "rollbackReviewPlan": "required_before_activation",
+        "protectedTopicReview": "required_before_activation"
+      },
+      "activationRequirements": [
+        "Explicit future human approval naming this implementation-agent ID.",
+        "Dedicated test strategy for the exact implementation scope.",
+        "Exact path allowlist; no wildcard runtime writes by default.",
+        "Rollback and human-review plan before any protected/runtime work.",
+        "Evidence that protected areas remain blocked unless specifically approved."
+      ],
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
+      ]
+    },
+    {
+      "id": "user-memory-governance-agent-report-agent",
+      "proposedAgentName": "User Memory Governance Agent Report Agent",
       "status": "approved_for_planning",
       "artifactStatus": "planned",
       "executionCapability": "report_only",
@@ -1463,8 +2309,8 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P2",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: User Memory Governance Agent.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for User Memory Governance Agent while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: User Memory Governance Agent. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for User Memory Governance Agent while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
         "adaptive-user-insight-agent",
@@ -1514,17 +2360,158 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 15,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "single_agent_report_prompt",
       "dependencies": [
         "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
         "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only.",
+        "Report-agent phase only: produce analysis, findings, rule checks, register updates, validation-script policy checks, and review_required markers; do not implement runtime/product/protected behavior.",
+        "Implementation remains blocked in the paired implementation-agent entry until explicit human approval, a dedicated test strategy, an exact path allowlist, and rollback/review evidence are provided."
       ],
       "protectedBoundaries": [
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "allowedActions": [
+        "Analyze existing docs, registers, rules, findings, and policy metadata.",
+        "Record report-only findings, review_required markers, human-review questions, and governance recommendations.",
+        "Update allowed project-register, docs/architecture, todolist, and validation-script policy files only within an explicitly scoped task.",
+        "Run validation scripts and quality checks that do not modify runtime/product behavior."
+      ],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair."
+      ],
+      "requiredHumanApproval": {
+        "runtimeImplementation": "required_before_any_runtime_or_product_work",
+        "protectedScopeChange": "required_before_any_protected_logic_or_policy_change",
+        "deploymentMergeApprovalRepair": "required_before_any_deploy_merge_approval_auto_merge_or_repair_capability",
+        "currentPhaseApproval": "approved_for_report_only_planning_metadata"
+      },
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
+      ]
+    },
+    {
+      "id": "user-memory-governance-agent-implementation-agent",
+      "proposedAgentName": "User Memory Governance Agent Implementation Agent",
+      "status": "blocked",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P2",
+      "reason": "Blocked implementation phase for User Memory Governance Agent. This entry preserves the future implementation concept but authorizes no runtime/product/protected work until explicit human approval, dedicated tests, exact path allowlist, and rollback/review evidence exist.",
+      "expectedBenefit": "Keeps any future User Memory Governance Agent implementation separated from report-only governance so protected runtime authority cannot be inferred from planning evidence.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "user-feedback-database-flow",
+        "risk-classifier"
+      ],
+      "connectedRegisters": [
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "connectedAgentCount": 3,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/user-feedback.json",
+        "project-register/risk-classifier.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 15,
+      "nextRecommendedPromptType": "blocked_until_explicit_human_implementation_approval",
+      "dependencies": [
+        "Blocked: do not start implementation from this backlog entry without a new explicit human-approved prompt naming this implementation-agent ID.",
+        "Before activation, provide a dedicated test strategy, exact path allowlist, rollback/review plan, protected-topic review plan, and PR review evidence.",
+        "Until those items exist, preserve report-only governance in the paired report-agent and do not touch runtime/product/protected files."
+      ],
+      "protectedBoundaries": [
+        "Implementation is blocked; no runtime product code changes are allowed from this entry.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, camera, face, biometric, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, auto-merge, unrestricted auto-repair, or deploy authority.",
+        "Allowed runtime file writes are empty until a later explicit human approval provides an exact path allowlist.",
+        "Protected areas remain blocked until the later approval includes dedicated tests, rollback/review plan, and human-reviewed evidence."
+      ],
+      "allowedActions": [],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair.",
+        "Do not use this blocked implementation-agent as permission to write runtime files.",
+        "Do not begin implementation without an exact human-approved path allowlist and dedicated test strategy."
+      ],
+      "requiredHumanApproval": {
+        "currentStatus": "blocked",
+        "explicitFutureHumanApproval": "required",
+        "dedicatedTestStrategy": "required_before_activation",
+        "exactPathAllowlist": "required_before_activation",
+        "rollbackReviewPlan": "required_before_activation",
+        "protectedTopicReview": "required_before_activation"
+      },
+      "activationRequirements": [
+        "Explicit future human approval naming this implementation-agent ID.",
+        "Dedicated test strategy for the exact implementation scope.",
+        "Exact path allowlist; no wildcard runtime writes by default.",
+        "Rollback and human-review plan before any protected/runtime work.",
+        "Evidence that protected areas remain blocked unless specifically approved."
+      ],
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
       ]
     },
     {
@@ -1709,8 +2696,8 @@
       ]
     },
     {
-      "id": "recovery-pause-anti-overuse-guard",
-      "proposedAgentName": "Recovery / Pause / Anti-Overuse Guard",
+      "id": "recovery-pause-anti-overuse-guard-report-agent",
+      "proposedAgentName": "Recovery / Pause / Anti-Overuse Guard Report Agent",
       "status": "approved_for_planning",
       "artifactStatus": "planned",
       "executionCapability": "report_only",
@@ -1735,8 +2722,8 @@
       ],
       "requiresHumanApprovalForRuntime": true,
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Recovery / Pause / Anti-Overuse Guard.",
-      "expectedBenefit": "Adds focused governance or product-planning capability for Recovery / Pause / Anti-Overuse Guard while preserving existing agent boundaries and protected-scope stops.",
+      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Recovery / Pause / Anti-Overuse Guard. Split phase: report-agent is limited to report-only analysis, rules/findings/register/check work and does not confer runtime/product authority.",
+      "expectedBenefit": "Adds focused governance or product-planning capability for Recovery / Pause / Anti-Overuse Guard while preserving existing agent boundaries and protected-scope stops. The report phase creates governance evidence without activating implementation authority.",
       "riskLevel": "critical",
       "connectedAgents": [
         "adaptive-user-insight-agent",
@@ -1785,17 +2772,157 @@
       "humanApprovalRequired": true,
       "alreadyHumanApproved": true,
       "suggestedBuildOrder": 18,
-      "nextRecommendedPromptType": "single_agent_planning_prompt",
+      "nextRecommendedPromptType": "single_agent_report_prompt",
       "dependencies": [
         "Read AGENTS.md, Work Map, TODO Index, Current State, Agent Catalog, Approved Agent Build Backlog, and Agent Extension Policy.",
         "Build only one future agent/framework per task unless Batch Execution Runner is explicitly approved for that scope.",
-        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only."
+        "Create or extend docs/register/validator metadata before any implementation and keep first version report-only.",
+        "Report-agent phase only: produce analysis, findings, rule checks, register updates, validation-script policy checks, and review_required markers; do not implement runtime/product/protected behavior.",
+        "Implementation remains blocked in the paired implementation-agent entry until explicit human approval, a dedicated test strategy, an exact path allowlist, and rollback/review evidence are provided."
       ],
       "protectedBoundaries": [
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
-        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
+        "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator.",
+        "Report-agent output is governance evidence only and must not be interpreted as runtime capability, product authority, deployment authority, merge authority, approval authority, or repair authority.",
+        "Protected topics remain review_required; any implementation touching protected areas must use the paired blocked implementation-agent and a later explicit human-approved scope."
+      ],
+      "allowedActions": [
+        "Analyze existing docs, registers, rules, findings, and policy metadata.",
+        "Record report-only findings, review_required markers, human-review questions, and governance recommendations.",
+        "Update allowed project-register, docs/architecture, todolist, and validation-script policy files only within an explicitly scoped task.",
+        "Run validation scripts and quality checks that do not modify runtime/product behavior."
+      ],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair."
+      ],
+      "requiredHumanApproval": {
+        "runtimeImplementation": "required_before_any_runtime_or_product_work",
+        "protectedScopeChange": "required_before_any_protected_logic_or_policy_change",
+        "deploymentMergeApprovalRepair": "required_before_any_deploy_merge_approval_auto_merge_or_repair_capability",
+        "currentPhaseApproval": "approved_for_report_only_planning_metadata"
+      },
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
+      ]
+    },
+    {
+      "id": "recovery-pause-anti-overuse-guard-implementation-agent",
+      "proposedAgentName": "Recovery / Pause / Anti-Overuse Guard Implementation Agent",
+      "status": "blocked",
+      "artifactStatus": "planned",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Blocked implementation phase for Recovery / Pause / Anti-Overuse Guard. This entry preserves the future implementation concept but authorizes no runtime/product/protected work until explicit human approval, dedicated tests, exact path allowlist, and rollback/review evidence exist.",
+      "expectedBenefit": "Keeps any future Recovery / Pause / Anti-Overuse Guard implementation separated from report-only governance so protected runtime authority cannot be inferred from planning evidence.",
+      "riskLevel": "critical",
+      "connectedAgents": [
+        "adaptive-user-insight-agent",
+        "risk-classifier"
+      ],
+      "connectedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "connectedAgentCount": 2,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-extension-policy.json",
+        "project-register/risk-classifier.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+      ],
+      "allowedFiles": [],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 18,
+      "nextRecommendedPromptType": "blocked_until_explicit_human_implementation_approval",
+      "dependencies": [
+        "Blocked: do not start implementation from this backlog entry without a new explicit human-approved prompt naming this implementation-agent ID.",
+        "Before activation, provide a dedicated test strategy, exact path allowlist, rollback/review plan, protected-topic review plan, and PR review evidence.",
+        "Until those items exist, preserve report-only governance in the paired report-agent and do not touch runtime/product/protected files."
+      ],
+      "protectedBoundaries": [
+        "Implementation is blocked; no runtime product code changes are allowed from this entry.",
+        "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, camera, face, biometric, consent, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, auto-merge, unrestricted auto-repair, or deploy authority.",
+        "Allowed runtime file writes are empty until a later explicit human approval provides an exact path allowlist.",
+        "Protected areas remain blocked until the later approval includes dedicated tests, rollback/review plan, and human-reviewed evidence."
+      ],
+      "allowedActions": [],
+      "forbiddenActions": [
+        "Do not implement runtime product behavior or protected logic.",
+        "Do not change app, components, lib, functions, Firestore rules, public assets, package manifests, GitHub workflows, Firebase config, native, Unity, or deployment files.",
+        "Do not grant reward authority, mission completion authority, anti-cheat decisions, monetization/payment/wallet/token/NFT/betting capability, protected-data handling, or legal/compliance changes.",
+        "Do not approve, self-approve, merge, auto-merge, deploy, auto-repair, or enable unrestricted repair.",
+        "Do not use this blocked implementation-agent as permission to write runtime files.",
+        "Do not begin implementation without an exact human-approved path allowlist and dedicated test strategy."
+      ],
+      "requiredHumanApproval": {
+        "currentStatus": "blocked",
+        "explicitFutureHumanApproval": "required",
+        "dedicatedTestStrategy": "required_before_activation",
+        "exactPathAllowlist": "required_before_activation",
+        "rollbackReviewPlan": "required_before_activation",
+        "protectedTopicReview": "required_before_activation"
+      },
+      "activationRequirements": [
+        "Explicit future human approval naming this implementation-agent ID.",
+        "Dedicated test strategy for the exact implementation scope.",
+        "Exact path allowlist; no wildcard runtime writes by default.",
+        "Rollback and human-review plan before any protected/runtime work.",
+        "Evidence that protected areas remain blocked unless specifically approved."
+      ],
+      "protectedTopics": [
+        "token_wallet_payment_nft_betting: review_required",
+        "reward_authority_and_mission_completion_authority: review_required",
+        "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
+        "Unity_AR_native_PR_13: review_required",
+        "deployment_merge_approval_auto_merge_auto_repair: review_required"
       ]
     }
   ]
