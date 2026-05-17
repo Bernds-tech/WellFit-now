@@ -1,38 +1,89 @@
 {
   "name": "WellFit Agent Control Center",
-  "status": "planning_register_prepared",
+  "status": "lifecycle_register_prepared",
   "updated": "2026-05-17",
   "purpose": "Connect existing WellFit agent catalog, task queue, approved build backlog, risk classifier, definition of done, research governance, quality gate, PR review, decision log, progress log, and work-log structures into one controlled proposal and approval model without creating a parallel runtime architecture.",
   "roles": [
     {
       "id": "viewer",
       "label": "Viewer",
-      "permissions": ["read_proposals", "read_check_results", "read_audit_history"],
-      "forbidden_actions": ["approve", "execute", "merge", "deploy", "modify_protected_scopes"]
+      "permissions": [
+        "read_proposals",
+        "read_check_results",
+        "read_audit_history"
+      ],
+      "forbidden_actions": [
+        "approve",
+        "execute",
+        "merge",
+        "deploy",
+        "modify_protected_scopes"
+      ]
     },
     {
       "id": "agent_admin",
       "label": "Agent Admin",
-      "permissions": ["review_low_medium_proposals", "request_revision", "approve_low_risk_when_policy_allows"],
-      "forbidden_actions": ["approve_own_work", "approve_high_or_critical", "merge", "deploy", "modify_protected_scopes"]
+      "permissions": [
+        "review_low_medium_proposals",
+        "request_revision",
+        "approve_low_risk_when_policy_allows"
+      ],
+      "forbidden_actions": [
+        "approve_own_work",
+        "approve_high_or_critical",
+        "merge",
+        "deploy",
+        "modify_protected_scopes"
+      ]
     },
     {
       "id": "technical_admin",
       "label": "Technical Admin",
-      "permissions": ["prepare_codex_task", "verify_allowed_paths", "verify_checks", "request_review_plan"],
-      "forbidden_actions": ["approve_own_work", "production_deploy_without_owner_release", "bypass_quality_gate", "modify_protected_scopes_without_explicit_approval"]
+      "permissions": [
+        "prepare_codex_task",
+        "verify_allowed_paths",
+        "verify_checks",
+        "request_review_plan"
+      ],
+      "forbidden_actions": [
+        "approve_own_work",
+        "production_deploy_without_owner_release",
+        "bypass_quality_gate",
+        "modify_protected_scopes_without_explicit_approval"
+      ]
     },
     {
       "id": "owner",
       "label": "Owner",
-      "permissions": ["approve_high_risk_with_review_plan", "approve_critical_manual_only_with_audit_note", "reject", "request_revision"],
-      "forbidden_actions": ["bypass_required_checks", "bypass_audit_note", "self_approve_agent_output_as_system_agent"]
+      "permissions": [
+        "approve_high_risk_with_review_plan",
+        "approve_critical_manual_only_with_audit_note",
+        "reject",
+        "request_revision"
+      ],
+      "forbidden_actions": [
+        "bypass_required_checks",
+        "bypass_audit_note",
+        "self_approve_agent_output_as_system_agent"
+      ]
     },
     {
       "id": "system_agent",
       "label": "System Agent",
-      "permissions": ["create_proposal", "classify_risk", "suggest_checks", "prepare_report_only_codex_task_draft"],
-      "forbidden_actions": ["approve", "self_approve", "merge", "deploy", "activate_runtime_authority", "modify_protected_scopes_without_approval"]
+      "permissions": [
+        "create_proposal",
+        "classify_risk",
+        "suggest_checks",
+        "prepare_report_only_codex_task_draft"
+      ],
+      "forbidden_actions": [
+        "approve",
+        "self_approve",
+        "merge",
+        "deploy",
+        "activate_runtime_authority",
+        "modify_protected_scopes_without_approval"
+      ]
     }
   ],
   "proposal_statuses": [
@@ -47,7 +98,14 @@
     "checks_running",
     "pr_created",
     "blocked",
-    "completed"
+    "completed",
+    "proposal_created",
+    "risk_classified",
+    "admin_review",
+    "task_draft_ready",
+    "execution_allowed",
+    "checks_reviewed",
+    "human_merge_required"
   ],
   "status_legend": {
     "built": "Framework, Register, Validator oder read-only Sicht sind vorhanden. Dies bedeutet keine Runtime-Autoritaet, keine Produktfreigabe, keinen Merge, keinen Deploy und keine Protected-Scope-Freischaltung.",
@@ -119,7 +177,10 @@
     "write_production_data",
     "change_firestore_rules_or_functions_without_dedicated_review_plan",
     "touch_unity_or_pr13_paths",
-    "change_package_dependencies_without_explicit_approval"
+    "change_package_dependencies_without_explicit_approval",
+    "protected_runtime_change",
+    "protected_runtime_repair",
+    "runtime_authority_activation"
   ],
   "codex_task_generation": {
     "status": "proposal_to_task_draft_only",
@@ -244,8 +305,47 @@
       "project-register/agent-catalog.json",
       "project-register/approved-agent-build-backlog.json",
       "project-register/agent-build-proposals.json",
-      "project-register/agent-control-center.json"
-    ]
+      "project-register/agent-control-center.json",
+      "project-register/agent-task-queue.json",
+      "project-register/agent-work-log.json",
+      "project-register/pr-review-policy.json",
+      "project-register/pr-post-creation-guard.json"
+    ],
+    "json_output_contract": {
+      "status": "admin_ui_compatible_read_only_json",
+      "source": "project-register/agent-control-center.json",
+      "display_path": "/admin/agent-center",
+      "payload_key": "agentControlCenterLifecycle",
+      "schema_version": "2026-05-17.lifecycle.v1",
+      "required_fields": [
+        "name",
+        "status",
+        "updated",
+        "agent_lifecycle.ordered_steps",
+        "agent_lifecycle.global_forbidden_actions",
+        "agent_lifecycle.report_only_script_catalog",
+        "human_approval_required_for",
+        "blocked_auto_actions"
+      ],
+      "read_only_cards": [
+        "current_lifecycle_step",
+        "linked_registers",
+        "allowed_report_only_scripts",
+        "forbidden_actions",
+        "required_human_review",
+        "next_transition"
+      ],
+      "forbidden_ui_controls": [
+        "approve_own_work",
+        "auto_merge",
+        "auto_deploy",
+        "deploy",
+        "runtime_execute",
+        "protected_scope_write",
+        "firebase_write",
+        "production_data_write"
+      ]
+    }
   },
   "human_approval_required_for": [
     "medium_risk_execution",
@@ -261,7 +361,10 @@
   ],
   "authorized_approval_user": {
     "displayName": "Guggenberger Bernd",
-    "allowedRoles": ["owner", "agent_admin"],
+    "allowedRoles": [
+      "owner",
+      "agent_admin"
+    ],
     "roleResolution": "owner has highest authority; agent_admin is allowed only for low/medium, non-protected, policy-permitted concept approvals. Any real implementation must verify the authenticated user and role server-side before accepting an approval.",
     "allowedApprovalTypes": [
       "read_only_register_review_acknowledgement",
@@ -337,5 +440,267 @@
       "health_child_location_camera_biometric_legal_or_compliance_changes_without_dedicated_review_plan",
       "self_approval_or_agent_auto_approval"
     ]
+  },
+  "agent_lifecycle": {
+    "status": "admin_ui_ready_register_contract",
+    "purpose": "Concrete proposal-to-PR lifecycle for the Agent Control Center. Each step references existing registers, permits only report-only checks where listed, and preserves human-only merge/deploy authority.",
+    "ordered_steps": [
+      {
+        "id": "proposal_created",
+        "label": "Proposal created",
+        "entry_condition": "A system agent or admin drafts a narrowly scoped proposal with purpose, non-goals, expected changed areas, risk assumptions, and required checks.",
+        "linked_registers": [
+          "project-register/agent-task-queue.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-work-log.json"
+        ],
+        "register_contract": {
+          "agent-task-queue.json": "Use taskCandidates, selectionRules, defaultRequiredChecks, globalForbiddenFiles, and globalForbiddenChanges to anchor the proposal in an existing task queue item or mark it as a new candidate.",
+          "approved-agent-build-backlog.json": "Check whether a matching approved backlog entry already exists; proposal creation alone must not create execution authority.",
+          "agent-work-log.json": "Record or prepare a work-log reference for proposal provenance and later audit evidence."
+        },
+        "allowed_report_only_scripts": [
+          "npm run agent:autopilot:dry-run"
+        ],
+        "allowed_state_transition": "risk_classified",
+        "forbidden_actions": [
+          "auto_merge",
+          "auto_deploy",
+          "self_approve",
+          "protected_runtime_change"
+        ]
+      },
+      {
+        "id": "risk_classified",
+        "label": "Risk classified",
+        "entry_condition": "The proposal has an explicit low/medium/high/critical risk level, protected-scope assessment, and stop conditions.",
+        "linked_registers": [
+          "project-register/agent-task-queue.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/pr-review-policy.json"
+        ],
+        "register_contract": {
+          "agent-task-queue.json": "Compare allowed and forbidden files plus default checks against the proposed scope.",
+          "approved-agent-build-backlog.json": "Apply riskSemantics, backlogEntrySchema, runtimeCapabilityFieldDefinitions, and executionCapabilities before any build handoff.",
+          "pr-review-policy.json": "Pre-map protectedAreaChecks, humanReviewRequiredFor, and forbiddenAutoApprovalTopics that will be required if a PR is later created."
+        },
+        "allowed_report_only_scripts": [
+          "npm run agent:autopilot:dry-run",
+          "npm run agent:quality-gate"
+        ],
+        "allowed_state_transition": "admin_review",
+        "forbidden_actions": [
+          "auto_merge",
+          "auto_deploy",
+          "self_approve",
+          "protected_runtime_change"
+        ]
+      },
+      {
+        "id": "admin_review",
+        "label": "Admin review",
+        "entry_condition": "A human admin/owner reviews scope, risk, linked registers, required checks, and blocked actions.",
+        "linked_registers": [
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-work-log.json",
+          "project-register/pr-review-policy.json"
+        ],
+        "register_contract": {
+          "approved-agent-build-backlog.json": "Only exact approved entries may move toward a build draft; concept approval is not implementation approval.",
+          "agent-work-log.json": "Capture admin decision, requested revision, rejection, or owner escalation evidence.",
+          "pr-review-policy.json": "Confirm review inputs and protected checks that must appear in the eventual PR handoff."
+        },
+        "allowed_report_only_scripts": [
+          "npm run agent:autopilot:dry-run",
+          "npm run agent:approved-runner:dry-run",
+          "npm run agent:quality-gate"
+        ],
+        "allowed_state_transition": "task_draft_ready",
+        "forbidden_actions": [
+          "auto_merge",
+          "auto_deploy",
+          "self_approve",
+          "protected_runtime_change",
+          "runtime_execution_without_exact_owner_approval"
+        ]
+      },
+      {
+        "id": "task_draft_ready",
+        "label": "Task draft ready",
+        "entry_condition": "The Codex task draft includes exact allowed paths, blocked paths, checks, review plan, stop conditions, and expected PR diff scope.",
+        "linked_registers": [
+          "project-register/agent-task-queue.json",
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-work-log.json"
+        ],
+        "register_contract": {
+          "agent-task-queue.json": "Use expectedPrOutput and jsonValidationChecks for the task draft contract.",
+          "approved-agent-build-backlog.json": "Use backlogEntrySchema and artifactStatuses to verify a build item is draft-ready but not automatically executable.",
+          "agent-work-log.json": "Prepare the audit entry that identifies branch/task draft provenance."
+        },
+        "allowed_report_only_scripts": [
+          "npm run agent:approved-runner:dry-run",
+          "npm run agent:quality-gate"
+        ],
+        "allowed_state_transition": "execution_allowed",
+        "forbidden_actions": [
+          "auto_merge",
+          "auto_deploy",
+          "self_approve",
+          "protected_runtime_change",
+          "execute_unapproved_task"
+        ]
+      },
+      {
+        "id": "execution_allowed",
+        "label": "Execution allowed",
+        "entry_condition": "Human approval for one exact task is present, required checks are named, and protected/runtime scopes remain blocked unless explicitly owner-approved with a review plan.",
+        "linked_registers": [
+          "project-register/approved-agent-build-backlog.json",
+          "project-register/agent-work-log.json",
+          "project-register/pr-review-policy.json",
+          "project-register/pr-post-creation-guard.json"
+        ],
+        "register_contract": {
+          "approved-agent-build-backlog.json": "ExecutionCapabilities may be used only within the exact approved entry and never as global runtime authority.",
+          "agent-work-log.json": "Record execution start/end, branch, commit, checks, and skipped checks.",
+          "pr-review-policy.json": "Carry requiredPRDescriptionFields and review checklist into the PR.",
+          "pr-post-creation-guard.json": "Prepare post-PR evidence requirements before the PR is opened."
+        },
+        "allowed_report_only_scripts": [
+          "npm run agent:approved-runner:dry-run",
+          "npm run agent:quality-gate"
+        ],
+        "allowed_state_transition": "pr_created",
+        "forbidden_actions": [
+          "auto_merge",
+          "auto_deploy",
+          "self_approve",
+          "protected_runtime_change",
+          "deploy",
+          "production_data_write"
+        ]
+      },
+      {
+        "id": "pr_created",
+        "label": "PR created",
+        "entry_condition": "A PR exists with changed-file summary, checks run, risks, skipped checks, linked registers, and human review notes.",
+        "linked_registers": [
+          "project-register/agent-work-log.json",
+          "project-register/pr-review-policy.json",
+          "project-register/pr-post-creation-guard.json"
+        ],
+        "register_contract": {
+          "agent-work-log.json": "Append or reference PR URL/number, branch, commit, and check summary.",
+          "pr-review-policy.json": "Validate requiredReviewInputs, requiredPRDescriptionFields, protectedAreaChecks, and forbiddenAutoApprovalTopics.",
+          "pr-post-creation-guard.json": "Run requiredPostPRChecks and collect requiredEvidence; report-only auto-merge eligibility is not merge permission."
+        },
+        "allowed_report_only_scripts": [
+          "npm run agent:quality-gate"
+        ],
+        "allowed_state_transition": "checks_reviewed",
+        "forbidden_actions": [
+          "auto_merge",
+          "auto_deploy",
+          "self_approve",
+          "protected_runtime_change",
+          "merge_without_human"
+        ]
+      },
+      {
+        "id": "checks_reviewed",
+        "label": "Checks reviewed",
+        "entry_condition": "Required checks, quality-gate output, PR policy output, protected path report, and skipped/failed check reasons have been reviewed.",
+        "linked_registers": [
+          "project-register/agent-work-log.json",
+          "project-register/pr-review-policy.json",
+          "project-register/pr-post-creation-guard.json"
+        ],
+        "register_contract": {
+          "agent-work-log.json": "Store final check results and failure classification when not green.",
+          "pr-review-policy.json": "Confirm humanReviewRequiredFor and reportOutputSchema before handoff.",
+          "pr-post-creation-guard.json": "Apply mergeabilityStates, checkStatusStates, safeRepairEligibilityRules, stopForHumanReviewRules, forbiddenAutoActions, and requiredEvidence."
+        },
+        "allowed_report_only_scripts": [
+          "npm run agent:quality-gate"
+        ],
+        "allowed_state_transition": "human_merge_required",
+        "forbidden_actions": [
+          "auto_merge",
+          "auto_deploy",
+          "self_approve",
+          "protected_runtime_change",
+          "bypass_failed_checks"
+        ]
+      },
+      {
+        "id": "human_merge_required",
+        "label": "Human merge required",
+        "entry_condition": "The PR handoff is complete and explicitly stops at human merge/reject/revision decision.",
+        "linked_registers": [
+          "project-register/agent-work-log.json",
+          "project-register/pr-review-policy.json",
+          "project-register/pr-post-creation-guard.json"
+        ],
+        "register_contract": {
+          "agent-work-log.json": "Record final handoff state and next recommended human action.",
+          "pr-review-policy.json": "No agent may satisfy required human review by self-approval.",
+          "pr-post-creation-guard.json": "forbiddenAutoActions and allowedPRHandoffScope remain authoritative: merge/deploy are human-only and separate from report-only eligibility."
+        },
+        "allowed_report_only_scripts": [
+          "npm run agent:quality-gate"
+        ],
+        "allowed_state_transition": null,
+        "forbidden_actions": [
+          "auto_merge",
+          "auto_deploy",
+          "self_approve",
+          "protected_runtime_change",
+          "deploy",
+          "close_or_merge_pr13"
+        ]
+      }
+    ],
+    "global_forbidden_actions": [
+      "auto_merge",
+      "auto_deploy",
+      "self_approve",
+      "auto_approve",
+      "protected_runtime_change",
+      "protected_runtime_repair",
+      "production_deploy",
+      "production_data_write",
+      "firebase_write_without_dedicated_review_plan",
+      "runtime_authority_activation",
+      "bypass_failed_checks",
+      "modify_unity_or_pr13_paths"
+    ],
+    "report_only_script_catalog": {
+      "autopilot_dry_run": "npm run agent:autopilot:dry-run",
+      "approved_runner_dry_run": "npm run agent:approved-runner:dry-run",
+      "quality_gate": "npm run agent:quality-gate"
+    },
+    "runtime_guardrail": "Allowed report-only scripts may read, validate, and summarize. They must not merge, deploy, approve, write production data, activate runtime authority, or alter protected scopes.",
+    "admin_ui_projection": {
+      "component_key": "agent_control_center_lifecycle",
+      "display_path": "/admin/agent-center",
+      "mode": "read_only",
+      "primary_status_field": "current_step",
+      "step_ids": [
+        "proposal_created",
+        "risk_classified",
+        "admin_review",
+        "task_draft_ready",
+        "execution_allowed",
+        "pr_created",
+        "checks_reviewed",
+        "human_merge_required"
+      ],
+      "show_register_links": true,
+      "show_allowed_report_only_scripts": true,
+      "show_forbidden_actions": true,
+      "show_next_transition": true,
+      "action_buttons_allowed": false
+    }
   }
 }
