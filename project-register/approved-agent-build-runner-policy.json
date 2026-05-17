@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "updated": "2026-05-17",
   "activationState": "single_agent_docs_register_build",
-  "purpose": "Govern the Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can be built one at a time as docs/register/validator agents when required checks, safe-repair boundaries, PR diff review, mergeability, and protected-scope gates are green.",
+  "purpose": "Govern the Approved Agent Build Runner and Merge Gate so already human-approved backlog entries can be built one at a time as docs/register/validator/report agents when required checks, safe-repair boundaries, PR diff review, mergeability, and protected-scope gates are green; this never grants implementation-agent or runtime authority.",
   "approvedBacklogSource": "project-register/approved-agent-build-backlog.json",
   "maxAgentsPerRun": 1,
   "allowedAgentBuildCategories": [
@@ -104,7 +104,10 @@
       "scopeLimits": [
         "One approved low-risk docs/register/check-script governance task per branch.",
         "No runtime product behavior changes.",
-        "No deploy, approval, self-approval, auto-merge or unrestricted auto-repair."
+        "No deploy, approval, self-approval, auto-merge or unrestricted auto-repair.",
+        "Runner evidence for report-agent builds must emit runtimeAuthorityGranted: false and reportOnly: true.",
+        "Implementation-agent runtime work remains blocked until a separate Human Approval names exact runtime files, protected boundaries, and required tests for the concrete task.",
+        "Report-agent artifacts may cover high/critical domains only as observation, audit, validation, or guardrail review scope; domainRisk is not runtime authority."
       ],
       "minimumRequiredChecks": [
         "git diff --check",
@@ -148,7 +151,10 @@
       "scopeLimits": [
         "Not active under current policy.",
         "Would require exact file list, copy-only scope and screenshot/build evidence before use.",
-        "Must not alter routing, data access, state transitions, mission/reward authority or compliance/legal messaging."
+        "Must not alter routing, data access, state transitions, mission/reward authority or compliance/legal messaging.",
+        "Runner evidence for report-agent builds must emit runtimeAuthorityGranted: false and reportOnly: true.",
+        "Implementation-agent runtime work remains blocked until a separate Human Approval names exact runtime files, protected boundaries, and required tests for the concrete task.",
+        "Report-agent artifacts may cover high/critical domains only as observation, audit, validation, or guardrail review scope; domainRisk is not runtime authority."
       ],
       "minimumRequiredChecks": [
         "git diff --check",
@@ -194,7 +200,10 @@
       "scopeLimits": [
         "Not active under current policy.",
         "May document or register existing routes only after explicit activation.",
-        "Must not edit runtime route files or change navigation behavior."
+        "Must not edit runtime route files or change navigation behavior.",
+        "Runner evidence for report-agent builds must emit runtimeAuthorityGranted: false and reportOnly: true.",
+        "Implementation-agent runtime work remains blocked until a separate Human Approval names exact runtime files, protected boundaries, and required tests for the concrete task.",
+        "Report-agent artifacts may cover high/critical domains only as observation, audit, validation, or guardrail review scope; domainRisk is not runtime authority."
       ],
       "minimumRequiredChecks": [
         "git diff --check",
@@ -241,7 +250,10 @@
       "scopeLimits": [
         "Not active under current policy.",
         "May only add or update tests after explicit activation and exact test scope approval.",
-        "Must not change product implementation, fixtures that grant authority, package manifests, Firebase, Unity or deployment configuration."
+        "Must not change product implementation, fixtures that grant authority, package manifests, Firebase, Unity or deployment configuration.",
+        "Runner evidence for report-agent builds must emit runtimeAuthorityGranted: false and reportOnly: true.",
+        "Implementation-agent runtime work remains blocked until a separate Human Approval names exact runtime files, protected boundaries, and required tests for the concrete task.",
+        "Report-agent artifacts may cover high/critical domains only as observation, audit, validation, or guardrail review scope; domainRisk is not runtime authority."
       ],
       "minimumRequiredChecks": [
         "git diff --check",
@@ -292,6 +304,9 @@
         "One already-human-approved agent/backlog entry per branch.",
         "May create or update agent docs, registers, validators, reports, Work Map/TODO Index references, progress/work-log evidence, and quality-gate registration inside allowed paths.",
         "High/critical domain-risk report agents may be built only when implementation stays docs/register/validator-only and grants no runtime authority.",
+        "Runner evidence for report-agent builds must emit runtimeAuthorityGranted: false and reportOnly: true.",
+        "Implementation-agent runtime work remains blocked until a separate Human Approval names exact runtime files, protected boundaries, and required tests for the concrete task.",
+        "Report-agent artifacts may cover high/critical domains only as observation, audit, validation, or guardrail review scope; domainRisk is not runtime authority.",
         "No runtime product behavior changes.",
         "No deploy, approval, self-approval, auto-merge, unrestricted auto-repair, token/wallet/payment/reward-authority/mission-authority, legal/privacy/health/child/location/camera, Unity, or PR #13 changes."
       ],
@@ -575,7 +590,8 @@
     "repair_required unresolved",
     "environment_blocked",
     "protected/runtime/high-risk finding",
-    "self-approval/deploy/repository-setting change attempted"
+    "self-approval/deploy/repository-setting change attempted",
+    "A report-agent build attempts to treat high/critical domainRisk as product, health, child-safety, location, reward, token, payment, or other runtime authority."
   ],
   "forbiddenAutoActions": [
     "build multiple future agents",
@@ -589,13 +605,18 @@
     "enable unrestricted auto-merge",
     "enable unrestricted auto-repair",
     "deploy",
-    "touch PR #13 or Unity files"
+    "touch PR #13 or Unity files",
+    "convert reportOnly/domainRisk evidence into implementation-agent approval without separate Human Approval naming exact runtime files, boundaries, and tests"
   ],
   "reportOutputSchema": {
     "generatedAt": "ISO timestamp",
     "mode": "REPORT_ONLY or REPORT_CHECK_ONLY",
     "selectedBacklogEntryId": "string or null",
     "selectedAgentName": "string or null",
+    "domainRisk": "string; selected backlog domain risk/observation scope, defaulting to riskLevel when no separate domainRisk exists",
+    "implementationRisk": "string; blocked_until_separate_human_approval_names_exact_runtime_files_boundaries_and_tests for report-agent artifacts",
+    "runtimeAuthorityGranted": "boolean; must be false for report-agent builds and dry-runs",
+    "reportOnly": "boolean; must be true for report-agent builds and dry-runs",
     "maxAgentsPerRun": "number",
     "requiredFilesToCreateOrUpdate": "array",
     "allowedFiles": "array",

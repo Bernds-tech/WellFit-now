@@ -37,6 +37,7 @@ const MANDATORY_POST_PR = ["node scripts/wellfit-dev-agent/src/pr-post-creation-
 const MANDATORY_MERGE_TERMS = ["PR exists", "PR branch is not main", "PR is mergeable", "required GitHub checks are success", "required local checks were actually executed and passed", "no runtime/protected files changed"];
 const SAFE_REPAIR_IDS = ["markdown_trailing_whitespace", "missing_final_newline", "json_formatting_or_parse_errors_project_register", "missing_work_map_pointer", "missing_todo_index_pointer", "missing_ki_fortsetzung_prompt", "missing_expected_pr_output", "missing_required_output_locations_or_next_task", "missing_quality_gate_report_only_validator_registration", "missing_catalog_backlog_proposal_metadata", "missing_progress_or_work_log_evidence"];
 const UNSAFE_STOP_TERMS = ["app/**", "components/**", "lib/**", "functions/**", "firestore.rules", "public/**", "package.json/package-lock.json", "firebase.json or .github/**", "native/** or Unity/PR #13", "reward authority", "mission-completion authority", "health/child/location/camera/biometric/consent/privacy/legal/compliance", "source-of-truth ambiguity", "high/critical risk"];
+const REQUIRED_REPORT_SCHEMA_FIELDS = ["domainRisk", "implementationRisk", "runtimeAuthorityGranted", "reportOnly"];
 const REQUIRED_REFERENCES = [POLICY_PATH, STATE_PATH, DOC_PATH, CHECK_PATH, DRY_RUN_PATH];
 const ACTIVE_DOCS_REGISTER_BUILD_STATE = "single_agent_docs_register_build";
 const ALLOWED_POLICY_ACTIVATION_STATES = ["report_only", ACTIVE_DOCS_REGISTER_BUILD_STATE];
@@ -84,13 +85,15 @@ function main() {
   add(results, "Unsafe repair stop rules include protected/runtime areas", containsAllText(policy.unsafeRepairStopRules, UNSAFE_STOP_TERMS).length === 0, containsAllText(policy.unsafeRepairStopRules, UNSAFE_STOP_TERMS).join(", ") || "complete");
   add(results, "Merge eligibility blocks unknown/missing/pending checks", containsAllText(policy.mergeEligibilityRules, ["unknown", "pending", "failed", "missing", "repair_required", "protected path findings"]).length === 0, containsAllText(policy.mergeEligibilityRules, ["unknown", "pending", "failed", "missing", "repair_required", "protected path findings"]).join(", ") || "complete");
   add(results, "Forbidden auto-actions block approval/merge/deploy/unrestricted repair", containsAllText(policy.forbiddenAutoActions, ["approve PRs", "self-approve", "merge with missing checks", "enable unrestricted auto-merge", "enable unrestricted auto-repair", "deploy", "PR #13", "Unity"]).length === 0, containsAllText(policy.forbiddenAutoActions, ["approve PRs", "self-approve", "merge with missing checks", "enable unrestricted auto-merge", "enable unrestricted auto-repair", "deploy", "PR #13", "Unity"]).join(", ") || "complete");
+  add(results, "Report output schema exposes risk and report-only authority fields", missing(Object.keys(policy.reportOutputSchema ?? {}), REQUIRED_REPORT_SCHEMA_FIELDS).length === 0, missing(Object.keys(policy.reportOutputSchema ?? {}), REQUIRED_REPORT_SCHEMA_FIELDS).join(", ") || "complete");
+  add(results, "Policy blocks report domainRisk from becoming runtime authority", containsAllText([policy.purpose, ...(policy.stopConditions ?? []), ...(policy.forbiddenAutoActions ?? [])], ["domainRisk", "runtime authority", "separate Human Approval", "exact runtime files", "tests"]).length === 0, containsAllText([policy.purpose, ...(policy.stopConditions ?? []), ...(policy.forbiddenAutoActions ?? [])], ["domainRisk", "runtime authority", "separate Human Approval", "exact runtime files", "tests"]).join(", ") || "complete");
   add(results, "Work Map references policy, doc, scripts, and state", REQUIRED_REFERENCES.every((file) => workMap.includes(file)), REQUIRED_REFERENCES.filter((file) => !workMap.includes(file)).join(", ") || "complete");
   add(results, "TODO Index references policy, doc, scripts, and state", REQUIRED_REFERENCES.every((file) => todoIndex.includes(file)), REQUIRED_REFERENCES.filter((file) => !todoIndex.includes(file)).join(", ") || "complete");
   add(results, "Quality gate includes runner check", qualityGate.includes(CHECK_PATH), CHECK_PATH);
   add(results, "Quality gate includes runner dry run", qualityGate.includes(DRY_RUN_PATH), DRY_RUN_PATH);
 
   const ready = results.every((r) => r.passed);
-  const report = `# Approved Agent Build Runner Check Report\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_CHECK_ONLY\nResult: ${ready ? "PASS" : "FAIL"}\nAPPROVED_AGENT_BUILD_RUNNER_READY=${ready ? "true" : "false"}\n\n## Safety Confirmations\n\n- Policy allows docs/register/validator agent builds: true\n- Never builds runtime agents: true\n- PR creation allowed for scoped docs/register agent builds: true\n- Never merges PRs: true\n- Never repairs files: true\n- Never deploys: true\n- Missing checks are not merge-ready: true\n- PR #109-style future-CI-only check evidence is not_merge_ready: true\n\n## Validation Results\n\n${renderResults(results)}\n\n## Required References\n\n${renderList(REQUIRED_REFERENCES)}\n`;
+  const report = `# Approved Agent Build Runner Check Report\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_CHECK_ONLY\nResult: ${ready ? "PASS" : "FAIL"}\nAPPROVED_AGENT_BUILD_RUNNER_READY=${ready ? "true" : "false"}\n\n## Safety Confirmations\n\n- Policy allows docs/register/validator agent builds: true\n- Never builds runtime agents: true\n- PR creation allowed for scoped docs/register agent builds: true\n- Never merges PRs: true\n- Never repairs files: true\n- Never deploys: true\n- Missing checks are not merge-ready: true\n- PR #109-style future-CI-only check evidence is not_merge_ready: true\n- runtimeAuthorityGranted: false\n- reportOnly: true\n- High/Critical domainRisk is report observation scope, not runtime authority: true\n- Implementation-agent runtime work requires separate Human Approval with exact files, boundaries, and tests: true\n\n## Validation Results\n\n${renderResults(results)}\n\n## Required References\n\n${renderList(REQUIRED_REFERENCES)}\n`;
   fs.mkdirSync(path.dirname(absolute(OUTPUT_PATH)), { recursive: true });
   fs.writeFileSync(absolute(OUTPUT_PATH), report, "utf8");
 
@@ -105,6 +108,10 @@ function main() {
   console.log("Never deploys: true");
   console.log("Missing checks are not merge-ready: true");
   console.log("PR #109-style missing-check PRs are not_merge_ready: true");
+  console.log("runtimeAuthorityGranted: false");
+  console.log("reportOnly: true");
+  console.log("High/Critical domainRisk is report observation scope, not runtime authority: true");
+  console.log("Implementation-agent runtime work requires separate Human Approval with exact files, boundaries, and tests: true");
   console.log(`APPROVED_AGENT_BUILD_RUNNER_READY=${ready ? "true" : "false"}`);
   console.log(`Result: ${ready ? "PASS" : "FAIL"}`);
   if (!ready) process.exit(1);

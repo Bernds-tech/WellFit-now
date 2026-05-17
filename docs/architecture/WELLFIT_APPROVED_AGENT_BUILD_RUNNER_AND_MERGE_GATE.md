@@ -24,6 +24,14 @@ Bernd hat die bereits besprochenen und im Approved-Agent-Build-Backlog als `alre
 
 Der aktive Modus heisst `single_agent_docs_register_build`. High-/Critical-Domain-Risk darf in diesem Modus nur bedeuten, dass der Guard-/Report-Agent ein kritisches Thema beobachtet; die Implementierung selbst muss docs/register/validator-only bleiben und darf keine Runtime-Autoritaet erhalten. Neue Agenten ausserhalb des bereits freigegebenen Backlogs brauchen weiterhin eine explizite Vorstellung und Freigabe durch Bernd.
 
+## Report-Agent- vs. Implementierungs-Agent-Semantik
+
+Report-Agenten aus `project-register/approved-agent-build-backlog.json` duerfen in diesem Runner als Docs-/Register-/Validator-/Report-Artefakte gebaut werden. Dazu gehoeren auch Guard- oder Audit-Agenten mit `high` oder `critical` Domain-Risk, solange diese Einstufung nur beschreibt, welche Produkt- oder Schutzdomaene der Report beobachtet, prueft oder als Risiko markiert. `domainRisk=high` oder `domainRisk=critical` ist damit ein Beobachtungs-/Pruefbereich, keine Produktfreigabe.
+
+Implementierungs-Agenten bleiben blockiert. Eine spaetere Runtime-Aufgabe braucht vorab eine separate Human Approval, die mindestens die exakten Runtime-Dateien oder Globs, die Schutzgrenzen und Stop-Bedingungen sowie die auszufuehrenden Tests/Checks fuer genau diese Aufgabe benennt. Ohne diese separate Freigabe darf der Runner keine Produkt-, Health-, Child-Safety-, Location-, Reward-, Token-, Wallet-, Payment-, Legal-, Privacy-, Unity- oder sonstige geschuetzte Runtime-Logik veraendern.
+
+Runner-Berichte muessen die Trennung maschinenlesbar ausgeben: `domainRisk`, `implementationRisk`, `runtimeAuthorityGranted: false` und `reportOnly: true`. Fuer Report-Agenten bleibt `implementationRisk` auf `blocked_until_separate_human_approval_names_exact_runtime_files_boundaries_and_tests`, auch wenn der Domain-Risk hoch oder kritisch ist.
+
 ## Autonomie-Modell
 
 The policy set now uses a single ordered autonomy model. The active release stage on 2026-05-17 is `single_agent_docs_register_build` for the Approved Agent Build Runner and Agent Autopilot policies, plus `safe_docs_register_json_format_repair_allowed` for narrowly scoped docs/register/JSON-format auto-repair evidence fixes. Auto-merge stays at `report_only`; therefore this release authorizes PR handoff and safe docs/register repair only, not merges, runtime edits, protected-scope edits, approvals, PR closing, or deployment.

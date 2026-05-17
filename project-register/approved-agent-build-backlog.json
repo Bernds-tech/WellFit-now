@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "updated": "2026-05-17",
   "activationState": "approved_planning_backlog",
-  "purpose": "Machine-readable backlog of human-approved future WellFit agents/frameworks. Entries marked alreadyHumanApproved are approved to be built one at a time as docs/register/validator/report artifacts under single_agent_docs_register_build; this does not grant runtime, merge, deploy, protected-scope, or self-approval authority.",
+  "purpose": "Machine-readable backlog of human-approved future WellFit agents/frameworks. Entries marked alreadyHumanApproved are approved to be built one at a time as docs/register/validator/report artifacts under single_agent_docs_register_build; this does not grant runtime, merge, deploy, protected-scope, implementation-agent, or self-approval authority.",
   "approvalSource": "Project owner request on 2026-05-16 confirming listed future agents/frameworks may be recorded in an approved build backlog after PR #104 policy work.",
   "statuses": [
     "proposed",
@@ -19,11 +19,36 @@
     "Do not build more than one future agent per branch; alreadyHumanApproved entries may be built under single_agent_docs_register_build as docs/register/validator/report artifacts.",
     "Build one approved future agent/framework per PR unless Batch Execution Runner explicitly authorizes a bounded batch.",
     "Keep first version report-only and docs/register/validator-only unless a later human-approved task says otherwise.",
-    "High/critical or protected-boundary entries require human review and cannot be automatically marked built.",
+    "High/critical or protected-boundary entries may be built only when they are report-agent artifacts whose high/critical domain risk describes observation/review scope, not runtime authority.",
+    "Implementation-agent work remains blocked until a separate Human Approval names exact runtime files, protection boundaries, and required tests for the concrete task.",
     "Before built status, add required docs, registers, validation scripts, Work Map/TODO Index references, quality gate integration, passing checks, and PR evidence.",
     "New agents not already present and human-approved in this backlog still require presentation and explicit owner approval before build.",
-    "High/critical domain-risk report agents may be built only as no-runtime guard/report artifacts; implementation-risk remains blocked if runtime/protected authority would be needed."
+    "High/critical domain-risk report agents may be built only as no-runtime guard/report artifacts; implementation-risk remains blocked if runtime/protected authority would be needed.",
+    "Report-agent builds must preserve reportOnly=true and runtimeAuthorityGranted=false in runner/report evidence; these fields are never approvals for product, health, child-safety, location, reward, token, payment, legal, privacy, Unity, or other protected runtime logic."
   ],
+
+  "riskSemantics": {
+    "reportAgentBuildsAllowed": true,
+    "reportAgentAllowedArtifactTypes": [
+      "docs",
+      "register",
+      "validator",
+      "report"
+    ],
+    "implementationAgentsBlocked": true,
+    "implementationAgentUnlockRequires": [
+      "separate Human Approval for the concrete implementation task",
+      "exact runtime files or globs to be touched",
+      "explicit protected-boundary exclusions and stop conditions",
+      "required tests/checks and review evidence before execution"
+    ],
+    "highCriticalDomainRiskMeaningForReportAgents": "High/Critical domain risk defines the observation, audit, or guardrail review area for a report agent; it does not grant product, health, child-safety, location, reward, token, payment, legal, privacy, Unity, or other runtime authority.",
+    "runnerReportRequiredDefaults": {
+      "runtimeAuthorityGranted": false,
+      "reportOnly": true,
+      "implementationRisk": "blocked_until_separate_human_approval_names_exact_runtime_files_boundaries_and_tests"
+    }
+  },
   "backlogEntrySchema": {
     "id": "required",
     "proposedAgentName": "required",
@@ -88,7 +113,9 @@
     },
     "allowedWriteScopes": "Path globs the artifact/task is allowed to write when a human-approved task grants write execution.",
     "forbiddenWriteScopes": "Path globs the artifact/task must not write; forbidden scopes override allowed scopes.",
-    "requiresHumanApprovalForRuntime": "True when runtime execution, product writes, repairs, PR creation, or protected-scope actions need explicit human approval before use."
+    "requiresHumanApprovalForRuntime": "True when runtime execution, product writes, repairs, PR creation, or protected-scope actions need explicit human approval before use.",
+    "domainRisk": "Runner/report-facing risk label for the domain being observed; defaults to the entry riskLevel when no separate domainRisk field exists.",
+    "implementationRisk": "Runner/report-facing implementation state; for report-agent artifacts this remains blocked_until_separate_human_approval_names_exact_runtime_files_boundaries_and_tests unless a later approved runtime task changes it."
   },
   "entries": [
     {
