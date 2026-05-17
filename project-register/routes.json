@@ -153,7 +153,7 @@
       "area": "Admin Agent Center",
       "auth": "owner-or-admin-review-required",
       "status": "active-safe-live-report-only",
-      "notes": "Live visible Agent OS console; reads static governance registers; no approval buttons, no runtime execution, no Firebase writes."
+      "notes": "Live visible Agent OS console; reads static governance registers; shows local review-only approval decision fields and scope documents; no runtime execution, no Firebase writes, no automatic PR creation, and no automatic merge."
     },
     {
       "route": "/admin/agent-center/task-proposals",
@@ -218,7 +218,7 @@
       "route": "/admin/agent-center",
       "area": "Admin Agent Control Center",
       "auth": "admin-read-only-static-register-overview",
-      "status": "read_only_no_actions"
+      "status": "review_only_no_runtime_actions"
     },
     {
       "route": "/_not-found",
