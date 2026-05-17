@@ -1,183 +1,130 @@
 # WellFit Agent Control Center Gap Analysis
 
 Stand: 2026-05-17
-Scope: Stufe-4B / docs-register-validator Vorbereitung ohne Runtime-Code, ohne Admin-UI, ohne Merge-/Deploy-Aktivierung.
+Scope: Stufe-4B / Docs-, Register- und Validator-Vorbereitung ohne Runtime-Code, ohne Admin-UI, ohne Merge-/Deploy-Aktivierung.
 
-## Zweck dieser Analyse
+## Zweck und Ergebnis
 
-Diese Analyse prueft, ob WellFit bereits Bestandteile eines Agent Control Centers besitzt und welche minimale Erweiterung sinnvoll ist. Ziel ist **keine Parallelarchitektur**, sondern eine belastbare Entscheidungsgrundlage fuer ein spaeter bedienbares Admin-/Owner-System fuer Agent-Vorschlaege, Freigaben, Checks, PR-Handoffs und Audit-Historie.
+Diese Analyse prueft, welche Bausteine fuer ein WellFit Agent Control Center bereits existieren, welche zentralen Register/Konzepte noch fehlen und welche Duplikate nicht neu gebaut werden duerfen. Ergebnis: WellFit braucht **keine Parallelarchitektur** und in Phase 1 **kein OpenAI Agents SDK**. Der sichere naechste Schritt bleibt eine verbindende Governance-Schicht ueber den vorhandenen Registern, Policies, Checks und Audit-Dateien.
 
-## 1. Was existiert bereits?
+Vor dieser Einschaetzung wurden die aktuellen Leitdateien, TODO-/Statusdateien, Agent-Register und Architekturvorgaben geprueft: `AGENTS.md`, `README.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/agent-autopilot.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-catalog.json`, `project-register/agent-build-proposals.json`, `project-register/approved-agent-build-runner-policy.json`, `project-register/approved-agent-build-runner-merge-gate.json`, `project-register/auto-merge-policy.json`, `docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md`, `docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md`, `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md` und `docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md`.
 
-WellFit besitzt bereits viele Bausteine, die ein Agent Control Center benoetigt:
+## 1. Bereits vorhandene Control-Center-Bausteine
 
-| Bereich | Vorhandene Struktur | Bewertung |
+WellFit besitzt bereits viele Teile, die ein Control Center benoetigt. Sie sollen referenziert und sichtbar verbunden werden, nicht ersetzt werden.
+
+| Baustein | Vorhandene Quelle | Control-Center-Relevanz |
 | --- | --- | --- |
-| Agent Registry / Catalog | `project-register/agent-catalog.json` | Bereits vorhanden. Sollte nicht ersetzt, sondern fuer Control-Center-Sichten referenziert werden. |
-| Agent Task Queue | `project-register/agent-task-queue.json` | Bereits vorhanden. Dient als maschinenlesbare Queue fuer sichere naechste Aufgaben. |
-| Approved Agent Build Backlog | `project-register/approved-agent-build-backlog.json` | Bereits vorhanden. Enthalt human-approved report-only/docs-register Agenten und blockierte Implementation-Agenten. |
-| Autopilot Dry Run | `project-register/agent-autopilot.json`, `scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs` | Bereits vorhanden. Plant und waehlt Pfade report-only, ohne Umsetzung/Deploy. |
-| Risk Classifier | `project-register/risk-classifier.json` | Bereits vorhanden. Sollte die Grundlage fuer Proposal-Risk-Gates bleiben. |
-| Definition of Done | `project-register/definition-of-done.json` | Bereits vorhanden. Muss fuer generierte Codex-Auftraege weiterverwendet werden. |
-| Quality Gate | `scripts/wellfit-dev-agent/src/quality-gate.mjs` | Bereits vorhanden. Eignet sich fuer report-only Integration weiterer Control-Center-Checks. |
-| Proposal Mechanik | `project-register/agent-build-proposals.json`, `scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs`, `scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs` | Bereits vorhanden, aber agent-build-fokussiert. Ein allgemeines Proposal-Register fuer Owner/Admin-Entscheidungen fehlte bisher. |
-| Approval Policy | `project-register/approved-agent-build-runner-policy.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json`, `project-register/pr-review-policy.json` | Bereits vorhanden. Aktiviert aktuell keine Runtime-Autoritaet, keinen Auto-Merge und keinen Deploy. |
-| Audit Log / Decision Log | `project-register/decisions.json`, `project-register/progress-log.json`, `project-register/agent-work-log.json` | Bereits vorhanden. Reicht fuer Governance-Historie; ein UI-tauglicher Proposal-Audit-Index fehlt noch. |
-| Controlled Curiosity / Research Flow | `project-register/research-recommendations.json`, `docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md`, `scripts/wellfit-dev-agent/src/research-recommendation-check.mjs` | Bereits vorhanden als internal-first Research-Governance. Muss fuer Admin-Proposals sichtbarer verknuepft werden. |
-| Human Approval Gate | Mehrere Policies fordern Human Review; z. B. Approved Runner, Auto-Merge, Auto-Repair, PR Review | Vorhanden als Policy, aber noch nicht als zentrales Control-Center-Modell sichtbar. |
-| Admin UI | Keine gleichwertige Runtime-UI gefunden | Fehlt bewusst; diese Aufgabe baut keine UI. |
+| Repository-Regeln und Schutzbereiche | `AGENTS.md` | Fuehrende menschliche Regeln fuer Branching, kleine PRs, keine geschuetzten Runtime-/Compliance-Aenderungen und keine Unity-/PR-#13-Abkuerzungen. |
+| Produkt-/Statuskontext | `README.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md` | Liefern Ist-Zustand, Arbeitskarte, TODO-Index, naechste Aufgaben und Sicherheitskontext. |
+| Agent Task Queue | `project-register/agent-task-queue.json` | Maschinenlesbare Auswahl sicherer naechster Agent-Aufgaben mit First-Read-Dateien, Stop-Regeln, Checks und PR-Erwartungen. |
+| Agent Catalog | `project-register/agent-catalog.json` | Inventar bekannter Agenten und Agent-Faehigkeiten; Grundlage fuer eine sichtbare Agent-Liste im Control Center. |
+| Approved Build Backlog | `project-register/approved-agent-build-backlog.json` | Human-approved Backlog fuer docs/register/report-only Agenten; blockiert Implementation-Agenten ohne Freigabe. |
+| Agent Build Proposals | `project-register/agent-build-proposals.json`, `docs/architecture/WELLFIT_AGENT_ARCHITECT_PROPOSAL_AGENT.md` | Bestehender Proposal-Mechanismus fuer Agent-Build-Vorschlaege und Architect-Proposal-Checks. |
+| Autopilot Dry Run | `project-register/agent-autopilot.json` | Plant safe/report-only Pfade ohne produktive Ausfuehrung, Deploy oder Merge. |
+| Risk Classifier | `project-register/risk-classifier.json` | Zentrale Risiko-Einstufung fuer low/medium/high/critical, verbotene Themen und Protected Scopes. |
+| Definition of Done | `project-register/definition-of-done.json` | Erwartete Ergebnis-, Check-, Evidence- und Reporting-Regeln fuer Aufgaben. |
+| Execution Controls | `docs/architecture/WELLFIT_AGENT_EXECUTION_CONTROLS.md` | Bestehende Architektur fuer sichere Agent-Ausfuehrung, First-Read-Pflichten, Stop-Regeln und Quality-Gates. |
+| Approved Runner / Merge Gate | `project-register/approved-agent-build-runner-policy.json`, `project-register/approved-agent-build-runner-merge-gate.json`, `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md` | Definiert Runner-/Merge-Gate-Grenzen, PR-Handoff, Check-Pflichten und blockierte Runtime-/Protected-Scope-Aenderungen. |
+| Auto-Merge Policy | `project-register/auto-merge-policy.json` | Haelt Auto-Merge bewusst deaktiviert bzw. streng gated; darf nicht durch das Control Center umgangen werden. |
+| Research & Recommendation Agent | `docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md` | Internal-first Research-Governance fuer unklare Fragen, drei Optionen, genau eine Empfehlung und Human Review bei hohen Risiken. |
+| Audit-/Historienquellen | `project-register/progress-log.json`, `project-register/agent-work-log.json`, `project-register/decisions.json` | Bestehende Historie fuer Agent-Arbeit, Fortschritt und Entscheidungen. |
+| Control-Center-Entwurf | `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER.md`, `project-register/agent-control-center.json`, `project-register/agent-proposals.json` | Bereits vorhandene gleichwertige Konzept-/Registerbasis fuer Rollen, Status, Proposal-Sicht, Risk Gates und blockierte Auto-Aktionen. |
 
-## 2. Relevante Dateien, Module und Skripte
+## 2. Fehlende zentrale Register/Konzepte
 
-### Primaere Governance-Dateien
+Die Luecken liegen nicht in fehlenden Einzelmechanismen, sondern in der zentralen Sichtbarkeit und Verknuepfung:
 
-- `AGENTS.md`
-- `agents/AGENTS.md`
-- `agents/modes/stufe-4.md`
-- `project-register/agent-catalog.json`
-- `project-register/agent-task-queue.json`
-- `project-register/approved-agent-build-backlog.json`
-- `project-register/agent-build-proposals.json`
-- `project-register/agent-autopilot.json`
-- `project-register/risk-classifier.json`
-- `project-register/definition-of-done.json`
-- `project-register/approved-agent-build-runner-policy.json`
-- `project-register/auto-merge-policy.json`
-- `project-register/auto-repair-policy.json`
-- `project-register/pr-review-policy.json`
-- `project-register/research-recommendations.json`
-- `project-register/decisions.json`
-- `project-register/progress-log.json`
-- `project-register/agent-work-log.json`
+1. **Kanonische Control-Center-Landing-Referenz:** `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER.md` existiert bereits und soll die fuehrende Konzeptdatei bleiben. Sie muss bei Folgearbeiten nur erweitert werden, nicht neu erfunden.
+2. **UI-tauglicher Proposal-/Audit-Index:** `project-register/agent-proposals.json` existiert bereits als Ansatz. Falls spaeter erweitert, muss er nur Status, Review-Hinweise, Risk Gates, PR-Links, Check-Evidence und Audit-Historie sichtbar machen; keine Approval-/Merge-/Deploy-Autoritaet.
+3. **Read-only Admin-UI-Spezifikation:** Es fehlt eine separate Spezifikation fuer eine spaetere read-only Admin-Ansicht. Diese Spezifikation darf noch keine Runtime-Route, API, Auth-Logik, Buttons oder Firebase Writes bauen.
+4. **Codex-Task-Draft-Schema:** Es fehlt hoechstens eine einheitliche Sicht, wie aus einem genehmigten Proposal ein Codex-Auftrag mit First-Read-Dateien, erlaubten/verbotenen Pfaden, Checks, Stop-Regeln und DoD-Evidence generiert wird. Die Daten muessen aus bestehenden Registern kommen.
+5. **Cross-Register-Statusabgleich:** Ein spaeterer report-only Check kann pruefen, ob `agent-control-center.json`, `agent-proposals.json`, Agent Catalog, Task Queue, Approved Backlog, Risk Classifier, DoD und Quality Gate konsistent bleiben.
+6. **Human-Approval-Evidence:** High-/Critical-Risk-Proposals brauchen explizite, nachvollziehbare Human-Review-Hinweise. Das Control Center darf diese Hinweise anzeigen oder einfordern, aber nicht selbst ersetzen.
 
-### Primaere Skripte
+## 3. Duplikate, die nicht neu gebaut werden duerfen
 
-- `scripts/wellfit-dev-agent/src/quality-gate.mjs`
-- `scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs`
-- `scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs`
-- `scripts/wellfit-dev-agent/src/approved-agent-build-runner-execute.mjs`
-- `scripts/wellfit-dev-agent/src/generate-next-agent-build-proposal.mjs`
-- `scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs`
-- `scripts/wellfit-dev-agent/src/research-recommendation-check.mjs`
-- `scripts/wellfit-dev-agent/src/pr-review-policy-check.mjs`
-- `scripts/wellfit-dev-agent/src/pr-diff-review-report.mjs`
-- `scripts/wellfit-dev-agent/src/pr-post-creation-guard-check.mjs`
-- `scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs`
-- `scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs`
+Folgende Strukturen sind bereits fuehrend und duerfen nicht als neue Control-Center-Parallelversion dupliziert werden:
 
-## 3. Was fehlt noch?
-
-Es fehlen nicht die Grundbausteine, sondern die **zentrale Sicht und der verbindende Proposal-/Approval-Index**:
-
-1. Ein explizites Agent-Control-Center-Konzept, das vorhandene Strukturen zusammenfuehrt.
-2. Ein maschinenlesbares Control-Center-Register mit Rollen, Statusmodell, Risk-Gates, Admin-UI-Zielbild und blockierten Auto-Aktionen.
-3. Ein allgemeines Proposal-Register fuer Owner/Admin-Entscheidungen, das nicht nur Agent-Build-Proposals abbildet.
-4. Ein report-only Validator, der sicherstellt, dass Proposals keine Auto-Merge-/Auto-Deploy-/Protected-Scope-Autoritaet aktivieren.
-5. Eine spaetere Admin-UI, die vorhandene Register nur liest bzw. kontrolliert freigegebene Aktionen vorbereitet.
-6. Eine klare Trennung zwischen:
-   - Proposal erstellen,
-   - Proposal freigeben,
-   - Codex-/Runner-Auftrag generieren,
-   - Checks laufen lassen,
-   - PR erstellen,
-   - menschlich mergen/deployen.
-
-## 4. Was waere doppelt und darf nicht neu gebaut werden?
-
-Nicht neu bauen:
-
-- Kein zweiter Agent Catalog neben `project-register/agent-catalog.json`.
-- Keine zweite Task Queue neben `project-register/agent-task-queue.json`.
-- Kein zweiter Approved Build Backlog neben `project-register/approved-agent-build-backlog.json`.
-- Kein zweiter Risk Classifier neben `project-register/risk-classifier.json`.
-- Kein zweites Definition-of-Done-System neben `project-register/definition-of-done.json`.
-- Kein paralleles Quality Gate neben `scripts/wellfit-dev-agent/src/quality-gate.mjs`.
-- Kein neues Research-System neben `project-register/research-recommendations.json`.
-- Keine Admin Runtime UI in dieser Phase.
-- Keine direkte Auto-Merge-, Auto-Approval- oder Deployment-Aktivierung in dieser Phase.
-
-## 5. Welche bestehenden Strukturen sollten erweitert werden?
-
-Sinnvolle minimale Erweiterungen:
-
-1. `project-register/agent-control-center.json` als verbindende Control-Center-Policy.
-2. `project-register/agent-proposals.json` als UI-taugliches Proposal-Register.
-3. `scripts/wellfit-dev-agent/src/agent-control-center-check.mjs` als report-only Validator.
-4. `scripts/wellfit-dev-agent/src/quality-gate.mjs` report-only um den neuen Validator ergaenzen.
-5. `todolist/WORK_MAP.md` und `todolist/TODO_INDEX.md` nur mit Verweisen auf die neue Control-Center-Vorbereitung ergaenzen.
-
-## 6. Welche Strukturen sollten nicht veraendert werden?
-
-Nicht veraendern in dieser Phase:
-
-- `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`.
-- `native/**` und insbesondere `native/unity/WellFitBuddyAR/**`.
-- Token-/NFT-/Wallet-/Payment-/Presale-/Trading-/Payout-Logik.
-- Health-/Child-/Location-/Camera-/Privacy-/Consent-/Legal-Logik.
-- Produktive Firebase-/Firestore-/Deployment-Konfiguration.
-- Auto-Merge-/Auto-Deploy-Aktivierung.
-
-## 7. Risiken
-
-| Risiko | Bedeutung | Gegenmassnahme |
+| Nicht neu bauen | Fuehrende bestehende Struktur | Warum nicht duplizieren? |
 | --- | --- | --- |
-| Parallelarchitektur | Ein neues Control Center koennte bestehende Register duplizieren. | Nur verbindendes Register und Gap Analysis erstellen; bestehende Register referenzieren. |
-| Schein-Autonomie | `approved` koennte faelschlich als Merge-/Deploy-Freigabe verstanden werden. | Statusmodell trennt Approval, Execution Ready, PR Created, Completed; Auto-Merge/Deploy bleibt false. |
-| Protected Scope Leakage | Vorschlaege koennten Reward, Health, Legal, Unity oder Payment indirekt aktivieren. | Validator blockiert High/Critical Auto-Execute und jede Auto-Merge/Deploy-Aktivierung. |
-| SDK-Komplexitaet | Ein OpenAI Agents SDK Einbau wuerde neue Runtime-, Secret-, Tracing- und Tooling-Komplexitaet erzeugen. | Phase 1 ohne SDK; spaetere Evaluierung nur bei echtem Bedarf. |
-| Admin UI zu frueh | UI koennte Approval-Buttons vortaeuschen, ohne Backend-/Auth-/Audit-Hardening. | In dieser Phase nur Konzept, keine UI, keine API, keine Writes. |
-| Owner-Wunsch nach Merge/Deploy nach gruenen Checks | Kann sinnvoll fuer spaetere kontrollierte Pipeline sein, widerspricht aber dieser Aufgabe und aktuellen Schutzregeln. | Separates Policy-/Runner-Konzept noetig: Staging-vs-Production, Branch Protection, GitHub Checks, menschliche Release-Freigabe. |
+| Neuer Agent-Katalog | `project-register/agent-catalog.json` | Sonst entstehen widerspruechliche Agent-IDs, Rollen und Faehigkeiten. |
+| Neue Task Queue | `project-register/agent-task-queue.json` | Task-Auswahl, First-Reads, Stop-Regeln und Check-Erwartungen sind dort bereits maschinenlesbar. |
+| Neuer Risk Classifier | `project-register/risk-classifier.json` | Risiko- und Protected-Scope-Logik muss einheitlich bleiben. |
+| Neue Definition of Done | `project-register/definition-of-done.json` | DoD-/Evidence-Regeln duerfen nicht je UI/Agent abweichen. |
+| Neuer Approved Build Runner | `project-register/approved-agent-build-runner-policy.json` und `docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md` | Runner- und Merge-Gate-Grenzen sind bereits sicherheitskritisch definiert. |
+| Neue Auto-Merge-Regeln | `project-register/auto-merge-policy.json` | Das Control Center darf Auto-Merge nicht implizit aktivieren oder lockern. |
+| Neuer Research-Prozess | `docs/architecture/WELLFIT_RESEARCH_RECOMMENDATION_AGENT.md` | Internal-first Research, drei Optionen und Human Review sind bereits geregelt. |
+| Neue Compliance-/Runtime-Policy | `AGENTS.md`, `risk-classifier.json`, Runner-/Merge-Gate-Policies | Token, Payment, Health, Legal, Firestore Rules, Unity und andere Protected Scopes bleiben zentral blockiert. |
+| Neues Produkt-Adminsystem | Kein aktiver Runtime-Scope fuer diese Aufgabe | Diese Analyse baut keine App-Route, API, Auth-/Role-Logik oder Firebase-Write-Funktion. |
 
-## 8. Sinnvolle naechste Schritte
+## 4. Erweiterungspunkte an bestehenden Strukturen
 
-1. Diese Gap Analysis und das Control-Center-Konzept reviewen.
-2. Das neue Proposal-Register mit realen Owner-Vorschlaegen fuellen, aber ohne Runtime-Autoritaet.
-3. Einen kleinen Admin-UI-Planungs-PR vorbereiten, der nur Routen-/Datenmodell-Readiness beschreibt.
-4. Danach optional eine read-only Admin-UI planen: `/admin/agent-center` oder `/admin/cognitive-core`.
-5. Erst nach separater Entscheidung eine Stufe fuer `single_agent_safe_runtime_execution` definieren.
-6. Merge/Deploy-Automatisierung nur als eigener Governance-PR mit Staging/Production-Trennung, Branch Protection, GitHub-Check-Evidence und Owner-Freigabe diskutieren.
+Sichere Folgearbeiten sollten bestehende Dateien minimal erweitern:
 
-## 9. OpenAI Agents SDK: jetzt noetig oder zu frueh?
+1. **`docs/architecture/WELLFIT_AGENT_CONTROL_CENTER.md`:** Fuehrendes Konzept fuer Rollen, Statusmodell, Risk Gates, Proposal-Sicht, Controlled Curiosity, Codex-Task-Drafts und read-only Admin-UI-Zielbild.
+2. **`project-register/agent-control-center.json`:** Verbindendes Policy-Register fuer Rollen, erlaubte Aktionen, blockierte Aktionen, Statusmodell, Risk Gates, Protected Scopes und SDK-Entscheidung.
+3. **`project-register/agent-proposals.json`:** UI-ready Proposal-Index fuer konkrete Vorschlaege, Review-Status, Check-Evidence und PR-Handoff-Links.
+4. **`project-register/agent-build-proposals.json`:** Weiter fuer Agent-Build-Vorschlaege nutzen; nicht durch ein generisches Register ueberschreiben.
+5. **`project-register/agent-task-queue.json`:** Nur referenzieren oder fuer genehmigte, sichere naechste Aufgaben erweitern.
+6. **`project-register/approved-agent-build-backlog.json`:** Neue Agent-Build-Arbeit nur dort aufnehmen, wenn sie wirklich human-approved, klein und reviewbar ist.
+7. **`scripts/wellfit-dev-agent/src/quality-gate.mjs`:** Spaetere report-only Validatoren koennen hier eingebunden werden, sofern sie keine Runtime-Autoritaet aktivieren.
+8. **Audit-Dateien:** `progress-log.json`, `agent-work-log.json` und `decisions.json` koennen Status/Evidence aufnehmen, duerfen aber historische Eintraege nicht loeschen.
 
-### Was das SDK leisten kann
+## 5. Blockierte Bereiche
 
-Die offiziellen OpenAI Agents SDK Docs beschreiben Agents als Modell plus Instructions, Tools, Guardrails, Handoffs und optional strukturierte Outputs; der SDK-Runner kann Orchestrierung, Tools, Guardrails, Handoffs und Sessions verwalten. Siehe: <https://openai.github.io/openai-agents-python/agents/>.
+Das Agent Control Center ist in dieser Phase eine Governance- und Planungsschicht. Es darf die folgenden Bereiche weder direkt aendern noch indirekt freischalten:
 
-Die SDK-Dokumentation beschreibt ausserdem Guardrails fuer Input, Output und Tool-Aufrufe sowie Tracing fuer LLM-Generierungen, Tool Calls, Handoffs, Guardrails und Custom Events. Siehe: <https://openai.github.io/openai-agents-python/guardrails/> und <https://openai.github.io/openai-agents-python/tracing/>.
+| Blockierter Bereich | Grenze |
+| --- | --- |
+| Runtime-App | Keine Aenderungen an `app/**`, `components/**`, `lib/**` oder produktiver UI/API-Logik fuer ein Admin Center. |
+| Protected Scopes | Keine Ausweitung von Reward Authority, Mission Completion Authority, Anti-Cheat, finalen Ledger Writes oder produktionsnahen Datenwrites. |
+| Unity / PR #13 | Keine Aenderungen unter `native/unity/WellFitBuddyAR/**`, kein Loeschen/Overwrite lokaler Unity-Dateien, keine Abhaengigkeit von altem Unity PR #13. |
+| Firestore Rules / Backend Authority | Keine Aenderungen an `firestore.rules`, `functions/**` oder serverseitiger Autoritaetslogik ohne separaten expliziten Reviewplan. |
+| Token / Payment / Economy | Keine Token-, NFT-, Wallet-, Payment-, Purchase-, Payout-, Marketplace-, Staking-, Presale-, Trading- oder Betting-Aktivierung. |
+| Health / Child / Location / Camera / Privacy | Keine Erweiterung von Health-, Watch-, Kinderschutz-, Standort-, Kamera-, Biometrie-, Consent-, Privacy- oder medizinnahen Flows. |
+| Legal / Compliance | Keine Aenderung an AGB, Datenschutz, Impressum, Legal- oder Compliance-Messaging. |
+| Merge / Deploy / Approval Authority | Kein Auto-Merge, kein Auto-Deploy, keine Self-Approval, keine Produktionseingriffe, keine GitHub-Settings-/Branch-Protection-Aenderungen. |
 
-### Wann waere es sinnvoll?
+## 6. Empfehlung: Phase 1 ohne OpenAI Agents SDK, Phase 2 SDK-Evaluierung nur bei echtem Bedarf
 
-Spaeter koennte das SDK sinnvoll sein, wenn WellFit echte Multi-Agent-Orchestrierung braucht:
+### Phase 1: Ohne OpenAI Agents SDK
 
-- mehrere spezialisierte Agents mit Handoffs,
-- echte Tool-Ausfuehrung in einer isolierten, auditierbaren Runtime,
-- Tracing ueber Agent-Laeufe,
-- einheitliche Guardrails fuer Tool Calls,
-- reproduzierbare Sessions und strukturierte Outputs.
+Phase 1 soll bewusst auf vorhandenen Markdown-/JSON-Registern, report-only Validatoren, bestehenden npm-Skripten und menschlichem Review basieren. Das ist ausreichend, weil die aktuelle Luecke eine Governance- und Sichtbarkeitsluecke ist, keine Tool-Runtime-Luecke.
 
-### Wann ist es zu frueh?
+Phase 1 darf:
 
-Aktuell ist es zu frueh, weil WellFit bereits eine Node-/Register-/Quality-Gate-Struktur besitzt und das Hauptproblem nicht fehlende SDK-Orchestrierung ist, sondern fehlende kontrollierte Produktfreigabe. Ein SDK-Einbau wuerde neue Dependencies, Secrets, Laufzeitpfade, Tracing-Daten und Review-Oberflaechen erzeugen, ohne das aktuelle Kernproblem zu loesen.
+- bestehende Register zusammenfuehren und sichtbar verlinken,
+- Proposals, Risiken, Checks und PR-Handoffs report-only abbilden,
+- Codex-Auftragsentwuerfe aus bestehenden Quellen vorbereiten,
+- Quality-Gate-/Validator-Evidence sammeln,
+- read-only Admin-UI-Spezifikationen dokumentieren.
 
-### Wuerde das SDK bestehende Strukturen ersetzen?
+Phase 1 darf nicht:
 
-Nein. Es duerfte bestehende WellFit-Strukturen nicht ersetzen:
+- Runtime-Tools ausfuehren,
+- Produktdaten schreiben,
+- Freigaben ersetzen,
+- Deploys/Merges starten,
+- Protected Scopes reparieren oder erweitern,
+- eine neue parallele Agent-Orchestrierung einfuehren.
 
-- `agent-catalog.json` bleibt Agent Registry.
-- `agent-task-queue.json` bleibt Task Queue.
-- `approved-agent-build-backlog.json` bleibt Freigabe-Backlog.
-- `risk-classifier.json` bleibt Risk-Gate-Quelle.
-- `definition-of-done.json` bleibt DoD-Quelle.
-- `quality-gate.mjs` bleibt lokales Governance-Gate.
+### Phase 2: SDK-Evaluierung nur bei echtem Bedarf
 
-Das SDK waere hoechstens eine spaetere Ausfuehrungsschicht unter bestehenden Policies.
+Eine OpenAI-Agents-SDK-Evaluierung ist erst sinnvoll, wenn mindestens einer dieser echten Bedarfe nachgewiesen ist:
 
-## 10. Entscheidungsvorschlag
+1. mehrere Agenten muessen mit nachvollziehbarem Trace koordiniert werden,
+2. Tool-Aufrufe brauchen eine streng kontrollierte Runtime mit Audit-Trail,
+3. Vorschlags-, Review-, Check- und Handoff-Schritte werden so komplex, dass statische Register und einfache Validatoren nicht mehr reichen,
+4. Human-in-the-loop-Freigaben muessen technisch durch eine Agent-Runtime erzwungen werden,
+5. bestehende npm-/JSON-/Markdown-Governance erzeugt nachweislich zu viel manuellen Aufwand oder Inkonsistenz.
 
-**Phase 1:** Kein OpenAI Agents SDK einbauen. Bestehende Node-/Next-/Agent-Script-Struktur nutzen, Control-Center-Gap schliessen, Proposal-Register und Validator vorbereiten.
+Auch in Phase 2 gilt: SDK-Evaluierung ist ein separater Proposal- und Review-Scope. Sie aktiviert keine Runtime-Produktlogik, keine Protected-Scope-Aenderungen, keine Firestore-/Functions-Aenderungen, keinen Auto-Merge, keinen Deploy und keine Self-Approval.
 
-**Phase 2:** SDK-Evaluierung nur, wenn ein konkreter Bedarf entsteht: echte Multi-Agent-Handoffs, Tool-Runtime, Tracing, Sessions oder SDK-spezifische Guardrails. Dann mit separatem Spike, Security Review, Secret Handling, Datenflussanalyse und Rollback-Plan.
+## Kleinster sicherer naechster Schritt
+
+Da `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER.md` bereits als gleichwertige Konzeptdatei existiert, sollte sie nicht neu angelegt werden. Der naechste sichere Schritt ist, die bestehende Konzeptdatei und die vorhandenen Register nur dann minimal zu erweitern, wenn ein konkreter read-only Anzeige-, Proposal-Status- oder Validator-Abgleich benoetigt wird.
 
 ## KI-Fortsetzungs-Prompt
 
-Wenn diese Datei weitergefuehrt wird, zuerst `project-register/agent-control-center.json`, `project-register/agent-proposals.json`, `project-register/agent-catalog.json`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/research-recommendations.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json` und `scripts/wellfit-dev-agent/src/agent-control-center-check.mjs` lesen. Keine Admin-UI, keine Runtime-Produktlogik, kein Auto-Merge und kein Deploy aktivieren, solange kein separater Owner-Approval-PR mit exakter Allowlist existiert.
+Wenn diese Analyse weitergefuehrt wird, zuerst `AGENTS.md`, `README.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md`, `project-register/agent-control-center.json`, `project-register/agent-proposals.json`, `project-register/agent-catalog.json`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-build-proposals.json`, `project-register/approved-agent-build-runner-policy.json`, `project-register/approved-agent-build-runner-merge-gate.json`, `project-register/auto-merge-policy.json` und die zugehoerigen Architekturdateien lesen. Keine Admin-UI, keine Runtime-Produktlogik, keine Protected-Scope-Aenderungen, keine Unity-/PR-#13-Aenderungen, kein Auto-Merge und kein Deploy aktivieren.

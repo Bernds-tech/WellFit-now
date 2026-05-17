@@ -138,6 +138,13 @@ Explizit nicht in dieser Phase:
 
 Nach Review dieses Konzepts sollte ein separater PR nur eine read-only Admin-UI-Spezifikation vorbereiten: Datenquellen, Felder, Rollenanzeige, Audit-Ansicht, aber weiterhin keine produktiven Writes und keine Approval-Buttons.
 
+
+## 12. Phase model and SDK boundary
+
+Phase 1 remains docs/register/report-only governance on top of existing WellFit structures. It uses Markdown, JSON registers, existing npm scripts, quality gates and human review. It does **not** use or require the OpenAI Agents SDK because the current gap is central visibility, proposal governance and safe handoff, not a missing tool-runtime.
+
+Phase 2 may evaluate the OpenAI Agents SDK only if a real need appears, such as auditable multi-agent orchestration, controlled tool runtime, traceable human-in-the-loop gates or complexity that static registers and report-only validators cannot manage. A Phase 2 SDK evaluation must be its own reviewed proposal and still must not activate runtime product logic, Protected Scope edits, Firestore/Functions writes, auto-merge, deployment or self-approval.
+
 ## KI-Fortsetzungs-Prompt
 
 Wenn an diesem Konzept weitergearbeitet wird, zuerst `docs/architecture/WELLFIT_AGENT_CONTROL_CENTER_GAP_ANALYSIS.md`, `project-register/agent-control-center.json`, `project-register/agent-proposals.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/auto-merge-policy.json`, `project-register/auto-repair-policy.json` und `scripts/wellfit-dev-agent/src/agent-control-center-check.mjs` lesen. Nur bestehende Agent-Governance erweitern, keine Parallelarchitektur, keine Runtime-UI und keine Auto-Merge-/Deploy-Aktivierung bauen.
