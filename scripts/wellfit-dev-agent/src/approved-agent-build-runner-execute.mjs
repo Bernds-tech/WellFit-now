@@ -10,6 +10,7 @@ const BACKLOG_PATH = "project-register/approved-agent-build-backlog.json";
 const EXECUTION_STATE = "single_agent_docs_register_build";
 const PROTECTED_BRANCHES = new Set(["main", "master"]);
 const ELIGIBLE_STATUSES = new Set(["approved_for_build", "approved_for_planning"]);
+const BUILD_APPROVED_AGENT_ARTIFACTS_SCRIPT = "scripts/wellfit-dev-agent/src/build-approved-agent-artifacts.mjs";
 const EXISTING_AGENT_CHECKS = [
   [process.execPath, ["scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"]],
   [process.execPath, ["scripts/wellfit-dev-agent/src/agent-architect-proposal-check.mjs"]],
@@ -128,6 +129,10 @@ function strictAllowed(filePath, selectedEntry) {
   return allowedCheckScriptsFor(selectedEntry).includes(normalizePath(filePath));
 }
 
+function buildApprovedAgentArtifacts(selectedEntry) {
+  run(process.execPath, [BUILD_APPROVED_AGENT_ARTIFACTS_SCRIPT, "--entry-id", selectedEntry.id]);
+}
+
 function validateChangedFiles(files, policy, selectedEntry) {
   if (files.length === 0) {
     throw new Error("No changed files found to validate and commit.");
@@ -209,6 +214,7 @@ function main() {
 
   const backlog = readJson(BACKLOG_PATH);
   const selectedEntry = selectApprovedBacklogEntry(backlog);
+  buildApprovedAgentArtifacts(selectedEntry);
   const filesBeforeChecks = changedFiles();
   validateChangedFiles(filesBeforeChecks, policy, selectedEntry);
   runRequiredChecks(filesBeforeChecks);
