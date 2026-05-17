@@ -21,6 +21,7 @@ const mainNavItems = [
   { href: "/leaderboard", label: "Leaderboard", icon: "cup", active: (path: string) => path.startsWith("/leaderboard") },
   { href: "/punkte-shop", label: "Punkte-Shop", icon: "coin", active: (path: string) => path.startsWith("/punkte-shop") },
   { href: "/analytics", label: "Analytics & Stats", icon: "chart", active: (path: string) => path.startsWith("/analytics") },
+  { href: "/admin/agent-center", label: "Agent Center", icon: "admin", active: (path: string) => path.startsWith("/admin/agent-center") },
 ];
 
 const utilityNavItems = [
@@ -61,6 +62,9 @@ function SidebarIcon({ name }: { name: string }) {
   }
   if (name === "chart") {
     return <span className={`${common} flex items-end justify-center gap-[3px]`}><i className="h-2 w-[3px] bg-current" /><i className="h-4 w-[3px] bg-current" /><i className="h-3 w-[3px] bg-current" /></span>;
+  }
+  if (name === "admin") {
+    return <span className={`${common} rounded-md border-2 border-current before:block before:h-[2px] before:w-3 before:translate-x-[3px] before:translate-y-[8px] before:bg-current`} />;
   }
   if (name === "gear") return <span className="text-lg leading-none">*</span>;
   if (name === "lock") return <span className="text-lg leading-none">#</span>;
