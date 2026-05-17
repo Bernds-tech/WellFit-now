@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "updated": "2026-05-17",
   "status": "planning_only",
-  "name": "WellFit Product Memory Agent",
-  "purpose": "Defines a planning-only product memory agent that reads existing WellFit context, detects product unknowns, asks Bernd controlled curiosity questions, stores approved human answers in planning registers, derives concept deltas, proposes follow-up tasks, and then waits for admin/owner approval before any implementation or runtime execution.",
+  "name": "Product Memory Agent",
+  "purpose": "Maintains planning-only product concept memory by reading existing WellFit context, recording approved owner answers, deriving reviewable concept deltas, and proposing follow-up tasks without runtime execution or user profiling.",
   "scope": "Documentation and register governance only. This file does not authorize runtime code, user-facing product changes, legal/compliance changes, health/child/privacy decisions, token/economy decisions, reward authority, mission authority, deployments, or automated execution.",
   "linkedSources": {
     "architectureMemoryLoop": {
@@ -206,5 +206,102 @@
       "proposed_follow_up_task"
     ],
     "status": "draft_only_until_admin_approval"
-  }
+  },
+  "activationState": "report_only",
+  "id": "product-memory-agent",
+  "priorityInApprovedPlanningBatch": 1,
+  "riskLevel": "medium",
+  "agentType": "planning_memory",
+  "prioritizationReason": "First priority because it directly supports Bernd’s request for learning concept understanding.",
+  "artifactSet": {
+    "architectureDoc": "docs/architecture/WELLFIT_PRODUCT_MEMORY_AGENT.md",
+    "register": "project-register/product-memory-agent.json",
+    "validatorScript": "scripts/wellfit-dev-agent/src/product-memory-agent-check.mjs",
+    "catalog": "project-register/agent-catalog.json",
+    "backlog": "project-register/approved-agent-build-backlog.json",
+    "workLog": "project-register/agent-work-log.json"
+  },
+  "executionCapability": "report_only",
+  "runtimeAuthorityGranted": false,
+  "requiresHumanApprovalForRuntime": true,
+  "profileUsersAtRuntime": false,
+  "allowedWriteScopes": [
+    "project-register/**",
+    "docs/architecture/**",
+    "scripts/wellfit-dev-agent/src/**"
+  ],
+  "forbiddenWriteScopes": [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "functions/**",
+    "firestore.rules",
+    "public/**",
+    "package.json",
+    "package-lock.json",
+    "firebase.json",
+    ".github/**",
+    "native/unity/WellFitBuddyAR/**"
+  ],
+  "connectedAgents": [
+    "agent-work-log",
+    "progress-log",
+    "continuity-dependency-sentinel"
+  ],
+  "connectedRegisters": [
+    "project-register/agent-work-log.json",
+    "project-register/progress-log.json",
+    "project-register/continuity-dependency-map.json"
+  ],
+  "allowedOutputs": [
+    "concept_unknowns",
+    "owner_questions",
+    "approved_answer_records",
+    "concept_delta_summaries",
+    "follow_up_task_candidates"
+  ],
+  "forbiddenActions": [
+    "modify_app_runtime",
+    "execute_ui",
+    "profile_users",
+    "change_firestore_rules",
+    "change_firebase_functions",
+    "change_reward_authority",
+    "change_mission_completion_authority",
+    "change_health_child_location_compliance_logic",
+    "change_token_wallet_payment_nft_betting_logic",
+    "change_unity_files",
+    "approve_merge_deploy_or_auto_repair"
+  ],
+  "protectedBoundaries": [
+    "report_only",
+    "runtimeAuthorityGranted=false",
+    "requiresHumanApprovalForRuntime=true",
+    "no App Runtime changes",
+    "no user profiling",
+    "no Firestore rules changes",
+    "no Firebase Functions changes",
+    "no UI execution",
+    "no merge/deploy/approval/auto-repair authority"
+  ],
+  "reviewRequiredFor": [
+    "any runtime implementation",
+    "any protected-scope product change",
+    "any user-facing Buddy behavior",
+    "any reward or mission authority",
+    "any health child location privacy legal compliance decision",
+    "any token wallet payment NFT betting or monetization decision",
+    "any deployment merge approval or repair capability"
+  ],
+  "validator": {
+    "path": "scripts/wellfit-dev-agent/src/product-memory-agent-check.mjs",
+    "expectedReadyToken": "PRODUCT_MEMORY_AGENT_READY=true"
+  },
+  "statusEvidence": {
+    "sourceBacklog": "project-register/approved-agent-build-backlog.json",
+    "catalogEntryRequired": true,
+    "workLogEntryRequired": true,
+    "lastChecked": "2026-05-17"
+  },
+  "nextSafeMaintenanceTask": "Keep report-only artifacts synchronized and block runtime work until a later explicit human-approved scope names exact files, boundaries, and tests."
 }

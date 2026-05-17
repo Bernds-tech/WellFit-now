@@ -135,3 +135,7 @@ Bernd soll keine Runtime-Aenderungen ableiten, sondern klaerende Konzeptfragen s
 ## Pflegehinweis
 
 Wenn sich Produktvision, Feature-Register, Mission-Buddy-Economy-Flow oder Projektstatus aendern, soll diese Datei nur als kurzer Wegweiser angepasst werden. Detailwissen bleibt in den verlinkten Quellen.
+
+## KI-Fortsetzungs-Prompt
+
+Wenn du hier weiterarbeitest, lies zuerst `AGENTS.md`, `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/CODEBASE_FEATURE_MAP.md`, `project-register/product-rules.json`, `project-register/features.json` und `project-register/mission-buddy-economy-flow.json`. Aktualisiere diese Datei nur als kurzen Wegweiser fuer vorhandenes Produktwissen; Detailwissen bleibt in den verlinkten Quellen. Keine App Runtime, keine Nutzerprofilierung, keine Firestore-Regeln, keine Firebase Functions, keine UI-Ausfuehrung und keine geschuetzten Produktentscheidungen aktivieren.
