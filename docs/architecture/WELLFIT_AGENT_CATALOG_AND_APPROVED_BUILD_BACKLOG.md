@@ -78,7 +78,7 @@ A backlog entry may move to `built` only after a future scoped task has produced
 - passing checks or documented environment limitations, and
 - PR evidence confirming no runtime/protected files were touched unless explicitly approved.
 
-High/critical or protected-boundary entries must not be auto-marked `built`. Human review remains required even when the idea itself is already approved for planning.
+High/critical or protected-boundary entries must not be auto-marked `built` without human-reviewed build/status-sync evidence. Human review remains required even when the idea itself is already approved for planning, and a `built` status only confirms the report-only framework exists; it does not authorize runtime behavior, protected-data use, rewards, mission completion, monetization, Unity/AR, deployment, self-approval, or auto-merge.
 
 ## Protected/high-risk runtime behavior remains blocked
 

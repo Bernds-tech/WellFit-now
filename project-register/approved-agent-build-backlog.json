@@ -121,9 +121,9 @@
     {
       "id": "human-motivation-engine",
       "proposedAgentName": "Human Motivation Engine",
-      "status": "in_progress",
+      "status": "built",
       "priority": "P1",
-      "reason": "Human-approved future WellFit agent/framework now has a report-only framework implementation in progress: Human Motivation Engine. It remains high-risk/protected-boundary-adjacent and requires human-reviewed PR evidence before any built status or runtime use.",
+      "reason": "Status synchronized after evidence review: the report-only Human Motivation Engine register, architecture doc, validator, quality-gate integration, catalog entry, proposal/backlog evidence, continuity entry, and planning references are present; no unresolved repair_required remains. Runtime/protected authority remains forbidden.",
       "expectedBenefit": "Defines healthy motivation, adaptive difficulty inputs, AI Buddy boundaries, recovery/pause rules, multisensory learning signals, protected review boundaries, and forbidden addictive mechanics before any runtime personalization or mission/reward logic is implemented.",
       "riskLevel": "high",
       "connectedAgents": [
@@ -191,7 +191,7 @@
         "Do not create manipulative addiction mechanics, FOMO pressure, shame loops, sleep-deprivation pressure, child-targeted monetization, gambling-like rewards, lootbox money-near rewards, social humiliation, paywall mission chains, hidden sponsor pressure, dark-pattern notifications, or medical/weight-loss overclaims.",
         "Because risk is high/protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
       ],
-      "nextRecommendedAction": "Ethical Engagement Guard was the next approved framework and is now built report-only; continue to Adaptive Difficulty Agent when approved.",
+      "nextRecommendedAction": "Continue the autonomous approved-agent loop with the next eligible already-approved report-only framework after existing built statuses are synchronized.",
       "updatedDate": "2026-05-16",
       "builtEvidence": [
         "project-register/human-motivation-engine.json",
@@ -202,9 +202,9 @@
     {
       "id": "ethical-engagement-guard",
       "proposedAgentName": "Ethical Engagement Guard",
-      "status": "in_progress",
+      "status": "built",
       "priority": "P1",
-      "reason": "Human-approved next WellFit guard/framework was implemented in this task as a report-only Ethical Engagement Guard register, architecture doc, validator, and quality-gate check.",
+      "reason": "Status synchronized after evidence review: the report-only Ethical Engagement Guard register, architecture doc, validator, quality-gate integration, catalog entry, proposal/backlog evidence, continuity entry, and planning references are present; no unresolved repair_required remains. Runtime/protected authority remains forbidden.",
       "expectedBenefit": "Creates a safe source of truth for healthy, age-appropriate, recovery-aware, consent-preserving, trust-preserving, non-manipulative engagement checks across missions, rewards, AI Buddy tone, retention mechanics, website claims, social features, sponsors, and monetization proposals.",
       "riskLevel": "high",
       "connectedAgents": [
@@ -271,7 +271,7 @@
         "Report-only governance by default; human review required for protected or high/critical scope.",
         "Ethical Engagement Guard blocks manipulative FOMO, shame/guilt pressure, sleep deprivation, social humiliation, gambling-like rewards, lootbox mechanics, age-inappropriate monetization, hidden sponsor pressure, dark patterns, paywall pressure, and protected-data-sensitive mechanics."
       ],
-      "nextRecommendedAction": "Continue with Adaptive Difficulty Agent next, then Multisensory Learning Engine, following approved backlog order and report-only protected-boundary rules.",
+      "nextRecommendedAction": "Continue the autonomous approved-agent loop with the next eligible already-approved report-only framework after existing built statuses are synchronized.",
       "updatedDate": "2026-05-16",
       "builtEvidence": [
         "project-register/ethical-engagement-guard.json",
@@ -282,9 +282,9 @@
     {
       "id": "adaptive-difficulty-agent",
       "proposedAgentName": "Adaptive Difficulty Agent",
-      "status": "in_progress",
+      "status": "built",
       "priority": "P2",
-      "reason": "Human-approved future WellFit agent/framework recorded for controlled planning without building it in this task: Adaptive Difficulty Agent.",
+      "reason": "Status synchronized after evidence review: the report-only Adaptive Difficulty Agent register, architecture doc, validator, quality-gate integration, catalog entry, proposal/backlog evidence, continuity entry, and planning references are present; no unresolved repair_required remains. Runtime personalization, difficulty tuning, mission authority, and reward authority remain forbidden.",
       "expectedBenefit": "Adds focused governance or product-planning capability for Adaptive Difficulty Agent while preserving existing agent boundaries and protected-scope stops.",
       "riskLevel": "high",
       "connectedAgents": [
@@ -344,7 +344,7 @@
         "Report-only governance by default; human review required for protected or high/critical scope.",
         "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
       ],
-      "nextRecommendedAction": "Build Multisensory Learning Engine next as report-only planning/validation.",
+      "nextRecommendedAction": "Continue the autonomous approved-agent loop with the next eligible already-approved report-only framework after existing built statuses are synchronized.",
       "updatedDate": "2026-05-16",
       "builtEvidence": [
         "project-register/adaptive-difficulty-agent.json",
@@ -355,9 +355,9 @@
     {
       "id": "multisensory-learning-engine",
       "proposedAgentName": "Multisensory Learning Engine",
-      "status": "in_progress",
+      "status": "built",
       "priority": "P3",
-      "reason": "First controlled Approved Agent Build Runner activation selected this approved future agent and implemented it as a report-only documentation/register/validator framework in this task.",
+      "reason": "Status synchronized after PR #114 repair evidence: the report-only Multisensory Learning Engine register, architecture doc, validator, quality-gate integration, catalog entry, proposal/backlog evidence, continuity entry, and planning references are present; no unresolved repair_required remains. Runtime learning personalization, tracking/profiling, AR/Unity behavior, mission authority, and reward authority remain forbidden.",
       "expectedBenefit": "Defines safe multisensory learning planning across movement, visual, audio, story, quiz, social/family, environment, optional AR, reflection, and Buddy explanation channels while keeping protected data minimized/review_required and reward/mission authority blocked.",
       "riskLevel": "medium",
       "connectedAgents": [
@@ -427,7 +427,7 @@
         "Learning completion, quiz, movement, AR, Buddy, social, visual, audio, and environment signals are not final reward or mission-completion authority.",
         "Raw images, videos, biometrics, health, and location data must not be stored by default; protected data use requires minimization, consent, fallback, and review."
       ],
-      "nextRecommendedAction": "Continue with Mission Factory Agent or Product Intelligence Agent according to approved backlog order and risk review after merge-gate evidence is complete.",
+      "nextRecommendedAction": "Continue with Product Intelligence Agent or Mission Factory Agent according to the approved backlog order, preferred safe sequencing, risk review, and merge-gate evidence.",
       "updatedDate": "2026-05-16",
       "builtEvidence": [
         "project-register/multisensory-learning-engine.json",

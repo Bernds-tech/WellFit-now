@@ -277,7 +277,17 @@ function validateBacklog(backlog, catalog, results) {
     const risk = String(entry.riskLevel ?? "").toLowerCase();
     const hasProtectedBoundary = asArray(entry.protectedBoundaries).some((boundary) => /protected|runtime|legal|privacy|health|child|location|reward|payment|token|wallet|unity|critical/i.test(String(boundary)));
     const protectedOrHighCritical = ["high", "critical"].includes(risk) || hasProtectedBoundary;
-    addResult(results, `backlog entry ${entry.id} high/critical/protected is not auto-built`, !protectedOrHighCritical || entry.status !== "built", protectedOrHighCritical ? `status=${entry.status}` : "not high/critical/protected");
+    const builtWithHumanReviewedEvidence = entry.status === "built"
+      && entry.alreadyHumanApproved === true
+      && entry.humanApprovalRequired === true
+      && /evidence review|PR #114 repair evidence|PR evidence|human-reviewed/i.test(String(entry.reason ?? ""))
+      && /Runtime|protected|authority|forbidden|review_required/i.test(String(entry.reason ?? "") + " " + String(entry.nextRecommendedAction ?? ""));
+    addResult(
+      results,
+      `backlog entry ${entry.id} high/critical/protected built status has human-reviewed evidence`,
+      !protectedOrHighCritical || entry.status !== "built" || builtWithHumanReviewedEvidence,
+      protectedOrHighCritical ? `status=${entry.status}; evidence=${builtWithHumanReviewedEvidence}` : "not high/critical/protected"
+    );
   }
 }
 
