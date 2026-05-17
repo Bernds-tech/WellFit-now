@@ -2658,6 +2658,498 @@
         "Healthy Retention extends mapped motivation/engagement/adaptive-insight/product-readiness/continuity sources only and must not create duplicate architecture or parallel systems."
       ],
       "nextSafeMaintenanceTask": "Keep Healthy Retention register, architecture doc, validator, quality-gate integration, backlog/proposal/runner evidence, Work Map, TODO Index, and continuity references synchronized; next approved backlog item is Reward Fairness Guard if eligible and still report-only."
+    },
+    {
+      "id": "product-memory-agent",
+      "name": "Product Memory Agent",
+      "status": "planning_only",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "planning_memory",
+      "purpose": "Maintains planning-only product concept memory by reading existing WellFit context, recording approved owner answers, deriving reviewable concept deltas, and proposing follow-up tasks without runtime execution or user profiling.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/product-memory-agent.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_PRODUCT_MEMORY_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/product-memory-agent-check.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "agent-work-log",
+        "progress-log",
+        "continuity-dependency-sentinel"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings",
+        "planning register metadata",
+        "validator coverage",
+        "human-review questions",
+        "blocked implementation notes"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "user profiling",
+        "Firestore rules changes",
+        "Firebase Functions changes",
+        "UI execution changes",
+        "merge deploy approval or auto-repair authority"
+      ],
+      "protectedBoundaries": [
+        "report_only",
+        "runtimeAuthorityGranted=false",
+        "requiresHumanApprovalForRuntime=true",
+        "no App Runtime changes",
+        "no user profiling",
+        "no Firestore rules changes",
+        "no Firebase Functions changes",
+        "no UI execution",
+        "no merge/deploy/approval/auto-repair authority"
+      ],
+      "nextSafeMaintenanceTask": "Keep product-memory-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+    },
+    {
+      "id": "ai-buddy-personality-tone-guard",
+      "name": "AI Buddy Personality & Tone Guard",
+      "status": "review_required",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "buddy_guard",
+      "purpose": "Defines report-only tone, personality, and safety review guardrails for future AI Buddy communication without changing prompts, UI, runtime chat, profiling, or protected-data handling.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/ai-buddy-personality-tone-guard.json",
+        "project-register/research-recommendations.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_AI_BUDDY_PERSONALITY_TONE_GUARD.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/ai-buddy-personality-tone-guard-check.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "research-recommendation-agent",
+        "risk-classifier",
+        "product-readiness-matrix"
+      ],
+      "relatedRegisters": [
+        "project-register/research-recommendations.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings",
+        "planning register metadata",
+        "validator coverage",
+        "human-review questions",
+        "blocked implementation notes"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "user profiling",
+        "Firestore rules changes",
+        "Firebase Functions changes",
+        "UI execution changes",
+        "merge deploy approval or auto-repair authority"
+      ],
+      "protectedBoundaries": [
+        "report_only",
+        "runtimeAuthorityGranted=false",
+        "requiresHumanApprovalForRuntime=true",
+        "no App Runtime changes",
+        "no user profiling",
+        "no Firestore rules changes",
+        "no Firebase Functions changes",
+        "no UI execution",
+        "no merge/deploy/approval/auto-repair authority"
+      ],
+      "nextSafeMaintenanceTask": "Keep ai-buddy-personality-tone-guard synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+    },
+    {
+      "id": "reward-fairness-guard-report-agent",
+      "name": "Reward Fairness Guard Report Agent",
+      "status": "review_required",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "critical_report_guard",
+      "purpose": "Reports fairness, abuse, pressure, and authority risks around reward concepts while never changing reward logic, mission completion, anti-cheat, ledger, points, XP, token, payment, or runtime behavior.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/reward-fairness-guard-report-agent.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_REWARD_FAIRNESS_GUARD_REPORT_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/reward-fairness-guard-report-agent-check.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "risk-classifier",
+        "product-readiness-matrix",
+        "pr-review-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings",
+        "planning register metadata",
+        "validator coverage",
+        "human-review questions",
+        "blocked implementation notes"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "user profiling",
+        "Firestore rules changes",
+        "Firebase Functions changes",
+        "UI execution changes",
+        "merge deploy approval or auto-repair authority"
+      ],
+      "protectedBoundaries": [
+        "report_only",
+        "runtimeAuthorityGranted=false",
+        "requiresHumanApprovalForRuntime=true",
+        "no App Runtime changes",
+        "no user profiling",
+        "no Firestore rules changes",
+        "no Firebase Functions changes",
+        "no UI execution",
+        "no merge/deploy/approval/auto-repair authority"
+      ],
+      "nextSafeMaintenanceTask": "Keep reward-fairness-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+    },
+    {
+      "id": "child-safety-guard-report-agent",
+      "name": "Child Safety Guard Report Agent",
+      "status": "review_required",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "critical_report_guard",
+      "purpose": "Reports child/minor safety, consent, privacy, communication, and safeguarding risks while never changing app runtime, data collection, onboarding, messaging, policies, or enforcement logic.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/child-safety-guard-report-agent.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_CHILD_SAFETY_GUARD_REPORT_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/child-safety-guard-report-agent-check.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "risk-classifier",
+        "product-readiness-matrix",
+        "pr-review-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings",
+        "planning register metadata",
+        "validator coverage",
+        "human-review questions",
+        "blocked implementation notes"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "user profiling",
+        "Firestore rules changes",
+        "Firebase Functions changes",
+        "UI execution changes",
+        "merge deploy approval or auto-repair authority"
+      ],
+      "protectedBoundaries": [
+        "report_only",
+        "runtimeAuthorityGranted=false",
+        "requiresHumanApprovalForRuntime=true",
+        "no App Runtime changes",
+        "no user profiling",
+        "no Firestore rules changes",
+        "no Firebase Functions changes",
+        "no UI execution",
+        "no merge/deploy/approval/auto-repair authority"
+      ],
+      "nextSafeMaintenanceTask": "Keep child-safety-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+    },
+    {
+      "id": "health-claims-guard-report-agent",
+      "name": "Health Claims Guard Report Agent",
+      "status": "review_required",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "critical_report_guard",
+      "purpose": "Reports unsupported health, medical-adjacent, recovery, overuse, biometric, watch-data, and wellbeing claim risks while never changing health logic, claims, data flows, UI copy, or compliance messaging.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/health-claims-guard-report-agent.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_HEALTH_CLAIMS_GUARD_REPORT_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/health-claims-guard-report-agent-check.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "risk-classifier",
+        "product-readiness-matrix",
+        "pr-review-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings",
+        "planning register metadata",
+        "validator coverage",
+        "human-review questions",
+        "blocked implementation notes"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "user profiling",
+        "Firestore rules changes",
+        "Firebase Functions changes",
+        "UI execution changes",
+        "merge deploy approval or auto-repair authority"
+      ],
+      "protectedBoundaries": [
+        "report_only",
+        "runtimeAuthorityGranted=false",
+        "requiresHumanApprovalForRuntime=true",
+        "no App Runtime changes",
+        "no user profiling",
+        "no Firestore rules changes",
+        "no Firebase Functions changes",
+        "no UI execution",
+        "no merge/deploy/approval/auto-repair authority"
+      ],
+      "nextSafeMaintenanceTask": "Keep health-claims-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+    },
+    {
+      "id": "location-safety-guard-report-agent",
+      "name": "Location Safety Guard Report Agent",
+      "status": "review_required",
+      "artifactStatus": "validator_built",
+      "executionCapability": "report_only",
+      "allowedWriteScopes": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "critical_report_guard",
+      "purpose": "Reports location, route, GPS, AR, checkpoint, public-place, privacy, and physical-world safety risks while never changing location collection, Firestore rules, UI flows, AR runtime, missions, or route generation.",
+      "ownerArea": "Approved Agent Build Backlog",
+      "primaryRegisters": [
+        "project-register/location-safety-guard-report-agent.json",
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_LOCATION_SAFETY_GUARD_REPORT_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/location-safety-guard-report-agent-check.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "risk-classifier",
+        "product-readiness-matrix",
+        "pr-review-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/risk-classifier.json",
+        "project-register/product-readiness.json",
+        "project-register/pr-review-policy.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only findings",
+        "planning register metadata",
+        "validator coverage",
+        "human-review questions",
+        "blocked implementation notes"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime product behavior",
+        "protected-scope implementation",
+        "user profiling",
+        "Firestore rules changes",
+        "Firebase Functions changes",
+        "UI execution changes",
+        "merge deploy approval or auto-repair authority"
+      ],
+      "protectedBoundaries": [
+        "report_only",
+        "runtimeAuthorityGranted=false",
+        "requiresHumanApprovalForRuntime=true",
+        "no App Runtime changes",
+        "no user profiling",
+        "no Firestore rules changes",
+        "no Firebase Functions changes",
+        "no UI execution",
+        "no merge/deploy/approval/auto-repair authority"
+      ],
+      "nextSafeMaintenanceTask": "Keep location-safety-guard-report-agent synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
     }
   ]
 }

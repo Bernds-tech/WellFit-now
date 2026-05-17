@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "activationState": "report_only",
+  "id": "health-claims-guard-report-agent",
+  "name": "Health Claims Guard Report Agent",
+  "priorityInApprovedPlanningBatch": 5,
+  "riskLevel": "critical",
+  "agentType": "critical_report_guard",
+  "purpose": "Reports unsupported health, medical-adjacent, recovery, overuse, biometric, watch-data, and wellbeing claim risks while never changing health logic, claims, data flows, UI copy, or compliance messaging.",
+  "prioritizationReason": "Critical guard prioritized report-only for medical-adjacent wording and health/wellbeing claim review.",
+  "artifactSet": {
+    "architectureDoc": "docs/architecture/WELLFIT_HEALTH_CLAIMS_GUARD_REPORT_AGENT.md",
+    "register": "project-register/health-claims-guard-report-agent.json",
+    "validatorScript": "scripts/wellfit-dev-agent/src/health-claims-guard-report-agent-check.mjs",
+    "catalog": "project-register/agent-catalog.json",
+    "backlog": "project-register/approved-agent-build-backlog.json",
+    "workLog": "project-register/agent-work-log.json"
+  },
+  "executionCapability": "report_only",
+  "runtimeAuthorityGranted": false,
+  "requiresHumanApprovalForRuntime": true,
+  "profileUsersAtRuntime": false,
+  "allowedWriteScopes": [
+    "project-register/**",
+    "docs/architecture/**",
+    "scripts/wellfit-dev-agent/src/**"
+  ],
+  "forbiddenWriteScopes": [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "functions/**",
+    "firestore.rules",
+    "public/**",
+    "package.json",
+    "package-lock.json",
+    "firebase.json",
+    ".github/**",
+    "native/unity/WellFitBuddyAR/**"
+  ],
+  "connectedAgents": [
+    "risk-classifier",
+    "product-readiness-matrix",
+    "pr-review-agent"
+  ],
+  "connectedRegisters": [
+    "project-register/risk-classifier.json",
+    "project-register/product-readiness.json",
+    "project-register/pr-review-policy.json"
+  ],
+  "allowedOutputs": [
+    "health_claim_findings",
+    "evidence_gap_flags",
+    "review_required_questions",
+    "blocked_implementation_notes"
+  ],
+  "forbiddenActions": [
+    "modify_app_runtime",
+    "execute_ui",
+    "profile_users",
+    "change_firestore_rules",
+    "change_firebase_functions",
+    "change_reward_authority",
+    "change_mission_completion_authority",
+    "change_health_child_location_compliance_logic",
+    "change_token_wallet_payment_nft_betting_logic",
+    "change_unity_files",
+    "approve_merge_deploy_or_auto_repair"
+  ],
+  "protectedBoundaries": [
+    "report_only",
+    "runtimeAuthorityGranted=false",
+    "requiresHumanApprovalForRuntime=true",
+    "no App Runtime changes",
+    "no user profiling",
+    "no Firestore rules changes",
+    "no Firebase Functions changes",
+    "no UI execution",
+    "no merge/deploy/approval/auto-repair authority"
+  ],
+  "reviewRequiredFor": [
+    "any runtime implementation",
+    "any protected-scope product change",
+    "any user-facing Buddy behavior",
+    "any reward or mission authority",
+    "any health child location privacy legal compliance decision",
+    "any token wallet payment NFT betting or monetization decision",
+    "any deployment merge approval or repair capability"
+  ],
+  "validator": {
+    "path": "scripts/wellfit-dev-agent/src/health-claims-guard-report-agent-check.mjs",
+    "expectedReadyToken": "HEALTH_CLAIMS_GUARD_REPORT_AGENT_READY=true"
+  },
+  "statusEvidence": {
+    "sourceBacklog": "project-register/approved-agent-build-backlog.json",
+    "catalogEntryRequired": true,
+    "workLogEntryRequired": true,
+    "lastChecked": "2026-05-17"
+  },
+  "nextSafeMaintenanceTask": "Keep report-only artifacts synchronized and block runtime work until a later explicit human-approved scope names exact files, boundaries, and tests."
+}

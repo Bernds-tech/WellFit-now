@@ -26,7 +26,6 @@
     "High/critical domain-risk report agents may be built only as no-runtime guard/report artifacts; implementation-risk remains blocked if runtime/protected authority would be needed.",
     "Report-agent builds must preserve reportOnly=true and runtimeAuthorityGranted=false in runner/report evidence; these fields are never approvals for product, health, child-safety, location, reward, token, payment, legal, privacy, Unity, or other protected runtime logic."
   ],
-
   "riskSemantics": {
     "reportAgentBuildsAllowed": true,
     "reportAgentAllowedArtifactTypes": [
@@ -922,9 +921,9 @@
     {
       "id": "reward-fairness-guard-report-agent",
       "proposedAgentName": "Reward Fairness Guard Report Agent",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "in_progress",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -962,24 +961,25 @@
       "connectedAgentCount": 3,
       "connectedRegisterCount": 3,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_REWARD_FAIRNESS_GUARD_REPORT_AGENT.md"
       ],
       "requiredRegisters": [
+        "project-register/reward-fairness-guard-report-agent.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
         "project-register/agent-extension-policy.json",
         "project-register/risk-classifier.json",
         "project-register/product-readiness.json",
         "project-register/pr-review-policy.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/reward-fairness-guard-report-agent-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
         "docs/architecture/**",
-        "scripts/wellfit-dev-agent/src/**",
-        "todolist/**"
+        "scripts/wellfit-dev-agent/src/**"
       ],
       "forbiddenFiles": [
         "app/**",
@@ -1037,7 +1037,20 @@
         "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
         "Unity_AR_native_PR_13: review_required",
         "deployment_merge_approval_auto_merge_auto_repair: review_required"
-      ]
+      ],
+      "priorityWithinCurrentPlanningBatch": 3,
+      "currentPlanningRationale": "Critical guard prioritized report-only after the learning and Buddy tone foundations.",
+      "reportOnlyBuildEvidence": {
+        "updated": "2026-05-17",
+        "runtimeAuthorityGranted": false,
+        "reportOnly": true,
+        "artifactPaths": {
+          "architectureDoc": "docs/architecture/WELLFIT_REWARD_FAIRNESS_GUARD_REPORT_AGENT.md",
+          "register": "project-register/reward-fairness-guard-report-agent.json",
+          "validatorScript": "scripts/wellfit-dev-agent/src/reward-fairness-guard-report-agent-check.mjs"
+        },
+        "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
+      }
     },
     {
       "id": "reward-fairness-guard-implementation-agent",
@@ -1154,9 +1167,9 @@
     {
       "id": "child-safety-guard-report-agent",
       "proposedAgentName": "Child Safety Guard Report Agent",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "in_progress",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -1194,24 +1207,25 @@
       "connectedAgentCount": 3,
       "connectedRegisterCount": 3,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_CHILD_SAFETY_GUARD_REPORT_AGENT.md"
       ],
       "requiredRegisters": [
+        "project-register/child-safety-guard-report-agent.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
         "project-register/agent-extension-policy.json",
         "project-register/risk-classifier.json",
         "project-register/product-readiness.json",
         "project-register/website-agent-backlog.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/child-safety-guard-report-agent-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
         "docs/architecture/**",
-        "scripts/wellfit-dev-agent/src/**",
-        "todolist/**"
+        "scripts/wellfit-dev-agent/src/**"
       ],
       "forbiddenFiles": [
         "app/**",
@@ -1269,7 +1283,20 @@
         "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
         "Unity_AR_native_PR_13: review_required",
         "deployment_merge_approval_auto_merge_auto_repair: review_required"
-      ]
+      ],
+      "priorityWithinCurrentPlanningBatch": 4,
+      "currentPlanningRationale": "Critical guard prioritized report-only for minors, consent, safeguarding, and age-sensitive product assumptions.",
+      "reportOnlyBuildEvidence": {
+        "updated": "2026-05-17",
+        "runtimeAuthorityGranted": false,
+        "reportOnly": true,
+        "artifactPaths": {
+          "architectureDoc": "docs/architecture/WELLFIT_CHILD_SAFETY_GUARD_REPORT_AGENT.md",
+          "register": "project-register/child-safety-guard-report-agent.json",
+          "validatorScript": "scripts/wellfit-dev-agent/src/child-safety-guard-report-agent-check.mjs"
+        },
+        "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
+      }
     },
     {
       "id": "child-safety-guard-implementation-agent",
@@ -1386,9 +1413,9 @@
     {
       "id": "health-claims-guard-report-agent",
       "proposedAgentName": "Health Claims Guard Report Agent",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "in_progress",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -1426,24 +1453,25 @@
       "connectedAgentCount": 3,
       "connectedRegisterCount": 3,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_HEALTH_CLAIMS_GUARD_REPORT_AGENT.md"
       ],
       "requiredRegisters": [
+        "project-register/health-claims-guard-report-agent.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
         "project-register/agent-extension-policy.json",
         "project-register/risk-classifier.json",
         "project-register/research-recommendations.json",
         "project-register/website-agent-backlog.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/health-claims-guard-report-agent-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
         "docs/architecture/**",
-        "scripts/wellfit-dev-agent/src/**",
-        "todolist/**"
+        "scripts/wellfit-dev-agent/src/**"
       ],
       "forbiddenFiles": [
         "app/**",
@@ -1501,7 +1529,20 @@
         "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
         "Unity_AR_native_PR_13: review_required",
         "deployment_merge_approval_auto_merge_auto_repair: review_required"
-      ]
+      ],
+      "priorityWithinCurrentPlanningBatch": 5,
+      "currentPlanningRationale": "Critical guard prioritized report-only for medical-adjacent wording and health/wellbeing claim review.",
+      "reportOnlyBuildEvidence": {
+        "updated": "2026-05-17",
+        "runtimeAuthorityGranted": false,
+        "reportOnly": true,
+        "artifactPaths": {
+          "architectureDoc": "docs/architecture/WELLFIT_HEALTH_CLAIMS_GUARD_REPORT_AGENT.md",
+          "register": "project-register/health-claims-guard-report-agent.json",
+          "validatorScript": "scripts/wellfit-dev-agent/src/health-claims-guard-report-agent-check.mjs"
+        },
+        "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
+      }
     },
     {
       "id": "health-claims-guard-implementation-agent",
@@ -1618,9 +1659,9 @@
     {
       "id": "location-safety-guard-report-agent",
       "proposedAgentName": "Location Safety Guard Report Agent",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "in_progress",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -1658,24 +1699,25 @@
       "connectedAgentCount": 3,
       "connectedRegisterCount": 3,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_LOCATION_SAFETY_GUARD_REPORT_AGENT.md"
       ],
       "requiredRegisters": [
+        "project-register/location-safety-guard-report-agent.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
         "project-register/agent-extension-policy.json",
         "project-register/risk-classifier.json",
         "project-register/product-readiness.json",
         "project-register/continuity-dependency-map.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/location-safety-guard-report-agent-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
         "docs/architecture/**",
-        "scripts/wellfit-dev-agent/src/**",
-        "todolist/**"
+        "scripts/wellfit-dev-agent/src/**"
       ],
       "forbiddenFiles": [
         "app/**",
@@ -1733,7 +1775,20 @@
         "health_child_location_camera_face_biometric_consent_privacy_legal_compliance: review_required",
         "Unity_AR_native_PR_13: review_required",
         "deployment_merge_approval_auto_merge_auto_repair: review_required"
-      ]
+      ],
+      "priorityWithinCurrentPlanningBatch": 6,
+      "currentPlanningRationale": "Critical guard prioritized report-only for GPS, route, AR, rally, checkpoint, and physical-world safety review.",
+      "reportOnlyBuildEvidence": {
+        "updated": "2026-05-17",
+        "runtimeAuthorityGranted": false,
+        "reportOnly": true,
+        "artifactPaths": {
+          "architectureDoc": "docs/architecture/WELLFIT_LOCATION_SAFETY_GUARD_REPORT_AGENT.md",
+          "register": "project-register/location-safety-guard-report-agent.json",
+          "validatorScript": "scripts/wellfit-dev-agent/src/location-safety-guard-report-agent-check.mjs"
+        },
+        "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
+      }
     },
     {
       "id": "location-safety-guard-implementation-agent",
@@ -2546,9 +2601,9 @@
     {
       "id": "product-memory-agent",
       "proposedAgentName": "Product Memory Agent",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "in_progress",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -2586,24 +2641,24 @@
       "connectedAgentCount": 3,
       "connectedRegisterCount": 3,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_PRODUCT_MEMORY_AGENT.md"
       ],
       "requiredRegisters": [
+        "project-register/product-memory-agent.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
-        "project-register/agent-extension-policy.json",
         "project-register/agent-work-log.json",
+        "project-register/agent-extension-policy.json",
         "project-register/progress-log.json",
         "project-register/continuity-dependency-map.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/product-memory-agent-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
         "docs/architecture/**",
-        "scripts/wellfit-dev-agent/src/**",
-        "todolist/**"
+        "scripts/wellfit-dev-agent/src/**"
       ],
       "forbiddenFiles": [
         "app/**",
@@ -2631,14 +2686,27 @@
         "No runtime product code changes without a scoped approved task.",
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope."
-      ]
+      ],
+      "priorityWithinCurrentPlanningBatch": 1,
+      "currentPlanningRationale": "First priority because it directly supports Bernd’s request for learning concept understanding.",
+      "reportOnlyBuildEvidence": {
+        "updated": "2026-05-17",
+        "runtimeAuthorityGranted": false,
+        "reportOnly": true,
+        "artifactPaths": {
+          "architectureDoc": "docs/architecture/WELLFIT_PRODUCT_MEMORY_AGENT.md",
+          "register": "project-register/product-memory-agent.json",
+          "validatorScript": "scripts/wellfit-dev-agent/src/product-memory-agent-check.mjs"
+        },
+        "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
+      }
     },
     {
       "id": "ai-buddy-personality-tone-guard",
       "proposedAgentName": "AI Buddy Personality & Tone Guard",
-      "status": "approved_for_planning",
-      "artifactStatus": "planned",
-      "executionCapability": "report_only",
+      "status": "in_progress",
+      "artifactStatus": "validator_built",
+      "executionCapability": "docs_register_write",
       "allowedWriteScopes": [
         "project-register/**",
         "docs/architecture/**",
@@ -2676,24 +2744,25 @@
       "connectedAgentCount": 3,
       "connectedRegisterCount": 3,
       "requiredDocs": [
-        "docs/architecture/WELLFIT_AGENT_CATALOG_AND_APPROVED_BUILD_BACKLOG.md"
+        "docs/architecture/WELLFIT_AI_BUDDY_PERSONALITY_TONE_GUARD.md"
       ],
       "requiredRegisters": [
+        "project-register/ai-buddy-personality-tone-guard.json",
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
         "project-register/agent-extension-policy.json",
         "project-register/research-recommendations.json",
         "project-register/risk-classifier.json",
         "project-register/product-readiness.json"
       ],
       "requiredValidationScripts": [
-        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs"
+        "scripts/wellfit-dev-agent/src/ai-buddy-personality-tone-guard-check.mjs"
       ],
       "allowedFiles": [
         "project-register/**",
         "docs/architecture/**",
-        "scripts/wellfit-dev-agent/src/**",
-        "todolist/**"
+        "scripts/wellfit-dev-agent/src/**"
       ],
       "forbiddenFiles": [
         "app/**",
@@ -2722,7 +2791,20 @@
         "No token, NFT, wallet, payment, betting, reward-authority, mission-completion-authority, health, child, location, privacy, legal, compliance, Unity/PR #13, approval, merge, repair, or deploy authority.",
         "Report-only governance by default; human review required for protected or high/critical scope.",
         "Because risk is high/critical or protected-boundary-adjacent, do not mark built without human-reviewed PR evidence and passing report-only validator."
-      ]
+      ],
+      "priorityWithinCurrentPlanningBatch": 2,
+      "currentPlanningRationale": "Second priority because the Buddy will later speak directly with users.",
+      "reportOnlyBuildEvidence": {
+        "updated": "2026-05-17",
+        "runtimeAuthorityGranted": false,
+        "reportOnly": true,
+        "artifactPaths": {
+          "architectureDoc": "docs/architecture/WELLFIT_AI_BUDDY_PERSONALITY_TONE_GUARD.md",
+          "register": "project-register/ai-buddy-personality-tone-guard.json",
+          "validatorScript": "scripts/wellfit-dev-agent/src/ai-buddy-personality-tone-guard-check.mjs"
+        },
+        "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
+      }
     },
     {
       "id": "recovery-pause-anti-overuse-guard-report-agent",

@@ -418,3 +418,15 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - [x] `project-register/agent-proposals.json` - initial UI-ready proposal examples for Product Intelligence Review, Website UX Audit, MVP Scope Check, Controlled Research Request, Codex Task Generation and Admin Agent Center UI Planning.
 - [x] `scripts/wellfit-dev-agent/src/agent-control-center-check.mjs` - report-only validator for Control Center registers, required proposal fields, high/critical auto-execute blocking, auto-merge/deploy false, protected-scope blocking, human approval and controlled curiosity boundaries.
 - [x] `scripts/wellfit-dev-agent/src/quality-gate.mjs` - integrates the Agent Control Center validator report-only into the existing quality gate.
+
+## Approved Agent Planning Artifacts 2026-05-17
+
+| Datei | Status | Zweck | Fuehrende Quelle | Hinweis |
+| --- | --- | --- | --- | --- |
+| `docs/architecture/WELLFIT_PRODUCT_MEMORY_AGENT.md` | aktiv / Architektur-Notiz | report-only Architektur fuer Product Memory Agent und Bernds lernendes Konzeptverstaendnis | `project-register/product-memory-agent.json` | Prioritaet 1; keine Runtime, keine Nutzerprofilierung |
+| `docs/architecture/WELLFIT_AI_BUDDY_PERSONALITY_TONE_GUARD.md` | aktiv / Architektur-Notiz | report-only Architektur fuer Buddy-Persoenlichkeit und Tonalitaetsgrenzen | `project-register/ai-buddy-personality-tone-guard.json` | Prioritaet 2; keine Buddy-Runtime oder UI-Ausfuehrung |
+| `docs/architecture/WELLFIT_REWARD_FAIRNESS_GUARD_REPORT_AGENT.md` | aktiv / Architektur-Notiz | report-only Guard-Architektur fuer Reward-Fairness | `project-register/reward-fairness-guard-report-agent.json` | kritischer Guard nur report-only; keine Reward-Autoritaet |
+| `docs/architecture/WELLFIT_CHILD_SAFETY_GUARD_REPORT_AGENT.md` | aktiv / Architektur-Notiz | report-only Guard-Architektur fuer Child Safety | `project-register/child-safety-guard-report-agent.json` | kritischer Guard nur report-only; keine Runtime-/Policy-Aenderung |
+| `docs/architecture/WELLFIT_HEALTH_CLAIMS_GUARD_REPORT_AGENT.md` | aktiv / Architektur-Notiz | report-only Guard-Architektur fuer Health Claims | `project-register/health-claims-guard-report-agent.json` | kritischer Guard nur report-only; keine medizinischen Claims aendern |
+| `docs/architecture/WELLFIT_LOCATION_SAFETY_GUARD_REPORT_AGENT.md` | aktiv / Architektur-Notiz | report-only Guard-Architektur fuer Location Safety | `project-register/location-safety-guard-report-agent.json` | kritischer Guard nur report-only; keine Standort-/AR-Runtime aendern |
+| `docs/architecture/WELLFIT_KNOWLEDGE_CORE.md` | aktiv / Architektur-Notiz | Wegweiser fuer vorhandenes Produktwissen und Concept-Learning-Fragen | `project-register/product-rules.json` | nur als kurze Quellenkarte pflegen; keine Runtime-Autoritaet |

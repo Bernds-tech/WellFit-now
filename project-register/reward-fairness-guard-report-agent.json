@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "activationState": "report_only",
+  "id": "reward-fairness-guard-report-agent",
+  "name": "Reward Fairness Guard Report Agent",
+  "priorityInApprovedPlanningBatch": 3,
+  "riskLevel": "critical",
+  "agentType": "critical_report_guard",
+  "purpose": "Reports fairness, abuse, pressure, and authority risks around reward concepts while never changing reward logic, mission completion, anti-cheat, ledger, points, XP, token, payment, or runtime behavior.",
+  "prioritizationReason": "Critical guard prioritized report-only after the learning and Buddy tone foundations.",
+  "artifactSet": {
+    "architectureDoc": "docs/architecture/WELLFIT_REWARD_FAIRNESS_GUARD_REPORT_AGENT.md",
+    "register": "project-register/reward-fairness-guard-report-agent.json",
+    "validatorScript": "scripts/wellfit-dev-agent/src/reward-fairness-guard-report-agent-check.mjs",
+    "catalog": "project-register/agent-catalog.json",
+    "backlog": "project-register/approved-agent-build-backlog.json",
+    "workLog": "project-register/agent-work-log.json"
+  },
+  "executionCapability": "report_only",
+  "runtimeAuthorityGranted": false,
+  "requiresHumanApprovalForRuntime": true,
+  "profileUsersAtRuntime": false,
+  "allowedWriteScopes": [
+    "project-register/**",
+    "docs/architecture/**",
+    "scripts/wellfit-dev-agent/src/**"
+  ],
+  "forbiddenWriteScopes": [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "functions/**",
+    "firestore.rules",
+    "public/**",
+    "package.json",
+    "package-lock.json",
+    "firebase.json",
+    ".github/**",
+    "native/unity/WellFitBuddyAR/**"
+  ],
+  "connectedAgents": [
+    "risk-classifier",
+    "product-readiness-matrix",
+    "pr-review-agent"
+  ],
+  "connectedRegisters": [
+    "project-register/risk-classifier.json",
+    "project-register/product-readiness.json",
+    "project-register/pr-review-policy.json"
+  ],
+  "allowedOutputs": [
+    "reward_fairness_findings",
+    "server_authority_flags",
+    "review_required_questions",
+    "blocked_implementation_notes"
+  ],
+  "forbiddenActions": [
+    "modify_app_runtime",
+    "execute_ui",
+    "profile_users",
+    "change_firestore_rules",
+    "change_firebase_functions",
+    "change_reward_authority",
+    "change_mission_completion_authority",
+    "change_health_child_location_compliance_logic",
+    "change_token_wallet_payment_nft_betting_logic",
+    "change_unity_files",
+    "approve_merge_deploy_or_auto_repair"
+  ],
+  "protectedBoundaries": [
+    "report_only",
+    "runtimeAuthorityGranted=false",
+    "requiresHumanApprovalForRuntime=true",
+    "no App Runtime changes",
+    "no user profiling",
+    "no Firestore rules changes",
+    "no Firebase Functions changes",
+    "no UI execution",
+    "no merge/deploy/approval/auto-repair authority"
+  ],
+  "reviewRequiredFor": [
+    "any runtime implementation",
+    "any protected-scope product change",
+    "any user-facing Buddy behavior",
+    "any reward or mission authority",
+    "any health child location privacy legal compliance decision",
+    "any token wallet payment NFT betting or monetization decision",
+    "any deployment merge approval or repair capability"
+  ],
+  "validator": {
+    "path": "scripts/wellfit-dev-agent/src/reward-fairness-guard-report-agent-check.mjs",
+    "expectedReadyToken": "REWARD_FAIRNESS_GUARD_REPORT_AGENT_READY=true"
+  },
+  "statusEvidence": {
+    "sourceBacklog": "project-register/approved-agent-build-backlog.json",
+    "catalogEntryRequired": true,
+    "workLogEntryRequired": true,
+    "lastChecked": "2026-05-17"
+  },
+  "nextSafeMaintenanceTask": "Keep report-only artifacts synchronized and block runtime work until a later explicit human-approved scope names exact files, boundaries, and tests."
+}
