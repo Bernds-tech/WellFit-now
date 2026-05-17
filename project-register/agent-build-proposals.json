@@ -3,6 +3,19 @@
   "updated": "2026-05-17",
   "activationState": "proposal_backlog",
   "purpose": "Machine-readable backlog of Agent Architect & Proposal Agent outputs. Entries describe one proposed or built agent at a time and preserve human-review, report-only, no-runtime, no-auto-merge, no-auto-repair, and no-deploy boundaries.",
+  "generalProposalScopeAssessment": {
+    "canExtendForGeneralAgentControlCenterProposals": false,
+    "reason": "This register is intentionally scoped to Agent Architect / Proposal Agent build backlog entries with build-specific fields such as proposedAgentName, sourceApprovedBacklogId, artifactStatus, executionCapability, allowedWriteScopes, forbiddenWriteScopes, buildPromptSummary, and generatedBuildPromptLocation. General Agent Control Center proposals need UI-facing proposal, approval, risk, allowed/blocked path, and auto-execution flags without implying agent-build backlog approval.",
+    "decision": "Keep this file as the build-proposal backlog and use separate Agent Control Center registers for general proposal governance.",
+    "generalControlCenterRegister": "project-register/agent-control-center.json",
+    "generalProposalRegister": "project-register/agent-proposals.json",
+    "requiredSafetyDefaults": {
+      "can_auto_merge": false,
+      "can_auto_deploy": false,
+      "high_or_critical_can_auto_execute": false,
+      "exception_note": "High or critical proposals may only differ in a later explicitly approved future_manual_only field; no current entry has that authority."
+    }
+  },
   "proposalStatuses": [
     "drafted",
     "proposed",
