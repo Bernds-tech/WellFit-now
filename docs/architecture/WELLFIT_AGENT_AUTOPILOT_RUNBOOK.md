@@ -1,7 +1,7 @@
 # WellFit Agent Autopilot Runbook and Iteration Orchestrator
 
-Status: active / dry-run-only governance documentation  
-Updated: 2026-05-15  
+Status: active / staged autonomy governance documentation
+Updated: 2026-05-17
 Machine-readable control: `project-register/agent-autopilot.json`  
 Dry-run entrypoint: `node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs`
 
@@ -9,7 +9,21 @@ Dry-run entrypoint: `node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.
 
 The WellFit Agent Autopilot is the single governed entrypoint for future Codex/AI agent iterations. It does **not** replace the existing WellFit governance, memory loop, task queue, risk classifier, definition of done, readiness matrix, work map, internal sources, roadmap, feedback, research, or insight registers. It orchestrates those existing sources into one safe dry run that tells an agent what it may inspect, which safe task is currently suggested, which risk gates apply, which checks must run, and where the iteration must stop for human approval before implementation, merge, or deployment.
 
-This first version is intentionally **dry-run only**. It must not write files automatically, implement product changes, merge branches, deploy, or auto-approve high/critical work.
+Autopilot remains dry-run-only for `Stufe 4A`. Broader autonomy is split into explicit stages below; no stage may merge, deploy, approve protected work, or bypass its `project-register/` policy file.
+
+
+## Stufe-4 autonomy stages
+
+Autopilot language must not collapse all work into one vague end-to-end autonomy mode. Every run must declare exactly which stage is active and must cite the responsible policy file in `project-register/` before continuing.
+
+| Stage | Meaning | Responsible policy file | Allowed outcome | Disabled/stop condition |
+| --- | --- | --- | --- | --- |
+| `Stufe 4A` | Autonomous analysis and task creation | `project-register/agent-autopilot.json` | Dry-run report with selected/suggested task, risk classification, required checks, affected files/registers, and stop conditions | Stop before any automatic file write, PR creation, merge, or deployment |
+| `Stufe 4B` | Autonomous docs/register changes with PR | `project-register/agent-workflows.json` | Scoped documentation, register, governance, inventory, or report-only script update with commit, PR summary, checks, risks, and next task | Stop if runtime product logic, protected areas, or unlisted files are required |
+| `Stufe 4C` | Limited runtime changes with allowlist | `project-register/approved-agent-build-runner-policy.json` | Small runtime change only when the human-approved task, allowlist, risk classifier, definition of done, required checks, and protected-scope gates all allow it | Stop on files outside allowlist, medium/high/critical uncertainty, protected authority, or missing checks |
+| `Stufe 4D` | Safe auto-repairs | `project-register/auto-repair-policy.json` | Narrow repair of a concrete failed validation check when the policy says the repair is safe and bounded | Stop on broad refactors, test removal, runtime expansion, protected topics, or ambiguous failure cause |
+| `Stufe 4E` | Merge recommendation | `project-register/auto-merge-policy.json` | Report-only recommendation for human merge consideration after checks, diff review, post-creation guard, and risk gates | Does not approve, enable, or perform a merge |
+| `Stufe 4F` | Auto-merge, currently disabled | `project-register/auto-merge-policy.json` | No active execution outcome; only records that auto-merge remains disabled | Any attempt to auto-merge must stop unless the repository owner explicitly changes the policy |
 
 ## Source of truth hierarchy
 
@@ -107,20 +121,23 @@ Stop before merge, deploy, protected implementation, high/critical work, or any 
 
 ## Allowed actions
 
-In this first version, Autopilot allows only:
+By stage, Autopilot allows only the actions authorized by the stage policy file. Current baseline allowances are:
 
 - reading repository governance, TODO, architecture, and project-register files;
 - running validation and report-only scripts;
 - printing the selected next safe task, risk classification, required checks, affected files/registers, stop conditions, and planning-only/implementation status;
 - preparing a human-readable plan and PR handoff;
-- updating Autopilot governance documentation/registers only when explicitly requested by a human task, as done in normal PR workflow.
+- in `Stufe 4B`, updating governance documentation/registers only when explicitly requested by a human task, as done in normal PR workflow;
+- in `Stufe 4C` and `Stufe 4D`, proceeding only inside the explicit allowlist/safe-repair boundaries from their policy files;
+- in `Stufe 4E`, emitting a merge recommendation only;
+- in `Stufe 4F`, stopping because real auto-merge is currently disabled.
 
 ## Forbidden actions
 
 Autopilot must not:
 
 - write files automatically during `agent-autopilot-dry-run.mjs`;
-- merge, deploy, publish, or close PRs;
+- merge, deploy, publish, close PRs, or treat `Stufe 4E` as approval;
 - touch PR #13 or `native/unity/WellFitBuddyAR/**`;
 - modify runtime product logic in documentation/registry/script-only tasks;
 - create duplicate architecture, duplicate task systems, parallel registries, duplicate routes/APIs, or duplicate feature modules;
@@ -142,7 +159,7 @@ Autopilot must stop and report when:
 - checks fail for code reasons;
 - human approval is required and not present.
 
-Medium-risk work is not automatically implemented by Autopilot. It can only be planned unless a human explicitly asks for scoped runtime work and the risk classifier permits it. Low-risk documentation, registry, and report-only script work may be implemented by a normal agent after planning, but the Autopilot dry-run script itself still writes nothing.
+`Stufe 4A` is analysis/task creation only. `Stufe 4B` may implement low-risk documentation/register changes through normal branch/commit/PR workflow. `Stufe 4C` may touch runtime files only when a human-approved allowlist and `project-register/approved-agent-build-runner-policy.json` permit it. `Stufe 4D` may repair only the narrow failure class permitted by `project-register/auto-repair-policy.json`. `Stufe 4E` is a recommendation report. `Stufe 4F` is disabled and must stop before merge.
 
 ## Required checks
 
@@ -180,8 +197,8 @@ Autopilot dry-run output must include:
 
 ## Quality gate integration
 
-`npm run agent:quality-gate` may run Autopilot only in dry-run/report-only mode. A successful dry run means the orchestrator reported a safe plan and exited `0`; it does not authorize implementation, merge, deployment, protected work, or high/critical work.
+`npm run agent:quality-gate` may run Autopilot `Stufe 4A` only in dry-run/report-only mode. A successful dry run means the orchestrator reported a safe plan and exited `0`; it does not authorize implementation, merge, deployment, protected work, or high/critical work. Later-stage checks may report readiness for `Stufe 4B`-`Stufe 4E`, but they still do not activate `Stufe 4F` auto-merge.
 
 ## KI-Fortsetzungs-Prompt
 
-Lies `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md`, `project-register/agent-autopilot.json`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/agent-work-log.json`, `project-register/progress-log.json`, `project-register/product-readiness.json`, `project-register/internal-sources.json`, `project-register/master-roadmap-tasks.json`, `project-register/user-feedback.json`, `project-register/adaptive-user-insights.json`, `project-register/research-recommendations.json`, und diese Runbook-Datei. Fuehre `node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs` aus, nutze nur bestehende fuehrende Dateien, stoppe bei hohem/kritischem/unklarem Risiko, implementiere nichts automatisch, merge/deploye nie, und liefere eine PR-Handoff-Zusammenfassung mit Checks, Risiken und naechstem sicheren Task.
+Lies `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md`, `project-register/agent-autopilot.json`, `project-register/agent-task-queue.json`, `project-register/risk-classifier.json`, `project-register/definition-of-done.json`, `project-register/agent-work-log.json`, `project-register/progress-log.json`, `project-register/product-readiness.json`, `project-register/internal-sources.json`, `project-register/master-roadmap-tasks.json`, `project-register/user-feedback.json`, `project-register/adaptive-user-insights.json`, `project-register/research-recommendations.json`, und diese Runbook-Datei. Fuehre `node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs` aus, nutze nur bestehende fuehrende Dateien, stoppe bei hohem/kritischem/unklarem Risiko, ordne den Auftrag einer Stufe `4A` bis `4F` mit zustaendiger Policy-Datei zu, implementiere in `4A` nichts automatisch, merge/deploye nie, behandle `4F` als deaktiviert, und liefere eine Handoff-Zusammenfassung mit Checks, Risiken und naechstem sicheren Task.

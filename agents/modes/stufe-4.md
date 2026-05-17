@@ -10,7 +10,21 @@ Wenn Bernd `Stufe 4` schreibt, gilt dieser Modus automatisch.
 Agent + Selbstkorrektur + Nebenseiten-Crawl
 ```
 
-Die KI arbeitet nicht nur eine Einzeldatei ab, sondern fuehrt den vollstaendigen autonomen Ablauf aus.
+Die KI arbeitet nicht nur eine Einzeldatei ab. Sie ordnet den Auftrag zuerst einer klar begrenzten Stufe-4-Teilstufe zu und fuehrt nur die dort erlaubten Schritte aus.
+
+
+## Teilstufen und Policy-Dateien
+
+`Stufe 4` ist ein Sammelmodus mit praezisen Teilstufen. Vor jeder Arbeit muss die passende Policy-Datei im `project-register/` gelesen und im Abschlussbericht genannt werden.
+
+| Teilstufe | Bedeutung | Zustaendige Policy-Datei im `project-register/` | Ergebnis |
+| --- | --- | --- | --- |
+| `Stufe 4A` | Autonome Analyse und Task-Erstellung | `project-register/agent-autopilot.json` | Report mit Task-Vorschlag, Risiko, Definition-of-Done, betroffenen Dateien und Stop-Bedingungen; keine automatischen Datei-Aenderungen. |
+| `Stufe 4B` | Autonome Docs-/Register-Aenderungen mit PR | `project-register/agent-workflows.json` | Reviewbarer Commit/PR fuer Dokumentation, Register oder Report-only-Governance; keine Runtime-Produktlogik. |
+| `Stufe 4C` | Begrenzte Runtime-Aenderungen mit Allowlist | `project-register/approved-agent-build-runner-policy.json` | Kleinster erlaubter Runtime-Diff nur innerhalb einer expliziten Allowlist und nur mit passenden Checks. |
+| `Stufe 4D` | Sichere Auto-Reparaturen | `project-register/auto-repair-policy.json` | Eng begrenzter Fix fuer einen validierten Fehler; keine Testentfernung, keine breiten Refactors. |
+| `Stufe 4E` | Merge-Empfehlung | `project-register/auto-merge-policy.json` | Report-only Merge-Einschaetzung fuer menschliche Entscheidung; kein automatisches Mergen. |
+| `Stufe 4F` | Auto-Merge, derzeit deaktiviert | `project-register/auto-merge-policy.json` | Kein aktiver Ausfuehrungsmodus; Auto-Merge bleibt deaktiviert, bis der Repository Owner ihn ausdruecklich aktiviert. |
 
 ## Pflichtablauf
 
