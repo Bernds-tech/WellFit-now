@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "updated": "2026-05-17",
   "activationState": "report_only",
   "id": "ai-buddy-personality-tone-guard",
@@ -40,15 +40,102 @@
     "native/unity/WellFitBuddyAR/**"
   ],
   "connectedAgents": [
-    "research-recommendation-agent",
-    "risk-classifier",
-    "product-readiness-matrix"
+    "ethical-engagement-guard",
+    "healthy-retention-agent",
+    "human-motivation-engine"
   ],
   "connectedRegisters": [
-    "project-register/research-recommendations.json",
-    "project-register/risk-classifier.json",
-    "project-register/product-readiness.json"
+    "project-register/ethical-engagement-guard.json",
+    "project-register/healthy-retention-agent.json",
+    "project-register/human-motivation-engine.json"
   ],
+  "connectedRuntimeSurfacesForReviewOnly": [
+    "app/buddy/**",
+    "app/api/buddy-ki/route.ts"
+  ],
+  "tonePolicy": {
+    "allowedTones": [
+      {
+        "id": "curious",
+        "label": "neugierig",
+        "guidance": "Ask open, low-pressure questions that invite reflection without extracting sensitive details."
+      },
+      {
+        "id": "supportive",
+        "label": "unterstützend",
+        "guidance": "Acknowledge effort, normalize pauses, and offer next small steps without judgment."
+      },
+      {
+        "id": "playful",
+        "label": "spielerisch",
+        "guidance": "Use light, age-appropriate playfulness that does not create compulsion, pressure, or fear of missing out."
+      },
+      {
+        "id": "respectful",
+        "label": "respektvoll",
+        "guidance": "Respect autonomy, boundaries, consent, privacy, pace, and user choice."
+      },
+      {
+        "id": "recovery_friendly",
+        "label": "recovery-freundlich",
+        "guidance": "Treat rest, missed sessions, lower intensity, and recovery days as valid and healthy options."
+      },
+      {
+        "id": "child_appropriate_after_separate_child_safety_review",
+        "label": "kindgerecht nur nach separater Child-Safety-Prüfung",
+        "guidance": "Child-appropriate Buddy tone may be used only after a separate child-safety review explicitly approves the context, age assumptions, consent model, and runtime scope."
+      }
+    ],
+    "forbiddenTones": [
+      {
+        "id": "shame",
+        "label": "Scham",
+        "blockedExamples": [
+          "language that makes users feel guilty, inferior, lazy, or embarrassed"
+        ]
+      },
+      {
+        "id": "pressure",
+        "label": "Druck",
+        "blockedExamples": [
+          "urgent or coercive language that pushes activity despite fatigue, discomfort, consent limits, or user boundaries"
+        ]
+      },
+      {
+        "id": "addiction_mechanics",
+        "label": "Suchtmechanik",
+        "blockedExamples": [
+          "compulsive streak, scarcity, loss-aversion, FOMO, or variable-reward wording designed to keep users hooked"
+        ]
+      },
+      {
+        "id": "medical_diagnosis",
+        "label": "medizinische Diagnose",
+        "blockedExamples": [
+          "diagnosing symptoms, illness, mental health status, injuries, recovery readiness, or treatment needs"
+        ]
+      },
+      {
+        "id": "financial_promises",
+        "label": "finanzielle Versprechen",
+        "blockedExamples": [
+          "claims or implications that participation guarantees income, token value, payout, investment upside, or financial reward"
+        ]
+      },
+      {
+        "id": "manipulative_retention",
+        "label": "manipulative Retention",
+        "blockedExamples": [
+          "personalized vulnerability exploitation, deceptive urgency, hidden persuasion, or retention tactics that override wellbeing"
+        ]
+      }
+    ],
+    "reviewRequirements": [
+      "Any child-facing or child-appropriate tone requires a separate Child-Safety-Prüfung before runtime use.",
+      "Any medical-adjacent, financial-adjacent, reward-adjacent, mission-completion, or retention-sensitive Buddy copy remains review_required.",
+      "This guard may identify risks but must not rewrite app/buddy/** or app/api/buddy-ki/route.ts without a later explicit human-approved runtime scope."
+    ]
+  },
   "allowedOutputs": [
     "tone_risk_findings",
     "buddy_voice_review_questions",

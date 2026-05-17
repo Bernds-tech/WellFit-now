@@ -2732,14 +2732,14 @@
       "expectedBenefit": "Adds focused governance or product-planning capability for AI Buddy Personality & Tone Guard while preserving existing agent boundaries and protected-scope stops.",
       "riskLevel": "high",
       "connectedAgents": [
-        "research-recommendation-agent",
-        "risk-classifier",
-        "product-readiness-matrix"
+        "ethical-engagement-guard",
+        "healthy-retention-agent",
+        "human-motivation-engine"
       ],
       "connectedRegisters": [
-        "project-register/research-recommendations.json",
-        "project-register/risk-classifier.json",
-        "project-register/product-readiness.json"
+        "project-register/ethical-engagement-guard.json",
+        "project-register/healthy-retention-agent.json",
+        "project-register/human-motivation-engine.json"
       ],
       "connectedAgentCount": 3,
       "connectedRegisterCount": 3,
@@ -2751,10 +2751,9 @@
         "project-register/agent-catalog.json",
         "project-register/approved-agent-build-backlog.json",
         "project-register/agent-work-log.json",
-        "project-register/agent-extension-policy.json",
-        "project-register/research-recommendations.json",
-        "project-register/risk-classifier.json",
-        "project-register/product-readiness.json"
+        "project-register/ethical-engagement-guard.json",
+        "project-register/healthy-retention-agent.json",
+        "project-register/human-motivation-engine.json"
       ],
       "requiredValidationScripts": [
         "scripts/wellfit-dev-agent/src/ai-buddy-personality-tone-guard-check.mjs"
@@ -2803,8 +2802,21 @@
           "register": "project-register/ai-buddy-personality-tone-guard.json",
           "validatorScript": "scripts/wellfit-dev-agent/src/ai-buddy-personality-tone-guard-check.mjs"
         },
-        "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized."
-      }
+        "notes": "Planning artifacts only; no app runtime, user profiling, Firestore rules, Firebase Functions, or UI execution changes authorized.",
+        "connectedRegisters": [
+          "project-register/ethical-engagement-guard.json",
+          "project-register/healthy-retention-agent.json",
+          "project-register/human-motivation-engine.json"
+        ],
+        "reviewOnlyRuntimeSurfaces": [
+          "app/buddy/**",
+          "app/api/buddy-ki/route.ts"
+        ]
+      },
+      "reviewOnlyRuntimeSurfaces": [
+        "app/buddy/**",
+        "app/api/buddy-ki/route.ts"
+      ]
     },
     {
       "id": "recovery-pause-anti-overuse-guard-report-agent",

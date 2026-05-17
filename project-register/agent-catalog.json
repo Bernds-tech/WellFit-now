@@ -2771,9 +2771,9 @@
       "ownerArea": "Approved Agent Build Backlog",
       "primaryRegisters": [
         "project-register/ai-buddy-personality-tone-guard.json",
-        "project-register/research-recommendations.json",
-        "project-register/risk-classifier.json",
-        "project-register/product-readiness.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/healthy-retention-agent.json",
+        "project-register/human-motivation-engine.json",
         "project-register/approved-agent-build-backlog.json",
         "project-register/agent-work-log.json"
       ],
@@ -2785,14 +2785,14 @@
       ],
       "qualityGateIntegrated": false,
       "relatedAgents": [
-        "research-recommendation-agent",
-        "risk-classifier",
-        "product-readiness-matrix"
+        "ethical-engagement-guard",
+        "healthy-retention-agent",
+        "human-motivation-engine"
       ],
       "relatedRegisters": [
-        "project-register/research-recommendations.json",
-        "project-register/risk-classifier.json",
-        "project-register/product-readiness.json"
+        "project-register/ethical-engagement-guard.json",
+        "project-register/healthy-retention-agent.json",
+        "project-register/human-motivation-engine.json"
       ],
       "allowedExtensionTypes": [
         "report-only findings",
@@ -2821,7 +2821,11 @@
         "no UI execution",
         "no merge/deploy/approval/auto-repair authority"
       ],
-      "nextSafeMaintenanceTask": "Keep ai-buddy-personality-tone-guard synchronized across its architecture doc, register, validator, catalog, approved backlog, and agent work log."
+      "nextSafeMaintenanceTask": "Keep ai-buddy-personality-tone-guard synchronized with ethical engagement, healthy retention, human motivation, app/buddy/**, and app/api/buddy-ki/route.ts review boundaries.",
+      "reviewOnlyRuntimeSurfaces": [
+        "app/buddy/**",
+        "app/api/buddy-ki/route.ts"
+      ]
     },
     {
       "id": "reward-fairness-guard-report-agent",
