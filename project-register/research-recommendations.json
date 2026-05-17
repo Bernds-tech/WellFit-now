@@ -211,5 +211,10 @@
     "register": "project-register/mission-factory-agent.json",
     "allowedUse": "Use research only to inform report-only mission planning hypotheses and human-review questions.",
     "forbiddenUse": "No medical/legal/financial claims, runtime mission generation, completion authority, reward authority, protected-data inference, location/camera/child/health/privacy decisions, Unity/AR implementation, or deployment."
+  },
+  "healthyRetentionAgentBoundary": {
+    "register": "project-register/healthy-retention-agent.json",
+    "doc": "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
+    "boundary": "Healthy retention research recommendations remain internal-first, report-only, wellbeing-focused, and review_required for protected or dark-pattern-adjacent claims before any runtime implementation."
   }
 }

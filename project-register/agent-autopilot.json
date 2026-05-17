@@ -252,7 +252,8 @@
     "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
     "node scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs",
     "node scripts/wellfit-dev-agent/src/product-intelligence-agent-check.mjs",
-    "jq empty project-register/product-intelligence-agent.json"
+    "jq empty project-register/product-intelligence-agent.json",
+    "node scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs"
   ],
   "riskGates": {
     "sourceOfTruth": "project-register/risk-classifier.json",
@@ -443,5 +444,11 @@
     "doc": "docs/architecture/WELLFIT_MISSION_FACTORY_AGENT.md",
     "check": "scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs",
     "purpose": "Report-only mission planning guard; no runtime mission generation, completion authority, reward authority, anti-cheat authority, protected-data behavior, Unity/AR behavior, or deployment."
+  },
+  "healthyRetentionAgentReference": {
+    "register": "project-register/healthy-retention-agent.json",
+    "doc": "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
+    "check": "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs",
+    "purpose": "Report-only healthy retention governance; no runtime retention automation, profiling, notification triggers, streak/reward modification, mission/reward authority, protected behavior, Unity/AR behavior, or deployment."
   }
 }

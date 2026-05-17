@@ -1,0 +1,151 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "activationState": "report_only",
+  "purpose": "Defines a report-only Healthy Retention Agent framework that can review retention ideas for user wellbeing, recovery, consent-aware engagement, sustainable motivation, and anti-dark-pattern boundaries without changing runtime product code, personalizing users at runtime, authorizing rewards, authorizing missions, or touching protected implementation scope.",
+  "healthyRetentionPrinciples": [
+    "wellbeing_first_retention",
+    "user_agency_and_exit_paths",
+    "recovery_and_pause_respect",
+    "non_addictive_engagement",
+    "transparent_motivation",
+    "age_appropriate_by_default",
+    "protected_data_minimization",
+    "aggregate_or_planning_only_insights",
+    "human_review_for_high_risk_retention",
+    "anti_duplicate_architecture",
+    "no_runtime_authority"
+  ],
+  "inputSources": [
+    "project-register/adaptive-user-insights.json",
+    "project-register/product-readiness.json",
+    "project-register/risk-classifier.json",
+    "project-register/human-motivation-engine.json",
+    "project-register/ethical-engagement-guard.json",
+    "project-register/adaptive-difficulty-agent.json",
+    "project-register/product-intelligence-agent.json",
+    "project-register/continuity-dependency-map.json",
+    "project-register/agent-catalog.json",
+    "project-register/approved-agent-build-backlog.json",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "todolist/CURRENT_PROJECT_STATE.md"
+  ],
+  "allowedOutputs": [
+    "retention idea wellbeing review",
+    "healthy engagement risk report",
+    "pause and recovery checklist",
+    "retention experiment planning brief",
+    "user-agency and opt-out checklist",
+    "dark-pattern boundary report",
+    "aggregate feedback theme summary",
+    "human-review question list",
+    "non-runtime acceptance criteria draft",
+    "source-of-truth mapping for existing retention docs/registers"
+  ],
+  "forbiddenOutputs": [
+    "runtime retention implementation",
+    "individual-user targeting or profiling",
+    "runtime personalization decisions",
+    "push notification, streak, urgency, scarcity, loss-aversion, or reactivation automation",
+    "mission completion authorization",
+    "reward or XP authorization",
+    "anti-cheat decisions",
+    "health, child/minor, location, camera, biometric, face, consent, privacy, legal, token, wallet, payment, betting, or NFT decisions",
+    "Unity, AR, native, or PR #13 implementation",
+    "deployment or configuration changes",
+    "client-side final authority for missions, rewards, or user state"
+  ],
+  "retentionReviewRules": {
+    "mustExtendExistingSources": true,
+    "canonicalSources": [
+      "todolist/WORK_MAP.md",
+      "todolist/TODO_INDEX.md",
+      "todolist/CURRENT_PROJECT_STATE.md",
+      "project-register/adaptive-user-insights.json",
+      "project-register/product-readiness.json",
+      "project-register/risk-classifier.json",
+      "project-register/human-motivation-engine.json",
+      "project-register/ethical-engagement-guard.json",
+      "project-register/continuity-dependency-map.json"
+    ],
+    "runtimeImplementationRequiresSeparateApproval": true,
+    "stopForAmbiguity": "If retention ownership, user consent, protected data, age-appropriate design, authority, opt-out behavior, or source-of-truth is unclear, output review_required instead of implementing or recommending runtime changes.",
+    "antiDuplicateArchitecture": "Use existing motivation, engagement, adaptive insight, product-readiness, continuity, and TODO mappings. Do not create replacement retention engines, duplicate notification systems, duplicate analytics stores, or parallel architecture."
+  },
+  "retentionAuthorityBoundaries": {
+    "agentMayDraftPlanningReports": true,
+    "agentMayPersonalizeUsersAtRuntime": false,
+    "agentMayTriggerNotifications": false,
+    "agentMayModifyStreaksOrRewards": false,
+    "agentMayAuthorizeMissions": false,
+    "agentMayAuthorizeRewards": false,
+    "humanReviewRequiredFor": [
+      "retention experiments",
+      "notification or reactivation mechanics",
+      "streak, scarcity, urgency, leaderboard, social pressure, or loss-aversion mechanics",
+      "age-appropriate design questions",
+      "health, child/minor, location, camera, biometric, consent, privacy, legal, token, wallet, payment, betting, NFT, reward-authority, or mission-authority topics"
+    ],
+    "reportOnlyAgentMayAuthorize": []
+  },
+  "protectedReviewTopics": [
+    "health or medical-adjacent claims",
+    "child/minor safety and age-appropriate design",
+    "location, GPS, geofence, route, or outdoor safety",
+    "camera, face, biometric, motion, or sensor evidence",
+    "consent, privacy, legal, compliance, AGB, Datenschutz, or Impressum wording",
+    "token, NFT, wallet, payment, payout, betting, staking, marketplace, presale, or investment mechanics",
+    "reward authority, mission completion authority, anti-cheat, PvP stakes, or financial-equivalent outcomes",
+    "Unity, AR, native WellFitBuddyAR, or PR #13",
+    "dark patterns, addictive loops, coercive retention, or manipulative urgency"
+  ],
+  "healthyRetentionChecklist": [
+    "existing source-of-truth file identified",
+    "user value and wellbeing rationale documented",
+    "user agency, opt-out, pause, and recovery paths considered",
+    "dark-pattern and overuse risk classified",
+    "protected-topic flags classified",
+    "individual-user profiling remains forbidden",
+    "runtime personalization remains forbidden",
+    "reward and mission authority remain server-side or review_required",
+    "high/critical/protected topics are review_required",
+    "human reviewer and next safe task are named"
+  ],
+  "reportSchema": {
+    "retentionReviewId": "string",
+    "sourceFiles": "array_of_existing_sources",
+    "userValueHypothesis": "string",
+    "wellbeingRationale": "string",
+    "protectedTopicFlags": "array",
+    "darkPatternRisk": "low|medium|high|critical|review_required",
+    "agencyAndPauseNotes": "string",
+    "authorityBoundary": "report_only_or_review_required",
+    "readinessStatus": "draft|review_required|blocked",
+    "dependencies": "array",
+    "humanReviewQuestions": "array",
+    "nextSafeTask": "string"
+  },
+  "nonAuthorizingSignals": {
+    "neverModifiesRuntimeFiles": true,
+    "neverPersonalizesUsersAtRuntime": true,
+    "neverTracksOrProfilesUsersAtRuntime": true,
+    "neverTriggersNotifications": true,
+    "neverModifiesStreaksOrRewards": true,
+    "neverAuthorizesMissionCompletion": true,
+    "neverAuthorizesRewards": true,
+    "neverActivatesLocationCameraHealthChildLegalTokenWalletPaymentUnityBehavior": true,
+    "neverApprovesPrs": true,
+    "neverMergesPrs": true,
+    "neverRepairsFiles": true,
+    "neverDeploys": true,
+    "protectedTopicsRemainReviewRequired": true
+  },
+  "qualityGateIntegration": {
+    "script": "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs",
+    "readySignal": "HEALTHY_RETENTION_AGENT_READY=true",
+    "mode": "report_only",
+    "runtimeAuthority": "none"
+  },
+  "nextSafeMaintenanceTask": "Keep Healthy Retention Agent register, architecture doc, validator, quality-gate integration, approved backlog, proposals, runner state, workflow/task/autopilot/continuity/readiness references, Work Map, TODO Index, and Current Project State synchronized; next runner candidate is Reward Fairness Guard if eligible and still report-only."
+}

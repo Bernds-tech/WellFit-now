@@ -504,6 +504,72 @@
       "nextRecommendedAction": "After Mission Factory PR merge evidence is green, continue to Healthy Retention Agent only as report-only governance with protected authority blocked.",
       "createdDate": "2026-05-17",
       "updatedDate": "2026-05-17"
+    },
+    {
+      "id": "proposal-healthy-retention-agent-2026-05-17",
+      "proposedAgentName": "Healthy Retention Agent",
+      "sourceApprovedBacklogId": "healthy-retention-agent",
+      "status": "built",
+      "reason": "Human-approved next agent from the approved build backlog was implemented as a docs/register/validator-only framework in this task.",
+      "expectedBenefit": "Defines wellbeing-first retention planning reviews, pause/recovery checks, user-agency/opt-out checks, and dark-pattern boundaries before any runtime retention work.",
+      "riskLevel": "high",
+      "connectedAgents": [
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-difficulty-agent",
+        "adaptive-user-insight-agent",
+        "product-intelligence-agent",
+        "risk-classifier"
+      ],
+      "connectedRegisters": [
+        "project-register/healthy-retention-agent.json",
+        "project-register/adaptive-user-insights.json",
+        "project-register/product-readiness.json",
+        "project-register/risk-classifier.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/product-intelligence-agent.json",
+        "project-register/continuity-dependency-map.json"
+      ],
+      "connectedAgentCount": 6,
+      "connectedRegisterCount": 9,
+      "requiredDocs": [
+        "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md"
+      ],
+      "requiredRegisters": [
+        "project-register/healthy-retention-agent.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json"
+      ],
+      "requiredValidationScripts": [
+        "scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs"
+      ],
+      "allowedFiles": [
+        "project-register/**",
+        "docs/architecture/**",
+        "scripts/wellfit-dev-agent/src/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "public/**",
+        "package.json",
+        "package-lock.json",
+        "firebase.json",
+        ".github/**",
+        "native/unity/WellFitBuddyAR/**"
+      ],
+      "humanReviewRequired": true,
+      "buildPromptSummary": "Build only the report-only Healthy Retention Agent framework; do not enable runtime retention, profiling, notification automation, streak/reward modification, protected-data use, reward authority, mission authority, monetization, token/wallet/payment/NFT/betting behavior, auto-repair, auto-merge, or product logic.",
+      "nextRecommendedAction": "Create the Reward Fairness Guard next according to the approved backlog order if it remains eligible, keeping protected topics review_required and first version report-only.",
+      "createdDate": "2026-05-17",
+      "updatedDate": "2026-05-17",
+      "generatedBuildPromptLocation": "scripts/wellfit-dev-agent/output/next-agent-build-prompt.md"
     }
   ]
 }

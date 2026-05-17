@@ -395,3 +395,11 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - `docs/architecture/WELLFIT_MISSION_FACTORY_AGENT.md` - human-readable Mission Factory architecture note and KI-Fortsetzungs-Prompt; no runtime mission generation, mission-completion authority, reward authority, anti-cheat authority, protected-data behavior, Unity/AR/native behavior, or deployment.
 - `scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs` - validator that writes `scripts/wellfit-dev-agent/output/mission-factory-agent-report.md` and reports `MISSION_FACTORY_AGENT_READY=true/false`.
 - `scripts/wellfit-dev-agent/src/quality-gate.mjs` - now includes the Mission Factory Agent validator as a required report-only governance check.
+
+### Healthy Retention Agent report-only framework (2026-05-17)
+
+- `project-register/healthy-retention-agent.json` - canonical report-only Healthy Retention Agent register for wellbeing-first retention reviews, pause/recovery checklists, user-agency and opt-out checks, dark-pattern boundaries, aggregate feedback theme summaries, and human-review questions.
+- `docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md` - architecture note defining allowed report-only outputs, forbidden retention/profiling/notification/streak/reward/mission/protected implementation outputs, and review-required boundaries.
+- `scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs` - validator for Healthy Retention register fields, source references, non-authorizing signals, Work Map/TODO Index links, and quality-gate readiness.
+- `scripts/wellfit-dev-agent/src/quality-gate.mjs` - includes the Healthy Retention Agent validator as a required report-only governance check.
+- Status: `report_only / built`; no runtime product files, retention automation, user profiling, notification triggers, streak/reward modifications, reward authority, mission-completion authority, protected data logic, Unity/PR #13, deployment, approval, merge, or repair authority were added.

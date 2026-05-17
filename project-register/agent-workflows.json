@@ -883,6 +883,32 @@
         "unity_or_ar_behavior"
       ],
       "humanReviewRequired": true
+    },
+    {
+      "id": "healthy-retention-agent-report-only",
+      "status": "active",
+      "purpose": "Validate Healthy Retention Agent report-only governance before runtime retention work is considered.",
+      "requiredInputs": [
+        "project-register/healthy-retention-agent.json",
+        "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md"
+      ],
+      "requiredChecks": [
+        "node scripts/wellfit-dev-agent/src/healthy-retention-agent-check.mjs",
+        "npm run agent:quality-gate"
+      ],
+      "forbiddenActions": [
+        "runtime_retention_implementation",
+        "individual_user_profiling",
+        "runtime_personalization",
+        "notification_automation",
+        "streak_or_reward_modification",
+        "mission_completion_authority",
+        "reward_authority",
+        "protected_data_behavior",
+        "deployment",
+        "unity_or_ar_behavior"
+      ],
+      "humanReviewRequired": true
     }
   ],
   "requiredChecks": [
