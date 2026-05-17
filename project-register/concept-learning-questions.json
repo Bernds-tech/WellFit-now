@@ -1,0 +1,164 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "status": "static_register",
+  "name": "Concept Learning Questions",
+  "purpose": "Read-only register for open, answered, and archived concept-learning questions that may be shown in the Admin Agent Center as questions for Bernd.",
+  "dataPolicy": {
+    "containsSensitiveUserData": false,
+    "allowedContent": [
+      "product concept questions",
+      "governance clarification questions",
+      "architecture and documentation storage targets",
+      "static local draft answers",
+      "API follow-up markers"
+    ],
+    "forbiddenContent": [
+      "personal health data",
+      "watch or location traces",
+      "camera captures",
+      "child-related personal data",
+      "payment, wallet, token, or payout identifiers",
+      "secrets or API keys",
+      "private user account data"
+    ],
+    "rule": "Questions and answers in this register must stay planning-only and must not contain sensitive user data or runtime authorization data."
+  },
+  "statusValues": [
+    "offen",
+    "beantwortet",
+    "braucht Rückfrage",
+    "umgesetzt"
+  ],
+  "answerModes": [
+    "lokal_statisch_vorbereitet",
+    "api_follow_up_spaeter"
+  ],
+  "questions": [
+    {
+      "id": "CLQ-2026-05-17-001",
+      "status": "offen",
+      "category": "open",
+      "question": "Welche WellFit-Lernfrage soll Bernd zuerst beantworten: Missionskern, Buddy-Lernlogik, Social-Challenges oder interne Punkte-/XP-Simulation?",
+      "whyImportant": "Die Priorisierung verhindert, dass Agenten Produktannahmen erfinden, und setzt eine sichere Reihenfolge für spätere Concept-Deltas.",
+      "risk": "medium",
+      "affectedWellFitArea": [
+        "missions",
+        "buddy",
+        "social",
+        "rewards",
+        "governance"
+      ],
+      "proposedStorageLocation": "project-register/concept-learning-questions.json#questions[CLQ-2026-05-17-001]",
+      "answerPreparation": {
+        "mode": "lokal_statisch_vorbereitet",
+        "draftAnswer": "Noch nicht von Bernd beantwortet. Bis zur Antwort bleibt dies ein lokaler statischer Entwurf ohne Produktwirkung.",
+        "apiFollowUpRequired": false
+      },
+      "followUp": "Nach Bernds Antwort kann ein kleiner planning-only Concept-Delta-Task abgeleitet werden; Umsetzung bleibt separat freigabepflichtig."
+    },
+    {
+      "id": "CLQ-2026-05-17-002",
+      "status": "braucht Rückfrage",
+      "category": "open",
+      "question": "Welche Themen soll WellFit bei offenen Konzeptfragen immer als geschützt behandeln: Health/Watch, Child-Safety, Location/Camera, Legal/Privacy, Token/Economy oder Reward-/Mission-Authority?",
+      "whyImportant": "Die Antwort schärft Stop-Regeln und schützt sensible Bereiche, ohne geschützte Produktlogik automatisch zu ändern.",
+      "risk": "high",
+      "affectedWellFitArea": [
+        "health",
+        "privacy",
+        "child-safety",
+        "legal",
+        "token-economy",
+        "mission-authority",
+        "reward-authority"
+      ],
+      "proposedStorageLocation": "project-register/concept-learning-agent.json#protectedScopeRules",
+      "answerPreparation": {
+        "mode": "api_follow_up_spaeter",
+        "draftAnswer": "Bernd-Antwort erforderlich. Spätere API-Anbindung darf erst nach Auth-, Rollen- und Audit-Follow-up geplant werden.",
+        "apiFollowUpRequired": true,
+        "apiFollowUpNote": "Nur als späterer read-only Admin-Follow-up; keine sensiblen Nutzerdaten speichern."
+      },
+      "followUp": "Nach expliziter Owner-Freigabe Schutzbereichszuordnung als planning-only Register-Update synchronisieren."
+    },
+    {
+      "id": "CLQ-2026-05-17-003",
+      "status": "beantwortet",
+      "category": "answered",
+      "question": "Wo sollen Bernds freigegebene Konzeptantworten dauerhaft dokumentiert werden?",
+      "whyImportant": "Ein klarer Speicherort hält Entscheidungswissen auditierbar und vermeidet verstreute Chat-only Entscheidungen.",
+      "risk": "low",
+      "affectedWellFitArea": [
+        "governance",
+        "documentation",
+        "agent-memory"
+      ],
+      "proposedStorageLocation": "project-register/concept-learning-questions.json",
+      "answerPreparation": {
+        "mode": "lokal_statisch_vorbereitet",
+        "draftAnswer": "Dieses Register ist der lokale statische Einstiegspunkt für offene, beantwortete und archivierte Lernfragen; verbindliche Produktentscheidungen werden zusätzlich in decisions.json oder passenden Fachregistern referenziert.",
+        "apiFollowUpRequired": false
+      },
+      "followUp": "Bei späteren verbindlichen Produktentscheidungen zusätzlich den passenden Decision- oder Fachregistereintrag anlegen."
+    },
+    {
+      "id": "CLQ-2026-05-17-004",
+      "status": "umgesetzt",
+      "category": "answered",
+      "question": "Soll die erste Darstellung im Admin Agent Center ausschließlich statisch/read-only sein?",
+      "whyImportant": "Read-only UI vermeidet ungewollte Runtime-Writes, Freigaben oder sensible Datenflüsse im Admin Center.",
+      "risk": "low",
+      "affectedWellFitArea": [
+        "admin",
+        "governance",
+        "agent-center"
+      ],
+      "proposedStorageLocation": "app/admin/agent-center/page.tsx#Fragen an Bernd",
+      "answerPreparation": {
+        "mode": "lokal_statisch_vorbereitet",
+        "draftAnswer": "Ja. Die erste Umsetzung liest ein lokales JSON-Register und bietet keine Eingabe-, Sende-, Approval- oder Runtime-Aktion.",
+        "apiFollowUpRequired": false
+      },
+      "followUp": "Kein API-Anschluss in diesem Schritt; spätere Interaktion braucht Auth-, Rollen-, Audit- und Datenschutzprüfung."
+    },
+    {
+      "id": "CLQ-2026-05-17-005",
+      "status": "offen",
+      "category": "archived",
+      "question": "Welche historische Konzeptannahme wurde ersetzt und soll nur noch archiviert sichtbar bleiben?",
+      "whyImportant": "Archivierte Fragen bewahren Kontext, ohne alte Annahmen als aktuelle Aufgaben auszugeben.",
+      "risk": "low",
+      "affectedWellFitArea": [
+        "documentation",
+        "planning"
+      ],
+      "proposedStorageLocation": "project-register/concept-learning-questions.json#archivedQuestions",
+      "answerPreparation": {
+        "mode": "lokal_statisch_vorbereitet",
+        "draftAnswer": "Noch kein konkreter Archivfall erfasst. Dieser Platzhalter dokumentiert die Archivstruktur ohne sensible Daten.",
+        "apiFollowUpRequired": false
+      },
+      "followUp": "Wenn eine konkrete Frage historisch wird, Status und Archivgrund ergänzen statt die Frage zu löschen."
+    }
+  ],
+  "archivedQuestions": [
+    {
+      "id": "CLQ-ARCHIVE-PLACEHOLDER-001",
+      "status": "offen",
+      "archivedReason": "Strukturplatzhalter; keine echte Nutzer- oder Produktentscheidung enthalten.",
+      "question": "Archivplatzhalter für später ersetzte oder historisierte Konzeptfragen.",
+      "whyImportant": "Zeigt, dass archivierte Fragen erhalten bleiben, ohne aktuell als aktive Entscheidung zu gelten.",
+      "risk": "low",
+      "affectedWellFitArea": [
+        "documentation"
+      ],
+      "proposedStorageLocation": "project-register/concept-learning-questions.json#archivedQuestions[CLQ-ARCHIVE-PLACEHOLDER-001]",
+      "answerPreparation": {
+        "mode": "lokal_statisch_vorbereitet",
+        "draftAnswer": "Keine Antwort erforderlich; Platzhalter wird bei echtem Archivbedarf ersetzt oder ergänzt.",
+        "apiFollowUpRequired": false
+      }
+    }
+  ]
+}
