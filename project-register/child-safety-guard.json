@@ -1,0 +1,180 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-17",
+  "activationState": "blocked_until_explicit_review_plan",
+  "id": "child-safety-guard",
+  "name": "Child Safety Guard",
+  "riskLevel": "critical",
+  "guardType": "planning_and_validation_only",
+  "purpose": "Defines the non-runtime WellFit child-safety guard for reviewing child/minor-facing language, movement prompts, location concepts, private child data, social exposure, and manipulative retention risks before any implementation is allowed.",
+  "runtimeChildSafetyLogicEnabled": false,
+  "runtimeAuthorityGranted": false,
+  "requiresExplicitReviewPlanForRuntime": true,
+  "requiresHumanApprovalForRuntime": true,
+  "executionCapability": "report_only",
+  "scope": {
+    "mode": "documentation_register_and_validator_only",
+    "allowedFiles": [
+      "project-register/child-safety-guard.json",
+      "docs/architecture/WELLFIT_CHILD_SAFETY_GUARD.md",
+      "scripts/wellfit-dev-agent/src/child-safety-guard-check.mjs"
+    ],
+    "forbiddenRuntimeWriteScopes": [
+      "app/**",
+      "components/**",
+      "lib/**",
+      "functions/**",
+      "firestore.rules",
+      "public/**",
+      "package.json",
+      "package-lock.json",
+      "firebase.json",
+      ".github/**",
+      "native/unity/WellFitBuddyAR/**"
+    ]
+  },
+  "artifactSet": {
+    "register": "project-register/child-safety-guard.json",
+    "architectureDoc": "docs/architecture/WELLFIT_CHILD_SAFETY_GUARD.md",
+    "validatorScript": "scripts/wellfit-dev-agent/src/child-safety-guard-check.mjs"
+  },
+  "connectedSources": [
+    {
+      "path": "project-register/ethical-engagement-guard.json",
+      "relationship": "inherits age-appropriate, dignity-preserving, consent-aware, non-manipulative engagement boundaries"
+    },
+    {
+      "path": "project-register/healthy-retention-agent.json",
+      "relationship": "inherits pause-friendly, recovery-aware, opt-out-friendly retention boundaries and dark-pattern blocks"
+    },
+    {
+      "path": "docs/architecture/HEALTH_WATCH_LOCATION_PRIVACY_GUARDRAILS.md",
+      "relationship": "inherits protected-data, child/minor, location, consent, data-minimization, and fallback guardrails"
+    }
+  ],
+  "reviewAreas": [
+    {
+      "id": "age_appropriate_language",
+      "label": "altersgerechte Sprache",
+      "requiredChecks": [
+        "Language is understandable for the intended age band without infantilizing or pressuring minors.",
+        "Buddy, mission, reward, and social copy avoids shame, fear, guilt, body pressure, medical overclaims, payout hype, and hidden sponsor pressure.",
+        "Any age-band assumption remains review_required and must not infer exact age, family role, or vulnerability at runtime."
+      ],
+      "blockedExamples": [
+        "Du musst das schaffen, sonst verlierst du deinen Streak.",
+        "Teile deine Daten, damit deine Freunde sehen, ob du gut genug bist.",
+        "Verdiene echtes Geld/Token mit Kinder-Challenges."
+      ]
+    },
+    {
+      "id": "no_dangerous_movement_prompts",
+      "label": "keine gefährlichen Bewegungsaufforderungen",
+      "requiredChecks": [
+        "No missions request traffic-risk, height-risk, water-risk, night-risk, exhaustion, pain, unsafe speed, unsafe load, or unsupervised hazardous movement.",
+        "Movement ideas must include safe alternatives, rest language, and adult/guardian/supervisor review where minors or public spaces are involved.",
+        "Health, motion, camera, AR, or watch signals must not alone authorize completion, anti-cheat, rewards, or safety clearance."
+      ],
+      "blockedExamples": [
+        "Run across streets for bonus points.",
+        "Climb a fence or roof for a rare item.",
+        "Keep moving despite pain to protect a streak."
+      ]
+    },
+    {
+      "id": "no_location_sharing_without_protection_concept",
+      "label": "keine Standortfreigabe ohne Schutzkonzept",
+      "requiredChecks": [
+        "No exact location sharing, live tracking, meetups, leaderboards, public check-ins, or route disclosure for minors without a separate child-safety, privacy, consent, security, and fallback review plan.",
+        "Location concepts must use minimization, short retention, coarse/ephemeral processing where possible, and non-location alternatives.",
+        "Permission refusal must not shame, punish, or block safe basic usage where an alternative exists."
+      ],
+      "blockedExamples": [
+        "Share your live route with nearby players.",
+        "Post a child's school checkpoint publicly.",
+        "Require exact GPS to continue a child mission without fallback."
+      ]
+    },
+    {
+      "id": "no_private_child_data",
+      "label": "keine privaten Kinderdaten",
+      "requiredChecks": [
+        "No unnecessary collection, display, export, or inference of exact birth date, school, class, address, guardian identity, health details, photos, face data, precise location history, contact details, or family relationships.",
+        "Prefer age bands, aggregate status, ephemeral evidence, and least-privilege access where child/minor context is unavoidable after review.",
+        "Child/private-data handling remains review_required until legal, privacy, security, and product review define concrete data fields and retention/deletion rules."
+      ],
+      "blockedExamples": [
+        "Store a child's school and exact route as default mission history.",
+        "Publish child profile photos with leaderboard ranks.",
+        "Infer vulnerability or health condition for retention targeting."
+      ]
+    },
+    {
+      "id": "no_social_risks",
+      "label": "keine sozialen Risiken",
+      "requiredChecks": [
+        "No public shaming, direct messaging with unknown users, unmoderated meetups, follower pressure, ranking humiliation, bullying vectors, doxxing risk, or adult-minor discovery surfaces.",
+        "Social child/minor concepts require opt-in, guardian/supervision assumptions review, moderation, reporting, blocking, privacy defaults, and safe non-social alternatives.",
+        "Social rewards must not pressure minors into disclosure, comparison, purchases, location sharing, or unsafe movement."
+      ],
+      "blockedExamples": [
+        "Nearby strangers can invite a child to a challenge.",
+        "Public loser boards for missed missions.",
+        "Rewards require posting private child progress publicly."
+      ]
+    },
+    {
+      "id": "no_manipulative_retention",
+      "label": "keine manipulative Retention",
+      "requiredChecks": [
+        "No FOMO, loss aversion, scarcity timers, shame streaks, endless loops, sleep-loss pressure, dark-pattern notifications, or child-targeted purchase/payment/token/NFT pressure.",
+        "Retention ideas must preserve pause, recovery, opt-out, reminder control, transparent value, and safe alternatives.",
+        "Any personalized retention for minors remains blocked until a separate explicit review plan exists."
+      ],
+      "blockedExamples": [
+        "Log in now or your Buddy will be sad.",
+        "Complete at midnight to avoid losing rare rewards.",
+        "Buy/claim token boosts to keep up with friends."
+      ]
+    }
+  ],
+  "runtimeBlock": {
+    "status": "blocked",
+    "statement": "Runtime child-safety logic remains blocked until an explicit review plan exists.",
+    "minimumReviewPlanRequirements": [
+      "named product owner and child-safety/privacy/legal/security reviewers",
+      "exact files, data fields, UI surfaces, APIs, rules, and tests in scope",
+      "age-band assumptions and consent/guardian model",
+      "data minimization, retention/deletion, access-control, audit, and fallback design",
+      "movement safety assessment and prohibited mission taxonomy",
+      "social-risk moderation/reporting/blocking plan if any social surface is involved",
+      "healthy-retention and ethical-engagement assessment for all engagement loops",
+      "rollback plan and explicit statement that client-side rewards/completion are not authoritative"
+    ]
+  },
+  "allowedOutputs": [
+    "child_safety_review_checklist",
+    "blocked_runtime_note",
+    "human_review_questions",
+    "source_mapping",
+    "non_runtime_acceptance_criteria"
+  ],
+  "forbiddenActions": [
+    "implement_runtime_child_safety_logic",
+    "collect_child_data",
+    "change_consent_or_privacy_runtime",
+    "enable_location_sharing",
+    "enable_social_child_features",
+    "change_mission_completion_authority",
+    "change_reward_authority",
+    "profile_or_target_minors",
+    "change_notifications_or_retention_runtime",
+    "change_firestore_rules_or_functions",
+    "change_unity_or_ar_runtime"
+  ],
+  "validator": {
+    "path": "scripts/wellfit-dev-agent/src/child-safety-guard-check.mjs",
+    "expectedReadyToken": "CHILD_SAFETY_GUARD_READY=true"
+  },
+  "nextSafeMaintenanceTask": "Keep the register, architecture document, and validator synchronized; do not implement runtime child-safety logic until a separate explicit review plan is approved."
+}
