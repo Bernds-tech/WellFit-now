@@ -787,12 +787,15 @@
         "scripts/wellfit-dev-agent/src/auto-merge-eligibility-check.mjs",
         "project-register/auto-repair-policy.json",
         "docs/architecture/WELLFIT_AUTO_REPAIR_POLICY.md",
-        "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs"
+        "scripts/wellfit-dev-agent/src/auto-repair-decision-check.mjs",
+        "project-register/mission-factory-agent.json",
+        "docs/architecture/WELLFIT_MISSION_FACTORY_AGENT.md",
+        "scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs"
       ],
       "current_blockers": [
         "Governance is active but must remain synchronized across human-readable docs, machine-readable registers, quality-gate scripts, inventory outputs, progress/work logs, and dry-run-only execution controls."
       ],
-      "next_safe_task": "Maintain existing governance, readiness, inventory, Work Map, TODO index, progress/work logs, dry-run autopilot, batch, auto-merge, and auto-repair registers without changing product runtime behavior.",
+      "next_safe_task": "Maintain existing governance and report-only approved agent frameworks, including Mission Factory, without changing product runtime behavior or protected mission/reward authority.",
       "do_not_duplicate_warning": "Do not create a competing agent workflow, task queue, quality gate, or architecture map.",
       "required_checks_before_status_can_advance": [
         "jq empty project-register/*.json",
@@ -809,7 +812,8 @@
         "npm run agent:quality-gate",
         "node scripts/wellfit-dev-agent/src/agent-autopilot-dry-run.mjs",
         "node scripts/wellfit-dev-agent/src/research-recommendation-check.mjs",
-        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs"
+        "node scripts/wellfit-dev-agent/src/adaptive-user-insight-check.mjs",
+        "node scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs"
       ],
       "human_approval_required": false
     },
@@ -893,5 +897,12 @@
   "productIntelligenceAgentReference": {
     "register": "project-register/product-intelligence-agent.json",
     "purpose": "Report-only prioritization consumer of readiness evidence; does not change readiness state automatically."
+  },
+  "missionFactoryAgentReference": {
+    "register": "project-register/mission-factory-agent.json",
+    "doc": "docs/architecture/WELLFIT_MISSION_FACTORY_AGENT.md",
+    "check": "scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs",
+    "status": "report_only",
+    "boundary": "No runtime mission generation, completion authority, reward authority, anti-cheat authority, protected-data behavior, Unity/AR/native behavior, or deployment."
   }
 }

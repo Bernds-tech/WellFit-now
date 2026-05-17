@@ -240,5 +240,10 @@
   "productIntelligenceAgentBoundary": {
     "register": "project-register/product-intelligence-agent.json",
     "purpose": "May use aggregate insight summaries for product briefs only; no runtime personalization, profiling, or protected inference."
+  },
+  "missionFactoryAgentBoundary": {
+    "register": "project-register/mission-factory-agent.json",
+    "allowedUse": "Aggregate, minimized insight summaries may inform report-only mission planning questions.",
+    "forbiddenUse": "No raw identifiers, individual targeting, runtime mission generation, completion authority, reward authority, protected-data inference, or location/camera/health/child/privacy/legal behavior."
   }
 }

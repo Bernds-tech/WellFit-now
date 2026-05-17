@@ -6,6 +6,7 @@ Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei erse
 
 ## Aktuelle verifizierte Baseline
 
+- Mission Factory Agent report-only build on 2026-05-17 on Branch `agent/mission-factory-report-only`: built exactly one critical-risk but strictly docs/register/validator/governance-only framework with `project-register/mission-factory-agent.json`, `docs/architecture/WELLFIT_MISSION_FACTORY_AGENT.md`, `scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs`, Quality Gate integration, catalog/backlog/proposal/runner/workflow/task/autopilot/continuity/readiness references, and Work Map/TODO Index updates. No runtime product files, mission generation, completion authority, reward authority, anti-cheat authority, protected data logic, Unity/PR #13, deployment, approval, merge, or repair authority were added. Next backlog item after merge is Healthy Retention Agent, report-only only.
 - Repository-Basis ist der Stand nach PR #45 plus den dokumentations-/registry-only Agent-Governance-, Autopilot-, Research-, Adaptive-Insight-, Master-Roadmap- und Visual-Check-Ergaenzungen vom 2026-05-14. PR #45 bleibt erhalten; diese Konsolidierung ist dokumentations-only.
 - Aktuelle Route-Inventur umfasst Landing, Dashboard, Buddy, Mobile, Missionen, Punkte-Shop/Marktplatz, Analytics, Einstellungen, Hilfe/FAQ und Legal-Seiten sowie Economy- und Buddy-API-Routen.
 - Next.js ist Version 16.2.3 laut `package.json`; bei kuenftigen Next.js-Codeaenderungen zuerst `node_modules/next/dist/docs/` lesen.

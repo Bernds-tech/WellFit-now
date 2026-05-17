@@ -1776,6 +1776,69 @@
         "Product Intelligence extends mapped sources only and must not create duplicate architecture or parallel systems."
       ],
       "nextSafeMaintenanceTask": "Keep Product Intelligence register, architecture doc, validator, quality-gate integration, approved backlog, proposals, runner state, continuity map, Work Map, and TODO Index synchronized; next runner candidate is Mission Factory Agent, but it is critical-risk and must remain report-only if selected."
+    },
+    {
+      "id": "mission-factory-agent",
+      "name": "Mission Factory Agent",
+      "status": "report_only",
+      "agentType": "mission_factory_planning_guard",
+      "purpose": "Report-only framework for mission concept inventory, planning briefs, dependency mapping, readiness checklists, and protected-boundary reports without runtime mission generation, completion authority, reward authority, anti-cheat decisions, protected-data behavior, Unity/AR changes, or deployment.",
+      "ownerArea": "Mission Planning / Governance / Product Readiness",
+      "primaryRegisters": [
+        "project-register/mission-factory-agent.json"
+      ],
+      "humanReadableDocs": [
+        "docs/architecture/WELLFIT_MISSION_FACTORY_AGENT.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/mission-factory-agent-check.mjs"
+      ],
+      "qualityGateIntegrated": true,
+      "relatedAgents": [
+        "product-intelligence-agent",
+        "human-motivation-engine",
+        "ethical-engagement-guard",
+        "adaptive-difficulty-agent",
+        "multisensory-learning-engine",
+        "product-readiness-matrix",
+        "continuity-dependency-sentinel",
+        "risk-classifier"
+      ],
+      "relatedRegisters": [
+        "project-register/mission-factory-agent.json",
+        "project-register/product-readiness.json",
+        "project-register/features.json",
+        "project-register/risk-classifier.json",
+        "project-register/continuity-dependency-map.json",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/product-intelligence-agent.json",
+        "project-register/human-motivation-engine.json",
+        "project-register/ethical-engagement-guard.json",
+        "project-register/adaptive-difficulty-agent.json",
+        "project-register/multisensory-learning-engine.json"
+      ],
+      "allowedExtensionTypes": [
+        "report-only mission planning schema additions",
+        "mission readiness checklist refinements",
+        "source-of-truth mapping updates",
+        "validator coverage for non-authority mission boundaries",
+        "human-review question templates"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime mission generation",
+        "mission completion authority",
+        "reward or XP authority",
+        "anti-cheat decisions",
+        "location, camera, health, child, privacy, legal, token, wallet, payment, betting, NFT, Unity, AR, or PR #13 implementation",
+        "duplicate mission engine or parallel architecture"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code, mission generation, mission completion authority, reward authority, anti-cheat authority, protected-data decisions, deployment, approval, merge, repair, Unity/AR, native WellFitBuddyAR, or PR #13 changes.",
+        "High/critical/protected mission concepts remain review_required until separately approved.",
+        "Mission Factory extends mapped mission/product-readiness/continuity sources only and must not create duplicate architecture or parallel systems."
+      ],
+      "nextSafeMaintenanceTask": "Keep Mission Factory register, architecture doc, validator, quality-gate integration, backlog/proposal/runner evidence, Work Map, TODO Index, and continuity references synchronized; next approved backlog item is Healthy Retention Agent if Mission Factory PR merges."
     }
   ]
 }

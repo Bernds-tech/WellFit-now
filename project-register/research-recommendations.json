@@ -206,5 +206,10 @@
   "productIntelligenceAgentBoundary": {
     "register": "project-register/product-intelligence-agent.json",
     "purpose": "May use research recommendations for evidence-strength framing only; no automated medical, psychological, financial, legal, compliance, or product decisions."
+  },
+  "missionFactoryAgentBoundary": {
+    "register": "project-register/mission-factory-agent.json",
+    "allowedUse": "Use research only to inform report-only mission planning hypotheses and human-review questions.",
+    "forbiddenUse": "No medical/legal/financial claims, runtime mission generation, completion authority, reward authority, protected-data inference, location/camera/child/health/privacy decisions, Unity/AR implementation, or deployment."
   }
 }
