@@ -9,6 +9,7 @@ const {
   clientContext,
   assertGuardianCanUseChild,
   requireChildConsent,
+  requireChildPermission,
   writeAudit,
 } = require("./beta1Runtime");
 const { applyXpDelta } = require("./beta1XpLedger");
@@ -82,7 +83,8 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
     const missionId = requiredString(data.missionId, "missionId", HttpsError);
     const childProfileId = optionalString(data.childProfileId, 160);
     if (childProfileId) {
-      await assertGuardianCanUseChild(db, userId, childProfileId, HttpsError);
+      const childProfile = await assertGuardianCanUseChild(db, userId, childProfileId, HttpsError);
+      requireChildPermission(childProfile, "missions", HttpsError);
       await requireChildConsent(db, userId, childProfileId, "missions", HttpsError);
     }
     const mission = await db.collection("missions").doc(missionId).get();
@@ -99,8 +101,15 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
     const attemptId = requiredString(data.attemptId, "attemptId", HttpsError);
     const attempt = await db.collection("missionAttempts").doc(attemptId).get();
     if (!attempt.exists || (attempt.data() || {}).ownerUserId !== userId) throw new HttpsError("permission-denied", "Attempt gehoert nicht diesem Nutzer.");
+    const childProfileId = attempt.data().childProfileId || null;
+    const evidenceType = optionalString(data.evidenceType, 80) || "client-request";
+    if (childProfileId && ["camera", "camera-evidence", "photo", "video"].includes(evidenceType)) {
+      const childProfile = await assertGuardianCanUseChild(db, userId, childProfileId, HttpsError);
+      requireChildPermission(childProfile, "cameraEvidence", HttpsError);
+      await requireChildConsent(db, userId, childProfileId, "cameraEvidence", HttpsError);
+    }
     const evidenceRef = db.collection("missionEvidence").doc();
-    await evidenceRef.set({ evidenceId: evidenceRef.id, attemptId, missionId: attempt.data().missionId, ownerUserId: userId, userId, childProfileId: attempt.data().childProfileId || null, evidenceType: optionalString(data.evidenceType, 80) || "client-request", storageRef: optionalString(data.storageRef, 500), metadata: data.metadata || {}, status: "submitted", reviewStatus: "pending-server-review", ...clientContext(data), ...serverTimestamps() });
+    await evidenceRef.set({ evidenceId: evidenceRef.id, attemptId, missionId: attempt.data().missionId, ownerUserId: userId, userId, childProfileId, evidenceType, storageRef: optionalString(data.storageRef, 500), metadata: data.metadata || {}, status: "submitted", reviewStatus: "pending-server-review", ...clientContext(data), ...serverTimestamps() });
     await db.collection("missionAttempts").doc(attemptId).set({ status: "evidence-submitted", ...updatedTimestamp() }, { merge: true });
     return { accepted: true, evidenceId: evidenceRef.id, reviewStatus: "pending-server-review", missionCompletionAuthorized: false, xpAuthorized: false };
   });
@@ -122,7 +131,7 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
     await completionRef.set({ xpLedgerEventId: ledger.ledgerEventId }, { merge: true });
     await attemptRef.set({ status: "completed", completionId: completionRef.id, ...updatedTimestamp() }, { merge: true });
     await writeAudit(db, { actorUserId: "server", actionType: "mission-completed", targetType: "missionCompletion", targetId: completionRef.id, ownerUserId: userId, childProfileId: attempt.data().childProfileId || null, metadata: { rewardXp, ledgerEventId: ledger.ledgerEventId } });
-    return { accepted: true, completionId: completionRef.id, rewardXp, xpAuthorized: true, missionCompletionAuthorized: true, tokenAuthorized: false };
+    return { accepted: true, completionId: completionRef.id, xpLedgerEventId: ledger.ledgerEventId, rewardXp, xpAuthorized: true, missionCompletionAuthorized: true, tokenAuthorized: false };
   });
 
   exportsTarget.reportMissionSafetyIssue = onCall(async (request) => {

@@ -33,6 +33,7 @@ async function run() {
       await adminDb.collection("glitchEvents").doc("glitch_active").set({ status: "active", multiplierCap: 10 });
       await adminDb.collection("glitchParticipants").doc("glitch_alice").set({ ownerUserId: "alice", userId: "alice", glitchEventId: "glitch_active" });
       await adminDb.collection("glitchBoostWindows").doc("boost_alice").set({ ownerUserId: "alice", userId: "alice", multiplier: 2 });
+      await adminDb.collection("glitchSafetyRules").doc("rule_beta1").set({ regionId: "vienna", status: "active" });
       await adminDb.collection("safetyReports").doc("report_alice").set({ reporterUserId: "alice", ownerUserId: "alice", status: "submitted" });
       await adminDb.collection("adminActions").doc("admin_action").set({ actorUserId: "admin", actionType: "mission-published" });
     });
@@ -44,7 +45,10 @@ async function run() {
     await assertSucceeds(aliceDb.collection("familyAccounts").doc("fam_alice").get());
     await assertFails(bobDb.collection("familyAccounts").doc("fam_alice").get());
     await assertSucceeds(aliceDb.collection("childProfiles").doc("child_alice").get());
+    await assertFails(bobDb.collection("childProfiles").doc("child_alice").get());
+    await assertFails(anonDb.collection("childProfiles").doc("child_alice").get());
     await assertFails(aliceDb.collection("childProfiles").doc("child_hack").set({ guardianUserIds: ["alice"] }));
+    await assertFails(aliceDb.collection("childProfiles").doc("child_alice").update({ publicProfile: true, standaloneLoginAllowed: true }));
     await assertSucceeds(aliceDb.collection("parentalConsents").doc("consent_alice").get());
     await assertFails(aliceDb.collection("parentalConsents").doc("consent_hack").set({ guardianUserId: "alice" }));
 
@@ -64,11 +68,13 @@ async function run() {
       ["checkpointScores", "score_alice", { ownerUserId: "alice", score: 999999 }],
       ["glitchParticipants", "glitch_alice", { ownerUserId: "alice", boostAuthorized: true }],
       ["glitchBoostWindows", "boost_alice", { ownerUserId: "alice", multiplier: 10 }],
+      ["glitchSafetyRules", "rule_beta1", { regionId: "vienna", status: "active" }],
       ["safetyReports", "report_alice", { reporterUserId: "alice", status: "reviewed" }],
     ]) {
       await assertSucceeds(aliceDb.collection(collectionName).doc(ownedDocId).get());
       await assertFails(aliceDb.collection(collectionName).doc(`${collectionName}_hack`).set(hackPayload));
       await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).update(hackPayload));
+      await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).delete());
     }
 
     await assertFails(anonDb.collection("shopItems").doc("shop_public").get());
@@ -76,12 +82,15 @@ async function run() {
     await assertFails(aliceDb.collection("shopItems").doc("shop_hack").set({ status: "published", priceWfxp: 1 }));
     await assertSucceeds(aliceDb.collection("checkpoints").doc("cp_public").get());
     await assertFails(aliceDb.collection("checkpointMayors").doc("mayor_hack").set({ ownerUserId: "alice" }));
+    await assertFails(aliceDb.collection("checkpointMayors").doc("mayor_cp").update({ ownerUserId: "bob" }));
     await assertSucceeds(aliceDb.collection("mayorShareEvents").doc("share_alice").get());
     await assertFails(bobDb.collection("mayorShareEvents").doc("share_alice").get());
     await assertSucceeds(aliceDb.collection("glitchEvents").doc("glitch_active").get());
     await assertFails(aliceDb.collection("glitchEvents").doc("glitch_hack").set({ status: "active", multiplierCap: 100 }));
+    await assertFails(aliceDb.collection("glitchSafetyRules").doc("rule_beta1").get());
     await assertFails(aliceDb.collection("adminActions").doc("admin_action").get());
     await assertFails(aliceDb.collection("adminActions").doc("admin_hack").set({ actorUserId: "alice" }));
+    await assertFails(aliceDb.collection("adminActions").doc("admin_action").update({ reason: "hack" }));
 
     assert(true, "Beta 1 Firestore Rules Emulator Test erfolgreich.");
     console.log("WellFit Beta 1 Firestore Rules Emulator Test erfolgreich.");

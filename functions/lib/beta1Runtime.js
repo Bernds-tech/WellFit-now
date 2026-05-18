@@ -2,6 +2,8 @@ const { FieldValue } = require("firebase-admin/firestore");
 
 const BETA1_INTERNAL_CURRENCY = "WFXP";
 const MAX_GLITCH_MULTIPLIER = 10;
+const MAX_GLITCH_DURATION_MINUTES = 10;
+const BETA1_ALLOWED_GLITCH_REGION_IDS = new Set(["vienna", "wien", "lower-austria", "lower_austria", "niederoesterreich", "niederösterreich"]);
 
 function requireAuth(request, HttpsError) {
   if (!request.auth || !request.auth.uid) {
@@ -109,6 +111,32 @@ async function requireChildConsent(db, guardianUserId, childProfileId, consentTy
   }
 }
 
+function requireChildPermission(childProfile, permissionName, HttpsError) {
+  if (!childProfile) return;
+  const permissions = childProfile.permissions || {};
+  if (permissions[permissionName] !== true) {
+    throw new HttpsError("failed-precondition", `Child Permission ${permissionName} erforderlich.`);
+  }
+}
+
+function isAllowedBeta1GlitchRegion(regionId) {
+  const normalized = optionalString(regionId, 80);
+  return !!normalized && BETA1_ALLOWED_GLITCH_REGION_IDS.has(normalized.toLowerCase());
+}
+
+function parseRequiredDate(value, fieldName, HttpsError) {
+  const raw = requiredString(value, fieldName, HttpsError, 80);
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) {
+    throw new HttpsError("invalid-argument", `${fieldName} muss ein gueltiger ISO-Zeitpunkt sein.`);
+  }
+  return date;
+}
+
+function minutesBetween(startDate, endDate) {
+  return (endDate.getTime() - startDate.getTime()) / 60000;
+}
+
 async function writeAudit(db, { actorUserId, actionType, targetType, targetId, reason, ownerUserId, childProfileId, metadata }) {
   const adminActionRef = db.collection("adminActions").doc();
   const auditEventRef = db.collection("auditEvents").doc();
@@ -140,6 +168,8 @@ async function getWalletRef(db, ownerUserId, childProfileId) {
 module.exports = {
   BETA1_INTERNAL_CURRENCY,
   MAX_GLITCH_MULTIPLIER,
+  MAX_GLITCH_DURATION_MINUTES,
+  BETA1_ALLOWED_GLITCH_REGION_IDS,
   requireAuth,
   requireAdmin,
   optionalString,
@@ -154,6 +184,10 @@ module.exports = {
   assertGuardianCanUseChild,
   hasActiveConsent,
   requireChildConsent,
+  requireChildPermission,
+  isAllowedBeta1GlitchRegion,
+  parseRequiredDate,
+  minutesBetween,
   writeAudit,
   getWalletRef,
 };

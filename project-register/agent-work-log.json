@@ -2922,6 +2922,91 @@
         "todolist/NEXT_ACTIONS.md"
       ],
       "riskLevel": "high"
+    },
+    {
+      "taskId": "BETA1-RUNTIME-EMULATOR-VERIFICATION-HARDENING-2026-05-18",
+      "title": "Verify and harden Beta-1 emulator coverage",
+      "status": "partially_done",
+      "pr": {
+        "branch": "runtime/beta1-emulator-verification-hardening",
+        "number": null,
+        "url": null,
+        "title": "Verify and harden Beta-1 emulator coverage"
+      },
+      "changedFiles": [
+        "functions/lib/beta1Runtime.js",
+        "functions/lib/beta1XpLedger.js",
+        "functions/lib/beta1GuardianChild.js",
+        "functions/lib/beta1Missions.js",
+        "functions/lib/beta1ShopInventory.js",
+        "functions/lib/beta1CheckpointsMayor.js",
+        "functions/lib/beta1RealityGlitch.js",
+        "functions/test/beta1RuntimeFixtures.js",
+        "functions/test/beta1FirestoreRulesEmulatorTest.js",
+        "functions/test/beta1CallableFunctionsEmulatorTest.js",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:validate",
+          "result": "pass",
+          "notes": "Completed successfully; npm emitted the existing Unknown env config http-proxy warning."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Post-commit rerun passed. A pre-commit run failed because Agent Control Center report-only check rejects uncommitted Functions/test protected-scope diffs."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "Completed with 0 errors and 2 pre-existing warnings in scripts/wellfit-dev-agent files outside this PR scope."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Syntax checks passed for Functions runtime modules and Beta-1 emulator test files."
+        },
+        {
+          "command": "npm --prefix functions run beta1:rules",
+          "result": "warning",
+          "notes": "Environment-blocked without running Firestore emulator: connect ECONNREFUSED 127.0.0.1:8080."
+        },
+        {
+          "command": "npm --prefix functions run beta1:callable",
+          "result": "warning",
+          "notes": "Environment-blocked without running emulators; process hung after MetadataLookupWarning 403 and was stopped."
+        },
+        {
+          "command": "npm --prefix functions run beta1:test:emulator",
+          "result": "warning",
+          "notes": "Environment-blocked because beta1:rules could not connect to Firestore emulator on 127.0.0.1:8080."
+        },
+        {
+          "command": "npm --prefix functions run test:emulator",
+          "result": "warning",
+          "notes": "Environment-blocked without running emulators; first smoke test emitted MetadataLookupWarning 403 and hung until stopped."
+        },
+        {
+          "command": "npx firebase emulators:exec --project demo-no-project --only auth,firestore,functions \"npm --prefix functions run beta1:rules && npm --prefix functions run beta1:callable && npm --prefix functions run beta1:test:emulator && npm --prefix functions run test:emulator\"",
+          "result": "warning",
+          "notes": "Firebase CLI attempted to download cloud-firestore-emulator-v1.19.8.jar but failed with Error: download failed, status 403: Forbidden."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check passed."
+        }
+      ],
+      "followUps": [
+        "Run the Beta-1 Firestore and callable emulator suites in an environment where the Firebase CLI can download or use the Firestore emulator JAR without 403 Forbidden.",
+        "Review whether applyXpDelta duplicate idempotency calls should suppress duplicate audit records in a follow-up PR."
+      ],
+      "nextRecommendedTask": "Run Beta-1 emulator verification in a Firebase emulator-capable environment and attach exact pass/fail logs to the PR.",
+      "updatedTodoFiles": [],
+      "riskLevel": "medium",
+      "notes": "Runtime hardening was applied for child permission+consent gates, WFXP internal-only flags, admin XP reason requirement, mission/shop/mayor/glitch idempotency coverage, and Reality Glitch caps/window/region/unsafe-location guards. Emulator execution is environment-blocked by Firestore emulator JAR download 403 Forbidden, so emulator tests did not actually run in this container."
     }
   ]
 }

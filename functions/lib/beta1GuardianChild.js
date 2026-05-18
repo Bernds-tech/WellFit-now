@@ -6,6 +6,7 @@ const {
   serverTimestamps,
   updatedTimestamp,
   assertGuardianCanUseChild,
+  hasActiveConsent,
   writeAudit,
 } = require("./beta1Runtime");
 
@@ -36,8 +37,8 @@ function registerBeta1GuardianChild(exportsTarget, { db, onCall, HttpsError }) {
       throw new HttpsError("permission-denied", "Family Account gehoert nicht diesem Guardian.");
     }
     const age = Number(data.age);
-    if (!Number.isFinite(age) || age < 8 || age > 13) {
-      throw new HttpsError("failed-precondition", "Beta 1 Child Profiles sind nur fuer Alter 8-13 vorgesehen.");
+    if (!Number.isInteger(age) || age < 8 || age > 13) {
+      throw new HttpsError("failed-precondition", "Beta 1 Child Profiles sind nur fuer ganzzahlige Alter 8-13 vorgesehen.");
     }
     const childRef = db.collection("childProfiles").doc();
     const linkRef = db.collection("guardianChildLinks").doc(`${userId}_${childRef.id}`);
@@ -49,7 +50,7 @@ function registerBeta1GuardianChild(exportsTarget, { db, onCall, HttpsError }) {
         nickname: requiredString(data.nickname, "nickname", HttpsError, 80),
         ageBand: `${age}`,
         permissions: {
-          missions: booleanValue(data.permissions && data.permissions.missions, false),
+          missions: false,
           shop: false,
           location: false,
           cameraEvidence: false,
@@ -80,6 +81,9 @@ function registerBeta1GuardianChild(exportsTarget, { db, onCall, HttpsError }) {
     const childProfileId = requiredString(data.childProfileId, "childProfileId", HttpsError);
     await assertGuardianCanUseChild(db, userId, childProfileId, HttpsError);
     const consentType = requiredString(data.consentType, "consentType", HttpsError, 80);
+    if (!["missions", "shop", "location", "cameraEvidence"].includes(consentType)) {
+      throw new HttpsError("invalid-argument", "consentType ist fuer Beta 1 nicht freigegeben.");
+    }
     const consentRef = db.collection("parentalConsents").doc();
     await consentRef.set({
       consentId: consentRef.id,
@@ -103,12 +107,18 @@ function registerBeta1GuardianChild(exportsTarget, { db, onCall, HttpsError }) {
     const data = request.data || {};
     const childProfileId = requiredString(data.childProfileId, "childProfileId", HttpsError);
     await assertGuardianCanUseChild(db, userId, childProfileId, HttpsError);
+    const requestedPermissions = data.permissions || {};
     const permissions = {
-      missions: booleanValue(data.permissions && data.permissions.missions, false),
-      shop: booleanValue(data.permissions && data.permissions.shop, false),
-      location: booleanValue(data.permissions && data.permissions.location, false),
-      cameraEvidence: booleanValue(data.permissions && data.permissions.cameraEvidence, false),
+      missions: booleanValue(requestedPermissions.missions, false),
+      shop: booleanValue(requestedPermissions.shop, false),
+      location: booleanValue(requestedPermissions.location, false),
+      cameraEvidence: booleanValue(requestedPermissions.cameraEvidence, false),
     };
+    for (const [permissionName, enabled] of Object.entries(permissions)) {
+      if (enabled && !(await hasActiveConsent(db, userId, childProfileId, permissionName))) {
+        throw new HttpsError("failed-precondition", `Aktive Zustimmung fuer ${permissionName} erforderlich, bevor die Child Permission aktiviert wird.`);
+      }
+    }
     await db.collection("childProfiles").doc(childProfileId).set({ permissions, ...updatedTimestamp() }, { merge: true });
     await writeAudit(db, { actorUserId: userId, actionType: "child-permissions-updated", targetType: "childProfile", targetId: childProfileId, ownerUserId: userId, childProfileId, metadata: { permissions } });
     return { accepted: true, childProfileId, permissions };
