@@ -3007,6 +3007,58 @@
       "updatedTodoFiles": [],
       "riskLevel": "medium",
       "notes": "Runtime hardening was applied for child permission+consent gates, WFXP internal-only flags, admin XP reason requirement, mission/shop/mayor/glitch idempotency coverage, and Reality Glitch caps/window/region/unsafe-location guards. Emulator execution is environment-blocked by Firestore emulator JAR download 403 Forbidden, so emulator tests did not actually run in this container."
+    },
+    {
+      "taskId": "BETA1-EMULATOR-CI-VERIFICATION-PLAN-2026-05-18",
+      "title": "Add Beta-1 emulator CI verification prompt",
+      "status": "done",
+      "pr": {
+        "branch": "docs/beta1-emulator-ci-verification-plan",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 emulator CI verification prompt"
+      },
+      "changedFiles": [
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_EMULATOR_CI_VERIFICATION.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:validate",
+          "result": "pass",
+          "notes": "Completed successfully; npm emitted the existing Unknown env config http-proxy warning."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Completed successfully and reported Result: PASS."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "Completed with 0 errors and 2 pre-existing warnings in scripts/wellfit-dev-agent files outside this docs-only PR scope."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check passed."
+        }
+      ],
+      "followUps": [
+        "Use branch ci/beta1-emulator-verification to run real Beta-1 Firestore Rules and Callable emulator suites in an emulator-capable environment.",
+        "Only modify .github/workflows/beta1-emulator-tests.yml after separate human approval for .github/** changes.",
+        "Report exact green or environment-blocked emulator results; do not claim fake success."
+      ],
+      "nextRecommendedTask": "ci/beta1-emulator-verification",
+      "updatedTodoFiles": [
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "low",
+      "notes": "Docs/plan/prompt-only task. Runtime files and CI workflows intentionally unchanged."
     }
   ]
 }

@@ -233,5 +233,7 @@ Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, danach diese Datei, `todolist/TO
 ## 2026-05-18 - Beta-1 Runtime Firestore/Functions Follow-up
 
 - [x] Branch `runtime/beta1-firestore-functions-emulator-tests` implements the first Beta-1 runtime slice for Firestore rules, server-authoritative callables and focused emulator test scripts.
-- [ ] Next recommended branch: `runtime/beta1-emulator-verification-hardening` to rerun `npm --prefix functions run beta1:test:emulator` and `npm --prefix functions run test:emulator` in an environment with Firebase emulators installed/downloadable, then harden idempotency/cap edge cases found by emulator execution.
+- [x] Branch `runtime/beta1-emulator-verification-hardening` hardened Beta-1 runtime/test coverage, but exact emulator execution stayed blocked because the Codex environment received `403 Forbidden` while downloading the Firestore Emulator JAR and later hit `ECONNREFUSED 127.0.0.1:8080`.
+- [x] Branch `docs/beta1-emulator-ci-verification-plan` adds the follow-up prompt `docs/beta/prompts/CODEX_PROMPT_BETA1_EMULATOR_CI_VERIFICATION.md` without changing Runtime, Firebase config or `.github/**`.
+- [ ] Next recommended branch: `ci/beta1-emulator-verification` to run real Beta-1 Firestore Rules and Callable emulator tests in a prepared emulator-capable environment; only propose `.github/workflows/beta1-emulator-tests.yml` after separate human approval for `.github/**`.
 - [ ] Keep Beta-1 WFXP internal-only: no blockchain, token, NFT marketplace, cashout, real-money shop, IAP, DePIN, real PvP stakes, public child profiles, child standalone login or client-authorized XP/mission/shop/inventory/mayor/glitch/admin decisions.
