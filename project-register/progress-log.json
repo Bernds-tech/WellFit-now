@@ -530,6 +530,21 @@
       "productionDeployTriggered": false,
       "notes": "Hardened Beta-1 callable runtime and tests. Java and Firebase CLI are present, but Firebase CLI cannot download cloud-firestore-emulator-v1.19.8.jar in this environment: download failed, status 403 Forbidden. Exact emulator suites remain environment-blocked and must be rerun in a suitable environment.",
       "taskIdWhenApplicable": "BETA1-RUNTIME-EMULATOR-VERIFICATION-HARDENING-2026-05-18"
+    },
+    {
+      "id": "PROGRESS-BETA1-EMULATOR-CI-VERIFICATION-PLAN-2026-05-18-0001",
+      "date": "2026-05-18",
+      "branch": "docs/beta1-emulator-ci-verification-plan",
+      "goal": "Prepare a docs-only follow-up prompt and plan for real Beta-1 emulator verification in a suitable local or CI environment.",
+      "changedAreas": [
+        "docs/beta/prompts",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added a scoped emulator/CI verification prompt for the next branch ci/beta1-emulator-verification. The plan preserves the known Codex blocker: Firestore Emulator JAR download failed with 403 Forbidden and tests later hit ECONNREFUSED 127.0.0.1:8080. Current PR does not change Runtime, functions, firestore.rules, firebase.json, package files, .github workflows, public assets or Unity files.",
+      "taskIdWhenApplicable": "BETA1-EMULATOR-CI-VERIFICATION-PLAN-2026-05-18"
     }
   ]
 }
