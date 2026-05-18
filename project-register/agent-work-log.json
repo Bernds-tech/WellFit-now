@@ -3059,6 +3059,61 @@
       ],
       "riskLevel": "low",
       "notes": "Docs/plan/prompt-only task. Runtime files and CI workflows intentionally unchanged."
+    },
+    {
+      "taskId": "BETA1-EMULATOR-CI-VERIFICATION-2026-05-18",
+      "title": "Add Beta-1 emulator verification workflow",
+      "status": "done",
+      "pr": {
+        "branch": "ci/beta1-emulator-verification",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 emulator verification workflow"
+      },
+      "changedFiles": [
+        ".github/workflows/beta1-emulator-tests.yml",
+        "docs/beta/BETA1_EMULATOR_VERIFICATION.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:validate",
+          "result": "pass",
+          "notes": "Completed successfully; npm emitted the existing Unknown env config http-proxy warning."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "fail",
+          "notes": "Failed because the quality gate/TODO index check reports the new required docs/beta/BETA1_EMULATOR_VERIFICATION.md as missing from TODO_INDEX. TODO_INDEX.md was not in the allowed file list for this task, so this was not auto-fixed."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "Completed with 0 errors and 2 pre-existing warnings in scripts/wellfit-dev-agent files outside this PR scope."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Functions syntax checks completed successfully; no Functions files were changed."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "Whitespace check passed."
+        }
+      ],
+      "followUps": [
+        "Review the first GitHub Actions run for the Beta 1 Emulator Tests workflow and record exact green or blocked emulator logs.",
+        "If GitHub Actions hits Firestore Emulator JAR 403 Forbidden or ECONNREFUSED 127.0.0.1:8080, keep the status blocked and plan an emulator availability/cache follow-up without secrets or production Firebase resources."
+      ],
+      "nextRecommendedTask": "ci/beta1-emulator-results-followup",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "low",
+      "notes": "Separate human approval allowed exactly one .github/** change: .github/workflows/beta1-emulator-tests.yml. No runtime product logic, Firebase config, package files, secrets, deploys, production Firebase project IDs, public assets or Unity files were changed."
     }
   ]
 }
