@@ -328,3 +328,11 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - Required registers: `project-register/agent-catalog.json`, `project-register/approved-agent-build-backlog.json`, `project-register/agent-extension-policy.json`, `project-register/risk-classifier.json`, `project-register/adaptive-user-insights.json`, `project-register/product-readiness.json`.
 - Required validation scripts: `scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs`.
 - Boundary: generated governance evidence only; no runtime/protected, merge, deploy, approval, reward-authority, mission-completion-authority, economy, native, Unity, or repair authority.
+
+## Beta 1 scope, agent pack and data model
+
+- `docs/beta/WELLFIT_BETA1_SCOPE.yaml` is the canonical Beta-1 scope source for the closed free test, WellFit-XP/WFXP internal points, family/guardian accounts, child profile constraints, XP-only shop, mayor system, controlled Reality Glitch rollout and explicit exclusions.
+- `docs/beta/AGENTS_WELLFIT_BETA1.md` is the human-readable Beta-1 agent pack. It does not replace `AGENTS.md` and grants no runtime authority by default.
+- `docs/beta/WELLFIT_BETA1_DATA_MODEL.md` and `docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml` define the Firestore collection model, Firebase function contract plan and emulator-test boundary for future approved runtime work.
+- `agents/beta1/` contains docs/register runbooks for the Beta-1 scope, data model, API contracts, Firestore rules guard, child safety, WellFit-XP economy, mission/checkpoint, mayor, Reality Glitch, shop/inventory and QA emulator agents.
+- Next runtime work must be a separate human-approved PR that names exact Firestore rules/functions files and tests; clients may preview but must not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts.

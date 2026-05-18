@@ -3435,6 +3435,952 @@
       "protectedBoundaries": [
         "No approval buttons, no Firebase writes, no runtime authority, no protected scope implementation, no auto-merge, no auto-deploy."
       ]
+    },
+    {
+      "id": "beta1-beta1-scope-steward",
+      "proposedAgentName": "Beta-1 Scope Steward",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Owns canonical Beta-1 decisions and prevents scope drift. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/beta1-scope-steward.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 1,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-beta1-data-model-agent",
+      "proposedAgentName": "Beta-1 Data Model Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Owns Firestore collection design and relation mapping. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/beta1-data-model-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 2,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-beta1-api-contract-agent",
+      "proposedAgentName": "Beta-1 API Contract Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Owns Firebase function contract planning and request/response schemas. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/beta1-api-contract-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 3,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-firestore-rules-guard-agent",
+      "proposedAgentName": "Firestore Rules Guard Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Checks that protected collections remain server-only. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "guardian-child-safety-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/firestore-rules-guard-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 4,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-guardian-child-safety-agent",
+      "proposedAgentName": "Guardian Child Safety Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Checks child profile, guardian consent, shop gate and location safety rules. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/guardian-child-safety-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 5,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-wellfit-xp-economy-agent",
+      "proposedAgentName": "WellFit-XP Economy Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Checks XP ledger, wallet projection, no monetary value and no client authority. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/wellfit-xp-economy-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 6,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-mission-checkpoint-agent",
+      "proposedAgentName": "Mission Checkpoint Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Checks missions, evidence, completions, locations and Austria region support. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/mission-checkpoint-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 7,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-mayor-system-agent",
+      "proposedAgentName": "Mayor System Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Checks checkpoint mayor logic and XP-only share rules. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/mayor-system-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 8,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-reality-glitch-safety-agent",
+      "proposedAgentName": "Reality Glitch Safety Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Checks controlled micro-event safety, Vienna/Lower Austria start, admin cancel and multiplier caps. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/reality-glitch-safety-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 9,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-shop-inventory-agent",
+      "proposedAgentName": "Shop Inventory Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Checks WellFit-XP-only shop, item definitions, inventory and no pay-to-win. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/shop-inventory-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 10,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
+    },
+    {
+      "id": "beta1-qa-emulator-agent",
+      "proposedAgentName": "QA Emulator Agent",
+      "status": "planned",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "priority": "P1",
+      "reason": "Defines emulator tests and quality-gate expectations. This is a not-runtime docs/register agent for the Beta-1 canonical scope and data model pack.",
+      "expectedBenefit": "Keeps future Beta-1 backend/database/API work coordinated with repository governance and protected safety boundaries.",
+      "riskLevel": "medium",
+      "connectedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent"
+      ],
+      "connectedRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "project-register/agent-catalog.json"
+      ],
+      "connectedAgentCount": 4,
+      "connectedRegisterCount": 3,
+      "requiredDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/qa-emulator-agent.md"
+      ],
+      "requiredRegisters": [
+        "project-register/agent-catalog.json"
+      ],
+      "requiredValidationScripts": [],
+      "allowedFiles": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenFiles": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "humanApprovalRequired": true,
+      "alreadyHumanApproved": false,
+      "suggestedBuildOrder": 11,
+      "nextRecommendedPromptType": "docs_register_or_scoped_runtime_handoff_prompt",
+      "dependencies": [
+        "Read AGENTS.md and the Beta-1 docs/register pack.",
+        "Do not implement runtime without exact human-approved files and tests."
+      ],
+      "protectedBoundaries": [
+        "Docs/register only by default.",
+        "No runtime authority, deploy, merge, token, cashout, NFT, real-money shop, child standalone login, or client reward authority."
+      ]
     }
   ],
   "safeLiveActivation": {

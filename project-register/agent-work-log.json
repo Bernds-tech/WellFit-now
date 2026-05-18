@@ -2759,6 +2759,88 @@
       "nextRecommendedTask": "Run the report-only validators and continue with the next approved_for_planning backlog item only in a separate scoped task.",
       "riskLevel": "critical",
       "definitionOfDoneKey": "single_agent_docs_register_validator_report_only"
+    },
+    {
+      "taskId": "BETA1-AGENTS-DATA-MODEL-2026-05-17",
+      "title": "Add Beta 1 scope, agent runbooks and data model",
+      "status": "done",
+      "pr": {
+        "branch": "docs/beta1-agents-data-model",
+        "number": null,
+        "url": null,
+        "title": "Add Beta 1 scope agents and data model"
+      },
+      "changedFiles": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml",
+        "agents/beta1/beta1-scope-steward.md",
+        "agents/beta1/beta1-data-model-agent.md",
+        "agents/beta1/beta1-api-contract-agent.md",
+        "agents/beta1/firestore-rules-guard-agent.md",
+        "agents/beta1/guardian-child-safety-agent.md",
+        "agents/beta1/wellfit-xp-economy-agent.md",
+        "agents/beta1/mission-checkpoint-agent.md",
+        "agents/beta1/mayor-system-agent.md",
+        "agents/beta1/reality-glitch-safety-agent.md",
+        "agents/beta1/shop-inventory-agent.md",
+        "agents/beta1/qa-emulator-agent.md",
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:validate",
+          "result": "pass",
+          "notes": "Completed successfully; npm emitted existing Unknown env config http-proxy warning."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Completed successfully after adding required TODO Index pointers and non-empty catalog validation script metadata."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "Completed with 0 errors and 2 pre-existing script warnings about unused variables."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Completed successfully with Next.js 16.2.3."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Completed JavaScript syntax checks successfully."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "No whitespace errors."
+        },
+        {
+          "command": "jq empty project-register/agent-catalog.json project-register/approved-agent-build-backlog.json project-register/agent-work-log.json project-register/progress-log.json",
+          "result": "pass",
+          "notes": "Changed JSON files parse successfully."
+        }
+      ],
+      "followUps": [
+        "Next runtime PR should be explicitly approved and scoped to Firestore rules/functions scaffolding plus emulator tests."
+      ],
+      "nextRecommendedTask": "Scoped runtime implementation PR for Firestore rules/functions after approval.",
+      "updatedTodoFiles": [
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "medium"
     }
   ]
 }

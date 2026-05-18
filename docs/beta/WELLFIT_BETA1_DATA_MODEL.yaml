@@ -1,0 +1,432 @@
+version: 2.0
+status: canonical_beta_1_scope
+updated: 2026-05-17
+product: WellFit
+beta_1:
+  definition: closed_free_test_version
+  tester_rollout:
+    wave_1: 25-50
+    wave_2: 250
+  currency:
+    name: WellFit-XP
+    symbol: WFXP
+    type: internal_beta_points
+    monetary_value: false
+    crypto_value: false
+    exchangeable: false
+    cashout: false
+    blockchain: false
+  blockchain:
+    beta_1: none
+    release_direction: Sui
+    sui_implementation: after_points_system_release_path
+  accounts:
+    adult_tester: true
+    guardian_parent: true
+    child_profiles_8_13: true
+    child_standalone_login: false
+    school_accounts: false
+    teacher_accounts: false
+    corporate_accounts: false
+  child_safety:
+    guardian_first_onboarding: true
+    public_child_profiles: false
+    open_chat: false
+    live_location_visible_to_other_users: false
+    real_money_rewards: false
+    crypto_rewards: false
+    shop_guardian_gate: true
+  shop:
+    included: true
+    payment: WellFit-XP-only
+    real_money: false
+    sandbox_iap_first_build: false
+    pay_to_win: false
+  mayor_system:
+    included: true
+    junior_mayors: false
+    reward_currency: WellFit-XP
+    money_revenue_share: false
+    crypto_revenue_share: false
+    cashout: false
+  reality_glitch:
+    included: true
+    first_regions:
+      - Vienna
+      - Lower Austria
+    type: controlled_micro_event
+    uncontrolled_mass_flashmob: false
+    checkin_window_minutes: 15
+    boost_duration_minutes: 10
+    multiplier_cap: 10
+    safe_locations_only: true
+    admin_cancel_required: true
+  excluded:
+    - public_token
+    - cashout
+    - nft_marketplace
+    - depin
+    - real_money_shop
+    - real_pvp_stakes
+    - school_accounts
+    - teacher_accounts
+    - corporate_accounts
+    - single_dating_overlay
+
+principles:
+  - Firebase/Firestore is the Beta-1 repository baseline.
+  - Clients may preview but not final-authorize protected outcomes.
+  - Server authority owns XP, mission completion, mayor share, shop spend, inventory grants and glitch boosts.
+  - Existing server-only collections must be reused or mapped before runtime additions.
+collections:
+  users:
+    purpose: "Root authenticated user profile, adult tester/guardian identity and safe beta preferences."
+    key_fields: "userId, role, displayName, emailHash, profile, settings, consent, createdAt, updatedAt"
+    owner_participant_fields: "userId, guardianFamilyAccountIds"
+    read_write_posture: "Owner read/write only for safe profile fields today; all economy/progression authority must move server-side."
+    server_authority_fields: "No XP, mission completion, reward, mayor or shop authority should be trusted from this doc."
+    child_safety_notes: "Child users are not standalone; child data is represented by childProfiles under guardian control."
+    relation_to_existing_collections: "Existing users rule allows temporary owner-writable bridge fields; future Beta-1 runtime should prefer ledgerEvents/auditEvents/userEconomyProjections."
+  familyAccounts:
+    purpose: "Guardian-owned family container for adult tester and child profiles."
+    key_fields: "familyAccountId, guardianUserIds, childProfileIds, status, createdAt, archivedAt"
+    owner_participant_fields: "guardianUserIds, childProfileIds"
+    read_write_posture: "Guardian-readable; create/update through server functions only."
+    server_authority_fields: "Membership, child profile attachment and archive status."
+    child_safety_notes: "Required for children aged 8-13; no public child profile discovery."
+    relation_to_existing_collections: "New collection; relates to users and guardianChildLinks."
+  childProfiles:
+    purpose: "Non-login profile for a child aged 8-13 under guardian account."
+    key_fields: "childProfileId, familyAccountId, nickname, ageBand, avatarId, permissions, status"
+    owner_participant_fields: "familyAccountId, guardianUserIds, childProfileId"
+    read_write_posture: "Guardian-readable; server-only writes after consent checks."
+    server_authority_fields: "Profile creation, permission state, archive state."
+    child_safety_notes: "No standalone login, public profile, open chat, public location or real-money/crypto rewards."
+    relation_to_existing_collections: "New collection; may project safe avatar/inventory state from userInventory without direct child auth."
+  guardianChildLinks:
+    purpose: "Explicit relationship records between guardian users and child profiles."
+    key_fields: "linkId, guardianUserId, childProfileId, familyAccountId, relationship, status"
+    owner_participant_fields: "guardianUserId, childProfileId"
+    read_write_posture: "Guardian-readable for own links; server-only writes."
+    server_authority_fields: "Relationship verification, status changes."
+    child_safety_notes: "Enforces guardian-first onboarding and delegated permissions."
+    relation_to_existing_collections: "New collection; supports parentalConsents."
+  parentalConsents:
+    purpose: "Consent evidence and version tracking for child profile features."
+    key_fields: "consentId, guardianUserId, childProfileId, consentType, version, grantedAt, revokedAt"
+    owner_participant_fields: "guardianUserId, childProfileId"
+    read_write_posture: "Guardian-readable; server-only append/update."
+    server_authority_fields: "Consent grant/revoke timestamps and active state."
+    child_safety_notes: "Required before child shop/location/camera-adjacent flows."
+    relation_to_existing_collections: "New collection; links to auditEvents for admin/server actions."
+  avatarDefinitions:
+    purpose: "Server-published catalog of avatars, cosmetics and progression metadata."
+    key_fields: "avatarDefinitionId, type, rarity, xpUnlockPolicyId, assetKey, status"
+    owner_participant_fields: "none or ownerUserId for private definitions"
+    read_write_posture: "Signed-in read; server/admin-only writes."
+    server_authority_fields: "Unlock requirements and publication status."
+    child_safety_notes: "Child-safe item classification required."
+    relation_to_existing_collections: "Related to existing itemDefinitions; avoid duplicate catalogs by mapping shopItems/itemDefinitions to definitions."
+  userAvatars:
+    purpose: "Projected owned/equipped avatar state for a user or child profile."
+    key_fields: "userAvatarId, ownerUserId, childProfileId, equippedItemIds, level, xpTotal"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; server-only writes for progression/equip results."
+    server_authority_fields: "Level, XP projection, equip validation."
+    child_safety_notes: "Guardian gates child avatar changes where required."
+    relation_to_existing_collections: "Related to userEconomyProjections, userInventory and existing temporary user avatar fields."
+  avatarXpEvents:
+    purpose: "Append-only XP events affecting avatar progression."
+    key_fields: "eventId, ownerUserId, childProfileId, sourceType, xpAmount, ledgerEventId"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; server-only create; no client update/delete."
+    server_authority_fields: "XP amount, source and projection link."
+    child_safety_notes: "No monetary or crypto value."
+    relation_to_existing_collections: "Maps to ledgerEvents/userEconomyProjections."
+  regions:
+    purpose: "Austria region taxonomy and rollout flags."
+    key_fields: "regionId, name, country, betaEnabled, glitchEnabled, safetyStatus"
+    owner_participant_fields: "none"
+    read_write_posture: "Signed-in read; admin/server-only writes."
+    server_authority_fields: "Enabled flags and safe-region status."
+    child_safety_notes: "No child targeting without guardian safety review."
+    relation_to_existing_collections: "New collection; used by missionLocations and glitchEvents."
+  missionLocations:
+    purpose: "Approved physical/digital mission location records."
+    key_fields: "locationId, regionId, name, geoHash, radiusMeters, safeLocationStatus, childAllowed"
+    owner_participant_fields: "regionId"
+    read_write_posture: "Signed-in read only for published safe locations; admin/server-only writes."
+    server_authority_fields: "Safe-location approval and childAllowed flags."
+    child_safety_notes: "No live location exposure to other users."
+    relation_to_existing_collections: "Relates to trackingSessions/trackingProofEvents as evidence context."
+  missions:
+    purpose: "Published/draft mission definitions and reward policy links."
+    key_fields: "missionId, title, type, regionIds, locationIds, rewardPolicyId, status"
+    owner_participant_fields: "createdByAdminId"
+    read_write_posture: "Signed-in read for published; admin/server-only writes."
+    server_authority_fields: "Publication, reward policy, eligibility constraints."
+    child_safety_notes: "Child eligibility must be explicit and guardian-safe."
+    relation_to_existing_collections: "Relates to missionRewardPolicies and evaluation/review collections in rules."
+  missionAttempts:
+    purpose: "User/child attempt lifecycle for a mission."
+    key_fields: "attemptId, missionId, ownerUserId, childProfileId, status, startedAt"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; starts via server function; status server-only."
+    server_authority_fields: "Attempt status, eligibility, anti-cheat gates."
+    child_safety_notes: "Child attempts require guardian permissions."
+    relation_to_existing_collections: "Links to missionEvidence, missionCompletionEvaluations and missionCompletions."
+  missionEvidence:
+    purpose: "Submitted evidence references, never final completion authority."
+    key_fields: "evidenceId, attemptId, ownerUserId, evidenceType, storageRef, metadata, submittedAt"
+    owner_participant_fields: "ownerUserId"
+    read_write_posture: "Owner/guardian read; create via server function; review fields server-only."
+    server_authority_fields: "Review state and accepted/rejected result."
+    child_safety_notes: "Minimize camera/health/location data and keep sensitive evidence private."
+    relation_to_existing_collections: "Relates to trackingProofEvents and missionEvidenceReviews."
+  missionCompletions:
+    purpose: "Server-authorized completion records."
+    key_fields: "completionId, attemptId, missionId, ownerUserId, xpLedgerEventId, completedAt"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; server-only create; immutable."
+    server_authority_fields: "Completion decision, XP grant linkage."
+    child_safety_notes: "No child reward without consent/eligibility."
+    relation_to_existing_collections: "Relates to missionCompletionEvaluations, missionRewardEvents and ledgerEvents."
+  xpWallets:
+    purpose: "Projection of WellFit-XP balance for a user/family/child scope."
+    key_fields: "walletId, ownerUserId, childProfileId, balance, lifetimeEarned, lifetimeSpent, updatedAt"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; server-only writes."
+    server_authority_fields: "Balance and projection derived from ledger."
+    child_safety_notes: "WellFit-XP has no monetary/crypto/cashout value."
+    relation_to_existing_collections: "Related to userEconomyProjections; can be projection wrapper."
+  xpLedgerEvents:
+    purpose: "Canonical append-only WellFit-XP ledger for Beta 1."
+    key_fields: "ledgerEventId, ownerUserId, childProfileId, delta, reason, sourceId, idempotencyKey"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; server/internal-only create; no update/delete."
+    server_authority_fields: "All XP grants/spends/shares."
+    child_safety_notes: "No monetary value, no cashout, no blockchain."
+    relation_to_existing_collections: "Maps to existing ledgerEvents; runtime may choose to extend ledgerEvents instead of parallel collection."
+  xpRewardPolicies:
+    purpose: "Server-controlled reward/cap policy definitions."
+    key_fields: "policyId, sourceType, baseXp, caps, eligibility, status"
+    owner_participant_fields: "none"
+    read_write_posture: "Signed-in read for active policies; admin/server-only writes."
+    server_authority_fields: "Reward amounts, caps, eligibility."
+    child_safety_notes: "Child-safe reward caps and no real-money rewards."
+    relation_to_existing_collections: "Related to missionRewardPolicies."
+  shopItems:
+    purpose: "Beta shop catalog using WellFit-XP only."
+    key_fields: "shopItemId, itemDefinitionId, priceWfxp, category, childAllowed, status"
+    owner_participant_fields: "none"
+    read_write_posture: "Signed-in read for published; admin/server-only writes."
+    server_authority_fields: "Price, availability, childAllowed."
+    child_safety_notes: "Guardian gate required for child purchases; no pay-to-win."
+    relation_to_existing_collections: "Related to itemDefinitions and userInventory."
+  shopPurchaseIntents:
+    purpose: "Server-created pending intent for XP-only purchase."
+    key_fields: "intentId, ownerUserId, childProfileId, shopItemId, quotedPriceWfxp, status"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; create/complete via server functions."
+    server_authority_fields: "Quote, eligibility, expiry."
+    child_safety_notes: "Child intent requires guardian permission."
+    relation_to_existing_collections: "Precedes pointsSinkEvents/xpLedgerEvents and shopPurchaseEvents."
+  shopPurchaseEvents:
+    purpose: "Completed or rejected shop purchase audit trail."
+    key_fields: "eventId, intentId, ownerUserId, shopItemId, xpLedgerEventId, result"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; server-only create."
+    server_authority_fields: "Final spend result and inventory grant."
+    child_safety_notes: "No real money or sandbox IAP."
+    relation_to_existing_collections: "Maps to pointsSinkEvents and auditEvents."
+  userInventory:
+    purpose: "Owned items/equipment projection."
+    key_fields: "inventoryItemId, ownerUserId, childProfileId, itemDefinitionId, sourceEventId, equipped"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; server-only writes for grants/equips."
+    server_authority_fields: "Grant source and equip validity."
+    child_safety_notes: "Child inventory must respect childAllowed."
+    relation_to_existing_collections: "Existing userInventory is server-only in rules."
+  checkpoints:
+    purpose: "Map checkpoint definitions for score and mayor contests."
+    key_fields: "checkpointId, regionId, locationId, title, status, childAllowed"
+    owner_participant_fields: "regionId"
+    read_write_posture: "Signed-in read for published; admin/server-only writes."
+    server_authority_fields: "Publication and safe-location status."
+    child_safety_notes: "No unsafe locations or public child location exposure."
+    relation_to_existing_collections: "Relates to missionLocations."
+  checkpointScores:
+    purpose: "Server-validated checkpoint scoring records."
+    key_fields: "scoreId, checkpointId, ownerUserId, score, proofEventId, submittedAt"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read own; server-only create/update after validation."
+    server_authority_fields: "Validated score and anti-cheat proof."
+    child_safety_notes: "Child eligibility and privacy required."
+    relation_to_existing_collections: "Relates to trackingProofEvents."
+  checkpointMayors:
+    purpose: "Current and historical mayor assignment per checkpoint."
+    key_fields: "mayorId, checkpointId, ownerUserId, scoreId, termStart, termEnd"
+    owner_participant_fields: "ownerUserId"
+    read_write_posture: "Signed-in read limited to safe display fields; server-only writes."
+    server_authority_fields: "Mayor evaluation result."
+    child_safety_notes: "No Junior Mayors in Beta 1."
+    relation_to_existing_collections: "Related to mayorShareEvents."
+  mayorShareEvents:
+    purpose: "Internal WellFit-XP-only mayor share events."
+    key_fields: "eventId, checkpointId, mayorUserId, xpAmount, ledgerEventId, reason"
+    owner_participant_fields: "mayorUserId"
+    read_write_posture: "Owner read; server/internal-only create."
+    server_authority_fields: "XP share amount and ledger link."
+    child_safety_notes: "No money, token, revenue cashout or crypto share."
+    relation_to_existing_collections: "Maps to xpLedgerEvents/ledgerEvents."
+  glitchEvents:
+    purpose: "Controlled Reality Glitch micro-event definitions."
+    key_fields: "glitchEventId, regionId, locationIds, windowStart, windowEnd, status, multiplierCap"
+    owner_participant_fields: "regionId"
+    read_write_posture: "Signed-in read for active safe events; admin/server-only writes."
+    server_authority_fields: "Schedule, cancel status, cap and safety flags."
+    child_safety_notes: "Starts in Vienna/Lower Austria; safe locations only; admin cancel required."
+    relation_to_existing_collections: "Relates to missionLocations/regions."
+  glitchParticipants:
+    purpose: "User check-in and participation records for glitch events."
+    key_fields: "participantId, glitchEventId, ownerUserId, checkInAt, eligibilityStatus"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; server-only writes after check-in validation."
+    server_authority_fields: "Eligibility and check-in window."
+    child_safety_notes: "Child participation requires guardian-safe location rules."
+    relation_to_existing_collections: "Relates to glitchBoostWindows."
+  glitchBoostWindows:
+    purpose: "Server-authorized temporary boost windows."
+    key_fields: "boostWindowId, glitchEventId, ownerUserId, startsAt, endsAt, multiplier"
+    owner_participant_fields: "ownerUserId, childProfileId"
+    read_write_posture: "Owner/guardian read; internal server-only create."
+    server_authority_fields: "Boost activation, duration and multiplier cap."
+    child_safety_notes: "Max 10x cap, 10 minutes, no unsafe mass event."
+    relation_to_existing_collections: "Influences preview/reward policy but never client-authorized."
+  glitchSafetyRules:
+    purpose: "Admin-defined safety constraints for glitch events."
+    key_fields: "ruleId, regionId, maxParticipants, blockedLocations, cancelTriggers, status"
+    owner_participant_fields: "regionId"
+    read_write_posture: "Admin/server read-write; optionally public safe summary."
+    server_authority_fields: "Cancel triggers and caps."
+    child_safety_notes: "Prevents uncontrolled flashmob behavior."
+    relation_to_existing_collections: "Related to adminActions/auditEvents."
+  safetyReports:
+    purpose: "User/guardian/admin reports for missions, locations, shop, glitch or child safety."
+    key_fields: "reportId, reporterUserId, subjectType, subjectId, severity, status"
+    owner_participant_fields: "reporterUserId, childProfileId"
+    read_write_posture: "Reporter read own; admin/server review; no public read."
+    server_authority_fields: "Triage status and moderation outcome."
+    child_safety_notes: "Child reports get priority and privacy protection."
+    relation_to_existing_collections: "Related to adminActions and auditEvents."
+  adminActions:
+    purpose: "Append-only admin/server audit trail."
+    key_fields: "adminActionId, actorUserId, actionType, targetType, targetId, reason, createdAt"
+    owner_participant_fields: "actorUserId"
+    read_write_posture: "Admin/server only with safe user-facing projections where needed."
+    server_authority_fields: "All protected mutations and overrides."
+    child_safety_notes: "Required for child/location/reward/shop/mayor/glitch decisions."
+    relation_to_existing_collections: "Related to existing auditEvents."
+api_functions:
+  identity_and_family:
+    - name: createGuardianFamilyAccount
+      internal_only: false
+    - name: createChildProfile
+      internal_only: false
+    - name: updateChildPermissions
+      internal_only: false
+    - name: recordParentalConsent
+      internal_only: false
+    - name: archiveChildProfile
+      internal_only: false
+  avatar:
+    - name: createUserAvatar
+      internal_only: false
+    - name: equipInventoryItem
+      internal_only: false
+    - name: getAvatarProgress
+      internal_only: false
+  missions:
+    - name: listMissions
+      internal_only: false
+    - name: getMissionDetail
+      internal_only: false
+    - name: startMissionAttempt
+      internal_only: false
+    - name: submitMissionEvidence
+      internal_only: false
+    - name: completeMissionAttempt
+      internal_only: false
+    - name: reportMissionSafetyIssue
+      internal_only: false
+  xp_economy:
+    - name: getXpWallet
+      internal_only: false
+    - name: previewXpReward
+      internal_only: false
+    - name: grantXpServerOnly
+      internal_only: true
+    - name: spendXpForShopItem
+      internal_only: false
+    - name: listXpLedger
+      internal_only: false
+  shop_and_inventory:
+    - name: listShopItems
+      internal_only: false
+    - name: createShopPurchaseIntent
+      internal_only: false
+    - name: completeXpShopPurchase
+      internal_only: false
+    - name: listInventory
+      internal_only: false
+    - name: equipInventoryItem
+      internal_only: false
+  checkpoints_mayor:
+    - name: listCheckpoints
+      internal_only: false
+    - name: submitCheckpointScore
+      internal_only: false
+    - name: evaluateCheckpointMayor
+      internal_only: true
+    - name: listCheckpointMayorHistory
+      internal_only: false
+    - name: grantMayorShareXp
+      internal_only: true
+  reality_glitch:
+    - name: listGlitchEvents
+      internal_only: false
+    - name: adminScheduleGlitchEvent
+      internal_only: false
+    - name: checkInToGlitch
+      internal_only: false
+    - name: activateGlitchBoost
+      internal_only: true
+    - name: cancelGlitchEvent
+      internal_only: false
+  admin:
+    - name: adminCreateMission
+      internal_only: false
+    - name: adminUpdateMission
+      internal_only: false
+    - name: adminPublishMission
+      internal_only: false
+    - name: adminCreateCheckpoint
+      internal_only: false
+    - name: adminReviewSafetyReport
+      internal_only: false
+    - name: adminAdjustXp
+      internal_only: false
+required_emulator_tests:
+  - protected_client_write_failures
+  - server_authorized_success_paths
+  - guardian_child_permission_enforcement
+  - xp_no_client_authority
+  - shop_wfxp_only_guardian_gate
+  - mayor_share_xp_only
+  - glitch_safe_location_cancel_and_cap
+repo_placement:
+  scope: docs/beta/WELLFIT_BETA1_SCOPE.yaml
+  agent_pack: docs/beta/AGENTS_WELLFIT_BETA1.md
+  data_model_markdown: docs/beta/WELLFIT_BETA1_DATA_MODEL.md
+  data_model_yaml: docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml
+  runbooks: agents/beta1/

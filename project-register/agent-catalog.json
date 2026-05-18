@@ -3561,6 +3561,875 @@
         "No runtime approval execution before separate owner-approved implementation task."
       ],
       "nextSafeMaintenanceTask": "Define authenticated approval workflow evidence without enabling runtime approval actions."
+    },
+    {
+      "id": "beta1-scope-steward",
+      "name": "Beta-1 Scope Steward",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Owns canonical Beta-1 decisions and prevents scope drift. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/beta1-scope-steward.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent",
+        "wellfit-xp-economy-agent",
+        "mission-checkpoint-agent",
+        "mayor-system-agent",
+        "reality-glitch-safety-agent",
+        "shop-inventory-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "beta1-data-model-agent",
+      "name": "Beta-1 Data Model Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Owns Firestore collection design and relation mapping. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/beta1-data-model-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent",
+        "wellfit-xp-economy-agent",
+        "mission-checkpoint-agent",
+        "mayor-system-agent",
+        "reality-glitch-safety-agent",
+        "shop-inventory-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "beta1-api-contract-agent",
+      "name": "Beta-1 API Contract Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Owns Firebase function contract planning and request/response schemas. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/beta1-api-contract-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent",
+        "wellfit-xp-economy-agent",
+        "mission-checkpoint-agent",
+        "mayor-system-agent",
+        "reality-glitch-safety-agent",
+        "shop-inventory-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "firestore-rules-guard-agent",
+      "name": "Firestore Rules Guard Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Checks that protected collections remain server-only. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/firestore-rules-guard-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "guardian-child-safety-agent",
+        "wellfit-xp-economy-agent",
+        "mission-checkpoint-agent",
+        "mayor-system-agent",
+        "reality-glitch-safety-agent",
+        "shop-inventory-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "guardian-child-safety-agent",
+      "name": "Guardian Child Safety Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Checks child profile, guardian consent, shop gate and location safety rules. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/guardian-child-safety-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "wellfit-xp-economy-agent",
+        "mission-checkpoint-agent",
+        "mayor-system-agent",
+        "reality-glitch-safety-agent",
+        "shop-inventory-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "wellfit-xp-economy-agent",
+      "name": "WellFit-XP Economy Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Checks XP ledger, wallet projection, no monetary value and no client authority. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/wellfit-xp-economy-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent",
+        "mission-checkpoint-agent",
+        "mayor-system-agent",
+        "reality-glitch-safety-agent",
+        "shop-inventory-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "mission-checkpoint-agent",
+      "name": "Mission Checkpoint Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Checks missions, evidence, completions, locations and Austria region support. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/mission-checkpoint-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent",
+        "wellfit-xp-economy-agent",
+        "mayor-system-agent",
+        "reality-glitch-safety-agent",
+        "shop-inventory-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "mayor-system-agent",
+      "name": "Mayor System Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Checks checkpoint mayor logic and XP-only share rules. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/mayor-system-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent",
+        "wellfit-xp-economy-agent",
+        "mission-checkpoint-agent",
+        "reality-glitch-safety-agent",
+        "shop-inventory-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "reality-glitch-safety-agent",
+      "name": "Reality Glitch Safety Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Checks controlled micro-event safety, Vienna/Lower Austria start, admin cancel and multiplier caps. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/reality-glitch-safety-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent",
+        "wellfit-xp-economy-agent",
+        "mission-checkpoint-agent",
+        "mayor-system-agent",
+        "shop-inventory-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "shop-inventory-agent",
+      "name": "Shop Inventory Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Checks WellFit-XP-only shop, item definitions, inventory and no pay-to-win. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/shop-inventory-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent",
+        "wellfit-xp-economy-agent",
+        "mission-checkpoint-agent",
+        "mayor-system-agent",
+        "reality-glitch-safety-agent",
+        "qa-emulator-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
+    },
+    {
+      "id": "qa-emulator-agent",
+      "name": "QA Emulator Agent",
+      "status": "planning_only",
+      "artifactStatus": "planned",
+      "executionCapability": "docs_register_write",
+      "allowedWriteScopes": [
+        "docs/beta/**",
+        "agents/beta1/**",
+        "project-register/**",
+        "todolist/**"
+      ],
+      "forbiddenWriteScopes": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "functions/**",
+        "firestore.rules",
+        "firebase.json",
+        "package.json",
+        "package-lock.json",
+        ".github/**",
+        "native/**",
+        "native/unity/**",
+        "public/**"
+      ],
+      "requiresHumanApprovalForRuntime": true,
+      "agentType": "maintenance_agent",
+      "purpose": "Defines emulator tests and quality-gate expectations. Docs/register planning only for Beta 1; no runtime authority by default.",
+      "ownerArea": "Beta 1 scope, agent runbooks and data model",
+      "primaryRegisters": [
+        "docs/beta/WELLFIT_BETA1_SCOPE.yaml",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml"
+      ],
+      "humanReadableDocs": [
+        "docs/beta/AGENTS_WELLFIT_BETA1.md",
+        "docs/beta/WELLFIT_BETA1_DATA_MODEL.md",
+        "agents/beta1/qa-emulator-agent.md"
+      ],
+      "validationScripts": [
+        "scripts/wellfit-dev-agent/src/agent-catalog-backlog-check.mjs",
+        "scripts/wellfit-dev-agent/src/quality-gate.mjs"
+      ],
+      "qualityGateIntegrated": false,
+      "relatedAgents": [
+        "beta1-scope-steward",
+        "beta1-data-model-agent",
+        "beta1-api-contract-agent",
+        "firestore-rules-guard-agent",
+        "guardian-child-safety-agent",
+        "wellfit-xp-economy-agent",
+        "mission-checkpoint-agent",
+        "mayor-system-agent",
+        "reality-glitch-safety-agent",
+        "shop-inventory-agent"
+      ],
+      "relatedRegisters": [
+        "project-register/agent-catalog.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "allowedExtensionTypes": [
+        "schema-compatible docs/register pointers",
+        "runtime handoff prompts after human approval",
+        "emulator-test planning without implementation"
+      ],
+      "requiresNewAgentProposalFor": [
+        "runtime code authority",
+        "protected production writes",
+        "new durable agent domain outside Beta 1"
+      ],
+      "protectedBoundaries": [
+        "No runtime product code changes without scoped human approval.",
+        "No blockchain, cashout, NFT marketplace, public token, real-money shop or real PvP stakes in Beta 1.",
+        "Client may preview but not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts."
+      ],
+      "nextSafeMaintenanceTask": "After docs/register approval, prepare a scoped runtime PR prompt for Firestore rules/functions scaffolding and emulator tests."
     }
   ],
   "approvedAgentBuildReferences": [
