@@ -1,13 +1,13 @@
 # Beta-1 Emulator Verification
 
-Status: **kein echter Lauf auswertbar / blockiert**
-Last checked: **2026-05-18 12:53 UTC**
+Status: **Workflow-Datei im synchronisierten PR-Branch vorhanden / echter Lauf weiter blockiert**
+Last checked: **2026-05-18 13:30 UTC**
 Checked workflow: `.github/workflows/beta1-emulator-tests.yml` / **Beta 1 Emulator Tests**
 Checked run: **kein auswertbarer GitHub-Actions-Run in dieser Checkout-/Netzwerkumgebung gefunden**
 
 ## Current result
 
-The Beta-1 emulator status is **not green**. This follow-up did not find a locally available workflow file and could not evaluate a real GitHub Actions run from this container.
+The Beta-1 emulator status is **not green**. This mergeability-only sync keeps the workflow file present in the PR branch, but this container still cannot evaluate a real GitHub Actions run.
 
 Do **not** report the Beta-1 emulator suites as passing until a real workflow run or a prepared local emulator run proves that both focused suites ran against local Firebase emulators.
 
@@ -15,8 +15,8 @@ Do **not** report the Beta-1 emulator suites as passing until a real workflow ru
 
 | Check | Result | Notes |
 |---|---:|---|
-| Workflow file exists in this checkout | **No** | `.github/workflows/beta1-emulator-tests.yml` is not present on branch `ci/beta1-emulator-results-followup` at the time of this review. |
-| PR #175 workflow availability in this checkout | **Not available here** | Local history contains PR #174 and PR #176, but no local `.github/workflows/beta1-emulator-tests.yml` file. |
+| Workflow file exists in this checkout | **Yes** | `.github/workflows/beta1-emulator-tests.yml` is present after the PR #175 mergeability-only sync. |
+| PR #175 workflow availability in this checkout | **Available locally after sync** | The sync restored the intended single workflow path: `.github/workflows/beta1-emulator-tests.yml`. |
 | GitHub remote configured locally | **No** | `git remote -v` returned no configured remotes. |
 | GitHub CLI available locally | **No** | `gh` is not installed in this container. |
 | Direct GitHub fetch/API access from shell | **Blocked** | `git ls-remote https://github.com/Bernds-tech/WellFit-now.git ...` failed with `CONNECT tunnel failed, response 403`; a Python GitHub API request failed with `Tunnel connection failed: 403 Forbidden`. |
@@ -65,6 +65,7 @@ The scripts still point only at local emulator endpoints:
 which gh || echo no-gh
 git remote -v
 test -f .github/workflows/beta1-emulator-tests.yml
+sed -n '1,220p' .github/workflows/beta1-emulator-tests.yml
 git log --oneline --all -- .github/workflows/beta1-emulator-tests.yml docs/beta/BETA1_EMULATOR_VERIFICATION.md
 git ls-remote https://github.com/Bernds-tech/WellFit-now.git HEAD refs/pull/175/head refs/pull/175/merge refs/heads/main refs/heads/ci/beta1-emulator-verification
 ```
