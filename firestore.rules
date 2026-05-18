@@ -14,6 +14,16 @@ service cloud.firestore {
       return isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
+    function isReadableByOwnerOrGuardian() {
+      return isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.ownerUserId == request.auth.uid ||
+        resource.data.reporterUserId == request.auth.uid ||
+        resource.data.guardianUserId == request.auth.uid ||
+        (resource.data.guardianUserIds is list && resource.data.guardianUserIds.hasAny([request.auth.uid]))
+      );
+    }
+
     // Safe owner-writable MVP profile fields.
     // These may remain client-writable after the economy hardening step if they do not
     // authorize points, XP, level, rewards, mission completion or anti-cheat decisions.
@@ -195,6 +205,153 @@ service cloud.firestore {
     match /buddyItemUseEvents/{eventId} {
       allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
+    }
+
+
+    // Beta 1 runtime authority: clients may read only scoped records or published
+    // definitions. All protected XP, mission, shop, inventory, mayor, glitch and
+    // admin decisions are written by Firebase Admin SDK callable functions only.
+    match /familyAccounts/{familyAccountId} {
+      allow read: if isSignedIn() && resource.data.guardianUserIds.hasAny([request.auth.uid]);
+      allow create, update, delete: if false;
+    }
+
+    match /childProfiles/{childProfileId} {
+      allow read: if isSignedIn() && resource.data.guardianUserIds.hasAny([request.auth.uid]);
+      allow create, update, delete: if false;
+    }
+
+    match /guardianChildLinks/{linkId} {
+      allow read: if isSignedIn() && resource.data.guardianUserId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    match /parentalConsents/{consentId} {
+      allow read: if isSignedIn() && resource.data.guardianUserId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    match /avatarDefinitions/{definitionId} {
+      allow read: if isSignedIn() && resource.data.status == 'published';
+      allow create, update, delete: if false;
+    }
+
+    match /userAvatars/{avatarId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /avatarXpEvents/{eventId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /regions/{regionId} {
+      allow read: if isSignedIn() && resource.data.betaEnabled == true;
+      allow create, update, delete: if false;
+    }
+
+    match /missionLocations/{locationId} {
+      allow read: if isSignedIn() && resource.data.safeLocationStatus == 'approved';
+      allow create, update, delete: if false;
+    }
+
+    match /missions/{missionId} {
+      allow read: if isSignedIn() && resource.data.status == 'published';
+      allow create, update, delete: if false;
+    }
+
+    match /missionAttempts/{attemptId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /missionEvidence/{evidenceId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /missionCompletions/{completionId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /xpWallets/{walletId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /xpLedgerEvents/{eventId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /xpRewardPolicies/{policyId} {
+      allow read: if isSignedIn() && resource.data.status == 'active';
+      allow create, update, delete: if false;
+    }
+
+    match /shopItems/{shopItemId} {
+      allow read: if isSignedIn() && resource.data.status == 'published';
+      allow create, update, delete: if false;
+    }
+
+    match /shopPurchaseIntents/{intentId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /shopPurchaseEvents/{eventId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /checkpoints/{checkpointId} {
+      allow read: if isSignedIn() && resource.data.status == 'published';
+      allow create, update, delete: if false;
+    }
+
+    match /checkpointScores/{scoreId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /checkpointMayors/{mayorId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if false;
+    }
+
+    match /mayorShareEvents/{eventId} {
+      allow read: if isSignedIn() && resource.data.mayorUserId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    match /glitchEvents/{glitchEventId} {
+      allow read: if isSignedIn() && resource.data.status == 'active';
+      allow create, update, delete: if false;
+    }
+
+    match /glitchParticipants/{participantId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /glitchBoostWindows/{boostWindowId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /glitchSafetyRules/{ruleId} {
+      allow read, write: if false;
+    }
+
+    match /safetyReports/{reportId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    match /adminActions/{actionId} {
+      allow read, write: if false;
     }
 
     match /{document=**} {

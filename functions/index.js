@@ -154,3 +154,21 @@ exports.reviewMissionPatterns = onCall(async (request) => {
 exports.seedDemoItemsAndNfc = onCall(async (request) => { requireAdmin(request); try { const result = await runDemoItemsAndNfcSeed(db); return { accepted: true, message: "Demo Items und NFC Tags wurden angelegt.", ...result }; } catch (error) { console.error("seedDemoItemsAndNfc failed", error); throw new HttpsError("internal", `Seed Demo Items/NFC fehlgeschlagen: ${toErrorMessage(error)}`); } });
 exports.grantItemOrCapability = onCall(async () => { throw new HttpsError("failed-precondition", "grantItemOrCapability ist vorerst nur als interner Server-Flow geplant."); });
 exports.validateMissionCompletionWithItem = onCall(async () => { throw new HttpsError("failed-precondition", "validateMissionCompletionWithItem ist geplant, aber noch nicht fuer Produktion aktiviert."); });
+
+// Beta 1 runtime slice: server-authoritative callable foundations for closed beta flows.
+const { registerBeta1XpLedger } = require("./lib/beta1XpLedger");
+const { registerBeta1GuardianChild } = require("./lib/beta1GuardianChild");
+const { registerBeta1Missions } = require("./lib/beta1Missions");
+const { registerBeta1ShopInventory } = require("./lib/beta1ShopInventory");
+const { registerBeta1CheckpointsMayor } = require("./lib/beta1CheckpointsMayor");
+const { registerBeta1RealityGlitch } = require("./lib/beta1RealityGlitch");
+const { registerBeta1SafetyAdmin } = require("./lib/beta1SafetyAdmin");
+
+const beta1RuntimeDeps = { db, onCall, HttpsError };
+registerBeta1XpLedger(exports, beta1RuntimeDeps);
+registerBeta1GuardianChild(exports, beta1RuntimeDeps);
+registerBeta1Missions(exports, beta1RuntimeDeps);
+registerBeta1ShopInventory(exports, beta1RuntimeDeps);
+registerBeta1CheckpointsMayor(exports, beta1RuntimeDeps);
+registerBeta1RealityGlitch(exports, beta1RuntimeDeps);
+registerBeta1SafetyAdmin(exports, beta1RuntimeDeps);

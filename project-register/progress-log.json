@@ -4,7 +4,7 @@
     "purpose": "Fortschrittslog fuer Stufe-4-Agentenarbeit.",
     "issue": 19,
     "status": "initial-governance-layer",
-    "updated": "2026-05-16"
+    "updated": "2026-05-18"
   },
   "entries": [
     {
@@ -490,6 +490,22 @@
       "productionDeployTriggered": false,
       "notes": "Docs/register-only Beta-1 pack. Captures free closed beta scope, WellFit-XP internal points, no blockchain/cashout/NFT/real-money activation, child guardian constraints, Firestore collection model, Firebase function plan and future emulator-test boundary. Runtime product code and protected paths remain untouched.",
       "taskIdWhenApplicable": "BETA1-AGENTS-DATA-MODEL-2026-05-17"
+    },
+    {
+      "id": "PROGRESS-BETA1-RUNTIME-FIRESTORE-FUNCTIONS-2026-05-18-0001",
+      "date": "2026-05-18",
+      "branch": "runtime/beta1-firestore-functions-emulator-tests",
+      "goal": "Implement the first narrowly scoped Beta-1 runtime slice for Firestore rules, Firebase callable functions and emulator tests.",
+      "changedAreas": [
+        "firestore.rules",
+        "functions",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": true,
+      "productionDeployTriggered": false,
+      "notes": "Added Beta-1 server-authoritative callable foundations and rules coverage for guardian/child, WFXP ledger/wallet projection, missions/evidence/completions, XP-only shop/inventory, checkpoints/mayor share, Reality Glitch, safety reports and admin audit actions. Blockchain, token, NFT, cashout, IAP, real-money shop, DePIN, public child profiles, child standalone login and client-side authority remain blocked. Emulator execution in this container was blocked by Firebase emulator jar download 403 and must be rerun in a prepared emulator environment.",
+      "taskIdWhenApplicable": "BETA1-RUNTIME-FIRESTORE-FUNCTIONS-EMULATOR-TESTS-2026-05-18"
     }
   ]
 }
