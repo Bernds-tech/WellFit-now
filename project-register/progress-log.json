@@ -545,6 +545,22 @@
       "productionDeployTriggered": false,
       "notes": "Added a scoped emulator/CI verification prompt for the next branch ci/beta1-emulator-verification. The plan preserves the known Codex blocker: Firestore Emulator JAR download failed with 403 Forbidden and tests later hit ECONNREFUSED 127.0.0.1:8080. Current PR does not change Runtime, functions, firestore.rules, firebase.json, package files, .github workflows, public assets or Unity files.",
       "taskIdWhenApplicable": "BETA1-EMULATOR-CI-VERIFICATION-PLAN-2026-05-18"
+    },
+    {
+      "id": "PROGRESS-BETA1-EMULATOR-CI-VERIFICATION-2026-05-18-0001",
+      "date": "2026-05-18",
+      "branch": "ci/beta1-emulator-verification",
+      "goal": "Add a minimal human-approved GitHub Actions workflow and runbook for Beta-1 Firestore Rules and Callable emulator verification without real Firebase resources, secrets or deploys.",
+      "changedAreas": [
+        ".github/workflows",
+        "docs/beta",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Created the scoped Beta 1 Emulator Tests workflow using Node 20, Java 21, npm ci, existing firebase-tools via npx, local auth/firestore/functions emulators and demo-no-project only. Documented known Codex blockers (Firestore Emulator JAR 403 Forbidden and ECONNREFUSED 127.0.0.1:8080), no secrets, no deploy and no production Firebase project usage.",
+      "taskIdWhenApplicable": "BETA1-EMULATOR-CI-VERIFICATION-2026-05-18"
     }
   ]
 }

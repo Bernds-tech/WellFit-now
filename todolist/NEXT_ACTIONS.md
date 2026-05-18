@@ -107,6 +107,7 @@ Quelle: `todolist/DATABASE_PLAN.md`, `todolist/B - AKTUELLER SPRINT-STAND – LO
 
 - [x] 2026-05-14 aktuellen Baseline-Check ausgefuehrt: Lint, Typecheck, Build, Functions-Syntaxcheck und Quality Gate erfolgreich.
 - [~] Root-Installation bleibt unveraendert; `npm install` wurde nicht ausgefuehrt, weil Abhaengigkeiten fuer die Checks vorhanden waren.
+- [x] 2026-05-18 Beta-1 Emulator-CI-Verifikation vorbereitet: Human-approved Workflow `.github/workflows/beta1-emulator-tests.yml` erstellt, Runbook `docs/beta/BETA1_EMULATOR_VERIFICATION.md` dokumentiert bekannte Blocker (`cloud-firestore-emulator` JAR `403 Forbidden`, `ECONNREFUSED 127.0.0.1:8080`), nutzt nur `demo-no-project`, lokale Emulatoren, keine Secrets, keine Deploys, keine Production-Firebase-Ressourcen und keine Runtime-Produktlogik-Aenderungen. Naechster Branch: `ci/beta1-emulator-results-followup`.
 - [ ] `LAST_BUILD_STATUS.md` nur aktualisieren, wenn ein kuenftiger Auftrag diese Statusdatei ausdruecklich in den erlaubten Dateien einschliesst.
 - [ ] Build-/Server-Hinweise mit `DONE_LOG.md` und Status-Dateien abgleichen, sobald diese Dateien in einem passenden Dokumentationsauftrag erlaubt sind.
 
