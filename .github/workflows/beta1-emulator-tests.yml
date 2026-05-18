@@ -1,0 +1,51 @@
+name: Beta 1 Emulator Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/beta1-emulator-tests.yml"
+      - "firebase.json"
+      - "firestore.rules"
+      - "functions/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  beta1-emulator-tests:
+    name: Beta-1 Firestore and callable emulator tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Java for Firebase emulators
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install functions dependencies
+        run: npm --prefix functions ci
+
+      - name: Check functions syntax
+        run: npm --prefix functions run check
+
+      - name: Run focused Beta-1 emulator suites
+        run: npx firebase-tools emulators:exec --project demo-no-project --only auth,firestore,functions "npm --prefix functions run beta1:test:emulator"
