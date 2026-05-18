@@ -559,7 +559,7 @@
       ],
       "productLogicChanged": false,
       "productionDeployTriggered": false,
-      "notes": "Created the scoped Beta 1 Emulator Tests workflow using Node 20, Java 21, npm ci, existing firebase-tools via npx, local auth/firestore/functions emulators and demo-no-project only. Documented known Codex blockers (Firestore Emulator JAR 403 Forbidden and ECONNREFUSED 127.0.0.1:8080), no secrets, no deploy and no production Firebase project usage.",
+      "notes": "Created the scoped Beta 1 Emulator Tests workflow using Node 20, Java 21, npm ci, existing firebase-tools via npx, local auth/firestore/functions emulators and demo-no-project only. Included the merged PR #176 TODO_INDEX pointer for docs/beta/BETA1_EMULATOR_VERIFICATION.md so npm run agent:quality-gate now passes. Documented known Codex blockers (Firestore Emulator JAR 403 Forbidden and ECONNREFUSED 127.0.0.1:8080), no secrets, no deploy and no production Firebase project usage.",
       "taskIdWhenApplicable": "BETA1-EMULATOR-CI-VERIFICATION-2026-05-18"
     }
   ]
