@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-17",
+  "updated": "2026-05-18",
   "purpose": "Machine-readable WellFit agent work log for recording completed agent runs, changed files, checks, follow-ups, and the next recommended safe task without creating duplicate architecture or parallel systems.",
   "governance": {
     "readBeforeUpdating": [
@@ -2841,6 +2841,87 @@
         "todolist/NEXT_ACTIONS.md"
       ],
       "riskLevel": "medium"
+    },
+    {
+      "taskId": "BETA1-RUNTIME-FIRESTORE-FUNCTIONS-EMULATOR-TESTS-2026-05-18",
+      "title": "Add Beta-1 runtime Firestore/Functions emulator coverage",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/beta1-firestore-functions-emulator-tests",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 runtime Firestore/Functions emulator coverage"
+      },
+      "changedFiles": [
+        "firestore.rules",
+        "functions/index.js",
+        "functions/lib/beta1Runtime.js",
+        "functions/lib/beta1XpLedger.js",
+        "functions/lib/beta1GuardianChild.js",
+        "functions/lib/beta1Missions.js",
+        "functions/lib/beta1ShopInventory.js",
+        "functions/lib/beta1CheckpointsMayor.js",
+        "functions/lib/beta1RealityGlitch.js",
+        "functions/lib/beta1SafetyAdmin.js",
+        "functions/test/beta1RuntimeFixtures.js",
+        "functions/test/beta1FirestoreRulesEmulatorTest.js",
+        "functions/test/beta1CallableFunctionsEmulatorTest.js",
+        "functions/package.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:validate",
+          "result": "pass",
+          "notes": "Completed successfully; npm emitted existing Unknown env config http-proxy warning."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Passed after commit on a clean working tree; an earlier pre-commit run failed because the Agent Control Center report-only check flags uncommitted runtime/protected diffs."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "Completed with 0 errors and 2 pre-existing script warnings about unused variables outside this PR."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Syntax check passed for existing and new Beta-1 runtime modules/tests."
+        },
+        {
+          "command": "npm run emulators",
+          "result": "warning",
+          "notes": "Environment limitation: Firebase CLI attempted to download cloud-firestore-emulator-v1.19.8.jar and failed with 403 Forbidden; emulators did not start."
+        },
+        {
+          "command": "npm --prefix functions run test:emulator",
+          "result": "warning",
+          "notes": "Environment limitation: Firestore/Auth/Functions emulators were not running after emulator download failed; first test failed with ECONNREFUSED 127.0.0.1:8080."
+        },
+        {
+          "command": "npm --prefix functions run beta1:rules",
+          "result": "warning",
+          "notes": "Environment limitation: Firestore emulator unavailable; rules test failed with ECONNREFUSED 127.0.0.1:8080 before assertions could run."
+        },
+        {
+          "command": "npm --prefix functions run beta1:callable",
+          "result": "warning",
+          "notes": "Environment limitation: Firestore/Auth/Functions emulators unavailable; callable test failed with ECONNREFUSED 127.0.0.1:8080 before assertions could run."
+        }
+      ],
+      "followUps": [
+        "Run the focused Beta-1 Rules/Callable emulator tests and full functions emulator suite in an environment where the Firebase emulators are already installed or downloadable.",
+        "Continue with a narrow Beta-1 runtime hardening branch for idempotency/cap edge cases after emulator coverage is verified."
+      ],
+      "nextRecommendedTask": "runtime/beta1-emulator-verification-hardening",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "high"
     }
   ]
 }

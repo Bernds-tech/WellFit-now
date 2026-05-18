@@ -229,3 +229,9 @@ Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, danach diese Datei, `todolist/TO
 - [x] 2026-05-17 Beta-1-Scope-, Agent-Pack- und Firestore/Firebase-Datenmodell docs/register-only angelegt: `docs/beta/WELLFIT_BETA1_SCOPE.yaml`, `docs/beta/AGENTS_WELLFIT_BETA1.md`, `docs/beta/WELLFIT_BETA1_DATA_MODEL.md`, `docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml` und `agents/beta1/`.
 - [x] WellFit-XP/WFXP als interne Beta-Punkte ohne Geldwert, Crypto-Wert, Cashout, Exchange, Blockchain, NFT-Marketplace oder Real-Money-Shop dokumentiert; Client darf nur previewen und nie XP, Mission Completion, Mayor Share, Shop Spend, Inventory Grants oder Glitch Boost final autorisieren.
 - [ ] Naechster Runtime-Task nach Approval: separater, exakt gescopter Firestore-Rules-/Firebase-Functions-PR mit Emulator-Tests fuer geschuetzte Client-Write-Failures und serverautorisierte Success Paths.
+
+## 2026-05-18 - Beta-1 Runtime Firestore/Functions Follow-up
+
+- [x] Branch `runtime/beta1-firestore-functions-emulator-tests` implements the first Beta-1 runtime slice for Firestore rules, server-authoritative callables and focused emulator test scripts.
+- [ ] Next recommended branch: `runtime/beta1-emulator-verification-hardening` to rerun `npm --prefix functions run beta1:test:emulator` and `npm --prefix functions run test:emulator` in an environment with Firebase emulators installed/downloadable, then harden idempotency/cap edge cases found by emulator execution.
+- [ ] Keep Beta-1 WFXP internal-only: no blockchain, token, NFT marketplace, cashout, real-money shop, IAP, DePIN, real PvP stakes, public child profiles, child standalone login or client-authorized XP/mission/shop/inventory/mayor/glitch/admin decisions.
