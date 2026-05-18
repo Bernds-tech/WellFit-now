@@ -3059,6 +3059,56 @@
       ],
       "riskLevel": "low",
       "notes": "Docs/plan/prompt-only task. Runtime files and CI workflows intentionally unchanged."
+    },
+    {
+      "taskId": "BETA1-EMULATOR-WORKFLOW-RESULTS-FOLLOWUP-2026-05-18",
+      "title": "Record Beta-1 emulator workflow results follow-up",
+      "status": "done",
+      "pr": {
+        "branch": "ci/beta1-emulator-results-followup",
+        "number": null,
+        "url": null,
+        "title": "Record Beta-1 emulator workflow results"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_EMULATOR_VERIFICATION.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "checks": [
+        {
+          "command": "which gh || echo no-gh",
+          "result": "warning",
+          "notes": "gh is not installed, so GitHub Actions runs could not be inspected through GitHub CLI."
+        },
+        {
+          "command": "git remote -v",
+          "result": "warning",
+          "notes": "No remotes are configured in this checkout."
+        },
+        {
+          "command": "test -f .github/workflows/beta1-emulator-tests.yml",
+          "result": "warning",
+          "notes": "Workflow file is not present in this checkout."
+        },
+        {
+          "command": "git ls-remote https://github.com/Bernds-tech/WellFit-now.git HEAD refs/pull/175/head refs/pull/175/merge refs/heads/main refs/heads/ci/beta1-emulator-verification",
+          "result": "warning",
+          "notes": "Blocked by CONNECT tunnel 403, so PR #175 refs and remote workflow state could not be fetched from this container."
+        }
+      ],
+      "followUps": [
+        "Trigger a manual workflow_dispatch or PR run for Beta 1 Emulator Tests on the branch that contains .github/workflows/beta1-emulator-tests.yml.",
+        "Attach real logs proving beta1:rules, beta1:callable, Firestore Emulator startup, and whether the JAR download 403 Forbidden blocker is resolved.",
+        "Do not mark Beta-1 emulator tests green until a real emulator run succeeds."
+      ],
+      "nextRecommendedTask": "ci/beta1-emulator-run-log-review",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "low",
+      "notes": "Documentation/register-only follow-up. Runtime product logic, functions, tests, Firestore rules, firebase.json, workflow files, package files, public assets, native/Unity files, secrets, deploys, and production Firebase IDs remained unchanged."
     }
   ]
 }
