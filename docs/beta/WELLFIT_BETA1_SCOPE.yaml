@@ -1,0 +1,74 @@
+version: 2.0
+status: canonical_beta_1_scope
+updated: 2026-05-17
+product: WellFit
+beta_1:
+  definition: closed_free_test_version
+  tester_rollout:
+    wave_1: 25-50
+    wave_2: 250
+  currency:
+    name: WellFit-XP
+    symbol: WFXP
+    type: internal_beta_points
+    monetary_value: false
+    crypto_value: false
+    exchangeable: false
+    cashout: false
+    blockchain: false
+  blockchain:
+    beta_1: none
+    release_direction: Sui
+    sui_implementation: after_points_system_release_path
+  accounts:
+    adult_tester: true
+    guardian_parent: true
+    child_profiles_8_13: true
+    child_standalone_login: false
+    school_accounts: false
+    teacher_accounts: false
+    corporate_accounts: false
+  child_safety:
+    guardian_first_onboarding: true
+    public_child_profiles: false
+    open_chat: false
+    live_location_visible_to_other_users: false
+    real_money_rewards: false
+    crypto_rewards: false
+    shop_guardian_gate: true
+  shop:
+    included: true
+    payment: WellFit-XP-only
+    real_money: false
+    sandbox_iap_first_build: false
+    pay_to_win: false
+  mayor_system:
+    included: true
+    junior_mayors: false
+    reward_currency: WellFit-XP
+    money_revenue_share: false
+    crypto_revenue_share: false
+    cashout: false
+  reality_glitch:
+    included: true
+    first_regions:
+      - Vienna
+      - Lower Austria
+    type: controlled_micro_event
+    uncontrolled_mass_flashmob: false
+    checkin_window_minutes: 15
+    boost_duration_minutes: 10
+    multiplier_cap: 10
+    safe_locations_only: true
+    admin_cancel_required: true
+  excluded:
+    - public_token
+    - cashout
+    - nft_marketplace
+    - depin
+    - real_money_shop
+    - real_pvp_stakes
+    - school_accounts
+    - teacher_accounts
+    - corporate_accounts
+    - single_dating_overlay

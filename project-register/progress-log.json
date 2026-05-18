@@ -474,6 +474,22 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Created Agent Control Center gap analysis and concept, added machine-readable control-center and proposal registers, integrated a report-only validator into quality gate, and linked Work Map/TODO Index. Existing Agent Catalog, Task Queue, Approved Build Backlog, Autopilot, Risk Classifier, Definition of Done, Research Governance, PR Review, Auto-Merge, Auto-Repair, and audit logs are reused instead of duplicated. No app/components/lib/functions runtime product code, Firestore rules, public assets, package/config files, Unity/PR #13 files, protected compliance/economy/health/child/location/camera/privacy/legal logic, auto-approval, auto-merge, deployment, or Admin UI was enabled."
+    },
+    {
+      "id": "PROGRESS-BETA1-AGENTS-DATA-MODEL-2026-05-17-0001",
+      "date": "2026-05-17",
+      "branch": "docs/beta1-agents-data-model",
+      "goal": "Create the canonical Beta-1 scope, agent runbooks and Firestore/Firebase data model planning artifacts.",
+      "changedAreas": [
+        "docs/beta",
+        "agents/beta1",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Docs/register-only Beta-1 pack. Captures free closed beta scope, WellFit-XP internal points, no blockchain/cashout/NFT/real-money activation, child guardian constraints, Firestore collection model, Firebase function plan and future emulator-test boundary. Runtime product code and protected paths remain untouched.",
+      "taskIdWhenApplicable": "BETA1-AGENTS-DATA-MODEL-2026-05-17"
     }
   ]
 }
