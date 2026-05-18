@@ -63,11 +63,17 @@ function registerBeta1CheckpointsMayor(exportsTarget, { db, onCall, HttpsError }
     const mayorUserId = requiredString(data.mayorUserId, "mayorUserId", HttpsError);
     const checkpointId = requiredString(data.checkpointId, "checkpointId", HttpsError);
     const xpAmount = normalizedPositiveInteger(data.xpAmount, 1, 100);
-    const shareRef = db.collection("mayorShareEvents").doc();
-    const ledger = await applyXpDelta(db, { ownerUserId: mayorUserId, childProfileId: null, delta: xpAmount, reason: "mayor-share-wfxp", sourceType: "mayorShareEvent", sourceId: shareRef.id, actorUserId, idempotencyKey: optionalString(data.idempotencyKey, 180) || `mayor_share_${shareRef.id}` });
-    await shareRef.set({ eventId: shareRef.id, checkpointId, mayorUserId, ownerUserId: mayorUserId, userId: mayorUserId, xpAmount, ledgerEventId: ledger.ledgerEventId, reason: optionalString(data.reason, 240) || "beta1-internal-wfxp-share", monetaryValue: false, tokenShare: false, ...serverTimestamps() });
+    const requestedIdempotencyKey = optionalString(data.idempotencyKey, 180);
+    const shareDocId = requestedIdempotencyKey ? `mayor_share_${encodeURIComponent(requestedIdempotencyKey)}` : null;
+    const shareRef = shareDocId ? db.collection("mayorShareEvents").doc(shareDocId) : db.collection("mayorShareEvents").doc();
+    const existingShare = await shareRef.get();
+    if (existingShare.exists) {
+      return { accepted: true, eventId: shareRef.id, xpAuthorized: true, tokenAuthorized: false, cashoutAllowed: false, idempotent: true };
+    }
+    const ledger = await applyXpDelta(db, { ownerUserId: mayorUserId, childProfileId: null, delta: xpAmount, reason: "mayor-share-wfxp", sourceType: "mayorShareEvent", sourceId: shareRef.id, actorUserId, idempotencyKey: requestedIdempotencyKey || `mayor_share_${shareRef.id}` });
+    await shareRef.set({ eventId: shareRef.id, checkpointId, mayorUserId, ownerUserId: mayorUserId, userId: mayorUserId, xpAmount, ledgerEventId: ledger.ledgerEventId, reason: optionalString(data.reason, 240) || "beta1-internal-wfxp-share", monetaryValue: false, tokenShare: false, cashoutAllowed: false, ...serverTimestamps() });
     await writeAudit(db, { actorUserId, actionType: "mayor-share-granted", targetType: "mayorShareEvent", targetId: shareRef.id, ownerUserId: mayorUserId, metadata: { xpAmount, checkpointId } });
-    return { accepted: true, eventId: shareRef.id, xpAuthorized: true, tokenAuthorized: false, cashoutAllowed: false };
+    return { accepted: true, eventId: shareRef.id, xpAuthorized: true, tokenAuthorized: false, cashoutAllowed: false, idempotent: false };
   });
 }
 

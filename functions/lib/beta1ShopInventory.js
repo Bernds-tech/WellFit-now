@@ -8,6 +8,7 @@ const {
   updatedTimestamp,
   assertGuardianCanUseChild,
   requireChildConsent,
+  requireChildPermission,
   writeAudit,
 } = require("./beta1Runtime");
 const { applyXpDelta, readWallet } = require("./beta1XpLedger");
@@ -30,7 +31,8 @@ function registerBeta1ShopInventory(exportsTarget, { db, onCall, HttpsError }) {
     const shopItemId = requiredString(data.shopItemId, "shopItemId", HttpsError);
     const childProfileId = optionalString(data.childProfileId, 160);
     if (childProfileId) {
-      await assertGuardianCanUseChild(db, userId, childProfileId, HttpsError);
+      const childProfile = await assertGuardianCanUseChild(db, userId, childProfileId, HttpsError);
+      requireChildPermission(childProfile, "shop", HttpsError);
       await requireChildConsent(db, userId, childProfileId, "shop", HttpsError);
     }
     const item = await db.collection("shopItems").doc(shopItemId).get();
@@ -69,6 +71,7 @@ function registerBeta1ShopInventory(exportsTarget, { db, onCall, HttpsError }) {
   exportsTarget.listInventory = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
     const childProfileId = optionalString((request.data || {}).childProfileId, 160);
+    if (childProfileId) await assertGuardianCanUseChild(db, userId, childProfileId, HttpsError);
     let query = db.collection("userInventory").where("ownerUserId", "==", userId).limit(80);
     if (childProfileId) query = query.where("childProfileId", "==", childProfileId);
     const snapshot = await query.get();

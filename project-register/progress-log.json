@@ -506,6 +506,30 @@
       "productionDeployTriggered": false,
       "notes": "Added Beta-1 server-authoritative callable foundations and rules coverage for guardian/child, WFXP ledger/wallet projection, missions/evidence/completions, XP-only shop/inventory, checkpoints/mayor share, Reality Glitch, safety reports and admin audit actions. Blockchain, token, NFT, cashout, IAP, real-money shop, DePIN, public child profiles, child standalone login and client-side authority remain blocked. Emulator execution in this container was blocked by Firebase emulator jar download 403 and must be rerun in a prepared emulator environment.",
       "taskIdWhenApplicable": "BETA1-RUNTIME-FIRESTORE-FUNCTIONS-EMULATOR-TESTS-2026-05-18"
+    },
+    {
+      "id": "2026-05-18-beta1-emulator-verification-hardening",
+      "date": "2026-05-18",
+      "branch": "runtime/beta1-emulator-verification-hardening",
+      "goal": "Verify and harden the Beta-1 runtime slice from PR #172 with emulator-oriented test coverage, idempotency checks, and safety guardrails.",
+      "changedAreas": [
+        "functions/lib/beta1Runtime.js",
+        "functions/lib/beta1XpLedger.js",
+        "functions/lib/beta1GuardianChild.js",
+        "functions/lib/beta1Missions.js",
+        "functions/lib/beta1ShopInventory.js",
+        "functions/lib/beta1CheckpointsMayor.js",
+        "functions/lib/beta1RealityGlitch.js",
+        "functions/test/beta1RuntimeFixtures.js",
+        "functions/test/beta1FirestoreRulesEmulatorTest.js",
+        "functions/test/beta1CallableFunctionsEmulatorTest.js",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "productLogicChanged": true,
+      "productionDeployTriggered": false,
+      "notes": "Hardened Beta-1 callable runtime and tests. Java and Firebase CLI are present, but Firebase CLI cannot download cloud-firestore-emulator-v1.19.8.jar in this environment: download failed, status 403 Forbidden. Exact emulator suites remain environment-blocked and must be rerun in a suitable environment.",
+      "taskIdWhenApplicable": "BETA1-RUNTIME-EMULATOR-VERIFICATION-HARDENING-2026-05-18"
     }
   ]
 }

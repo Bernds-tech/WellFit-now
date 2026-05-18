@@ -27,6 +27,10 @@ async function readWallet(db, ownerUserId, childProfileId) {
       lifetimeSpent: 0,
       currency: BETA1_INTERNAL_CURRENCY,
       noMonetaryValue: true,
+      blockchainBacked: false,
+      cashoutAllowed: false,
+      tokenAuthorized: false,
+      realMoney: false,
     };
   }
   return { walletId: walletRef.id, ...(snapshot.data() || {}) };
@@ -66,6 +70,8 @@ async function applyXpDelta(db, { ownerUserId, childProfileId, delta, reason, so
       noMonetaryValue: true,
       blockchainBacked: false,
       cashoutAllowed: false,
+      tokenAuthorized: false,
+      realMoney: false,
       metadata: metadata || {},
       ...serverTimestamps(),
     };
@@ -81,6 +87,8 @@ async function applyXpDelta(db, { ownerUserId, childProfileId, delta, reason, so
       noMonetaryValue: true,
       blockchainBacked: false,
       cashoutAllowed: false,
+      tokenAuthorized: false,
+      realMoney: false,
       updatedAt: FieldValue.serverTimestamp(),
       createdAt: wallet.createdAt || FieldValue.serverTimestamp(),
     }, { merge: true });
@@ -145,18 +153,19 @@ function registerBeta1XpLedger(exportsTarget, { db, onCall, HttpsError }) {
     if (!Number.isFinite(delta) || delta === 0 || Math.abs(delta) > 1000) {
       throw new HttpsError("invalid-argument", "delta muss eine ganze Zahl zwischen -1000 und 1000 ohne 0 sein.");
     }
+    const reason = requiredString(data.reason, "reason", HttpsError, 240);
     const result = await applyXpDelta(db, {
       ownerUserId,
       childProfileId,
       delta,
       actorUserId,
-      reason: optionalString(data.reason, 240) || "admin-adjustment",
+      reason,
       sourceType: "admin-adjustment",
       sourceId: optionalString(data.sourceId, 180),
       idempotencyKey: optionalString(data.idempotencyKey, 180),
     });
     const wallet = await readWallet(db, ownerUserId, childProfileId);
-    return { accepted: true, ...result, wallet, xpAuthorized: true, tokenAuthorized: false, noMonetaryValue: true };
+    return { accepted: true, ...result, wallet, xpAuthorized: true, tokenAuthorized: false, cashoutAllowed: false, noMonetaryValue: true };
   });
 }
 

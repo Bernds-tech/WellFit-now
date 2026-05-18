@@ -77,7 +77,7 @@ async function resetBeta1Collections() {
   const collections = [
     "familyAccounts", "childProfiles", "guardianChildLinks", "parentalConsents", "missions", "missionAttempts", "missionEvidence", "missionCompletions",
     "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory",
-    "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "safetyReports",
+    "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "glitchSafetyRules", "safetyReports",
   ];
   for (const collectionName of collections) {
     const snapshot = await db.collection(collectionName).limit(500).get();
