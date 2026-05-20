@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-18",
+  "updated": "2026-05-20",
   "purpose": "Machine-readable WellFit agent work log for recording completed agent runs, changed files, checks, follow-ups, and the next recommended safe task without creating duplicate architecture or parallel systems.",
   "governance": {
     "readBeforeUpdating": [
@@ -3138,6 +3138,55 @@
       "updatedTodoFiles": [],
       "riskLevel": "low",
       "notes": "Test-only correction: removed glitchSafetyRules from the generic owner-readable collection loop and added explicit denied read/create/update/delete assertions. firestore.rules were not loosened; runtime product logic and functions/lib stayed unchanged. The PR #178 GitHub Actions failure was a test expectation mismatch against the intentional deny rule at firestore.rules line 345, with the catch-all deny at line 358 also reported by the emulator."
+    },
+    {
+      "taskId": "BETA1-EMULATOR-GREEN-LOG-RECORD-2026-05-20",
+      "title": "Record Beta-1 emulator green verification after PR #178 merge",
+      "status": "done",
+      "pr": {
+        "branch": "docs/beta1-emulator-green-log-record",
+        "number": null,
+        "url": null,
+        "title": "Record Beta-1 emulator green verification"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_EMULATOR_VERIFICATION.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:validate",
+          "result": "pass",
+          "notes": "Completed successfully."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Completed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "Completed successfully with existing warnings only if present."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "No whitespace issues."
+        }
+      ],
+      "followUps": [
+        "Plan next Beta-1 server/API flow step toward client read projections or admin panel integration without widening runtime authority.",
+        "Keep documenting local/Codex emulator download 403 as environment-specific if it reappears, while treating GitHub Actions as green for PR #178 evidence."
+      ],
+      "nextRecommendedTask": "Plan Beta-1 server/API flows toward client read projections or admin panel integration.",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "low",
+      "notes": "#178 merged and CI green. Allowed files only; no runtime/app/functions/rules/workflow/package/native changes."
     }
   ]
 }

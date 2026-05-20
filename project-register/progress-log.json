@@ -4,7 +4,7 @@
     "purpose": "Fortschrittslog fuer Stufe-4-Agentenarbeit.",
     "issue": 19,
     "status": "initial-governance-layer",
-    "updated": "2026-05-18"
+    "updated": "2026-05-20"
   },
   "entries": [
     {
@@ -575,6 +575,20 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Identified firestore.rules line 345 as the glitchSafetyRules deny-all rule. The beta1 Firestore rules test incorrectly included glitchSafetyRules in the generic owner-readable loop, while later also asserting that the same document must be unreadable. The test now keeps glitchSafetyRules out of the owner-readable loop and explicitly asserts denied read/create/update/delete. GitHub Actions reported Firestore/Functions emulator startup succeeded; the old CI JAR 403 blocker is not the latest CI cause. Local emulator execution is still blocked in this container by JAR download 403, so PR #178 GitHub Actions must rerun."
+    },
+    {
+      "id": "PROGRESS-BETA1-EMULATOR-GREEN-PR178-2026-05-20-0001",
+      "date": "2026-05-20",
+      "branch": "docs/beta1-emulator-green-log-record",
+      "goal": "Document the successful Beta-1 GitHub Actions emulator verification after PR #178 merge in runbooks and project registers.",
+      "changedAreas": [
+        "docs/beta",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Documentation/register-only update. PR #178 is merged (merge SHA f3643800272dd152b3d6a6d3811a6229522e7cc3; successful pre-merge head SHA e79f21ffbd5558aa8efa5936093faf63d522b7a4). GitHub Actions reported Build success, Beta 1 Emulator Tests success, job 'Beta-1 Firestore and callable emulator tests' success, and step 'Run focused Beta-1 emulator suites' success. Firestore and Functions emulators started in CI. No runtime files were changed, no secrets used, no deploy triggered, and no production Firebase resources were used."
     }
   ]
 }

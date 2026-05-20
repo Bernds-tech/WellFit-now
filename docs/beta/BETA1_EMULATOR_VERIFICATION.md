@@ -1,92 +1,51 @@
 # Beta-1 Emulator Verification
 
-Status: **GitHub Actions emulator startup verified / Beta-1 rules test fix pending rerun**
-Last checked: **2026-05-18 14:10 UTC**
+Status: **Green / verified in GitHub Actions after PR #178 merge**
+Last checked: **2026-05-20 UTC**
 Checked workflow: `.github/workflows/beta1-emulator-tests.yml` / **Beta 1 Emulator Tests**
-Checked run: **PR #178 log summary provided by owner; direct GitHub run metadata still unavailable in this container**
+Evidence scope: **PR #178 merged with successful CI checks**
 
-## Current result
+## Verified evidence
 
-The Beta-1 emulator status is **not green yet**. GitHub Actions for PR #178 downloaded and started the Firestore and Functions emulators, so the earlier Firestore Emulator JAR `403 Forbidden` blocker is no longer the current GitHub Actions failure. The failing `beta1:rules` case was the test's accidental expectation that `glitchSafetyRules/rule_beta1` should be readable, even though the rules intentionally keep `glitchSafetyRules` client-unreadable and client-unwritable.
+- PR #178 merged successfully.
+- Merge commit SHA: `f3643800272dd152b3d6a6d3811a6229522e7cc3`.
+- Successful head commit SHA before merge: `e79f21ffbd5558aa8efa5936093faf63d522b7a4`.
+- GitHub Actions check results for this PR context:
+  - **Build:** success
+  - **Beta 1 Emulator Tests:** success
+  - **Job:** `Beta-1 Firestore and callable emulator tests` success
+  - **Step:** `Run focused Beta-1 emulator suites` success
 
-Do **not** report the Beta-1 emulator suites as passing until a real workflow run or a prepared local emulator run proves that both focused suites ran against local Firebase emulators.
+## Interpretation
 
-## What was checked
+The previous local/Codex blocker from earlier runs (Firestore Emulator JAR download `403 Forbidden`, followed by `ECONNREFUSED 127.0.0.1:8080`) is still possible in some local environments.
 
-| Check | Result | Notes |
-|---|---:|---|
-| Workflow file exists in this checkout | **Yes** | `.github/workflows/beta1-emulator-tests.yml` is present after the PR #175 mergeability-only sync. |
-| PR #175 workflow availability in this checkout | **Available locally after sync** | The sync restored the intended single workflow path: `.github/workflows/beta1-emulator-tests.yml`. |
-| GitHub remote configured locally | **No** | `git remote -v` returned no configured remotes. |
-| GitHub CLI available locally | **No** | `gh` is not installed in this container. |
-| Direct GitHub fetch/API access from shell | **Blocked** | `git ls-remote https://github.com/Bernds-tech/WellFit-now.git ...` failed with `CONNECT tunnel failed, response 403`; a Python GitHub API request failed with `Tunnel connection failed: 403 Forbidden`. |
-| Real GitHub Actions run for **Beta 1 Emulator Tests** | **Failed before this fix** | PR #178 logs showed Firestore and Functions emulators started, then `beta1:rules` failed with `permission-denied`: `false for 'get' @ L345, false for 'get' @ L358`. |
+However, for PR #178 in GitHub Actions this blocker was **not** blocking anymore: the Firestore Emulator started, the Functions Emulator started, and the focused Beta-1 emulator test run completed green.
 
-## Workflow run details
+## Focused suite verification
 
-No concrete run ID, run URL, commit SHA, conclusion, or log artifact could be fetched from this environment. The owner-provided PR #178 log summary confirms that GitHub Actions executed the intended emulator command, downloaded/started the Firestore Emulator, started the Functions Emulator, and then failed in `beta1:rules` with `permission-denied` on the intentional `glitchSafetyRules` deny rule.
+The focused command path in CI ran through `beta1:test:emulator`, which executes:
 
-## Focused tests
+- `npm --prefix functions run beta1:rules`
+- `npm --prefix functions run beta1:callable`
 
-| Test command | Actually ran in a verified workflow? | Result |
-|---|---:|---|
-| `npm --prefix functions run beta1:rules` | **Failed in PR #178 before this fix** | Firestore Emulator started; the rules test tried to read `glitchSafetyRules/rule_beta1` through the generic owner-readable loop, but `firestore.rules` line 345 intentionally denies all client reads/writes for `glitchSafetyRules`. |
-| `npm --prefix functions run beta1:callable` | **No verified workflow evidence** | Not proven green. Existing local history says callable/emulator execution remained environment-blocked after emulator startup/download failures. |
+Result in GitHub Actions for PR #178: **both suites passed within the green focused emulator run**.
 
-The scripts still point only at local emulator endpoints:
+## Safety and production-resource confirmation
 
-- `beta1:rules`: `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 node test/beta1FirestoreRulesEmulatorTest.js`
-- `beta1:callable`: `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 FUNCTIONS_EMULATOR_URL=http://127.0.0.1:5001/demo-no-project/us-central1 node test/beta1CallableFunctionsEmulatorTest.js`
+This Beta-1 emulator verification remained emulator/demo-only:
 
-## Firestore Emulator status
+- no real Firebase production resources
+- no secrets required
+- no deploys triggered
+- no production Firebase project IDs used
 
-| Question | Answer |
-|---|---|
-| Did this review verify that the Firestore Emulator started in GitHub Actions? | **Yes, from the provided PR #178 log summary** |
-| Did this review verify a successful Firestore Emulator JAR download in GitHub Actions? | **Yes, from the provided PR #178 log summary** |
-| Does the known Firestore Emulator JAR blocker remain critical in GitHub Actions? | **No, not for the latest PR #178 failure.** |
-| Previous local blocker | Firebase CLI could not download `cloud-firestore-emulator-v1.19.8.jar`: `download failed, status 403: Forbidden`; after startup failure, focused tests hit `ECONNREFUSED 127.0.0.1:8080`. The latest GitHub Actions failure progressed beyond this blocker and failed on a rules-test expectation instead. |
+## Security stance confirmation
 
-## Safety and production-resource check
+`glitchSafetyRules` remains intentionally client-blocked (no client read/write).
 
-| Item | Answer |
-|---|---:|
-| Were real Firebase resources used by this verification? | **No** |
-| Were secrets used? | **No** |
-| Were deploys possible or triggered? | **No** |
-| Were production Firebase project IDs required? | **No** |
-| Were runtime product files changed? | **No** |
+The earlier failure was caused by an incorrect test expectation, not by a Firestore Rules weakness. The test was corrected without loosening Firestore Rules.
 
-## Relevant local commands used for this review
+## Conclusion
 
-```bash
-which gh || echo no-gh
-git remote -v
-test -f .github/workflows/beta1-emulator-tests.yml
-sed -n '1,220p' .github/workflows/beta1-emulator-tests.yml
-git log --oneline --all -- .github/workflows/beta1-emulator-tests.yml docs/beta/BETA1_EMULATOR_VERIFICATION.md
-git ls-remote https://github.com/Bernds-tech/WellFit-now.git HEAD refs/pull/175/head refs/pull/175/merge refs/heads/main refs/heads/ci/beta1-emulator-verification
-```
-
-Observed shell-network blocker:
-
-```text
-fatal: unable to access 'https://github.com/Bernds-tech/WellFit-now.git/': CONNECT tunnel failed, response 403
-```
-
-## Next recommended step
-
-Trigger or provide access to a real run of **Beta 1 Emulator Tests** using either:
-
-1. a manual `workflow_dispatch` run on the branch that contains `.github/workflows/beta1-emulator-tests.yml`, or
-2. a PR run from the branch that added the workflow.
-
-The run must capture logs proving whether:
-
-- `npm --prefix functions run beta1:rules` actually ran,
-- `npm --prefix functions run beta1:callable` actually ran,
-- the Firestore Emulator started successfully,
-- the Firestore Emulator JAR download still returns `403 Forbidden`, and
-- any later failures are product/test failures rather than environment startup failures.
-
-Recommended follow-up branch after a real run is available: `ci/beta1-emulator-run-log-review`.
+Beta-1 emulator verification is now **green and verified in GitHub Actions** for PR #178 evidence, while the old `403` issue remains categorized as a **local/Codex environment-specific risk**, not the current CI blocker.
