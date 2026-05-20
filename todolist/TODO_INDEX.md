@@ -500,3 +500,11 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 | `docs/beta/BETA1_EMULATOR_VERIFICATION.md` | aktiv / Beta-1 Emulator-Verifikations-Runbook | Aktiver Runbook- und Verifikationsnachweis fuer Beta-1 Firestore-Rules-/Callable-Emulator-Checks, CI-Workflow und bekannte lokale Emulator-Blocker | `.github/workflows/beta1-emulator-tests.yml`, `functions/test/beta1FirestoreRulesEmulatorTest.js`, `functions/test/beta1CallableFunctionsEmulatorTest.js`, `project-register/progress-log.json` | Bei Beta-1-Emulator-Reviews und CI-Nachweisen als fuehrenden Verifikations-/Runbook-Eintrag nutzen |
 | `docs/architecture/WELLFIT_ADMIN_APPROVED_AGENT_AUTONOMY.md` | aktiv / Architektur-Notiz | Bestehender Pointer zur Admin-approved Agent Autonomy Governance, damit TODO-Index/Quality-Gate keine fehlende Fuehrungsreferenz meldet | `project-register/agent-catalog.json` | Nur in einem separaten Governance-Auftrag inhaltlich pruefen |
 | `docs/architecture/WELLFIT_AGENT_OWNER_APPROVAL_RUNTIME_WORKFLOW.md` | aktiv / Architektur-Notiz | Bestehender Pointer zum Owner-Approval Runtime Workflow, damit TODO-Index/Quality-Gate keine fehlende Fuehrungsreferenz meldet | `project-register/agent-catalog.json` | Nur in einem separaten Governance-Auftrag inhaltlich pruefen |
+
+
+## Beta-1 neue Planungs-/Prompt-Artefakte (2026-05-20)
+
+- `docs/beta/BETA1_CLIENT_READ_PROJECTIONS_PLAN.md`
+- `docs/beta/BETA1_ADMIN_PANEL_INTEGRATION_PLAN.md`
+- `docs/beta/prompts/CODEX_PROMPT_BETA1_CLIENT_READ_PROJECTIONS.md`
+- `docs/beta/prompts/CODEX_PROMPT_BETA1_ADMIN_PANEL_INTEGRATION.md`

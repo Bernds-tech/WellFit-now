@@ -103,6 +103,65 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-CLIENT-READ-AND-ADMIN-PLAN",
+      "title": "Plan Beta-1 client read projections and admin panel integration",
+      "status": "done",
+      "pr": {
+        "branch": "plan/beta1-server-api-read-projections-admin-panel",
+        "number": null,
+        "url": null,
+        "title": "Plan Beta-1 client projections and admin integration"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_CLIENT_READ_PROJECTIONS_PLAN.md",
+        "docs/beta/BETA1_ADMIN_PANEL_INTEGRATION_PLAN.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_CLIENT_READ_PROJECTIONS.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_ADMIN_PANEL_INTEGRATION.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:validate",
+          "result": "pass",
+          "notes": "Completed successfully."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "pass",
+          "notes": "Completed successfully."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "Completed successfully."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "No whitespace/conflict markers."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Completed successfully."
+        }
+      ],
+      "followUps": [
+        "Implement safe client read projections on branch runtime/beta1-client-read-projections.",
+        "Implement admin panel callable integration on branch runtime/beta1-admin-panel-integration.",
+        "If missing callable authority or claim ambiguity appears, stop and open a backend-only PR plan."
+      ],
+      "nextRecommendedTask": "Start runtime/beta1-client-read-projections implementation PR with read-only projection scope and no new authority.",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "riskLevel": "low"
+    },
+    {
       "taskId": "AGENT-OS-SAFE-LIVE-ACTIVATION-2026-05-17",
       "title": "Activate confirmed WellFit agents as safe live report-only Agent OS layer",
       "status": "completed",
