@@ -8,6 +8,22 @@
   },
   "entries": [
     {
+      "id": "2026-05-20-beta1-client-read-projections-runtime-slice",
+      "date": "2026-05-20",
+      "branch": "runtime/beta1-client-read-projections",
+      "goal": "Wire first safe Beta-1 client read projections into existing dashboard view without adding any client authority.",
+      "changedAreas": [
+        "app/dashboard/components/Beta1ReadProjectionPanel.tsx",
+        "lib/beta1/clientReadProjections.ts",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Read-only client projection wiring for wallet, ledger, missions, inventory, shop, checkpoints, glitch events and optional guardian child profile list. Functions, rules, .github and runtime authority unchanged."
+    },
+    {
       "id": "2026-05-20-beta1-client-read-projections",
       "date": "2026-05-20",
       "branch": "runtime/beta1-client-read-projections",

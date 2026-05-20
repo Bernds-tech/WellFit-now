@@ -103,6 +103,66 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-CLIENT-READ-PROJECTIONS-RUNTIME-SLICE",
+      "title": "Add Beta-1 client read projections",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/beta1-client-read-projections",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 client read projections"
+      },
+      "changedFiles": [
+        "app/dashboard/components/Beta1ReadProjectionPanel.tsx",
+        "lib/beta1/clientReadProjections.ts",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [
+        {
+          "command": "npm run agent:validate",
+          "result": "pass",
+          "notes": "Completed successfully."
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "fail",
+          "notes": "Pre-existing Agent Control Center check failed (safe report-only governance check), unrelated to this runtime slice."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "notes": "Passed with 2 pre-existing warnings in scripts/wellfit-dev-agent files outside allowed scope."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass",
+          "notes": "Completed successfully."
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass",
+          "notes": "Functions syntax checks passed; no function file changes made."
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass",
+          "notes": "No whitespace/conflict markers."
+        }
+      ],
+      "followUps": [
+        "Add mission detail projection wiring when a dedicated mission detail route is finalized for Beta-1 projection cards.",
+        "Add dedicated dashboard/mobile sections for inventory/shop/checkpoints/glitch lists beyond initial dashboard panel summary.",
+        "Proceed with runtime/beta1-admin-panel-integration after client read projection slice review."
+      ],
+      "nextRecommendedTask": "Start runtime/beta1-admin-panel-integration unless a small follow-up fix branch is needed for mission-detail projection UX.",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "low"
+    },
+    {
       "taskId": "BETA1-CLIENT-READ-AND-ADMIN-PLAN",
       "title": "Plan Beta-1 client read projections and admin panel integration",
       "status": "done",

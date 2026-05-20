@@ -1,11 +1,12 @@
 import { auth, db } from "@/lib/firebase";
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
-import { mapCheckpoint, mapGlitchEvent, mapInventoryItem, mapLedger, mapMissionSummary, mapShopItem, mapWallet } from "./beta1ReadGuards";
-import type { Beta1CheckpointSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "./beta1Types";
+import { mapCheckpoint, mapChildProfile, mapGlitchEvent, mapInventoryItem, mapLedger, mapMissionSummary, mapShopItem, mapWallet } from "./beta1ReadGuards";
+import type { Beta1CheckpointSummary, Beta1ChildProfileSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "./beta1Types";
 
 const friendlyError = (error: unknown) => {
   const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
   if (code.includes("permission-denied")) return "Keine Berechtigung für diese Beta-1 Ansicht.";
+  if (code.includes("unauthenticated")) return "Bitte einloggen, um Beta-1 Daten zu sehen.";
   return "Beta-1 Daten konnten gerade nicht geladen werden.";
 };
 
@@ -72,5 +73,31 @@ export async function readCheckpointAndGlitch(): Promise<{ checkpoints: Beta1Che
     };
   } catch (error) {
     return { checkpoints: [], glitches: [], error: friendlyError(error) };
+  }
+}
+
+export async function readGuardianChildProfiles(): Promise<{ data: Beta1ChildProfileSummary[]; error: string | null }> {
+  try {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return { data: [], error: "Bitte einloggen, um verknüpfte Child-Profile zu sehen." };
+
+    const linksSnap = await getDocs(query(collection(db, "guardianChildLinks"), where("guardianUserId", "==", userId), limit(6)));
+    const childIds = linksSnap.docs
+      .map((docSnap) => docSnap.data().childProfileId)
+      .filter((id): id is string => typeof id === "string" && id.length > 0);
+
+    if (childIds.length === 0) return { data: [], error: null };
+
+    const childSnapshots = await Promise.all(
+      childIds.map((childId) => getDocs(query(collection(db, "childProfiles"), where("childProfileId", "==", childId), limit(1)))),
+    );
+
+    const children = childSnapshots
+      .filter((snap) => !snap.empty)
+      .map((snap) => mapChildProfile(snap.docs[0].id, snap.docs[0].data()));
+
+    return { data: children, error: null };
+  } catch (error) {
+    return { data: [], error: friendlyError(error) };
   }
 }
