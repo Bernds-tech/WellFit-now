@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { readCheckpointAndGlitch, readInventoryAndShop, readPublishedMissions, readXpLedgerEvents, readXpWalletProjection } from "@/lib/beta1/clientReadProjections";
-import type { Beta1CheckpointSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "@/lib/beta1/beta1Types";
+import { readCheckpointAndGlitch, readGuardianChildProfiles, readInventoryAndShop, readPublishedMissions, readXpLedgerEvents, readXpWalletProjection } from "@/lib/beta1/clientReadProjections";
+import type { Beta1CheckpointSummary, Beta1ChildProfileSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "@/lib/beta1/beta1Types";
 
 export default function Beta1ReadProjectionPanel() {
   const [loading, setLoading] = useState(true);
@@ -14,17 +14,20 @@ export default function Beta1ReadProjectionPanel() {
   const [shopItems, setShopItems] = useState<Beta1ShopItem[]>([]);
   const [checkpoints, setCheckpoints] = useState<Beta1CheckpointSummary[]>([]);
   const [glitches, setGlitches] = useState<Beta1GlitchEventSummary[]>([]);
+  const [childProfiles, setChildProfiles] = useState<Beta1ChildProfileSummary[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       setLoading(true);
-      const [walletRes, ledgerRes, missionRes, inventoryShopRes, checkpointGlitchRes] = await Promise.all([
+      setError(null);
+      const [walletRes, ledgerRes, missionRes, inventoryShopRes, checkpointGlitchRes, childRes] = await Promise.all([
         readXpWalletProjection(),
         readXpLedgerEvents(),
         readPublishedMissions(),
         readInventoryAndShop(),
         readCheckpointAndGlitch(),
+        readGuardianChildProfiles(),
       ]);
       if (cancelled) return;
       setWallet(walletRes.data);
@@ -34,7 +37,8 @@ export default function Beta1ReadProjectionPanel() {
       setShopItems(inventoryShopRes.shopItems);
       setCheckpoints(checkpointGlitchRes.checkpoints);
       setGlitches(checkpointGlitchRes.glitches);
-      setError(walletRes.error || ledgerRes.error || missionRes.error || inventoryShopRes.error || checkpointGlitchRes.error);
+      setChildProfiles(childRes.data);
+      setError(walletRes.error || ledgerRes.error || missionRes.error || inventoryShopRes.error || checkpointGlitchRes.error || childRes.error);
       setLoading(false);
     };
     load();
@@ -59,6 +63,18 @@ export default function Beta1ReadProjectionPanel() {
           <div className="rounded-xl bg-black/20 p-3 text-sm">Inventory Items: <b>{inventory.length}</b></div>
           <div className="rounded-xl bg-black/20 p-3 text-sm">Shop Items: <b>{shopItems.length}</b></div>
           <div className="rounded-xl bg-black/20 p-3 text-sm">Checkpoints: <b>{checkpoints.length}</b> · Glitches: <b>{glitches.length}</b></div>
+          <div className="rounded-xl bg-black/20 p-3 text-sm md:col-span-2">Guardian Child Profiles: <b>{childProfiles.length}</b></div>
+
+          <ul className="rounded-xl bg-black/20 p-3 text-xs text-white/75">
+            <li className="mb-1 font-semibold text-white">Ledger Preview</li>
+            {ledger.slice(0, 3).map((item) => <li key={item.id}>{item.type}: {item.amount} WFXP</li>)}
+            {ledger.length === 0 && <li>Keine Ledger-Einträge.</li>}
+          </ul>
+          <ul className="rounded-xl bg-black/20 p-3 text-xs text-white/75">
+            <li className="mb-1 font-semibold text-white">Mission Preview</li>
+            {missions.slice(0, 3).map((item) => <li key={item.id}>{item.title}</li>)}
+            {missions.length === 0 && <li>Keine veröffentlichten Missionen.</li>}
+          </ul>
         </div>
       )}
     </section>
