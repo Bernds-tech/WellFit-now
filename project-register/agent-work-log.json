@@ -3481,6 +3481,36 @@
         "todolist/NEXT_ACTIONS.md",
         "project-register/progress-log.json"
       ]
+    },
+    {
+      "taskId": "FIX-BETA1-SMOKE-TEMPLATE-VALIDATION-2026-05-20",
+      "title": "Fix Beta-1 smoke template validation after PR #186 merge",
+      "status": "done",
+      "pr": {
+        "branch": "fix/beta1-smoke-template-validation",
+        "number": null,
+        "url": null,
+        "title": "Fix Beta-1 smoke template validation after merge"
+      },
+      "changedFiles": [
+        "lib/admin/beta1SmokeTemplates.ts",
+        "docs/beta/BETA1_ADMIN_CLIENT_E2E_SMOKE_PLAN.md",
+        "lib/beta1/beta1ReadGuards.ts",
+        "app/dashboard/components/Beta1ReadProjectionPanel.tsx",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "checks": [],
+      "followUps": [
+        "Optional: keep runtime/beta1-seed-demo-content-and-test-users as next scoped Beta-1 smoke continuation once reviewers confirm this merge-fix."
+      ],
+      "nextRecommendedTask": "runtime/beta1-seed-demo-content-and-test-users",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "low",
+      "notes": "Fix aligns smoke templates with existing client validation and prevents unknown mission rewardXp from being rendered as numeric zero. No Functions, Firestore rules, .github, package, or authority model changes."
     }
   ]
 }

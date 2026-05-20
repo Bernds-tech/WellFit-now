@@ -30,7 +30,7 @@ export type Beta1SmokeXpAdjustTemplate = {
 
 export const BETA1_SMOKE_MISSION_TEMPLATE: Beta1SmokeMissionTemplate = {
   title: "Beta1 Vienna Walk Quest 01",
-  type: "walk",
+  type: "movement",
   rewardXp: 120,
   childAllowed: true,
 };
@@ -45,7 +45,7 @@ export const BETA1_SMOKE_GLITCH_TEMPLATE: Beta1SmokeGlitchTemplate = {
   regionId: "lower-austria",
   locationIds: ["lower-austria-demo-01", "lower-austria-demo-02"],
   windowStart: "2026-06-01T09:00:00Z",
-  windowEnd: "2026-06-01T09:15:00Z",
+  windowEnd: "2026-06-01T09:10:00Z",
   multiplierCap: 3,
   maxParticipants: 50,
   reason: "beta1 smoke event",

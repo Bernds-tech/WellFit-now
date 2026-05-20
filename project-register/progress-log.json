@@ -731,6 +731,23 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Planning/docs/register-only update. Added a single leading plan with ordered phases, acceptance criteria, inclusion/exclusion criteria, and stop conditions. No runtime product code, functions, firestore rules, secrets, deploys, Unity, or protected-scope authority changes."
+    },
+    {
+      "id": "PROGRESS-BETA1-SMOKE-TEMPLATE-VALIDATION-FIX-2026-05-20-0001",
+      "date": "2026-05-20",
+      "branch": "fix/beta1-smoke-template-validation",
+      "goal": "Fix post-merge Beta-1 smoke template/client-preview validation mismatches from PR #186 follow-up.",
+      "changedAreas": [
+        "lib/admin",
+        "lib/beta1",
+        "app/dashboard/components",
+        "docs/beta",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Updated smoke mission type to movement and glitch window to 10 minutes to match client validation constraints. Hardened read guard so non-numeric/missing mission rewardXp stays undefined and UI now renders 'Reward offen' unless rewardXp is numeric (including valid 0). No Functions/Rules/.github changes and no client-final-authority introduction."
     }
   ]
 }
