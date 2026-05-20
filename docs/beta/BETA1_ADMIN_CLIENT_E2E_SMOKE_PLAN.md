@@ -56,7 +56,7 @@ Dieser Smoke-Slice validiert den kleinsten End-to-End-Pfad zwischen bestehender 
 
 ### Mission (Draft/Create)
 - `title`: `Beta1 Vienna Walk Quest 01`
-- `type`: `walk`
+- `type`: `movement`
 - `rewardXp`: `120`
 - `childAllowed`: `true`
 
@@ -69,10 +69,13 @@ Dieser Smoke-Slice validiert den kleinsten End-to-End-Pfad zwischen bestehender 
 - `regionId`: `lower-austria`
 - `locationIds`: `lower-austria-demo-01,lower-austria-demo-02`
 - `windowStart`: `2026-06-01T09:00:00Z`
-- `windowEnd`: `2026-06-01T09:15:00Z`
+- `windowEnd`: `2026-06-01T09:10:00Z`
 - `multiplierCap`: `3`
 - `maxParticipants`: `50`
 - `reason`: `beta1 smoke event`
+
+
+- Smoke-Beispiele sind auf die Client-Validation abgestimmt (Mission `type=movement`, Glitch-Fenster max. 10 Minuten).
 
 ### XP Adjust
 - `ownerUserId`: `beta1-tester-user-01`
