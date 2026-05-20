@@ -3109,6 +3109,35 @@
       ],
       "riskLevel": "low",
       "notes": "Documentation/register-only follow-up. Runtime product logic, functions, tests, Firestore rules, firebase.json, workflow files, package files, public assets, native/Unity files, secrets, deploys, and production Firebase IDs remained unchanged."
+    },
+    {
+      "taskId": "BETA1-RULES-TEST-FIX-PR178-2026-05-18",
+      "title": "Fix PR #178 Beta-1 Firestore rules emulator failure",
+      "status": "completed_local_patch_pending_ci_rerun",
+      "pr": "#178",
+      "changedFiles": [
+        "functions/test/beta1FirestoreRulesEmulatorTest.js",
+        "docs/beta/BETA1_EMULATOR_VERIFICATION.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [
+        "npm run agent:validate: pass",
+        "npm --prefix functions run check: pass",
+        "npm run lint: pass with existing warnings",
+        "npm --prefix functions run beta1:rules: blocked locally because no Firestore Emulator was running (ECONNREFUSED 127.0.0.1:8080)",
+        "npx firebase-tools emulators:exec --project demo-no-project --only firestore \"npm --prefix functions run beta1:rules\": blocked locally by Firestore Emulator JAR download 403",
+        "npm --prefix functions run beta1:callable: attempted, blocked/hung locally without emulators and was stopped",
+        "npx firebase-tools emulators:exec --project demo-no-project --only auth,firestore,functions \"npm --prefix functions run beta1:test:emulator\": blocked locally by Firestore Emulator JAR download 403"
+      ],
+      "followUps": [
+        "Rerun GitHub Actions for PR #178; the latest GitHub Actions log showed emulator startup succeeded, so CI should validate the rules-test correction there.",
+        "Keep glitchSafetyRules client-unreadable and client-unwritable unless a separate security review changes that policy."
+      ],
+      "nextRecommendedTask": "pr178-beta1-emulator-ci-rerun-review",
+      "updatedTodoFiles": [],
+      "riskLevel": "low",
+      "notes": "Test-only correction: removed glitchSafetyRules from the generic owner-readable collection loop and added explicit denied read/create/update/delete assertions. firestore.rules were not loosened; runtime product logic and functions/lib stayed unchanged. The PR #178 GitHub Actions failure was a test expectation mismatch against the intentional deny rule at firestore.rules line 345, with the catch-all deny at line 358 also reported by the emulator."
     }
   ]
 }

@@ -68,7 +68,6 @@ async function run() {
       ["checkpointScores", "score_alice", { ownerUserId: "alice", score: 999999 }],
       ["glitchParticipants", "glitch_alice", { ownerUserId: "alice", boostAuthorized: true }],
       ["glitchBoostWindows", "boost_alice", { ownerUserId: "alice", multiplier: 10 }],
-      ["glitchSafetyRules", "rule_beta1", { regionId: "vienna", status: "active" }],
       ["safetyReports", "report_alice", { reporterUserId: "alice", status: "reviewed" }],
     ]) {
       await assertSucceeds(aliceDb.collection(collectionName).doc(ownedDocId).get());
@@ -88,6 +87,9 @@ async function run() {
     await assertSucceeds(aliceDb.collection("glitchEvents").doc("glitch_active").get());
     await assertFails(aliceDb.collection("glitchEvents").doc("glitch_hack").set({ status: "active", multiplierCap: 100 }));
     await assertFails(aliceDb.collection("glitchSafetyRules").doc("rule_beta1").get());
+    await assertFails(aliceDb.collection("glitchSafetyRules").doc("glitchSafetyRules_hack").set({ regionId: "vienna", status: "active" }));
+    await assertFails(aliceDb.collection("glitchSafetyRules").doc("rule_beta1").update({ status: "inactive" }));
+    await assertFails(aliceDb.collection("glitchSafetyRules").doc("rule_beta1").delete());
     await assertFails(aliceDb.collection("adminActions").doc("admin_action").get());
     await assertFails(aliceDb.collection("adminActions").doc("admin_hack").set({ actorUserId: "alice" }));
     await assertFails(aliceDb.collection("adminActions").doc("admin_action").update({ reason: "hack" }));

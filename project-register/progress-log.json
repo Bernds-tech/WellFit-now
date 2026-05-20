@@ -560,6 +560,21 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "No fake green result: .github/workflows/beta1-emulator-tests.yml is not present in this checkout, no git remote is configured, gh is unavailable, and direct GitHub shell access is blocked by CONNECT tunnel 403. No real Beta 1 Emulator Tests run, run ID, logs, Firestore Emulator startup, beta1:rules execution, or beta1:callable execution could be verified here. Known critical blocker remains Firestore Emulator JAR download 403 Forbidden followed by ECONNREFUSED 127.0.0.1:8080 until a real workflow_dispatch or PR run proves otherwise. Runtime files, functions, Firestore rules, firebase config, workflows, package files, public assets, Unity, secrets, deploys, and production Firebase resources remained untouched."
+    },
+    {
+      "id": "PROGRESS-BETA1-RULES-TEST-FIX-PR178-2026-05-18-0001",
+      "date": "2026-05-18",
+      "branch": "ci/beta1-emulator-verification-pr175-sync",
+      "issue": null,
+      "goal": "Fix only the failing PR #178 Beta-1 Firestore Rules emulator test without loosening rules or changing runtime product logic.",
+      "changedAreas": [
+        "functions/test",
+        "docs/beta",
+        "project-register"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Identified firestore.rules line 345 as the glitchSafetyRules deny-all rule. The beta1 Firestore rules test incorrectly included glitchSafetyRules in the generic owner-readable loop, while later also asserting that the same document must be unreadable. The test now keeps glitchSafetyRules out of the owner-readable loop and explicitly asserts denied read/create/update/delete. GitHub Actions reported Firestore/Functions emulator startup succeeded; the old CI JAR 403 blocker is not the latest CI cause. Local emulator execution is still blocked in this container by JAR download 403, so PR #178 GitHub Actions must rerun."
     }
   ]
 }
