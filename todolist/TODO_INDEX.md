@@ -511,3 +511,12 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - `docs/beta/BETA1_ADMIN_CLIENT_E2E_SMOKE_PLAN.md`
 - `docs/beta/prompts/CODEX_PROMPT_BETA1_CLIENT_READ_PROJECTIONS.md`
 - `docs/beta/prompts/CODEX_PROMPT_BETA1_ADMIN_PANEL_INTEGRATION.md`
+
+## Beta-1 Demo Seed/Testuser Planung (2026-05-20)
+
+| Datei | Status | Inhalt kurz | Fuehrende Datei | Aktion |
+|---|---|---|---|---|
+| `docs/beta/BETA1_SEED_DEMO_CONTENT_PLAN.md` | neu / planning_only | Demo-Missionen, Checkpoints, Glitches, Shop- und Avatar-Ideen fuer Wave-1 (25-50), nur planned seed templates | `docs/beta/WELLFIT_BETA1_SCOPE.yaml` | als Grundlage fuer manuellen Admin-Seed nutzen; keine Auto-Writes |
+| `docs/beta/BETA1_TEST_USERS_AND_ROLLOUT_PLAN.md` | neu / planning_only | Testrollen, Einschluss/Ausschluss, Stop-Conditions und 25 Platzhalter-Tester fuer Closed Beta | `docs/beta/WELLFIT_BETA1_SCOPE.yaml` | nur Platzhalter nutzen; keine echten personenbezogenen Daten |
+| `lib/admin/beta1DemoSeedTemplates.ts` | neu / static_templates | Statische no-write Demo-Objekte fuer Mission, Checkpoint, Glitch, Shop, Avatar und Testuser-Placeholder | `lib/admin/beta1SmokeTemplates.ts` | optional als Eingabehilfe fuer manuelle `/admin/beta1`-Runs verwenden |
+| `docs/beta/prompts/CODEX_PROMPT_BETA1_MANUAL_SEED_RUNBOOK.md` | neu / prompt_handoff | Folgeprompt fuer spaeteren manuellen Seed-Lauf ueber bestehendes Admin-Panel | `docs/beta/BETA1_ADMIN_CLIENT_E2E_SMOKE_PLAN.md` | naechster Task: `ops/beta1-manual-demo-seed-runbook` |

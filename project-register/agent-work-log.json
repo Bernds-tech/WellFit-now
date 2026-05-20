@@ -103,6 +103,37 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-SEED-DEMO-CONTENT-TEST-USERS",
+      "title": "Add Beta-1 demo content and test user templates",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/beta1-seed-demo-content-and-test-users",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 demo content and test user templates"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_SEED_DEMO_CONTENT_PLAN.md",
+        "docs/beta/BETA1_TEST_USERS_AND_ROLLOUT_PLAN.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_MANUAL_SEED_RUNBOOK.md",
+        "lib/admin/beta1DemoSeedTemplates.ts",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Run manual admin seed evidence task on branch ops/beta1-manual-demo-seed-runbook using static templates and stop on permission/validation/callable blockers."
+      ],
+      "nextRecommendedTask": "ops/beta1-manual-demo-seed-runbook",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "riskLevel": "low"
+    },
+    {
       "taskId": "BETA1-ADMIN-CLIENT-E2E-SMOKE",
       "title": "Add Beta-1 admin client E2E smoke plan",
       "status": "done",

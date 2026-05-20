@@ -8,6 +8,25 @@
   },
   "entries": [
     {
+      "id": "2026-05-20-beta1-seed-demo-content-and-test-users",
+      "date": "2026-05-20",
+      "branch": "runtime/beta1-seed-demo-content-and-test-users",
+      "goal": "Prepare Beta-1 demo content, test user placeholder structure, and static no-write templates for closed beta wave 1 (25-50 users).",
+      "changedAreas": [
+        "docs/beta/BETA1_SEED_DEMO_CONTENT_PLAN.md",
+        "docs/beta/BETA1_TEST_USERS_AND_ROLLOUT_PLAN.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_MANUAL_SEED_RUNBOOK.md",
+        "lib/admin/beta1DemoSeedTemplates.ts",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added planning artifacts for demo missions/checkpoints/glitches/shop/avatar and rollout placeholders; introduced static no-write seed templates only. No Firebase Functions changes, no Firestore Rules changes, no .github changes, no production writes, and no client final authority introduced."
+    },
+    {
       "id": "2026-05-20-beta1-admin-client-e2e-smoke",
       "date": "2026-05-20",
       "branch": "runtime/beta1-admin-panel-e2e-smoke",

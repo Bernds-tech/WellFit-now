@@ -274,3 +274,12 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - Kein Auto-Merge, kein Auto-Deploy.
 - Keine Runtime-/Protected-Scope-Aktivierung ohne explizite Owner-Freigabe und Reviewplan.
 - Token/NFT/Wallet/Payment/Health/Child/Location/Legal bleiben review_required.
+
+## Update 2026-05-20 - Beta-1 Demo Seed/Testuser Planung
+
+- [x] Branch `runtime/beta1-seed-demo-content-and-test-users`: Demo-Content-Plan fuer 25-50 Closed-Beta-Tester erstellt (`docs/beta/BETA1_SEED_DEMO_CONTENT_PLAN.md`).
+- [x] Testuser-/Rollout-Plan mit 25 Platzhalter-Testern erstellt (`docs/beta/BETA1_TEST_USERS_AND_ROLLOUT_PLAN.md`).
+- [x] Statische Demo-Seed-Templates (no-write) erstellt (`lib/admin/beta1DemoSeedTemplates.ts`).
+- [x] Folgeprompt fuer spaeteren manuellen Seed-Runbook-Task erstellt (`docs/beta/prompts/CODEX_PROMPT_BETA1_MANUAL_SEED_RUNBOOK.md`).
+- [x] Guardrails eingehalten: keine echten Writes, keine Functions-/Rules-/.github-Aenderung, keine Client-Final-Authority.
+- [>] Empfohlener naechster Branch: `ops/beta1-manual-demo-seed-runbook`.
