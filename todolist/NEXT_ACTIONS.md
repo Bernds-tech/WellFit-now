@@ -246,3 +246,5 @@ Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, danach diese Datei, `todolist/TO
 - [ ] Keep Beta-1 WFXP internal-only: no blockchain, token, NFT marketplace, cashout, real-money shop, IAP, DePIN, real PvP stakes, public child profiles, child standalone login or client-authorized XP/mission/shop/inventory/mayor/glitch/admin decisions.
 
 - [ ] Naechster empfohlener Schritt nach dem grünen CI-Nachweis: Beta-1 Server/API-Flows für Client-Read-Projections oder Admin-Panel-Integration als kleinen, separaten Planungs-/Implementierungs-Branch schneiden.
+
+- [ ] Follow-up: Expand Beta-1 client read projections to mission detail, guardian child profile list, avatar definitions, mission locations, and regions once safe UI slots are confirmed (runtime/beta1-admin-panel-integration or dedicated fix branch).

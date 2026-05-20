@@ -3246,6 +3246,34 @@
       ],
       "riskLevel": "low",
       "notes": "#178 merged and CI green. Allowed files only; no runtime/app/functions/rules/workflow/package/native changes."
+    },
+    {
+      "taskId": "BETA1-CLIENT-READ-PROJECTIONS-SLICE1",
+      "title": "Add Beta-1 client read projections",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/beta1-client-read-projections",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 client read projections"
+      },
+      "changedFiles": [
+        "app/dashboard/page.tsx",
+        "app/dashboard/components/Beta1ReadProjectionPanel.tsx",
+        "lib/beta1/beta1Types.ts",
+        "lib/beta1/beta1ReadGuards.ts",
+        "lib/beta1/clientReadProjections.ts",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Add mission detail projection binding when dedicated route/data shape is stable.",
+        "Add guardian child profile read projection UI only where child-safe route exists."
+      ],
+      "nextRecommendedTask": "runtime/beta1-admin-panel-integration",
+      "riskLevel": "medium"
     }
   ]
 }

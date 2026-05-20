@@ -8,6 +8,25 @@
   },
   "entries": [
     {
+      "id": "2026-05-20-beta1-client-read-projections",
+      "date": "2026-05-20",
+      "branch": "runtime/beta1-client-read-projections",
+      "goal": "Implement first Beta-1 client read projection slice for safe read-only wallet/ledger/missions/inventory/shop/checkpoints/glitch on existing dashboard UI.",
+      "changedAreas": [
+        "app/dashboard/page.tsx",
+        "app/dashboard/components/Beta1ReadProjectionPanel.tsx",
+        "lib/beta1/beta1Types.ts",
+        "lib/beta1/beta1ReadGuards.ts",
+        "lib/beta1/clientReadProjections.ts",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Client read-only projection wiring only. No function, rules, runtime authority, .github, package, or deploy changes."
+    },
+    {
       "id": "2026-05-20-beta1-client-read-admin-plan",
       "date": "2026-05-20",
       "branch": "plan/beta1-server-api-read-projections-admin-panel",
