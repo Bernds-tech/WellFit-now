@@ -283,3 +283,9 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [x] Folgeprompt fuer spaeteren manuellen Seed-Runbook-Task erstellt (`docs/beta/prompts/CODEX_PROMPT_BETA1_MANUAL_SEED_RUNBOOK.md`).
 - [x] Guardrails eingehalten: keine echten Writes, keine Functions-/Rules-/.github-Aenderung, keine Client-Final-Authority.
 - [>] Empfohlener naechster Branch: `ops/beta1-manual-demo-seed-runbook`.
+
+## Beta-1 Manual Seed Runbook Update (2026-05-20)
+- [x] Branch `ops/beta1-manual-demo-seed-runbook`: Manuelles Beta-1 Demo-Seed-Runbook erstellt (`docs/beta/BETA1_MANUAL_DEMO_SEED_RUNBOOK.md`) inklusive Seed-Reihenfolge, Validierungs-/Stop-Regeln, Evidence-Protokoll und Go/No-Go-Kriterien ohne automatische Writes.
+- [x] Evidence-Vorlage erstellt (`docs/beta/BETA1_MANUAL_SEED_EVIDENCE_TEMPLATE.md`) mit kopierbarer Tabelle fuer manuelle Seed-Durchlaeufe; Testuser bleiben Platzhalter-only.
+- [x] Guardrail-Bestaetigung: Keine Functions-/Firestore-Rules-/.github-Aenderungen, keine echten personenbezogenen Daten, keine echten Tester-E-Mails, keine Production-IDs.
+- [>] Empfohlener naechster Branch: `readiness/beta1-pilot-go-no-go-matrix` (Alternative: `runtime/beta1-mission-detail-projections`).

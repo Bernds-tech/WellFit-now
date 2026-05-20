@@ -8,6 +8,23 @@
   },
   "entries": [
     {
+      "id": "2026-05-20-beta1-manual-demo-seed-runbook",
+      "date": "2026-05-20",
+      "branch": "ops/beta1-manual-demo-seed-runbook",
+      "goal": "Create executable manual Beta-1 demo seed runbook and evidence template for controlled admin seeding without automatic writes or backend authority changes.",
+      "changedAreas": [
+        "docs/beta/BETA1_MANUAL_DEMO_SEED_RUNBOOK.md",
+        "docs/beta/BETA1_MANUAL_SEED_EVIDENCE_TEMPLATE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added manual runbook + copyable evidence template for mission/checkpoint/glitch/shop/avatar (optional) and test-user placeholders (documentation only). No automatic writes added, no Functions/Rules/.github changes, no production project IDs, and no real personal/tester data."
+    },
+    {
       "id": "2026-05-20-beta1-seed-demo-content-and-test-users",
       "date": "2026-05-20",
       "branch": "runtime/beta1-seed-demo-content-and-test-users",

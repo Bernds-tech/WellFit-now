@@ -103,6 +103,35 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-MANUAL-DEMO-SEED-RUNBOOK",
+      "title": "Add Beta-1 manual demo seed runbook",
+      "status": "done",
+      "pr": {
+        "branch": "ops/beta1-manual-demo-seed-runbook",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 manual demo seed runbook"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_MANUAL_DEMO_SEED_RUNBOOK.md",
+        "docs/beta/BETA1_MANUAL_SEED_EVIDENCE_TEMPLATE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Recommended next branch: readiness/beta1-pilot-go-no-go-matrix (or runtime/beta1-mission-detail-projections if projection depth is prioritized)."
+      ],
+      "nextRecommendedTask": "readiness/beta1-pilot-go-no-go-matrix",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "riskLevel": "low"
+    },
+    {
       "taskId": "BETA1-SEED-DEMO-CONTENT-TEST-USERS",
       "title": "Add Beta-1 demo content and test user templates",
       "status": "done",
