@@ -8,6 +8,26 @@
   },
   "entries": [
     {
+      "id": "2026-05-20-beta1-admin-panel-integration",
+      "date": "2026-05-20",
+      "branch": "runtime/beta1-admin-panel-integration",
+      "goal": "Integrate first Beta-1 admin panel slice as safe client wrapper UI for existing admin callables only.",
+      "changedAreas": [
+        "app/admin/beta1/page.tsx",
+        "components/admin/Beta1AdminPanel.tsx",
+        "lib/admin/beta1AdminTypes.ts",
+        "lib/admin/beta1AdminGuards.ts",
+        "lib/admin/beta1AdminClient.ts",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json",
+        "docs/beta/BETA1_ADMIN_PANEL_INTEGRATION_PLAN.md"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added minimal admin UI + claim guard + callable wrappers for adminCreateMission, adminUpdateMission, adminPublishMission, adminCreateCheckpoint, adminScheduleGlitchEvent, cancelGlitchEvent, adminReviewSafetyReport, adminAdjustXp. No new functions, no Firestore Rules change, no client final authority."
+    },
+    {
       "id": "2026-05-20-beta1-client-read-projections-runtime-slice",
       "date": "2026-05-20",
       "branch": "runtime/beta1-client-read-projections",
