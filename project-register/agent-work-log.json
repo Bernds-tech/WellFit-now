@@ -3468,6 +3468,19 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Added payload prevalidation for mission create/publish, checkpoint create, glitch schedule/cancel, safety review, and XP adjust in admin client UI flow; each form now has independent loading/success/error feedback and sanitized error text only. No new Firebase Functions, no Firestore Rules changes, no .github changes, and no client final authority introduced; existing server callables remain final authority."
+    },
+    {
+      "id": "AWL-2026-05-20-agent-admin-phase1-at-beta-plan",
+      "date": "2026-05-20",
+      "branch": "plan/agent-admin-phase1-and-at-beta-readiness",
+      "task": "Create a single staged execution plan for agent-admin enablement and Austria pilot readiness.",
+      "status": "done",
+      "summary": "Created docs/register-only rollout plan covering Phase 1 automation scope, server role and audit gap closure, pilot readiness evidence sprint, AT closed beta 25-50 guardrails, and post-pilot runtime autonomy expansion constraints.",
+      "files": [
+        "docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json"
+      ]
     }
   ]
 }

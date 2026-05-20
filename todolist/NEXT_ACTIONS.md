@@ -255,3 +255,21 @@ Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, danach diese Datei, `todolist/TO
 - [ ] Naechster empfohlener Schritt nach dem grünen CI-Nachweis: Beta-1 Server/API-Flows für Client-Read-Projections oder Admin-Panel-Integration als kleinen, separaten Planungs-/Implementierungs-Branch schneiden.
 
 - [ ] Follow-up: Expand Beta-1 client read projections to mission detail, guardian child profile list, avatar definitions, mission locations, and regions once safe UI slots are confirmed (runtime/beta1-admin-panel-integration or dedicated fix branch).
+
+---
+
+## 2026-05-20 - Owner Prompt Umsetzungsplan (Agent-Admin + AT Closed Beta)
+
+Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
+
+### Reihenfolge (verbindlich)
+1. Agent-Admin Freigabe Phase 1 nur fuer docs/register/check-script Automation ausfuehren.
+2. Serverseitige Rollen + Audit-Log als kritischen Gap schliessen (vor Runtime-Autonomie).
+3. Pilot-Readiness Sprint ausfuehren (Device Evidence + Backend Guardrail Evidence + Support Runbook).
+4. AT Closed Beta (25-50 Tester:innen) mit Ein-/Ausschlusskriterien und Stop-Conditions freigeben.
+5. Runtime-Autonomie erst danach eng allowlistet und task-spezifisch erweitern.
+
+### Harte Grenzen
+- Kein Auto-Merge, kein Auto-Deploy.
+- Keine Runtime-/Protected-Scope-Aktivierung ohne explizite Owner-Freigabe und Reviewplan.
+- Token/NFT/Wallet/Payment/Health/Child/Location/Legal bleiben review_required.
