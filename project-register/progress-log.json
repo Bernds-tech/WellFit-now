@@ -8,6 +8,24 @@
   },
   "entries": [
     {
+      "id": "2026-05-20-beta1-admin-client-e2e-smoke",
+      "date": "2026-05-20",
+      "branch": "runtime/beta1-admin-panel-e2e-smoke",
+      "goal": "Prepare and harden first Beta-1 admin-to-client E2E smoke slice with docs, small admin guidance, and mission preview follow-up without backend authority changes.",
+      "changedAreas": [
+        "docs/beta/BETA1_ADMIN_CLIENT_E2E_SMOKE_PLAN.md",
+        "components/admin/Beta1AdminPanel.tsx",
+        "app/dashboard/components/Beta1ReadProjectionPanel.tsx",
+        "lib/admin/beta1SmokeTemplates.ts",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added E2E smoke plan, lightweight admin smoke guidance, static smoke templates, and dashboard mission preview improvement (title/type/rewardXp for first 3 missions with detail-follow-up hint). No Functions changes, no Firestore Rules changes, no .github changes, and no client final authority introduced."
+    },
+    {
       "id": "2026-05-20-beta1-admin-panel-validation-hardening",
       "date": "2026-05-20",
       "branch": "runtime/beta1-admin-panel-validation-hardening",

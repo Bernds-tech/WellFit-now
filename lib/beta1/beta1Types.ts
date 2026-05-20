@@ -1,6 +1,6 @@
 export type Beta1XpWalletProjection = { id: string; ownerUserId?: string; childProfileId?: string | null; balance: number; updatedAt?: string | null };
 export type Beta1XpLedgerEvent = { id: string; ownerUserId?: string; type: string; amount: number; createdAt?: string | null; status?: string };
-export type Beta1MissionSummary = { id: string; title: string; status: string; regionIds: string[]; difficulty?: string };
+export type Beta1MissionSummary = { id: string; title: string; status: string; regionIds: string[]; difficulty?: string; type?: string; rewardXp?: number };
 export type Beta1MissionDetail = Beta1MissionSummary & { description?: string; locationIds: string[]; rewardPolicyId?: string };
 export type Beta1ShopItem = { id: string; title: string; status: string; priceWfxp: number; rarity?: string };
 export type Beta1InventoryItem = { id: string; ownerUserId?: string; itemDefinitionId?: string; quantity: number; status?: string };

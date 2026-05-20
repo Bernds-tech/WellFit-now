@@ -71,9 +71,10 @@ export default function Beta1ReadProjectionPanel() {
             {ledger.length === 0 && <li>Keine Ledger-Einträge.</li>}
           </ul>
           <ul className="rounded-xl bg-black/20 p-3 text-xs text-white/75">
-            <li className="mb-1 font-semibold text-white">Mission Preview</li>
-            {missions.slice(0, 3).map((item) => <li key={item.id}>{item.title}</li>)}
+            <li className="mb-1 font-semibold text-white">Mission Preview (erste 3)</li>
+            {missions.slice(0, 3).map((item) => <li key={item.id}>{item.title} · {item.type} · {item.rewardXp} WFXP</li>)}
             {missions.length === 0 && <li>Keine veröffentlichten Missionen.</li>}
+            {missions.length > 0 && <li className="mt-1 text-white/60">Detailansicht folgt.</li>}
           </ul>
         </div>
       )}
