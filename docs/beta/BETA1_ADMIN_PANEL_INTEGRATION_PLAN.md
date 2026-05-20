@@ -70,6 +70,8 @@ Das Admin Panel soll Missionen, Checkpoints, ShopItems, GlitchEvents und SafetyR
 - Branch: `runtime/beta1-admin-panel-validation-hardening`
 - Added client-side payload prevalidation for: mission create, mission publish, checkpoint create, glitch schedule, glitch cancel, safety review, and XP adjust.
 - Added safer UX behavior: per-form loading/success/error states, no global result overwrite, no raw Firebase error/stacktrace output, no sensitive payload logging.
+- Added safer payload shaping: trimmed required string fields, optional fields only forwarded when non-empty, and stricter ISO datetime prechecks before callable submission.
+- Added sanitized callable-result fallback messaging in client wrappers to avoid surfacing backend/internal error details in the admin UI.
 - Admin claim guard now separates `loading`, `denied`, `unverifiable`, and `allowed`; unverifiable/denied states stay blocked.
 - No new Firebase Functions introduced.
 - Firestore Rules remained unchanged.
