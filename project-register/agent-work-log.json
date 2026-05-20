@@ -103,6 +103,35 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-ADMIN-CLIENT-E2E-SMOKE",
+      "title": "Add Beta-1 admin client E2E smoke plan",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/beta1-admin-panel-e2e-smoke",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 admin client E2E smoke plan"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_ADMIN_CLIENT_E2E_SMOKE_PLAN.md",
+        "components/admin/Beta1AdminPanel.tsx",
+        "app/dashboard/components/Beta1ReadProjectionPanel.tsx",
+        "lib/admin/beta1SmokeTemplates.ts",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Optional follow-up: runtime/beta1-mission-detail-projections for richer mission read projection detail once smoke evidence is stable."
+      ],
+      "nextRecommendedTask": "runtime/beta1-seed-demo-content-and-test-users",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md"
+      ],
+      "riskLevel": "low"
+    },
+    {
       "taskId": "BETA1-ADMIN-PANEL-VALIDATION-HARDENING",
       "title": "Harden Beta-1 admin panel validation",
       "status": "done",

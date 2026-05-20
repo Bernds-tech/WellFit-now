@@ -506,5 +506,6 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 
 - `docs/beta/BETA1_CLIENT_READ_PROJECTIONS_PLAN.md`
 - `docs/beta/BETA1_ADMIN_PANEL_INTEGRATION_PLAN.md`
+- `docs/beta/BETA1_ADMIN_CLIENT_E2E_SMOKE_PLAN.md`
 - `docs/beta/prompts/CODEX_PROMPT_BETA1_CLIENT_READ_PROJECTIONS.md`
 - `docs/beta/prompts/CODEX_PROMPT_BETA1_ADMIN_PANEL_INTEGRATION.md`
