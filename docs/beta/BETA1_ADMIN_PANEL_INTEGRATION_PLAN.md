@@ -59,3 +59,9 @@ Das Admin Panel soll Missionen, Checkpoints, ShopItems, GlitchEvents und SafetyR
 - WellFit-XP bleibt internal only.
 - Keine Blockchain/WFT/SUI/NFT/Cashout/Real-Money/IAP.
 - Keine clientseitige Autoritaet fuer XP/Mission/Shop/Inventory/Mayor/Glitch/Admin.
+
+
+## Implementation status update (2026-05-20)
+- Runtime slice implemented on branch `runtime/beta1-admin-panel-integration` with minimal admin UI in `app/admin/beta1/page.tsx` and client wrappers under `lib/admin/`.
+- Scope remained callable-only for existing functions: `adminCreateMission`, `adminUpdateMission`, `adminPublishMission`, `adminCreateCheckpoint`, `adminScheduleGlitchEvent`, `cancelGlitchEvent`, `adminReviewSafetyReport`, `adminAdjustXp`.
+- No new Firebase Functions, no Firestore Rules changes, and no client final authority introduced.
