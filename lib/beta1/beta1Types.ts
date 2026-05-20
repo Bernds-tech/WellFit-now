@@ -1,0 +1,9 @@
+export type Beta1XpWalletProjection = { id: string; ownerUserId?: string; childProfileId?: string | null; balance: number; updatedAt?: string | null };
+export type Beta1XpLedgerEvent = { id: string; ownerUserId?: string; type: string; amount: number; createdAt?: string | null; status?: string };
+export type Beta1MissionSummary = { id: string; title: string; status: string; regionIds: string[]; difficulty?: string };
+export type Beta1MissionDetail = Beta1MissionSummary & { description?: string; locationIds: string[]; rewardPolicyId?: string };
+export type Beta1ShopItem = { id: string; title: string; status: string; priceWfxp: number; rarity?: string };
+export type Beta1InventoryItem = { id: string; ownerUserId?: string; itemDefinitionId?: string; quantity: number; status?: string };
+export type Beta1CheckpointSummary = { id: string; name: string; status: string; regionId?: string };
+export type Beta1GlitchEventSummary = { id: string; title: string; status: string; regionId?: string; startsAt?: string | null };
+export type Beta1ChildProfileSummary = { id: string; nickname: string; ageBand?: string; status?: string };

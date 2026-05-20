@@ -13,6 +13,7 @@ import DashboardMissionPanel from "./components/DashboardMissionPanel";
 import DashboardAvatarPanel from "./components/DashboardAvatarPanel";
 import DashboardEconomyPanel from "./components/DashboardEconomyPanel";
 import DashboardSavedCardsPanel from "./components/DashboardSavedCardsPanel";
+import Beta1ReadProjectionPanel from "./components/Beta1ReadProjectionPanel";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { useDashboardActions } from "./hooks/useDashboardActions";
 import type { DashboardMissionPreview } from "./types";
@@ -205,6 +206,8 @@ export default function DashboardPage() {
             foodPrice={foodPrice}
             onFeedBuddy={handleFeedBuddy}
           />
+
+          <Beta1ReadProjectionPanel />
 
           <DashboardSavedCardsPanel />
         </section>
