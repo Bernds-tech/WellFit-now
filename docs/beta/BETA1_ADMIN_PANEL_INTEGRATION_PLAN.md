@@ -65,3 +65,13 @@ Das Admin Panel soll Missionen, Checkpoints, ShopItems, GlitchEvents und SafetyR
 - Runtime slice implemented on branch `runtime/beta1-admin-panel-integration` with minimal admin UI in `app/admin/beta1/page.tsx` and client wrappers under `lib/admin/`.
 - Scope remained callable-only for existing functions: `adminCreateMission`, `adminUpdateMission`, `adminPublishMission`, `adminCreateCheckpoint`, `adminScheduleGlitchEvent`, `cancelGlitchEvent`, `adminReviewSafetyReport`, `adminAdjustXp`.
 - No new Firebase Functions, no Firestore Rules changes, and no client final authority introduced.
+
+## Validation/UX hardening update (2026-05-20)
+- Branch: `runtime/beta1-admin-panel-validation-hardening`
+- Added client-side payload prevalidation for: mission create, mission publish, checkpoint create, glitch schedule, glitch cancel, safety review, and XP adjust.
+- Added safer UX behavior: per-form loading/success/error states, no global result overwrite, no raw Firebase error/stacktrace output, no sensitive payload logging.
+- Admin claim guard now separates `loading`, `denied`, `unverifiable`, and `allowed`; unverifiable/denied states stay blocked.
+- No new Firebase Functions introduced.
+- Firestore Rules remained unchanged.
+- Client received no final authority; existing server-side callables remain final authority.
+- Recommended next branch: `runtime/beta1-admin-panel-e2e-smoke` (to validate hardened admin UX and guard behavior end-to-end).

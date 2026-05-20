@@ -3393,6 +3393,23 @@
       ],
       "nextRecommendedTask": "runtime/beta1-admin-panel-integration",
       "riskLevel": "medium"
+    },
+    {
+      "id": "BETA1-ADMIN-VALIDATION-HARDENING-2026-05-20-0001",
+      "date": "2026-05-20",
+      "branch": "runtime/beta1-admin-panel-validation-hardening",
+      "goal": "Harden Beta-1 admin panel client-side validation, per-form UX/error handling, and claim-guard states without backend authority changes.",
+      "changedAreas": [
+        "app/admin",
+        "components/admin",
+        "lib/admin",
+        "docs/beta",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added payload prevalidation for mission create/publish, checkpoint create, glitch schedule/cancel, safety review, and XP adjust in admin client UI flow; each form now has independent loading/success/error feedback and sanitized error text only. No new Firebase Functions, no Firestore Rules changes, no .github changes, and no client final authority introduced; existing server callables remain final authority."
     }
   ]
 }
