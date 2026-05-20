@@ -13,7 +13,8 @@ const GLITCH_REGIONS = new Set(["vienna", "wien", "lower-austria", "lower_austri
 const SAFETY_DECISIONS = new Set(["reviewed", "dismissed", "action_required", "unsafe_location", "blocked"]);
 
 const isInteger = (v: number) => Number.isInteger(v);
-const isIsoDate = (v: string) => !Number.isNaN(Date.parse(v));
+const ISO_DATETIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/;
+const isIsoDate = (v: string) => ISO_DATETIME_PATTERN.test(v) && !Number.isNaN(Date.parse(v));
 
 function requiredString(value: string, min: number, max: number, label: string): string | null {
   const trimmed = value.trim();

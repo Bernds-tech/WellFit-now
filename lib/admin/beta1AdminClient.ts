@@ -18,11 +18,16 @@ function sanitizeAdminError(error: unknown): string {
   return "Admin-Aktion fehlgeschlagen.";
 }
 
+function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult {
+  if (result.accepted) return { ...result, message: undefined };
+  return { accepted: false, message: "Admin-Aktion fehlgeschlagen. Bitte Eingaben prüfen oder erneut versuchen." };
+}
+
 async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
   try {
     const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name);
     const result = await callable(input);
-    return result.data;
+    return sanitizeAdminResult(result.data);
   } catch (error) {
     return { accepted: false, message: sanitizeAdminError(error) };
   }
