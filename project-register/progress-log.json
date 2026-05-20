@@ -8,6 +8,26 @@
   },
   "entries": [
     {
+      "id": "2026-05-20-beta1-client-read-admin-plan",
+      "date": "2026-05-20",
+      "branch": "plan/beta1-server-api-read-projections-admin-panel",
+      "goal": "Create Beta-1 planning/handoff artifacts for client read projections and admin panel integration after emulator verification, without runtime/function/rules changes.",
+      "changedAreas": [
+        "docs/beta/BETA1_CLIENT_READ_PROJECTIONS_PLAN.md",
+        "docs/beta/BETA1_ADMIN_PANEL_INTEGRATION_PLAN.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_CLIENT_READ_PROJECTIONS.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_ADMIN_PANEL_INTEGRATION.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Planning-only/docs-register PR. No app/components/lib runtime changes, no functions or firestore.rules changes, no .github workflow edits, no deploys, no secrets, and no token/NFT/cashout/real-money activation.",
+      "taskIdWhenApplicable": "BETA1-CLIENT-READ-AND-ADMIN-PLAN"
+    },
+    {
       "id": "2026-05-16-trust-compliance-website-audit",
       "date": "2026-05-16",
       "branch": "trust-compliance-website-audit",
