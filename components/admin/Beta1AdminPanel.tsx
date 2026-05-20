@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { verifyAdminClaim, type AdminGuardState } from "@/lib/admin/beta1AdminGuards";
+import { BETA1_SMOKE_CHECKPOINT_TEMPLATE, BETA1_SMOKE_GLITCH_TEMPLATE, BETA1_SMOKE_MISSION_TEMPLATE, BETA1_SMOKE_XP_ADJUST_TEMPLATE } from "@/lib/admin/beta1SmokeTemplates";
 import {
   validateCheckpointCreate,
   validateGlitchCancel,
@@ -61,6 +62,20 @@ export default function Beta1AdminPanel() {
   return (
     <section className="space-y-4 text-sm text-white">
       <p className="rounded border border-cyan-400/30 bg-cyan-300/10 p-3">Admin-Panel (Beta-1): Nur bestehende serverseitige Callables; Client validiert Payloads vor, ersetzt aber keine Server-Authority.</p>
+      <section className="rounded border border-white/20 bg-slate-900/40 p-3 text-xs text-white/80">
+        <p className="font-semibold text-white">Empfohlener Smoke-Test Ablauf</p>
+        <ol className="mt-2 list-decimal space-y-1 pl-4">
+          <li>Mission erstellen (Draft/Create) mit den statischen Smoke-Beispielwerten.</li>
+          <li>Mission veroeffentlichen (Mission Publish) ueber bestehendes Callable.</li>
+          <li>Dashboard pruefen: Published Missions, Checkpoint-/Glitch-Counts sowie Wallet/Ledger Read-Projections.</li>
+        </ol>
+        <p className="mt-2">Keine sensiblen IDs, Secrets oder produktiven Projektkennungen im UI anzeigen/eintragen.</p>
+        <p className="mt-1">Hinweis: Server-Callables bleiben finale Authority; der Client ist nur Bedienoberflaeche und Read-Projections bleiben read-only.</p>
+      </section>
+      <details className="rounded border border-white/20 bg-black/20 p-3 text-xs text-white/75">
+        <summary className="cursor-pointer font-semibold text-white">Smoke-Test Beispielwerte (statisch, nicht-autonom)</summary>
+        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap">{JSON.stringify({ mission: BETA1_SMOKE_MISSION_TEMPLATE, checkpoint: BETA1_SMOKE_CHECKPOINT_TEMPLATE, glitch: BETA1_SMOKE_GLITCH_TEMPLATE, xpAdjust: BETA1_SMOKE_XP_ADJUST_TEMPLATE }, null, 2)}</pre>
+      </details>
       <AdminForm title="Mission Draft/Create" fields={["title", "type", "rewardXp", "childAllowed"]} feedback={feedback["mission-create"]} onSubmit={async (fd) => {
         const payload = { title: normalize(fd.get("title")), type: normalize(fd.get("type")), rewardXp: Number(fd.get("rewardXp") || 0), childAllowed: fd.get("childAllowed") === "on" };
         const validationError = validateMissionCreate(payload);

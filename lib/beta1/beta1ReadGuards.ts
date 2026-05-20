@@ -1,10 +1,11 @@
 const toNumber = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
 const toString = (v: unknown, fallback = ''): string => (typeof v === 'string' ? v : fallback);
 const toOptionalString = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
+const toOptionalNumber = (v: unknown): number | undefined => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
 const toStringArray = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
 export const mapWallet = (id: string, data: Record<string, unknown>) => ({ id, ownerUserId: toOptionalString(data.ownerUserId), childProfileId: typeof data.childProfileId === 'string' ? data.childProfileId : null, balance: toNumber(data.balance), updatedAt: typeof data.updatedAt === 'string' ? data.updatedAt : null });
 export const mapLedger = (id: string, data: Record<string, unknown>) => ({ id, ownerUserId: toOptionalString(data.ownerUserId), type: toString(data.type, 'unknown'), amount: toNumber(data.amount), createdAt: typeof data.createdAt === 'string' ? data.createdAt : null, status: toOptionalString(data.status) });
-export const mapMissionSummary = (id: string, data: Record<string, unknown>) => ({ id, title: toString(data.title, 'Untitled mission'), status: toString(data.status, 'unknown'), regionIds: toStringArray(data.regionIds), difficulty: toOptionalString(data.difficulty) });
+export const mapMissionSummary = (id: string, data: Record<string, unknown>) => ({ id, title: toString(data.title, 'Untitled mission'), status: toString(data.status, 'unknown'), regionIds: toStringArray(data.regionIds), difficulty: toOptionalString(data.difficulty), type: toOptionalString(data.type), rewardXp: toOptionalNumber(data.rewardXp) });
 export const mapShopItem = (id: string, data: Record<string, unknown>) => ({ id, title: toString(data.title, 'Shop item'), status: toString(data.status, 'unknown'), priceWfxp: toNumber(data.priceWfxp ?? data.price), rarity: toOptionalString(data.rarity) });
 export const mapInventoryItem = (id: string, data: Record<string, unknown>) => ({ id, ownerUserId: toOptionalString(data.ownerUserId), itemDefinitionId: toOptionalString(data.itemDefinitionId), quantity: toNumber(data.quantity), status: toOptionalString(data.status) });
 export const mapCheckpoint = (id: string, data: Record<string, unknown>) => ({ id, name: toString(data.name, 'Checkpoint'), status: toString(data.status, 'unknown'), regionId: toOptionalString(data.regionId) });

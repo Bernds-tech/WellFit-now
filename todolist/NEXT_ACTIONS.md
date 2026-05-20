@@ -111,12 +111,18 @@ Quelle: `todolist/DATABASE_PLAN.md`, `todolist/B - AKTUELLER SPRINT-STAND – LO
 - [x] Naechster Schritt abgeschlossen am 2026-05-20: Admin-Panel-Validation-Hardening auf `runtime/beta1-admin-panel-validation-hardening` umgesetzt (Payload-Vorvalidierung, pro Formular Loading/Success/Error, safer Error-Messages, differenzierter Admin-Claim-Guard); keine neuen Functions, keine Firestore-Rules-Aenderung, keine Client-Final-Authority.
 - [x] Validation-Hardening Detail (2026-05-20): Beta-1 Admin-Panel uebergibt nur vorvalidierte/normalisierte Payloads (trimmed Strings, optionale leere Felder entfernt, ISO-Zeitfenstergrenzen geprueft); keine neue Function, keine Rules-Aenderung, keine Server-Authority-Verschiebung.
 
+- [x] Naechster Schritt abgeschlossen am 2026-05-20: E2E-Smoke-Slice auf `runtime/beta1-admin-panel-e2e-smoke` vorbereitet/abgesichert (Smoke-Plan-Dokument, kleine Admin-UI-Hinweise, statische Smoke-Templates, Dashboard Mission Preview mit title/type/rewardXp fuer erste 3 Published Missions + Hinweis "Detailansicht folgt").
+- [x] E2E-Smoke Guardrail-Status (2026-05-20): keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine .github-Aenderung, keine Client-Final-Authority.
+- [>] Empfohlener naechster Branch nach diesem Slice: `runtime/beta1-seed-demo-content-and-test-users` (zuerst), danach optional `runtime/beta1-mission-detail-projections`.
+
 - [ ] Naechster sicherer Product-Foundation-Schritt: fehlende Phone-Metadaten (Device Model, Android-Version, Chrome-Version, PWA/Viewport-Modus) erfassen und Phone-Routen `/mobile`, `/mobile/missionen`, `/mobile/buddy`, `/mobile/einstellungen`, `/mobile/bewegung`, `/mobile/missionen/squat` mit dem Tester-Handoff explizit pruefen; `/mobile/ar` Controls, WebGL/Kamera-Layering, Performance/Fallbacks und Buddy-Endverhalten weiter als `review_required` dokumentieren; keine Auto-Reparatur, keine Runtime-Code-, Service-Worker-/Manifest-/Public-Asset-, Tracking-, Consent-, Reward-/Mission-Authority-, Functions-/Rules-, Unity- oder Deployment-Aenderung ohne explizite Freigabe.
 
 - [x] 2026-05-14 aktuellen Baseline-Check ausgefuehrt: Lint, Typecheck, Build, Functions-Syntaxcheck und Quality Gate erfolgreich.
 - [~] Root-Installation bleibt unveraendert; `npm install` wurde nicht ausgefuehrt, weil Abhaengigkeiten fuer die Checks vorhanden waren.
 - [ ] `LAST_BUILD_STATUS.md` nur aktualisieren, wenn ein kuenftiger Auftrag diese Statusdatei ausdruecklich in den erlaubten Dateien einschliesst.
 - [ ] Build-/Server-Hinweise mit `DONE_LOG.md` und Status-Dateien abgleichen, sobald diese Dateien in einem passenden Dokumentationsauftrag erlaubt sind.
+
+- [x] Review-Fix PR #186 (2026-05-20): Smoke-Templates an Client-Validation angeglichen (`type=movement`, Glitch-Fenster 09:00-09:10), Mission-Preview zeigt bei fehlendem Reward nun "Reward offen" statt 0 WFXP. Keine Functions-/Rules-/.github-Aenderung und keine Client-Final-Authority.
 
 ## Prio 2 - Heute/Morgen: interne Economy-Regeln dokumentieren
 
