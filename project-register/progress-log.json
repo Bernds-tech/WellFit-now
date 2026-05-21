@@ -8,6 +8,28 @@
   },
   "entries": [
     {
+      "id": "2026-05-21-beta1-agent-admin-live-readiness-masterplan",
+      "date": "2026-05-21",
+      "branch": "plan/beta1-agent-admin-and-live-readiness-masterplan",
+      "goal": "Create combined Beta-1 masterplan and follow-up prompts for agent admin role/audit hardening and live-readiness planning without runtime/function/rules changes.",
+      "changedAreas": [
+        "docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
+        "docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md",
+        "docs/beta/BETA1_LIVE_PAGES_READINESS_PLAN.md",
+        "docs/beta/prompts/CODEX_PROMPT_AGENT_ADMIN_SERVER_ROLES_AUDIT.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_LIVE_PAGES_RUNTIME_PLAN.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_PILOT_HUMAN_EVIDENCE_CAPTURE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Planning/docs/register-only update. No runtime app/components/lib changes, no Firebase Functions changes, no Firestore Rules changes, no deploys, no secrets, no production Firebase IDs, no real tester emails/PII, no token/NFT/payment/cashout activation, no agent runtime autonomy activation, and no pilot release approval."
+    },
+    {
       "id": "2026-05-21-beta1-pilot-evidence-gaps-close-plan",
       "date": "2026-05-21",
       "branch": "readiness/beta1-pilot-evidence-gaps-close",

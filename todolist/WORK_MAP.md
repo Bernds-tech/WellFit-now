@@ -336,3 +336,12 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - `docs/beta/WELLFIT_BETA1_DATA_MODEL.md` and `docs/beta/WELLFIT_BETA1_DATA_MODEL.yaml` define the Firestore collection model, Firebase function contract plan and emulator-test boundary for future approved runtime work.
 - `agents/beta1/` contains docs/register runbooks for the Beta-1 scope, data model, API contracts, Firestore rules guard, child safety, WellFit-XP economy, mission/checkpoint, mayor, Reality Glitch, shop/inventory and QA emulator agents.
 - Next runtime work must be a separate human-approved PR that names exact Firestore rules/functions files and tests; clients may preview but must not final-authorize XP, mission completion, mayor share, shop spend, inventory grants or glitch boosts.
+
+## Update 2026-05-21 - Beta1 Agent Admin + Live Readiness Masterplan
+
+- Masterplan erstellt: `docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md`.
+- Agent-Admin Server Roles/Audit Plan erstellt: `docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md`.
+- Live Pages Readiness Plan erstellt: `docs/beta/BETA1_LIVE_PAGES_READINESS_PLAN.md`.
+- Folgeprompts erstellt: `CODEX_PROMPT_AGENT_ADMIN_SERVER_ROLES_AUDIT.md`, `CODEX_PROMPT_BETA1_LIVE_PAGES_RUNTIME_PLAN.md`; Human-Evidence-Prompt auf Masterplan verwiesen.
+- Bestaetigt: keine Runtime-Dateien/Firebase-Functions/Firestore-Rules geaendert; keine Pilotfreigabe; keine Agent-Runtime-Autonomie aktiviert.
+- Naechster empfohlener Branch: `plan/agent-admin-server-roles-audit-runtime-scope` (Prioritaet) oder `plan/beta1-live-pages-runtime-scope`.

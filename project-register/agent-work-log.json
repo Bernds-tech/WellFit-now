@@ -103,6 +103,42 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-AGENT-ADMIN-LIVE-READINESS-MASTERPLAN",
+      "title": "Plan Beta-1 agent admin and live readiness",
+      "status": "done",
+      "pr": {
+        "branch": "plan/beta1-agent-admin-and-live-readiness-masterplan",
+        "number": null,
+        "url": null,
+        "title": "Plan Beta-1 agent admin and live readiness"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
+        "docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md",
+        "docs/beta/BETA1_LIVE_PAGES_READINESS_PLAN.md",
+        "docs/beta/prompts/CODEX_PROMPT_AGENT_ADMIN_SERVER_ROLES_AUDIT.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_LIVE_PAGES_RUNTIME_PLAN.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_PILOT_HUMAN_EVIDENCE_CAPTURE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Prioritize branch plan/agent-admin-server-roles-audit-runtime-scope before live-pages runtime slicing.",
+        "Keep Wave-1 pilot NO-GO until human/manual evidence capture is complete."
+      ],
+      "nextRecommendedTask": "plan/agent-admin-server-roles-audit-runtime-scope",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "riskLevel": "low"
+    },
+    {
       "taskId": "BETA1-PILOT-EVIDENCE-GAPS-CLOSE-PLAN",
       "title": "Plan Beta-1 pilot evidence gap closure",
       "status": "done",

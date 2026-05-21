@@ -304,3 +304,6 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [x] Folgeprompt fuer den naechsten Evidence-PR angelegt (`docs/beta/prompts/CODEX_PROMPT_BETA1_PILOT_READINESS_EXECUTION.md`).
 - [x] Bestaetigt: Keine Runtime-Dateien geaendert, keine echten Tester-Daten, keine Production IDs, keine Functions-/Rules-Aenderung.
 - [>] Empfohlener naechster Branch: `readiness/beta1-pilot-evidence-run`.
+
+- [x] 2026-05-21 Planungsschritt abgeschlossen: kombinierter Masterplan `docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md`, Rollen-/Audit-Plan `docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md`, Live-Seiten-Readiness-Plan `docs/beta/BETA1_LIVE_PAGES_READINESS_PLAN.md` sowie Folgeprompts erstellt/aktualisiert; keine Runtime-Dateien geaendert, keine Agent-Runtime-Autonomie aktiviert, keine Pilotfreigabe erteilt.
+- [>] Empfohlener naechster Branch: `plan/agent-admin-server-roles-audit-runtime-scope` (sicherer zuerst) oder alternativ `plan/beta1-live-pages-runtime-scope` nachgezogen.

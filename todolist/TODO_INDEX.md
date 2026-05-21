@@ -535,3 +535,12 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 | `docs/beta/BETA1_PILOT_EVIDENCE_PACK_TEMPLATE.md` | aktiv / beta evidence template | einheitliches Evidence-Pack mit 10 Sektionen und no-PII-Feldern | `docs/beta/BETA1_PILOT_EVIDENCE_GAPS_CLOSE_PLAN.md` | fuer alle manuellen Evidence-Runs kopieren/ausfuellen |
 | `docs/beta/BETA1_PILOT_STOP_COMMUNICATION_TEMPLATE.md` | aktiv / beta incident comms | Platzhalter fuer Pilot-Pause/Stop-Kommunikation ohne PII/Schuldzuweisung | `docs/beta/BETA1_PILOT_SUPPORT_RUNBOOK.md` | bei NO-GO/Stop-Conditions verwenden |
 | `docs/beta/prompts/CODEX_PROMPT_BETA1_PILOT_HUMAN_EVIDENCE_CAPTURE.md` | aktiv / follow-up prompt | Folgetask fuer human evidence capture auf eigenem Readiness-Branch | `docs/beta/BETA1_PILOT_EVIDENCE_PACK_TEMPLATE.md` | nach diesem Gap-Close-PR als naechsten Schritt nutzen |
+
+## Update 2026-05-21 - Beta1 Agent Admin + Live Readiness Masterplan
+
+- Masterplan erstellt: `docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md`.
+- Agent-Admin Server Roles/Audit Plan erstellt: `docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md`.
+- Live Pages Readiness Plan erstellt: `docs/beta/BETA1_LIVE_PAGES_READINESS_PLAN.md`.
+- Folgeprompts erstellt: `CODEX_PROMPT_AGENT_ADMIN_SERVER_ROLES_AUDIT.md`, `CODEX_PROMPT_BETA1_LIVE_PAGES_RUNTIME_PLAN.md`; Human-Evidence-Prompt auf Masterplan verwiesen.
+- Bestaetigt: keine Runtime-Dateien/Firebase-Functions/Firestore-Rules geaendert; keine Pilotfreigabe; keine Agent-Runtime-Autonomie aktiviert.
+- Naechster empfohlener Branch: `plan/agent-admin-server-roles-audit-runtime-scope` (Prioritaet) oder `plan/beta1-live-pages-runtime-scope`.
