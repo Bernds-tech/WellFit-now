@@ -118,3 +118,13 @@ Diese Datei definiert den Runtime-Scope fuer Beta-1 Live-Seiten als Planungsgrun
 - Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
 - Keine Gesundheitsdiagnosen, keine medizinischen Claims, keine Child-/Location-Rohdaten, keine fremden Rohdaten.
 - Next recommended branch: `runtime/beta1-marketplace-preview-placeholder`.
+
+## Update 2026-05-21 - Runtime Slice umgesetzt: Marktplatz Preview Placeholder
+
+- Branch: `runtime/beta1-marketplace-preview-placeholder`
+- Routen umgesetzt: `/marketplace` (`app/marketplace/page.tsx`) plus sichere Alias-Route `/marktplatz` (`app/marktplatz/page.tsx`).
+- Komponenten: `components/beta1/Beta1MarketplacePreview.tsx`, `components/beta1/Beta1MarketplacePreviewCard.tsx`, `components/beta1/Beta1MarketplaceGuardrailNotice.tsx`.
+- Umsetzung: rein statische/professionelle Preview mit klarer `nicht aktiv`-Kennzeichnung und Guardrails; keine echten Listings, keine Buy/Sell-Buttons, kein Trading.
+- Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
+- Keine Wallet-/Token-/NFT-/Cashout-/Payment-Funktion und keine clientseitige Handels-/Purchase-/Transfer-Authority.
+- Next recommended branch: `readiness/beta1-live-pages-navigation-and-device-smoke` (alternativ `runtime/beta1-live-pages-navigation-polish`).

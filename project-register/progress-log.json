@@ -8,6 +8,30 @@
   },
   "entries": [
     {
+      "id": "2026-05-21-beta1-marketplace-preview-placeholder",
+      "date": "2026-05-21",
+      "branch": "runtime/beta1-marketplace-preview-placeholder",
+      "goal": "Implement Beta-1 marketplace runtime slice as a professional preview/placeholder without trade, wallet, token, NFT, cashout, payment, or client authority.",
+      "changedAreas": [
+        "app/marketplace/page.tsx",
+        "app/marktplatz/page.tsx",
+        "app/AppSidebar.tsx",
+        "app/dashboard/lib/dashboardCards.ts",
+        "components/beta1/Beta1MarketplacePreview.tsx",
+        "components/beta1/Beta1MarketplacePreviewCard.tsx",
+        "components/beta1/Beta1MarketplaceGuardrailNotice.tsx",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added /marketplace and safe /marktplatz alias as Beta-1 preview-only placeholder page using Beta1 foundation components and explicit inactive guardrails. No listings, buy/sell, wallet connect, token/NFT/cashout/payment semantics, no Firestore writes, no new Functions, no Rules changes, and no client final authority."
+    },
+    {
       "id": "2026-05-21-beta1-points-shop-page-runtime-slice",
       "date": "2026-05-21",
       "branch": "runtime/beta1-points-shop-page",

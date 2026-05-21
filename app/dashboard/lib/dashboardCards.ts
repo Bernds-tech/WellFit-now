@@ -88,9 +88,9 @@ export const dashboardCards: DashboardCardDefinition[] = [
   {
     id: "marketplace",
     label: "Marktplatz",
-    description: "Einstieg zu geprüften digitalen Inhalten, Partnerangeboten und späteren Creator-Modulen.",
+    description: "Sicherer Beta-1 Preview-Einstieg ohne aktiven Handel, Listings oder Wallet-Funktion.",
     category: "economy",
-    href: "/marktplatz",
+    href: "/marketplace",
     allowedSizes: ["small", "medium", "large"],
     defaultSize: "small",
     defaultPinned: false,
