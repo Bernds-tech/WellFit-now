@@ -2,18 +2,24 @@
 
 Status: support + incident handling playbook (closed beta wave 1)
 Date: 2026-05-21
-Branch context: `readiness/beta1-pilot-go-no-go-matrix`
+Branch context: `readiness/beta1-pilot-evidence-run`
 Target: 25-50 Beta-Tester (Austria wave 1)
 
 ## 1) Ziel
 
 Definiert den Supportprozess fuer die geschlossene Beta-1 Testphase mit 25-50 Testern, inklusive Incident-Klassifikation, Reaktionslogik und Stop Conditions.
 
-## 2) Support-Kanaele (Platzhalter)
+## 2) Support-Kanaele (Placeholder, required_to_replace)
 
 - `support-placeholder-email`
+  - status: `placeholder`
+  - required_to_replace: `before_wave_1`
 - `admin/support operator`
+  - status: `placeholder_role`
+  - required_to_replace: `before_wave_1`
 - `incident log placeholder`
+  - status: `placeholder`
+  - required_to_replace: `before_wave_1`
 
 > Keine echten Namen oder echten E-Mail-Adressen in diesem Dokument verwenden.
 
