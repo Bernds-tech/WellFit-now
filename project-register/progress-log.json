@@ -8,6 +8,26 @@
   },
   "entries": [
     {
+      "id": "2026-05-21-beta1-live-pages-navigation-device-smoke",
+      "date": "2026-05-21",
+      "branch": "readiness/beta1-live-pages-navigation-and-device-smoke",
+      "goal": "Document and smoke-check navigation/device-readiness and guardrail semantics for Beta-1 live pages /shop, /leaderboard, /analytics, /marketplace and alias /marktplatz.",
+      "changedAreas": [
+        "app/AppSidebar.tsx",
+        "app/dashboard/lib/dashboardCards.ts",
+        "docs/beta/BETA1_LIVE_PAGES_NAVIGATION_DEVICE_SMOKE.md",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Route smoke/audit completed for /shop, /leaderboard, /analytics, /marketplace and alias /marktplatz. Guardrails preserved, forbidden semantics not found, no client final authority introduced. Device checks remain pending_human_device_evidence by design. No Functions, no Firestore Rules, no server-authority changes."
+    },
+    {
       "id": "2026-05-21-beta1-marketplace-preview-placeholder",
       "date": "2026-05-21",
       "branch": "runtime/beta1-marketplace-preview-placeholder",

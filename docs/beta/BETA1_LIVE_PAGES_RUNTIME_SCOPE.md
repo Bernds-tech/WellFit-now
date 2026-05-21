@@ -128,3 +128,14 @@ Diese Datei definiert den Runtime-Scope fuer Beta-1 Live-Seiten als Planungsgrun
 - Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
 - Keine Wallet-/Token-/NFT-/Cashout-/Payment-Funktion und keine clientseitige Handels-/Purchase-/Transfer-Authority.
 - Next recommended branch: `readiness/beta1-live-pages-navigation-and-device-smoke` (alternativ `runtime/beta1-live-pages-navigation-polish`).
+
+
+## Update 2026-05-21 - Readiness Slice: Navigation & Device Smoke
+
+- Branch: `readiness/beta1-live-pages-navigation-and-device-smoke`
+- Gepruefte Routen: `/shop`, `/leaderboard`, `/analytics`, `/marketplace`, `/marktplatz`.
+- Ergebnis: Navigation-/Guardrail-Smoke per Code-Review bestanden; Device-Evidence bleibt `pending_human_device_evidence`.
+- Kleine Navigation-Polishes: Sidebar-Link fuer Punkte-Shop auf `/shop` ausgerichtet (Legacy-Aktivierung fuer `/punkte-shop` bleibt kompatibel); Dashboard-Card-Links auf `/shop` vereinheitlicht.
+- Verbotene Semantik nicht gefunden (kein Wallet Connect, kein Token/NFT, kein Cashout, kein Echtgeldkauf, kein aktiver Marktplatzhandel).
+- Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
+- Next recommended branch: `readiness/beta1-human-evidence-capture`.

@@ -355,3 +355,9 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [x] 2026-05-21 Runtime-Slice `runtime/beta1-analytics-stats-own-view` umgesetzt: `/analytics` als Beta-1 Analytics/Stats Own-View mit sicheren Read-Projections und Limited-Preview-Fallback ohne neue Functions/Rules und ohne Client-Authority.
 - [x] 2026-05-21 Runtime-Slice `runtime/beta1-marketplace-preview-placeholder` umgesetzt: `/marketplace` + Alias `/marktplatz` als professionelle Preview-/Placeholder-Seite mit klarer "nicht aktiv"-Kennzeichnung, ohne Listings/Trading/Wallet/Token/NFT/Cashout/Payment.
 - [>] Naechster empfohlener Branch: `readiness/beta1-live-pages-navigation-and-device-smoke` (alternativ `runtime/beta1-live-pages-navigation-polish`).
+
+
+## Update 2026-05-21 - Beta-1 Live Pages Navigation/Device Smoke
+- Branch `readiness/beta1-live-pages-navigation-and-device-smoke`: Routen `/shop`, `/leaderboard`, `/analytics`, `/marketplace`, `/marktplatz` als readiness-smoke dokumentiert (`docs/beta/BETA1_LIVE_PAGES_NAVIGATION_DEVICE_SMOKE.md`).
+- Guardrails bestaetigt, keine Functions/Rules/Server-Authority-Aenderung.
+- Device-Evidence bleibt `pending_human_device_evidence`; naechster Branch: `readiness/beta1-human-evidence-capture`.
