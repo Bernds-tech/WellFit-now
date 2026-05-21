@@ -8,6 +8,28 @@
   },
   "entries": [
     {
+      "id": "2026-05-21-beta1-pilot-evidence-gaps-close-plan",
+      "date": "2026-05-21",
+      "branch": "readiness/beta1-pilot-evidence-gaps-close",
+      "goal": "Close documented Beta-1 pilot evidence gaps as docs/register-only readiness planning and templates without runtime changes or unsupported GREEN status upgrades.",
+      "changedAreas": [
+        "docs/beta/BETA1_PILOT_EVIDENCE_GAPS_CLOSE_PLAN.md",
+        "docs/beta/BETA1_PILOT_EVIDENCE_PACK_TEMPLATE.md",
+        "docs/beta/BETA1_PILOT_STOP_COMMUNICATION_TEMPLATE.md",
+        "docs/beta/BETA1_PILOT_GO_NO_GO_MATRIX.md",
+        "docs/beta/BETA1_PILOT_READINESS_CHECKLIST.md",
+        "docs/beta/BETA1_PILOT_EVIDENCE_SUMMARY.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_PILOT_HUMAN_EVIDENCE_CAPTURE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Gap-close artifacts added with explicit human/manual evidence requirements. Wave 1 remains NO-GO; no runtime files/functions/rules changed; no real tester emails, PII, secrets, deploys, or production Firebase IDs used."
+    },
+    {
       "id": "2026-05-21-beta1-pilot-evidence-run",
       "date": "2026-05-21",
       "branch": "readiness/beta1-pilot-evidence-run",

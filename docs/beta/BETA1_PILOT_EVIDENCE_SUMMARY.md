@@ -65,3 +65,14 @@ Das ist derzeit nicht der Fall (u. a. Manual Seed Run TBD, Mobile Device Evidenc
 6. Support-Kontakt-Placeholder durch verantwortliche Rolle (ohne PII im Repo) ersetzen.
 
 Empfohlener naechster Branch: `readiness/beta1-pilot-evidence-gaps-close`.
+
+
+## Gap-Close-Referenzen
+
+- `docs/beta/BETA1_PILOT_EVIDENCE_GAPS_CLOSE_PLAN.md`
+- `docs/beta/BETA1_PILOT_EVIDENCE_PACK_TEMPLATE.md`
+- `docs/beta/BETA1_PILOT_STOP_COMMUNICATION_TEMPLATE.md`
+
+## Human/Manual-only Hinweis
+
+Die offenen Wave-1-Luecken (Manual Seed Execution, Device Evidence, Mission-Visibility-Execution, Wallet/Ledger-Smoke, Guardian/Child Boundary, Privacy/Consent Review, Support-Kontakt-Ersatz, Onboarding Dry Run, Reality-Glitch Safety, Permission Denied No-Leak) benoetigen reale Human/Manual Evidence und koennen nicht durch Codex allein auf GREEN gesetzt werden.

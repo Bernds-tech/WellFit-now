@@ -2,7 +2,7 @@
 
 Status: evidence-updated checklist (closed beta wave 1)
 Date: 2026-05-21
-Branch context: `readiness/beta1-pilot-evidence-run`
+Branch context: `readiness/beta1-pilot-evidence-gaps-close`
 
 Zweck: Operative Checkliste vor Freigabe der AT Closed Beta Wave 1 (25-50 Tester).
 
@@ -55,3 +55,12 @@ Zweck: Operative Checkliste vor Freigabe der AT Closed Beta Wave 1 (25-50 Tester
 ## Aktueller Status
 
 **Wave 1 ist aktuell NO-GO (Stand 2026-05-21)**, bis die offenen Evidence-Gaps aus Manual Seed Run, Device-Smoke und operativer Support-/Boundary-/Wording-Abnahme geschlossen sind.
+
+
+## Gap-close Referenzen
+
+- `docs/beta/BETA1_PILOT_EVIDENCE_GAPS_CLOSE_PLAN.md`
+- `docs/beta/BETA1_PILOT_EVIDENCE_PACK_TEMPLATE.md`
+- `docs/beta/BETA1_PILOT_STOP_COMMUNICATION_TEMPLATE.md`
+
+Hinweis: Punkte bleiben bis zu echter Human/Manual Evidence auf offen/pending und duerfen nicht kuenstlich auf GREEN gesetzt werden.

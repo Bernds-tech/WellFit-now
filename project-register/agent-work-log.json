@@ -103,6 +103,40 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-PILOT-EVIDENCE-GAPS-CLOSE-PLAN",
+      "title": "Plan Beta-1 pilot evidence gap closure",
+      "status": "done",
+      "pr": {
+        "branch": "readiness/beta1-pilot-evidence-gaps-close",
+        "number": null,
+        "url": null,
+        "title": "Plan Beta-1 pilot evidence gap closure"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_PILOT_EVIDENCE_GAPS_CLOSE_PLAN.md",
+        "docs/beta/BETA1_PILOT_EVIDENCE_PACK_TEMPLATE.md",
+        "docs/beta/BETA1_PILOT_STOP_COMMUNICATION_TEMPLATE.md",
+        "docs/beta/BETA1_PILOT_GO_NO_GO_MATRIX.md",
+        "docs/beta/BETA1_PILOT_READINESS_CHECKLIST.md",
+        "docs/beta/BETA1_PILOT_EVIDENCE_SUMMARY.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_PILOT_HUMAN_EVIDENCE_CAPTURE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Capture real human/manual pilot evidence in a dedicated follow-up branch and keep Wave 1 NO-GO until must-be-green execution evidence exists."
+      ],
+      "nextRecommendedTask": "readiness/beta1-human-evidence-capture",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "riskLevel": "low"
+    },
+    {
       "taskId": "BETA1-PILOT-EVIDENCE-RUN",
       "title": "Record Beta-1 pilot evidence run",
       "status": "done",
@@ -1787,7 +1821,7 @@
       },
       "changedFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -1875,7 +1909,7 @@
       "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
       "updatedTodoFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
