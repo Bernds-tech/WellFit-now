@@ -289,3 +289,12 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [x] Evidence-Vorlage erstellt (`docs/beta/BETA1_MANUAL_SEED_EVIDENCE_TEMPLATE.md`) mit kopierbarer Tabelle fuer manuelle Seed-Durchlaeufe; Testuser bleiben Platzhalter-only.
 - [x] Guardrail-Bestaetigung: Keine Functions-/Firestore-Rules-/.github-Aenderungen, keine echten personenbezogenen Daten, keine echten Tester-E-Mails, keine Production-IDs.
 - [>] Empfohlener naechster Branch: `readiness/beta1-pilot-go-no-go-matrix` (Alternative: `runtime/beta1-mission-detail-projections`).
+
+## 2026-05-21 - Beta-1 Pilot Go/No-Go Readiness (Docs/Register-only)
+
+- [x] Branch `readiness/beta1-pilot-go-no-go-matrix`: Go/No-Go Matrix fuer AT Closed Beta Wave 1 (25-50 Tester) angelegt (`docs/beta/BETA1_PILOT_GO_NO_GO_MATRIX.md`) inklusive Ampelsystem, Must-be-Green-Regel und verbindlichen No-Go-Regeln.
+- [x] Pilot Readiness Checklist angelegt (`docs/beta/BETA1_PILOT_READINESS_CHECKLIST.md`) mit Device-, Seed-, Support-, Guardian/Child-, Consent/Privacy- und Safety-Gates.
+- [x] Pilot Support Runbook angelegt (`docs/beta/BETA1_PILOT_SUPPORT_RUNBOOK.md`) mit Incident-Kategorien, P0-P3 Reaktionslogik, Stop Conditions und Incident-Evidence-Feldern.
+- [x] Folgeprompt fuer den naechsten Evidence-PR angelegt (`docs/beta/prompts/CODEX_PROMPT_BETA1_PILOT_READINESS_EXECUTION.md`).
+- [x] Bestaetigt: Keine Runtime-Dateien geaendert, keine echten Tester-Daten, keine Production IDs, keine Functions-/Rules-Aenderung.
+- [>] Empfohlener naechster Branch: `readiness/beta1-pilot-evidence-run`.
