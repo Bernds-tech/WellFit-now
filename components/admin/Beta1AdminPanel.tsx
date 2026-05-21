@@ -15,7 +15,7 @@ import {
   validateXpAdjust,
 } from "@/lib/admin/beta1AdminValidation";
 
-const FORM_KEYS = ["mission-create", "mission-publish", "checkpoint-create", "glitch-schedule", "glitch-cancel", "safety-review", "xp-adjust", "agent-handoff", "agent-block", "agent-prompt-generate", "agent-prompt-copied", "worker-create", "worker-claim", "worker-pr", "worker-block"] as const;
+const FORM_KEYS = ["mission-create", "mission-publish", "checkpoint-create", "glitch-schedule", "glitch-cancel", "safety-review", "xp-adjust", "agent-handoff", "agent-block", "agent-prompt-generate", "agent-prompt-copied", "worker-create", "worker-claim", "worker-pr", "worker-block", "automation-create-policy", "automation-request-merge", "automation-approve-merge", "automation-reject-merge", "automation-request-override", "automation-approve-override", "automation-reject-override", "automation-request-deploy", "automation-approve-deploy", "automation-reject-deploy", "automation-request-second", "automation-approve-second", "automation-reject-second", "automation-runner"] as const;
 type FormKey = (typeof FORM_KEYS)[number];
 
 type FormFeedback = { error: string; success: string; loading: boolean };
@@ -186,6 +186,26 @@ export default function Beta1AdminPanel() {
           if (!workerQueueId) return setFeedback((prev) => ({ ...prev, ["worker-block"]: { ...prev["worker-block"], error: "workerQueueId fehlt.", success: "" } }));
           await run("worker-block", () => beta1AdminClient.blockAgentWorkerQueueItem({ workerQueueId, reason: normalizeOptional(fd.get("reason")) }));
         }} />
+
+      <section className="rounded border border-white/20 bg-slate-900/50 p-3 text-xs text-white/85">
+        <p className="mb-2 font-semibold text-white">Agent Automation Gates</p>
+        <p className="mb-2 rounded border border-cyan-400/30 bg-cyan-300/10 p-2">Auto-Merge/Deploy nur nach Admincenter-Freigabe, gruener Required Checks + Audit. Quality-Gate muss gruen sein oder dokumentierter Override. Production braucht zweite Owner-Freigabe.</p>
+        <p className="mb-3 rounded border border-amber-400/40 bg-amber-300/10 p-2">Runner bleibt metadata_only bis sichere Server-Secret-Integration fuer echte GitHub/Deploy Runner vorhanden ist. Keine Tokens/Secrets/Production IDs im Client.</p>
+        <AdminForm title="Create Automation Policy" fields={["workerQueueId"]} feedback={feedback["automation-create-policy"]} onSubmit={async (fd)=>{await run("automation-create-policy",()=>beta1AdminClient.createAgentAutomationPolicy({workerQueueId: normalize(fd.get("workerQueueId"))}));}} />
+        <AdminForm title="Request Auto-Merge" fields={["policyId"]} feedback={feedback["automation-request-merge"]} onSubmit={async (fd)=>{await run("automation-request-merge",()=>beta1AdminClient.requestAgentAutoMerge({policyId: normalize(fd.get("policyId"))}));}} />
+        <AdminForm title="Approve Auto-Merge" fields={["policyId"]} feedback={feedback["automation-approve-merge"]} onSubmit={async (fd)=>{await run("automation-approve-merge",()=>beta1AdminClient.approveAgentAutoMerge({policyId: normalize(fd.get("policyId"))}));}} />
+        <AdminForm title="Reject Auto-Merge" fields={["policyId","reason"]} feedback={feedback["automation-reject-merge"]} onSubmit={async (fd)=>{await run("automation-reject-merge",()=>beta1AdminClient.rejectAgentAutoMerge({policyId: normalize(fd.get("policyId")), reason: normalize(fd.get("reason"))}));}} />
+        <AdminForm title="Request Quality Gate Override" fields={["policyId","reason"]} feedback={feedback["automation-request-override"]} onSubmit={async (fd)=>{await run("automation-request-override",()=>beta1AdminClient.requestAgentQualityGateOverride({policyId: normalize(fd.get("policyId")), reason: normalize(fd.get("reason"))}));}} />
+        <AdminForm title="Approve Quality Gate Override" fields={["policyId"]} feedback={feedback["automation-approve-override"]} onSubmit={async (fd)=>{await run("automation-approve-override",()=>beta1AdminClient.approveAgentQualityGateOverride({policyId: normalize(fd.get("policyId"))}));}} />
+        <AdminForm title="Reject Quality Gate Override" fields={["policyId","reason"]} feedback={feedback["automation-reject-override"]} onSubmit={async (fd)=>{await run("automation-reject-override",()=>beta1AdminClient.rejectAgentQualityGateOverride({policyId: normalize(fd.get("policyId")), reason: normalize(fd.get("reason"))}));}} />
+        <AdminForm title="Request Deploy" fields={["policyId","environment"]} feedback={feedback["automation-request-deploy"]} onSubmit={async (fd)=>{await run("automation-request-deploy",()=>beta1AdminClient.requestAgentDeploy({policyId: normalize(fd.get("policyId")), environment: normalize(fd.get("environment")) as "preview"|"staging"|"production"}));}} />
+        <AdminForm title="Approve Deploy" fields={["policyId"]} feedback={feedback["automation-approve-deploy"]} onSubmit={async (fd)=>{await run("automation-approve-deploy",()=>beta1AdminClient.approveAgentDeploy({policyId: normalize(fd.get("policyId"))}));}} />
+        <AdminForm title="Reject Deploy" fields={["policyId","reason"]} feedback={feedback["automation-reject-deploy"]} onSubmit={async (fd)=>{await run("automation-reject-deploy",()=>beta1AdminClient.rejectAgentDeploy({policyId: normalize(fd.get("policyId")), reason: normalize(fd.get("reason"))}));}} />
+        <AdminForm title="Request Production Second Approval" fields={["policyId"]} feedback={feedback["automation-request-second"]} onSubmit={async (fd)=>{await run("automation-request-second",()=>beta1AdminClient.requestAgentProductionDeploySecondApproval({policyId: normalize(fd.get("policyId"))}));}} />
+        <AdminForm title="Approve Production Second Approval" fields={["policyId"]} feedback={feedback["automation-approve-second"]} onSubmit={async (fd)=>{await run("automation-approve-second",()=>beta1AdminClient.approveAgentProductionDeploySecondApproval({policyId: normalize(fd.get("policyId"))}));}} />
+        <AdminForm title="Reject Production Second Approval" fields={["policyId","reason"]} feedback={feedback["automation-reject-second"]} onSubmit={async (fd)=>{await run("automation-reject-second",()=>beta1AdminClient.rejectAgentProductionDeploySecondApproval({policyId: normalize(fd.get("policyId")), reason: normalize(fd.get("reason"))}));}} />
+        <AdminForm title="Prepare Supervised Runner Job" fields={["workerQueueId","policyId"]} feedback={feedback["automation-runner"]} onSubmit={async (fd)=>{await run("automation-runner",()=>beta1AdminClient.prepareAgentSupervisedRunnerJob({workerQueueId: normalize(fd.get("workerQueueId")), policyId: normalize(fd.get("policyId"))}));}} />
+      </section>
       </section>
     </section>
   );
