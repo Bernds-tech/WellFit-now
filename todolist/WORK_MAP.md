@@ -367,3 +367,9 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
   - Agent Admin Live Page Task Templates
 - Reihenfolge fuer spaetere Runtime-Umsetzung: Professional UI Foundation -> Points Shop -> Leaderboard -> Analytics & Stats -> Marketplace Preview.
 - Sicherheitsgrenzen bestaetigt: internal-only WFXP, kein Echtgeld/IAP, kein Token/NFT/Cashout, kein echter Marktplatzhandel, keine oeffentlichen Kinderprofile, keine clientseitige Final-Authority.
+
+## Update 2026-05-21 - Beta-1 Professional UI Foundation
+
+- Professionelle Beta-1 UI-Patterns liegen unter `components/beta1/Beta1Foundation.tsx` (Page Shell, Section Card, Status Badge, Metric Card, Empty State).
+- Erste angewandte Flaechen: `app/dashboard/components/Beta1ReadProjectionPanel.tsx`, `app/admin/beta1/page.tsx`, `components/admin/Beta1AdminPanel.tsx`, plus ruhigeres Dashboard-Backdrop in `app/dashboard/page.tsx`.
+- Scope bleibt rein darstellungsseitig: keine Functions-/Rules-Aenderung, keine neue Client-Authority, keine neuen Produktpfade.

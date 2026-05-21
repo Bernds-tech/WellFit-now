@@ -161,7 +161,7 @@ export default function DashboardPage() {
     <main
       className="h-screen w-screen overflow-hidden text-white"
       style={{
-        background: `linear-gradient(to bottom right, rgba(0,170,190,${brightness / 100}), rgba(0,80,90,1))`,
+        background: `linear-gradient(160deg, rgba(15,23,42,0.98), rgba(30,41,59,0.96))`,
       }}
     >
       <div className="flex h-full">

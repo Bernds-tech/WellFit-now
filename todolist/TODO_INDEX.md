@@ -569,3 +569,8 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
   - `CODEX_PROMPT_BETA1_ANALYTICS_STATS_OWN_VIEW.md`
   - `CODEX_PROMPT_BETA1_MARKETPLACE_PREVIEW.md`
 - Scope bleibt planning-only: keine Runtime-Seiten, keine globalen UI-Implementierungen, keine Functions/Rules-Aenderungen, keine Pilotfreigabe.
+
+## Update 2026-05-21 - Beta-1 Professional UI Foundation
+
+- `runtime/beta1-professional-ui-foundation` hat UI-Foundation-Bausteine fuer Beta-1 in `components/beta1/` eingefuehrt und bestehende Dashboard/Admin-Bereiche ohne Runtime-Authority-Aenderung umgestellt.
+- Folgearbeit bleibt in separaten Runtime-Slices: `runtime/beta1-points-shop-page`, `runtime/beta1-leaderboard-readonly`, `runtime/beta1-analytics-stats-own-view`, `runtime/beta1-marketplace-preview-placeholder`.

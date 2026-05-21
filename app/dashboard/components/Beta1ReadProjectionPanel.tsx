@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { readCheckpointAndGlitch, readGuardianChildProfiles, readInventoryAndShop, readPublishedMissions, readXpLedgerEvents, readXpWalletProjection } from "@/lib/beta1/clientReadProjections";
 import type { Beta1CheckpointSummary, Beta1ChildProfileSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "@/lib/beta1/beta1Types";
+import { Beta1EmptyState, Beta1MetricCard, Beta1SectionCard, Beta1StatusBadge } from "@/components/beta1/Beta1Foundation";
 
 export default function Beta1ReadProjectionPanel() {
   const [loading, setLoading] = useState(true);
@@ -48,39 +49,47 @@ export default function Beta1ReadProjectionPanel() {
   }, []);
 
   return (
-    <section className="rounded-[24px] border border-emerald-200/20 bg-[#063844]/80 p-5">
-      <h2 className="text-xl font-black text-emerald-200">Beta-1 Read Projections (Client Read-only)</h2>
-      <p className="mt-2 text-sm text-white/70">Nur serverseitig projizierte Lesedaten. Keine clientseitige XP-, Mission-, Shop-, Mayor-, Glitch- oder Admin-Autorität.</p>
-      {loading && <p className="mt-3 text-sm text-emerald-100/80">Lade sichere Beta-1 Projektionen...</p>}
-      {!loading && error && <p className="mt-3 text-sm text-amber-200">{error}</p>}
-      {!loading && !error && wallet === null && <p className="mt-3 text-sm text-white/70">Noch keine Wallet-Projektion vorhanden.</p>}
+    <Beta1SectionCard
+      title="Beta-1 Read Projections"
+      description="Ausschließlich serverseitig projizierte Lesedaten. Keine clientseitige Autorität für XP, Missionen, Shop, Glitches oder Admin-Freigaben."
+    >
+      <div className="mb-3 flex flex-wrap gap-2">
+        <Beta1StatusBadge tone="info">Client Read-only</Beta1StatusBadge>
+        <Beta1StatusBadge tone="neutral">Authority bleibt serverseitig</Beta1StatusBadge>
+      </div>
+      {loading && <p className="text-sm text-slate-200/80">Lade Beta-1-Projektionen ...</p>}
+      {!loading && error && <p className="rounded-lg border border-amber-300/30 bg-amber-500/10 p-3 text-sm text-amber-100">{error}</p>}
+      {!loading && !error && wallet === null && <Beta1EmptyState title="Noch keine Wallet-Projektion" detail="Sobald eine serverseitige Projektion vorliegt, werden Werte hier angezeigt." />}
 
       {!loading && (
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          <div className="rounded-xl bg-black/20 p-3 text-sm">Wallet: <b>{wallet?.balance ?? 0} WFXP</b></div>
-          <div className="rounded-xl bg-black/20 p-3 text-sm">Ledger Events: <b>{ledger.length}</b></div>
-          <div className="rounded-xl bg-black/20 p-3 text-sm">Published Missions: <b>{missions.length}</b></div>
-          <div className="rounded-xl bg-black/20 p-3 text-sm">Inventory Items: <b>{inventory.length}</b></div>
-          <div className="rounded-xl bg-black/20 p-3 text-sm">Shop Items: <b>{shopItems.length}</b></div>
-          <div className="rounded-xl bg-black/20 p-3 text-sm">Checkpoints: <b>{checkpoints.length}</b> · Glitches: <b>{glitches.length}</b></div>
-          <div className="rounded-xl bg-black/20 p-3 text-sm md:col-span-2">Guardian Child Profiles: <b>{childProfiles.length}</b></div>
+        <div className="mt-4 space-y-4">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <Beta1MetricCard label="Wallet" value={`${wallet?.balance ?? 0} WFXP`} />
+            <Beta1MetricCard label="Ledger Events" value={ledger.length} />
+            <Beta1MetricCard label="Published Missions" value={missions.length} />
+            <Beta1MetricCard label="Inventory Items" value={inventory.length} />
+            <Beta1MetricCard label="Shop Items" value={shopItems.length} />
+            <Beta1MetricCard label="Checkpoints / Glitches" value={`${checkpoints.length} / ${glitches.length}`} />
+            <Beta1MetricCard label="Guardian Child Profiles" value={childProfiles.length} note="Read-Projektion ohne Client-Freigabe." />
+          </div>
 
-          <ul className="rounded-xl bg-black/20 p-3 text-xs text-white/75">
-            <li className="mb-1 font-semibold text-white">Ledger Preview</li>
-            {ledger.slice(0, 3).map((item) => <li key={item.id}>{item.type}: {item.amount} WFXP</li>)}
-            {ledger.length === 0 && <li>Keine Ledger-Einträge.</li>}
-          </ul>
-          <ul className="rounded-xl bg-black/20 p-3 text-xs text-white/75">
-            <li className="mb-1 font-semibold text-white">Mission Preview (erste 3)</li>
-            {missions.slice(0, 3).map((item) => {
-              const rewardLabel = typeof item.rewardXp === "number" ? `${item.rewardXp} WFXP` : "Reward offen";
-              return <li key={item.id}>{item.title} · {item.type} · {rewardLabel}</li>;
-            })}
-            {missions.length === 0 && <li>Keine veröffentlichten Missionen.</li>}
-            {missions.length > 0 && <li className="mt-1 text-white/60">Detailansicht folgt.</li>}
-          </ul>
+          <div className="grid gap-3 md:grid-cols-2">
+            <ul className="rounded-xl border border-slate-200/10 bg-slate-950/45 p-3 text-xs text-slate-200/85">
+              <li className="mb-2 text-sm font-semibold text-slate-50">Ledger Preview</li>
+              {ledger.slice(0, 3).map((item) => <li key={item.id}>{item.type}: {item.amount} WFXP</li>)}
+              {ledger.length === 0 && <li>Keine Ledger-Einträge.</li>}
+            </ul>
+            <ul className="rounded-xl border border-slate-200/10 bg-slate-950/45 p-3 text-xs text-slate-200/85">
+              <li className="mb-2 text-sm font-semibold text-slate-50">Mission Preview (erste 3)</li>
+              {missions.slice(0, 3).map((item) => {
+                const rewardLabel = typeof item.rewardXp === "number" ? `${item.rewardXp} WFXP` : "Reward offen";
+                return <li key={item.id}>{item.title} · {item.type} · {rewardLabel}</li>;
+              })}
+              {missions.length === 0 && <li>Keine veröffentlichten Missionen.</li>}
+            </ul>
+          </div>
         </div>
       )}
-    </section>
+    </Beta1SectionCard>
   );
 }

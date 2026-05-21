@@ -2,15 +2,14 @@
 
 import AppShell from "@/app/components/AppShell";
 import Beta1AdminPanel from "@/components/admin/Beta1AdminPanel";
+import { Beta1PageShell } from "@/components/beta1/Beta1Foundation";
 
 export default function Beta1AdminPage() {
   return (
     <AppShell contentClassName="px-7 py-5 pb-4 overflow-y-auto">
-      <div className="mx-auto w-full max-w-5xl space-y-4">
-        <h1 className="text-2xl font-bold">Beta-1 Admin Panel Integration</h1>
-        <p className="text-sm text-cyan-50/85">Diese Ansicht nutzt ausschließlich bestehende Beta-1 Admin-Callables. Finale Autorität bleibt serverseitig.</p>
+      <Beta1PageShell title="Beta-1 Admin Operations" subtitle="Diese Ansicht nutzt bestehende Beta-1-Callables. Der Client bleibt Bedienoberfläche; finale Autorität bleibt serverseitig.">
         <Beta1AdminPanel />
-      </div>
+      </Beta1PageShell>
     </AppShell>
   );
 }

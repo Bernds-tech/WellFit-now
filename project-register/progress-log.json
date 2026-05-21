@@ -957,6 +957,23 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Added handoff prompt collection model + callables + admin prompt copy flow. No auto code execution, no GitHub API integration, no auto-merge/deploy, human merge required remains true."
+    },
+    {
+      "id": "2026-05-21-beta1-professional-ui-foundation",
+      "date": "2026-05-21",
+      "branch": "runtime/beta1-professional-ui-foundation",
+      "goal": "Implement first professional Beta-1 UI foundation slice on existing dashboard/admin surfaces without runtime-authority changes.",
+      "changedAreas": [
+        "app/dashboard",
+        "app/admin/beta1",
+        "components/admin",
+        "components/beta1",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Introduced reusable Beta-1 UI foundation patterns and migrated Beta1 read projection + admin entry framing to calmer dashboard styling. Dashboard background visual noise reduced. No Firebase Functions or Firestore Rules changes. No new writes/callables/authority."
     }
   ]
 }
