@@ -343,3 +343,11 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [x] CTA bleibt request-/intent-only (deaktiviert: "Anfrage vormerken"), keine clientseitige finale Spend-/Purchase-Authority.
 - [x] Guardrails eingehalten: keine Functions-/Rules-Aenderung, kein Echtgeld/IAP/Token/NFT/Cashout/Wallet-Connect.
 - [>] Naechster empfohlener Branch: `runtime/beta1-leaderboard-readonly`.
+
+## Update 2026-05-21 - Runtime Slice Beta1 Leaderboard (Read-only)
+
+- [x] Branch `runtime/beta1-leaderboard-readonly`: `/leaderboard` als professionelle Beta-1 Read-only Seite umgesetzt (`Beta1PageShell`, `Beta1SectionCard`, `Beta1MetricCard`, `Beta1StatusBadge`).
+- [x] Datenbasis: nur sichere Projektionen (eigene Wallet-/Mission-/Checkpoint-Zusammenfassung). Kein öffentliches Kinderprofil, keine sensiblen Standort-/Gesundheitsdaten.
+- [x] Falls keine sichere serverseitige Leaderboard-Aggregation vorhanden ist: bewusst `limited preview` mit Placeholder-Scope und klarer Kennzeichnung.
+- [x] Guardrails eingehalten: keine Firebase Functions, keine Firestore Rules, keine Client-Final-Authority für Ranking oder Rewards.
+- [>] Nächster empfohlener Branch: `runtime/beta1-analytics-stats-own-view`.

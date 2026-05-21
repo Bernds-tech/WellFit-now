@@ -382,3 +382,12 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - CTA: intent-only, deaktiviert ("Anfrage vormerken").
 - Guardrails: keine Firebase Functions, keine Firestore Rules, keine Token/NFT/Payment/Cashout-Semantik.
 - Empfohlener Folgebranch: `runtime/beta1-leaderboard-readonly`.
+
+
+## 2026-05-21 - Runtime Beta1 Leaderboard Slice
+
+- Branch: `runtime/beta1-leaderboard-readonly`.
+- Implementiert: `app/leaderboard/page.tsx` + `components/beta1/Beta1Leaderboard*.tsx` für eine sachliche, privacy-safe Read-only Leaderboard-Ansicht.
+- Datenpfad: `lib/beta1/clientReadProjections.ts#readLeaderboardPreview` nutzt nur sichere eigene Projektionen (Wallet/Missions/Checkpoints) und liefert bei fehlender serverseitiger Aggregation eine klar markierte Limited-Preview.
+- Guardrails: keine Firebase Functions, keine Firestore Rules, keine Server-Authority-Aenderung, keine öffentlichen Kinderprofile.
+- Empfohlener Folgebranch: `runtime/beta1-analytics-stats-own-view`.

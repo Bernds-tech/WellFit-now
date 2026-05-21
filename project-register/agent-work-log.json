@@ -3913,6 +3913,38 @@
       "nextRecommendedTask": "runtime/beta1-points-shop-page",
       "riskLevel": "medium",
       "notes": "Professionalized dashboard/admin beta surfaces with reusable Beta1 foundation components (page shell, section card, status badge, metric card, empty state). No Functions/Rules changes, no new client authority, no product logic change."
+    },
+    {
+      "taskId": "runtime-beta1-leaderboard-readonly",
+      "title": "Add Beta-1 readonly leaderboard page",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/beta1-leaderboard-readonly",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 readonly leaderboard page"
+      },
+      "changedFiles": [
+        "app/leaderboard/page.tsx",
+        "components/beta1/Beta1Leaderboard.tsx",
+        "components/beta1/Beta1LeaderboardRow.tsx",
+        "components/beta1/Beta1LeaderboardPrivacyNotice.tsx",
+        "lib/beta1/clientReadProjections.ts",
+        "lib/beta1/beta1Types.ts",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Next recommended branch: runtime/beta1-analytics-stats-own-view."
+      ],
+      "nextRecommendedTask": "runtime/beta1-analytics-stats-own-view",
+      "riskLevel": "high",
+      "notes": "Implemented /leaderboard as privacy-safe read-only limited view. No public child profiles, no sensitive location/health data, no client ranking authority. Used own projection fallback if shared leaderboard aggregation is unavailable."
     }
   ]
 }
