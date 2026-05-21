@@ -103,6 +103,28 @@
   },
   "entries": [
     {
+      "id": "2026-05-21-beta1-live-pages-app-shell-fix",
+      "date": "2026-05-21",
+      "branch": "runtime/beta1-live-pages-app-shell-fix",
+      "goal": "Wrap Beta-1 live pages in AppShell so /shop, /leaderboard, /analytics, /marketplace and alias /marktplatz render in consistent internal app frame.",
+      "changedAreas": [
+        "app/shop/page.tsx",
+        "app/leaderboard/page.tsx",
+        "app/analytics/page.tsx",
+        "app/marketplace/page.tsx",
+        "docs/beta/BETA1_LIVE_PAGES_NAVIGATION_DEVICE_SMOKE.md",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Layout/shell-only fix: AppShell restored across Beta-1 live pages, marktplatz alias kept safe via marketplace alias, guardrails unchanged, device evidence remains pending_human_device_evidence. No Functions/Rules/server-authority changes and no new client final authority."
+    },
+    {
       "taskId": "BETA1-LIVE-PAGES-NAVIGATION-DEVICE-SMOKE",
       "title": "Add Beta-1 live pages navigation smoke",
       "status": "done",
@@ -2027,7 +2049,7 @@
       },
       "changedFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -2115,7 +2137,7 @@
       "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
       "updatedTodoFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",

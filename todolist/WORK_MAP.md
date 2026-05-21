@@ -403,3 +403,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 
 - `docs/beta/BETA1_HUMAN_EVIDENCE_CAPTURE.md`: zentrale Matrix fuer pending_human_evidence ohne erfundene Ergebnisse.
 - `docs/beta/BETA1_HUMAN_EVIDENCE_CAPTURE_INSTRUCTIONS.md`: Schritt-fuer-Schritt Operator-Runbook fuer manuelle Evidenzaufnahme.
+
+- 2026-05-21: Runtime lane update `runtime/beta1-live-pages-app-shell-fix` abgeschlossen (AppShell-Konsistenz fuer /shop, /leaderboard, /analytics, /marketplace; /marktplatz Alias sicher). Keine Functions/Rules-Aenderung.

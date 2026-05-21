@@ -139,3 +139,14 @@ Diese Datei definiert den Runtime-Scope fuer Beta-1 Live-Seiten als Planungsgrun
 - Verbotene Semantik nicht gefunden (kein Wallet Connect, kein Token/NFT, kein Cashout, kein Echtgeldkauf, kein aktiver Marktplatzhandel).
 - Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
 - Next recommended branch: `readiness/beta1-human-evidence-capture`.
+
+
+## Update 2026-05-21 - Runtime Slice umgesetzt: Live Pages AppShell Fix
+
+- Branch: `runtime/beta1-live-pages-app-shell-fix`
+- Routen aktualisiert: `/shop`, `/leaderboard`, `/analytics`, `/marketplace` mit `AppShell` als outer shell und `Beta1PageShell` als inner content shell.
+- Alias-Route `/marktplatz` bleibt sicherer Alias auf `/marketplace` ohne eigene risikoreiche Marketplace-Logik.
+- Ergebnis: Header/Sidebar/Footer-Kontext jetzt konsistent auf allen Beta-1 Live-Seiten; kein doppelter Shell-Rahmen.
+- Guardrails unverändert: Shop bleibt WFXP-only + intent-only; Leaderboard read-only/privacy-safe; Analytics own-view ohne Diagnosen; Marketplace preview-only ohne Handel.
+- Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
+- Next recommended branch: `runtime/agent-admin-safe-worker-queue` (alternativ `readiness/beta1-human-device-evidence-fill`).
