@@ -103,6 +103,50 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-POINTS-SHOP-PAGE-RUNTIME-SLICE",
+      "title": "Add Beta-1 points shop page",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/beta1-points-shop-page",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 points shop page"
+      },
+      "changedFiles": [
+        "app/shop/page.tsx",
+        "components/beta1/Beta1PointsShop.tsx",
+        "components/beta1/Beta1ShopItemCard.tsx",
+        "components/beta1/Beta1InventorySummary.tsx",
+        "lib/beta1/beta1Types.ts",
+        "lib/beta1/beta1ReadGuards.ts",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check",
+        "npm --prefix functions run check"
+      ],
+      "followUps": [
+        "Implement runtime/beta1-leaderboard-readonly as privacy-safe read-only slice."
+      ],
+      "nextRecommendedTask": "runtime/beta1-leaderboard-readonly",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "riskLevel": "medium",
+      "definitionOfDoneKey": "runtime_read_intent_only_no_client_authority"
+    },
+    {
       "taskId": "BETA1-LIVE-PAGES-RUNTIME-SCOPE-PLAN",
       "title": "Plan Beta-1 live pages runtime scope and professional UI direction",
       "status": "done",

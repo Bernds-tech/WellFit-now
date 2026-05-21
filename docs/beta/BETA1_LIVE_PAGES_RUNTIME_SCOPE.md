@@ -87,3 +87,12 @@ Diese Datei definiert den Runtime-Scope fuer Beta-1 Live-Seiten als Planungsgrun
 - Keine oeffentlichen Kinderprofile, kein Child Standalone Login.
 - Keine clientseitige finale Autoritaet fuer XP/Mission/Shop/Inventory/Admin-Flows.
 - Keine Pilotfreigabe ohne Human/Manual Evidence.
+
+## Update 2026-05-21 - Runtime Slice umgesetzt: Punkte-Shop
+
+- Branch: `runtime/beta1-points-shop-page`
+- Route umgesetzt: `/shop` (`app/shop/page.tsx`) als professioneller Beta-1 Punkte-Shop.
+- Datenbasis: read-only Projections aus `xpWallets`, `shopItems(status=published)`, `userInventory(ownerUserId=currentUser)` via bestehende Client-Read-Helpers.
+- Shop-CTA bleibt intent-only (`Anfrage vormerken`) und deaktiviert; keine clientseitige finale Spend-/Purchase-Authority.
+- Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
+- Next recommended branch: `runtime/beta1-leaderboard-readonly`.

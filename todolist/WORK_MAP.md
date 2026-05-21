@@ -373,3 +373,12 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - Professionelle Beta-1 UI-Patterns liegen unter `components/beta1/Beta1Foundation.tsx` (Page Shell, Section Card, Status Badge, Metric Card, Empty State).
 - Erste angewandte Flaechen: `app/dashboard/components/Beta1ReadProjectionPanel.tsx`, `app/admin/beta1/page.tsx`, `components/admin/Beta1AdminPanel.tsx`, plus ruhigeres Dashboard-Backdrop in `app/dashboard/page.tsx`.
 - Scope bleibt rein darstellungsseitig: keine Functions-/Rules-Aenderung, keine neue Client-Authority, keine neuen Produktpfade.
+
+## 2026-05-21 - Runtime Beta1 Punkte-Shop Slice
+
+- Branch: `runtime/beta1-points-shop-page`.
+- Implementiert: `app/shop/page.tsx` plus kleine Beta1-Shop-Komponenten fuer read-only Shop-Katalog und Inventory-Zusammenfassung.
+- Daten: sichere Read-Projections (Wallet/Shop/Inventory), keine clientseitigen Writes, keine finale Spend-/Purchase-Authority.
+- CTA: intent-only, deaktiviert ("Anfrage vormerken").
+- Guardrails: keine Firebase Functions, keine Firestore Rules, keine Token/NFT/Payment/Cashout-Semantik.
+- Empfohlener Folgebranch: `runtime/beta1-leaderboard-readonly`.

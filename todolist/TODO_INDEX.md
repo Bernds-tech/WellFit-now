@@ -574,3 +574,11 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 
 - `runtime/beta1-professional-ui-foundation` hat UI-Foundation-Bausteine fuer Beta-1 in `components/beta1/` eingefuehrt und bestehende Dashboard/Admin-Bereiche ohne Runtime-Authority-Aenderung umgestellt.
 - Folgearbeit bleibt in separaten Runtime-Slices: `runtime/beta1-points-shop-page`, `runtime/beta1-leaderboard-readonly`, `runtime/beta1-analytics-stats-own-view`, `runtime/beta1-marketplace-preview-placeholder`.
+
+## Update 2026-05-21 - Runtime Slice Beta1 Punkte-Shop
+
+- Status: umgesetzt auf `runtime/beta1-points-shop-page`.
+- Runtime-Route: `/shop` als WFXP-only Read-/Intent-Slice ohne clientseitige Final-Authority.
+- Read-Projections: Wallet-Balance, publizierte Shop-Items (inkl. `priceWfxp`, optional `category`/`rarity`), User-Inventory.
+- Keine Functions-/Rules-Aenderung; keine Payment/Token/NFT/Cashout-Aktivierung.
+- Next: `runtime/beta1-leaderboard-readonly`.
