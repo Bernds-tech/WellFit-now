@@ -17,6 +17,7 @@ import type {
   AgentWorkerQueueActionInput,
   AgentWorkerQueueChecksInput,
   AgentWorkerQueueCreateInput,
+  AgentAutomationPolicyInput,
 } from "./beta1AdminTypes";
 
 function sanitizeAdminError(error: unknown): string {
@@ -66,4 +67,8 @@ export const beta1AdminClient = {
   blockAgentWorkerQueueItem: (input: AgentWorkerQueueActionInput) => callAdmin("blockAgentWorkerQueueItem", { workerQueueId: input.workerQueueId, reason: input.reason }),
   listAgentWorkerQueueItems: (status?: string) => callAdmin("listAgentWorkerQueueItems", status ? { status } : {}),
   getAgentWorkerQueueItem: (workerQueueId: string) => callAdmin("getAgentWorkerQueueItem", { workerQueueId }),
+  createAgentAutomationPolicy: (input: AgentAutomationPolicyInput) => callAdmin("createAgentAutomationPolicy", input),
+  requestAgentAutoMerge: (input: AgentAutomationPolicyInput) => callAdmin("requestAgentAutoMerge", input),
+  getAgentAutomationPolicy: (policyId: string) => callAdmin("getAgentAutomationPolicy", { policyId }),
+  listAgentAutomationPolicies: (status?: string) => callAdmin("listAgentAutomationPolicies", status ? { status } : {}),
 };
