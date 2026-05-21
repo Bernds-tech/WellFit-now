@@ -75,3 +75,9 @@ Wichtiger Grundsatz: **keine Runtime-Autonomie ohne serverseitige Rollenpruefung
 - Keine Token/NFT/Payment/Cashout/IAP/Blockchain-Aktivierung.
 - Keine Agent-Runtime-Autonomie-Aktivierung.
 - Keine Pilotfreigabe ohne Evidence.
+
+## Increment: Agent Admin Roles + Audit Foundation
+- Implemented Firestore-backed lifecycle collections: agentTaskProposals, agentTaskApprovals, agentTaskExecutions, agentTaskAuditLog, agentTaskCheckResults.
+- Added callable gates for proposal/review/approve/reject/queue/check-result/list/audit-trail with mandatory audit writes.
+- Firestore rules keep all writes client-blocked for these collections.
+- Human merge and PR handoff remain required.

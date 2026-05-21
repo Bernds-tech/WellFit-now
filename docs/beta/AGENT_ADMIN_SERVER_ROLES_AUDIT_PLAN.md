@@ -82,3 +82,9 @@ Regel: Kein Schritt darf den naechsten Zustand erreichen, wenn Role-Check oder A
 ## Zusatzhinweis fuer Folge-PRs
 
 Implementierungsschritte fuer Backend/Rules sind **separat** und nur nach expliziter Owner-Freigabe auf einem Runtime-Branch zulaessig.
+
+## Runtime Slice Update (PR runtime/agent-admin-server-roles-audit)
+- Added server-side callable foundation for agent task proposals/approvals/executions/check-results/audit-trail.
+- Enforced server role checks for owner/admin_operator/agent_supervisor/readonly_observer/support_operator/agent_executor_service.
+- Added protected-scope blocking for token/nft/payment/cashout/blockchain/sui/wft and child/health/location/privacy/legal unless explicit owner scoped override.
+- Runtime autonomy remains NOT fully enabled: no auto execution, no auto merge, no auto deploy.

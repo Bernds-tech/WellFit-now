@@ -350,8 +350,39 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+
+    function hasAgentAdminReadRole() {
+      return isSignedIn() && request.auth.token.agentRole in ["owner", "admin_operator", "agent_supervisor", "readonly_observer", "support_operator", "agent_executor_service"];
+    }
+
     match /adminActions/{actionId} {
       allow read, write: if false;
+    }
+
+
+    match /agentTaskProposals/{docId} {
+      allow read: if hasAgentAdminReadRole();
+      allow create, update, delete: if false;
+    }
+
+    match /agentTaskApprovals/{docId} {
+      allow read: if hasAgentAdminReadRole();
+      allow create, update, delete: if false;
+    }
+
+    match /agentTaskExecutions/{docId} {
+      allow read: if hasAgentAdminReadRole();
+      allow create, update, delete: if false;
+    }
+
+    match /agentTaskAuditLog/{docId} {
+      allow read: if hasAgentAdminReadRole();
+      allow create, update, delete: if false;
+    }
+
+    match /agentTaskCheckResults/{docId} {
+      allow read: if hasAgentAdminReadRole();
+      allow create, update, delete: if false;
     }
 
     match /{document=**} {

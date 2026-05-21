@@ -345,3 +345,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - Folgeprompts erstellt: `CODEX_PROMPT_AGENT_ADMIN_SERVER_ROLES_AUDIT.md`, `CODEX_PROMPT_BETA1_LIVE_PAGES_RUNTIME_PLAN.md`; Human-Evidence-Prompt auf Masterplan verwiesen.
 - Bestaetigt: keine Runtime-Dateien/Firebase-Functions/Firestore-Rules geaendert; keine Pilotfreigabe; keine Agent-Runtime-Autonomie aktiviert.
 - Naechster empfohlener Branch: `plan/agent-admin-server-roles-audit-runtime-scope` (Prioritaet) oder `plan/beta1-live-pages-runtime-scope`.
+
+- Runtime governance track: server-only agentTask approval/execution lifecycle with audit-log mandatory write added.
