@@ -4,9 +4,28 @@
     "purpose": "Fortschrittslog fuer Stufe-4-Agentenarbeit.",
     "issue": 19,
     "status": "initial-governance-layer",
-    "updated": "2026-05-20"
+    "updated": "2026-05-21"
   },
   "entries": [
+    {
+      "id": "2026-05-21-beta1-pilot-go-no-go-matrix",
+      "date": "2026-05-21",
+      "branch": "readiness/beta1-pilot-go-no-go-matrix",
+      "goal": "Create Beta-1 pilot readiness decision artifacts (go/no-go matrix, readiness checklist, support runbook, and execution prompt) for Austria closed beta wave 1 (25-50 testers) without runtime changes.",
+      "changedAreas": [
+        "docs/beta/BETA1_PILOT_GO_NO_GO_MATRIX.md",
+        "docs/beta/BETA1_PILOT_READINESS_CHECKLIST.md",
+        "docs/beta/BETA1_PILOT_SUPPORT_RUNBOOK.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_PILOT_READINESS_EXECUTION.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Readiness/docs-only update. Added objective Wave-1 go/no-go matrix with stop rules, pilot checklist, support severity model and incident template, and follow-up execution prompt for evidence run. No runtime files, Functions, Firestore Rules, .github, package manifests, production IDs, deploys, or personal tester data changed."
+    },
     {
       "id": "2026-05-20-beta1-manual-demo-seed-runbook",
       "date": "2026-05-20",

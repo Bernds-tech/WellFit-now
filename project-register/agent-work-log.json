@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-20",
+  "updated": "2026-05-21",
   "purpose": "Machine-readable WellFit agent work log for recording completed agent runs, changed files, checks, follow-ups, and the next recommended safe task without creating duplicate architecture or parallel systems.",
   "governance": {
     "readBeforeUpdating": [
@@ -102,6 +102,37 @@
     }
   },
   "entries": [
+    {
+      "taskId": "BETA1-PILOT-GO-NO-GO-MATRIX",
+      "title": "Add Beta-1 pilot Go/No-Go readiness matrix and support docs",
+      "status": "done",
+      "pr": {
+        "branch": "readiness/beta1-pilot-go-no-go-matrix",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 pilot Go/No-Go matrix"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_PILOT_GO_NO_GO_MATRIX.md",
+        "docs/beta/BETA1_PILOT_READINESS_CHECKLIST.md",
+        "docs/beta/BETA1_PILOT_SUPPORT_RUNBOOK.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_PILOT_READINESS_EXECUTION.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Recommended next branch: readiness/beta1-pilot-evidence-run to execute manual seed evidence, device checks, dashboard verification, and final matrix status updates."
+      ],
+      "nextRecommendedTask": "readiness/beta1-pilot-evidence-run",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "riskLevel": "low"
+    },
     {
       "taskId": "BETA1-MANUAL-DEMO-SEED-RUNBOOK",
       "title": "Add Beta-1 manual demo seed runbook",
