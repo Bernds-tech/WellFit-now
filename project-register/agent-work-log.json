@@ -3838,6 +3838,37 @@
       ],
       "nextRecommendedTask": "plan/beta1-live-pages-runtime-scope",
       "riskLevel": "medium"
+    },
+    {
+      "taskId": "runtime-beta1-professional-ui-foundation",
+      "title": "Add Beta-1 professional UI foundation",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/beta1-professional-ui-foundation",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 professional UI foundation"
+      },
+      "changedFiles": [
+        "components/beta1/Beta1Foundation.tsx",
+        "app/dashboard/components/Beta1ReadProjectionPanel.tsx",
+        "components/admin/Beta1AdminPanel.tsx",
+        "app/admin/beta1/page.tsx",
+        "app/dashboard/page.tsx",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "checks": [],
+      "followUps": [
+        "Next recommended branch: runtime/beta1-points-shop-page.",
+        "Then: runtime/beta1-leaderboard-readonly, runtime/beta1-analytics-stats-own-view, runtime/beta1-marketplace-preview-placeholder."
+      ],
+      "nextRecommendedTask": "runtime/beta1-points-shop-page",
+      "riskLevel": "medium",
+      "notes": "Professionalized dashboard/admin beta surfaces with reusable Beta1 foundation components (page shell, section card, status badge, metric card, empty state). No Functions/Rules changes, no new client authority, no product logic change."
     }
   ]
 }

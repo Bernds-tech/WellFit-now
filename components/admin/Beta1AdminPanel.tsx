@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { verifyAdminClaim, type AdminGuardState } from "@/lib/admin/beta1AdminGuards";
 import { BETA1_SMOKE_CHECKPOINT_TEMPLATE, BETA1_SMOKE_GLITCH_TEMPLATE, BETA1_SMOKE_MISSION_TEMPLATE, BETA1_SMOKE_XP_ADJUST_TEMPLATE } from "@/lib/admin/beta1SmokeTemplates";
+import { Beta1SectionCard, Beta1StatusBadge } from "@/components/beta1/Beta1Foundation";
 import {
   validateCheckpointCreate,
   validateGlitchCancel,
@@ -62,8 +63,13 @@ export default function Beta1AdminPanel() {
   }
 
   return (
-    <section className="space-y-4 text-sm text-white">
-      <p className="rounded border border-cyan-400/30 bg-cyan-300/10 p-3">Admin-Panel (Beta-1): Nur bestehende serverseitige Callables; Client validiert Payloads vor, ersetzt aber keine Server-Authority.</p>
+    <section className="space-y-4 text-sm text-slate-100">
+      <Beta1SectionCard title="Admin-Panel (Beta-1)" description="Nutzt nur bestehende serverseitige Callables. Clientseitige Validierung ergänzt die Eingabeprüfung, ersetzt aber keine Server-Authority.">
+        <div className="flex flex-wrap gap-2">
+          <Beta1StatusBadge tone="info">Callable-basierte Bedienoberfläche</Beta1StatusBadge>
+          <Beta1StatusBadge tone="neutral">Keine neue Client-Authority</Beta1StatusBadge>
+        </div>
+      </Beta1SectionCard>
       <section className="rounded border border-white/20 bg-slate-900/40 p-3 text-xs text-white/80">
         <p className="font-semibold text-white">Empfohlener Smoke-Test Ablauf</p>
         <ol className="mt-2 list-decimal space-y-1 pl-4">
@@ -155,7 +161,7 @@ export default function Beta1AdminPanel() {
             await run("agent-block", () => beta1AdminClient.blockAgentTaskExecution(payload));
           }} />
         </div>
-        <p className="mt-3 rounded border border-amber-400/40 bg-amber-300/10 p-2">Dieser Prompt startet nichts automatisch. Er muss manuell in Codex verwendet werden. Kein Auto-Merge, kein Deploy.</p>
+        <p className="mt-3 rounded border border-amber-400/40 bg-amber-300/10 p-2">Dieser Prompt startet nichts automatisch. Er wird manuell in Codex verwendet. Kein Auto-Merge, kein Deploy.</p>
       </section>
     </section>
   );
