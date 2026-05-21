@@ -391,3 +391,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - Datenpfad: `lib/beta1/clientReadProjections.ts#readLeaderboardPreview` nutzt nur sichere eigene Projektionen (Wallet/Missions/Checkpoints) und liefert bei fehlender serverseitiger Aggregation eine klar markierte Limited-Preview.
 - Guardrails: keine Firebase Functions, keine Firestore Rules, keine Server-Authority-Aenderung, keine öffentlichen Kinderprofile.
 - Empfohlener Folgebranch: `runtime/beta1-analytics-stats-own-view`.
+
+- [x] 2026-05-21 Runtime-Slice `runtime/beta1-analytics-stats-own-view` umgesetzt: `/analytics` als Beta-1 Analytics/Stats Own-View mit sicheren Read-Projections und Limited-Preview-Fallback ohne neue Functions/Rules und ohne Client-Authority.

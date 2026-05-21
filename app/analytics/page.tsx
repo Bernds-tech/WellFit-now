@@ -1,30 +1,13 @@
-import ProductModulePlaceholderPage from "@/app/components/ProductModulePlaceholderPage";
+import { Beta1PageShell } from "@/components/beta1/Beta1Foundation";
+import Beta1AnalyticsStats from "@/components/beta1/Beta1AnalyticsStats";
 
 export default function AnalyticsPage() {
   return (
-    <ProductModulePlaceholderPage
-      eyebrow="Produktmodul"
-      title="Analytics & Stats"
-      subtitle="Analytics wird als sichere Auswertungsoberfläche vorbereitet. Gesundheits-, Kamera-, Pose-, Face- und Bewegungsdaten benötigen klare Zustimmung und Datenminimierung."
-      status="Vorbereitet"
-      cards={[
-        {
-          title: "Persönliche Statistik",
-          body: "Später können Nutzer Fortschritt, Aktivität, Missionen, Streaks und interne Punkte nachvollziehen. Medizinische Diagnosen oder Therapieaussagen bleiben ausgeschlossen.",
-        },
-        {
-          title: "Datenschutz zuerst",
-          body: "Auswertungen müssen opt-in, minimiert und transparent sein. Sensible Rohdaten werden nicht automatisch für Forschung, Partner oder Werbung genutzt.",
-        },
-        {
-          title: "Team- und Firmenberichte",
-          body: "B2B-Analytics darf später nur aggregiert, anonymisiert und streng vom Arbeitgeberzugriff auf Einzelpersonen getrennt erfolgen.",
-        },
-        {
-          title: "Nächste technische Stufe",
-          body: "Analytics-Readmodels, Consent-Flags und sichere Aggregationspfade definieren, bevor echte Auswertungen produktiv erscheinen.",
-        },
-      ]}
-    />
+    <Beta1PageShell
+      title="Beta-1 Analytics & Stats"
+      subtitle="Eigene, read-only Fortschrittsansicht auf Basis sicherer Projektionen. Keine Gesundheitsdiagnosen, keine sensiblen Rohdaten, keine clientseitige Authority."
+    >
+      <Beta1AnalyticsStats />
+    </Beta1PageShell>
   );
 }

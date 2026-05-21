@@ -3945,6 +3945,38 @@
       "nextRecommendedTask": "runtime/beta1-analytics-stats-own-view",
       "riskLevel": "high",
       "notes": "Implemented /leaderboard as privacy-safe read-only limited view. No public child profiles, no sensitive location/health data, no client ranking authority. Used own projection fallback if shared leaderboard aggregation is unavailable."
+    },
+    {
+      "taskId": "runtime-beta1-analytics-stats-own-view",
+      "title": "Add Beta-1 analytics stats own view",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/beta1-analytics-stats-own-view",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 analytics stats own view"
+      },
+      "changedFiles": [
+        "app/analytics/page.tsx",
+        "components/beta1/Beta1AnalyticsStats.tsx",
+        "components/beta1/Beta1AnalyticsMetricGrid.tsx",
+        "components/beta1/Beta1AnalyticsSafetyNotice.tsx",
+        "lib/beta1/clientReadProjections.ts",
+        "lib/beta1/beta1Types.ts",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Next recommended branch: runtime/beta1-marketplace-preview-placeholder."
+      ],
+      "nextRecommendedTask": "runtime/beta1-marketplace-preview-placeholder",
+      "riskLevel": "high",
+      "notes": "Implemented /analytics as read-only own-view using existing safe projections. No dedicated server analytics projection; limited preview fallback used. No Functions/Rules changes and no client final authority."
     }
   ]
 }
