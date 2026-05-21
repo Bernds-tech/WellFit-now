@@ -393,3 +393,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - Empfohlener Folgebranch: `runtime/beta1-analytics-stats-own-view`.
 
 - [x] 2026-05-21 Runtime-Slice `runtime/beta1-analytics-stats-own-view` umgesetzt: `/analytics` als Beta-1 Analytics/Stats Own-View mit sicheren Read-Projections und Limited-Preview-Fallback ohne neue Functions/Rules und ohne Client-Authority.
+- [x] 2026-05-21 Runtime-Slice `runtime/beta1-marketplace-preview-placeholder` umgesetzt: Neue Route `/marketplace` mit Alias `/marktplatz` als professioneller Preview-/Placeholder-Bereich (nicht aktiv), inklusive Guardrail-Notices und neutralen Konzeptkarten ohne Handelsfunktionen.
+- [>] Empfohlener Folgebranch: `readiness/beta1-live-pages-navigation-and-device-smoke` (alternativ `runtime/beta1-live-pages-navigation-polish`).

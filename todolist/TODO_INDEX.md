@@ -592,3 +592,6 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - Next: `runtime/beta1-analytics-stats-own-view`.
 
 - [x] 2026-05-21 Runtime-Slice `runtime/beta1-analytics-stats-own-view` umgesetzt: `/analytics` als Beta-1 Analytics/Stats Own-View mit sicheren Read-Projections und Limited-Preview-Fallback ohne neue Functions/Rules und ohne Client-Authority.
+- [x] 2026-05-21 Runtime-Slice `runtime/beta1-marketplace-preview-placeholder` umgesetzt: `/marketplace` + `/marktplatz` Alias als safe Preview/Placeholder mit Beta1 Foundation UI-Bausteinen.
+- [x] Guardrails bestaetigt: keine echten Listings/Trades, keine Wallet-/Token-/NFT-/Cashout-/Payment-Semantik, keine Firestore Writes, keine neuen Functions, keine Rules-Aenderung, keine Client-Final-Authority.
+- [>] Next: `readiness/beta1-live-pages-navigation-and-device-smoke` (alternativ `runtime/beta1-live-pages-navigation-polish`).

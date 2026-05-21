@@ -353,3 +353,5 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [>] Nächster empfohlener Branch: `runtime/beta1-analytics-stats-own-view`.
 
 - [x] 2026-05-21 Runtime-Slice `runtime/beta1-analytics-stats-own-view` umgesetzt: `/analytics` als Beta-1 Analytics/Stats Own-View mit sicheren Read-Projections und Limited-Preview-Fallback ohne neue Functions/Rules und ohne Client-Authority.
+- [x] 2026-05-21 Runtime-Slice `runtime/beta1-marketplace-preview-placeholder` umgesetzt: `/marketplace` + Alias `/marktplatz` als professionelle Preview-/Placeholder-Seite mit klarer "nicht aktiv"-Kennzeichnung, ohne Listings/Trading/Wallet/Token/NFT/Cashout/Payment.
+- [>] Naechster empfohlener Branch: `readiness/beta1-live-pages-navigation-and-device-smoke` (alternativ `runtime/beta1-live-pages-navigation-polish`).
