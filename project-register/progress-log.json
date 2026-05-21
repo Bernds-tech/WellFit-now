@@ -909,6 +909,29 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Added handoff-only execution metadata/callables and admin UI controls for prepare/block flows. No automatic code execution, no GitHub API integration, no auto-merge, no auto-deploy, human merge remains required, protected scopes remain blocked unless owner allowlist rules are met."
+    },
+    {
+      "id": "2026-05-21-agent-admin-safe-codex-bridge",
+      "date": "2026-05-21",
+      "branch": "runtime/agent-admin-safe-codex-bridge",
+      "goal": "Generate manual-only, auditable Codex handoff prompts from ready_for_handoff executions without auto-run/deploy/merge or GitHub API integration.",
+      "changedAreas": [
+        "functions/lib/agentAdminRolesAudit.js",
+        "functions/test/agentAdminRolesAuditEmulatorTest.js",
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts",
+        "components/admin/Beta1AdminPanel.tsx",
+        "docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md",
+        "docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added handoff prompt collection model + callables + admin prompt copy flow. No auto code execution, no GitHub API integration, no auto-merge/deploy, human merge required remains true."
     }
   ]
 }

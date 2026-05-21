@@ -21,3 +21,6 @@ export type AdminAdjustXpInput = { ownerUserId: string; delta: number; reason: s
 
 export type AgentPrHandoffInput = { executionId: string; branchName: string; title: string; summary: string };
 export type AgentExecutionActionInput = { executionId: string; reason?: string };
+export type AgentHandoffPromptGenerateInput = { executionId: string; commitMessage?: string; prTitle?: string };
+export type AgentHandoffPromptGetInput = { handoffPromptId: string };
+export type AgentHandoffPromptCopiedInput = { handoffPromptId: string };

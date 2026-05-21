@@ -6,6 +6,7 @@ const PROPOSAL_STATUSES = ["proposed", "review_required", "approved", "rejected"
 const APPROVAL_STATUSES = ["approved", "rejected", "revoked"];
 const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked"];
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
+const HANDOFF_PROMPT_STATUSES = ["generated", "copied", "superseded", "blocked"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
 
 const BASE_REQUIRED_CHECKS = ["npm run agent:validate", "npm run agent:quality-gate", "npm run lint", "git diff --check"];
@@ -78,6 +79,64 @@ async function writeAgentAudit(db, payload) {
 }
 
 function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError }) {
+  function buildCodexHandoffPrompt({ execution, proposal, requiredChecks, allowedFiles, blockedFiles, protectedScopes, branchName, commitMessage, prTitle, reportRequirements }) {
+    const targetTrack = optionalString(proposal.targetTrack, 80) || "blocked";
+    const guardrailByTrack = {
+      docs_register: "Nur Docs/Register Aenderungen; keine Runtime-/Authority-Logik aendern.",
+      runtime_ui: "Nur UI-Runtime; keine serverseitige Authority, keine Reward-Autorisierung im Client.",
+      runtime_backend: "Functions/Rules nur in freigegebenem Scope und mit Checks/Testpflicht.",
+      live_page: "Live-Page Guardrails einhalten; keine Token/Cashout/Payment/NFT/Marketplace-Handelslogik.",
+      evidence: "Nur Evidence/Docs Updates; kein produktiver Runtime-Flow.",
+      blocked: "BLOCKED targetTrack: keine Ausfuehrung erlaubt.",
+    };
+    const lines = [
+      "1) Kontext",
+      `Execution ${execution.executionId} ist approved + queued + ready_for_handoff. Prompt dient nur manuellem Codex-Handoff.`,
+      "",
+      "2) Ziel",
+      execution.handoffSummary || "Sicherer, auditierbarer Handoff ohne Auto-Run.",
+      "",
+      "3) Branch",
+      `Arbeite NICHT auf main. Nutze exakt Branch: ${branchName}`,
+      "",
+      "4) Pflichtlektuere",
+      "- AGENTS.md",
+      "- docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
+      "- docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md",
+      "",
+      "5) Erlaubte Dateien",
+      ...(allowedFiles.length ? allowedFiles.map((f) => `- ${f}`) : ["- (keine)"]),
+      "",
+      "6) Verbotene Dateien",
+      ...(blockedFiles.length ? blockedFiles.map((f) => `- ${f}`) : ["- (keine)"]),
+      "",
+      "7) Aufgaben",
+      execution.handoffTitle || "Implementiere nur den freigegebenen Scope.",
+      "",
+      "8) Sicherheitsgrenzen",
+      "- Kein Auto-Run, kein GitHub API Call, kein Auto-Merge, kein Auto-Deploy.",
+      "- Human merge required bleibt true.",
+      `- Track Guardrail: ${guardrailByTrack[targetTrack] || guardrailByTrack.blocked}`,
+      ...(protectedScopes.length ? [`- Protected scopes explizit blockiert ohne separate Freigabe: ${protectedScopes.join(", ")}`] : ["- Keine protected scopes freigegeben."]),
+      "",
+      "9) Stop-Bedingungen",
+      "- Stop bei Bedarf von Auto-Run/Auto-Merge/Auto-Deploy/GitHub-API.",
+      "- Stop bei unsicherer Rollenpruefung, fehlendem Audit-Write oder Scope-Eskalation.",
+      "",
+      "10) Checks",
+      ...requiredChecks.map((c) => `- ${c}`),
+      "",
+      "11) Commit",
+      `- ${commitMessage}`,
+      "",
+      "12) PR-Titel",
+      `- ${prTitle}`,
+      "",
+      "13) Bericht",
+      ...reportRequirements.map((r) => `- ${r}`),
+    ];
+    return lines.join("\n");
+  }
   exportsTarget.createAgentTaskProposal = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator", "agent_supervisor"]);
     const data = request.data || {};
@@ -253,6 +312,76 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const execution = executionSnap.data() || {};
     await writeAgentAudit(db, { actorId, actorRole, action: "execution_handoff_created", proposalId: execution.proposalId || null, approvalId: execution.approvalId || null, executionId, result: "handoff_created" });
     return { accepted: true, executionId, prHandoffStatus: "handoff_created", humanMergeRequired: true };
+  });
+
+  exportsTarget.generateAgentTaskCodexPrompt = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const executionId = requiredString(request.data && request.data.executionId, "executionId", HttpsError, 180);
+    const executionRef = db.collection("agentTaskExecutions").doc(executionId);
+    const executionSnap = await executionRef.get();
+    if (!executionSnap.exists) throw new HttpsError("not-found", "Execution nicht gefunden.");
+    const execution = executionSnap.data() || {};
+    if (execution.prHandoffStatus !== "ready_for_handoff") throw new HttpsError("failed-precondition", "Execution ist nicht ready_for_handoff.");
+    const proposalId = requiredString(execution.proposalId, "proposalId", HttpsError, 180);
+    const approvalId = requiredString(execution.approvalId, "approvalId", HttpsError, 180);
+    const [proposalSnap, approvalSnap] = await Promise.all([db.collection("agentTaskProposals").doc(proposalId).get(), db.collection("agentTaskApprovals").doc(approvalId).get()]);
+    if (!proposalSnap.exists || !approvalSnap.exists) throw new HttpsError("failed-precondition", "Proposal oder Approval fehlt.");
+    const proposal = proposalSnap.data() || {};
+    const approval = approvalSnap.data() || {};
+    if (approval.proposalId !== proposalId || approval.status !== "approved") throw new HttpsError("failed-precondition", "Approval inkonsistent.");
+    const targetTrack = optionalString(proposal.targetTrack, 80) || "blocked";
+    if (targetTrack === "blocked") throw new HttpsError("failed-precondition", "Blocked targetTrack darf keinen Prompt erzeugen.");
+    const branchName = requiredString(execution.handoffBranchName, "handoffBranchName", HttpsError, 200);
+    const allowedFiles = parseStringList(execution.allowedFilesSnapshot || approval.approvedAllowedFiles || []);
+    const blockedFiles = parseStringList(execution.blockedFilesSnapshot || approval.approvedBlockedFiles || []);
+    const protectedScopes = parseStringList(execution.protectedScopesSnapshot || proposal.protectedScopes || [], 40, 80);
+    const requiredChecks = parseStringList(execution.requiredChecks || buildRequiredChecks({ targetTrack, allowedFiles }), 40, 240);
+    const commitMessage = optionalString(request.data && request.data.commitMessage, 240) || "feat: add safe codex handoff prompts";
+    const prTitle = optionalString(request.data && request.data.prTitle, 200) || execution.handoffTitle || "Add safe Codex handoff prompts";
+    const reportRequirements = [
+      "Branch",
+      "geaenderte Dateien",
+      "Checks mit Ergebnis",
+      "Risiken/Blocker",
+      "Auto-Merge/Deploy weiter verboten",
+      "Prompt manuell in Codex verwenden",
+    ];
+    const promptText = buildCodexHandoffPrompt({ execution, proposal, requiredChecks, allowedFiles, blockedFiles, protectedScopes, branchName, commitMessage, prTitle, reportRequirements });
+    const promptRef = db.collection("agentTaskHandoffPrompts").doc();
+    const doc = { handoffPromptId: promptRef.id, executionId, proposalId, approvalId, branchName, promptText, allowedFiles, blockedFiles, protectedScopes, requiredChecks, commitMessage, prTitle, reportRequirements, status: "generated", humanMergeRequired: true, autoMerge: false, autoDeploy: false, createdAt: FieldValue.serverTimestamp(), createdBy: actorId, createdByRole: actorRole };
+    await promptRef.set(doc);
+    await writeAgentAudit(db, { actorId, actorRole, action: "codex_prompt_generated", proposalId, approvalId, executionId, allowedFiles, blockedFiles, result: "generated", promptRef: promptRef.id });
+    return { accepted: true, handoffPromptId: promptRef.id, status: "generated", promptText, branchName, humanMergeRequired: true, autoMerge: false, autoDeploy: false };
+  });
+
+  exportsTarget.getAgentTaskCodexPrompt = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
+    const handoffPromptId = requiredString(request.data && request.data.handoffPromptId, "handoffPromptId", HttpsError, 180);
+    const snap = await db.collection("agentTaskHandoffPrompts").doc(handoffPromptId).get();
+    if (!snap.exists) throw new HttpsError("not-found", "Handoff Prompt nicht gefunden.");
+    return { accepted: true, prompt: snap.data() };
+  });
+
+  exportsTarget.markAgentTaskCodexPromptCopied = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const handoffPromptId = requiredString(request.data && request.data.handoffPromptId, "handoffPromptId", HttpsError, 180);
+    const ref = db.collection("agentTaskHandoffPrompts").doc(handoffPromptId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Handoff Prompt nicht gefunden.");
+    const prompt = snap.data() || {};
+    if (!HANDOFF_PROMPT_STATUSES.includes(prompt.status || "")) throw new HttpsError("failed-precondition", "Ungültiger Prompt-Status.");
+    await ref.set({ status: "copied", copiedAt: FieldValue.serverTimestamp(), copiedBy: actorId, copiedByRole: actorRole, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "codex_prompt_copied", proposalId: prompt.proposalId || null, approvalId: prompt.approvalId || null, executionId: prompt.executionId || null, promptRef: handoffPromptId, result: "copied" });
+    return { accepted: true, handoffPromptId, status: "copied" };
+  });
+
+  exportsTarget.listAgentTaskHandoffPrompts = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
+    const executionId = optionalString(request.data && request.data.executionId, 180);
+    let query = db.collection("agentTaskHandoffPrompts").orderBy("createdAt", "desc").limit(100);
+    if (executionId) query = query.where("executionId", "==", executionId);
+    const snapshot = await query.get();
+    return { accepted: true, prompts: snapshot.docs.map((doc) => doc.data()) };
   });
 
   exportsTarget.blockAgentTaskExecution = onCall(async (request) => {

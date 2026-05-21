@@ -3767,6 +3767,37 @@
       ],
       "nextRecommendedTask": "runtime/agent-admin-safe-codex-bridge",
       "riskLevel": "medium"
+    },
+    {
+      "taskId": "runtime-agent-admin-safe-codex-bridge",
+      "title": "Add safe codex handoff prompts",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/agent-admin-safe-codex-bridge",
+        "number": null,
+        "url": null,
+        "title": "Add safe Codex handoff prompts"
+      },
+      "changedFiles": [
+        "functions/lib/agentAdminRolesAudit.js",
+        "functions/test/agentAdminRolesAuditEmulatorTest.js",
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts",
+        "components/admin/Beta1AdminPanel.tsx",
+        "docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md",
+        "docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Next recommended branch: plan/beta1-live-pages-runtime-scope"
+      ],
+      "nextRecommendedTask": "plan/beta1-live-pages-runtime-scope",
+      "riskLevel": "medium"
     }
   ]
 }

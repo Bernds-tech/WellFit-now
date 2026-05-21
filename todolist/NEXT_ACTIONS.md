@@ -312,3 +312,10 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [ ] Next branch recommendation: runtime/agent-admin-execution-queue-pr-handoff
 
 - 2026-05-21: Runtime slice PR-Handoff Queue ergänzt (Execution-Handoff-Felder, prepare/mark/block/list Callables, requiredChecks-Metadaten, humanMergeRequired=true). Kein Auto-Merge, kein Auto-Deploy, keine automatische Codeausführung.
+
+
+## 2026-05-21 Safe Codex Handoff Prompts
+- Added `agentTaskHandoffPrompts` handoff model with audit-ready fields and copy-status flow.
+- Added callables: `generateAgentTaskCodexPrompt`, `getAgentTaskCodexPrompt`, `markAgentTaskCodexPromptCopied`, `listAgentTaskHandoffPrompts`.
+- Admin UI flow is manual-only; no auto-run, no GitHub API, no auto-merge/deploy; human merge required.
+- Next recommended branch: `plan/beta1-live-pages-runtime-scope` (alternative: `runtime/agent-admin-live-page-task-template`).
