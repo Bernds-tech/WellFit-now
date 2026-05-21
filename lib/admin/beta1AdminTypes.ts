@@ -28,3 +28,4 @@ export type AgentWorkerQueueCreateInput = { executionId: string; handoffPromptId
 export type AgentWorkerQueueActionInput = { workerQueueId: string; reason?: string; prRef?: string; workerStatus?: string };
 export type AgentWorkerQueueChecksInput = { workerQueueId: string; checks: Array<{ command: string; result: "pass" | "fail" | "blocked" | "skipped"; summary?: string; timestamp?: string }> };
 export type AgentAutomationPolicyInput = { workerQueueId?: string; policyId?: string; environment?: "preview" | "staging" | "production"; reason?: string; secondApproval?: boolean };
+export type AgentRunnerJobInput = { workerQueueId: string; policyId: string; runMode?: "metadata_only" | "supervised_runner" };

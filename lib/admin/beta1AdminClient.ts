@@ -18,6 +18,7 @@ import type {
   AgentWorkerQueueChecksInput,
   AgentWorkerQueueCreateInput,
   AgentAutomationPolicyInput,
+  AgentRunnerJobInput,
 } from "./beta1AdminTypes";
 
 function sanitizeAdminError(error: unknown): string {
@@ -69,6 +70,19 @@ export const beta1AdminClient = {
   getAgentWorkerQueueItem: (workerQueueId: string) => callAdmin("getAgentWorkerQueueItem", { workerQueueId }),
   createAgentAutomationPolicy: (input: AgentAutomationPolicyInput) => callAdmin("createAgentAutomationPolicy", input),
   requestAgentAutoMerge: (input: AgentAutomationPolicyInput) => callAdmin("requestAgentAutoMerge", input),
+  approveAgentAutoMerge: (input: AgentAutomationPolicyInput) => callAdmin("approveAgentAutoMerge", input),
+  rejectAgentAutoMerge: (input: AgentAutomationPolicyInput) => callAdmin("rejectAgentAutoMerge", input),
+  requestAgentDeploy: (input: AgentAutomationPolicyInput) => callAdmin("requestAgentDeploy", input),
+  approveAgentDeploy: (input: AgentAutomationPolicyInput) => callAdmin("approveAgentDeploy", input),
+  rejectAgentDeploy: (input: AgentAutomationPolicyInput) => callAdmin("rejectAgentDeploy", input),
+  requestAgentQualityGateOverride: (input: AgentAutomationPolicyInput) => callAdmin("requestAgentQualityGateOverride", input),
+  approveAgentQualityGateOverride: (input: AgentAutomationPolicyInput) => callAdmin("approveAgentQualityGateOverride", input),
+  rejectAgentQualityGateOverride: (input: AgentAutomationPolicyInput) => callAdmin("rejectAgentQualityGateOverride", input),
+  requestAgentProductionDeploySecondApproval: (input: AgentAutomationPolicyInput) => callAdmin("requestAgentProductionDeploySecondApproval", input),
+  approveAgentProductionDeploySecondApproval: (input: AgentAutomationPolicyInput) => callAdmin("approveAgentProductionDeploySecondApproval", input),
+  rejectAgentProductionDeploySecondApproval: (input: AgentAutomationPolicyInput) => callAdmin("rejectAgentProductionDeploySecondApproval", input),
+  recordAgentAutomationExecutionMetadata: (input: AgentAutomationPolicyInput) => callAdmin("recordAgentAutomationExecutionMetadata", input),
+  prepareAgentSupervisedRunnerJob: (input: AgentRunnerJobInput) => callAdmin("prepareAgentSupervisedRunnerJob", input),
   getAgentAutomationPolicy: (policyId: string) => callAdmin("getAgentAutomationPolicy", { policyId }),
   listAgentAutomationPolicies: (status?: string) => callAdmin("listAgentAutomationPolicies", status ? { status } : {}),
 };

@@ -16,8 +16,9 @@ const BASE_REQUIRED_CHECKS = ["npm run agent:validate", "npm run agent:quality-g
 const FUNCTION_SCOPE_MARKERS = ["runtime_backend", "functions", "firestore"];
 const UI_SCOPE_MARKERS = ["runtime_ui", "live_page", "ui", "app", "components"];
 const AUTOMATION_POLICY_STATUSES = ["policy_draft", "waiting_for_checks", "waiting_for_admin_decision", "approved_for_auto_merge", "approved_for_staging_deploy", "approved_for_production_deploy", "rejected", "blocked", "executed_metadata_only"];
-const AUTOMATION_STATUSES = ["not_requested", "merge_requested", "merge_approved", "deploy_requested", "deploy_approved", "automation_blocked", "metadata_executed"];
+const AUTOMATION_STATUSES = ["not_requested", "merge_requested", "merge_approved", "merge_rejected", "deploy_requested", "deploy_approved", "deploy_rejected", "waiting_second_approval", "ready_for_supervised_runner", "runner_executed", "automation_blocked", "metadata_executed"];
 const DEPLOY_ENVIRONMENTS = ["none", "preview", "staging", "production"];
+const SUPERVISED_RUNNER_STATUSES = ["not_configured", "metadata_only", "ready", "running", "completed", "failed"];
 const HIGH_RISK_FILE_PREFIXES = ["functions/", ".github/"];
 const HIGH_RISK_EXACT_FILES = ["firestore.rules", "package.json", "package-lock.json"];
 
@@ -113,8 +114,10 @@ function canRequestAutoMerge(workerItem) {
 
 function canApproveAutoMerge(policy, actorRole) {
   if (!["owner", "agent_supervisor"].includes(actorRole)) return { allowed: false, reason: "role_denied" };
-  if (policy.riskLevel === "high") return { allowed: false, reason: "high_risk_manual" };
-  if (!policy.allRequiredChecksPassed || !policy.qualityGatePassed) return { allowed: false, reason: "checks_failed" };
+  if (policy.riskLevel === "high" && actorRole !== "owner") return { allowed: false, reason: "owner_required_for_high_risk" };
+  if (!policy.allRequiredChecksPassed) return { allowed: false, reason: "checks_failed" };
+  if (!policy.qualityGatePassed && !policy.qualityGateOverrideApproved) return { allowed: false, reason: "quality_gate_failed" };
+  if (policy.riskLevel === "high" && !optionalString(policy.humanOverrideReason, 1000)) return { allowed: false, reason: "override_reason_required" };
   return { allowed: true, reason: "ok" };
 }
 
@@ -127,11 +130,14 @@ function canRequestAutoDeploy(workerItem, environment) {
 
 function canApproveDeploy(policy, actorRole, environment) {
   if (!["owner", "agent_supervisor"].includes(actorRole)) return { allowed: false, reason: "role_denied" };
+  if (!policy.allRequiredChecksPassed) return { allowed: false, reason: "checks_failed" };
+  if (!policy.qualityGatePassed && !policy.qualityGateOverrideApproved) return { allowed: false, reason: "quality_gate_failed" };
+  if (policy.riskLevel === "high" && actorRole !== "owner") return { allowed: false, reason: "owner_required_for_high_risk" };
+  if (policy.riskLevel === "high" && !optionalString(policy.humanOverrideReason, 1000)) return { allowed: false, reason: "override_reason_required" };
   if (environment === "production") {
     if (actorRole !== "owner") return { allowed: false, reason: "owner_only" };
     if (!policy.productionDeploySecondApprovalApproved) return { allowed: false, reason: "second_approval_required" };
   }
-  if (!policy.allRequiredChecksPassed || !policy.qualityGatePassed) return { allowed: false, reason: "checks_failed" };
   return { allowed: true, reason: "ok" };
 }
 
@@ -679,7 +685,131 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const policy = policySnap.data() || {};
     if (!policy.allRequiredChecksPassed) throw new HttpsError("failed-precondition", "Required checks fehlen.");
     await updatePolicyDecision({ policyId, update: { autoMergeRequested: true, status: "waiting_for_admin_decision" }, actorId, actorRole, action: "automation_auto_merge_requested" });
+    const refreshedPolicy = (await db.collection("agentTaskAutomationPolicies").doc(policyId).get()).data() || {};
+    await db.collection("agentTaskWorkerQueue").doc(refreshedPolicy.workerQueueId).set({ automationStatus: "merge_requested", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     return { accepted: true, policyId, status: "waiting_for_admin_decision" };
+  });
+
+  exportsTarget.approveAgentAutoMerge = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const ref = db.collection("agentTaskAutomationPolicies").doc(policyId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Automation Policy nicht gefunden.");
+    const policy = snap.data() || {};
+    if (!policy.autoMergeRequested) throw new HttpsError("failed-precondition", "Auto-Merge wurde noch nicht angefragt.");
+    const gate = canApproveAutoMerge(policy, actorRole);
+    if (!gate.allowed) throw new HttpsError("failed-precondition", `Auto-Merge blockiert: ${gate.reason}`);
+    const approvalSnapshot = { actorId, actorRole, timestamp: new Date().toISOString() };
+    await ref.set({ autoMergeApproved: true, autoMergeApprovedBy: actorId, autoMergeApprovedByRole: actorRole, autoMergeDecisionAt: FieldValue.serverTimestamp(), autoMergeApprovedSnapshot: approvalSnapshot, autoMerge: true, status: "approved_for_auto_merge", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await db.collection("agentTaskWorkerQueue").doc(policy.workerQueueId).set({ automationStatus: "merge_approved", autoMerge: true, autoMergeApprovedSnapshot: approvalSnapshot, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "automation_auto_merge_approved", proposalId: policy.proposalId || null, approvalId: policy.approvalId || null, executionId: policy.executionId || null, result: "merge_approved" });
+    return { accepted: true, policyId, autoMerge: true };
+  });
+
+  exportsTarget.rejectAgentAutoMerge = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const reason = requiredString(request.data && request.data.reason, "reason", HttpsError, 1000);
+    const policy = await updatePolicyDecision({ policyId, update: { autoMergeApproved: false, autoMerge: false, status: "rejected", lastRejectReason: reason }, actorId, actorRole, action: "automation_auto_merge_rejected" });
+    await db.collection("agentTaskWorkerQueue").doc(policy.workerQueueId).set({ automationStatus: "merge_rejected", autoMerge: false, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    return { accepted: true, policyId, status: "rejected" };
+  });
+
+  exportsTarget.requestAgentQualityGateOverride = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const reason = requiredString(request.data && request.data.reason, "reason", HttpsError, 1000);
+    await updatePolicyDecision({ policyId, update: { qualityGateOverrideRequested: true, qualityGateOverrideApproved: false, humanOverrideReason: reason }, actorId, actorRole, action: "automation_quality_gate_override_requested" });
+    return { accepted: true, policyId, qualityGateOverrideRequested: true };
+  });
+
+  exportsTarget.approveAgentQualityGateOverride = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const ref = db.collection("agentTaskAutomationPolicies").doc(policyId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Automation Policy nicht gefunden.");
+    const policy = snap.data() || {};
+    if (!policy.qualityGateOverrideRequested) throw new HttpsError("failed-precondition", "Kein Override angefragt.");
+    const snapshot = { actorId, actorRole, timestamp: new Date().toISOString(), reason: optionalString(policy.humanOverrideReason, 1000) };
+    await ref.set({ qualityGateOverrideApproved: true, qualityGateOverrideApprovedBy: actorId, qualityGateOverrideApprovedByRole: actorRole, qualityGateOverrideDecisionAt: FieldValue.serverTimestamp(), qualityGateOverrideSnapshot: snapshot, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await db.collection("agentTaskWorkerQueue").doc(policy.workerQueueId).set({ qualityGateOverrideSnapshot: snapshot, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "automation_quality_gate_override_approved", proposalId: policy.proposalId || null, approvalId: policy.approvalId || null, executionId: policy.executionId || null, result: "approved" });
+    return { accepted: true, policyId };
+  });
+
+  exportsTarget.rejectAgentQualityGateOverride = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const reason = requiredString(request.data && request.data.reason, "reason", HttpsError, 1000);
+    await updatePolicyDecision({ policyId, update: { qualityGateOverrideApproved: false, qualityGateOverrideRequested: false, qualityGateOverrideRejectReason: reason }, actorId, actorRole, action: "automation_quality_gate_override_rejected" });
+    return { accepted: true, policyId };
+  });
+
+  exportsTarget.requestAgentDeploy = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const environment = requiredString(request.data && request.data.environment, "environment", HttpsError, 40);
+    if (!DEPLOY_ENVIRONMENTS.includes(environment) || environment === "none") throw new HttpsError("invalid-argument", "Ungültige Umgebung.");
+    const policy = await updatePolicyDecision({ policyId, update: { autoDeployRequested: true, autoDeployEnvironment: environment, productionDeploySecondApprovalRequired: environment === "production", productionDeploySecondApprovalApproved: false, status: "waiting_for_admin_decision" }, actorId, actorRole, action: "automation_deploy_requested" });
+    await db.collection("agentTaskWorkerQueue").doc(policy.workerQueueId).set({ automationStatus: "deploy_requested", autoDeploy: false, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    return { accepted: true, policyId };
+  });
+
+  exportsTarget.approveAgentDeploy = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const ref = db.collection("agentTaskAutomationPolicies").doc(policyId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Automation Policy nicht gefunden.");
+    const policy = snap.data() || {};
+    if (!policy.autoDeployRequested) throw new HttpsError("failed-precondition", "Deploy wurde nicht angefragt.");
+    const gate = canApproveDeploy(policy, actorRole, policy.autoDeployEnvironment || "none");
+    const waitingSecond = gate.reason === "second_approval_required";
+    if (!gate.allowed && !waitingSecond) throw new HttpsError("failed-precondition", `Deploy blockiert: ${gate.reason}`);
+    const snapshot = { actorId, actorRole, timestamp: new Date().toISOString(), environment: policy.autoDeployEnvironment || "none" };
+    const approved = gate.allowed;
+    await ref.set({ autoDeployApproved: approved, autoDeployApprovedBy: actorId, autoDeployApprovedByRole: actorRole, autoDeployDecisionAt: FieldValue.serverTimestamp(), autoDeployApprovedSnapshot: snapshot, autoDeploy: approved, status: waitingSecond ? "approved_for_staging_deploy" : "approved_for_staging_deploy", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await db.collection("agentTaskWorkerQueue").doc(policy.workerQueueId).set({ automationStatus: waitingSecond ? "waiting_second_approval" : "deploy_approved", autoDeploy: approved, autoDeployApprovedSnapshot: snapshot, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "automation_deploy_approved", proposalId: policy.proposalId || null, approvalId: policy.approvalId || null, executionId: policy.executionId || null, result: waitingSecond ? "waiting_second_approval" : "deploy_approved" });
+    return { accepted: true, policyId, waitingSecondApproval: waitingSecond };
+  });
+
+  exportsTarget.rejectAgentDeploy = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const reason = requiredString(request.data && request.data.reason, "reason", HttpsError, 1000);
+    const policy = await updatePolicyDecision({ policyId, update: { autoDeployApproved: false, autoDeploy: false, status: "rejected", lastRejectReason: reason }, actorId, actorRole, action: "automation_deploy_rejected" });
+    await db.collection("agentTaskWorkerQueue").doc(policy.workerQueueId).set({ automationStatus: "deploy_rejected", autoDeploy: false, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    return { accepted: true, policyId };
+  });
+  exportsTarget.requestAgentProductionDeploySecondApproval = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const policy = await updatePolicyDecision({ policyId, update: { productionDeploySecondApprovalRequired: true, productionDeploySecondApprovalApproved: false }, actorId, actorRole, action: "automation_production_second_approval_requested" });
+    await db.collection("agentTaskWorkerQueue").doc(policy.workerQueueId).set({ automationStatus: "waiting_second_approval", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    return { accepted: true, policyId };
+  });
+  exportsTarget.approveAgentProductionDeploySecondApproval = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const ref = db.collection("agentTaskAutomationPolicies").doc(policyId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Automation Policy nicht gefunden.");
+    const policy = snap.data() || {};
+    const snapshot = { actorId, actorRole, timestamp: new Date().toISOString() };
+    await ref.set({ productionDeploySecondApprovalApproved: true, productionDeploySecondApprovalBy: actorId, productionDeploySecondApprovalByRole: actorRole, productionDeploySecondApprovalAt: FieldValue.serverTimestamp(), productionDeploySecondApprovalSnapshot: snapshot, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await db.collection("agentTaskWorkerQueue").doc(policy.workerQueueId).set({ productionDeploySecondApprovalSnapshot: snapshot, automationStatus: "ready_for_supervised_runner", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "automation_production_second_approval_approved", proposalId: policy.proposalId || null, approvalId: policy.approvalId || null, executionId: policy.executionId || null, result: "approved" });
+    return { accepted: true, policyId };
+  });
+  exportsTarget.rejectAgentProductionDeploySecondApproval = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const reason = requiredString(request.data && request.data.reason, "reason", HttpsError, 1000);
+    await updatePolicyDecision({ policyId, update: { productionDeploySecondApprovalApproved: false, productionDeploySecondApprovalRejectReason: reason }, actorId, actorRole, action: "automation_production_second_approval_rejected" });
+    return { accepted: true, policyId };
   });
 
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {
@@ -689,6 +819,34 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     if (status && PROPOSAL_STATUSES.includes(status)) query = query.where("status", "==", status);
     const snapshot = await query.get();
     return { accepted: true, proposals: snapshot.docs.map((doc) => doc.data()) };
+  });
+
+  exportsTarget.recordAgentAutomationExecutionMetadata = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const status = optionalString(request.data && request.data.automationStatus, 80) || "metadata_executed";
+    if (!AUTOMATION_STATUSES.includes(status)) throw new HttpsError("invalid-argument", "Ungültiger Automation-Status.");
+    await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ automationPolicyId: policyId, automationStatus: status, supervisedRunnerStatus: "metadata_only", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "automation_execution_metadata_recorded", result: status });
+    return { accepted: true, policyId, workerQueueId, automationStatus: status };
+  });
+
+  exportsTarget.prepareAgentSupervisedRunnerJob = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const runMode = optionalString(request.data && request.data.runMode, 40) === "supervised_runner" ? "supervised_runner" : "metadata_only";
+    const policySnap = await db.collection("agentTaskAutomationPolicies").doc(policyId).get();
+    if (!policySnap.exists) throw new HttpsError("not-found", "Automation Policy nicht gefunden.");
+    const policy = policySnap.data() || {};
+    const blocked = !policy.allRequiredChecksPassed || (!policy.qualityGatePassed && !policy.qualityGateOverrideApproved) || (policy.autoDeployEnvironment === "production" && !policy.productionDeploySecondApprovalApproved);
+    const runnerStatus = blocked ? "blocked" : (runMode === "supervised_runner" ? "metadata_only" : "metadata_only");
+    const ref = db.collection("agentTaskSupervisedRunnerJobs").doc();
+    await ref.set({ runnerJobId: ref.id, workerQueueId, policyId, runMode, branchName: policy.targetBranch || null, prRef: policy.prRef || null, mergeAllowed: !!policy.autoMergeApproved, deployAllowed: !!policy.autoDeployApproved, deployEnvironment: policy.autoDeployEnvironment || "none", requiredChecks: policy.requiredChecks || [], approvalSummary: { autoMergeApprovedByRole: policy.autoMergeApprovedByRole || null, autoDeployApprovedByRole: policy.autoDeployApprovedByRole || null }, auditRef: "agentTaskAuditLog", status: runnerStatus, createdBy: actorId, createdByRole: actorRole, createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() });
+    await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ automationPolicyId: policyId, automationStatus: blocked ? "automation_blocked" : "ready_for_supervised_runner", supervisedRunnerStatus: "metadata_only", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "automation_runner_job_prepared", proposalId: policy.proposalId || null, approvalId: policy.approvalId || null, executionId: policy.executionId || null, result: runnerStatus });
+    return { accepted: true, runnerJobId: ref.id, status: runnerStatus };
   });
 }
 
