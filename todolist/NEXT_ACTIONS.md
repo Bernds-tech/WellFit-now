@@ -365,3 +365,6 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [ ] Beta-1 Human Evidence Capture ausfuellen (Device/Desktop/Route-Smoketests, Manual Seed, Boundary, Privacy, Support Path) ohne PII.
 - [ ] Wave-1 bleibt NO-GO bis Must-be-GREEN Evidence real vorliegt.
 - [ ] Naechster empfohlener Branch: `readiness/beta1-human-device-evidence-fill` (wenn Evidence fehlt) oder `readiness/beta1-wave1-final-go-no-go-review`.
+
+- [x] 2026-05-21: Runtime-Slice `runtime/beta1-live-pages-app-shell-fix` abgeschlossen: `/shop`, `/leaderboard`, `/analytics`, `/marketplace` im AppShell-Rahmen vereinheitlicht; `/marktplatz` Alias blieb sicher; Device-Evidence weiterhin `pending_human_device_evidence`; keine Functions/Rules/Client-Authority-Aenderung.
+- [ ] Next recommended branch: `runtime/agent-admin-safe-worker-queue` (alternativ `readiness/beta1-human-device-evidence-fill`).

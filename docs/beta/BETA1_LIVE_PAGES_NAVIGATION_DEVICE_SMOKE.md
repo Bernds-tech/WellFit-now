@@ -42,3 +42,13 @@ Dieser Readiness-Slice prueft die Beta-1 Live-Seiten `/shop`, `/leaderboard`, `/
 - Ergebnis dieses Slices: **conditional_governance_pass / no_final_go_without_human_evidence**.
 - Navigation/Guardrail/Verbots-Semantik ist per Code-/Text-Smoke konsistent.
 - Finale Closed-Beta-Freigabe bleibt **NO-GO**, bis Human Device Evidence fuer die genannten Plattformen dokumentiert ist.
+
+
+## Update 2026-05-21 - AppShell Konsistenz-Fix
+
+- Branch: `runtime/beta1-live-pages-app-shell-fix`
+- Layout-Audit vor Fix: `/shop`, `/leaderboard`, `/analytics`, `/marketplace` liefen ohne `AppShell`; dadurch fehlten Header/Sidebar/Footer-Kontext. `/marktplatz` aliaste auf `/marketplace` und war damit ebenfalls betroffen.
+- Fix: alle vier Live-Seiten in `AppShell` eingebettet (`contentClassName="px-7 py-5 pb-4 overflow-y-auto"`), `Beta1PageShell` blieb als innere Content-Struktur bestehen.
+- Ergebnis: konsistenter App-Rahmen ohne doppelte Shell; mobile Scroll-/Overflow-Verhalten bleibt ueber `overflow-y-auto` im Content-Bereich steuerbar.
+- Device-Evidence-Status bleibt unveraendert: `pending_human_device_evidence`.
+- Keine Functions-/Rules-Aenderung, keine neue Client-Final-Authority.
