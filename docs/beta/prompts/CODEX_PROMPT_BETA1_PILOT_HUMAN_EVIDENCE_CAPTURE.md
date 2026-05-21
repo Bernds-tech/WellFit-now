@@ -51,3 +51,8 @@ Von Human Operator (z. B. Bernd/Team) bereitgestellte Pilot-Evidence strukturier
 - Klarer Evidence-Diff je Gap (geschlossen/offen/blocked).
 - Explizite Liste: was wurde human-evidenced, was bleibt offen.
 - Go/No-Go-Status mit Datum.
+
+## Masterplan-Referenz
+
+- `docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md`
+- Human Evidence Capture muss vor einer Wave-1-Go-Freigabe abgeschlossen und nachvollziehbar dokumentiert sein.
