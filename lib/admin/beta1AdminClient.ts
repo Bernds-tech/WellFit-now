@@ -14,6 +14,9 @@ import type {
   AgentHandoffPromptGenerateInput,
   AgentHandoffPromptGetInput,
   AgentPrHandoffInput,
+  AgentWorkerQueueActionInput,
+  AgentWorkerQueueChecksInput,
+  AgentWorkerQueueCreateInput,
 } from "./beta1AdminTypes";
 
 function sanitizeAdminError(error: unknown): string {
@@ -55,4 +58,12 @@ export const beta1AdminClient = {
   getAgentTaskCodexPrompt: (input: AgentHandoffPromptGetInput) => callAdmin("getAgentTaskCodexPrompt", input),
   markAgentTaskCodexPromptCopied: (input: AgentHandoffPromptCopiedInput) => callAdmin("markAgentTaskCodexPromptCopied", input),
   listAgentTaskHandoffPrompts: (executionId?: string) => callAdmin("listAgentTaskHandoffPrompts", executionId ? { executionId } : {}),
+  createAgentWorkerQueueItem: (input: AgentWorkerQueueCreateInput) => callAdmin("createAgentWorkerQueueItem", input),
+  claimAgentWorkerQueueItem: (input: AgentWorkerQueueActionInput) => callAdmin("claimAgentWorkerQueueItem", { workerQueueId: input.workerQueueId }),
+  updateAgentWorkerQueueStatus: (input: AgentWorkerQueueActionInput) => callAdmin("updateAgentWorkerQueueStatus", { workerQueueId: input.workerQueueId, workerStatus: input.workerStatus }),
+  recordAgentWorkerQueueChecks: (input: AgentWorkerQueueChecksInput) => callAdmin("recordAgentWorkerQueueChecks", input),
+  markAgentWorkerPrPrepared: (input: AgentWorkerQueueActionInput) => callAdmin("markAgentWorkerPrPrepared", { workerQueueId: input.workerQueueId, prRef: input.prRef }),
+  blockAgentWorkerQueueItem: (input: AgentWorkerQueueActionInput) => callAdmin("blockAgentWorkerQueueItem", { workerQueueId: input.workerQueueId, reason: input.reason }),
+  listAgentWorkerQueueItems: (status?: string) => callAdmin("listAgentWorkerQueueItems", status ? { status } : {}),
+  getAgentWorkerQueueItem: (workerQueueId: string) => callAdmin("getAgentWorkerQueueItem", { workerQueueId }),
 };

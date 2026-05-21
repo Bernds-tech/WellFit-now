@@ -601,3 +601,10 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - BETA1-HUMAN-EVIDENCE-CAPTURE-2026-05-21: docs/register/todo-only Update; Human Evidence Capture erstellt, Evidence Pack erweitert, Matrix/Checklist/Summary konservativ auf NO-GO gehalten, Support role_alias_required markiert.
 
 - 2026-05-21: `runtime/beta1-live-pages-app-shell-fix` (layout-only) in Register/Docs aufgenommen; Live-Seiten-AppShell jetzt konsistent, Device-Evidence bleibt pending_human_device_evidence.
+
+
+## Update: Agent Worker Queue Foundation
+- Collection `agentTaskWorkerQueue` added as metadata-only queue with `humanMergeRequired=true`, `autoMerge=false`, `autoDeploy=false`.
+- New callables: create/claim/update/checks/pr-prepared/block/list/get for worker queue.
+- No automatic code execution, no GitHub API integration, no auto-merge/deploy. Human merge remains required.
+- Next recommended branch: `runtime/agent-admin-supervised-pr-creation-plan` (alternative: `readiness/beta1-human-device-evidence-fill`).

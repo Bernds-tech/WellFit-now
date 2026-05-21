@@ -24,3 +24,6 @@ export type AgentExecutionActionInput = { executionId: string; reason?: string }
 export type AgentHandoffPromptGenerateInput = { executionId: string; commitMessage?: string; prTitle?: string };
 export type AgentHandoffPromptGetInput = { handoffPromptId: string };
 export type AgentHandoffPromptCopiedInput = { handoffPromptId: string };
+export type AgentWorkerQueueCreateInput = { executionId: string; handoffPromptId: string; workerMode?: "manual_codex" | "supervised_agent" | "automated_low_risk_planned" };
+export type AgentWorkerQueueActionInput = { workerQueueId: string; reason?: string; prRef?: string; workerStatus?: string };
+export type AgentWorkerQueueChecksInput = { workerQueueId: string; checks: Array<{ command: string; result: "pass" | "fail" | "blocked" | "skipped"; summary?: string; timestamp?: string }> };

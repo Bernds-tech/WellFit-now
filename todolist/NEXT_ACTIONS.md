@@ -368,3 +368,10 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - [x] 2026-05-21: Runtime-Slice `runtime/beta1-live-pages-app-shell-fix` abgeschlossen: `/shop`, `/leaderboard`, `/analytics`, `/marketplace` im AppShell-Rahmen vereinheitlicht; `/marktplatz` Alias blieb sicher; Device-Evidence weiterhin `pending_human_device_evidence`; keine Functions/Rules/Client-Authority-Aenderung.
 - [ ] Next recommended branch: `runtime/agent-admin-safe-worker-queue` (alternativ `readiness/beta1-human-device-evidence-fill`).
+
+
+## Update: Agent Worker Queue Foundation
+- Collection `agentTaskWorkerQueue` added as metadata-only queue with `humanMergeRequired=true`, `autoMerge=false`, `autoDeploy=false`.
+- New callables: create/claim/update/checks/pr-prepared/block/list/get for worker queue.
+- No automatic code execution, no GitHub API integration, no auto-merge/deploy. Human merge remains required.
+- Next recommended branch: `runtime/agent-admin-supervised-pr-creation-plan` (alternative: `readiness/beta1-human-device-evidence-fill`).

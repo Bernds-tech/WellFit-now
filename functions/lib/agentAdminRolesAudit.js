@@ -7,6 +7,9 @@ const APPROVAL_STATUSES = ["approved", "rejected", "revoked"];
 const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked"];
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
 const HANDOFF_PROMPT_STATUSES = ["generated", "copied", "superseded", "blocked"];
+const WORKER_QUEUE_STATUSES = ["ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed"];
+const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
+const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
 
 const BASE_REQUIRED_CHECKS = ["npm run agent:validate", "npm run agent:quality-gate", "npm run lint", "git diff --check"];
@@ -26,6 +29,30 @@ function buildRequiredChecks({ targetTrack, allowedFiles }) {
   if (touchesFunctions) checks.add("npm --prefix functions run check");
   if (touchesUi) checks.add("npm run build");
   return Array.from(checks);
+}
+
+function validateWorkerStatusTransition(currentStatus, nextStatus) {
+  const allowedTransitions = {
+    ready_for_worker: ["claimed", "blocked", "failed"],
+    claimed: ["running", "blocked", "failed"],
+    running: ["checks_recorded", "blocked", "failed"],
+    checks_recorded: ["pr_prepared", "completed", "blocked", "failed"],
+    pr_prepared: ["completed", "blocked", "failed"],
+    blocked: [],
+    failed: [],
+    completed: [],
+  };
+  return (allowedTransitions[currentStatus] || []).includes(nextStatus);
+}
+
+function normalizeCheckEntries(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 80).map((entry) => ({
+    command: optionalString(entry && entry.command, 240),
+    result: optionalString(entry && entry.result, 30) || "skipped",
+    summary: optionalString(entry && entry.summary, 1000) || null,
+    timestamp: entry && entry.timestamp ? entry.timestamp : null,
+  })).filter((entry) => entry.command && CHECK_RESULT_VALUES.includes(entry.result));
 }
 
 
@@ -404,6 +431,139 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     if (status && EXECUTION_STATUSES.includes(status)) query = query.where("status", "==", status);
     const snapshot = await query.get();
     return { accepted: true, executions: snapshot.docs.map((doc) => doc.data()) };
+  });
+
+  exportsTarget.createAgentWorkerQueueItem = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const executionId = requiredString(request.data && request.data.executionId, "executionId", HttpsError, 180);
+    const handoffPromptId = requiredString(request.data && request.data.handoffPromptId, "handoffPromptId", HttpsError, 180);
+    const [executionSnap, promptSnap] = await Promise.all([db.collection("agentTaskExecutions").doc(executionId).get(), db.collection("agentTaskHandoffPrompts").doc(handoffPromptId).get()]);
+    if (!executionSnap.exists || !promptSnap.exists) throw new HttpsError("failed-precondition", "Execution oder Prompt fehlt.");
+    const execution = executionSnap.data() || {};
+    const prompt = promptSnap.data() || {};
+    if (execution.prHandoffStatus !== "ready_for_handoff") throw new HttpsError("failed-precondition", "Execution ist nicht ready_for_handoff.");
+    if (!["generated", "copied"].includes(optionalString(prompt.status, 40) || "")) throw new HttpsError("failed-precondition", "Prompt ist nicht generated/copied.");
+    if (prompt.executionId !== executionId || prompt.proposalId !== execution.proposalId || prompt.approvalId !== execution.approvalId) throw new HttpsError("failed-precondition", "Prompt/Execution inkonsistent.");
+    const branchName = requiredString(prompt.branchName || execution.handoffBranchName, "branchName", HttpsError, 200);
+    if (["main", "master"].includes(branchName.toLowerCase())) throw new HttpsError("failed-precondition", "Branch main/master ist nicht erlaubt.");
+    const ref = db.collection("agentTaskWorkerQueue").doc();
+    const workerMode = WORKER_QUEUE_MODES.includes(optionalString(request.data && request.data.workerMode, 60) || "") ? optionalString(request.data && request.data.workerMode, 60) : "manual_codex";
+    const doc = {
+      workerQueueId: ref.id, executionId, proposalId: execution.proposalId, approvalId: execution.approvalId, handoffPromptId, branchName,
+      taskTitle: optionalString(execution.handoffTitle, 200) || optionalString(prompt.prTitle, 200) || "Agent Worker Task",
+      promptTextRef: handoffPromptId, promptTextSnapshot: optionalString(prompt.promptText, 12000) || null,
+      allowedFiles: parseStringList(prompt.allowedFiles || execution.allowedFilesSnapshot || []),
+      blockedFiles: parseStringList(prompt.blockedFiles || execution.blockedFilesSnapshot || []),
+      protectedScopes: parseStringList(prompt.protectedScopes || execution.protectedScopesSnapshot || [], 40, 80),
+      requiredChecks: parseStringList(prompt.requiredChecks || execution.requiredChecks || [], 80, 240),
+      workerStatus: "ready_for_worker", workerMode, humanMergeRequired: true, autoMerge: false, autoDeploy: false,
+      createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(),
+    };
+    await ref.set(doc);
+    await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_created", proposalId: doc.proposalId, approvalId: doc.approvalId, executionId, promptRef: handoffPromptId, allowedFiles: doc.allowedFiles, blockedFiles: doc.blockedFiles, result: "ready_for_worker" });
+    return { accepted: true, workerQueueId: ref.id, workerStatus: "ready_for_worker", humanMergeRequired: true, autoMerge: false, autoDeploy: false };
+  });
+
+  exportsTarget.claimAgentWorkerQueueItem = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
+    const item = snap.data() || {};
+    if (item.workerStatus !== "ready_for_worker") throw new HttpsError("failed-precondition", "Worker Queue Item ist nicht ready_for_worker.");
+    await ref.set({ workerStatus: "claimed", claimedAt: FieldValue.serverTimestamp(), claimedBy: actorId, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, autoMerge: false, autoDeploy: false }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_claimed", proposalId: item.proposalId || null, approvalId: item.approvalId || null, executionId: item.executionId || null, result: "claimed" });
+    return { accepted: true, workerQueueId, workerStatus: "claimed" };
+  });
+
+  exportsTarget.updateAgentWorkerQueueStatus = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerStatus = requiredString(request.data && request.data.workerStatus, "workerStatus", HttpsError, 60);
+    if (!WORKER_QUEUE_STATUSES.includes(workerStatus)) throw new HttpsError("invalid-argument", "Ungültiger Worker-Status.");
+    const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
+    const item = snap.data() || {};
+    if (!validateWorkerStatusTransition(optionalString(item.workerStatus, 60) || "ready_for_worker", workerStatus)) throw new HttpsError("failed-precondition", "Ungültiger Statusübergang.");
+    if (workerStatus === "completed") {
+      const checks = Array.isArray(item.checks) ? item.checks : [];
+      const requiredChecks = parseStringList(item.requiredChecks || [], 80, 240);
+      if (checks.some((check) => optionalString(check.result, 20) === "fail")) throw new HttpsError("failed-precondition", "Failed checks verhindern completed.");
+      const commands = new Set(checks.map((check) => optionalString(check.command, 240)).filter(Boolean));
+      const missing = requiredChecks.filter((command) => !commands.has(command));
+      if (missing.length) {
+        await ref.set({ workerStatus: "blocked", errorSummary: `Missing required checks: ${missing.join(", ")}`, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, autoMerge: false, autoDeploy: false }, { merge: true });
+        await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_blocked", proposalId: item.proposalId || null, approvalId: item.approvalId || null, executionId: item.executionId || null, result: "missing_required_checks" });
+        return { accepted: true, workerQueueId, workerStatus: "blocked", message: "Required checks fehlen." };
+      }
+    }
+    await ref.set({ workerStatus, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, autoMerge: false, autoDeploy: false }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_status_updated", proposalId: item.proposalId || null, approvalId: item.approvalId || null, executionId: item.executionId || null, result: workerStatus });
+    return { accepted: true, workerQueueId, workerStatus };
+  });
+
+  exportsTarget.recordAgentWorkerQueueChecks = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const checks = normalizeCheckEntries(request.data && request.data.checks);
+    if (!checks.length) throw new HttpsError("invalid-argument", "Checks fehlen.");
+    const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
+    const item = snap.data() || {};
+    const requiredChecks = parseStringList(item.requiredChecks || [], 80, 240);
+    const commands = new Set(checks.map((check) => check.command));
+    const missing = requiredChecks.filter((command) => !commands.has(command));
+    const hasFail = checks.some((check) => check.result === "fail");
+    const workerStatus = missing.length ? "blocked" : (hasFail ? "failed" : "checks_recorded");
+    await ref.set({ checks, workerStatus, errorSummary: missing.length ? `Missing required checks: ${missing.join(", ")}` : null, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, autoMerge: false, autoDeploy: false }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_checks_recorded", proposalId: item.proposalId || null, approvalId: item.approvalId || null, executionId: item.executionId || null, result: workerStatus });
+    return { accepted: true, workerQueueId, workerStatus, missingRequiredChecks: missing };
+  });
+
+  exportsTarget.markAgentWorkerPrPrepared = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const prRef = optionalString(request.data && request.data.prRef, 220);
+    const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
+    const item = snap.data() || {};
+    await ref.set({ workerStatus: "pr_prepared", prRef: prRef || item.prRef || null, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, autoMerge: false, autoDeploy: false }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_pr_prepared", proposalId: item.proposalId || null, approvalId: item.approvalId || null, executionId: item.executionId || null, result: "pr_prepared" });
+    return { accepted: true, workerQueueId, workerStatus: "pr_prepared", humanMergeRequired: true };
+  });
+
+  exportsTarget.blockAgentWorkerQueueItem = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor"]);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const reason = optionalString(request.data && request.data.reason, 1000) || "worker_blocked";
+    const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
+    const item = snap.data() || {};
+    await ref.set({ workerStatus: "blocked", errorSummary: reason, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, autoMerge: false, autoDeploy: false }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_blocked", proposalId: item.proposalId || null, approvalId: item.approvalId || null, executionId: item.executionId || null, result: reason });
+    return { accepted: true, workerQueueId, workerStatus: "blocked" };
+  });
+
+  exportsTarget.listAgentWorkerQueueItems = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator", "agent_executor_service"]);
+    const status = optionalString(request.data && request.data.status, 60);
+    let query = db.collection("agentTaskWorkerQueue").orderBy("createdAt", "desc").limit(100);
+    if (status && WORKER_QUEUE_STATUSES.includes(status)) query = query.where("workerStatus", "==", status);
+    const snapshot = await query.get();
+    return { accepted: true, items: snapshot.docs.map((doc) => doc.data()) };
+  });
+
+  exportsTarget.getAgentWorkerQueueItem = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator", "agent_executor_service"]);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const snap = await db.collection("agentTaskWorkerQueue").doc(workerQueueId).get();
+    if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
+    return { accepted: true, item: snap.data() };
   });
 
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {

@@ -385,6 +385,16 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    match /agentTaskHandoffPrompts/{docId} {
+      allow read: if hasAgentAdminReadRole();
+      allow create, update, delete: if false;
+    }
+
+    match /agentTaskWorkerQueue/{docId} {
+      allow read: if hasAgentAdminReadRole();
+      allow create, update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

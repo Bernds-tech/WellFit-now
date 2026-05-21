@@ -74,3 +74,10 @@ Diese Vorlagen sind fuer spaetere admin-freigebbare Agent Task Proposals gedacht
 - humanMergeRequired: `true`
 - autoMerge: `false`
 - autoDeploy: `false`
+
+
+## Update: Agent Worker Queue Foundation
+- Collection `agentTaskWorkerQueue` added as metadata-only queue with `humanMergeRequired=true`, `autoMerge=false`, `autoDeploy=false`.
+- New callables: create/claim/update/checks/pr-prepared/block/list/get for worker queue.
+- No automatic code execution, no GitHub API integration, no auto-merge/deploy. Human merge remains required.
+- Next recommended branch: `runtime/agent-admin-supervised-pr-creation-plan` (alternative: `readiness/beta1-human-device-evidence-fill`).
