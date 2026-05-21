@@ -395,3 +395,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - [x] 2026-05-21 Runtime-Slice `runtime/beta1-analytics-stats-own-view` umgesetzt: `/analytics` als Beta-1 Analytics/Stats Own-View mit sicheren Read-Projections und Limited-Preview-Fallback ohne neue Functions/Rules und ohne Client-Authority.
 - [x] 2026-05-21 Runtime-Slice `runtime/beta1-marketplace-preview-placeholder` umgesetzt: Neue Route `/marketplace` mit Alias `/marktplatz` als professioneller Preview-/Placeholder-Bereich (nicht aktiv), inklusive Guardrail-Notices und neutralen Konzeptkarten ohne Handelsfunktionen.
 - [>] Empfohlener Folgebranch: `readiness/beta1-live-pages-navigation-and-device-smoke` (alternativ `runtime/beta1-live-pages-navigation-polish`).
+
+- 2026-05-21 Navigation/Device-Smoke-Mapping: `/shop`, `/leaderboard`, `/analytics`, `/marketplace`, `/marktplatz` als Beta-1 Live-Pages Readiness-Slice dokumentiert (`docs/beta/BETA1_LIVE_PAGES_NAVIGATION_DEVICE_SMOKE.md`); Device-Tests bewusst human-pending, keine Functions/Rules/Authority-Aenderung.

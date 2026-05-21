@@ -19,7 +19,7 @@ const mainNavItems = [
   { href: "/buddy", label: "Mein KI-Buddy", icon: "bot", active: (path: string) => path.startsWith("/buddy") },
   { href: "/marketplace", label: "Marktplatz Preview", icon: "shop", active: (path: string) => path.startsWith("/marktplatz") || path.startsWith("/marketplace") },
   { href: "/leaderboard", label: "Leaderboard", icon: "cup", active: (path: string) => path.startsWith("/leaderboard") },
-  { href: "/punkte-shop", label: "Punkte-Shop", icon: "coin", active: (path: string) => path.startsWith("/punkte-shop") },
+  { href: "/shop", label: "Punkte-Shop", icon: "coin", active: (path: string) => path.startsWith("/shop") || path.startsWith("/punkte-shop") },
   { href: "/analytics", label: "Analytics & Stats", icon: "chart", active: (path: string) => path.startsWith("/analytics") },
   { href: "/admin/agent-center", label: "Agent Center", icon: "admin", active: (path: string) => path.startsWith("/admin/agent-center") },
 ];

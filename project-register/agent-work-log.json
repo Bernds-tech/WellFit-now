@@ -103,6 +103,47 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-LIVE-PAGES-NAVIGATION-DEVICE-SMOKE",
+      "title": "Add Beta-1 live pages navigation smoke",
+      "status": "done",
+      "pr": {
+        "branch": "readiness/beta1-live-pages-navigation-and-device-smoke",
+        "number": null,
+        "url": null,
+        "title": "Add Beta-1 live pages navigation smoke"
+      },
+      "changedFiles": [
+        "app/AppSidebar.tsx",
+        "app/dashboard/lib/dashboardCards.ts",
+        "docs/beta/BETA1_LIVE_PAGES_NAVIGATION_DEVICE_SMOKE.md",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check",
+        "npm --prefix functions run check"
+      ],
+      "followUps": [
+        "Capture manual device evidence for Android Chrome, iPhone Safari, and desktop responsive in readiness/beta1-human-evidence-capture."
+      ],
+      "nextRecommendedTask": "readiness/beta1-human-evidence-capture",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "readiness_navigation_smoke_guardrails_preserved"
+    },
+    {
       "taskId": "BETA1-MARKETPLACE-PREVIEW-PLACEHOLDER",
       "title": "Add Beta-1 marketplace preview placeholder",
       "status": "done",
