@@ -10,3 +10,14 @@ export type Beta1ChildProfileSummary = { id: string; nickname: string; ageBand?:
 
 export type Beta1LeaderboardPreviewRow = { id: string; rankLabel: string; displayName: string; wfxp: number; missions: number; checkpoints: number; scope: "self" | "placeholder" };
 export type Beta1LeaderboardPreview = { rows: Beta1LeaderboardPreviewRow[]; summary: { wfxp: number; missions: number; checkpoints: number }; isLimited: boolean; note: string };
+
+export type Beta1AnalyticsOwnViewProjection = {
+  wfxpBalance: number;
+  ledgerEvents: number;
+  publishedMissions: number;
+  publishedCheckpoints: number;
+  inventoryItems: number;
+  publishedShopItems: number;
+  hasServerAnalyticsProjection: boolean;
+  note: string;
+};

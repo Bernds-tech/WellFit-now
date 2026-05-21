@@ -351,3 +351,5 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [x] Falls keine sichere serverseitige Leaderboard-Aggregation vorhanden ist: bewusst `limited preview` mit Placeholder-Scope und klarer Kennzeichnung.
 - [x] Guardrails eingehalten: keine Firebase Functions, keine Firestore Rules, keine Client-Final-Authority für Ranking oder Rewards.
 - [>] Nächster empfohlener Branch: `runtime/beta1-analytics-stats-own-view`.
+
+- [x] 2026-05-21 Runtime-Slice `runtime/beta1-analytics-stats-own-view` umgesetzt: `/analytics` als Beta-1 Analytics/Stats Own-View mit sicheren Read-Projections und Limited-Preview-Fallback ohne neue Functions/Rules und ohne Client-Authority.

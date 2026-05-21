@@ -1,7 +1,7 @@
 import { auth, db } from "@/lib/firebase";
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import { mapCheckpoint, mapChildProfile, mapGlitchEvent, mapInventoryItem, mapLedger, mapMissionSummary, mapShopItem, mapWallet } from "./beta1ReadGuards";
-import type { Beta1CheckpointSummary, Beta1ChildProfileSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1LeaderboardPreview, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "./beta1Types";
+import type { Beta1AnalyticsOwnViewProjection, Beta1CheckpointSummary, Beta1ChildProfileSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1LeaderboardPreview, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "./beta1Types";
 
 const friendlyError = (error: unknown) => {
   const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
@@ -117,5 +117,30 @@ export async function readLeaderboardPreview(): Promise<{ data: Beta1Leaderboard
       note: "Limited Preview: Keine freigegebene serverseitige Leaderboard-Aggregation fuer andere Profile vorhanden.",
     },
     error: walletRes.error || missionRes.error || checkpointRes.error,
+  };
+}
+
+
+export async function readAnalyticsOwnView(): Promise<{ data: Beta1AnalyticsOwnViewProjection; error: string | null }> {
+  const [walletRes, ledgerRes, missionRes, inventoryShopRes, checkpointRes] = await Promise.all([
+    readXpWalletProjection(),
+    readXpLedgerEvents(),
+    readPublishedMissions(),
+    readInventoryAndShop(),
+    readCheckpointAndGlitch(),
+  ]);
+
+  return {
+    data: {
+      wfxpBalance: walletRes.data?.balance ?? 0,
+      ledgerEvents: ledgerRes.data.length,
+      publishedMissions: missionRes.data.length,
+      publishedCheckpoints: checkpointRes.checkpoints.length,
+      inventoryItems: inventoryShopRes.inventory.length,
+      publishedShopItems: inventoryShopRes.shopItems.length,
+      hasServerAnalyticsProjection: false,
+      note: "Limited own-view aus vorhandenen sicheren Read-Projections. Keine serverseitige Analytics-Spezialprojektion freigegeben.",
+    },
+    error: walletRes.error || ledgerRes.error || missionRes.error || inventoryShopRes.error || checkpointRes.error,
   };
 }

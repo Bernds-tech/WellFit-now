@@ -107,3 +107,14 @@ Diese Datei definiert den Runtime-Scope fuer Beta-1 Live-Seiten als Planungsgrun
 - Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
 - Keine oeffentlichen Kinderprofile, keine sensiblen Standort-/Gesundheitsdaten, keine clientseitige finale Ranking-/Reward-Authority.
 - Next recommended branch: `runtime/beta1-analytics-stats-own-view`.
+
+
+## Update 2026-05-21 - Runtime Slice umgesetzt: Analytics & Stats (Own View)
+
+- Branch: `runtime/beta1-analytics-stats-own-view`
+- Route umgesetzt: `/analytics` (`app/analytics/page.tsx`) mit professioneller, read-only Own-View.
+- Datenbasis: vorhandene sichere Read-Projektionen (eigene Wallet/Ledger, published Missions/Checkpoints, eigenes Inventory, published Shop-Items).
+- Da keine dedizierte serverseitige Analytics-Projektion freigegeben ist: bewusst `limited preview` statt sensibler Rohdaten oder fremder Aggregates.
+- Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
+- Keine Gesundheitsdiagnosen, keine medizinischen Claims, keine Child-/Location-Rohdaten, keine fremden Rohdaten.
+- Next recommended branch: `runtime/beta1-marketplace-preview-placeholder`.

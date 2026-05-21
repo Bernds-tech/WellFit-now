@@ -590,3 +590,5 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - Daten: sichere Read-Projektionen für eigene Fortschrittsmetriken; bei fehlender freigegebener Leaderboard-Aggregation wird eine limitierte Vorschau ohne Fremdprofile angezeigt.
 - Guardrails: keine Functions-/Rules-Aenderung, keine clientseitige Ranking-/Reward-Autorität, keine sensiblen Rohdaten.
 - Next: `runtime/beta1-analytics-stats-own-view`.
+
+- [x] 2026-05-21 Runtime-Slice `runtime/beta1-analytics-stats-own-view` umgesetzt: `/analytics` als Beta-1 Analytics/Stats Own-View mit sicheren Read-Projections und Limited-Preview-Fallback ohne neue Functions/Rules und ohne Client-Authority.
