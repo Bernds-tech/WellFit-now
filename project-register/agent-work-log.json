@@ -4091,6 +4091,13 @@
       "branch": "runtime/agent-admin-automation-gates-completion",
       "summary": "Completed automation gates UI/client callable coverage, metadata-only runner confirmation, and governance/quality-gate follow-up notes.",
       "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration"
+    },
+    {
+      "date": "2026-05-21",
+      "branch": "fix/agent-admin-production-deploy-second-approval",
+      "summary": "Finalized production deploy second approval so final owner approval now sets autoDeployApproved/autoDeploy and unblocks metadata-only supervised runner gates when checks pass.",
+      "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
+      "notes": "PR #210 replaced by PR #211; this follow-up resolves remaining P1 semantics gap. No real GitHub API, no real deploy, no secrets/production IDs exposed."
     }
   ],
   "workItems": [

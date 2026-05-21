@@ -96,7 +96,7 @@ async function run() {
 
   await db.collection("agentTaskExecutions").doc("client-write-test").set({ status: "queued", executionId: "client-write-test" });
 
-  // Automation gates coverage (PR#210 completion)
+  // Automation gates coverage (PR#211 follow-up)
   const policy = await expectOk("createAgentAutomationPolicy", owner, { workerQueueId: workerId });
   const policyId = policy.policyId;
   await expectFail("approveAgentAutoMerge", owner, { policyId });
@@ -106,15 +106,31 @@ async function run() {
   await expectFail("approveAgentQualityGateOverride", operator, { policyId });
   await expectOk("approveAgentQualityGateOverride", owner, { policyId });
   await expectOk("approveAgentAutoMerge", owner, { policyId });
+
+  // staging/preview can be directly deploy-approved when gates pass
   await expectOk("requestAgentDeploy", owner, { policyId, environment: "staging" });
-  await expectOk("approveAgentDeploy", owner, { policyId });
+  const stagingApproved = await expectOk("approveAgentDeploy", owner, { policyId });
+  assert(stagingApproved.status === "approved_for_staging_deploy", "staging should finalize in one step");
+
+  // production must require second approval
   await expectOk("requestAgentDeploy", owner, { policyId, environment: "production" });
   await expectFail("approveAgentDeploy", owner, { policyId });
+  const runnerBeforeSecond = await expectOk("prepareAgentSupervisedRunnerJob", owner, { workerQueueId: workerId, policyId });
+  assert(runnerBeforeSecond.deployAllowed === false, "production must not deploy before second approval");
+
   await expectFail("approveAgentProductionDeploySecondApproval", supervisor, { policyId });
-  await expectOk("approveAgentProductionDeploySecondApproval", owner, { policyId });
-  await expectOk("approveAgentDeploy", owner, { policyId });
+  const secondApproval = await expectOk("approveAgentProductionDeploySecondApproval", owner, { policyId });
+  assert(secondApproval.status === "approved_for_production_deploy", "second approval should finalize production deploy status");
+
+  const policyAfterSecond = await expectOk("getAgentAutomationPolicy", owner, { policyId });
+  assert(policyAfterSecond.policy.productionDeploySecondApprovalApproved === true, "second approval flag should be true");
+  assert(policyAfterSecond.policy.autoDeployApproved === true, "autoDeployApproved should be true after second approval");
+  assert(policyAfterSecond.policy.autoDeploy === true, "autoDeploy should be true after second approval");
+  assert(policyAfterSecond.policy.status === "approved_for_production_deploy", "status should be approved_for_production_deploy");
+
   const runner = await expectOk("prepareAgentSupervisedRunnerJob", owner, { workerQueueId: workerId, policyId });
   assert(runner.runnerStatus === "metadata_only", "runner should stay metadata_only");
+  assert(runner.deployAllowed === true, "runner metadata should show deployAllowed true after final approval");
   await expectFail("approveAgentAutoMerge", user, { policyId });
   await expectFail("approveAgentDeploy", user, { policyId });
   await expectFail("getAgentAutomationPolicy", user, { policyId });

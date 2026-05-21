@@ -99,3 +99,5 @@ Wichtiger Grundsatz: **keine Runtime-Autonomie ohne serverseitige Rollenpruefung
 - Next recommended branch: `runtime/agent-admin-supervised-pr-creation-plan` (alternative: `readiness/beta1-human-device-evidence-fill`).
 
 - 2026-05-21: PR runtime/agent-admin-automation-gates-completion ergänzt Automation Gates (Admin-Zustimmung + required checks + quality gate/override + production second owner approval). Runner bleibt metadata_only; keine echte GitHub API, kein echtes Deploy ohne sichere Server-Secrets/Owner-Freigabe.
+
+- 2026-05-21: Follow-up fix branch `fix/agent-admin-production-deploy-second-approval` finalisiert Production-Second-Approval: nach 2. Owner-Freigabe werden `autoDeployApproved=true`, `autoDeploy=true`, Status `approved_for_production_deploy` und Worker snapshots gesetzt. Runner bleibt `metadata_only`; weiterhin keine echte GitHub API und kein echtes Deploy. PR #210 fachlich ersetzt durch PR #211.
