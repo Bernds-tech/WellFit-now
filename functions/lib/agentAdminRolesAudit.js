@@ -15,6 +15,11 @@ const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", 
 const BASE_REQUIRED_CHECKS = ["npm run agent:validate", "npm run agent:quality-gate", "npm run lint", "git diff --check"];
 const FUNCTION_SCOPE_MARKERS = ["runtime_backend", "functions", "firestore"];
 const UI_SCOPE_MARKERS = ["runtime_ui", "live_page", "ui", "app", "components"];
+const AUTOMATION_POLICY_STATUSES = ["policy_draft", "waiting_for_checks", "waiting_for_admin_decision", "approved_for_auto_merge", "approved_for_staging_deploy", "approved_for_production_deploy", "rejected", "blocked", "executed_metadata_only"];
+const AUTOMATION_STATUSES = ["not_requested", "merge_requested", "merge_approved", "deploy_requested", "deploy_approved", "automation_blocked", "metadata_executed"];
+const DEPLOY_ENVIRONMENTS = ["none", "preview", "staging", "production"];
+const HIGH_RISK_FILE_PREFIXES = ["functions/", ".github/"];
+const HIGH_RISK_EXACT_FILES = ["firestore.rules", "package.json", "package-lock.json"];
 
 function isSafeBranchName(branchName) {
   return /^[A-Za-z0-9._\/-]+$/.test(branchName) && !branchName.includes("..") && !branchName.startsWith("/") && !branchName.endsWith("/");
@@ -71,6 +76,63 @@ function parseStringList(value, maxEntries = 80, maxLength = 240) {
 function normalizeRiskLevel(value) {
   const risk = optionalString(value, 40) || "medium";
   return ["low", "medium", "high", "critical"].includes(risk) ? risk : "medium";
+}
+
+function hasProtectedFileScope(files) {
+  const lower = (files || []).map((f) => String(f || "").toLowerCase());
+  return lower.some((f) => HIGH_RISK_EXACT_FILES.includes(f) || HIGH_RISK_FILE_PREFIXES.some((prefix) => f.startsWith(prefix)));
+}
+
+function classifyAutomationRisk(workerItem) {
+  const allowedFiles = parseStringList(workerItem.allowedFiles || []);
+  const protectedScopes = parseStringList(workerItem.protectedScopes || [], 40, 80);
+  const riskyScopes = ["xp", "ledger", "mission", "shop", "admin", "child", "privacy", "health", "location", "legal", "secrets", "deploy"]
+    .filter((needle) => protectedScopes.some((scope) => String(scope).toLowerCase().includes(needle)));
+  const highRisk = hasProtectedFileScope(allowedFiles) || riskyScopes.length > 0;
+  const docsOnly = allowedFiles.length > 0 && allowedFiles.every((f) => f.startsWith("docs/") || f.startsWith("project-register/") || f.startsWith("todolist/"));
+  return { riskLevel: docsOnly && !highRisk ? "low" : (highRisk ? "high" : "medium"), protectedScopes: protectedScopes.concat(riskyScopes), docsOnly, highRisk };
+}
+
+function summarizeChecks(workerItem) {
+  const checks = normalizeCheckEntries(workerItem.checks || []);
+  const requiredChecks = parseStringList(workerItem.requiredChecks || [], 80, 240);
+  const commands = new Set(checks.map((c) => c.command));
+  const allRequiredChecksPassed = requiredChecks.length ? requiredChecks.every((cmd) => commands.has(cmd) && checks.some((c) => c.command === cmd && c.result === "pass")) : true;
+  const quality = checks.find((c) => c.command === "npm run agent:quality-gate");
+  const qualityGatePassed = quality ? quality.result === "pass" : false;
+  return { checks, requiredChecks, allRequiredChecksPassed, qualityGatePassed };
+}
+
+function canRequestAutoMerge(workerItem) {
+  const risk = classifyAutomationRisk(workerItem);
+  const checkSummary = summarizeChecks(workerItem);
+  if (risk.highRisk) return { allowed: false, reason: "protected_scope" };
+  if (!checkSummary.allRequiredChecksPassed) return { allowed: false, reason: "checks_failed" };
+  return { allowed: true, reason: "ok", ...risk, ...checkSummary };
+}
+
+function canApproveAutoMerge(policy, actorRole) {
+  if (!["owner", "agent_supervisor"].includes(actorRole)) return { allowed: false, reason: "role_denied" };
+  if (policy.riskLevel === "high") return { allowed: false, reason: "high_risk_manual" };
+  if (!policy.allRequiredChecksPassed || !policy.qualityGatePassed) return { allowed: false, reason: "checks_failed" };
+  return { allowed: true, reason: "ok" };
+}
+
+function canRequestAutoDeploy(workerItem, environment) {
+  if (!DEPLOY_ENVIRONMENTS.includes(environment) || environment === "none") return { allowed: false, reason: "invalid_environment" };
+  const mergeGate = canRequestAutoMerge(workerItem);
+  if (!mergeGate.allowed) return mergeGate;
+  return { allowed: true, reason: "ok" };
+}
+
+function canApproveDeploy(policy, actorRole, environment) {
+  if (!["owner", "agent_supervisor"].includes(actorRole)) return { allowed: false, reason: "role_denied" };
+  if (environment === "production") {
+    if (actorRole !== "owner") return { allowed: false, reason: "owner_only" };
+    if (!policy.productionDeploySecondApprovalApproved) return { allowed: false, reason: "second_approval_required" };
+  }
+  if (!policy.allRequiredChecksPassed || !policy.qualityGatePassed) return { allowed: false, reason: "checks_failed" };
+  return { allowed: true, reason: "ok" };
 }
 
 function assertProtectedScopesAllowed({ protectedScopes, approvalScope, actorRole, HttpsError }) {
@@ -564,6 +626,60 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const snap = await db.collection("agentTaskWorkerQueue").doc(workerQueueId).get();
     if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
     return { accepted: true, item: snap.data() };
+  });
+
+  exportsTarget.createAgentAutomationPolicy = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerSnap = await db.collection("agentTaskWorkerQueue").doc(workerQueueId).get();
+    if (!workerSnap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
+    const worker = workerSnap.data() || {};
+    const risk = classifyAutomationRisk(worker);
+    const summary = summarizeChecks(worker);
+    const ref = db.collection("agentTaskAutomationPolicies").doc();
+    const policy = { policyId: ref.id, workerQueueId, executionId: worker.executionId || null, proposalId: worker.proposalId || null, approvalId: worker.approvalId || null, handoffPromptId: worker.handoffPromptId || null, targetBranch: worker.branchName || null, prRef: worker.prRef || null, riskLevel: risk.riskLevel, targetTrack: optionalString(worker.targetTrack, 80) || "runtime_backend", allowedFiles: parseStringList(worker.allowedFiles || []), blockedFiles: parseStringList(worker.blockedFiles || []), protectedScopes: parseStringList(risk.protectedScopes || [], 40, 80), requiredChecks: summary.requiredChecks, checkSummary: summary.checks, allRequiredChecksPassed: summary.allRequiredChecksPassed, qualityGatePassed: summary.qualityGatePassed, qualityGateOverrideRequested: false, qualityGateOverrideApproved: false, autoMergeRequested: false, autoMergeApproved: false, autoMergeApprovedBy: null, autoMergeApprovedByRole: null, autoMergeDecisionAt: null, autoDeployRequested: false, autoDeployEnvironment: "none", autoDeployApproved: false, autoDeployApprovedBy: null, autoDeployApprovedByRole: null, autoDeployDecisionAt: null, productionDeploySecondApprovalRequired: false, productionDeploySecondApprovalApproved: false, productionDeploySecondApprovalBy: null, status: summary.allRequiredChecksPassed ? "waiting_for_admin_decision" : "waiting_for_checks", humanOverrideReason: null, createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() };
+    await ref.set(policy);
+    await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ automationPolicyId: ref.id, automationStatus: "not_requested", autoMerge: false, autoDeploy: false, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "automation_policy_created", proposalId: policy.proposalId, approvalId: policy.approvalId, executionId: policy.executionId, result: policy.status });
+    return { accepted: true, policyId: ref.id, status: policy.status };
+  });
+
+  exportsTarget.getAgentAutomationPolicy = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator", "agent_executor_service"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const snap = await db.collection("agentTaskAutomationPolicies").doc(policyId).get();
+    if (!snap.exists) throw new HttpsError("not-found", "Automation Policy nicht gefunden.");
+    return { accepted: true, policy: snap.data() };
+  });
+
+  exportsTarget.listAgentAutomationPolicies = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator", "agent_executor_service"]);
+    const status = optionalString(request.data && request.data.status, 80);
+    let query = db.collection("agentTaskAutomationPolicies").orderBy("createdAt", "desc").limit(100);
+    if (status && AUTOMATION_POLICY_STATUSES.includes(status)) query = query.where("status", "==", status);
+    const snapshot = await query.get();
+    return { accepted: true, policies: snapshot.docs.map((doc) => doc.data()) };
+  });
+
+  async function updatePolicyDecision({ policyId, update, actorId, actorRole, action }) {
+    const ref = db.collection("agentTaskAutomationPolicies").doc(policyId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new HttpsError("not-found", "Automation Policy nicht gefunden.");
+    const policy = snap.data() || {};
+    await ref.set({ ...update, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action, proposalId: policy.proposalId || null, approvalId: policy.approvalId || null, executionId: policy.executionId || null, result: update.status || "updated" });
+    return policy;
+  }
+
+  exportsTarget.requestAgentAutoMerge = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const policyId = requiredString(request.data && request.data.policyId, "policyId", HttpsError, 180);
+    const policySnap = await db.collection("agentTaskAutomationPolicies").doc(policyId).get();
+    if (!policySnap.exists) throw new HttpsError("not-found", "Automation Policy nicht gefunden.");
+    const policy = policySnap.data() || {};
+    if (!policy.allRequiredChecksPassed) throw new HttpsError("failed-precondition", "Required checks fehlen.");
+    await updatePolicyDecision({ policyId, update: { autoMergeRequested: true, status: "waiting_for_admin_decision" }, actorId, actorRole, action: "automation_auto_merge_requested" });
+    return { accepted: true, policyId, status: "waiting_for_admin_decision" };
   });
 
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {
