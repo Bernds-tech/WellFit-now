@@ -90,3 +90,10 @@ Wichtiger Grundsatz: **keine Runtime-Autonomie ohne serverseitige Rollenpruefung
 - Added callables: `generateAgentTaskCodexPrompt`, `getAgentTaskCodexPrompt`, `markAgentTaskCodexPromptCopied`, `listAgentTaskHandoffPrompts`.
 - Admin UI flow is manual-only; no auto-run, no GitHub API, no auto-merge/deploy; human merge required.
 - Next recommended branch: `plan/beta1-live-pages-runtime-scope` (alternative: `runtime/agent-admin-live-page-task-template`).
+
+
+## Update: Agent Worker Queue Foundation
+- Collection `agentTaskWorkerQueue` added as metadata-only queue with `humanMergeRequired=true`, `autoMerge=false`, `autoDeploy=false`.
+- New callables: create/claim/update/checks/pr-prepared/block/list/get for worker queue.
+- No automatic code execution, no GitHub API integration, no auto-merge/deploy. Human merge remains required.
+- Next recommended branch: `runtime/agent-admin-supervised-pr-creation-plan` (alternative: `readiness/beta1-human-device-evidence-fill`).

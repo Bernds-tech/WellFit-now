@@ -15,7 +15,7 @@ import {
   validateXpAdjust,
 } from "@/lib/admin/beta1AdminValidation";
 
-const FORM_KEYS = ["mission-create", "mission-publish", "checkpoint-create", "glitch-schedule", "glitch-cancel", "safety-review", "xp-adjust", "agent-handoff", "agent-block", "agent-prompt-generate", "agent-prompt-copied"] as const;
+const FORM_KEYS = ["mission-create", "mission-publish", "checkpoint-create", "glitch-schedule", "glitch-cancel", "safety-review", "xp-adjust", "agent-handoff", "agent-block", "agent-prompt-generate", "agent-prompt-copied", "worker-create", "worker-claim", "worker-pr", "worker-block"] as const;
 type FormKey = (typeof FORM_KEYS)[number];
 
 type FormFeedback = { error: string; success: string; loading: boolean };
@@ -162,6 +162,30 @@ export default function Beta1AdminPanel() {
           }} />
         </div>
         <p className="mt-3 rounded border border-amber-400/40 bg-amber-300/10 p-2">Dieser Prompt startet nichts automatisch. Er wird manuell in Codex verwendet. Kein Auto-Merge, kein Deploy.</p>
+      </section>
+      <section className="rounded border border-white/20 bg-slate-900/50 p-3 text-xs text-white/85">
+        <p className="mb-2 font-semibold text-white">Agent Worker Queue</p>
+        <p className="mb-3 rounded border border-cyan-400/30 bg-cyan-300/10 p-2">Worker Queue erzeugt nur kontrollierte Ausführungs-/PR-Vorbereitungsdaten. Keine automatische Codeausführung, kein Auto-Merge, kein Deploy.</p>
+        <AdminForm title="Create Worker Queue Item" fields={["executionId", "handoffPromptId"]} feedback={feedback["worker-create"]} onSubmit={async (fd) => {
+          const payload = { executionId: normalize(fd.get("executionId")), handoffPromptId: normalize(fd.get("handoffPromptId")) };
+          if (!payload.executionId || !payload.handoffPromptId) return setFeedback((prev) => ({ ...prev, ["worker-create"]: { ...prev["worker-create"], error: "executionId und handoffPromptId erforderlich.", success: "" } }));
+          await run("worker-create", () => beta1AdminClient.createAgentWorkerQueueItem(payload));
+        }} />
+        <AdminForm title="Claim Worker Item" fields={["workerQueueId"]} feedback={feedback["worker-claim"]} onSubmit={async (fd) => {
+          const workerQueueId = normalize(fd.get("workerQueueId"));
+          if (!workerQueueId) return setFeedback((prev) => ({ ...prev, ["worker-claim"]: { ...prev["worker-claim"], error: "workerQueueId fehlt.", success: "" } }));
+          await run("worker-claim", () => beta1AdminClient.claimAgentWorkerQueueItem({ workerQueueId }));
+        }} />
+        <AdminForm title="Mark PR Prepared" fields={["workerQueueId", "prRef"]} feedback={feedback["worker-pr"]} onSubmit={async (fd) => {
+          const workerQueueId = normalize(fd.get("workerQueueId"));
+          if (!workerQueueId) return setFeedback((prev) => ({ ...prev, ["worker-pr"]: { ...prev["worker-pr"], error: "workerQueueId fehlt.", success: "" } }));
+          await run("worker-pr", () => beta1AdminClient.markAgentWorkerPrPrepared({ workerQueueId, prRef: normalizeOptional(fd.get("prRef")) }));
+        }} />
+        <AdminForm title="Block Worker Item" fields={["workerQueueId", "reason"]} feedback={feedback["worker-block"]} onSubmit={async (fd) => {
+          const workerQueueId = normalize(fd.get("workerQueueId"));
+          if (!workerQueueId) return setFeedback((prev) => ({ ...prev, ["worker-block"]: { ...prev["worker-block"], error: "workerQueueId fehlt.", success: "" } }));
+          await run("worker-block", () => beta1AdminClient.blockAgentWorkerQueueItem({ workerQueueId, reason: normalizeOptional(fd.get("reason")) }));
+        }} />
       </section>
     </section>
   );
