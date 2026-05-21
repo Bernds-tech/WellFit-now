@@ -335,3 +335,11 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [x] Branch `runtime/beta1-professional-ui-foundation`: erster UI-Foundation-Slice fuer Beta-1 umgesetzt (ruhigere Cards, klarere Status-Badges, strukturierte Metrik-Karten, professionelleres Dashboard/Admin-Wording).
 - [x] Guardrail-Bestaetigung: keine Functions-/Rules-Aenderungen, keine neue Client-Authority, keine Payment-/Token-/NFT-/Cashout-Logik.
 - [>] Naechste empfohlenen Runtime-Branches: `runtime/beta1-points-shop-page`, danach `runtime/beta1-leaderboard-readonly`, `runtime/beta1-analytics-stats-own-view`, `runtime/beta1-marketplace-preview-placeholder`.
+
+## Update 2026-05-21 - Runtime Slice Beta1 Punkte-Shop
+
+- [x] Branch `runtime/beta1-points-shop-page`: `/shop` Runtime-Seite mit professioneller Beta1-UI (`Beta1PageShell`, `Beta1SectionCard`, `Beta1MetricCard`, `Beta1StatusBadge`) umgesetzt.
+- [x] Shop-/Inventory-Daten werden read-only aus sicheren Projections geladen (Wallet, `shopItems`, `userInventory`) und als WFXP-only dargestellt.
+- [x] CTA bleibt request-/intent-only (deaktiviert: "Anfrage vormerken"), keine clientseitige finale Spend-/Purchase-Authority.
+- [x] Guardrails eingehalten: keine Functions-/Rules-Aenderung, kein Echtgeld/IAP/Token/NFT/Cashout/Wallet-Connect.
+- [>] Naechster empfohlener Branch: `runtime/beta1-leaderboard-readonly`.

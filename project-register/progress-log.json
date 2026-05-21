@@ -8,6 +8,29 @@
   },
   "entries": [
     {
+      "id": "2026-05-21-beta1-points-shop-page-runtime-slice",
+      "date": "2026-05-21",
+      "branch": "runtime/beta1-points-shop-page",
+      "goal": "Implement first professional Beta-1 WFXP-only points shop runtime slice with safe read-projections and intent-only CTA without client final authority.",
+      "changedAreas": [
+        "app/shop/page.tsx",
+        "components/beta1/Beta1PointsShop.tsx",
+        "components/beta1/Beta1ShopItemCard.tsx",
+        "components/beta1/Beta1InventorySummary.tsx",
+        "lib/beta1/beta1Types.ts",
+        "lib/beta1/beta1ReadGuards.ts",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added /shop as Beta-1 points shop read/intent slice using existing wallet/shop/inventory read projections. CTA is disabled intent-only ('Anfrage vormerken'); no Firestore writes, no new Functions, no Rules changes, and no payment/token/NFT/cashout/wallet-connect features. Final purchase/spend authority remains server-side."
+    },
+    {
       "id": "2026-05-21-beta1-live-pages-runtime-scope-plan",
       "date": "2026-05-21",
       "branch": "plan/beta1-live-pages-runtime-scope",
