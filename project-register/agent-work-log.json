@@ -103,6 +103,46 @@
   },
   "entries": [
     {
+      "taskId": "BETA1-LIVE-PAGES-RUNTIME-SCOPE-PLAN",
+      "title": "Plan Beta-1 live pages runtime scope and professional UI direction",
+      "status": "done",
+      "pr": {
+        "branch": "plan/beta1-live-pages-runtime-scope",
+        "number": null,
+        "url": null,
+        "title": "Plan Beta-1 live pages and professional UI"
+      },
+      "changedFiles": [
+        "docs/beta/BETA1_PROFESSIONAL_UI_DIRECTION.md",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "docs/beta/BETA1_LIVE_PAGES_PR_SEQUENCE.md",
+        "docs/beta/AGENT_ADMIN_LIVE_PAGE_TASK_TEMPLATES.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_PROFESSIONAL_UI_FOUNDATION.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_POINTS_SHOP_PAGE.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_LEADERBOARD_READONLY.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_ANALYTICS_STATS_OWN_VIEW.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_MARKETPLACE_PREVIEW.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Prepare runtime branch runtime/beta1-professional-ui-foundation as first implementation slice.",
+        "Then prepare runtime/beta1-points-shop-page with read/intent-only client behavior if server authority is missing."
+      ],
+      "nextRecommendedTask": "runtime/beta1-professional-ui-foundation",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "riskLevel": "medium",
+      "definitionOfDoneKey": "docs_register_planning_only"
+    },
+    {
       "taskId": "BETA1-AGENT-ADMIN-LIVE-READINESS-MASTERPLAN",
       "title": "Plan Beta-1 agent admin and live readiness",
       "status": "done",

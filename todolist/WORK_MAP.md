@@ -356,3 +356,14 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - Added callables: `generateAgentTaskCodexPrompt`, `getAgentTaskCodexPrompt`, `markAgentTaskCodexPromptCopied`, `listAgentTaskHandoffPrompts`.
 - Admin UI flow is manual-only; no auto-run, no GitHub API, no auto-merge/deploy; human merge required.
 - Next recommended branch: `plan/beta1-live-pages-runtime-scope` (alternative: `runtime/agent-admin-live-page-task-template`).
+
+## 2026-05-21 - Beta1 Live Pages Runtime Scope Mapping
+
+- Track `beta1_live_pages_runtime` erweitert um planning-only Artefakte fuer:
+  - Professional UI Direction
+  - Live Pages Runtime Scope
+  - Runtime PR Sequence
+  - Follow-up Codex Prompts
+  - Agent Admin Live Page Task Templates
+- Reihenfolge fuer spaetere Runtime-Umsetzung: Professional UI Foundation -> Points Shop -> Leaderboard -> Analytics & Stats -> Marketplace Preview.
+- Sicherheitsgrenzen bestaetigt: internal-only WFXP, kein Echtgeld/IAP, kein Token/NFT/Cashout, kein echter Marktplatzhandel, keine oeffentlichen Kinderprofile, keine clientseitige Final-Authority.

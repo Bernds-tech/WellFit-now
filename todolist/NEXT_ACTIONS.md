@@ -319,3 +319,13 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - Added callables: `generateAgentTaskCodexPrompt`, `getAgentTaskCodexPrompt`, `markAgentTaskCodexPromptCopied`, `listAgentTaskHandoffPrompts`.
 - Admin UI flow is manual-only; no auto-run, no GitHub API, no auto-merge/deploy; human merge required.
 - Next recommended branch: `plan/beta1-live-pages-runtime-scope` (alternative: `runtime/agent-admin-live-page-task-template`).
+
+## Update 2026-05-21 - Beta1 Live Pages Runtime Scope Planning
+
+- [x] `docs/beta/BETA1_PROFESSIONAL_UI_DIRECTION.md` erstellt (professioneller, ruhiger Health-Tech-Dashboard-Stil; weniger verspielt).
+- [x] `docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md` erstellt (Punkte-Shop, Leaderboard, Analytics & Stats, Marktplatz Preview mit Authority-/Privacy-Grenzen).
+- [x] `docs/beta/BETA1_LIVE_PAGES_PR_SEQUENCE.md` erstellt (5 kleine Runtime-PR-Slices mit Checks/Stop-Bedingungen).
+- [x] Folgeprompts erstellt: Professional UI Foundation, Points Shop, Leaderboard Readonly, Analytics Stats Own View, Marketplace Preview.
+- [x] `docs/beta/AGENT_ADMIN_LIVE_PAGE_TASK_TEMPLATES.md` erstellt fuer spaetere admin-freigebbare Tasks (human merge required, autoMerge=false, autoDeploy=false).
+- [x] Guardrail-Bestaetigung: keine Runtime-Dateien geaendert, keine Functions/Rules-Aenderung, keine Pilotfreigabe ausgesprochen.
+- [>] Naechster empfohlener Branch: `runtime/beta1-professional-ui-foundation`, danach `runtime/beta1-points-shop-page`.

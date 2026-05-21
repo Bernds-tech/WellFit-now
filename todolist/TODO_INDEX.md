@@ -555,3 +555,17 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - Added callables: `generateAgentTaskCodexPrompt`, `getAgentTaskCodexPrompt`, `markAgentTaskCodexPromptCopied`, `listAgentTaskHandoffPrompts`.
 - Admin UI flow is manual-only; no auto-run, no GitHub API, no auto-merge/deploy; human merge required.
 - Next recommended branch: `plan/beta1-live-pages-runtime-scope` (alternative: `runtime/agent-admin-live-page-task-template`).
+
+## 2026-05-21 Addendum - Beta1 Live Pages Runtime Scope
+
+- Neu: `docs/beta/BETA1_PROFESSIONAL_UI_DIRECTION.md`
+- Neu: `docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md`
+- Neu: `docs/beta/BETA1_LIVE_PAGES_PR_SEQUENCE.md`
+- Neu: `docs/beta/AGENT_ADMIN_LIVE_PAGE_TASK_TEMPLATES.md`
+- Neu: Prompts unter `docs/beta/prompts/`
+  - `CODEX_PROMPT_BETA1_PROFESSIONAL_UI_FOUNDATION.md`
+  - `CODEX_PROMPT_BETA1_POINTS_SHOP_PAGE.md`
+  - `CODEX_PROMPT_BETA1_LEADERBOARD_READONLY.md`
+  - `CODEX_PROMPT_BETA1_ANALYTICS_STATS_OWN_VIEW.md`
+  - `CODEX_PROMPT_BETA1_MARKETPLACE_PREVIEW.md`
+- Scope bleibt planning-only: keine Runtime-Seiten, keine globalen UI-Implementierungen, keine Functions/Rules-Aenderungen, keine Pilotfreigabe.
