@@ -8,6 +8,31 @@
   },
   "entries": [
     {
+      "id": "2026-05-21-beta1-live-pages-runtime-scope-plan",
+      "date": "2026-05-21",
+      "branch": "plan/beta1-live-pages-runtime-scope",
+      "goal": "Plan professional Beta-1 UI direction and runtime scope for live pages with PR slicing, follow-up prompts, and admin task templates without runtime implementation.",
+      "changedAreas": [
+        "docs/beta/BETA1_PROFESSIONAL_UI_DIRECTION.md",
+        "docs/beta/BETA1_LIVE_PAGES_RUNTIME_SCOPE.md",
+        "docs/beta/BETA1_LIVE_PAGES_PR_SEQUENCE.md",
+        "docs/beta/AGENT_ADMIN_LIVE_PAGE_TASK_TEMPLATES.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_PROFESSIONAL_UI_FOUNDATION.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_POINTS_SHOP_PAGE.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_LEADERBOARD_READONLY.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_ANALYTICS_STATS_OWN_VIEW.md",
+        "docs/beta/prompts/CODEX_PROMPT_BETA1_MARKETPLACE_PREVIEW.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Planning/docs/register-only update. No app/components/lib runtime implementation, no global style implementation, no Firebase Functions changes, no Firestore Rules changes, no deploys, no secrets, no production Firebase IDs, no real tester data/emails, no token/NFT/payment/cashout/blockchain activation, and no pilot release approval."
+    },
+    {
       "id": "2026-05-21-beta1-agent-admin-live-readiness-masterplan",
       "date": "2026-05-21",
       "branch": "plan/beta1-agent-admin-and-live-readiness-masterplan",
