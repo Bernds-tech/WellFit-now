@@ -8,6 +8,26 @@
   },
   "entries": [
     {
+      "id": "2026-05-21-beta1-pilot-evidence-run",
+      "date": "2026-05-21",
+      "branch": "readiness/beta1-pilot-evidence-run",
+      "goal": "Run first Beta-1 pilot evidence consolidation as docs/register-only readiness proof; update Go/No-Go matrix/checklist/support placeholders and publish evidence summary without runtime changes.",
+      "changedAreas": [
+        "docs/beta/BETA1_PILOT_EVIDENCE_RUN.md",
+        "docs/beta/BETA1_PILOT_GO_NO_GO_MATRIX.md",
+        "docs/beta/BETA1_PILOT_READINESS_CHECKLIST.md",
+        "docs/beta/BETA1_PILOT_SUPPORT_RUNBOOK.md",
+        "docs/beta/BETA1_PILOT_EVIDENCE_SUMMARY.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Evidence-run documentation created and readiness artifacts updated with conservative statusing: planning-only items stayed YELLOW/TBD, no unsupported GREEN promotions. Current decision remains NO-GO for Wave 1 due to missing manual seed/device execution evidence and unresolved must-be-green gaps. No runtime files, no functions/rules, no deploys, no production IDs, no real tester emails or PII."
+    },
+    {
       "id": "2026-05-21-beta1-pilot-go-no-go-matrix",
       "date": "2026-05-21",
       "branch": "readiness/beta1-pilot-go-no-go-matrix",
