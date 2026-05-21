@@ -1075,6 +1075,20 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Added /analytics own-view with limited preview fallback from existing read projections. No health diagnosis, no medical claims, no foreign raw data, no child/location raw data, no Functions/Rules changes."
+    },
+    {
+      "id": "2026-05-21-beta1-human-evidence-capture",
+      "date": "2026-05-21",
+      "branch": "readiness/beta1-human-evidence-capture",
+      "goal": "Create Human Evidence Capture readiness documentation for Beta-1 Wave 1 without fabricating results.",
+      "changedAreas": [
+        "docs/beta",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added human evidence capture doc + operator instructions, expanded evidence pack template, updated go/no-go matrix/checklist/summary conservatively, marked support contact placeholder as role_alias_required, kept Wave 1 NO-GO where must-be-green evidence is missing. No runtime/app/components/lib/functions/rules changes and no PII committed."
     }
   ]
 }

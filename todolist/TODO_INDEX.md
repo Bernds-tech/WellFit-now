@@ -597,3 +597,5 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - [>] Next: `readiness/beta1-live-pages-navigation-and-device-smoke` (alternativ `runtime/beta1-live-pages-navigation-polish`).
 
 - 2026-05-21: Beta-1 Live-Pages Navigation/Device-Smoke-Readiness als docs/register/navigation-Slice ergaenzt (`docs/beta/BETA1_LIVE_PAGES_NAVIGATION_DEVICE_SMOKE.md`), inklusive pending_human_device_evidence-Status und Follow-up-Branch `readiness/beta1-human-evidence-capture`.
+
+- BETA1-HUMAN-EVIDENCE-CAPTURE-2026-05-21: docs/register/todo-only Update; Human Evidence Capture erstellt, Evidence Pack erweitert, Matrix/Checklist/Summary konservativ auf NO-GO gehalten, Support role_alias_required markiert.

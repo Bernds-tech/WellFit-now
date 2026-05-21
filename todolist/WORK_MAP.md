@@ -397,3 +397,9 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - [>] Empfohlener Folgebranch: `readiness/beta1-live-pages-navigation-and-device-smoke` (alternativ `runtime/beta1-live-pages-navigation-polish`).
 
 - 2026-05-21 Navigation/Device-Smoke-Mapping: `/shop`, `/leaderboard`, `/analytics`, `/marketplace`, `/marktplatz` als Beta-1 Live-Pages Readiness-Slice dokumentiert (`docs/beta/BETA1_LIVE_PAGES_NAVIGATION_DEVICE_SMOKE.md`); Device-Tests bewusst human-pending, keine Functions/Rules/Authority-Aenderung.
+
+
+## Beta-1 Human evidence capture references
+
+- `docs/beta/BETA1_HUMAN_EVIDENCE_CAPTURE.md`: zentrale Matrix fuer pending_human_evidence ohne erfundene Ergebnisse.
+- `docs/beta/BETA1_HUMAN_EVIDENCE_CAPTURE_INSTRUCTIONS.md`: Schritt-fuer-Schritt Operator-Runbook fuer manuelle Evidenzaufnahme.

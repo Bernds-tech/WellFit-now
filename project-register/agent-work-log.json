@@ -2027,7 +2027,7 @@
       },
       "changedFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -2115,7 +2115,7 @@
       "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
       "updatedTodoFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -4063,6 +4063,22 @@
       "nextRecommendedTask": "runtime/beta1-marketplace-preview-placeholder",
       "riskLevel": "high",
       "notes": "Implemented /analytics as read-only own-view using existing safe projections. No dedicated server analytics projection; limited preview fallback used. No Functions/Rules changes and no client final authority."
+    }
+  ],
+  "workItems": [
+    {
+      "id": "2026-05-21-beta1-human-evidence-capture",
+      "date": "2026-05-21",
+      "branch": "readiness/beta1-human-evidence-capture",
+      "goal": "Create Human Evidence Capture readiness documentation for Beta-1 Wave 1 without fabricating results.",
+      "changedAreas": [
+        "docs/beta",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added human evidence capture doc + operator instructions, expanded evidence pack template, updated go/no-go matrix/checklist/summary conservatively, marked support contact placeholder as role_alias_required, kept Wave 1 NO-GO where must-be-green evidence is missing. No runtime/app/components/lib/functions/rules changes and no PII committed."
     }
   ]
 }
