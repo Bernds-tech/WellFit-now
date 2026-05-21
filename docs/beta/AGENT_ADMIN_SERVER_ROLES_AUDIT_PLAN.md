@@ -104,3 +104,5 @@ Implementierungsschritte fuer Backend/Rules sind **separat** und nur nach expliz
 - New callables: create/claim/update/checks/pr-prepared/block/list/get for worker queue.
 - No automatic code execution, no GitHub API integration, no auto-merge/deploy. Human merge remains required.
 - Next recommended branch: `runtime/agent-admin-supervised-pr-creation-plan` (alternative: `readiness/beta1-human-device-evidence-fill`).
+
+- 2026-05-21: PR runtime/agent-admin-automation-gates-completion ergänzt Automation Gates (Admin-Zustimmung + required checks + quality gate/override + production second owner approval). Runner bleibt metadata_only; keine echte GitHub API, kein echtes Deploy ohne sichere Server-Secrets/Owner-Freigabe.

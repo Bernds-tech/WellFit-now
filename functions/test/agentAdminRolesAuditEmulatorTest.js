@@ -96,6 +96,32 @@ async function run() {
 
   await db.collection("agentTaskExecutions").doc("client-write-test").set({ status: "queued", executionId: "client-write-test" });
 
+  // Automation gates coverage (PR#210 completion)
+  const policy = await expectOk("createAgentAutomationPolicy", owner, { workerQueueId: workerId });
+  const policyId = policy.policyId;
+  await expectFail("approveAgentAutoMerge", owner, { policyId });
+  await expectOk("requestAgentAutoMerge", owner, { policyId });
+  await expectFail("approveAgentAutoMerge", owner, { policyId });
+  await expectOk("requestAgentQualityGateOverride", owner, { policyId, reason: "quality gate flaky in emulator" });
+  await expectFail("approveAgentQualityGateOverride", operator, { policyId });
+  await expectOk("approveAgentQualityGateOverride", owner, { policyId });
+  await expectOk("approveAgentAutoMerge", owner, { policyId });
+  await expectOk("requestAgentDeploy", owner, { policyId, environment: "staging" });
+  await expectOk("approveAgentDeploy", owner, { policyId });
+  await expectOk("requestAgentDeploy", owner, { policyId, environment: "production" });
+  await expectFail("approveAgentDeploy", owner, { policyId });
+  await expectFail("approveAgentProductionDeploySecondApproval", supervisor, { policyId });
+  await expectOk("approveAgentProductionDeploySecondApproval", owner, { policyId });
+  await expectOk("approveAgentDeploy", owner, { policyId });
+  const runner = await expectOk("prepareAgentSupervisedRunnerJob", owner, { workerQueueId: workerId, policyId });
+  assert(runner.runnerStatus === "metadata_only", "runner should stay metadata_only");
+  await expectFail("approveAgentAutoMerge", user, { policyId });
+  await expectFail("approveAgentDeploy", user, { policyId });
+  await expectFail("getAgentAutomationPolicy", user, { policyId });
+  await expectOk("getAgentAutomationPolicy", owner, { policyId });
+  await expectOk("listAgentAutomationPolicies", owner, {});
+
+
   console.log("agentAdminRolesAuditEmulatorTest: handoff queue assertions completed");
 }
 
