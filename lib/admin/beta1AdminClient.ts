@@ -10,6 +10,9 @@ import type {
   AdminScheduleGlitchInput,
   AdminUpdateMissionInput,
   AgentExecutionActionInput,
+  AgentHandoffPromptCopiedInput,
+  AgentHandoffPromptGenerateInput,
+  AgentHandoffPromptGetInput,
   AgentPrHandoffInput,
 } from "./beta1AdminTypes";
 
@@ -48,4 +51,8 @@ export const beta1AdminClient = {
   markAgentTaskHandoffCreated: (input: AgentExecutionActionInput) => callAdmin("markAgentTaskHandoffCreated", { executionId: input.executionId }),
   blockAgentTaskExecution: (input: AgentExecutionActionInput) => callAdmin("blockAgentTaskExecution", { executionId: input.executionId, reason: input.reason }),
   listAgentTaskExecutions: (status?: string) => callAdmin("listAgentTaskExecutions", status ? { status } : {}),
+  generateAgentTaskCodexPrompt: (input: AgentHandoffPromptGenerateInput) => callAdmin("generateAgentTaskCodexPrompt", input),
+  getAgentTaskCodexPrompt: (input: AgentHandoffPromptGetInput) => callAdmin("getAgentTaskCodexPrompt", input),
+  markAgentTaskCodexPromptCopied: (input: AgentHandoffPromptCopiedInput) => callAdmin("markAgentTaskCodexPromptCopied", input),
+  listAgentTaskHandoffPrompts: (executionId?: string) => callAdmin("listAgentTaskHandoffPrompts", executionId ? { executionId } : {}),
 };

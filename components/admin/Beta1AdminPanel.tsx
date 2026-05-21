@@ -14,7 +14,7 @@ import {
   validateXpAdjust,
 } from "@/lib/admin/beta1AdminValidation";
 
-const FORM_KEYS = ["mission-create", "mission-publish", "checkpoint-create", "glitch-schedule", "glitch-cancel", "safety-review", "xp-adjust", "agent-handoff", "agent-block"] as const;
+const FORM_KEYS = ["mission-create", "mission-publish", "checkpoint-create", "glitch-schedule", "glitch-cancel", "safety-review", "xp-adjust", "agent-handoff", "agent-block", "agent-prompt-generate", "agent-prompt-copied"] as const;
 type FormKey = (typeof FORM_KEYS)[number];
 
 type FormFeedback = { error: string; success: string; loading: boolean };
@@ -33,6 +33,8 @@ export default function Beta1AdminPanel() {
   const [guardState, setGuardState] = useState<AdminGuardState>("loading");
   const [guardMessage, setGuardMessage] = useState("Admin-Zugriff wird geprüft ...");
   const [feedback, setFeedback] = useState<Record<FormKey, FormFeedback>>(INITIAL);
+  const [generatedPrompt, setGeneratedPrompt] = useState("");
+  const [generatedPromptId, setGeneratedPromptId] = useState("");
 
   useEffect(() => {
     verifyAdminClaim().then((guard) => {
@@ -128,12 +130,32 @@ export default function Beta1AdminPanel() {
           await run("agent-handoff", () => beta1AdminClient.prepareAgentTaskPrHandoff(payload));
         }} />
         <div className="mt-3">
+          <AdminForm title="Generate Codex Prompt" fields={["executionId", "commitMessage", "prTitle"]} feedback={feedback["agent-prompt-generate"]} onSubmit={async (fd) => {
+            const payload = { executionId: normalize(fd.get("executionId")), commitMessage: normalizeOptional(fd.get("commitMessage")), prTitle: normalizeOptional(fd.get("prTitle")) };
+            if (!payload.executionId) return setFeedback((prev) => ({ ...prev, ["agent-prompt-generate"]: { ...prev["agent-prompt-generate"], error: "executionId fehlt.", success: "" } }));
+            await run("agent-prompt-generate", async () => {
+              const result = await beta1AdminClient.generateAgentTaskCodexPrompt(payload);
+              if (result.accepted) {
+                const data = result as AdminActionResult & { promptText?: string; handoffPromptId?: string };
+                setGeneratedPrompt(data.promptText || "");
+                setGeneratedPromptId(data.handoffPromptId || "");
+              }
+              return result;
+            });
+          }} />
+          {generatedPrompt ? <div className="mt-3 rounded border border-white/20 bg-black/30 p-2"><p className="mb-2 font-semibold text-white">Generierter Codex Prompt (read-only)</p><pre className="max-h-64 overflow-auto whitespace-pre-wrap text-[11px] text-white/85">{generatedPrompt}</pre></div> : null}
+          <AdminForm title="Mark Prompt Copied" fields={["handoffPromptId"]} feedback={feedback["agent-prompt-copied"]} onSubmit={async (fd) => {
+            const handoffPromptId = normalize(fd.get("handoffPromptId")) || generatedPromptId;
+            if (!handoffPromptId) return setFeedback((prev) => ({ ...prev, ["agent-prompt-copied"]: { ...prev["agent-prompt-copied"], error: "handoffPromptId fehlt.", success: "" } }));
+            await run("agent-prompt-copied", () => beta1AdminClient.markAgentTaskCodexPromptCopied({ handoffPromptId }));
+          }} />
           <AdminForm title="Block Execution" fields={["executionId", "reason"]} feedback={feedback["agent-block"]} onSubmit={async (fd) => {
             const payload = { executionId: normalize(fd.get("executionId")), reason: normalizeOptional(fd.get("reason")) };
             if (!payload.executionId) return setFeedback((prev) => ({ ...prev, ["agent-block"]: { ...prev["agent-block"], error: "executionId fehlt.", success: "" } }));
             await run("agent-block", () => beta1AdminClient.blockAgentTaskExecution(payload));
           }} />
         </div>
+        <p className="mt-3 rounded border border-amber-400/40 bg-amber-300/10 p-2">Dieser Prompt startet nichts automatisch. Er muss manuell in Codex verwendet werden. Kein Auto-Merge, kein Deploy.</p>
       </section>
     </section>
   );
