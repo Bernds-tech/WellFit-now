@@ -2,66 +2,64 @@
 
 Status: template-only (no real tester data)
 Date: 2026-05-21
-Branch context: `readiness/beta1-pilot-evidence-gaps-close`
+Branch context: `readiness/beta1-human-evidence-capture`
 
 Hinweis: Keine echten Namen, E-Mails, Telefonnummern, personenbezogenen Daten oder sensible Screenshots committen.
 
-## 1) Manual Seed Evidence Section
+## Standardfelder (fuer alle Tabellen)
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| manual-seed-001 | YYYY-MM-DD | tester_admin_placeholder_01 | beta-staging-placeholder | admin manual seed runbook full flow | runbook steps complete without P0 stop | TBD | blocked | fill after real run | optional-ref | yes |
+`evidenceId`, `date`, `device/browser`, `route`, `expected`, `actual`, `status pass/fail/blocked/pending`, `screenshotRef optional`, `noPiiConfirmed yes/no`, `notes`
 
-## 2) Device Evidence Android Chrome Section
+## 1) Live Pages Device Smoke
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| device-android-001 | YYYY-MM-DD | tester_mobile_placeholder_01 | android-chrome-placeholder | login -> dashboard -> missions -> wallet/ledger | core flow usable without leak/crash | TBD | blocked | fill after device run | optional-ref | yes |
+| evidenceId | date | device/browser | route | expected | actual | status pass/fail/blocked/pending | screenshotRef optional | noPiiConfirmed yes/no | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| live-pages-device-001 | YYYY-MM-DD | device_browser_placeholder | /, /dashboard, /missionen, /buddy, /shop, /leaderboard, /analytics, /marketplace | all key pages reachable, no P0/P1 | TBD | pending | optional-safe-ref | yes | fill after real human smoke |
 
-## 3) Device Evidence iPhone Safari Section
+## 2) /shop Smoke
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| device-ios-001 | YYYY-MM-DD | tester_mobile_placeholder_02 | ios-safari-placeholder | login -> dashboard -> missions -> wallet/ledger | core flow usable without leak/crash | TBD | blocked | fill after device run | optional-ref | yes |
+| evidenceId | date | device/browser | route | expected | actual | status pass/fail/blocked/pending | screenshotRef optional | noPiiConfirmed yes/no | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| shop-smoke-001 | YYYY-MM-DD | device_browser_placeholder | /shop | page loads, XP-only wording, no payment/cashout hints | TBD | pending | optional-safe-ref | yes | no real money data |
 
-## 4) Dashboard Projection Evidence Section
+## 3) /leaderboard Smoke
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| dashboard-projection-001 | YYYY-MM-DD | tester_client_placeholder_01 | beta-staging-placeholder | dashboard missions + wallet + ledger projection read | published missions visible, read projections consistent | TBD | blocked | include mission count/consistency notes | optional-ref | yes |
+| evidenceId | date | device/browser | route | expected | actual | status pass/fail/blocked/pending | screenshotRef optional | noPiiConfirmed yes/no | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| leaderboard-smoke-001 | YYYY-MM-DD | device_browser_placeholder | /leaderboard | readonly leaderboard visible, no PII leaks | TBD | pending | optional-safe-ref | yes | fill after run |
 
-## 5) Guardian/Child Boundary Evidence Section
+## 4) /analytics Smoke
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| boundary-guardian-child-001 | YYYY-MM-DD | tester_guardian_placeholder_01 | beta-staging-placeholder | guardian-first + child boundary denied/allowed checks | no child standalone login, boundary respected | TBD | blocked | record denied/allowed outcomes | optional-ref | yes |
+| evidenceId | date | device/browser | route | expected | actual | status pass/fail/blocked/pending | screenshotRef optional | noPiiConfirmed yes/no | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| analytics-smoke-001 | YYYY-MM-DD | device_browser_placeholder | /analytics | own-view stats load, no sensitive data leak | TBD | pending | optional-safe-ref | yes | fill after run |
 
-## 6) Privacy/Consent Wording Evidence Section
+## 5) /marketplace Smoke
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| privacy-consent-001 | YYYY-MM-DD | reviewer_placeholder_legal_01 | docs-review-placeholder | beta communication wording review | wording aligns with scope and consent boundaries | TBD | blocked | no legal advice implied; review outcome only | optional-ref | yes |
+| evidenceId | date | device/browser | route | expected | actual | status pass/fail/blocked/pending | screenshotRef optional | noPiiConfirmed yes/no | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| marketplace-smoke-001 | YYYY-MM-DD | device_browser_placeholder | /marketplace | preview page loads, no real trading/payment | TBD | pending | optional-safe-ref | yes | fill after run |
 
-## 7) Support Contact Replacement Evidence Section
+## 6) /marktplatz Alias Smoke
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| support-contact-001 | YYYY-MM-DD | support_owner_placeholder_01 | runbook-docs-placeholder | support runbook contact alias verification | placeholder replaced by non-PII role contact | TBD | blocked | use role alias only, no private data | optional-ref | yes |
+| evidenceId | date | device/browser | route | expected | actual | status pass/fail/blocked/pending | screenshotRef optional | noPiiConfirmed yes/no | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| marktplatz-alias-smoke-001 | YYYY-MM-DD | device_browser_placeholder | /marktplatz | alias route resolves correctly and safely | TBD | pending | optional-safe-ref | yes | fill after run |
 
-## 8) Onboarding Dry Run Evidence Section
+## 7) Desktop Responsive Smoke
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| onboarding-dryrun-001 | YYYY-MM-DD | tester_rollout_placeholder_01 | rollout-dryrun-placeholder | tester onboarding checklist dry run | onboarding completes with placeholder identities only | TBD | blocked | no real emails/names | optional-ref | yes |
+| evidenceId | date | device/browser | route | expected | actual | status pass/fail/blocked/pending | screenshotRef optional | noPiiConfirmed yes/no | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| desktop-responsive-001 | YYYY-MM-DD | desktop_browser_placeholder | key live pages | stable layout across target widths | TBD | pending | optional-safe-ref | yes | include tested widths |
 
-## 9) Reality Glitch Safety Evidence Section
+## 8) Android Chrome Smoke
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| glitch-safety-001 | YYYY-MM-DD | safety_owner_placeholder_01 | glitch-safety-dryrun-placeholder | safe-location + cancel-readiness drill | safety checks pass; cancel path available | TBD | blocked | stop if unsafe condition appears | optional-ref | yes |
+| evidenceId | date | device/browser | route | expected | actual | status pass/fail/blocked/pending | screenshotRef optional | noPiiConfirmed yes/no | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| android-chrome-smoke-001 | YYYY-MM-DD | android_chrome_placeholder | key live pages | no crash, no sensitive leak, navigation works | TBD | pending | optional-safe-ref | yes | include OS/browser version |
 
-## 10) Permission Denied No-Leak Evidence Section
+## 9) iPhone Safari Smoke
 
-| evidenceId | date | testerKey/placeholder | environment | routeOrFlow | expected | actual | status pass/fail/blocked | notes | screenshotRef optional | noPiiConfirmed yes/no |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| denied-no-leak-001 | YYYY-MM-DD | tester_qa_placeholder_01 | beta-staging-placeholder | denied flow (missing permission) | safe denied state without stack trace/sensitive leak | TBD | blocked | capture user-visible error quality only | optional-ref | yes |
+| evidenceId | date | device/browser | route | expected | actual | status pass/fail/blocked/pending | screenshotRef optional | noPiiConfirmed yes/no | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| iphone-safari-smoke-001 | YYYY-MM-DD | iphone_safari_placeholder | key live pages | no crash, no sensitive leak, navigation works | TBD | pending | optional-safe-ref | yes | include iOS/Safari version |

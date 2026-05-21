@@ -82,3 +82,11 @@ Verwende pro Incident mindestens:
 - Keine Runtime-/Backend-Authority in Support-Dokumentation veraendern.
 - Server bleibt finale Autoritaet fuer Rewards/Mission Completion/Anti-Cheat.
 - Jede potenzielle Compliance-Verletzung als P0 behandeln.
+
+
+## Wave-1 Contact Placeholder Requirement
+
+- support-contact: `role_alias_required`
+- Keine echte Person und keine echte E-Mail im Repository eintragen.
+- Vor Wave 1 muss der Placeholder durch eine verantwortliche Rollenbezeichnung ersetzt werden (z. B. `beta1_support_oncall_role`).
+- Diese Ersetzung muss als Human Evidence dokumentiert werden.
