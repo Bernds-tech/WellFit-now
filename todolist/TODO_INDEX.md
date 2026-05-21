@@ -546,3 +546,5 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - Naechster empfohlener Branch: `plan/agent-admin-server-roles-audit-runtime-scope` (Prioritaet) oder `plan/beta1-live-pages-runtime-scope`.
 
 - Runtime slice delivered: agent admin server roles/audit foundation (collections + callables + rules baseline).
+
+- 2026-05-21: Runtime slice PR-Handoff Queue ergänzt (Execution-Handoff-Felder, prepare/mark/block/list Callables, requiredChecks-Metadaten, humanMergeRequired=true). Kein Auto-Merge, kein Auto-Deploy, keine automatische Codeausführung.

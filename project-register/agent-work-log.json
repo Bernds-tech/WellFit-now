@@ -3736,6 +3736,37 @@
       "nextRecommendedTask": "runtime/agent-admin-execution-queue-pr-handoff",
       "riskLevel": "medium",
       "notes": "Server-side role checks and mandatory audit writes added for agent task proposals/approvals/executions/check results. Runtime autonomy not fully enabled; no auto-exec, no auto-merge, no auto-deploy."
+    },
+    {
+      "taskId": "runtime-agent-admin-execution-queue-pr-handoff",
+      "title": "Add agent admin PR handoff queue runtime slice",
+      "status": "done",
+      "pr": {
+        "branch": "runtime/agent-admin-execution-queue-pr-handoff",
+        "number": null,
+        "url": null,
+        "title": "Add Agent Admin PR handoff queue"
+      },
+      "changedFiles": [
+        "functions/lib/agentAdminRolesAudit.js",
+        "functions/test/agentAdminRolesAuditEmulatorTest.js",
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts",
+        "components/admin/Beta1AdminPanel.tsx",
+        "docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md",
+        "docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "checks": [],
+      "followUps": [
+        "Next recommended branch: runtime/agent-admin-safe-codex-bridge."
+      ],
+      "nextRecommendedTask": "runtime/agent-admin-safe-codex-bridge",
+      "riskLevel": "medium"
     }
   ]
 }

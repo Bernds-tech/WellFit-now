@@ -310,3 +310,5 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - [x] Runtime slice: agent admin roles/audit callable foundation (no auto-merge/deploy; audit required).
 - [ ] Next branch recommendation: runtime/agent-admin-execution-queue-pr-handoff
+
+- 2026-05-21: Runtime slice PR-Handoff Queue ergänzt (Execution-Handoff-Felder, prepare/mark/block/list Callables, requiredChecks-Metadaten, humanMergeRequired=true). Kein Auto-Merge, kein Auto-Deploy, keine automatische Codeausführung.

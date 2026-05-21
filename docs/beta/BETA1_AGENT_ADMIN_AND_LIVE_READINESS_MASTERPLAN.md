@@ -81,3 +81,5 @@ Wichtiger Grundsatz: **keine Runtime-Autonomie ohne serverseitige Rollenpruefung
 - Added callable gates for proposal/review/approve/reject/queue/check-result/list/audit-trail with mandatory audit writes.
 - Firestore rules keep all writes client-blocked for these collections.
 - Human merge and PR handoff remain required.
+
+- 2026-05-21: Runtime slice PR-Handoff Queue ergänzt (Execution-Handoff-Felder, prepare/mark/block/list Callables, requiredChecks-Metadaten, humanMergeRequired=true). Kein Auto-Merge, kein Auto-Deploy, keine automatische Codeausführung.
