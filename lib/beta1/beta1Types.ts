@@ -7,3 +7,6 @@ export type Beta1InventoryItem = { id: string; ownerUserId?: string; itemDefinit
 export type Beta1CheckpointSummary = { id: string; name: string; status: string; regionId?: string };
 export type Beta1GlitchEventSummary = { id: string; title: string; status: string; regionId?: string; startsAt?: string | null };
 export type Beta1ChildProfileSummary = { id: string; nickname: string; ageBand?: string; status?: string };
+
+export type Beta1LeaderboardPreviewRow = { id: string; rankLabel: string; displayName: string; wfxp: number; missions: number; checkpoints: number; scope: "self" | "placeholder" };
+export type Beta1LeaderboardPreview = { rows: Beta1LeaderboardPreviewRow[]; summary: { wfxp: number; missions: number; checkpoints: number }; isLimited: boolean; note: string };

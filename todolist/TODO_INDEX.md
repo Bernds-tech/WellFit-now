@@ -582,3 +582,11 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - Read-Projections: Wallet-Balance, publizierte Shop-Items (inkl. `priceWfxp`, optional `category`/`rarity`), User-Inventory.
 - Keine Functions-/Rules-Aenderung; keine Payment/Token/NFT/Cashout-Aktivierung.
 - Next: `runtime/beta1-leaderboard-readonly`.
+
+## Update 2026-05-21 - Runtime Beta1 Leaderboard Read-only
+
+- Status: umgesetzt auf `runtime/beta1-leaderboard-readonly`.
+- Route: `/leaderboard` nutzt professionelles Beta1-UI und klaren Privacy-Hinweis (read-only, keine öffentlichen Kinderprofile).
+- Daten: sichere Read-Projektionen für eigene Fortschrittsmetriken; bei fehlender freigegebener Leaderboard-Aggregation wird eine limitierte Vorschau ohne Fremdprofile angezeigt.
+- Guardrails: keine Functions-/Rules-Aenderung, keine clientseitige Ranking-/Reward-Autorität, keine sensiblen Rohdaten.
+- Next: `runtime/beta1-analytics-stats-own-view`.

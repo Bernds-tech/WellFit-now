@@ -997,6 +997,23 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Introduced reusable Beta-1 UI foundation patterns and migrated Beta1 read projection + admin entry framing to calmer dashboard styling. Dashboard background visual noise reduced. No Firebase Functions or Firestore Rules changes. No new writes/callables/authority."
+    },
+    {
+      "id": "2026-05-21-beta1-leaderboard-readonly",
+      "date": "2026-05-21",
+      "branch": "runtime/beta1-leaderboard-readonly",
+      "goal": "Implement Beta-1 leaderboard runtime slice as privacy-safe read-only limited view.",
+      "changedAreas": [
+        "app/leaderboard",
+        "components/beta1",
+        "lib/beta1",
+        "docs/beta",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Replaced leaderboard placeholder with Beta-1 readonly route and limited projection preview. No Firebase Functions/Rules changes, no server-authority changes, no public child profiles, no sensitive location/health raw data."
     }
   ]
 }

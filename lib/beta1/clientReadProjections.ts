@@ -1,7 +1,7 @@
 import { auth, db } from "@/lib/firebase";
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import { mapCheckpoint, mapChildProfile, mapGlitchEvent, mapInventoryItem, mapLedger, mapMissionSummary, mapShopItem, mapWallet } from "./beta1ReadGuards";
-import type { Beta1CheckpointSummary, Beta1ChildProfileSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "./beta1Types";
+import type { Beta1CheckpointSummary, Beta1ChildProfileSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1LeaderboardPreview, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "./beta1Types";
 
 const friendlyError = (error: unknown) => {
   const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
@@ -100,4 +100,22 @@ export async function readGuardianChildProfiles(): Promise<{ data: Beta1ChildPro
   } catch (error) {
     return { data: [], error: friendlyError(error) };
   }
+}
+
+
+export async function readLeaderboardPreview(): Promise<{ data: Beta1LeaderboardPreview; error: string | null }> {
+  const [walletRes, missionRes, checkpointRes] = await Promise.all([readXpWalletProjection(), readPublishedMissions(), readCheckpointAndGlitch()]);
+  const rows = walletRes.data
+    ? [{ id: "self", rankLabel: "Eigene Ansicht", displayName: "Du (privat)", wfxp: walletRes.data.balance, missions: missionRes.data.length, checkpoints: checkpointRes.checkpoints.length, scope: "self" as const }]
+    : [];
+
+  return {
+    data: {
+      rows,
+      summary: { wfxp: walletRes.data?.balance ?? 0, missions: missionRes.data.length, checkpoints: checkpointRes.checkpoints.length },
+      isLimited: true,
+      note: "Limited Preview: Keine freigegebene serverseitige Leaderboard-Aggregation fuer andere Profile vorhanden.",
+    },
+    error: walletRes.error || missionRes.error || checkpointRes.error,
+  };
 }

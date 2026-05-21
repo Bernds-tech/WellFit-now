@@ -96,3 +96,14 @@ Diese Datei definiert den Runtime-Scope fuer Beta-1 Live-Seiten als Planungsgrun
 - Shop-CTA bleibt intent-only (`Anfrage vormerken`) und deaktiviert; keine clientseitige finale Spend-/Purchase-Authority.
 - Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
 - Next recommended branch: `runtime/beta1-leaderboard-readonly`.
+
+
+## Update 2026-05-21 - Runtime Slice umgesetzt: Leaderboard (Read-only)
+
+- Branch: `runtime/beta1-leaderboard-readonly`
+- Route umgesetzt: `/leaderboard` (`app/leaderboard/page.tsx`) mit professioneller Beta-1 UI und Privacy-Hinweisen.
+- Datenbasis: sichere Read-Projektionen fuer eigene WFXP-/Mission-/Checkpoint-Zusammenfassung; keine fremden Rohprofile.
+- Falls fehlende serverseitige Leaderboard-Aggregation: bewusst `limited preview`/Placeholder statt unsicherer Client-Rank-Berechnung.
+- Keine neuen Firebase Functions, keine Firestore Rules-Aenderung, keine Server-Authority-Aenderung.
+- Keine oeffentlichen Kinderprofile, keine sensiblen Standort-/Gesundheitsdaten, keine clientseitige finale Ranking-/Reward-Authority.
+- Next recommended branch: `runtime/beta1-analytics-stats-own-view`.
