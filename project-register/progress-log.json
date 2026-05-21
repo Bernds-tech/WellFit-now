@@ -886,6 +886,29 @@
       "productLogicChanged": true,
       "productionDeployTriggered": false,
       "notes": "Added callable foundation for create/review/approve/reject/queue/check-result/list/audit-trail over agentTaskProposals/Approvals/Executions/AuditLog/CheckResults with role gates and protected-scope blocking. Firestore rules keep client writes blocked. Audit write is mandatory per action path; runtime autonomy remains NOT fully activated (no auto-run, no auto-merge, no auto-deploy)."
+    },
+    {
+      "id": "2026-05-21-agent-admin-pr-handoff-queue",
+      "date": "2026-05-21",
+      "branch": "runtime/agent-admin-execution-queue-pr-handoff",
+      "goal": "Add secure execution queue PR-handoff metadata and callable controls without auto-run, auto-merge, or deploy automation.",
+      "changedAreas": [
+        "functions/lib/agentAdminRolesAudit.js",
+        "functions/test/agentAdminRolesAuditEmulatorTest.js",
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts",
+        "components/admin/Beta1AdminPanel.tsx",
+        "docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md",
+        "docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Added handoff-only execution metadata/callables and admin UI controls for prepare/block flows. No automatic code execution, no GitHub API integration, no auto-merge, no auto-deploy, human merge remains required, protected scopes remain blocked unless owner allowlist rules are met."
     }
   ]
 }

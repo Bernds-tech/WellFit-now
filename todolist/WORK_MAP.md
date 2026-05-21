@@ -347,3 +347,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - Naechster empfohlener Branch: `plan/agent-admin-server-roles-audit-runtime-scope` (Prioritaet) oder `plan/beta1-live-pages-runtime-scope`.
 
 - Runtime governance track: server-only agentTask approval/execution lifecycle with audit-log mandatory write added.
+
+- 2026-05-21: Runtime slice PR-Handoff Queue ergänzt (Execution-Handoff-Felder, prepare/mark/block/list Callables, requiredChecks-Metadaten, humanMergeRequired=true). Kein Auto-Merge, kein Auto-Deploy, keine automatische Codeausführung.

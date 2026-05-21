@@ -9,6 +9,8 @@ import type {
   AdminReviewSafetyReportInput,
   AdminScheduleGlitchInput,
   AdminUpdateMissionInput,
+  AgentExecutionActionInput,
+  AgentPrHandoffInput,
 } from "./beta1AdminTypes";
 
 function sanitizeAdminError(error: unknown): string {
@@ -42,4 +44,8 @@ export const beta1AdminClient = {
   cancelGlitchEvent: (input: AdminCancelGlitchInput) => callAdmin("cancelGlitchEvent", input),
   adminReviewSafetyReport: (input: AdminReviewSafetyReportInput) => callAdmin("adminReviewSafetyReport", { reportId: input.reportId, status: input.decision, reviewNote: input.reason }),
   adminAdjustXp: (input: AdminAdjustXpInput) => callAdmin("adminAdjustXp", input),
+  prepareAgentTaskPrHandoff: (input: AgentPrHandoffInput) => callAdmin("prepareAgentTaskPrHandoff", { executionId: input.executionId, branchName: input.branchName, title: input.title, summary: input.summary }),
+  markAgentTaskHandoffCreated: (input: AgentExecutionActionInput) => callAdmin("markAgentTaskHandoffCreated", { executionId: input.executionId }),
+  blockAgentTaskExecution: (input: AgentExecutionActionInput) => callAdmin("blockAgentTaskExecution", { executionId: input.executionId, reason: input.reason }),
+  listAgentTaskExecutions: (status?: string) => callAdmin("listAgentTaskExecutions", status ? { status } : {}),
 };

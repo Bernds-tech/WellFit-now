@@ -17,3 +17,7 @@ export type AdminScheduleGlitchInput = { regionId: string; locationIds: string[]
 export type AdminCancelGlitchInput = { glitchEventId: string; reason: string };
 export type AdminReviewSafetyReportInput = { reportId: string; decision: string; reason: string };
 export type AdminAdjustXpInput = { ownerUserId: string; delta: number; reason: string; idempotencyKey?: string };
+
+
+export type AgentPrHandoffInput = { executionId: string; branchName: string; title: string; summary: string };
+export type AgentExecutionActionInput = { executionId: string; reason?: string };

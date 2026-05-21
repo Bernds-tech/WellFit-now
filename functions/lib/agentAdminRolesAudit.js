@@ -8,6 +8,26 @@ const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
 
+const BASE_REQUIRED_CHECKS = ["npm run agent:validate", "npm run agent:quality-gate", "npm run lint", "git diff --check"];
+const FUNCTION_SCOPE_MARKERS = ["runtime_backend", "functions", "firestore"];
+const UI_SCOPE_MARKERS = ["runtime_ui", "live_page", "ui", "app", "components"];
+
+function isSafeBranchName(branchName) {
+  return /^[A-Za-z0-9._\/-]+$/.test(branchName) && !branchName.includes("..") && !branchName.startsWith("/") && !branchName.endsWith("/");
+}
+
+function buildRequiredChecks({ targetTrack, allowedFiles }) {
+  const checks = new Set(BASE_REQUIRED_CHECKS);
+  const allowed = (allowedFiles || []).map((entry) => String(entry || "").toLowerCase());
+  const track = String(targetTrack || "").toLowerCase();
+  const touchesFunctions = FUNCTION_SCOPE_MARKERS.some((marker) => track.includes(marker)) || allowed.some((file) => file.startsWith("functions/") || file === "firestore.rules");
+  const touchesUi = UI_SCOPE_MARKERS.some((marker) => track.includes(marker)) || allowed.some((file) => file.startsWith("app/") || file.startsWith("components/") || file.startsWith("lib/admin/"));
+  if (touchesFunctions) checks.add("npm --prefix functions run check");
+  if (touchesUi) checks.add("npm run build");
+  return Array.from(checks);
+}
+
+
 function requireRole(request, HttpsError, allowedRoles) {
   if (!request.auth || !request.auth.uid) throw new HttpsError("unauthenticated", "Login erforderlich.");
   const actorRole = optionalString(request.auth.token && request.auth.token.agentRole, 80);
@@ -143,7 +163,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const executionRef = db.collection("agentTaskExecutions").doc();
     const status = optionalString(data.status, 40) || "queued";
     if (!EXECUTION_STATUSES.includes(status)) throw new HttpsError("invalid-argument", "Ungültiger Execution-Status.");
-    const execution = { executionId: executionRef.id, proposalId, approvalId, executorType: ["codex", "agent", "human"].includes(optionalString(data.executorType, 40)) ? optionalString(data.executorType, 40) : "agent", branchName: requiredString(data.branchName, "branchName", HttpsError, 200), commitSha: optionalString(data.commitSha, 120), prRef: optionalString(data.prRef, 200), status, startedAt: FieldValue.serverTimestamp(), completedAt: null, checkSummary: optionalString(data.checkSummary, 800) || null };
+    const execution = { executionId: executionRef.id, proposalId, approvalId, executorType: ["codex", "agent", "human"].includes(optionalString(data.executorType, 40)) ? optionalString(data.executorType, 40) : "agent", branchName: requiredString(data.branchName, "branchName", HttpsError, 200), commitSha: optionalString(data.commitSha, 120), prRef: optionalString(data.prRef, 200), status, startedAt: FieldValue.serverTimestamp(), completedAt: null, checkSummary: optionalString(data.checkSummary, 800) || null, prHandoffStatus: "not_ready", handoffBranchName: null, handoffTitle: null, handoffSummary: null, requiredChecks: [], allowedFilesSnapshot: approval.approvedAllowedFiles || [], blockedFilesSnapshot: approval.approvedBlockedFiles || [], protectedScopesSnapshot: [], handoffCreatedAt: null, humanMergeRequired: true };
     await executionRef.set(execution);
     await writeAgentAudit(db, { actorId, actorRole, action: "execution_queued", proposalId, approvalId, executionId: executionRef.id, allowedFiles: approval.approvedAllowedFiles || [], blockedFiles: approval.approvedBlockedFiles || [], result: status });
     return { accepted: true, executionId: executionRef.id, status };
@@ -171,6 +191,90 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     if (proposalId) query = query.where("proposalId", "==", proposalId);
     const snapshot = await query.get();
     return { accepted: true, entries: snapshot.docs.map((doc) => doc.data()) };
+  });
+
+
+
+  exportsTarget.prepareAgentTaskPrHandoff = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator", "agent_executor_service"]);
+    const data = request.data || {};
+    const executionId = requiredString(data.executionId, "executionId", HttpsError, 180);
+    const handoffBranchName = requiredString(data.branchName, "branchName", HttpsError, 200);
+    if (["main", "master"].includes(handoffBranchName.toLowerCase())) throw new HttpsError("invalid-argument", "Branch main/master ist nicht erlaubt.");
+    if (!isSafeBranchName(handoffBranchName)) throw new HttpsError("invalid-argument", "Unsicherer Branch-Name.");
+    const handoffTitle = requiredString(data.title, "title", HttpsError, 200);
+    const handoffSummary = requiredString(data.summary, "summary", HttpsError, 2000);
+
+    const executionRef = db.collection("agentTaskExecutions").doc(executionId);
+    const executionSnap = await executionRef.get();
+    if (!executionSnap.exists) throw new HttpsError("not-found", "Execution nicht gefunden.");
+    const execution = executionSnap.data() || {};
+    if (execution.status !== "queued") throw new HttpsError("failed-precondition", "Execution ist nicht im queued Status.");
+    const approvalId = requiredString(execution.approvalId, "approvalId", HttpsError, 180);
+    const approvalSnap = await db.collection("agentTaskApprovals").doc(approvalId).get();
+    if (!approvalSnap.exists) throw new HttpsError("failed-precondition", "Approval fehlt.");
+    const approval = approvalSnap.data() || {};
+    if (approval.status !== "approved") throw new HttpsError("failed-precondition", "Approval ist nicht approved.");
+
+    const proposalSnap = await db.collection("agentTaskProposals").doc(execution.proposalId).get();
+    if (!proposalSnap.exists) throw new HttpsError("failed-precondition", "Proposal fehlt.");
+    const proposal = proposalSnap.data() || {};
+    assertProtectedScopesAllowed({ protectedScopes: proposal.protectedScopes || [], approvalScope: approval.approvalScope || [], actorRole, HttpsError });
+
+    const allowedFilesSnapshot = parseStringList(approval.approvedAllowedFiles || []);
+    const blockedFilesSnapshot = parseStringList(approval.approvedBlockedFiles || []);
+    const protectedScopesSnapshot = parseStringList(proposal.protectedScopes || [], 40, 80);
+    const requiredChecks = buildRequiredChecks({ targetTrack: proposal.targetTrack, allowedFiles: allowedFilesSnapshot });
+
+    await executionRef.set({
+      handoffBranchName,
+      handoffTitle,
+      handoffSummary,
+      prHandoffStatus: "ready_for_handoff",
+      requiredChecks,
+      allowedFilesSnapshot,
+      blockedFilesSnapshot,
+      protectedScopesSnapshot,
+      humanMergeRequired: true,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    await writeAgentAudit(db, { actorId, actorRole, action: "execution_handoff_prepared", proposalId: execution.proposalId || null, approvalId, executionId, allowedFiles: allowedFilesSnapshot, blockedFiles: blockedFilesSnapshot, riskLevel: proposal.riskLevel || "medium", result: "ready_for_handoff" });
+    return { accepted: true, executionId, prHandoffStatus: "ready_for_handoff", requiredChecks, humanMergeRequired: true };
+  });
+
+  exportsTarget.markAgentTaskHandoffCreated = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator", "agent_executor_service"]);
+    const executionId = requiredString(request.data && request.data.executionId, "executionId", HttpsError, 180);
+    const executionRef = db.collection("agentTaskExecutions").doc(executionId);
+    const executionSnap = await executionRef.get();
+    if (!executionSnap.exists) throw new HttpsError("not-found", "Execution nicht gefunden.");
+    await executionRef.set({ prHandoffStatus: "handoff_created", handoffCreatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    const execution = executionSnap.data() || {};
+    await writeAgentAudit(db, { actorId, actorRole, action: "execution_handoff_created", proposalId: execution.proposalId || null, approvalId: execution.approvalId || null, executionId, result: "handoff_created" });
+    return { accepted: true, executionId, prHandoffStatus: "handoff_created", humanMergeRequired: true };
+  });
+
+  exportsTarget.blockAgentTaskExecution = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor"]);
+    const executionId = requiredString(request.data && request.data.executionId, "executionId", HttpsError, 180);
+    const reason = optionalString(request.data && request.data.reason, 500) || "execution_blocked";
+    const executionRef = db.collection("agentTaskExecutions").doc(executionId);
+    const executionSnap = await executionRef.get();
+    if (!executionSnap.exists) throw new HttpsError("not-found", "Execution nicht gefunden.");
+    await executionRef.set({ status: "blocked", prHandoffStatus: "blocked", blockReason: reason, humanMergeRequired: true, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    const execution = executionSnap.data() || {};
+    await writeAgentAudit(db, { actorId, actorRole, action: "execution_blocked", proposalId: execution.proposalId || null, approvalId: execution.approvalId || null, executionId, result: reason });
+    return { accepted: true, executionId, status: "blocked", prHandoffStatus: "blocked" };
+  });
+
+  exportsTarget.listAgentTaskExecutions = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator", "agent_executor_service"]);
+    const status = optionalString(request.data && request.data.status, 40);
+    let query = db.collection("agentTaskExecutions").orderBy("startedAt", "desc").limit(100);
+    if (status && EXECUTION_STATUSES.includes(status)) query = query.where("status", "==", status);
+    const snapshot = await query.get();
+    return { accepted: true, executions: snapshot.docs.map((doc) => doc.data()) };
   });
 
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {

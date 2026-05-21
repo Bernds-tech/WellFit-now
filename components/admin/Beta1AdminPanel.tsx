@@ -14,7 +14,7 @@ import {
   validateXpAdjust,
 } from "@/lib/admin/beta1AdminValidation";
 
-const FORM_KEYS = ["mission-create", "mission-publish", "checkpoint-create", "glitch-schedule", "glitch-cancel", "safety-review", "xp-adjust"] as const;
+const FORM_KEYS = ["mission-create", "mission-publish", "checkpoint-create", "glitch-schedule", "glitch-cancel", "safety-review", "xp-adjust", "agent-handoff", "agent-block"] as const;
 type FormKey = (typeof FORM_KEYS)[number];
 
 type FormFeedback = { error: string; success: string; loading: boolean };
@@ -118,6 +118,23 @@ export default function Beta1AdminPanel() {
         if (validationError) return setFeedback((prev) => ({ ...prev, ["xp-adjust"]: { ...prev["xp-adjust"], error: validationError, success: "" } }));
         await run("xp-adjust", () => beta1AdminClient.adminAdjustXp(payload));
       }} />
+
+      <section className="rounded border border-white/20 bg-slate-900/50 p-3 text-xs text-white/85">
+        <p className="mb-2 font-semibold text-white">Agent Task PR-Handoff</p>
+        <p className="mb-3 rounded border border-cyan-400/30 bg-cyan-300/10 p-2">Erzeugt nur Handoff-Metadaten. Kein Auto-Merge, kein Deploy, keine automatische Codeausfuehrung.</p>
+        <AdminForm title="Prepare PR-Handoff" fields={["executionId", "branchName", "title", "summary"]} feedback={feedback["agent-handoff"]} onSubmit={async (fd) => {
+          const payload = { executionId: normalize(fd.get("executionId")), branchName: normalize(fd.get("branchName")), title: normalize(fd.get("title")), summary: normalize(fd.get("summary")) };
+          if (!payload.executionId || !payload.branchName || !payload.title || !payload.summary) return setFeedback((prev) => ({ ...prev, ["agent-handoff"]: { ...prev["agent-handoff"], error: "Alle Felder sind erforderlich.", success: "" } }));
+          await run("agent-handoff", () => beta1AdminClient.prepareAgentTaskPrHandoff(payload));
+        }} />
+        <div className="mt-3">
+          <AdminForm title="Block Execution" fields={["executionId", "reason"]} feedback={feedback["agent-block"]} onSubmit={async (fd) => {
+            const payload = { executionId: normalize(fd.get("executionId")), reason: normalizeOptional(fd.get("reason")) };
+            if (!payload.executionId) return setFeedback((prev) => ({ ...prev, ["agent-block"]: { ...prev["agent-block"], error: "executionId fehlt.", success: "" } }));
+            await run("agent-block", () => beta1AdminClient.blockAgentTaskExecution(payload));
+          }} />
+        </div>
+      </section>
     </section>
   );
 }
