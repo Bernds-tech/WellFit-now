@@ -867,6 +867,25 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Updated smoke mission type to movement and glitch window to 10 minutes to match client validation constraints. Hardened read guard so non-numeric/missing mission rewardXp stays undefined and UI now renders 'Reward offen' unless rewardXp is numeric (including valid 0). No Functions/Rules/.github changes and no client-final-authority introduction."
+    },
+    {
+      "id": "PROGRESS-AGENT-ADMIN-ROLES-AUDIT-RUNTIME-SLICE-2026-05-21-0001",
+      "date": "2026-05-21",
+      "branch": "runtime/agent-admin-server-roles-audit",
+      "goal": "Implement first server-side Agent Admin roles/audit approval-execution lifecycle foundation.",
+      "changedAreas": [
+        "functions",
+        "firestore.rules",
+        "lib/admin",
+        "app/admin",
+        "components/admin",
+        "docs/beta",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": true,
+      "productionDeployTriggered": false,
+      "notes": "Added callable foundation for create/review/approve/reject/queue/check-result/list/audit-trail over agentTaskProposals/Approvals/Executions/AuditLog/CheckResults with role gates and protected-scope blocking. Firestore rules keep client writes blocked. Audit write is mandatory per action path; runtime autonomy remains NOT fully activated (no auto-run, no auto-merge, no auto-deploy)."
     }
   ]
 }
