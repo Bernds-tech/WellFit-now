@@ -1210,9 +1210,15 @@
       ],
       "productLogicChanged": false,
       "productionDeployTriggered": false
+    },
+    {
+      "date": "2026-05-22",
+      "id": "agent-ecosystem-economy-product-radar-dossiers",
+      "summary": "Added ecosystem/economy dossier architecture, product radar architecture, risk source classifier, and expanded opportunity/mission/research templates plus governance references. No runtime or canonical-truth file changes."
     }
   ],
   "notes": [
     "agent opportunity dossier architecture and templates completed"
-  ]
+  ],
+  "updated": "2026-05-22"
 }

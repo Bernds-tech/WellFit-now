@@ -4228,6 +4228,11 @@
       ],
       "nextRecommendedTask": "runtime/agent-admin-supervised-runner-real-github-integration",
       "timestamp": "2026-05-22T00:00:00Z"
+    },
+    {
+      "date": "2026-05-22",
+      "id": "agent-ecosystem-economy-product-radar-dossiers",
+      "summary": "Added ecosystem/economy dossier architecture, product radar architecture, risk source classifier, and expanded opportunity/mission/research templates plus governance references. No runtime or canonical-truth file changes."
     }
   ],
   "workItems": [

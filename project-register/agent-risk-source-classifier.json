@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "status": "active_planning_guard",
+  "sourceRiskClassification": [
+    "safe_basis",
+    "usable_with_caution",
+    "risk_source",
+    "rejected_source"
+  ],
+  "riskReasons": [
+    "gambling_like",
+    "ponzi_like",
+    "medical_claim",
+    "child_monetization",
+    "dark_pattern",
+    "privacy_risk",
+    "health_data_overreach",
+    "location_surveillance",
+    "token_speculation",
+    "cashout_promise",
+    "unclear_source",
+    "outdated_source"
+  ],
+  "rule": "Wenn eine Quelle WellFit in Richtung Gluecksspiel, Ponzi, Heilversprechen oder Kinder-Monetarisierung drueckt, markiere sie als risk_source oder rejected_source und verwende sie nicht als positive Grundlage.",
+  "requiredMitigation": [
+    "explainRisk",
+    "doNotUseAsPositiveBasis",
+    "requireOwnerReview",
+    "canonicalTruthCheck",
+    "safetyReview"
+  ]
+}

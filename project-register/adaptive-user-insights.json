@@ -351,5 +351,9 @@
     "opportunityDossierRequiredBeforeTaskProposal": true,
     "adminApprovalRequiredBeforeImplementation": true,
     "canonicalTruthProtected": true
+  },
+  "ecosystemEconomyInsightGuard": {
+    "planningOnly": true,
+    "financialImpactAssessmentAllowedAsAggregatePlanningOnly": true
   }
 }

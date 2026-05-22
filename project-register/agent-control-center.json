@@ -910,5 +910,10 @@
     "researchSummaryRequiredForExternalSources": true,
     "adminApprovalRequiredBeforeImplementation": true,
     "canonicalTruthProtected": true
+  },
+  "ecosystemEconomyDossierPolicy": {
+    "requiredForProposals": true,
+    "adminApprovalRequired": true,
+    "riskSourceClassifier": "project-register/agent-risk-source-classifier.json"
   }
 }

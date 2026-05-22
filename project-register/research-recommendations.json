@@ -364,5 +364,9 @@
     "researchSummaryTemplate": "todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md",
     "requiredWhenExternalSourcesUsed": true,
     "adminDecisionRequired": true
+  },
+  "ecosystemEconomyResearchGuard": {
+    "productRadarFindingsRequiredWhenApplicable": true,
+    "sourceRiskClassifierRequired": true
   }
 }

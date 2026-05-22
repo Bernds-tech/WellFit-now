@@ -388,3 +388,13 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [ ] Plan umgesetzt: Agent Product Evolution Loop first run vorbereiten (`analysis/agent-product-evolution-first-run`) oder vorher `fix/agent-admin-quality-gate-follow-up` bei Owner-Blocker.
 
 - Next branch recommendation: `analysis/agent-product-evolution-first-run` or `fix/agent-admin-quality-gate-follow-up`.
+
+## 2026-05-22 - Ecosystem/Economy/Product Radar Governance
+- [x] Ecosystem/Economy Dossier Architektur erstellt (`docs/architecture/WELLFIT_AGENT_ECOSYSTEM_ECONOMY_DOSSIER.md`).
+- [x] Product/Technology Radar Architektur erstellt (`docs/architecture/WELLFIT_AGENT_PRODUCT_TECH_RADAR.md`).
+- [x] Risk Source Classifier erstellt (`project-register/agent-risk-source-classifier.json`).
+- [x] Opportunity/Mission/Research Templates erweitert.
+- [x] First-Run Prompt fuer Product Evolution Loop erweitert.
+- [x] Keine Runtime-Dateien geaendert.
+- [x] Keine Canonical-Truth-Dateien geaendert.
+- Next recommended branch: `analysis/agent-product-evolution-first-run` (oder `fix/agent-admin-quality-gate-follow-up` bei priorisiertem Blocker-Fix).

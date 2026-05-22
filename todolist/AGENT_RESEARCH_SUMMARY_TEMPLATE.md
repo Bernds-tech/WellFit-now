@@ -17,6 +17,17 @@ confidence:
 citations:
 followUpNeeded:
 ownerDecision:
+
+productRadarFindings:
+marketTrendFindings:
+financialRelevance:
+ecosystemPillarRelevance:
+sourceRiskClassification:
+rejectedSources:
+recommendationForWellFit:
+recommendationForBeta1:
+recommendationForFutureRoadmap:
+
 ```
 
 ## Regeln

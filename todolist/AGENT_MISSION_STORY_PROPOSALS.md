@@ -31,6 +31,19 @@ mitigation:
 canonicalTruthCompatibility:
 beta1Fit:
 requiredAdminApproval: true
+
+ecosystemPillarFit:
+financialImpact:
+internalEconomyImpact:
+storyMonetizationFit:
+WFPSourceOrSink:
+XPProgressionFit:
+avatarBondingImpact:
+replayability:
+partnerOrLocationFit:
+B2BUsePotential:
+sponsorFit:
+riskSourceAssessment:
 ownerDecision:
 ```
 
@@ -42,3 +55,10 @@ ownerDecision:
 - Keine sensiblen Standortdaten oeffentlich.
 - Missionen muessen WFP/XP sauber trennen.
 - Geschichten sollen motivieren, nicht manipulieren.
+
+- Narrative Missionen duerfen motivierend sein, aber nicht manipulativ.
+- Keine Suchtspirale als positives Ziel.
+- Kein Gluecksspiel.
+- Kein Pay-to-Win.
+- Kein Kinder-Monetarisierungsdruck.
+- Keine Heilversprechen.

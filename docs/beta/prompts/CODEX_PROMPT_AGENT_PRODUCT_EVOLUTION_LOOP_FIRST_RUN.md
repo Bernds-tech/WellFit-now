@@ -30,3 +30,13 @@ Fuehre einen ersten report-only Product-Evolution-Analyse-Lauf aus:
 - Jeder Vorschlag braucht Chancen, Risiken, Quellen und Empfehlung.
 - Keine Umsetzung ohne Admin approval.
 - Keine Canonical-Truth-Aenderungen.
+
+
+## Erweiterte Pflichtregeln
+- Jeder Vorschlag muss pruefen, was er WellFit als Gesamtoekosystem bringt.
+- Jeder Vorschlag muss die Finanzwirkung pruefen.
+- Jeder Vorschlag muss den internen WFP/XP-Wirtschaftskreislauf pruefen.
+- Jeder Vorschlag muss den Multi-Saeulen-Oekosystem-Fit pruefen.
+- Neue Produkte/Technologien muessen als Product Radar Dossier erfasst werden.
+- Quellen mit Gluecksspiel/Ponzi/Heilversprechen/Kinder-Monetarisierung als Risikoquelle markieren und nicht positiv verwenden.
+- Token als Utility darf analysiert werden, aber keine Beta-1 Token-Aktivierung.
