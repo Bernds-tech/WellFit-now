@@ -11,6 +11,33 @@ async function run() {
   const operator = await createAuthUser("agent-operator", false);
 
   await expectFail("approveAgentTaskProposal", user, { proposalId: "x" });
+
+  await expectFail("createAgentTaskProposal", supervisor, {
+    title: "ct-block-non-owner",
+    promptRef: "docs/prompt",
+    requestedAction: "attempt protected edit",
+    targetTrack: "docs_register",
+    allowedFiles: ["project-register/wellfit-beta1-canonical-truth.json"],
+  });
+
+  await expectFail("createAgentTaskProposal", owner, {
+    title: "ct-block-owner-without-flag",
+    promptRef: "docs/prompt",
+    requestedAction: "attempt protected edit",
+    targetTrack: "docs_register",
+    allowedFiles: ["docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md"],
+  });
+
+  const ownerCtProposal = await expectOk("createAgentTaskProposal", owner, {
+    title: "ct-owner-approved",
+    promptRef: "docs/prompt",
+    requestedAction: "owner approved protected change",
+    targetTrack: "docs_register",
+    allowedFiles: ["todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"],
+    ownerCanonicalTruthApproval: true,
+  });
+  assert(ownerCtProposal.accepted === true, "owner approval flag should allow protected canonical-truth scope");
+
   await expectFail("queueAgentTaskExecution", user, { proposalId: "x", approvalId: "y", branchName: "b" });
 
   await db.collection("agentTaskProposals").doc("p1").set({ proposalId: "p1", promptRef: "docs/prompt", protectedScopes: [], allowedFiles: ["functions/index.js"], blockedFiles: [], riskLevel: "high", status: "approved", targetTrack: "runtime_backend", createdAt: new Date(), updatedAt: new Date() });
@@ -50,6 +77,9 @@ async function run() {
   assert((generated.promptText || "").includes("npm run build"), "prompt should include required checks");
   assert((generated.promptText || "").toLowerCase().includes("kein auto-merge"), "prompt should include no auto-merge");
   assert((generated.promptText || "").toLowerCase().includes("kein auto-deploy"), "prompt should include no auto-deploy");
+  assert((generated.promptText || "").includes("Canonical Truth Pflicht"), "prompt should include canonical truth guardrail");
+  assert((generated.promptText || "").includes("WFP = interne WellFit Punkte"), "prompt should include WFP guardrail");
+  assert((generated.promptText || "").includes("Aenderungsbedarf besteht: nur Vorschlag in todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md") || (generated.promptText || "").includes("CANONICAL_TRUTH_CHANGE_PROPOSALS.md"), "prompt should include canonical truth proposal path");
   const promptId = generated.handoffPromptId;
   const promptDoc = await db.collection("agentTaskHandoffPrompts").doc(promptId).get();
   assert(promptDoc.exists, "prompt doc should exist");
@@ -67,6 +97,7 @@ async function run() {
   assert(workerDoc.data().humanMergeRequired === true, "humanMergeRequired should be true");
   assert(workerDoc.data().autoMerge === false, "autoMerge should be false");
   assert(workerDoc.data().autoDeploy === false, "autoDeploy should be false");
+  assert(workerDoc.data().canonicalTruthReadRequired === true, "worker queue should snapshot canonical truth read requirement");
   await expectFail("claimAgentWorkerQueueItem", user, { workerQueueId: workerId });
   await expectOk("claimAgentWorkerQueueItem", owner, { workerQueueId: workerId });
   await expectOk("updateAgentWorkerQueueStatus", owner, { workerQueueId: workerId, workerStatus: "running" });
@@ -181,7 +212,9 @@ async function run() {
   await expectFail("approveAgentAutoMerge", user, { policyId });
   await expectFail("approveAgentDeploy", user, { policyId });
   await expectFail("getAgentAutomationPolicy", user, { policyId });
-  await expectOk("getAgentAutomationPolicy", owner, { policyId });
+  const policySnapshot = await expectOk("getAgentAutomationPolicy", owner, { policyId });
+  assert(policySnapshot.policy.canonicalTruthReadRequired === true, "policy should include canonical truth read metadata");
+  assert(policySnapshot.policy.canonicalTruthEditable === false, "policy should block canonical truth edits by default");
   await expectOk("listAgentAutomationPolicies", owner, {});
 
 

@@ -103,3 +103,8 @@ Wichtiger Grundsatz: **keine Runtime-Autonomie ohne serverseitige Rollenpruefung
 - 2026-05-21: Follow-up fix branch `fix/agent-admin-production-deploy-second-approval` finalisiert Production-Second-Approval: nach 2. Owner-Freigabe werden `autoDeployApproved=true`, `autoDeploy=true`, Status `approved_for_production_deploy` und Worker snapshots gesetzt. Runner bleibt `metadata_only`; weiterhin keine echte GitHub API und kein echtes Deploy. PR #210 fachlich ersetzt durch PR #211.
 
 - 2026-05-21: Branch `fix/agent-admin-runner-deploy-gate-semantics` haertet Runner-Gate-Semantik: deployAllowed fuer preview/staging/production getrennt (production weiter nur mit zweiter Owner-Freigabe), mergeAllowed metadata ergaenzt, Worker-Statusupdates erhalten genehmigte autoMerge/autoDeploy Snapshots bei neutralen Updates. Runner bleibt metadata_only; keine echte GitHub API, kein echtes Deploy, keine Secrets/Production IDs. Naechster empfohlener Branch: `runtime/agent-admin-supervised-runner-real-github-integration`.
+
+
+## 2026-05-22 update
+- Beta-1 canonical truth guardrails are now part of Agent Admin automation gates and metadata-only runner flow.
+- Runner remains metadata_only; no real GitHub API integration and no real deploy activation in this step.

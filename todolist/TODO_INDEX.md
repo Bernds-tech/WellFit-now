@@ -623,3 +623,5 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 
 Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-agent, PR-/Review-/Quality-Gate-nahe Automationsagenten und alle Dokumentations-/Register-Maintenance-Agents.
 
+
+- 2026-05-22: Agent-Admin Canonical-Truth-Guardrails (Task/Approval/Handoff/Worker/Automation) aktiv, inklusive ownerApproval-Flag und proposal-only Pfad.

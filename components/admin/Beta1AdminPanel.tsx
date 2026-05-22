@@ -130,6 +130,7 @@ export default function Beta1AdminPanel() {
       <section className="rounded border border-white/20 bg-slate-900/50 p-3 text-xs text-white/85">
         <p className="mb-2 font-semibold text-white">Agent Task PR-Handoff</p>
         <p className="mb-3 rounded border border-cyan-400/30 bg-cyan-300/10 p-2">Erzeugt nur Handoff-Metadaten. Kein Auto-Merge, kein Deploy, keine automatische Codeausfuehrung.</p>
+        <p className="mb-3 rounded border border-amber-400/40 bg-amber-300/10 p-2">Beta-1 Canonical Truth ist owner-only. Agents duerfen diese Dateien lesen, aber nicht autonom aendern. Aenderungsvorschlaege gehoeren in CANONICAL_TRUTH_CHANGE_PROPOSALS.md.</p>
         <AdminForm title="Prepare PR-Handoff" fields={["executionId", "branchName", "title", "summary"]} feedback={feedback["agent-handoff"]} onSubmit={async (fd) => {
           const payload = { executionId: normalize(fd.get("executionId")), branchName: normalize(fd.get("branchName")), title: normalize(fd.get("title")), summary: normalize(fd.get("summary")) };
           if (!payload.executionId || !payload.branchName || !payload.title || !payload.summary) return setFeedback((prev) => ({ ...prev, ["agent-handoff"]: { ...prev["agent-handoff"], error: "Alle Felder sind erforderlich.", success: "" } }));
@@ -166,6 +167,7 @@ export default function Beta1AdminPanel() {
       <section className="rounded border border-white/20 bg-slate-900/50 p-3 text-xs text-white/85">
         <p className="mb-2 font-semibold text-white">Agent Worker Queue</p>
         <p className="mb-3 rounded border border-cyan-400/30 bg-cyan-300/10 p-2">Worker Queue erzeugt nur kontrollierte Ausführungs-/PR-Vorbereitungsdaten. Keine automatische Codeausführung, kein Auto-Merge, kein Deploy.</p>
+        <p className="mb-3 rounded border border-amber-400/40 bg-amber-300/10 p-2">Canonical-Truth-Dateien duerfen nicht als editierbarer Allowed-Files-Scope genutzt werden. Server-Guardrails bleiben entscheidend (kein Client-Bypass).</p>
         <AdminForm title="Create Worker Queue Item" fields={["executionId", "handoffPromptId"]} feedback={feedback["worker-create"]} onSubmit={async (fd) => {
           const payload = { executionId: normalize(fd.get("executionId")), handoffPromptId: normalize(fd.get("handoffPromptId")) };
           if (!payload.executionId || !payload.handoffPromptId) return setFeedback((prev) => ({ ...prev, ["worker-create"]: { ...prev["worker-create"], error: "executionId und handoffPromptId erforderlich.", success: "" } }));
@@ -191,6 +193,7 @@ export default function Beta1AdminPanel() {
         <p className="mb-2 font-semibold text-white">Agent Automation Gates</p>
         <p className="mb-2 rounded border border-cyan-400/30 bg-cyan-300/10 p-2">Auto-Merge/Deploy nur nach Admincenter-Freigabe, gruener Required Checks + Audit. Quality-Gate muss gruen sein oder dokumentierter Override. Production braucht zweite Owner-Freigabe.</p>
         <p className="mb-3 rounded border border-amber-400/40 bg-amber-300/10 p-2">Runner bleibt metadata_only bis sichere Server-Secret-Integration fuer echte GitHub/Deploy Runner vorhanden ist. Keine Tokens/Secrets/Production IDs im Client.</p>
+        <p className="mb-3 rounded border border-amber-400/40 bg-amber-300/10 p-2">Beta-1 Canonical Truth ist owner-only. Agents duerfen diese Dateien lesen, aber nicht autonom aendern. Aenderungsvorschlaege gehoeren in CANONICAL_TRUTH_CHANGE_PROPOSALS.md.</p>
         <AdminForm title="Create Automation Policy" fields={["workerQueueId"]} feedback={feedback["automation-create-policy"]} onSubmit={async (fd)=>{await run("automation-create-policy",()=>beta1AdminClient.createAgentAutomationPolicy({workerQueueId: normalize(fd.get("workerQueueId"))}));}} />
         <AdminForm title="Request Auto-Merge" fields={["policyId"]} feedback={feedback["automation-request-merge"]} onSubmit={async (fd)=>{await run("automation-request-merge",()=>beta1AdminClient.requestAgentAutoMerge({policyId: normalize(fd.get("policyId"))}));}} />
         <AdminForm title="Approve Auto-Merge" fields={["policyId"]} feedback={feedback["automation-approve-merge"]} onSubmit={async (fd)=>{await run("automation-approve-merge",()=>beta1AdminClient.approveAgentAutoMerge({policyId: normalize(fd.get("policyId"))}));}} />
