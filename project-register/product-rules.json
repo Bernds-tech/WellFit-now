@@ -10,50 +10,87 @@
       "id": "RULE-STUFE4-0001",
       "area": "agent-mode",
       "rule": "Der Kurzbefehl Stufe 4 bedeutet Agent + Selbstkorrektur + Nebenseiten-Crawl.",
-      "appliesTo": ["agents/modes/stufe-4.md", "agents/self-check.md"],
+      "appliesTo": [
+        "agents/modes/stufe-4.md",
+        "agents/self-check.md"
+      ],
       "status": "active"
     },
     {
       "id": "RULE-STUFE4-0002",
       "area": "deployment",
       "rule": "Stufe 4 darf keine automatische Live-Schaltung ausloesen.",
-      "appliesTo": ["all"],
+      "appliesTo": [
+        "all"
+      ],
       "status": "active"
     },
     {
       "id": "RULE-STUFE4-0003",
       "area": "todos",
       "rule": "Bestehende Todo-, Roadmap-, Architektur- und Statusdateien duerfen nicht geloescht werden.",
-      "appliesTo": ["todolist/**", "docs/architecture/**"],
+      "appliesTo": [
+        "todolist/**",
+        "docs/architecture/**"
+      ],
       "status": "active"
     },
     {
       "id": "RULE-STUFE4-0004",
       "area": "economy",
       "rule": "Keine echten Token, NFTs, WFT, Wallets, Auszahlungen oder echten Kaeufe im MVP aktivieren.",
-      "appliesTo": ["app/**", "lib/economy/**", "app/api/economy/**"],
+      "appliesTo": [
+        "app/**",
+        "lib/economy/**",
+        "app/api/economy/**"
+      ],
       "status": "active"
     },
     {
       "id": "RULE-STUFE4-0005",
       "area": "reward-authority",
       "rule": "Punkte, XP, Rewards und Mission Completion duerfen nicht final clientseitig autorisiert werden.",
-      "appliesTo": ["app/**", "lib/**", "app/api/**"],
+      "appliesTo": [
+        "app/**",
+        "lib/**",
+        "app/api/**"
+      ],
       "status": "active"
     },
     {
       "id": "RULE-STUFE4-0006",
       "area": "scalability",
       "rule": "Bestehende Module erweitern statt Parallelmodule zu bauen; neue Routen/APIs/Features im Projektregister dokumentieren.",
-      "appliesTo": ["project-register/**", "app/**", "lib/**"],
+      "appliesTo": [
+        "project-register/**",
+        "app/**",
+        "lib/**"
+      ],
       "status": "active"
     },
     {
       "id": "RULE-STUFE4-0007",
       "area": "buddy",
       "rule": "Buddy ist emotionaler Guide/Begleiter und darf keine Rewards oder Completion autorisieren.",
-      "appliesTo": ["/buddy", "/mobile/buddy", "/mobile/ar", "/api/buddy-ki"],
+      "appliesTo": [
+        "/buddy",
+        "/mobile/buddy",
+        "/mobile/ar",
+        "/api/buddy-ki"
+      ],
       "status": "active"
+    },
+    {
+      "id": "RULE-BETA1-CANONICAL-0008",
+      "area": "canonical-truth",
+      "rule": "Die Beta-1 Canonical-Truth-Dateien sind owner-only Konzeptwahrheit: lesen Pflicht, veraendern nur mit expliziter Bernd/Owner-Freigabe.",
+      "appliesTo": [
+        "project-register/wellfit-beta1-canonical-truth.json",
+        "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+        "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
+      ],
+      "status": "active",
+      "enforcement": "block-and-handoff-without-owner-approval"
     }
   ]
 }

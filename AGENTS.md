@@ -107,3 +107,20 @@ Before continuing larger mission development, prepare WellFit in staged, low-ris
 7. **Backend readiness**: validate Firebase Functions syntax, Firestore rules guardrails, server preview APIs, and persistence status before moving more reward authority off the client.
 8. **Unity AR isolation**: inventory WellFitBuddyAR state without deleting or overwriting local Unity assets; plan AR work separately from web beta work.
 9. **Mission development continuation**: only after the above checks, continue mission features in small increments using existing mission, economy, buddy, and register modules rather than creating parallel systems.
+
+## 11. Canonical Truth owner-only protection
+
+The WellFit Beta-1 canonical truth is owner-controlled and read-only for normal agent/autonomous/Codex work.
+
+Protected owner-only concept files:
+
+- `project-register/wellfit-beta1-canonical-truth.json`
+- `docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md`
+- `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md`
+
+Rules:
+
+- Agents must read these files before Beta-1 governance, roadmap, register, or planning changes that depend on Beta-1 concept truth.
+- Agents must not modify these files unless the prompt contains explicit Bernd/owner approval for that change.
+- If a task would require edits there without approval, stop and document a blocker plus proposed patch in a non-protected planning/register handoff artifact.
+
