@@ -131,6 +131,53 @@ async function run() {
   const runner = await expectOk("prepareAgentSupervisedRunnerJob", owner, { workerQueueId: workerId, policyId });
   assert(runner.runnerStatus === "metadata_only", "runner should stay metadata_only");
   assert(runner.deployAllowed === true, "runner metadata should show deployAllowed true after final approval");
+  assert(runner.mergeAllowed === true, "runner metadata should show mergeAllowed true after merge approval");
+
+  const previewWorkerId = (await expectOk("createAgentWorkerQueueItem", owner, { executionId: eUi, handoffPromptId: promptId })).workerQueueId;
+  await expectOk("claimAgentWorkerQueueItem", owner, { workerQueueId: previewWorkerId });
+  await expectOk("updateAgentWorkerQueueStatus", owner, { workerQueueId: previewWorkerId, workerStatus: "running" });
+  await expectOk("recordAgentWorkerQueueChecks", owner, {
+    workerQueueId: previewWorkerId,
+    checks: [
+      { command: "npm run agent:validate", result: "pass" },
+      { command: "npm run agent:quality-gate", result: "pass" },
+      { command: "npm run lint", result: "pass" },
+      { command: "git diff --check", result: "pass" },
+      { command: "npm run build", result: "pass" },
+    ],
+  });
+  await expectOk("updateAgentWorkerQueueStatus", owner, { workerQueueId: previewWorkerId, workerStatus: "pr_prepared" });
+  const previewPolicyId = (await expectOk("createAgentAutomationPolicy", owner, { workerQueueId: previewWorkerId })).policyId;
+  await expectOk("requestAgentAutoMerge", owner, { policyId: previewPolicyId });
+  await expectOk("approveAgentAutoMerge", owner, { policyId: previewPolicyId });
+  await expectOk("requestAgentDeploy", owner, { policyId: previewPolicyId, environment: "preview" });
+  await expectOk("approveAgentDeploy", owner, { policyId: previewPolicyId });
+  const previewRunner = await expectOk("prepareAgentSupervisedRunnerJob", owner, { workerQueueId: previewWorkerId, policyId: previewPolicyId });
+  assert(previewRunner.runnerStatus === "metadata_only", "preview runner should stay metadata_only");
+  assert(previewRunner.deployAllowed === true, "preview deploy should be allowed with green checks");
+
+  const stagingWorkerId = (await expectOk("createAgentWorkerQueueItem", owner, { executionId: eUi, handoffPromptId: promptId })).workerQueueId;
+  await expectOk("claimAgentWorkerQueueItem", owner, { workerQueueId: stagingWorkerId });
+  await expectOk("updateAgentWorkerQueueStatus", owner, { workerQueueId: stagingWorkerId, workerStatus: "running" });
+  await expectOk("recordAgentWorkerQueueChecks", owner, { workerQueueId: stagingWorkerId, checks: [{ command: "npm run build", result: "pass" }, { command: "npm run agent:validate", result: "pass" }, { command: "npm run agent:quality-gate", result: "pass" }, { command: "npm run lint", result: "pass" }, { command: "git diff --check", result: "pass" }] });
+  await expectOk("updateAgentWorkerQueueStatus", owner, { workerQueueId: stagingWorkerId, workerStatus: "pr_prepared" });
+  const stagingPolicyId = (await expectOk("createAgentAutomationPolicy", owner, { workerQueueId: stagingWorkerId })).policyId;
+  await expectOk("requestAgentDeploy", owner, { policyId: stagingPolicyId, environment: "staging" });
+  await expectOk("approveAgentDeploy", owner, { policyId: stagingPolicyId });
+  const stagingRunner = await expectOk("prepareAgentSupervisedRunnerJob", owner, { workerQueueId: stagingWorkerId, policyId: stagingPolicyId });
+  assert(stagingRunner.deployAllowed === true, "staging deploy should be allowed with green checks");
+
+  const failedChecksWorkerId = (await expectOk("createAgentWorkerQueueItem", owner, { executionId: eUi, handoffPromptId: promptId })).workerQueueId;
+  await expectOk("claimAgentWorkerQueueItem", owner, { workerQueueId: failedChecksWorkerId });
+  await expectOk("updateAgentWorkerQueueStatus", owner, { workerQueueId: failedChecksWorkerId, workerStatus: "running" });
+  await expectOk("recordAgentWorkerQueueChecks", owner, { workerQueueId: failedChecksWorkerId, checks: [{ command: "npm run build", result: "fail" }] });
+  const failedChecksPolicyId = (await expectOk("createAgentAutomationPolicy", owner, { workerQueueId: failedChecksWorkerId })).policyId;
+  const failedChecksRunner = await expectOk("prepareAgentSupervisedRunnerJob", owner, { workerQueueId: failedChecksWorkerId, policyId: failedChecksPolicyId });
+  assert(failedChecksRunner.deployAllowed === false, "failed required checks must keep deploy disallowed");
+
+  const snapshotWorker = await db.collection("agentTaskWorkerQueue").doc(workerId).get();
+  assert(snapshotWorker.data().autoMerge === true, "approved autoMerge snapshot should remain true");
+  assert(snapshotWorker.data().autoDeploy === true, "approved autoDeploy snapshot should remain true");
   await expectFail("approveAgentAutoMerge", user, { policyId });
   await expectFail("approveAgentDeploy", user, { policyId });
   await expectFail("getAgentAutomationPolicy", user, { policyId });

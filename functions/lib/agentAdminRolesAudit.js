@@ -564,7 +564,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         return { accepted: true, workerQueueId, workerStatus: "blocked", message: "Required checks fehlen." };
       }
     }
-    await ref.set({ workerStatus, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, autoMerge: false, autoDeploy: false }, { merge: true });
+    await ref.set({ workerStatus, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true }, { merge: true });
     await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_status_updated", proposalId: item.proposalId || null, approvalId: item.approvalId || null, executionId: item.executionId || null, result: workerStatus });
     return { accepted: true, workerQueueId, workerStatus };
   });
@@ -583,7 +583,14 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const missing = requiredChecks.filter((command) => !commands.has(command));
     const hasFail = checks.some((check) => check.result === "fail");
     const workerStatus = missing.length ? "blocked" : (hasFail ? "failed" : "checks_recorded");
-    await ref.set({ checks, workerStatus, errorSummary: missing.length ? `Missing required checks: ${missing.join(", ")}` : null, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, autoMerge: false, autoDeploy: false }, { merge: true });
+    await ref.set({
+      checks,
+      workerStatus,
+      errorSummary: missing.length ? `Missing required checks: ${missing.join(", ")}` : null,
+      updatedAt: FieldValue.serverTimestamp(),
+      humanMergeRequired: true,
+      ...(workerStatus === "failed" || workerStatus === "blocked" ? { autoMerge: false, autoDeploy: false } : {}),
+    }, { merge: true });
     await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_checks_recorded", proposalId: item.proposalId || null, approvalId: item.approvalId || null, executionId: item.executionId || null, result: workerStatus });
     return { accepted: true, workerQueueId, workerStatus, missingRequiredChecks: missing };
   });
@@ -596,7 +603,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const snap = await ref.get();
     if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
     const item = snap.data() || {};
-    await ref.set({ workerStatus: "pr_prepared", prRef: prRef || item.prRef || null, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true, autoMerge: false, autoDeploy: false }, { merge: true });
+    await ref.set({ workerStatus: "pr_prepared", prRef: prRef || item.prRef || null, updatedAt: FieldValue.serverTimestamp(), humanMergeRequired: true }, { merge: true });
     await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_pr_prepared", proposalId: item.proposalId || null, approvalId: item.approvalId || null, executionId: item.executionId || null, result: "pr_prepared" });
     return { accepted: true, workerQueueId, workerStatus: "pr_prepared", humanMergeRequired: true };
   });
@@ -739,7 +746,18 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   exportsTarget.rejectAgentProductionDeploySecondApproval = onCall(async (request)=>{const { actorId, actorRole } = requireRole(request, HttpsError,["owner"]); const policyId=requiredString(request.data&&request.data.policyId,"policyId",HttpsError,180); const reason=requiredString(request.data&&request.data.reason,"reason",HttpsError,500); await updatePolicyDecision({policyId,update:{productionDeploySecondApprovalApproved:false,status:"rejected",humanOverrideReason:reason},actorId,actorRole,action:"automation_production_second_approval_rejected"}); return {accepted:true,policyId,status:"rejected"};});
 
   exportsTarget.recordAgentAutomationExecutionMetadata = onCall(async (request)=>{const { actorId, actorRole } = requireRole(request, HttpsError,["owner","agent_supervisor","agent_executor_service"]); const policyId=requiredString(request.data&&request.data.policyId,"policyId",HttpsError,180); await updatePolicyDecision({policyId,update:{status:"executed_metadata_only"},actorId,actorRole,action:"automation_execution_metadata_recorded"}); return {accepted:true,policyId,status:"executed_metadata_only"};});
-  exportsTarget.prepareAgentSupervisedRunnerJob = onCall(async (request)=>{const { actorId, actorRole } = requireRole(request, HttpsError,["owner","agent_supervisor","admin_operator"]); const workerQueueId=requiredString(request.data&&request.data.workerQueueId,"workerQueueId",HttpsError,180); const policyId=requiredString(request.data&&request.data.policyId,"policyId",HttpsError,180); const policySnap = await db.collection("agentTaskAutomationPolicies").doc(policyId).get(); const policy = policySnap.data() || {}; const qualityGateSatisfied = !!policy.qualityGatePassed || !!policy.qualityGateOverrideApproved; const blocked = policy.status === "blocked" || policy.automationStatus === "automation_blocked"; const deployAllowed = policy.autoDeployApproved === true && policy.autoDeployEnvironment === "production" && policy.productionDeploySecondApprovalApproved === true && policy.allRequiredChecksPassed === true && qualityGateSatisfied && !blocked; const ref=db.collection("agentTaskSupervisedRunnerJobs").doc(); await ref.set({jobId:ref.id,workerQueueId,policyId,runnerStatus:"metadata_only",deployAllowed,createdBy:actorId,createdByRole:actorRole,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()}); await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ deployAllowed, supervisedRunnerStatus: "metadata_only", updatedAt: FieldValue.serverTimestamp() }, { merge: true }); await writeAgentAudit(db,{actorId,actorRole,action:"automation_runner_job_prepared",result:"metadata_only",approvalId: policyId}); return {accepted:true,jobId:ref.id,runnerStatus:"metadata_only",deployAllowed,status:"metadata_only"};});
+  function computeRunnerAutomationGate(policy) {
+    const qualityGateSatisfied = !!policy.qualityGatePassed || !!policy.qualityGateOverrideApproved;
+    const blocked = policy.status === "blocked" || policy.status === "rejected" || policy.automationStatus === "automation_blocked";
+    const checksPassed = policy.allRequiredChecksPassed === true && qualityGateSatisfied && !blocked;
+    const environment = DEPLOY_ENVIRONMENTS.includes(policy.autoDeployEnvironment) ? policy.autoDeployEnvironment : "none";
+    const deployApproved = policy.autoDeployApproved === true && policy.autoDeployRequested === true;
+    const deployAllowed = deployApproved && checksPassed && environment !== "none" && (environment !== "production" || policy.productionDeploySecondApprovalApproved === true);
+    const mergeAllowed = policy.autoMergeApproved === true && checksPassed;
+    return { deployAllowed, mergeAllowed, environment };
+  }
+
+  exportsTarget.prepareAgentSupervisedRunnerJob = onCall(async (request)=>{const { actorId, actorRole } = requireRole(request, HttpsError,["owner","agent_supervisor","admin_operator"]); const workerQueueId=requiredString(request.data&&request.data.workerQueueId,"workerQueueId",HttpsError,180); const policyId=requiredString(request.data&&request.data.policyId,"policyId",HttpsError,180); const policySnap = await db.collection("agentTaskAutomationPolicies").doc(policyId).get(); const policy = policySnap.data() || {}; const gate = computeRunnerAutomationGate(policy); const ref=db.collection("agentTaskSupervisedRunnerJobs").doc(); await ref.set({jobId:ref.id,workerQueueId,policyId,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,autoDeployEnvironment:gate.environment,createdBy:actorId,createdByRole:actorRole,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()}); await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ deployAllowed: gate.deployAllowed, mergeAllowed: gate.mergeAllowed, autoDeployEnvironment: gate.environment, supervisedRunnerStatus: "metadata_only", updatedAt: FieldValue.serverTimestamp() }, { merge: true }); await writeAgentAudit(db,{actorId,actorRole,action:"automation_runner_job_prepared",result:"metadata_only",approvalId: policyId}); return {accepted:true,jobId:ref.id,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,status:"metadata_only"};});
 
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
