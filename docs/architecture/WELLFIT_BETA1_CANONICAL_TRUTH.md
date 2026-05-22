@@ -5,33 +5,35 @@ Status: Fuehrende Wahrheit fuer Beta-1-Entscheidungen in Agent-/Codex-/Automatio
 
 ## Zweck
 
-Diese Datei definiert die verbindliche WellFit-Beta-1-Wahrheit fuer Produktsprache, Economy-Grenzen und Agentenentscheidungen. Bei Widerspruch gegen aeltere Solana-/WFT-/PreSale-/Investor-Aussagen gilt fuer **Beta 1** diese Datei zusammen mit:
+Diese Datei definiert die verbindliche WellFit-Beta-1-Wahrheit fuer Produktsprache, Economy-Grenzen, Missions-/Avatar-Logik und Sicherheitsgrenzen. Bei Widerspruch gegen aeltere Solana-/WFT-/PreSale-/Investor-Aussagen gilt fuer **Beta 1** diese Datei zusammen mit:
 
 - `project-register/wellfit-beta1-canonical-truth.json`
 - `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md`
 
-## Beta-1-Grundlagen
+## V4-Erweiterungsrahmen (docs/register only)
 
-- `WFP` = WellFit-Punkte als interne Spielwaehrung (maximal 25 Milliarden Systembestand).
-- `XP` = Avatar-Fortschritt/Level und nicht ausgebbar.
-- `WFT` = spaeterer SUI-Token, erst nach stabilem 10.000+-Nutzerlauf und ohne Konvertierungszusage an Nutzer.
-- Beta 1 laeuft ohne Blockchain, ohne echten Token, ohne Pre-Sale und ohne Auszahlung.
+- Diese V4-Nachschaerfung erweitert die maschinenlesbare Canonical Truth im Register detailliert.
+- Scope bleibt strikt: **Dokumentation, Register, Agent-/Codex-Kontext**.
+- Keine Runtime-Produktlogik, keine Firebase Rules, keine Functions, keine DB-Migration, keine Aktivierung von Reward-/Ledger-/Anti-Cheat-Produktautoritaet.
 
-## Economy- und Gameplay-Leitplanken
+## Beta-1-Kernaussagen (Kurzfassung)
 
-- WFP-Zentralwallet steuert Ausschuettungen, Preise, Gebuehren und Rueckfluesse.
-- WFP und XP sind strikt getrennt.
-- Mission-Rewards, Itempreise und Gebuehren sind dynamisch.
-- Avatarzustand beeinflusst Missionen und WFP-Belohnungen.
-- Mehrere Avatare sind erlaubt, aber nur ein Hauptavatar ist aktiv; Nebenavatare bleiben eingefroren.
-- Nutzer-zu-Nutzer-Itemhandel mit WFP ist erlaubt, mit dynamischer WellFit-Gebuehr.
-- Skill-Duelle gegen System/Zeit/Leaderboard sind erlaubt.
-- P2P/PvP-Wetten mit echtem Token sind nicht Teil von Beta 1.
+- `WFP` ist ausgebbare interne Spielwaehrung mit maximal 25.000.000.000 Systembestand im Zentralwallet-Modell.
+- `XP` ist Avatar-Fortschritt und strikt getrennt von WFP (keine 1:1-Umrechnung).
+- `WFT` auf SUI ist Zukunftsthema nach stabilem 10.000+-Nutzerlauf plus bewiesenem WFP-Wirtschaftskreislauf; keine Konvertierungszusage.
+- Zentralwallet-Reserveziel liegt bei ~5 Mrd. WFP; Gegensteuerung unter Ziel, Tiefpunkte bis ~3 Mrd. nur temporaer/toleriert.
+- Rewards/Preise/Gebuehren sind dynamisch und von Economy-/Mission-/Avatar-/Anti-Cheat-Kontext abhaengig.
+- Neue KI-Missionsvorlagen brauchen Adminfreigabe; Varianten koennen nur unter strikten Gleichheitsregeln automatisch live gehen.
+- Avatar-System, Leon/Rudi-Rollen, Lost-Avatar-Mechanik, Item/Marktplatz/Account-Loeschung, Elternmodus/Standortschutz und Anti-Cheat/Admin-Entscheidungspfad sind in der JSON-Datei V4-detailliert normalisiert.
+- SUI/WFT, Tokenomics-Verteilung, Blockchain/NFT/DAO/Staking, Pre-Sale, Cashout und weitere Roadmap-Punkte bleiben explizit **nicht Beta-1-aktiv**.
 
-## Buddy-Rollen in Beta 1
+## Verbindliche Detailquelle
 
-- **Rudi**: Hilfe und Erklaerung.
-- **Leon**: Warnung, Rettung, Licht, Lost-Avatar und schwere Rettungsmissionen.
+Die maschinenlesbare Vollversion liegt in:
+
+- `project-register/wellfit-beta1-canonical-truth.json`
+
+Diese Markdown-Datei ist absichtlich kompakter als das JSON und dient als Menschen-/Review-Hinweis.
 
 ## Governance-Hinweis
 
