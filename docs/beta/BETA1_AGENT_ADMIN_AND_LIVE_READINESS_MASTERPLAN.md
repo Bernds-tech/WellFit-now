@@ -108,3 +108,4 @@ Wichtiger Grundsatz: **keine Runtime-Autonomie ohne serverseitige Rollenpruefung
 ## 2026-05-22 update
 - Beta-1 canonical truth guardrails are now part of Agent Admin automation gates and metadata-only runner flow.
 - Runner remains metadata_only; no real GitHub API integration and no real deploy activation in this step.
+- 2026-05-22: Branch `fix/agent-admin-canonical-truth-worker-snapshots` ergänzt Canonical-Truth-Metadaten in Worker-Queue-Snapshots, validiert `approvedAllowedFiles` final in `approveAgentTaskProposal` und härtet `prepareAgentTaskPrHandoff` gegen inkonsistente historische Approvals. Canonical-Truth-Dateien blieben unverändert. Runner bleibt `metadata_only`; keine echte GitHub API, kein echtes Deploy. Nächster empfohlener Branch: `runtime/agent-admin-supervised-runner-real-github-integration`.

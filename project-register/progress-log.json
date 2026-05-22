@@ -4,7 +4,7 @@
     "purpose": "Fortschrittslog fuer Stufe-4-Agentenarbeit.",
     "issue": 19,
     "status": "initial-governance-layer",
-    "updated": "2026-05-21"
+    "updated": "2026-05-22"
   },
   "entries": [
     {
@@ -1131,6 +1131,13 @@
       "summary": "Hardened metadata-only supervised runner gate semantics: preview/staging deployAllowed support, production second-approval enforcement, mergeAllowed metadata exposure, and worker status snapshot preservation for approved automation states.",
       "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
       "notes": "No real GitHub API integration, no real deploy execution, no secrets/production IDs, and quality/required-check guardrails remain enforced."
+    },
+    {
+      "date": "2026-05-22",
+      "branch": "fix/agent-admin-canonical-truth-worker-snapshots",
+      "summary": "Completed canonical-truth worker snapshot hardening: worker queue metadata fields, final approvedAllowedFiles guard check, and PR handoff re-validation against inconsistent approvals.",
+      "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
+      "notes": "Canonical truth protected files remained unchanged; runner stays metadata_only; no real GitHub API integration and no real deploy activation."
     }
   ]
 }

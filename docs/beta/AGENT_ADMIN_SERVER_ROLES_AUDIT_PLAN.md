@@ -116,3 +116,4 @@ Implementierungsschritte fuer Backend/Rules sind **separat** und nur nach expliz
 - Agent-Admin server callables now enforce Beta-1 canonical truth owner-only guardrails in proposal/approval/queue/handoff/worker/policy snapshots.
 - Non-owner tasks can reference canonical truth files as required reading, but cannot include them in editable allowedFiles.
 - Change requests must be documented in `todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md`.
+- 2026-05-22: Branch `fix/agent-admin-canonical-truth-worker-snapshots` ergänzt Canonical-Truth-Metadaten in Worker-Queue-Snapshots, validiert `approvedAllowedFiles` final in `approveAgentTaskProposal` und härtet `prepareAgentTaskPrHandoff` gegen inkonsistente historische Approvals. Canonical-Truth-Dateien blieben unverändert. Runner bleibt `metadata_only`; keine echte GitHub API, kein echtes Deploy. Nächster empfohlener Branch: `runtime/agent-admin-supervised-runner-real-github-integration`.

@@ -625,3 +625,4 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 
 
 - 2026-05-22: Agent-Admin Canonical-Truth-Guardrails (Task/Approval/Handoff/Worker/Automation) aktiv, inklusive ownerApproval-Flag und proposal-only Pfad.
+- 2026-05-22: Branch `fix/agent-admin-canonical-truth-worker-snapshots` ergänzt Canonical-Truth-Metadaten in Worker-Queue-Snapshots, validiert `approvedAllowedFiles` final in `approveAgentTaskProposal` und härtet `prepareAgentTaskPrHandoff` gegen inkonsistente historische Approvals. Canonical-Truth-Dateien blieben unverändert. Runner bleibt `metadata_only`; keine echte GitHub API, kein echtes Deploy. Nächster empfohlener Branch: `runtime/agent-admin-supervised-runner-real-github-integration`.
