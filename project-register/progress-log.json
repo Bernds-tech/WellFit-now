@@ -1124,6 +1124,13 @@
       "summary": "Finalized production deploy second approval so final owner approval now sets autoDeployApproved/autoDeploy and unblocks metadata-only supervised runner gates when checks pass.",
       "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
       "notes": "PR #210 replaced by PR #211; this follow-up resolves remaining P1 semantics gap. No real GitHub API, no real deploy, no secrets/production IDs exposed."
+    },
+    {
+      "date": "2026-05-21",
+      "branch": "fix/agent-admin-runner-deploy-gate-semantics",
+      "summary": "Hardened metadata-only supervised runner gate semantics: preview/staging deployAllowed support, production second-approval enforcement, mergeAllowed metadata exposure, and worker status snapshot preservation for approved automation states.",
+      "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
+      "notes": "No real GitHub API integration, no real deploy execution, no secrets/production IDs, and quality/required-check guardrails remain enforced."
     }
   ]
 }
