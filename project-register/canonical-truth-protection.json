@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "status": "active",
+  "owner": "Bernd",
+  "purpose": "Owner review gate for WellFit Beta-1 canonical truth files.",
+  "protectedFiles": [
+    "project-register/wellfit-beta1-canonical-truth.json",
+    "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+    "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
+  ],
+  "readAllowedForAgents": true,
+  "agentWriteAllowed": false,
+  "writeRequiresOwnerApproval": true,
+  "proposalFile": "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md",
+  "enforcement": "block_and_handoff"
+}
