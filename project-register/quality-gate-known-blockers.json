@@ -1,0 +1,23 @@
+{
+  "updated": "2026-05-22",
+  "blockers": [
+    {
+      "blockerId": "QG-2026-05-22-CANONICAL-PROMPT-OWNER-ONLY",
+      "checkName": "Required KI-Fortsetzungs-Prompts complete",
+      "status": "follow_up_required",
+      "reason": "Quality gate requires KI continuation prompts on canonical-truth governance files, but two referenced files are owner-protected canonical-truth files and should not be modified without explicit owner approval.",
+      "whyNotFixedInThisPr": "Owner-only protection for canonical truth files prevents adding prompt text in this PR; check cannot be made green without touching protected concept files or relaxing guard logic.",
+      "riskLevel": "medium",
+      "affectedFiles": [
+        "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md",
+        "todolist/CODEX_PROMPT_AGENT_CANONICAL_TRUTH_INTEGRATION.md",
+        "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+        "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md"
+      ],
+      "nextSafeBranch": "fix/agent-admin-quality-gate-follow-up",
+      "blocksAutoMerge": true,
+      "blocksRealRunner": true,
+      "ownerReviewRequired": true
+    }
+  ]
+}

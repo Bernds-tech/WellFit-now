@@ -1116,28 +1116,73 @@
       "date": "2026-05-21",
       "branch": "runtime/agent-admin-automation-gates-completion",
       "summary": "Completed automation gates UI/client callable coverage, metadata-only runner confirmation, and governance/quality-gate follow-up notes.",
-      "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration"
+      "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
+      "id": "2026-05-21-agent-admin-automation-gates-completion",
+      "goal": "Completed automation gates UI/client callable coverage, metadata-only runner confirmation, and governance/quality-gate follow-up notes.",
+      "changedAreas": [
+        "scripts/wellfit-dev-agent",
+        "project-register",
+        "todolist",
+        "docs/beta",
+        "docs/architecture"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Completed automation gates UI/client callable coverage, metadata-only runner confirmation, and governance/quality-gate follow-up notes."
     },
     {
       "date": "2026-05-21",
       "branch": "fix/agent-admin-production-deploy-second-approval",
       "summary": "Finalized production deploy second approval so final owner approval now sets autoDeployApproved/autoDeploy and unblocks metadata-only supervised runner gates when checks pass.",
       "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
-      "notes": "PR #210 replaced by PR #211; this follow-up resolves remaining P1 semantics gap. No real GitHub API, no real deploy, no secrets/production IDs exposed."
+      "notes": "PR #210 replaced by PR #211; this follow-up resolves remaining P1 semantics gap. No real GitHub API, no real deploy, no secrets/production IDs exposed.",
+      "id": "2026-05-21-agent-admin-production-deploy-second-approval",
+      "goal": "Finalized production deploy second approval so final owner approval now sets autoDeployApproved/autoDeploy and unblocks metadata-only supervised runner gates when checks pass.",
+      "changedAreas": [
+        "scripts/wellfit-dev-agent",
+        "project-register",
+        "todolist",
+        "docs/beta",
+        "docs/architecture"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false
     },
     {
       "date": "2026-05-21",
       "branch": "fix/agent-admin-runner-deploy-gate-semantics",
       "summary": "Hardened metadata-only supervised runner gate semantics: preview/staging deployAllowed support, production second-approval enforcement, mergeAllowed metadata exposure, and worker status snapshot preservation for approved automation states.",
       "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
-      "notes": "No real GitHub API integration, no real deploy execution, no secrets/production IDs, and quality/required-check guardrails remain enforced."
+      "notes": "No real GitHub API integration, no real deploy execution, no secrets/production IDs, and quality/required-check guardrails remain enforced.",
+      "id": "2026-05-21-agent-admin-runner-deploy-gate-semantics",
+      "goal": "Hardened metadata-only supervised runner gate semantics: preview/staging deployAllowed support, production second-approval enforcement, mergeAllowed metadata exposure, and worker status snapshot preservation for approved automation states.",
+      "changedAreas": [
+        "scripts/wellfit-dev-agent",
+        "project-register",
+        "todolist",
+        "docs/beta",
+        "docs/architecture"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false
     },
     {
       "date": "2026-05-22",
       "branch": "fix/agent-admin-canonical-truth-worker-snapshots",
       "summary": "Completed canonical-truth worker snapshot hardening: worker queue metadata fields, final approvedAllowedFiles guard check, and PR handoff re-validation against inconsistent approvals.",
       "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
-      "notes": "Canonical truth protected files remained unchanged; runner stays metadata_only; no real GitHub API integration and no real deploy activation."
+      "notes": "Canonical truth protected files remained unchanged; runner stays metadata_only; no real GitHub API integration and no real deploy activation.",
+      "id": "2026-05-22-agent-admin-canonical-truth-worker-snapshots",
+      "goal": "Completed canonical-truth worker snapshot hardening: worker queue metadata fields, final approvedAllowedFiles guard check, and PR handoff re-validation against inconsistent approvals.",
+      "changedAreas": [
+        "scripts/wellfit-dev-agent",
+        "project-register",
+        "todolist",
+        "docs/beta",
+        "docs/architecture"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false
     }
   ]
 }

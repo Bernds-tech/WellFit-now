@@ -543,6 +543,9 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 - Live Pages Readiness Plan erstellt: `docs/beta/BETA1_LIVE_PAGES_READINESS_PLAN.md`.
 - Folgeprompts erstellt: `CODEX_PROMPT_AGENT_ADMIN_SERVER_ROLES_AUDIT.md`, `CODEX_PROMPT_BETA1_LIVE_PAGES_RUNTIME_PLAN.md`; Human-Evidence-Prompt auf Masterplan verwiesen.
 - Bestaetigt: keine Runtime-Dateien/Firebase-Functions/Firestore-Rules geaendert; keine Pilotfreigabe; keine Agent-Runtime-Autonomie aktiviert.
+- Human evidence capture docs ergänzt: `docs/beta/BETA1_HUMAN_EVIDENCE_CAPTURE.md`, `docs/beta/BETA1_HUMAN_EVIDENCE_CAPTURE_INSTRUCTIONS.md`.
+- Folgeprompts ergänzt: `docs/beta/prompts/CODEX_PROMPT_AGENT_ADMIN_SERVER_ROLES_AUDIT.md`, `docs/beta/prompts/CODEX_PROMPT_BETA1_LIVE_PAGES_RUNTIME_PLAN.md`, `docs/beta/prompts/CODEX_PROMPT_BETA1_ANALYTICS_STATS_OWN_VIEW.md`, `docs/beta/prompts/CODEX_PROMPT_BETA1_LEADERBOARD_READONLY.md`, `docs/beta/prompts/CODEX_PROMPT_BETA1_MARKETPLACE_PREVIEW.md`, `docs/beta/prompts/CODEX_PROMPT_BETA1_POINTS_SHOP_PAGE.md`, `docs/beta/prompts/CODEX_PROMPT_BETA1_PROFESSIONAL_UI_FOUNDATION.md`.
+- Canonical-Truth-Handoff-Prompts referenziert: `todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md`, `todolist/CODEX_PROMPT_AGENT_CANONICAL_TRUTH_INTEGRATION.md`.
 - Naechster empfohlener Branch: `plan/agent-admin-server-roles-audit-runtime-scope` (Prioritaet) oder `plan/beta1-live-pages-runtime-scope`.
 
 - Runtime slice delivered: agent admin server roles/audit foundation (collections + callables + rules baseline).
