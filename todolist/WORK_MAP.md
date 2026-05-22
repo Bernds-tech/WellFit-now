@@ -418,3 +418,13 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-21: Follow-up fix branch `fix/agent-admin-production-deploy-second-approval` finalisiert Production-Second-Approval: nach 2. Owner-Freigabe werden `autoDeployApproved=true`, `autoDeploy=true`, Status `approved_for_production_deploy` und Worker snapshots gesetzt. Runner bleibt `metadata_only`; weiterhin keine echte GitHub API und kein echtes Deploy. PR #210 fachlich ersetzt durch PR #211.
 
 - 2026-05-21: Branch `fix/agent-admin-runner-deploy-gate-semantics` haertet Runner-Gate-Semantik: deployAllowed fuer preview/staging/production getrennt (production weiter nur mit zweiter Owner-Freigabe), mergeAllowed metadata ergaenzt, Worker-Statusupdates erhalten genehmigte autoMerge/autoDeploy Snapshots bei neutralen Updates. Runner bleibt metadata_only; keine echte GitHub API, kein echtes Deploy, keine Secrets/Production IDs. Naechster empfohlener Branch: `runtime/agent-admin-supervised-runner-real-github-integration`.
+
+## WellFit Beta 1 Canonical Truth
+
+- Fuehrende Beta-1-Quellen:
+  - `project-register/wellfit-beta1-canonical-truth.json`
+  - `docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md`
+  - `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md`
+- Diese drei Dateien normalisieren die aktuelle Beta-1-Wahrheit und ueberschreiben fuer Beta 1 widerspruechliche aeltere Solana-/WFT-/PreSale-/Investor-Aussagen.
+- Keine Parallelarchitektur aufbauen: bestehende Register, TODO-Dateien, Agent-Konfigurationen und Architekturdateien nur erweitern/querverweisen.
+

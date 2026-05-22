@@ -1,0 +1,82 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-22",
+  "purpose": "Canonical Beta-1 truth for WellFit product, economy language, and safety boundaries. For Beta-1 decisions this file overrides older Solana/WFT/PreSale/Investor-era assumptions where conflicts exist.",
+  "beta1CanonicalTruth": {
+    "economy": {
+      "wfp": {
+        "definition": "WellFit points (internal in-app game currency).",
+        "maxSystemSupply": 25000000000,
+        "blockchain": false
+      },
+      "xp": {
+        "definition": "Avatar progression/level metric.",
+        "spendable": false
+      },
+      "wft": {
+        "definition": "Potential future SUI token after proven stable operation with 10,000+ users.",
+        "beta1Active": false,
+        "noConversionPromiseToUsers": true
+      }
+    },
+    "beta1Boundaries": {
+      "blockchainActive": false,
+      "realTokenActive": false,
+      "presaleActive": false,
+      "payoutsActive": false,
+      "walletTradingActive": false
+    },
+    "mechanics": {
+      "wfpCentralWalletControls": [
+        "reward_distributions",
+        "pricing",
+        "fees",
+        "return_flows"
+      ],
+      "wfpXpStrictlySeparated": true,
+      "dynamicValues": [
+        "mission_rewards",
+        "item_prices",
+        "fees"
+      ],
+      "avatarStateInfluences": [
+        "mission_selection",
+        "wfp_rewards"
+      ],
+      "avatars": {
+        "multiAvatarAllowed": true,
+        "singlePrimaryActive": true,
+        "secondaryFrozen": true
+      },
+      "p2pItemTrading": {
+        "allowed": true,
+        "currency": "WFP",
+        "dynamicWellFitFee": true
+      },
+      "skillDuels": {
+        "allowedAgainst": [
+          "system",
+          "time",
+          "leaderboard"
+        ]
+      },
+      "p2pPvpRealTokenBettingBeta1": false
+    },
+    "buddyRoles": {
+      "rudi": "Help and explanation guide.",
+      "leon": "Warning, rescue-light, lost-avatar recovery, and heavy rescue mission support."
+    }
+  },
+  "overrides": {
+    "overridesOlderSources": true,
+    "appliesTo": "beta1",
+    "notes": "Conflicting older references about live token launch, presale, investor promises, payout, or blockchain activation are superseded for Beta-1 planning and automation behavior."
+  },
+  "readByAgents": [
+    "scripts/wellfit-dev-agent/wellfit-agent.config.json",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "project-register/wellfit-knowledge-core.json",
+    "project-register/internal-sources.json"
+  ]
+}

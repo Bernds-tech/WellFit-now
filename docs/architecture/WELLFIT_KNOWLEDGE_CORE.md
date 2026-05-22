@@ -194,3 +194,10 @@ Wenn sich Produktvision, Feature-Register, Mission-Buddy-Economy-Flow oder Proje
 ## KI-Fortsetzungs-Prompt
 
 Wenn du hier weiterarbeitest, lies zuerst `AGENTS.md`, `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/CODEBASE_FEATURE_MAP.md`, `project-register/product-rules.json`, `project-register/features.json`, `project-register/mission-buddy-economy-flow.json`, `project-register/wellfit-knowledge-core.json` und `project-register/concept-learning-agent.json`. Aktualisiere diese Datei nur als kurzen Wegweiser fuer vorhandenes Produktwissen; Detailwissen bleibt in den verlinkten Quellen. Keine App Runtime, keine Nutzerprofilierung, keine Firestore-Regeln, keine Firebase Functions, keine UI-Ausfuehrung und keine geschuetzten Produktentscheidungen aktivieren.
+
+## Beta-1 Canonical-Truth Verweis
+
+- Fuer Entscheidungen in WellFit Beta 1 ist `project-register/wellfit-beta1-canonical-truth.json` die fuehrende Quelle.
+- Dieses Knowledge Core Dokument bleibt ein Orientierungs- und Kontextdokument und ersetzt die Beta-1-Canonical-Truth nicht.
+- Ergaenzend: `docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md` und `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md`.
+

@@ -215,5 +215,12 @@
     "tokensNftsWalletsActive": false,
     "serverLedgerRequiredForFinalAuthority": true
   },
-  "kiFortsetzungsPrompt": "Read AGENTS.md, docs/architecture/WELLFIT_KNOWLEDGE_CORE.md, this register, the canonical sources, and project-register/concept-learning-agent.json before updating. Keep this file reference-oriented, synchronized with the Markdown knowledge core, report-only, and non-runtime."
+  "kiFortsetzungsPrompt": "Read AGENTS.md, docs/architecture/WELLFIT_KNOWLEDGE_CORE.md, this register, the canonical sources, and project-register/concept-learning-agent.json before updating. Keep this file reference-oriented, synchronized with the Markdown knowledge core, report-only, and non-runtime.",
+  "canonicalTruthForBeta1": {
+    "machineReadable": "project-register/wellfit-beta1-canonical-truth.json",
+    "humanReadable": "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+    "codexContext": "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+    "knowledgeCoreRole": "orientation_only",
+    "beta1DecisionAuthority": "canonical_truth"
+  }
 }

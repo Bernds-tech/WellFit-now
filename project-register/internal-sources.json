@@ -17,7 +17,8 @@
       "project-register/apis.json",
       "project-register/features.json",
       "project-register/agent-workflows.json",
-      "project-register/user-feedback.json"
+      "project-register/user-feedback.json",
+      "project-register/wellfit-beta1-canonical-truth.json"
     ],
     "globalDoNotDuplicateWarnings": [
       "Do not create a second app shell, navigation system, mission engine, reward ledger, economy model, Buddy KI provider layer, AR event authority path, feedback pipeline, or agent-governance system.",
@@ -623,5 +624,11 @@
       ],
       "riskLevel": "medium"
     }
-  ]
+  ],
+  "beta1CanonicalTruth": {
+    "normalizedSource": "project-register/wellfit-beta1-canonical-truth.json",
+    "humanReference": "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+    "codexContext": "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+    "purpose": "Normalized merge point for internal source conflicts in Beta 1 planning and automation context."
+  }
 }
