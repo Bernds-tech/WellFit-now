@@ -107,7 +107,10 @@
         "project-register/agent-build-runner-state.json",
         "docs/architecture/WELLFIT_APPROVED_AGENT_BUILD_RUNNER_AND_MERGE_GATE.md",
         "scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
-        "scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs"
+        "scripts/wellfit-dev-agent/src/approved-agent-build-runner-dry-run.mjs",
+        "project-register/wellfit-beta1-canonical-truth.json",
+        "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+        "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
       ],
       "controlRegisters": [
         {
@@ -441,6 +444,21 @@
           ],
           "purpose": "Report-only ethical engagement guard for healthy retention, age-appropriate design, recovery, consent, missions, rewards, Buddy tone, social features, sponsors, website claims, and monetization proposals.",
           "usage": "Before planning engagement mechanics, validate against forbidden FOMO, shame, gambling/lootbox, sleep-deprivation, dark-pattern, age-inappropriate monetization, social humiliation, paywall pressure, protected-data-sensitive, and review_required boundaries."
+        },
+        {
+          "id": "beta1_canonical_truth_guard",
+          "registers": [
+            "project-register/product-rules.json",
+            "project-register/cross-references.json"
+          ],
+          "architecture": "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md",
+          "protectedOwnerOnlyConceptFiles": [
+            "project-register/wellfit-beta1-canonical-truth.json",
+            "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+            "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
+          ],
+          "purpose": "Owner-only Schutz fuer Beta-1-Canonical-Truth-Dateien erzwingen: lesen Pflicht, Aenderungen nur mit expliziter Owner-Freigabe, sonst block-and-handoff.",
+          "usage": "Vor Beta-1-Governance/Planning/Register-Aenderungen diese Dateien lesen, ohne Owner-Freigabe nicht bearbeiten und stattdessen Blocker + vorgeschlagenen Patch in nicht-geschuetzten Handoff/Register-Dateien dokumentieren."
         }
       ],
       "additionalGovernanceInputs": [
