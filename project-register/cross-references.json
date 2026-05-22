@@ -54,6 +54,34 @@
       "target": "project-register/features.json",
       "relation": "must-consider",
       "reason": "Feature-Aenderungen muessen skalierbar und ohne Parallelmodule dokumentiert werden."
+    },
+    {
+      "id": "REF-BETA1-CANONICAL-0008",
+      "source": "AGENTS.md",
+      "target": "project-register/wellfit-beta1-canonical-truth.json",
+      "relation": "read-before-beta1-governance",
+      "reason": "Owner-only Canonical Truth gilt als Pflichtlesebasis fuer Beta-1-Governance-, Roadmap-, Register- und Planning-Aenderungen."
+    },
+    {
+      "id": "REF-BETA1-CANONICAL-0009",
+      "source": "AGENTS.md",
+      "target": "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+      "relation": "read-before-beta1-governance",
+      "reason": "Menschenlesbare Canonical Truth muss vor Beta-1-Konzeptentscheidungen und Querverweis-Updates gelesen werden."
+    },
+    {
+      "id": "REF-BETA1-CANONICAL-0010",
+      "source": "AGENTS.md",
+      "target": "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+      "relation": "read-before-beta1-governance",
+      "reason": "Schneller Codex-Kontext ist Pflichtquelle fuer Beta-1-bezogene Agenten-/Registeraufgaben."
+    },
+    {
+      "id": "REF-BETA1-CANONICAL-0011",
+      "source": "project-register/product-rules.json#RULE-BETA1-CANONICAL-0008",
+      "target": "project-register/cross-references.json",
+      "relation": "enforced-by",
+      "reason": "Owner-only-Regel braucht explizite Querverweise, damit Checklisten und Handoffs die Schutzdateien nicht uebersehen."
     }
   ]
 }
