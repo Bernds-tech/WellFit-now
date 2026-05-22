@@ -44,6 +44,9 @@ Vor jeder strukturellen oder produktrelevanten Arbeit lesen:
 - `project-register/product-rules.json`
 - `project-register/progress-log.json`
 - `project-register/agent-workflows.json`
+- `project-register/wellfit-beta1-canonical-truth.json` (read-only, owner-only changes)
+- `docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md` (read-only, owner-only changes)
+- `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md` (read-only, owner-only changes)
 
 ## Arbeitsstufen
 
@@ -121,3 +124,14 @@ Bei echten Blockern muss ein Eintrag in `project-register/decisions.json`, `proj
 - Optionen
 - Empfehlung
 - benoetigte Entscheidung
+
+## Canonical Truth Schutzregel (Owner-only)
+
+Die Beta-1 Canonical-Truth-Dateien sind verpflichtende Lesebasis, aber fuer normale Agent-/Automation-/Codex-Tasks schreibgeschuetzt:
+
+- `project-register/wellfit-beta1-canonical-truth.json`
+- `docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md`
+- `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md`
+
+Aenderungen sind nur mit expliziter Bernd-/Owner-Freigabe in der Aufgabe erlaubt. Ohne diese Freigabe muss der Agent blockieren und den vorgeschlagenen Patch in einem nicht-geschuetzten Handoff/Register dokumentieren.
+
