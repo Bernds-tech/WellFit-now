@@ -29,6 +29,7 @@ const allowedNegativeCashoutPatterns = [
   /no[^\n]{0,120}cashout/iu,
   /no[^\n]{0,120}withdrawal/iu,
   /no[^\n]{0,120}payout/iu,
+  /keine[^\n]{0,120}cashout/iu,
   /cashout\s*\/\s*echtgeldsprache\s+vermeiden/iu,
   /auszahlung(en)?[^\n]{0,120}(deaktiviert|inaktiv|nicht\s+aktiv|verboten|blockiert)/iu
 ];

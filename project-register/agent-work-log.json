@@ -3861,11 +3861,27 @@
       "task": "Create a single staged execution plan for agent-admin enablement and Austria pilot readiness.",
       "status": "done",
       "summary": "Created docs/register-only rollout plan covering Phase 1 automation scope, server role and audit gap closure, pilot readiness evidence sprint, AT closed beta 25-50 guardrails, and post-pilot runtime autonomy expansion constraints.",
-      "files": [
+      "taskId": "AWL-2026-05-20-agent-admin-phase1-at-beta-plan",
+      "title": "Agent admin phase 1 and AT beta readiness docs/register plan",
+      "changedFiles": [
         "docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md",
         "todolist/NEXT_ACTIONS.md",
         "project-register/progress-log.json"
-      ]
+      ],
+      "checksRun": [
+        "npm run agent:quality-gate"
+      ],
+      "checkResults": [
+        "fail_known_followups"
+      ],
+      "autoMergeEligibilityResult": "blocked_required_checks",
+      "autoRepairDecisionResult": "report_only_no_runtime_actions",
+      "protectedAreaConfirmation": "protected_scopes_unchanged",
+      "followUps": [
+        "runtime/agent-admin-automation-gates-completion"
+      ],
+      "nextRecommendedTask": "runtime/agent-admin-automation-gates-completion",
+      "timestamp": "2026-05-20T00:00:00Z"
     },
     {
       "taskId": "FIX-BETA1-SMOKE-TEMPLATE-VALIDATION-2026-05-20",
@@ -4090,7 +4106,36 @@
       "date": "2026-05-21",
       "branch": "runtime/agent-admin-automation-gates-completion",
       "summary": "Completed automation gates UI/client callable coverage, metadata-only runner confirmation, and governance/quality-gate follow-up notes.",
-      "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration"
+      "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
+      "taskId": "AWL-2026-05-20-agent-admin-phase1-at-beta-plan",
+      "title": "Agent admin phase 1 + AT beta plan and automation gates completion",
+      "status": "done",
+      "changedFiles": [
+        "app/admin/agent-center/page.tsx",
+        "app/admin/agent-center/task-proposals/page.tsx",
+        "project-register/agent-control-center.json",
+        "project-register/agent-task-queue.json",
+        "docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
+        "docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json"
+      ],
+      "checksRun": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate"
+      ],
+      "checkResults": [
+        "pass",
+        "fail_known_governance_followups"
+      ],
+      "autoMergeEligibilityResult": "blocked_required_checks",
+      "autoRepairDecisionResult": "report_only_no_runtime_actions",
+      "protectedAreaConfirmation": "protected_areas_unchanged_runtime_control_plane_only",
+      "followUps": [
+        "fix/agent-admin-quality-gate-governance-cleanup"
+      ],
+      "nextRecommendedTask": "fix/agent-admin-quality-gate-governance-cleanup",
+      "timestamp": "2026-05-21T00:00:00Z"
     },
     {
       "date": "2026-05-21",
@@ -4111,7 +4156,37 @@
       "branch": "fix/agent-admin-canonical-truth-worker-snapshots",
       "summary": "Completed canonical-truth worker snapshot hardening: worker queue metadata fields, final approvedAllowedFiles guard check, and PR handoff re-validation against inconsistent approvals.",
       "nextBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
-      "notes": "Canonical truth protected files remained unchanged; runner stays metadata_only; no real GitHub API integration and no real deploy activation."
+      "notes": "Canonical truth protected files remained unchanged; runner stays metadata_only; no real GitHub API integration and no real deploy activation.",
+      "taskId": "AWL-2026-05-22-canonical-truth-worker-snapshots",
+      "title": "Canonical-truth worker snapshot hardening and final approval-file verification",
+      "status": "done",
+      "changedFiles": [
+        "scripts/wellfit-dev-agent/src/approved-agent-build-runner-check.mjs",
+        "scripts/wellfit-dev-agent/src/pr-outcome-recorder.mjs",
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.mjs",
+        "project-register/agent-control-center.json",
+        "project-register/agent-task-queue.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
+        "docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md"
+      ],
+      "checksRun": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate"
+      ],
+      "checkResults": [
+        "pass",
+        "fail_known_report_only"
+      ],
+      "autoMergeEligibilityResult": "blocked_required_checks",
+      "autoRepairDecisionResult": "report_only_no_runtime_write",
+      "protectedAreaConfirmation": "canonical_truth_protected_files_unchanged",
+      "followUps": [
+        "runtime/agent-admin-supervised-runner-real-github-integration"
+      ],
+      "nextRecommendedTask": "runtime/agent-admin-supervised-runner-real-github-integration",
+      "timestamp": "2026-05-22T00:00:00Z"
     }
   ],
   "workItems": [
