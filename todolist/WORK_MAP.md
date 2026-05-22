@@ -433,3 +433,6 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-22: Branch `fix/agent-admin-canonical-truth-worker-snapshots` ergänzt Canonical-Truth-Metadaten in Worker-Queue-Snapshots, validiert `approvedAllowedFiles` final in `approveAgentTaskProposal` und härtet `prepareAgentTaskPrHandoff` gegen inkonsistente historische Approvals. Canonical-Truth-Dateien blieben unverändert. Runner bleibt `metadata_only`; keine echte GitHub API, kein echtes Deploy. Nächster empfohlener Branch: `runtime/agent-admin-supervised-runner-real-github-integration`.
 
 - `docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md`, `docs/architecture/WELLFIT_AGENT_EXTERNAL_RESEARCH_GUARDRAILS.md`, `project-register/agent-product-evolution-loop.json` und `todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md` definieren den planning-only Product-Evolution-Loop mit report-only Research und Owner/Admin approval gate.
+
+
+- Agent Product Evolution Dossier: `docs/architecture/WELLFIT_AGENT_OPPORTUNITY_DOSSIER.md`, `project-register/agent-opportunity-dossier-schema.json`, `todolist/AGENT_MISSION_STORY_PROPOSALS.md`, `todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md`.

@@ -21,3 +21,12 @@ Fuehre einen ersten report-only Product-Evolution-Analyse-Lauf aus:
 2. Top 10 improvement proposals
 3. Risk matrix
 4. Next recommended owner-approved tasks
+
+
+## Opportunity Dossier Pflichtausgabe
+- Jeder Vorschlag muss als Opportunity Dossier ausgegeben werden.
+- Missionen/Geschichten muessen zusaetzlich ein Mission Story Dossier nutzen.
+- Jede externe Recherche braucht ein Research Summary.
+- Jeder Vorschlag braucht Chancen, Risiken, Quellen und Empfehlung.
+- Keine Umsetzung ohne Admin approval.
+- Keine Canonical-Truth-Aenderungen.

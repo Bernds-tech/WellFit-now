@@ -2090,7 +2090,7 @@
       },
       "changedFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -2178,7 +2178,7 @@
       "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
       "updatedTodoFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -4245,5 +4245,8 @@
       "productionDeployTriggered": false,
       "notes": "Added human evidence capture doc + operator instructions, expanded evidence pack template, updated go/no-go matrix/checklist/summary conservatively, marked support contact placeholder as role_alias_required, kept Wave 1 NO-GO where must-be-green evidence is missing. No runtime/app/components/lib/functions/rules changes and no PII committed."
     }
+  ],
+  "notes": [
+    "agent opportunity dossier templates added"
   ]
 }

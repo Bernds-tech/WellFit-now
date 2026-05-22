@@ -1211,5 +1211,8 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false
     }
+  ],
+  "notes": [
+    "agent opportunity dossier architecture and templates completed"
   ]
 }

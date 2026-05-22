@@ -73,5 +73,17 @@
     "taskProposal",
     "ownerDecision",
     "workLogEntry"
+  ],
+  "opportunityDossierRequired": true,
+  "missionStoryDossierRequiredForNarrativeMissions": true,
+  "researchSummaryRequiredWhenExternalSourcesUsed": true,
+  "adminDecisionRequiredBeforeTaskProposal": true,
+  "noImplementationWithoutDossierApproval": true,
+  "dossierOutputArtifacts": [
+    "opportunityDossier",
+    "missionStoryProposal",
+    "researchSummary",
+    "scoringSheet",
+    "adminDecisionRecord"
   ]
 }

@@ -2909,7 +2909,7 @@
         "Report-only governance by default; human review required for protected or high/critical scope."
       ],
       "priorityWithinCurrentPlanningBatch": 1,
-      "currentPlanningRationale": "First priority because it directly supports Bernd’s request for learning concept understanding.",
+      "currentPlanningRationale": "First priority because it directly supports Bernd\u2019s request for learning concept understanding.",
       "reportOnlyBuildEvidence": {
         "updated": "2026-05-17",
         "runtimeAuthorityGranted": false,
@@ -4410,5 +4410,12 @@
     "executionPath": "task_proposal_then_worker_queue",
     "canonicalTruthProtected": true,
     "qualityGateBlockerReference": "project-register/quality-gate-known-blockers.json"
+  },
+  "opportunityDossierGuardrails": {
+    "requiredBeforeImplementationTasks": true,
+    "missionStoryProposalRequiredForNarrativeMissions": true,
+    "researchSummaryRequiredWhenExternalSourcesUsed": true,
+    "adminApprovalRequired": true,
+    "canonicalTruthProtected": true
   }
 }

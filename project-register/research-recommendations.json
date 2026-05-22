@@ -359,5 +359,10 @@
     "executionPath": "task_proposal_then_worker_queue",
     "canonicalTruthProtected": true,
     "qualityGateBlockerReference": "project-register/quality-gate-known-blockers.json"
+  },
+  "opportunityDossierIntegration": {
+    "researchSummaryTemplate": "todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md",
+    "requiredWhenExternalSourcesUsed": true,
+    "adminDecisionRequired": true
   }
 }

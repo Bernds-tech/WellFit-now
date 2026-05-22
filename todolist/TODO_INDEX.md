@@ -631,3 +631,6 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - 2026-05-22: Branch `fix/agent-admin-canonical-truth-worker-snapshots` ergänzt Canonical-Truth-Metadaten in Worker-Queue-Snapshots, validiert `approvedAllowedFiles` final in `approveAgentTaskProposal` und härtet `prepareAgentTaskPrHandoff` gegen inkonsistente historische Approvals. Canonical-Truth-Dateien blieben unverändert. Runner bleibt `metadata_only`; keine echte GitHub API, kein echtes Deploy. Nächster empfohlener Branch: `runtime/agent-admin-supervised-runner-real-github-integration`.
 
 - Product Evolution Loop Governance geplant: Architektur, Research Guardrails, Opportunity Template, machine-readable Register und First-Run Prompt erstellt (planning_only).
+
+
+- [x] Agent Opportunity Dossier Architektur + Schema + Templates (planning_only, no runtime changes).
