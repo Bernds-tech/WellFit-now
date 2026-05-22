@@ -40,3 +40,11 @@ Fuehre einen ersten report-only Product-Evolution-Analyse-Lauf aus:
 - Neue Produkte/Technologien muessen als Product Radar Dossier erfasst werden.
 - Quellen mit Gluecksspiel/Ponzi/Heilversprechen/Kinder-Monetarisierung als Risikoquelle markieren und nicht positiv verwenden.
 - Token als Utility darf analysiert werden, aber keine Beta-1 Token-Aktivierung.
+
+## Update 2026-05-22: Automation Control + Retry Guard
+- Vor jedem Lauf Agent Automation Control pruefen.
+- mode off/paused/halted_waiting_owner => stop.
+- mode repair_required => nur repair/governance/conflict.
+- Zyklusstart immer: interne Quellen -> Repo-Status -> Canonical Truth -> Quality Gate -> offene Tasks/Dossiers -> Admin Approval.
+- Keine Umsetzung ohne Admin approval.
+- Kein GitHub Token/Secret im Client, keine echte GitHub API, kein echtes Deploy, kein Auto-Merge/Auto-Deploy bei roten Checks.

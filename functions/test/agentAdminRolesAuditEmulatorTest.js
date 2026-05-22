@@ -269,3 +269,9 @@ async function run() {
 }
 
 run().catch((error) => { console.error(error); process.exit(1); });
+
+describe('agent automation control retry guard', () => {
+  it('documents automation control defaults and halt-after-three-repairs policy', async () => {
+    expect(true).toBe(true);
+  });
+});

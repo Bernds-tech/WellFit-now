@@ -209,6 +209,21 @@ export default function Beta1AdminPanel() {
         <AdminForm title="Reject Production Second Approval" fields={["policyId","reason"]} feedback={feedback["automation-reject-second"]} onSubmit={async (fd)=>{await run("automation-reject-second",()=>beta1AdminClient.rejectAgentProductionDeploySecondApproval({policyId: normalize(fd.get("policyId")), reason: normalize(fd.get("reason"))}));}} />
         <AdminForm title="Prepare Supervised Runner Job" fields={["workerQueueId","policyId"]} feedback={feedback["automation-runner"]} onSubmit={async (fd)=>{await run("automation-runner",()=>beta1AdminClient.prepareAgentSupervisedRunnerJob({workerQueueId: normalize(fd.get("workerQueueId")), policyId: normalize(fd.get("policyId"))}));}} />
       </section>
+
+      <section className="space-y-3 rounded border border-cyan-400/30 bg-cyan-900/10 p-4">
+        <h3 className="text-lg font-semibold">Agent Automation Control</h3>
+        <p className="text-sm text-white/80">Automation nur mit Admin-Freigabe. Bei Merge-/Check-Fehlern zuerst Repair. Nach 3 Fehlversuchen halt + Owner Review.</p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <AdminForm title="Get Control" fields={[]} feedback={feedback["automation-control-get"]} onSubmit={async ()=>{await run("automation-control-get",()=>beta1AdminClient.getAgentAutomationControl());}} />
+          <AdminForm title="Set Mode" fields={["automationMode"]} feedback={feedback["automation-control-mode"]} onSubmit={async (fd)=>{await run("automation-control-mode",()=>beta1AdminClient.setAgentAutomationMode(normalize(fd.get("automationMode"))));}} />
+          <AdminForm title="Pause Automation" fields={[]} feedback={feedback["automation-control-pause"]} onSubmit={async ()=>{await run("automation-control-pause",()=>beta1AdminClient.pauseAgentAutomation());}} />
+          <AdminForm title="Resume Automation" fields={[]} feedback={feedback["automation-control-resume"]} onSubmit={async ()=>{await run("automation-control-resume",()=>beta1AdminClient.resumeAgentAutomation());}} />
+          <AdminForm title="Record Merge Outcome" fields={["prRef","mergeStatus","reason"]} feedback={feedback["automation-control-merge"]} onSubmit={async (fd)=>{await run("automation-control-merge",()=>beta1AdminClient.recordAgentAutomationMergeOutcome({prRef: normalize(fd.get("prRef")), mergeStatus: normalize(fd.get("mergeStatus")), reason: normalize(fd.get("reason"))}));}} />
+          <AdminForm title="Record Repair Attempt" fields={["prRef","result","reason"]} feedback={feedback["automation-control-repair"]} onSubmit={async (fd)=>{await run("automation-control-repair",()=>beta1AdminClient.recordAgentAutomationRepairAttempt({prRef: normalize(fd.get("prRef")), result: normalize(fd.get("result")), reason: normalize(fd.get("reason"))}));}} />
+          <AdminForm title="Reset Repair Counter" fields={[]} feedback={feedback["automation-control-reset"]} onSubmit={async ()=>{await run("automation-control-reset",()=>beta1AdminClient.resetAgentAutomationRepairCounter());}} />
+          <AdminForm title="Approve Continue After Halt" fields={[]} feedback={feedback["automation-control-approve"]} onSubmit={async ()=>{await run("automation-control-approve",()=>beta1AdminClient.approveAgentAutomationContinueAfterHalt());}} />
+        </div>
+      </section>
       </section>
     </section>
   );

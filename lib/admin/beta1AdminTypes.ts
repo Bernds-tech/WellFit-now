@@ -31,3 +31,8 @@ export type AgentAutomationPolicyInput = { workerQueueId?: string; policyId?: st
 
 export type AgentAutomationGetInput = { policyId: string };
 export type AgentAutomationListInput = { status?: string };
+
+export type AgentAutomationMode = "off" | "planning_only" | "supervised" | "runner_enabled" | "paused" | "repair_required" | "halted_waiting_owner";
+export type AgentAutomationControl = { automationEnabled: boolean; automationMode: AgentAutomationMode; repairAttemptCount: number; maxRepairAttempts: number; ownerReviewRequired: boolean; lastMergeStatus?: string; lastPrRef?: string | null; lastFailureReason?: string | null; };
+export type AgentMergeOutcome = { prRef?: string; mergeStatus: "merged" | "failed" | "conflict" | "checks_failed" | "blocked"; reason?: string; };
+export type AgentRepairAttempt = { prRef?: string; result: "fixed" | "failed" | "blocked"; reason?: string; };

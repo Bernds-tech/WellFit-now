@@ -442,3 +442,4 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - `docs/architecture/WELLFIT_AGENT_PRODUCT_TECH_RADAR.md` definiert report-only Product/Technology Radar und Bewertungsfelder fuer neue externe Produkte/Technologien.
 - `project-register/agent-risk-source-classifier.json` definiert Risikoquellen-Klassifizierung inkl. Gluecksspiel/Ponzi/Heilversprechen/Kinder-Monetarisierungs-Filter.
 - `project-register/agent-opportunity-dossier-schema.json` erweitert Dossier-Pflichtfelder um ecosystemPillarFit, financialImpact, internalEconomyImpact, sourceRiskAssessment und productRadarAssessment.
+\n
