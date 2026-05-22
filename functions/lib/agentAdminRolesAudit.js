@@ -12,6 +12,42 @@ const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_r
 const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
 
+const CANONICAL_TRUTH_PROTECTED_FILES = [
+  "project-register/wellfit-beta1-canonical-truth.json",
+  "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+  "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+];
+const CANONICAL_TRUTH_PROPOSAL_FILE = "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md";
+
+function touchesCanonicalTruthProtectedFiles(files) {
+  const normalized = parseStringList(files, 120, 260).map((f) => String(f || "").trim().toLowerCase());
+  const protectedSet = new Set(CANONICAL_TRUTH_PROTECTED_FILES.map((f) => f.toLowerCase()));
+  return normalized.filter((file) => protectedSet.has(file));
+}
+
+function assertCanonicalTruthChangeAllowed({ files, actorRole, ownerApprovalFlag, HttpsError }) {
+  const touched = touchesCanonicalTruthProtectedFiles(files);
+  if (!touched.length) return touched;
+  const ownerApproved = actorRole === "owner" && ownerApprovalFlag === true;
+  if (!ownerApproved) {
+    throw new HttpsError("failed-precondition", `Canonical Truth owner-only: ${touched.join(", ")}. Verwende nur ${CANONICAL_TRUTH_PROPOSAL_FILE} fuer Vorschlaege.`);
+  }
+  return touched;
+}
+
+function buildCanonicalTruthPromptGuardrail() {
+  return [
+    "Canonical Truth Pflicht:",
+    "- Lies vor Arbeitsbeginn: project-register/wellfit-beta1-canonical-truth.json, docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md, todolist/CODEX_CONTEXT_WELLFIT_BETA1.md.",
+    "- WFP = interne WellFit Punkte in Beta-1.",
+    "- XP = Avatar-Fortschritt (nicht spendable).",
+    "- WFT/SUI/Blockchain/Presale/Token/NFT/Payment/Cashout/Wallet-Trading sind NICHT Beta-1.",
+    "- Die drei Canonical-Truth-Dateien sind owner-only/read-only fuer Agents.",
+    "- Keine autonomen Aenderungen ohne explizite Owner-Freigabe (ownerCanonicalTruthApproval=true).",
+    `- Wenn Aenderungsbedarf besteht: nur Vorschlag in ${CANONICAL_TRUTH_PROPOSAL_FILE} dokumentieren.`,
+  ].join("\n");
+}
+
 const BASE_REQUIRED_CHECKS = ["npm run agent:validate", "npm run agent:quality-gate", "npm run lint", "git diff --check"];
 const FUNCTION_SCOPE_MARKERS = ["runtime_backend", "functions", "firestore"];
 const UI_SCOPE_MARKERS = ["runtime_ui", "live_page", "ui", "app", "components"];
@@ -195,6 +231,12 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       "- AGENTS.md",
       "- docs/beta/BETA1_AGENT_ADMIN_AND_LIVE_READINESS_MASTERPLAN.md",
       "- docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md",
+      "- project-register/wellfit-beta1-canonical-truth.json",
+      "- docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+      "- todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+      "",
+      "4b) Beta-1 Canonical-Truth Guardrail",
+      ...buildCanonicalTruthPromptGuardrail().split("\n"),
       "",
       "5) Erlaubte Dateien",
       ...(allowedFiles.length ? allowedFiles.map((f) => `- ${f}`) : ["- (keine)"]),
@@ -245,10 +287,12 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       allowedFiles: parseStringList(data.allowedFiles),
       blockedFiles: parseStringList(data.blockedFiles),
       protectedScopes: parseStringList(data.protectedScopes, 40, 80),
+      ownerCanonicalTruthApproval: data.ownerCanonicalTruthApproval === true,
       status: "proposed",
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
+    assertCanonicalTruthChangeAllowed({ files: proposal.allowedFiles, actorRole, ownerApprovalFlag: proposal.ownerCanonicalTruthApproval, HttpsError });
     await ref.set(proposal);
     await writeAgentAudit(db, { actorId, actorRole, action: "proposal_created", proposalId: ref.id, promptRef: proposal.promptRef, allowedFiles: proposal.allowedFiles, blockedFiles: proposal.blockedFiles, riskLevel: proposal.riskLevel, result: "created" });
     return { accepted: true, proposalId: ref.id, status: proposal.status };
@@ -259,6 +303,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const data = request.data || {};
     const proposalId = requiredString(data.proposalId, "proposalId", HttpsError, 180);
     const status = optionalString(data.status, 40) || "review_required";
+    const snap = await db.collection("agentTaskProposals").doc(proposalId).get();
+    const proposal = snap.data() || {};
+    assertCanonicalTruthChangeAllowed({ files: proposal.allowedFiles || [], actorRole, ownerApprovalFlag: proposal.ownerCanonicalTruthApproval === true, HttpsError });
     if (!PROPOSAL_STATUSES.includes(status)) throw new HttpsError("invalid-argument", "Ungültiger Proposal-Status.");
     await db.collection("agentTaskProposals").doc(proposalId).set({ status, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     await writeAgentAudit(db, { actorId, actorRole, action: "proposal_reviewed", proposalId, result: status });
@@ -274,12 +321,15 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const proposal = proposalSnap.data() || {};
     const approvalScope = parseStringList(data.approvalScope, 40, 120);
     assertProtectedScopesAllowed({ protectedScopes: proposal.protectedScopes || [], approvalScope, actorRole, HttpsError });
+    const ownerCanonicalTruthApproval = proposal.ownerCanonicalTruthApproval === true || data.ownerCanonicalTruthApproval === true;
+    assertCanonicalTruthChangeAllowed({ files: proposal.allowedFiles || [], actorRole, ownerApprovalFlag: ownerCanonicalTruthApproval, HttpsError });
     const approvalRef = db.collection("agentTaskApprovals").doc();
     const approval = {
       approvalId: approvalRef.id, proposalId, approverId: actorId, approverRole: actorRole, approvalScope,
       approvedAllowedFiles: parseStringList(data.approvedAllowedFiles && data.approvedAllowedFiles.length ? data.approvedAllowedFiles : proposal.allowedFiles),
       approvedBlockedFiles: parseStringList(data.approvedBlockedFiles && data.approvedBlockedFiles.length ? data.approvedBlockedFiles : proposal.blockedFiles),
       approvalExpiresAt: data.approvalExpiresAt || null,
+      ownerCanonicalTruthApproval,
       status: "approved", reason: optionalString(data.reason, 500) || "server-approved", createdAt: FieldValue.serverTimestamp(),
     };
     await approvalRef.set(approval);
@@ -311,6 +361,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     if (!approvalSnap.exists) throw new HttpsError("failed-precondition", "Approval fehlt.");
     const approval = approvalSnap.data() || {};
     if (approval.proposalId !== proposalId || approval.status !== "approved") throw new HttpsError("failed-precondition", "Approval nicht freigegeben.");
+    const proposalSnap = await db.collection("agentTaskProposals").doc(proposalId).get();
+    const proposal = proposalSnap.data() || {};
+    assertCanonicalTruthChangeAllowed({ files: approval.approvedAllowedFiles || proposal.allowedFiles || [], actorRole, ownerApprovalFlag: approval.ownerCanonicalTruthApproval === true || proposal.ownerCanonicalTruthApproval === true, HttpsError });
     const executionRef = db.collection("agentTaskExecutions").doc();
     const status = optionalString(data.status, 40) || "queued";
     if (!EXECUTION_STATUSES.includes(status)) throw new HttpsError("invalid-argument", "Ungültiger Execution-Status.");
@@ -647,7 +700,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const risk = classifyAutomationRisk(worker);
     const summary = summarizeChecks(worker);
     const ref = db.collection("agentTaskAutomationPolicies").doc();
-    const policy = { policyId: ref.id, workerQueueId, executionId: worker.executionId || null, proposalId: worker.proposalId || null, approvalId: worker.approvalId || null, handoffPromptId: worker.handoffPromptId || null, targetBranch: worker.branchName || null, prRef: worker.prRef || null, riskLevel: risk.riskLevel, targetTrack: optionalString(worker.targetTrack, 80) || "runtime_backend", allowedFiles: parseStringList(worker.allowedFiles || []), blockedFiles: parseStringList(worker.blockedFiles || []), protectedScopes: parseStringList(risk.protectedScopes || [], 40, 80), requiredChecks: summary.requiredChecks, checkSummary: summary.checks, allRequiredChecksPassed: summary.allRequiredChecksPassed, qualityGatePassed: summary.qualityGatePassed, qualityGateOverrideRequested: false, qualityGateOverrideApproved: false, autoMergeRequested: false, autoMergeApproved: false, autoMergeApprovedBy: null, autoMergeApprovedByRole: null, autoMergeDecisionAt: null, autoDeployRequested: false, autoDeployEnvironment: "none", autoDeployApproved: false, autoDeployApprovedBy: null, autoDeployApprovedByRole: null, autoDeployDecisionAt: null, productionDeploySecondApprovalRequired: false, productionDeploySecondApprovalApproved: false, productionDeploySecondApprovalBy: null, status: summary.allRequiredChecksPassed ? "waiting_for_admin_decision" : "waiting_for_checks", humanOverrideReason: null, createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() };
+    const policy = { policyId: ref.id, workerQueueId, executionId: worker.executionId || null, canonicalTruthReadRequired: true, canonicalTruthProtectedFiles: CANONICAL_TRUTH_PROTECTED_FILES, canonicalTruthEditable: false, canonicalTruthOwnerApprovalRequired: true, canonicalTruthChangeProposalFile: CANONICAL_TRUTH_PROPOSAL_FILE, proposalId: worker.proposalId || null, approvalId: worker.approvalId || null, handoffPromptId: worker.handoffPromptId || null, targetBranch: worker.branchName || null, prRef: worker.prRef || null, riskLevel: risk.riskLevel, targetTrack: optionalString(worker.targetTrack, 80) || "runtime_backend", allowedFiles: parseStringList(worker.allowedFiles || []), blockedFiles: parseStringList(worker.blockedFiles || []), protectedScopes: parseStringList(risk.protectedScopes || [], 40, 80), requiredChecks: summary.requiredChecks, checkSummary: summary.checks, allRequiredChecksPassed: summary.allRequiredChecksPassed, qualityGatePassed: summary.qualityGatePassed, qualityGateOverrideRequested: false, qualityGateOverrideApproved: false, autoMergeRequested: false, autoMergeApproved: false, autoMergeApprovedBy: null, autoMergeApprovedByRole: null, autoMergeDecisionAt: null, autoDeployRequested: false, autoDeployEnvironment: "none", autoDeployApproved: false, autoDeployApprovedBy: null, autoDeployApprovedByRole: null, autoDeployDecisionAt: null, productionDeploySecondApprovalRequired: false, productionDeploySecondApprovalApproved: false, productionDeploySecondApprovalBy: null, status: summary.allRequiredChecksPassed ? "waiting_for_admin_decision" : "waiting_for_checks", humanOverrideReason: null, createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() };
     await ref.set(policy);
     await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ automationPolicyId: ref.id, automationStatus: "not_requested", autoMerge: false, autoDeploy: false, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     await writeAgentAudit(db, { actorId, actorRole, action: "automation_policy_created", proposalId: policy.proposalId, approvalId: policy.approvalId, executionId: policy.executionId, result: policy.status });
@@ -757,7 +810,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { deployAllowed, mergeAllowed, environment };
   }
 
-  exportsTarget.prepareAgentSupervisedRunnerJob = onCall(async (request)=>{const { actorId, actorRole } = requireRole(request, HttpsError,["owner","agent_supervisor","admin_operator"]); const workerQueueId=requiredString(request.data&&request.data.workerQueueId,"workerQueueId",HttpsError,180); const policyId=requiredString(request.data&&request.data.policyId,"policyId",HttpsError,180); const policySnap = await db.collection("agentTaskAutomationPolicies").doc(policyId).get(); const policy = policySnap.data() || {}; const gate = computeRunnerAutomationGate(policy); const ref=db.collection("agentTaskSupervisedRunnerJobs").doc(); await ref.set({jobId:ref.id,workerQueueId,policyId,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,autoDeployEnvironment:gate.environment,createdBy:actorId,createdByRole:actorRole,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()}); await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ deployAllowed: gate.deployAllowed, mergeAllowed: gate.mergeAllowed, autoDeployEnvironment: gate.environment, supervisedRunnerStatus: "metadata_only", updatedAt: FieldValue.serverTimestamp() }, { merge: true }); await writeAgentAudit(db,{actorId,actorRole,action:"automation_runner_job_prepared",result:"metadata_only",approvalId: policyId}); return {accepted:true,jobId:ref.id,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,status:"metadata_only"};});
+  exportsTarget.prepareAgentSupervisedRunnerJob = onCall(async (request)=>{const { actorId, actorRole } = requireRole(request, HttpsError,["owner","agent_supervisor","admin_operator"]); const workerQueueId=requiredString(request.data&&request.data.workerQueueId,"workerQueueId",HttpsError,180); const policyId=requiredString(request.data&&request.data.policyId,"policyId",HttpsError,180); const policySnap = await db.collection("agentTaskAutomationPolicies").doc(policyId).get(); const policy = policySnap.data() || {}; const gate = computeRunnerAutomationGate(policy); const ref=db.collection("agentTaskSupervisedRunnerJobs").doc(); await ref.set({jobId:ref.id,workerQueueId,policyId,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,autoDeployEnvironment:gate.environment,canonicalTruthReadRequired:true,canonicalTruthProtectedFiles:CANONICAL_TRUTH_PROTECTED_FILES,canonicalTruthEditable:false,canonicalTruthOwnerApprovalRequired:true,canonicalTruthChangeProposalFile:CANONICAL_TRUTH_PROPOSAL_FILE,createdBy:actorId,createdByRole:actorRole,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()}); await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ deployAllowed: gate.deployAllowed, mergeAllowed: gate.mergeAllowed, autoDeployEnvironment: gate.environment, supervisedRunnerStatus: "metadata_only", updatedAt: FieldValue.serverTimestamp() }, { merge: true }); await writeAgentAudit(db,{actorId,actorRole,action:"automation_runner_job_prepared",result:"metadata_only",approvalId: policyId}); return {accepted:true,jobId:ref.id,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,status:"metadata_only"};});
 
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
@@ -769,4 +822,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   });
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail };

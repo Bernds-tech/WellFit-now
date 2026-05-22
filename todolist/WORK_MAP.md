@@ -428,3 +428,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - Diese drei Dateien normalisieren die aktuelle Beta-1-Wahrheit und ueberschreiben fuer Beta 1 widerspruechliche aeltere Solana-/WFT-/PreSale-/Investor-Aussagen.
 - Keine Parallelarchitektur aufbauen: bestehende Register, TODO-Dateien, Agent-Konfigurationen und Architekturdateien nur erweitern/querverweisen.
 
+
+- 2026-05-22 Update: Agent-Admin-Automation erzwingt Canonical-Truth owner-only Guardrails; Pflichtlesebasis bleibt aktiv, Edit nur mit Owner-Freigabe.
