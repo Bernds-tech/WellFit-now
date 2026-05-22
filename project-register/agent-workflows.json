@@ -9,7 +9,7 @@
       "agents/AGENTS.md",
       "agents/modes/stufe-4.md"
     ],
-    "updated": "2026-05-17"
+    "updated": "2026-05-22"
   },
   "workflows": [
     {
@@ -965,5 +965,16 @@
     "jq empty project-register/mission-factory-agent.json",
     "node scripts/wellfit-dev-agent/src/agent-control-center-check.mjs"
   ],
-  "updated": "2026-05-17"
+  "updated": "2026-05-22",
+  "agentProductEvolutionLoop": {
+    "exists": true,
+    "status": "planning_only",
+    "register": "project-register/agent-product-evolution-loop.json",
+    "researchAgentMode": "report_only",
+    "opportunityProposalTemplate": "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+    "approval": "owner_admin_required",
+    "executionPath": "task_proposal_then_worker_queue",
+    "canonicalTruthProtected": true,
+    "qualityGateBlockerReference": "project-register/quality-gate-known-blockers.json"
+  }
 }

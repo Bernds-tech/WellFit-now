@@ -8,6 +8,33 @@
   },
   "entries": [
     {
+      "id": "2026-05-22-agent-product-evolution-loop-plan",
+      "date": "2026-05-22",
+      "branch": "plan/agent-product-evolution-loop",
+      "goal": "Plan and register the WellFit Agent Product Evolution Loop as planning/governance/report-only artifacts with admin approval gates.",
+      "changedAreas": [
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_EXTERNAL_RESEARCH_GUARDRAILS.md",
+        "project-register/agent-product-evolution-loop.json",
+        "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+        "docs/beta/prompts/CODEX_PROMPT_AGENT_PRODUCT_EVOLUTION_LOOP_FIRST_RUN.md",
+        "project-register/agent-workflows.json",
+        "project-register/agent-control-center.json",
+        "project-register/agent-task-queue.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/research-recommendations.json",
+        "project-register/adaptive-user-insights.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Planning/register/docs-only. No runtime files, no Functions/Rules changes, no protected canonical-truth file changes, no token/payment/cashout/blockchain activation, no real user/health/child data."
+    },
+    {
       "id": "2026-05-21-beta1-live-pages-app-shell-fix",
       "date": "2026-05-21",
       "branch": "runtime/beta1-live-pages-app-shell-fix",

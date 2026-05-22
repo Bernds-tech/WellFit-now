@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-17",
+  "updated": "2026-05-22",
   "purpose": "Planning-only governance register for future Adaptive User Insight summaries: define how WellFit may later use privacy-preserving aggregate signals to recommend mission, buddy, difficulty, challenge, and internal reward-tuning ideas without exposing raw user data to agents or changing runtime product logic.",
   "activationState": "planning_only",
   "scope": "Documentation, registry, and validation-only governance. This register does not activate live tracking, data collection, personalization runtime, reward authority, or protected compliance logic.",
@@ -335,5 +335,16 @@
       ],
       "note": "Reference recorded in project-register/adaptive-user-insights.json; report-only governance evidence, no runtime/protected authority granted."
     }
-  ]
+  ],
+  "agentProductEvolutionLoop": {
+    "exists": true,
+    "status": "planning_only",
+    "register": "project-register/agent-product-evolution-loop.json",
+    "researchAgentMode": "report_only",
+    "opportunityProposalTemplate": "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+    "approval": "owner_admin_required",
+    "executionPath": "task_proposal_then_worker_queue",
+    "canonicalTruthProtected": true,
+    "qualityGateBlockerReference": "project-register/quality-gate-known-blockers.json"
+  }
 }

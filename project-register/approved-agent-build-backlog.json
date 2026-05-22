@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-17",
+  "updated": "2026-05-22",
   "activationState": "approved_planning_backlog",
   "purpose": "Machine-readable backlog of human-approved future WellFit agents/frameworks. Entries marked alreadyHumanApproved are approved to be built one at a time as docs/register/validator/report artifacts under single_agent_docs_register_build; this does not grant runtime, merge, deploy, protected-scope, implementation-agent, or self-approval authority.",
   "approvalSource": "Project owner request on 2026-05-16 confirming listed future agents/frameworks may be recorded in an approved build backlog after PR #104 policy work.",
@@ -4399,5 +4399,16 @@
       "recovery-pause-anti-overuse-guard-report-agent"
     ],
     "note": "All confirmed open report/planning agents are active in the governance layer, validator layer, and Admin Center visibility layer; unsafe runtime authority remains blocked."
+  },
+  "agentProductEvolutionLoop": {
+    "exists": true,
+    "status": "planning_only",
+    "register": "project-register/agent-product-evolution-loop.json",
+    "researchAgentMode": "report_only",
+    "opportunityProposalTemplate": "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+    "approval": "owner_admin_required",
+    "executionPath": "task_proposal_then_worker_queue",
+    "canonicalTruthProtected": true,
+    "qualityGateBlockerReference": "project-register/quality-gate-known-blockers.json"
   }
 }

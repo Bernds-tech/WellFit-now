@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "updated": "2026-05-17",
+  "updated": "2026-05-22",
   "purpose": "Governance register for future WellFit Research & Recommendation Agent work: analyze unclear product or technical questions, read internal sources first, use Controlled Curiosity before any external research that may influence WellFit decisions, summarize three approaches, recommend one option, classify risk, and require human review before implementation or adoption.",
   "status": "active",
   "scope": "Documentation, registry, and validation-only recommendation governance. This register does not authorize runtime product logic changes.",
@@ -348,5 +348,16 @@
     "register": "project-register/healthy-retention-agent.json",
     "doc": "docs/architecture/WELLFIT_HEALTHY_RETENTION_AGENT.md",
     "boundary": "Healthy retention research recommendations remain internal-first, report-only, wellbeing-focused, and review_required for protected or dark-pattern-adjacent claims before any runtime implementation."
+  },
+  "agentProductEvolutionLoop": {
+    "exists": true,
+    "status": "planning_only",
+    "register": "project-register/agent-product-evolution-loop.json",
+    "researchAgentMode": "report_only",
+    "opportunityProposalTemplate": "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+    "approval": "owner_admin_required",
+    "executionPath": "task_proposal_then_worker_queue",
+    "canonicalTruthProtected": true,
+    "qualityGateBlockerReference": "project-register/quality-gate-known-blockers.json"
   }
 }

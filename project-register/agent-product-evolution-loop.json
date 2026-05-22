@@ -1,0 +1,77 @@
+{
+  "version": "1.0.0",
+  "status": "planning_only",
+  "loopStages": [
+    "intake",
+    "internal_analysis",
+    "gap_detection",
+    "opportunity_generation",
+    "external_research_report_only",
+    "scoring",
+    "admin_approval",
+    "task_proposal",
+    "worker_queue",
+    "pr_runner",
+    "evidence",
+    "repeat"
+  ],
+  "allowedAgentRoles": [
+    "backlog_executor",
+    "concept_gap_analyzer",
+    "product_research_agent",
+    "behavioral_design_agent",
+    "safety_compliance_critic",
+    "opportunity_scoring_agent",
+    "proposal_to_task_agent"
+  ],
+  "requiredInputs": [
+    "internal_sources",
+    "businessplan_context",
+    "canonical_truth_read_only",
+    "codebase_registers",
+    "beta_status_registers",
+    "quality_gate_known_blockers"
+  ],
+  "requiredFirstReadFiles": [
+    "AGENTS.md",
+    "agents/AGENTS.md",
+    "todolist/WORK_MAP.md",
+    "todolist/TODO_INDEX.md",
+    "scripts/wellfit-dev-agent/wellfit-agent.config.json",
+    "project-register/wellfit-beta1-canonical-truth.json",
+    "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+    "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+    "project-register/canonical-truth-protection.json",
+    "project-register/quality-gate-known-blockers.json"
+  ],
+  "researchAllowed": "report_only",
+  "externalResearchAllowed": "true_only_for_reports",
+  "adminApprovalRequired": true,
+  "canonicalTruthProtected": true,
+  "forbiddenAutonomousActions": [
+    "runtime_changes",
+    "functions_changes",
+    "firestore_rules_changes",
+    "token_nft_payment_cashout_blockchain_activation",
+    "auto_merge_without_gates",
+    "auto_deploy",
+    "protected_scope_activation"
+  ],
+  "scoringDimensions": [
+    "beta1Fit",
+    "userMotivationImpact",
+    "safetyRisk",
+    "implementationEffort",
+    "evidenceNeed",
+    "revenuePotential",
+    "childHealthPrivacyRisk",
+    "canonicalTruthCompatibility"
+  ],
+  "outputArtifacts": [
+    "opportunityReport",
+    "researchSummary",
+    "taskProposal",
+    "ownerDecision",
+    "workLogEntry"
+  ]
+}

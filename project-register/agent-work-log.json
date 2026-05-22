@@ -103,6 +103,47 @@
   },
   "entries": [
     {
+      "taskId": "AGENT-PRODUCT-EVOLUTION-LOOP-PLAN",
+      "title": "Plan Agent product evolution loop",
+      "status": "done",
+      "pr": {
+        "branch": "plan/agent-product-evolution-loop",
+        "number": null,
+        "url": null,
+        "title": "Plan Agent product evolution loop"
+      },
+      "changedFiles": [
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_EXTERNAL_RESEARCH_GUARDRAILS.md",
+        "project-register/agent-product-evolution-loop.json",
+        "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+        "docs/beta/prompts/CODEX_PROMPT_AGENT_PRODUCT_EVOLUTION_LOOP_FIRST_RUN.md",
+        "project-register/agent-workflows.json",
+        "project-register/agent-control-center.json",
+        "project-register/agent-task-queue.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/research-recommendations.json",
+        "project-register/adaptive-user-insights.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Run analysis branch for first report-only evolution loop after owner/admin approval."
+      ],
+      "nextRecommendedTask": "analysis/agent-product-evolution-first-run",
+      "updatedTodoFiles": [
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "riskLevel": "low",
+      "definitionOfDoneKey": "documentation_registry_governance_update"
+    },
+    {
       "id": "2026-05-21-beta1-live-pages-app-shell-fix",
       "date": "2026-05-21",
       "branch": "runtime/beta1-live-pages-app-shell-fix",
