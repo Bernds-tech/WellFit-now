@@ -85,5 +85,20 @@
     "researchSummary",
     "scoringSheet",
     "adminDecisionRecord"
+  ],
+  "ecosystemEconomyDossierRequired": true,
+  "productRadarAssessmentRequiredWhenNewTechMentioned": true,
+  "financialImpactRequired": true,
+  "internalEconomyImpactRequired": true,
+  "riskSourceClassifierRequired": true,
+  "multiPillarEcosystemModel": [
+    "prevention_movement",
+    "learning_edtech",
+    "social_community",
+    "ar_location_based_entertainment",
+    "ai_buddy_avatar_bonding",
+    "sui_dynamic_assets_future",
+    "b2b_fiat_monetization",
+    "token_utility_no_speculation"
   ]
 }

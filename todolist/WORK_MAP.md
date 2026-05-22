@@ -436,3 +436,9 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 
 
 - Agent Product Evolution Dossier: `docs/architecture/WELLFIT_AGENT_OPPORTUNITY_DOSSIER.md`, `project-register/agent-opportunity-dossier-schema.json`, `todolist/AGENT_MISSION_STORY_PROPOSALS.md`, `todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md`.
+
+## Agent Opportunity Dossier Ecosystem/Economy Erweiterung (2026-05-22)
+- `docs/architecture/WELLFIT_AGENT_ECOSYSTEM_ECONOMY_DOSSIER.md` definiert Pflichtbewertung fuer WellFit-Nutzen, Finanzwirkung und internen WFP/XP-Wirtschaftskreislauf.
+- `docs/architecture/WELLFIT_AGENT_PRODUCT_TECH_RADAR.md` definiert report-only Product/Technology Radar und Bewertungsfelder fuer neue externe Produkte/Technologien.
+- `project-register/agent-risk-source-classifier.json` definiert Risikoquellen-Klassifizierung inkl. Gluecksspiel/Ponzi/Heilversprechen/Kinder-Monetarisierungs-Filter.
+- `project-register/agent-opportunity-dossier-schema.json` erweitert Dossier-Pflichtfelder um ecosystemPillarFit, financialImpact, internalEconomyImpact, sourceRiskAssessment und productRadarAssessment.

@@ -4417,5 +4417,9 @@
     "researchSummaryRequiredWhenExternalSourcesUsed": true,
     "adminApprovalRequired": true,
     "canonicalTruthProtected": true
+  },
+  "ecosystemEconomyDossierPolicy": {
+    "required": true,
+    "adminApprovalRequired": true
   }
 }

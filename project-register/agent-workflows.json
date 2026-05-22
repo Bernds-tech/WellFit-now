@@ -983,5 +983,13 @@
     "researchSummaryRequiredWhenExternalSourcesUsed": true,
     "adminApprovalRequiredBeforeImplementation": true,
     "canonicalTruthProtected": true
+  },
+  "ecosystemEconomyDossierPolicy": {
+    "ecosystemEconomyDossierRequired": true,
+    "productRadarAssessmentRequiredWhenNewTechMentioned": true,
+    "financialImpactRequired": true,
+    "internalEconomyImpactRequired": true,
+    "riskSourceClassifierRequired": true,
+    "adminApprovalRequired": true
   }
 }

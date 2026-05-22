@@ -2970,5 +2970,12 @@
     "researchSummaryRequiredForExternalSources": true,
     "adminApprovalRequiredBeforeImplementation": true,
     "canonicalTruthProtected": true
+  },
+  "ecosystemEconomyDossierPolicy": {
+    "required": true,
+    "financialImpactRequired": true,
+    "internalEconomyImpactRequired": true,
+    "productRadarWhenNewTech": true,
+    "riskSourceClassifierRequired": true
   }
 }

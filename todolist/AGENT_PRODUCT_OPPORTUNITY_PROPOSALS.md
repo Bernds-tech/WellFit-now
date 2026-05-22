@@ -35,6 +35,58 @@ requiredChecks:
   - npm run lint
   - git diff --check
 ownerDecision: pending | approved | rejected | revise
+
+ecosystemPillarFit:
+  preventionMovement:
+  learningEdTech:
+  socialCommunity:
+  arLocationEntertainment:
+  aiBuddyAvatarBonding:
+  suiDynamicAssetsFuture:
+  b2bFiatMonetization:
+  tokenUtilityNoSpeculation:
+financialImpact:
+  revenuePotential:
+  costImpact:
+  marginPotential:
+  premiumConversionImpact:
+  retentionImpact:
+  CACImpact:
+  B2BPartnerPotential:
+  sponsorshipPotential:
+  licensingPotential:
+  marketplaceFeePotential:
+internalEconomyImpact:
+  WFPSourceOrSink:
+  WFPInflationRisk:
+  WFPReserveImpact:
+  XPImpact:
+  avatarEconomyImpact:
+  itemEconomyImpact:
+  missionRewardImpact:
+  requiredCaps:
+  requiredAdminReview:
+  economyHealthRisk:
+sourceRiskAssessment:
+  sourceRiskClassification:
+  riskReasons:
+  rejectedSources:
+  usableSources:
+  notes:
+productRadarAssessment:
+  productDetected:
+  productCategory:
+  integrationPotential:
+  resaleOrBundlePotential:
+  B2BUsePotential:
+  beta1Fit:
+  futureRoadmapFit:
+  recommendedAction:
+forWellFitBenefitSummary: ""
+whyNow: ""
+whyNotNow: ""
+economicRecommendation: ""
+internalEconomyRecommendation: ""
 ```
 
 ## Pflichtregel

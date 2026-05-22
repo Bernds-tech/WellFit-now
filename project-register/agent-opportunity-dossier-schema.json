@@ -30,13 +30,23 @@
     "blockedFiles",
     "requiredChecks",
     "adminDecision",
-    "ownerNotes"
+    "ownerNotes",
+    "ecosystemPillarFit",
+    "financialImpact",
+    "internalEconomyImpact",
+    "sourceRiskAssessment",
+    "productRadarAssessment"
   ],
   "optionalFields": [
     "missionStoryVariant",
     "scoringSheet",
     "relatedTaskIds",
-    "attachments"
+    "attachments",
+    "forWellFitBenefitSummary",
+    "whyNow",
+    "whyNotNow",
+    "economicRecommendation",
+    "internalEconomyRecommendation"
   ],
   "allowedProposalTypes": [
     "product_feature",
@@ -93,5 +103,58 @@
     "safetyBoundaries"
   ],
   "adminApprovalRequired": true,
-  "implementationBlockedUntilApproval": true
+  "implementationBlockedUntilApproval": true,
+  "requiredNestedFields": {
+    "ecosystemPillarFit": [
+      "preventionMovement",
+      "learningEdTech",
+      "socialCommunity",
+      "arLocationEntertainment",
+      "aiBuddyAvatarBonding",
+      "suiDynamicAssetsFuture",
+      "b2bFiatMonetization",
+      "tokenUtilityNoSpeculation"
+    ],
+    "financialImpact": [
+      "revenuePotential",
+      "costImpact",
+      "marginPotential",
+      "premiumConversionImpact",
+      "retentionImpact",
+      "CACImpact",
+      "B2BPartnerPotential",
+      "sponsorshipPotential",
+      "licensingPotential",
+      "marketplaceFeePotential"
+    ],
+    "internalEconomyImpact": [
+      "WFPSourceOrSink",
+      "WFPInflationRisk",
+      "WFPReserveImpact",
+      "XPImpact",
+      "avatarEconomyImpact",
+      "itemEconomyImpact",
+      "missionRewardImpact",
+      "requiredCaps",
+      "requiredAdminReview",
+      "economyHealthRisk"
+    ],
+    "sourceRiskAssessment": [
+      "sourceRiskClassification",
+      "riskReasons",
+      "rejectedSources",
+      "usableSources",
+      "notes"
+    ],
+    "productRadarAssessment": [
+      "productDetected",
+      "productCategory",
+      "integrationPotential",
+      "resaleOrBundlePotential",
+      "B2BUsePotential",
+      "beta1Fit",
+      "futureRoadmapFit",
+      "recommendedAction"
+    ]
+  }
 }
