@@ -1,76 +1,331 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "updated": "2026-05-22",
-  "purpose": "Canonical Beta-1 truth for WellFit product, economy language, and safety boundaries. For Beta-1 decisions this file overrides older Solana/WFT/PreSale/Investor-era assumptions where conflicts exist.",
+  "purpose": "Canonical Beta-1 truth for WellFit product, economy language, gameplay scope, and safety boundaries. For Beta-1 decisions this file overrides older Solana/WFT/PreSale/Investor-era assumptions where conflicts exist.",
   "beta1CanonicalTruth": {
     "economy": {
       "wfp": {
-        "definition": "WellFit points (internal in-app game currency).",
+        "name": "WellFit Punkte",
+        "symbol": "WFP",
+        "definition": "Internal in-app game currency for Beta 1.",
+        "spendable": true,
         "maxSystemSupply": 25000000000,
-        "blockchain": false
+        "ledgerModel": "central_wallet_with_internal_user_balances",
+        "blockchain": false,
+        "activeAllocations": {
+          "community": false,
+          "presale": false,
+          "team": false,
+          "partners": false
+        }
       },
       "xp": {
+        "name": "Experience",
+        "symbol": "XP",
         "definition": "Avatar progression/level metric.",
-        "spendable": false
+        "spendable": false,
+        "strictlySeparatedFromWfp": true,
+        "wfpToXpOneToOneConversion": false
       },
       "wft": {
-        "definition": "Potential future SUI token after proven stable operation with 10,000+ users.",
+        "name": "WellFit Token",
+        "symbol": "WFT",
+        "definition": "Potential future SUI token after proven stable operation.",
         "beta1Active": false,
+        "targetChain": "SUI",
+        "activationPreconditions": {
+          "stableUserRunMin": 10000,
+          "provenWfpEconomicCycle": true
+        },
         "noConversionPromiseToUsers": true
       }
     },
+    "centralWalletCycle": {
+      "allWfpSystemicallyInCentralWallet": true,
+      "userWfpMode": "ledger_balances_inside_wellfit_system",
+      "spendFlowReturnsToCentralWallet": true,
+      "targetReserve": 5000000000,
+      "counterMeasuresBelowTarget": true,
+      "temporaryLowReserveTolerance": {
+        "minimumTolerance": 3000000000,
+        "onlyDuring": [
+          "strong_growth",
+          "special_spikes"
+        ]
+      },
+      "forbiddenState": "all_25000000000_wfp_outside_central_wallet",
+      "policyByReserveState": {
+        "lowReserve": {
+          "rewards": "decrease",
+          "itemPrices": "increase",
+          "marketplaceFees": "increase"
+        },
+        "highReserve": {
+          "rewards": "more_generous",
+          "itemPrices": "normal_or_lower",
+          "marketplaceFees": "lower"
+        }
+      }
+    },
+    "dynamicEconomy": {
+      "missionRewards": {
+        "dynamic": true,
+        "fixedBaseValues": false
+      },
+      "itemPrices": {
+        "dynamic": true,
+        "appliesToAllItemTypes": true
+      },
+      "marketplaceFees": {
+        "dynamic": true
+      },
+      "factors": [
+        "central_wallet_balance",
+        "circulating_wfp",
+        "mission_type",
+        "difficulty",
+        "avatar_state",
+        "anti_cheat_score",
+        "repetition_patterns",
+        "economy_state"
+      ]
+    },
+    "missions": {
+      "aiGeneratedTemplatesNeedAdminApproval": true,
+      "autoLiveAllowedForApprovedMissionVariants": true,
+      "autoLiveGuardrails": [
+        "same_category",
+        "same_age_safety_class",
+        "same_reward_range",
+        "same_distance_or_time_band",
+        "same_risk_level"
+      ],
+      "beta1MissionTypes": [
+        "walks",
+        "step_missions",
+        "location_missions",
+        "quiz",
+        "riddle_rallies",
+        "family_missions",
+        "avatar_care",
+        "daily_missions",
+        "weekly_missions",
+        "monthly_missions"
+      ],
+      "notInitialBeta1Mandatory": [
+        "qr_code_missions",
+        "school_missions",
+        "partner_missions",
+        "community_missions"
+      ]
+    },
+    "avatarSystem": {
+      "multipleAvatarsPerUserAllowed": true,
+      "singleActivePrimaryAvatar": true,
+      "noSeparateUserLevel": true,
+      "visibleUserProgress": "active_primary_avatar_level",
+      "secondaryAvatars": {
+        "state": "frozen_reserve",
+        "aging": false
+      },
+      "onlyPrimaryCan": [
+        "be_hungry",
+        "become_sick",
+        "run_away",
+        "die"
+      ],
+      "autoPromotionWhenPrimaryLost": true,
+      "fallbackAvatarIceBlockMechanic": {
+        "enabled": true,
+        "defaultThawDays": 3,
+        "canBeShortenedByHighActivity": true
+      },
+      "primaryCareCadence": {
+        "food_or_energy_per_day": 2,
+        "wash_or_clean": [
+          "morning",
+          "evening"
+        ],
+        "rest_and_care_required": true
+      },
+      "avatarTypeNeeds": {
+        "animal_or_vulture": [
+          "species_appropriate_food",
+          "example_meat"
+        ],
+        "robot": [
+          "energy_or_charge",
+          "maintenance"
+        ],
+        "magical_being": [
+          "normal_food",
+          "magic_resource"
+        ],
+        "knight": [
+          "food",
+          "training",
+          "armor_and_weapon_care"
+        ]
+      },
+      "neglectTimelineApproxDays": {
+        "day1": "hungry_weak_sad",
+        "day2": "hidden_sick_low_energy",
+        "day3": "runs_away",
+        "day4": "death_possible"
+      },
+      "repeatedMinimalCareDetection": {
+        "required": true,
+        "effect": "faster_trust_loss_runaway_or_death"
+      },
+      "avatarStateInfluences": [
+        "mission_availability_or_difficulty",
+        "wfp_rewards"
+      ]
+    },
+    "buddyRoles": {
+      "rudi": {
+        "role": "help_explanation_onboarding_wfp_explainer",
+        "appearsIn": "user_area",
+        "notIn": [
+          "admin_area",
+          "developer_area"
+        ]
+      },
+      "leon": {
+        "role": "light_companion_warning_rescue_hope_lost_avatar_heavy_rescue_missions",
+        "isNormalMascot": false,
+        "onlyPathForAvatarRescueAfterLossOrDeath": true,
+        "rescueRequires": [
+          "hard_age_and_performance_adjusted_missions",
+          "optional_wfp_costs"
+        ],
+        "payToRestoreAllowed": false,
+        "trivialRestoreAllowed": false
+      }
+    },
+    "lostAvatarAndFound": {
+      "deletedOrLostAvatarsGoToPool": true,
+      "retainedAttributes": [
+        "level",
+        "species",
+        "rarity",
+        "rare_traits",
+        "equipment_optional"
+      ],
+      "removedOrAnonymizedAttributes": [
+        "previous_owner_identity",
+        "private_history",
+        "messages",
+        "exact_location_history"
+      ],
+      "finderAdoptionAllowed": true,
+      "adoptionRequirements": [
+        "leon_guided_mission",
+        "wfp_cost"
+      ],
+      "dynamicCostFactors": [
+        "level",
+        "species",
+        "rarity",
+        "equipment",
+        "condition"
+      ],
+      "avatarMayAlgorithmicallyDecideToStay": true,
+      "notAdoptedTimeoutDays": 7,
+      "leonHintsAllowed": true,
+      "leonGivesAvatarsForFree": false
+    },
+    "itemsMarketplaceAndDeletion": {
+      "userToUserItemTradingWithWfp": true,
+      "sellerSetsPrice": true,
+      "buyerPaysWfp": true,
+      "wellfitTakesDynamicPlatformFee": true,
+      "exampleFeeFlow": {
+        "listingPriceWfp": 1000,
+        "feePercent": 10,
+        "sellerReceivesWfp": 900,
+        "centralWalletReceivesWfp": 100
+      },
+      "realTokenTrading": false,
+      "cashout": false,
+      "accountDeletionHandling": {
+        "wfpBackToCentralWallet": true,
+        "normalItemsToSystemShopOrAdminPool": true,
+        "normalItemResaleRevenuesToCentralWallet": true,
+        "rareItemsToLostAndFoundPool": true,
+        "avatarsToLostAvatarPool": true
+      },
+      "gdprConstraints": {
+        "personalDataDeleteOrAnonymizeAsLegallyRequired": true,
+        "economyAndFraudLogsRetainedOnlyAsNecessary": true,
+        "economyAndFraudLogsMinimizedAndAnonymized": true
+      }
+    },
+    "childrenParentsAndLocation": {
+      "parentModeAgeRange": "8-16",
+      "appMayUseLocationInternallyForMissions": true,
+      "parentsCanSeeChildLocation": true,
+      "strangersCannotSeeChildLocationPublicly": true,
+      "friendsOrCheckpointGroupPlayRequiresApproval": true,
+      "wfpHasNoFiatValue": true,
+      "parentalWfpSpendingLimitsInitialBeta1Mandatory": false
+    },
+    "antiCheatAndAdmin": {
+      "dailyWfpCapPerUser": false,
+      "everyWfpCreditMustBeTraceable": true,
+      "suspiciousBalancesWithoutMatchingMissionsCreateCheaterFlags": true,
+      "adminSeesAlertAndDecides": true,
+      "aiMayLearnFromAdminDecisions": true,
+      "temporaryHoldPossibleUnderSuspicion": true,
+      "finalAuthorityRemainsAdmin": true
+    },
+    "betaPhases": {
+      "alpha": {
+        "targetUsers": 25,
+        "profile": "friends_and_trusted_testers",
+        "timing": "as_soon_as_possible"
+      },
+      "postAlphaFocus": "anti_cheat_and_parent_mode_test",
+      "beta": {
+        "targetRangeUsers": [
+          100,
+          1000
+        ]
+      },
+      "stableBetaThresholdUsers": 1000,
+      "futureSuiWftDecisionPreconditionUsers": 10000
+    },
+    "roadmapNotBeta1": [
+      "sui_wft",
+      "real_tokenomics_distribution",
+      "blockchain_nfts_dao_staking",
+      "presale",
+      "b2b_partner_school_community_mission_editor",
+      "mayor_system",
+      "reality_glitch",
+      "depin",
+      "real_payouts_cashout",
+      "public_token_wallet_exchange_features"
+    ],
     "beta1Boundaries": {
       "blockchainActive": false,
       "realTokenActive": false,
       "presaleActive": false,
       "payoutsActive": false,
       "walletTradingActive": false
-    },
-    "mechanics": {
-      "wfpCentralWalletControls": [
-        "reward_distributions",
-        "pricing",
-        "fees",
-        "return_flows"
-      ],
-      "wfpXpStrictlySeparated": true,
-      "dynamicValues": [
-        "mission_rewards",
-        "item_prices",
-        "fees"
-      ],
-      "avatarStateInfluences": [
-        "mission_selection",
-        "wfp_rewards"
-      ],
-      "avatars": {
-        "multiAvatarAllowed": true,
-        "singlePrimaryActive": true,
-        "secondaryFrozen": true
-      },
-      "p2pItemTrading": {
-        "allowed": true,
-        "currency": "WFP",
-        "dynamicWellFitFee": true
-      },
-      "skillDuels": {
-        "allowedAgainst": [
-          "system",
-          "time",
-          "leaderboard"
-        ]
-      },
-      "p2pPvpRealTokenBettingBeta1": false
-    },
-    "buddyRoles": {
-      "rudi": "Help and explanation guide.",
-      "leon": "Warning, rescue-light, lost-avatar recovery, and heavy rescue mission support."
     }
   },
   "overrides": {
     "overridesOlderSources": true,
     "appliesTo": "beta1",
     "notes": "Conflicting older references about live token launch, presale, investor promises, payout, or blockchain activation are superseded for Beta-1 planning and automation behavior."
+  },
+  "changePolicy": {
+    "scope": "docs_register_agent_context_only",
+    "runtimeCodeChangesAllowed": false,
+    "firebaseRulesChangesAllowed": false,
+    "firebaseFunctionsChangesAllowed": false,
+    "dbMigrationsAllowed": false
   },
   "readByAgents": [
     "scripts/wellfit-dev-agent/wellfit-agent.config.json",
