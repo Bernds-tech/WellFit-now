@@ -17,7 +17,10 @@
     "todolist/CHAT_START_PROMPT.md",
     "todolist/AUTONOMOUS_ITERATION_MODE.md",
     "todolist/NEXT_CHAT_HANDOFF_PROMPT.md",
-    "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md"
+    "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md",
+    "project-register/wellfit-beta1-canonical-truth.json",
+    "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+    "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
   ],
   "topicFiles": {
     "todoMemory": [
@@ -32,19 +35,28 @@
       "todolist/DATABASE_PLAN.md",
       "todolist/F - FIREBASE  - REALTIME - MISSIONEN",
       "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
-      "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md"
+      "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md",
+      "project-register/wellfit-beta1-canonical-truth.json",
+      "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+      "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
     ],
     "mobileArBuddy": [
       "todolist/H - MOBILE - AR - TRACKING - KI",
       "todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY",
       "todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE",
-      "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md"
+      "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md",
+      "project-register/wellfit-beta1-canonical-truth.json",
+      "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+      "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
     ],
     "rewardsEconomy": [
       "todolist/F - FIREBASE  - REALTIME - MISSIONEN",
       "todolist/G - REWARD SYSTEM - SYSTEM HEALTH - NEXT-GEN MECHANICS",
       "todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN",
-      "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md"
+      "docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md",
+      "project-register/wellfit-beta1-canonical-truth.json",
+      "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+      "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
     ],
     "businessWebsiteLegal": [
       "todolist/I - BUSINESS - WEBSITE - PARTNER - LEGAL"
@@ -57,7 +69,17 @@
       "scripts/wellfit-dev-agent/NEW_CODER_ENTRY_MESSAGE.md",
       "docs/architecture/WELLFIT_SELF_HOSTED_DEV_AGENT.md",
       "docs/architecture/WELLFIT_ADAPTIVE_MISSION_INSIGHT_AGENT.md",
-      "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md"
+      "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md",
+      "project-register/wellfit-beta1-canonical-truth.json",
+      "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+      "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
+    ],
+    "wellfitCanonicalTruth": [
+      "project-register/wellfit-beta1-canonical-truth.json",
+      "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+      "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+      "project-register/wellfit-knowledge-core.json",
+      "docs/architecture/WELLFIT_KNOWLEDGE_CORE.md"
     ]
   },
   "defaultTopic": "todoMemory",
