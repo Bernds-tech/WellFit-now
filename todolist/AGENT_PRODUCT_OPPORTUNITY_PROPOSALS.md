@@ -39,3 +39,50 @@ ownerDecision: pending | approved | rejected | revise
 
 ## Pflichtregel
 Keine echte Umsetzung ohne dokumentierte Owner/Admin approval im Agent Control Center und in den zugehoerigen Registern.
+
+
+## Expanded Opportunity Dossier Template
+```yaml
+researchSummary:
+  summary:
+  keyFindings:
+  sourceQuality:
+benefits:
+  userBenefits:
+  businessBenefits:
+  productBenefits:
+expectedChange:
+  whatChanges:
+  whyChange:
+  whatDoesNotChange:
+targetUsers:
+  primary:
+  secondary:
+  excludedOrNeedsReview:
+chances:
+  - ""
+risks:
+  - risk:
+    mitigation:
+    riskLevel:
+sources:
+  internal:
+    - file:
+      reason:
+  external:
+    - title:
+      url:
+      date:
+      sourceType:
+      relevance:
+recommendation:
+  agentRecommendation:
+  confidence:
+  recommendedDecision:
+  reason:
+adminDecision:
+  state: pending
+  decidedBy:
+  decidedAt:
+  notes:
+```

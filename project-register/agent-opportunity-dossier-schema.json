@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "status": "active_planning_schema",
+  "requiredFields": [
+    "proposalId",
+    "title",
+    "proposalType",
+    "shortSummary",
+    "researchSummary",
+    "internalEvidence",
+    "externalSources",
+    "benefits",
+    "expectedChange",
+    "reasonForChange",
+    "targetUsers",
+    "userProblemSolved",
+    "chances",
+    "risks",
+    "safetyConcerns",
+    "canonicalTruthCompatibility",
+    "beta1Fit",
+    "WFP_XP_Impact",
+    "whatWillNotChange",
+    "implementationEffort",
+    "requiredEvidence",
+    "recommendation",
+    "recommendedDecision",
+    "suggestedBranch",
+    "allowedFiles",
+    "blockedFiles",
+    "requiredChecks",
+    "adminDecision",
+    "ownerNotes"
+  ],
+  "optionalFields": [
+    "missionStoryVariant",
+    "scoringSheet",
+    "relatedTaskIds",
+    "attachments"
+  ],
+  "allowedProposalTypes": [
+    "product_feature",
+    "mission",
+    "mission_story",
+    "ui_improvement",
+    "safety_improvement",
+    "business_opportunity",
+    "research_followup",
+    "technical_foundation"
+  ],
+  "decisionStates": [
+    "pending",
+    "approved",
+    "rejected",
+    "revise",
+    "research_more",
+    "blocked_by_canonical_truth",
+    "blocked_by_safety"
+  ],
+  "riskLevels": [
+    "low",
+    "medium",
+    "high",
+    "critical"
+  ],
+  "requiredScoringDimensions": [
+    "user_value",
+    "business_value",
+    "beta1_fit",
+    "safety_risk",
+    "effort",
+    "evidence_strength"
+  ],
+  "canonicalTruthRequiredChecks": [
+    "owner_only_files_unchanged",
+    "beta1_fit_explained",
+    "canonical_truth_compatibility_documented"
+  ],
+  "sourceQualityLevels": [
+    "internal_verified",
+    "external_primary",
+    "external_secondary",
+    "unclear_or_outdated"
+  ],
+  "missionStoryFields": [
+    "storyId",
+    "missionType",
+    "storyPremise",
+    "emotionalGoal",
+    "realWorldAction",
+    "learningGoal",
+    "movementGoal",
+    "safetyBoundaries"
+  ],
+  "adminApprovalRequired": true,
+  "implementationBlockedUntilApproval": true
+}

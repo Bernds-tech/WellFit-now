@@ -903,5 +903,12 @@
     "executionPath": "task_proposal_then_worker_queue",
     "canonicalTruthProtected": true,
     "qualityGateBlockerReference": "project-register/quality-gate-known-blockers.json"
+  },
+  "opportunityDossierGate": {
+    "required": true,
+    "missionStoryProposalRequiredForNarrativeMissions": true,
+    "researchSummaryRequiredForExternalSources": true,
+    "adminApprovalRequiredBeforeImplementation": true,
+    "canonicalTruthProtected": true
   }
 }
