@@ -83,13 +83,17 @@
     {
       "id": "RULE-BETA1-CANONICAL-0008",
       "area": "canonical-truth",
-      "rule": "Die Beta-1 Canonical-Truth-Dateien sind owner-only Konzeptwahrheit: lesen Pflicht, veraendern nur mit expliziter Bernd/Owner-Freigabe.",
+      "rule": "Die Beta-1 Canonical-Truth-Dateien sind owner-only Konzeptwahrheit: lesen Pflicht, veraendern nur mit expliziter Bernd/Owner-Freigabe. Aenderungswuensche muessen in der Proposal-Datei dokumentiert werden.",
       "appliesTo": [
         "project-register/wellfit-beta1-canonical-truth.json",
         "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
-        "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"
+        "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+        "project-register/canonical-truth-protection.json",
+        "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md"
       ],
       "status": "active",
+      "policyFile": "project-register/canonical-truth-protection.json",
+      "proposalFile": "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md",
       "enforcement": "block-and-handoff-without-owner-approval"
     }
   ]
