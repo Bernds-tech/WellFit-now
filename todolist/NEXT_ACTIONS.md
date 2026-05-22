@@ -384,3 +384,5 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - 2026-05-22: Beta-1 Canonical-Truth Guardrails in Agent-Admin-Automation aktivieren (owner-only/read-only, proposal-only via CANONICAL_TRUTH_CHANGE_PROPOSALS.md).
 - 2026-05-22: Branch `fix/agent-admin-canonical-truth-worker-snapshots` ergänzt Canonical-Truth-Metadaten in Worker-Queue-Snapshots, validiert `approvedAllowedFiles` final in `approveAgentTaskProposal` und härtet `prepareAgentTaskPrHandoff` gegen inkonsistente historische Approvals. Canonical-Truth-Dateien blieben unverändert. Runner bleibt `metadata_only`; keine echte GitHub API, kein echtes Deploy. Nächster empfohlener Branch: `runtime/agent-admin-supervised-runner-real-github-integration`.
+
+- [ ] Plan umgesetzt: Agent Product Evolution Loop first run vorbereiten (`analysis/agent-product-evolution-first-run`) oder vorher `fix/agent-admin-quality-gate-follow-up` bei Owner-Blocker.

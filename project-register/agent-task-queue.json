@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-17",
+  "updated": "2026-05-22",
   "status": "active",
   "purpose": "Machine-readable task-selection queue for future WellFit Codex/AI agents. It converts existing governance, work-map, route/API/feature registers, and safety constraints into safe next-task candidates, required first reads, stop rules, checks, and expected PR outputs without creating a parallel product architecture.",
   "sourceOfTruth": {
@@ -2952,5 +2952,16 @@
     "rule": "If AGENT-DOC-BASELINE-CHECK and AGENT-REGISTRY-SYNC both appear in the recent completed-task window, skip both once when another non-blocked low/medium-risk task with a valid definition-of-done key exists.",
     "differentCategoryPreference": "After the guarded pair, prefer the highest-ranked safe candidate whose taskCategory is not documentation_baseline or registry_sync. If no different-category candidate exists, select the safest available candidate and report the fallback reason.",
     "dryRunOnly": true
+  },
+  "agentProductEvolutionLoop": {
+    "exists": true,
+    "status": "planning_only",
+    "register": "project-register/agent-product-evolution-loop.json",
+    "researchAgentMode": "report_only",
+    "opportunityProposalTemplate": "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+    "approval": "owner_admin_required",
+    "executionPath": "task_proposal_then_worker_queue",
+    "canonicalTruthProtected": true,
+    "qualityGateBlockerReference": "project-register/quality-gate-known-blockers.json"
   }
 }

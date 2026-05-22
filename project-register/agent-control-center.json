@@ -1,7 +1,7 @@
 {
   "name": "WellFit Agent Control Center",
   "status": "lifecycle_register_prepared",
-  "updated": "2026-05-17",
+  "updated": "2026-05-22",
   "purpose": "Connect existing WellFit agent catalog, task queue, approved build backlog, risk classifier, definition of done, research governance, quality gate, PR review, decision log, progress log, and work-log structures into one controlled proposal and approval model without creating a parallel runtime architecture.",
   "roles": [
     {
@@ -892,5 +892,16 @@
       "auto_merge",
       "auto_deploy"
     ]
+  },
+  "agentProductEvolutionLoop": {
+    "exists": true,
+    "status": "planning_only",
+    "register": "project-register/agent-product-evolution-loop.json",
+    "researchAgentMode": "report_only",
+    "opportunityProposalTemplate": "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+    "approval": "owner_admin_required",
+    "executionPath": "task_proposal_then_worker_queue",
+    "canonicalTruthProtected": true,
+    "qualityGateBlockerReference": "project-register/quality-gate-known-blockers.json"
   }
 }
