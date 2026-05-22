@@ -322,11 +322,14 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const approvalScope = parseStringList(data.approvalScope, 40, 120);
     assertProtectedScopesAllowed({ protectedScopes: proposal.protectedScopes || [], approvalScope, actorRole, HttpsError });
     const ownerCanonicalTruthApproval = proposal.ownerCanonicalTruthApproval === true || data.ownerCanonicalTruthApproval === true;
-    assertCanonicalTruthChangeAllowed({ files: proposal.allowedFiles || [], actorRole, ownerApprovalFlag: ownerCanonicalTruthApproval, HttpsError });
+    const finalApprovedAllowedFiles = parseStringList(
+      data.approvedAllowedFiles && data.approvedAllowedFiles.length ? data.approvedAllowedFiles : proposal.allowedFiles
+    );
+    assertCanonicalTruthChangeAllowed({ files: finalApprovedAllowedFiles, actorRole, ownerApprovalFlag: ownerCanonicalTruthApproval, HttpsError });
     const approvalRef = db.collection("agentTaskApprovals").doc();
     const approval = {
       approvalId: approvalRef.id, proposalId, approverId: actorId, approverRole: actorRole, approvalScope,
-      approvedAllowedFiles: parseStringList(data.approvedAllowedFiles && data.approvedAllowedFiles.length ? data.approvedAllowedFiles : proposal.allowedFiles),
+      approvedAllowedFiles: finalApprovedAllowedFiles,
       approvedBlockedFiles: parseStringList(data.approvedBlockedFiles && data.approvedBlockedFiles.length ? data.approvedBlockedFiles : proposal.blockedFiles),
       approvalExpiresAt: data.approvalExpiresAt || null,
       ownerCanonicalTruthApproval,
@@ -426,6 +429,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     assertProtectedScopesAllowed({ protectedScopes: proposal.protectedScopes || [], approvalScope: approval.approvalScope || [], actorRole, HttpsError });
 
     const allowedFilesSnapshot = parseStringList(approval.approvedAllowedFiles || []);
+    const ownerCanonicalTruthApproval = approval.ownerCanonicalTruthApproval === true || proposal.ownerCanonicalTruthApproval === true;
+    assertCanonicalTruthChangeAllowed({ files: allowedFilesSnapshot, actorRole, ownerApprovalFlag: ownerCanonicalTruthApproval, HttpsError });
     const blockedFilesSnapshot = parseStringList(approval.approvedBlockedFiles || []);
     const protectedScopesSnapshot = parseStringList(proposal.protectedScopes || [], 40, 80);
     const requiredChecks = buildRequiredChecks({ targetTrack: proposal.targetTrack, allowedFiles: allowedFilesSnapshot });
@@ -574,6 +579,11 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       blockedFiles: parseStringList(prompt.blockedFiles || execution.blockedFilesSnapshot || []),
       protectedScopes: parseStringList(prompt.protectedScopes || execution.protectedScopesSnapshot || [], 40, 80),
       requiredChecks: parseStringList(prompt.requiredChecks || execution.requiredChecks || [], 80, 240),
+      canonicalTruthReadRequired: true,
+      canonicalTruthProtectedFiles: CANONICAL_TRUTH_PROTECTED_FILES,
+      canonicalTruthEditable: false,
+      canonicalTruthOwnerApprovalRequired: true,
+      canonicalTruthChangeProposalFile: CANONICAL_TRUTH_PROPOSAL_FILE,
       workerStatus: "ready_for_worker", workerMode, humanMergeRequired: true, autoMerge: false, autoDeploy: false,
       createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(),
     };

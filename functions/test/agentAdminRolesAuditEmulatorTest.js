@@ -98,6 +98,8 @@ async function run() {
   assert(workerDoc.data().autoMerge === false, "autoMerge should be false");
   assert(workerDoc.data().autoDeploy === false, "autoDeploy should be false");
   assert(workerDoc.data().canonicalTruthReadRequired === true, "worker queue should snapshot canonical truth read requirement");
+  assert(workerDoc.data().canonicalTruthEditable === false, "worker queue should snapshot canonical truth non-editable");
+  assert(workerDoc.data().canonicalTruthChangeProposalFile === "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md", "worker queue should snapshot canonical truth proposal path");
   await expectFail("claimAgentWorkerQueueItem", user, { workerQueueId: workerId });
   await expectOk("claimAgentWorkerQueueItem", owner, { workerQueueId: workerId });
   await expectOk("updateAgentWorkerQueueStatus", owner, { workerQueueId: workerId, workerStatus: "running" });
@@ -117,6 +119,51 @@ async function run() {
   await expectOk("prepareAgentTaskPrHandoff", owner, { executionId: eProtected, branchName: "runtime/protected-handoff", title: "protected", summary: "protected" });
   const generatedProtected = await expectOk("generateAgentTaskCodexPrompt", owner, { executionId: eProtected });
   assert((generatedProtected.promptText || "").includes("privacy"), "prompt should mention protected scopes");
+
+  const proposalApproveScope = await expectOk("createAgentTaskProposal", supervisor, {
+    title: "approve-scope-ct-test",
+    promptRef: "docs/prompt-ct-scope",
+    requestedAction: "normal",
+    targetTrack: "docs_register",
+    allowedFiles: ["docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md"],
+  });
+  await expectFail("approveAgentTaskProposal", supervisor, {
+    proposalId: proposalApproveScope.proposalId,
+    approvedAllowedFiles: ["docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md"],
+  });
+
+  const proposalOwnerApproveScope = await expectOk("createAgentTaskProposal", owner, {
+    title: "approve-scope-ct-owner-test",
+    promptRef: "docs/prompt-ct-owner-scope",
+    requestedAction: "owner edit",
+    targetTrack: "docs_register",
+    allowedFiles: ["docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md"],
+  });
+  await expectFail("approveAgentTaskProposal", owner, {
+    proposalId: proposalOwnerApproveScope.proposalId,
+    approvedAllowedFiles: ["docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md"],
+  });
+  const ownerApprovalWithFlag = await expectOk("approveAgentTaskProposal", owner, {
+    proposalId: proposalOwnerApproveScope.proposalId,
+    approvedAllowedFiles: ["docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md"],
+    ownerCanonicalTruthApproval: true,
+  });
+  assert(ownerApprovalWithFlag.status === "approved", "owner with explicit canonical truth approval flag should pass");
+
+  await db.collection("agentTaskProposals").doc("p-inconsistent").set({ proposalId: "p-inconsistent", promptRef: "docs/prompt-inconsistent", protectedScopes: [], allowedFiles: ["docs/beta/AGENT_ADMIN_SERVER_ROLES_AUDIT_PLAN.md"], blockedFiles: [], riskLevel: "medium", status: "approved", targetTrack: "docs_register", createdAt: new Date(), updatedAt: new Date() });
+  await db.collection("agentTaskApprovals").doc("a-inconsistent").set({ approvalId: "a-inconsistent", proposalId: "p-inconsistent", status: "approved", approvalScope: [], approvedAllowedFiles: ["project-register/wellfit-beta1-canonical-truth.json"], approvedBlockedFiles: [], ownerCanonicalTruthApproval: false });
+  await expectOk("queueAgentTaskExecution", owner, { proposalId: "p-inconsistent", approvalId: "a-inconsistent", branchName: "runtime/inconsistent-approval", executorType: "agent" });
+  const eInconsistent = (await db.collection("agentTaskExecutions").where("proposalId", "==", "p-inconsistent").limit(1).get()).docs[0].id;
+  await expectFail("prepareAgentTaskPrHandoff", owner, { executionId: eInconsistent, branchName: "runtime/inconsistent-handoff", title: "inconsistent", summary: "must fail" });
+
+  const proposalSuggestionScope = await expectOk("createAgentTaskProposal", supervisor, {
+    title: "ct-proposal-file-allowed",
+    promptRef: "docs/prompt-ct-proposal-file",
+    requestedAction: "proposal-only",
+    targetTrack: "docs_register",
+    allowedFiles: ["todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md"],
+  });
+  assert(proposalSuggestionScope.accepted === true, "canonical truth proposal file should remain allowed for non-owner suggestions");
 
   await expectFail("markAgentTaskHandoffCreated", user, { executionId: e2 });
   await expectOk("markAgentTaskHandoffCreated", operator, { executionId: e2 });
