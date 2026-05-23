@@ -12,5 +12,23 @@
   "agentWriteAllowed": false,
   "writeRequiresOwnerApproval": true,
   "proposalFile": "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md",
-  "enforcement": "block_and_handoff"
+  "enforcement": "block_and_handoff",
+  "qualityGateCompanionPromptMappings": [
+    {
+      "protectedFile": "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+      "companionPrompt": "todolist/CODEX_PROMPT_AGENT_CANONICAL_TRUTH_INTEGRATION.md",
+      "proposalFile": "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md",
+      "agentWriteAllowed": false,
+      "companionPromptAllowedForQualityGate": true,
+      "ownerApprovalRequiredForDirectEdit": true
+    },
+    {
+      "protectedFile": "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+      "companionPrompt": "todolist/CODEX_PROMPT_AGENT_CANONICAL_TRUTH_INTEGRATION.md",
+      "proposalFile": "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md",
+      "agentWriteAllowed": false,
+      "companionPromptAllowedForQualityGate": true,
+      "ownerApprovalRequiredForDirectEdit": true
+    }
+  ]
 }

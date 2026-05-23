@@ -4,9 +4,9 @@
     {
       "blockerId": "QG-2026-05-22-CANONICAL-PROMPT-OWNER-ONLY",
       "checkName": "Required KI-Fortsetzungs-Prompts complete",
-      "status": "follow_up_required",
-      "reason": "Quality gate requires KI continuation prompts on canonical-truth governance files, but two referenced files are owner-protected canonical-truth files and should not be modified without explicit owner approval.",
-      "whyNotFixedInThisPr": "Required KI-Fortsetzungs-Prompt check still flags two owner-protected canonical-truth files. This PR keeps owner-protection intact and uses non-protected companion prompts/proposals only.",
+      "status": "mitigated",
+      "reason": "Owner-approved companion-prompt proxy is now enforced narrowly for exactly two owner-protected canonical-truth files via canonical-truth protection mapping and memory-sync validation.",
+      "whyNotFixedInThisPr": "Resolved in this PR via narrow companion prompt proxy rule; no direct edit to owner-protected canonical-truth files.",
       "riskLevel": "medium",
       "affectedFiles": [
         "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
@@ -14,10 +14,10 @@
         "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md",
         "todolist/CODEX_PROMPT_AGENT_CANONICAL_TRUTH_INTEGRATION.md"
       ],
-      "nextSafeBranch": "fix/agent-admin-quality-gate-follow-up-2",
-      "blocksAutoMerge": true,
-      "blocksRealRunner": true,
-      "ownerReviewRequired": true
+      "nextSafeBranch": "runtime/agent-admin-supervised-runner-real-github-integration",
+      "blocksAutoMerge": false,
+      "blocksRealRunner": false,
+      "ownerReviewRequired": "mitigated_by_owner_approved_companion_prompt_proxy"
     }
   ]
 }

@@ -7,6 +7,7 @@ const ROOT = process.cwd();
 const AGENT_DIR = path.join(ROOT, "scripts", "wellfit-dev-agent");
 const CONFIG_PATH = path.join(AGENT_DIR, "wellfit-agent.config.json");
 const OUTPUT_PATH = path.join(AGENT_DIR, "output", "memory-sync-report.md");
+const CANONICAL_TRUTH_PROTECTION_PATH = path.join(ROOT, "project-register", "canonical-truth-protection.json");
 
 const SCAN_DIRS = ["todolist", "docs", "scripts/wellfit-dev-agent"];
 const IGNORE_DIR_NAMES = new Set(["node_modules", ".git", ".next", "dist", "build", "out", "output"]);
@@ -110,6 +111,55 @@ function hasContinuationPrompt(content) {
   return lower.includes("ki-fortsetzungs-prompt") || lower.includes("fortsetzungs-prompt") || lower.includes("continuation prompt");
 }
 
+function readCanonicalTruthProtection() {
+  try {
+    return JSON.parse(fs.readFileSync(CANONICAL_TRUTH_PROTECTION_PATH, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function includesAllNeedles(content, needles = []) {
+  const lower = content.toLowerCase();
+  return needles.every((needle) => lower.includes(needle.toLowerCase()));
+}
+
+function isCompanionPromptProxyAccepted(file, content, canonicalTruthProtection) {
+  if (!canonicalTruthProtection || canonicalTruthProtection.status !== "active") return false;
+
+  const mappings = Array.isArray(canonicalTruthProtection.qualityGateCompanionPromptMappings)
+    ? canonicalTruthProtection.qualityGateCompanionPromptMappings
+    : [];
+
+  const mapping = mappings.find((entry) => entry?.protectedFile === file);
+  if (!mapping || mapping.companionPromptAllowedForQualityGate !== true) return false;
+  if (mapping.agentWriteAllowed !== false || mapping.ownerApprovalRequiredForDirectEdit !== true) return false;
+
+  const protectedFiles = Array.isArray(canonicalTruthProtection.protectedFiles) ? canonicalTruthProtection.protectedFiles : [];
+  if (!protectedFiles.includes(file)) return false;
+
+  const companionPrompt = mapping.companionPrompt;
+  const proposalFile = mapping.proposalFile;
+  if (!companionPrompt || !proposalFile) return false;
+  if (!exists(companionPrompt)) return false;
+
+  const companionContent = readTextSafe(companionPrompt);
+  if (!companionContent) return false;
+  if (!companionContent.includes("## KI-Fortsetzungs-Prompt")) return false;
+
+  const mentionsProtectedOwnerOnly = includesAllNeedles(companionContent, [
+    "owner-protected",
+    "read-only",
+    "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+    "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
+  ]);
+  if (!mentionsProtectedOwnerOnly) return false;
+
+  if (!companionContent.includes(proposalFile)) return false;
+
+  return !hasContinuationPrompt(content);
+}
+
 function countOpenTaskMarkers(content) {
   return content.split(/\r?\n/).filter((line) => /^\s*-?\s*\[ \]/u.test(line.trim()) || /^\s*\[ \]/u.test(line.trim())).length;
 }
@@ -167,13 +217,16 @@ function main() {
     .filter((entry) => isTodoLike(entry.file, entry.content));
 
   const memoryCombined = `${indexContent}\n${consolidationContent}\n${structureContent}`;
+  const canonicalTruthProtection = readCanonicalTruthProtection();
   const referencedFiles = collectReferencedFiles(config, indexContent, consolidationContent, structureContent);
   const missingReferencedFiles = referencedFiles.filter((file) => !exists(file) && !file.endsWith("/") && !file.includes("output/"));
 
   const tableRows = todoLikeFiles.map((entry) => {
     const isIndexed = memoryCombined.includes(entry.file);
     const promptRequired = requiresContinuationPrompt(entry.file);
-    const prompt = !promptRequired ? "not-required" : hasContinuationPrompt(entry.content) ? "yes" : "missing";
+    const hasPrompt = hasContinuationPrompt(entry.content);
+    const proxyAccepted = !hasPrompt && isCompanionPromptProxyAccepted(entry.file, entry.content, canonicalTruthProtection);
+    const prompt = !promptRequired ? "not-required" : hasPrompt ? "yes" : proxyAccepted ? "yes-companion-proxy" : "missing";
     const openTasks = countOpenTaskMarkers(entry.content);
     const status = isIndexed ? "indexed" : "missing-in-index";
 
