@@ -51,3 +51,13 @@ Regel: Statuswerte mit `*_metadata_*` oder `metadata_only` duerfen niemals als r
 
 ## KI-Fortsetzungs-Prompt
 Pruefe vor jeder Runner-Aktion zuerst Automation-Control, required checks, Quality-Gate und die ehrliche Status-Semantik. Setze `pr_created` und `auto_merged` nur bei echter GitHub API Response; sonst bei Metadaten konsequent `metadata_only`, `missing_server_config` oder `github_api_not_implemented` dokumentieren.
+
+
+## Klarstellungen nach PR #228 (2026-05-23)
+- `pr_created` bedeutet ausschliesslich: echte GitHub-API-Antwort mit realer PR-Referenz.
+- `auto_merged` bedeutet ausschliesslich: echter GitHub-Merge ueber API.
+- `github_api_not_implemented` bedeutet: Governance/Config/Flow vorhanden, aber keine reale GitHub-API-Seitenwirkung.
+- `metadata_only` bedeutet: keine GitHub-Seitenwirkung (nur Register/Statusmetadaten).
+- Keine Fake-Refs und keine simulierten Erfolgsmeldungen.
+- Kein direct main write.
+- Kein Production Deploy im aktuellen Stand.

@@ -443,3 +443,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - `project-register/agent-risk-source-classifier.json` definiert Risikoquellen-Klassifizierung inkl. Gluecksspiel/Ponzi/Heilversprechen/Kinder-Monetarisierungs-Filter.
 - `project-register/agent-opportunity-dossier-schema.json` erweitert Dossier-Pflichtfelder um ecosystemPillarFit, financialImpact, internalEconomyImpact, sourceRiskAssessment und productRadarAssessment.
 \n
+
+- 2026-05-23: Agent-Control-Center-/Runner-Governance-Sync nach PR #227/#228 dokumentiert (gated auto-merge, metadata-only runner, no fake PR/merge statuses, real API als separater Folgeschritt).
