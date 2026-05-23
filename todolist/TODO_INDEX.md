@@ -671,3 +671,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - Required checks are matched through normalized alias mapping against GitHub check names; local-only checks are marked `local_required_not_reported`/`skipped_with_reason` and never fake-pass.
 - No production deploy changes; canonical truth protected files remain unchanged.
 - Next branch recommendation: `runtime/agent-admin-supervised-runner-deploy-integration` (or `analysis/agent-product-evolution-first-run`).
+
+- 2026-05-23 update: Agent Control Center check aligned to gated automation contract; known blocker 2026-05-23-agent-control-center-check-fail resolved after PASS quality-gate run.

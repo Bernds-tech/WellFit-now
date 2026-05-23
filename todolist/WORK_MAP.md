@@ -453,3 +453,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - Required checks are matched through normalized alias mapping against GitHub check names; local-only checks are marked `local_required_not_reported`/`skipped_with_reason` and never fake-pass.
 - No production deploy changes; canonical truth protected files remain unchanged.
 - Next branch recommendation: `runtime/agent-admin-supervised-runner-deploy-integration` (or `analysis/agent-product-evolution-first-run`).
+
+- 2026-05-23 update: Agent Control Center governance now enforces gated auto-merge/deploy semantics in checker/report; direct main writes, secret exposure, and quality-gate bypass remain always blocked.
