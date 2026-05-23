@@ -103,6 +103,34 @@
   },
   "entries": [
     {
+      "id": "AWL-2026-05-23-ACC-REPORT-WORDING-GATED",
+      "date": "2026-05-23",
+      "branch": "fix/agent-control-center-report-template-gated-wording",
+      "summary": "Aligned Agent Control Center markdown report boundaries with gated automation semantics and removed legacy never-merge/never-deploy wording.",
+      "files": [
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.mjs",
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.test.mjs",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "checks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "node --test scripts/wellfit-dev-agent/src/agent-control-center-check.test.mjs",
+        "npm run lint",
+        "npm run build",
+        "npm --prefix functions run check",
+        "git diff --check",
+        "npm --prefix functions run test:emulator"
+      ],
+      "runtimeChanged": false,
+      "deployExecuted": false,
+      "canonicalTruthEdited": false
+    },
+    {
       "id": "AWL-2026-05-23-ACC-GATED-AUTOMATION-HARDENING",
       "date": "2026-05-23",
       "branch": "fix/agent-control-center-gated-automation-hardening",

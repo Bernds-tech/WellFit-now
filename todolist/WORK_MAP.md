@@ -457,3 +457,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-23 update: Agent Control Center governance now enforces gated auto-merge/deploy semantics in checker/report; direct main writes, secret exposure, and quality-gate bypass remain always blocked.
 
 - 2026-05-23: Agent-Control-Center gated automation hardening abgeschlossen: Admin approval als single human decision gate dokumentiert, Auto-Merge/Deploy technisch gegated, deploy policy maschinenlesbar erzwungen, known blockers fail-closed. Kein echter Deploy/GitHub API; Canonical-Truth-Dateien unverändert. Next: runtime/agent-admin-supervised-runner-deploy-integration (alternativ analysis/agent-product-evolution-first-run).
+
+- 2026-05-23: Report-Template-Wording im Agent-Control-Center auf gated automation bereinigt (alte "Never merges PRs"/"Never deploys" entfernt); Console und Markdown-Report semantisch synchron. Keine Runtime-/GitHub-API-/Deploy-/Canonical-Truth-Aenderung. Next: `analysis/agent-product-evolution-first-run`.

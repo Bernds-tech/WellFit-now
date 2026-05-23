@@ -675,3 +675,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - 2026-05-23 update: Agent Control Center check aligned to gated automation contract; known blocker 2026-05-23-agent-control-center-check-fail resolved after PASS quality-gate run.
 
 - 2026-05-23: Agent-Control-Center gated automation hardening abgeschlossen: Admin approval als single human decision gate dokumentiert, Auto-Merge/Deploy technisch gegated, deploy policy maschinenlesbar erzwungen, known blockers fail-closed. Kein echter Deploy/GitHub API; Canonical-Truth-Dateien unverändert. Next: runtime/agent-admin-supervised-runner-deploy-integration (alternativ analysis/agent-product-evolution-first-run).
+
+- 2026-05-23: Report-Template-Wording im Agent-Control-Center auf gated automation bereinigt (alte "Never merges PRs"/"Never deploys" entfernt); Console und Markdown-Report semantisch synchron. Keine Runtime-/GitHub-API-/Deploy-/Canonical-Truth-Aenderung. Next: `analysis/agent-product-evolution-first-run`.

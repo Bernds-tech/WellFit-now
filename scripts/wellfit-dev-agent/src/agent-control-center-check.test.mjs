@@ -1,5 +1,29 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import { spawnSync } from "node:child_process";
+
+function renderReportAndRead() {
+  const run = spawnSync(process.execPath, ["scripts/wellfit-dev-agent/src/agent-control-center-check.mjs"], { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+  return fs.readFileSync("scripts/wellfit-dev-agent/output/agent-control-center-report.md", "utf8");
+}
+
+test("report removes legacy never-merge and never-deploy wording", () => {
+  const report = renderReportAndRead();
+  assert.equal(report.includes("Never merges PRs"), false);
+  assert.equal(report.includes("Never deploys"), false);
+});
+
+test("report includes gated automation boundary wording", () => {
+  const report = renderReportAndRead();
+  assert.equal(report.includes("Admin approval is the single human decision gate"), true);
+  assert.equal(report.includes("Auto-Merge is gated by admin approval"), true);
+  assert.equal(report.includes("Deploy is gated by admin approval"), true);
+  assert.equal(report.includes("Never direct-writes main"), true);
+  assert.equal(report.includes("Never bypasses quality gate"), true);
+});
+
 
 function isAutoMergeSafe(proposal) {
   const checksRequired = Array.isArray(proposal.checks_required) ? proposal.checks_required : [];
