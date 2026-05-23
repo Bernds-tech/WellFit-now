@@ -34,3 +34,20 @@ Serverseitige GitHub-Integration fuer approved Agent Worker Queue Items, damit B
 - canonical truth write attempt
 - direct main write
 - production deploy requested
+
+## Github Runner Status-Semantik (verbindlich)
+- `metadata_only`: nur Metadaten, kein realer GitHub API Effekt.
+- `missing_server_config`: serverseitige Config fehlt.
+- `github_api_not_implemented`: Config kann vorhanden sein, aber keine echte GitHub API Branch/PR/Merge-Implementierung aktiv.
+- `branch_metadata_prepared`: Branch-Information nur als Metadaten gespeichert.
+- `pr_metadata_ready`: PR-Metadaten vorbereitet, aber keine echte PR erstellt.
+- `pr_created`: nur bei echter GitHub API Response (echte PR Nummer/URL).
+- `checks_pending`/`checks_passed`/`checks_failed`: Check-Status-Snapshot.
+- `auto_merge_metadata_ready`: Auto-Merge als Metadaten freigegeben, nicht ausgefuehrt.
+- `auto_merged`: nur bei echtem erfolgreichem GitHub Merge via API.
+- `blocked`/`failed`: Runner gestoppt oder fehlgeschlagen.
+
+Regel: Statuswerte mit `*_metadata_*` oder `metadata_only` duerfen niemals als realer GitHub Erfolg interpretiert werden.
+
+## KI-Fortsetzungs-Prompt
+Pruefe vor jeder Runner-Aktion zuerst Automation-Control, required checks, Quality-Gate und die ehrliche Status-Semantik. Setze `pr_created` und `auto_merged` nur bei echter GitHub API Response; sonst bei Metadaten konsequent `metadata_only`, `missing_server_config` oder `github_api_not_implemented` dokumentieren.
