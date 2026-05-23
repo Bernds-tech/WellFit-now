@@ -48,7 +48,7 @@ export type AgentGithubCreatePullRequestInput = { jobId: string; title: string; 
 export type AgentGithubCheckStatusInput = { jobId: string; allRequiredChecksPassed?: boolean; checkResultsSnapshot?: Array<{requiredCheck?:string;matchedGithubCheckName?:string|null;normalizedState?:string;source?:string;notes?:string}>; };
 
 
-export type AdminCenterListFilter = "agent_total"|"agent_pending"|"agent_approved"|"agent_rejected"|"agent_blocked"|"agent_in_progress"|"agent_completed"|"mission_total"|"mission_pending"|"mission_approved"|"mission_rejected"|"mission_blocked"|"mission_in_progress"|"mission_completed";
+export type AdminCenterListFilter = "agent_total"|"agent_pending"|"agent_approved"|"agent_rejected"|"agent_blocked"|"agent_in_progress"|"agent_completed"|"agent_repair_required"|"agent_halted_waiting_owner"|"agent_cycle_restart_required"|"mission_total"|"mission_pending"|"mission_approved"|"mission_rejected"|"mission_blocked"|"mission_in_progress"|"mission_completed";
 export type AgentCenterDecisionInput = { targetType: "agent"; targetId: string; sourceRef?: string; reason?: string; riskLevel?: string; };
 export type MissionCenterDecisionInput = { targetType: "mission"; targetId: string; sourceRef?: string; reason?: string; riskLevel?: string; };
 export type AgentCenterDecision = { decisionId: string; decision: "approved"|"rejected"|"revise"|"blocked"|"review"; targetId: string; targetType: "agent"; };

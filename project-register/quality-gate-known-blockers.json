@@ -4,16 +4,16 @@
     {
       "id": "2026-05-23-agent-control-center-check-fail",
       "date": "2026-05-23",
-      "status": "resolved",
+      "status": "active",
       "scope": "quality_gate",
       "blocker": "agent:quality-gate fails because Agent Control Center check reports 'not found or unsafe output'.",
-      "impact": "Resolved; quality gate can enforce gated automation contract without legacy never-merge/never-deploy assumptions.",
-      "nextAction": "Proceed with runtime/agent-admin-supervised-runner-deploy-integration under existing gates.",
-      "blocksAutoMerge": false,
+      "impact": "Quality gate currently fails on Agent Control Center check; auto-merge and real runner must remain blocked until check output is restored.",
+      "nextAction": "Fix Agent Control Center report output and rerun npm run agent:quality-gate.",
+      "blocksAutoMerge": true,
       "blockerId": "QG-2026-05-23-AGENT-CONTROL-CENTER-CHECK-FAIL",
       "checkName": "Agent Control Center check",
-      "reason": "Agent Control Center check now supports gated automation semantics.",
-      "blocksRealRunner": false,
+      "reason": "Current run on 2026-05-23 failed: Agent Control Center check reports 'not found or unsafe output'.",
+      "blocksRealRunner": true,
       "ownerReviewRequired": "no"
     },
     {

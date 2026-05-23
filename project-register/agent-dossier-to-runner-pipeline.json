@@ -14,12 +14,37 @@
     "repair_required",
     "halted_waiting_owner"
   ],
-  "requiredApprovals": ["admin_dossier_approval", "agent_task_approval"],
-  "requiredChecks": ["npm run agent:validate", "npm run agent:quality-gate", "npm run lint", "npm run build", "npm --prefix functions run check"],
-  "stopConditions": ["direct_main_write_blocked", "quality_gate_failed", "required_checks_failed", "known_blocker_blocks_real_runner", "automation_control_paused_or_off", "canonical_truth_protected", "repair_limit_reached"],
+  "requiredApprovals": [
+    "admin_dossier_approval",
+    "agent_task_approval"
+  ],
+  "requiredChecks": [
+    "npm run agent:validate",
+    "npm run agent:quality-gate",
+    "npm run lint",
+    "npm run build",
+    "npm --prefix functions run check"
+  ],
+  "stopConditions": [
+    "direct_main_write_blocked",
+    "quality_gate_failed",
+    "required_checks_failed",
+    "known_blocker_blocks_real_runner",
+    "automation_control_paused_or_off",
+    "canonical_truth_protected",
+    "repair_limit_reached"
+  ],
   "adminViewRequired": true,
   "noDirectMain": true,
   "noSecrets": true,
   "noProductionDeploy": true,
-  "canonicalTruthProtected": true
+  "canonicalTruthProtected": true,
+  "finalHardening2026-05-23": {
+    "cycleResultMerged": "nextCycleRequired=true",
+    "nextCycleStartAt": "internal_sources_analysis",
+    "failureMode": "repair_required",
+    "maxRepairAttempts": 3,
+    "haltAfterLimit": "halted_waiting_owner",
+    "noNewFeatureTasksDuringRepair": true
+  }
 }
