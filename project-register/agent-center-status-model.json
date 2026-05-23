@@ -1,0 +1,6 @@
+{
+  "version": "2026-05-23",
+  "statusBuckets": ["total","pending_approval","approved_ready","rejected","blocked","in_progress","completed","repair_required","halted_waiting_owner"],
+  "timelineFields": ["createdAt","submittedAt","waitingForApprovalAt","approvedAt","rejectedAt","blockedAt","revisionRequestedAt","queuedAt","workerStartedAt","branchCreatedAt","prCreatedAt","mergedAt","completedAt","lastStatusChangedAt"],
+  "appliesTo": ["agents","mission_proposals","missions","dossiers","worker_queue","runner_jobs"]
+}

@@ -294,15 +294,24 @@ export default function AgentCenterPage() {
           </section>
 
           <AgentCenterInteractive data={{
+            agents: uniqueAgents as Record<string, unknown>[],
+            missions: missionProposalEntries as Record<string, unknown>[],
             stats: {
-              agents: uniqueAgents.length,
-              pending: pendingApprovalAgents.length,
-              rejected: rejectedAgents.length,
-              missionSuggestions: missionProposalEntries.length,
-              missions: `${doneMissionProposals.length}/${distinctMissionRoutes.length}`,
-              missionRejected: rejectedMissionProposals.length,
+              agent_total: uniqueAgents.length,
+              agent_pending: pendingApprovalAgents.length,
+              agent_approved: uniqueAgents.filter((e) => (e.status ?? "") === "approved").length,
+              agent_rejected: uniqueAgents.filter((e) => (e.status ?? "") === "rejected").length,
+              agent_blocked: uniqueAgents.filter((e) => (e.status ?? "") === "blocked").length,
+              agent_in_progress: uniqueAgents.filter((e) => ["running","queued","in_progress"].includes(String(e.status ?? ""))).length,
+              agent_completed: uniqueAgents.filter((e) => ["completed","merged","done"].includes(String(e.status ?? ""))).length,
+              mission_total: missionProposalEntries.length,
+              mission_pending: missionProposalEntries.filter((e) => ["review","proposed","review_required"].includes(String(e.status ?? ""))).length,
+              mission_approved: missionProposalEntries.filter((e) => String(e.status ?? "") === "approved").length,
+              mission_rejected: missionProposalEntries.filter((e) => String(e.status ?? "") === "rejected" || String(e.status ?? "") === "abgelehnt").length,
+              mission_blocked: missionProposalEntries.filter((e) => String(e.status ?? "") === "blocked").length,
+              mission_in_progress: missionProposalEntries.filter((e) => ["running","queued","in_progress"].includes(String(e.status ?? ""))).length,
+              mission_completed: missionProposalEntries.filter((e) => ["completed","merged","gemacht","done"].includes(String(e.status ?? ""))).length,
             },
-            uniqueAgents, pendingApprovalAgents, rejectedAgents, missionProposalEntries, doneMissionProposals, distinctMissionRoutes, rejectedMissionProposals
           }} />
 
         </div>

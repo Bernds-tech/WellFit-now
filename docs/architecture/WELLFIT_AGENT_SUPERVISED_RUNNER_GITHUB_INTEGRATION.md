@@ -69,3 +69,4 @@ Pruefe vor jeder Runner-Aktion zuerst Automation-Control, required checks, Quali
 - Required checks are matched through normalized alias mapping against GitHub check names; local-only checks are marked `local_required_not_reported`/`skipped_with_reason` and never fake-pass.
 - No production deploy changes; canonical truth protected files remain unchanged.
 - Next branch recommendation: `runtime/agent-admin-supervised-runner-deploy-integration` (or `analysis/agent-product-evolution-first-run`).
+\n- 2026-05-23: Admin-Center Status-Buckets + Timeline-Felder (approved/rejected/blocked/in_progress/completed) erweitert; kein Deploy, keine GitHub-API-Neuimplementierung, keine Canonical-Truth-Aenderung.
