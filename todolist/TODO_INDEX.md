@@ -679,3 +679,4 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - 2026-05-23: Report-Template-Wording im Agent-Control-Center auf gated automation bereinigt (alte "Never merges PRs"/"Never deploys" entfernt); Console und Markdown-Report semantisch synchron. Keine Runtime-/GitHub-API-/Deploy-/Canonical-Truth-Aenderung. Next: `analysis/agent-product-evolution-first-run`.
 
 - [ ] Runner E2E Smoke Governance: `docs/architecture/WELLFIT_AGENT_GITHUB_RUNNER_E2E_SMOKE.md`
+\n- 2026-05-23: Admin-Center Status-Buckets + Timeline-Felder (approved/rejected/blocked/in_progress/completed) erweitert; kein Deploy, keine GitHub-API-Neuimplementierung, keine Canonical-Truth-Aenderung.

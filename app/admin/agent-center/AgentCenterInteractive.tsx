@@ -2,80 +2,35 @@
 
 import { useMemo, useState } from "react";
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
+import { deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket } from "@/lib/admin/agentCenterStatus";
 import type { AdminCenterListFilter, AgentCenterDecisionInput, MissionCenterDecisionInput } from "@/lib/admin/beta1AdminTypes";
 
-type AgentRow = { id?: string; name?: string; sourceLabel?: string; sourceRef?: string; status?: string; riskLevel?: string; ownerArea?: string; purpose?: string; requiresHumanApprovalForRuntime?: boolean; humanReviewRequired?: boolean; nextRecommendedAction?: string; allowedWriteScopes?: string[]; forbiddenWriteScopes?: string[] };
-type MissionRow = { id: string; title: string; status?: string; subject?: string; riskLevel?: string; linkedRoute?: string; linkedRegister?: string; decisionNote?: string };
-type RouteRow = { route: string };
-type Data = { stats: { agents: number; pending: number; rejected: number; missionSuggestions: number; missions: string; missionRejected: number }; uniqueAgents: AgentRow[]; pendingApprovalAgents: AgentRow[]; rejectedAgents: AgentRow[]; missionProposalEntries: MissionRow[]; doneMissionProposals: MissionRow[]; distinctMissionRoutes: RouteRow[]; rejectedMissionProposals: MissionRow[] };
+type Row = Record<string, unknown> & { id?: string; title?: string; name?: string; sourceLabel?: string; status?: string };
+type Data = { agents: Row[]; missions: Row[]; stats: Record<string, number> };
 
-const FILTERS: Array<{ key: AdminCenterListFilter; label: string; value: (d: Data["stats"]) => string | number }> = [
-  { key: "agenten_gesamt", label: "Agenten gesamt", value: (s) => s.agents },
-  { key: "warten_auf_freigabe", label: "Warten auf Freigabe", value: (s) => s.pending },
-  { key: "abgelehnt_blockiert", label: "Abgelehnt / blockiert", value: (s) => s.rejected },
-  { key: "missionsvorschlaege", label: "Missionsvorschläge", value: (s) => s.missionSuggestions },
-  { key: "missionen", label: "Missionen", value: (s) => s.missions },
-  { key: "missionen_abgelehnt", label: "Missionen abgelehnt", value: (s) => s.missionRejected },
+const FILTERS: Array<{ key: AdminCenterListFilter; label: string; statKey: string }> = [
+  { key: "agent_total", label: "Agenten gesamt", statKey: "agent_total" },{ key: "agent_pending", label: "Warten auf Freigabe", statKey: "agent_pending" },{ key: "agent_approved", label: "Freigegeben", statKey: "agent_approved" },{ key: "agent_rejected", label: "Abgelehnt", statKey: "agent_rejected" },{ key: "agent_blocked", label: "Blockiert", statKey: "agent_blocked" },{ key: "agent_in_progress", label: "In Arbeit", statKey: "agent_in_progress" },{ key: "agent_completed", label: "Fertig", statKey: "agent_completed" },
+  { key: "mission_total", label: "Missionsvorschläge gesamt", statKey: "mission_total" },{ key: "mission_pending", label: "Warten auf Freigabe", statKey: "mission_pending" },{ key: "mission_approved", label: "Freigegeben", statKey: "mission_approved" },{ key: "mission_rejected", label: "Abgelehnt", statKey: "mission_rejected" },{ key: "mission_blocked", label: "Blockiert", statKey: "mission_blocked" },{ key: "mission_in_progress", label: "In Arbeit", statKey: "mission_in_progress" },{ key: "mission_completed", label: "Fertig", statKey: "mission_completed" },
 ];
 
 export default function AgentCenterInteractive({ data }: { data: Data }) {
-  const [active, setActive] = useState<AdminCenterListFilter>("agenten_gesamt");
+  const [active, setActive] = useState<AdminCenterListFilter>("agent_total");
   const [feedback, setFeedback] = useState("");
-
-  async function runAgent(action: "approve" | "reject" | "revise" | "block" | "review", row: AgentRow) {
-    const targetId = row.id ?? "";
-    if (!targetId) { setFeedback("Eintrag hat keine serverseitig validierbare targetId. Bitte erst Mirror/Register synchronisieren."); return; }
-    const input: AgentCenterDecisionInput = { targetType: "agent", targetId, reason: action };
-    const clientMap = {
-      approve: beta1AdminClient.approveAgentCenterProposal,
-      reject: beta1AdminClient.rejectAgentCenterProposal,
-      revise: beta1AdminClient.requestRevisionAgentCenterProposal,
-      block: beta1AdminClient.blockAgentCenterProposal,
-      review: beta1AdminClient.markAgentCenterProposalForReview,
-    };
-    const result = await clientMap[action](input);
-    setFeedback(result.accepted ? (action === "approve" ? "Freigabe gespeichert. Umsetzung läuft erst über Worker Queue / Runner Gates." : "Entscheidung gespeichert.") : (result.message ?? "Aktion fehlgeschlagen."));
+  const visible = useMemo(() => {
+    const isMission = active.startsWith("mission_");
+    const bucket = active.replace("agent_", "").replace("mission_", "");
+    const list = isMission ? data.missions : data.agents;
+    if (bucket === "total") return list;
+    const fn = isMission ? getMissionStatusBucket : getAgentStatusBucket;
+    return list.filter((r) => fn(r) === bucket);
+  }, [active, data]);
+  async function decide(kind:"agent"|"mission", action: "approve"|"reject"|"revise"|"block"|"review", row: Row) {
+    const targetId = String(row.id || ""); if(!targetId) return setFeedback("targetId fehlt.");
+    const mapA = { approve: beta1AdminClient.approveAgentCenterProposal,reject: beta1AdminClient.rejectAgentCenterProposal,revise: beta1AdminClient.requestRevisionAgentCenterProposal,block: beta1AdminClient.blockAgentCenterProposal,review: beta1AdminClient.markAgentCenterProposalForReview };
+    const mapM = { approve: beta1AdminClient.approveMissionCenterProposal,reject: beta1AdminClient.rejectMissionCenterProposal,revise: beta1AdminClient.requestRevisionMissionCenterProposal,block: beta1AdminClient.blockMissionCenterProposal,review: beta1AdminClient.markMissionCenterProposalForReview };
+    const input = kind==="agent"?{targetType:"agent",targetId,reason:action} as AgentCenterDecisionInput:{targetType:"mission",targetId,reason:action} as MissionCenterDecisionInput;
+    const result = await (kind==="agent"?mapA:mapM)[action](input as never);
+    setFeedback(result.accepted ? `${action} gespeichert am ${formatAdminDate(new Date())}. Freigabe erlaubt nächsten kontrollierten Schritt über Worker/Runner Gates.` : (result.message||"Aktion fehlgeschlagen."));
   }
-
-  async function runMission(action: "approve" | "reject" | "revise" | "block" | "review", row: MissionRow) {
-    const input: MissionCenterDecisionInput = { targetType: "mission", targetId: row.id, reason: action };
-    const clientMap = {
-      approve: beta1AdminClient.approveMissionCenterProposal,
-      reject: beta1AdminClient.rejectMissionCenterProposal,
-      revise: beta1AdminClient.requestRevisionMissionCenterProposal,
-      block: beta1AdminClient.blockMissionCenterProposal,
-      review: beta1AdminClient.markMissionCenterProposalForReview,
-    };
-    const result = await clientMap[action](input);
-    setFeedback(result.accepted ? (action === "approve" ? "Freigabe gespeichert. Umsetzung läuft erst über Worker Queue / Runner Gates." : "Entscheidung gespeichert.") : (result.message ?? "Aktion fehlgeschlagen."));
-  }
-
-  const actions = useMemo(() => (
-    <div className="flex flex-wrap gap-2 text-xs">
-      {feedback ? <p className="rounded border border-cyan-200/30 bg-cyan-400/10 px-3 py-2 text-cyan-50">{feedback}</p> : null}
-    </div>
-  ), [feedback]);
-
-  return (
-    <section className="space-y-4 rounded-xl border border-white/12 bg-slate-950/35 p-4">
-      <h3 className="text-sm font-semibold text-cyan-100">Interaktive Listen</h3>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        {FILTERS.map((item) => (
-          <button key={item.key} onClick={() => setActive(item.key)} className={`rounded-lg border p-3 text-left ${active === item.key ? "border-cyan-300/60 bg-cyan-400/10" : "border-white/12 bg-slate-900/55"}`}>
-            <p className="text-[0.68rem] uppercase tracking-[0.16em] text-cyan-100/65">{item.label}</p>
-            <p className="font-mono text-2xl font-bold text-white">{item.value(data.stats)}</p>
-          </button>
-        ))}
-      </div>
-      {actions}
-      <div className="space-y-2 text-xs text-white/85">
-        {active === "agenten_gesamt" && data.uniqueAgents.map((row) => <div key={`${row.sourceLabel}-${row.id ?? row.name}`} className="rounded border border-white/10 p-2"><b>{row.name ?? row.id}</b> · {row.sourceLabel} · {row.status ?? "n/a"} · {row.riskLevel ?? "medium"} · {row.ownerArea ?? row.purpose ?? "-"}</div>)}
-        {active === "warten_auf_freigabe" && data.pendingApprovalAgents.map((row) => <div key={row.id ?? row.name} className="rounded border border-white/10 p-2"><b>{row.name ?? row.id}</b><div className="mt-2 flex flex-wrap gap-2"> <button className="border px-2" onClick={() => runAgent("approve", row)}>Zustimmen</button><button className="border px-2" onClick={() => runAgent("reject", row)}>Ablehnen</button><button className="border px-2" onClick={() => runAgent("revise", row)}>Überarbeiten</button><button className="border px-2" onClick={() => runAgent("block", row)}>Blockieren</button><button className="border px-2" onClick={() => runAgent("review", row)}>Details</button></div></div>)}
-        {active === "abgelehnt_blockiert" && data.rejectedAgents.map((row) => <div key={row.id ?? row.name} className="rounded border border-rose-300/30 p-2"><b>{row.name ?? row.id}</b><div className="mt-2 flex gap-2"><button className="border px-2" onClick={() => runAgent("review", row)}>Details</button><button className="border px-2" onClick={() => runAgent("review", row)}>Zur erneuten Prüfung</button></div></div>)}
-        {active === "missionsvorschlaege" && data.missionProposalEntries.map((row) => <div key={row.id} className="rounded border border-white/10 p-2"><b>{row.title}</b> · {row.status} · {row.subject}<div className="mt-2 flex flex-wrap gap-2"><button className="border px-2" onClick={() => runMission("approve", row)}>Zustimmen</button><button className="border px-2" onClick={() => runMission("reject", row)}>Ablehnen</button><button className="border px-2" onClick={() => runMission("revise", row)}>Überarbeiten</button><button className="border px-2" onClick={() => runMission("block", row)}>Blockieren</button><button className="border px-2" onClick={() => runMission("review", row)}>Details</button></div></div>)}
-        {active === "missionen" && <><h4 className="font-semibold">Gemachte Missionsvorschläge</h4>{data.doneMissionProposals.map((row) => <div key={row.id} className="rounded border border-white/10 p-2">{row.title}</div>)}<h4 className="pt-2 font-semibold">Vorhandene Mission-Routen</h4>{data.distinctMissionRoutes.map((row) => <div key={row.route} className="rounded border border-white/10 p-2">{row.route}</div>)}</>}
-        {active === "missionen_abgelehnt" && data.rejectedMissionProposals.map((row) => <div key={row.id} className="rounded border border-rose-300/30 p-2"><b>{row.title}</b><div className="mt-2 flex flex-wrap gap-2"><button className="border px-2" onClick={() => runMission("approve", row)}>Zustimmen</button><button className="border px-2" onClick={() => runMission("reject", row)}>Ablehnen</button><button className="border px-2" onClick={() => runMission("revise", row)}>Überarbeiten</button><button className="border px-2" onClick={() => runMission("block", row)}>Blockieren</button><button className="border px-2" onClick={() => runMission("review", row)}>Details</button></div></div>)}
-      </div>
-    </section>
-  );
+  return <section className="space-y-4 rounded-xl border border-white/12 bg-slate-950/35 p-4"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-7">{FILTERS.map(i=><button key={i.key} onClick={()=>setActive(i.key)} className={`rounded-lg border p-3 text-left ${active===i.key?"border-cyan-300/60 bg-cyan-400/10":"border-white/12 bg-slate-900/55"}`}><p className="text-[0.68rem] uppercase tracking-[0.16em] text-cyan-100/65">{i.label}</p><p className="font-mono text-2xl font-bold text-white">{data.stats[i.statKey] ?? 0}</p></button>)}</div>{feedback?<p className="rounded border border-cyan-200/30 bg-cyan-400/10 px-3 py-2 text-xs text-cyan-50">{feedback}</p>:null}<div className="space-y-2 text-xs text-white/85">{visible.map((row)=>{const t=deriveTimeline(row); const name=String(row.title||row.name||row.id||"Eintrag"); const mission=active.startsWith("mission_"); return <div key={String(row.id||name)} className="rounded border border-white/10 p-2"><b>{name}</b> · {String(row.status||"—")}<div className="mt-1 grid grid-cols-2 gap-1"><span>Erstellt: {formatAdminDate(t.createdAt)}</span><span>Eingespielt: {formatAdminDate(t.submittedAt)}</span><span>Freigegeben: {formatAdminDate(t.approvedAt)}</span><span>Abgelehnt: {formatAdminDate(t.rejectedAt)}</span><span>Blockiert: {formatAdminDate(t.blockedAt)}</span><span>In Arbeit seit: {formatAdminDate(t.workerStartedAt||t.queuedAt)}</span><span>PR erstellt: {formatAdminDate(t.prCreatedAt)}</span><span>Gemerged: {formatAdminDate(t.mergedAt)}</span><span>Fertig: {formatAdminDate(t.completedAt)}</span><span>Letzte Änderung: {formatAdminDate(t.lastStatusChangedAt)}</span></div><div className="mt-2 flex flex-wrap gap-2"><button className="border px-2" onClick={()=>decide(mission?"mission":"agent","approve",row)}>Zustimmen</button><button className="border px-2" onClick={()=>decide(mission?"mission":"agent","reject",row)}>Ablehnen</button><button className="border px-2" onClick={()=>decide(mission?"mission":"agent","revise",row)}>Überarbeiten</button><button className="border px-2" onClick={()=>decide(mission?"mission":"agent","block",row)}>Blockieren</button></div></div>;})}</div></section>;
 }
