@@ -69,6 +69,18 @@ export const beta1AdminClient = {
   rejectAgentProductionDeploySecondApproval: (input: AgentAutomationPolicyInput) => callAdmin("rejectAgentProductionDeploySecondApproval", input),
   recordAgentAutomationExecutionMetadata: (input: AgentAutomationPolicyInput) => callAdmin("recordAgentAutomationExecutionMetadata", input),
   prepareAgentSupervisedRunnerJob: (input: AgentAutomationPolicyInput) => callAdmin("prepareAgentSupervisedRunnerJob", input),
+
+  prepareAgentGithubRunnerJob: (input: AgentAutomationPolicyInput) => callAdmin("prepareAgentGithubRunnerJob", input),
+  createAgentGithubBranchMetadata: (input: { jobId: string; githubBranchName: string }) => callAdmin("createAgentGithubBranchMetadata", input),
+  createAgentGithubPullRequest: (input: { jobId: string }) => callAdmin("createAgentGithubPullRequest", input),
+  recordAgentGithubCheckStatus: (input: { jobId: string; allRequiredChecksPassed?: boolean; checkResultsSnapshot?: unknown[] }) => callAdmin("recordAgentGithubCheckStatus", input),
+  refreshAgentGithubCheckStatus: (input: { jobId: string }) => callAdmin("refreshAgentGithubCheckStatus", input),
+  approveAgentGithubAutoMerge: (input: { jobId: string }) => callAdmin("approveAgentGithubAutoMerge", input),
+  executeAgentGithubAutoMergeMetadataOrReal: (input: { jobId: string }) => callAdmin("executeAgentGithubAutoMergeMetadataOrReal", input),
+  blockAgentGithubRunnerJob: (input: { jobId: string; reason?: string }) => callAdmin("blockAgentGithubRunnerJob", input),
+  listAgentGithubRunnerJobs: () => callAdmin("listAgentGithubRunnerJobs", {}),
+  getAgentGithubRunnerJob: (jobId: string) => callAdmin("getAgentGithubRunnerJob", { jobId }),
+
   getAgentAutomationPolicy: (policyId: string) => callAdmin("getAgentAutomationPolicy", { policyId }),
   listAgentAutomationPolicies: (status?: string) => callAdmin("listAgentAutomationPolicies", status ? { status } : {}),
   getAgentAutomationControl: () => callAdmin("getAgentAutomationControl", {}),

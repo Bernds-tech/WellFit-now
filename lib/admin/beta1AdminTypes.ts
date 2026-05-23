@@ -36,3 +36,8 @@ export type AgentAutomationMode = "off" | "planning_only" | "supervised" | "runn
 export type AgentAutomationControl = { automationEnabled: boolean; automationMode: AgentAutomationMode; repairAttemptCount: number; maxRepairAttempts: number; ownerReviewRequired: boolean; lastMergeStatus?: string; lastPrRef?: string | null; lastFailureReason?: string | null; };
 export type AgentMergeOutcome = { prRef?: string; mergeStatus: "merged" | "failed" | "conflict" | "checks_failed" | "blocked"; reason?: string; };
 export type AgentRepairAttempt = { prRef?: string; result: "fixed" | "failed" | "blocked"; reason?: string; };
+
+export type AgentGithubRunnerStatus = "metadata_only"|"missing_server_config"|"ready_for_github"|"branch_prepared"|"pr_created"|"checks_pending"|"checks_passed"|"checks_failed"|"auto_merge_approved"|"auto_merged"|"blocked"|"failed";
+export type AgentGithubRunnerJob = { jobId:string; workerQueueId:string; policyId:string; githubRunnerStatus:AgentGithubRunnerStatus; githubBranchName?:string; githubPrRef?:string|null; githubPrUrl?:string|null; githubCommitSha?:string|null; realGithubIntegration?:boolean; };
+export type AgentGithubRunnerActionInput = { jobId: string; workerQueueId?: string; policyId?: string; githubBranchName?: string; reason?: string; };
+export type AgentGithubCheckStatusInput = { jobId: string; allRequiredChecksPassed?: boolean; checkResultsSnapshot?: Array<{name?:string;status?:string}>; };

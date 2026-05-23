@@ -291,3 +291,17 @@ async function run() {
 }
 
 run().catch((error) => { console.error(error); process.exit(1); });
+
+// GitHub runner integration coverage placeholders
+// 1) automation off/paused/halted blocks prepare
+// 2) supervised+approved allows prepare
+// 3) missing config => missing_server_config no fake success
+// 4) main/master blocked
+// 5) auto-merge blocked on failed checks
+// 6) auto-merge blocked on quality gate fail without override
+// 7) auto-merge blocked when blocksAutoMerge true
+// 8) metadata-only auto-merge allowed with green gates and missing config
+// 9) PR creation without config stays missing_server_config
+// 10) merge failure sets repair_required via merge outcome
+// 11) canonical truth files remain read-only
+// 12) each runner action writes audit
