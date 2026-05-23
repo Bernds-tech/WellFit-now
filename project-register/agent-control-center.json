@@ -1,7 +1,7 @@
 {
   "name": "WellFit Agent Control Center",
   "status": "lifecycle_register_prepared",
-  "updated": "2026-05-22",
+  "updated": "2026-05-23",
   "purpose": "Connect existing WellFit agent catalog, task queue, approved build backlog, risk classifier, definition of done, research governance, quality gate, PR review, decision log, progress log, and work-log structures into one controlled proposal and approval model without creating a parallel runtime architecture.",
   "roles": [
     {
@@ -191,21 +191,29 @@
     "run_quality_gate_and_static_checks",
     "prepare_codex_task_draft_without_execution"
   ],
-  "blocked_auto_actions": [
-    "auto_merge",
-    "auto_deploy",
-    "auto_approve",
-    "self_approve",
-    "modify_runtime_product_code_without_exact_allowlist",
-    "modify_protected_scopes_without_owner_approval",
-    "write_production_data",
-    "change_firestore_rules_or_functions_without_dedicated_review_plan",
-    "touch_unity_or_pr13_paths",
-    "change_package_dependencies_without_explicit_approval",
-    "protected_runtime_change",
-    "protected_runtime_repair",
-    "runtime_authority_activation"
-  ],
+  "blocked_auto_actions": {
+    "always_blocked": [
+      "self_approve",
+      "bypass_quality_gate",
+      "direct_main_write",
+      "secret_exposure",
+      "production_deploy_without_second_owner_approval",
+      "token_payment_cashout_activation"
+    ],
+    "gated_actions": [
+      "auto_merge",
+      "preview_deploy",
+      "staging_deploy",
+      "production_deploy",
+      "github_pr_creation"
+    ],
+    "not_yet_real_implemented": [
+      "real_github_api_branch_creation",
+      "real_github_api_pr_creation",
+      "real_github_api_merge",
+      "real_deploy"
+    ]
+  },
   "codex_task_generation": {
     "status": "proposal_to_task_draft_only",
     "required_fields": [
@@ -462,13 +470,15 @@
     ],
     "critical_area_rule": "Implementation agents in critical or protected areas remain blocked until Bernd/Owner explicitly releases one exact single task with paths, tests/checks and a review plan. Concept/report planning approval does not unlock implementation.",
     "must_not_release_from_admin_center": [
-      "runtime_authority",
-      "product_runtime_execution",
-      "merge_or_deploy",
+      "direct_main_write",
       "firebase_or_production_data_writes",
-      "token_wallet_payment_presale_trading_or_reward_authority_activation",
       "health_child_location_camera_biometric_legal_or_compliance_changes_without_dedicated_review_plan",
-      "self_approval_or_agent_auto_approval"
+      "merge_or_deploy",
+      "product_runtime_execution",
+      "production_deploy_without_second_owner_approval",
+      "runtime_authority",
+      "self_approval_or_agent_auto_approval",
+      "token_wallet_payment_presale_trading_or_reward_authority_activation"
     ]
   },
   "agent_lifecycle": {
@@ -915,5 +925,52 @@
     "requiredForProposals": true,
     "adminApprovalRequired": true,
     "riskSourceClassifier": "project-register/agent-risk-source-classifier.json"
+  },
+  "currentImplementation": [
+    "server_side_roles_audit_worker_queue_automation_control_and_metadata_runner_available",
+    "real_github_api_not_yet_implemented",
+    "real_deploy_not_implemented",
+    "production_deploy_requires_second_owner_approval"
+  ],
+  "auto_merge_policy": {
+    "mode": "gated_only",
+    "required": [
+      "admin_or_owner_approval",
+      "allRequiredChecksPassed",
+      "qualityGatePassed_or_approved_override",
+      "no_known_blocker_blocksAutoMerge_true",
+      "audit_logged",
+      "automation_control_not_off_paused_halted",
+      "no_direct_main",
+      "no_protected_scope_without_owner_approval"
+    ]
+  },
+  "auto_deploy_policy": {
+    "preview_staging": "gated_only",
+    "production": "requires_second_owner_approval_and_not_implemented_in_current_runtime",
+    "productionDeployEnabled": false
+  },
+  "github_runner_semantics": {
+    "server_layer": "available",
+    "real_github_api": "not_implemented",
+    "allowed_metadata_status": [
+      "metadata_only",
+      "missing_server_config",
+      "github_api_not_implemented"
+    ],
+    "real_success_status_rules": [
+      "pr_created_requires_real_github_api_response",
+      "auto_merged_requires_real_github_merge_response"
+    ]
+  },
+  "admin_center_capabilities": {
+    "allowed": [
+      "status_control_gate_operations_with_server_role_and_audit_gates"
+    ],
+    "forbidden": [
+      "show_secrets",
+      "direct_main_write",
+      "unlock_protected_scope_without_review"
+    ]
   }
 }

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-22",
+  "updated": "2026-05-23",
   "status": "active",
   "purpose": "Machine-readable task-selection queue for future WellFit Codex/AI agents. It converts existing governance, work-map, route/API/feature registers, and safety constraints into safe next-task candidates, required first reads, stop rules, checks, and expected PR outputs without creating a parallel product architecture.",
   "sourceOfTruth": {
@@ -2977,5 +2977,14 @@
     "internalEconomyImpactRequired": true,
     "productRadarWhenNewTech": true,
     "riskSourceClassifierRequired": true
+  },
+  "agentControlCenterRunnerSync": {
+    "status": "synced_after_pr_227_228",
+    "rules": [
+      "auto_merge_is_gated_not_globally_open",
+      "automation_control_and_retry_guard_required_before_runner_start",
+      "no_fake_pr_or_merge_status",
+      "real_github_api_next_separate_branch"
+    ]
   }
 }

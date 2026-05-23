@@ -103,6 +103,35 @@
   },
   "entries": [
     {
+      "taskId": "QG-2026-05-23-AGENT-CONTROL-CENTER-GOVERNANCE-SYNC",
+      "title": "Sync Agent Control Center runner governance after PR #227/#228",
+      "status": "done",
+      "pr": {
+        "branch": "fix/agent-control-center-runner-governance-sync",
+        "number": null,
+        "url": null,
+        "title": "Sync Agent Control Center runner governance"
+      },
+      "changedFiles": [
+        "project-register/agent-control-center.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/quality-gate-known-blockers.json",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "todolist/NEXT_ACTIONS.md",
+        "docs/architecture/WELLFIT_AGENT_SUPERVISED_RUNNER_GITHUB_INTEGRATION.md",
+        "project-register/progress-log.json"
+      ],
+      "checks": [],
+      "followUps": [
+        "Implement real GitHub API branch/PR/merge in a separate runtime branch with server-only secrets and unchanged safety gates."
+      ],
+      "nextRecommendedTask": "runtime/agent-admin-real-github-api-branch-pr-merge",
+      "riskLevel": "low"
+    },
+    {
       "id": "2026-05-23-github-runner-status-semantics-fix",
       "date": "2026-05-23",
       "branch": "fix/agent-github-runner-no-fake-pr-merge-status",

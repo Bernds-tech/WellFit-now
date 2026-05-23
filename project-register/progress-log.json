@@ -8,6 +8,27 @@
   },
   "entries": [
     {
+      "id": "2026-05-23-agent-control-center-runner-governance-sync",
+      "date": "2026-05-23",
+      "branch": "fix/agent-control-center-runner-governance-sync",
+      "goal": "Synchronize Agent Control Center governance/register semantics with merged PR #227/#228 state.",
+      "changedAreas": [
+        "project-register/agent-control-center.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "project-register/approved-agent-build-backlog.json",
+        "project-register/quality-gate-known-blockers.json",
+        "docs/architecture/WELLFIT_AGENT_SUPERVISED_RUNNER_GITHUB_INTEGRATION.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "todolist/NEXT_ACTIONS.md",
+        "project-register/agent-work-log.json"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Governance sync only. Fake PR/Merge statuses stay blocked; runner remains github_api_not_implemented/metadata-only for real side effects. No production deploy, no canonical-truth edits."
+    },
+    {
       "id": "2026-05-23-github-runner-status-semantics-fix",
       "date": "2026-05-23",
       "branch": "fix/agent-github-runner-no-fake-pr-merge-status",

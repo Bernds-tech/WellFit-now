@@ -9,7 +9,7 @@
       "agents/AGENTS.md",
       "agents/modes/stufe-4.md"
     ],
-    "updated": "2026-05-22"
+    "updated": "2026-05-23"
   },
   "workflows": [
     {
@@ -855,7 +855,16 @@
         "node scripts/wellfit-dev-agent/src/human-motivation-engine-check.mjs",
         "node scripts/wellfit-dev-agent/src/adaptive-difficulty-agent-check.mjs",
         "jq empty project-register/adaptive-difficulty-agent.json"
-      ]
+      ],
+      "runnerGovernance": {
+        "automationControlRequiredBeforeRunnerStart": true,
+        "retryGuardRequiredBeforeNewTaskAfterFailedMerge": true,
+        "noFakeGithubSuccessStatuses": [
+          "pr_created",
+          "auto_merged"
+        ],
+        "runnerState": "metadata_safe_layer_available_real_github_api_pending"
+      }
     },
     {
       "id": "product-intelligence-agent-report-only",

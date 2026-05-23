@@ -399,3 +399,10 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [x] Keine Canonical-Truth-Dateien geaendert.
 - Next recommended branch: `analysis/agent-product-evolution-first-run` (oder `fix/agent-admin-quality-gate-follow-up` bei priorisiertem Blocker-Fix).
 \n
+
+
+## 2026-05-23 Governance Sync (PR #227/#228 follow-up)
+- Agent Control Center ist auf gated Auto-Merge/Deploy-Semantik synchronisiert (nicht pauschal erlaubt und nicht pauschal verboten).
+- Supervised GitHub Runner bleibt metadata-only/missing_server_config/github_api_not_implemented bis reale GitHub API implementiert ist.
+- `pr_created`/`auto_merged` sind nur bei realer GitHub-API-Response gueltig (keine Fake-Status).
+- Naechster Runtime-Branch nur bei gruener Gate-Lage: `runtime/agent-admin-real-github-api-branch-pr-merge`, sonst `fix/agent-control-center-runner-governance-sync-2`.

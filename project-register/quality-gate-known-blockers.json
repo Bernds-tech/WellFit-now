@@ -18,6 +18,24 @@
       "blocksAutoMerge": false,
       "blocksRealRunner": false,
       "ownerReviewRequired": "mitigated_by_owner_approved_companion_prompt_proxy"
+    },
+    {
+      "blockerId": "QG-2026-05-23-AGENT-CONTROL-CENTER-GOVERNANCE-SYNC",
+      "checkName": "Agent Control Center check",
+      "status": "mitigated",
+      "reason": "Governance/register semantics were synchronized to gated auto-merge/deploy and metadata-only GitHub runner semantics after PR #227/#228.",
+      "whyNotFixedInThisPr": "Fixed in this PR via governance/register/doc updates only; no runtime authority changes.",
+      "riskLevel": "low",
+      "affectedFiles": [
+        "project-register/agent-control-center.json",
+        "project-register/agent-workflows.json",
+        "project-register/agent-task-queue.json",
+        "docs/architecture/WELLFIT_AGENT_SUPERVISED_RUNNER_GITHUB_INTEGRATION.md"
+      ],
+      "nextSafeBranch": "runtime/agent-admin-real-github-api-branch-pr-merge",
+      "blocksAutoMerge": false,
+      "blocksRealRunner": false,
+      "ownerReviewRequired": "no"
     }
   ]
 }
