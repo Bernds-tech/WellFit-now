@@ -4,12 +4,17 @@
     {
       "id": "2026-05-23-agent-control-center-check-fail",
       "date": "2026-05-23",
-      "status": "open",
+      "status": "resolved",
       "scope": "quality_gate",
       "blocker": "agent:quality-gate fails because Agent Control Center check reports 'not found or unsafe output'.",
-      "impact": "Quality gate remains red; auto-merge/deploy must stay blocked.",
-      "nextAction": "Investigate scripts/wellfit-dev-agent Agent Control Center checker output contract in follow-up branch.",
-      "blocksAutoMerge": true
+      "impact": "Resolved; quality gate can enforce gated automation contract without legacy never-merge/never-deploy assumptions.",
+      "nextAction": "Proceed with runtime/agent-admin-supervised-runner-deploy-integration under existing gates.",
+      "blocksAutoMerge": false,
+      "blockerId": "QG-2026-05-23-AGENT-CONTROL-CENTER-CHECK-FAIL",
+      "checkName": "Agent Control Center check",
+      "reason": "Agent Control Center check now supports gated automation semantics.",
+      "blocksRealRunner": false,
+      "ownerReviewRequired": "no"
     },
     {
       "blockerId": "QG-2026-05-22-CANONICAL-PROMPT-OWNER-ONLY",

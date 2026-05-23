@@ -414,3 +414,5 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - Required checks are matched through normalized alias mapping against GitHub check names; local-only checks are marked `local_required_not_reported`/`skipped_with_reason` and never fake-pass.
 - No production deploy changes; canonical truth protected files remain unchanged.
 - Next branch recommendation: `runtime/agent-admin-supervised-runner-deploy-integration` (or `analysis/agent-product-evolution-first-run`).
+
+- 2026-05-23: Agent Control Center check now validates gated auto-merge/auto-deploy contract (admin/check/quality/audit/automation gates). Legacy never-merge/never-deploy semantics removed; always-blocked guards unchanged; quality gate PASS. Next: runtime/agent-admin-supervised-runner-deploy-integration.
