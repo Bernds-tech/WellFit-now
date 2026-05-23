@@ -37,7 +37,11 @@ export type AgentAutomationControl = { automationEnabled: boolean; automationMod
 export type AgentMergeOutcome = { prRef?: string; mergeStatus: "merged" | "failed" | "conflict" | "checks_failed" | "blocked"; reason?: string; };
 export type AgentRepairAttempt = { prRef?: string; result: "fixed" | "failed" | "blocked"; reason?: string; };
 
-export type AgentGithubRunnerStatus = "metadata_only"|"missing_server_config"|"github_api_not_implemented"|"branch_metadata_prepared"|"pr_metadata_ready"|"pr_created"|"checks_pending"|"checks_passed"|"checks_failed"|"auto_merge_metadata_ready"|"auto_merged"|"blocked"|"failed";
+export type AgentGithubRunnerStatus = "metadata_only"|"missing_server_config"|"github_api_not_implemented"|"branch_created"|"files_committed"|"pr_created"|"pr_blocked_no_changes"|"checks_pending"|"checks_passed"|"checks_failed"|"auto_merged"|"blocked"|"failed";
+export type AgentGithubFileChange = { path: string; content: string; changeType: "create" | "update"; encoding?: string };
+export type AgentGithubApplyFileChangesInput = { jobId: string; fileChanges: AgentGithubFileChange[]; commitMessage: string };
+export type AgentGithubPrResult = { prNumber?: number; prUrl?: string; status: AgentGithubRunnerStatus };
+export type AgentGithubCheckResult = { name: string; status: string; conclusion?: string };
 export type AgentGithubRunnerJob = { jobId:string; workerQueueId:string; policyId:string; githubRunnerStatus:AgentGithubRunnerStatus; githubBranchName?:string; githubPrRef?:string|null; githubPrUrl?:string|null; githubCommitSha?:string|null; realGithubIntegration?:boolean; };
 export type AgentGithubRunnerActionInput = { jobId: string; workerQueueId?: string; policyId?: string; githubBranchName?: string; reason?: string; };
 export type AgentGithubCheckStatusInput = { jobId: string; allRequiredChecksPassed?: boolean; checkResultsSnapshot?: Array<{name?:string;status?:string}>; };
