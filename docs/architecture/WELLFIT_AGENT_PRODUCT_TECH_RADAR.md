@@ -81,3 +81,18 @@ Produktgrenzen:
 - XP = Avatar-Fortschritt.
 - WFT/SUI/Blockchain/Token/NFT/Payment/Cashout sind nicht Beta-1 aktiv.
 - Keine echte GitHub API, kein echtes Deploy, Runner bleibt metadata_only, Admin/Owner approval erforderlich.
+
+## First Run Extension (2026-05-23)
+Agent soll neue Produkte/Technologien laufend erkennen (Smartwatches, AR-Brillen, Health Sensoren, KI-Wearables, Fitness/EdTech Geraete, LBE Plattformen, Corporate Wellness Produkte) und je Fund dokumentieren:
+- possibleIntegration
+- WellFit benefit
+- financialBenefit
+- resaleOrPartnerPotential
+- userBenefit
+- ecosystemImpact
+- beta1Allowed
+- futureOnlyReason
+- riskLevel
+- recommendation
+
+Hinweis: Nur Dossier/Proposal/Research; keine Runtime-Integration in diesem Schritt.

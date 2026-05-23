@@ -154,3 +154,101 @@ Produktgrenzen:
 - XP = Avatar-Fortschritt.
 - WFT/SUI/Blockchain/Token/NFT/Payment/Cashout sind nicht Beta-1 aktiv.
 - Keine echte GitHub API, kein echtes Deploy, Runner bleibt metadata_only, Admin/Owner approval erforderlich.
+
+
+## First Run 2026-05-23 — Product Evolution Opportunity Dossiers
+
+### 1)
+dossierId: PE-20260523-01
+title: Family Walk & Learn Seasonal Mission Pack
+category: mission_content_system
+targetPillar: Praevention / Bewegung
+problem: Beta-1 hat noch zu wenig strukturierte familiengeeignete Mission-Bundles mit klaren Safety-Boundaries.
+proposedChange: Admin-freigabefaehiges Dossier fuer saisonale Walk+Learn Mission-Packs (nur Konzeption).
+whyNow: Nach PR #241 ist Control-Center technisch vorbereitet; jetzt braucht es hochwertige Inhalte fuer Approval-Pipeline.
+WellFit benefit: Schnellere Aktivierung sicherer Mission-Roadmap ohne Runtime-Risiko.
+user benefit: Klare, motivierende Familienmissionen mit Bewegung und Lernanteil.
+business benefit: Hoehere Retention + vorbereitete B2B Family-Wellness Story.
+financial impact: mittel (indirekt ueber Retention/Konversion).
+WFP/XP economy impact: WFP als kontrollierter Reward-Loop, XP fuer Avatar Progress.
+internal economy impact: erfordert Reward-Caps und saisonale Sink-Mechanik.
+beta1Allowed: yes
+beta1Scope: docs/register proposal only
+forbiddenScope: token/nft/payment/cashout/runtime reward authority
+risks: Reward-Inflation, Child-Safety-Missverstaendnisse
+mitigation: Reward-Caps, Guardian-Boundary, admin approval gate
+researchSummary: internal-only analysis ausreichend fuer first-run proposal
+evidenceSource:
+  internal_sources: [WORK_MAP, TODO_INDEX, user-feedback, adaptive-user-insights]
+  repo_status: [agent-control-center, dossier-to-runner pipeline]
+  external_research_pending: true
+recommendation: approve
+suggestedTaskProposal:
+  suggestedBranch: proposal/family-seasonal-mission-pack
+  allowedFiles: [docs/**, todolist/**, project-register/**]
+  blockedFiles: [app/**, functions/**, firestore.rules, native/**]
+  requiredChecks: [npm run agent:validate, npm run agent:quality-gate, npm run lint, npm run build, git diff --check]
+  riskLevel: medium
+  runnerEligibility: true
+  adminDecisionPlaceholder: pending
+
+### 2)
+dossierId: PE-20260523-02
+title: Buddy Habit Reflection Loop (Non-medical)
+category: ai_buddy_engagement
+targetPillar: KI-Buddy / Avatarbindung
+problem: Buddy-Bindung ist konzeptionell stark, aber Dossier fuer sichere Beta-1 Habit-Reflexion fehlt.
+proposedChange: Proposal fuer taegliche Reflexionsprompts ohne Gesundheitsdiagnostik.
+whyNow: Hoeherer Engagement-Hebel ohne neue Compliance-kritische Datenpfade.
+WellFit benefit: staerkere Avatarbindung mit XP-Fortschritt.
+user benefit: mehr Motivation durch kleine taegliche Ziele.
+business benefit: bessere D1/D7-Retention.
+financial impact: mittel
+WFP/XP economy impact: XP-first, WFP nur bei regelkonformen mission steps.
+internal economy impact: niedrige Inflation bei XP-Fokus.
+beta1Allowed: yes
+beta1Scope: proposal + narrative design
+forbiddenScope: medical claims, sensitive inference, tokenization
+risks: motivational pressure, health-adjacent wording
+mitigation: ethical copy review + risk filter
+researchSummary: externe Verhaltensforschung optional spaeter
+evidenceSource:
+  internal_sources: [AGENT_MISSION_STORY_PROPOSALS, user-feedback]
+  repo_status: [agent approval flow ready]
+  external_research_pending: true
+recommendation: approve
+suggestedTaskProposal:
+  suggestedBranch: proposal/buddy-habit-reflection-loop
+  allowedFiles: [docs/**, todolist/**, project-register/**]
+  blockedFiles: [app/**, functions/**]
+  requiredChecks: [npm run agent:validate, npm run agent:quality-gate, npm run lint, npm run build]
+  riskLevel: medium
+  runnerEligibility: true
+  adminDecisionPlaceholder: pending
+
+### 3)
+dossierId: PE-20260523-03
+title: AR-Lite Discovery Route Framework
+category: ar_location_mission_design
+targetPillar: AR / Location-Based Entertainment
+problem: AR-Wertversprechen da, aber Beta-1 braucht privacy-safe low-risk Einstieg ohne Unity-Abhaengigkeit.
+proposedChange: Dossier fuer AR-lite Mission-Blueprint mit coarse location boundaries.
+whyNow: Unity bleibt isoliert; trotzdem kann Web-Beta Story vorbereitet werden.
+WellFit benefit: AR-Track roadmapfaehig ohne native risk.
+user benefit: spielerische Bewegung in sicheren Zonen.
+business benefit: vorbereitetes Partner-/Location Narrative.
+financial impact: mittel-langfristig
+WFP/XP economy impact: XP progression via exploration chapters.
+internal economy impact: WFP nur capped completion bonus.
+beta1Allowed: yes
+beta1Scope: docs/register only
+forbiddenScope: precise tracking, child location exposure
+risks: privacy/location sensitivity
+mitigation: coarse zones + no public coordinates
+researchSummary: external device/platform benchmarking pending
+evidenceSource:
+  internal_sources: [WELLFIT_AGENT_PRODUCT_TECH_RADAR, canonical truth docs]
+  repo_status: [unity isolation rule]
+  external_research_pending: true
+recommendation: research_more
+...

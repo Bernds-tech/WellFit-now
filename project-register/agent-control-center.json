@@ -972,5 +972,9 @@
       "direct_main_write",
       "unlock_protected_scope_without_review"
     ]
+  },
+  "firstRunProductEvolution": {
+    "status": "pending_admin_approval",
+    "outputRegister": "project-register/agent-product-evolution-first-run-output.json"
   }
 }
