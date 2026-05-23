@@ -408,5 +408,15 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow create, update, delete: if false;
     }
+    match /agentTaskGithubRunnerJobs/{jobId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if false;
+    }
+
+    match /agentTaskSupervisedRunnerJobs/{jobId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if false;
+    }
+
   }
 }
