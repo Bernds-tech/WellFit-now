@@ -881,7 +881,6 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const snapshot = await query.get();
     return { accepted: true, proposals: snapshot.docs.map((doc) => doc.data()) };
   });
-}
 
 
 
@@ -889,12 +888,36 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
     const data = request.data || {};
     const targetId = requiredString(data.targetId, "targetId", HttpsError, 180);
-    const sourceRef = optionalString(data.sourceRef, 260) || null;
+    const sourceRefHint = optionalString(data.sourceRef, 260) || null;
     const reason = optionalString(data.reason, 1000) || null;
-    const riskLevel = normalizeRiskLevel(data.riskLevel);
+
+    async function resolveTarget() {
+      if (targetType === "agent") {
+        const [proposalSnap, backlogSnap, catalogSnap] = await Promise.all([
+          db.collection("agentTaskProposals").doc(targetId).get(),
+          db.collection("approvedAgentBuildBacklogMirror").doc(targetId).get(),
+          db.collection("agentCatalogMirror").doc(targetId).get(),
+        ]);
+        if (proposalSnap.exists) return { sourceRef: "agentTaskProposals", riskLevel: normalizeRiskLevel(proposalSnap.data().riskLevel), protectedScopes: parseStringList(proposalSnap.data().protectedScopes || []), allowedFiles: parseStringList(proposalSnap.data().allowedFiles || []) };
+        if (backlogSnap.exists) return { sourceRef: "approvedAgentBuildBacklogMirror", riskLevel: normalizeRiskLevel(backlogSnap.data().riskLevel), protectedScopes: parseStringList(backlogSnap.data().protectedScopes || []), allowedFiles: parseStringList(backlogSnap.data().allowedWriteScopes || []) };
+        if (catalogSnap.exists) return { sourceRef: "agentCatalogMirror", riskLevel: normalizeRiskLevel(catalogSnap.data().riskLevel), protectedScopes: parseStringList(catalogSnap.data().protectedScopes || []), allowedFiles: parseStringList(catalogSnap.data().allowedWriteScopes || []) };
+        throw new HttpsError("not-found", "agent_target_not_found");
+      }
+      const missionSnap = await db.collection("agentCenterMissionProposals").doc(targetId).get();
+      if (!missionSnap.exists) throw new HttpsError("not-found", "mission_target_not_found");
+      const d = missionSnap.data() || {};
+      return { sourceRef: "agentCenterMissionProposals", riskLevel: normalizeRiskLevel(d.riskLevel), protectedScopes: parseStringList(d.protectedScopes || []), allowedFiles: parseStringList(d.allowedWriteScopes || []) };
+    }
+
+    const resolved = await resolveTarget();
+    const sourceRef = resolved.sourceRef || sourceRefHint || null;
+    const riskLevel = normalizeRiskLevel(resolved.riskLevel);
     const automationControl = (await getGlobalAutomationControl(db)).data;
     if (["off", "paused", "halted_waiting_owner"].includes(String(automationControl.automationMode || "off"))) throw new HttpsError("failed-precondition", "automation_control_blocked");
-    const protectedScopeDetected = String(sourceRef || "").toLowerCase().includes("canonical-truth");
+    const canonHints = [sourceRef, sourceRefHint, ...resolved.allowedFiles, ...resolved.protectedScopes].filter(Boolean);
+    const canonicalMatches = touchesCanonicalTruthProtectedFiles(canonHints);
+    const canonicalKeyword = canonHints.some((x) => /canonical[-_]?truth/i.test(String(x || "")));
+    const protectedScopeDetected = canonicalMatches.length > 0 || canonicalKeyword;
     const ownerRequired = protectedScopeDetected || riskLevel === "high" || riskLevel === "critical";
     if (["approved", "rejected", "blocked"].includes(decision) && !["owner", "agent_supervisor"].includes(actorRole)) {
       const adminAllowed = actorRole === "admin_operator" && decision === "approved" && ["low", "medium"].includes(riskLevel) && !ownerRequired;
@@ -918,4 +941,6 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   exportsTarget.requestRevisionMissionCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "mission", decision: "revise" }));
   exportsTarget.blockMissionCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "mission", decision: "blocked" }));
   exportsTarget.markMissionCenterProposalForReview = onCall(async (request) => writeCenterDecision({ request, targetType: "mission", decision: "review" }));
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail };
+
+
+}module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail };
