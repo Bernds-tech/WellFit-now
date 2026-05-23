@@ -388,6 +388,11 @@ Lies diesen Index zuerst, wenn du mit TODOs arbeitest. Suche danach alle TODO-Da
 |---|---|---|---|
 | Multisensory Learning Engine | `project-register/multisensory-learning-engine.json`, `docs/architecture/WELLFIT_MULTISENSORY_LEARNING_ENGINE.md`, `scripts/wellfit-dev-agent/src/multisensory-learning-engine-check.mjs` | report_only / active | First controlled Approved Agent Build Runner activation built exactly one approved framework. No runtime learning personalization, AR/Unity behavior, protected-data tracking/profiling, reward authority, mission-completion authority, token/NFT/wallet/payment/betting behavior, auto-merge, auto-repair, approval, deploy, or PR #13 action is enabled. |
 
+
+### Supervised GitHub Runner Integration (2026-05-23 follow-up)
+
+- `docs/architecture/WELLFIT_AGENT_SUPERVISED_RUNNER_GITHUB_INTEGRATION.md` - Architektur + Status-Semantik fuer ehrliche metadata/not-implemented Runner-Zustaende; `pr_created`/`auto_merged` nur bei echter GitHub API Response.
+
 ## Product Intelligence Agent report-only references - 2026-05-17
 
 - `project-register/product-intelligence-agent.json` - canonical report-only Product Intelligence Agent register for evidence-based product prioritization and decision-brief boundaries.
@@ -654,3 +659,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - `docs/architecture/WELLFIT_AGENT_PRODUCT_TECH_RADAR.md` als Product/Tech-Radar-Architekturreferenz aktiv indexiert.
 - `docs/beta/prompts/CODEX_PROMPT_AGENT_PRODUCT_EVOLUTION_LOOP_FIRST_RUN.md` als Product-Evolution-Loop-First-Run-Handoff-Prompt aktiv indexiert.
 - `todolist/CODEX_PROMPT_AGENT_CANONICAL_TRUTH_INTEGRATION.md` bleibt der nicht-protected Companion-Prompt fuer Canonical-Truth-Integration (owner-protected Dateien bleiben read-only).
+
+- 2026-05-23: Fix-Branch `fix/agent-github-runner-no-fake-pr-merge-status` haertet Supervised GitHub Runner Status-Semantik: kein `pr_created`/`auto_merged` ohne echte GitHub API Response; stattdessen ehrliche Status `missing_server_config` bzw. `github_api_not_implemented`. Zudem TODO/Architektur-Index-Follow-up fuer Runner-Doku synchronisiert.

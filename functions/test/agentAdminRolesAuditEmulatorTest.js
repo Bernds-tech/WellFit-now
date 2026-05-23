@@ -283,6 +283,18 @@ async function run() {
   await expectOk("approveAgentAutomationContinueAfterHalt", owner, {});
   await expectOk("recordAgentAutomationMergeOutcome", service, { prRef: "#224", mergeStatus: "failed", reason: "checks again" });
   await expectOk("createAgentTaskProposal", supervisor, { title: "allowed-repair-task", promptRef: "docs/test-repair", requestedAction: "repair", targetTrack: "docs_register", taskType: "repair_task" });
+
+  const githubRunnerJob = await expectOk("prepareAgentGithubRunnerJob", owner, { workerQueueId: previewWorkerId, policyId: previewPolicyId, githubBranchName: "runtime/test-gh-runner" });
+  assert(["missing_server_config", "github_api_not_implemented", "metadata_only"].includes(githubRunnerJob.status), "runner prepare must stay honest without real API");
+  const prResult = await expectOk("createAgentGithubPullRequest", owner, { jobId: githubRunnerJob.jobId });
+  assert(prResult.status !== "pr_created", "PR must not be reported as created without real GitHub API");
+  const runnerJobAfterPr = await expectOk("getAgentGithubRunnerJob", owner, { jobId: githubRunnerJob.jobId });
+  assert(runnerJobAfterPr.job.githubPrRef == null, "githubPrRef must not contain fake PR refs");
+  await expectOk("approveAgentGithubAutoMerge", owner, { jobId: githubRunnerJob.jobId });
+  const mergeResult = await expectOk("executeAgentGithubAutoMergeMetadataOrReal", owner, { jobId: githubRunnerJob.jobId });
+  assert(mergeResult.status !== "auto_merged", "auto-merge must not be reported without real GitHub API merge");
+  await expectFail("createAgentGithubBranchMetadata", owner, { jobId: githubRunnerJob.jobId, githubBranchName: "main" });
+
   const automationAudit = await db.collection("agentTaskAuditLog").where("action", "==", "automation_mode_set").get();
   assert(automationAudit.size > 0, "automation control actions should be audited");
 

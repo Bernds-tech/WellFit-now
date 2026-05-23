@@ -19,4 +19,24 @@ function isProtectedBranchName(branchName) {
   return normalized === "main" || normalized === "master";
 }
 
-module.exports = { readGithubRunnerConfig, isProtectedBranchName };
+function hasGithubServerConfig() {
+  return readGithubRunnerConfig().enabled;
+}
+
+function githubApiImplementationAvailable() {
+  return false;
+}
+
+function buildGithubRunnerCapability() {
+  const config = readGithubRunnerConfig();
+  const apiImplemented = githubApiImplementationAvailable();
+  return {
+    hasServerConfig: config.enabled,
+    configMode: config.mode,
+    githubApiImplemented: apiImplemented,
+    realGithubIntegration: Boolean(config.enabled && apiImplemented),
+    status: !config.enabled ? "missing_server_config" : apiImplemented ? "metadata_only" : "github_api_not_implemented",
+  };
+}
+
+module.exports = { readGithubRunnerConfig, isProtectedBranchName, hasGithubServerConfig, githubApiImplementationAvailable, buildGithubRunnerCapability };

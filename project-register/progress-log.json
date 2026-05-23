@@ -8,6 +8,24 @@
   },
   "entries": [
     {
+      "id": "2026-05-23-github-runner-status-semantics-fix",
+      "date": "2026-05-23",
+      "branch": "fix/agent-github-runner-no-fake-pr-merge-status",
+      "goal": "Prevent fake GitHub runner success statuses and sync quality-gate TODO follow-up.",
+      "changedAreas": [
+        "functions/lib/agentGithubRunner.js",
+        "functions/lib/agentAdminRolesAudit.js",
+        "functions/test/agentAdminRolesAuditEmulatorTest.js",
+        "lib/admin/beta1AdminTypes.ts",
+        "components/admin/Beta1AdminPanel.tsx",
+        "docs/architecture/WELLFIT_AGENT_SUPERVISED_RUNNER_GITHUB_INTEGRATION.md",
+        "todolist/TODO_INDEX.md"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "No real GitHub API integration added. Runner stays metadata/not-implemented unless real API exists. No production deploy, no secrets in client, canonical truth files unchanged."
+    },
+    {
       "id": "2026-05-22-agent-product-evolution-loop-plan",
       "date": "2026-05-22",
       "branch": "plan/agent-product-evolution-loop",
