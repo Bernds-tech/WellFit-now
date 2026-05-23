@@ -8,6 +8,24 @@
   },
   "entries": [
     {
+      "id": "2026-05-23-agent-control-center-report-template-gated-wording",
+      "date": "2026-05-23",
+      "branch": "fix/agent-control-center-report-template-gated-wording",
+      "goal": "Remove legacy never-merge/never-deploy wording from Agent Control Center markdown report and synchronize with gated automation console semantics.",
+      "changedAreas": [
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.mjs",
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.test.mjs",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Script/report/register/docs cleanup only. No runtime files changed, no GitHub API integration, no deploy, no canonical-truth protected file edits."
+    },
+    {
       "id": "2026-05-23-agent-control-center-gated-automation-hardening",
       "date": "2026-05-23",
       "branch": "fix/agent-control-center-gated-automation-hardening",
