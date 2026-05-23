@@ -64,3 +64,10 @@ Produktgrenzen:
 - XP = Avatar-Fortschritt.
 - WFT/SUI/Blockchain/Token/NFT/Payment/Cashout sind nicht Beta-1 aktiv.
 - Keine echte GitHub API, kein echtes Deploy, Runner bleibt metadata_only, Admin/Owner approval erforderlich.
+
+
+## Pipeline-ready Output (neu)
+- Output muss direkt pipeline-ready sein.
+- Pro Dossier erforderlich: `suggestedTaskProposal`, `suggestedBranch`, `allowedFiles`, `blockedFiles`, `requiredChecks`, `riskLevel`, `adminDecisionPlaceholder`, `workerQueueHint`, `runnerEligibility`.
+- Keine Umsetzung ohne Admin approval.
+- Nach approval darf `createAgentTaskProposalFromApprovedDossier` genutzt werden.

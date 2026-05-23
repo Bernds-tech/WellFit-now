@@ -1,0 +1,25 @@
+{
+  "status": "active_supervised",
+  "stages": [
+    "dossier_approved",
+    "agent_task_proposal_created",
+    "task_approved",
+    "worker_queue_created",
+    "runner_job_created",
+    "branch_created",
+    "files_committed",
+    "pr_created",
+    "checks_passed",
+    "auto_merged",
+    "repair_required",
+    "halted_waiting_owner"
+  ],
+  "requiredApprovals": ["admin_dossier_approval", "agent_task_approval"],
+  "requiredChecks": ["npm run agent:validate", "npm run agent:quality-gate", "npm run lint", "npm run build", "npm --prefix functions run check"],
+  "stopConditions": ["direct_main_write_blocked", "quality_gate_failed", "required_checks_failed", "known_blocker_blocks_real_runner", "automation_control_paused_or_off", "canonical_truth_protected", "repair_limit_reached"],
+  "adminViewRequired": true,
+  "noDirectMain": true,
+  "noSecrets": true,
+  "noProductionDeploy": true,
+  "canonicalTruthProtected": true
+}
