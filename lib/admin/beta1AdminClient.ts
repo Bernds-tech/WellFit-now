@@ -71,7 +71,8 @@ export const beta1AdminClient = {
   prepareAgentSupervisedRunnerJob: (input: AgentAutomationPolicyInput) => callAdmin("prepareAgentSupervisedRunnerJob", input),
 
   prepareAgentGithubRunnerJob: (input: AgentAutomationPolicyInput) => callAdmin("prepareAgentGithubRunnerJob", input),
-  createAgentGithubBranchMetadata: (input: { jobId: string; githubBranchName: string }) => callAdmin("createAgentGithubBranchMetadata", input),
+  createAgentGithubBranch: (input: { jobId: string; githubBranchName: string; baseBranch?: string }) => callAdmin("createAgentGithubBranch", input),
+  applyAgentGithubFileChanges: (input: { jobId: string; fileChanges: Array<{ path: string; content: string; changeType?: string; encoding?: string }>; commitMessage: string }) => callAdmin("applyAgentGithubFileChanges", input),
   createAgentGithubPullRequest: (input: { jobId: string }) => callAdmin("createAgentGithubPullRequest", input),
   recordAgentGithubCheckStatus: (input: { jobId: string; allRequiredChecksPassed?: boolean; checkResultsSnapshot?: unknown[] }) => callAdmin("recordAgentGithubCheckStatus", input),
   refreshAgentGithubCheckStatus: (input: { jobId: string }) => callAdmin("refreshAgentGithubCheckStatus", input),
