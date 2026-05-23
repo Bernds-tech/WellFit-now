@@ -45,3 +45,10 @@ export type AgentGithubCheckResult = { name: string; status: string; conclusion?
 export type AgentGithubRunnerJob = { jobId:string; workerQueueId:string; policyId:string; githubRunnerStatus:AgentGithubRunnerStatus; githubBranchName?:string; githubPrRef?:string|null; githubPrUrl?:string|null; githubCommitSha?:string|null; realGithubIntegration?:boolean; };
 export type AgentGithubRunnerActionInput = { jobId: string; workerQueueId?: string; policyId?: string; githubBranchName?: string; reason?: string; };
 export type AgentGithubCheckStatusInput = { jobId: string; allRequiredChecksPassed?: boolean; checkResultsSnapshot?: Array<{name?:string;status?:string}>; };
+
+
+export type AdminCenterListFilter = "agenten_gesamt"|"warten_auf_freigabe"|"abgelehnt_blockiert"|"missionsvorschlaege"|"missionen"|"missionen_abgelehnt";
+export type AgentCenterDecisionInput = { targetType: "agent"; targetId: string; sourceRef?: string; reason?: string; riskLevel?: string; };
+export type MissionCenterDecisionInput = { targetType: "mission"; targetId: string; sourceRef?: string; reason?: string; riskLevel?: string; };
+export type AgentCenterDecision = { decisionId: string; decision: "approved"|"rejected"|"revise"|"blocked"|"review"; targetId: string; targetType: "agent"; };
+export type MissionCenterDecision = { decisionId: string; decision: "approved"|"rejected"|"revise"|"blocked"|"review"; targetId: string; targetType: "mission"; };

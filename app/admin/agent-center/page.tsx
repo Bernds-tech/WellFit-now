@@ -7,6 +7,7 @@ import approvalWorkflowJson from "@/project-register/agent-center-approval-workf
 import missionProposalsJson from "@/project-register/agent-center-mission-proposals.json";
 import approvedAgentBuildBacklog from "@/project-register/approved-agent-build-backlog.json";
 import routesRegisterJson from "@/project-register/routes.json";
+import AgentCenterInteractive from "./AgentCenterInteractive";
 
 type AgentEntry = {
   id?: string;
@@ -135,13 +136,6 @@ const rejectedMissionProposals = missionProposalEntries.filter((entry) => entry.
 const doneMissionProposals = missionProposalEntries.filter((entry) => entry.status === "gemacht");
 const distinctMissionProposals = missionProposalEntries.filter((entry) => entry.status === "verschieden");
 const distinctMissionRoutes = Array.from(new Map(missionRouteEntries.map((route) => [route.route, route])).values());
-const approvalQueueRows = [...pendingApprovalAgents, ...rejectedAgents].sort((first, second) => {
-  const firstRejected = rejectedStatuses.has(first.status ?? "");
-  const secondRejected = rejectedStatuses.has(second.status ?? "");
-  if (firstRejected !== secondRejected) return firstRejected ? 1 : -1;
-  return getEntryTitle(first).localeCompare(getEntryTitle(second), "de");
-});
-
 export const metadata: Metadata = {
   title: "Agent Center | WellFit Admin",
   description: "Live sichtbares WellFit Agent Control Center mit sicher aktivierter report-only Agent-OS-Schicht.",
@@ -180,7 +174,7 @@ function ApprovalTopPanel() {
       <div className="mb-3 flex flex-col gap-2 border-b border-white/10 pb-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-base font-bold text-white">Kennzahlen und Registerstatus</h2>
-          <p className="mt-1 text-xs leading-5 text-cyan-50/65">Technische Übersicht aus lokalen Governance-Registern; keine Ausführung, kein Merge, kein Deploy.</p>
+          <p className="mt-1 text-xs leading-5 text-cyan-50/65">Technische Übersicht aus lokalen Governance-Registern. Interaktive Freigaben erfolgen im Bereich „Interaktive Listen“ unten; kein Merge/Deploy.</p>
         </div>
         <Pill>Register-Snapshot</Pill>
       </div>
@@ -268,109 +262,6 @@ function ApprovalWorkflowBox() {
   );
 }
 
-function getApprovalDocumentId(entry: SourceEntry) {
-  return `agent-doc-${getEntryKey(entry).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
-}
-
-function ApprovalScopeDocument({ entry }: { entry: SourceEntry }) {
-  const documentId = getApprovalDocumentId(entry);
-  const title = getEntryTitle(entry);
-  const allowedScopes = entry.allowedWriteScopes ?? [];
-  const forbiddenScopes = entry.forbiddenWriteScopes ?? [];
-
-  return (
-    <div id={documentId} className="pointer-events-none fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-slate-950/80 p-4 backdrop-blur-sm target:pointer-events-auto target:flex">
-      <article className="relative mt-8 w-full max-w-4xl rounded-[2rem] border border-cyan-200/25 bg-slate-950 p-6 text-white shadow-2xl shadow-slate-950/70 md:p-8">
-        <a href="#agent-approval-list" aria-label="Dokument schließen" className="absolute right-5 top-5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-lg font-black text-white hover:bg-white/20">×</a>
-        <p className="pr-10 text-xs font-bold uppercase tracking-[0.24em] text-cyan-100/70">Freigabe-Dokument</p>
-        <h3 className="mt-3 pr-10 text-3xl font-black tracking-tight text-white">{title}</h3>
-        <p className="mt-3 text-sm leading-6 text-cyan-50/80">{entry.purpose ?? entry.reason ?? entry.expectedBenefit ?? "Für diesen Agenten ist im Register noch keine ausführliche Beschreibung hinterlegt."}</p>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-emerald-200/20 bg-emerald-300/10 p-4">
-            <h4 className="font-bold text-emerald-50">Dafür ist der Agent gedacht</h4>
-            <p className="mt-2 text-sm leading-6 text-emerald-50/80">{entry.expectedBenefit ?? entry.nextRecommendedAction ?? entry.nextSafeMaintenanceTask ?? "Nutzen oder nächster Schritt muss vor der Freigabe ergänzt werden."}</p>
-          </div>
-          <div className="rounded-2xl border border-amber-200/20 bg-amber-300/10 p-4">
-            <h4 className="font-bold text-amber-50">Freigabeumfang</h4>
-            <p className="mt-2 text-sm leading-6 text-amber-50/85">Zustimmung bedeutet nur fachliche Intent-Erfassung. PR-Erstellung und Merge-Prüfung folgen erst über den separaten Owner-Workflow; diese Oberfläche führt weiterhin nichts automatisch aus.</p>
-          </div>
-        </div>
-
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl bg-white/[0.07] p-4">
-            <h4 className="font-bold text-white">Darf verändern</h4>
-            <ul className="mt-3 space-y-2 text-sm leading-6 text-cyan-50/80">
-              {allowedScopes.length > 0 ? allowedScopes.map((scope) => <li key={scope} className="font-mono text-xs">• {scope}</li>) : <li>• Keine Schreibpfade dokumentiert.</li>}
-            </ul>
-          </div>
-          <div className="rounded-2xl bg-rose-400/[0.09] p-4">
-            <h4 className="font-bold text-white">Darf nicht verändern</h4>
-            <ul className="mt-3 space-y-2 text-sm leading-6 text-rose-50/85">
-              {forbiddenScopes.length > 0 ? forbiddenScopes.map((scope) => <li key={scope} className="font-mono text-xs">• {scope}</li>) : <li>• Keine Sperrpfade dokumentiert.</li>}
-            </ul>
-          </div>
-        </div>
-      </article>
-    </div>
-  );
-}
-
-function AgentApprovalQueue() {
-  return (
-    <section id="agent-approval-list" className="rounded-3xl border border-white/12 bg-slate-950/35 p-5 shadow-xl shadow-slate-950/25">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-white">Freigabe-Zeilenliste</h2>
-          <p className="mt-1 text-sm leading-6 text-cyan-50/75">Links steht der Agent, daneben der Betreff/Nutzen, dann das Dokument und rechts die Entscheidung. Die Felder speichern noch nicht in Firebase und starten keinen Merge automatisch.</p>
-        </div>
-        <Pill tone="warn">{approvalQueueRows.length} Zeilen</Pill>
-      </div>
-
-      <div className="mt-5 overflow-x-auto">
-        <table className="min-w-full border-separate border-spacing-y-2 text-left text-sm">
-          <thead className="text-xs uppercase tracking-[0.18em] text-cyan-100/60">
-            <tr>
-              <th className="px-3 py-2">Agent</th>
-              <th className="px-3 py-2">Betreff / wofür gut</th>
-              <th className="px-3 py-2">Dokument</th>
-              <th className="px-3 py-2">Zustimmen / ablehnen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {approvalQueueRows.map((entry) => {
-              const title = getEntryTitle(entry);
-              const rowTone = rejectedStatuses.has(entry.status ?? "") ? "danger" : "warn";
-              return (
-                <tr key={`${entry.source}-${getEntryKey(entry)}`} className="bg-white/[0.08] text-cyan-50/85 align-top">
-                  <td className="rounded-l-2xl px-3 py-4">
-                    <p className="font-bold text-white">{title}</p>
-                    <p className="mt-1 font-mono text-xs text-cyan-100/65">{entry.id ?? entry.sourceLabel}</p>
-                    <div className="mt-2 flex flex-wrap gap-2"><Pill tone={rowTone}>{entry.status ?? "n/a"}</Pill><Pill>{entry.riskLevel ?? "risk n/a"}</Pill></div>
-                  </td>
-                  <td className="max-w-xl px-3 py-4 text-sm leading-6">{entry.expectedBenefit ?? entry.purpose ?? entry.reason ?? "Kein Betreff/Nutzen im Register dokumentiert."}</td>
-                  <td className="px-3 py-4">
-                    <a href={`#${getApprovalDocumentId(entry)}`} className="inline-flex rounded-full border border-cyan-200/30 bg-cyan-300/15 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-cyan-50 hover:bg-cyan-300/25">Dokument öffnen</a>
-                    <ApprovalScopeDocument entry={entry} />
-                  </td>
-                  <td className="rounded-r-2xl px-3 py-4">
-                    <fieldset className="space-y-2">
-                      <legend className="sr-only">Entscheidung für {title}</legend>
-                      <label className="flex items-center gap-2 rounded-full border border-emerald-200/20 bg-emerald-300/10 px-3 py-2 text-xs font-semibold text-emerald-50"><input type="radio" name={`approval-${getEntryKey(entry)}`} /> Zustimmen</label>
-                      <label className="flex items-center gap-2 rounded-full border border-rose-200/20 bg-rose-400/10 px-3 py-2 text-xs font-semibold text-rose-50"><input type="radio" name={`approval-${getEntryKey(entry)}`} defaultChecked={rejectedStatuses.has(entry.status ?? "")} /> Ablehnen</label>
-                    </fieldset>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {approvalQueueRows.length === 0 && <p className="mt-4 rounded-2xl bg-white/[0.08] p-4 text-sm text-cyan-50/75">Keine Agenten warten aktuell auf Freigabe.</p>}
-    </section>
-  );
-}
-
 export default function AgentCenterPage() {
   return (
     <AppShell reward={0} contentClassName="px-0 py-0">
@@ -402,7 +293,18 @@ export default function AgentCenterPage() {
             <MissionProposalOverviewBox />
           </section>
 
-          <AgentApprovalQueue />
+          <AgentCenterInteractive data={{
+            stats: {
+              agents: uniqueAgents.length,
+              pending: pendingApprovalAgents.length,
+              rejected: rejectedAgents.length,
+              missionSuggestions: missionProposalEntries.length,
+              missions: `${doneMissionProposals.length}/${distinctMissionRoutes.length}`,
+              missionRejected: rejectedMissionProposals.length,
+            },
+            uniqueAgents, pendingApprovalAgents, rejectedAgents, missionProposalEntries, doneMissionProposals, distinctMissionRoutes, rejectedMissionProposals
+          }} />
+
         </div>
       </div>
     </AppShell>

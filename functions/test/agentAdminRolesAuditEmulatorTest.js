@@ -298,6 +298,25 @@ async function run() {
   const automationAudit = await db.collection("agentTaskAuditLog").where("action", "==", "automation_mode_set").get();
   assert(automationAudit.size > 0, "automation control actions should be audited");
 
+  await db.collection("agentTaskProposals").doc("center-low").set({ riskLevel: "low", protectedScopes: [], allowedFiles: ["docs/architecture/x.md"] });
+  await db.collection("agentTaskProposals").doc("center-high").set({ riskLevel: "high", protectedScopes: ["canonical_truth"], allowedFiles: ["project-register/wellfit-beta1-canonical-truth.json"] });
+  await db.collection("agentCenterMissionProposals").doc("mission-low").set({ riskLevel: "low", protectedScopes: [] });
+
+  await expectFail("approveAgentCenterProposal", user, { targetType: "agent", targetId: "center-low" });
+  await expectFail("approveAgentCenterProposal", operator, { targetType: "agent", targetId: "center-high" });
+  await expectOk("approveAgentCenterProposal", supervisor, { targetType: "agent", targetId: "center-low" });
+  await expectOk("approveAgentCenterProposal", owner, { targetType: "agent", targetId: "center-high" });
+  await expectFail("approveAgentCenterProposal", owner, { targetType: "agent", targetId: "unknown-id" });
+  await expectOk("rejectAgentCenterProposal", owner, { targetType: "agent", targetId: "center-low" });
+  await expectOk("blockAgentCenterProposal", owner, { targetType: "agent", targetId: "center-low" });
+  await expectOk("approveMissionCenterProposal", owner, { targetType: "mission", targetId: "mission-low" });
+
+  const centerAudit = await db.collection("agentTaskAuditLog").where("action", "==", "agent_center_rejected").get();
+  assert(centerAudit.size > 0, "reject must write audit");
+  const centerBlockAudit = await db.collection("agentTaskAuditLog").where("action", "==", "agent_center_blocked").get();
+  assert(centerBlockAudit.size > 0, "block must write audit");
+  const missionDecision = await db.collection("missionCenterDecisions").where("targetId", "==", "mission-low").get();
+  assert(missionDecision.size > 0, "mission approve should write decision record");
 
   console.log("agentAdminRolesAuditEmulatorTest: handoff queue assertions completed");
 }
