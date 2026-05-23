@@ -18,6 +18,8 @@ import type {
   AgentWorkerQueueChecksInput,
   AgentWorkerQueueCreateInput,
   AgentAutomationPolicyInput,
+  AgentCenterDecisionInput,
+  MissionCenterDecisionInput,
 } from "./beta1AdminTypes";
 
 function sanitizeAdminError(error: unknown): string {
@@ -92,4 +94,16 @@ export const beta1AdminClient = {
   recordAgentAutomationRepairAttempt: (input: { prRef?: string; result: string; reason?: string }) => callAdmin("recordAgentAutomationRepairAttempt", input),
   resetAgentAutomationRepairCounter: () => callAdmin("resetAgentAutomationRepairCounter", {}),
   approveAgentAutomationContinueAfterHalt: () => callAdmin("approveAgentAutomationContinueAfterHalt", {}),
+
+  approveAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("approveAgentCenterProposal", input),
+  rejectAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("rejectAgentCenterProposal", input),
+  requestRevisionAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("requestRevisionAgentCenterProposal", input),
+  blockAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("blockAgentCenterProposal", input),
+  markAgentCenterProposalForReview: (input: AgentCenterDecisionInput) => callAdmin("markAgentCenterProposalForReview", input),
+  approveMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("approveMissionCenterProposal", input),
+  rejectMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("rejectMissionCenterProposal", input),
+  requestRevisionMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("requestRevisionMissionCenterProposal", input),
+  blockMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("blockMissionCenterProposal", input),
+  markMissionCenterProposalForReview: (input: MissionCenterDecisionInput) => callAdmin("markMissionCenterProposalForReview", input),
+
 };

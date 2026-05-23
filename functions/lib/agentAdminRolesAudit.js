@@ -883,4 +883,39 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   });
 }
 
+
+
+  async function writeCenterDecision({ request, targetType, decision }) {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const data = request.data || {};
+    const targetId = requiredString(data.targetId, "targetId", HttpsError, 180);
+    const sourceRef = optionalString(data.sourceRef, 260) || null;
+    const reason = optionalString(data.reason, 1000) || null;
+    const riskLevel = normalizeRiskLevel(data.riskLevel);
+    const automationControl = (await getGlobalAutomationControl(db)).data;
+    if (["off", "paused", "halted_waiting_owner"].includes(String(automationControl.automationMode || "off"))) throw new HttpsError("failed-precondition", "automation_control_blocked");
+    const protectedScopeDetected = String(sourceRef || "").toLowerCase().includes("canonical-truth");
+    const ownerRequired = protectedScopeDetected || riskLevel === "high" || riskLevel === "critical";
+    if (["approved", "rejected", "blocked"].includes(decision) && !["owner", "agent_supervisor"].includes(actorRole)) {
+      const adminAllowed = actorRole === "admin_operator" && decision === "approved" && ["low", "medium"].includes(riskLevel) && !ownerRequired;
+      if (!adminAllowed) throw new HttpsError("permission-denied", "role_denied");
+    }
+    if (ownerRequired && actorRole !== "owner") throw new HttpsError("failed-precondition", "protected_scope_owner_required");
+    const ref = db.collection(targetType === "agent" ? "agentCenterDecisions" : "missionCenterDecisions").doc();
+    const doc = { decisionId: ref.id, targetType, targetId, sourceRef, decision, decidedBy: actorId, decidedByRole: actorRole, reason, riskLevel, protectedScopeDetected, ownerRequired, createdAt: FieldValue.serverTimestamp() };
+    await ref.set(doc);
+    await writeAgentAudit(db, { actorId, actorRole, action: `${targetType}_center_${decision}`, proposalId: targetId, riskLevel, result: decision });
+    return { accepted: true, decisionId: ref.id, targetType, targetId, decision, ownerRequired, protectedScopeDetected };
+  }
+
+  exportsTarget.approveAgentCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "agent", decision: "approved" }));
+  exportsTarget.rejectAgentCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "agent", decision: "rejected" }));
+  exportsTarget.requestRevisionAgentCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "agent", decision: "revise" }));
+  exportsTarget.blockAgentCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "agent", decision: "blocked" }));
+  exportsTarget.markAgentCenterProposalForReview = onCall(async (request) => writeCenterDecision({ request, targetType: "agent", decision: "review" }));
+  exportsTarget.approveMissionCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "mission", decision: "approved" }));
+  exportsTarget.rejectMissionCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "mission", decision: "rejected" }));
+  exportsTarget.requestRevisionMissionCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "mission", decision: "revise" }));
+  exportsTarget.blockMissionCenterProposal = onCall(async (request) => writeCenterDecision({ request, targetType: "mission", decision: "blocked" }));
+  exportsTarget.markMissionCenterProposalForReview = onCall(async (request) => writeCenterDecision({ request, targetType: "mission", decision: "review" }));
 module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail };

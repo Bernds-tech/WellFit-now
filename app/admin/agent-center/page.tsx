@@ -7,6 +7,7 @@ import approvalWorkflowJson from "@/project-register/agent-center-approval-workf
 import missionProposalsJson from "@/project-register/agent-center-mission-proposals.json";
 import approvedAgentBuildBacklog from "@/project-register/approved-agent-build-backlog.json";
 import routesRegisterJson from "@/project-register/routes.json";
+import AgentCenterInteractive from "./AgentCenterInteractive";
 
 type AgentEntry = {
   id?: string;
@@ -401,6 +402,18 @@ export default function AgentCenterPage() {
             <RejectedOverviewBox title="Abgelehnte Agenten" entries={rejectedAgents} emptyText="Keine abgelehnten Agenten dokumentiert." />
             <MissionProposalOverviewBox />
           </section>
+
+          <AgentCenterInteractive data={{
+            stats: {
+              agents: uniqueAgents.length,
+              pending: pendingApprovalAgents.length,
+              rejected: rejectedAgents.length,
+              missionSuggestions: missionProposalEntries.length,
+              missions: `${doneMissionProposals.length}/${distinctMissionRoutes.length}`,
+              missionRejected: rejectedMissionProposals.length,
+            },
+            uniqueAgents, pendingApprovalAgents, rejectedAgents, missionProposalEntries, doneMissionProposals, distinctMissionRoutes, rejectedMissionProposals
+          }} />
 
           <AgentApprovalQueue />
         </div>
