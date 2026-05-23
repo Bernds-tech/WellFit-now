@@ -1214,11 +1214,23 @@
     {
       "date": "2026-05-22",
       "id": "agent-ecosystem-economy-product-radar-dossiers",
-      "summary": "Added ecosystem/economy dossier architecture, product radar architecture, risk source classifier, and expanded opportunity/mission/research templates plus governance references. No runtime or canonical-truth file changes."
+      "summary": "Added ecosystem/economy dossier architecture, product radar architecture, risk source classifier, and expanded opportunity/mission/research templates plus governance references. No runtime or canonical-truth file changes.",
+      "branch": "docs/agent-ecosystem-economy-product-radar-dossiers",
+      "goal": "Document ecosystem/economy dossier, external research guardrails, opportunity dossier, and product radar architecture with templates and governance links.",
+      "changedAreas": [
+        "docs/architecture",
+        "todolist",
+        "project-register",
+        "docs/beta/prompts",
+        "scripts/wellfit-dev-agent"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Docs/register/templates only; no runtime changes and no canonical-truth protected file edits."
     }
   ],
   "notes": [
     "agent opportunity dossier architecture and templates completed"
   ],
-  "updated": "2026-05-22"
+  "updated": "2026-05-23"
 }

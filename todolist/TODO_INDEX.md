@@ -640,3 +640,17 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - [x] Agent Risk Source Classifier Register hinzugefuegt (2026-05-22).
 - [x] Opportunity/Mission/Research Dossier-Templates um Ecosystem/Finance/WFP-XP/Product-Radar erweitert (2026-05-22).
 \n
+
+## Update 2026-05-23 - Agent Product Evolution / Automation Control Prompt-Index Sync
+
+- `todolist/AGENT_MISSION_STORY_PROPOSALS.md` als Mission-Story-Dossier-Template und Governance-Planungsdatei aktiv referenziert.
+- `todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md` als Opportunity-Dossier-Template aktiv referenziert.
+- `todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md` als External-Research-Summary-Template aktiv referenziert.
+- `docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md` als Automation-Control/Retry-Guard Architekturreferenz aktiv indexiert.
+- `docs/architecture/WELLFIT_AGENT_ECOSYSTEM_ECONOMY_DOSSIER.md` als Ecosystem/Economy-Dossier-Architekturreferenz aktiv indexiert.
+- `docs/architecture/WELLFIT_AGENT_EXTERNAL_RESEARCH_GUARDRAILS.md` als External-Research-Guardrail-Architekturreferenz aktiv indexiert.
+- `docs/architecture/WELLFIT_AGENT_OPPORTUNITY_DOSSIER.md` als Opportunity-Dossier-Architekturreferenz aktiv indexiert.
+- `docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md` als Product-Evolution-Loop-Architekturreferenz aktiv indexiert.
+- `docs/architecture/WELLFIT_AGENT_PRODUCT_TECH_RADAR.md` als Product/Tech-Radar-Architekturreferenz aktiv indexiert.
+- `docs/beta/prompts/CODEX_PROMPT_AGENT_PRODUCT_EVOLUTION_LOOP_FIRST_RUN.md` als Product-Evolution-Loop-First-Run-Handoff-Prompt aktiv indexiert.
+- `todolist/CODEX_PROMPT_AGENT_CANONICAL_TRUTH_INTEGRATION.md` bleibt der nicht-protected Companion-Prompt fuer Canonical-Truth-Integration (owner-protected Dateien bleiben read-only).
