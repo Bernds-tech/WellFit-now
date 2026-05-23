@@ -61,3 +61,11 @@ Pruefe vor jeder Runner-Aktion zuerst Automation-Control, required checks, Quali
 - Keine Fake-Refs und keine simulierten Erfolgsmeldungen.
 - Kein direct main write.
 - Kein Production Deploy im aktuellen Stand.
+
+
+## 2026-05-23 PR/Check contract hardening
+- createAgentGithubPullRequest resolves base branch from repo config and only allows safe optional override not equal runner branch.
+- Admin client/UI now send `jobId`, `title`, `body`, optional `baseBranch` to PR callable.
+- Required checks are matched through normalized alias mapping against GitHub check names; local-only checks are marked `local_required_not_reported`/`skipped_with_reason` and never fake-pass.
+- No production deploy changes; canonical truth protected files remain unchanged.
+- Next branch recommendation: `runtime/agent-admin-supervised-runner-deploy-integration` (or `analysis/agent-product-evolution-first-run`).

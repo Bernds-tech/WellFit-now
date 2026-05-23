@@ -286,12 +286,12 @@ async function run() {
 
   const githubRunnerJob = await expectOk("prepareAgentGithubRunnerJob", owner, { workerQueueId: previewWorkerId, policyId: previewPolicyId, githubBranchName: "runtime/test-gh-runner" });
   assert(["missing_server_config", "github_api_not_implemented", "metadata_only"].includes(githubRunnerJob.status), "runner prepare must stay honest without real API");
-  const prResult = await expectOk("createAgentGithubPullRequest", owner, { jobId: githubRunnerJob.jobId });
+  const prResult = await expectOk("createAgentGithubPullRequest", owner, { jobId: githubRunnerJob.jobId, title: "Runner PR", body: "Body" });
   assert(prResult.status !== "pr_created", "PR must not be reported as created without real GitHub API");
-  const runnerJobAfterPr = await expectOk("getAgentGithubRunnerJob", owner, { jobId: githubRunnerJob.jobId });
+  const runnerJobAfterPr = await expectOk("getAgentGithubRunnerJob", owner, { jobId: githubRunnerJob.jobId, title: "Runner PR", body: "Body" });
   assert(runnerJobAfterPr.job.githubPrRef == null, "githubPrRef must not contain fake PR refs");
-  await expectOk("approveAgentGithubAutoMerge", owner, { jobId: githubRunnerJob.jobId });
-  const mergeResult = await expectOk("executeAgentGithubAutoMergeMetadataOrReal", owner, { jobId: githubRunnerJob.jobId });
+  await expectOk("approveAgentGithubAutoMerge", owner, { jobId: githubRunnerJob.jobId, title: "Runner PR", body: "Body" });
+  const mergeResult = await expectOk("executeAgentGithubAutoMergeMetadataOrReal", owner, { jobId: githubRunnerJob.jobId, title: "Runner PR", body: "Body" });
   assert(mergeResult.status !== "auto_merged", "auto-merge must not be reported without real GitHub API merge");
   await expectFail("createAgentGithubBranchMetadata", owner, { jobId: githubRunnerJob.jobId, githubBranchName: "main" });
 

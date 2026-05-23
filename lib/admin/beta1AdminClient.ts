@@ -20,6 +20,7 @@ import type {
   AgentAutomationPolicyInput,
   AgentCenterDecisionInput,
   MissionCenterDecisionInput,
+  AgentGithubCreatePullRequestInput,
 } from "./beta1AdminTypes";
 
 function sanitizeAdminError(error: unknown): string {
@@ -75,7 +76,7 @@ export const beta1AdminClient = {
   prepareAgentGithubRunnerJob: (input: AgentAutomationPolicyInput) => callAdmin("prepareAgentGithubRunnerJob", input),
   createAgentGithubBranch: (input: { jobId: string; githubBranchName: string; baseBranch?: string }) => callAdmin("createAgentGithubBranch", input),
   applyAgentGithubFileChanges: (input: { jobId: string; fileChanges: Array<{ path: string; content: string; changeType?: string; encoding?: string }>; commitMessage: string }) => callAdmin("applyAgentGithubFileChanges", input),
-  createAgentGithubPullRequest: (input: { jobId: string }) => callAdmin("createAgentGithubPullRequest", input),
+  createAgentGithubPullRequest: (input: AgentGithubCreatePullRequestInput) => callAdmin("createAgentGithubPullRequest", input),
   recordAgentGithubCheckStatus: (input: { jobId: string; allRequiredChecksPassed?: boolean; checkResultsSnapshot?: unknown[] }) => callAdmin("recordAgentGithubCheckStatus", input),
   refreshAgentGithubCheckStatus: (input: { jobId: string }) => callAdmin("refreshAgentGithubCheckStatus", input),
   approveAgentGithubAutoMerge: (input: { jobId: string }) => callAdmin("approveAgentGithubAutoMerge", input),
