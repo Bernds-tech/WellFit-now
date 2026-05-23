@@ -8,6 +8,24 @@
   },
   "entries": [
     {
+      "id": "2026-05-23-agent-control-center-gated-automation-hardening",
+      "date": "2026-05-23",
+      "branch": "fix/agent-control-center-gated-automation-hardening",
+      "goal": "Harden Agent Control Center gated automation checks: machine-readable deploy policy, fail-closed known blockers, and admin-as-single-human-decision semantics.",
+      "changedAreas": [
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.mjs",
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.test.mjs",
+        "project-register/progress-log.json",
+        "project-register/agent-work-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "No real GitHub API calls, no deploy execution, no canonical-truth protected file edits. Auto-merge/deploy remain technically gated; admin approval is the single human decision gate; known blockers are fail-closed when unreadable."
+    },
+    {
       "id": "2026-05-23-agent-control-center-check-gated-automation-contract",
       "date": "2026-05-23",
       "branch": "fix/agent-control-center-check-gated-automation-contract",
