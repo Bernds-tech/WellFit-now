@@ -100,5 +100,10 @@
     "sui_dynamic_assets_future",
     "b2b_fiat_monetization",
     "token_utility_no_speculation"
-  ]
+  ],
+  "updated": "2026-05-23",
+  "firstRunProductEvolution": {
+    "status": "pending_admin_approval",
+    "outputRegister": "project-register/agent-product-evolution-first-run-output.json"
+  }
 }

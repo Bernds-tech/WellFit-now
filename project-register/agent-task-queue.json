@@ -2986,5 +2986,9 @@
       "no_fake_pr_or_merge_status",
       "real_github_api_next_separate_branch"
     ]
+  },
+  "firstRunProductEvolution": {
+    "status": "pending_admin_approval",
+    "outputRegister": "project-register/agent-product-evolution-first-run-output.json"
   }
 }

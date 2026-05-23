@@ -73,3 +73,8 @@ Produktgrenzen:
 \n- 2026-05-23: Admin-Center Status-Buckets + Timeline-Felder (approved/rejected/blocked/in_progress/completed) erweitert; kein Deploy, keine GitHub-API-Neuimplementierung, keine Canonical-Truth-Aenderung.
 
 - 2026-05-23: Post-merge cycle logic finalized: cycleResult=merged => nextCycleRequired=true => restart at concept/businessplan/repo/canonical-truth/internal sources analysis. repair_required blocks new feature tasks until fixed or halted_waiting_owner.
+
+## First-Run Cycle Rule Update (2026-05-23)
+- Nach jedem erfolgreich gemergten Agent-Task gilt `nextCycleRequired = true`.
+- Reihenfolge der naechsten Analyse: Konzept -> Businessplan -> Repo -> Canonical Truth -> Dossiers -> Missionsideen -> Wirtschaftskreislauf -> Product Radar -> Risiken -> offene Beta-Readiness.
+- Bei `repair_required`: keine neuen Feature-Dossiers; nur Repair/Conflict/Governance-Cleanup; maximal 3 Versuche; danach `halted_waiting_owner`.

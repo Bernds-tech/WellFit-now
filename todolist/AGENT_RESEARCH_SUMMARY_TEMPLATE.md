@@ -51,3 +51,22 @@ Produktgrenzen:
 - XP = Avatar-Fortschritt.
 - WFT/SUI/Blockchain/Token/NFT/Payment/Cashout sind nicht Beta-1 aktiv.
 - Keine echte GitHub API, kein echtes Deploy, Runner bleibt metadata_only, Admin/Owner approval erforderlich.
+
+## First Run Research Summary Requirements
+- Chancen
+- Risiken
+- Quellen
+- Empfehlung
+- WellFit-Nutzen
+- Finanzwirkung
+- WFP/XP-Wirtschaftskreislauf
+- Beta-1-Kompatibilitaet
+- Risk Source Filter:
+  - Gluecksspiel
+  - Ponzi
+  - Heilversprechen
+  - Kinder-Monetarisierung
+  - Spekulationsversprechen
+  - Datenschutz-/Tracking-Risiko
+- Quellen, die in diese Richtungen druecken, sind als Risikoquelle zu markieren und nicht als positive Basis zu nutzen.
+- Falls externe Webrecherche nicht belastbar/verfuegbar ist: `external_research_pending` setzen und konkrete spaetere Research-Fragen notieren.

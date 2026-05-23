@@ -78,3 +78,24 @@ Produktgrenzen:
 - XP = Avatar-Fortschritt.
 - WFT/SUI/Blockchain/Token/NFT/Payment/Cashout sind nicht Beta-1 aktiv.
 - Keine echte GitHub API, kein echtes Deploy, Runner bleibt metadata_only, Admin/Owner approval erforderlich.
+
+## First Run 2026-05-23 Mission Story Proposals
+
+### missionDossierId: MS-20260523-01
+- title: Familien Abenteuerpfad Woche
+- targetGroup: Familien
+- storyPremise: Familie sammelt gemeinsame Aktivitaetskapitel im Wohnumfeld.
+- missionMechanic: 5 Tagesetappen, je Bewegung + Mini-Lernimpuls + soziales Check-in.
+- movementGoal: 30-45 Minuten leichte Bewegung/Tag.
+- learningGoal: 1 Gesundheits-/Alltagswissen-Hinweis ohne Heilversprechen.
+- socialGoal: gemeinsamer Fortschritt statt Wettbewerb.
+- safetyBoundary: keine riskanten Aufgaben, guardian oversight.
+- locationBoundary: coarse area only, keine exakten Live-Standorte.
+- privacyBoundary: keine personenidentifizierenden Inhalte.
+- rewardModel: WFP internal only + XP avatar progress + no token/cashout/payment.
+- whyItFitsWellFit: Move-Learn-Social Kern ohne verbotene Monetarisierung.
+- riskAssessment: medium (child/guardian wording).
+- beta1Allowed: yes
+- implementationComplexity: medium
+- recommendedNextStep: admin approval fuer detailliertes dossier.
+- suggestedTaskProposal: suggestedBranch=proposal/mission-family-adventure-week; allowedFiles=docs|todolist|project-register; blockedFiles=app|functions|rules; requiredChecks=agent:validate+quality-gate+lint+build; riskLevel=medium; runnerEligibility=true.

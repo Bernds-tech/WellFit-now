@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "updated": "2026-05-22",
+  "updated": "2026-05-23",
   "purpose": "Governance register for future WellFit Research & Recommendation Agent work: analyze unclear product or technical questions, read internal sources first, use Controlled Curiosity before any external research that may influence WellFit decisions, summarize three approaches, recommend one option, classify risk, and require human review before implementation or adoption.",
   "status": "active",
   "scope": "Documentation, registry, and validation-only recommendation governance. This register does not authorize runtime product logic changes.",
@@ -368,5 +368,9 @@
   "ecosystemEconomyResearchGuard": {
     "productRadarFindingsRequiredWhenApplicable": true,
     "sourceRiskClassifierRequired": true
+  },
+  "firstRunProductEvolution": {
+    "status": "pending_admin_approval",
+    "outputRegister": "project-register/agent-product-evolution-first-run-output.json"
   }
 }
