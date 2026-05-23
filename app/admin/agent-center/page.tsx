@@ -76,9 +76,17 @@ type ApprovalWorkflowRegister = {
   workflowSteps?: { id: string; label: string; description: string; automated: boolean }[];
 };
 
-const catalogRegister = agentCatalog as RegisterWithEntries;
-const backlogRegister = approvedAgentBuildBacklog as RegisterWithEntries;
-const proposalsRegister = agentBuildProposals as RegisterWithEntries;
+
+function asRegisterWithEntries(value: unknown): RegisterWithEntries {
+  if (value && typeof value === "object" && "entries" in value) {
+    return value as RegisterWithEntries;
+  }
+  return { entries: [] };
+}
+
+const catalogRegister = asRegisterWithEntries(agentCatalog);
+const backlogRegister = asRegisterWithEntries(approvedAgentBuildBacklog);
+const proposalsRegister = asRegisterWithEntries(agentBuildProposals);
 const missionProposalRegister = missionProposalsJson as MissionProposalRegister;
 const approvalWorkflow = approvalWorkflowJson as ApprovalWorkflowRegister;
 const routesRegister = routesRegisterJson as RoutesRegister;

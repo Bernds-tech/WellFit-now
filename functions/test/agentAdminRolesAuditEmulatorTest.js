@@ -265,13 +265,29 @@ async function run() {
   await expectOk("listAgentAutomationPolicies", owner, {});
 
 
+  const controlDefault = await expectOk("getAgentAutomationControl", owner, {});
+  assert((controlDefault.control.automationMode || "off") === "off", "default automation mode should be off");
+  await expectOk("setAgentAutomationMode", owner, { automationMode: "supervised" });
+  await expectFail("setAgentAutomationMode", operator, { automationMode: "runner_enabled" });
+  await expectOk("recordAgentAutomationMergeOutcome", service, { prRef: "#224", mergeStatus: "failed", reason: "checks" });
+  const controlAfterMergeFailed = await expectOk("getAgentAutomationControl", owner, {});
+  assert(controlAfterMergeFailed.control.automationMode === "repair_required", "merge failed should set repair_required");
+  await expectOk("recordAgentAutomationRepairAttempt", service, { result: "failed", reason: "repair-1" });
+  await expectOk("recordAgentAutomationRepairAttempt", service, { result: "failed", reason: "repair-2" });
+  await expectOk("recordAgentAutomationRepairAttempt", service, { result: "failed", reason: "repair-3" });
+  const controlAfterThreeRepairs = await expectOk("getAgentAutomationControl", owner, {});
+  assert(controlAfterThreeRepairs.control.automationMode === "halted_waiting_owner", "3 failed repairs should halt automation");
+  await expectFail("prepareAgentSupervisedRunnerJob", owner, { workerQueueId: workerId, policyId, taskType: "feature_task" });
+  await expectFail("createAgentTaskProposal", supervisor, { title: "blocked-by-halt", promptRef: "docs/test", requestedAction: "none", targetTrack: "docs_register", taskType: "feature_task" });
+  await expectFail("approveAgentAutomationContinueAfterHalt", supervisor, {});
+  await expectOk("approveAgentAutomationContinueAfterHalt", owner, {});
+  await expectOk("recordAgentAutomationMergeOutcome", service, { prRef: "#224", mergeStatus: "failed", reason: "checks again" });
+  await expectOk("createAgentTaskProposal", supervisor, { title: "allowed-repair-task", promptRef: "docs/test-repair", requestedAction: "repair", targetTrack: "docs_register", taskType: "repair_task" });
+  const automationAudit = await db.collection("agentTaskAuditLog").where("action", "==", "automation_mode_set").get();
+  assert(automationAudit.size > 0, "automation control actions should be audited");
+
+
   console.log("agentAdminRolesAuditEmulatorTest: handoff queue assertions completed");
 }
 
 run().catch((error) => { console.error(error); process.exit(1); });
-
-describe('agent automation control retry guard', () => {
-  it('documents automation control defaults and halt-after-three-repairs policy', async () => {
-    expect(true).toBe(true);
-  });
-});
