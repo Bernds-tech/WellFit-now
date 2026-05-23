@@ -460,3 +460,6 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 
 - 2026-05-23: Report-Template-Wording im Agent-Control-Center auf gated automation bereinigt (alte "Never merges PRs"/"Never deploys" entfernt); Console und Markdown-Report semantisch synchron. Keine Runtime-/GitHub-API-/Deploy-/Canonical-Truth-Aenderung. Next: `analysis/agent-product-evolution-first-run`.
 \n- 2026-05-23: Admin-Center Status-Buckets + Timeline-Felder (approved/rejected/blocked/in_progress/completed) erweitert; kein Deploy, keine GitHub-API-Neuimplementierung, keine Canonical-Truth-Aenderung.
+
+
+- 2026-05-23 note: Agent pipeline status model and supervised runner timeline fields hardened for dossier->runner cycle restart visibility.

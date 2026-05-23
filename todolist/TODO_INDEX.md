@@ -680,3 +680,6 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 
 - [ ] Runner E2E Smoke Governance: `docs/architecture/WELLFIT_AGENT_GITHUB_RUNNER_E2E_SMOKE.md`
 \n- 2026-05-23: Admin-Center Status-Buckets + Timeline-Felder (approved/rejected/blocked/in_progress/completed) erweitert; kein Deploy, keine GitHub-API-Neuimplementierung, keine Canonical-Truth-Aenderung.
+
+
+- Pipeline hardening follow-up (2026-05-23): verify admin pipeline status board with real runner dataset.

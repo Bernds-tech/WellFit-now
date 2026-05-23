@@ -71,3 +71,5 @@ Produktgrenzen:
 - WFT/SUI/Blockchain/Token/NFT/Payment/Cashout sind nicht Beta-1 aktiv.
 - Keine echte GitHub API, kein echtes Deploy, Runner bleibt metadata_only, Admin/Owner approval erforderlich.
 \n- 2026-05-23: Admin-Center Status-Buckets + Timeline-Felder (approved/rejected/blocked/in_progress/completed) erweitert; kein Deploy, keine GitHub-API-Neuimplementierung, keine Canonical-Truth-Aenderung.
+
+- 2026-05-23: Post-merge cycle logic finalized: cycleResult=merged => nextCycleRequired=true => restart at concept/businessplan/repo/canonical-truth/internal sources analysis. repair_required blocks new feature tasks until fixed or halted_waiting_owner.

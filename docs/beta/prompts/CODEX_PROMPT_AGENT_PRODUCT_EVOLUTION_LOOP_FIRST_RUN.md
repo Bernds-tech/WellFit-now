@@ -71,3 +71,5 @@ Produktgrenzen:
 - Pro Dossier erforderlich: `suggestedTaskProposal`, `suggestedBranch`, `allowedFiles`, `blockedFiles`, `requiredChecks`, `riskLevel`, `adminDecisionPlaceholder`, `workerQueueHint`, `runnerEligibility`.
 - Keine Umsetzung ohne Admin approval.
 - Nach approval darf `createAgentTaskProposalFromApprovedDossier` genutzt werden.
+
+- 2026-05-23 prompt addition: Before each analysis run, check automation control. Always start with concept/businessplan/repo/canonical truth/dossiers/missions/economy radar/product radar/risks/beta-readiness. On merge restart full loop; on repair_required perform only repairs; on halted_waiting_owner stop and wait for Bernd/Admin. Dossier output must include suggestedTaskProposal, suggestedBranch, allowedFiles, blockedFiles, requiredChecks, riskLevel, adminDecisionPlaceholder, workerQueueHint, runnerEligibility.

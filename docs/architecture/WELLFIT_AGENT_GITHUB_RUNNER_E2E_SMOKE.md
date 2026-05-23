@@ -42,3 +42,5 @@ Sicherer E2E-Smoke fuer den supervised Agent-Pfad: Dossier -> Task -> Worker Que
 
 ## KI-Fortsetzungs-Prompt
 Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md`, `docs/architecture/WELLFIT_AGENT_SUPERVISED_RUNNER_GITHUB_INTEGRATION.md` und `docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md`.
+
+- 2026-05-23: E2E smoke path restricted to docs/beta/runner-smoke/README.md or docs/beta/runner-smoke/<timestamp>.md only. Flow: dossier approved -> task proposal -> worker queue -> runner job -> branch -> commit -> PR -> checks -> merge -> next cycle required. Missing server config must report missing_server_config; checks red => repair_required; 3 repairs => halted_waiting_owner.

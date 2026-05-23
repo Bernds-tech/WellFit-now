@@ -421,3 +421,6 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - 2026-05-23: Report-Template-Wording im Agent-Control-Center auf gated automation bereinigt (alte "Never merges PRs"/"Never deploys" entfernt); Console und Markdown-Report semantisch synchron. Keine Runtime-/GitHub-API-/Deploy-/Canonical-Truth-Aenderung. Next: `analysis/agent-product-evolution-first-run`.
 \n- 2026-05-23: Admin-Center Status-Buckets + Timeline-Felder (approved/rejected/blocked/in_progress/completed) erweitert; kein Deploy, keine GitHub-API-Neuimplementierung, keine Canonical-Truth-Aenderung.
+
+
+- [ ] Follow-up branch recommendation: analysis/agent-product-evolution-first-run or runtime/agent-admin-supervised-runner-deploy-integration.

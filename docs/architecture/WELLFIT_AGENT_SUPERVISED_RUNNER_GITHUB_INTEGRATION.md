@@ -70,3 +70,5 @@ Pruefe vor jeder Runner-Aktion zuerst Automation-Control, required checks, Quali
 - No production deploy changes; canonical truth protected files remain unchanged.
 - Next branch recommendation: `runtime/agent-admin-supervised-runner-deploy-integration` (or `analysis/agent-product-evolution-first-run`).
 \n- 2026-05-23: Admin-Center Status-Buckets + Timeline-Felder (approved/rejected/blocked/in_progress/completed) erweitert; kein Deploy, keine GitHub-API-Neuimplementierung, keine Canonical-Truth-Aenderung.
+
+- 2026-05-23: Runner timeline hardened with runnerJobCreatedAt, branchCreatedAt, prCreatedAt, checksStartedAt/checksPassedAt/checksFailedAt, mergedAt/completedAt/nextCycleRequiredAt and fail-closed missing_server_config handling.
