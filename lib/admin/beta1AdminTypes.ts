@@ -44,7 +44,8 @@ export type AgentGithubPrResult = { prNumber?: number; prUrl?: string; status: A
 export type AgentGithubCheckResult = { name: string; status: string; conclusion?: string };
 export type AgentGithubRunnerJob = { jobId:string; workerQueueId:string; policyId:string; githubRunnerStatus:AgentGithubRunnerStatus; githubBranchName?:string; githubPrRef?:string|null; githubPrUrl?:string|null; githubCommitSha?:string|null; realGithubIntegration?:boolean; };
 export type AgentGithubRunnerActionInput = { jobId: string; workerQueueId?: string; policyId?: string; githubBranchName?: string; reason?: string; };
-export type AgentGithubCheckStatusInput = { jobId: string; allRequiredChecksPassed?: boolean; checkResultsSnapshot?: Array<{name?:string;status?:string}>; };
+export type AgentGithubCreatePullRequestInput = { jobId: string; title: string; body: string; baseBranch?: string; };
+export type AgentGithubCheckStatusInput = { jobId: string; allRequiredChecksPassed?: boolean; checkResultsSnapshot?: Array<{requiredCheck?:string;matchedGithubCheckName?:string|null;normalizedState?:string;source?:string;notes?:string}>; };
 
 
 export type AdminCenterListFilter = "agenten_gesamt"|"warten_auf_freigabe"|"abgelehnt_blockiert"|"missionsvorschlaege"|"missionen"|"missionen_abgelehnt";

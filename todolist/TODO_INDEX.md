@@ -663,3 +663,11 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - 2026-05-23: Fix-Branch `fix/agent-github-runner-no-fake-pr-merge-status` haertet Supervised GitHub Runner Status-Semantik: kein `pr_created`/`auto_merged` ohne echte GitHub API Response; stattdessen ehrliche Status `missing_server_config` bzw. `github_api_not_implemented`. Zudem TODO/Architektur-Index-Follow-up fuer Runner-Doku synchronisiert.
 
 | `docs/architecture/WELLFIT_AGENT_SUPERVISED_RUNNER_GITHUB_INTEGRATION.md` | aktiv | supervised runner governance inkl. metadata-only/no-fake-status Semantik bis real GitHub API umgesetzt ist | `project-register/agent-control-center.json`, `project-register/agent-task-queue.json`, `NEXT_ACTIONS.md` |
+
+
+## 2026-05-23 PR/Check contract hardening
+- createAgentGithubPullRequest resolves base branch from repo config and only allows safe optional override not equal runner branch.
+- Admin client/UI now send `jobId`, `title`, `body`, optional `baseBranch` to PR callable.
+- Required checks are matched through normalized alias mapping against GitHub check names; local-only checks are marked `local_required_not_reported`/`skipped_with_reason` and never fake-pass.
+- No production deploy changes; canonical truth protected files remain unchanged.
+- Next branch recommendation: `runtime/agent-admin-supervised-runner-deploy-integration` (or `analysis/agent-product-evolution-first-run`).

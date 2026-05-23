@@ -8,6 +8,26 @@
   },
   "entries": [
     {
+      "id": "2026-05-23-github-runner-pr-check-contract",
+      "date": "2026-05-23",
+      "branch": "fix/agent-github-runner-pr-check-contract",
+      "goal": "Align GitHub runner PR base branch resolution, admin PR contract input, and required-check mapping semantics.",
+      "changedAreas": [
+        "functions/lib/agentAdminRolesAudit.js",
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts",
+        "components/admin/Beta1AdminPanel.tsx",
+        "functions/test/agentAdminRolesAuditEmulatorTest.js",
+        "docs/architecture/WELLFIT_AGENT_SUPERVISED_RUNNER_GITHUB_INTEGRATION.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "No production deploy. No client secrets/tokens. Canonical-truth protected files unchanged."
+    },
+    {
       "id": "2026-05-23-agent-control-center-runner-governance-sync",
       "date": "2026-05-23",
       "branch": "fix/agent-control-center-runner-governance-sync",
