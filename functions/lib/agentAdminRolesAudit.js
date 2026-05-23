@@ -54,6 +54,17 @@ const UI_SCOPE_MARKERS = ["runtime_ui", "live_page", "ui", "app", "components"];
 const AUTOMATION_POLICY_STATUSES = ["policy_draft", "waiting_for_checks", "waiting_for_admin_decision", "approved_for_auto_merge", "approved_for_staging_deploy", "approved_for_production_deploy", "rejected", "blocked", "executed_metadata_only"];
 const AUTOMATION_STATUSES = ["not_requested", "merge_requested", "merge_approved", "deploy_requested", "deploy_approved", "automation_blocked", "metadata_executed"];
 const DEPLOY_ENVIRONMENTS = ["none", "preview", "staging", "production"];
+
+const AUTOMATION_MODES = ["off", "planning_only", "supervised", "runner_enabled", "paused", "repair_required", "halted_waiting_owner"];
+
+function buildDefaultAutomationControl() { return { automationEnabled:false, automationMode:"off", currentCycleId:null, lastPrRef:null, lastMergeStatus:"unknown", lastFailureReason:null, repairAttemptCount:0, maxRepairAttempts:3, ownerReviewRequired:false, pausedBy:null, pausedAt:null, resumedBy:null, resumedAt:null, updatedAt:FieldValue.serverTimestamp() }; }
+async function getGlobalAutomationControl(db){ const ref=db.collection('agentAutomationControl').doc('global'); const snap=await ref.get(); if(!snap.exists){ const d=buildDefaultAutomationControl(); await ref.set(d,{merge:true}); return {ref,data:{...d,maxRepairAttempts:3,repairAttemptCount:0}};} return {ref,data:snap.data()||{}}; }
+function shouldHaltAfterRepairAttempts(control){ return Number(control.repairAttemptCount||0) >= Number(control.maxRepairAttempts||3); }
+function assertAutomationMayStartNewWork(control, HttpsError, taskType){ const mode=String(control.automationMode||'off'); const allowedBlocked=['repair_task','conflict_resolution','governance_cleanup']; if(['paused','halted_waiting_owner'].includes(mode)) throw new HttpsError('failed-precondition', 'Automation pausiert/angehalten.'); if(mode==='repair_required' && !allowedBlocked.includes(String(taskType||''))) throw new HttpsError('failed-precondition','Nur Repair/Governance/Conflict erlaubt.'); if(!control.automationEnabled && !allowedBlocked.includes(String(taskType||''))) throw new HttpsError('failed-precondition','Automation nicht freigegeben.'); }
+function assertAutomationMayContinue(control, HttpsError, taskType){ return assertAutomationMayStartNewWork(control,HttpsError,taskType); }
+function assertRepairAttemptAllowed(control,HttpsError){ if(shouldHaltAfterRepairAttempts(control)) throw new HttpsError('failed-precondition','Repair-Limit erreicht. Owner Review erforderlich.'); }
+function buildCycleStartChecklist(){ return ["internal_sources_analysis","repo_status_analysis","canonical_truth_comparison","quality_gate_known_blockers_check","open_tasks_and_dossiers_check","admin_approval_check"]; }
+
 const HIGH_RISK_FILE_PREFIXES = ["functions/", ".github/"];
 const HIGH_RISK_EXACT_FILES = ["firestore.rules", "package.json", "package-lock.json"];
 
@@ -272,6 +283,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return lines.join("\n");
   }
   exportsTarget.createAgentTaskProposal = onCall(async (request) => {
+    const automationControl = (await getGlobalAutomationControl(db)).data;
+    assertAutomationMayStartNewWork(automationControl, HttpsError, optionalString(request.data && request.data.taskType, 80));
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator", "agent_supervisor"]);
     const data = request.data || {};
     const ref = db.collection("agentTaskProposals").doc();
@@ -356,6 +369,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   });
 
   exportsTarget.queueAgentTaskExecution = onCall(async (request) => {
+    const automationControl = (await getGlobalAutomationControl(db)).data;
+    assertAutomationMayStartNewWork(automationControl, HttpsError, optionalString(request.data && request.data.taskType, 80));
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
     const data = request.data || {};
     const proposalId = requiredString(data.proposalId, "proposalId", HttpsError, 180);
@@ -403,6 +418,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 
   exportsTarget.prepareAgentTaskPrHandoff = onCall(async (request) => {
+    const automationControl = (await getGlobalAutomationControl(db)).data;
+    assertAutomationMayStartNewWork(automationControl, HttpsError, optionalString(request.data && request.data.taskType, 80));
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator", "agent_executor_service"]);
     const data = request.data || {};
     const executionId = requiredString(data.executionId, "executionId", HttpsError, 180);
@@ -557,6 +574,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   });
 
   exportsTarget.createAgentWorkerQueueItem = onCall(async (request) => {
+    const automationControl = (await getGlobalAutomationControl(db)).data;
+    assertAutomationMayStartNewWork(automationControl, HttpsError, optionalString(request.data && request.data.taskType, 80));
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
     const executionId = requiredString(request.data && request.data.executionId, "executionId", HttpsError, 180);
     const handoffPromptId = requiredString(request.data && request.data.handoffPromptId, "handoffPromptId", HttpsError, 180);
@@ -702,6 +721,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   });
 
   exportsTarget.createAgentAutomationPolicy = onCall(async (request) => {
+    const automationControl = (await getGlobalAutomationControl(db)).data;
+    assertAutomationMayStartNewWork(automationControl, HttpsError, optionalString(request.data && request.data.taskType, 80));
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
     const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
     const workerSnap = await db.collection("agentTaskWorkerQueue").doc(workerQueueId).get();
@@ -820,7 +841,17 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { deployAllowed, mergeAllowed, environment };
   }
 
-  exportsTarget.prepareAgentSupervisedRunnerJob = onCall(async (request)=>{const { actorId, actorRole } = requireRole(request, HttpsError,["owner","agent_supervisor","admin_operator"]); const workerQueueId=requiredString(request.data&&request.data.workerQueueId,"workerQueueId",HttpsError,180); const policyId=requiredString(request.data&&request.data.policyId,"policyId",HttpsError,180); const policySnap = await db.collection("agentTaskAutomationPolicies").doc(policyId).get(); const policy = policySnap.data() || {}; const gate = computeRunnerAutomationGate(policy); const ref=db.collection("agentTaskSupervisedRunnerJobs").doc(); await ref.set({jobId:ref.id,workerQueueId,policyId,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,autoDeployEnvironment:gate.environment,canonicalTruthReadRequired:true,canonicalTruthProtectedFiles:CANONICAL_TRUTH_PROTECTED_FILES,canonicalTruthEditable:false,canonicalTruthOwnerApprovalRequired:true,canonicalTruthChangeProposalFile:CANONICAL_TRUTH_PROPOSAL_FILE,createdBy:actorId,createdByRole:actorRole,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()}); await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ deployAllowed: gate.deployAllowed, mergeAllowed: gate.mergeAllowed, autoDeployEnvironment: gate.environment, supervisedRunnerStatus: "metadata_only", updatedAt: FieldValue.serverTimestamp() }, { merge: true }); await writeAgentAudit(db,{actorId,actorRole,action:"automation_runner_job_prepared",result:"metadata_only",approvalId: policyId}); return {accepted:true,jobId:ref.id,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,status:"metadata_only"};});
+  exportsTarget.prepareAgentSupervisedRunnerJob = onCall(async (request)=>{const { actorId, actorRole } = requireRole(request, HttpsError,["owner","agent_supervisor","admin_operator"]); const workerQueueId=requiredString(request.data&&request.data.workerQueueId,"workerQueueId",HttpsError,180); const policyId=requiredString(request.data&&request.data.policyId,"policyId",HttpsError,180); const taskType = optionalString(request.data && request.data.taskType, 80); const automationControl = (await getGlobalAutomationControl(db)).data; assertAutomationMayStartNewWork(automationControl, HttpsError, taskType); const policySnap = await db.collection("agentTaskAutomationPolicies").doc(policyId).get(); const policy = policySnap.data() || {}; const gate = computeRunnerAutomationGate(policy); const ref=db.collection("agentTaskSupervisedRunnerJobs").doc(); await ref.set({jobId:ref.id,workerQueueId,policyId,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,autoDeployEnvironment:gate.environment,canonicalTruthReadRequired:true,canonicalTruthProtectedFiles:CANONICAL_TRUTH_PROTECTED_FILES,canonicalTruthEditable:false,canonicalTruthOwnerApprovalRequired:true,canonicalTruthChangeProposalFile:CANONICAL_TRUTH_PROPOSAL_FILE,createdBy:actorId,createdByRole:actorRole,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()}); await db.collection("agentTaskWorkerQueue").doc(workerQueueId).set({ deployAllowed: gate.deployAllowed, mergeAllowed: gate.mergeAllowed, autoDeployEnvironment: gate.environment, supervisedRunnerStatus: "metadata_only", updatedAt: FieldValue.serverTimestamp() }, { merge: true }); await writeAgentAudit(db,{actorId,actorRole,action:"automation_runner_job_prepared",result:"metadata_only",approvalId: policyId}); return {accepted:true,jobId:ref.id,runnerStatus:"metadata_only",deployAllowed:gate.deployAllowed,mergeAllowed:gate.mergeAllowed,status:"metadata_only"};});
+
+
+  exportsTarget.getAgentAutomationControl = onCall(async (request)=>{ requireRole(request,HttpsError,["owner","agent_supervisor","readonly_observer","support_operator","admin_operator","agent_executor_service"]); const c=await getGlobalAutomationControl(db); return {accepted:true,control:c.data,checklist:buildCycleStartChecklist()}; });
+  exportsTarget.setAgentAutomationMode = onCall(async (request)=>{ const {actorId,actorRole}=requireRole(request,HttpsError,["owner","agent_supervisor"]); const mode=requiredString(request.data&&request.data.automationMode,'automationMode',HttpsError,80); if(!AUTOMATION_MODES.includes(mode)) throw new HttpsError('invalid-argument','Ungueltiger mode'); if(actorRole!=="owner" && mode==="halted_waiting_owner") throw new HttpsError('permission-denied','Nur owner'); if(actorRole!=="owner" && mode==="runner_enabled") throw new HttpsError('permission-denied','Nur owner'); const g=await getGlobalAutomationControl(db); await g.ref.set({automationMode:mode,automationEnabled:["supervised","runner_enabled","planning_only"].includes(mode),updatedAt:FieldValue.serverTimestamp()},{merge:true}); await writeAgentAudit(db,{actorId,actorRole,action:'automation_mode_set',result:mode}); return {accepted:true,automationMode:mode}; });
+  exportsTarget.pauseAgentAutomation = onCall(async (request)=>{ const {actorId,actorRole}=requireRole(request,HttpsError,["owner","agent_supervisor"]); const g=await getGlobalAutomationControl(db); await g.ref.set({automationMode:'paused',automationEnabled:false,pausedBy:actorId,pausedAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()},{merge:true}); await writeAgentAudit(db,{actorId,actorRole,action:'automation_paused',result:'paused'}); return {accepted:true,automationMode:'paused'}; });
+  exportsTarget.resumeAgentAutomation = onCall(async (request)=>{ const {actorId,actorRole}=requireRole(request,HttpsError,["owner"]); const g=await getGlobalAutomationControl(db); await g.ref.set({automationMode:'supervised',automationEnabled:true,resumedBy:actorId,resumedAt:FieldValue.serverTimestamp(),ownerReviewRequired:false,updatedAt:FieldValue.serverTimestamp()},{merge:true}); await writeAgentAudit(db,{actorId,actorRole,action:'automation_resumed',result:'supervised'}); return {accepted:true,automationMode:'supervised'}; });
+  exportsTarget.recordAgentAutomationMergeOutcome = onCall(async (request)=>{ const {actorId,actorRole}=requireRole(request,HttpsError,["owner","agent_supervisor","admin_operator","agent_executor_service"]); const mergeStatus=requiredString(request.data&&request.data.mergeStatus,'mergeStatus',HttpsError,80); const prRef=optionalString(request.data&&request.data.prRef,220)||null; const reason=optionalString(request.data&&request.data.reason,500)||null; const g=await getGlobalAutomationControl(db); const fail=["failed","conflict","checks_failed","blocked"].includes(mergeStatus); await g.ref.set({lastMergeStatus:mergeStatus,lastPrRef:prRef,lastFailureReason:reason,automationMode:fail?'repair_required':g.data.automationMode,automationEnabled:fail?false:g.data.automationEnabled,updatedAt:FieldValue.serverTimestamp()},{merge:true}); await writeAgentAudit(db,{actorId,actorRole,action:'automation_merge_outcome_recorded',result:mergeStatus}); return {accepted:true,mergeStatus}; });
+  exportsTarget.recordAgentAutomationRepairAttempt = onCall(async (request)=>{ const {actorId,actorRole}=requireRole(request,HttpsError,["owner","agent_supervisor","admin_operator","agent_executor_service"]); const result=requiredString(request.data&&request.data.result,'result',HttpsError,40); const reason=optionalString(request.data&&request.data.reason,500)||null; const g=await getGlobalAutomationControl(db); let count=Number(g.data.repairAttemptCount||0); if(result==='failed' || result==='blocked') count+=1; const halt=count>=Number(g.data.maxRepairAttempts||3); const update={repairAttemptCount:count,lastFailureReason:reason,automationMode:halt?'halted_waiting_owner':(result==='fixed'?'supervised':'repair_required'),automationEnabled:halt?false:(result==='fixed'),ownerReviewRequired:halt,updatedAt:FieldValue.serverTimestamp()}; await g.ref.set(update,{merge:true}); await writeAgentAudit(db,{actorId,actorRole,action:'automation_repair_attempt_recorded',result}); return {accepted:true,repairAttemptCount:count,halted:halt}; });
+  exportsTarget.resetAgentAutomationRepairCounter = onCall(async (request)=>{ const {actorId,actorRole}=requireRole(request,HttpsError,["owner","agent_supervisor"]); const g=await getGlobalAutomationControl(db); await g.ref.set({repairAttemptCount:0,ownerReviewRequired:false,updatedAt:FieldValue.serverTimestamp()},{merge:true}); await writeAgentAudit(db,{actorId,actorRole,action:'automation_repair_counter_reset',result:'ok'}); return {accepted:true}; });
+  exportsTarget.approveAgentAutomationContinueAfterHalt = onCall(async (request)=>{ const {actorId,actorRole}=requireRole(request,HttpsError,["owner"]); const g=await getGlobalAutomationControl(db); await g.ref.set({automationMode:'supervised',automationEnabled:true,repairAttemptCount:0,ownerReviewRequired:false,resumedBy:actorId,resumedAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()},{merge:true}); await writeAgentAudit(db,{actorId,actorRole,action:'automation_continue_after_halt_approved',result:'supervised'}); return {accepted:true,automationMode:'supervised'}; });
 
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);

@@ -639,3 +639,4 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - [x] Agent Product/Technology Radar Architektur hinzugefuegt (2026-05-22).
 - [x] Agent Risk Source Classifier Register hinzugefuegt (2026-05-22).
 - [x] Opportunity/Mission/Research Dossier-Templates um Ecosystem/Finance/WFP-XP/Product-Radar erweitert (2026-05-22).
+\n

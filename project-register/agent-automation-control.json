@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "status": "active",
+  "automationEnabled": false,
+  "automationMode": "off",
+  "currentCycleId": null,
+  "lastCycleStartedAt": null,
+  "lastCycleCompletedAt": null,
+  "lastMergeStatus": "unknown",
+  "lastPrRef": null,
+  "lastFailureReason": null,
+  "repairAttemptCount": 0,
+  "maxRepairAttempts": 3,
+  "ownerReviewRequired": false,
+  "adminCanResume": true,
+  "mustRestartFromTopEveryCycle": true,
+  "requiredCycleStartSteps": [
+    "internal_sources_analysis",
+    "repo_status_analysis",
+    "canonical_truth_comparison",
+    "quality_gate_known_blockers_check",
+    "open_tasks_and_dossiers_check",
+    "admin_approval_check"
+  ],
+  "blockedWhen": ["merge_failed", "merge_conflict", "checks_failed", "quality_gate_failed_without_override", "repair_attempts_exceeded", "admin_paused"],
+  "allowedWhenBlocked": ["repair_task", "conflict_resolution", "governance_cleanup", "owner_review", "admin_resume_decision"]
+}

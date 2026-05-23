@@ -26,21 +26,8 @@ function sanitizeAdminError(error: unknown): string {
   if (code.includes("unauthenticated")) return "Bitte einloggen, um Admin-Aktionen auszuführen.";
   return "Admin-Aktion fehlgeschlagen.";
 }
-
-function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult {
-  if (result.accepted) return { ...result, message: undefined };
-  return { accepted: false, message: "Admin-Aktion fehlgeschlagen. Bitte Eingaben prüfen oder erneut versuchen." };
-}
-
-async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
-  try {
-    const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name);
-    const result = await callable(input);
-    return sanitizeAdminResult(result.data);
-  } catch (error) {
-    return { accepted: false, message: sanitizeAdminError(error) };
-  }
-}
+function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult { return result.accepted ? { ...result, message: undefined } : { accepted: false, message: "Admin-Aktion fehlgeschlagen. Bitte Eingaben prüfen oder erneut versuchen." }; }
+async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> { try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); return sanitizeAdminResult(result.data); } catch (error) { return { accepted: false, message: sanitizeAdminError(error) }; } }
 
 export const beta1AdminClient = {
   adminCreateMission: (input: AdminCreateMissionInput) => callAdmin("adminCreateMission", input),
@@ -69,7 +56,6 @@ export const beta1AdminClient = {
   getAgentWorkerQueueItem: (workerQueueId: string) => callAdmin("getAgentWorkerQueueItem", { workerQueueId }),
   createAgentAutomationPolicy: (input: AgentAutomationPolicyInput) => callAdmin("createAgentAutomationPolicy", input),
   requestAgentAutoMerge: (input: AgentAutomationPolicyInput) => callAdmin("requestAgentAutoMerge", input),
-
   approveAgentAutoMerge: (input: AgentAutomationPolicyInput) => callAdmin("approveAgentAutoMerge", input),
   rejectAgentAutoMerge: (input: AgentAutomationPolicyInput) => callAdmin("rejectAgentAutoMerge", input),
   requestAgentDeploy: (input: AgentAutomationPolicyInput) => callAdmin("requestAgentDeploy", input),
@@ -85,4 +71,12 @@ export const beta1AdminClient = {
   prepareAgentSupervisedRunnerJob: (input: AgentAutomationPolicyInput) => callAdmin("prepareAgentSupervisedRunnerJob", input),
   getAgentAutomationPolicy: (policyId: string) => callAdmin("getAgentAutomationPolicy", { policyId }),
   listAgentAutomationPolicies: (status?: string) => callAdmin("listAgentAutomationPolicies", status ? { status } : {}),
+  getAgentAutomationControl: () => callAdmin("getAgentAutomationControl", {}),
+  setAgentAutomationMode: (automationMode: string) => callAdmin("setAgentAutomationMode", { automationMode }),
+  pauseAgentAutomation: () => callAdmin("pauseAgentAutomation", {}),
+  resumeAgentAutomation: () => callAdmin("resumeAgentAutomation", {}),
+  recordAgentAutomationMergeOutcome: (input: { prRef?: string; mergeStatus: string; reason?: string }) => callAdmin("recordAgentAutomationMergeOutcome", input),
+  recordAgentAutomationRepairAttempt: (input: { prRef?: string; result: string; reason?: string }) => callAdmin("recordAgentAutomationRepairAttempt", input),
+  resetAgentAutomationRepairCounter: () => callAdmin("resetAgentAutomationRepairCounter", {}),
+  approveAgentAutomationContinueAfterHalt: () => callAdmin("approveAgentAutomationContinueAfterHalt", {}),
 };
