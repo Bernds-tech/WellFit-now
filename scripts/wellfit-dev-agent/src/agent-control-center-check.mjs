@@ -168,6 +168,12 @@ function pushResult(results, name, passed, details) {
   results.push({ name, passed, details });
 }
 
+function parseDeploymentPolicy(proposal) {
+  if (proposal.deployment_policy && typeof proposal.deployment_policy === "object") return proposal.deployment_policy;
+  if (proposal.deploy_policy && typeof proposal.deploy_policy === "object") return proposal.deploy_policy;
+  return null;
+}
+
 function renderResults(results) {
   return ["| Check | Status | Details |", "| --- | --- | --- |", ...results.map((result) => `| ${result.name} | ${result.passed ? "PASS" : "FAIL"} | ${result.details} |`)].join("\n");
 }
@@ -208,8 +214,7 @@ function main() {
     if (proposal.can_auto_merge === true) {
       const checksRequired = asArray(proposal.checks_required);
       const hasChecks = checksRequired.length > 0;
-      const mergeSafe = proposal.requires_human_approval === true
-        && proposal.admin_approval_required === true
+      const mergeSafe = proposal.admin_approval_required === true
         && proposal.quality_gate_required === true
         && proposal.audit_required === true
         && proposal.direct_main_write_blocked === true
@@ -221,24 +226,45 @@ function main() {
     if (proposal.can_auto_deploy === true) {
       const checksRequired = asArray(proposal.checks_required);
       const hasChecks = checksRequired.length > 0;
-      const deployPolicyText = flattenText({
-        deploy_policy: proposal.deploy_policy,
-        deployment_policy: proposal.deployment_policy,
-        environment_policy: proposal.environment_policy,
-        next_action: proposal.next_action,
-        summary: proposal.summary,
-        notes: proposal.notes
-      }).toLowerCase();
+      const deployPolicy = parseDeploymentPolicy(proposal);
+      const machineReadablePolicy = Boolean(deployPolicy && typeof deployPolicy === "object");
+      const previewSupported = deployPolicy?.preview_supported === true || deployPolicy?.preview === true;
+      const stagingSupported = deployPolicy?.staging_supported === true || deployPolicy?.staging === true;
+      const productionSupported = deployPolicy?.production_supported === true || deployPolicy?.production === true;
+      const productionAdminApprovalRequired = deployPolicy?.production_admin_approval_required === true;
+      const secondOwnerValue = deployPolicy?.production_second_owner_approval_required;
+      const secondOwnerCompatible = secondOwnerValue === false || secondOwnerValue === true || secondOwnerValue === "legacy_compat";
+      const noDeployWithoutChecks = deployPolicy?.deploy_without_checks_allowed === false;
+      const noDeployWithoutAdmin = deployPolicy?.deploy_without_admin_approval_allowed === false;
+
       const deploySafe = proposal.admin_approval_required === true
         && proposal.quality_gate_required === true
         && proposal.audit_required === true
         && proposal.automation_control_required === true
         && proposal.direct_main_write_blocked === true
+        && proposal.protected_scope_owner_required === true
         && hasChecks
-        && hasAnySignal(deployPolicyText, ["deploy gate", "approval", "checks"])
-        && hasAnySignal(deployPolicyText, ["preview", "staging", "production"])
-        && hasAnySignal(deployPolicyText, ["second owner approval", "owner approval"]);
-      if (!deploySafe) unsafeDeploy.push(`${proposalId}: missing gated auto-deploy fields`);
+        && machineReadablePolicy
+        && previewSupported
+        && stagingSupported
+        && productionSupported
+        && productionAdminApprovalRequired
+        && secondOwnerCompatible
+        && noDeployWithoutChecks
+        && noDeployWithoutAdmin;
+      if (!deploySafe) {
+        const deployDetails = [];
+        if (!machineReadablePolicy) deployDetails.push("missing_machine_readable_deploy_gate");
+        if (!previewSupported) deployDetails.push("preview_policy_missing");
+        if (!stagingSupported) deployDetails.push("staging_policy_missing");
+        if (!productionSupported) deployDetails.push("production_policy_missing");
+        if (!productionAdminApprovalRequired) deployDetails.push("production_admin_approval_required_missing");
+        if (!secondOwnerCompatible) deployDetails.push("production_second_owner_approval_required_invalid");
+        if (!noDeployWithoutChecks) deployDetails.push("deploy_without_checks_allowed_must_be_false");
+        if (!noDeployWithoutAdmin) deployDetails.push("deploy_without_admin_approval_allowed_must_be_false");
+        if (proposal.protected_scope_owner_required !== true) deployDetails.push("protected_scope_owner_required_missing");
+        unsafeDeploy.push(`${proposalId}: ${deployDetails.join(", ") || "missing gated auto-deploy fields"}`);
+      }
     }
 
     const blockedPathText = asArray(proposal.blocked_paths).join("\n").toLowerCase();
@@ -252,8 +278,8 @@ function main() {
 
   pushResult(results, "Proposal required fields complete", missingFields.length === 0, missingFields.length ? missingFields.join(", ") : "all required fields present");
   pushResult(results, "High/Critical auto-execute is blocked unless future_manual_only", unsafeRisk.length === 0, unsafeRisk.length ? unsafeRisk.join(", ") : "no high/critical auto-execute violations");
-  pushResult(results, "Auto-merge is allowed only with full policy/admin/check/quality/audit/automation gates", unsafeMerge.length === 0, unsafeMerge.length ? unsafeMerge.join(", ") : "all auto-merge proposals are fully gated or disabled");
-  pushResult(results, "Auto-deploy is allowed only with approval/check/quality/environment/second-owner gates", unsafeDeploy.length === 0, unsafeDeploy.length ? unsafeDeploy.join(", ") : "all auto-deploy proposals are fully gated or disabled");
+  pushResult(results, "Auto-merge is allowed only with admin/check/quality/audit/automation/protected-scope gates", unsafeMerge.length === 0, unsafeMerge.length ? unsafeMerge.join(", ") : "all auto-merge proposals are fully gated or disabled");
+  pushResult(results, "Auto-deploy is allowed only with admin/check/quality/audit/automation/protected-scope plus machine-readable environment policy", unsafeDeploy.length === 0, unsafeDeploy.length ? unsafeDeploy.join(", ") : "all auto-deploy proposals are fully gated or disabled");
   pushResult(results, "Protected scopes appear in blocked_paths or protected_scopes", missingProtectedBlocks.length === 0, missingProtectedBlocks.length ? missingProtectedBlocks.join(", ") : "each proposal declares blocked paths and protected scopes");
 
   const humanApprovalText = flattenText({
@@ -292,11 +318,13 @@ function main() {
   pushResult(results, "This report-only check does not modify runtime/protected files beyond approved read-only admin overview", modifiedProtectedFiles.length === 0, modifiedProtectedFiles.length ? modifiedProtectedFiles.join(", ") : NO_MODIFICATION_SCOPE_MESSAGE);
 
   const knownBlockersRead = readJsonSafe("project-register/quality-gate-known-blockers.json");
-  const knownBlockers = knownBlockersRead.ok ? asArray(knownBlockersRead.value?.blockers) : [];
+  const knownBlockersReadable = knownBlockersRead.ok;
+  const knownBlockers = knownBlockersReadable ? asArray(knownBlockersRead.value?.blockers) : [];
+  pushResult(results, "Known-blockers file is readable JSON (fail-closed)", knownBlockersReadable, knownBlockersReadable ? "parse ok" : `known_blockers_file_unreadable: ${knownBlockersRead.error}`);
   const activeAutoMergeBlockers = knownBlockers.filter((blocker) => blocker?.status !== "mitigated" && blocker?.status !== "resolved" && blocker?.blocksAutoMerge === true);
   const activeRealRunnerBlockers = knownBlockers.filter((blocker) => blocker?.status !== "mitigated" && blocker?.status !== "resolved" && blocker?.blocksRealRunner === true);
-  pushResult(results, "No active known blocker with blocksAutoMerge=true", activeAutoMergeBlockers.length === 0, activeAutoMergeBlockers.length ? activeAutoMergeBlockers.map((blocker) => blocker.id ?? blocker.blockerId ?? "unknown").join(", ") : "none");
-  pushResult(results, "No active known blocker with blocksRealRunner=true", activeRealRunnerBlockers.length === 0, activeRealRunnerBlockers.length ? activeRealRunnerBlockers.map((blocker) => blocker.id ?? blocker.blockerId ?? "unknown").join(", ") : "none");
+  pushResult(results, "No active known blocker with blocksAutoMerge=true", knownBlockersReadable && activeAutoMergeBlockers.length === 0, knownBlockersReadable ? (activeAutoMergeBlockers.length ? activeAutoMergeBlockers.map((blocker) => blocker.id ?? blocker.blockerId ?? "unknown").join(", ") : "none") : "known_blockers_file_unreadable");
+  pushResult(results, "No active known blocker with blocksRealRunner=true", knownBlockersReadable && activeRealRunnerBlockers.length === 0, knownBlockersReadable ? (activeRealRunnerBlockers.length ? activeRealRunnerBlockers.map((blocker) => blocker.id ?? blocker.blockerId ?? "unknown").join(", ") : "none") : "known_blockers_file_unreadable");
 
   const passed = results.every((result) => result.passed);
   const report = `# Agent Control Center Check\n\nGenerated: ${new Date().toISOString()}\nMode: REPORT_ONLY\nResult: ${passed ? "PASS" : "FAIL"}\nAGENT_CONTROL_CENTER_READY=${passed ? "true" : "false"}\n\n## Boundaries\n\n- Never modifies runtime files: true\n- Never modifies protected files: true\n- Never modifies Unity files: true\n- Never modifies Firestore Rules files: true\n- Never modifies Functions files: true\n- Never modifies Token files: true\n- Never modifies Wallet files: true\n- Never modifies Payment files: true\n- Never modifies Health files: true\n- Never modifies Child files: true\n- Never modifies Location files: true\n- Never modifies Camera files: true\n- Never modifies Privacy files: true\n- Never modifies Consent files: true\n- Never modifies Legal files: true\n- ${NO_MODIFICATION_SCOPE_MESSAGE}\n- Never approves PRs: true\n- Never merges PRs: true\n- Never deploys: true\n- Never activates protected scopes: true\n- Human Approval Gate required for protected/high/critical work: true\n- Controlled Curiosity requires proposal/approval flow: true\n\n## Checks\n\n${renderResults(results)}\n`;
@@ -327,7 +355,8 @@ function main() {
   console.log("Never bypasses quality gate: true");
   console.log("Auto-Merge is gated by admin approval, checks, quality gate and audit: true");
   console.log("Deploy is gated by admin approval, checks, quality gate and environment policy: true");
-  console.log("Production deploy requires second owner approval: true");
+  console.log("Admin approval is the single human decision gate: true");
+  console.log("Production deploy requires admin approval plus green technical gates: true");
   console.log("Real GitHub runner must respect Automation Control: true");
   console.log("Failed merge/check triggers repair_required: true");
   console.log("Never activates protected scopes without owner gating: true");

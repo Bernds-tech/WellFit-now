@@ -416,3 +416,5 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - Next branch recommendation: `runtime/agent-admin-supervised-runner-deploy-integration` (or `analysis/agent-product-evolution-first-run`).
 
 - 2026-05-23: Agent Control Center check now validates gated auto-merge/auto-deploy contract (admin/check/quality/audit/automation gates). Legacy never-merge/never-deploy semantics removed; always-blocked guards unchanged; quality gate PASS. Next: runtime/agent-admin-supervised-runner-deploy-integration.
+
+- 2026-05-23: Agent-Control-Center gated automation hardening abgeschlossen: Admin approval als single human decision gate dokumentiert, Auto-Merge/Deploy technisch gegated, deploy policy maschinenlesbar erzwungen, known blockers fail-closed. Kein echter Deploy/GitHub API; Canonical-Truth-Dateien unverändert. Next: runtime/agent-admin-supervised-runner-deploy-integration (alternativ analysis/agent-product-evolution-first-run).

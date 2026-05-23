@@ -103,6 +103,30 @@
   },
   "entries": [
     {
+      "id": "AWL-2026-05-23-ACC-GATED-AUTOMATION-HARDENING",
+      "date": "2026-05-23",
+      "branch": "fix/agent-control-center-gated-automation-hardening",
+      "summary": "Adjusted Agent Control Center check to require machine-readable deploy policies, fail-closed known-blockers parsing, and non-redundant admin approval semantics for auto-merge.",
+      "files": [
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.mjs",
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.test.mjs",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "checks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "npm --prefix functions run check",
+        "node --test scripts/wellfit-dev-agent/src/agent-control-center-check.test.mjs"
+      ],
+      "runtimeChanged": false,
+      "deployExecuted": false,
+      "canonicalTruthEdited": false
+    },
+    {
       "taskId": "QG-2026-05-23-AGENT-CONTROL-CENTER-GATED-AUTOMATION-CONTRACT",
       "title": "Update Agent Control Center check for gated automation",
       "status": "done",
@@ -2180,7 +2204,7 @@
       },
       "changedFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -2268,7 +2292,7 @@
       "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
       "updatedTodoFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
