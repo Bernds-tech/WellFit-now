@@ -683,3 +683,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 
 
 - Pipeline hardening follow-up (2026-05-23): verify admin pipeline status board with real runner dataset.
+
+- 2026-05-23: Revalidation abgeschlossen (`fix/agent-control-center-output-revalidation`): Agent-Control-Center-Check Output sicher/gated, revalidation-blocker resolved, keine Runtime-/Deploy-/GitHub-API-/Canonical-Truth-Aenderung.

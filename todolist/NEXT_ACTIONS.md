@@ -424,3 +424,5 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 
 - [ ] Follow-up branch recommendation: analysis/agent-product-evolution-first-run or runtime/agent-admin-supervised-runner-deploy-integration.
+
+- [x] 2026-05-23: Agent-Control-Center-Output nach PR #240 revalidiert; Blocker `QG-2026-05-23-AGENT-CONTROL-CENTER-CHECK-FAIL` auf resolved gesetzt, keine Runtime-/GitHub-API-/Deploy-/Canonical-Truth-Aenderung. Naechster Branch: `analysis/agent-product-evolution-first-run` (nur bei gruenem Quality Gate).

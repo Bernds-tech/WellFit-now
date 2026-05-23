@@ -1353,6 +1353,20 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Implemented strict proxy acceptance only for docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md and todolist/CODEX_CONTEXT_WELLFIT_BETA1.md using companion prompt todolist/CODEX_PROMPT_AGENT_CANONICAL_TRUTH_INTEGRATION.md when canonical-truth protection is active and mapping flags permit. Protected canonical-truth files remained unchanged. Quality gate now PASS. Runner remains metadata_only; no real GitHub API and no deploy integration added."
+    },
+    {
+      "id": "2026-05-23-agent-control-center-output-revalidation",
+      "date": "2026-05-23",
+      "branch": "fix/agent-control-center-output-revalidation",
+      "goal": "Revalidate Agent Control Center output and resolve self-referential quality-gate blocker without runtime changes.",
+      "changedAreas": [
+        "scripts/wellfit-dev-agent",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Agent Control Center report revalidated with gated automation semantics and without legacy unsafe wording. Revalidation blocker resolved; no runtime code, no GitHub API, no deploy, and no canonical-truth file changes."
     }
   ],
   "notes": [

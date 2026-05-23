@@ -4430,5 +4430,34 @@
   ],
   "notes": [
     "agent opportunity dossier templates added"
+  ],
+  "tasks": [
+    {
+      "taskId": "QG-2026-05-23-AGENT-CONTROL-CENTER-CHECK-FAIL",
+      "title": "Revalidate Agent Control Center output after PR #240",
+      "status": "done",
+      "pr": {
+        "branch": "fix/agent-control-center-output-revalidation",
+        "number": null,
+        "url": null,
+        "title": "Revalidate Agent Control Center output"
+      },
+      "changedFiles": [
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.mjs",
+        "scripts/wellfit-dev-agent/src/agent-control-center-check.test.mjs",
+        "project-register/quality-gate-known-blockers.json",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "checks": [],
+      "followUps": [
+        "Proceed with analysis/agent-product-evolution-first-run only with green quality gate and no active merge/real-runner blockers."
+      ],
+      "nextRecommendedTask": "analysis/agent-product-evolution-first-run",
+      "riskLevel": "low"
+    }
   ]
 }
