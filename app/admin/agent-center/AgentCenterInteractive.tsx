@@ -52,6 +52,7 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
   const [busy, setBusy] = useState(false);
   const [inboxItems, setInboxItems] = useState<AgentCenterInboxItem[]>([]);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
+  const [syncDebug, setSyncDebug] = useState<Record<string, unknown>>({});
 
   const indexedInbox = useMemo(() => {
     const byId = new Map<string, AgentCenterInboxItem>();
@@ -108,6 +109,27 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
     return list.filter((row) => (missionMode ? getMissionStatusBucket(row) : getAgentStatusBucket(row)) === bucket);
   }, [active, mapped]);
 
+  const snapshotStats = useMemo(() => {
+    const snapshot = firstRunOutput && typeof firstRunOutput === "object" ? firstRunOutput : {};
+    const keys = Object.keys(snapshot);
+    const toCount = (value: unknown) => Array.isArray(value) ? value.length : (value && typeof value === "object" ? Object.keys(value as Record<string, unknown>).length : 0);
+    const suggestedTaskQueueCount = toCount((snapshot as Record<string, unknown>).suggestedTaskQueue);
+    const generatedDossiersCount = toCount((snapshot as Record<string, unknown>).generatedDossiers);
+    const recommendedApprovalsCount = toCount((snapshot as Record<string, unknown>).recommendedApprovals);
+    const recommendedResearchMoreCount = toCount((snapshot as Record<string, unknown>).recommendedResearchMore);
+    const blockedItemsCount = toCount((snapshot as Record<string, unknown>).blockedItems);
+    return {
+      hasFirstRunOutput: keys.length > 0,
+      localFirstRunKeys: keys,
+      suggestedTaskQueueCount,
+      generatedDossiersCount,
+      recommendedApprovalsCount,
+      recommendedResearchMoreCount,
+      blockedItemsCount,
+      localFirstRunCandidateCount: suggestedTaskQueueCount + generatedDossiersCount + recommendedApprovalsCount + recommendedResearchMoreCount + blockedItemsCount,
+    };
+  }, [firstRunOutput]);
+
   async function refreshInbox() {
     setBusy(true);
     try {
@@ -130,8 +152,18 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
       const reasons = Object.entries(result.skippedReasons || {}).filter(([, count]) => Number(count) > 0).map(([reason, count]) => `${reason}:${count}`).join(", ");
       const samples = (result.sampleCreatedIds || []).slice(0, 3).join(", ");
       const skippedSample = (result.sampleSkipped || []).slice(0, 2).map((entry) => JSON.stringify(entry)).join(" | ");
+      setSyncDebug({
+        serverSnapshotReceived: result.serverSnapshotReceived,
+        serverSnapshotKeys: result.serverSnapshotKeys || [],
+        serverCandidateCount: result.serverCandidateCount ?? 0,
+        serverCandidateCollections: result.serverCandidateCollections || [],
+        skippedReasons: result.skippedReasons || {},
+        sampleCreatedIds: result.sampleCreatedIds || [],
+        sampleSkipped: result.sampleSkipped || [],
+      });
       setSyncStatus(result.message || (created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` : "Keine syncbaren Einträge gefunden."));
-      setFeedback(`Sync Debug → created:${created}, updated:${updated}, skipped:${skipped}${reasons ? `, reasons:${reasons}` : ""}${samples ? `, sampleCreatedIds:${samples}` : ""}${skippedSample ? `, sampleSkipped:${skippedSample}` : ""}`);
+      const shapeMismatch = snapshotStats.localFirstRunCandidateCount > 0 && created + updated + skipped === 0;
+      setFeedback(`Sync Debug → created:${created}, updated:${updated}, skipped:${skipped}${reasons ? `, reasons:${reasons}` : ""}${samples ? `, sampleCreatedIds:${samples}` : ""}${skippedSample ? `, sampleSkipped:${skippedSample}` : ""}${shapeMismatch ? ` | Client hat ${snapshotStats.localFirstRunCandidateCount} Kandidaten gesendet, Server hat 0 verarbeitet. Snapshot-Shape passt nicht.` : ""}`);
       await refreshInbox();
     } finally {
       setBusy(false);
@@ -178,6 +210,23 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
       </div>
       {syncStatus && <p className="text-xs">{syncStatus}</p>}
       {feedback && <p className="text-xs">{feedback}</p>}
+      {!snapshotStats.hasFirstRunOutput && <p className="text-xs text-amber-300">First-Run-Output wurde nicht in die Admin-Komponente geladen.</p>}
+      <div className="rounded border border-white/20 p-2 text-xs">
+        <p>Client snapshot candidates: {snapshotStats.localFirstRunCandidateCount}</p>
+        <p>Client snapshot keys: [{snapshotStats.localFirstRunKeys.join(", ")}]</p>
+        <p>suggestedTaskQueue: {snapshotStats.suggestedTaskQueueCount}</p>
+        <p>generatedDossiers: {snapshotStats.generatedDossiersCount}</p>
+        <p>recommendedApprovals: {snapshotStats.recommendedApprovalsCount}</p>
+        <p>recommendedResearchMore: {snapshotStats.recommendedResearchMoreCount}</p>
+        <p>blockedItems: {snapshotStats.blockedItemsCount}</p>
+        <p>serverSnapshotReceived: {String(syncDebug.serverSnapshotReceived ?? "-")}</p>
+        <p>serverSnapshotKeys: [{((syncDebug.serverSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
+        <p>serverCandidateCount: {String(syncDebug.serverCandidateCount ?? "-")}</p>
+        <p>serverCandidateCollections: {JSON.stringify(syncDebug.serverCandidateCollections || [])}</p>
+        <p>skippedReasons: {JSON.stringify(syncDebug.skippedReasons || {})}</p>
+        <p>sampleCreatedIds: {JSON.stringify(syncDebug.sampleCreatedIds || [])}</p>
+        <p>sampleSkipped: {JSON.stringify(syncDebug.sampleSkipped || [])}</p>
+      </div>
 
       <div className="flex flex-wrap gap-2 text-xs">
         {FILTER_KEYS.map((key) => {

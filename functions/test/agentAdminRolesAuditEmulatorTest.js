@@ -343,6 +343,37 @@ async function run() {
   const pe02 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-02:suggestedTaskQueue").get();
   const pe03 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-03:recommendedResearchMore").get();
   assert(pe01.exists && pe02.exists && pe03.exists, "stable inbox ids should exist for PE 01/02/03");
+  assert((firstRunSync.serverCandidateCount || 0) >= 3, "serverCandidateCount should include PE 01/02/03");
+  assert(((firstRunSync.created || 0) + (firstRunSync.updated || 0) + (firstRunSync.skipped || 0)) > 0, "created+updated+skipped should be > 0");
+  assert((firstRunSync.serverCandidateCollections || []).some((entry) => entry.listType === "suggestedTaskQueue"), "must detect top-level suggestedTaskQueue");
+
+  const syncOutputShape = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
+    registerSnapshot: { output: { suggestedTaskQueue: [{ title: "PE-20260523-01 output queue", summary: "s" }] } },
+  });
+  assert((syncOutputShape.serverCandidateCollections || []).some((entry) => entry.path === "output.suggestedTaskQueue"), "must detect snapshot.output.suggestedTaskQueue");
+
+  const syncDataShape = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
+    registerSnapshot: { data: { generatedDossiers: [{ id: "PE-20260523-02", summary: "s", whatWillChange: "w", whySuggested: "y" }] } },
+  });
+  assert((syncDataShape.serverCandidateCollections || []).some((entry) => entry.path === "data.generatedDossiers"), "must detect snapshot.data.generatedDossiers");
+
+  const syncStringList = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
+    registerSnapshot: { generatedDossiers: ["docs/PE-20260523-03.md"] },
+  });
+  assert((syncStringList.serverCandidateCount || 0) >= 1, "string list must be converted into candidates");
+
+  const syncObjectMap = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
+    registerSnapshot: { suggestedTaskQueue: { a: { title: "PE-20260523-01 map", summary: "s", whySuggested: "y" }, b: { title: "no-id" } } },
+  });
+  assert((syncObjectMap.serverCandidateCount || 0) >= 2, "object map should be expanded into candidates");
+
+  const emptySnapshot = await expectOk("syncProductEvolutionFirstRunInbox", owner, { registerSnapshot: {} });
+  assert(emptySnapshot.serverSnapshotReceived === true, "empty snapshot should still be marked as received");
+  assert((emptySnapshot.serverCandidateCount || 0) === 0, "empty snapshot should have 0 candidates");
+  assert(String(emptySnapshot.message || "").includes("keine Candidate-Arrays"), "empty snapshot needs clear message");
+
+  const undefinedSnapshot = await expectOk("syncProductEvolutionFirstRunInbox", owner, {});
+  assert(undefinedSnapshot.serverSnapshotReceived === false, "undefined snapshot should be false when mirror empty");
 
   const centerAudit = await db.collection("agentTaskAuditLog").where("action", "==", "agent_center_rejected").get();
   assert(centerAudit.size > 0, "reject must write audit");

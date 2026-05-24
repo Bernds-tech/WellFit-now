@@ -88,3 +88,5 @@ Produktgrenzen:
 - 2026-05-24: Admin-Center UX-Fix: Filterkarten zeigen wieder deutsche Labels, Dossier-Overlay zeigt strukturierte Felder/Dossierauszug, Inbox-Mirror-Matching priorisiert deterministische Keys; kein Runner/Deploy/GitHub-API-Start.
 
 - 2026-05-24: Inbox-Sync repariert: registerSnapshot wird priorisiert wenn Mirror leer ist; Sync liefert created/updated/skipped + klare 0-Items-Message; Overlay zeigt Dossierauszug/Fallback-Fehler statt nur Metadaten; kein Runner/Deploy.
+
+- 2026-05-24: Snapshot-Shape-Diagnose/Fix: Client zeigt localFirstRunCandidateCount/Keys + Collection-Counts; Sync uebergibt registerSnapshot explizit; Server erkennt mehrere Snapshot-Shapes inkl. output/data/run/result und object-map/string listen. Erwartung: bei sichtbaren PE-IDs ist created+updated+skipped > 0. Kein Runner/Branch/PR/Merge/Deploy.

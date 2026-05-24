@@ -2272,7 +2272,7 @@
       },
       "changedFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -2360,7 +2360,7 @@
       "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
       "updatedTodoFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -4524,6 +4524,29 @@
         "Proceed with analysis/agent-product-evolution-first-run only with green quality gate and no active merge/real-runner blockers."
       ],
       "nextRecommendedTask": "analysis/agent-product-evolution-first-run",
+      "riskLevel": "low"
+    },
+    {
+      "taskId": "FIX-2026-05-24-ADMIN-SNAPSHOT-SHAPE",
+      "title": "Fix first-run snapshot shape handling in admin center sync",
+      "status": "done",
+      "pr": {
+        "branch": "fix/admin-center-first-run-snapshot-shape",
+        "number": null,
+        "url": null,
+        "title": "Support First-Run snapshot shapes for Inbox sync"
+      },
+      "changedFiles": [
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/beta1AdminTypes.ts",
+        "functions/lib/agentAdminRolesAudit.js",
+        "functions/test/agentAdminRolesAuditEmulatorTest.js"
+      ],
+      "checks": [],
+      "followUps": [
+        "runtime/admin-center-task-proposal-to-worker-queue"
+      ],
+      "nextRecommendedTask": "runtime/admin-center-task-proposal-to-worker-queue",
       "riskLevel": "low"
     }
   ]

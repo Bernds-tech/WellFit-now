@@ -54,6 +54,7 @@
     }
   ],
   "notes": [
-    "2026-05-24: Admin-Center Inbox-Sync zeigte zuvor 0 Eintraege ohne klare Ursache. Fix: Sync zaehlt created/updated/skipped und liefert 0-Item Erklaerung; verbleibend: Emulator-Verfuegbarkeit fuer End-to-End Nachweis."
+    "2026-05-24: Admin-Center Inbox-Sync zeigte zuvor 0 Eintraege ohne klare Ursache. Fix: Sync zaehlt created/updated/skipped und liefert 0-Item Erklaerung; verbleibend: Emulator-Verfuegbarkeit fuer End-to-End Nachweis.",
+    "2026-05-24: Admin-Center zero-candidate sync was caused by snapshot-shape mismatch or empty registerSnapshot handoff; snapshot-shape parser+debug fix implemented, expected created+updated+skipped > 0 for visible PE rows."
   ]
 }
