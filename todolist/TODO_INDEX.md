@@ -695,3 +695,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 
 
 - 2026-05-24: Admin-Center Dossier-Detail-Overlay und Inbox-Completion-Fix eingepflegt; keine Runner/Deploy/Canonical-Truth-Aenderung.
+
+- 2026-05-24: Admin-Center-Fix abgeschlossen (Filterlabels, Dossierauszug, Inbox-Matching, Button-Gating); naechster Branch: runtime/admin-center-task-proposal-to-worker-queue.
