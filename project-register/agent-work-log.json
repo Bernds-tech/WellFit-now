@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-23",
+  "updated": "2026-05-24",
   "purpose": "Machine-readable WellFit agent work log for recording completed agent runs, changed files, checks, follow-ups, and the next recommended safe task without creating duplicate architecture or parallel systems.",
   "governance": {
     "readBeforeUpdating": [
@@ -102,6 +102,28 @@
     }
   },
   "entries": [
+    {
+      "id": "AWL-2026-05-24-ADMIN-CENTER-DOSSIER-DETAIL-OVERLAY",
+      "date": "2026-05-24",
+      "branch": "fix/admin-center-dossier-details-modal-and-inbox-completion",
+      "summary": "Admin-Center Dossier/Bericht Details fuer First-Run-Inbox sichtbar gemacht inkl. Overlay, semantischer Missing-Hinweise und Button-Gating-Erklaerungen.",
+      "files": [
+        "app/admin/agent-center/page.tsx",
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/beta1AdminTypes.ts",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json"
+      ],
+      "checks": [],
+      "runtimeChanged": false,
+      "deployExecuted": false,
+      "canonicalTruthEdited": false
+    },
     {
       "id": "AWL-2026-05-23-ACC-REPORT-WORDING-GATED",
       "date": "2026-05-23",
@@ -2232,7 +2254,7 @@
       },
       "changedFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -2320,7 +2342,7 @@
       "nextRecommendedTask": "Run a safety-wording / economy-guardrail documentation pass in existing Mobile/Mission/Economy planning sources without touching runtime code, legal/compliance logic, or reward authority.",
       "updatedTodoFiles": [
         "todolist/DATABASE_PLAN.md",
-        "todolist/B - AKTUELLER SPRINT-STAND – LOGIN - REGISTRIERUNG - DEPLOYMENT",
+        "todolist/B - AKTUELLER SPRINT-STAND \u2013 LOGIN - REGISTRIERUNG - DEPLOYMENT",
         "todolist/NEXT_ACTIONS.md",
         "todolist/WORK_MAP.md",
         "todolist/TODO_INDEX.md",
@@ -4482,4 +4504,3 @@
     }
   ]
 }
-

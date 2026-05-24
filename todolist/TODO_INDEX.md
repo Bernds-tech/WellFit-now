@@ -693,3 +693,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 
 - admin-center: Pending-Approval-Logik nutzt jetzt nur echte Review-States; lokale technische Catalog-/Framework-Einträge werden als nicht entscheidbar markiert bis Inbox-Sync.
 
+
+- 2026-05-24: Admin-Center Dossier-Detail-Overlay und Inbox-Completion-Fix eingepflegt; keine Runner/Deploy/Canonical-Truth-Aenderung.

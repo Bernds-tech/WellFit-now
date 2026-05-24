@@ -60,3 +60,5 @@ Produktgrenzen:
 
 - 2026-05-23: Final hardening: failed/checks_failed/conflict/blocked => repair_required, max 3 repair attempts, then halted_waiting_owner. Successful merge sets nextCycleRequired=true and restarts analysis from internal_sources_analysis.
 
+
+- 2026-05-24: Retry-Guard UX ergaenzt um klare Inbox-Sync-/Decision-Blocker-Hinweise im Admin-Center; keine Runner-/Deploy-Aenderung.

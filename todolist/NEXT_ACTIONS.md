@@ -432,3 +432,6 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - [ ] runtime/admin-center-product-evolution-dossier-inbox-sync: serverseitigen Inbox-Sync für lokale Register-/Catalog-Einträge anbinden, damit nicht entscheidbare Einträge auf echte Decision Targets gemappt werden können.
 
+
+- [x] 2026-05-24: Admin-Center Dossier/Bericht Overlay + Inbox-Completion-UX umgesetzt (differenzierte fehlend-Status, Button-Aktivierungsgruende, Sync-Feedback).
+- [>] Naechster empfohlener Branch: runtime/admin-center-approved-inbox-to-task-proposal-follow-up.

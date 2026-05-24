@@ -4,9 +4,30 @@
     "purpose": "Fortschrittslog fuer Stufe-4-Agentenarbeit.",
     "issue": 19,
     "status": "initial-governance-layer",
-    "updated": "2026-05-23"
+    "updated": "2026-05-24"
   },
   "entries": [
+    {
+      "id": "2026-05-24-admin-center-dossier-details-modal-and-inbox-completion",
+      "date": "2026-05-24",
+      "branch": "fix/admin-center-dossier-details-modal-and-inbox-completion",
+      "goal": "Make Agent/Admin Center entries decidable by surfacing dossier/report details and explicit decision gating reasons.",
+      "changedAreas": [
+        "app/admin/agent-center/page.tsx",
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/beta1AdminTypes.ts",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "UX/admin-only improvement. No runner start, no deploy, no GitHub API changes, no canonical-truth edits."
+    },
     {
       "id": "2026-05-23-agent-control-center-report-template-gated-wording",
       "date": "2026-05-23",
@@ -1394,4 +1415,3 @@
   ],
   "updated": "2026-05-23"
 }
-

@@ -83,3 +83,21 @@ export type AgentCenterDecisionInput = { targetType: "agent"; targetId: string; 
 export type MissionCenterDecisionInput = { targetType: "mission"; targetId: string; sourceRef?: string; reason?: string; riskLevel?: string; };
 export type AgentCenterDecision = { decisionId: string; decision: "approved"|"rejected"|"revise"|"blocked"|"review"; targetId: string; targetType: "agent"; };
 export type MissionCenterDecision = { decisionId: string; decision: "approved"|"rejected"|"revise"|"blocked"|"review"; targetId: string; targetType: "mission"; };
+
+
+export type AdminCenterDetailStatus = "missing"|"reference_only"|"structured";
+export type AdminCenterDossierDetail = {
+  title?: string;
+  summary?: string;
+  problem?: string;
+  proposedChange?: string;
+  whyNow?: string;
+  wellFitBenefit?: string;
+  userBenefit?: string;
+  businessBenefit?: string;
+  economyImpact?: string;
+  risks?: string;
+  mitigation?: string;
+  recommendation?: string;
+  suggestedTaskProposal?: string;
+};
