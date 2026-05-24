@@ -1084,6 +1084,66 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { accepted: true, item: snap.data() };
   });
 
+  exportsTarget.createAgentTaskProposalFromApprovedInboxItem = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const inboxId = requiredString(request.data && request.data.inboxId, "inboxId", HttpsError, 180);
+    const titleOverride = optionalString(request.data && request.data.title, 240);
+    const reason = optionalString(request.data && request.data.reason, 1200) || "approved_inbox_to_task_proposal";
+    const suggestedBranch = optionalString(request.data && request.data.suggestedBranch, 180);
+    const inboxRef = db.collection("agentCenterInbox").doc(inboxId);
+    const inboxSnap = await inboxRef.get();
+    if (!inboxSnap.exists) throw new HttpsError("not-found", "inbox_not_found");
+    const inbox = inboxSnap.data() || {};
+    if (String(inbox.status || "") !== "approved") throw new HttpsError("failed-precondition", "inbox_not_approved");
+    if (["rejected", "blocked", "revision_requested", "pending_approval"].includes(String(inbox.status || ""))) throw new HttpsError("failed-precondition", "inbox_status_not_allowed");
+    const decisionQuery = await db.collection("agentCenterDecisions").where("targetId", "==", inboxId).where("decision", "==", "approved").orderBy("createdAt", "desc").limit(1).get();
+    if (decisionQuery.empty) throw new HttpsError("failed-precondition", "missing_approved_admin_decision");
+    const allowedFiles = parseStringList(inbox.allowedFiles || [], 80, 260);
+    const blockedFiles = parseStringList(inbox.blockedFiles || [], 80, 260);
+    const requiredChecks = parseStringList(inbox.requiredChecks || [], 80, 260);
+    if (!allowedFiles.length || !blockedFiles.length || !requiredChecks.length) throw new HttpsError("failed-precondition", "missing_decision_data");
+    assertCanonicalTruthChangeAllowed({ files: [...allowedFiles, ...blockedFiles], actorRole, ownerApprovalFlag: false, HttpsError });
+    const riskLevel = normalizeRiskLevel(inbox.riskLevel || "medium");
+    const proposalStatus = (riskLevel === "high" || riskLevel === "critical" || requiredChecks.length === 0) ? "review_required" : "proposed";
+    const proposalRef = db.collection("agentTaskProposals").doc();
+    const now = FieldValue.serverTimestamp();
+    const proposal = {
+      proposalId: proposalRef.id,
+      sourceInboxId: inboxId,
+      sourceDossierId: optionalString(inbox.sourceDossierId, 180) || null,
+      sourceType: optionalString(inbox.sourceType, 120) || "inbox",
+      title: titleOverride || optionalString(inbox.title, 240) || `Inbox ${inboxId}`,
+      requestedAction: optionalString(inbox.whatWillChange, 1200) || optionalString(inbox.plainSummary, 1200) || reason,
+      targetTrack: optionalString(inbox.targetTrack, 80) || "docs_register",
+      riskLevel,
+      allowedFiles,
+      blockedFiles,
+      requiredChecks,
+      suggestedBranch: suggestedBranch || optionalString(inbox.suggestedBranch, 180) || null,
+      status: proposalStatus,
+      adminApprovalRequired: true,
+      requiresAdminReview: proposalStatus === "review_required",
+      createdBy: actorId,
+      createdByRole: actorRole,
+      createdAt: now,
+      updatedAt: now,
+      lastStatusChangedAt: now,
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+    };
+    await proposalRef.set(proposal, { merge: true });
+    await inboxRef.set({
+      status: "synced_to_task_proposal",
+      taskProposalId: proposalRef.id,
+      taskProposalCreatedAt: now,
+      lastStatusChangedAt: now,
+      updatedAt: now,
+    }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "approved_inbox_to_task_proposal_created", proposalId: proposalRef.id, riskLevel, result: "ok", evidenceRef: inboxId, allowedFiles, blockedFiles });
+    return { accepted: true, inboxId, taskProposalId: proposalRef.id, status: "synced_to_task_proposal", proposalStatus };
+  });
+
 
 
   async function writeCenterDecision({ request, targetType, decision }) {

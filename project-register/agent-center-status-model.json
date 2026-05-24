@@ -16,7 +16,8 @@
     "checks_passed",
     "checks_failed",
     "merged",
-    "cycle_restart_required"
+    "cycle_restart_required",
+    "synced_to_task_proposal"
   ],
   "timelineFields": [
     "createdAt",
@@ -42,7 +43,9 @@
     "resumedAt",
     "nextCycleRequiredAt",
     "nextCycleStartedAt",
-    "analysisRestartedAt"
+    "analysisRestartedAt",
+    "taskProposalCreatedAt",
+    "taskProposalId"
   ],
   "appliesTo": [
     "agents",
@@ -53,4 +56,3 @@
     "runner_jobs"
   ]
 }
-
