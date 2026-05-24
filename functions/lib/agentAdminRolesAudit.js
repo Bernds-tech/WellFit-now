@@ -18,6 +18,9 @@ const CANONICAL_TRUTH_PROTECTED_FILES = [
   "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
 ];
 const CANONICAL_TRUTH_PROPOSAL_FILE = "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md";
+const INBOX_STATUSES = ["pending_approval", "approved", "rejected", "revision_requested", "blocked", "synced_to_task_proposal"];
+const INBOX_SOURCE_TYPES = ["product_evolution_first_run", "opportunity_dossier", "mission_story", "research_summary", "product_radar", "legacy_catalog", "backlog", "proposal"];
+const INBOX_LIST_TYPES = ["generatedDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals", "productOpportunityProposals"];
 
 function touchesCanonicalTruthProtectedFiles(files) {
   const normalized = parseStringList(files, 120, 260).map((f) => String(f || "").trim().toLowerCase());
@@ -124,6 +127,15 @@ function parseStringList(value, maxEntries = 80, maxLength = 240) {
 function normalizeRiskLevel(value) {
   const risk = optionalString(value, 40) || "medium";
   return ["low", "medium", "high", "critical"].includes(risk) ? risk : "medium";
+}
+
+function sanitizeInboxText(value, max = 600) {
+  return optionalString(value, max) || "";
+}
+
+function toInboxStatusByListType(listType) {
+  if (listType === "blockedItems") return "blocked";
+  return "pending_approval";
 }
 
 function hasProtectedFileScope(files) {
@@ -954,6 +966,120 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { accepted: true, proposals: snapshot.docs.map((doc) => doc.data()) };
   });
 
+  async function upsertInboxItem({ actorId, actorRole, sourceType, listType, sourceRef, sourceDossierId, payload, createdAtFallback }) {
+    const inboxId = `product-evolution-first-run:${sourceDossierId}:${listType}`;
+    const ref = db.collection("agentCenterInbox").doc(inboxId);
+    const now = FieldValue.serverTimestamp();
+    const createdAt = createdAtFallback || now;
+    const status = toInboxStatusByListType(listType);
+    const recommendation = listType === "recommendedResearchMore" ? "research_more" : (sanitizeInboxText(payload.recommendation, 80) || "approve");
+    const allowedFiles = parseStringList(payload.allowedFiles || payload.allowedWriteScopes || [], 80, 260);
+    const blockedFiles = parseStringList(payload.blockedFiles || [], 80, 260);
+    assertCanonicalTruthChangeAllowed({ files: [...allowedFiles, ...blockedFiles], actorRole, ownerApprovalFlag: actorRole === "owner", HttpsError });
+    const doc = {
+      inboxId,
+      sourceType,
+      sourceRef,
+      sourceDossierId,
+      listType,
+      title: sanitizeInboxText(payload.title || payload.name || sourceDossierId, 240),
+      plainSummary: sanitizeInboxText(payload.summary || payload.plainSummary || payload.description, 1200),
+      whatWillChange: sanitizeInboxText(payload.whatWillChange || payload.requestedAction, 1200),
+      whySuggested: sanitizeInboxText(payload.whySuggested || payload.reason, 1200),
+      wellFitBenefit: sanitizeInboxText(payload.wellFitBenefit, 1200),
+      userBenefit: sanitizeInboxText(payload.userBenefit, 1200),
+      businessBenefit: sanitizeInboxText(payload.businessBenefit, 1200),
+      economyImpact: sanitizeInboxText(payload.economyImpact, 1200),
+      riskSummary: sanitizeInboxText(payload.riskSummary, 1200),
+      recommendation,
+      status,
+      createdAt,
+      submittedAt: createdAt,
+      waitingForApprovalAt: createdAt,
+      lastStatusChangedAt: now,
+      riskLevel: normalizeRiskLevel(payload.riskLevel || "medium"),
+      targetTrack: sanitizeInboxText(payload.targetTrack, 80),
+      suggestedBranch: sanitizeInboxText(payload.suggestedBranch || payload.branchName, 180),
+      allowedFiles,
+      blockedFiles,
+      requiredChecks: parseStringList(payload.requiredChecks || [], 80, 260),
+      runnerEligibility: sanitizeInboxText(payload.runnerEligibility, 80) || "admin_review_required",
+      adminApprovalRequired: true,
+      requiresAdminReview: true,
+      canonicalTruthProtected: touchesCanonicalTruthProtectedFiles([...allowedFiles, ...blockedFiles]).length > 0,
+      beta1Allowed: payload.beta1Allowed !== false,
+      forbiddenScope: parseStringList(payload.forbiddenScope || [], 40, 120),
+      sourcePayloadSummary: sanitizeInboxText(payload.sourcePayloadSummary || payload.summary || payload.description, 1200),
+      updatedAt: now,
+    };
+    await ref.set(doc, { merge: true });
+    return inboxId;
+  }
+
+  exportsTarget.syncProductEvolutionFirstRunInbox = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const sourceRef = "project-register/agent-product-evolution-first-run-output.json";
+    const snap = await db.collection("agentSystemRegisters").doc("agent-product-evolution-first-run-output").get();
+    const register = snap.exists ? (snap.data() || {}) : {};
+    const run = register.run || {};
+    const createdAt = run.createdAt ? new Date(String(run.createdAt)) : null;
+    const createdAtFallback = createdAt && !Number.isNaN(createdAt.getTime()) ? createdAt : FieldValue.serverTimestamp();
+    let created = 0;
+    const listKeys = ["generatedDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems"];
+    for (const listType of listKeys) {
+      const items = Array.isArray(register[listType]) ? register[listType] : [];
+      for (const item of items) {
+        const sourceDossierId = sanitizeInboxText(item.sourceDossierId || item.dossierId || item.id, 180);
+        if (!sourceDossierId) continue;
+        await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
+        created += 1;
+      }
+    }
+    await writeAgentAudit(db, { actorId, actorRole, action: "sync_product_evolution_first_run_inbox", result: "ok" });
+    return { accepted: true, syncedCount: created, idempotent: true };
+  });
+
+  exportsTarget.syncAgentCenterLocalRegistersInbox = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const proposals = await db.collection("agentTaskProposals").orderBy("createdAt", "desc").limit(200).get();
+    let synced = 0;
+    for (const doc of proposals.docs) {
+      const p = doc.data() || {};
+      const reviewable = p.adminApprovalRequired === true || p.requiresAdminReview === true || ["review_required", "pending_approval"].includes(String(p.status || ""));
+      if (!reviewable) continue;
+      const sourceDossierId = sanitizeInboxText(p.sourceDossierId || p.proposalId || doc.id, 180);
+      if (!sourceDossierId) continue;
+      await upsertInboxItem({ actorId, actorRole, sourceType: "proposal", listType: "suggestedTaskQueue", sourceRef: "agentTaskProposals", sourceDossierId, payload: p, createdAtFallback: FieldValue.serverTimestamp() });
+      synced += 1;
+    }
+    await writeAgentAudit(db, { actorId, actorRole, action: "sync_agent_center_local_registers_inbox", result: "ok" });
+    return { accepted: true, syncedCount: synced, idempotent: true };
+  });
+
+  exportsTarget.listAgentCenterInboxItems = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
+    const data = request.data || {};
+    let q = db.collection("agentCenterInbox").orderBy("createdAt", "desc").limit(200);
+    const status = optionalString(data.status, 80);
+    const sourceType = optionalString(data.sourceType, 80);
+    const recommendation = optionalString(data.recommendation, 80);
+    const listType = optionalString(data.listType, 80);
+    if (status && INBOX_STATUSES.includes(status)) q = q.where("status", "==", status);
+    if (sourceType && INBOX_SOURCE_TYPES.includes(sourceType)) q = q.where("sourceType", "==", sourceType);
+    if (recommendation) q = q.where("recommendation", "==", recommendation);
+    if (listType && INBOX_LIST_TYPES.includes(listType)) q = q.where("listType", "==", listType);
+    const snap = await q.get();
+    return { accepted: true, items: snap.docs.map((d) => d.data()) };
+  });
+
+  exportsTarget.getAgentCenterInboxItem = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
+    const inboxId = requiredString(request.data && request.data.inboxId, "inboxId", HttpsError, 180);
+    const snap = await db.collection("agentCenterInbox").doc(inboxId).get();
+    if (!snap.exists) throw new HttpsError("not-found", "inbox_not_found");
+    return { accepted: true, item: snap.data() };
+  });
+
 
 
   async function writeCenterDecision({ request, targetType, decision }) {
@@ -965,11 +1091,16 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
     async function resolveTarget() {
       if (targetType === "agent") {
-        const [proposalSnap, backlogSnap, catalogSnap] = await Promise.all([
+        const [inboxSnap, proposalSnap, backlogSnap, catalogSnap] = await Promise.all([
+          db.collection("agentCenterInbox").doc(targetId).get(),
           db.collection("agentTaskProposals").doc(targetId).get(),
           db.collection("approvedAgentBuildBacklogMirror").doc(targetId).get(),
           db.collection("agentCatalogMirror").doc(targetId).get(),
         ]);
+        if (inboxSnap.exists) {
+          const inbox = inboxSnap.data() || {};
+          return { sourceRef: "agentCenterInbox", riskLevel: normalizeRiskLevel(inbox.riskLevel), protectedScopes: parseStringList(inbox.forbiddenScope || []), allowedFiles: parseStringList(inbox.allowedFiles || []), inboxRef: inboxSnap.ref, inbox };
+        }
         if (proposalSnap.exists) return { sourceRef: "agentTaskProposals", riskLevel: normalizeRiskLevel(proposalSnap.data().riskLevel), protectedScopes: parseStringList(proposalSnap.data().protectedScopes || []), allowedFiles: parseStringList(proposalSnap.data().allowedFiles || []) };
         if (backlogSnap.exists) return { sourceRef: "approvedAgentBuildBacklogMirror", riskLevel: normalizeRiskLevel(backlogSnap.data().riskLevel), protectedScopes: parseStringList(backlogSnap.data().protectedScopes || []), allowedFiles: parseStringList(backlogSnap.data().allowedWriteScopes || []) };
         if (catalogSnap.exists) return { sourceRef: "agentCatalogMirror", riskLevel: normalizeRiskLevel(catalogSnap.data().riskLevel), protectedScopes: parseStringList(catalogSnap.data().protectedScopes || []), allowedFiles: parseStringList(catalogSnap.data().allowedWriteScopes || []) };
@@ -1002,6 +1133,19 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const timelineByDecision = { approvedAt: decision === "approved" ? now : null, rejectedAt: decision === "rejected" ? now : null, blockedAt: decision === "blocked" ? now : null, revisionRequestedAt: decision === "revise" ? now : null, waitingForApprovalAt: decision === "review" ? now : null };
     const doc = { decisionId: ref.id, targetType, targetId, sourceRef, decision, status: statusByDecision[decision] || decision, decidedBy: actorId, decidedByRole: actorRole, reason, riskLevel, protectedScopeDetected, ownerRequired, lastStatusChangedAt: now, ...timelineByDecision, createdAt: now };
     await ref.set(doc);
+    if (resolved.inboxRef) {
+      await resolved.inboxRef.set({
+        status: statusByDecision[decision] || decision,
+        approvedAt: decision === "approved" ? now : null,
+        rejectedAt: decision === "rejected" ? now : null,
+        blockedAt: decision === "blocked" ? now : null,
+        revisionRequestedAt: decision === "revise" ? now : null,
+        waitingForApprovalAt: decision === "review" ? now : null,
+        lastStatusChangedAt: now,
+        auditRef: ref.id,
+        updatedAt: now,
+      }, { merge: true });
+    }
     await writeAgentAudit(db, { actorId, actorRole, action: `${targetType}_center_${decision}`, proposalId: targetId, riskLevel, result: decision });
     return { accepted: true, decisionId: ref.id, targetType, targetId, decision, ownerRequired, protectedScopeDetected };
   }
