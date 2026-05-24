@@ -47,6 +47,18 @@ export type AgentCenterInboxItem = {
   title?: string;
   plainSummary?: string;
   recommendation?: string;
+  riskLevel?: string;
+  waitingForApprovalAt?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  blockedAt?: string;
+  revisionRequestedAt?: string;
+  allowedFiles?: string[];
+  blockedFiles?: string[];
+  requiredChecks?: string[];
+  runnerEligibility?: string;
+  canonicalTruthProtected?: boolean;
+  beta1Allowed?: boolean;
   status: AgentCenterInboxStatus;
   mirrorTargetId?: string;
 };
