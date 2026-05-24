@@ -62,7 +62,9 @@ export type AgentCenterInboxItem = {
   status: AgentCenterInboxStatus;
   mirrorTargetId?: string;
 };
-export type ProductEvolutionInboxSyncResult = AdminCallableResult & { syncedCount?: number; idempotent?: boolean };
+export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
+export type ProductEvolutionInboxSyncInput = { registerSnapshot?: ProductEvolutionFirstRunOutputSnapshot | unknown };
+export type ProductEvolutionInboxSyncResult = AdminCallableResult & { syncedCount?: number; idempotent?: boolean; created?: number; updated?: number; skipped?: number };
 export type LocalRegisterInboxSyncResult = AdminCallableResult & { syncedCount?: number; idempotent?: boolean };
 export type AgentGithubFileChange = { path: string; content: string; changeType: "create" | "update"; encoding?: string };
 export type AgentGithubApplyFileChangesInput = { jobId: string; fileChanges: AgentGithubFileChange[]; commitMessage: string };

@@ -81,3 +81,4 @@ Produktgrenzen:
 
 - 2026-05-23: Admin-Center-Datasource-Sync: first-run output (`generatedDossiers`, `suggestedTaskQueue`, `recommendedApprovals`, `recommendedResearchMore`, `blockedItems`) wird als review-pflichtige Inbox-Quelle eingebunden; Pending-Counts und Listen laufen ueber identische Bucket-Logik.
 - 2026-05-23: Wenn lokale Registereintraege noch keine Firestore-Mirror targetId tragen, bleiben Admin-Action-Buttons disabled mit Hinweis auf Inbox-Sync (Follow-up: `runtime/admin-center-product-evolution-dossier-inbox-sync`).
+

@@ -1,1 +1,247 @@
-{"runId":"agent-product-evolution-first-run-2026-05-23","createdAt":"2026-05-23T00:00:00Z","sourceScope":"internal_only","analysisInputs":["required-first-read-files","internal concept/business docs"],"generatedDossiers":["docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_FIRST_RUN_ANALYSIS.md","todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md","todolist/AGENT_MISSION_STORY_PROPOSALS.md","todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md","docs/beta/BETA1_PRODUCT_EVOLUTION_FIRST_RUN_READINESS_GAPS.md"],"recommendedApprovals":["PE-20260523-01","PE-20260523-02"],"recommendedRejections":[],"recommendedResearchMore":["PE-20260523-03"],"suggestedTaskQueue":[{"sourceDossierId":"PE-20260523-01","title":"Family Walk & Learn Seasonal Mission Pack","suggestedBranch":"proposal/family-seasonal-mission-pack","targetTrack":"product_evolution","riskLevel":"medium","allowedFiles":["docs/**","todolist/**","project-register/**"],"blockedFiles":["app/**","functions/**","firestore.rules","native/**"],"requiredChecks":["npm run agent:validate","npm run agent:quality-gate","npm run lint","npm run build","git diff --check"],"adminApprovalRequired":true,"runnerEligible":true,"reason":"beta1-safe dossier-to-task candidate","blockers":[]}],"blockedItems":[],"nextCycleStart":"after_admin_review","requiresAdminReview":true,"noRuntimeChanges":true}
+{
+  "runId": "agent-product-evolution-first-run-2026-05-23",
+  "createdAt": "2026-05-23T00:00:00Z",
+  "sourceScope": "internal_only",
+  "analysisInputs": [
+    "required-first-read-files",
+    "internal concept/business docs"
+  ],
+  "generatedDossiers": [
+    "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_FIRST_RUN_ANALYSIS.md",
+    "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+    "todolist/AGENT_MISSION_STORY_PROPOSALS.md",
+    "todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md",
+    "docs/beta/BETA1_PRODUCT_EVOLUTION_FIRST_RUN_READINESS_GAPS.md"
+  ],
+  "recommendedApprovals": [
+    {
+      "sourceDossierId": "PE-20260523-01",
+      "dossierId": "PE-20260523-01",
+      "title": "PE-20260523-01",
+      "summary": "Admin-freigabefaehiges Dossier fuer saisonale Walk+Learn Mission-Packs (nur Konzeption).",
+      "missingDecisionData": [
+        "summary",
+        "whatWillChange",
+        "whySuggested",
+        "wellFitBenefit",
+        "riskSummary",
+        "allowedFiles",
+        "blockedFiles",
+        "requiredChecks"
+      ],
+      "whatWillChange": "Proposal-Dossier fuer saisonale Familienmissionen im Move+Learn Format.",
+      "whySuggested": "Control-Center ist vorbereitet; es fehlen hochwertige, sichere Missionsinhalte fuer die Approval-Pipeline.",
+      "wellFitBenefit": "Schnellere Aktivierung sicherer Mission-Roadmap ohne Runtime-Risiko.",
+      "userBenefit": "Klare, motivierende Familienmissionen mit Bewegung und Lernanteil.",
+      "businessBenefit": "Hoehere Retention und vorbereitete B2B Family-Wellness Story.",
+      "economyImpact": "WFP als kontrollierter Reward-Loop, XP fuer Avatar Progress; Reward-Caps/Sink-Mechanik erforderlich.",
+      "riskSummary": "Reward-Inflation und Child-Safety-Missverstaendnisse.",
+      "recommendation": "approve",
+      "riskLevel": "medium",
+      "runnerEligibility": "true",
+      "beta1Allowed": true,
+      "forbiddenScope": [
+        "token",
+        "nft",
+        "payment",
+        "cashout",
+        "runtime_reward_authority"
+      ],
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**",
+        "firestore.rules",
+        "native/**"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check"
+      ]
+    },
+    {
+      "sourceDossierId": "PE-20260523-02",
+      "dossierId": "PE-20260523-02",
+      "title": "PE-20260523-02",
+      "summary": "Proposal fuer taegliche Reflexionsprompts ohne Gesundheitsdiagnostik.",
+      "missingDecisionData": [
+        "summary",
+        "whatWillChange",
+        "whySuggested",
+        "wellFitBenefit",
+        "riskSummary",
+        "allowedFiles",
+        "blockedFiles",
+        "requiredChecks"
+      ],
+      "whatWillChange": "Narratives Buddy-Habit-Reflectionsdossier fuer kleine taegliche Ziele ohne medizinische Claims.",
+      "whySuggested": "Engagement-Hebel ohne neue compliance-kritische Datenpfade.",
+      "wellFitBenefit": "Staerkere Avatarbindung mit XP-Fortschritt.",
+      "userBenefit": "Mehr Motivation durch kleine taegliche Ziele.",
+      "businessBenefit": "Bessere D1/D7-Retention.",
+      "economyImpact": "XP-first, WFP nur bei regelkonformen mission steps; niedrige Inflation bei XP-Fokus.",
+      "riskSummary": "Motivational pressure und health-adjacent wording.",
+      "recommendation": "approve",
+      "riskLevel": "medium",
+      "runnerEligibility": "true",
+      "beta1Allowed": true,
+      "forbiddenScope": [
+        "medical_claims",
+        "sensitive_inference",
+        "tokenization"
+      ],
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build"
+      ]
+    }
+  ],
+  "recommendedRejections": [],
+  "recommendedResearchMore": [
+    {
+      "sourceDossierId": "PE-20260523-03",
+      "dossierId": "PE-20260523-03",
+      "title": "PE-20260523-03",
+      "summary": "Dossier fuer AR-lite Mission-Blueprint mit coarse location boundaries.",
+      "missingDecisionData": [
+        "summary",
+        "whatWillChange",
+        "whySuggested",
+        "wellFitBenefit",
+        "riskSummary",
+        "allowedFiles",
+        "blockedFiles",
+        "requiredChecks"
+      ],
+      "whatWillChange": "Planungsdossier fuer privacy-safe AR-lite Discovery Missions ohne Unity-Abhaengigkeit.",
+      "whySuggested": "Web-Beta Story vorbereiten, waehrend Unity isoliert bleibt.",
+      "wellFitBenefit": "AR-Track roadmapfaehig ohne native risk.",
+      "userBenefit": "Spielerische Bewegung in sicheren Zonen.",
+      "businessBenefit": "Vorbereitetes Partner-/Location Narrative.",
+      "economyImpact": "XP progression via exploration chapters, WFP nur capped completion bonus.",
+      "riskSummary": "Privacy/location sensitivity.",
+      "recommendation": "research_more",
+      "riskLevel": "medium",
+      "runnerEligibility": "true",
+      "beta1Allowed": true,
+      "forbiddenScope": [
+        "precise_tracking",
+        "child_location_exposure"
+      ]
+    }
+  ],
+  "suggestedTaskQueue": [
+    {
+      "sourceDossierId": "PE-20260523-01",
+      "title": "Family Walk & Learn Seasonal Mission Pack",
+      "suggestedBranch": "proposal/family-seasonal-mission-pack",
+      "targetTrack": "product_evolution",
+      "riskLevel": "medium",
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**",
+        "firestore.rules",
+        "native/**"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check"
+      ],
+      "adminApprovalRequired": true,
+      "runnerEligible": true,
+      "reason": "beta1-safe dossier-to-task candidate",
+      "blockers": [],
+      "summary": "Admin-freigabefaehiges Dossier fuer saisonale Walk+Learn Mission-Packs (nur Konzeption).",
+      "whatWillChange": "Proposal-Dossier fuer saisonale Familienmissionen im Move+Learn Format.",
+      "whySuggested": "Control-Center ist vorbereitet; es fehlen hochwertige, sichere Missionsinhalte fuer die Approval-Pipeline.",
+      "wellFitBenefit": "Schnellere Aktivierung sicherer Mission-Roadmap ohne Runtime-Risiko.",
+      "userBenefit": "Klare, motivierende Familienmissionen mit Bewegung und Lernanteil.",
+      "businessBenefit": "Hoehere Retention und vorbereitete B2B Family-Wellness Story.",
+      "economyImpact": "WFP als kontrollierter Reward-Loop, XP fuer Avatar Progress; Reward-Caps/Sink-Mechanik erforderlich.",
+      "riskSummary": "Reward-Inflation und Child-Safety-Missverstaendnisse.",
+      "recommendation": "approve",
+      "runnerEligibility": "true",
+      "beta1Allowed": true,
+      "forbiddenScope": [
+        "token",
+        "nft",
+        "payment",
+        "cashout",
+        "runtime_reward_authority"
+      ]
+    }
+  ],
+  "blockedItems": [],
+  "nextCycleStart": "after_admin_review",
+  "requiresAdminReview": true,
+  "noRuntimeChanges": true,
+  "missionStoryProposals": [
+    {
+      "sourceDossierId": "MS-20260523-01",
+      "title": "Familien Abenteuerpfad Woche",
+      "summary": "Familien sammeln gemeinsame Aktivitaetskapitel im Wohnumfeld.",
+      "whatWillChange": "5 Tagesetappen mit Bewegung, Lernimpuls und sozialem Check-in.",
+      "whySuggested": "Move-Learn-Social Kern fuer Beta-1 ohne verbotene Monetarisierung.",
+      "wellFitBenefit": "Sicheres Familienformat fuer Beta-1 Mission Story Track.",
+      "userBenefit": "Gemeinsamer Fortschritt statt Wettbewerb.",
+      "businessBenefit": "Retention durch Family-Mission-Rhythmus.",
+      "economyImpact": "WFP internal only + XP avatar progress.",
+      "riskSummary": "medium (child/guardian wording).",
+      "recommendation": "approve",
+      "riskLevel": "medium",
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**",
+        "firestore.rules"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build"
+      ],
+      "runnerEligibility": "true",
+      "beta1Allowed": true,
+      "forbiddenScope": [
+        "token",
+        "cashout",
+        "payment"
+      ]
+    }
+  ],
+  "snapshotMeta": {
+    "sourceRef": "project-register/agent-product-evolution-first-run-output.json",
+    "sourceDigest": "sha256:22e398e529810e45f45cf2d46e94884aa661b4cca44a8ed156e1de631efeaa4d"
+  }
+}

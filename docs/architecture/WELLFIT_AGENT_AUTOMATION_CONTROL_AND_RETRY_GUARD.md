@@ -59,3 +59,4 @@ Produktgrenzen:
 \n- 2026-05-23: Admin-Center Status-Buckets + Timeline-Felder (approved/rejected/blocked/in_progress/completed) erweitert; kein Deploy, keine GitHub-API-Neuimplementierung, keine Canonical-Truth-Aenderung.
 
 - 2026-05-23: Final hardening: failed/checks_failed/conflict/blocked => repair_required, max 3 repair attempts, then halted_waiting_owner. Successful merge sets nextCycleRequired=true and restarts analysis from internal_sources_analysis.
+

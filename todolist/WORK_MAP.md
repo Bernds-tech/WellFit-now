@@ -469,3 +469,4 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-23: Admin-Center topic update: pending stats/list filters verwenden jetzt identische Status-Bucket-Logik und identische normalisierte Datenbasis; Product-Evolution first-run output ist als review-pflichtige Quelle eingebunden.
 
 - 2026-05-24 Admin-Center Inbox UX Fix: Pending-Bucket zählt nur review-pflichtige Einträge; technische Catalog-/Framework-Einträge bleiben sichtbar, aber in "Nicht entscheidbar / Sync nötig" mit deaktivierten Actions.
+

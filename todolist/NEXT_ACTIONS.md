@@ -431,3 +431,4 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [ ] Follow-up: runtime/admin-center-product-evolution-dossier-inbox-sync (lokale Registereintraege ohne Firestore-Mirror targetId bleiben mit disabled Actions).
 
 - [ ] runtime/admin-center-product-evolution-dossier-inbox-sync: serverseitigen Inbox-Sync für lokale Register-/Catalog-Einträge anbinden, damit nicht entscheidbare Einträge auf echte Decision Targets gemappt werden können.
+
