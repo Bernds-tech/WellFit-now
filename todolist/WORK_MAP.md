@@ -470,3 +470,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 
 - 2026-05-24 Admin-Center Inbox UX Fix: Pending-Bucket zählt nur review-pflichtige Einträge; technische Catalog-/Framework-Einträge bleiben sichtbar, aber in "Nicht entscheidbar / Sync nötig" mit deaktivierten Actions.
 
+
+- 2026-05-24: Agent Center / Admin UX: Dossier+Bericht Detail-Overlay, semantische Missing-Hinweise, Inbox-Sync-Entscheidbarkeit.
