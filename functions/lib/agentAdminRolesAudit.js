@@ -1020,23 +1020,27 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
     const sourceRef = "project-register/agent-product-evolution-first-run-output.json";
     const snap = await db.collection("agentSystemRegisters").doc("agent-product-evolution-first-run-output").get();
-    const register = snap.exists ? (snap.data() || {}) : {};
-    const run = register.run || {};
-    const createdAt = run.createdAt ? new Date(String(run.createdAt)) : null;
-    const createdAtFallback = createdAt && !Number.isNaN(createdAt.getTime()) ? createdAt : FieldValue.serverTimestamp();
-    let created = 0;
-    const listKeys = ["generatedDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems"];
+    const registerSnapshot = request.data && request.data.registerSnapshot && typeof request.data.registerSnapshot === "object" ? request.data.registerSnapshot : null;
+    const mirror = snap.exists ? (snap.data() || {}) : {};
+    const useMirror = ["suggestedTaskQueue","generatedDossiers","recommendedApprovals","recommendedResearchMore","blockedItems"].some((k)=>Array.isArray(mirror[k]) && mirror[k].length>0);
+    const register = useMirror ? mirror : (registerSnapshot || {});
+    if (!useMirror && !registerSnapshot) return { accepted:false, message:"Keine First-Run-Daten gefunden. Firestore-Mirror leer und kein Register-Snapshot übergeben." };
+    const createdAtFallback = FieldValue.serverTimestamp();
+    let synced = 0;
+    const listKeys = ["generatedDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals"];
     for (const listType of listKeys) {
-      const items = Array.isArray(register[listType]) ? register[listType] : [];
-      for (const item of items) {
-        const sourceDossierId = sanitizeInboxText(item.sourceDossierId || item.dossierId || item.id, 180);
+      const rawItems = Array.isArray(register[listType]) ? register[listType] : [];
+      for (const raw of rawItems) {
+        const item = typeof raw === "string" ? { sourceDossierId: raw, dossierId: raw, title: raw, missingDecisionData: ["plainSummary","whatWillChange","whySuggested","wellFitBenefit","riskSummary","allowedFiles","blockedFiles","requiredChecks"] } : (raw || {});
+        const sourceDossierId = sanitizeInboxText(item.sourceDossierId || item.dossierId || item.id || item.title, 180);
         if (!sourceDossierId) continue;
         await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
-        created += 1;
+        synced += 1;
       }
     }
-    await writeAgentAudit(db, { actorId, actorRole, action: "sync_product_evolution_first_run_inbox", result: "ok" });
-    return { accepted: true, syncedCount: created, idempotent: true };
+    if (!synced) return { accepted:false, message:"Keine syncbaren First-Run-Einträge gefunden. Prüfe agent-product-evolution-first-run-output.json." };
+    await writeAgentAudit(db, { actorId, actorRole, action: "sync_product_evolution_first_run_inbox", result: useMirror ? "mirror" : "admin_provided_repo_snapshot" });
+    return { accepted: true, syncedCount: synced, created: synced, updated:0, skipped:0, idempotent: true, sourceRef, sourceTrust: useMirror?"firestore_mirror":"admin_provided_repo_snapshot" };
   });
 
   exportsTarget.syncAgentCenterLocalRegistersInbox = onCall(async (request) => {
