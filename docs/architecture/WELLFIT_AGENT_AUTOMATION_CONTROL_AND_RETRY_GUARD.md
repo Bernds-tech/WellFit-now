@@ -64,3 +64,5 @@ Produktgrenzen:
 - 2026-05-24: Retry-Guard UX ergaenzt um klare Inbox-Sync-/Decision-Blocker-Hinweise im Admin-Center; keine Runner-/Deploy-Aenderung.
 
 - 2026-05-24: Admin-Center Sync-Feedback erweitert (created/updated/0-Fallback + Server-Inbox-Ladehinweis) und Decision-Gating-Gruende sichtbar gemacht; keine Runtime- oder Deploy-Aenderung.
+
+- 2026-05-24: Retry-Guard konkretisiert fuer Admin-Center: ohne inboxId bleiben Aktionen gesperrt (Erst Inbox synchronisieren), revise trotz fehlender kritischer Daten bei pending/review erlaubt, approve erst bei kritischen Daten + gueltigem Status.

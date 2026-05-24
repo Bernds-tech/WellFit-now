@@ -52,5 +52,8 @@
       "blocksRealRunner": false,
       "ownerReviewRequired": "no"
     }
+  ],
+  "notes": [
+    "2026-05-24: Admin-Center Inbox-Sync zeigte zuvor 0 Eintraege ohne klare Ursache. Fix: Sync zaehlt created/updated/skipped und liefert 0-Item Erklaerung; verbleibend: Emulator-Verfuegbarkeit fuer End-to-End Nachweis."
   ]
 }
