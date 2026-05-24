@@ -38,6 +38,20 @@ export type AgentMergeOutcome = { prRef?: string; mergeStatus: "merged" | "faile
 export type AgentRepairAttempt = { prRef?: string; result: "fixed" | "failed" | "blocked"; reason?: string; };
 
 export type AgentGithubRunnerStatus = "metadata_only"|"missing_server_config"|"github_api_not_implemented"|"branch_created"|"files_committed"|"pr_created"|"pr_blocked_no_changes"|"checks_pending"|"checks_passed"|"checks_failed"|"auto_merged"|"blocked"|"failed";
+
+export type AgentCenterInboxStatus = "pending_approval" | "approved" | "rejected" | "revision_requested" | "blocked" | "synced_to_task_proposal";
+export type AgentCenterInboxItem = {
+  inboxId: string;
+  sourceType: string;
+  listType: string;
+  title?: string;
+  plainSummary?: string;
+  recommendation?: string;
+  status: AgentCenterInboxStatus;
+  mirrorTargetId?: string;
+};
+export type ProductEvolutionInboxSyncResult = AdminCallableResult & { syncedCount?: number; idempotent?: boolean };
+export type LocalRegisterInboxSyncResult = AdminCallableResult & { syncedCount?: number; idempotent?: boolean };
 export type AgentGithubFileChange = { path: string; content: string; changeType: "create" | "update"; encoding?: string };
 export type AgentGithubApplyFileChangesInput = { jobId: string; fileChanges: AgentGithubFileChange[]; commitMessage: string };
 export type AgentGithubPrResult = { prNumber?: number; prUrl?: string; status: AgentGithubRunnerStatus };
