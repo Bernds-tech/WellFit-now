@@ -39,6 +39,15 @@ function findField(section: string, labels: string[]): string {
   }
   return "";
 }
+function extractPeId(...values: unknown[]): string {
+  for (const value of values) {
+    const text = asText(value);
+    if (!text) continue;
+    const match = text.match(/(PE-\d{8}-\d+)/i);
+    if (match) return match[1].toUpperCase();
+  }
+  return "";
+}
 
 function dossierPackFromMarkdown(dossierId: string): AnyRow {
   const section = findSection(productOpportunityMd, dossierId) || findSection(missionStoryMd, dossierId);
@@ -65,13 +74,13 @@ function dossierPackFromMarkdown(dossierId: string): AnyRow {
 function normalizeFirstRunRows(run: AnyRow): AnyRow[] {
   const createdAt = asText(run.createdAt);
   const mapEntry = (entry: AnyRow, listType: string, status: string): AnyRow => {
-    const sourceDossierId = asText(entry.dossierId) || asText(entry.sourceDossierId);
+    const sourceDossierId = extractPeId(entry.sourceDossierId, entry.dossierId, entry.id, entry.title) || asText(entry.dossierId) || asText(entry.sourceDossierId);
     const dossierRef = asText(entry.dossierRef) || (sourceDossierId ? `todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md#${sourceDossierId}` : "");
     const reportRef = asText(entry.reportRef) || "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_FIRST_RUN_ANALYSIS.md";
     const fromMd = DOSSIER_IDS.includes(sourceDossierId) ? dossierPackFromMarkdown(sourceDossierId) : { detailStatus: dossierRef ? "reference_only" : "missing", hasDossierDetails: Boolean(dossierRef), detailText: dossierRef || "" };
     const detailSections = (entry.detailSections as AnyRow | undefined) || (fromMd.detailSections as AnyRow | undefined) || {};
     const missingCriticalDecisionFields = ["summary", "proposedChange", "whyNow", "wellFitBenefit", "risks", "recommendation"].filter((k) => !asText(detailSections[k]));
-    return { ...entry, id: asText(entry.id) || asText(entry.taskProposalId) || sourceDossierId, title: asText(entry.title) || asText(entry.dossierTitle) || "Product Evolution Entry", status, source: "project-register/agent-product-evolution-first-run-output.json", sourceLabel: "Product Evolution First Run", sourceDossierId, dossierId: sourceDossierId, sourcePath: "project-register/agent-product-evolution-first-run-output.json", dossierRef, reportRef, hasDossierDetails: Boolean(fromMd.hasDossierDetails), hasReportDetails: Boolean(reportRef), detailStatus: fromMd.detailStatus, detailText: asText(entry.detailText) || asText(fromMd.detailText), detailSections, missingCriticalDecisionFields, missingDecisionData: missingCriticalDecisionFields, createdAt: asText(entry.createdAt) || createdAt, waitingForApprovalAt: createdAt || undefined, riskLevel: entry.riskLevel, listType, canDecide: false, decisionHint: "Noch nicht in Server-Inbox gespiegelt." };
+    return { ...entry, id: asText(entry.id) || asText(entry.taskProposalId) || sourceDossierId, title: asText(entry.title) || asText(entry.dossierTitle) || sourceDossierId || "Product Evolution Entry", status, source: "project-register/agent-product-evolution-first-run-output.json", sourceLabel: "Product Evolution First Run", sourceDossierId, dossierId: sourceDossierId, sourcePath: "project-register/agent-product-evolution-first-run-output.json", dossierRef, reportRef, hasDossierDetails: Boolean(fromMd.hasDossierDetails), hasReportDetails: Boolean(reportRef), detailStatus: fromMd.detailStatus, detailText: asText(entry.detailText) || asText(fromMd.detailText), detailSections, missingCriticalDecisionFields, missingDecisionData: missingCriticalDecisionFields, createdAt: asText(entry.createdAt) || createdAt, waitingForApprovalAt: createdAt || undefined, riskLevel: entry.riskLevel, listType, canDecide: false, decisionHint: "Noch nicht in Server-Inbox gespiegelt." };
   };
   const rows: AnyRow[] = [];
   for (const e of (run.generatedDossiers as AnyRow[] ?? [])) rows.push(mapEntry(e, "generatedDossiers", "pending_approval"));

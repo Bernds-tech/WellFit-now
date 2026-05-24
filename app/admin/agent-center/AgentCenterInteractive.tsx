@@ -35,6 +35,14 @@ const FILTER_KEYS = Object.keys(FILTER_TO_BUCKET) as AdminCenterListFilter[];
 
   const asText = (value: unknown): string => (typeof value === "string" ? value : "");
 const asStringArray = (value: unknown): string[] => (Array.isArray(value) ? value.map((item) => String(item)).filter(Boolean) : []);
+const extractPeId = (...values: unknown[]): string => {
+  for (const value of values) {
+    const text = asText(value);
+    const match = text.match(/(PE-\d{8}-\d+)/i);
+    if (match) return match[1].toUpperCase();
+  }
+  return "";
+};
 const isMissionFilter = (value: AdminCenterListFilter): value is Extract<AdminCenterListFilter, `mission_${string}`> => value.startsWith("mission_");
 
 export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { data: DataProps; firstRunOutput?: Record<string, unknown> }) {
@@ -62,14 +70,20 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
     const mirrorTargetId = asText(row.mirrorTargetId);
     if (mirrorTargetId && indexedInbox.byMirror.has(mirrorTargetId)) return indexedInbox.byMirror.get(mirrorTargetId);
 
-    const sourceDossierId = asText(row.sourceDossierId || row.dossierId || row.id);
+    const sourceDossierId = extractPeId(row.sourceDossierId, row.dossierId, row.id, row.title) || asText(row.sourceDossierId || row.dossierId || row.id);
     const listType = asText(row.listType);
-    const candidateKeys = new Set([`product-evolution-first-run:${sourceDossierId}:${listType}`, sourceDossierId, asText(row.title)].filter(Boolean));
+    const candidateKeys = new Set([
+      asText(row.inboxId),
+      asText(row.mirrorTargetId),
+      `product-evolution-first-run:${sourceDossierId}:${listType}`,
+      `product-evolution-first-run:${sourceDossierId}:suggestedTaskQueue`,
+      `product-evolution-first-run:${sourceDossierId}:generatedDossiers`,
+      sourceDossierId,
+    ].filter(Boolean));
 
     for (const item of inboxItems) {
       if (candidateKeys.has(asText(item.mirrorTargetId))) return item;
-      if (sourceDossierId && item.mirrorTargetId?.includes(sourceDossierId)) return item;
-      if (sourceDossierId && item.title && item.title === row.title) return item;
+      if (candidateKeys.has(asText(item.inboxId))) return item;
     }
 
     return undefined;
@@ -100,7 +114,7 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
       const result = await beta1AdminClient.listAgentCenterInboxItems() as unknown as { items?: AgentCenterInboxItem[] };
       const items = Array.isArray(result.items) ? result.items : [];
       setInboxItems(items);
-      setSyncStatus(`Server-Inbox geladen: ${items.length} Einträge.${items.length > 0 ? " Server-Inbox gespiegelt. Bitte Warten auf Freigabe erneut öffnen oder Liste aktualisieren." : " Nur korrekt, wenn aktuell keine syncbaren First-Run-Daten vorliegen."}`);
+      setSyncStatus(`Server-Inbox geladen: ${items.length} Einträge.${items.length > 0 ? " Server-Inbox gespiegelt. Bitte Warten auf Freigabe erneut öffnen oder Liste aktualisieren." : " Sync erzeugte keine Inbox-Einträge. Grund: fehlende/ungültige sourceDossierId oder fehlende Decision-Daten."}`);
     } finally {
       setBusy(false);
     }
@@ -113,7 +127,11 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
       const created = Number(result.created ?? 0);
       const updated = Number(result.updated ?? 0);
       const skipped = Number(result.skipped ?? 0);
-      setSyncStatus(result.message || (created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` : "Keine syncbaren Einträge gefunden. Möglicherweise sind sie bereits synchronisiert oder die First-Run-Daten enthalten keine freigabefähigen Einträge."));
+      const reasons = Object.entries(result.skippedReasons || {}).filter(([, count]) => Number(count) > 0).map(([reason, count]) => `${reason}:${count}`).join(", ");
+      const samples = (result.sampleCreatedIds || []).slice(0, 3).join(", ");
+      const skippedSample = (result.sampleSkipped || []).slice(0, 2).map((entry) => JSON.stringify(entry)).join(" | ");
+      setSyncStatus(result.message || (created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` : "Keine syncbaren Einträge gefunden."));
+      setFeedback(`Sync Debug → created:${created}, updated:${updated}, skipped:${skipped}${reasons ? `, reasons:${reasons}` : ""}${samples ? `, sampleCreatedIds:${samples}` : ""}${skippedSample ? `, sampleSkipped:${skippedSample}` : ""}`);
       await refreshInbox();
     } finally {
       setBusy(false);
