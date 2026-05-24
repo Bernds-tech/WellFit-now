@@ -27,9 +27,12 @@ function sanitizeAdminError(error: unknown): string {
   const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
   if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
   if (code.includes("unauthenticated")) return "Bitte einloggen, um Admin-Aktionen auszuführen.";
-  return "Admin-Aktion fehlgeschlagen.";
+  if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden.";
+  if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
+  if (code.includes("permission-denied")) return "Für geschützten Scope ist Owner-Freigabe nötig.";
+  return "Dieser Eintrag ist ein technischer Framework-Eintrag und nicht direkt freigabefähig.";
 }
-function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult { return result.accepted ? { ...result, message: undefined } : { accepted: false, message: "Admin-Aktion fehlgeschlagen. Bitte Eingaben prüfen oder erneut versuchen." }; }
+function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult { return result.accepted ? { ...result, message: undefined } : { accepted: false, message: result.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen." }; }
 async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> { try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); return sanitizeAdminResult(result.data); } catch (error) { return { accepted: false, message: sanitizeAdminError(error) }; } }
 
 export const beta1AdminClient = {

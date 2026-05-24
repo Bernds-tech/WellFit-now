@@ -467,3 +467,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 | Agent Control Center output revalidation (PR #240 follow-up) | `scripts/wellfit-dev-agent/src/agent-control-center-check.mjs`, `scripts/wellfit-dev-agent/src/agent-control-center-check.test.mjs`, `project-register/quality-gate-known-blockers.json`, `project-register/agent-work-log.json`, `project-register/progress-log.json` | Self-referential blocker darf nur fuer konkrete Revalidation als resolved behandelt werden; unrelated aktive merge/runner-blocker bleiben fail-closed. Keine Runtime-/GitHub-API-/Deploy-Aenderungen. |
 
 - 2026-05-23: Admin-Center topic update: pending stats/list filters verwenden jetzt identische Status-Bucket-Logik und identische normalisierte Datenbasis; Product-Evolution first-run output ist als review-pflichtige Quelle eingebunden.
+
+- 2026-05-24 Admin-Center Inbox UX Fix: Pending-Bucket zählt nur review-pflichtige Einträge; technische Catalog-/Framework-Einträge bleiben sichtbar, aber in "Nicht entscheidbar / Sync nötig" mit deaktivierten Actions.

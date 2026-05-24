@@ -690,3 +690,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - docs/beta/BETA1_PRODUCT_EVOLUTION_FIRST_RUN_READINESS_GAPS.md - Beta wave readiness gaps dossier.
 
 - 2026-05-23: Admin-Center Pending/List Sync ergaenzt: explizites Filter-Mapping, Product-Evolution-First-Run Datenquelle im Admin-Center, einheitliche Status-Bucket-Berechnung fuer Zahlen und Listen, Pending-Sync-Fix dokumentiert.
+
+- admin-center: Pending-Approval-Logik nutzt jetzt nur echte Review-States; lokale technische Catalog-/Framework-Einträge werden als nicht entscheidbar markiert bis Inbox-Sync.
