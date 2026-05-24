@@ -1367,6 +1367,26 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "Agent Control Center report revalidated with gated automation semantics and without legacy unsafe wording. Revalidation blocker resolved; no runtime code, no GitHub API, no deploy, and no canonical-truth file changes."
+    },
+    {
+      "id": "2026-05-23-admin-center-pending-list-data-source-sync",
+      "date": "2026-05-23",
+      "branch": "fix/admin-agent-center-pending-list-data-source-sync",
+      "goal": "Fix Admin Center pending list/stat mismatch and include product-evolution first-run review items in pending approvals.",
+      "changedAreas": [
+        "app/admin/agent-center/page.tsx",
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/agentCenterStatus.ts",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "No runtime/product deploy, no GitHub API changes, no canonical-truth edits, no rules changes. Follow-up needed: runtime/admin-center-product-evolution-dossier-inbox-sync for mirror target IDs."
     }
   ],
   "notes": [

@@ -20,8 +20,11 @@ export function normalizeAgentCenterStatus(entry: Record<string, unknown>): stri
   if (status === "blocked") return "blocked";
   if (status === "rejected" || status === "declined" || status === "abgelehnt") return "rejected";
   if (IN_PROGRESS.has(status) || entry.queuedAt || entry.workerStartedAt || entry.runnerJobCreatedAt) return "in_progress";
-  if (status === "approved") return "approved_ready";
+  if (status === "approved" || status === "approved_ready") return "approved_ready";
+  if (status === "pending_admin_approval") return "pending_approval";
+  if (status === "research_more") return "pending_approval";
   if (status === "review" || status === "review_required" || status === "revision_requested" || status === "proposed" || status === "drafted") return "pending_approval";
+  if ((entry.requiresAdminReview === true || entry.adminApprovalRequired === true) && !["approved","approved_ready","rejected","blocked"].includes(status)) return "pending_approval";
   return status || "pending_approval";
 }
 
