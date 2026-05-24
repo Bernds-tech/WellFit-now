@@ -329,6 +329,21 @@ async function run() {
   await db.collection("agentCenterInbox").doc("ibox-blocked").set({ inboxId: "ibox-blocked", status: "blocked", allowedFiles: ["docs/**"], blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"] });
   await expectFail("createAgentTaskProposalFromApprovedInboxItem", owner, { inboxId: "ibox-blocked" });
 
+  const firstRunSync = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
+    registerSnapshot: {
+      generatedDossiers: [{ id: "PE-20260523-01", summary: "s", whatWillChange: "w", whySuggested: "y", allowedFiles: ["docs/**"], blockedFiles: [] }],
+      suggestedTaskQueue: [{ title: "PE-20260523-02 Candidate", summary: "s", whatWillChange: "w", whySuggested: "y", allowedFiles: ["docs/**"], blockedFiles: [] }],
+      recommendedResearchMore: [{ sourceDossierId: "PE-20260523-03", summary: "s", whatWillChange: "w", whySuggested: "y", allowedFiles: ["docs/**"], blockedFiles: [] }],
+      blockedItems: [{ title: "invalid-no-id", summary: "s" }],
+    },
+  });
+  assert((firstRunSync.created || 0) + (firstRunSync.updated || 0) >= 3, "sync should create/update PE 01/02/03");
+  assert((firstRunSync.skippedReasons && firstRunSync.skippedReasons.missing_sourceDossierId >= 1) || false, "invalid entry should be counted as missing_sourceDossierId");
+  const pe01 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-01:generatedDossiers").get();
+  const pe02 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-02:suggestedTaskQueue").get();
+  const pe03 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-03:recommendedResearchMore").get();
+  assert(pe01.exists && pe02.exists && pe03.exists, "stable inbox ids should exist for PE 01/02/03");
+
   const centerAudit = await db.collection("agentTaskAuditLog").where("action", "==", "agent_center_rejected").get();
   assert(centerAudit.size > 0, "reject must write audit");
   const centerBlockAudit = await db.collection("agentTaskAuditLog").where("action", "==", "agent_center_blocked").get();

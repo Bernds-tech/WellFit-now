@@ -132,6 +132,33 @@ function normalizeRiskLevel(value) {
 function sanitizeInboxText(value, max = 600) {
   return optionalString(value, max) || "";
 }
+function extractProductEvolutionId(value) {
+  const text = sanitizeInboxText(value, 240);
+  const match = text.match(/(PE-\d{8}-\d+)/i);
+  return match ? match[1].toUpperCase() : "";
+}
+function normalizeFirstRunEntry(entry, listType) {
+  const item = typeof entry === "string" ? { sourceDossierId: entry, dossierId: entry, id: entry, title: entry } : (entry || {});
+  const sourceDossierId = sanitizeInboxText(
+    item.sourceDossierId
+    || item.dossierId
+    || item.id
+    || item.sourceDossier
+    || extractProductEvolutionId(item.title),
+    180,
+  ) || extractProductEvolutionId(item.id) || extractProductEvolutionId(item.title);
+  const normalizedId = sanitizeInboxText(item.id || sourceDossierId || extractProductEvolutionId(item.title), 180);
+  const normalizedTitle = sanitizeInboxText(item.title || item.name || sourceDossierId || normalizedId, 240);
+  return {
+    ...item,
+    id: normalizedId,
+    sourceDossierId,
+    dossierId: sanitizeInboxText(item.dossierId || sourceDossierId || normalizedId, 180),
+    title: normalizedTitle,
+    listType: sanitizeInboxText(item.listType || listType, 80),
+    sourceRef: sanitizeInboxText(item.sourceRef, 240),
+  };
+}
 
 function toInboxStatusByListType(listType) {
   if (listType === "blockedItems") return "blocked";
@@ -1029,13 +1056,30 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     let created = 0;
     let updated = 0;
     let skipped = 0;
+    const skippedReasons = { missing_sourceDossierId: 0, missing_decision_data: 0, protected_scope: 0 };
+    const sampleCreatedIds = [];
+    const sampleSkipped = [];
     const listKeys = ["generatedDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals"];
     for (const listType of listKeys) {
       const rawItems = Array.isArray(register[listType]) ? register[listType] : [];
       for (const raw of rawItems) {
-        const item = typeof raw === "string" ? { sourceDossierId: raw, dossierId: raw, title: raw, missingDecisionData: ["plainSummary","whatWillChange","whySuggested","wellFitBenefit","riskSummary","allowedFiles","blockedFiles","requiredChecks"] } : (raw || {});
-        const sourceDossierId = sanitizeInboxText(item.sourceDossierId || item.dossierId || item.id || item.title, 180);
+        const item = normalizeFirstRunEntry(raw, listType);
+        const sourceDossierId = sanitizeInboxText(item.sourceDossierId, 180);
         if (!sourceDossierId) {
+          sampleSkipped.push({ listType, reason: "missing_sourceDossierId", id: sanitizeInboxText(item.id || item.title, 180) });
+          skippedReasons.missing_sourceDossierId = Number(skippedReasons.missing_sourceDossierId || 0) + 1;
+          skipped += 1;
+          continue;
+        }
+        if (hasProtectedFileScope([...(item.allowedFiles || []), ...(item.blockedFiles || [])])) {
+          sampleSkipped.push({ listType, reason: "protected_scope", id: sourceDossierId });
+          skippedReasons.protected_scope = Number(skippedReasons.protected_scope || 0) + 1;
+          skipped += 1;
+          continue;
+        }
+        if (!(item.summary || item.plainSummary || item.whatWillChange || item.whySuggested)) {
+          sampleSkipped.push({ listType, reason: "missing_decision_data", id: sourceDossierId });
+          skippedReasons.missing_decision_data = Number(skippedReasons.missing_decision_data || 0) + 1;
           skipped += 1;
           continue;
         }
@@ -1044,10 +1088,11 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
         if (existing.exists) updated += 1;
         else created += 1;
+        if (sampleCreatedIds.length < 10) sampleCreatedIds.push(inboxId);
       }
     }
     const synced = created + updated;
-    if (!synced) return { accepted:false, created, updated, skipped, syncedCount: 0, message:"Keine syncbaren First-Run-Einträge gefunden. Prüfe sourceDossierId/listType im Register und ergänze fehlende Dossierdaten." };
+    if (!synced) return { accepted:false, created, updated, skipped, syncedCount: 0, skippedReasons, sampleCreatedIds, sampleSkipped, message:"Keine syncbaren First-Run-Einträge gefunden. Prüfe sourceDossierId/listType im Register und ergänze fehlende Dossierdaten." };
     await writeAgentAudit(db, { actorId, actorRole, action: "sync_product_evolution_first_run_inbox", result: useMirror ? "mirror" : "admin_provided_repo_snapshot" });
     return {
       accepted: true,
@@ -1055,6 +1100,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       created,
       updated,
       skipped,
+      skippedReasons,
+      sampleCreatedIds,
+      sampleSkipped,
       message: `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.`,
       idempotent: true,
       sourceRef,
