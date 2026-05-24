@@ -1426,6 +1426,12 @@
       "productLogicChanged": false,
       "productionDeployTriggered": false,
       "notes": "No runtime/product deploy, no GitHub API changes, no canonical-truth edits, no rules changes. Follow-up needed: runtime/admin-center-product-evolution-dossier-inbox-sync for mirror target IDs."
+    },
+    {
+      "date": "2026-05-24",
+      "task": "fix/admin-center-inbox-sync-and-dossier-content",
+      "summary": "Admin-Center Inbox-Sync Ergebniszaehlung + Dossier-Overlay-Inhalte + deterministic inbox matching/gating dokumentiert. Kein Runner/Deploy/GitHub API.",
+      "nextBranch": "runtime/admin-center-task-proposal-to-worker-queue"
     }
   ],
   "notes": [

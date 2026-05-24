@@ -4471,6 +4471,12 @@
       "runtimeChanged": false,
       "deployExecuted": false,
       "canonicalTruthEdited": false
+    },
+    {
+      "date": "2026-05-24",
+      "task": "fix/admin-center-inbox-sync-and-dossier-content",
+      "summary": "Admin-Center Inbox-Sync Ergebniszaehlung + Dossier-Overlay-Inhalte + deterministic inbox matching/gating dokumentiert. Kein Runner/Deploy/GitHub API.",
+      "nextBranch": "runtime/admin-center-task-proposal-to-worker-queue"
     }
   ],
   "workItems": [

@@ -86,3 +86,5 @@ Produktgrenzen:
 - 2026-05-24: Admin-Center zeigt Dossier/Bericht-Overlay, differenzierte Missing-States und Button-Sperrgruende fuer Product-Evolution Inbox-Eintraege (kein Runner/Deploy, keine Canonical-Truth-Aenderung).
 
 - 2026-05-24: Admin-Center UX-Fix: Filterkarten zeigen wieder deutsche Labels, Dossier-Overlay zeigt strukturierte Felder/Dossierauszug, Inbox-Mirror-Matching priorisiert deterministische Keys; kein Runner/Deploy/GitHub-API-Start.
+
+- 2026-05-24: Inbox-Sync repariert: registerSnapshot wird priorisiert wenn Mirror leer ist; Sync liefert created/updated/skipped + klare 0-Items-Message; Overlay zeigt Dossierauszug/Fallback-Fehler statt nur Metadaten; kein Runner/Deploy.

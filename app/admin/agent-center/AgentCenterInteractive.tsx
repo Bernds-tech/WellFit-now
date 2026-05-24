@@ -33,7 +33,7 @@ const FILTER_TO_BUCKET: Record<AdminCenterListFilter, "total" | ReturnType<typeo
 const FILTER_LABELS: Record<AdminCenterListFilter, string> = { agent_total: "Agenten gesamt", agent_pending: "Warten auf Freigabe", agent_approved: "Freigegeben", agent_rejected: "Abgelehnt", agent_blocked: "Blockiert", agent_in_progress: "In Arbeit", agent_completed: "Fertig", agent_repair_required: "Repair Required", agent_halted_waiting_owner: "Wartet auf Owner", agent_cycle_restart_required: "Nächster Zyklus", mission_total: "Missionsvorschläge gesamt", mission_pending: "Warten auf Freigabe", mission_approved: "Freigegeben", mission_rejected: "Abgelehnt", mission_blocked: "Blockiert", mission_in_progress: "In Arbeit", mission_completed: "Fertig" };
 const FILTER_KEYS = Object.keys(FILTER_TO_BUCKET) as AdminCenterListFilter[];
 
-const asText = (value: unknown): string => (typeof value === "string" ? value : "");
+  const asText = (value: unknown): string => (typeof value === "string" ? value : "");
 const asStringArray = (value: unknown): string[] => (Array.isArray(value) ? value.map((item) => String(item)).filter(Boolean) : []);
 const isMissionFilter = (value: AdminCenterListFilter): value is Extract<AdminCenterListFilter, `mission_${string}`> => value.startsWith("mission_");
 
@@ -100,7 +100,7 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
       const result = await beta1AdminClient.listAgentCenterInboxItems() as unknown as { items?: AgentCenterInboxItem[] };
       const items = Array.isArray(result.items) ? result.items : [];
       setInboxItems(items);
-      setSyncStatus(`Server-Inbox geladen: ${items.length} Einträge.${items.length > 0 ? " Server-Inbox gespiegelt. Bitte Warten auf Freigabe erneut öffnen oder Liste aktualisieren." : ""}`);
+      setSyncStatus(`Server-Inbox geladen: ${items.length} Einträge.${items.length > 0 ? " Server-Inbox gespiegelt. Bitte Warten auf Freigabe erneut öffnen oder Liste aktualisieren." : " Nur korrekt, wenn aktuell keine syncbaren First-Run-Daten vorliegen."}`);
     } finally {
       setBusy(false);
     }
@@ -112,7 +112,8 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
       const result = await beta1AdminClient.syncProductEvolutionFirstRunInbox({ registerSnapshot: firstRunOutput }) as ProductEvolutionInboxSyncResult;
       const created = Number(result.created ?? 0);
       const updated = Number(result.updated ?? 0);
-      setSyncStatus(created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert.` : "Keine syncbaren Einträge gefunden. Möglicherweise sind sie bereits synchronisiert oder die First-Run-Daten enthalten keine freigabefähigen Einträge.");
+      const skipped = Number(result.skipped ?? 0);
+      setSyncStatus(result.message || (created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` : "Keine syncbaren Einträge gefunden. Möglicherweise sind sie bereits synchronisiert oder die First-Run-Daten enthalten keine freigabefähigen Einträge."));
       await refreshInbox();
     } finally {
       setBusy(false);
@@ -127,6 +128,7 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
     if (!hasInbox) return "Erst Inbox synchronisieren";
     if (action === "approve" && missing.length > 0 && !["structured", "partial_structured"].includes(String(row.detailStatus || ""))) return "Dossierdaten kritisch unvollständig";
     if (action === "approve" && !["pending_approval", "review_required"].includes(status)) return "Status erlaubt diese Aktion nicht";
+    if (action === "revise" && !["pending_approval", "review_required"].includes(status)) return "Status erlaubt diese Aktion nicht";
     if ((action === "reject" || action === "block") && ["completed", "synced_to_task_proposal"].includes(status)) return "Status erlaubt diese Aktion nicht";
 
     return "";
@@ -191,8 +193,8 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
               <p>Warum Buttons ggf. gesperrt: {!hasInbox ? "keine inboxId / noch nicht synchronisiert" : missing.length > 0 ? "kritische Decision-Daten fehlen" : "entscheidbar"}</p>
 
               <div className="mt-2 flex flex-wrap gap-2">
-                <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasDossierDetails && !row.hasReportDetails} onClick={() => setDetailRow(row)}>Dossier ansehen</button>
-                <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasReportDetails} onClick={() => setDetailRow(row)}>Bericht ansehen</button>
+                <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasDossierDetails && !row.hasReportDetails} onClick={() => setDetailRow(row)}>Dossier ansehen (konkrete Entscheidungsvorlage)</button>
+                <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasReportDetails} onClick={() => setDetailRow(row)}>Bericht ansehen (übergeordnete Analyse / Hintergrundbericht)</button>
                 <button title={approveReason || "Zustimmen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(approveReason)} onClick={() => decide(missionMode ? "mission" : "agent", "approve", row)}>Zustimmen</button>
                 <button title={rejectReason || "Ablehnen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(rejectReason)} onClick={() => decide(missionMode ? "mission" : "agent", "reject", row)}>Ablehnen</button>
                 <button title={reviseReason || "Überarbeiten"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(reviseReason)} onClick={() => decide(missionMode ? "mission" : "agent", "revise", row)}>Überarbeiten</button>
@@ -216,6 +218,7 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
             <p>Quelle: {String(detailRow.sourcePath || detailRow.dossierRef || "—")}</p>
             <p>Status: {String(detailRow.status || "pending_approval")}</p>
             <p>Detailstatus: {String(detailRow.detailStatus || "missing")}</p>
+            {(detailRow.detailStatus === "missing" && !asText(detailRow.detailText)) && <p className="text-amber-300">Dossierinhalt nicht gefunden. First-Run-Register muss angereichert werden.</p>}
             {Object.entries(detailRow.detailSections || {}).map(([key, value]) => value ? <p key={key}><b>{key}:</b> {value}</p> : null)}
             {asText(detailRow.detailText) && (
               <div>

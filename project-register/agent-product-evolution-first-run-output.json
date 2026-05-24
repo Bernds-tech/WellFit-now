@@ -19,16 +19,7 @@
       "dossierId": "PE-20260523-01",
       "title": "PE-20260523-01",
       "summary": "Admin-freigabefaehiges Dossier fuer saisonale Walk+Learn Mission-Packs (nur Konzeption).",
-      "missingDecisionData": [
-        "summary",
-        "whatWillChange",
-        "whySuggested",
-        "wellFitBenefit",
-        "riskSummary",
-        "allowedFiles",
-        "blockedFiles",
-        "requiredChecks"
-      ],
+      "missingDecisionData": [],
       "whatWillChange": "Proposal-Dossier fuer saisonale Familienmissionen im Move+Learn Format.",
       "whySuggested": "Control-Center ist vorbereitet; es fehlen hochwertige, sichere Missionsinhalte fuer die Approval-Pipeline.",
       "wellFitBenefit": "Schnellere Aktivierung sicherer Mission-Roadmap ohne Runtime-Risiko.",
@@ -71,16 +62,7 @@
       "dossierId": "PE-20260523-02",
       "title": "PE-20260523-02",
       "summary": "Proposal fuer taegliche Reflexionsprompts ohne Gesundheitsdiagnostik.",
-      "missingDecisionData": [
-        "summary",
-        "whatWillChange",
-        "whySuggested",
-        "wellFitBenefit",
-        "riskSummary",
-        "allowedFiles",
-        "blockedFiles",
-        "requiredChecks"
-      ],
+      "missingDecisionData": [],
       "whatWillChange": "Narratives Buddy-Habit-Reflectionsdossier fuer kleine taegliche Ziele ohne medizinische Claims.",
       "whySuggested": "Engagement-Hebel ohne neue compliance-kritische Datenpfade.",
       "wellFitBenefit": "Staerkere Avatarbindung mit XP-Fortschritt.",
@@ -121,16 +103,7 @@
       "dossierId": "PE-20260523-03",
       "title": "PE-20260523-03",
       "summary": "Dossier fuer AR-lite Mission-Blueprint mit coarse location boundaries.",
-      "missingDecisionData": [
-        "summary",
-        "whatWillChange",
-        "whySuggested",
-        "wellFitBenefit",
-        "riskSummary",
-        "allowedFiles",
-        "blockedFiles",
-        "requiredChecks"
-      ],
+      "missingDecisionData": [],
       "whatWillChange": "Planungsdossier fuer privacy-safe AR-lite Discovery Missions ohne Unity-Abhaengigkeit.",
       "whySuggested": "Web-Beta Story vorbereiten, waehrend Unity isoliert bleibt.",
       "wellFitBenefit": "AR-Track roadmapfaehig ohne native risk.",
@@ -145,6 +118,24 @@
       "forbiddenScope": [
         "precise_tracking",
         "child_location_exposure"
+      ],
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**",
+        "firestore.rules",
+        "native/**"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check"
       ]
     }
   ],

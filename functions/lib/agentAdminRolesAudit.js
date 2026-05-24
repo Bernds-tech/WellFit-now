@@ -1026,21 +1026,40 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const register = useMirror ? mirror : (registerSnapshot || {});
     if (!useMirror && !registerSnapshot) return { accepted:false, message:"Keine First-Run-Daten gefunden. Firestore-Mirror leer und kein Register-Snapshot übergeben." };
     const createdAtFallback = FieldValue.serverTimestamp();
-    let synced = 0;
+    let created = 0;
+    let updated = 0;
+    let skipped = 0;
     const listKeys = ["generatedDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals"];
     for (const listType of listKeys) {
       const rawItems = Array.isArray(register[listType]) ? register[listType] : [];
       for (const raw of rawItems) {
         const item = typeof raw === "string" ? { sourceDossierId: raw, dossierId: raw, title: raw, missingDecisionData: ["plainSummary","whatWillChange","whySuggested","wellFitBenefit","riskSummary","allowedFiles","blockedFiles","requiredChecks"] } : (raw || {});
         const sourceDossierId = sanitizeInboxText(item.sourceDossierId || item.dossierId || item.id || item.title, 180);
-        if (!sourceDossierId) continue;
+        if (!sourceDossierId) {
+          skipped += 1;
+          continue;
+        }
+        const inboxId = `product-evolution-first-run:${sourceDossierId}:${listType}`;
+        const existing = await db.collection("agentCenterInbox").doc(inboxId).get();
         await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
-        synced += 1;
+        if (existing.exists) updated += 1;
+        else created += 1;
       }
     }
-    if (!synced) return { accepted:false, message:"Keine syncbaren First-Run-Einträge gefunden. Prüfe agent-product-evolution-first-run-output.json." };
+    const synced = created + updated;
+    if (!synced) return { accepted:false, created, updated, skipped, syncedCount: 0, message:"Keine syncbaren First-Run-Einträge gefunden. Prüfe sourceDossierId/listType im Register und ergänze fehlende Dossierdaten." };
     await writeAgentAudit(db, { actorId, actorRole, action: "sync_product_evolution_first_run_inbox", result: useMirror ? "mirror" : "admin_provided_repo_snapshot" });
-    return { accepted: true, syncedCount: synced, created: synced, updated:0, skipped:0, idempotent: true, sourceRef, sourceTrust: useMirror?"firestore_mirror":"admin_provided_repo_snapshot" };
+    return {
+      accepted: true,
+      syncedCount: synced,
+      created,
+      updated,
+      skipped,
+      message: `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.`,
+      idempotent: true,
+      sourceRef,
+      sourceTrust: useMirror?"firestore_mirror":"admin_provided_repo_snapshot",
+    };
   });
 
   exportsTarget.syncAgentCenterLocalRegistersInbox = onCall(async (request) => {
