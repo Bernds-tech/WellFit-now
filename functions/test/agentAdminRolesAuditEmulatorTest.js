@@ -338,6 +338,9 @@ async function run() {
     },
   });
   assert((firstRunSync.created || 0) + (firstRunSync.updated || 0) >= 3, "sync should create/update PE 01/02/03");
+  assert(firstRunSync.callableVersion === "2026-05-24-pr253-snapshot-shape-v2", "sync response must include callableVersion");
+  assert(firstRunSync.responseShapeVersion === "agent-center-inbox-sync-v2", "sync response must include responseShapeVersion");
+  assert(firstRunSync.payloadUnwrappedFrom === "registerSnapshot", "top-level registerSnapshot must be recognized");
   assert((firstRunSync.skippedReasons && firstRunSync.skippedReasons.missing_sourceDossierId >= 1) || false, "invalid entry should be counted as missing_sourceDossierId");
   const pe01 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-01:generatedDossiers").get();
   const pe02 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-02:suggestedTaskQueue").get();
@@ -356,6 +359,14 @@ async function run() {
     registerSnapshot: { data: { generatedDossiers: [{ id: "PE-20260523-02", summary: "s", whatWillChange: "w", whySuggested: "y" }] } },
   });
   assert((syncDataShape.serverCandidateCollections || []).some((entry) => entry.path === "data.generatedDossiers"), "must detect snapshot.data.generatedDossiers");
+  const syncWrappedData = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
+    data: { registerSnapshot: { suggestedTaskQueue: [{ title: "PE-20260523-01 wrapped", summary: "s", whySuggested: "y" }] } },
+  });
+  assert(syncWrappedData.payloadUnwrappedFrom === "data.registerSnapshot", "data.registerSnapshot wrapper must be recognized");
+  const syncWrappedPayload = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
+    payload: { registerSnapshot: { suggestedTaskQueue: [{ title: "PE-20260523-02 payload", summary: "s", whySuggested: "y" }] } },
+  });
+  assert(syncWrappedPayload.payloadUnwrappedFrom === "payload.registerSnapshot", "payload.registerSnapshot wrapper must be recognized");
 
   const syncStringList = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
     registerSnapshot: { generatedDossiers: ["docs/PE-20260523-03.md"] },
@@ -374,6 +385,7 @@ async function run() {
 
   const undefinedSnapshot = await expectOk("syncProductEvolutionFirstRunInbox", owner, {});
   assert(undefinedSnapshot.serverSnapshotReceived === false, "undefined snapshot should be false when mirror empty");
+  assert(undefinedSnapshot.hasRegisterSnapshot === false, "undefined snapshot should set hasRegisterSnapshot=false");
 
   const centerAudit = await db.collection("agentTaskAuditLog").where("action", "==", "agent_center_rejected").get();
   assert(centerAudit.size > 0, "reject must write audit");

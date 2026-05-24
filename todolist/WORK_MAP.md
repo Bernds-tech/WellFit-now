@@ -478,3 +478,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-24: Topic update Admin-Center Inbox-Sync/Dossier-Content: serverseitiger First-Run-Sync mit created/updated/skipped-Feedback und UI-Fallback fuer fehlende Dossierinhalte; keine Runtime-/Deploy-Aenderung.
 
 - 2026-05-24: Work-map update: Admin-Center First-Run Inbox sync now supports snapshot shape variants and debug counters to prevent silent 0/0/0 syncs.
+
+- 2026-05-24: Admin-Center Inbox-Sync Topic erweitert um Callable-Version-/Response-Shape-Diagnostik, Input-Key-Transparenz und Wrapper-Unwrap (`registerSnapshot`, `data.registerSnapshot`, `payload.registerSnapshot`) zur Live-Fehlerisolierung bei Frontend/Backend-Version-Mismatch.

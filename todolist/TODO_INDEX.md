@@ -701,3 +701,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - 2026-05-24: Admin-Center Inbox-Sync & Dossier-Content follow-up (PR #250 Restpunkte): Sync-Message/Zaehllogik + Dossier-Overlay-Inhalte + Button-Gating in Bearbeitung/abgeschlossen, ohne Runner/Deploy.
 
 - 2026-05-24: Snapshot-shape sync fix dokumentiert (client/server debug, multi-shape parser, string/object candidate handling). Next: runtime/admin-center-task-proposal-to-worker-queue.
+
+- 2026-05-24: Admin-Center Inbox-Sync Backend-Version-Diagnostik ergänzt (callableVersion/responseShapeVersion/payloadUnwrappedFrom). Falls live weiterhin keine callableVersion sichtbar ist: Functions deploy als naechster operativer Schritt.

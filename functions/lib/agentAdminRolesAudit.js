@@ -207,6 +207,27 @@ function toInboxStatusByListType(listType) {
   return "pending_approval";
 }
 
+
+const INBOX_SYNC_CALLABLE_NAME = "syncProductEvolutionFirstRunInbox";
+const INBOX_SYNC_CALLABLE_VERSION = "2026-05-24-pr253-snapshot-shape-v2";
+const INBOX_SYNC_RESPONSE_SHAPE_VERSION = "agent-center-inbox-sync-v2";
+
+function buildInboxSyncDiagnostics({ requestData, registerSnapshot, collections, serverCandidateCount, payloadUnwrappedFrom }) {
+  const hasRegisterSnapshot = Boolean(registerSnapshot && typeof registerSnapshot === "object");
+  return {
+    callableName: INBOX_SYNC_CALLABLE_NAME,
+    callableVersion: INBOX_SYNC_CALLABLE_VERSION,
+    responseShapeVersion: INBOX_SYNC_RESPONSE_SHAPE_VERSION,
+    serverTimestamp: new Date().toISOString(),
+    serverReceivedInputKeys: requestData && typeof requestData === "object" ? Object.keys(requestData) : [],
+    hasRegisterSnapshot,
+    registerSnapshotType: hasRegisterSnapshot ? (Array.isArray(registerSnapshot) ? "array" : typeof registerSnapshot) : "undefined",
+    registerSnapshotKeys: hasRegisterSnapshot && !Array.isArray(registerSnapshot) ? Object.keys(registerSnapshot) : [],
+    payloadUnwrappedFrom: payloadUnwrappedFrom || "none",
+    serverCandidateCount: Number(serverCandidateCount || 0),
+    serverCandidateCollections: (collections || []).map((c) => ({ listType: c.listType, count: c.items.length, path: c.path })),
+  };
+}
 function hasProtectedFileScope(files) {
   const lower = (files || []).map((f) => String(f || "").toLowerCase());
   return lower.some((f) => HIGH_RISK_EXACT_FILES.includes(f) || HIGH_RISK_FILE_PREFIXES.some((prefix) => f.startsWith(prefix)));
@@ -1086,72 +1107,96 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   }
 
   exportsTarget.syncProductEvolutionFirstRunInbox = onCall(async (request) => {
-    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
-    const sourceRef = "project-register/agent-product-evolution-first-run-output.json";
-    const snap = await db.collection("agentSystemRegisters").doc("agent-product-evolution-first-run-output").get();
-    const registerSnapshot = request.data && request.data.registerSnapshot && typeof request.data.registerSnapshot === "object" ? request.data.registerSnapshot : null;
-    const mirror = snap.exists ? (snap.data() || {}) : {};
-    const mirrorCollections = getFirstRunCandidateCollections(mirror);
-    const snapshotCollections = getFirstRunCandidateCollections(registerSnapshot || {});
-    const useMirror = mirrorCollections.length > 0;
-    const register = useMirror ? mirror : (registerSnapshot || {});
-    const collections = useMirror ? mirrorCollections : snapshotCollections;
-    const serverSnapshotReceived = Boolean(registerSnapshot);
-    const serverSnapshotKeys = registerSnapshot && typeof registerSnapshot === "object" ? Object.keys(registerSnapshot) : [];
-    if (!useMirror && !registerSnapshot) {
-      return { accepted:false, serverSnapshotReceived:false, serverSnapshotKeys:[], serverCandidateCollections:[], serverCandidateCount:0, created:0, updated:0, skipped:0, skippedReasons:{}, sampleCreatedIds:[], sampleSkipped:[], message:"Kein Snapshot empfangen und Firestore-Mirror leer." };
-    }
-    const createdAtFallback = FieldValue.serverTimestamp();
-    let created = 0;
-    let updated = 0;
-    let skipped = 0;
-    const skippedReasons = { missing_sourceDossierId: 0, missing_decision_data: 0, protected_scope: 0 };
-    const sampleCreatedIds = [];
-    const sampleSkipped = [];
-    const serverCandidateCollections = collections.map((c) => ({ listType: c.listType, count: c.items.length, path: c.path }));
-    let serverCandidateCount = 0;
-    for (const collection of collections) {
-      for (const raw of collection.items) {
-        const item = normalizeFirstRunEntry(raw, collection.listType);
-        serverCandidateCount += 1;
-        const sourceDossierId = sanitizeInboxText(item.sourceDossierId || extractProductEvolutionId(raw), 180);
-        if (!sourceDossierId) {
-          sampleSkipped.push({ listType: collection.listType, reason: "missing_sourceDossierId", id: sanitizeInboxText(item.id || item.title, 180) });
-          skippedReasons.missing_sourceDossierId = Number(skippedReasons.missing_sourceDossierId || 0) + 1;
-          skipped += 1;
-          continue;
-        }
-        if (hasProtectedFileScope([...(item.allowedFiles || []), ...(item.blockedFiles || [])])) {
-          sampleSkipped.push({ listType: collection.listType, reason: "protected_scope", id: sourceDossierId });
-          skippedReasons.protected_scope = Number(skippedReasons.protected_scope || 0) + 1;
-          skipped += 1;
-          continue;
-        }
-        if (!(item.summary || item.plainSummary || item.whatWillChange || item.whySuggested)) {
-          item.missingDecisionData = true;
-          if (collection.listType === "generatedDossiers" || collection.listType === "recommendedApprovals") {
-            item.summary = item.summary || `Auto-import aus ${String(raw || "")}`;
-          } else {
-            sampleSkipped.push({ listType: collection.listType, reason: "missing_decision_data", id: sourceDossierId });
-            skippedReasons.missing_decision_data = Number(skippedReasons.missing_decision_data || 0) + 1;
+    const responseBase = { accepted: false };
+    try {
+      const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+      const sourceRef = "project-register/agent-product-evolution-first-run-output.json";
+      const requestData = request.data && typeof request.data === "object" ? request.data : {};
+      const directSnapshot = requestData.registerSnapshot && typeof requestData.registerSnapshot === "object" ? requestData.registerSnapshot : null;
+      const dataSnapshot = requestData.data && requestData.data.registerSnapshot && typeof requestData.data.registerSnapshot === "object" ? requestData.data.registerSnapshot : null;
+      const payloadSnapshot = requestData.payload && requestData.payload.registerSnapshot && typeof requestData.payload.registerSnapshot === "object" ? requestData.payload.registerSnapshot : null;
+      const registerSnapshot = directSnapshot || dataSnapshot || payloadSnapshot;
+      const payloadUnwrappedFrom = directSnapshot ? "registerSnapshot" : (dataSnapshot ? "data.registerSnapshot" : (payloadSnapshot ? "payload.registerSnapshot" : "none"));
+
+      const snap = await db.collection("agentSystemRegisters").doc("agent-product-evolution-first-run-output").get();
+      const mirror = snap.exists ? (snap.data() || {}) : {};
+      const mirrorCollections = getFirstRunCandidateCollections(mirror);
+      const snapshotCollections = getFirstRunCandidateCollections(registerSnapshot || {});
+      const useMirror = mirrorCollections.length > 0;
+      const register = useMirror ? mirror : (registerSnapshot || {});
+      const collections = useMirror ? mirrorCollections : snapshotCollections;
+      const serverSnapshotReceived = Boolean(registerSnapshot);
+      const serverSnapshotKeys = registerSnapshot && typeof registerSnapshot === "object" ? Object.keys(registerSnapshot) : [];
+      const createdAtFallback = FieldValue.serverTimestamp();
+      let created = 0;
+      let updated = 0;
+      let skipped = 0;
+      const skippedReasons = { missing_sourceDossierId: 0, missing_decision_data: 0, protected_scope: 0 };
+      const sampleCreatedIds = [];
+      const sampleSkipped = [];
+      let serverCandidateCount = 0;
+
+      for (const collection of collections) {
+        for (const raw of collection.items) {
+          const item = normalizeFirstRunEntry(raw, collection.listType);
+          serverCandidateCount += 1;
+          const sourceDossierId = sanitizeInboxText(item.sourceDossierId || extractProductEvolutionId(raw), 180);
+          if (!sourceDossierId) {
+            sampleSkipped.push({ listType: collection.listType, reason: "missing_sourceDossierId", id: sanitizeInboxText(item.id || item.title, 180) });
+            skippedReasons.missing_sourceDossierId = Number(skippedReasons.missing_sourceDossierId || 0) + 1;
             skipped += 1;
             continue;
           }
+          if (hasProtectedFileScope([...(item.allowedFiles || []), ...(item.blockedFiles || [])])) {
+            sampleSkipped.push({ listType: collection.listType, reason: "protected_scope", id: sourceDossierId });
+            skippedReasons.protected_scope = Number(skippedReasons.protected_scope || 0) + 1;
+            skipped += 1;
+            continue;
+          }
+          if (!(item.summary || item.plainSummary || item.whatWillChange || item.whySuggested)) {
+            item.missingDecisionData = true;
+            if (collection.listType === "generatedDossiers" || collection.listType === "recommendedApprovals") {
+              item.summary = item.summary || `Auto-import aus ${String(raw || "")}`;
+            } else {
+              sampleSkipped.push({ listType: collection.listType, reason: "missing_decision_data", id: sourceDossierId });
+              skippedReasons.missing_decision_data = Number(skippedReasons.missing_decision_data || 0) + 1;
+              skipped += 1;
+              continue;
+            }
+          }
+          const inboxId = `product-evolution-first-run:${sourceDossierId}:${collection.listType}`;
+          const existing = await db.collection("agentCenterInbox").doc(inboxId).get();
+          await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType: collection.listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
+          if (existing.exists) updated += 1;
+          else created += 1;
+          if (sampleCreatedIds.length < 10) sampleCreatedIds.push(inboxId);
         }
-        const inboxId = `product-evolution-first-run:${sourceDossierId}:${collection.listType}`;
-        const existing = await db.collection("agentCenterInbox").doc(inboxId).get();
-        await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType: collection.listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
-        if (existing.exists) updated += 1;
-        else created += 1;
-        if (sampleCreatedIds.length < 10) sampleCreatedIds.push(inboxId);
       }
+
+      const diagnostics = buildInboxSyncDiagnostics({ requestData, registerSnapshot, collections, serverCandidateCount, payloadUnwrappedFrom });
+      const synced = created + updated;
+      const base = { ...responseBase, ...diagnostics, accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, sampleCreatedIds, sampleSkipped, serverSnapshotReceived, serverSnapshotKeys, idempotent: true, sourceRef, sourceTrust: useMirror ? "firestore_mirror" : "admin_provided_repo_snapshot" };
+
+      if (!useMirror && !registerSnapshot) {
+        return { ...base, message: "Kein Snapshot empfangen und Firestore-Mirror leer." };
+      }
+      if (serverCandidateCount === 0) {
+        return { ...base, message: `Snapshot empfangen, aber keine Candidate-Arrays gefunden. Keys: ${serverSnapshotKeys.join(', ') || '(none)'}` };
+      }
+      if (!synced && !skipped) {
+        return { ...base, accepted: false, message: "Keine syncbaren First-Run-Einträge gefunden." };
+      }
+
+      await writeAgentAudit(db, { actorId, actorRole, action: "sync_product_evolution_first_run_inbox", result: useMirror ? "mirror" : "admin_provided_repo_snapshot" });
+      return { ...base, message: `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` };
+    } catch (error) {
+      const message = error && typeof error === "object" && "message" in error ? String(error.message || "sync_failed") : "sync_failed";
+      const diagnostics = buildInboxSyncDiagnostics({ requestData: request.data, registerSnapshot: null, collections: [], serverCandidateCount: 0, payloadUnwrappedFrom: "none" });
+      if (error && typeof error === "object" && "code" in error && String(error.code).includes("permission-denied")) {
+        return { ...responseBase, ...diagnostics, accepted: false, message: "Rolle nicht berechtigt." };
+      }
+      return { ...responseBase, ...diagnostics, accepted: false, message: message.slice(0, 240) || "sync_failed" };
     }
-    const synced = created + updated;
-    const base = { accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, sampleCreatedIds, sampleSkipped, serverSnapshotReceived, serverSnapshotKeys, serverCandidateCollections, serverCandidateCount, idempotent: true, sourceRef, sourceTrust: useMirror?"firestore_mirror":"admin_provided_repo_snapshot" };
-    if (serverCandidateCount === 0) return { ...base, message: `Snapshot empfangen, aber keine Candidate-Arrays gefunden. Keys: ${serverSnapshotKeys.join(', ') || '(none)'}` };
-    if (!synced && !skipped) return { ...base, accepted:false, message:"Keine syncbaren First-Run-Einträge gefunden." };
-    await writeAgentAudit(db, { actorId, actorRole, action: "sync_product_evolution_first_run_inbox", result: useMirror ? "mirror" : "admin_provided_repo_snapshot" });
-    return { ...base, message: `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` };
   });
 
   exportsTarget.syncAgentCenterLocalRegistersInbox = onCall(async (request) => {
