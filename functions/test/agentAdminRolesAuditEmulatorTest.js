@@ -311,6 +311,24 @@ async function run() {
   await expectOk("blockAgentCenterProposal", owner, { targetType: "agent", targetId: "center-low" });
   await expectOk("approveMissionCenterProposal", owner, { targetType: "mission", targetId: "mission-low" });
 
+  await db.collection("agentCenterInbox").doc("ibox-approved").set({
+    inboxId: "ibox-approved", status: "approved", sourceType: "product_evolution_first_run", sourceDossierId: "PE-01", title: "Approved inbox",
+    allowedFiles: ["docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md"], blockedFiles: ["functions/**"], requiredChecks: ["npm run agent:quality-gate"], riskLevel: "medium",
+  });
+  await db.collection("agentCenterDecisions").doc("d-ibox-approved").set({ targetId: "ibox-approved", decision: "approved", createdAt: new Date() });
+  const createdFromInbox = await expectOk("createAgentTaskProposalFromApprovedInboxItem", owner, { inboxId: "ibox-approved" });
+  assert(createdFromInbox.taskProposalId, "approved inbox should create task proposal");
+  const iboxApprovedAfter = await db.collection("agentCenterInbox").doc("ibox-approved").get();
+  assert(iboxApprovedAfter.data().status === "synced_to_task_proposal", "inbox should become synced_to_task_proposal");
+  assert(iboxApprovedAfter.data().taskProposalId, "inbox should get taskProposalId");
+
+  await db.collection("agentCenterInbox").doc("ibox-pending").set({ inboxId: "ibox-pending", status: "pending_approval", allowedFiles: ["docs/**"], blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"] });
+  await expectFail("createAgentTaskProposalFromApprovedInboxItem", owner, { inboxId: "ibox-pending" });
+  await db.collection("agentCenterInbox").doc("ibox-rejected").set({ inboxId: "ibox-rejected", status: "rejected", allowedFiles: ["docs/**"], blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"] });
+  await expectFail("createAgentTaskProposalFromApprovedInboxItem", owner, { inboxId: "ibox-rejected" });
+  await db.collection("agentCenterInbox").doc("ibox-blocked").set({ inboxId: "ibox-blocked", status: "blocked", allowedFiles: ["docs/**"], blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"] });
+  await expectFail("createAgentTaskProposalFromApprovedInboxItem", owner, { inboxId: "ibox-blocked" });
+
   const centerAudit = await db.collection("agentTaskAuditLog").where("action", "==", "agent_center_rejected").get();
   assert(centerAudit.size > 0, "reject must write audit");
   const centerBlockAudit = await db.collection("agentTaskAuditLog").where("action", "==", "agent_center_blocked").get();

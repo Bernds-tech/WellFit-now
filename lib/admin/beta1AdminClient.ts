@@ -21,6 +21,7 @@ import type {
   AgentCenterDecisionInput,
   MissionCenterDecisionInput,
   AgentGithubCreatePullRequestInput,
+  ApprovedInboxToTaskProposalInput,
   ProductEvolutionInboxSyncInput,
 } from "./beta1AdminTypes";
 
@@ -114,5 +115,6 @@ export const beta1AdminClient = {
   syncAgentCenterLocalRegistersInbox: () => callAdmin("syncAgentCenterLocalRegistersInbox", {}),
   listAgentCenterInboxItems: (filters?: { status?: string; sourceType?: string; recommendation?: string; listType?: string }) => callAdmin("listAgentCenterInboxItems", filters || {}),
   getAgentCenterInboxItem: (inboxId: string) => callAdmin("getAgentCenterInboxItem", { inboxId }),
+  createAgentTaskProposalFromApprovedInboxItem: (input: ApprovedInboxToTaskProposalInput) => callAdmin("createAgentTaskProposalFromApprovedInboxItem", input),
 
 };
