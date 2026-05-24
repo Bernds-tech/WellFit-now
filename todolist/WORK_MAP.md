@@ -472,3 +472,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 
 
 - 2026-05-24: Agent Center / Admin UX: Dossier+Bericht Detail-Overlay, semantische Missing-Hinweise, Inbox-Sync-Entscheidbarkeit.
+
+- 2026-05-24: Agent-Center Topic aktualisiert: Filterkarten/Overlay/Inbox-Matching UX-Fix dokumentiert (report-only, kein Deploy/Runner-Start).

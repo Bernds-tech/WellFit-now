@@ -62,3 +62,5 @@ Produktgrenzen:
 
 
 - 2026-05-24: Retry-Guard UX ergaenzt um klare Inbox-Sync-/Decision-Blocker-Hinweise im Admin-Center; keine Runner-/Deploy-Aenderung.
+
+- 2026-05-24: Admin-Center Sync-Feedback erweitert (created/updated/0-Fallback + Server-Inbox-Ladehinweis) und Decision-Gating-Gruende sichtbar gemacht; keine Runtime- oder Deploy-Aenderung.

@@ -14,39 +14,52 @@ import { buildAdminDecisionSummary, getAgentStatusBucket, getMissionStatusBucket
 type AnyRow = Record<string, unknown>;
 const DOSSIER_IDS = ["PE-20260523-01", "PE-20260523-02", "PE-20260523-03"];
 
-function entriesOf(value: unknown): AnyRow[] { return value && typeof value === "object" && "entries" in value && Array.isArray((value as { entries?: unknown[] }).entries) ? (value as { entries: AnyRow[] }).entries : []; }
-function asText(v: unknown): string { return typeof v === "string" ? v : ""; }
-function pullSection(md: string, id: string): string {
-  const i = md.indexOf(id);
-  if (i < 0) return "";
-  const chunk = md.slice(i, i + 2600);
-  return chunk.split("\n## ")[0]?.trim() || "";
-}
-function findLine(section: string, labels: string[]): string {
-  for (const raw of section.split("\n")) {
-    const line = raw.trim();
-    const hit = labels.find((label) => line.toLowerCase().includes(label.toLowerCase()));
-    if (hit && line.length > 5) return line.replace(/^[-*#\s]+/, "").trim();
-  }
-  return "";
-}
 const productOpportunityMd = readFileSync(join(process.cwd(), "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md"), "utf8");
 const missionStoryMd = readFileSync(join(process.cwd(), "todolist/AGENT_MISSION_STORY_PROPOSALS.md"), "utf8");
 
+function entriesOf(value: unknown): AnyRow[] { return value && typeof value === "object" && "entries" in value && Array.isArray((value as { entries?: unknown[] }).entries) ? (value as { entries: AnyRow[] }).entries : []; }
+function asText(v: unknown): string { return typeof v === "string" ? v.trim() : ""; }
+function clipText(text: string, max = 1700): string { return text.length > max ? `${text.slice(0, max)}…` : text; }
+function findSection(md: string, id: string): string {
+  const rx = new RegExp(`(^|\\n)#{1,6}[^\\n]*${id}[^\\n]*\\n([\\s\\S]*?)(?=\\n#{1,6}\\s|$)`, "i");
+  const match = md.match(rx);
+  if (match) return `${match[0].trim()}\n${match[2]?.trim() || ""}`.trim();
+  const idx = md.indexOf(id);
+  if (idx < 0) return "";
+  return md.slice(Math.max(0, idx - 120), idx + 2600).split("\n## ")[0]?.trim() || "";
+}
+function findField(section: string, labels: string[]): string {
+  for (const raw of section.split("\n")) {
+    const line = raw.trim();
+    if (!line) continue;
+    const normalized = line.toLowerCase();
+    if (labels.some((label) => normalized.includes(label.toLowerCase()))) {
+      return line.replace(/^[-*#\s]+/, "").replace(/^([^:]{1,40}):\s*/i, "").trim();
+    }
+  }
+  return "";
+}
+
 function dossierPackFromMarkdown(dossierId: string): AnyRow {
-  const section = pullSection(productOpportunityMd, dossierId) || pullSection(missionStoryMd, dossierId);
-  if (!section) return { detailStatus: "reference_only", hasDossierDetails: true, detailText: "Dossier vorhanden, aber strukturierte Felder fehlen." };
-  return {
-    detailStatus: "structured",
-    hasDossierDetails: true,
-    detailText: section.slice(0, 1500),
-    detailSections: {
-      summary: findLine(section, ["summary", "zusammenfassung"]),
-      wellFitBenefit: findLine(section, ["wellfit", "vorteil"]),
-      riskSummary: findLine(section, ["risk", "risiko"]),
-      recommendation: findLine(section, ["recommend", "empfehl"]),
-    },
+  const section = findSection(productOpportunityMd, dossierId) || findSection(missionStoryMd, dossierId);
+  if (!section) return { detailStatus: "missing", hasDossierDetails: false };
+  const detailSections = {
+    summary: findField(section, ["summary", "zusammenfassung"]),
+    problem: findField(section, ["problem", "issue", "pain"]),
+    proposedChange: findField(section, ["proposed change", "änderung", "change", "was soll passieren"]),
+    whyNow: findField(section, ["why now", "warum jetzt"]),
+    wellFitBenefit: findField(section, ["wellfit benefit", "vorteil für wellfit"]),
+    userBenefit: findField(section, ["user benefit", "nutzer", "user"]),
+    businessBenefit: findField(section, ["business", "geschäft"]),
+    economyImpact: findField(section, ["economy", "financial", "wirtschaft", "impact"]),
+    risks: findField(section, ["risk", "risiko"]),
+    mitigation: findField(section, ["mitigation", "absicherung", "gegenmaßnahme"]),
+    recommendation: findField(section, ["recommend", "empfehl"]),
+    suggestedTaskProposal: findField(section, ["task proposal", "vorgeschlagener task", "nächster task"]),
   };
+  const filled = Object.values(detailSections).filter(Boolean).length;
+  const detailStatus = filled >= 6 ? "structured" : filled > 0 ? "partial_structured" : "reference_only";
+  return { detailStatus, hasDossierDetails: true, detailText: clipText(section), detailSections };
 }
 
 function normalizeFirstRunRows(run: AnyRow): AnyRow[] {
@@ -55,37 +68,10 @@ function normalizeFirstRunRows(run: AnyRow): AnyRow[] {
     const sourceDossierId = asText(entry.dossierId) || asText(entry.sourceDossierId);
     const dossierRef = asText(entry.dossierRef) || (sourceDossierId ? `todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md#${sourceDossierId}` : "");
     const reportRef = asText(entry.reportRef) || "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_FIRST_RUN_ANALYSIS.md";
-    const fromMd = DOSSIER_IDS.includes(sourceDossierId) ? dossierPackFromMarkdown(sourceDossierId) : { detailStatus: dossierRef ? "reference_only" : "missing", hasDossierDetails: Boolean(dossierRef) };
+    const fromMd = DOSSIER_IDS.includes(sourceDossierId) ? dossierPackFromMarkdown(sourceDossierId) : { detailStatus: dossierRef ? "reference_only" : "missing", hasDossierDetails: Boolean(dossierRef), detailText: dossierRef || "" };
     const detailSections = (entry.detailSections as AnyRow | undefined) || (fromMd.detailSections as AnyRow | undefined) || {};
     const missingCriticalDecisionFields = ["summary", "proposedChange", "whyNow", "wellFitBenefit", "risks", "recommendation"].filter((k) => !asText(detailSections[k]));
-    return {
-      id: asText(entry.id) || asText(entry.taskProposalId) || sourceDossierId,
-      title: asText(entry.title) || asText(entry.dossierTitle) || "Product Evolution Entry",
-      status,
-      source: "project-register/agent-product-evolution-first-run-output.json",
-      sourceLabel: "Product Evolution First Run",
-      sourceDossierId,
-      dossierId: sourceDossierId,
-      sourcePath: "project-register/agent-product-evolution-first-run-output.json",
-      dossierRef,
-      reportRef,
-      hasDossierDetails: Boolean(fromMd.hasDossierDetails),
-      hasReportDetails: Boolean(reportRef),
-      detailStatus: fromMd.detailStatus,
-      detailText: fromMd.detailText,
-      detailSections,
-      missingCriticalDecisionFields,
-      missingDecisionData: missingCriticalDecisionFields,
-      createdAt: asText(entry.createdAt) || createdAt,
-      waitingForApprovalAt: createdAt || undefined,
-      riskLevel: entry.riskLevel,
-      allowedFiles: entry.allowedFiles,
-      blockedFiles: entry.blockedFiles,
-      requiredChecks: entry.requiredChecks,
-      listType,
-      canDecide: false,
-      decisionHint: "Noch nicht in Server-Inbox gespiegelt.",
-    };
+    return { ...entry, id: asText(entry.id) || asText(entry.taskProposalId) || sourceDossierId, title: asText(entry.title) || asText(entry.dossierTitle) || "Product Evolution Entry", status, source: "project-register/agent-product-evolution-first-run-output.json", sourceLabel: "Product Evolution First Run", sourceDossierId, dossierId: sourceDossierId, sourcePath: "project-register/agent-product-evolution-first-run-output.json", dossierRef, reportRef, hasDossierDetails: Boolean(fromMd.hasDossierDetails), hasReportDetails: Boolean(reportRef), detailStatus: fromMd.detailStatus, detailText: asText(entry.detailText) || asText(fromMd.detailText), detailSections, missingCriticalDecisionFields, missingDecisionData: missingCriticalDecisionFields, createdAt: asText(entry.createdAt) || createdAt, waitingForApprovalAt: createdAt || undefined, riskLevel: entry.riskLevel, listType, canDecide: false, decisionHint: "Noch nicht in Server-Inbox gespiegelt." };
   };
   const rows: AnyRow[] = [];
   for (const e of (run.generatedDossiers as AnyRow[] ?? [])) rows.push(mapEntry(e, "generatedDossiers", "pending_approval"));

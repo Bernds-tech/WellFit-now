@@ -435,3 +435,6 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - [x] 2026-05-24: Admin-Center Dossier/Bericht Overlay + Inbox-Completion-UX umgesetzt (differenzierte fehlend-Status, Button-Aktivierungsgruende, Sync-Feedback).
 - [>] Naechster empfohlener Branch: runtime/admin-center-approved-inbox-to-task-proposal-follow-up.
+
+- [x] 2026-05-24 Admin-Center Fix (UX/Dossier/Inbox-Matching): Filterlabels lesbar, Dossierauszug sichtbar, deterministisches Inbox-Matching und klare Button-Gating-Hinweise umgesetzt; kein Runner/Deploy/Canonical-Truth-Edit.
+- [>] Naechster empfohlener Branch: `runtime/admin-center-task-proposal-to-worker-queue`.

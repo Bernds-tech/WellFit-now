@@ -8,6 +8,24 @@
   },
   "entries": [
     {
+      "id": "2026-05-24-admin-center-dossier-modal-content-and-active-state",
+      "date": "2026-05-24",
+      "branch": "fix/admin-center-dossier-modal-content-and-active-state",
+      "summary": "Admin-Center Filterlabels, Dossier-Overlay-Inhalte, Inbox-Matching und Button-Gating fuer Product-Evolution-First-Run repariert.",
+      "files": [
+        "app/admin/agent-center/page.tsx",
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "runtimeChanged": false,
+      "deployExecuted": false,
+      "canonicalTruthEdited": false
+    },
+    {
       "id": "2026-05-24-admin-center-dossier-details-modal-and-inbox-completion",
       "date": "2026-05-24",
       "branch": "fix/admin-center-dossier-details-modal-and-inbox-completion",
