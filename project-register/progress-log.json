@@ -1438,6 +1438,12 @@
       "task": "fix/admin-center-first-run-snapshot-shape",
       "summary": "Root cause documented: snapshot shape not recognized/passed consistently caused 0 processed candidates. Added client/server debug + robust candidate collection parsing.",
       "nextBranch": "runtime/admin-center-task-proposal-to-worker-queue"
+    },
+    {
+      "date": "2026-05-24",
+      "branch": "fix/admin-center-inbox-sync-backend-version-diagnostic",
+      "task": "Expose inbox sync callable version diagnostics",
+      "notes": "Cause likely frontend/backend version mismatch or payload wrapping. Added callable diagnostics + wrapper support. No runner/branch-pr-merge/deploy triggered."
     }
   ],
   "notes": [

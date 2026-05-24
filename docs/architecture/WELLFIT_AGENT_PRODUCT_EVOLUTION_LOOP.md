@@ -90,3 +90,5 @@ Produktgrenzen:
 - 2026-05-24: Inbox-Sync repariert: registerSnapshot wird priorisiert wenn Mirror leer ist; Sync liefert created/updated/skipped + klare 0-Items-Message; Overlay zeigt Dossierauszug/Fallback-Fehler statt nur Metadaten; kein Runner/Deploy.
 
 - 2026-05-24: Snapshot-Shape-Diagnose/Fix: Client zeigt localFirstRunCandidateCount/Keys + Collection-Counts; Sync uebergibt registerSnapshot explizit; Server erkennt mehrere Snapshot-Shapes inkl. output/data/run/result und object-map/string listen. Erwartung: bei sichtbaren PE-IDs ist created+updated+skipped > 0. Kein Runner/Branch/PR/Merge/Deploy.
+
+- 2026-05-24: Admin-Center Inbox-Sync Diagnose erweitert: `syncProductEvolutionFirstRunInbox` liefert jetzt callableVersion/responseShapeVersion/server-input-Debug in jeder Response und akzeptiert Snapshot-Wrapping (`registerSnapshot`, `data.registerSnapshot`, `payload.registerSnapshot`) fuer Live-Mismatch-Analyse. Kein Deploy in diesem PR.

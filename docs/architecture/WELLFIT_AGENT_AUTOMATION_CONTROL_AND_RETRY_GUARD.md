@@ -68,3 +68,5 @@ Produktgrenzen:
 - 2026-05-24: Retry-Guard konkretisiert fuer Admin-Center: ohne inboxId bleiben Aktionen gesperrt (Erst Inbox synchronisieren), revise trotz fehlender kritischer Daten bei pending/review erlaubt, approve erst bei kritischen Daten + gueltigem Status.
 
 - 2026-05-24: Retry-Guard ergaenzt um Snapshot-Shape-Debug fuer Admin-Center-Sync (serverSnapshotReceived/serverCandidateCount/skippedReasons). Keine Automation-Aktivierung, kein Deploy.
+
+- 2026-05-24 Addendum: Admin-Center Inbox-Sync bekam Version-/Shape-Diagnostik fuer Frontend-vs-Backend Mismatch-Hinweise. Wenn callableVersion live fehlt, ist der naechste operative Schritt ein separates Firebase-Functions-Deploy (nicht Teil dieses PR).

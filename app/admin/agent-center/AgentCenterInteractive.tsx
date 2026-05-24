@@ -153,6 +153,15 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
       const samples = (result.sampleCreatedIds || []).slice(0, 3).join(", ");
       const skippedSample = (result.sampleSkipped || []).slice(0, 2).map((entry) => JSON.stringify(entry)).join(" | ");
       setSyncDebug({
+        callableName: result.callableName || "",
+        callableVersion: result.callableVersion || "",
+        responseShapeVersion: result.responseShapeVersion || "",
+        serverTimestamp: result.serverTimestamp || "",
+        serverReceivedInputKeys: result.serverReceivedInputKeys || [],
+        hasRegisterSnapshot: result.hasRegisterSnapshot,
+        registerSnapshotType: result.registerSnapshotType || "",
+        registerSnapshotKeys: result.registerSnapshotKeys || [],
+        payloadUnwrappedFrom: result.payloadUnwrappedFrom || "",
         serverSnapshotReceived: result.serverSnapshotReceived,
         serverSnapshotKeys: result.serverSnapshotKeys || [],
         serverCandidateCount: result.serverCandidateCount ?? 0,
@@ -219,6 +228,15 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
         <p>recommendedApprovals: {snapshotStats.recommendedApprovalsCount}</p>
         <p>recommendedResearchMore: {snapshotStats.recommendedResearchMoreCount}</p>
         <p>blockedItems: {snapshotStats.blockedItemsCount}</p>
+        <p>callableName: {String(syncDebug.callableName || "-")}</p>
+        <p>callableVersion: {String(syncDebug.callableVersion || "-")}</p>
+        <p>responseShapeVersion: {String(syncDebug.responseShapeVersion || "-")}</p>
+        <p>serverTimestamp: {String(syncDebug.serverTimestamp || "-")}</p>
+        <p>serverReceivedInputKeys: [{((syncDebug.serverReceivedInputKeys as string[] | undefined) || []).join(", ")}]</p>
+        <p>hasRegisterSnapshot: {String(syncDebug.hasRegisterSnapshot ?? "-")}</p>
+        <p>registerSnapshotType: {String(syncDebug.registerSnapshotType || "-")}</p>
+        <p>registerSnapshotKeys: [{((syncDebug.registerSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
+        <p>payloadUnwrappedFrom: {String(syncDebug.payloadUnwrappedFrom || "-")}</p>
         <p>serverSnapshotReceived: {String(syncDebug.serverSnapshotReceived ?? "-")}</p>
         <p>serverSnapshotKeys: [{((syncDebug.serverSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
         <p>serverCandidateCount: {String(syncDebug.serverCandidateCount ?? "-")}</p>
@@ -226,6 +244,10 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
         <p>skippedReasons: {JSON.stringify(syncDebug.skippedReasons || {})}</p>
         <p>sampleCreatedIds: {JSON.stringify(syncDebug.sampleCreatedIds || [])}</p>
         <p>sampleSkipped: {JSON.stringify(syncDebug.sampleSkipped || [])}</p>
+        {!String(syncDebug.callableVersion || "") && <p className="text-amber-300">Backend-Callable liefert keine Version. Wahrscheinlich läuft noch eine alte Functions-Version. Bitte Functions deployen.</p>}
+        {String(syncDebug.callableVersion || "") !== "" && <p className="text-emerald-300">Backend-Callable-Version erkannt: {String(syncDebug.callableVersion)}</p>}
+        {(String(syncDebug.callableVersion || "") === "" || String(syncDebug.responseShapeVersion || "") === "") && <p className="text-amber-300">Frontend ist neuer als Backend. Bitte Firebase Functions deployen oder Backend-Callable prüfen.</p>}
+        {String(syncDebug.callableVersion || "") !== "" && String(syncDebug.responseShapeVersion || "") !== "" && Number(syncDebug.serverCandidateCount || 0) === 0 && snapshotStats.localFirstRunCandidateCount > 0 && <p className="text-amber-300">Backend ist aktuell, aber Snapshot-Struktur wird nicht verarbeitet. Siehe serverSnapshotKeys/serverCandidateCollections.</p>}
       </div>
 
       <div className="flex flex-wrap gap-2 text-xs">
