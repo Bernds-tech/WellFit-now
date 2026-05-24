@@ -160,6 +160,48 @@ function normalizeFirstRunEntry(entry, listType) {
   };
 }
 
+
+function toArrayOrObjectValues(value) {
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === "object") return Object.values(value);
+  return [];
+}
+
+function getByPath(root, path) {
+  let cur = root;
+  for (const part of path.split('.')) {
+    if (!cur || typeof cur !== "object") return undefined;
+    cur = cur[part];
+  }
+  return cur;
+}
+
+function getFirstRunCandidateCollections(snapshot) {
+  const candidates = [];
+  const seen = new Set();
+  const specs = [
+    ["generatedDossiers","generatedDossiers"],
+    ["suggestedTaskQueue","suggestedTaskQueue"],
+    ["recommendedApprovals","recommendedApprovals"],
+    ["recommendedResearchMore","recommendedResearchMore"],
+    ["blockedItems","blockedItems"],
+    ["output.generatedDossiers","generatedDossiers"],
+    ["output.suggestedTaskQueue","suggestedTaskQueue"],
+    ["data.generatedDossiers","generatedDossiers"],
+    ["run.generatedDossiers","generatedDossiers"],
+    ["result.generatedDossiers","generatedDossiers"],
+  ];
+  for (const [path, listType] of specs) {
+    const value = getByPath(snapshot, path);
+    const items = toArrayOrObjectValues(value);
+    if (!items.length) continue;
+    const key = `${path}:${listType}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    candidates.push({ path, listType, items });
+  }
+  return candidates;
+}
 function toInboxStatusByListType(listType) {
   if (listType === "blockedItems") return "blocked";
   return "pending_approval";
@@ -1049,9 +1091,16 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const snap = await db.collection("agentSystemRegisters").doc("agent-product-evolution-first-run-output").get();
     const registerSnapshot = request.data && request.data.registerSnapshot && typeof request.data.registerSnapshot === "object" ? request.data.registerSnapshot : null;
     const mirror = snap.exists ? (snap.data() || {}) : {};
-    const useMirror = ["suggestedTaskQueue","generatedDossiers","recommendedApprovals","recommendedResearchMore","blockedItems"].some((k)=>Array.isArray(mirror[k]) && mirror[k].length>0);
+    const mirrorCollections = getFirstRunCandidateCollections(mirror);
+    const snapshotCollections = getFirstRunCandidateCollections(registerSnapshot || {});
+    const useMirror = mirrorCollections.length > 0;
     const register = useMirror ? mirror : (registerSnapshot || {});
-    if (!useMirror && !registerSnapshot) return { accepted:false, message:"Keine First-Run-Daten gefunden. Firestore-Mirror leer und kein Register-Snapshot übergeben." };
+    const collections = useMirror ? mirrorCollections : snapshotCollections;
+    const serverSnapshotReceived = Boolean(registerSnapshot);
+    const serverSnapshotKeys = registerSnapshot && typeof registerSnapshot === "object" ? Object.keys(registerSnapshot) : [];
+    if (!useMirror && !registerSnapshot) {
+      return { accepted:false, serverSnapshotReceived:false, serverSnapshotKeys:[], serverCandidateCollections:[], serverCandidateCount:0, created:0, updated:0, skipped:0, skippedReasons:{}, sampleCreatedIds:[], sampleSkipped:[], message:"Kein Snapshot empfangen und Firestore-Mirror leer." };
+    }
     const createdAtFallback = FieldValue.serverTimestamp();
     let created = 0;
     let updated = 0;
@@ -1059,55 +1108,50 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const skippedReasons = { missing_sourceDossierId: 0, missing_decision_data: 0, protected_scope: 0 };
     const sampleCreatedIds = [];
     const sampleSkipped = [];
-    const listKeys = ["generatedDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals"];
-    for (const listType of listKeys) {
-      const rawItems = Array.isArray(register[listType]) ? register[listType] : [];
-      for (const raw of rawItems) {
-        const item = normalizeFirstRunEntry(raw, listType);
-        const sourceDossierId = sanitizeInboxText(item.sourceDossierId, 180);
+    const serverCandidateCollections = collections.map((c) => ({ listType: c.listType, count: c.items.length, path: c.path }));
+    let serverCandidateCount = 0;
+    for (const collection of collections) {
+      for (const raw of collection.items) {
+        const item = normalizeFirstRunEntry(raw, collection.listType);
+        serverCandidateCount += 1;
+        const sourceDossierId = sanitizeInboxText(item.sourceDossierId || extractProductEvolutionId(raw), 180);
         if (!sourceDossierId) {
-          sampleSkipped.push({ listType, reason: "missing_sourceDossierId", id: sanitizeInboxText(item.id || item.title, 180) });
+          sampleSkipped.push({ listType: collection.listType, reason: "missing_sourceDossierId", id: sanitizeInboxText(item.id || item.title, 180) });
           skippedReasons.missing_sourceDossierId = Number(skippedReasons.missing_sourceDossierId || 0) + 1;
           skipped += 1;
           continue;
         }
         if (hasProtectedFileScope([...(item.allowedFiles || []), ...(item.blockedFiles || [])])) {
-          sampleSkipped.push({ listType, reason: "protected_scope", id: sourceDossierId });
+          sampleSkipped.push({ listType: collection.listType, reason: "protected_scope", id: sourceDossierId });
           skippedReasons.protected_scope = Number(skippedReasons.protected_scope || 0) + 1;
           skipped += 1;
           continue;
         }
         if (!(item.summary || item.plainSummary || item.whatWillChange || item.whySuggested)) {
-          sampleSkipped.push({ listType, reason: "missing_decision_data", id: sourceDossierId });
-          skippedReasons.missing_decision_data = Number(skippedReasons.missing_decision_data || 0) + 1;
-          skipped += 1;
-          continue;
+          item.missingDecisionData = true;
+          if (collection.listType === "generatedDossiers" || collection.listType === "recommendedApprovals") {
+            item.summary = item.summary || `Auto-import aus ${String(raw || "")}`;
+          } else {
+            sampleSkipped.push({ listType: collection.listType, reason: "missing_decision_data", id: sourceDossierId });
+            skippedReasons.missing_decision_data = Number(skippedReasons.missing_decision_data || 0) + 1;
+            skipped += 1;
+            continue;
+          }
         }
-        const inboxId = `product-evolution-first-run:${sourceDossierId}:${listType}`;
+        const inboxId = `product-evolution-first-run:${sourceDossierId}:${collection.listType}`;
         const existing = await db.collection("agentCenterInbox").doc(inboxId).get();
-        await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
+        await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType: collection.listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
         if (existing.exists) updated += 1;
         else created += 1;
         if (sampleCreatedIds.length < 10) sampleCreatedIds.push(inboxId);
       }
     }
     const synced = created + updated;
-    if (!synced) return { accepted:false, created, updated, skipped, syncedCount: 0, skippedReasons, sampleCreatedIds, sampleSkipped, message:"Keine syncbaren First-Run-Einträge gefunden. Prüfe sourceDossierId/listType im Register und ergänze fehlende Dossierdaten." };
+    const base = { accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, sampleCreatedIds, sampleSkipped, serverSnapshotReceived, serverSnapshotKeys, serverCandidateCollections, serverCandidateCount, idempotent: true, sourceRef, sourceTrust: useMirror?"firestore_mirror":"admin_provided_repo_snapshot" };
+    if (serverCandidateCount === 0) return { ...base, message: `Snapshot empfangen, aber keine Candidate-Arrays gefunden. Keys: ${serverSnapshotKeys.join(', ') || '(none)'}` };
+    if (!synced && !skipped) return { ...base, accepted:false, message:"Keine syncbaren First-Run-Einträge gefunden." };
     await writeAgentAudit(db, { actorId, actorRole, action: "sync_product_evolution_first_run_inbox", result: useMirror ? "mirror" : "admin_provided_repo_snapshot" });
-    return {
-      accepted: true,
-      syncedCount: synced,
-      created,
-      updated,
-      skipped,
-      skippedReasons,
-      sampleCreatedIds,
-      sampleSkipped,
-      message: `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.`,
-      idempotent: true,
-      sourceRef,
-      sourceTrust: useMirror?"firestore_mirror":"admin_provided_repo_snapshot",
-    };
+    return { ...base, message: `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` };
   });
 
   exportsTarget.syncAgentCenterLocalRegistersInbox = onCall(async (request) => {

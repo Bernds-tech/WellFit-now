@@ -1432,6 +1432,12 @@
       "task": "fix/admin-center-inbox-sync-and-dossier-content",
       "summary": "Admin-Center Inbox-Sync Ergebniszaehlung + Dossier-Overlay-Inhalte + deterministic inbox matching/gating dokumentiert. Kein Runner/Deploy/GitHub API.",
       "nextBranch": "runtime/admin-center-task-proposal-to-worker-queue"
+    },
+    {
+      "date": "2026-05-24",
+      "task": "fix/admin-center-first-run-snapshot-shape",
+      "summary": "Root cause documented: snapshot shape not recognized/passed consistently caused 0 processed candidates. Added client/server debug + robust candidate collection parsing.",
+      "nextBranch": "runtime/admin-center-task-proposal-to-worker-queue"
     }
   ],
   "notes": [

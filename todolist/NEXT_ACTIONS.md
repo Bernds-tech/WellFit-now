@@ -440,3 +440,5 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [>] Naechster empfohlener Branch: `runtime/admin-center-task-proposal-to-worker-queue`.
 
 - 2026-05-24: Admin-Center Inbox-Sync-/Dossier-Content-Fix abgeschlossen; Ursache fuer 0 Inbox-Eintraege: fehlende Sync-Rueckmeldung/zaehlung und unklare 0-Fallback-Kommunikation. Nach Fix klare created/updated/skipped-Meldung und Mirror/Snapshot-Fallback dokumentiert. Naechster Branch: runtime/admin-center-task-proposal-to-worker-queue.
+
+- 2026-05-24: Admin-Center snapshot-shape fix done; next branch: runtime/admin-center-task-proposal-to-worker-queue.
