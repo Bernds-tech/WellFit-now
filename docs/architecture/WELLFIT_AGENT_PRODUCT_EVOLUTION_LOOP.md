@@ -78,3 +78,6 @@ Produktgrenzen:
 - Nach jedem erfolgreich gemergten Agent-Task gilt `nextCycleRequired = true`.
 - Reihenfolge der naechsten Analyse: Konzept -> Businessplan -> Repo -> Canonical Truth -> Dossiers -> Missionsideen -> Wirtschaftskreislauf -> Product Radar -> Risiken -> offene Beta-Readiness.
 - Bei `repair_required`: keine neuen Feature-Dossiers; nur Repair/Conflict/Governance-Cleanup; maximal 3 Versuche; danach `halted_waiting_owner`.
+
+- 2026-05-23: Admin-Center-Datasource-Sync: first-run output (`generatedDossiers`, `suggestedTaskQueue`, `recommendedApprovals`, `recommendedResearchMore`, `blockedItems`) wird als review-pflichtige Inbox-Quelle eingebunden; Pending-Counts und Listen laufen ueber identische Bucket-Logik.
+- 2026-05-23: Wenn lokale Registereintraege noch keine Firestore-Mirror targetId tragen, bleiben Admin-Action-Buttons disabled mit Hinweis auf Inbox-Sync (Follow-up: `runtime/admin-center-product-evolution-dossier-inbox-sync`).

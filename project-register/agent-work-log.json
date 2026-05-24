@@ -4410,6 +4410,27 @@
       ],
       "nextRecommendedTask": "runtime/agent-admin-supervised-runner-real-github-integration",
       "riskLevel": "low"
+    },
+    {
+      "id": "AWL-2026-05-23-ADMIN-CENTER-PENDING-SYNC",
+      "date": "2026-05-23",
+      "branch": "fix/admin-agent-center-pending-list-data-source-sync",
+      "summary": "Synced Admin Center pending stats/list buckets to same normalized datasource and added Product-Evolution first-run pending entries.",
+      "files": [
+        "app/admin/agent-center/page.tsx",
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/agentCenterStatus.ts",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md"
+      ],
+      "checks": [],
+      "runtimeChanged": false,
+      "deployExecuted": false,
+      "canonicalTruthEdited": false
     }
   ],
   "workItems": [

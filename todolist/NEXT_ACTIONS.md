@@ -426,3 +426,6 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [ ] Follow-up branch recommendation: analysis/agent-product-evolution-first-run or runtime/agent-admin-supervised-runner-deploy-integration.
 
 - [x] 2026-05-23: Agent-Control-Center-Output nach PR #240 revalidiert; Blocker `QG-2026-05-23-AGENT-CONTROL-CENTER-CHECK-FAIL` auf resolved gesetzt, keine Runtime-/GitHub-API-/Deploy-/Canonical-Truth-Aenderung. Naechster Branch: `analysis/agent-product-evolution-first-run` (nur bei gruenem Quality Gate).
+
+- [x] 2026-05-23: Admin-Center Pending/List Sync umgesetzt (agent_pending -> pending_approval Mapping fix, Product-Evolution-First-Run als pending sichtbar, Stats+Listen aus gleicher adminAgentRows/adminMissionRows Datenbasis).
+- [ ] Follow-up: runtime/admin-center-product-evolution-dossier-inbox-sync (lokale Registereintraege ohne Firestore-Mirror targetId bleiben mit disabled Actions).

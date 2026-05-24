@@ -688,3 +688,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 
 - docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_FIRST_RUN_ANALYSIS.md - First run analysis dossier (admin review required).
 - docs/beta/BETA1_PRODUCT_EVOLUTION_FIRST_RUN_READINESS_GAPS.md - Beta wave readiness gaps dossier.
+
+- 2026-05-23: Admin-Center Pending/List Sync ergaenzt: explizites Filter-Mapping, Product-Evolution-First-Run Datenquelle im Admin-Center, einheitliche Status-Bucket-Berechnung fuer Zahlen und Listen, Pending-Sync-Fix dokumentiert.
