@@ -705,3 +705,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - 2026-05-24: Admin-Center Inbox-Sync Backend-Version-Diagnostik ergänzt (callableVersion/responseShapeVersion/payloadUnwrappedFrom). Falls live weiterhin keine callableVersion sichtbar ist: Functions deploy als naechster operativer Schritt.
 
 - 2026-05-25: Admin-Center Sync-Diagnose-Preserve-Fix dokumentiert: Client sanitizer darf bei `accepted=false` keine diagnostischen Response-Felder verwerfen; Debug-Felder bleiben sichtbar, Fehlertexte bleiben safe (keine Stacktraces/Secrets). Kein Runner/Branch/PR/Merge/Deploy/Firebase-Deploy in diesem PR.
+
+- 2026-05-25 Addendum (Admin-Center Sync Bugfix): Ursache war eine inkonsistente Snapshot-Quelle zwischen Anzeige-Counts und Sync-Payload. Fuehrender Fix: `app/admin/agent-center/AgentCenterInteractive.tsx` mit `effectiveFirstRunRegisterSnapshot` als einziger Sync-Quelle inkl. Fallback + Konsistenzdebug (`clientVisibleCandidateCount`/`clientSendingCandidateCount`). Kein Runner/Deploy in diesem PR.

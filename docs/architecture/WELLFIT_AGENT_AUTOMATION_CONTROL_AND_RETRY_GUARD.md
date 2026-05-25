@@ -71,3 +71,5 @@ Produktgrenzen:
 
 - 2026-05-24 Addendum: Admin-Center Inbox-Sync bekam Version-/Shape-Diagnostik fuer Frontend-vs-Backend Mismatch-Hinweise. Wenn callableVersion live fehlt, ist der naechste operative Schritt ein separates Firebase-Functions-Deploy (nicht Teil dieses PR).
 - 2026-05-25: Retry-/Diagnose-Guard aktualisiert: Admin-Client verwirft bei `accepted=false` keine Sync-Diagnosefelder mehr. Damit bleiben callableVersion/responseShapeVersion/serverCandidateCount fuer sichere Live-Debugs erhalten, ohne Stacktraces/Secrets im Fehlertext. Kein Runner/Branch/PR/Merge/Deploy/Firebase-Deploy in diesem PR.
+
+- 2026-05-25: Retry-/Diagnose-Guard fuer Admin-Center-Sync erweitert: `effectiveFirstRunRegisterSnapshot` erzwingt eine einzige Payload-Quelle fuer sichtbare Kandidaten und Sync-Call. Bei fehlender syncfaehiger Snapshot-Payload wird der Call blockiert und eine klare Warnung angezeigt. Zusätzliche Konsistenzpruefung: `clientVisibleCandidateCount` muss `clientSendingCandidateCount` entsprechen, sonst gelber Warnhinweis. Kein Runner/Branch/PR/Merge/Deploy in diesem Fix; kein Functions-Deploy notwendig, solange nur Client-Dateien betroffen sind.

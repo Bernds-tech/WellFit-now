@@ -146,11 +146,8 @@ export const beta1AdminClient = {
   blockMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("blockMissionCenterProposal", input),
   markMissionCenterProposalForReview: (input: MissionCenterDecisionInput) => callAdmin("markMissionCenterProposalForReview", input),
   syncProductEvolutionFirstRunInbox: (input?: ProductEvolutionInboxSyncInput) => {
-    const hasInput = Boolean(input && typeof input === "object");
-    const hasRegisterSnapshot = Boolean(hasInput && Object.prototype.hasOwnProperty.call(input as Record<string, unknown>, "registerSnapshot"));
-    const registerSnapshot = hasRegisterSnapshot ? (input as { registerSnapshot?: unknown }).registerSnapshot : undefined;
     return callAdminPreserveDiagnostics("syncProductEvolutionFirstRunInbox", {
-      registerSnapshot,
+      registerSnapshot: input?.registerSnapshot,
       clientRequestShapeVersion: "agent-center-inbox-sync-client-v2",
     });
   },

@@ -45,33 +45,16 @@ const extractPeId = (...values: unknown[]): string => {
 };
 const isMissionFilter = (value: AdminCenterListFilter): value is Extract<AdminCenterListFilter, `mission_${string}`> => value.startsWith("mission_");
 
-
-function toCount(value: unknown): number {
-  return Array.isArray(value) ? value.length : (value && typeof value === "object" ? Object.keys(value as Record<string, unknown>).length : 0);
-}
-
-function buildReconstructedFirstRunSnapshot(rows: Row[]): Record<string, unknown> {
-  const targetLists = new Set(["suggestedTaskQueue", "generatedDossiers", "recommendedApprovals", "recommendedResearchMore", "blockedItems"]);
-  const grouped: Record<string, Row[]> = {};
-  for (const row of rows) {
-    const listType = asText(row.listType);
-    const sourcePath = asText(row.sourcePath);
-    if (!targetLists.has(listType)) continue;
-    if (sourcePath !== "project-register/agent-product-evolution-first-run-output.json") continue;
-    if (!grouped[listType]) grouped[listType] = [];
-    grouped[listType].push(row);
-  }
-  return grouped;
-}
-
 export default function AgentCenterInteractive({
   data,
   firstRunRegisterSnapshot = {},
   firstRunRegisterSnapshotKeys = [],
+  firstRunOutput,
 }: {
   data: DataProps;
   firstRunRegisterSnapshot?: Record<string, unknown>;
   firstRunRegisterSnapshotKeys?: string[];
+  firstRunOutput?: Record<string, unknown>;
 }) {
   const [active, setActive] = useState<AdminCenterListFilter>("agent_pending");
   const [feedback, setFeedback] = useState("");
@@ -136,15 +119,38 @@ export default function AgentCenterInteractive({
     return list.filter((row) => (missionMode ? getMissionStatusBucket(row) : getAgentStatusBucket(row)) === bucket);
   }, [active, mapped]);
 
-  const effectiveFirstRunRegisterSnapshot = useMemo(() => {
-    const directSnapshot = firstRunRegisterSnapshot && typeof firstRunRegisterSnapshot === "object" ? firstRunRegisterSnapshot : {};
-    if (Object.keys(directSnapshot).length > 0) return directSnapshot;
-    return buildReconstructedFirstRunSnapshot(data.agents);
-  }, [data.agents, firstRunRegisterSnapshot]);
+  const snapshotResolution = useMemo(() => {
+    const snapshotFromProp = firstRunRegisterSnapshot && typeof firstRunRegisterSnapshot === "object" ? firstRunRegisterSnapshot : null;
+    const outputSnapshot = firstRunOutput && typeof firstRunOutput === "object" ? firstRunOutput : null;
+    const candidate = snapshotFromProp && Object.keys(snapshotFromProp).length > 0
+      ? snapshotFromProp
+      : (outputSnapshot && Object.keys(outputSnapshot).length > 0 ? outputSnapshot : null);
+    if (candidate) return { source: snapshotFromProp === candidate ? "firstRunRegisterSnapshot" : "firstRunOutput", snapshot: candidate };
+    const reconstructed = {
+      runId: asText(snapshotFromProp?.runId ?? outputSnapshot?.runId),
+      createdAt: asText(snapshotFromProp?.createdAt ?? outputSnapshot?.createdAt),
+      sourceScope: asText(snapshotFromProp?.sourceScope ?? outputSnapshot?.sourceScope),
+      analysisInputs: snapshotFromProp?.analysisInputs ?? outputSnapshot?.analysisInputs ?? {},
+      generatedDossiers: Array.isArray(snapshotFromProp?.generatedDossiers) ? snapshotFromProp.generatedDossiers : (Array.isArray(outputSnapshot?.generatedDossiers) ? outputSnapshot.generatedDossiers : []),
+      recommendedApprovals: Array.isArray(snapshotFromProp?.recommendedApprovals) ? snapshotFromProp.recommendedApprovals : (Array.isArray(outputSnapshot?.recommendedApprovals) ? outputSnapshot.recommendedApprovals : []),
+      recommendedRejections: Array.isArray(snapshotFromProp?.recommendedRejections) ? snapshotFromProp.recommendedRejections : (Array.isArray(outputSnapshot?.recommendedRejections) ? outputSnapshot.recommendedRejections : []),
+      recommendedResearchMore: Array.isArray(snapshotFromProp?.recommendedResearchMore) ? snapshotFromProp.recommendedResearchMore : (Array.isArray(outputSnapshot?.recommendedResearchMore) ? outputSnapshot.recommendedResearchMore : []),
+      suggestedTaskQueue: Array.isArray(snapshotFromProp?.suggestedTaskQueue) ? snapshotFromProp.suggestedTaskQueue : (Array.isArray(outputSnapshot?.suggestedTaskQueue) ? outputSnapshot.suggestedTaskQueue : []),
+      blockedItems: Array.isArray(snapshotFromProp?.blockedItems) ? snapshotFromProp.blockedItems : (Array.isArray(outputSnapshot?.blockedItems) ? outputSnapshot.blockedItems : []),
+      nextCycleStart: snapshotFromProp?.nextCycleStart ?? outputSnapshot?.nextCycleStart ?? null,
+      requiresAdminReview: snapshotFromProp?.requiresAdminReview ?? outputSnapshot?.requiresAdminReview ?? true,
+      noRuntimeChanges: snapshotFromProp?.noRuntimeChanges ?? outputSnapshot?.noRuntimeChanges ?? true,
+      missionStoryProposals: Array.isArray(snapshotFromProp?.missionStoryProposals) ? snapshotFromProp.missionStoryProposals : (Array.isArray(outputSnapshot?.missionStoryProposals) ? outputSnapshot.missionStoryProposals : []),
+      snapshotMeta: snapshotFromProp?.snapshotMeta ?? outputSnapshot?.snapshotMeta ?? {},
+    } as Record<string, unknown>;
+    const hasArrays = ["generatedDossiers", "recommendedApprovals", "recommendedResearchMore", "suggestedTaskQueue", "blockedItems"].some((key) => Array.isArray(reconstructed[key]) && (reconstructed[key] as unknown[]).length > 0);
+    return hasArrays ? { source: "reconstructedFromArrays", snapshot: reconstructed } : { source: "missing", snapshot: null };
+  }, [firstRunOutput, firstRunRegisterSnapshot]);
 
   const snapshotStats = useMemo(() => {
-    const snapshot = effectiveFirstRunRegisterSnapshot;
+    const snapshot = snapshotResolution.snapshot && typeof snapshotResolution.snapshot === "object" ? snapshotResolution.snapshot : {};
     const keys = firstRunRegisterSnapshotKeys.length > 0 ? firstRunRegisterSnapshotKeys : Object.keys(snapshot);
+    const toCount = (value: unknown) => Array.isArray(value) ? value.length : (value && typeof value === "object" ? Object.keys(value as Record<string, unknown>).length : 0);
     const suggestedTaskQueueCount = toCount((snapshot as Record<string, unknown>).suggestedTaskQueue);
     const generatedDossiersCount = toCount((snapshot as Record<string, unknown>).generatedDossiers);
     const recommendedApprovalsCount = toCount((snapshot as Record<string, unknown>).recommendedApprovals);
@@ -160,7 +166,7 @@ export default function AgentCenterInteractive({
       blockedItemsCount,
       localFirstRunCandidateCount: suggestedTaskQueueCount + generatedDossiersCount + recommendedApprovalsCount + recommendedResearchMoreCount + blockedItemsCount,
     };
-  }, [effectiveFirstRunRegisterSnapshot, firstRunRegisterSnapshotKeys]);
+  }, [firstRunRegisterSnapshotKeys, snapshotResolution.snapshot]);
 
   async function refreshInbox() {
     setBusy(true);
@@ -177,28 +183,35 @@ export default function AgentCenterInteractive({
   async function runSync() {
     setBusy(true);
     try {
-      const hasSnapshot = Boolean(effectiveFirstRunRegisterSnapshot && Object.keys(effectiveFirstRunRegisterSnapshot).length > 0);
+      const effectiveFirstRunRegisterSnapshot = snapshotResolution.snapshot;
+      const sendingCandidateCount = snapshotStats.localFirstRunCandidateCount;
+      const hasSnapshot = Boolean(effectiveFirstRunRegisterSnapshot && typeof effectiveFirstRunRegisterSnapshot === "object" && Object.keys(effectiveFirstRunRegisterSnapshot).length > 0 && sendingCandidateCount > 0);
       if (!hasSnapshot) {
-        setSyncStatus("First-Run-Snapshot wurde nicht geladen.");
+        setSyncStatus("First-Run-Snapshot ist nicht syncfähig geladen. Anzeige-Counts vorhanden, aber Snapshot-Payload fehlt.");
         setFeedback("Sync abgebrochen: registerSnapshot fehlt im Client.");
         setSyncDebug({
           clientSendingRegisterSnapshot: false,
           clientSendingRegisterSnapshotKeys: [],
-          clientSendingRegisterSnapshotType: typeof effectiveFirstRunRegisterSnapshot,
+          clientSendingRegisterSnapshotType: snapshotResolution.source === "missing" ? "-" : typeof effectiveFirstRunRegisterSnapshot,
           clientSendingCandidateCount: 0,
+          clientVisibleCandidateCount: snapshotStats.localFirstRunCandidateCount,
+          clientSnapshotSource: snapshotResolution.source,
         });
         return;
       }
+      const snapshotToSend = effectiveFirstRunRegisterSnapshot as Record<string, unknown>;
 
       setSyncDebug((prev) => ({
         ...prev,
         clientSendingRegisterSnapshot: true,
-        clientSendingRegisterSnapshotKeys: Object.keys(effectiveFirstRunRegisterSnapshot),
-        clientSendingRegisterSnapshotType: Array.isArray(effectiveFirstRunRegisterSnapshot) ? "array" : typeof effectiveFirstRunRegisterSnapshot,
-        clientSendingCandidateCount: snapshotStats.localFirstRunCandidateCount,
+        clientSendingRegisterSnapshotKeys: Object.keys(snapshotToSend),
+        clientSendingRegisterSnapshotType: Array.isArray(snapshotToSend) ? "array" : typeof snapshotToSend,
+        clientSendingCandidateCount: sendingCandidateCount,
+        clientVisibleCandidateCount: snapshotStats.localFirstRunCandidateCount,
+        clientSnapshotSource: snapshotResolution.source,
       }));
 
-      const result = await beta1AdminClient.syncProductEvolutionFirstRunInbox({ registerSnapshot: effectiveFirstRunRegisterSnapshot }) as ProductEvolutionInboxSyncResult;
+      const result = await beta1AdminClient.syncProductEvolutionFirstRunInbox({ registerSnapshot: snapshotToSend }) as ProductEvolutionInboxSyncResult;
       const created = Number(result.created ?? 0);
       const updated = Number(result.updated ?? 0);
       const skipped = Number(result.skipped ?? 0);
@@ -276,10 +289,13 @@ export default function AgentCenterInteractive({
       <div className="rounded border border-white/20 p-2 text-xs">
         <p>Client snapshot candidates: {snapshotStats.localFirstRunCandidateCount}</p>
         <p>Client snapshot keys: [{snapshotStats.localFirstRunKeys.join(", ")}]</p>
+        <p>clientVisibleCandidateCount: {snapshotStats.localFirstRunCandidateCount}</p>
         <p>clientSendingRegisterSnapshot: {String(syncDebug.clientSendingRegisterSnapshot ?? "-")}</p>
         <p>clientSendingRegisterSnapshotKeys: [{((syncDebug.clientSendingRegisterSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
         <p>clientSendingRegisterSnapshotType: {String(syncDebug.clientSendingRegisterSnapshotType || "-")}</p>
         <p>clientSendingCandidateCount: {String(syncDebug.clientSendingCandidateCount ?? "-")}</p>
+        <p>clientSnapshotSource: {String(syncDebug.clientSnapshotSource || snapshotResolution.source || "-")}</p>
+        {Number(syncDebug.clientSendingCandidateCount ?? snapshotStats.localFirstRunCandidateCount) !== snapshotStats.localFirstRunCandidateCount && <p className="text-amber-300">UI zeigt {snapshotStats.localFirstRunCandidateCount} Kandidaten, sendet aber {Number(syncDebug.clientSendingCandidateCount ?? 0)} Kandidaten. Snapshot-Quelle prüfen.</p>}
         <p>suggestedTaskQueue: {snapshotStats.suggestedTaskQueueCount}</p>
         <p>generatedDossiers: {snapshotStats.generatedDossiersCount}</p>
         <p>recommendedApprovals: {snapshotStats.recommendedApprovalsCount}</p>

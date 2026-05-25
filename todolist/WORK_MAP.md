@@ -482,3 +482,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-24: Admin-Center Inbox-Sync Topic erweitert um Callable-Version-/Response-Shape-Diagnostik, Input-Key-Transparenz und Wrapper-Unwrap (`registerSnapshot`, `data.registerSnapshot`, `payload.registerSnapshot`) zur Live-Fehlerisolierung bei Frontend/Backend-Version-Mismatch.
 
 - 2026-05-25: Admin-Center Inbox-Sync Topic Update: root cause fuer fehlende callableVersion-Debuganzeige war Client-Sanitizer-Feldverlust bei `accepted=false`; preserve-diagnostics client path sorgt fuer sichtbare callableVersion/responseShapeVersion/serverCandidateCount auch bei abgelehnten Sync-Responses. Kein Runner/Branch/PR/Merge/Deploy/Firebase-Deploy in diesem PR.
+
+- 2026-05-25 Work-Map Update (Admin-Center Payload Fix): Product-Evolution First-Run Kandidatenanzeige und Sync-Payload sind jetzt auf eine gemeinsame effektive Snapshot-Quelle ausgerichtet; Sync wird bei fehlender syncfaehiger Payload gestoppt statt leer zu senden. Operational follow-up bleibt: `runtime/admin-center-task-proposal-to-worker-queue` nach erfolgreichem Live-Sync.

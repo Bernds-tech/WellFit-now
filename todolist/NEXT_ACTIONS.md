@@ -448,3 +448,7 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - [x] 2026-05-25 fix/admin-center-preserve-sync-diagnostics: Admin-Client-Sanitizer/Sync-Call so gehärtet, dass callable diagnostics bei `accepted=false` erhalten bleiben (callableVersion/responseShapeVersion/serverCandidateCount etc.); keine Runtime-Produktlogik, kein Deploy.
 - [>] Naechster empfohlener Schritt: Live im Admin Center pruefen, ob `callableVersion`/`responseShapeVersion` und `serverCandidateCount` nach Sync sichtbar sind; danach ggf. `runtime/admin-center-task-proposal-to-worker-queue`.
+
+- [x] 2026-05-25 Bugfix abgeschlossen (`fix/admin-center-first-run-snapshot-source`): Admin-Center-Sync verwendet jetzt dieselbe effective First-Run-Snapshot-Quelle wie die sichtbaren Candidate-Counts; fehlende Snapshot-Payload blockiert Sync mit klarer Meldung; Debug zeigt `clientVisibleCandidateCount` vs `clientSendingCandidateCount`.
+- [>] Nach Merge: Frontend deployen/abwarten und live pruefen, dass `hasRegisterSnapshot=true` und `serverCandidateCount>0` fuer Product-Evolution-First-Run-Sync.
+- [>] Naechster empfohlener Task: `runtime/admin-center-task-proposal-to-worker-queue`.
