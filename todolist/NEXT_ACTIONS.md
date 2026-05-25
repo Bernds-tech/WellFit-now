@@ -445,3 +445,6 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - [x] 2026-05-24 fix/admin-center-inbox-sync-backend-version-diagnostic: Callable-Version-Diagnostik + Payload-Unwrap fuer Inbox-Sync (kein Runner/Deploy).
 - [>] Naechster empfohlener Branch nach erfolgreichem Live-Sync: `runtime/admin-center-task-proposal-to-worker-queue`.
+
+- [x] 2026-05-25 fix/admin-center-preserve-sync-diagnostics: Admin-Client-Sanitizer/Sync-Call so gehärtet, dass callable diagnostics bei `accepted=false` erhalten bleiben (callableVersion/responseShapeVersion/serverCandidateCount etc.); keine Runtime-Produktlogik, kein Deploy.
+- [>] Naechster empfohlener Schritt: Live im Admin Center pruefen, ob `callableVersion`/`responseShapeVersion` und `serverCandidateCount` nach Sync sichtbar sind; danach ggf. `runtime/admin-center-task-proposal-to-worker-queue`.

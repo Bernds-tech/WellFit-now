@@ -4483,6 +4483,12 @@
       "branch": "fix/admin-center-inbox-sync-backend-version-diagnostic",
       "task": "Expose inbox sync callable version diagnostics",
       "notes": "Cause likely frontend/backend version mismatch or payload wrapping. Added callable diagnostics + wrapper support. No runner/branch-pr-merge/deploy triggered."
+    },
+    {
+      "date": "2026-05-25",
+      "branch": "fix/admin-center-preserve-sync-diagnostics",
+      "task": "Preserve Admin Center sync diagnostics on accepted=false",
+      "notes": "Fixed admin client sanitize behavior and added sync-specific preserve-diagnostics callable path so callableVersion/responseShapeVersion/serverCandidateCount are retained even when accepted=false. No runner/branch-pr-merge/deploy triggered."
     }
   ],
   "workItems": [
@@ -4551,6 +4557,35 @@
       "checks": [],
       "followUps": [
         "runtime/admin-center-task-proposal-to-worker-queue"
+      ],
+      "nextRecommendedTask": "runtime/admin-center-task-proposal-to-worker-queue",
+      "riskLevel": "low"
+    },
+    {
+      "taskId": "FIX-2026-05-25-ADMIN-SYNC-DIAGNOSTICS-PRESERVE",
+      "title": "Preserve Admin Center sync diagnostics when callable returns accepted=false",
+      "status": "done",
+      "pr": {
+        "branch": "fix/admin-center-preserve-sync-diagnostics",
+        "number": null,
+        "url": null,
+        "title": "Preserve Admin Center sync diagnostics"
+      },
+      "changedFiles": [
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "checks": [],
+      "followUps": [
+        "Live Admin-Center-Sync pruefen: callableVersion/responseShapeVersion/serverCandidateCount sichtbar.",
+        "Danach ggf. runtime/admin-center-task-proposal-to-worker-queue."
       ],
       "nextRecommendedTask": "runtime/admin-center-task-proposal-to-worker-queue",
       "riskLevel": "low"

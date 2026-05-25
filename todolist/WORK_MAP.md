@@ -480,3 +480,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-24: Work-map update: Admin-Center First-Run Inbox sync now supports snapshot shape variants and debug counters to prevent silent 0/0/0 syncs.
 
 - 2026-05-24: Admin-Center Inbox-Sync Topic erweitert um Callable-Version-/Response-Shape-Diagnostik, Input-Key-Transparenz und Wrapper-Unwrap (`registerSnapshot`, `data.registerSnapshot`, `payload.registerSnapshot`) zur Live-Fehlerisolierung bei Frontend/Backend-Version-Mismatch.
+
+- 2026-05-25: Admin-Center Inbox-Sync Topic Update: root cause fuer fehlende callableVersion-Debuganzeige war Client-Sanitizer-Feldverlust bei `accepted=false`; preserve-diagnostics client path sorgt fuer sichtbare callableVersion/responseShapeVersion/serverCandidateCount auch bei abgelehnten Sync-Responses. Kein Runner/Branch/PR/Merge/Deploy/Firebase-Deploy in diesem PR.
