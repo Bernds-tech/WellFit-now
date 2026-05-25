@@ -45,7 +45,15 @@ const extractPeId = (...values: unknown[]): string => {
 };
 const isMissionFilter = (value: AdminCenterListFilter): value is Extract<AdminCenterListFilter, `mission_${string}`> => value.startsWith("mission_");
 
-export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { data: DataProps; firstRunOutput?: Record<string, unknown> }) {
+export default function AgentCenterInteractive({
+  data,
+  firstRunRegisterSnapshot = {},
+  firstRunRegisterSnapshotKeys = [],
+}: {
+  data: DataProps;
+  firstRunRegisterSnapshot?: Record<string, unknown>;
+  firstRunRegisterSnapshotKeys?: string[];
+}) {
   const [active, setActive] = useState<AdminCenterListFilter>("agent_pending");
   const [feedback, setFeedback] = useState("");
   const [syncStatus, setSyncStatus] = useState("");
@@ -110,8 +118,8 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
   }, [active, mapped]);
 
   const snapshotStats = useMemo(() => {
-    const snapshot = firstRunOutput && typeof firstRunOutput === "object" ? firstRunOutput : {};
-    const keys = Object.keys(snapshot);
+    const snapshot = firstRunRegisterSnapshot && typeof firstRunRegisterSnapshot === "object" ? firstRunRegisterSnapshot : {};
+    const keys = firstRunRegisterSnapshotKeys.length > 0 ? firstRunRegisterSnapshotKeys : Object.keys(snapshot);
     const toCount = (value: unknown) => Array.isArray(value) ? value.length : (value && typeof value === "object" ? Object.keys(value as Record<string, unknown>).length : 0);
     const suggestedTaskQueueCount = toCount((snapshot as Record<string, unknown>).suggestedTaskQueue);
     const generatedDossiersCount = toCount((snapshot as Record<string, unknown>).generatedDossiers);
@@ -128,7 +136,7 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
       blockedItemsCount,
       localFirstRunCandidateCount: suggestedTaskQueueCount + generatedDossiersCount + recommendedApprovalsCount + recommendedResearchMoreCount + blockedItemsCount,
     };
-  }, [firstRunOutput]);
+  }, [firstRunRegisterSnapshot, firstRunRegisterSnapshotKeys]);
 
   async function refreshInbox() {
     setBusy(true);
@@ -145,7 +153,28 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
   async function runSync() {
     setBusy(true);
     try {
-      const result = await beta1AdminClient.syncProductEvolutionFirstRunInbox({ registerSnapshot: firstRunOutput }) as ProductEvolutionInboxSyncResult;
+      const hasSnapshot = Boolean(firstRunRegisterSnapshot && typeof firstRunRegisterSnapshot === "object" && Object.keys(firstRunRegisterSnapshot).length > 0);
+      if (!hasSnapshot) {
+        setSyncStatus("First-Run-Snapshot wurde nicht geladen.");
+        setFeedback("Sync abgebrochen: registerSnapshot fehlt im Client.");
+        setSyncDebug({
+          clientSendingRegisterSnapshot: false,
+          clientSendingRegisterSnapshotKeys: [],
+          clientSendingRegisterSnapshotType: typeof firstRunRegisterSnapshot,
+          clientSendingCandidateCount: 0,
+        });
+        return;
+      }
+
+      setSyncDebug((prev) => ({
+        ...prev,
+        clientSendingRegisterSnapshot: true,
+        clientSendingRegisterSnapshotKeys: Object.keys(firstRunRegisterSnapshot),
+        clientSendingRegisterSnapshotType: Array.isArray(firstRunRegisterSnapshot) ? "array" : typeof firstRunRegisterSnapshot,
+        clientSendingCandidateCount: snapshotStats.localFirstRunCandidateCount,
+      }));
+
+      const result = await beta1AdminClient.syncProductEvolutionFirstRunInbox({ registerSnapshot: firstRunRegisterSnapshot }) as ProductEvolutionInboxSyncResult;
       const created = Number(result.created ?? 0);
       const updated = Number(result.updated ?? 0);
       const skipped = Number(result.skipped ?? 0);
@@ -223,6 +252,10 @@ export default function AgentCenterInteractive({ data, firstRunOutput = {} }: { 
       <div className="rounded border border-white/20 p-2 text-xs">
         <p>Client snapshot candidates: {snapshotStats.localFirstRunCandidateCount}</p>
         <p>Client snapshot keys: [{snapshotStats.localFirstRunKeys.join(", ")}]</p>
+        <p>clientSendingRegisterSnapshot: {String(syncDebug.clientSendingRegisterSnapshot ?? "-")}</p>
+        <p>clientSendingRegisterSnapshotKeys: [{((syncDebug.clientSendingRegisterSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
+        <p>clientSendingRegisterSnapshotType: {String(syncDebug.clientSendingRegisterSnapshotType || "-")}</p>
+        <p>clientSendingCandidateCount: {String(syncDebug.clientSendingCandidateCount ?? "-")}</p>
         <p>suggestedTaskQueue: {snapshotStats.suggestedTaskQueueCount}</p>
         <p>generatedDossiers: {snapshotStats.generatedDossiersCount}</p>
         <p>recommendedApprovals: {snapshotStats.recommendedApprovalsCount}</p>
