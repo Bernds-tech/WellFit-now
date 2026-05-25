@@ -34,8 +34,42 @@ function sanitizeAdminError(error: unknown): string {
   if (code.includes("permission-denied")) return "Für geschützten Scope ist Owner-Freigabe nötig.";
   return "Dieser Eintrag ist ein technischer Framework-Eintrag und nicht direkt freigabefähig.";
 }
-function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult { return result.accepted ? { ...result, message: undefined } : { accepted: false, message: result.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen." }; }
-async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> { try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); return sanitizeAdminResult(result.data); } catch (error) { return { accepted: false, message: sanitizeAdminError(error) }; } }
+function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult {
+  return result.accepted
+    ? { ...result, message: undefined }
+    : { ...result, accepted: false, message: result.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen." };
+}
+
+async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
+  try {
+    const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name);
+    const result = await callable(input);
+    return sanitizeAdminResult(result.data);
+  } catch (error) {
+    return { accepted: false, message: sanitizeAdminError(error) };
+  }
+}
+
+async function callAdminPreserveDiagnostics<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
+  try {
+    const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name);
+    const result = await callable(input);
+    const data = (result.data || {}) as AdminCallableResult;
+    return {
+      ...data,
+      accepted: Boolean(data.accepted),
+      message: data.accepted ? undefined : (data.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen."),
+    };
+  } catch (error) {
+    const clientErrorCode = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : undefined;
+    return {
+      accepted: false,
+      message: sanitizeAdminError(error),
+      callableName: name,
+      clientErrorCode,
+    };
+  }
+}
 
 export const beta1AdminClient = {
   adminCreateMission: (input: AdminCreateMissionInput) => callAdmin("adminCreateMission", input),
@@ -111,7 +145,7 @@ export const beta1AdminClient = {
   requestRevisionMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("requestRevisionMissionCenterProposal", input),
   blockMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("blockMissionCenterProposal", input),
   markMissionCenterProposalForReview: (input: MissionCenterDecisionInput) => callAdmin("markMissionCenterProposalForReview", input),
-  syncProductEvolutionFirstRunInbox: (input?: ProductEvolutionInboxSyncInput) => callAdmin("syncProductEvolutionFirstRunInbox", {
+  syncProductEvolutionFirstRunInbox: (input?: ProductEvolutionInboxSyncInput) => callAdminPreserveDiagnostics("syncProductEvolutionFirstRunInbox", {
     registerSnapshot: input && "registerSnapshot" in input ? input.registerSnapshot : undefined,
     clientRequestShapeVersion: "agent-center-inbox-sync-client-v2",
   }),

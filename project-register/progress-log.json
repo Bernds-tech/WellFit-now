@@ -1444,10 +1444,16 @@
       "branch": "fix/admin-center-inbox-sync-backend-version-diagnostic",
       "task": "Expose inbox sync callable version diagnostics",
       "notes": "Cause likely frontend/backend version mismatch or payload wrapping. Added callable diagnostics + wrapper support. No runner/branch-pr-merge/deploy triggered."
+    },
+    {
+      "date": "2026-05-25",
+      "branch": "fix/admin-center-preserve-sync-diagnostics",
+      "task": "Preserve Admin Center sync diagnostics",
+      "notes": "Client-side admin sanitizer no longer strips callable diagnostics on accepted=false for sync callable path; safe error messages retained without stack traces/secrets. No runner/branch-pr-merge/deploy and no Firebase deploy in this PR."
     }
   ],
   "notes": [
     "agent opportunity dossier architecture and templates completed"
   ],
-  "updated": "2026-05-23"
+  "updated": "2026-05-25"
 }

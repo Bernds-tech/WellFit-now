@@ -7,6 +7,8 @@ export type AdminCallableResult = {
   glitchEventId?: string;
   reportId?: string;
   wallet?: unknown;
+  callableName?: string;
+  clientErrorCode?: string;
 };
 
 export type AdminCreateMissionInput = { title: string; type?: string; rewardXp: number; childAllowed: boolean; reason?: string };
