@@ -45,6 +45,25 @@ const extractPeId = (...values: unknown[]): string => {
 };
 const isMissionFilter = (value: AdminCenterListFilter): value is Extract<AdminCenterListFilter, `mission_${string}`> => value.startsWith("mission_");
 
+
+function toCount(value: unknown): number {
+  return Array.isArray(value) ? value.length : (value && typeof value === "object" ? Object.keys(value as Record<string, unknown>).length : 0);
+}
+
+function buildReconstructedFirstRunSnapshot(rows: Row[]): Record<string, unknown> {
+  const targetLists = new Set(["suggestedTaskQueue", "generatedDossiers", "recommendedApprovals", "recommendedResearchMore", "blockedItems"]);
+  const grouped: Record<string, Row[]> = {};
+  for (const row of rows) {
+    const listType = asText(row.listType);
+    const sourcePath = asText(row.sourcePath);
+    if (!targetLists.has(listType)) continue;
+    if (sourcePath !== "project-register/agent-product-evolution-first-run-output.json") continue;
+    if (!grouped[listType]) grouped[listType] = [];
+    grouped[listType].push(row);
+  }
+  return grouped;
+}
+
 export default function AgentCenterInteractive({
   data,
   firstRunRegisterSnapshot = {},
@@ -117,10 +136,15 @@ export default function AgentCenterInteractive({
     return list.filter((row) => (missionMode ? getMissionStatusBucket(row) : getAgentStatusBucket(row)) === bucket);
   }, [active, mapped]);
 
+  const effectiveFirstRunRegisterSnapshot = useMemo(() => {
+    const directSnapshot = firstRunRegisterSnapshot && typeof firstRunRegisterSnapshot === "object" ? firstRunRegisterSnapshot : {};
+    if (Object.keys(directSnapshot).length > 0) return directSnapshot;
+    return buildReconstructedFirstRunSnapshot(data.agents);
+  }, [data.agents, firstRunRegisterSnapshot]);
+
   const snapshotStats = useMemo(() => {
-    const snapshot = firstRunRegisterSnapshot && typeof firstRunRegisterSnapshot === "object" ? firstRunRegisterSnapshot : {};
+    const snapshot = effectiveFirstRunRegisterSnapshot;
     const keys = firstRunRegisterSnapshotKeys.length > 0 ? firstRunRegisterSnapshotKeys : Object.keys(snapshot);
-    const toCount = (value: unknown) => Array.isArray(value) ? value.length : (value && typeof value === "object" ? Object.keys(value as Record<string, unknown>).length : 0);
     const suggestedTaskQueueCount = toCount((snapshot as Record<string, unknown>).suggestedTaskQueue);
     const generatedDossiersCount = toCount((snapshot as Record<string, unknown>).generatedDossiers);
     const recommendedApprovalsCount = toCount((snapshot as Record<string, unknown>).recommendedApprovals);
@@ -136,7 +160,7 @@ export default function AgentCenterInteractive({
       blockedItemsCount,
       localFirstRunCandidateCount: suggestedTaskQueueCount + generatedDossiersCount + recommendedApprovalsCount + recommendedResearchMoreCount + blockedItemsCount,
     };
-  }, [firstRunRegisterSnapshot, firstRunRegisterSnapshotKeys]);
+  }, [effectiveFirstRunRegisterSnapshot, firstRunRegisterSnapshotKeys]);
 
   async function refreshInbox() {
     setBusy(true);
@@ -153,14 +177,14 @@ export default function AgentCenterInteractive({
   async function runSync() {
     setBusy(true);
     try {
-      const hasSnapshot = Boolean(firstRunRegisterSnapshot && typeof firstRunRegisterSnapshot === "object" && Object.keys(firstRunRegisterSnapshot).length > 0);
+      const hasSnapshot = Boolean(effectiveFirstRunRegisterSnapshot && Object.keys(effectiveFirstRunRegisterSnapshot).length > 0);
       if (!hasSnapshot) {
         setSyncStatus("First-Run-Snapshot wurde nicht geladen.");
         setFeedback("Sync abgebrochen: registerSnapshot fehlt im Client.");
         setSyncDebug({
           clientSendingRegisterSnapshot: false,
           clientSendingRegisterSnapshotKeys: [],
-          clientSendingRegisterSnapshotType: typeof firstRunRegisterSnapshot,
+          clientSendingRegisterSnapshotType: typeof effectiveFirstRunRegisterSnapshot,
           clientSendingCandidateCount: 0,
         });
         return;
@@ -169,12 +193,12 @@ export default function AgentCenterInteractive({
       setSyncDebug((prev) => ({
         ...prev,
         clientSendingRegisterSnapshot: true,
-        clientSendingRegisterSnapshotKeys: Object.keys(firstRunRegisterSnapshot),
-        clientSendingRegisterSnapshotType: Array.isArray(firstRunRegisterSnapshot) ? "array" : typeof firstRunRegisterSnapshot,
+        clientSendingRegisterSnapshotKeys: Object.keys(effectiveFirstRunRegisterSnapshot),
+        clientSendingRegisterSnapshotType: Array.isArray(effectiveFirstRunRegisterSnapshot) ? "array" : typeof effectiveFirstRunRegisterSnapshot,
         clientSendingCandidateCount: snapshotStats.localFirstRunCandidateCount,
       }));
 
-      const result = await beta1AdminClient.syncProductEvolutionFirstRunInbox({ registerSnapshot: firstRunRegisterSnapshot }) as ProductEvolutionInboxSyncResult;
+      const result = await beta1AdminClient.syncProductEvolutionFirstRunInbox({ registerSnapshot: effectiveFirstRunRegisterSnapshot }) as ProductEvolutionInboxSyncResult;
       const created = Number(result.created ?? 0);
       const updated = Number(result.updated ?? 0);
       const skipped = Number(result.skipped ?? 0);
