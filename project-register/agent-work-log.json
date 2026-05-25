@@ -103,6 +103,28 @@
   },
   "entries": [
     {
+      "id": "2026-05-25-admin-center-first-run-snapshot-source",
+      "date": "2026-05-25",
+      "branch": "fix/admin-center-first-run-snapshot-source",
+      "summary": "Admin-Center Sync nutzt jetzt dieselbe effective First-Run-Snapshot-Quelle wie die sichtbaren Candidate-Counts inkl. Fallback/Debug-Konsistenz.",
+      "files": [
+        "app/admin/agent-center/page.tsx",
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/beta1AdminClient.ts",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "runtimeChanged": false,
+      "deployExecuted": false,
+      "canonicalTruthEdited": false,
+      "notes": "Kein Runner/Branch/PR/Merge/Deploy via Agent. Kein Firebase Functions Deploy erforderlich fuer diesen Client-Payload-Fix; nach Merge Frontend deployen/abwarten und live testen."
+    },
+    {
       "id": "2026-05-24-admin-center-dossier-modal-content-and-active-state",
       "date": "2026-05-24",
       "branch": "fix/admin-center-dossier-modal-content-and-active-state",
