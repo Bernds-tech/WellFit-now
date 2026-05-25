@@ -145,10 +145,15 @@ export const beta1AdminClient = {
   requestRevisionMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("requestRevisionMissionCenterProposal", input),
   blockMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("blockMissionCenterProposal", input),
   markMissionCenterProposalForReview: (input: MissionCenterDecisionInput) => callAdmin("markMissionCenterProposalForReview", input),
-  syncProductEvolutionFirstRunInbox: (input?: ProductEvolutionInboxSyncInput) => callAdminPreserveDiagnostics("syncProductEvolutionFirstRunInbox", {
-    registerSnapshot: input && "registerSnapshot" in input ? input.registerSnapshot : undefined,
-    clientRequestShapeVersion: "agent-center-inbox-sync-client-v2",
-  }),
+  syncProductEvolutionFirstRunInbox: (input?: ProductEvolutionInboxSyncInput) => {
+    const hasInput = Boolean(input && typeof input === "object");
+    const hasRegisterSnapshot = Boolean(hasInput && Object.prototype.hasOwnProperty.call(input as Record<string, unknown>, "registerSnapshot"));
+    const registerSnapshot = hasRegisterSnapshot ? (input as { registerSnapshot?: unknown }).registerSnapshot : undefined;
+    return callAdminPreserveDiagnostics("syncProductEvolutionFirstRunInbox", {
+      registerSnapshot,
+      clientRequestShapeVersion: "agent-center-inbox-sync-client-v2",
+    });
+  },
   syncAgentCenterLocalRegistersInbox: () => callAdmin("syncAgentCenterLocalRegistersInbox", {}),
   listAgentCenterInboxItems: (filters?: { status?: string; sourceType?: string; recommendation?: string; listType?: string }) => callAdmin("listAgentCenterInboxItems", filters || {}),
   getAgentCenterInboxItem: (inboxId: string) => callAdmin("getAgentCenterInboxItem", { inboxId }),
