@@ -1,10 +1,13 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket } from "@/lib/admin/agentCenterStatus";
 import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ProductEvolutionInboxSyncResult } from "@/lib/admin/beta1AdminTypes";
+import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
 type Row = Record<string, unknown> & {
@@ -64,6 +67,16 @@ export default function AgentCenterInteractive({
   const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [syncDebug, setSyncDebug] = useState<Record<string, unknown>>({});
   const [authDebug, setAuthDebug] = useState<AdminCallableAuthState>({ authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "" });
+  const [authActionPending, setAuthActionPending] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async () => {
+      const state = await beta1AdminClient.getAdminCallableAuthState(false);
+      setAuthDebug(state);
+    });
+    return () => unsubscribe();
+  }, []);
+
 
   const indexedInbox = useMemo(() => {
     const byId = new Map<string, AgentCenterInboxItem>();
@@ -177,10 +190,40 @@ export default function AgentCenterInteractive({
       return false;
     }
     if (!state.adminCallableAuthReady) {
-      setFeedback("Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.");
+      setFeedback(state.lastAuthGuardMessage || "Admin-Login erforderlich. Bitte mit Firebase anmelden.");
       return false;
     }
     return true;
+  }
+
+
+  async function loginWithGoogle() {
+    setAuthActionPending(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      const state = await beta1AdminClient.getAdminCallableAuthState(true);
+      setAuthDebug(state);
+      setFeedback(state.adminCallableAuthReady ? "Admin-Login erfolgreich." : (state.lastAuthGuardMessage || "Firebase Login vorhanden, aber Admin-Rolle fehlt oder wurde noch nicht geladen."));
+    } catch {
+      setFeedback("Firebase-Login fehlgeschlagen. Bitte erneut versuchen.");
+    } finally {
+      setAuthActionPending(false);
+    }
+  }
+
+  async function logoutAdmin() {
+    setAuthActionPending(true);
+    try {
+      await signOut(auth);
+      const state = await beta1AdminClient.getAdminCallableAuthState(false);
+      setAuthDebug(state);
+      setFeedback("Admin abgemeldet. Admin-Callables sind wieder gesperrt.");
+    } catch {
+      setFeedback("Admin-Abmeldung fehlgeschlagen.");
+    } finally {
+      setAuthActionPending(false);
+    }
   }
 
   async function refreshInbox() {
@@ -332,6 +375,18 @@ export default function AgentCenterInteractive({
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runSync}>Product-Evolution Inbox synchronisieren</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshInbox}>Server-Inbox neu laden</button>
       </div>
+      {!authDebug.firebaseUserPresent && (
+        <div className="rounded border border-amber-300/60 bg-amber-500/10 p-2 text-xs">
+          <p>Admin-Login erforderlich. Bitte mit Firebase anmelden.</p>
+          <button disabled={authActionPending} className="mt-2 cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={loginWithGoogle}>Mit Google anmelden</button>
+        </div>
+      )}
+      {authDebug.firebaseUserPresent && (
+        <div className="rounded border border-cyan-300/40 bg-cyan-500/10 p-2 text-xs">
+          {!authDebug.adminCallableAuthReady && <p>Firebase Login vorhanden, aber Admin-Rolle fehlt oder wurde noch nicht geladen.</p>}
+          <button disabled={authActionPending} className="mt-2 cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={logoutAdmin}>Admin abmelden</button>
+        </div>
+      )}
       {syncStatus && <p className="text-xs">{syncStatus}</p>}
       {feedback && <p className="text-xs">{feedback}</p>}
       {!snapshotStats.hasFirstRunOutput && <p className="text-xs text-amber-300">First-Run-Output wurde nicht in die Admin-Komponente geladen.</p>}
@@ -339,6 +394,7 @@ export default function AgentCenterInteractive({
         <p>Client snapshot candidates: {snapshotStats.localFirstRunCandidateCount}</p>
         <p>Client snapshot keys: [{snapshotStats.localFirstRunKeys.join(", ")}]</p>
         <p>clientVisibleCandidateCount: {snapshotStats.localFirstRunCandidateCount}</p>
+        <p>authReady: {String(authDebug.authReady)}</p>
                 <p>adminCallableAuthReady: {String(authDebug.adminCallableAuthReady)}</p>
         <p>firebaseUserPresent: {String(authDebug.firebaseUserPresent)}</p>
         <p>idTokenAvailable: {String(authDebug.idTokenAvailable)}</p>

@@ -1502,6 +1502,14 @@
       "branch": "fix/admin-center-callable-auth-readiness",
       "task": "Guard Admin callables on auth readiness",
       "notes": "Root cause auth:MISSING in callable verification. Admin client now blocks callables until Firebase auth/user/token claims ready and surfaces safe auth diagnostics without UID/email/token. No runner/branch-pr-merge/deploy and no functions deploy required unless functions/lib/agentAdminRolesAudit.js changes."
+    },
+    {
+      "date": "2026-05-27",
+      "branch": "fix/admin-center-firebase-auth-login",
+      "task": "Admin-Center Firebase Auth Login/Session Fix",
+      "summary": "Added admin Google login/logout flow, auth-state readiness diagnostics, and callable guard code mapping while preserving server authority and privacy-safe debug.",
+      "noRunner": true,
+      "noDeploy": true
     }
   ],
   "notes": [

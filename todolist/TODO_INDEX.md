@@ -711,3 +711,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - 2026-05-27 Update: Admin-Center-Sync Snapshot-Serialisierung/Debug-Persistenz behoben (Client + Functions Diagnostik). Folgeaktion: nach Merge Functions-Deploy fuer `syncProductEvolutionFirstRunInbox` und anschliessend Frontend/Hosting-Deploy abwarten.
 
 - [x] 2026-05-27 Auth-/Callable-Readiness-Fix: `fix/admin-center-callable-auth-readiness` blockiert Admin-Callables bei fehlender Firebase-Auth und trennt Auth-Fehler von Snapshot-Shape-Fehlern.
+
+- 2026-05-27: Admin-Center Firebase-Auth-Login/Session-Fix dokumentiert (Google-Login, Auth-State, Logout, sichere Debug-Felder; keine UID/E-Mail/Token).

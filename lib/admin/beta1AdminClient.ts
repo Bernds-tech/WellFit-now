@@ -41,20 +41,24 @@ if (typeof window !== "undefined") {
 }
 
 export async function getAdminCallableAuthState(forceRefresh = false): Promise<AdminCallableAuthState> {
+  const loadingMessage = "Admin-Authentifizierung wird geladen. Bitte kurz warten.";
+  const loginMessage = "Admin-Login erforderlich. Bitte mit Firebase anmelden.";
+  const roleMissingMessage = "Firebase Login vorhanden, aber Admin-Rolle fehlt oder wurde noch nicht geladen.";
+
   if (typeof window === "undefined") {
-    return { authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Authentifizierung wird geladen. Bitte kurz warten." };
+    return { authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: loadingMessage };
   }
   let user = null as typeof auth.currentUser;
   try {
     user = auth.currentUser;
   } catch {
-    return { authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Authentifizierung wird geladen. Bitte kurz warten." };
+    return { authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: loadingMessage };
   }
   if (!authHydrated && !user) {
-    return { authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Authentifizierung wird geladen. Bitte kurz warten." };
+    return { authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: loadingMessage };
   }
   if (!user) {
-    return { authReady: true, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen." };
+    return { authReady: true, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: loginMessage };
   }
   try {
     const tokenResult = await getIdTokenResult(user, forceRefresh);
@@ -68,18 +72,19 @@ export async function getAdminCallableAuthState(forceRefresh = false): Promise<A
       idTokenAvailable: Boolean(tokenResult?.token),
       tokenClaimsLoaded: true,
       agentRoleClaim: agentRole,
-      adminCallableAuthReady: hasAdmin,
-      lastAuthGuardMessage: hasAdmin ? "" : "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.",
+      adminCallableAuthReady: Boolean(tokenResult?.token) && hasAdmin,
+      lastAuthGuardMessage: hasAdmin ? "" : roleMissingMessage,
     };
   } catch {
-    return { authReady: true, firebaseUserPresent: true, firebaseUidPresent: Boolean(user.uid), idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen." };
+    return { authReady: true, firebaseUserPresent: true, firebaseUidPresent: Boolean(user.uid), idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Firebase Token/Claims werden noch geladen. Bitte kurz warten." };
   }
 }
 
 export async function assertAdminCallableAuthReady(): Promise<{ ok: true; state: AdminCallableAuthState } | { ok: false; state: AdminCallableAuthState; result: AdminCallableResult }> {
   const state = await getAdminCallableAuthState(true);
   if (state.adminCallableAuthReady) return { ok: true, state };
-  return { ok: false, state, result: { accepted: false, message: state.lastAuthGuardMessage || "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.", clientErrorCode: "client_auth_missing" } };
+  const clientErrorCode = !state.authReady ? "client_auth_loading" : (!state.firebaseUserPresent ? "client_auth_missing" : "client_auth_not_ready");
+  return { ok: false, state, result: { accepted: false, message: state.lastAuthGuardMessage || "Admin-Login erforderlich. Bitte mit Firebase anmelden.", clientErrorCode } };
 }
 
 async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
