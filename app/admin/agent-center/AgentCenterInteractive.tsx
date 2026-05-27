@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ProductEvolutionInboxSyncResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ProductEvolutionInboxSyncResult } from "@/lib/admin/beta1AdminTypes";
 
 type DetailSections = Record<string, string>;
 type Row = Record<string, unknown> & {
@@ -63,6 +63,7 @@ export default function AgentCenterInteractive({
   const [inboxItems, setInboxItems] = useState<AgentCenterInboxItem[]>([]);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [syncDebug, setSyncDebug] = useState<Record<string, unknown>>({});
+  const [authDebug, setAuthDebug] = useState<AdminCallableAuthState>({ authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "" });
 
   const indexedInbox = useMemo(() => {
     const byId = new Map<string, AgentCenterInboxItem>();
@@ -168,7 +169,22 @@ export default function AgentCenterInteractive({
     };
   }, [firstRunRegisterSnapshotKeys, snapshotResolution.snapshot]);
 
+  async function ensureAdminAuthReady(): Promise<boolean> {
+    const state = await beta1AdminClient.getAdminCallableAuthState(true);
+    setAuthDebug(state);
+    if (!state.authReady) {
+      setFeedback("Admin-Authentifizierung wird geladen. Bitte kurz warten.");
+      return false;
+    }
+    if (!state.adminCallableAuthReady) {
+      setFeedback("Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.");
+      return false;
+    }
+    return true;
+  }
+
   async function refreshInbox() {
+    if (!(await ensureAdminAuthReady())) return;
     setBusy(true);
     try {
       const result = await beta1AdminClient.listAgentCenterInboxItems() as unknown as { items?: AgentCenterInboxItem[] };
@@ -181,6 +197,7 @@ export default function AgentCenterInteractive({
   }
 
   async function runSync() {
+    if (!(await ensureAdminAuthReady())) return;
     setBusy(true);
     try {
       const effectiveFirstRunRegisterSnapshot = snapshotResolution.snapshot;
@@ -264,7 +281,11 @@ export default function AgentCenterInteractive({
         sampleCreatedIds: result.sampleCreatedIds || [],
         sampleSkipped: result.sampleSkipped || [],
       }));
-      setSyncStatus(result.message || (created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` : "Keine syncbaren Einträge gefunden."));
+      if (result.clientErrorCode === "client_auth_missing") {
+        setSyncStatus("Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.");
+      } else {
+        setSyncStatus(result.message || (created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` : "Keine syncbaren Einträge gefunden."));
+      }
       const shapeMismatch = snapshotStats.localFirstRunCandidateCount > 0 && created + updated + skipped === 0;
       setFeedback(`Sync Debug → created:${created}, updated:${updated}, skipped:${skipped}${reasons ? `, reasons:${reasons}` : ""}${samples ? `, sampleCreatedIds:${samples}` : ""}${skippedSample ? `, sampleSkipped:${skippedSample}` : ""}${shapeMismatch ? ` | Client hat ${snapshotStats.localFirstRunCandidateCount} Kandidaten gesendet, Server hat 0 verarbeitet. Snapshot-Shape passt nicht.` : ""}`);
       await refreshInbox();
@@ -318,6 +339,12 @@ export default function AgentCenterInteractive({
         <p>Client snapshot candidates: {snapshotStats.localFirstRunCandidateCount}</p>
         <p>Client snapshot keys: [{snapshotStats.localFirstRunKeys.join(", ")}]</p>
         <p>clientVisibleCandidateCount: {snapshotStats.localFirstRunCandidateCount}</p>
+                <p>adminCallableAuthReady: {String(authDebug.adminCallableAuthReady)}</p>
+        <p>firebaseUserPresent: {String(authDebug.firebaseUserPresent)}</p>
+        <p>idTokenAvailable: {String(authDebug.idTokenAvailable)}</p>
+        <p>tokenClaimsLoaded: {String(authDebug.tokenClaimsLoaded)}</p>
+        <p>agentRoleClaim: {String(authDebug.agentRoleClaim || "-")}</p>
+        <p>lastAuthGuardMessage: {String(authDebug.lastAuthGuardMessage || "-")}</p>
         <p>clientSendingRegisterSnapshot: {String(syncDebug.clientSendingRegisterSnapshot ?? "-")}</p>
         <p>clientSendingRegisterSnapshotKeys: [{((syncDebug.clientSendingRegisterSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
         <p>clientSendingRegisterSnapshotType: {String(syncDebug.clientSendingRegisterSnapshotType || "-")}</p>
@@ -352,7 +379,7 @@ export default function AgentCenterInteractive({
         {!String(syncDebug.callableVersion || "") && <p className="text-amber-300">Backend-Callable liefert keine Version. Wahrscheinlich läuft noch eine alte Functions-Version. Bitte Functions deployen.</p>}
         {String(syncDebug.callableVersion || "") !== "" && <p className="text-emerald-300">Backend-Callable-Version erkannt: {String(syncDebug.callableVersion)}</p>}
         {(String(syncDebug.callableVersion || "") === "" || String(syncDebug.responseShapeVersion || "") === "") && <p className="text-amber-300">Frontend ist neuer als Backend. Bitte Firebase Functions deployen oder Backend-Callable prüfen.</p>}
-        {String(syncDebug.callableVersion || "") !== "" && String(syncDebug.responseShapeVersion || "") !== "" && Number(syncDebug.serverCandidateCount || 0) === 0 && snapshotStats.localFirstRunCandidateCount > 0 && <p className="text-amber-300">Backend ist aktuell, aber Snapshot-Struktur wird nicht verarbeitet. Siehe serverSnapshotKeys/serverCandidateCollections.</p>}
+        {String(syncDebug.clientErrorCode || "") !== "client_auth_missing" && String(syncDebug.callableVersion || "") !== "" && String(syncDebug.responseShapeVersion || "") !== "" && Number(syncDebug.serverCandidateCount || 0) === 0 && snapshotStats.localFirstRunCandidateCount > 0 && <p className="text-amber-300">Backend ist aktuell, aber Snapshot-Struktur wird nicht verarbeitet. Siehe serverSnapshotKeys/serverCandidateCollections.</p>}
       </div>
 
       <div className="flex flex-wrap gap-2 text-xs">

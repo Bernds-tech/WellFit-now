@@ -455,3 +455,7 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - [x] 2026-05-27 Admin-Center-Sync Bugfix umgesetzt: JSON-sichere Snapshot-Payload, persistente Client-Sendedebugfelder, robuste Backend-Payload-Erkennung inkl. `registerSnapshot` undefined-Diagnose. Kein Runner/Branch/PR/Merge/Deploy im PR.
 - [>] Nach Merge (wenn Functions-Datei enthalten): gezieltes Deploy `firebase deploy --only functions:syncProductEvolutionFirstRunInbox --project wellfit-b7d27` und Frontend/Hosting-Deploy abwarten; danach `runtime/admin-center-task-proposal-to-worker-queue`.
+
+- [x] 2026-05-27 fix/admin-center-callable-auth-readiness: Admin-Callables blockieren bis Auth/User/Token-Claims bereit; sichere Auth-Debugfelder ohne personenbezogene Daten.
+- [>] Nach Merge Frontend/Hosting deployen/abwarten; Functions-Deploy nur falls `functions/lib/agentAdminRolesAudit.js` in PR enthalten ist.
+- [>] Naechster empfohlener Task: `runtime/admin-center-task-proposal-to-worker-queue`.

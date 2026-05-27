@@ -486,3 +486,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-25 Work-Map Update (Admin-Center Payload Fix): Product-Evolution First-Run Kandidatenanzeige und Sync-Payload sind jetzt auf eine gemeinsame effektive Snapshot-Quelle ausgerichtet; Sync wird bei fehlender syncfaehiger Payload gestoppt statt leer zu senden. Operational follow-up bleibt: `runtime/admin-center-task-proposal-to-worker-queue` nach erfolgreichem Live-Sync.
 
 - 2026-05-27 Mapping-Notiz: `runtime/admin-center-register-snapshot-serialization` abgeschlossen (Scope: `app/admin/**`, `lib/admin/**`, `functions/lib/agentAdminRolesAudit.js`, Tests + Register/Docs). Ursache/Fix dokumentiert, keine Runtime-Produktlogik, kein Runner/Deploy im PR. Naechstempfehlung: `runtime/admin-center-task-proposal-to-worker-queue`.
+
+- 2026-05-27 Mapping-Update: `runtime/admin-center-callable-auth-readiness` abgeschlossen. Ursache: callable verification mit `auth:MISSING`; Fix: clientseitiger Auth-Guard + sichere Auth-Debug-Anzeige ohne UID/E-Mail/Token. Kein Runner/Deploy im PR; danach Frontend/Hosting deployen und `runtime/admin-center-task-proposal-to-worker-queue`.

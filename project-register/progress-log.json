@@ -1496,10 +1496,16 @@
       "branch": "fix/admin-center-preserve-sync-diagnostics",
       "task": "Preserve Admin Center sync diagnostics",
       "notes": "Client-side admin sanitizer no longer strips callable diagnostics on accepted=false for sync callable path; safe error messages retained without stack traces/secrets. No runner/branch-pr-merge/deploy and no Firebase deploy in this PR."
+    },
+    {
+      "date": "2026-05-27",
+      "branch": "fix/admin-center-callable-auth-readiness",
+      "task": "Guard Admin callables on auth readiness",
+      "notes": "Root cause auth:MISSING in callable verification. Admin client now blocks callables until Firebase auth/user/token claims ready and surfaces safe auth diagnostics without UID/email/token. No runner/branch-pr-merge/deploy and no functions deploy required unless functions/lib/agentAdminRolesAudit.js changes."
     }
   ],
   "notes": [
     "agent opportunity dossier architecture and templates completed"
   ],
-  "updated": "2026-05-25"
+  "updated": "2026-05-27"
 }
