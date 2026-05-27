@@ -187,9 +187,24 @@ function getFirstRunCandidateCollections(snapshot) {
     ["blockedItems","blockedItems"],
     ["output.generatedDossiers","generatedDossiers"],
     ["output.suggestedTaskQueue","suggestedTaskQueue"],
+    ["output.recommendedApprovals","recommendedApprovals"],
+    ["output.recommendedResearchMore","recommendedResearchMore"],
+    ["output.blockedItems","blockedItems"],
     ["data.generatedDossiers","generatedDossiers"],
+    ["data.suggestedTaskQueue","suggestedTaskQueue"],
+    ["data.recommendedApprovals","recommendedApprovals"],
+    ["data.recommendedResearchMore","recommendedResearchMore"],
+    ["data.blockedItems","blockedItems"],
     ["run.generatedDossiers","generatedDossiers"],
+    ["run.suggestedTaskQueue","suggestedTaskQueue"],
+    ["run.recommendedApprovals","recommendedApprovals"],
+    ["run.recommendedResearchMore","recommendedResearchMore"],
+    ["run.blockedItems","blockedItems"],
     ["result.generatedDossiers","generatedDossiers"],
+    ["result.suggestedTaskQueue","suggestedTaskQueue"],
+    ["result.recommendedApprovals","recommendedApprovals"],
+    ["result.recommendedResearchMore","recommendedResearchMore"],
+    ["result.blockedItems","blockedItems"],
   ];
   for (const [path, listType] of specs) {
     const value = getByPath(snapshot, path);
@@ -209,10 +224,39 @@ function toInboxStatusByListType(listType) {
 
 
 const INBOX_SYNC_CALLABLE_NAME = "syncProductEvolutionFirstRunInbox";
-const INBOX_SYNC_CALLABLE_VERSION = "2026-05-24-pr253-snapshot-shape-v2";
-const INBOX_SYNC_RESPONSE_SHAPE_VERSION = "agent-center-inbox-sync-v2";
+const INBOX_SYNC_CALLABLE_VERSION = "2026-05-27-pr258-register-snapshot-v3";
+const INBOX_SYNC_RESPONSE_SHAPE_VERSION = "agent-center-inbox-sync-v3";
 
-function buildInboxSyncDiagnostics({ requestData, registerSnapshot, collections, serverCandidateCount, payloadUnwrappedFrom }) {
+function resolveRegisterSnapshot(requestData) {
+  const source = requestData && typeof requestData === "object" ? requestData : {};
+  const directRegisterSnapshotPresent = Object.prototype.hasOwnProperty.call(source, "registerSnapshot");
+  if (directRegisterSnapshotPresent) {
+    const value = source.registerSnapshot;
+    if (value === undefined || value === null) {
+      return { registerSnapshot: value, payloadUnwrappedFrom: "registerSnapshot_empty", registerSnapshotValueType: value === null ? "null" : "undefined", registerSnapshotFieldPresent: true };
+    }
+    return { registerSnapshot: value, payloadUnwrappedFrom: "registerSnapshot", registerSnapshotValueType: Array.isArray(value) ? "array" : typeof value, registerSnapshotFieldPresent: true };
+  }
+  const candidates = [
+    ["firstRunRegisterSnapshot", source.firstRunRegisterSnapshot],
+    ["firstRunOutput", source.firstRunOutput],
+    ["productEvolutionFirstRunOutput", source.productEvolutionFirstRunOutput],
+    ["data.registerSnapshot", source.data && source.data.registerSnapshot],
+    ["data.firstRunRegisterSnapshot", source.data && source.data.firstRunRegisterSnapshot],
+    ["data.firstRunOutput", source.data && source.data.firstRunOutput],
+    ["payload.registerSnapshot", source.payload && source.payload.registerSnapshot],
+    ["payload.firstRunRegisterSnapshot", source.payload && source.payload.firstRunRegisterSnapshot],
+    ["payload.firstRunOutput", source.payload && source.payload.firstRunOutput],
+  ];
+  for (const [path, value] of candidates) {
+    if (value !== undefined && value !== null) {
+      return { registerSnapshot: value, payloadUnwrappedFrom: path, registerSnapshotValueType: Array.isArray(value) ? "array" : typeof value, registerSnapshotFieldPresent: false };
+    }
+  }
+  return { registerSnapshot: undefined, payloadUnwrappedFrom: "none", registerSnapshotValueType: "undefined", registerSnapshotFieldPresent: false };
+}
+
+function buildInboxSyncDiagnostics({ requestData, registerSnapshot, collections, serverCandidateCount, payloadUnwrappedFrom, registerSnapshotFieldPresent, registerSnapshotValueType }) {
   const hasRegisterSnapshot = Boolean(registerSnapshot && typeof registerSnapshot === "object");
   return {
     callableName: INBOX_SYNC_CALLABLE_NAME,
@@ -221,8 +265,12 @@ function buildInboxSyncDiagnostics({ requestData, registerSnapshot, collections,
     serverTimestamp: new Date().toISOString(),
     serverReceivedInputKeys: requestData && typeof requestData === "object" ? Object.keys(requestData) : [],
     hasRegisterSnapshot,
-    registerSnapshotType: hasRegisterSnapshot ? (Array.isArray(registerSnapshot) ? "array" : typeof registerSnapshot) : "undefined",
+    registerSnapshotType: hasRegisterSnapshot ? (Array.isArray(registerSnapshot) ? "array" : typeof registerSnapshot) : (registerSnapshotValueType || "undefined"),
     registerSnapshotKeys: hasRegisterSnapshot && !Array.isArray(registerSnapshot) ? Object.keys(registerSnapshot) : [],
+    registerSnapshotFieldPresent: Boolean(registerSnapshotFieldPresent),
+    registerSnapshotValueType: registerSnapshotValueType || "undefined",
+    clientHasRegisterSnapshot: Boolean(requestData && requestData.clientHasRegisterSnapshot),
+    clientRegisterSnapshotKeys: Array.isArray(requestData && requestData.clientRegisterSnapshotKeys) ? requestData.clientRegisterSnapshotKeys.slice(0, 80).map((entry) => sanitizeInboxText(entry, 120)).filter(Boolean) : [],
     payloadUnwrappedFrom: payloadUnwrappedFrom || "none",
     serverCandidateCount: Number(serverCandidateCount || 0),
     serverCandidateCollections: (collections || []).map((c) => ({ listType: c.listType, count: c.items.length, path: c.path })),
@@ -1112,11 +1160,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
       const sourceRef = "project-register/agent-product-evolution-first-run-output.json";
       const requestData = request.data && typeof request.data === "object" ? request.data : {};
-      const directSnapshot = requestData.registerSnapshot && typeof requestData.registerSnapshot === "object" ? requestData.registerSnapshot : null;
-      const dataSnapshot = requestData.data && requestData.data.registerSnapshot && typeof requestData.data.registerSnapshot === "object" ? requestData.data.registerSnapshot : null;
-      const payloadSnapshot = requestData.payload && requestData.payload.registerSnapshot && typeof requestData.payload.registerSnapshot === "object" ? requestData.payload.registerSnapshot : null;
-      const registerSnapshot = directSnapshot || dataSnapshot || payloadSnapshot;
-      const payloadUnwrappedFrom = directSnapshot ? "registerSnapshot" : (dataSnapshot ? "data.registerSnapshot" : (payloadSnapshot ? "payload.registerSnapshot" : "none"));
+      const snapshotResolution = resolveRegisterSnapshot(requestData);
+      const registerSnapshot = snapshotResolution.registerSnapshot;
+      const payloadUnwrappedFrom = snapshotResolution.payloadUnwrappedFrom;
 
       const snap = await db.collection("agentSystemRegisters").doc("agent-product-evolution-first-run-output").get();
       const mirror = snap.exists ? (snap.data() || {}) : {};
@@ -1173,7 +1219,11 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         }
       }
 
-      const diagnostics = buildInboxSyncDiagnostics({ requestData, registerSnapshot, collections, serverCandidateCount, payloadUnwrappedFrom });
+      const diagnostics = buildInboxSyncDiagnostics({
+        requestData, registerSnapshot, collections, serverCandidateCount, payloadUnwrappedFrom,
+        registerSnapshotFieldPresent: snapshotResolution.registerSnapshotFieldPresent,
+        registerSnapshotValueType: snapshotResolution.registerSnapshotValueType,
+      });
       const synced = created + updated;
       const base = { ...responseBase, ...diagnostics, accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, sampleCreatedIds, sampleSkipped, serverSnapshotReceived, serverSnapshotKeys, idempotent: true, sourceRef, sourceTrust: useMirror ? "firestore_mirror" : "admin_provided_repo_snapshot" };
 
@@ -1191,7 +1241,10 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       return { ...base, message: `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` };
     } catch (error) {
       const message = error && typeof error === "object" && "message" in error ? String(error.message || "sync_failed") : "sync_failed";
-      const diagnostics = buildInboxSyncDiagnostics({ requestData: request.data, registerSnapshot: null, collections: [], serverCandidateCount: 0, payloadUnwrappedFrom: "none" });
+      const diagnostics = buildInboxSyncDiagnostics({
+        requestData: request.data, registerSnapshot: null, collections: [], serverCandidateCount: 0, payloadUnwrappedFrom: "none",
+        registerSnapshotFieldPresent: false, registerSnapshotValueType: "null",
+      });
       if (error && typeof error === "object" && "code" in error && String(error.code).includes("permission-denied")) {
         return { ...responseBase, ...diagnostics, accepted: false, message: "Rolle nicht berechtigt." };
       }
@@ -1384,4 +1437,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections };

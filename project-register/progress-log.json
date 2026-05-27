@@ -8,6 +8,30 @@
   },
   "entries": [
     {
+      "id": "2026-05-27-admin-center-register-snapshot-serialization",
+      "date": "2026-05-27",
+      "branch": "fix/admin-center-register-snapshot-serialization",
+      "summary": "Admin-Center Inbox-Sync serialisiert registerSnapshot JSON-sicher, behaelt Client-Sendedebug nach Serverresponse und erweitert Backend-Payload-Aufloesung/Diagnostik fuer undefined registerSnapshot-Werte.",
+      "files": [
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts",
+        "functions/lib/agentAdminRolesAudit.js",
+        "functions/test/agentAdminRolesAuditHelpers.test.js",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "runtimeChanged": false,
+      "deployExecuted": false,
+      "canonicalTruthEdited": false,
+      "notes": "Kein Runner/Branch/PR/Merge/Deploy via Agent. Nach Merge ist bei Functions-Aenderung ein gezieltes Deploy noetig: firebase deploy --only functions:syncProductEvolutionFirstRunInbox --project wellfit-b7d27. Danach Frontend/Hosting-Deploy abwarten."
+    },
+    {
       "id": "2026-05-25-admin-center-first-run-snapshot-source",
       "date": "2026-05-25",
       "branch": "fix/admin-center-first-run-snapshot-source",
