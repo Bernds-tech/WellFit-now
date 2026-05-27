@@ -1,6 +1,9 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { getIdTokenResult, onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import type {
   AdminAdjustXpInput,
+  AdminCallableAuthState,
   AdminCallableResult,
   AdminCancelGlitchInput,
   AdminCreateCheckpointInput,
@@ -25,53 +28,75 @@ import type {
   ProductEvolutionInboxSyncInput,
 } from "./beta1AdminTypes";
 
-function sanitizeAdminError(error: unknown): string {
-  const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
-  if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
-  if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
-  if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden.";
-  if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
-  if (code.includes("permission-denied")) return "Für geschützten Scope ist Owner-Freigabe nötig.";
-  return "Dieser Eintrag ist ein technischer Framework-Eintrag und nicht direkt freigabefähig.";
+function sanitizeAdminError(error: unknown): string { const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : ""; if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion."; if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen."; if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden."; if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt."; if (code.includes("permission-denied")) return "Für geschützten Scope ist Owner-Freigabe nötig."; return "Dieser Eintrag ist ein technischer Framework-Eintrag und nicht direkt freigabefähig."; }
+function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult { return result.accepted ? { ...result, message: undefined } : { ...result, accepted: false, message: result.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen." }; }
+
+let authHydrated = false;
+if (typeof window !== "undefined") {
+  onAuthStateChanged(auth, () => {
+    authHydrated = true;
+  }, () => {
+    authHydrated = true;
+  });
 }
-function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult {
-  return result.accepted
-    ? { ...result, message: undefined }
-    : { ...result, accepted: false, message: result.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen." };
+
+export async function getAdminCallableAuthState(forceRefresh = false): Promise<AdminCallableAuthState> {
+  if (typeof window === "undefined") {
+    return { authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Authentifizierung wird geladen. Bitte kurz warten." };
+  }
+  let user = null as typeof auth.currentUser;
+  try {
+    user = auth.currentUser;
+  } catch {
+    return { authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Authentifizierung wird geladen. Bitte kurz warten." };
+  }
+  if (!authHydrated && !user) {
+    return { authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Authentifizierung wird geladen. Bitte kurz warten." };
+  }
+  if (!user) {
+    return { authReady: true, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen." };
+  }
+  try {
+    const tokenResult = await getIdTokenResult(user, forceRefresh);
+    const claims = tokenResult?.claims || {};
+    const agentRole = typeof claims.agentRole === "string" ? claims.agentRole : null;
+    const hasAdmin = Boolean(claims.admin === true || claims.isAdmin === true || agentRole);
+    return {
+      authReady: true,
+      firebaseUserPresent: true,
+      firebaseUidPresent: Boolean(user.uid),
+      idTokenAvailable: Boolean(tokenResult?.token),
+      tokenClaimsLoaded: true,
+      agentRoleClaim: agentRole,
+      adminCallableAuthReady: hasAdmin,
+      lastAuthGuardMessage: hasAdmin ? "" : "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.",
+    };
+  } catch {
+    return { authReady: true, firebaseUserPresent: true, firebaseUidPresent: Boolean(user.uid), idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen." };
+  }
+}
+
+export async function assertAdminCallableAuthReady(): Promise<{ ok: true; state: AdminCallableAuthState } | { ok: false; state: AdminCallableAuthState; result: AdminCallableResult }> {
+  const state = await getAdminCallableAuthState(true);
+  if (state.adminCallableAuthReady) return { ok: true, state };
+  return { ok: false, state, result: { accepted: false, message: state.lastAuthGuardMessage || "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.", clientErrorCode: "client_auth_missing" } };
 }
 
 async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
-  try {
-    const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name);
-    const result = await callable(input);
-    return sanitizeAdminResult(result.data);
-  } catch (error) {
-    return { accepted: false, message: sanitizeAdminError(error) };
-  }
+  const authGuard = await assertAdminCallableAuthReady();
+  if (!authGuard.ok) return authGuard.result;
+  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); return sanitizeAdminResult(result.data); } catch (error) { return { accepted: false, message: sanitizeAdminError(error) }; }
 }
-
 async function callAdminPreserveDiagnostics<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
-  try {
-    const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name);
-    const result = await callable(input);
-    const data = (result.data || {}) as AdminCallableResult;
-    return {
-      ...data,
-      accepted: Boolean(data.accepted),
-      message: data.accepted ? undefined : (data.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen."),
-    };
-  } catch (error) {
-    const clientErrorCode = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : undefined;
-    return {
-      accepted: false,
-      message: sanitizeAdminError(error),
-      callableName: name,
-      clientErrorCode,
-    };
-  }
+  const authGuard = await assertAdminCallableAuthReady();
+  if (!authGuard.ok) return { ...authGuard.result, callableName: name };
+  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); const data = (result.data || {}) as AdminCallableResult; return { ...data, accepted: Boolean(data.accepted), message: data.accepted ? undefined : (data.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen.") }; } catch (error) { const clientErrorCode = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : undefined; return { accepted: false, message: sanitizeAdminError(error), callableName: name, clientErrorCode }; }
 }
 
+// keep exported object
 export const beta1AdminClient = {
+  getAdminCallableAuthState,
+  assertAdminCallableAuthReady,
   adminCreateMission: (input: AdminCreateMissionInput) => callAdmin("adminCreateMission", input),
   adminUpdateMission: (input: AdminUpdateMissionInput) => callAdmin("adminUpdateMission", input),
   adminPublishMission: (input: AdminPublishMissionInput) => callAdmin("adminPublishMission", input),

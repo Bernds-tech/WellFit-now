@@ -103,3 +103,15 @@ export type AdminCenterDossierDetail = {
   recommendation?: string;
   suggestedTaskProposal?: string;
 };
+
+
+export type AdminCallableAuthState = {
+  authReady: boolean;
+  firebaseUserPresent: boolean;
+  firebaseUidPresent: boolean;
+  idTokenAvailable: boolean;
+  tokenClaimsLoaded: boolean;
+  agentRoleClaim: string | null;
+  adminCallableAuthReady: boolean;
+  lastAuthGuardMessage?: string;
+};

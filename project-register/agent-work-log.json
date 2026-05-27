@@ -4535,6 +4535,37 @@
       "branch": "fix/admin-center-preserve-sync-diagnostics",
       "task": "Preserve Admin Center sync diagnostics on accepted=false",
       "notes": "Fixed admin client sanitize behavior and added sync-specific preserve-diagnostics callable path so callableVersion/responseShapeVersion/serverCandidateCount are retained even when accepted=false. No runner/branch-pr-merge/deploy triggered."
+    },
+    {
+      "date": "2026-05-27",
+      "taskId": "FIX-2026-05-27-ADMIN-CALLABLE-AUTH-READINESS",
+      "title": "Guard Admin callables on auth readiness",
+      "status": "done",
+      "pr": {
+        "branch": "fix/admin-center-callable-auth-readiness",
+        "number": null,
+        "url": null,
+        "title": "Guard Admin callables on auth readiness"
+      },
+      "changedFiles": [
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "checks": [],
+      "followUps": [
+        "Nach Frontend/Hosting-Deploy live pruefen: adminCallableAuthReady=true vor Sync.",
+        "Danach runtime/admin-center-task-proposal-to-worker-queue."
+      ],
+      "nextRecommendedTask": "runtime/admin-center-task-proposal-to-worker-queue",
+      "riskLevel": "low"
     }
   ],
   "workItems": [
