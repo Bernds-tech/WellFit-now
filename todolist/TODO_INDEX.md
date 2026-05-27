@@ -713,3 +713,5 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - [x] 2026-05-27 Auth-/Callable-Readiness-Fix: `fix/admin-center-callable-auth-readiness` blockiert Admin-Callables bei fehlender Firebase-Auth und trennt Auth-Fehler von Snapshot-Shape-Fehlern.
 
 - 2026-05-27: Admin-Center Firebase-Auth-Login/Session-Fix dokumentiert (Google-Login, Auth-State, Logout, sichere Debug-Felder; keine UID/E-Mail/Token).
+
+- `docs/beta/ADMIN_OWNER_CLAIM_SETUP.md` | aktiv / Setup | sichere lokale Anleitung fuer einmaliges Setzen von Firebase Custom Claims (`admin`, `agentRole`) per Owner-Claim-Helper ohne Secrets im Repo | `scripts/admin/set-owner-claim.mjs`, `todolist/NEXT_ACTIONS.md` | bei Owner-Claim-Onboarding nutzen; keine UID/E-Mail/Secrets committen |

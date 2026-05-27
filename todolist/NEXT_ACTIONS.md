@@ -462,3 +462,5 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - [x] 2026-05-27 Fix `fix/admin-center-firebase-auth-login`: Admin-Center Firebase Login/Session/Logout integriert; callable auth readiness debug erweitert; server authority unverändert.
 - [>] Nächster empfohlener Schritt: `runtime/admin-center-task-proposal-to-worker-queue`.
+
+- [x] Lokalen Owner-Claim-Setup-Helper ergaenzt (`scripts/admin/set-owner-claim.mjs`) inkl. Doku (`docs/beta/ADMIN_OWNER_CLAIM_SETUP.md`) fuer einmalige sichere Custom-Claim-Vergabe via ENV/ADC ohne Secrets im Repo.

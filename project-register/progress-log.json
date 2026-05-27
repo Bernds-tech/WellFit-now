@@ -4,9 +4,27 @@
     "purpose": "Fortschrittslog fuer Stufe-4-Agentenarbeit.",
     "issue": 19,
     "status": "initial-governance-layer",
-    "updated": "2026-05-24"
+    "updated": "2026-05-27"
   },
   "entries": [
+    {
+      "id": "2026-05-27-owner-claim-setup-helper",
+      "date": "2026-05-27",
+      "branch": "fix/admin-owner-claim-setup-helper",
+      "summary": "Lokales Admin-Owner-Claim-Setup-Skript und Beta-Doku hinzugefuegt, um einmalig sichere Custom Claims (admin + agentRole) ueber Firebase Admin SDK/ADC ohne Secrets oder Identitaetsdaten im Repo zu setzen.",
+      "files": [
+        "scripts/admin/set-owner-claim.mjs",
+        "docs/beta/ADMIN_OWNER_CLAIM_SETUP.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/WORK_MAP.md",
+        "project-register/progress-log.json"
+      ],
+      "runtimeChanged": false,
+      "deployExecuted": false,
+      "canonicalTruthEdited": false,
+      "notes": "Setup/Docs/Register-only. Keine UID, E-Mail, Tokens oder Secrets committed; keine Runtime-Produktlogik, kein Token/NFT/Payment/Cashout/SUI/WFT Scope."
+    },
     {
       "id": "2026-05-27-admin-center-register-snapshot-serialization",
       "date": "2026-05-27",

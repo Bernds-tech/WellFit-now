@@ -490,3 +490,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-27 Mapping-Update: `runtime/admin-center-callable-auth-readiness` abgeschlossen. Ursache: callable verification mit `auth:MISSING`; Fix: clientseitiger Auth-Guard + sichere Auth-Debug-Anzeige ohne UID/E-Mail/Token. Kein Runner/Deploy im PR; danach Frontend/Hosting deployen und `runtime/admin-center-task-proposal-to-worker-queue`.
 
 - 2026-05-27 Mapping-Update: `fix/admin-center-firebase-auth-login` ergänzt Admin-Firebase-Login/Session/Logout und Auth-Readiness-States (`client_auth_loading|missing|not_ready`), ohne Runner/Deploy und ohne Änderung der Server-Authority.
+
+- Owner-Admin-Claim-Setup (lokal): `scripts/admin/set-owner-claim.mjs` (Claim-Setter) und `docs/beta/ADMIN_OWNER_CLAIM_SETUP.md` (PowerShell + Verifikation); Scope bleibt setup/docs-only ohne Runtime-Produktlogik.
