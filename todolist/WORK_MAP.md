@@ -488,3 +488,5 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-27 Mapping-Notiz: `runtime/admin-center-register-snapshot-serialization` abgeschlossen (Scope: `app/admin/**`, `lib/admin/**`, `functions/lib/agentAdminRolesAudit.js`, Tests + Register/Docs). Ursache/Fix dokumentiert, keine Runtime-Produktlogik, kein Runner/Deploy im PR. Naechstempfehlung: `runtime/admin-center-task-proposal-to-worker-queue`.
 
 - 2026-05-27 Mapping-Update: `runtime/admin-center-callable-auth-readiness` abgeschlossen. Ursache: callable verification mit `auth:MISSING`; Fix: clientseitiger Auth-Guard + sichere Auth-Debug-Anzeige ohne UID/E-Mail/Token. Kein Runner/Deploy im PR; danach Frontend/Hosting deployen und `runtime/admin-center-task-proposal-to-worker-queue`.
+
+- 2026-05-27 Mapping-Update: `fix/admin-center-firebase-auth-login` ergänzt Admin-Firebase-Login/Session/Logout und Auth-Readiness-States (`client_auth_loading|missing|not_ready`), ohne Runner/Deploy und ohne Änderung der Server-Authority.

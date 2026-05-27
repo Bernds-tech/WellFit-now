@@ -4566,6 +4566,14 @@
       ],
       "nextRecommendedTask": "runtime/admin-center-task-proposal-to-worker-queue",
       "riskLevel": "low"
+    },
+    {
+      "date": "2026-05-27",
+      "branch": "fix/admin-center-firebase-auth-login",
+      "task": "Admin-Center Firebase Auth Login/Session Fix",
+      "summary": "Added admin Google login/logout flow, auth-state readiness diagnostics, and callable guard code mapping while preserving server authority and privacy-safe debug.",
+      "noRunner": true,
+      "noDeploy": true
     }
   ],
   "workItems": [

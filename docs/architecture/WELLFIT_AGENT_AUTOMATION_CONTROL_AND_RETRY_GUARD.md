@@ -77,3 +77,5 @@ Produktgrenzen:
 - 2026-05-27: Retry-/Diagnose-Guard erweitert fuer Snapshot-Serialisierung: Client unterscheidet Auth-Fehler klar ("Admin-Login erforderlich...") von Snapshot-Shape-Fehlern und behaelt clientSending-Statusfelder nach Callable-Response. Backend diagnostiziert nun explizit, ob `registerSnapshot`-Field vorhanden war, aber undefined/null geliefert wurde. Kein Runner/Branch/PR/Merge/Deploy in diesem PR.
 
 - 2026-05-27: Retry-Guard erweitert: Bei fehlender Auth wird Snapshot-Shape-Warnung unterdrueckt und stattdessen klare Auth-Meldung gezeigt ("Admin-Login erforderlich..."). Damit keine irrefuehrende 0-Kandidaten-Diagnose bei `auth:MISSING`.
+
+- 2026-05-27 Admin-Center Auth-Guard Ergänzung: Client unterscheidet `client_auth_loading`, `client_auth_missing`, `client_auth_not_ready`; nur bei Firebase-User+Token+Claim werden Admin-Callables freigegeben. Keine UID/E-Mail/Token-Ausgabe im Debug.

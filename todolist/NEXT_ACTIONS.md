@@ -459,3 +459,6 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 - [x] 2026-05-27 fix/admin-center-callable-auth-readiness: Admin-Callables blockieren bis Auth/User/Token-Claims bereit; sichere Auth-Debugfelder ohne personenbezogene Daten.
 - [>] Nach Merge Frontend/Hosting deployen/abwarten; Functions-Deploy nur falls `functions/lib/agentAdminRolesAudit.js` in PR enthalten ist.
 - [>] Naechster empfohlener Task: `runtime/admin-center-task-proposal-to-worker-queue`.
+
+- [x] 2026-05-27 Fix `fix/admin-center-firebase-auth-login`: Admin-Center Firebase Login/Session/Logout integriert; callable auth readiness debug erweitert; server authority unverändert.
+- [>] Nächster empfohlener Schritt: `runtime/admin-center-task-proposal-to-worker-queue`.
