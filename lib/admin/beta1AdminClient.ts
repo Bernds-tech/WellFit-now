@@ -28,7 +28,7 @@ import type {
 function sanitizeAdminError(error: unknown): string {
   const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : "";
   if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
-  if (code.includes("unauthenticated")) return "Bitte einloggen, um Admin-Aktionen auszuführen.";
+  if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
   if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden.";
   if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
   if (code.includes("permission-denied")) return "Für geschützten Scope ist Owner-Freigabe nötig.";
@@ -146,9 +146,13 @@ export const beta1AdminClient = {
   blockMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("blockMissionCenterProposal", input),
   markMissionCenterProposalForReview: (input: MissionCenterDecisionInput) => callAdmin("markMissionCenterProposalForReview", input),
   syncProductEvolutionFirstRunInbox: (input?: ProductEvolutionInboxSyncInput) => {
+    const registerSnapshot = input?.registerSnapshot;
+    const hasSnapshotObject = Boolean(registerSnapshot && typeof registerSnapshot === "object");
     return callAdminPreserveDiagnostics("syncProductEvolutionFirstRunInbox", {
-      registerSnapshot: input?.registerSnapshot,
-      clientRequestShapeVersion: "agent-center-inbox-sync-client-v2",
+      registerSnapshot,
+      clientRequestShapeVersion: "agent-center-inbox-sync-client-v3",
+      clientHasRegisterSnapshot: hasSnapshotObject,
+      clientRegisterSnapshotKeys: hasSnapshotObject ? Object.keys(registerSnapshot as Record<string, unknown>) : [],
     });
   },
   syncAgentCenterLocalRegistersInbox: () => callAdmin("syncAgentCenterLocalRegistersInbox", {}),

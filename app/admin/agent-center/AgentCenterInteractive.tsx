@@ -199,14 +199,37 @@ export default function AgentCenterInteractive({
         });
         return;
       }
-      const snapshotToSend = effectiveFirstRunRegisterSnapshot as Record<string, unknown>;
+      const snapshotToSend = JSON.parse(JSON.stringify(effectiveFirstRunRegisterSnapshot)) as Record<string, unknown>;
+      const hasSerializedSnapshot = Boolean(snapshotToSend && typeof snapshotToSend === "object" && !Array.isArray(snapshotToSend));
+      const serializedCandidateCount = hasSerializedSnapshot
+        ? ["generatedDossiers", "recommendedApprovals", "recommendedResearchMore", "suggestedTaskQueue", "blockedItems"]
+          .map((key) => {
+            const value = snapshotToSend[key];
+            return Array.isArray(value) ? value.length : 0;
+          })
+          .reduce((sum, value) => sum + value, 0)
+        : 0;
+      if (!hasSerializedSnapshot || serializedCandidateCount <= 0) {
+        setSyncStatus("First-Run-Snapshot ist nicht syncfähig serialisiert. Bitte Snapshot-Quelle prüfen.");
+        setFeedback("Sync abgebrochen: registerSnapshot konnte nicht JSON-sicher als Objekt mit Kandidaten serialisiert werden.");
+        setSyncDebug((prev) => ({
+          ...prev,
+          clientSendingRegisterSnapshot: false,
+          clientSendingRegisterSnapshotKeys: [],
+          clientSendingRegisterSnapshotType: hasSerializedSnapshot ? "object" : typeof snapshotToSend,
+          clientSendingCandidateCount: serializedCandidateCount,
+          clientVisibleCandidateCount: snapshotStats.localFirstRunCandidateCount,
+          clientSnapshotSource: snapshotResolution.source,
+        }));
+        return;
+      }
 
       setSyncDebug((prev) => ({
         ...prev,
         clientSendingRegisterSnapshot: true,
         clientSendingRegisterSnapshotKeys: Object.keys(snapshotToSend),
-        clientSendingRegisterSnapshotType: Array.isArray(snapshotToSend) ? "array" : typeof snapshotToSend,
-        clientSendingCandidateCount: sendingCandidateCount,
+        clientSendingRegisterSnapshotType: "object",
+        clientSendingCandidateCount: serializedCandidateCount,
         clientVisibleCandidateCount: snapshotStats.localFirstRunCandidateCount,
         clientSnapshotSource: snapshotResolution.source,
       }));
@@ -218,7 +241,8 @@ export default function AgentCenterInteractive({
       const reasons = Object.entries(result.skippedReasons || {}).filter(([, count]) => Number(count) > 0).map(([reason, count]) => `${reason}:${count}`).join(", ");
       const samples = (result.sampleCreatedIds || []).slice(0, 3).join(", ");
       const skippedSample = (result.sampleSkipped || []).slice(0, 2).map((entry) => JSON.stringify(entry)).join(" | ");
-      setSyncDebug({
+      setSyncDebug((prev) => ({
+        ...prev,
         callableName: result.callableName || "",
         callableVersion: result.callableVersion || "",
         responseShapeVersion: result.responseShapeVersion || "",
@@ -227,6 +251,10 @@ export default function AgentCenterInteractive({
         hasRegisterSnapshot: result.hasRegisterSnapshot,
         registerSnapshotType: result.registerSnapshotType || "",
         registerSnapshotKeys: result.registerSnapshotKeys || [],
+        registerSnapshotFieldPresent: result.registerSnapshotFieldPresent,
+        registerSnapshotValueType: result.registerSnapshotValueType || "",
+        clientHasRegisterSnapshot: result.clientHasRegisterSnapshot,
+        clientRegisterSnapshotKeys: result.clientRegisterSnapshotKeys || [],
         payloadUnwrappedFrom: result.payloadUnwrappedFrom || "",
         serverSnapshotReceived: result.serverSnapshotReceived,
         serverSnapshotKeys: result.serverSnapshotKeys || [],
@@ -235,7 +263,7 @@ export default function AgentCenterInteractive({
         skippedReasons: result.skippedReasons || {},
         sampleCreatedIds: result.sampleCreatedIds || [],
         sampleSkipped: result.sampleSkipped || [],
-      });
+      }));
       setSyncStatus(result.message || (created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` : "Keine syncbaren Einträge gefunden."));
       const shapeMismatch = snapshotStats.localFirstRunCandidateCount > 0 && created + updated + skipped === 0;
       setFeedback(`Sync Debug → created:${created}, updated:${updated}, skipped:${skipped}${reasons ? `, reasons:${reasons}` : ""}${samples ? `, sampleCreatedIds:${samples}` : ""}${skippedSample ? `, sampleSkipped:${skippedSample}` : ""}${shapeMismatch ? ` | Client hat ${snapshotStats.localFirstRunCandidateCount} Kandidaten gesendet, Server hat 0 verarbeitet. Snapshot-Shape passt nicht.` : ""}`);
@@ -309,6 +337,10 @@ export default function AgentCenterInteractive({
         <p>hasRegisterSnapshot: {String(syncDebug.hasRegisterSnapshot ?? "-")}</p>
         <p>registerSnapshotType: {String(syncDebug.registerSnapshotType || "-")}</p>
         <p>registerSnapshotKeys: [{((syncDebug.registerSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
+        <p>registerSnapshotFieldPresent: {String(syncDebug.registerSnapshotFieldPresent ?? "-")}</p>
+        <p>registerSnapshotValueType: {String(syncDebug.registerSnapshotValueType || "-")}</p>
+        <p>clientHasRegisterSnapshot: {String(syncDebug.clientHasRegisterSnapshot ?? "-")}</p>
+        <p>clientRegisterSnapshotKeys: [{((syncDebug.clientRegisterSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
         <p>payloadUnwrappedFrom: {String(syncDebug.payloadUnwrappedFrom || "-")}</p>
         <p>serverSnapshotReceived: {String(syncDebug.serverSnapshotReceived ?? "-")}</p>
         <p>serverSnapshotKeys: [{((syncDebug.serverSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
