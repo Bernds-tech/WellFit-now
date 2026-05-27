@@ -6,11 +6,11 @@ const requireFromFunctions = createRequire(new URL('../../functions/package.json
 
 let initializeApp;
 let getApps;
-let auth;
+let getAuth;
 
 try {
   ({ initializeApp, getApps } = requireFromFunctions('firebase-admin/app'));
-  ({ auth } = requireFromFunctions('firebase-admin/auth'));
+  ({ getAuth } = requireFromFunctions('firebase-admin/auth'));
 } catch {
   console.error('Fehler: firebase-admin ist nicht verfügbar.');
   console.error('Bitte lokal installieren, z. B. mit: npm --prefix functions install firebase-admin');
@@ -35,7 +35,7 @@ const customClaims = {
 };
 
 (async () => {
-  await auth().setCustomUserClaims(ownerUid, customClaims);
+  await getAuth().setCustomUserClaims(ownerUid, customClaims);
 
   console.log('Owner-Claim-Setup abgeschlossen.');
   console.log('UID vorhanden: ja');
