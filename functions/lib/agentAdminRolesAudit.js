@@ -132,6 +132,46 @@ function normalizeRiskLevel(value) {
 function sanitizeInboxText(value, max = 600) {
   return optionalString(value, max) || "";
 }
+
+function stableDocIdHash(value) {
+  const text = String(value || "");
+  let hash = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    hash = ((hash << 5) - hash + text.charCodeAt(index)) | 0;
+  }
+  return Math.abs(hash).toString(36);
+}
+
+function sanitizeFirestoreDocIdPart(value, maxLength = 180) {
+  const fallback = "unknown";
+  const raw = sanitizeInboxText(value, Math.max(maxLength * 2, 240));
+  let sanitized = raw
+    .replace(/[\\/]+/g, "__")
+    .replace(/[\u0000-\u001f\u007f#?%[\]*`'"<>|{}^~]+/g, "_")
+    .replace(/\s+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^[-_.:]+|[-_.:]+$/g, "");
+  if (!sanitized || sanitized === "." || sanitized === "..") sanitized = fallback;
+  if (sanitized.length > maxLength) {
+    const hash = stableDocIdHash(sanitized);
+    const prefixLength = Math.max(1, maxLength - hash.length - 1);
+    sanitized = `${sanitized.slice(0, prefixLength)}-${hash}`;
+  }
+  return sanitized || fallback;
+}
+
+function buildAgentCenterInboxId({ sourceType, sourceDossierId, listType }) {
+  const sourcePrefix = sourceType === "product_evolution_first_run" ? "product-evolution-first-run" : sanitizeFirestoreDocIdPart(sourceType || "agent-center", 80);
+  const safeDossierId = sanitizeFirestoreDocIdPart(sourceDossierId, 180);
+  const safeListType = sanitizeFirestoreDocIdPart(listType, 80);
+  const inboxId = `${sourcePrefix}:${safeDossierId}:${safeListType}`;
+  return {
+    inboxId,
+    invalidInboxIdSanitized: inboxId.includes("/") || inboxId.includes("\\"),
+    sourceDossierIdHadSlash: /[\\/]/.test(String(sourceDossierId || "")),
+  };
+}
+
 function extractProductEvolutionId(value) {
   const text = sanitizeInboxText(value, 240);
   const match = text.match(/(PE-\d{8}-\d+)/i);
@@ -1105,7 +1145,15 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   });
 
   async function upsertInboxItem({ actorId, actorRole, sourceType, listType, sourceRef, sourceDossierId, payload, createdAtFallback }) {
-    const inboxId = `product-evolution-first-run:${sourceDossierId}:${listType}`;
+    const inboxIdInfo = buildAgentCenterInboxId({ sourceType, sourceDossierId, listType });
+    const inboxId = inboxIdInfo.inboxId;
+    if (inboxIdInfo.invalidInboxIdSanitized) {
+      const error = new Error("invalid_inbox_id");
+      error.safeMessage = "Inbox-ID konnte nicht sicher erzeugt werden.";
+      error.invalidInboxIdSanitized = true;
+      error.sourceDossierIdHadSlash = inboxIdInfo.sourceDossierIdHadSlash;
+      throw error;
+    }
     const ref = db.collection("agentCenterInbox").doc(inboxId);
     const now = FieldValue.serverTimestamp();
     const createdAt = createdAtFallback || now;
@@ -1119,6 +1167,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       sourceType,
       sourceRef,
       sourceDossierId,
+      sourceDossierIdHadSlash: inboxIdInfo.sourceDossierIdHadSlash,
       listType,
       title: sanitizeInboxText(payload.title || payload.name || sourceDossierId, 240),
       plainSummary: sanitizeInboxText(payload.summary || payload.plainSummary || payload.description, 1200),
@@ -1177,10 +1226,12 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       let created = 0;
       let updated = 0;
       let skipped = 0;
-      const skippedReasons = { missing_sourceDossierId: 0, missing_decision_data: 0, protected_scope: 0 };
+      const skippedReasons = { missing_sourceDossierId: 0, missing_decision_data: 0, protected_scope: 0, invalid_inbox_id: 0 };
       const sampleCreatedIds = [];
       const sampleSkipped = [];
       let serverCandidateCount = 0;
+      let invalidInboxIdSanitized = false;
+      let sourceDossierIdHadSlash = false;
 
       for (const collection of collections) {
         for (const raw of collection.items) {
@@ -1210,12 +1261,20 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
               continue;
             }
           }
-          const inboxId = `product-evolution-first-run:${sourceDossierId}:${collection.listType}`;
-          const existing = await db.collection("agentCenterInbox").doc(inboxId).get();
+          const inboxIdInfo = buildAgentCenterInboxId({ sourceType: "product_evolution_first_run", sourceDossierId, listType: collection.listType });
+          invalidInboxIdSanitized = invalidInboxIdSanitized || inboxIdInfo.invalidInboxIdSanitized;
+          sourceDossierIdHadSlash = sourceDossierIdHadSlash || inboxIdInfo.sourceDossierIdHadSlash;
+          if (inboxIdInfo.invalidInboxIdSanitized) {
+            sampleSkipped.push({ listType: collection.listType, reason: "invalid_inbox_id", sourceDossierIdHadSlash: inboxIdInfo.sourceDossierIdHadSlash });
+            skippedReasons.invalid_inbox_id = Number(skippedReasons.invalid_inbox_id || 0) + 1;
+            skipped += 1;
+            continue;
+          }
+          const existing = await db.collection("agentCenterInbox").doc(inboxIdInfo.inboxId).get();
           await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType: collection.listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
           if (existing.exists) updated += 1;
           else created += 1;
-          if (sampleCreatedIds.length < 10) sampleCreatedIds.push(inboxId);
+          if (sampleCreatedIds.length < 10) sampleCreatedIds.push(inboxIdInfo.inboxId);
         }
       }
 
@@ -1225,7 +1284,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         registerSnapshotValueType: snapshotResolution.registerSnapshotValueType,
       });
       const synced = created + updated;
-      const base = { ...responseBase, ...diagnostics, accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, sampleCreatedIds, sampleSkipped, serverSnapshotReceived, serverSnapshotKeys, idempotent: true, sourceRef, sourceTrust: useMirror ? "firestore_mirror" : "admin_provided_repo_snapshot" };
+      const base = { ...responseBase, ...diagnostics, accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, sampleCreatedIds, sampleSkipped, invalidInboxIdSanitized, sourceDossierIdHadSlash, serverSnapshotReceived, serverSnapshotKeys, idempotent: true, sourceRef, sourceTrust: useMirror ? "firestore_mirror" : "admin_provided_repo_snapshot" };
 
       if (!useMirror && !registerSnapshot) {
         return { ...base, message: "Kein Snapshot empfangen und Firestore-Mirror leer." };
@@ -1248,7 +1307,16 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       if (error && typeof error === "object" && "code" in error && String(error.code).includes("permission-denied")) {
         return { ...responseBase, ...diagnostics, accepted: false, message: "Rolle nicht berechtigt." };
       }
-      return { ...responseBase, ...diagnostics, accepted: false, message: message.slice(0, 240) || "sync_failed" };
+      const invalidInboxIdFailure = message.includes("documentPath") || message.includes("invalid_inbox_id");
+      return {
+        ...responseBase,
+        ...diagnostics,
+        accepted: false,
+        message: invalidInboxIdFailure ? "Inbox-ID konnte nicht sicher erzeugt werden." : (message.slice(0, 240) || "sync_failed"),
+        invalidInboxIdSanitized: invalidInboxIdFailure,
+        sourceDossierIdHadSlash: Boolean(error && typeof error === "object" && "sourceDossierIdHadSlash" in error && error.sourceDossierIdHadSlash),
+        sampleSkipped: invalidInboxIdFailure ? [{ reason: "invalid_inbox_id" }] : [],
+      };
     }
   });
 
@@ -1437,4 +1505,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId };

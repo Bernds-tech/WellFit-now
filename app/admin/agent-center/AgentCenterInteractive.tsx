@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket } from "@/lib/admin/agentCenterStatus";
@@ -48,6 +48,44 @@ const extractPeId = (...values: unknown[]): string => {
 };
 const isMissionFilter = (value: AdminCenterListFilter): value is Extract<AdminCenterListFilter, `mission_${string}`> => value.startsWith("mission_");
 
+const POPUP_REDIRECT_FALLBACK_CODES = new Set(["auth/popup-closed-by-user", "auth/popup-blocked", "auth/cancelled-popup-request"]);
+const UNAUTHORIZED_DOMAIN_CODE = "auth/unauthorized-domain";
+
+const getFirebaseAuthErrorCode = (error: unknown): string => (typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : "");
+const shouldUseRedirectFallback = (error: unknown): boolean => POPUP_REDIRECT_FALLBACK_CODES.has(getFirebaseAuthErrorCode(error));
+const getSafeGoogleLoginMessage = (error: unknown): string => {
+  const code = getFirebaseAuthErrorCode(error);
+  if (code === UNAUTHORIZED_DOMAIN_CODE) return "Diese Domain ist in Firebase Authentication noch nicht autorisiert. Bitte Firebase Auth → Einstellungen → Autorisierte Domains prüfen.";
+  if (POPUP_REDIRECT_FALLBACK_CODES.has(code)) return "Popup-Login fehlgeschlagen. Redirect-Login wird verwendet.";
+  return "Firebase-Login fehlgeschlagen. Bitte erneut versuchen.";
+};
+
+const stableDocIdHashForLookup = (value: string): string => {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
+  }
+  return Math.abs(hash).toString(36);
+};
+
+const sanitizeFirestoreDocIdPartForLookup = (value: unknown, maxLength = 180): string => {
+  const raw = asText(value).slice(0, Math.max(maxLength * 2, 240));
+  let sanitized = raw
+    .replace(/[\\/]+/g, "__")
+    .replace(/[\u0000-\u001f\u007f#?%[\]*`'"<>|{}^~]+/g, "_")
+    .replace(/\s+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^[-_.:]+|[-_.:]+$/g, "");
+  if (!sanitized || sanitized === "." || sanitized === "..") sanitized = "unknown";
+  if (sanitized.length > maxLength) {
+    const hash = stableDocIdHashForLookup(sanitized);
+    const prefixLength = Math.max(1, maxLength - hash.length - 1);
+    sanitized = `${sanitized.slice(0, prefixLength)}-${hash}`;
+  }
+  return sanitized;
+};
+
+
 export default function AgentCenterInteractive({
   data,
   firstRunRegisterSnapshot = {},
@@ -77,6 +115,26 @@ export default function AgentCenterInteractive({
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    async function resolveRedirectLogin() {
+      try {
+        const result = await getRedirectResult(auth);
+        if (cancelled) return;
+        if (result?.user) {
+          const state = await beta1AdminClient.getAdminCallableAuthState(true);
+          if (cancelled) return;
+          setAuthDebug(state);
+          setFeedback(state.adminCallableAuthReady ? "Admin-Login erfolgreich." : (state.lastAuthGuardMessage || "Firebase Login vorhanden, aber Admin-Rolle fehlt oder wurde noch nicht geladen."));
+        }
+      } catch (error) {
+        if (!cancelled) setFeedback(getSafeGoogleLoginMessage(error));
+      }
+    }
+    resolveRedirectLogin();
+    return () => { cancelled = true; };
+  }, []);
+
 
   const indexedInbox = useMemo(() => {
     const byId = new Map<string, AgentCenterInboxItem>();
@@ -96,13 +154,18 @@ export default function AgentCenterInteractive({
     if (mirrorTargetId && indexedInbox.byMirror.has(mirrorTargetId)) return indexedInbox.byMirror.get(mirrorTargetId);
 
     const sourceDossierId = extractPeId(row.sourceDossierId, row.dossierId, row.id, row.title) || asText(row.sourceDossierId || row.dossierId || row.id);
+    const safeSourceDossierId = sanitizeFirestoreDocIdPartForLookup(sourceDossierId);
     const listType = asText(row.listType);
+    const safeListType = sanitizeFirestoreDocIdPartForLookup(listType, 80);
     const candidateKeys = new Set([
       asText(row.inboxId),
       asText(row.mirrorTargetId),
       `product-evolution-first-run:${sourceDossierId}:${listType}`,
+      `product-evolution-first-run:${safeSourceDossierId}:${safeListType}`,
       `product-evolution-first-run:${sourceDossierId}:suggestedTaskQueue`,
+      `product-evolution-first-run:${safeSourceDossierId}:suggestedTaskQueue`,
       `product-evolution-first-run:${sourceDossierId}:generatedDossiers`,
+      `product-evolution-first-run:${safeSourceDossierId}:generatedDossiers`,
       sourceDossierId,
     ].filter(Boolean));
 
@@ -199,14 +262,19 @@ export default function AgentCenterInteractive({
 
   async function loginWithGoogle() {
     setAuthActionPending(true);
+    const provider = new GoogleAuthProvider();
     try {
-      const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       const state = await beta1AdminClient.getAdminCallableAuthState(true);
       setAuthDebug(state);
       setFeedback(state.adminCallableAuthReady ? "Admin-Login erfolgreich." : (state.lastAuthGuardMessage || "Firebase Login vorhanden, aber Admin-Rolle fehlt oder wurde noch nicht geladen."));
-    } catch {
-      setFeedback("Firebase-Login fehlgeschlagen. Bitte erneut versuchen.");
+    } catch (error) {
+      const message = getSafeGoogleLoginMessage(error);
+      setFeedback(message);
+      if (shouldUseRedirectFallback(error)) {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
     } finally {
       setAuthActionPending(false);
     }
@@ -323,11 +391,15 @@ export default function AgentCenterInteractive({
         skippedReasons: result.skippedReasons || {},
         sampleCreatedIds: result.sampleCreatedIds || [],
         sampleSkipped: result.sampleSkipped || [],
+        invalidInboxIdSanitized: result.invalidInboxIdSanitized,
+        sourceDossierIdHadSlash: result.sourceDossierIdHadSlash,
       }));
       if (result.clientErrorCode === "client_auth_missing") {
-        setSyncStatus("Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.");
+        setSyncStatus("Auth-Fehler: Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.");
+      } else if (result.invalidInboxIdSanitized) {
+        setSyncStatus(`Firestore-ID-Fehler: ${result.message || "Inbox-ID konnte nicht sicher erzeugt werden."}`);
       } else {
-        setSyncStatus(result.message || (created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` : "Keine syncbaren Einträge gefunden."));
+        setSyncStatus(result.message || (created + updated > 0 ? `Inbox synchronisiert: ${created} erstellt, ${updated} aktualisiert, ${skipped} übersprungen.` : "Shape-Fehler: Keine syncbaren Einträge gefunden."));
       }
       const shapeMismatch = snapshotStats.localFirstRunCandidateCount > 0 && created + updated + skipped === 0;
       setFeedback(`Sync Debug → created:${created}, updated:${updated}, skipped:${skipped}${reasons ? `, reasons:${reasons}` : ""}${samples ? `, sampleCreatedIds:${samples}` : ""}${skippedSample ? `, sampleSkipped:${skippedSample}` : ""}${shapeMismatch ? ` | Client hat ${snapshotStats.localFirstRunCandidateCount} Kandidaten gesendet, Server hat 0 verarbeitet. Snapshot-Shape passt nicht.` : ""}`);
@@ -430,6 +502,8 @@ export default function AgentCenterInteractive({
         <p>serverCandidateCount: {String(syncDebug.serverCandidateCount ?? "-")}</p>
         <p>serverCandidateCollections: {JSON.stringify(syncDebug.serverCandidateCollections || [])}</p>
         <p>skippedReasons: {JSON.stringify(syncDebug.skippedReasons || {})}</p>
+        <p>invalidInboxIdSanitized: {String(syncDebug.invalidInboxIdSanitized ?? "-")}</p>
+        <p>sourceDossierIdHadSlash: {String(syncDebug.sourceDossierIdHadSlash ?? "-")}</p>
         <p>sampleCreatedIds: {JSON.stringify(syncDebug.sampleCreatedIds || [])}</p>
         <p>sampleSkipped: {JSON.stringify(syncDebug.sampleSkipped || [])}</p>
         {!String(syncDebug.callableVersion || "") && <p className="text-amber-300">Backend-Callable liefert keine Version. Wahrscheinlich läuft noch eine alte Functions-Version. Bitte Functions deployen.</p>}

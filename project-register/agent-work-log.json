@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-24",
+  "updated": "2026-05-28",
   "purpose": "Machine-readable WellFit agent work log for recording completed agent runs, changed files, checks, follow-ups, and the next recommended safe task without creating duplicate architecture or parallel systems.",
   "governance": {
     "readBeforeUpdating": [
@@ -4574,6 +4574,103 @@
       "summary": "Added admin Google login/logout flow, auth-state readiness diagnostics, and callable guard code mapping while preserving server authority and privacy-safe debug.",
       "noRunner": true,
       "noDeploy": true
+    },
+    {
+      "taskId": "FIX-2026-05-28-ADMIN-LOGIN-REDIRECT-INBOX-ID",
+      "title": "Add Admin login redirect fallback and safe inbox IDs",
+      "status": "done",
+      "pr": {
+        "branch": "fix/admin-center-login-redirect-and-inbox-id-sanitize",
+        "number": null,
+        "url": null,
+        "title": "Add Admin login redirect fallback and safe inbox IDs"
+      },
+      "changedFiles": [
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/beta1AdminTypes.ts",
+        "functions/lib/agentAdminRolesAudit.js",
+        "functions/test/agentAdminRolesAuditInboxIdTest.js",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "docs/beta/ADMIN_OWNER_CLAIM_SETUP.md",
+        "project-register/agent-work-log.json",
+        "project-register/progress-log.json",
+        "todolist/NEXT_ACTIONS.md",
+        "todolist/TODO_INDEX.md",
+        "todolist/WORK_MAP.md"
+      ],
+      "checks": [
+        {
+          "command": "node functions/test/agentAdminRolesAuditInboxIdTest.js",
+          "result": "pass"
+        },
+        {
+          "command": "npm run agent:validate",
+          "result": "pass"
+        },
+        {
+          "command": "npm run agent:quality-gate",
+          "result": "fail",
+          "summary": "Agent Control Center report-only check fails because this PR intentionally changes allowed app/admin and functions files; Task status/work-log check has existing register-format errors."
+        },
+        {
+          "command": "npm run lint",
+          "result": "pass",
+          "summary": "Passed with pre-existing warnings in scripts/wellfit-dev-agent."
+        },
+        {
+          "command": "npm run build",
+          "result": "pass"
+        },
+        {
+          "command": "npm --prefix functions run check",
+          "result": "pass"
+        },
+        {
+          "command": "git diff --check",
+          "result": "pass"
+        },
+        {
+          "command": "npm --prefix functions run test:emulator",
+          "result": "blocked",
+          "summary": "Firestore emulator was not running on 127.0.0.1:8080; smoke:nfc failed with ECONNREFUSED."
+        }
+      ],
+      "followUps": [
+        "After merge deploy functions: firebase deploy --only functions:syncProductEvolutionFirstRunInbox --project wellfit-b7d27.",
+        "Wait for frontend/hosting deploy, then rerun Admin-Center Product-Evolution Inbox Sync.",
+        "If sync succeeds, continue with runtime/admin-center-task-proposal-to-worker-queue."
+      ],
+      "nextRecommendedTask": "runtime/admin-center-task-proposal-to-worker-queue",
+      "riskLevel": "low",
+      "safety": "No GitHub API, no runner, no deploy, no branch/PR/merge triggered by runtime code, no Canonical-Truth edits, no token/payment/blockchain activation.",
+      "taskStatusPolicyVersion": "1.0.0",
+      "timestamp": "2026-05-28T18:45:00Z",
+      "branch": "fix/admin-center-login-redirect-and-inbox-id-sanitize",
+      "checksRun": [
+        "node functions/test/agentAdminRolesAuditInboxIdTest.js",
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "npm --prefix functions run check",
+        "git diff --check",
+        "npm --prefix functions run test:emulator"
+      ],
+      "checkResults": [
+        "pass",
+        "pass",
+        "fail",
+        "pass",
+        "pass",
+        "pass",
+        "pass",
+        "blocked"
+      ],
+      "autoMergeEligibilityResult": "not_requested_runtime_does_not_start_merge",
+      "autoRepairDecisionResult": "not_requested_no_auto_repair",
+      "protectedAreaConfirmation": "No Canonical Truth owner-protected files, Unity, token/NFT/payment/cashout/blockchain, secrets, UID/email/token debug, GitHub API, runner, or deploy changes.",
+      "postPrMergeabilityGuardResultWhenPrCreated": "PR metadata recorded by make_pr only; no runtime branch/merge/deploy automation triggered."
     }
   ],
   "workItems": [
