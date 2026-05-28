@@ -713,3 +713,12 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - [x] 2026-05-27 Auth-/Callable-Readiness-Fix: `fix/admin-center-callable-auth-readiness` blockiert Admin-Callables bei fehlender Firebase-Auth und trennt Auth-Fehler von Snapshot-Shape-Fehlern.
 
 - 2026-05-27: Admin-Center Firebase-Auth-Login/Session-Fix dokumentiert (Google-Login, Auth-State, Logout, sichere Debug-Felder; keine UID/E-Mail/Token).
+
+## 2026-05-28 Admin-Center Login-Fallback + Inbox-ID Sanitizing
+
+- Fuehrende Umsetzung: `fix/admin-center-login-redirect-and-inbox-id-sanitize`.
+- Zweck: Nach funktionierendem Owner-Claim die restlichen Admin-Center-Blocker beheben: Popup-Login-Fallback auf Redirect und slash-sichere Product-Evolution Inbox-Dokument-IDs.
+- Grenzen: keine neue Product-Evolution-Analyse, keine GitHub API, kein Runner, kein Deploy, keine Canonical-Truth-Aenderung, keine Token/NFT/Payment/Cashout-Aktivierung.
+- Deploy-Hinweis nach Merge: `firebase deploy --only functions:syncProductEvolutionFirstRunInbox --project wellfit-b7d27` plus Frontend/Hosting-Deploy.
+- Anschluss: `runtime/admin-center-task-proposal-to-worker-queue` erst nach erfolgreichem Inbox-Sync.
+- Dokumentationsreferenz: `docs/beta/ADMIN_OWNER_CLAIM_SETUP.md` enthaelt den Admin-Owner-Claim, Login-Fallback und Deploy-Hinweis fuer `syncProductEvolutionFirstRunInbox`.

@@ -47,3 +47,12 @@ Hinweise:
 - Server/Firebase Admin bleibt Authority.
 - Keine Runtime-Produktlogik geändert.
 - Keine Aktivierung von Token/NFT/Payment/SUI/WFT.
+
+## 2026-05-28 Admin-Center Login-Fallback und Inbox-ID-Fix
+
+- Live-Stand nach Owner-Claim: Auth/Owner-Claim funktioniert (`authReady`, Firebase User, ID Token, Token Claims und `agentRoleClaim=owner` sind vorhanden; `adminCallableAuthReady=true`).
+- Der Admin-Center Google-Login nutzt weiterhin Popup zuerst, faellt bei Popup-Closed/Popup-Blocked/Cancelled-Popup aber auf Redirect-Login zurueck und wertet das Redirect-Ergebnis beim Laden der Seite aus.
+- Bei `auth/unauthorized-domain` zeigt die UI eine sichere Handlungsanweisung fuer Firebase Authentication -> Einstellungen -> Autorisierte Domains. UID, E-Mail und Tokens werden nicht angezeigt.
+- Product-Evolution Inbox-Dokument-IDs werden slash-sicher erzeugt; originale `sourceDossierId`-Werte bleiben als Feld/Payload erhalten.
+- Kein GitHub Runner, keine GitHub API, kein Branch/PR/Merge durch die App und kein Deploy in diesem PR.
+- Nach Merge wegen `functions/lib/agentAdminRolesAudit.js` gezielt deployen: `firebase deploy --only functions:syncProductEvolutionFirstRunInbox --project wellfit-b7d27`; danach Frontend/Hosting-Deploy abwarten.

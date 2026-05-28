@@ -490,3 +490,11 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 - 2026-05-27 Mapping-Update: `runtime/admin-center-callable-auth-readiness` abgeschlossen. Ursache: callable verification mit `auth:MISSING`; Fix: clientseitiger Auth-Guard + sichere Auth-Debug-Anzeige ohne UID/E-Mail/Token. Kein Runner/Deploy im PR; danach Frontend/Hosting deployen und `runtime/admin-center-task-proposal-to-worker-queue`.
 
 - 2026-05-27 Mapping-Update: `fix/admin-center-firebase-auth-login` ergänzt Admin-Firebase-Login/Session/Logout und Auth-Readiness-States (`client_auth_loading|missing|not_ready`), ohne Runner/Deploy und ohne Änderung der Server-Authority.
+
+## 2026-05-28 Work Map Update — Admin-Center Login-Fallback + Inbox-ID Sanitizing
+
+| Bereich | Status | Fuehrende Dateien | Naechste Aktion |
+|---|---|---|---|
+| Admin-Center Auth | Fix vorbereitet | `app/admin/agent-center/AgentCenterInteractive.tsx` | Nach Frontend-Deploy Popup-Fehlerfall pruefen; Redirect-Fallback darf keine UID/E-Mail/Tokens anzeigen. |
+| Product-Evolution Inbox Sync | Fix vorbereitet | `functions/lib/agentAdminRolesAudit.js`, `functions/test/agentAdminRolesAuditInboxIdTest.js` | Nach Functions-Deploy `syncProductEvolutionFirstRunInbox` erneut aus Admin-Center starten; slash-haltige `sourceDossierId` muss syncbar bleiben. |
+| Product-Evolution Worker Queue | wartend | `runtime/admin-center-task-proposal-to-worker-queue` | Erst nach erfolgreichem Server-Inbox-Sync fortsetzen. |

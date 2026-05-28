@@ -462,3 +462,15 @@ Fuehrende Plan-Datei: `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md`
 
 - [x] 2026-05-27 Fix `fix/admin-center-firebase-auth-login`: Admin-Center Firebase Login/Session/Logout integriert; callable auth readiness debug erweitert; server authority unverändert.
 - [>] Nächster empfohlener Schritt: `runtime/admin-center-task-proposal-to-worker-queue`.
+
+## 2026-05-28 Admin-Center Login-Fallback + slash-sichere Inbox-IDs
+
+Status: vorbereitet im Branch `fix/admin-center-login-redirect-and-inbox-id-sanitize`.
+
+- Auth/Owner-Claim funktioniert; verbleibender Blocker war instabiler Google Popup-Login plus Firestore-Dokument-ID mit Slash in `sourceDossierId`.
+- Admin-Center Login: Popup bleibt erster Versuch, Redirect-Fallback wird bei Popup-Closed/Blocked/Cancelled genutzt; `getRedirectResult` aktualisiert Claims/Role-Debug nach Rueckkehr.
+- Inbox Sync: Firestore Dokument-ID wird slash-sicher/idempotent gebaut; originales `sourceDossierId` bleibt als Dokumentfeld erhalten.
+- Auth-/Shape-/Firestore-ID-Fehler werden getrennt sichtbar gemacht, ohne UID/E-Mail/Tokens im Debug.
+- Kein Runner/Branch/PR/Merge/Deploy ausgeloest.
+- Nach Merge erforderlich: `firebase deploy --only functions:syncProductEvolutionFirstRunInbox --project wellfit-b7d27`, danach Frontend/Hosting-Deploy abwarten.
+- Naechster Schritt nach erfolgreichem Sync: `runtime/admin-center-task-proposal-to-worker-queue`.

@@ -1510,10 +1510,35 @@
       "summary": "Added admin Google login/logout flow, auth-state readiness diagnostics, and callable guard code mapping while preserving server authority and privacy-safe debug.",
       "noRunner": true,
       "noDeploy": true
+    },
+    {
+      "date": "2026-05-28",
+      "branch": "fix/admin-center-login-redirect-and-inbox-id-sanitize",
+      "task": "Admin-Center login redirect fallback and safe inbox IDs",
+      "summary": "Auth/Owner-Claim works; added Google popup-to-redirect fallback and slash-safe Product-Evolution Inbox IDs while preserving original sourceDossierId as payload/document field.",
+      "noRunner": true,
+      "noGithubApi": true,
+      "noDeploy": true,
+      "functionsDeployRequiredAfterMerge": "firebase deploy --only functions:syncProductEvolutionFirstRunInbox --project wellfit-b7d27",
+      "frontendHostingDeployRequiredAfterMerge": true,
+      "nextBranch": "runtime/admin-center-task-proposal-to-worker-queue",
+      "id": "2026-05-28-admin-center-login-redirect-inbox-id-sanitize",
+      "taskId": "FIX-2026-05-28-ADMIN-LOGIN-REDIRECT-INBOX-ID",
+      "goal": "Fix Admin-Center Google popup login instability with redirect fallback and make Product-Evolution Inbox Firestore document IDs slash-safe.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "lib/admin/types",
+        "functions/agentAdminRolesAudit",
+        "functions/tests",
+        "docs/register/todo"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Auth/Owner-Claim works. Original sourceDossierId remains stored as document/payload field; only Firestore doc ID is sanitized. No GitHub API/runner/branch-PR-merge/deploy triggered. Functions deploy required after merge for syncProductEvolutionFirstRunInbox; frontend/hosting deploy also required."
     }
   ],
   "notes": [
     "agent opportunity dossier architecture and templates completed"
   ],
-  "updated": "2026-05-27"
+  "updated": "2026-05-28"
 }
