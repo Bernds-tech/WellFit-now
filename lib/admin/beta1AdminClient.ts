@@ -216,6 +216,17 @@ export const beta1AdminClient = {
       clientRegisterSnapshotKeys: hasSnapshotObject ? Object.keys(registerSnapshot as Record<string, unknown>) : [],
     });
   },
+
+  regenerateProductEvolutionRevisionDossiers: (input?: ProductEvolutionInboxSyncInput) => {
+    const registerSnapshot = input?.registerSnapshot;
+    const hasSnapshotObject = Boolean(registerSnapshot && typeof registerSnapshot === "object");
+    return callAdminPreserveDiagnostics("regenerateProductEvolutionRevisionDossiers", {
+      registerSnapshot,
+      clientRequestShapeVersion: "agent-center-revision-dossier-client-v1",
+      clientHasRegisterSnapshot: hasSnapshotObject,
+      clientRegisterSnapshotKeys: hasSnapshotObject ? Object.keys(registerSnapshot as Record<string, unknown>) : [],
+    });
+  },
   syncAgentCenterLocalRegistersInbox: () => callAdmin("syncAgentCenterLocalRegistersInbox", {}),
   listAgentCenterInboxItems: (filters?: { status?: string; sourceType?: string; recommendation?: string; listType?: string }) => callAdmin("listAgentCenterInboxItems", filters || {}),
   getAgentCenterInboxItem: (inboxId: string) => callAdmin("getAgentCenterInboxItem", { inboxId }),
