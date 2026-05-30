@@ -120,6 +120,8 @@ export type AdminCenterDossierDetail = {
   risks?: string;
   mitigation?: string;
   recommendation?: string;
+  recommendationLabel?: string;
+  recommendationText?: string;
   suggestedTaskProposal?: string;
 };
 
