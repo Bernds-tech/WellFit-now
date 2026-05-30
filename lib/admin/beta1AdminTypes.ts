@@ -60,6 +60,14 @@ export type AgentCenterInboxItem = {
   risk?: string;
   riskSummary?: string;
   recommendation?: string;
+  recommendationLabel?: string;
+  recommendationText?: string;
+  readableDecisionDossierSourceDossierId?: string | null;
+  readableDecisionDossierId?: string | null;
+  readableDossierInboxId?: string | null;
+  supersededByReadableDecisionDossier?: boolean;
+  legacyProductEvolutionSource?: string | null;
+  adminCenterSourcePriority?: number;
   sourceDossierId?: string;
   sourceRef?: string;
   sourcePath?: string;

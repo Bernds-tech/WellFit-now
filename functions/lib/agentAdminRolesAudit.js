@@ -343,50 +343,52 @@ function buildInboxDecisionDetails(payload, { sourceType, listType, sourceDossie
   const economyImpact = firstPresentText(payload, ["economyImpact", "rewardImpact", "wfpImpact", "xpImpact", "economy"], 1200);
   const risk = firstPresentText(payload, ["risk", "riskSummary", "risks", "riskAssessment", "safetyRisk"], 1200);
   const recommendation = listType === "recommendedResearchMore" ? "research_more" : (firstPresentText(payload, ["recommendation", "recommendedDecision", "decisionRecommendation"], 80) || "approve");
+  const recommendationLabel = firstPresentText(payload, ["recommendationLabel", "recommendation.label", "decisionLabel"], 160) || recommendation;
+  const recommendationText = firstPresentText(payload, ["recommendationText", "recommendation.text", "decisionText"], 1200) || recommendationLabel;
   const nextStep = firstPresentText(payload, ["nextStep", "nextSteps", "suggestedTaskProposal", "handoff"], 1200) || "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch.";
   const missingCriticalDecisionFields = [];
-  for (const [field, value] of Object.entries({ summary, what, why, wellFitBenefit, userBenefit, economyImpact, risk, recommendation })) if (!value) missingCriticalDecisionFields.push(field);
+  for (const [field, value] of Object.entries({ summary, what, why, wellFitBenefit, userBenefit, economyImpact, risk, recommendation, recommendationLabel, recommendationText })) if (!value) missingCriticalDecisionFields.push(field);
   if (!allowedFiles.length) missingCriticalDecisionFields.push("allowedFiles");
   if (!blockedFiles.length) missingCriticalDecisionFields.push("blockedFiles");
   if (!requiredChecks.length) missingCriticalDecisionFields.push("requiredChecks");
-  return { title, summary, plainSummary: summary, what, whatWillChange: what, why, whySuggested: why, wellFitBenefit, userBenefit, economyImpact, risk, riskSummary: risk, recommendation, sourceDossierId, sourceType, listType, allowedFiles, blockedFiles, requiredChecks, nextStep, detailStatus: missingCriticalDecisionFields.length ? "missing" : "structured", missingCriticalDecisionFields, dossierIncomplete: missingCriticalDecisionFields.length > 0 };
+  return { title, summary, plainSummary: summary, what, whatWillChange: what, why, whySuggested: why, wellFitBenefit, userBenefit, economyImpact, risk, riskSummary: risk, recommendation, recommendationLabel, recommendationText, sourceDossierId, sourceType, listType, allowedFiles, blockedFiles, requiredChecks, nextStep, detailStatus: missingCriticalDecisionFields.length ? "missing" : "structured", missingCriticalDecisionFields, dossierIncomplete: missingCriticalDecisionFields.length > 0 };
 }
 
 function getFirstRunCandidateCollections(snapshot) {
   const candidates = [];
   const seen = new Set();
   const specs = [
-    ["generatedDossiers","generatedDossiers"],
     ["decisionDossiers","decisionDossiers"],
     ["dossiers","decisionDossiers"],
+    ["generatedDossiers","generatedDossiers"],
     ["suggestedTaskQueue","suggestedTaskQueue"],
     ["recommendedApprovals","recommendedApprovals"],
     ["recommendedResearchMore","recommendedResearchMore"],
     ["blockedItems","blockedItems"],
-    ["output.generatedDossiers","generatedDossiers"],
     ["output.decisionDossiers","decisionDossiers"],
     ["output.dossiers","decisionDossiers"],
+    ["output.generatedDossiers","generatedDossiers"],
     ["output.suggestedTaskQueue","suggestedTaskQueue"],
     ["output.recommendedApprovals","recommendedApprovals"],
     ["output.recommendedResearchMore","recommendedResearchMore"],
     ["output.blockedItems","blockedItems"],
-    ["data.generatedDossiers","generatedDossiers"],
     ["data.decisionDossiers","decisionDossiers"],
     ["data.dossiers","decisionDossiers"],
+    ["data.generatedDossiers","generatedDossiers"],
     ["data.suggestedTaskQueue","suggestedTaskQueue"],
     ["data.recommendedApprovals","recommendedApprovals"],
     ["data.recommendedResearchMore","recommendedResearchMore"],
     ["data.blockedItems","blockedItems"],
-    ["run.generatedDossiers","generatedDossiers"],
     ["run.decisionDossiers","decisionDossiers"],
     ["run.dossiers","decisionDossiers"],
+    ["run.generatedDossiers","generatedDossiers"],
     ["run.suggestedTaskQueue","suggestedTaskQueue"],
     ["run.recommendedApprovals","recommendedApprovals"],
     ["run.recommendedResearchMore","recommendedResearchMore"],
     ["run.blockedItems","blockedItems"],
-    ["result.generatedDossiers","generatedDossiers"],
     ["result.decisionDossiers","decisionDossiers"],
     ["result.dossiers","decisionDossiers"],
+    ["result.generatedDossiers","generatedDossiers"],
     ["result.suggestedTaskQueue","suggestedTaskQueue"],
     ["result.recommendedApprovals","recommendedApprovals"],
     ["result.recommendedResearchMore","recommendedResearchMore"],
@@ -403,6 +405,89 @@ function getFirstRunCandidateCollections(snapshot) {
   }
   return candidates;
 }
+function normalizeDossierLookupText(value) {
+  return sanitizeInboxText(value, 600).toLowerCase().replace(/[^a-z0-9äöüß]+/gi, " ").replace(/\s+/g, " ").trim();
+}
+
+function getReadableDossierKeys(item) {
+  return [item.sourceDossierId, item.dossierId, item.id, item.title, item.sourceRef]
+    .map((value) => normalizeDossierLookupText(value))
+    .filter(Boolean);
+}
+
+function significantDossierTokens(item) {
+  const text = normalizeDossierLookupText([item.title, item.summary, item.plainSummary, item.whatWillChange, item.whySuggested].filter(Boolean).join(" "));
+  const stop = new Set(["der", "die", "das", "und", "oder", "mit", "fuer", "für", "eine", "einen", "als", "nur", "ohne", "noch", "nicht", "dossier", "proposal", "entscheidungsvorlage", "produktentwicklung"]);
+  return new Set(text.split(" ").filter((token) => token.length >= 5 && !stop.has(token)).slice(0, 80));
+}
+
+function buildReadableDecisionDossierLookup(collections) {
+  const byKey = new Map();
+  const readableDossiers = [];
+  for (const collection of collections || []) {
+    if (collection.listType !== "decisionDossiers") continue;
+    for (const raw of collection.items || []) {
+      const item = normalizeFirstRunEntry(raw, collection.listType);
+      if (item.detailStatus && item.detailStatus !== "structured") continue;
+      if (!sanitizeInboxText(item.recommendationLabel, 120) && !sanitizeInboxText(item.recommendationText, 1200)) continue;
+      const entry = { item, listType: collection.listType, sourceDossierId: item.sourceDossierId, tokens: significantDossierTokens(item) };
+      readableDossiers.push(entry);
+      for (const key of getReadableDossierKeys(item)) byKey.set(key, entry);
+    }
+  }
+  return { byKey, readableDossiers };
+}
+
+function findReadableDecisionDossierForItem(item, listType, lookup) {
+  if (listType === "decisionDossiers" || !lookup) return null;
+  for (const key of getReadableDossierKeys(item)) {
+    if (lookup.byKey.has(key)) return lookup.byKey.get(key);
+  }
+  const itemTokens = significantDossierTokens(item);
+  if (!itemTokens.size) return null;
+  let best = null;
+  for (const candidate of lookup.readableDossiers || []) {
+    let score = 0;
+    for (const token of itemTokens) if (candidate.tokens.has(token)) score += 1;
+    const recommendation = sanitizeInboxText(item.recommendation, 80);
+    if (recommendation && recommendation === sanitizeInboxText(candidate.item.recommendation, 80)) score += 2;
+    if (!best || score > best.score) best = { ...candidate, score };
+  }
+  return best && best.score >= 3 ? best : null;
+}
+
+function overlayReadableDecisionDossierFields(item, listType, readableMatch) {
+  if (!readableMatch || !readableMatch.item) return item;
+  const readable = readableMatch.item;
+  const readableInboxIdInfo = buildAgentCenterInboxId({ sourceType: "product_evolution_first_run", sourceDossierId: readable.sourceDossierId, listType: "decisionDossiers" });
+  return {
+    ...item,
+    title: readable.title || item.title,
+    summary: readable.summary || item.summary,
+    plainSummary: readable.plainSummary || readable.summary || item.plainSummary,
+    whatWillChange: readable.whatWillChange || item.whatWillChange,
+    whySuggested: readable.whySuggested || item.whySuggested,
+    wellFitBenefit: readable.wellFitBenefit || item.wellFitBenefit,
+    userBenefit: readable.userBenefit || item.userBenefit,
+    businessBenefit: readable.businessBenefit || item.businessBenefit,
+    economyImpact: readable.economyImpact || item.economyImpact,
+    riskSummary: readable.riskSummary || item.riskSummary,
+    recommendation: readable.recommendation || item.recommendation,
+    recommendationLabel: readable.recommendationLabel || item.recommendationLabel,
+    recommendationText: readable.recommendationText || item.recommendationText,
+    nextStep: readable.nextStep || item.nextStep,
+    allowedFiles: Array.isArray(readable.allowedFiles) && readable.allowedFiles.length ? readable.allowedFiles : item.allowedFiles,
+    blockedFiles: Array.isArray(readable.blockedFiles) && readable.blockedFiles.length ? readable.blockedFiles : item.blockedFiles,
+    requiredChecks: Array.isArray(readable.requiredChecks) && readable.requiredChecks.length ? readable.requiredChecks : item.requiredChecks,
+    readableDecisionDossierSourceDossierId: readable.sourceDossierId || null,
+    readableDecisionDossierId: readable.dossierId || readable.id || null,
+    readableDossierInboxId: readableInboxIdInfo.inboxId,
+    supersededByReadableDecisionDossier: true,
+    legacyProductEvolutionSource: listType,
+    adminCenterSourcePriority: 90,
+  };
+}
+
 function toInboxStatusByListType(listType) {
   if (listType === "blockedItems") return "blocked";
   return "pending_approval";
@@ -410,8 +495,8 @@ function toInboxStatusByListType(listType) {
 
 
 const INBOX_SYNC_CALLABLE_NAME = "syncProductEvolutionFirstRunInbox";
-const INBOX_SYNC_CALLABLE_VERSION = "2026-05-30-dossier-decision-details-v4";
-const INBOX_SYNC_RESPONSE_SHAPE_VERSION = "agent-center-inbox-sync-v4";
+const INBOX_SYNC_CALLABLE_VERSION = "2026-05-30-readable-decision-dossiers-v5";
+const INBOX_SYNC_RESPONSE_SHAPE_VERSION = "agent-center-inbox-sync-v5";
 
 function resolveRegisterSnapshot(requestData) {
   const source = requestData && typeof requestData === "object" ? requestData : {};
@@ -1333,6 +1418,12 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       beta1Allowed: payload.beta1Allowed !== false,
       forbiddenScope: parseStringList(payload.forbiddenScope || [], 40, 120),
       sourcePayloadSummary: firstPresentText(payload, ["sourcePayloadSummary", "summary", "plainSummary", "description"], 1200),
+      readableDecisionDossierSourceDossierId: payload.readableDecisionDossierSourceDossierId || null,
+      readableDecisionDossierId: payload.readableDecisionDossierId || null,
+      readableDossierInboxId: payload.readableDossierInboxId || null,
+      supersededByReadableDecisionDossier: payload.supersededByReadableDecisionDossier === true,
+      legacyProductEvolutionSource: payload.legacyProductEvolutionSource || null,
+      adminCenterSourcePriority: Number(payload.adminCenterSourcePriority || (listType === "decisionDossiers" ? 10 : 50)),
       updatedAt: now,
     };
     await ref.set(doc, { merge: true });
@@ -1369,11 +1460,14 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       let serverCandidateCount = 0;
       let invalidInboxIdSanitized = false;
       let sourceDossierIdHadSlash = false;
+      const readableDossierLookup = buildReadableDecisionDossierLookup(collections);
 
       for (const collection of collections) {
         for (const raw of collection.items) {
-          const item = normalizeFirstRunEntry(raw, collection.listType);
+          let item = normalizeFirstRunEntry(raw, collection.listType);
           serverCandidateCount += 1;
+          const readableMatch = findReadableDecisionDossierForItem(item, collection.listType, readableDossierLookup);
+          if (readableMatch) item = overlayReadableDecisionDossierFields(item, collection.listType, readableMatch);
           const sourceDossierId = sanitizeInboxText(item.sourceDossierId || extractProductEvolutionId(raw), 180);
           if (!sourceDossierId) {
             sampleSkipped.push({ listType: collection.listType, reason: "missing_sourceDossierId", id: sanitizeInboxText(item.id || item.title, 180) });
@@ -1737,4 +1831,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, REVISION_DOSSIER_MESSAGE };

@@ -369,8 +369,8 @@ async function run() {
     },
   });
   assert((firstRunSync.created || 0) + (firstRunSync.updated || 0) >= 4, "sync should create/update PE 01/02/03 plus safe decision dossier");
-  assert(firstRunSync.callableVersion === "2026-05-30-dossier-decision-details-v4", "sync response must include callableVersion");
-  assert(firstRunSync.responseShapeVersion === "agent-center-inbox-sync-v4", "sync response must include responseShapeVersion");
+  assert(firstRunSync.callableVersion === "2026-05-30-readable-decision-dossiers-v5", "sync response must include callableVersion");
+  assert(firstRunSync.responseShapeVersion === "agent-center-inbox-sync-v5", "sync response must include responseShapeVersion");
   assert(firstRunSync.payloadUnwrappedFrom === "registerSnapshot", "top-level registerSnapshot must be recognized");
   assert((firstRunSync.skippedReasons && firstRunSync.skippedReasons.missing_sourceDossierId >= 1) || false, "invalid entry should be counted as missing_sourceDossierId");
   assert((firstRunSync.skippedReasons && firstRunSync.skippedReasons.protected_scope >= 1) || false, "decision dossier with protected allowedFiles should be protected_scope skipped");
