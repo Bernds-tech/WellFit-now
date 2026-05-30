@@ -170,6 +170,7 @@ export const beta1AdminClient = {
   markAgentTaskHandoffCreated: (input: AgentExecutionActionInput) => callAdmin("markAgentTaskHandoffCreated", { executionId: input.executionId }),
   blockAgentTaskExecution: (input: AgentExecutionActionInput) => callAdmin("blockAgentTaskExecution", { executionId: input.executionId, reason: input.reason }),
   listAgentTaskExecutions: (status?: string) => callAdmin("listAgentTaskExecutions", status ? { status } : {}),
+  listAgentTaskProposals: (status?: string) => callAdmin("listAgentTaskProposals", status ? { status } : {}),
   generateAgentTaskCodexPrompt: (input: AgentHandoffPromptGenerateInput) => callAdmin("generateAgentTaskCodexPrompt", input),
   getAgentTaskCodexPrompt: (input: AgentHandoffPromptGetInput) => callAdmin("getAgentTaskCodexPrompt", input),
   markAgentTaskCodexPromptCopied: (input: AgentHandoffPromptCopiedInput) => callAdmin("markAgentTaskCodexPromptCopied", input),

@@ -328,6 +328,15 @@ async function run() {
   const iboxApprovedAfter = await db.collection("agentCenterInbox").doc("ibox-approved").get();
   assert(iboxApprovedAfter.data().status === "synced_to_task_proposal", "inbox should become synced_to_task_proposal");
   assert(iboxApprovedAfter.data().taskProposalId, "inbox should get taskProposalId");
+  const listedTaskProposals = await expectOk("listAgentTaskProposals", owner, {});
+  const visibleTaskProposal = (listedTaskProposals.proposals || []).find((proposal) => proposal.taskProposalId === createdFromInbox.taskProposalId);
+  assert(visibleTaskProposal, "created task proposal should be visible in listAgentTaskProposals");
+  assert(visibleTaskProposal.sourceInboxId === "ibox-approved", "listed task proposal should include sourceInboxId");
+  assert(visibleTaskProposal.noRunnerStarted === true, "listed task proposal should show noRunnerStarted");
+  assert(visibleTaskProposal.noDeploy === true, "listed task proposal should show noDeploy");
+  assert(visibleTaskProposal.noBranchOrPrOrMerge === true, "listed task proposal should show noBranchOrPrOrMerge");
+  const workerQueueAfterTaskProposal = await db.collection("agentTaskWorkerQueue").where("proposalId", "==", createdFromInbox.taskProposalId).get();
+  assert(workerQueueAfterTaskProposal.empty, "creating/listing a task proposal should not create worker queue items");
 
   await db.collection("agentCenterInbox").doc("ibox-pending").set({ inboxId: "ibox-pending", status: "pending_approval", allowedFiles: ["docs/**"], blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"] });
   await expectFail("createAgentTaskProposalFromApprovedInboxItem", owner, { inboxId: "ibox-pending" });
