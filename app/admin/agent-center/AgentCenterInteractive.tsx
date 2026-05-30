@@ -53,6 +53,28 @@ const POPUP_REDIRECT_FALLBACK_CODES = new Set(["auth/popup-closed-by-user", "aut
 const UNAUTHORIZED_DOMAIN_CODE = "auth/unauthorized-domain";
 
 const getFirebaseAuthErrorCode = (error: unknown): string => (typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : "");
+const getSafeAdminDecisionErrorCode = (error: unknown): string => (typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : "");
+const getSafeAdminDecisionMessage = (error: unknown): string => {
+  const code = getSafeAdminDecisionErrorCode(error);
+  if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
+  if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+  if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden.";
+  if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
+  return "Entscheidung konnte nicht gespeichert werden. Bitte Inbox-Sync/Decision-Target prüfen.";
+};
+const getSafeAdminDecisionFailureMessage = (resultMessage?: string, errorCode?: string): string => {
+  const code = errorCode || "";
+  if (code === "client_auth_loading") return "Admin-Authentifizierung wird geladen. Bitte kurz warten.";
+  if (code === "client_auth_missing") return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+  if (code === "client_auth_not_ready") return "Admin-Rolle fehlt oder wurde noch nicht geladen.";
+  if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
+  if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+  if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden.";
+  if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
+  const message = String(resultMessage || "").trim();
+  if (message && message.length <= 140 && !message.includes("@") && !message.toLowerCase().includes("token") && !message.toLowerCase().includes("uid")) return message;
+  return "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen.";
+};
 const shouldUseRedirectFallback = (error: unknown): boolean => POPUP_REDIRECT_FALLBACK_CODES.has(getFirebaseAuthErrorCode(error));
 const getSafeGoogleLoginMessage = (error: unknown): string => {
   const code = getFirebaseAuthErrorCode(error);
@@ -444,21 +466,65 @@ export default function AgentCenterInteractive({
   }
 
   async function decide(kind: "agent" | "mission", action: "approve" | "reject" | "revise" | "block", row: Row) {
+    const actionLabel = { approve: "Zustimmen", reject: "Ablehnen", revise: "Überarbeiten", block: "Blockieren" }[action];
     const reason = buttonReason(action, row);
+    const inboxId = asText(row.inboxId);
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastDecisionAction: action,
+      lastDecisionTargetIdPresent: Boolean(inboxId),
+      lastDecisionAccepted: false,
+      lastDecisionStatus: reason ? "blocked_client" : "started",
+      lastDecisionMessage: reason || `Entscheidung wird gespeichert: ${actionLabel} …`,
+      lastDecisionErrorCode: "",
+    }));
     if (reason) {
       setFeedback(reason);
       return;
     }
 
-    const inboxId = asText(row.inboxId);
     const agentMap = { approve: beta1AdminClient.approveAgentCenterProposal, reject: beta1AdminClient.rejectAgentCenterProposal, revise: beta1AdminClient.requestRevisionAgentCenterProposal, block: beta1AdminClient.blockAgentCenterProposal };
     const missionMap = { approve: beta1AdminClient.approveMissionCenterProposal, reject: beta1AdminClient.rejectMissionCenterProposal, revise: beta1AdminClient.requestRevisionMissionCenterProposal, block: beta1AdminClient.blockMissionCenterProposal };
 
-    const result = kind === "agent"
-      ? await agentMap[action]({ targetType: "agent", targetId: inboxId, reason: action } satisfies AgentCenterDecisionInput)
-      : await missionMap[action]({ targetType: "mission", targetId: inboxId, reason: action } satisfies MissionCenterDecisionInput);
-    setFeedback(result.accepted ? "Entscheidung gespeichert." : (result.message || "Fehler"));
-    await refreshInbox();
+    setBusy(true);
+    setFeedback(`Entscheidung wird gespeichert: ${actionLabel} …`);
+    try {
+      const result = kind === "agent"
+        ? await agentMap[action]({ targetType: "agent", targetId: inboxId, inboxId, reason: action } satisfies AgentCenterDecisionInput)
+        : await missionMap[action]({ targetType: "mission", targetId: inboxId, reason: action } satisfies MissionCenterDecisionInput);
+      const accepted = Boolean(result.accepted);
+      const safeMessage = accepted ? `Entscheidung gespeichert: ${actionLabel}.` : `Entscheidung fehlgeschlagen: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastDecisionAction: action,
+        lastDecisionTargetIdPresent: Boolean(inboxId),
+        lastDecisionAccepted: accepted,
+        lastDecisionStatus: result.status || (accepted ? "accepted" : "failed"),
+        lastDecisionMessage: safeMessage,
+        lastDecisionErrorCode: result.clientErrorCode || "",
+      }));
+    } catch (error) {
+      const safeMessage = getSafeAdminDecisionMessage(error);
+      const safeErrorCode = getSafeAdminDecisionErrorCode(error);
+      const feedbackMessage = `Entscheidung fehlgeschlagen: ${safeMessage}`;
+      setFeedback(feedbackMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastDecisionAction: action,
+        lastDecisionTargetIdPresent: Boolean(inboxId),
+        lastDecisionAccepted: false,
+        lastDecisionStatus: "error",
+        lastDecisionMessage: feedbackMessage,
+        lastDecisionErrorCode: safeErrorCode,
+      }));
+    } finally {
+      try {
+        await refreshInbox();
+      } finally {
+        setBusy(false);
+      }
+    }
   }
 
   return (
@@ -493,6 +559,12 @@ export default function AgentCenterInteractive({
         <p>serverInboxLoadedCount: {String(syncDebug.serverInboxLoadedCount ?? serverInboxRows.length)}</p>
         <p>serverInboxPendingCount: {String(syncDebug.serverInboxPendingCount ?? serverInboxPendingCount)}</p>
         <p>visibleListSource: {visibleListSource}</p>
+        <p>lastDecisionAction: {String(syncDebug.lastDecisionAction || "-")}</p>
+        <p>lastDecisionTargetIdPresent: {String(syncDebug.lastDecisionTargetIdPresent ?? "-")}</p>
+        <p>lastDecisionAccepted: {String(syncDebug.lastDecisionAccepted ?? "-")}</p>
+        <p>lastDecisionStatus: {String(syncDebug.lastDecisionStatus || "-")}</p>
+        <p>lastDecisionMessage: {String(syncDebug.lastDecisionMessage || "-")}</p>
+        <p>lastDecisionErrorCode: {String(syncDebug.lastDecisionErrorCode || "-")}</p>
         <p>lastAuthGuardMessage: {String(authDebug.lastAuthGuardMessage || "-")}</p>
         <p>clientSendingRegisterSnapshot: {String(syncDebug.clientSendingRegisterSnapshot ?? "-")}</p>
         <p>clientSendingRegisterSnapshotKeys: [{((syncDebug.clientSendingRegisterSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
@@ -569,10 +641,10 @@ export default function AgentCenterInteractive({
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasDossierDetails && !row.hasReportDetails} onClick={() => setDetailRow(row)}>Dossier ansehen (konkrete Entscheidungsvorlage)</button>
                 <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasReportDetails} onClick={() => setDetailRow(row)}>Bericht ansehen (übergeordnete Analyse / Hintergrundbericht)</button>
-                <button title={approveReason || "Zustimmen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(approveReason)} onClick={() => decide(decisionKind, "approve", row)}>Zustimmen</button>
-                <button title={rejectReason || "Ablehnen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(rejectReason)} onClick={() => decide(decisionKind, "reject", row)}>Ablehnen</button>
-                <button title={reviseReason || "Überarbeiten"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(reviseReason)} onClick={() => decide(decisionKind, "revise", row)}>Überarbeiten</button>
-                <button title={blockReason || "Blockieren"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(blockReason)} onClick={() => decide(decisionKind, "block", row)}>Blockieren</button>
+                <button title={approveReason || "Zustimmen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(approveReason)} onClick={() => decide(decisionKind, "approve", row)}>Zustimmen</button>
+                <button title={rejectReason || "Ablehnen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(rejectReason)} onClick={() => decide(decisionKind, "reject", row)}>Ablehnen</button>
+                <button title={reviseReason || "Überarbeiten"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(reviseReason)} onClick={() => decide(decisionKind, "revise", row)}>Überarbeiten</button>
+                <button title={blockReason || "Blockieren"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(blockReason)} onClick={() => decide(decisionKind, "block", row)}>Blockieren</button>
                 {decisionBlocker && <p className="w-full text-amber-300">Sperrgrund: {decisionBlocker}</p>}
               </div>
               <p>Wartet seit: {formatAdminDate(timeline.waitingForApprovalAt)}</p>

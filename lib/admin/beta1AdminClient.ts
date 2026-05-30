@@ -31,6 +31,15 @@ import type {
 function sanitizeAdminError(error: unknown): string { const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : ""; if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion."; if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen."; if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden."; if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt."; if (code.includes("permission-denied")) return "Für geschützten Scope ist Owner-Freigabe nötig."; return "Dieser Eintrag ist ein technischer Framework-Eintrag und nicht direkt freigabefähig."; }
 function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult { return result.accepted ? { ...result, message: undefined } : { ...result, accepted: false, message: result.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen." }; }
 
+function buildAgentCenterDecisionPayload(input: AgentCenterDecisionInput): AgentCenterDecisionInput {
+  return {
+    ...input,
+    targetType: "agent",
+    targetId: input.targetId,
+    inboxId: input.inboxId || input.targetId,
+  };
+}
+
 let authHydrated = false;
 if (typeof window !== "undefined") {
   onAuthStateChanged(auth, () => {
@@ -165,11 +174,11 @@ export const beta1AdminClient = {
   resetAgentAutomationRepairCounter: () => callAdmin("resetAgentAutomationRepairCounter", {}),
   approveAgentAutomationContinueAfterHalt: () => callAdmin("approveAgentAutomationContinueAfterHalt", {}),
 
-  approveAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("approveAgentCenterProposal", input),
-  rejectAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("rejectAgentCenterProposal", input),
-  requestRevisionAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("requestRevisionAgentCenterProposal", input),
-  blockAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("blockAgentCenterProposal", input),
-  markAgentCenterProposalForReview: (input: AgentCenterDecisionInput) => callAdmin("markAgentCenterProposalForReview", input),
+  approveAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("approveAgentCenterProposal", buildAgentCenterDecisionPayload(input)),
+  rejectAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("rejectAgentCenterProposal", buildAgentCenterDecisionPayload(input)),
+  requestRevisionAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("requestRevisionAgentCenterProposal", buildAgentCenterDecisionPayload(input)),
+  blockAgentCenterProposal: (input: AgentCenterDecisionInput) => callAdmin("blockAgentCenterProposal", buildAgentCenterDecisionPayload(input)),
+  markAgentCenterProposalForReview: (input: AgentCenterDecisionInput) => callAdmin("markAgentCenterProposalForReview", buildAgentCenterDecisionPayload(input)),
   approveMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("approveMissionCenterProposal", input),
   rejectMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("rejectMissionCenterProposal", input),
   requestRevisionMissionCenterProposal: (input: MissionCenterDecisionInput) => callAdmin("requestRevisionMissionCenterProposal", input),
