@@ -14,6 +14,7 @@ type Row = Record<string, unknown> & {
   id?: string;
   title?: string;
   status?: string;
+  visibleListSource?: "server_inbox" | "local_snapshot";
   listType?: string;
   sourceDossierId?: string;
   dossierId?: string;
@@ -180,21 +181,34 @@ export default function AgentCenterInteractive({
   const mapped = useMemo(() => ({
     agents: data.agents.map((row) => {
       const item = matchInbox(row);
-      return item ? { ...row, ...item, inboxId: item.inboxId, mirrorTargetId: item.mirrorTargetId || row.mirrorTargetId, status: item.status } : row;
+      return item ? { ...row, ...item, inboxId: item.inboxId, mirrorTargetId: item.mirrorTargetId || row.mirrorTargetId, status: item.status, visibleListSource: "server_inbox" as const } : { ...row, visibleListSource: "local_snapshot" as const };
     }),
     missions: data.missions.map((row) => {
       const item = matchInbox(row);
-      return item ? { ...row, ...item, inboxId: item.inboxId, mirrorTargetId: item.mirrorTargetId || row.mirrorTargetId, status: item.status } : row;
+      return item ? { ...row, ...item, inboxId: item.inboxId, mirrorTargetId: item.mirrorTargetId || row.mirrorTargetId, status: item.status, visibleListSource: "server_inbox" as const } : { ...row, visibleListSource: "local_snapshot" as const };
     }),
   }), [data.agents, data.missions, matchInbox]);
+
+  const serverInboxRows = useMemo<Row[]>(() => inboxItems.map((item) => ({
+    ...item,
+    id: item.inboxId,
+    inboxId: item.inboxId,
+    mirrorTargetId: item.mirrorTargetId,
+    status: item.status,
+    visibleListSource: "server_inbox",
+    hasDossierDetails: Boolean(item.plainSummary || item.title || item.recommendation),
+    hasReportDetails: false,
+  })), [inboxItems]);
+  const visibleListSource: "server_inbox" | "local_snapshot" = serverInboxRows.length > 0 ? "server_inbox" : "local_snapshot";
+  const serverInboxPendingCount = useMemo(() => serverInboxRows.filter((row) => getAgentStatusBucket(row) === "pending_approval").length, [serverInboxRows]);
 
   const visible = useMemo(() => {
     const missionMode = isMissionFilter(active);
     const bucket = FILTER_TO_BUCKET[active];
-    const list = missionMode ? mapped.missions : mapped.agents;
+    const list = visibleListSource === "server_inbox" ? serverInboxRows : (missionMode ? mapped.missions : mapped.agents);
     if (bucket === "total") return list;
     return list.filter((row) => (missionMode ? getMissionStatusBucket(row) : getAgentStatusBucket(row)) === bucket);
-  }, [active, mapped]);
+  }, [active, mapped, serverInboxRows, visibleListSource]);
 
   const snapshotResolution = useMemo(() => {
     const snapshotFromProp = firstRunRegisterSnapshot && typeof firstRunRegisterSnapshot === "object" ? firstRunRegisterSnapshot : null;
@@ -301,7 +315,12 @@ export default function AgentCenterInteractive({
       const result = await beta1AdminClient.listAgentCenterInboxItems() as unknown as { items?: AgentCenterInboxItem[] };
       const items = Array.isArray(result.items) ? result.items : [];
       setInboxItems(items);
-      setSyncStatus(`Server-Inbox geladen: ${items.length} Einträge.${items.length > 0 ? " Server-Inbox gespiegelt. Bitte Warten auf Freigabe erneut öffnen oder Liste aktualisieren." : " Sync erzeugte keine Inbox-Einträge. Grund: fehlende/ungültige sourceDossierId oder fehlende Decision-Daten."}`);
+      setSyncDebug((prev) => ({
+        ...prev,
+        serverInboxLoadedCount: items.length,
+        serverInboxPendingCount: items.filter((item) => item.status === "pending_approval").length,
+      }));
+      setSyncStatus(`Server-Inbox geladen: ${items.length} Einträge.${items.length > 0 ? " Server-Inbox wird als sichtbare Liste verwendet." : " Sync erzeugte keine Inbox-Einträge. Lokale Snapshot-Kandidaten bleiben Fallback."}`);
     } finally {
       setBusy(false);
     }
@@ -403,22 +422,23 @@ export default function AgentCenterInteractive({
       }
       const shapeMismatch = snapshotStats.localFirstRunCandidateCount > 0 && created + updated + skipped === 0;
       setFeedback(`Sync Debug → created:${created}, updated:${updated}, skipped:${skipped}${reasons ? `, reasons:${reasons}` : ""}${samples ? `, sampleCreatedIds:${samples}` : ""}${skippedSample ? `, sampleSkipped:${skippedSample}` : ""}${shapeMismatch ? ` | Client hat ${snapshotStats.localFirstRunCandidateCount} Kandidaten gesendet, Server hat 0 verarbeitet. Snapshot-Shape passt nicht.` : ""}`);
-      await refreshInbox();
+      if (result.accepted || created + updated + skipped > 0) {
+        await refreshInbox();
+      }
     } finally {
       setBusy(false);
     }
   }
 
-  function buttonReason(action: "approve" | "reject" | "revise" | "block", row: Row): string {
-    const status = String(row.status || "");
+  function buttonReason(_action: "approve" | "reject" | "revise" | "block", row: Row): string {
+    const status = String(row.status || "").toLowerCase();
     const hasInbox = Boolean(asText(row.inboxId));
-    const missing = Array.isArray(row.missingCriticalDecisionFields) ? row.missingCriticalDecisionFields : [];
+    const protectedScope = row.canonicalTruthProtected === true || status === "protected_scope" || String(row.runnerEligibility || "") === "protected_scope" || String(row.recommendation || "") === "protected_scope";
 
-    if (!hasInbox) return "Erst Inbox synchronisieren";
-    if (action === "approve" && missing.length > 0 && !["structured", "partial_structured"].includes(String(row.detailStatus || ""))) return "Dossierdaten kritisch unvollständig";
-    if (action === "approve" && !["pending_approval", "review_required"].includes(status)) return "Status erlaubt diese Aktion nicht";
-    if (action === "revise" && !["pending_approval", "review_required"].includes(status)) return "Status erlaubt diese Aktion nicht";
-    if ((action === "reject" || action === "block") && ["completed", "synced_to_task_proposal"].includes(status)) return "Status erlaubt diese Aktion nicht";
+    if (!hasInbox) return "Server-Inbox-Eintrag fehlt";
+    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
+    if (status === "blocked" || protectedScope) return "Eintrag blockiert";
+    if (status !== "pending_approval") return "Status erlaubt diese Aktion nicht";
 
     return "";
   }
@@ -467,11 +487,12 @@ export default function AgentCenterInteractive({
         <p>Client snapshot keys: [{snapshotStats.localFirstRunKeys.join(", ")}]</p>
         <p>clientVisibleCandidateCount: {snapshotStats.localFirstRunCandidateCount}</p>
         <p>authReady: {String(authDebug.authReady)}</p>
-                <p>adminCallableAuthReady: {String(authDebug.adminCallableAuthReady)}</p>
+        <p>adminCallableAuthReady: {String(authDebug.adminCallableAuthReady)}</p>
         <p>firebaseUserPresent: {String(authDebug.firebaseUserPresent)}</p>
-        <p>idTokenAvailable: {String(authDebug.idTokenAvailable)}</p>
-        <p>tokenClaimsLoaded: {String(authDebug.tokenClaimsLoaded)}</p>
         <p>agentRoleClaim: {String(authDebug.agentRoleClaim || "-")}</p>
+        <p>serverInboxLoadedCount: {String(syncDebug.serverInboxLoadedCount ?? serverInboxRows.length)}</p>
+        <p>serverInboxPendingCount: {String(syncDebug.serverInboxPendingCount ?? serverInboxPendingCount)}</p>
+        <p>visibleListSource: {visibleListSource}</p>
         <p>lastAuthGuardMessage: {String(authDebug.lastAuthGuardMessage || "-")}</p>
         <p>clientSendingRegisterSnapshot: {String(syncDebug.clientSendingRegisterSnapshot ?? "-")}</p>
         <p>clientSendingRegisterSnapshotKeys: [{((syncDebug.clientSendingRegisterSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
@@ -528,6 +549,7 @@ export default function AgentCenterInteractive({
           const summary = buildAdminDecisionSummary(row);
           const timeline = deriveTimeline(row);
           const missionMode = isMissionFilter(active);
+          const decisionKind = row.visibleListSource === "server_inbox" ? "agent" : (missionMode ? "mission" : "agent");
           const hasInbox = Boolean(asText(row.inboxId));
           const missing = Array.isArray(row.missingCriticalDecisionFields) ? row.missingCriticalDecisionFields : [];
           const approveReason = buttonReason("approve", row);
@@ -540,16 +562,17 @@ export default function AgentCenterInteractive({
             <div key={String(row.id || row.title)} className="rounded border p-3 text-xs">
               <b>{summary.plainTitle}</b>
               <p>{summary.plainSummary || "Dossier vorhanden – Details ansehen"}</p>
-              <p>Status: {String(row.status || "pending_approval")} · Inbox: {hasInbox ? "Server-Inbox gespiegelt" : "Noch nicht synchronisiert"}</p>
-              <p>Warum Buttons ggf. gesperrt: {!hasInbox ? "keine inboxId / noch nicht synchronisiert" : missing.length > 0 ? "kritische Decision-Daten fehlen" : "entscheidbar"}</p>
+              <p>Status: {String(row.status || "pending_approval")} · Inbox: {hasInbox ? "synchronisiert" : "Noch nicht synchronisiert"}</p>
+              <p>inboxId: {hasInbox ? asText(row.inboxId) : "—"}</p>
+              <p>Warum Buttons ggf. gesperrt: {decisionBlocker || (missing.length > 0 ? "kritische Decision-Daten fehlen (Info, kein Button-Blocker für Server-Inbox)" : "entscheidbar")}</p>
 
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasDossierDetails && !row.hasReportDetails} onClick={() => setDetailRow(row)}>Dossier ansehen (konkrete Entscheidungsvorlage)</button>
                 <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasReportDetails} onClick={() => setDetailRow(row)}>Bericht ansehen (übergeordnete Analyse / Hintergrundbericht)</button>
-                <button title={approveReason || "Zustimmen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(approveReason)} onClick={() => decide(missionMode ? "mission" : "agent", "approve", row)}>Zustimmen</button>
-                <button title={rejectReason || "Ablehnen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(rejectReason)} onClick={() => decide(missionMode ? "mission" : "agent", "reject", row)}>Ablehnen</button>
-                <button title={reviseReason || "Überarbeiten"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(reviseReason)} onClick={() => decide(missionMode ? "mission" : "agent", "revise", row)}>Überarbeiten</button>
-                <button title={blockReason || "Blockieren"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(blockReason)} onClick={() => decide(missionMode ? "mission" : "agent", "block", row)}>Blockieren</button>
+                <button title={approveReason || "Zustimmen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(approveReason)} onClick={() => decide(decisionKind, "approve", row)}>Zustimmen</button>
+                <button title={rejectReason || "Ablehnen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(rejectReason)} onClick={() => decide(decisionKind, "reject", row)}>Ablehnen</button>
+                <button title={reviseReason || "Überarbeiten"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(reviseReason)} onClick={() => decide(decisionKind, "revise", row)}>Überarbeiten</button>
+                <button title={blockReason || "Blockieren"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={Boolean(blockReason)} onClick={() => decide(decisionKind, "block", row)}>Blockieren</button>
                 {decisionBlocker && <p className="w-full text-amber-300">Sperrgrund: {decisionBlocker}</p>}
               </div>
               <p>Wartet seit: {formatAdminDate(timeline.waitingForApprovalAt)}</p>
