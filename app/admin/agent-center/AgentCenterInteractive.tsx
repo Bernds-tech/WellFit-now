@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
-import { buildAdminDecisionSummary, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket } from "@/lib/admin/agentCenterStatus";
+import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
 import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, ProductEvolutionInboxSyncResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
@@ -57,9 +57,16 @@ type Row = Record<string, unknown> & {
 };
 
 type DataProps = { agents: Row[]; missions: Row[]; stats: Partial<Record<AdminCenterListFilter, number>> };
+type ServerInboxFilter = "server_total" | "server_pending" | "server_approved" | "server_rejected" | "server_blocked" | "server_revision_requested" | "server_synced_to_task_proposal";
+type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter;
+
+const SERVER_FILTER_TO_BUCKET: Record<ServerInboxFilter, ReturnType<typeof getServerInboxStatusBucket> | "total"> = { server_total: "total", server_pending: "pending_approval", server_approved: "approved", server_rejected: "rejected", server_blocked: "blocked", server_revision_requested: "revision_requested", server_synced_to_task_proposal: "synced_to_task_proposal" };
+const SERVER_FILTER_LABELS: Record<ServerInboxFilter, string> = { server_total: "Server-Inbox gesamt", server_pending: "Server: wartet auf Freigabe", server_approved: "Server: freigegeben", server_rejected: "Server: abgelehnt", server_blocked: "Server: blockiert", server_revision_requested: "Server: Überarbeitung angefordert", server_synced_to_task_proposal: "Server: Task Proposal erzeugt" };
+const SERVER_FILTER_KEYS = Object.keys(SERVER_FILTER_TO_BUCKET) as ServerInboxFilter[];
+const isServerInboxFilter = (value: ActiveListFilter): value is ServerInboxFilter => value.startsWith("server_");
 
 const FILTER_TO_BUCKET: Record<AdminCenterListFilter, "total" | ReturnType<typeof getAgentStatusBucket>> = { agent_total: "total", agent_pending: "pending_approval", agent_approved: "approved_ready", agent_rejected: "rejected", agent_blocked: "blocked", agent_in_progress: "in_progress", agent_completed: "completed", agent_repair_required: "repair_required", agent_halted_waiting_owner: "halted_waiting_owner", agent_cycle_restart_required: "cycle_restart_required", mission_total: "total", mission_pending: "pending_approval", mission_approved: "approved_ready", mission_rejected: "rejected", mission_blocked: "blocked", mission_in_progress: "in_progress", mission_completed: "completed" };
-const FILTER_LABELS: Record<AdminCenterListFilter, string> = { agent_total: "Agenten gesamt", agent_pending: "Warten auf Freigabe", agent_approved: "Freigegeben", agent_rejected: "Abgelehnt", agent_blocked: "Blockiert", agent_in_progress: "In Arbeit", agent_completed: "Fertig", agent_repair_required: "Repair Required", agent_halted_waiting_owner: "Wartet auf Owner", agent_cycle_restart_required: "Nächster Zyklus", mission_total: "Missionsvorschläge gesamt", mission_pending: "Warten auf Freigabe", mission_approved: "Freigegeben", mission_rejected: "Abgelehnt", mission_blocked: "Blockiert", mission_in_progress: "In Arbeit", mission_completed: "Fertig" };
+const FILTER_LABELS: Record<AdminCenterListFilter, string> = { agent_total: "Alle Agenten/Register gesamt", agent_pending: "Register/Legacy: Warten", agent_approved: "Register/Legacy: Freigegeben", agent_rejected: "Register/Legacy: Abgelehnt", agent_blocked: "Register/Legacy: Blockiert", agent_in_progress: "Register/Legacy: In Arbeit", agent_completed: "Register/Legacy: Fertig", agent_repair_required: "Register/Legacy: Repair Required", agent_halted_waiting_owner: "Register/Legacy: Wartet auf Owner", agent_cycle_restart_required: "Register/Legacy: Nächster Zyklus", mission_total: "Missionsvorschläge gesamt", mission_pending: "Missionen: Warten auf Freigabe", mission_approved: "Missionen: Freigegeben", mission_rejected: "Missionen: Abgelehnt", mission_blocked: "Missionen: Blockiert", mission_in_progress: "Missionen: In Arbeit", mission_completed: "Missionen: Fertig" };
 const FILTER_KEYS = Object.keys(FILTER_TO_BUCKET) as AdminCenterListFilter[];
 
   const asText = (value: unknown): string => (typeof value === "string" ? value : "");
@@ -89,15 +96,7 @@ const getDecisionDetails = (row: Row) => {
   const missing = [!details.summary ? "summary" : "", !details.what ? "what" : "", !details.why ? "why" : "", !details.wellFitBenefit ? "wellFitBenefit" : "", !details.userBenefit ? "userBenefit" : "", !details.economyImpact ? "economyImpact" : "", !details.risk ? "risk" : "", !details.recommendation ? "recommendation" : "", allowedFiles.length === 0 ? "allowedFiles" : "", blockedFiles.length === 0 ? "blockedFiles" : "", requiredChecks.length === 0 ? "requiredChecks" : ""].filter(Boolean);
   return { ...details, missing, isComplete: missing.length === 0 };
 };
-const extractPeId = (...values: unknown[]): string => {
-  for (const value of values) {
-    const text = asText(value);
-    const match = text.match(/(PE-\d{8}-\d+)/i);
-    if (match) return match[1].toUpperCase();
-  }
-  return "";
-};
-const isMissionFilter = (value: AdminCenterListFilter): value is Extract<AdminCenterListFilter, `mission_${string}`> => value.startsWith("mission_");
+const isMissionFilter = (value: ActiveListFilter): value is Extract<AdminCenterListFilter, `mission_${string}`> => value.startsWith("mission_");
 
 const POPUP_REDIRECT_FALLBACK_CODES = new Set(["auth/popup-closed-by-user", "auth/popup-blocked", "auth/cancelled-popup-request"]);
 const UNAUTHORIZED_DOMAIN_CODE = "auth/unauthorized-domain";
@@ -143,30 +142,6 @@ const getSafeGoogleLoginMessage = (error: unknown): string => {
   return "Firebase-Login fehlgeschlagen. Bitte erneut versuchen.";
 };
 
-const stableDocIdHashForLookup = (value: string): string => {
-  let hash = 0;
-  for (let index = 0; index < value.length; index += 1) {
-    hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
-  }
-  return Math.abs(hash).toString(36);
-};
-
-const sanitizeFirestoreDocIdPartForLookup = (value: unknown, maxLength = 180): string => {
-  const raw = asText(value).slice(0, Math.max(maxLength * 2, 240));
-  let sanitized = raw
-    .replace(/[\\/]+/g, "__")
-    .replace(/[\u0000-\u001f\u007f#?%[\]*`'"<>|{}^~]+/g, "_")
-    .replace(/\s+/g, "-")
-    .replace(/-{2,}/g, "-")
-    .replace(/^[-_.:]+|[-_.:]+$/g, "");
-  if (!sanitized || sanitized === "." || sanitized === "..") sanitized = "unknown";
-  if (sanitized.length > maxLength) {
-    const hash = stableDocIdHashForLookup(sanitized);
-    const prefixLength = Math.max(1, maxLength - hash.length - 1);
-    sanitized = `${sanitized.slice(0, prefixLength)}-${hash}`;
-  }
-  return sanitized;
-};
 
 
 const readableDossierPriority = (row: Row): number => {
@@ -196,7 +171,7 @@ export default function AgentCenterInteractive({
   firstRunRegisterSnapshotKeys?: string[];
   firstRunOutput?: Record<string, unknown>;
 }) {
-  const [active, setActive] = useState<AdminCenterListFilter>("agent_pending");
+  const [active, setActive] = useState<ActiveListFilter>("server_pending");
   const [feedback, setFeedback] = useState("");
   const [syncStatus, setSyncStatus] = useState("");
   const [busy, setBusy] = useState(false);
@@ -235,59 +210,10 @@ export default function AgentCenterInteractive({
   }, []);
 
 
-  const indexedInbox = useMemo(() => {
-    const byId = new Map<string, AgentCenterInboxItem>();
-    const byMirror = new Map<string, AgentCenterInboxItem>();
-    for (const item of inboxItems) {
-      byId.set(item.inboxId, item);
-      if (item.mirrorTargetId) byMirror.set(item.mirrorTargetId, item);
-    }
-    return { byId, byMirror };
-  }, [inboxItems]);
-
-  const matchInbox = useCallback((row: Row): AgentCenterInboxItem | undefined => {
-    const inboxId = asText(row.inboxId);
-    if (inboxId && indexedInbox.byId.has(inboxId)) return indexedInbox.byId.get(inboxId);
-
-    const mirrorTargetId = asText(row.mirrorTargetId);
-    if (mirrorTargetId && indexedInbox.byMirror.has(mirrorTargetId)) return indexedInbox.byMirror.get(mirrorTargetId);
-
-    const sourceDossierId = extractPeId(row.sourceDossierId, row.dossierId, row.id, row.title) || asText(row.sourceDossierId || row.dossierId || row.id);
-    const safeSourceDossierId = sanitizeFirestoreDocIdPartForLookup(sourceDossierId);
-    const listType = asText(row.listType);
-    const safeListType = sanitizeFirestoreDocIdPartForLookup(listType, 80);
-    const candidateKeys = new Set([
-      asText(row.inboxId),
-      asText(row.mirrorTargetId),
-      `product-evolution-first-run:${sourceDossierId}:${listType}`,
-      `product-evolution-first-run:${safeSourceDossierId}:${safeListType}`,
-      `product-evolution-first-run:${sourceDossierId}:suggestedTaskQueue`,
-      `product-evolution-first-run:${safeSourceDossierId}:suggestedTaskQueue`,
-      `product-evolution-first-run:${sourceDossierId}:decisionDossiers`,
-      `product-evolution-first-run:${safeSourceDossierId}:decisionDossiers`,
-      `product-evolution-first-run:${sourceDossierId}:generatedDossiers`,
-      `product-evolution-first-run:${safeSourceDossierId}:generatedDossiers`,
-      sourceDossierId,
-    ].filter(Boolean));
-
-    for (const item of inboxItems) {
-      if (candidateKeys.has(asText(item.mirrorTargetId))) return item;
-      if (candidateKeys.has(asText(item.inboxId))) return item;
-    }
-
-    return undefined;
-  }, [indexedInbox.byId, indexedInbox.byMirror, inboxItems]);
-
-  const mapped = useMemo(() => ({
-    agents: data.agents.map((row) => {
-      const item = matchInbox(row);
-      return item ? { ...row, ...item, inboxId: item.inboxId, mirrorTargetId: item.mirrorTargetId || row.mirrorTargetId, status: item.status, visibleListSource: "server_inbox" as const } : { ...row, visibleListSource: "local_snapshot" as const };
-    }),
-    missions: data.missions.map((row) => {
-      const item = matchInbox(row);
-      return item ? { ...row, ...item, inboxId: item.inboxId, mirrorTargetId: item.mirrorTargetId || row.mirrorTargetId, status: item.status, visibleListSource: "server_inbox" as const } : { ...row, visibleListSource: "local_snapshot" as const };
-    }),
-  }), [data.agents, data.missions, matchInbox]);
+  const localSnapshotRows = useMemo(() => ({
+    agents: data.agents.map((row) => ({ ...row, visibleListSource: "local_snapshot" as const })),
+    missions: data.missions.map((row) => ({ ...row, visibleListSource: "local_snapshot" as const })),
+  }), [data.agents, data.missions]);
 
   const serverInboxRows = useMemo<Row[]>(() => inboxItems.map((item) => {
     const row: Row = {
@@ -308,17 +234,26 @@ export default function AgentCenterInteractive({
       dossierIncomplete: !details.isComplete,
     };
   }), [inboxItems]);
-  const visibleListSource: "server_inbox" | "local_snapshot" = serverInboxRows.length > 0 ? "server_inbox" : "local_snapshot";
-  const serverInboxPendingCount = useMemo(() => serverInboxRows.filter((row) => getAgentStatusBucket(row) === "pending_approval").length, [serverInboxRows]);
+  const visibleListSource: "server_inbox" | "local_snapshot" = isServerInboxFilter(active) ? "server_inbox" : "local_snapshot";
+  const activeCountSource: "server_inbox" | "legacy_register" | "mission_proposals" = isServerInboxFilter(active) ? "server_inbox" : (isMissionFilter(active) ? "mission_proposals" : "legacy_register");
+  const serverInboxCounts = useMemo(() => buildServerInboxCounts(serverInboxRows), [serverInboxRows]);
+  const serverInboxPendingCount = serverInboxCounts.pending_approval;
 
   const visible = useMemo(() => {
+    if (isServerInboxFilter(active)) {
+      const bucket = SERVER_FILTER_TO_BUCKET[active];
+      const sorted = [...serverInboxRows].sort(compareReadableDossierRows);
+      if (bucket === "total") return sorted;
+      return sorted.filter((row) => getServerInboxStatusBucket(row) === bucket);
+    }
+
     const missionMode = isMissionFilter(active);
     const bucket = FILTER_TO_BUCKET[active];
-    const list = visibleListSource === "server_inbox" ? serverInboxRows : (missionMode ? mapped.missions : mapped.agents);
+    const list = missionMode ? localSnapshotRows.missions : localSnapshotRows.agents;
     const sorted = [...list].sort(compareReadableDossierRows);
     if (bucket === "total") return sorted;
     return sorted.filter((row) => (missionMode ? getMissionStatusBucket(row) : getAgentStatusBucket(row)) === bucket);
-  }, [active, mapped, serverInboxRows, visibleListSource]);
+  }, [active, localSnapshotRows, serverInboxRows]);
 
   const snapshotResolution = useMemo(() => {
     const snapshotFromProp = firstRunRegisterSnapshot && typeof firstRunRegisterSnapshot === "object" ? firstRunRegisterSnapshot : null;
@@ -762,6 +697,7 @@ export default function AgentCenterInteractive({
         <p>revisionNoDeploy: {String(syncDebug.revisionNoDeploy ?? "-")}</p>
         <p>revisionNoMerge: {String(syncDebug.revisionNoMerge ?? "-")}</p>
         <p>visibleListSource: {visibleListSource}</p>
+        <p>activeCountSource: {activeCountSource}</p>
         <p>lastDecisionAction: {String(syncDebug.lastDecisionAction || "-")}</p>
         <p>lastDecisionTargetIdPresent: {String(syncDebug.lastDecisionTargetIdPresent ?? "-")}</p>
         <p>lastDecisionAccepted: {String(syncDebug.lastDecisionAccepted ?? "-")}</p>
@@ -816,22 +752,38 @@ export default function AgentCenterInteractive({
         {String(syncDebug.clientErrorCode || "") !== "client_auth_missing" && String(syncDebug.callableVersion || "") !== "" && String(syncDebug.responseShapeVersion || "") !== "" && Number(syncDebug.serverCandidateCount || 0) === 0 && snapshotStats.localFirstRunCandidateCount > 0 && <p className="text-amber-300">Backend ist aktuell, aber Snapshot-Struktur wird nicht verarbeitet. Siehe serverSnapshotKeys/serverCandidateCollections.</p>}
       </div>
 
-      <div className="flex flex-wrap gap-2 text-xs">
-        {FILTER_KEYS.map((key) => {
-          const activeCard = active === key;
-          return (
-            <button key={key} onClick={() => setActive(key)} className={`cursor-pointer rounded border px-2 py-1 ${activeCard ? "border-cyan-300 bg-cyan-400/10 text-cyan-100 ring-1 ring-orange-300/60" : "border-white/25 hover:border-white/60 hover:bg-white/5"}`}>
-              {FILTER_LABELS[key]} ({data.stats[key] ?? 0})
-            </button>
-          );
-        })}
+      <div className="space-y-2 text-xs">
+        <p className="text-cyan-100">Server-Inbox / agentCenterInbox — zählt nur geladene Server-Inbox-Einträge und filtert die sichtbare Server-Liste.</p>
+        <div className="flex flex-wrap gap-2">
+          {SERVER_FILTER_KEYS.map((key) => {
+            const activeCard = active === key;
+            const bucket = SERVER_FILTER_TO_BUCKET[key];
+            const count = bucket === "total" ? serverInboxCounts.total : serverInboxCounts[bucket];
+            return (
+              <button key={key} onClick={() => setActive(key)} className={`cursor-pointer rounded border px-2 py-1 ${activeCard ? "border-cyan-300 bg-cyan-400/10 text-cyan-100 ring-1 ring-orange-300/60" : "border-white/25 hover:border-white/60 hover:bg-white/5"}`}>
+                {SERVER_FILTER_LABELS[key]} ({count})
+              </button>
+            );
+          })}
+        </div>
+        <p className="pt-2 text-white/65">Register/Legacy-Agenten und Missionsvorschläge — separate Register-/Snapshot-Zähler, nicht die Server-Inbox.</p>
+        <div className="flex flex-wrap gap-2">
+          {FILTER_KEYS.map((key) => {
+            const activeCard = active === key;
+            return (
+              <button key={key} onClick={() => setActive(key)} className={`cursor-pointer rounded border px-2 py-1 ${activeCard ? "border-cyan-300 bg-cyan-400/10 text-cyan-100 ring-1 ring-orange-300/60" : "border-white/25 hover:border-white/60 hover:bg-white/5"}`}>
+                {FILTER_LABELS[key]} ({data.stats[key] ?? 0})
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="space-y-3">
         {visible.map((row) => {
           const summary = buildAdminDecisionSummary(row);
           const timeline = deriveTimeline(row);
-          const missionMode = isMissionFilter(active);
+          const missionMode = !isServerInboxFilter(active) && isMissionFilter(active);
           const decisionKind = row.visibleListSource === "server_inbox" ? "agent" : (missionMode ? "mission" : "agent");
           const hasInbox = Boolean(asText(row.inboxId));
           const decisionDetails = getDecisionDetails(row);

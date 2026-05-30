@@ -1,4 +1,6 @@
 export type AgentCenterBucket = "total"|"pending_approval"|"approved_ready"|"rejected"|"blocked"|"in_progress"|"completed"|"repair_required"|"halted_waiting_owner"|"checks_pending"|"checks_passed"|"checks_failed"|"pr_created"|"branch_ready"|"merged"|"cycle_restart_required"|"not_decidable_sync_needed";
+export type ServerInboxBucket = "total"|"pending_approval"|"approved"|"rejected"|"blocked"|"revision_requested"|"synced_to_task_proposal"|"unknown";
+export type ServerInboxCounts = Record<Exclude<ServerInboxBucket, "unknown">, number> & { unknown: number };
 
 export type AdminDecisionSummary = {
   plainTitle: string;
@@ -55,6 +57,36 @@ export function normalizeAgentCenterStatus(entry: Record<string, unknown>): stri
   if (IN_PROGRESS.has(status) || entry.queuedAt || entry.workerStartedAt || entry.runnerJobCreatedAt) return "in_progress";
   if (!status) return "not_decidable_sync_needed";
   return status;
+}
+
+export function getServerInboxStatusBucket(entry: Record<string, unknown>): ServerInboxBucket {
+  const status = asLower(entry.status);
+  if (status === "pending_approval") return "pending_approval";
+  if (status === "approved") return "approved";
+  if (status === "rejected") return "rejected";
+  if (status === "blocked") return "blocked";
+  if (status === "revision_requested") return "revision_requested";
+  if (status === "synced_to_task_proposal") return "synced_to_task_proposal";
+  return "unknown";
+}
+
+export function buildServerInboxCounts(rows: Array<Record<string, unknown>>): ServerInboxCounts {
+  const counts: ServerInboxCounts = {
+    total: rows.length,
+    pending_approval: 0,
+    approved: 0,
+    rejected: 0,
+    blocked: 0,
+    revision_requested: 0,
+    synced_to_task_proposal: 0,
+    unknown: 0,
+  };
+
+  for (const row of rows) {
+    counts[getServerInboxStatusBucket(row)] += 1;
+  }
+
+  return counts;
 }
 
 export function getAgentStatusBucket(entry: Record<string, unknown>): AgentCenterBucket {
