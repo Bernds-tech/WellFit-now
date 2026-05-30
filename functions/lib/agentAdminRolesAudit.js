@@ -1440,15 +1440,17 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         ]);
         if (inboxSnap.exists) {
           const inbox = inboxSnap.data() || {};
+          const inboxStatus = String(inbox.status || "");
+          if (inboxStatus !== "pending_approval") throw new HttpsError("failed-precondition", "center_inbox_not_decidable");
           return { sourceRef: "agentCenterInbox", riskLevel: normalizeRiskLevel(inbox.riskLevel), protectedScopes: parseStringList(inbox.forbiddenScope || []), allowedFiles: parseStringList(inbox.allowedFiles || []), inboxRef: inboxSnap.ref, inbox };
         }
         if (proposalSnap.exists) return { sourceRef: "agentTaskProposals", riskLevel: normalizeRiskLevel(proposalSnap.data().riskLevel), protectedScopes: parseStringList(proposalSnap.data().protectedScopes || []), allowedFiles: parseStringList(proposalSnap.data().allowedFiles || []) };
         if (backlogSnap.exists) return { sourceRef: "approvedAgentBuildBacklogMirror", riskLevel: normalizeRiskLevel(backlogSnap.data().riskLevel), protectedScopes: parseStringList(backlogSnap.data().protectedScopes || []), allowedFiles: parseStringList(backlogSnap.data().allowedWriteScopes || []) };
         if (catalogSnap.exists) return { sourceRef: "agentCatalogMirror", riskLevel: normalizeRiskLevel(catalogSnap.data().riskLevel), protectedScopes: parseStringList(catalogSnap.data().protectedScopes || []), allowedFiles: parseStringList(catalogSnap.data().allowedWriteScopes || []) };
-        throw new HttpsError("not-found", "agent_target_not_found");
+        throw new HttpsError("not-found", "server_inbox_entry_not_found");
       }
       const missionSnap = await db.collection("agentCenterMissionProposals").doc(targetId).get();
-      if (!missionSnap.exists) throw new HttpsError("not-found", "mission_target_not_found");
+      if (!missionSnap.exists) throw new HttpsError("not-found", "server_inbox_entry_not_found");
       const d = missionSnap.data() || {};
       return { sourceRef: "agentCenterMissionProposals", riskLevel: normalizeRiskLevel(d.riskLevel), protectedScopes: parseStringList(d.protectedScopes || []), allowedFiles: parseStringList(d.allowedWriteScopes || []) };
     }
@@ -1456,8 +1458,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const resolved = await resolveTarget();
     const sourceRef = resolved.sourceRef || sourceRefHint || null;
     const riskLevel = normalizeRiskLevel(resolved.riskLevel);
-    const automationControl = (await getGlobalAutomationControl(db)).data;
-    if (["off", "paused", "halted_waiting_owner"].includes(String(automationControl.automationMode || "off"))) throw new HttpsError("failed-precondition", "automation_control_blocked");
+    // Center decisions only write the decision/audit and, for inbox items, the inbox status.
+    // They must stay independent from Automation Control because they do not start runners,
+    // enqueue workers, create task proposals, or perform branch/PR/merge/deploy actions.
     const canonHints = [sourceRef, sourceRefHint, ...resolved.allowedFiles, ...resolved.protectedScopes].filter(Boolean);
     const canonicalMatches = touchesCanonicalTruthProtectedFiles(canonHints);
     const canonicalKeyword = canonHints.some((x) => /canonical[-_]?truth/i.test(String(x || "")));

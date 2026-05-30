@@ -28,7 +28,29 @@ import type {
   ProductEvolutionInboxSyncInput,
 } from "./beta1AdminTypes";
 
-function sanitizeAdminError(error: unknown): string { const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code) : ""; if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion."; if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen."; if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden."; if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt."; if (code.includes("permission-denied")) return "Für geschützten Scope ist Owner-Freigabe nötig."; return "Dieser Eintrag ist ein technischer Framework-Eintrag und nicht direkt freigabefähig."; }
+function getAdminErrorCode(error: unknown): string {
+  return typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : "";
+}
+
+function getAdminErrorText(error: unknown): string {
+  if (!(typeof error === "object" && error)) return "";
+  const maybeError = error as { message?: unknown; details?: unknown };
+  return [maybeError.message, maybeError.details].map((value) => String(value || "")).join(" ");
+}
+
+function sanitizeAdminError(error: unknown): string {
+  const code = getAdminErrorCode(error);
+  const text = getAdminErrorText(error);
+  const diagnostic = `${code} ${text}`;
+  if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
+  if (diagnostic.includes("center_inbox_not_decidable")) return "Eintrag ist nicht mehr entscheidbar.";
+  if (diagnostic.includes("server_inbox_entry_not_found") || code.includes("not-found")) return "Server-Inbox-Eintrag nicht gefunden.";
+  if (diagnostic.includes("inbox_mirror_missing") || diagnostic.includes("not_mirrored")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
+  if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
+  if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+  if (code.includes("failed-precondition")) return "Eintrag konnte nicht entschieden werden. Bitte Status und Decision-Target prüfen.";
+  return "Dieser Eintrag ist ein technischer Framework-Eintrag und nicht direkt freigabefähig.";
+}
 function sanitizeAdminResult(result: AdminCallableResult): AdminCallableResult { return result.accepted ? { ...result, message: undefined } : { ...result, accepted: false, message: result.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen." }; }
 
 function buildAgentCenterDecisionPayload(input: AgentCenterDecisionInput): AgentCenterDecisionInput {
@@ -99,12 +121,12 @@ export async function assertAdminCallableAuthReady(): Promise<{ ok: true; state:
 async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
   const authGuard = await assertAdminCallableAuthReady();
   if (!authGuard.ok) return authGuard.result;
-  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); return sanitizeAdminResult(result.data); } catch (error) { return { accepted: false, message: sanitizeAdminError(error) }; }
+  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); return sanitizeAdminResult(result.data); } catch (error) { return { accepted: false, message: sanitizeAdminError(error), clientErrorCode: getAdminErrorCode(error) }; }
 }
 async function callAdminPreserveDiagnostics<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
   const authGuard = await assertAdminCallableAuthReady();
   if (!authGuard.ok) return { ...authGuard.result, callableName: name };
-  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); const data = (result.data || {}) as AdminCallableResult; return { ...data, accepted: Boolean(data.accepted), message: data.accepted ? undefined : (data.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen.") }; } catch (error) { const clientErrorCode = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : undefined; return { accepted: false, message: sanitizeAdminError(error), callableName: name, clientErrorCode }; }
+  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); const data = (result.data || {}) as AdminCallableResult; return { ...data, accepted: Boolean(data.accepted), message: data.accepted ? undefined : (data.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen.") }; } catch (error) { const clientErrorCode = getAdminErrorCode(error); return { accepted: false, message: sanitizeAdminError(error), callableName: name, clientErrorCode }; }
 }
 
 // keep exported object
