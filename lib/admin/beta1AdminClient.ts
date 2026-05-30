@@ -32,16 +32,37 @@ function getAdminErrorCode(error: unknown): string {
   return typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : "";
 }
 
+function stringifyAdminErrorValue(value: unknown): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (typeof value === "object") {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+}
+
 function getAdminErrorText(error: unknown): string {
   if (!(typeof error === "object" && error)) return "";
   const maybeError = error as { message?: unknown; details?: unknown };
-  return [maybeError.message, maybeError.details].map((value) => String(value || "")).join(" ");
+  return [maybeError.message, maybeError.details].map(stringifyAdminErrorValue).join(" ");
+}
+
+function hasFirestoreIndexError(diagnostic: string): boolean {
+  const lowerDiagnostic = diagnostic.toLowerCase();
+  const hasFailedPrecondition = lowerDiagnostic.includes("failed_precondition") || lowerDiagnostic.includes("failed-precondition") || /(^|\D)9(\D|$)/.test(diagnostic);
+  return lowerDiagnostic.includes("requires an index") || (hasFailedPrecondition && lowerDiagnostic.includes("index"));
 }
 
 function sanitizeAdminError(error: unknown): string {
   const code = getAdminErrorCode(error);
   const text = getAdminErrorText(error);
   const diagnostic = `${code} ${text}`;
+  if (hasFirestoreIndexError(diagnostic)) return "Firestore-Index fehlt. Bitte Index deployen oder in Firebase erstellen.";
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
   if (diagnostic.includes("inbox_not_approved") || diagnostic.includes("inbox_status_not_allowed")) return "Eintrag ist nicht approved.";
   if (diagnostic.includes("missing_approved_admin_decision")) return "Missing approved admin decision.";
