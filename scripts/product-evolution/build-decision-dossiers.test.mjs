@@ -14,16 +14,37 @@ assert(output.dossiers.length >= 5, "string generatedDossiers must become struct
 
 const generatedFromString = output.dossiers.find((dossier) => dossier.sourceDossierId === "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md");
 assert(generatedFromString, "string generatedDossier path should be converted into a dossier object");
-for (const field of ["sourceDossierId", "dossierId", "title", "summary", "whatWillChange", "whySuggested", "wellFitBenefit", "userBenefit", "businessBenefit", "economyImpact", "riskSummary", "recommendation", "riskLevel", "allowedFiles", "blockedFiles", "requiredChecks", "nextStep", "detailStatus", "missingCriticalDecisionFields"]) {
+for (const field of ["sourceDossierId", "dossierId", "title", "summary", "whatWillChange", "whySuggested", "wellFitBenefit", "userBenefit", "businessBenefit", "economyImpact", "riskSummary", "recommendation", "recommendationLabel", "recommendationText", "riskLevel", "allowedFiles", "blockedFiles", "requiredChecks", "nextStep", "detailStatus", "missingCriticalDecisionFields"]) {
   assert(Object.prototype.hasOwnProperty.call(generatedFromString, field), `complete dossier must include ${field}`);
 }
 assert.equal(generatedFromString.detailStatus, "structured");
 assert.deepEqual(generatedFromString.missingCriticalDecisionFields, []);
 assert.equal(generatedFromString.recommendation, "approve");
+assert.equal(generatedFromString.recommendationLabel, "Zur Zustimmung geeignet");
+assert.match(generatedFromString.recommendationText, /nichts automatisch umgesetzt/i, "approval recommendation must not imply auto-approval");
+assert.match(generatedFromString.economyImpact, /WFP \(interne Beta-Punkte; kein echtes Geld, kein Token, kein Cashout\)/, "WFP must be explained as internal beta points");
+assert.match(generatedFromString.economyImpact, /XP \(Erfahrungspunkte fuer den Avatar\)/, "XP must be explained as avatar progress points");
 
 assert.equal(sourceAfter.recommendedApprovals.length, 2, "structured recommendedApprovals must remain in original source");
 assert.equal(sourceAfter.recommendedApprovals[0].sourceDossierId, "PE-20260523-01");
 assert.equal(sourceAfter.recommendedApprovals[0].whatWillChange, "Proposal-Dossier fuer saisonale Familienmissionen im Move+Learn Format.");
+
+const researchMore = output.dossiers.find((dossier) => dossier.recommendation === "research_more");
+assert(researchMore, "research_more dossier should exist");
+assert.equal(researchMore.recommendationLabel, "Weiter pruefen");
+assert.match(researchMore.recommendationText, /Weiter pruefen – noch nicht umsetzen/i, "research_more must be explained with a readable label/text");
+assert.match(researchMore.recommendationText, /Es wird noch nichts in App, Funktionen, Standortlogik oder laufenden Produktlogik gebaut/i, "research_more must explicitly block implementation");
+assert.match([researchMore.summary, researchMore.whySuggested, researchMore.riskSummary].join(" "), /AR-lite \(einfache AR-\/Umgebungsmission ohne volle Unity- oder Native-App-Abhaengigkeit\)|einfache AR-\/Umgebungsmissionen/i, "AR-lite must be explained or translated");
+assert.match([researchMore.summary, researchMore.whySuggested].join(" "), /grobe Ortsbereiche|ohne praezise Standortverfolgung/i, "coarse location boundaries must be explained");
+assert.match([researchMore.summary, researchMore.whySuggested].join(" "), /Unity-.*separaten AR-\/3D-Technikbereich/i, "Unity must be explained as a separate AR/3D area");
+assert.match(researchMore.riskSummary, /Risiken durch tiefe Smartphone-\/App-Integration/i, "native risk must be explained");
+assert(!/recommendationLabel|recommendationText/.test(JSON.stringify(sourceAfter)), "script must not mutate source with recommendation labels");
+
+const missionDossier = output.dossiers.find((dossier) => dossier.sourceDossierId === "todolist/AGENT_MISSION_STORY_PROPOSALS.md");
+assert(missionDossier, "mission story dossier should exist");
+assert.match(missionDossier.economyImpact, /WFP \(interne Beta-Punkte; kein echtes Geld, kein Token, kein Cashout\)/, "mission WFP must be explained");
+assert.match(missionDossier.economyImpact, /XP \(Erfahrungspunkte fuer Avatar-Fortschritt\)/, "mission XP must be explained");
+assert.doesNotMatch(missionDossier.economyImpact, /WFP internal only|XP avatar progress|no token\/cashout\/payment/i, "mission economy terms should not stay English-only");
 
 const incomplete = output.dossiers.find((dossier) => dossier.sourceDossierId === "todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md");
 assert(incomplete, "research template dossier should exist");
@@ -35,5 +56,8 @@ const scriptSource = await readFile("scripts/product-evolution/build-decision-do
 assert(!/child_process|firebase deploy|git merge|gh pr merge|approve[A-Z]?\w*\(/i.test(scriptSource), "script must not add runner/deploy/merge/automatic approval behavior");
 const sensitiveOutputKeys = Object.keys(output);
 assert(sensitiveOutputKeys.every((key) => !new Set(["uid", "email", "accessToken", "refreshToken", "idToken", "secret", "token"]).has(key)), "debug/output keys must not contain UID, e-mail, tokens or secrets");
+const serializedOutput = JSON.stringify(output);
+assert(!/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(serializedOutput), "output must not contain e-mail addresses");
+assert(!/uid|accessToken|refreshToken|idToken|secret/i.test(serializedOutput), "output must not contain UID, tokens or secrets");
 
 console.log("product evolution dossier author tests passed");

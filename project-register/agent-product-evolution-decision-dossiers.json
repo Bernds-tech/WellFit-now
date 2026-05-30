@@ -1,19 +1,19 @@
 {
-  "createdAt": "2026-05-30T16:14:08.021Z",
+  "createdAt": "2026-05-30T17:12:32.945Z",
   "sourceRef": "project-register/agent-product-evolution-first-run-output.json",
   "dossiers": [
     {
       "sourceDossierId": "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_FIRST_RUN_ANALYSIS.md",
       "dossierId": "PE-DOSSIER-01-DOCS-ARCHITECTURE-WELLFIT-AGENT-PRODUCT-EVOLUTION-FIRST-RUN-ANALYSIS",
-      "title": "Product Evolution First Run Analysis",
-      "summary": "Analyse-Lauf dokumentiert Produkt-, Governance- und Dossier-Status fuer WellFit Beta-1 ohne Runtime-Aenderungen.",
-      "whatWillChange": "Analyse- und Governance-Erkenntnisse werden als Admin-Entscheidungsdossier gespiegelt.",
-      "whySuggested": "Die Analyse nennt fehlenden konsolidierten First-Run Output und unstrukturierte Produktchancen als offene Luecken.",
-      "wellFitBenefit": "WellFit bekommt nachvollziehbare, admin-review-faehige Produktentwicklungsentscheidungen auf Basis vorhandener Register- und Planungsdaten.",
+      "title": "Produktentwicklung: erste Analyse als Entscheidungsvorlage",
+      "summary": "Der Analyse-Lauf fasst Produktstatus, Governance und Dossier-Luecken fuer WellFit Beta-1 zusammen. Er nennt auch AR-lite (einfache AR-/Umgebungsmission ohne volle Unity- oder Native-App-Abhaengigkeit) Missionen mit groben Ortsbereichen als Chance, aber nur als Pruefthema. Er dient nur als Entscheidungsgrundlage und aendert nichts am laufenden Produkt.",
+      "whatWillChange": "Die Analyse-Ergebnisse werden in ein verstaendliches Admin-Dossier uebertragen. Daraus entsteht noch keine App-Funktion, kein Funktions-Deploy (Veroeffentlichung) und keine automatische Umsetzung.",
+      "whySuggested": "Die Analyse nennt fehlende gebuendelte First-Run-Ergebnisse und noch unklare Produktchancen, darunter einfache AR-/Umgebungsmissionen ohne Unity-Abhaengigkeit (Abhaengigkeit vom separaten AR-/3D-Technikbereich) und ohne praezise Standortverfolgung. Deshalb soll zuerst fachlich geprueft werden, welche Vorschlaege sicher weiterverfolgt werden duerfen.",
+      "wellFitBenefit": "WellFit bekommt nachvollziehbare Produktentscheidungen, die ein Admin pruefen kann, bevor Arbeit gestartet wird.",
       "userBenefit": "Nutzer profitieren indirekt von sicherer, gepruefter Produktplanung statt vorschneller oder unklarer Feature-Aktivierung.",
-      "businessBenefit": "Reviewbare Dossiers verbessern Priorisierung, Retention-Planung und Beta-Readiness ohne neue Compliance- oder Runtime-Risiken.",
-      "economyImpact": "Nur interne Beta-1 WFP/XP-Konzeption; keine Token-, NFT-, Cashout-, Payment- oder Blockchain-Aktivierung.",
-      "riskSummary": "Risiken: Legacy-Token/Cashout-Fokus, Umsetzung ohne Admin Approval und spekulative/privacy-kritische Trends.",
+      "businessBenefit": "Verstaendliche Dossiers verbessern Priorisierung, Nutzerbindung und Beta-Bereitschaft, ohne neue Compliance- oder Produktrisiken zu erzeugen.",
+      "economyImpact": "Beta-1 Economy bleibt intern: WFP (interne Beta-Punkte; kein echtes Geld, kein Token, kein Cashout) und XP (Erfahrungspunkte fuer den Avatar). Keine Zahlung und keine Blockchain-Aktivierung.",
+      "riskSummary": "Risiken: alte Token- oder Cashout-Ideen koennten Beta-1 verwässern, Umsetzung ohne bewusste Admin-Zustimmung waere falsch, und Standort-/Datenschutzfragen sowie Risiken durch tiefe Smartphone-/App-Integration muessen zuerst geprueft werden.",
       "recommendation": "research_more",
       "riskLevel": "medium",
       "allowedFiles": [
@@ -35,22 +35,24 @@
         "npm run build",
         "git diff --check"
       ],
-      "nextStep": "Admin prueft Dossier; bei Freigabe nur Task-Proposal/Handoff vorbereiten, kein automatisches Zustimmen, Mergen oder Deployen.",
+      "nextStep": "Weiter pruefen: zuerst ein reines Konzept- oder Research-Dossier erstellen. Es wird noch nichts in App, Funktionen, Standortlogik oder laufenden Produktlogik gebaut.",
       "detailStatus": "structured",
-      "missingCriticalDecisionFields": []
+      "missingCriticalDecisionFields": [],
+      "recommendationLabel": "Weiter pruefen",
+      "recommendationText": "Weiter pruefen – noch nicht umsetzen. Dieser Vorschlag braucht zuerst ein reines Konzept- oder Research-Dossier. Es wird noch nichts in App, Funktionen, Standortlogik oder laufenden Produktlogik gebaut."
     },
     {
       "sourceDossierId": "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
       "dossierId": "PE-DOSSIER-02-TODOLIST-AGENT-PRODUCT-OPPORTUNITY-PROPOSALS",
-      "title": "First Run Product Opportunity Dossiers",
+      "title": "Produktchance: saisonale Familienmissionen als Entscheidungsvorlage",
       "summary": "Admin-freigabefaehiges Dossier fuer saisonale Walk+Learn Mission-Packs (nur Konzeption).",
       "whatWillChange": "Admin-freigabefaehiges Dossier fuer saisonale Walk+Learn Mission-Packs (nur Konzeption).",
       "whySuggested": "Nach PR #241 ist Control-Center technisch vorbereitet; jetzt braucht es hochwertige Inhalte fuer Approval-Pipeline.",
       "wellFitBenefit": "Schnellere Aktivierung sicherer Mission-Roadmap ohne Runtime-Risiko.",
       "userBenefit": "Klare, motivierende Familienmissionen mit Bewegung und Lernanteil.",
-      "businessBenefit": "Hoehere Retention + vorbereitete B2B Family-Wellness Story.",
-      "economyImpact": "WFP als kontrollierter Reward-Loop, XP fuer Avatar Progress.; erfordert Reward-Caps und saisonale Sink-Mechanik.",
-      "riskSummary": "Reward-Inflation, Child-Safety-Missverstaendnisse",
+      "businessBenefit": "Hoehere Nutzerbindung + vorbereitete B2B (Angebote fuer Firmen oder Partner) Family-Wellness Story.",
+      "economyImpact": "WFP (interne Beta-Punkte; kein echtes Geld, kein Token, kein Cashout) als kontrollierter Belohnungskreislauf, XP (Erfahrungspunkte fuer den Avatar) fuer Avatar-Fortschritt.; erfordert Belohnungsgrenzen und saisonale Mechanik zum kontrollierten Ausgeben oder Begrenzen interner Punkte.",
+      "riskSummary": "zu stark wachsende Belohnungen, Kindersicherheit-Missverstaendnisse",
       "recommendation": "approve",
       "riskLevel": "medium",
       "allowedFiles": [
@@ -71,22 +73,24 @@
         "npm run build",
         "git diff --check"
       ],
-      "nextStep": "Admin prueft Dossier; bei Freigabe nur Task-Proposal/Handoff vorbereiten, kein automatisches Zustimmen, Mergen oder Deployen.",
+      "nextStep": "Admin prueft Dossier; bei Freigabe nur Task-Proposal/Handoff vorbereiten, kein automatisches Zustimmen, Mergen oder Veroeffentlichen.",
       "detailStatus": "structured",
-      "missingCriticalDecisionFields": []
+      "missingCriticalDecisionFields": [],
+      "recommendationLabel": "Zur Zustimmung geeignet",
+      "recommendationText": "Der Vorschlag ist als begrenztes Dossier oder Planungsarbeit geeignet. Trotzdem wird nichts automatisch umgesetzt: Ein Admin muss bewusst zustimmen, danach entsteht nur der naechste klar begrenzte Arbeitsschritt."
     },
     {
       "sourceDossierId": "todolist/AGENT_MISSION_STORY_PROPOSALS.md",
       "dossierId": "PE-DOSSIER-03-TODOLIST-AGENT-MISSION-STORY-PROPOSALS",
-      "title": "First Run Mission Story Proposal",
-      "summary": "AGENT Mission Story Proposals (Planning Only)",
+      "title": "Familien Abenteuerpfad Woche",
+      "summary": "Familie sammelt gemeinsame Aktivitaetskapitel im Wohnumfeld.",
       "whatWillChange": "5 Tagesetappen, je Bewegung + Mini-Lernimpuls + soziales Check-in.",
       "whySuggested": "Move-Learn-Social Kern ohne verbotene Monetarisierung.",
-      "wellFitBenefit": "WellFit bekommt nachvollziehbare, admin-review-faehige Produktentwicklungsentscheidungen auf Basis vorhandener Register- und Planungsdaten.",
-      "userBenefit": "Nutzer profitieren indirekt von sicherer, gepruefter Produktplanung statt vorschneller oder unklarer Feature-Aktivierung.",
-      "businessBenefit": "Reviewbare Dossiers verbessern Priorisierung, Retention-Planung und Beta-Readiness ohne neue Compliance- oder Runtime-Risiken.",
-      "economyImpact": "WFP internal only + XP avatar progress + no token/cashout/payment.",
-      "riskSummary": "medium (child/guardian wording).",
+      "wellFitBenefit": "WellFit bekommt nachvollziehbare Produktentscheidungen, die ein Admin pruefen kann, bevor Arbeit gestartet wird.",
+      "userBenefit": "gemeinsamer Fortschritt statt Wettbewerb.",
+      "businessBenefit": "Verstaendliche Dossiers verbessern Priorisierung, Nutzerbindung und Beta-Bereitschaft, ohne neue Compliance- oder Produktrisiken zu erzeugen.",
+      "economyImpact": "WFP (interne Beta-Punkte; kein echtes Geld, kein Token, kein Cashout) nur intern in der Beta + XP (Erfahrungspunkte fuer Avatar-Fortschritt) + kein Token, kein Cashout und keine Zahlung.",
+      "riskSummary": "medium (Formulierungen zu Kindern und Elternaufsicht).",
       "recommendation": "approve",
       "riskLevel": "medium",
       "allowedFiles": [
@@ -108,22 +112,24 @@
         "npm run build",
         "git diff --check"
       ],
-      "nextStep": "admin approval fuer detailliertes dossier.",
+      "nextStep": "bewusste Admin-Zustimmung fuer detailliertes dossier.",
       "detailStatus": "structured",
-      "missingCriticalDecisionFields": []
+      "missingCriticalDecisionFields": [],
+      "recommendationLabel": "Zur Zustimmung geeignet",
+      "recommendationText": "Der Vorschlag ist als begrenztes Dossier oder Planungsarbeit geeignet. Trotzdem wird nichts automatisch umgesetzt: Ein Admin muss bewusst zustimmen, danach entsteht nur der naechste klar begrenzte Arbeitsschritt."
     },
     {
       "sourceDossierId": "todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md",
       "dossierId": "PE-DOSSIER-04-TODOLIST-AGENT-RESEARCH-SUMMARY-TEMPLATE",
-      "title": "Research Summary Template — Dossier Incomplete",
-      "summary": "Vorlage fuer spaetere Research Summaries; enthaelt Anforderungen, aber keine konkrete Quellenlage oder belastbare Findings.",
-      "whatWillChange": "",
-      "whySuggested": "Die Vorlage definiert Risk-Source-Filter, reicht aber allein nicht als fachliche Entscheidungsgrundlage.",
-      "wellFitBenefit": "Hilft spaeter, Research report-only und sicher zu strukturieren.",
-      "userBenefit": "Noch kein direkter Nutzereffekt, da kein konkretes geprueftes Proposal vorliegt.",
-      "businessBenefit": "Noch keine belastbare Finanz- oder Produktentscheidung moeglich.",
-      "economyImpact": "Nicht bewertbar ohne konkrete Findings; keine WFP/XP- oder Token/Payment-Aktivierung.",
-      "riskSummary": "Unvollstaendig: fehlende Quellen, Findings, Widersprueche, Confidence und konkrete Empfehlung.",
+      "title": "Research-Vorlage: Dossier noch unvollstaendig",
+      "summary": "Das ist nur eine Vorlage fuer spaetere Recherche-Zusammenfassungen. Sie enthaelt Anforderungen, aber noch keine konkreten Quellen, Ergebnisse oder belastbaren Schlussfolgerungen.",
+      "whatWillChange": "Es wird nichts gebaut. Zuerst muss aus der Vorlage ein konkretes Dossier mit Quellen, Erkenntnissen und Risiken entstehen.",
+      "whySuggested": "Die Vorlage beschreibt, wie riskante Quellen gefiltert werden sollen. Allein reicht sie aber nicht als Entscheidungsgrundlage.",
+      "wellFitBenefit": "Hilft spaeter, Recherche sicher und nachvollziehbar zu strukturieren.",
+      "userBenefit": "Noch kein direkter Nutzereffekt, weil kein konkret gepruefter Vorschlag vorliegt.",
+      "businessBenefit": "Noch keine belastbare Produkt- oder Business-Entscheidung moeglich.",
+      "economyImpact": "Noch nicht bewertbar. Es gibt keine WFP (interne Beta-Punkte; kein echtes Geld, kein Token, kein Cashout)- oder XP (Erfahrungspunkte fuer den Avatar)-Aktivierung und keine Token-, Zahlungs- oder Cashout-Funktion.",
+      "riskSummary": "Unvollstaendig: Es fehlen konkrete Quellen, Ergebnisse, Widersprueche, Sicherheit der Bewertung und eine klare Empfehlung.",
       "recommendation": "revise",
       "riskLevel": "medium",
       "allowedFiles": [
@@ -145,24 +151,26 @@
         "npm run build",
         "git diff --check"
       ],
-      "nextStep": "Konkreten Research Summary mit Quellen, Findings, Risiken, Confidence und WellFit-Empfehlung nachreichen.",
+      "nextStep": "Konkrete Recherche-Zusammenfassung mit Quellen, Ergebnissen, Risiken, Bewertungs-Sicherheit und WellFit-Empfehlung nachreichen.",
       "detailStatus": "missing",
       "missingCriticalDecisionFields": [
-        "whatWillChange"
-      ]
+        "concreteResearchFindings"
+      ],
+      "recommendationLabel": "Ueberarbeiten",
+      "recommendationText": "Bitte nicht zustimmen. Es fehlen noch verstaendliche Entscheidungsdaten, belastbare Begruendungen oder sichere Grenzen. Zuerst muss das Dossier nachgebessert werden."
     },
     {
       "sourceDossierId": "docs/beta/BETA1_PRODUCT_EVOLUTION_FIRST_RUN_READINESS_GAPS.md",
       "dossierId": "PE-DOSSIER-05-DOCS-BETA-BETA1-PRODUCT-EVOLUTION-FIRST-RUN-READINESS-GAPS",
-      "title": "Beta-1 Product Evolution First Run Readiness Gaps",
-      "summary": "Readiness-Gaps vor echten Testern: Human/Device Evidence, Manual Seed Run, Privacy/Guardian Review und Dossier-Inbox-Freigabe fehlen.",
-      "whatWillChange": "Gaps werden als Review-Dossier sichtbar, aber nicht automatisch freigegeben.",
-      "whySuggested": "Blockierende Evidence- und Freigabe-Luecken muessen vor echten Beta-Testern geklaert werden.",
-      "wellFitBenefit": "WellFit bekommt nachvollziehbare, admin-review-faehige Produktentwicklungsentscheidungen auf Basis vorhandener Register- und Planungsdaten.",
+      "title": "Beta-1 Bereitschaft: offene Pruefpunkte vor echten Testern",
+      "summary": "Vor echten Testern fehlen noch Nachweise mit Menschen und Geraeten, ein manueller Probelauf, Datenschutz-/Einwilligungspruefung, Eltern-/Kinder-Schutzpruefung und die Freigabe der Dossier-Inbox.",
+      "whatWillChange": "Diese offenen Punkte werden als Review-Dossier sichtbar. Sie werden nicht automatisch freigegeben und fuehren zu keiner Produktumsetzung.",
+      "whySuggested": "Bevor echte Beta-Tester eingeladen werden, muessen Nachweise, Schutzgrenzen und Freigaben verstaendlich dokumentiert sein.",
+      "wellFitBenefit": "WellFit bekommt nachvollziehbare Produktentscheidungen, die ein Admin pruefen kann, bevor Arbeit gestartet wird.",
       "userBenefit": "Nutzer profitieren indirekt von sicherer, gepruefter Produktplanung statt vorschneller oder unklarer Feature-Aktivierung.",
-      "businessBenefit": "Reviewbare Dossiers verbessern Priorisierung, Retention-Planung und Beta-Readiness ohne neue Compliance- oder Runtime-Risiken.",
-      "economyImpact": "Nur interne Beta-1 WFP/XP-Konzeption; keine Token-, NFT-, Cashout-, Payment- oder Blockchain-Aktivierung.",
-      "riskSummary": "High, weil Testerfreigabe, Privacy/Consent und Guardian/Child Boundaries betroffen sind; nur Planung, keine Runtime-Aenderung.",
+      "businessBenefit": "Verstaendliche Dossiers verbessern Priorisierung, Nutzerbindung und Beta-Bereitschaft, ohne neue Compliance- oder Produktrisiken zu erzeugen.",
+      "economyImpact": "Beta-1 Economy bleibt intern: WFP (interne Beta-Punkte; kein echtes Geld, kein Token, kein Cashout) und XP (Erfahrungspunkte fuer den Avatar). Keine Zahlung und keine Blockchain-Aktivierung.",
+      "riskSummary": "Hohes Risiko, weil Testerfreigabe, Datenschutz, Einwilligung und Eltern-/Kinder-Schutz betroffen sind. Das Dossier bleibt Planung und aendert nichts am laufenden Produkt.",
       "recommendation": "revise",
       "riskLevel": "high",
       "allowedFiles": [
@@ -184,9 +192,11 @@
         "npm run build",
         "git diff --check"
       ],
-      "nextStep": "Revision/Owner-Review der Readiness-Gaps; fehlende Evidence-Matrix und Signoff-Dry-Run separat ausarbeiten.",
+      "nextStep": "Ueberarbeiten und vom Owner pruefen lassen; fehlende Nachweismatrix und Freigabe-Probelauf separat ausarbeiten.",
       "detailStatus": "structured",
-      "missingCriticalDecisionFields": []
+      "missingCriticalDecisionFields": [],
+      "recommendationLabel": "Ueberarbeiten",
+      "recommendationText": "Bitte nicht zustimmen. Es fehlen noch verstaendliche Entscheidungsdaten, belastbare Begruendungen oder sichere Grenzen. Zuerst muss das Dossier nachgebessert werden."
     }
   ]
 }

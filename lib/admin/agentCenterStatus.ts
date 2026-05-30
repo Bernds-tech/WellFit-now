@@ -11,6 +11,8 @@ export type AdminDecisionSummary = {
   economyImpact: string;
   riskSummary: string;
   recommendation: string;
+  recommendationLabel: string;
+  recommendationText: string;
   nextStepAfterApproval: string;
   allowedFilesPreview: string;
   blockedFilesPreview: string;
@@ -89,17 +91,19 @@ export function buildAdminDecisionSummary(entry: Record<string, unknown>): Admin
   const economyImpact = asText(entry.economyImpact) || asText(entry.internalEconomyRecommendation) || "fehlt";
   const riskSummary = asText(entry.riskSummary) || asText(entry.riskLevel) || "fehlt";
   const recommendation = asText(entry.recommendation) || asText(entry.recommendedDecision) || "fehlt";
+  const recommendationLabel = asText(entry.recommendationLabel) || recommendation;
+  const recommendationText = asText(entry.recommendationText) || recommendationLabel;
   const nextStepAfterApproval = asText(entry.nextStepAfterApproval) || asText(entry.suggestedBranch) || "fehlt";
   const allowedFilesPreview = listPreview(entry.allowedFiles);
   const blockedFilesPreview = listPreview(entry.blockedFiles);
 
-  for (const [field, val] of Object.entries({ whatWillChange, whySuggested, wellFitBenefit, userBenefit, businessBenefit, economyImpact, riskSummary, recommendation, nextStepAfterApproval })) {
+  for (const [field, val] of Object.entries({ whatWillChange, whySuggested, wellFitBenefit, userBenefit, businessBenefit, economyImpact, riskSummary, recommendation, recommendationLabel, recommendationText, nextStepAfterApproval })) {
     if (val === "fehlt") missingDecisionData.push(field);
   }
   if (!hasDecisionTarget(entry)) missingDecisionData.push("decisionTarget");
   if (technical) missingDecisionData.push("dossier");
 
-  return { plainTitle, plainSummary, whatWillChange, whySuggested, wellFitBenefit, userBenefit, businessBenefit, economyImpact, riskSummary, recommendation, nextStepAfterApproval, allowedFilesPreview, blockedFilesPreview, missingDecisionData };
+  return { plainTitle, plainSummary, whatWillChange, whySuggested, wellFitBenefit, userBenefit, businessBenefit, economyImpact, riskSummary, recommendation, recommendationLabel, recommendationText, nextStepAfterApproval, allowedFilesPreview, blockedFilesPreview, missingDecisionData };
 }
 
 export function formatAdminDate(value: unknown): string {

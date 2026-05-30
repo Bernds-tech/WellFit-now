@@ -72,7 +72,8 @@ const getDecisionDetails = (row: Row) => {
     userBenefit: firstText(row.userBenefit, row.detailSections?.userBenefit),
     economyImpact: firstText(row.economyImpact, row.detailSections?.economyImpact),
     risk: firstText(row.risk, row.riskSummary, row.detailSections?.risk, row.detailSections?.risks),
-    recommendation: firstText(row.recommendation, row.detailSections?.recommendation),
+    recommendation: firstText(row.recommendationLabel, row.recommendationText, row.recommendation, row.detailSections?.recommendation),
+    recommendationDebug: firstText(row.recommendation, row.detailSections?.recommendation),
     source: firstText(row.sourceRef, row.sourcePath, row.dossierRef, row.sourceType),
     nextStep: firstText(row.nextStep, "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch."),
     allowedFiles, blockedFiles, requiredChecks,
@@ -782,6 +783,7 @@ export default function AgentCenterInteractive({
             {info("Economy Impact", details.economyImpact)}
             {info("Risiko", details.risk)}
             {info("Empfehlung", details.recommendation)}
+            {details.recommendationDebug && details.recommendationDebug !== details.recommendation && info("Technischer Empfehlungswert (Debug)", details.recommendationDebug)}
             {fileList("Betroffene/erlaubte Dateien", details.allowedFiles)}
             {fileList("Blockierte Dateien", details.blockedFiles)}
             {fileList("Required Checks", details.requiredChecks)}
