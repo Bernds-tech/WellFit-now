@@ -1307,7 +1307,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const allowedFiles = firstPresentList(payload, ["allowedFiles", "allowedWriteScopes", "allowedPaths", "affectedFiles", "files"], 80, 260);
     const blockedFiles = firstPresentList(payload, ["blockedFiles", "blockedWriteScopes", "forbiddenFiles", "protectedFiles", "blockedPaths"], 80, 260);
     const requiredChecks = firstPresentList(payload, ["requiredChecks", "checks", "qualityChecks", "requiredCommands", "validationCommands"], 80, 260);
-    assertCanonicalTruthChangeAllowed({ files: [...allowedFiles, ...blockedFiles], actorRole, ownerApprovalFlag: actorRole === "owner", HttpsError });
+    assertCanonicalTruthChangeAllowed({ files: allowedFiles, actorRole, ownerApprovalFlag: actorRole === "owner", HttpsError });
     const decisionDetails = buildInboxDecisionDetails(payload, { sourceType, listType, sourceDossierId, allowedFiles, blockedFiles, requiredChecks });
     const doc = {
       inboxId,
@@ -1329,7 +1329,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       runnerEligibility: sanitizeInboxText(payload.runnerEligibility, 80) || "admin_review_required",
       adminApprovalRequired: true,
       requiresAdminReview: true,
-      canonicalTruthProtected: touchesCanonicalTruthProtectedFiles([...allowedFiles, ...blockedFiles]).length > 0,
+      canonicalTruthProtected: touchesCanonicalTruthProtectedFiles(allowedFiles).length > 0,
       beta1Allowed: payload.beta1Allowed !== false,
       forbiddenScope: parseStringList(payload.forbiddenScope || [], 40, 120),
       sourcePayloadSummary: firstPresentText(payload, ["sourcePayloadSummary", "summary", "plainSummary", "description"], 1200),
@@ -1381,7 +1381,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
             skipped += 1;
             continue;
           }
-          if (hasProtectedFileScope([...(item.allowedFiles || []), ...(item.blockedFiles || [])])) {
+          if (hasProtectedFileScope(item.allowedFiles || [])) {
             sampleSkipped.push({ listType: collection.listType, reason: "protected_scope", id: sourceDossierId });
             skippedReasons.protected_scope = Number(skippedReasons.protected_scope || 0) + 1;
             skipped += 1;

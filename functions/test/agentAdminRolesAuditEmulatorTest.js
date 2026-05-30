@@ -341,18 +341,48 @@ async function run() {
       generatedDossiers: [{ id: "PE-20260523-01", summary: "s", whatWillChange: "w", whySuggested: "y", allowedFiles: ["docs/**"], blockedFiles: [] }],
       suggestedTaskQueue: [{ title: "PE-20260523-02 Candidate", summary: "s", whatWillChange: "w", whySuggested: "y", allowedFiles: ["docs/**"], blockedFiles: [] }],
       recommendedResearchMore: [{ sourceDossierId: "PE-20260523-03", summary: "s", whatWillChange: "w", whySuggested: "y", allowedFiles: ["docs/**"], blockedFiles: [] }],
+      decisionDossiers: [
+        {
+          id: "PE-20260523-04",
+          summary: "Decision dossier with protected blocked scopes",
+          whatWillChange: "Create docs/register/todolist only handoff artifacts.",
+          whySuggested: "Protected runtime paths are explicitly blocked, not writable.",
+          wellFitBenefit: "WellFit gets safe Product Evolution review metadata.",
+          userBenefit: "Users benefit from safer reviewed planning changes.",
+          economyImpact: "Internal beta points/XP only; no token/payment/blockchain activation.",
+          riskSummary: "Low docs-only change with protected blocked paths.",
+          recommendation: "approve",
+          allowedFiles: ["docs/**", "todolist/**", "project-register/**"],
+          blockedFiles: ["app/**", "functions/**", "firestore.rules", "native/**", ".github/**"],
+          requiredChecks: ["npm run agent:validate", "npm run lint", "git diff --check"],
+        },
+        {
+          id: "PE-20260523-05",
+          summary: "Decision dossier with protected allowed scope",
+          whatWillChange: "Attempt runtime backend changes.",
+          whySuggested: "This should remain blocked by protected scope checks.",
+          allowedFiles: ["functions/**"],
+          blockedFiles: ["docs/**"],
+        },
+      ],
       blockedItems: [{ title: "invalid-no-id", summary: "s" }],
     },
   });
-  assert((firstRunSync.created || 0) + (firstRunSync.updated || 0) >= 3, "sync should create/update PE 01/02/03");
+  assert((firstRunSync.created || 0) + (firstRunSync.updated || 0) >= 4, "sync should create/update PE 01/02/03 plus safe decision dossier");
   assert(firstRunSync.callableVersion === "2026-05-30-dossier-decision-details-v4", "sync response must include callableVersion");
   assert(firstRunSync.responseShapeVersion === "agent-center-inbox-sync-v4", "sync response must include responseShapeVersion");
   assert(firstRunSync.payloadUnwrappedFrom === "registerSnapshot", "top-level registerSnapshot must be recognized");
   assert((firstRunSync.skippedReasons && firstRunSync.skippedReasons.missing_sourceDossierId >= 1) || false, "invalid entry should be counted as missing_sourceDossierId");
+  assert((firstRunSync.skippedReasons && firstRunSync.skippedReasons.protected_scope >= 1) || false, "decision dossier with protected allowedFiles should be protected_scope skipped");
   const pe01 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-01:generatedDossiers").get();
   const pe02 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-02:suggestedTaskQueue").get();
   const pe03 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-03:recommendedResearchMore").get();
-  assert(pe01.exists && pe02.exists && pe03.exists, "stable inbox ids should exist for PE 01/02/03");
+  const pe04 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-04:decisionDossiers").get();
+  const pe05 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-05:decisionDossiers").get();
+  assert(pe01.exists && pe02.exists && pe03.exists && pe04.exists, "stable inbox ids should exist for PE 01/02/03 and safe decision dossier PE 04");
+  assert(!pe05.exists, "decision dossier with protected allowedFiles should not be synced");
+  assert(JSON.stringify(pe04.data().blockedFiles || []) === JSON.stringify(["app/**", "functions/**", "firestore.rules", "native/**", ".github/**"]), "blockedFiles should be preserved on synced decision dossier");
+  assert(pe04.data().canonicalTruthProtected === false, "blockedFiles alone should not mark canonical truth protected writes");
   assert((firstRunSync.serverCandidateCount || 0) >= 3, "serverCandidateCount should include PE 01/02/03");
   assert(((firstRunSync.created || 0) + (firstRunSync.updated || 0) + (firstRunSync.skipped || 0)) > 0, "created+updated+skipped should be > 0");
   assert((firstRunSync.serverCandidateCollections || []).some((entry) => entry.listType === "suggestedTaskQueue"), "must detect top-level suggestedTaskQueue");
