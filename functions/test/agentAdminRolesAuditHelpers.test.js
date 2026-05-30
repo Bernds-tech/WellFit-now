@@ -96,5 +96,30 @@ const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEv
   assert.strictEqual(isCompleteDecisionDossier(incomplete), false, 'approval guard must block missing what');
 })();
 
+(function testDecisionDossiersCandidateCollections() {
+  const input = { decisionDossiers: [{ sourceDossierId: 'DOC-1', summary: 's' }], data: { dossiers: [{ sourceDossierId: 'DOC-2', summary: 's' }] } };
+  const result = getFirstRunCandidateCollections(input);
+  assert(result.some((entry) => entry.path === 'decisionDossiers' && entry.listType === 'decisionDossiers'), 'must detect root decisionDossiers');
+  assert(result.some((entry) => entry.path === 'data.dossiers' && entry.listType === 'decisionDossiers'), 'must detect generated decision dossier file schema');
+})();
+
+(function testDecisionDossierCompleteAndIncompleteApprovalGuard() {
+  const complete = {
+    what: 'Create a planning dossier only.',
+    why: 'The admin inbox needs decision details.',
+    wellFitBenefit: 'Traceable safe product planning.',
+    userBenefit: 'Safer reviewed product improvements.',
+    economyImpact: 'Internal WFP/XP wording only; no payment/token activation.',
+    risk: 'Low docs/register risk with runtime blocked.',
+    recommendation: 'approve',
+    allowedFiles: ['docs/**'],
+    blockedFiles: ['app/**', 'functions/**'],
+    requiredChecks: ['npm run agent:validate', 'npm run lint', 'git diff --check'],
+  };
+  assert.strictEqual(isCompleteDecisionDossier(complete), true, 'complete decision dossier should pass approval guard');
+  const incomplete = { ...complete, what: '' };
+  assert.strictEqual(isCompleteDecisionDossier(incomplete), false, 'incomplete decision dossier must not be approvable');
+})();
+
 
 console.log('agentAdminRolesAudit helper tests passed');
