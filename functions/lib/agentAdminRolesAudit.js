@@ -1367,13 +1367,57 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   exportsTarget.createGithubRunnerJobFromWorkerQueue = onCall(async (request)=>{ const { actorId, actorRole } = requireRole(request, HttpsError,["owner","agent_supervisor","admin_operator"]); const workerQueueId=requiredString(request.data&&request.data.workerQueueId,"workerQueueId",HttpsError,180); const policyId=requiredString(request.data&&request.data.policyId,"policyId",HttpsError,180); const [wSnap,pSnap,g,b]=await Promise.all([db.collection("agentTaskWorkerQueue").doc(workerQueueId).get(),db.collection("agentTaskAutomationPolicies").doc(policyId).get(),getGlobalAutomationControl(db),db.collection("qualityGateKnownBlockers").doc("global").get()]); const worker=wSnap.data()||{}; if(!wSnap.exists || worker.workerStatus!=="ready_for_worker") throw new HttpsError("failed-precondition","worker_not_ready"); assertAutomationMayStartNewWork(g.data,HttpsError,optionalString(request.data&&request.data.taskType,80)); const blockers=parseStringList((b.data()||{}).knownBlockers||[]); if(blockers.length && (b.data()||{}).blocksRealRunner===true) throw new HttpsError("failed-precondition","known_blocker_blocks_real_runner"); const branchName=optionalString(request.data&&request.data.githubBranchName,180)||optionalString(worker.branchName,180)||`runtime/${workerQueueId}`; if (isProtectedBranchName(branchName) || !isSafeBranchName(branchName)) throw new HttpsError("failed-precondition","direct_main_write_blocked"); const gs=buildGithubRunnerCapability(); const status = gs.status === "metadata_only" ? "ready_for_github" : gs.status; const ref=db.collection("agentTaskSupervisedRunnerJobs").doc(); await ref.set({jobId:ref.id,workerQueueId,policyId,githubRunnerStatus:status,runnerJobCreatedAt:FieldValue.serverTimestamp(),runnerStartedAt:FieldValue.serverTimestamp(),lastStatusChangedAt:FieldValue.serverTimestamp(),githubBranchName:branchName,runnerStatus:status,createdBy:actorId,createdByRole:actorRole,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()},{merge:true}); await writeAgentAudit(db,{actorId,actorRole,action:"github_runner_created_from_worker_queue",result:status,approvalId:policyId}); return {accepted:true,jobId:ref.id,status}; });
 
   exportsTarget.createRepairTaskFromFailedRunnerJob = onCall(async (request)=>{ const { actorId, actorRole } = requireRole(request, HttpsError,["owner","agent_supervisor","admin_operator"]); const jobId=requiredString(request.data&&request.data.jobId,"jobId",HttpsError,180); const job=(await db.collection("agentTaskSupervisedRunnerJobs").doc(jobId).get()).data()||{}; const failed=["failed","checks_failed","blocked","conflict","repair_required"].includes(String(job.githubRunnerStatus||job.runnerStatus||"")); if(!failed) throw new HttpsError("failed-precondition","repair_not_allowed_for_status"); const g=await getGlobalAutomationControl(db); const count=Number(g.data.repairAttemptCount||0); const max=Number(g.data.maxRepairAttempts||3); if(count>=max) throw new HttpsError("failed-precondition","repair_limit_reached"); const ref=db.collection("agentTaskProposals").doc(); await ref.set({proposalId:ref.id,title:`Repair ${jobId}`,requestedAction:"repair_only_failed_runner_job",targetTrack:"runtime_pipeline",status:"repair_required",riskLevel:"medium",repairOnly:true,sourceRunnerJobId:jobId,repairRequiredAt:FieldValue.serverTimestamp(),repairRequiredAt:FieldValue.serverTimestamp(),lastStatusChangedAt:FieldValue.serverTimestamp(),createdBy:actorId,createdByRole:actorRole,createdAt:FieldValue.serverTimestamp(),updatedAt:FieldValue.serverTimestamp()}); await writeAgentAudit(db,{actorId,actorRole,action:"repair_task_created",result:"proposed",proposalId:ref.id}); return {accepted:true,proposalId:ref.id,status:"proposed",repairAttemptCount:count}; });
+  function safeTimestampValue(value) {
+    if (!value) return null;
+    if (typeof value.toDate === "function") {
+      try { return value.toDate().toISOString(); } catch (_) { return null; }
+    }
+    return value;
+  }
+
+  function mapSafeAgentTaskProposal(doc, sourceInbox) {
+    const data = doc.data() || {};
+    const summary = optionalString(data.summary, 1200) || optionalString(data.plainSummary, 1200) || optionalString(sourceInbox && (sourceInbox.summary || sourceInbox.plainSummary), 1200) || optionalString(data.requestedAction, 1200);
+    const recommendation = optionalString(data.recommendation, 1200) || optionalString(sourceInbox && (sourceInbox.recommendation || sourceInbox.recommendationLabel || sourceInbox.recommendationText), 1200);
+    return {
+      taskProposalId: optionalString(data.taskProposalId, 180) || optionalString(data.proposalId, 180) || doc.id,
+      proposalId: optionalString(data.proposalId, 180) || doc.id,
+      title: optionalString(data.title, 240) || `Task Proposal ${doc.id}`,
+      summary: summary || "",
+      requestedAction: optionalString(data.requestedAction, 1200) || "",
+      sourceInboxId: optionalString(data.sourceInboxId, 180) || null,
+      sourceDossierId: optionalString(data.sourceDossierId, 180) || null,
+      sourceType: optionalString(data.sourceType, 120) || null,
+      status: optionalString(data.status, 80) || "proposed",
+      allowedFiles: parseStringList(data.allowedFiles || [], 80, 260),
+      blockedFiles: parseStringList(data.blockedFiles || [], 80, 260),
+      requiredChecks: parseStringList(data.requiredChecks || [], 80, 260),
+      riskLevel: normalizeRiskLevel(data.riskLevel || "medium"),
+      recommendation: recommendation || "",
+      targetTrack: optionalString(data.targetTrack, 80) || null,
+      suggestedBranch: optionalString(data.suggestedBranch, 180) || null,
+      noRunnerStarted: data.noRunnerStarted !== false,
+      noBranchOrPrOrMerge: data.noBranchOrPrOrMerge !== false,
+      noDeploy: data.noDeploy !== false,
+      createdAt: safeTimestampValue(data.createdAt),
+      updatedAt: safeTimestampValue(data.updatedAt),
+      lastStatusChangedAt: safeTimestampValue(data.lastStatusChangedAt),
+    };
+  }
+
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
     const status = optionalString(request.data && request.data.status, 40);
     let query = db.collection("agentTaskProposals").orderBy("createdAt", "desc").limit(100);
     if (status && PROPOSAL_STATUSES.includes(status)) query = query.where("status", "==", status);
     const snapshot = await query.get();
-    return { accepted: true, proposals: snapshot.docs.map((doc) => doc.data()) };
+    const sourceInboxIds = Array.from(new Set(snapshot.docs.map((doc) => optionalString((doc.data() || {}).sourceInboxId, 180)).filter(Boolean)));
+    const sourceInboxById = new Map();
+    await Promise.all(sourceInboxIds.slice(0, 100).map(async (inboxId) => {
+      const inboxSnap = await db.collection("agentCenterInbox").doc(inboxId).get();
+      sourceInboxById.set(inboxId, inboxSnap.exists ? (inboxSnap.data() || {}) : null);
+    }));
+    return { accepted: true, proposals: snapshot.docs.map((doc) => mapSafeAgentTaskProposal(doc, sourceInboxById.get(optionalString((doc.data() || {}).sourceInboxId, 180)))) };
   });
 
   async function upsertInboxItem({ actorId, actorRole, sourceType, listType, sourceRef, sourceDossierId, payload, createdAtFallback, preserveExistingDecisionStatus = false }) {
@@ -1723,7 +1767,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       sourceDossierId: optionalString(inbox.sourceDossierId, 180) || null,
       sourceType: optionalString(inbox.sourceType, 120) || "inbox",
       title: titleOverride || optionalString(inbox.title, 240) || `Inbox ${inboxId}`,
+      summary: optionalString(inbox.summary, 1200) || optionalString(inbox.plainSummary, 1200) || "",
       requestedAction: optionalString(inbox.whatWillChange, 1200) || optionalString(inbox.plainSummary, 1200) || reason,
+      recommendation: optionalString(inbox.recommendation, 1200) || optionalString(inbox.recommendationLabel, 1200) || optionalString(inbox.recommendationText, 1200) || "",
       targetTrack: optionalString(inbox.targetTrack, 80) || "docs_register",
       riskLevel,
       allowedFiles,
@@ -1751,7 +1797,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       updatedAt: now,
     }, { merge: true });
     await writeAgentAudit(db, { actorId, actorRole, action: "approved_inbox_to_task_proposal_created", proposalId: proposalRef.id, riskLevel, result: "ok", evidenceRef: inboxId, allowedFiles, blockedFiles });
-    return { accepted: true, inboxId, taskProposalId: proposalRef.id, status: "synced_to_task_proposal", proposalStatus };
+    return { accepted: true, inboxId, taskProposalId: proposalRef.id, status: "synced_to_task_proposal", proposalStatus, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true };
   });
 
 

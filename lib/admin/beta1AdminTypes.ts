@@ -90,6 +90,34 @@ export type AgentCenterInboxItem = {
   status: AgentCenterInboxStatus;
   mirrorTargetId?: string;
 };
+
+export type AgentTaskProposalStatus = "proposed" | "review_required" | "approved" | "rejected" | "executed" | "blocked" | "queued" | "running" | "completed" | "failed" | "repair_required" | string;
+export type AgentTaskProposal = {
+  taskProposalId: string;
+  proposalId?: string;
+  title?: string;
+  summary?: string;
+  requestedAction?: string;
+  sourceInboxId?: string | null;
+  sourceDossierId?: string | null;
+  sourceType?: string | null;
+  status?: AgentTaskProposalStatus;
+  allowedFiles?: string[];
+  blockedFiles?: string[];
+  requiredChecks?: string[];
+  riskLevel?: string;
+  recommendation?: string;
+  targetTrack?: string | null;
+  suggestedBranch?: string | null;
+  noRunnerStarted?: boolean;
+  noBranchOrPrOrMerge?: boolean;
+  noDeploy?: boolean;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+  lastStatusChangedAt?: unknown;
+};
+export type AgentTaskProposalListResult = AdminCallableResult & { proposals?: AgentTaskProposal[] };
+
 export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
 export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string; reason?: string; suggestedBranch?: string };
 export type ApprovedInboxToTaskProposalResult = AdminCallableResult & { inboxId?: string; taskProposalId?: string; proposalStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };

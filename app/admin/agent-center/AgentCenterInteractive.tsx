@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, ProductEvolutionInboxSyncResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -58,12 +58,18 @@ type Row = Record<string, unknown> & {
 
 type DataProps = { agents: Row[]; missions: Row[]; stats: Partial<Record<AdminCenterListFilter, number>> };
 type ServerInboxFilter = "server_total" | "server_pending" | "server_approved" | "server_rejected" | "server_blocked" | "server_revision_requested" | "server_synced_to_task_proposal";
-type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter;
+type TaskProposalFilter = "task_total" | "task_pending" | "task_approved" | "task_rejected" | "task_in_progress" | "task_completed" | "task_blocked";
+type TaskProposalBucket = "pending" | "approved" | "rejected" | "in_progress" | "completed" | "blocked" | "unknown";
+type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter;
 
 const SERVER_FILTER_TO_BUCKET: Record<ServerInboxFilter, ReturnType<typeof getServerInboxStatusBucket> | "total"> = { server_total: "total", server_pending: "pending_approval", server_approved: "approved", server_rejected: "rejected", server_blocked: "blocked", server_revision_requested: "revision_requested", server_synced_to_task_proposal: "synced_to_task_proposal" };
 const SERVER_FILTER_LABELS: Record<ServerInboxFilter, string> = { server_total: "Server-Inbox gesamt", server_pending: "Server: wartet auf Freigabe", server_approved: "Server: freigegeben", server_rejected: "Server: abgelehnt", server_blocked: "Server: blockiert", server_revision_requested: "Server: Überarbeitung angefordert", server_synced_to_task_proposal: "Server: Task Proposal erzeugt" };
 const SERVER_FILTER_KEYS = Object.keys(SERVER_FILTER_TO_BUCKET) as ServerInboxFilter[];
 const isServerInboxFilter = (value: ActiveListFilter): value is ServerInboxFilter => value.startsWith("server_");
+const TASK_PROPOSAL_FILTER_TO_BUCKET: Record<TaskProposalFilter, TaskProposalBucket | "total"> = { task_total: "total", task_pending: "pending", task_approved: "approved", task_rejected: "rejected", task_in_progress: "in_progress", task_completed: "completed", task_blocked: "blocked" };
+const TASK_PROPOSAL_FILTER_LABELS: Record<TaskProposalFilter, string> = { task_total: "Task Proposals gesamt", task_pending: "Task Proposals: warten/pending", task_approved: "Task Proposals: freigegeben", task_rejected: "Task Proposals: abgelehnt", task_in_progress: "Task Proposals: in Arbeit", task_completed: "Task Proposals: fertig", task_blocked: "Task Proposals: blockiert" };
+const TASK_PROPOSAL_FILTER_KEYS = Object.keys(TASK_PROPOSAL_FILTER_TO_BUCKET) as TaskProposalFilter[];
+const isTaskProposalFilter = (value: ActiveListFilter): value is TaskProposalFilter => value.startsWith("task_");
 
 const FILTER_TO_BUCKET: Record<AdminCenterListFilter, "total" | ReturnType<typeof getAgentStatusBucket>> = { agent_total: "total", agent_pending: "pending_approval", agent_approved: "approved_ready", agent_rejected: "rejected", agent_blocked: "blocked", agent_in_progress: "in_progress", agent_completed: "completed", agent_repair_required: "repair_required", agent_halted_waiting_owner: "halted_waiting_owner", agent_cycle_restart_required: "cycle_restart_required", mission_total: "total", mission_pending: "pending_approval", mission_approved: "approved_ready", mission_rejected: "rejected", mission_blocked: "blocked", mission_in_progress: "in_progress", mission_completed: "completed" };
 const FILTER_LABELS: Record<AdminCenterListFilter, string> = { agent_total: "Alle Agenten/Register gesamt", agent_pending: "Register/Legacy: Warten", agent_approved: "Register/Legacy: Freigegeben", agent_rejected: "Register/Legacy: Abgelehnt", agent_blocked: "Register/Legacy: Blockiert", agent_in_progress: "Register/Legacy: In Arbeit", agent_completed: "Register/Legacy: Fertig", agent_repair_required: "Register/Legacy: Repair Required", agent_halted_waiting_owner: "Register/Legacy: Wartet auf Owner", agent_cycle_restart_required: "Register/Legacy: Nächster Zyklus", mission_total: "Missionsvorschläge gesamt", mission_pending: "Missionen: Warten auf Freigabe", mission_approved: "Missionen: Freigegeben", mission_rejected: "Missionen: Abgelehnt", mission_blocked: "Missionen: Blockiert", mission_in_progress: "Missionen: In Arbeit", mission_completed: "Missionen: Fertig" };
@@ -71,6 +77,24 @@ const FILTER_KEYS = Object.keys(FILTER_TO_BUCKET) as AdminCenterListFilter[];
 
   const asText = (value: unknown): string => (typeof value === "string" ? value : "");
 const asStringArray = (value: unknown): string[] => (Array.isArray(value) ? value.map((item) => String(item)).filter(Boolean) : []);
+
+function getTaskProposalBucket(proposal: AgentTaskProposal): TaskProposalBucket {
+  const status = String(proposal.status || "").toLowerCase();
+  if (["proposed", "review_required", "pending", "pending_approval", "draft"].includes(status)) return "pending";
+  if (["approved", "approved_ready", "approved_for_work"].includes(status)) return "approved";
+  if (["rejected", "declined"].includes(status)) return "rejected";
+  if (["queued", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress"].includes(status)) return "in_progress";
+  if (["completed", "done", "executed"].includes(status)) return "completed";
+  if (["blocked", "failed", "repair_required"].includes(status)) return "blocked";
+  return "unknown";
+}
+
+function buildTaskProposalCounts(proposals: AgentTaskProposal[]) {
+  const counts: Record<TaskProposalBucket, number> & { total: number } = { total: proposals.length, pending: 0, approved: 0, rejected: 0, in_progress: 0, completed: 0, blocked: 0, unknown: 0 };
+  proposals.forEach((proposal) => { counts[getTaskProposalBucket(proposal)] += 1; });
+  return counts;
+}
+
 const firstText = (...values: unknown[]): string => { for (const value of values) { const text = asText(value).trim(); if (text) return text; } return ""; };
 const getDecisionDetails = (row: Row) => {
   const allowedFiles = asStringArray(row.allowedFiles);
@@ -176,7 +200,9 @@ export default function AgentCenterInteractive({
   const [syncStatus, setSyncStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const [inboxItems, setInboxItems] = useState<AgentCenterInboxItem[]>([]);
+  const [taskProposals, setTaskProposals] = useState<AgentTaskProposal[]>([]);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
+  const [taskProposalDetail, setTaskProposalDetail] = useState<AgentTaskProposal | null>(null);
   const [syncDebug, setSyncDebug] = useState<Record<string, unknown>>({});
   const [authDebug, setAuthDebug] = useState<AdminCallableAuthState>({ authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "" });
   const [authActionPending, setAuthActionPending] = useState(false);
@@ -234,12 +260,22 @@ export default function AgentCenterInteractive({
       dossierIncomplete: !details.isComplete,
     };
   }), [inboxItems]);
-  const visibleListSource: "server_inbox" | "local_snapshot" = isServerInboxFilter(active) ? "server_inbox" : "local_snapshot";
-  const activeCountSource: "server_inbox" | "legacy_register" | "mission_proposals" = isServerInboxFilter(active) ? "server_inbox" : (isMissionFilter(active) ? "mission_proposals" : "legacy_register");
+  const visibleListSource: "server_inbox" | "local_snapshot" | "task_proposals" = isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : "local_snapshot");
+  const activeCountSource: "server_inbox" | "legacy_register" | "mission_proposals" | "task_proposals" = isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : (isMissionFilter(active) ? "mission_proposals" : "legacy_register"));
   const serverInboxCounts = useMemo(() => buildServerInboxCounts(serverInboxRows), [serverInboxRows]);
   const serverInboxPendingCount = serverInboxCounts.pending_approval;
+  const taskProposalCounts = useMemo(() => buildTaskProposalCounts(taskProposals), [taskProposals]);
+
+  const visibleTaskProposals = useMemo(() => {
+    const sorted = [...taskProposals].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+    if (!isTaskProposalFilter(active)) return [];
+    const bucket = TASK_PROPOSAL_FILTER_TO_BUCKET[active];
+    if (bucket === "total") return sorted;
+    return sorted.filter((proposal) => getTaskProposalBucket(proposal) === bucket);
+  }, [active, taskProposals]);
 
   const visible = useMemo(() => {
+    if (isTaskProposalFilter(active)) return [];
     if (isServerInboxFilter(active)) {
       const bucket = SERVER_FILTER_TO_BUCKET[active];
       const sorted = [...serverInboxRows].sort(compareReadableDossierRows);
@@ -355,6 +391,27 @@ export default function AgentCenterInteractive({
       setFeedback("Admin-Abmeldung fehlgeschlagen.");
     } finally {
       setAuthActionPending(false);
+    }
+  }
+
+  async function refreshTaskProposals() {
+    if (!(await ensureAdminAuthReady())) return;
+    setBusy(true);
+    try {
+      const result = await beta1AdminClient.listAgentTaskProposals() as AgentTaskProposalListResult;
+      const proposals = Array.isArray(result.proposals) ? result.proposals : [];
+      setTaskProposals(proposals);
+      setSyncDebug((prev) => ({
+        ...prev,
+        taskProposalLoadedCount: proposals.length,
+        taskProposalPendingCount: proposals.filter((proposal) => getTaskProposalBucket(proposal) === "pending").length,
+        taskProposalNoRunnerStartedVisible: proposals.some((proposal) => proposal.noRunnerStarted === true),
+        taskProposalNoBranchOrPrOrMergeVisible: proposals.some((proposal) => proposal.noBranchOrPrOrMerge === true),
+        taskProposalNoDeployVisible: proposals.some((proposal) => proposal.noDeploy === true),
+      }));
+      setSyncStatus(`Task Proposals geladen: ${proposals.length}. Read-only Review; keine Worker Queue, kein Runner, kein Deploy.`);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -565,6 +622,7 @@ export default function AgentCenterInteractive({
         ? `Task Proposal erzeugt.${taskProposalId ? ` taskProposalId: ${taskProposalId}` : ""}`
         : `Task Proposal konnte nicht erzeugt werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
       setFeedback(safeMessage);
+      if (accepted) setActive("task_total");
       setSyncDebug((prev) => ({
         ...prev,
         lastTaskProposalCreated: accepted,
@@ -591,6 +649,7 @@ export default function AgentCenterInteractive({
     } finally {
       try {
         await refreshInbox();
+        await refreshTaskProposals();
       } finally {
         setBusy(false);
       }
@@ -653,6 +712,7 @@ export default function AgentCenterInteractive({
     } finally {
       try {
         await refreshInbox();
+        await refreshTaskProposals();
       } finally {
         setBusy(false);
       }
@@ -664,6 +724,7 @@ export default function AgentCenterInteractive({
       <div className="flex gap-2">
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runSync}>Product-Evolution Inbox synchronisieren</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshInbox}>Server-Inbox neu laden</button>
+        <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshTaskProposals}>Task Proposals neu laden</button>
         {canRunRevisionDossierGenerator && <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runRevisionDossierGenerator}>Revision-Dossiers neu erzeugen</button>}
       </div>
       {!authDebug.firebaseUserPresent && (
@@ -691,6 +752,11 @@ export default function AgentCenterInteractive({
         <p>agentRoleClaim: {String(authDebug.agentRoleClaim || "-")}</p>
         <p>serverInboxLoadedCount: {String(syncDebug.serverInboxLoadedCount ?? serverInboxRows.length)}</p>
         <p>serverInboxPendingCount: {String(syncDebug.serverInboxPendingCount ?? serverInboxPendingCount)}</p>
+        <p>taskProposalLoadedCount: {String(syncDebug.taskProposalLoadedCount ?? taskProposals.length)}</p>
+        <p>taskProposalPendingCount: {String(syncDebug.taskProposalPendingCount ?? taskProposalCounts.pending)}</p>
+        <p>taskProposalNoRunnerStartedVisible: {String(syncDebug.taskProposalNoRunnerStartedVisible ?? "-")}</p>
+        <p>taskProposalNoBranchOrPrOrMergeVisible: {String(syncDebug.taskProposalNoBranchOrPrOrMergeVisible ?? "-")}</p>
+        <p>taskProposalNoDeployVisible: {String(syncDebug.taskProposalNoDeployVisible ?? "-")}</p>
         <p>revisionRegenerated: {String(syncDebug.revisionRegenerated ?? "-")}</p>
         <p>revisionStillRequested: {String(syncDebug.revisionStillRequested ?? "-")}</p>
         <p>revisionNoRunnerStarted: {String(syncDebug.revisionNoRunnerStarted ?? "-")}</p>
@@ -753,7 +819,20 @@ export default function AgentCenterInteractive({
       </div>
 
       <div className="space-y-2 text-xs">
-        <p className="text-cyan-100">Server-Inbox / agentCenterInbox — zählt nur geladene Server-Inbox-Einträge und filtert die sichtbare Server-Liste.</p>
+        <p className="text-cyan-100">Agent Task Proposals / agentTaskProposals — Read-only Review, erzeugt keine Worker Queue und startet keinen Runner.</p>
+        <div className="flex flex-wrap gap-2">
+          {TASK_PROPOSAL_FILTER_KEYS.map((key) => {
+            const activeCard = active === key;
+            const bucket = TASK_PROPOSAL_FILTER_TO_BUCKET[key];
+            const count = bucket === "total" ? taskProposalCounts.total : taskProposalCounts[bucket];
+            return (
+              <button key={key} onClick={() => setActive(key)} className={`cursor-pointer rounded border px-2 py-1 ${activeCard ? "border-emerald-300 bg-emerald-400/10 text-emerald-100 ring-1 ring-orange-300/60" : "border-white/25 hover:border-white/60 hover:bg-white/5"}`}>
+                {TASK_PROPOSAL_FILTER_LABELS[key]} ({count})
+              </button>
+            );
+          })}
+        </div>
+        <p className="pt-2 text-cyan-100">Server-Inbox / agentCenterInbox — zählt nur geladene Server-Inbox-Einträge und filtert die sichtbare Server-Liste.</p>
         <div className="flex flex-wrap gap-2">
           {SERVER_FILTER_KEYS.map((key) => {
             const activeCard = active === key;
@@ -779,7 +858,42 @@ export default function AgentCenterInteractive({
         </div>
       </div>
 
-      <div className="space-y-3">
+      {isTaskProposalFilter(active) && (
+        <div className="space-y-3">
+          {visibleTaskProposals.map((proposal) => (
+            <article key={proposal.taskProposalId || proposal.proposalId} className="rounded border border-emerald-200/25 bg-emerald-400/5 p-3 text-xs">
+              <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="font-mono text-emerald-100/75">taskProposalId: {proposal.taskProposalId || proposal.proposalId || "—"}</p>
+                  <b>{proposal.title || "Unbenanntes Task Proposal"}</b>
+                  <p className="mt-1 whitespace-pre-wrap">{proposal.summary || proposal.requestedAction || "Keine Zusammenfassung hinterlegt."}</p>
+                </div>
+                <div className="flex flex-wrap gap-2 lg:justify-end">
+                  <span className="rounded-full border border-white/20 px-2 py-1">Status: {proposal.status || "proposed"}</span>
+                  <span className="rounded-full border border-white/20 px-2 py-1">Risiko: {proposal.riskLevel || "medium"}</span>
+                  <span className="rounded-full border border-emerald-300/50 px-2 py-1">noRunnerStarted: {String(proposal.noRunnerStarted === true)}</span>
+                  <span className="rounded-full border border-emerald-300/50 px-2 py-1">noBranchOrPrOrMerge: {String(proposal.noBranchOrPrOrMerge === true)}</span>
+                  <span className="rounded-full border border-emerald-300/50 px-2 py-1">noDeploy: {String(proposal.noDeploy === true)}</span>
+                </div>
+              </div>
+              <dl className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                <div><dt className="font-semibold">sourceInboxId</dt><dd className="break-words font-mono text-cyan-100/75">{proposal.sourceInboxId || "—"}</dd></div>
+                <div><dt className="font-semibold">recommendation</dt><dd>{proposal.recommendation || "—"}</dd></div>
+                <div><dt className="font-semibold">createdAt</dt><dd>{formatAdminDate(proposal.createdAt)}</dd></div>
+                <div><dt className="font-semibold">allowedFiles</dt><dd>{(proposal.allowedFiles || []).join(", ") || "—"}</dd></div>
+                <div><dt className="font-semibold">blockedFiles</dt><dd>{(proposal.blockedFiles || []).join(", ") || "—"}</dd></div>
+                <div><dt className="font-semibold">requiredChecks</dt><dd>{(proposal.requiredChecks || []).join(", ") || "—"}</dd></div>
+              </dl>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100" onClick={() => setTaskProposalDetail(proposal)}>Task Proposal ansehen</button>
+              </div>
+            </article>
+          ))}
+          {visibleTaskProposals.length === 0 && <p className="rounded border border-white/15 p-3 text-xs text-white/70">Keine Task Proposals für diesen Filter geladen.</p>}
+        </div>
+      )}
+
+      {!isTaskProposalFilter(active) && <div className="space-y-3">
         {visible.map((row) => {
           const summary = buildAdminDecisionSummary(row);
           const timeline = deriveTimeline(row);
@@ -821,7 +935,39 @@ export default function AgentCenterInteractive({
             </div>
           );
         })}
-      </div>
+      </div>}
+
+
+      {taskProposalDetail && (() => {
+        const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
+        const info = (label: string, value: string | undefined | null) => (<div><p className="mt-2 font-semibold">{label}</p><p className="whitespace-pre-wrap">{value || "—"}</p></div>);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 p-4" onClick={() => setTaskProposalDetail(null)}>
+            <div className="mx-auto max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg bg-slate-900 p-4 text-xs text-white" onClick={(event) => event.stopPropagation()}>
+              <div className="sticky top-0 mb-2 flex justify-between bg-slate-900 pb-2">
+                <h3 className="text-base font-semibold">Task Proposal ansehen · {taskProposalDetail.title || taskProposalDetail.taskProposalId}</h3>
+                <button className="cursor-pointer rounded border px-2" onClick={() => setTaskProposalDetail(null)}>Schließen</button>
+              </div>
+              <p className="font-mono text-cyan-100/75">taskProposalId: {taskProposalDetail.taskProposalId || taskProposalDetail.proposalId || "—"}</p>
+              <p>Status: {taskProposalDetail.status || "proposed"} · Risiko: {taskProposalDetail.riskLevel || "medium"}</p>
+              <p>sourceInboxId: {taskProposalDetail.sourceInboxId || "—"}</p>
+              {info("Was soll gemacht werden?", taskProposalDetail.requestedAction || taskProposalDetail.summary)}
+              {info("Warum?", taskProposalDetail.recommendation || taskProposalDetail.summary)}
+              {fileList("Welche Dateien dürfen geändert werden?", taskProposalDetail.allowedFiles)}
+              {fileList("Welche Dateien sind blockiert?", taskProposalDetail.blockedFiles)}
+              {fileList("Welche Checks sind Pflicht?", taskProposalDetail.requiredChecks)}
+              {info("Was passiert als nächstes?", "Admin prüft dieses Task Proposal manuell. Erst nach separater Freigabe darf daraus eine Worker Queue oder ein Runner-Handoff entstehen; diese Ansicht startet nichts.")}
+              <div className="mt-3 rounded border border-emerald-300/40 bg-emerald-400/10 p-3 text-emerald-50">
+                <p className="font-semibold">Sicherheitsstatus: Kein Runner, kein Deploy, kein Merge.</p>
+                <p>noRunnerStarted: {String(taskProposalDetail.noRunnerStarted === true)}</p>
+                <p>noBranchOrPrOrMerge: {String(taskProposalDetail.noBranchOrPrOrMerge === true)}</p>
+                <p>noDeploy: {String(taskProposalDetail.noDeploy === true)}</p>
+              </div>
+              <p className="mt-2">createdAt: {formatAdminDate(taskProposalDetail.createdAt)}</p>
+            </div>
+          </div>
+        );
+      })()}
 
       {detailRow && (() => {
         const details = getDecisionDetails(detailRow);
