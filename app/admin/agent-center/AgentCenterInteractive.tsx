@@ -54,26 +54,32 @@ const UNAUTHORIZED_DOMAIN_CODE = "auth/unauthorized-domain";
 
 const getFirebaseAuthErrorCode = (error: unknown): string => (typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : "");
 const getSafeAdminDecisionErrorCode = (error: unknown): string => (typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code || "") : "");
-const getSafeAdminDecisionMessage = (error: unknown): string => {
-  const code = getSafeAdminDecisionErrorCode(error);
-  if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
-  if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
-  if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden.";
-  if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
-  return "Entscheidung konnte nicht gespeichert werden. Bitte Inbox-Sync/Decision-Target prüfen.";
+const getSafeAdminDecisionErrorText = (error: unknown): string => {
+  if (!(typeof error === "object" && error)) return "";
+  const maybeError = error as { message?: unknown; details?: unknown };
+  return [maybeError.message, maybeError.details].map((value) => String(value || "")).join(" ");
 };
 const getSafeAdminDecisionFailureMessage = (resultMessage?: string, errorCode?: string): string => {
   const code = errorCode || "";
+  const message = String(resultMessage || "").trim();
+  const diagnostic = `${code} ${message}`;
   if (code === "client_auth_loading") return "Admin-Authentifizierung wird geladen. Bitte kurz warten.";
   if (code === "client_auth_missing") return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
   if (code === "client_auth_not_ready") return "Admin-Rolle fehlt oder wurde noch nicht geladen.";
+  if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
+  if (diagnostic.includes("center_inbox_not_decidable") || message === "Eintrag ist nicht mehr entscheidbar.") return "Eintrag ist nicht mehr entscheidbar.";
+  if (diagnostic.includes("server_inbox_entry_not_found") || code.includes("not-found") || message === "Server-Inbox-Eintrag nicht gefunden.") return "Server-Inbox-Eintrag nicht gefunden.";
+  if (diagnostic.includes("inbox_mirror_missing") || diagnostic.includes("not_mirrored")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
   if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
   if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
-  if (code.includes("not-found")) return "Eintrag wurde serverseitig nicht gefunden.";
-  if (code.includes("failed-precondition")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
-  const message = String(resultMessage || "").trim();
   if (message && message.length <= 140 && !message.includes("@") && !message.toLowerCase().includes("token") && !message.toLowerCase().includes("uid")) return message;
+  if (code.includes("failed-precondition")) return "Eintrag konnte nicht entschieden werden. Bitte Status und Decision-Target prüfen.";
   return "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen.";
+};
+const getSafeAdminDecisionMessage = (error: unknown): string => {
+  const code = getSafeAdminDecisionErrorCode(error);
+  const text = getSafeAdminDecisionErrorText(error);
+  return getSafeAdminDecisionFailureMessage(text, code);
 };
 const shouldUseRedirectFallback = (error: unknown): boolean => POPUP_REDIRECT_FALLBACK_CODES.has(getFirebaseAuthErrorCode(error));
 const getSafeGoogleLoginMessage = (error: unknown): string => {

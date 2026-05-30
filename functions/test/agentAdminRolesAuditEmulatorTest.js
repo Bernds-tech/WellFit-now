@@ -307,6 +307,13 @@ async function run() {
   await expectOk("approveAgentCenterProposal", supervisor, { targetType: "agent", targetId: "center-low" });
   await expectOk("approveAgentCenterProposal", owner, { targetType: "agent", targetId: "center-high" });
   await expectFail("approveAgentCenterProposal", owner, { targetType: "agent", targetId: "unknown-id" });
+  await expectOk("setAgentAutomationMode", owner, { automationMode: "off" });
+  await db.collection("agentCenterInbox").doc("ibox-decision-off").set({ inboxId: "ibox-decision-off", status: "pending_approval", allowedFiles: ["docs/**"], blockedFiles: [], requiredChecks: ["npm run lint"], riskLevel: "medium" });
+  await expectOk("requestRevisionAgentCenterProposal", owner, { targetType: "agent", targetId: "ibox-decision-off" });
+  const iboxDecisionOff = await db.collection("agentCenterInbox").doc("ibox-decision-off").get();
+  assert(iboxDecisionOff.data().status === "revision_requested", "center inbox decision should work while automation mode is off");
+  const staleInboxDecision = await expectFail("approveAgentCenterProposal", owner, { targetType: "agent", targetId: "ibox-decision-off" });
+  assert((staleInboxDecision.rawText || "").includes("center_inbox_not_decidable"), "non-pending inbox entries should report not decidable");
   await expectOk("rejectAgentCenterProposal", owner, { targetType: "agent", targetId: "center-low" });
   await expectOk("blockAgentCenterProposal", owner, { targetType: "agent", targetId: "center-low" });
   await expectOk("approveMissionCenterProposal", owner, { targetType: "mission", targetId: "mission-low" });
