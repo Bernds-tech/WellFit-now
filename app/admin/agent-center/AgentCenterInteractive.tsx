@@ -34,6 +34,12 @@ type Row = Record<string, unknown> & {
   risk?: string;
   riskSummary?: string;
   recommendation?: string;
+  recommendationLabel?: string;
+  recommendationText?: string;
+  readableDossierInboxId?: string | null;
+  supersededByReadableDecisionDossier?: boolean;
+  legacyProductEvolutionSource?: string | null;
+  adminCenterSourcePriority?: number;
   nextStep?: string;
   sourceType?: string;
   sourceRef?: string;
@@ -72,7 +78,9 @@ const getDecisionDetails = (row: Row) => {
     userBenefit: firstText(row.userBenefit, row.detailSections?.userBenefit),
     economyImpact: firstText(row.economyImpact, row.detailSections?.economyImpact),
     risk: firstText(row.risk, row.riskSummary, row.detailSections?.risk, row.detailSections?.risks),
-    recommendation: firstText(row.recommendationLabel, row.recommendationText, row.recommendation, row.detailSections?.recommendation),
+    recommendationLabel: firstText(row.recommendationLabel, row.recommendation, row.detailSections?.recommendation),
+    recommendationText: firstText(row.recommendationText, row.recommendationLabel, row.recommendation, row.detailSections?.recommendation),
+    recommendation: firstText(row.recommendationText, row.recommendationLabel, row.recommendation, row.detailSections?.recommendation),
     recommendationDebug: firstText(row.recommendation, row.detailSections?.recommendation),
     source: firstText(row.sourceRef, row.sourcePath, row.dossierRef, row.sourceType),
     nextStep: firstText(row.nextStep, "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch."),
@@ -157,6 +165,22 @@ const sanitizeFirestoreDocIdPartForLookup = (value: unknown, maxLength = 180): s
 };
 
 
+const readableDossierPriority = (row: Row): number => {
+  const listType = asText(row.listType);
+  if (listType === "decisionDossiers" && asText(row.recommendationLabel)) return 0;
+  if (asText(row.recommendationLabel) || asText(row.recommendationText)) return 10;
+  if (row.supersededByReadableDecisionDossier === true || asText(row.legacyProductEvolutionSource)) return 90;
+  return 50;
+};
+
+const compareReadableDossierRows = (a: Row, b: Row): number => {
+  const explicitA = typeof a.adminCenterSourcePriority === "number" ? a.adminCenterSourcePriority : readableDossierPriority(a);
+  const explicitB = typeof b.adminCenterSourcePriority === "number" ? b.adminCenterSourcePriority : readableDossierPriority(b);
+  if (explicitA !== explicitB) return explicitA - explicitB;
+  if (readableDossierPriority(a) !== readableDossierPriority(b)) return readableDossierPriority(a) - readableDossierPriority(b);
+  return asText(a.title).localeCompare(asText(b.title), "de");
+};
+
 export default function AgentCenterInteractive({
   data,
   firstRunRegisterSnapshot = {},
@@ -235,6 +259,8 @@ export default function AgentCenterInteractive({
       `product-evolution-first-run:${safeSourceDossierId}:${safeListType}`,
       `product-evolution-first-run:${sourceDossierId}:suggestedTaskQueue`,
       `product-evolution-first-run:${safeSourceDossierId}:suggestedTaskQueue`,
+      `product-evolution-first-run:${sourceDossierId}:decisionDossiers`,
+      `product-evolution-first-run:${safeSourceDossierId}:decisionDossiers`,
       `product-evolution-first-run:${sourceDossierId}:generatedDossiers`,
       `product-evolution-first-run:${safeSourceDossierId}:generatedDossiers`,
       sourceDossierId,
@@ -285,8 +311,9 @@ export default function AgentCenterInteractive({
     const missionMode = isMissionFilter(active);
     const bucket = FILTER_TO_BUCKET[active];
     const list = visibleListSource === "server_inbox" ? serverInboxRows : (missionMode ? mapped.missions : mapped.agents);
-    if (bucket === "total") return list;
-    return list.filter((row) => (missionMode ? getMissionStatusBucket(row) : getAgentStatusBucket(row)) === bucket);
+    const sorted = [...list].sort(compareReadableDossierRows);
+    if (bucket === "total") return sorted;
+    return sorted.filter((row) => (missionMode ? getMissionStatusBucket(row) : getAgentStatusBucket(row)) === bucket);
   }, [active, mapped, serverInboxRows, visibleListSource]);
 
   const snapshotResolution = useMemo(() => {
@@ -740,6 +767,8 @@ export default function AgentCenterInteractive({
               <b>{summary.plainTitle}</b>
               <p>{decisionDetails.summary || summary.plainSummary || "Dossier vorhanden – Details ansehen"}</p>
               <p>Status: {String(row.status || "pending_approval")} · Inbox: {hasInbox ? "synchronisiert" : "Noch nicht synchronisiert"}</p>
+              {asText(row.recommendationLabel) && <p className="text-emerald-200">Empfehlung: {asText(row.recommendationLabel)}</p>}
+              {row.supersededByReadableDecisionDossier === true && <p className="text-amber-200">Legacy/alte Quelle: lesbares Decision-Dossier wird bevorzugt ({asText(row.readableDossierInboxId) || "decisionDossiers"}).</p>}
               <p>inboxId: {hasInbox ? asText(row.inboxId) : "—"}</p>
               <p>Warum Buttons ggf. gesperrt: {decisionBlocker || (missing.length > 0 ? `Dossierdaten unvollständig (${missing.join(", ")})` : "entscheidbar")}</p>
 
@@ -782,8 +811,10 @@ export default function AgentCenterInteractive({
             {info("Nutzen für User", details.userBenefit)}
             {info("Economy Impact", details.economyImpact)}
             {info("Risiko", details.risk)}
-            {info("Empfehlung", details.recommendation)}
-            {details.recommendationDebug && details.recommendationDebug !== details.recommendation && info("Technischer Empfehlungswert (Debug)", details.recommendationDebug)}
+            {info("Empfehlung", details.recommendationLabel)}
+            {details.recommendationText && details.recommendationText !== details.recommendationLabel && info("Empfehlungstext", details.recommendationText)}
+            {details.recommendationDebug && details.recommendationDebug !== details.recommendationLabel && details.recommendationDebug !== details.recommendationText && info("Technischer Empfehlungswert (Debug)", details.recommendationDebug)}
+            {detailRow.supersededByReadableDecisionDossier === true && info("Legacy/alte Quelle", `Dieser technische Eintrag wurde durch ein lesbares Decision-Dossier ergaenzt: ${asText(detailRow.readableDossierInboxId) || "decisionDossiers"}`)}
             {fileList("Betroffene/erlaubte Dateien", details.allowedFiles)}
             {fileList("Blockierte Dateien", details.blockedFiles)}
             {fileList("Required Checks", details.requiredChecks)}
