@@ -19,6 +19,7 @@ const CANONICAL_TRUTH_PROTECTED_FILES = [
 ];
 const CANONICAL_TRUTH_PROPOSAL_FILE = "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md";
 const INBOX_STATUSES = ["pending_approval", "approved", "rejected", "revision_requested", "blocked", "synced_to_task_proposal"];
+const INBOX_DECISION_PRESERVED_STATUSES = new Set(["approved", "rejected", "blocked", "revision_requested", "synced_to_task_proposal"]);
 const INBOX_SOURCE_TYPES = ["product_evolution_first_run", "opportunity_dossier", "mission_story", "research_summary", "product_radar", "legacy_catalog", "backlog", "proposal"];
 const INBOX_LIST_TYPES = ["generatedDossiers", "decisionDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals", "productOpportunityProposals"];
 
@@ -1375,7 +1376,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { accepted: true, proposals: snapshot.docs.map((doc) => doc.data()) };
   });
 
-  async function upsertInboxItem({ actorId, actorRole, sourceType, listType, sourceRef, sourceDossierId, payload, createdAtFallback }) {
+  async function upsertInboxItem({ actorId, actorRole, sourceType, listType, sourceRef, sourceDossierId, payload, createdAtFallback, preserveExistingDecisionStatus = false }) {
     const inboxIdInfo = buildAgentCenterInboxId({ sourceType, sourceDossierId, listType });
     const inboxId = inboxIdInfo.inboxId;
     if (inboxIdInfo.invalidInboxIdSanitized) {
@@ -1386,6 +1387,10 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       throw error;
     }
     const ref = db.collection("agentCenterInbox").doc(inboxId);
+    const existingSnap = preserveExistingDecisionStatus ? await ref.get() : null;
+    const existingData = existingSnap && existingSnap.exists ? (existingSnap.data() || {}) : null;
+    const existingStatus = sanitizeInboxText(existingData && existingData.status, 40);
+    const preserveDecisionStatus = Boolean(existingData && INBOX_DECISION_PRESERVED_STATUSES.has(existingStatus));
     const now = FieldValue.serverTimestamp();
     const createdAt = createdAtFallback || now;
     const status = toInboxStatusByListType(listType);
@@ -1403,11 +1408,11 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       listType,
       ...decisionDetails,
       businessBenefit: firstPresentText(payload, ["businessBenefit", "businessValue", "partnerBenefit"], 1200),
-      status,
+      status: preserveDecisionStatus ? existingStatus : status,
       createdAt,
       submittedAt: createdAt,
       waitingForApprovalAt: createdAt,
-      lastStatusChangedAt: now,
+      ...(preserveDecisionStatus ? {} : { lastStatusChangedAt: now }),
       riskLevel: normalizeRiskLevel(payload.riskLevel || "medium"),
       targetTrack: firstPresentText(payload, ["targetTrack", "track", "scopeTrack"], 80),
       suggestedBranch: firstPresentText(payload, ["suggestedBranch", "branchName", "branch"], 180),
@@ -1427,7 +1432,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       updatedAt: now,
     };
     await ref.set(doc, { merge: true });
-    return inboxId;
+    return { inboxId, existingStatusPreserved: preserveDecisionStatus, preservedStatus: preserveDecisionStatus ? existingStatus : "" };
   }
 
   exportsTarget.syncProductEvolutionFirstRunInbox = onCall(async (request) => {
@@ -1454,6 +1459,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       let created = 0;
       let updated = 0;
       let skipped = 0;
+      let preservedDecisionStatusCount = 0;
+      const samplePreservedDecisionIds = [];
       const skippedReasons = { missing_sourceDossierId: 0, missing_decision_data: 0, protected_scope: 0, invalid_inbox_id: 0 };
       const sampleCreatedIds = [];
       const sampleSkipped = [];
@@ -1503,7 +1510,11 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
           }
           const existing = await db.collection("agentCenterInbox").doc(inboxIdInfo.inboxId).get();
           const itemSourceRef = collection.listType === "decisionDossiers" ? sanitizeInboxText(register.decisionDossiersSourceRef, 240) || decisionDossiersSourceRef : sourceRef;
-          await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType: collection.listType, sourceRef: itemSourceRef, sourceDossierId, payload: item, createdAtFallback });
+          const upsertResult = await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType: collection.listType, sourceRef: itemSourceRef, sourceDossierId, payload: item, createdAtFallback, preserveExistingDecisionStatus: true });
+          if (upsertResult.existingStatusPreserved) {
+            preservedDecisionStatusCount += 1;
+            if (samplePreservedDecisionIds.length < 10) samplePreservedDecisionIds.push(inboxIdInfo.inboxId);
+          }
           if (existing.exists) updated += 1;
           else created += 1;
           if (sampleCreatedIds.length < 10) sampleCreatedIds.push(inboxIdInfo.inboxId);
@@ -1516,7 +1527,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         registerSnapshotValueType: snapshotResolution.registerSnapshotValueType,
       });
       const synced = created + updated;
-      const base = { ...responseBase, ...diagnostics, accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, sampleCreatedIds, sampleSkipped, invalidInboxIdSanitized, sourceDossierIdHadSlash, serverSnapshotReceived, serverSnapshotKeys, idempotent: true, sourceRef, sourceTrust: useMirror ? "firestore_mirror" : "admin_provided_repo_snapshot" };
+      const base = { ...responseBase, ...diagnostics, accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, preservedDecisionStatusCount, samplePreservedDecisionIds, sampleCreatedIds, sampleSkipped, invalidInboxIdSanitized, sourceDossierIdHadSlash, serverSnapshotReceived, serverSnapshotKeys, idempotent: true, sourceRef, sourceTrust: useMirror ? "firestore_mirror" : "admin_provided_repo_snapshot" };
 
       if (!useMirror && !registerSnapshot) {
         return { ...base, message: "Kein Snapshot empfangen und Firestore-Mirror leer." };

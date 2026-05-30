@@ -386,6 +386,103 @@ async function run() {
   assert((firstRunSync.serverCandidateCount || 0) >= 3, "serverCandidateCount should include PE 01/02/03");
   assert(((firstRunSync.created || 0) + (firstRunSync.updated || 0) + (firstRunSync.skipped || 0)) > 0, "created+updated+skipped should be > 0");
   assert((firstRunSync.serverCandidateCollections || []).some((entry) => entry.listType === "suggestedTaskQueue"), "must detect top-level suggestedTaskQueue");
+  const decisionStatusIds = [
+    ["PE-PRESERVE-APPROVED", "approved", "approvedAt"],
+    ["PE-PRESERVE-REJECTED", "rejected", "rejectedAt"],
+    ["PE-PRESERVE-BLOCKED", "blocked", "blockedAt"],
+    ["PE-PRESERVE-REVISION", "revision_requested", "revisionRequestedAt"],
+    ["PE-PRESERVE-SYNCED", "synced_to_task_proposal", "taskProposalCreatedAt"],
+  ];
+  const preservedLastStatusChangedAt = new Date("2026-05-01T12:00:00.000Z");
+  const millisOf = (value) => (value && typeof value.toMillis === "function" ? value.toMillis() : new Date(value).getTime());
+  for (const [sourceDossierId, status, decisionTimestampField] of decisionStatusIds) {
+    const inboxId = `product-evolution-first-run:${sourceDossierId}:generatedDossiers`;
+    await db.collection("agentCenterInbox").doc(inboxId).set({
+      inboxId,
+      status,
+      sourceType: "product_evolution_first_run",
+      sourceDossierId,
+      listType: "generatedDossiers",
+      title: `Old ${status}`,
+      summary: "Old summary",
+      what: "Old what",
+      why: "Old why",
+      allowedFiles: ["old/**"],
+      blockedFiles: ["old-blocked/**"],
+      requiredChecks: ["old check"],
+      taskProposalId: status === "synced_to_task_proposal" ? "task-preserved" : null,
+      auditRef: `audit-${status}`,
+      [decisionTimestampField]: preservedLastStatusChangedAt,
+      lastStatusChangedAt: preservedLastStatusChangedAt,
+    });
+  }
+  const decisionsBeforeDecisionPreserveSync = (await db.collection("agentCenterDecisions").get()).size;
+  const proposalsBeforeDecisionPreserveSync = (await db.collection("agentTaskProposals").get()).size;
+  const workerQueueBeforeDecisionPreserveSync = (await db.collection("agentTaskWorkerQueue").get()).size;
+  const runnerJobsBeforeDecisionPreserveSync = (await db.collection("agentTaskSupervisedRunnerJobs").get()).size;
+  const decisionPreserveSync = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
+    registerSnapshot: {
+      generatedDossiers: [
+        ...decisionStatusIds.map(([sourceDossierId]) => ({
+          id: sourceDossierId,
+          title: `Updated ${sourceDossierId}`,
+          summary: `Updated summary ${sourceDossierId}`,
+          whatWillChange: `Updated what ${sourceDossierId}`,
+          whySuggested: `Updated why ${sourceDossierId}`,
+          wellFitBenefit: `Updated WellFit benefit ${sourceDossierId}`,
+          userBenefit: `Updated user benefit ${sourceDossierId}`,
+          economyImpact: "Internal beta points/XP only; no token/payment/blockchain activation.",
+          riskSummary: "Updated low risk.",
+          recommendation: "approve",
+          recommendationLabel: "Approve safely",
+          recommendationText: "Updated recommendation text",
+          allowedFiles: ["docs/beta/**"],
+          blockedFiles: ["functions/**"],
+          requiredChecks: ["npm run lint", "git diff --check"],
+        })),
+        {
+          id: "PE-PRESERVE-NEW",
+          title: "New decision item",
+          summary: "New summary",
+          whatWillChange: "New what",
+          whySuggested: "New why",
+          wellFitBenefit: "New WellFit benefit",
+          userBenefit: "New user benefit",
+          economyImpact: "Internal beta points/XP only; no token/payment/blockchain activation.",
+          riskSummary: "Low risk.",
+          recommendation: "approve",
+          allowedFiles: ["docs/beta/**"],
+          blockedFiles: ["functions/**"],
+          requiredChecks: ["npm run lint"],
+        },
+      ],
+    },
+  });
+  assert(decisionPreserveSync.preservedDecisionStatusCount === decisionStatusIds.length, "sync should count preserved admin decision statuses");
+  assert((decisionPreserveSync.samplePreservedDecisionIds || []).includes("product-evolution-first-run:PE-PRESERVE-APPROVED:generatedDossiers"), "sync should expose sample preserved decision ids");
+  for (const [sourceDossierId, status, decisionTimestampField] of decisionStatusIds) {
+    const inboxId = `product-evolution-first-run:${sourceDossierId}:generatedDossiers`;
+    const preserved = await db.collection("agentCenterInbox").doc(inboxId).get();
+    const data = preserved.data();
+    assert(data.status === status, `${status} entry should remain ${status}`);
+    assert(data.title === `Updated ${sourceDossierId}`, `${status} entry title should update`);
+    assert(data.summary === `Updated summary ${sourceDossierId}`, `${status} entry summary should update`);
+    assert(data.what === `Updated what ${sourceDossierId}`, `${status} entry dossier what should update`);
+    assert(data.why === `Updated why ${sourceDossierId}`, `${status} entry dossier why should update`);
+    assert(JSON.stringify(data.allowedFiles || []) === JSON.stringify(["docs/beta/**"]), `${status} entry allowedFiles should update`);
+    assert(JSON.stringify(data.blockedFiles || []) === JSON.stringify(["functions/**"]), `${status} entry blockedFiles should update`);
+    assert(JSON.stringify(data.requiredChecks || []) === JSON.stringify(["npm run lint", "git diff --check"]), `${status} entry requiredChecks should update`);
+    assert(data.auditRef === `audit-${status}`, `${status} entry auditRef should be preserved`);
+    assert(millisOf(data[decisionTimestampField]) === preservedLastStatusChangedAt.getTime(), `${status} decision timestamp should be preserved`);
+    assert(millisOf(data.lastStatusChangedAt) === preservedLastStatusChangedAt.getTime(), `${status} lastStatusChangedAt should be preserved`);
+    if (status === "synced_to_task_proposal") assert(data.taskProposalId === "task-preserved", "synced entry taskProposalId should be preserved");
+  }
+  const newPreservedSyncItem = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-PRESERVE-NEW:generatedDossiers").get();
+  assert(newPreservedSyncItem.data().status === "pending_approval", "new sync item should start pending_approval");
+  assert((await db.collection("agentCenterDecisions").get()).size === decisionsBeforeDecisionPreserveSync, "sync must not auto-approve inbox items");
+  assert((await db.collection("agentTaskProposals").get()).size === proposalsBeforeDecisionPreserveSync, "sync must not auto-create task proposals");
+  assert((await db.collection("agentTaskWorkerQueue").get()).size === workerQueueBeforeDecisionPreserveSync, "sync must not create worker queue entries");
+  assert((await db.collection("agentTaskSupervisedRunnerJobs").get()).size === runnerJobsBeforeDecisionPreserveSync, "sync must not start runner jobs");
   await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-REV-01:generatedDossiers").set({
     inboxId: "product-evolution-first-run:PE-REV-01:generatedDossiers",
     status: "revision_requested",
