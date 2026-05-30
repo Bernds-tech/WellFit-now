@@ -22,6 +22,107 @@ const INBOX_STATUSES = ["pending_approval", "approved", "rejected", "revision_re
 const INBOX_SOURCE_TYPES = ["product_evolution_first_run", "opportunity_dossier", "mission_story", "research_summary", "product_radar", "legacy_catalog", "backlog", "proposal"];
 const INBOX_LIST_TYPES = ["generatedDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals", "productOpportunityProposals"];
 
+
+const REVISION_DOSSIER_REQUIRED_FIELDS = ["what", "why", "wellFitBenefit", "userBenefit", "economyImpact", "risk", "recommendation"];
+const REVISION_DOSSIER_LIST_FIELDS = ["allowedFiles", "blockedFiles", "requiredChecks"];
+const REVISION_DOSSIER_MESSAGE = "Revision konnte nicht ausreichend begründet werden.";
+
+function buildRevisionDefaultRequiredChecks({ allowedFiles, sourceType }) {
+  const checks = ["npm run agent:validate", "npm run lint", "git diff --check"];
+  const lowerFiles = (allowedFiles || []).map((file) => String(file || "").toLowerCase());
+  if (lowerFiles.some((file) => file.startsWith("app/") || file.startsWith("lib/admin/"))) checks.splice(2, 0, "npm run build");
+  if (lowerFiles.some((file) => file.startsWith("functions/")) || sourceType === "proposal") checks.push("npm --prefix functions run check");
+  return Array.from(new Set(checks));
+}
+
+function getRevisionMissingFields(dossier) {
+  const missing = [];
+  for (const field of REVISION_DOSSIER_REQUIRED_FIELDS) {
+    if (!sanitizeInboxText(dossier && dossier[field], 1200)) missing.push(field);
+  }
+  for (const field of REVISION_DOSSIER_LIST_FIELDS) {
+    if (!parseStringList(dossier && dossier[field], 80, 260).length) missing.push(field);
+  }
+  return missing;
+}
+
+function isCompleteDecisionDossier(dossier) {
+  return getRevisionMissingFields(dossier).length === 0;
+}
+
+function findRevisionSourcePayload({ inbox, registerSnapshot }) {
+  const sourceDossierId = sanitizeInboxText(inbox && inbox.sourceDossierId, 180);
+  const listType = sanitizeInboxText(inbox && inbox.listType, 80);
+  if (!registerSnapshot || typeof registerSnapshot !== "object") return null;
+  const collections = getFirstRunCandidateCollections(registerSnapshot);
+  const normalizedSource = sourceDossierId.toLowerCase();
+  for (const collection of collections) {
+    if (listType && collection.listType !== listType) continue;
+    for (const raw of collection.items) {
+      const normalized = normalizeFirstRunEntry(raw, collection.listType);
+      const ids = [normalized.sourceDossierId, normalized.dossierId, normalized.id, normalized.title, normalized.sourceRef].map((value) => sanitizeInboxText(value, 240).toLowerCase()).filter(Boolean);
+      if (ids.includes(normalizedSource)) return { payload: normalized, listType: collection.listType, collectionPath: collection.path };
+    }
+  }
+  for (const collection of collections) {
+    for (const raw of collection.items) {
+      const normalized = normalizeFirstRunEntry(raw, collection.listType);
+      const ids = [normalized.sourceDossierId, normalized.dossierId, normalized.id, normalized.title, normalized.sourceRef].map((value) => sanitizeInboxText(value, 240).toLowerCase()).filter(Boolean);
+      if (ids.includes(normalizedSource)) return { payload: normalized, listType: collection.listType, collectionPath: collection.path };
+    }
+  }
+  return null;
+}
+
+function buildProductEvolutionRevisionDossier({ inbox, sourcePayload, sourceMeta }) {
+  const source = { ...(inbox || {}), ...(sourcePayload || {}) };
+  const sourceDossierId = sanitizeInboxText(source.sourceDossierId || (inbox && inbox.sourceDossierId), 180);
+  const sourceType = sanitizeInboxText(source.sourceType || (inbox && inbox.sourceType), 120) || "product_evolution_first_run";
+  const listType = sanitizeInboxText((sourceMeta && sourceMeta.listType) || source.listType || (inbox && inbox.listType), 80) || "generatedDossiers";
+  const title = firstPresentText(source, ["title", "name", "headline", "label", "dossierTitle"], 240) || sourceDossierId;
+  const summary = firstPresentText(source, ["summary", "plainSummary", "description", "abstract", "sourcePayloadSummary", "overview"], 1200);
+  const what = firstPresentText(source, ["what", "whatWillChange", "requestedAction", "proposedChange", "change", "task", "scope"], 1200);
+  const why = firstPresentText(source, ["why", "whySuggested", "reason", "whyNow", "rationale", "motivation"], 1200);
+  const wellFitBenefit = firstPresentText(source, ["wellFitBenefit", "wellfitBenefit", "wellFitValue", "platformBenefit", "businessBenefit", "businessValue"], 1200);
+  const userBenefit = firstPresentText(source, ["userBenefit", "memberBenefit", "playerBenefit", "customerBenefit"], 1200);
+  const economyImpact = firstPresentText(source, ["economyImpact", "rewardImpact", "wfpImpact", "xpImpact", "economy"], 1200);
+  const risk = firstPresentText(source, ["risk", "riskSummary", "risks", "riskAssessment", "safetyRisk"], 1200);
+  const allowedFiles = firstPresentList(source, ["allowedFiles", "allowedWriteScopes", "allowedPaths", "affectedFiles", "files"], 80, 260);
+  const blockedFiles = firstPresentList(source, ["blockedFiles", "blockedWriteScopes", "forbiddenFiles", "protectedFiles", "blockedPaths"], 80, 260);
+  const requiredChecks = firstPresentList(source, ["requiredChecks", "checks", "qualityChecks", "requiredCommands", "validationCommands"], 80, 260);
+  const recommendation = listType === "recommendedResearchMore" ? "research_more" : (firstPresentText(source, ["recommendation", "recommendedDecision", "decisionRecommendation"], 80) || "approve");
+  const completeCandidate = { what, why, wellFitBenefit, userBenefit, economyImpact, risk, recommendation, allowedFiles, blockedFiles, requiredChecks };
+  const sourceHasEnoughNarrative = Boolean(summary && what && why && wellFitBenefit && userBenefit && economyImpact && risk);
+  const hydratedRequiredChecks = requiredChecks.length ? requiredChecks : (sourceHasEnoughNarrative && allowedFiles.length ? buildRevisionDefaultRequiredChecks({ allowedFiles, sourceType }) : []);
+  const dossier = {
+    title,
+    summary,
+    plainSummary: summary,
+    what,
+    whatWillChange: what,
+    why,
+    whySuggested: why,
+    wellFitBenefit,
+    userBenefit,
+    economyImpact,
+    risk,
+    riskSummary: risk,
+    recommendation,
+    allowedFiles,
+    blockedFiles,
+    requiredChecks: hydratedRequiredChecks,
+    sourceDossierId,
+    sourceType,
+    listType,
+    sourceRef: sanitizeInboxText(source.sourceRef || (inbox && inbox.sourceRef), 260),
+    nextStep: firstPresentText(source, ["nextStep", "nextSteps", "suggestedTaskProposal", "handoff"], 1200) || "Nach Admin-Zustimmung manuell als Task Proposal weiterführen. Kein Runner, Deploy, Merge oder automatische Zustimmung.",
+    revisionSourceDossierId: sourceDossierId,
+    revisionSourceCollectionPath: sanitizeInboxText(sourceMeta && sourceMeta.collectionPath, 120),
+  };
+  const missing = getRevisionMissingFields(dossier);
+  return { dossier, missing, complete: missing.length === 0, sourceHasEnoughNarrative, completeCandidate };
+}
+
 function touchesCanonicalTruthProtectedFiles(files) {
   const normalized = parseStringList(files, 120, 260).map((f) => String(f || "").trim().toLowerCase());
   const protectedSet = new Set(CANONICAL_TRUTH_PROTECTED_FILES.map((f) => f.toLowerCase()));
@@ -1362,6 +1463,96 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { accepted: true, syncedCount: synced, idempotent: true };
   });
 
+  exportsTarget.regenerateProductEvolutionRevisionDossiers = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const requestData = request.data && typeof request.data === "object" ? request.data : {};
+    const snapshotResolution = resolveRegisterSnapshot(requestData);
+    const registerSnapshot = snapshotResolution.registerSnapshot;
+    const mirrorSnap = await db.collection("agentSystemRegisters").doc("agent-product-evolution-first-run-output").get();
+    const mirror = mirrorSnap.exists ? (mirrorSnap.data() || {}) : {};
+    const useMirror = getFirstRunCandidateCollections(mirror).length > 0;
+    const effectiveSnapshot = useMirror ? mirror : (registerSnapshot || {});
+    const limit = Math.min(Math.max(Number(requestData.limit || 100), 1), 200);
+    const snap = await db.collection("agentCenterInbox")
+      .where("status", "==", "revision_requested")
+      .limit(limit)
+      .get();
+    let regenerated = 0;
+    let stillRevisionRequested = 0;
+    const sampleRegeneratedIds = [];
+    const sampleRevisionBlocked = [];
+    const now = FieldValue.serverTimestamp();
+    for (const doc of snap.docs) {
+      const inbox = doc.data() || {};
+      if (String(inbox.sourceType || "") !== "product_evolution_first_run") continue;
+      const sourceMatch = findRevisionSourcePayload({ inbox, registerSnapshot: effectiveSnapshot });
+      const result = buildProductEvolutionRevisionDossier({
+        inbox,
+        sourcePayload: sourceMatch && sourceMatch.payload,
+        sourceMeta: sourceMatch ? { listType: sourceMatch.listType, collectionPath: sourceMatch.collectionPath } : null,
+      });
+      assertCanonicalTruthChangeAllowed({ files: [...result.dossier.allowedFiles, ...result.dossier.blockedFiles], actorRole, ownerApprovalFlag: actorRole === "owner", HttpsError });
+      const revisionEntry = {
+        at: now,
+        byRole: actorRole,
+        action: result.complete ? "revision_dossier_regenerated" : "revision_dossier_insufficient",
+        message: result.complete ? "Revision-Dossier neu erzeugt und zur Freigabe gestellt." : REVISION_DOSSIER_MESSAGE,
+        missingCriticalDecisionFields: result.missing,
+        sourceDossierId: result.dossier.sourceDossierId || null,
+      };
+      if (result.complete) {
+        await doc.ref.set({
+          ...result.dossier,
+          status: "pending_approval",
+          detailStatus: "complete",
+          dossierIncomplete: false,
+          missingCriticalDecisionFields: [],
+          revisionRegeneratedAt: now,
+          waitingForApprovalAt: now,
+          lastStatusChangedAt: now,
+          updatedAt: now,
+          noRunnerStarted: true,
+          noDeploy: true,
+          noMerge: true,
+          revisionHistory: FieldValue.arrayUnion(revisionEntry),
+        }, { merge: true });
+        regenerated += 1;
+        if (sampleRegeneratedIds.length < 10) sampleRegeneratedIds.push(doc.id);
+      } else {
+        await doc.ref.set({
+          status: "revision_requested",
+          detailStatus: "missing",
+          dossierIncomplete: true,
+          missingCriticalDecisionFields: result.missing,
+          revisionMessage: REVISION_DOSSIER_MESSAGE,
+          revisionCheckedAt: now,
+          updatedAt: now,
+          noRunnerStarted: true,
+          noDeploy: true,
+          noMerge: true,
+          revisionHistory: FieldValue.arrayUnion(revisionEntry),
+        }, { merge: true });
+        stillRevisionRequested += 1;
+        if (sampleRevisionBlocked.length < 10) sampleRevisionBlocked.push({ inboxId: doc.id, missingCriticalDecisionFields: result.missing, message: REVISION_DOSSIER_MESSAGE });
+      }
+    }
+    await writeAgentAudit(db, { actorId, actorRole, action: "product_evolution_revision_dossiers_regenerated", result: "ok" });
+    return {
+      accepted: true,
+      status: "revision_dossier_generation_complete",
+      message: regenerated > 0 ? `${regenerated} Revision-Dossiers wurden wieder zur Freigabe gestellt.` : REVISION_DOSSIER_MESSAGE,
+      scanned: snap.size,
+      regenerated,
+      stillRevisionRequested,
+      sampleRegeneratedIds,
+      sampleRevisionBlocked,
+      sourceTrust: useMirror ? "firestore_mirror" : "admin_provided_repo_snapshot",
+      noRunnerStarted: true,
+      noDeploy: true,
+      noMerge: true,
+    };
+  });
+
   exportsTarget.listAgentCenterInboxItems = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
     const data = request.data || {};
@@ -1467,6 +1658,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
           const inbox = inboxSnap.data() || {};
           const inboxStatus = String(inbox.status || "");
           if (inboxStatus !== "pending_approval") throw new HttpsError("failed-precondition", "center_inbox_not_decidable");
+          if (decision === "approved" && !isCompleteDecisionDossier(inbox)) throw new HttpsError("failed-precondition", "missing_decision_data");
           return { sourceRef: "agentCenterInbox", riskLevel: normalizeRiskLevel(inbox.riskLevel), protectedScopes: parseStringList(inbox.forbiddenScope || []), allowedFiles: parseStringList(inbox.allowedFiles || []), inboxRef: inboxSnap.ref, inbox };
         }
         if (proposalSnap.exists) return { sourceRef: "agentTaskProposals", riskLevel: normalizeRiskLevel(proposalSnap.data().riskLevel), protectedScopes: parseStringList(proposalSnap.data().protectedScopes || []), allowedFiles: parseStringList(proposalSnap.data().allowedFiles || []) };
@@ -1533,4 +1725,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, REVISION_DOSSIER_MESSAGE };

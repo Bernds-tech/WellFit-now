@@ -345,8 +345,8 @@ async function run() {
     },
   });
   assert((firstRunSync.created || 0) + (firstRunSync.updated || 0) >= 3, "sync should create/update PE 01/02/03");
-  assert(firstRunSync.callableVersion === "2026-05-24-pr253-snapshot-shape-v2", "sync response must include callableVersion");
-  assert(firstRunSync.responseShapeVersion === "agent-center-inbox-sync-v2", "sync response must include responseShapeVersion");
+  assert(firstRunSync.callableVersion === "2026-05-30-dossier-decision-details-v4", "sync response must include callableVersion");
+  assert(firstRunSync.responseShapeVersion === "agent-center-inbox-sync-v4", "sync response must include responseShapeVersion");
   assert(firstRunSync.payloadUnwrappedFrom === "registerSnapshot", "top-level registerSnapshot must be recognized");
   assert((firstRunSync.skippedReasons && firstRunSync.skippedReasons.missing_sourceDossierId >= 1) || false, "invalid entry should be counted as missing_sourceDossierId");
   const pe01 = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-20260523-01:generatedDossiers").get();
@@ -356,6 +356,72 @@ async function run() {
   assert((firstRunSync.serverCandidateCount || 0) >= 3, "serverCandidateCount should include PE 01/02/03");
   assert(((firstRunSync.created || 0) + (firstRunSync.updated || 0) + (firstRunSync.skipped || 0)) > 0, "created+updated+skipped should be > 0");
   assert((firstRunSync.serverCandidateCollections || []).some((entry) => entry.listType === "suggestedTaskQueue"), "must detect top-level suggestedTaskQueue");
+  await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-REV-01:generatedDossiers").set({
+    inboxId: "product-evolution-first-run:PE-REV-01:generatedDossiers",
+    status: "revision_requested",
+    sourceType: "product_evolution_first_run",
+    sourceDossierId: "PE-REV-01",
+    listType: "generatedDossiers",
+    summary: "Auto import only",
+    allowedFiles: [],
+    blockedFiles: [],
+    requiredChecks: [],
+  });
+  await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-REV-02:generatedDossiers").set({
+    inboxId: "product-evolution-first-run:PE-REV-02:generatedDossiers",
+    status: "revision_requested",
+    sourceType: "product_evolution_first_run",
+    sourceDossierId: "PE-REV-02",
+    listType: "generatedDossiers",
+    summary: "Auto import only",
+  });
+  const revisionResult = await expectOk("regenerateProductEvolutionRevisionDossiers", owner, {
+    registerSnapshot: {
+      generatedDossiers: [{
+        id: "PE-REV-01",
+        title: "Complete revision",
+        summary: "Structured summary",
+        whatWillChange: "Create a review handoff document.",
+        whySuggested: "It closes a tracked admin review gap.",
+        wellFitBenefit: "WellFit gains traceable decision data.",
+        userBenefit: "Users get safer reviewed changes.",
+        economyImpact: "Internal beta points/XP only; no token/payment/blockchain activation.",
+        riskSummary: "Low docs-only risk with blocked protected paths.",
+        recommendation: "approve",
+        allowedFiles: ["docs/beta/**"],
+        blockedFiles: ["functions/**", ".github/**"],
+        requiredChecks: ["npm run agent:validate", "npm run lint", "git diff --check"],
+        nextStep: "Return to admin approval only.",
+      }, { id: "PE-REV-02", summary: "Only summary" }],
+    },
+  });
+  assert(revisionResult.regenerated >= 1, "complete revision should be regenerated");
+  assert(revisionResult.stillRevisionRequested >= 1, "incomplete revision should remain revision_requested");
+  assert(revisionResult.noRunnerStarted === true && revisionResult.noDeploy === true && revisionResult.noMerge === true, "revision generator must not start runner/deploy/merge");
+  const regeneratedInbox = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-REV-01:generatedDossiers").get();
+  assert(regeneratedInbox.data().status === "pending_approval", "complete revision should return to pending_approval");
+  assert(regeneratedInbox.data().what && regeneratedInbox.data().why && regeneratedInbox.data().wellFitBenefit && regeneratedInbox.data().userBenefit && regeneratedInbox.data().economyImpact && regeneratedInbox.data().risk, "dossier fields should be present");
+  const incompleteInbox = await db.collection("agentCenterInbox").doc("product-evolution-first-run:PE-REV-02:generatedDossiers").get();
+  assert(incompleteInbox.data().status === "revision_requested", "incomplete revision should stay revision_requested");
+  assert(incompleteInbox.data().revisionMessage === "Revision konnte nicht ausreichend begründet werden.", "incomplete revision should record safe message");
+
+  await db.collection("agentCenterInbox").doc("ibox-missing-dossier").set({
+    inboxId: "ibox-missing-dossier",
+    status: "pending_approval",
+    sourceType: "product_evolution_first_run",
+    sourceDossierId: "PE-MISSING",
+    listType: "generatedDossiers",
+    why: "Because",
+    wellFitBenefit: "Benefit",
+    userBenefit: "User benefit",
+    economyImpact: "No token/payment activation.",
+    risk: "Low",
+    recommendation: "approve",
+    allowedFiles: ["docs/**"],
+    blockedFiles: ["functions/**"],
+    requiredChecks: ["npm run lint"],
+  });
+  await expectFail("approveAgentCenterProposal", owner, { targetType: "agent", targetId: "ibox-missing-dossier" });
 
   const syncOutputShape = await expectOk("syncProductEvolutionFirstRunInbox", owner, {
     registerSnapshot: { output: { suggestedTaskQueue: [{ title: "PE-20260523-01 output queue", summary: "s" }] } },

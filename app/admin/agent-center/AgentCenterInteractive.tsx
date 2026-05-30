@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ProductEvolutionInboxSyncResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ProductEvolutionInboxSyncResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -316,6 +316,8 @@ export default function AgentCenterInteractive({
     return hasArrays ? { source: "reconstructedFromArrays", snapshot: reconstructed } : { source: "missing", snapshot: null };
   }, [firstRunOutput, firstRunRegisterSnapshot]);
 
+  const canRunRevisionDossierGenerator = authDebug.agentRoleClaim === "owner" || authDebug.agentRoleClaim === "admin_operator" || authDebug.agentRoleClaim === "admin";
+
   const snapshotStats = useMemo(() => {
     const snapshot = snapshotResolution.snapshot && typeof snapshotResolution.snapshot === "object" ? snapshotResolution.snapshot : {};
     const keys = firstRunRegisterSnapshotKeys.length > 0 ? firstRunRegisterSnapshotKeys : Object.keys(snapshot);
@@ -508,6 +510,40 @@ export default function AgentCenterInteractive({
     }
   }
 
+  async function runRevisionDossierGenerator() {
+    if (!(await ensureAdminAuthReady())) return;
+    if (!canRunRevisionDossierGenerator) {
+      setFeedback("Revision-Dossier-Generator ist nur für Owner/Admin sichtbar.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const effectiveFirstRunRegisterSnapshot = snapshotResolution.snapshot;
+      const hasSnapshot = Boolean(effectiveFirstRunRegisterSnapshot && typeof effectiveFirstRunRegisterSnapshot === "object" && Object.keys(effectiveFirstRunRegisterSnapshot).length > 0);
+      const snapshotToSend = hasSnapshot ? JSON.parse(JSON.stringify(effectiveFirstRunRegisterSnapshot)) as Record<string, unknown> : {};
+      const result = await beta1AdminClient.regenerateProductEvolutionRevisionDossiers({ registerSnapshot: snapshotToSend }) as ProductEvolutionRevisionDossierResult;
+      const regenerated = Number(result.regenerated ?? 0);
+      const stillRevisionRequested = Number(result.stillRevisionRequested ?? 0);
+      setSyncDebug((prev) => ({
+        ...prev,
+        revisionScanned: result.scanned ?? 0,
+        revisionRegenerated: regenerated,
+        revisionStillRequested: stillRevisionRequested,
+        revisionSourceTrust: result.sourceTrust || "",
+        revisionNoRunnerStarted: result.noRunnerStarted,
+        revisionNoDeploy: result.noDeploy,
+        revisionNoMerge: result.noMerge,
+      }));
+      setSyncStatus(result.message || `Revision-Dossiers: ${regenerated} wieder pending_approval, ${stillRevisionRequested} bleiben revision_requested.`);
+      setFeedback(`Revision-Dossiers neu erzeugt: scanned:${result.scanned ?? 0}, pending_approval:${regenerated}, revision_requested:${stillRevisionRequested}. Keine Zustimmung, kein Runner, kein Deploy, kein Merge.`);
+      await refreshInbox();
+    } catch (error) {
+      setFeedback(`Revision fehlgeschlagen: ${getSafeAdminDecisionMessage(error)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function buttonReason(_action: "approve" | "reject" | "revise" | "block", row: Row): string {
     const status = String(row.status || "").toLowerCase();
     const hasInbox = Boolean(asText(row.inboxId));
@@ -589,6 +625,7 @@ export default function AgentCenterInteractive({
       <div className="flex gap-2">
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runSync}>Product-Evolution Inbox synchronisieren</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshInbox}>Server-Inbox neu laden</button>
+        {canRunRevisionDossierGenerator && <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runRevisionDossierGenerator}>Revision-Dossiers neu erzeugen</button>}
       </div>
       {!authDebug.firebaseUserPresent && (
         <div className="rounded border border-amber-300/60 bg-amber-500/10 p-2 text-xs">
@@ -615,6 +652,11 @@ export default function AgentCenterInteractive({
         <p>agentRoleClaim: {String(authDebug.agentRoleClaim || "-")}</p>
         <p>serverInboxLoadedCount: {String(syncDebug.serverInboxLoadedCount ?? serverInboxRows.length)}</p>
         <p>serverInboxPendingCount: {String(syncDebug.serverInboxPendingCount ?? serverInboxPendingCount)}</p>
+        <p>revisionRegenerated: {String(syncDebug.revisionRegenerated ?? "-")}</p>
+        <p>revisionStillRequested: {String(syncDebug.revisionStillRequested ?? "-")}</p>
+        <p>revisionNoRunnerStarted: {String(syncDebug.revisionNoRunnerStarted ?? "-")}</p>
+        <p>revisionNoDeploy: {String(syncDebug.revisionNoDeploy ?? "-")}</p>
+        <p>revisionNoMerge: {String(syncDebug.revisionNoMerge ?? "-")}</p>
         <p>visibleListSource: {visibleListSource}</p>
         <p>lastDecisionAction: {String(syncDebug.lastDecisionAction || "-")}</p>
         <p>lastDecisionTargetIdPresent: {String(syncDebug.lastDecisionTargetIdPresent ?? "-")}</p>
