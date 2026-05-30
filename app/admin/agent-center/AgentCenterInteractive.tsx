@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ProductEvolutionInboxSyncResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, ProductEvolutionInboxSyncResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -117,8 +117,12 @@ const getSafeAdminDecisionFailureMessage = (resultMessage?: string, errorCode?: 
   if (code === "client_auth_missing") return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
   if (code === "client_auth_not_ready") return "Admin-Rolle fehlt oder wurde noch nicht geladen.";
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
+  if (diagnostic.includes("inbox_not_approved") || diagnostic.includes("inbox_status_not_allowed") || message === "Eintrag ist nicht approved.") return "Eintrag ist nicht approved.";
+  if (diagnostic.includes("missing_approved_admin_decision") || message === "Missing approved admin decision.") return "Missing approved admin decision.";
+  if (diagnostic.includes("missing_decision_data") || message === "Missing decision data.") return "Missing decision data.";
+  if (diagnostic.includes("protected_scope_owner_required") || message === "Protected scope owner required.") return "Protected scope owner required.";
   if (diagnostic.includes("center_inbox_not_decidable") || message === "Eintrag ist nicht mehr entscheidbar.") return "Eintrag ist nicht mehr entscheidbar.";
-  if (diagnostic.includes("server_inbox_entry_not_found") || code.includes("not-found") || message === "Server-Inbox-Eintrag nicht gefunden.") return "Server-Inbox-Eintrag nicht gefunden.";
+  if (diagnostic.includes("server_inbox_entry_not_found") || diagnostic.includes("inbox_not_found") || code.includes("not-found") || message === "Server-Inbox-Eintrag nicht gefunden.") return "Server-Inbox-Eintrag nicht gefunden.";
   if (diagnostic.includes("inbox_mirror_missing") || diagnostic.includes("not_mirrored")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
   if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
   if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
@@ -589,6 +593,75 @@ export default function AgentCenterInteractive({
     return "";
   }
 
+  function taskProposalButtonReason(row: Row): string {
+    const status = String(row.status || "").toLowerCase();
+    const inboxId = asText(row.inboxId);
+    if (!inboxId) return "Server-Inbox-Eintrag fehlt";
+    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
+    if (status !== "approved") return "Eintrag ist nicht approved.";
+    return "";
+  }
+
+  async function createTaskProposal(row: Row) {
+    const inboxId = asText(row.inboxId);
+    const reason = taskProposalButtonReason(row);
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastTaskProposalCreated: false,
+      lastTaskProposalIdPresent: false,
+      lastTaskProposalStatus: reason ? "blocked_client" : "started",
+      lastTaskProposalMessage: reason || "Task Proposal wird erzeugt …",
+      lastTaskProposalNoRunnerStarted: "-",
+      lastTaskProposalNoBranchOrPrOrMerge: "-",
+      lastTaskProposalNoDeploy: "-",
+    }));
+    if (reason) {
+      setFeedback(reason);
+      return;
+    }
+
+    setBusy(true);
+    setFeedback("Task Proposal wird erzeugt …");
+    try {
+      const result = await beta1AdminClient.createAgentTaskProposalFromApprovedInboxItem({ inboxId }) as ApprovedInboxToTaskProposalResult;
+      const accepted = Boolean(result.accepted);
+      const taskProposalId = asText(result.taskProposalId);
+      const safeMessage = accepted
+        ? `Task Proposal erzeugt.${taskProposalId ? ` taskProposalId: ${taskProposalId}` : ""}`
+        : `Task Proposal konnte nicht erzeugt werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastTaskProposalCreated: accepted,
+        lastTaskProposalIdPresent: Boolean(taskProposalId),
+        lastTaskProposalStatus: result.proposalStatus || result.status || (accepted ? "created" : "failed"),
+        lastTaskProposalMessage: safeMessage,
+        lastTaskProposalNoRunnerStarted: result.noRunnerStarted ?? "-",
+        lastTaskProposalNoBranchOrPrOrMerge: result.noBranchOrPrOrMerge ?? "-",
+        lastTaskProposalNoDeploy: result.noDeploy ?? "-",
+      }));
+    } catch (error) {
+      const safeMessage = `Task Proposal konnte nicht erzeugt werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastTaskProposalCreated: false,
+        lastTaskProposalIdPresent: false,
+        lastTaskProposalStatus: "error",
+        lastTaskProposalMessage: safeMessage,
+        lastTaskProposalNoRunnerStarted: "-",
+        lastTaskProposalNoBranchOrPrOrMerge: "-",
+        lastTaskProposalNoDeploy: "-",
+      }));
+    } finally {
+      try {
+        await refreshInbox();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
   async function decide(kind: "agent" | "mission", action: "approve" | "reject" | "revise" | "block", row: Row) {
     const actionLabel = { approve: "Zustimmen", reject: "Ablehnen", revise: "Überarbeiten", block: "Blockieren" }[action];
     const reason = buttonReason(action, row);
@@ -695,6 +768,13 @@ export default function AgentCenterInteractive({
         <p>lastDecisionStatus: {String(syncDebug.lastDecisionStatus || "-")}</p>
         <p>lastDecisionMessage: {String(syncDebug.lastDecisionMessage || "-")}</p>
         <p>lastDecisionErrorCode: {String(syncDebug.lastDecisionErrorCode || "-")}</p>
+        <p>lastTaskProposalCreated: {String(syncDebug.lastTaskProposalCreated ?? "-")}</p>
+        <p>lastTaskProposalIdPresent: {String(syncDebug.lastTaskProposalIdPresent ?? "-")}</p>
+        <p>lastTaskProposalStatus: {String(syncDebug.lastTaskProposalStatus || "-")}</p>
+        <p>lastTaskProposalMessage: {String(syncDebug.lastTaskProposalMessage || "-")}</p>
+        <p>lastTaskProposalNoRunnerStarted: {String(syncDebug.lastTaskProposalNoRunnerStarted ?? "-")}</p>
+        <p>lastTaskProposalNoBranchOrPrOrMerge: {String(syncDebug.lastTaskProposalNoBranchOrPrOrMerge ?? "-")}</p>
+        <p>lastTaskProposalNoDeploy: {String(syncDebug.lastTaskProposalNoDeploy ?? "-")}</p>
         <p>lastAuthGuardMessage: {String(authDebug.lastAuthGuardMessage || "-")}</p>
         <p>clientSendingRegisterSnapshot: {String(syncDebug.clientSendingRegisterSnapshot ?? "-")}</p>
         <p>clientSendingRegisterSnapshotKeys: [{((syncDebug.clientSendingRegisterSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
@@ -760,6 +840,8 @@ export default function AgentCenterInteractive({
           const rejectReason = buttonReason("reject", row);
           const blockReason = buttonReason("block", row);
           const reviseReason = buttonReason("revise", row);
+          const taskProposalReason = taskProposalButtonReason(row);
+          const canShowTaskProposalAction = String(row.status || "").toLowerCase() === "approved";
           const decisionBlocker = approveReason || rejectReason || blockReason || reviseReason;
 
           return (
@@ -779,7 +861,9 @@ export default function AgentCenterInteractive({
                 <button title={rejectReason || "Ablehnen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(rejectReason)} onClick={() => decide(decisionKind, "reject", row)}>Ablehnen</button>
                 <button title={reviseReason || "Überarbeiten"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(reviseReason)} onClick={() => decide(decisionKind, "revise", row)}>Überarbeiten</button>
                 <button title={blockReason || "Blockieren"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(blockReason)} onClick={() => decide(decisionKind, "block", row)}>Blockieren</button>
+                {canShowTaskProposalAction && <button title={taskProposalReason || "Task Proposal erzeugen"} className="cursor-pointer rounded border border-emerald-300/70 px-2 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(taskProposalReason)} onClick={() => createTaskProposal(row)}>Task Proposal erzeugen</button>}
                 {decisionBlocker && <p className="w-full text-amber-300">Sperrgrund: {decisionBlocker}</p>}
+                {canShowTaskProposalAction && taskProposalReason && <p className="w-full text-amber-300">Task-Proposal-Sperrgrund: {taskProposalReason}</p>}
               </div>
               <p>Wartet seit: {formatAdminDate(timeline.waitingForApprovalAt)}</p>
             </div>

@@ -43,8 +43,12 @@ function sanitizeAdminError(error: unknown): string {
   const text = getAdminErrorText(error);
   const diagnostic = `${code} ${text}`;
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
+  if (diagnostic.includes("inbox_not_approved") || diagnostic.includes("inbox_status_not_allowed")) return "Eintrag ist nicht approved.";
+  if (diagnostic.includes("missing_approved_admin_decision")) return "Missing approved admin decision.";
+  if (diagnostic.includes("missing_decision_data")) return "Missing decision data.";
+  if (diagnostic.includes("protected_scope_owner_required")) return "Protected scope owner required.";
   if (diagnostic.includes("center_inbox_not_decidable")) return "Eintrag ist nicht mehr entscheidbar.";
-  if (diagnostic.includes("server_inbox_entry_not_found") || code.includes("not-found")) return "Server-Inbox-Eintrag nicht gefunden.";
+  if (diagnostic.includes("server_inbox_entry_not_found") || diagnostic.includes("inbox_not_found") || code.includes("not-found")) return "Server-Inbox-Eintrag nicht gefunden.";
   if (diagnostic.includes("inbox_mirror_missing") || diagnostic.includes("not_mirrored")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
   if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
   if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
