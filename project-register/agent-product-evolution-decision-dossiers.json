@@ -1,0 +1,192 @@
+{
+  "createdAt": "2026-05-30T16:14:08.021Z",
+  "sourceRef": "project-register/agent-product-evolution-first-run-output.json",
+  "dossiers": [
+    {
+      "sourceDossierId": "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_FIRST_RUN_ANALYSIS.md",
+      "dossierId": "PE-DOSSIER-01-DOCS-ARCHITECTURE-WELLFIT-AGENT-PRODUCT-EVOLUTION-FIRST-RUN-ANALYSIS",
+      "title": "Product Evolution First Run Analysis",
+      "summary": "Analyse-Lauf dokumentiert Produkt-, Governance- und Dossier-Status fuer WellFit Beta-1 ohne Runtime-Aenderungen.",
+      "whatWillChange": "Analyse- und Governance-Erkenntnisse werden als Admin-Entscheidungsdossier gespiegelt.",
+      "whySuggested": "Die Analyse nennt fehlenden konsolidierten First-Run Output und unstrukturierte Produktchancen als offene Luecken.",
+      "wellFitBenefit": "WellFit bekommt nachvollziehbare, admin-review-faehige Produktentwicklungsentscheidungen auf Basis vorhandener Register- und Planungsdaten.",
+      "userBenefit": "Nutzer profitieren indirekt von sicherer, gepruefter Produktplanung statt vorschneller oder unklarer Feature-Aktivierung.",
+      "businessBenefit": "Reviewbare Dossiers verbessern Priorisierung, Retention-Planung und Beta-Readiness ohne neue Compliance- oder Runtime-Risiken.",
+      "economyImpact": "Nur interne Beta-1 WFP/XP-Konzeption; keine Token-, NFT-, Cashout-, Payment- oder Blockchain-Aktivierung.",
+      "riskSummary": "Risiken: Legacy-Token/Cashout-Fokus, Umsetzung ohne Admin Approval und spekulative/privacy-kritische Trends.",
+      "recommendation": "research_more",
+      "riskLevel": "medium",
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**",
+        "firestore.rules",
+        "native/**",
+        ".github/**"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check"
+      ],
+      "nextStep": "Admin prueft Dossier; bei Freigabe nur Task-Proposal/Handoff vorbereiten, kein automatisches Zustimmen, Mergen oder Deployen.",
+      "detailStatus": "structured",
+      "missingCriticalDecisionFields": []
+    },
+    {
+      "sourceDossierId": "todolist/AGENT_PRODUCT_OPPORTUNITY_PROPOSALS.md",
+      "dossierId": "PE-DOSSIER-02-TODOLIST-AGENT-PRODUCT-OPPORTUNITY-PROPOSALS",
+      "title": "First Run Product Opportunity Dossiers",
+      "summary": "Admin-freigabefaehiges Dossier fuer saisonale Walk+Learn Mission-Packs (nur Konzeption).",
+      "whatWillChange": "Admin-freigabefaehiges Dossier fuer saisonale Walk+Learn Mission-Packs (nur Konzeption).",
+      "whySuggested": "Nach PR #241 ist Control-Center technisch vorbereitet; jetzt braucht es hochwertige Inhalte fuer Approval-Pipeline.",
+      "wellFitBenefit": "Schnellere Aktivierung sicherer Mission-Roadmap ohne Runtime-Risiko.",
+      "userBenefit": "Klare, motivierende Familienmissionen mit Bewegung und Lernanteil.",
+      "businessBenefit": "Hoehere Retention + vorbereitete B2B Family-Wellness Story.",
+      "economyImpact": "WFP als kontrollierter Reward-Loop, XP fuer Avatar Progress.; erfordert Reward-Caps und saisonale Sink-Mechanik.",
+      "riskSummary": "Reward-Inflation, Child-Safety-Missverstaendnisse",
+      "recommendation": "approve",
+      "riskLevel": "medium",
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**",
+        "firestore.rules",
+        "native/**"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check"
+      ],
+      "nextStep": "Admin prueft Dossier; bei Freigabe nur Task-Proposal/Handoff vorbereiten, kein automatisches Zustimmen, Mergen oder Deployen.",
+      "detailStatus": "structured",
+      "missingCriticalDecisionFields": []
+    },
+    {
+      "sourceDossierId": "todolist/AGENT_MISSION_STORY_PROPOSALS.md",
+      "dossierId": "PE-DOSSIER-03-TODOLIST-AGENT-MISSION-STORY-PROPOSALS",
+      "title": "First Run Mission Story Proposal",
+      "summary": "AGENT Mission Story Proposals (Planning Only)",
+      "whatWillChange": "5 Tagesetappen, je Bewegung + Mini-Lernimpuls + soziales Check-in.",
+      "whySuggested": "Move-Learn-Social Kern ohne verbotene Monetarisierung.",
+      "wellFitBenefit": "WellFit bekommt nachvollziehbare, admin-review-faehige Produktentwicklungsentscheidungen auf Basis vorhandener Register- und Planungsdaten.",
+      "userBenefit": "Nutzer profitieren indirekt von sicherer, gepruefter Produktplanung statt vorschneller oder unklarer Feature-Aktivierung.",
+      "businessBenefit": "Reviewbare Dossiers verbessern Priorisierung, Retention-Planung und Beta-Readiness ohne neue Compliance- oder Runtime-Risiken.",
+      "economyImpact": "WFP internal only + XP avatar progress + no token/cashout/payment.",
+      "riskSummary": "medium (child/guardian wording).",
+      "recommendation": "approve",
+      "riskLevel": "medium",
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**",
+        "firestore.rules",
+        "native/**",
+        ".github/**"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check"
+      ],
+      "nextStep": "admin approval fuer detailliertes dossier.",
+      "detailStatus": "structured",
+      "missingCriticalDecisionFields": []
+    },
+    {
+      "sourceDossierId": "todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md",
+      "dossierId": "PE-DOSSIER-04-TODOLIST-AGENT-RESEARCH-SUMMARY-TEMPLATE",
+      "title": "Research Summary Template — Dossier Incomplete",
+      "summary": "Vorlage fuer spaetere Research Summaries; enthaelt Anforderungen, aber keine konkrete Quellenlage oder belastbare Findings.",
+      "whatWillChange": "",
+      "whySuggested": "Die Vorlage definiert Risk-Source-Filter, reicht aber allein nicht als fachliche Entscheidungsgrundlage.",
+      "wellFitBenefit": "Hilft spaeter, Research report-only und sicher zu strukturieren.",
+      "userBenefit": "Noch kein direkter Nutzereffekt, da kein konkretes geprueftes Proposal vorliegt.",
+      "businessBenefit": "Noch keine belastbare Finanz- oder Produktentscheidung moeglich.",
+      "economyImpact": "Nicht bewertbar ohne konkrete Findings; keine WFP/XP- oder Token/Payment-Aktivierung.",
+      "riskSummary": "Unvollstaendig: fehlende Quellen, Findings, Widersprueche, Confidence und konkrete Empfehlung.",
+      "recommendation": "revise",
+      "riskLevel": "medium",
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**",
+        "firestore.rules",
+        "native/**",
+        ".github/**"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check"
+      ],
+      "nextStep": "Konkreten Research Summary mit Quellen, Findings, Risiken, Confidence und WellFit-Empfehlung nachreichen.",
+      "detailStatus": "missing",
+      "missingCriticalDecisionFields": [
+        "whatWillChange"
+      ]
+    },
+    {
+      "sourceDossierId": "docs/beta/BETA1_PRODUCT_EVOLUTION_FIRST_RUN_READINESS_GAPS.md",
+      "dossierId": "PE-DOSSIER-05-DOCS-BETA-BETA1-PRODUCT-EVOLUTION-FIRST-RUN-READINESS-GAPS",
+      "title": "Beta-1 Product Evolution First Run Readiness Gaps",
+      "summary": "Readiness-Gaps vor echten Testern: Human/Device Evidence, Manual Seed Run, Privacy/Guardian Review und Dossier-Inbox-Freigabe fehlen.",
+      "whatWillChange": "Gaps werden als Review-Dossier sichtbar, aber nicht automatisch freigegeben.",
+      "whySuggested": "Blockierende Evidence- und Freigabe-Luecken muessen vor echten Beta-Testern geklaert werden.",
+      "wellFitBenefit": "WellFit bekommt nachvollziehbare, admin-review-faehige Produktentwicklungsentscheidungen auf Basis vorhandener Register- und Planungsdaten.",
+      "userBenefit": "Nutzer profitieren indirekt von sicherer, gepruefter Produktplanung statt vorschneller oder unklarer Feature-Aktivierung.",
+      "businessBenefit": "Reviewbare Dossiers verbessern Priorisierung, Retention-Planung und Beta-Readiness ohne neue Compliance- oder Runtime-Risiken.",
+      "economyImpact": "Nur interne Beta-1 WFP/XP-Konzeption; keine Token-, NFT-, Cashout-, Payment- oder Blockchain-Aktivierung.",
+      "riskSummary": "High, weil Testerfreigabe, Privacy/Consent und Guardian/Child Boundaries betroffen sind; nur Planung, keine Runtime-Aenderung.",
+      "recommendation": "revise",
+      "riskLevel": "high",
+      "allowedFiles": [
+        "docs/**",
+        "todolist/**",
+        "project-register/**"
+      ],
+      "blockedFiles": [
+        "app/**",
+        "functions/**",
+        "firestore.rules",
+        "native/**",
+        ".github/**"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run agent:quality-gate",
+        "npm run lint",
+        "npm run build",
+        "git diff --check"
+      ],
+      "nextStep": "Revision/Owner-Review der Readiness-Gaps; fehlende Evidence-Matrix und Signoff-Dry-Run separat ausarbeiten.",
+      "detailStatus": "structured",
+      "missingCriticalDecisionFields": []
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import agentBuildProposals from "@/project-register/agent-build-proposals.json";
 import agentCatalog from "@/project-register/agent-catalog.json";
 import missionProposalsJson from "@/project-register/agent-center-mission-proposals.json";
 import productEvolutionFirstRunOutput from "@/project-register/agent-product-evolution-first-run-output.json";
+import productEvolutionDecisionDossiers from "@/project-register/agent-product-evolution-decision-dossiers.json";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import approvedAgentBuildBacklog from "@/project-register/approved-agent-build-backlog.json";
@@ -98,7 +99,8 @@ const missionBuckets = countByBucket(adminMissionRows, getMissionStatusBucket);
 
 export const metadata: Metadata = { title: "Agent Center | WellFit Admin", description: "Live sichtbares WellFit Agent Control Center" };
 export default function AgentCenterPage() {
-  const firstRunRegisterSnapshot = (productEvolutionFirstRunOutput as AnyRow) || {};
+  const decisionDossiers = Array.isArray((productEvolutionDecisionDossiers as AnyRow).dossiers) ? (productEvolutionDecisionDossiers as AnyRow).dossiers : [];
+  const firstRunRegisterSnapshot = { ...((productEvolutionFirstRunOutput as AnyRow) || {}), decisionDossiers, decisionDossiersSourceRef: (productEvolutionDecisionDossiers as AnyRow).sourceRef || "project-register/agent-product-evolution-decision-dossiers.json" };
   const firstRunRegisterSnapshotKeys = Object.keys(firstRunRegisterSnapshot);
 
   return <AppShell reward={0} contentClassName="px-0 py-0"><div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(135deg,_#06252d,_#07111f_54%,_#0f172a)] px-5 py-6 pb-24 text-white sm:px-8 lg:px-12"><div className="mx-auto flex max-w-7xl flex-col gap-4"><AgentCenterInteractive firstRunRegisterSnapshot={firstRunRegisterSnapshot} firstRunRegisterSnapshotKeys={firstRunRegisterSnapshotKeys} firstRunOutput={productEvolutionFirstRunOutput as AnyRow} data={{ agents: adminAgentRows, missions: adminMissionRows, stats: { agent_total: adminAgentRows.length, agent_pending: Number(agentBuckets.pending_approval ?? 0), agent_approved: Number(agentBuckets.approved_ready ?? 0), agent_rejected: Number(agentBuckets.rejected ?? 0), agent_blocked: Number(agentBuckets.blocked ?? 0), agent_in_progress: Number(agentBuckets.in_progress ?? 0), agent_completed: Number(agentBuckets.completed ?? 0), agent_repair_required: Number(agentBuckets.repair_required ?? 0), agent_halted_waiting_owner: Number(agentBuckets.halted_waiting_owner ?? 0), agent_cycle_restart_required: Number(agentBuckets.cycle_restart_required ?? 0), mission_total: adminMissionRows.length, mission_pending: Number(missionBuckets.pending_approval ?? 0), mission_approved: Number(missionBuckets.approved_ready ?? 0), mission_rejected: Number(missionBuckets.rejected ?? 0), mission_blocked: Number(missionBuckets.blocked ?? 0), mission_in_progress: Number(missionBuckets.in_progress ?? 0), mission_completed: Number(missionBuckets.completed ?? 0) } }} /></div></div></AppShell>;

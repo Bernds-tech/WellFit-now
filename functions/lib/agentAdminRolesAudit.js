@@ -20,7 +20,7 @@ const CANONICAL_TRUTH_PROTECTED_FILES = [
 const CANONICAL_TRUTH_PROPOSAL_FILE = "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md";
 const INBOX_STATUSES = ["pending_approval", "approved", "rejected", "revision_requested", "blocked", "synced_to_task_proposal"];
 const INBOX_SOURCE_TYPES = ["product_evolution_first_run", "opportunity_dossier", "mission_story", "research_summary", "product_radar", "legacy_catalog", "backlog", "proposal"];
-const INBOX_LIST_TYPES = ["generatedDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals", "productOpportunityProposals"];
+const INBOX_LIST_TYPES = ["generatedDossiers", "decisionDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals", "productOpportunityProposals"];
 
 
 const REVISION_DOSSIER_REQUIRED_FIELDS = ["what", "why", "wellFitBenefit", "userBenefit", "economyImpact", "risk", "recommendation"];
@@ -357,26 +357,36 @@ function getFirstRunCandidateCollections(snapshot) {
   const seen = new Set();
   const specs = [
     ["generatedDossiers","generatedDossiers"],
+    ["decisionDossiers","decisionDossiers"],
+    ["dossiers","decisionDossiers"],
     ["suggestedTaskQueue","suggestedTaskQueue"],
     ["recommendedApprovals","recommendedApprovals"],
     ["recommendedResearchMore","recommendedResearchMore"],
     ["blockedItems","blockedItems"],
     ["output.generatedDossiers","generatedDossiers"],
+    ["output.decisionDossiers","decisionDossiers"],
+    ["output.dossiers","decisionDossiers"],
     ["output.suggestedTaskQueue","suggestedTaskQueue"],
     ["output.recommendedApprovals","recommendedApprovals"],
     ["output.recommendedResearchMore","recommendedResearchMore"],
     ["output.blockedItems","blockedItems"],
     ["data.generatedDossiers","generatedDossiers"],
+    ["data.decisionDossiers","decisionDossiers"],
+    ["data.dossiers","decisionDossiers"],
     ["data.suggestedTaskQueue","suggestedTaskQueue"],
     ["data.recommendedApprovals","recommendedApprovals"],
     ["data.recommendedResearchMore","recommendedResearchMore"],
     ["data.blockedItems","blockedItems"],
     ["run.generatedDossiers","generatedDossiers"],
+    ["run.decisionDossiers","decisionDossiers"],
+    ["run.dossiers","decisionDossiers"],
     ["run.suggestedTaskQueue","suggestedTaskQueue"],
     ["run.recommendedApprovals","recommendedApprovals"],
     ["run.recommendedResearchMore","recommendedResearchMore"],
     ["run.blockedItems","blockedItems"],
     ["result.generatedDossiers","generatedDossiers"],
+    ["result.decisionDossiers","decisionDossiers"],
+    ["result.dossiers","decisionDossiers"],
     ["result.suggestedTaskQueue","suggestedTaskQueue"],
     ["result.recommendedApprovals","recommendedApprovals"],
     ["result.recommendedResearchMore","recommendedResearchMore"],
@@ -1334,6 +1344,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     try {
       const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
       const sourceRef = "project-register/agent-product-evolution-first-run-output.json";
+      const decisionDossiersSourceRef = "project-register/agent-product-evolution-decision-dossiers.json";
       const requestData = request.data && typeof request.data === "object" ? request.data : {};
       const snapshotResolution = resolveRegisterSnapshot(requestData);
       const registerSnapshot = snapshotResolution.registerSnapshot;
@@ -1397,7 +1408,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
             continue;
           }
           const existing = await db.collection("agentCenterInbox").doc(inboxIdInfo.inboxId).get();
-          await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType: collection.listType, sourceRef, sourceDossierId, payload: item, createdAtFallback });
+          const itemSourceRef = collection.listType === "decisionDossiers" ? sanitizeInboxText(register.decisionDossiersSourceRef, 240) || decisionDossiersSourceRef : sourceRef;
+          await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType: collection.listType, sourceRef: itemSourceRef, sourceDossierId, payload: item, createdAtFallback });
           if (existing.exists) updated += 1;
           else created += 1;
           if (sampleCreatedIds.length < 10) sampleCreatedIds.push(inboxIdInfo.inboxId);

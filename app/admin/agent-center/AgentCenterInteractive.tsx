@@ -302,6 +302,7 @@ export default function AgentCenterInteractive({
       analysisInputs: snapshotFromProp?.analysisInputs ?? outputSnapshot?.analysisInputs ?? {},
       generatedDossiers: Array.isArray(snapshotFromProp?.generatedDossiers) ? snapshotFromProp.generatedDossiers : (Array.isArray(outputSnapshot?.generatedDossiers) ? outputSnapshot.generatedDossiers : []),
       recommendedApprovals: Array.isArray(snapshotFromProp?.recommendedApprovals) ? snapshotFromProp.recommendedApprovals : (Array.isArray(outputSnapshot?.recommendedApprovals) ? outputSnapshot.recommendedApprovals : []),
+      decisionDossiers: Array.isArray(snapshotFromProp?.decisionDossiers) ? snapshotFromProp.decisionDossiers : (Array.isArray(outputSnapshot?.decisionDossiers) ? outputSnapshot.decisionDossiers : []),
       recommendedRejections: Array.isArray(snapshotFromProp?.recommendedRejections) ? snapshotFromProp.recommendedRejections : (Array.isArray(outputSnapshot?.recommendedRejections) ? outputSnapshot.recommendedRejections : []),
       recommendedResearchMore: Array.isArray(snapshotFromProp?.recommendedResearchMore) ? snapshotFromProp.recommendedResearchMore : (Array.isArray(outputSnapshot?.recommendedResearchMore) ? outputSnapshot.recommendedResearchMore : []),
       suggestedTaskQueue: Array.isArray(snapshotFromProp?.suggestedTaskQueue) ? snapshotFromProp.suggestedTaskQueue : (Array.isArray(outputSnapshot?.suggestedTaskQueue) ? outputSnapshot.suggestedTaskQueue : []),
@@ -312,7 +313,7 @@ export default function AgentCenterInteractive({
       missionStoryProposals: Array.isArray(snapshotFromProp?.missionStoryProposals) ? snapshotFromProp.missionStoryProposals : (Array.isArray(outputSnapshot?.missionStoryProposals) ? outputSnapshot.missionStoryProposals : []),
       snapshotMeta: snapshotFromProp?.snapshotMeta ?? outputSnapshot?.snapshotMeta ?? {},
     } as Record<string, unknown>;
-    const hasArrays = ["generatedDossiers", "recommendedApprovals", "recommendedResearchMore", "suggestedTaskQueue", "blockedItems"].some((key) => Array.isArray(reconstructed[key]) && (reconstructed[key] as unknown[]).length > 0);
+    const hasArrays = ["decisionDossiers", "generatedDossiers", "recommendedApprovals", "recommendedResearchMore", "suggestedTaskQueue", "blockedItems"].some((key) => Array.isArray(reconstructed[key]) && (reconstructed[key] as unknown[]).length > 0);
     return hasArrays ? { source: "reconstructedFromArrays", snapshot: reconstructed } : { source: "missing", snapshot: null };
   }, [firstRunOutput, firstRunRegisterSnapshot]);
 
@@ -325,6 +326,7 @@ export default function AgentCenterInteractive({
     const suggestedTaskQueueCount = toCount((snapshot as Record<string, unknown>).suggestedTaskQueue);
     const generatedDossiersCount = toCount((snapshot as Record<string, unknown>).generatedDossiers);
     const recommendedApprovalsCount = toCount((snapshot as Record<string, unknown>).recommendedApprovals);
+    const decisionDossiersCount = toCount((snapshot as Record<string, unknown>).decisionDossiers);
     const recommendedResearchMoreCount = toCount((snapshot as Record<string, unknown>).recommendedResearchMore);
     const blockedItemsCount = toCount((snapshot as Record<string, unknown>).blockedItems);
     return {
@@ -335,7 +337,8 @@ export default function AgentCenterInteractive({
       recommendedApprovalsCount,
       recommendedResearchMoreCount,
       blockedItemsCount,
-      localFirstRunCandidateCount: suggestedTaskQueueCount + generatedDossiersCount + recommendedApprovalsCount + recommendedResearchMoreCount + blockedItemsCount,
+      decisionDossiersCount,
+      localFirstRunCandidateCount: decisionDossiersCount + suggestedTaskQueueCount + generatedDossiersCount + recommendedApprovalsCount + recommendedResearchMoreCount + blockedItemsCount,
     };
   }, [firstRunRegisterSnapshotKeys, snapshotResolution.snapshot]);
 
@@ -429,7 +432,7 @@ export default function AgentCenterInteractive({
       const snapshotToSend = JSON.parse(JSON.stringify(effectiveFirstRunRegisterSnapshot)) as Record<string, unknown>;
       const hasSerializedSnapshot = Boolean(snapshotToSend && typeof snapshotToSend === "object" && !Array.isArray(snapshotToSend));
       const serializedCandidateCount = hasSerializedSnapshot
-        ? ["generatedDossiers", "recommendedApprovals", "recommendedResearchMore", "suggestedTaskQueue", "blockedItems"]
+        ? ["decisionDossiers", "generatedDossiers", "recommendedApprovals", "recommendedResearchMore", "suggestedTaskQueue", "blockedItems"]
           .map((key) => {
             const value = snapshotToSend[key];
             return Array.isArray(value) ? value.length : 0;
@@ -672,6 +675,7 @@ export default function AgentCenterInteractive({
         <p>clientSnapshotSource: {String(syncDebug.clientSnapshotSource || snapshotResolution.source || "-")}</p>
         {Number(syncDebug.clientSendingCandidateCount ?? snapshotStats.localFirstRunCandidateCount) !== snapshotStats.localFirstRunCandidateCount && <p className="text-amber-300">UI zeigt {snapshotStats.localFirstRunCandidateCount} Kandidaten, sendet aber {Number(syncDebug.clientSendingCandidateCount ?? 0)} Kandidaten. Snapshot-Quelle prüfen.</p>}
         <p>suggestedTaskQueue: {snapshotStats.suggestedTaskQueueCount}</p>
+        <p>decisionDossiers: {snapshotStats.decisionDossiersCount}</p>
         <p>generatedDossiers: {snapshotStats.generatedDossiersCount}</p>
         <p>recommendedApprovals: {snapshotStats.recommendedApprovalsCount}</p>
         <p>recommendedResearchMore: {snapshotStats.recommendedResearchMoreCount}</p>
