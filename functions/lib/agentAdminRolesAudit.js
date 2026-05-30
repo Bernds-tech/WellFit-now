@@ -216,6 +216,41 @@ function getByPath(root, path) {
   return cur;
 }
 
+function firstPresentText(source, keys, max = 1200) {
+  for (const key of keys) {
+    const text = sanitizeInboxText(getByPath(source, key), max);
+    if (text) return text;
+  }
+  return "";
+}
+
+function firstPresentList(source, keys, maxEntries = 80, maxLength = 260) {
+  for (const key of keys) {
+    const list = parseStringList(getByPath(source, key), maxEntries, maxLength);
+    if (list.length) return list;
+  }
+  return [];
+}
+
+function buildInboxDecisionDetails(payload, { sourceType, listType, sourceDossierId, allowedFiles, blockedFiles, requiredChecks }) {
+  const title = firstPresentText(payload, ["title", "name", "headline", "label", "dossierTitle"], 240) || sourceDossierId;
+  const summary = firstPresentText(payload, ["summary", "plainSummary", "description", "abstract", "sourcePayloadSummary", "overview"], 1200);
+  const what = firstPresentText(payload, ["what", "whatWillChange", "requestedAction", "proposedChange", "change", "task", "scope"], 1200);
+  const why = firstPresentText(payload, ["why", "whySuggested", "reason", "whyNow", "rationale", "motivation"], 1200);
+  const wellFitBenefit = firstPresentText(payload, ["wellFitBenefit", "wellfitBenefit", "wellFitValue", "platformBenefit"], 1200);
+  const userBenefit = firstPresentText(payload, ["userBenefit", "memberBenefit", "playerBenefit", "customerBenefit"], 1200);
+  const economyImpact = firstPresentText(payload, ["economyImpact", "rewardImpact", "wfpImpact", "xpImpact", "economy"], 1200);
+  const risk = firstPresentText(payload, ["risk", "riskSummary", "risks", "riskAssessment", "safetyRisk"], 1200);
+  const recommendation = listType === "recommendedResearchMore" ? "research_more" : (firstPresentText(payload, ["recommendation", "recommendedDecision", "decisionRecommendation"], 80) || "approve");
+  const nextStep = firstPresentText(payload, ["nextStep", "nextSteps", "suggestedTaskProposal", "handoff"], 1200) || "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch.";
+  const missingCriticalDecisionFields = [];
+  for (const [field, value] of Object.entries({ summary, what, why, wellFitBenefit, userBenefit, economyImpact, risk, recommendation })) if (!value) missingCriticalDecisionFields.push(field);
+  if (!allowedFiles.length) missingCriticalDecisionFields.push("allowedFiles");
+  if (!blockedFiles.length) missingCriticalDecisionFields.push("blockedFiles");
+  if (!requiredChecks.length) missingCriticalDecisionFields.push("requiredChecks");
+  return { title, summary, plainSummary: summary, what, whatWillChange: what, why, whySuggested: why, wellFitBenefit, userBenefit, economyImpact, risk, riskSummary: risk, recommendation, sourceDossierId, sourceType, listType, allowedFiles, blockedFiles, requiredChecks, nextStep, detailStatus: missingCriticalDecisionFields.length ? "missing" : "structured", missingCriticalDecisionFields, dossierIncomplete: missingCriticalDecisionFields.length > 0 };
+}
+
 function getFirstRunCandidateCollections(snapshot) {
   const candidates = [];
   const seen = new Set();
@@ -264,8 +299,8 @@ function toInboxStatusByListType(listType) {
 
 
 const INBOX_SYNC_CALLABLE_NAME = "syncProductEvolutionFirstRunInbox";
-const INBOX_SYNC_CALLABLE_VERSION = "2026-05-27-pr258-register-snapshot-v3";
-const INBOX_SYNC_RESPONSE_SHAPE_VERSION = "agent-center-inbox-sync-v3";
+const INBOX_SYNC_CALLABLE_VERSION = "2026-05-30-dossier-decision-details-v4";
+const INBOX_SYNC_RESPONSE_SHAPE_VERSION = "agent-center-inbox-sync-v4";
 
 function resolveRegisterSnapshot(requestData) {
   const source = requestData && typeof requestData === "object" ? requestData : {};
@@ -1158,10 +1193,11 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const now = FieldValue.serverTimestamp();
     const createdAt = createdAtFallback || now;
     const status = toInboxStatusByListType(listType);
-    const recommendation = listType === "recommendedResearchMore" ? "research_more" : (sanitizeInboxText(payload.recommendation, 80) || "approve");
-    const allowedFiles = parseStringList(payload.allowedFiles || payload.allowedWriteScopes || [], 80, 260);
-    const blockedFiles = parseStringList(payload.blockedFiles || [], 80, 260);
+    const allowedFiles = firstPresentList(payload, ["allowedFiles", "allowedWriteScopes", "allowedPaths", "affectedFiles", "files"], 80, 260);
+    const blockedFiles = firstPresentList(payload, ["blockedFiles", "blockedWriteScopes", "forbiddenFiles", "protectedFiles", "blockedPaths"], 80, 260);
+    const requiredChecks = firstPresentList(payload, ["requiredChecks", "checks", "qualityChecks", "requiredCommands", "validationCommands"], 80, 260);
     assertCanonicalTruthChangeAllowed({ files: [...allowedFiles, ...blockedFiles], actorRole, ownerApprovalFlag: actorRole === "owner", HttpsError });
+    const decisionDetails = buildInboxDecisionDetails(payload, { sourceType, listType, sourceDossierId, allowedFiles, blockedFiles, requiredChecks });
     const doc = {
       inboxId,
       sourceType,
@@ -1169,34 +1205,23 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       sourceDossierId,
       sourceDossierIdHadSlash: inboxIdInfo.sourceDossierIdHadSlash,
       listType,
-      title: sanitizeInboxText(payload.title || payload.name || sourceDossierId, 240),
-      plainSummary: sanitizeInboxText(payload.summary || payload.plainSummary || payload.description, 1200),
-      whatWillChange: sanitizeInboxText(payload.whatWillChange || payload.requestedAction, 1200),
-      whySuggested: sanitizeInboxText(payload.whySuggested || payload.reason, 1200),
-      wellFitBenefit: sanitizeInboxText(payload.wellFitBenefit, 1200),
-      userBenefit: sanitizeInboxText(payload.userBenefit, 1200),
-      businessBenefit: sanitizeInboxText(payload.businessBenefit, 1200),
-      economyImpact: sanitizeInboxText(payload.economyImpact, 1200),
-      riskSummary: sanitizeInboxText(payload.riskSummary, 1200),
-      recommendation,
+      ...decisionDetails,
+      businessBenefit: firstPresentText(payload, ["businessBenefit", "businessValue", "partnerBenefit"], 1200),
       status,
       createdAt,
       submittedAt: createdAt,
       waitingForApprovalAt: createdAt,
       lastStatusChangedAt: now,
       riskLevel: normalizeRiskLevel(payload.riskLevel || "medium"),
-      targetTrack: sanitizeInboxText(payload.targetTrack, 80),
-      suggestedBranch: sanitizeInboxText(payload.suggestedBranch || payload.branchName, 180),
-      allowedFiles,
-      blockedFiles,
-      requiredChecks: parseStringList(payload.requiredChecks || [], 80, 260),
+      targetTrack: firstPresentText(payload, ["targetTrack", "track", "scopeTrack"], 80),
+      suggestedBranch: firstPresentText(payload, ["suggestedBranch", "branchName", "branch"], 180),
       runnerEligibility: sanitizeInboxText(payload.runnerEligibility, 80) || "admin_review_required",
       adminApprovalRequired: true,
       requiresAdminReview: true,
       canonicalTruthProtected: touchesCanonicalTruthProtectedFiles([...allowedFiles, ...blockedFiles]).length > 0,
       beta1Allowed: payload.beta1Allowed !== false,
       forbiddenScope: parseStringList(payload.forbiddenScope || [], 40, 120),
-      sourcePayloadSummary: sanitizeInboxText(payload.sourcePayloadSummary || payload.summary || payload.description, 1200),
+      sourcePayloadSummary: firstPresentText(payload, ["sourcePayloadSummary", "summary", "plainSummary", "description"], 1200),
       updatedAt: now,
     };
     await ref.set(doc, { merge: true });
