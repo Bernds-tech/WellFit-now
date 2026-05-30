@@ -21,6 +21,25 @@ type Row = Record<string, unknown> & {
   detailStatus?: AdminCenterDetailStatus | "partial_structured";
   detailText?: string;
   detailSections?: DetailSections;
+  summary?: string;
+  plainSummary?: string;
+  what?: string;
+  whatWillChange?: string;
+  why?: string;
+  whySuggested?: string;
+  wellFitBenefit?: string;
+  wellfitBenefit?: string;
+  userBenefit?: string;
+  economyImpact?: string;
+  risk?: string;
+  riskSummary?: string;
+  recommendation?: string;
+  nextStep?: string;
+  sourceType?: string;
+  sourceRef?: string;
+  sourcePath?: string;
+  dossierRef?: string;
+  dossierIncomplete?: boolean;
   missingCriticalDecisionFields?: string[];
   hasDossierDetails?: boolean;
   hasReportDetails?: boolean;
@@ -39,6 +58,28 @@ const FILTER_KEYS = Object.keys(FILTER_TO_BUCKET) as AdminCenterListFilter[];
 
   const asText = (value: unknown): string => (typeof value === "string" ? value : "");
 const asStringArray = (value: unknown): string[] => (Array.isArray(value) ? value.map((item) => String(item)).filter(Boolean) : []);
+const firstText = (...values: unknown[]): string => { for (const value of values) { const text = asText(value).trim(); if (text) return text; } return ""; };
+const getDecisionDetails = (row: Row) => {
+  const allowedFiles = asStringArray(row.allowedFiles);
+  const blockedFiles = asStringArray(row.blockedFiles);
+  const requiredChecks = asStringArray(row.requiredChecks);
+  const details = {
+    title: firstText(row.title, row.id),
+    summary: firstText(row.summary, row.plainSummary, row.detailSections?.summary, row.detailText),
+    what: firstText(row.what, row.whatWillChange, row.detailSections?.what, row.detailSections?.proposedChange),
+    why: firstText(row.why, row.whySuggested, row.detailSections?.why, row.detailSections?.whyNow),
+    wellFitBenefit: firstText(row.wellFitBenefit, row.wellfitBenefit, row.detailSections?.wellFitBenefit),
+    userBenefit: firstText(row.userBenefit, row.detailSections?.userBenefit),
+    economyImpact: firstText(row.economyImpact, row.detailSections?.economyImpact),
+    risk: firstText(row.risk, row.riskSummary, row.detailSections?.risk, row.detailSections?.risks),
+    recommendation: firstText(row.recommendation, row.detailSections?.recommendation),
+    source: firstText(row.sourceRef, row.sourcePath, row.dossierRef, row.sourceType),
+    nextStep: firstText(row.nextStep, "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch."),
+    allowedFiles, blockedFiles, requiredChecks,
+  };
+  const missing = [!details.summary ? "summary" : "", !details.what ? "what" : "", !details.why ? "why" : "", !details.wellFitBenefit ? "wellFitBenefit" : "", !details.userBenefit ? "userBenefit" : "", !details.economyImpact ? "economyImpact" : "", !details.risk ? "risk" : "", !details.recommendation ? "recommendation" : "", allowedFiles.length === 0 ? "allowedFiles" : "", blockedFiles.length === 0 ? "blockedFiles" : "", requiredChecks.length === 0 ? "requiredChecks" : ""].filter(Boolean);
+  return { ...details, missing, isComplete: missing.length === 0 };
+};
 const extractPeId = (...values: unknown[]): string => {
   for (const value of values) {
     const text = asText(value);
@@ -217,16 +258,25 @@ export default function AgentCenterInteractive({
     }),
   }), [data.agents, data.missions, matchInbox]);
 
-  const serverInboxRows = useMemo<Row[]>(() => inboxItems.map((item) => ({
-    ...item,
-    id: item.inboxId,
-    inboxId: item.inboxId,
-    mirrorTargetId: item.mirrorTargetId,
-    status: item.status,
-    visibleListSource: "server_inbox",
-    hasDossierDetails: Boolean(item.plainSummary || item.title || item.recommendation),
-    hasReportDetails: false,
-  })), [inboxItems]);
+  const serverInboxRows = useMemo<Row[]>(() => inboxItems.map((item) => {
+    const row: Row = {
+      ...item,
+      id: item.inboxId,
+      inboxId: item.inboxId,
+      mirrorTargetId: item.mirrorTargetId,
+      status: item.status,
+      visibleListSource: "server_inbox",
+      hasReportDetails: false,
+    };
+    const details = getDecisionDetails(row);
+    return {
+      ...row,
+      hasDossierDetails: Boolean(details.title || details.summary || details.what || details.recommendation),
+      detailStatus: details.isComplete ? "structured" : "missing",
+      missingCriticalDecisionFields: details.missing,
+      dossierIncomplete: !details.isComplete,
+    };
+  }), [inboxItems]);
   const visibleListSource: "server_inbox" | "local_snapshot" = serverInboxRows.length > 0 ? "server_inbox" : "local_snapshot";
   const serverInboxPendingCount = useMemo(() => serverInboxRows.filter((row) => getAgentStatusBucket(row) === "pending_approval").length, [serverInboxRows]);
 
@@ -467,6 +517,7 @@ export default function AgentCenterInteractive({
     if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
     if (status === "blocked" || protectedScope) return "Eintrag blockiert";
     if (status !== "pending_approval") return "Status erlaubt diese Aktion nicht";
+    if (_action === "approve" && getDecisionDetails(row).missing.length > 0) return "Dossier unvollständig – zuerst Überarbeiten wählen";
 
     return "";
   }
@@ -629,7 +680,8 @@ export default function AgentCenterInteractive({
           const missionMode = isMissionFilter(active);
           const decisionKind = row.visibleListSource === "server_inbox" ? "agent" : (missionMode ? "mission" : "agent");
           const hasInbox = Boolean(asText(row.inboxId));
-          const missing = Array.isArray(row.missingCriticalDecisionFields) ? row.missingCriticalDecisionFields : [];
+          const decisionDetails = getDecisionDetails(row);
+          const missing = Array.isArray(row.missingCriticalDecisionFields) ? row.missingCriticalDecisionFields : decisionDetails.missing;
           const approveReason = buttonReason("approve", row);
           const rejectReason = buttonReason("reject", row);
           const blockReason = buttonReason("block", row);
@@ -639,10 +691,10 @@ export default function AgentCenterInteractive({
           return (
             <div key={String(row.id || row.title)} className="rounded border p-3 text-xs">
               <b>{summary.plainTitle}</b>
-              <p>{summary.plainSummary || "Dossier vorhanden – Details ansehen"}</p>
+              <p>{decisionDetails.summary || summary.plainSummary || "Dossier vorhanden – Details ansehen"}</p>
               <p>Status: {String(row.status || "pending_approval")} · Inbox: {hasInbox ? "synchronisiert" : "Noch nicht synchronisiert"}</p>
               <p>inboxId: {hasInbox ? asText(row.inboxId) : "—"}</p>
-              <p>Warum Buttons ggf. gesperrt: {decisionBlocker || (missing.length > 0 ? "kritische Decision-Daten fehlen (Info, kein Button-Blocker für Server-Inbox)" : "entscheidbar")}</p>
+              <p>Warum Buttons ggf. gesperrt: {decisionBlocker || (missing.length > 0 ? `Dossierdaten unvollständig (${missing.join(", ")})` : "entscheidbar")}</p>
 
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasDossierDetails && !row.hasReportDetails} onClick={() => setDetailRow(row)}>Dossier ansehen (konkrete Entscheidungsvorlage)</button>
@@ -659,32 +711,40 @@ export default function AgentCenterInteractive({
         })}
       </div>
 
-      {detailRow && (
+      {detailRow && (() => {
+        const details = getDecisionDetails(detailRow);
+        const fileList = (label: string, values: string[]) => (<div><p className="mt-2 font-semibold">{label}</p>{values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
+        const info = (label: string, value: string) => (<div><p className="mt-2 font-semibold">{label}</p><p className="whitespace-pre-wrap">{value || "—"}</p></div>);
+        return (
         <div className="fixed inset-0 z-50 bg-black/70 p-4" onClick={() => setDetailRow(null)}>
           <div className="mx-auto max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg bg-slate-900 p-4 text-xs text-white" onClick={(event) => event.stopPropagation()}>
             <div className="sticky top-0 mb-2 flex justify-between bg-slate-900 pb-2">
-              <h3 className="text-base font-semibold">{String(detailRow.title || detailRow.id || "Dossier")}</h3>
+              <h3 className="text-base font-semibold">{details.title || "Dossier"}</h3>
               <button className="cursor-pointer rounded border px-2" onClick={() => setDetailRow(null)}>Schließen</button>
             </div>
             <p>Dossier-ID: {String(detailRow.sourceDossierId || "—")}</p>
-            <p>Quelle: {String(detailRow.sourcePath || detailRow.dossierRef || "—")}</p>
+            <p>Quelle: {details.source || "—"}</p>
+            <p>Source Type: {String(detailRow.sourceType || "—")} · List Type: {String(detailRow.listType || "—")}</p>
             <p>Status: {String(detailRow.status || "pending_approval")}</p>
-            <p>Detailstatus: {String(detailRow.detailStatus || "missing")}</p>
-            {(detailRow.detailStatus === "missing" && !asText(detailRow.detailText)) && <p className="text-amber-300">Dossierinhalt nicht gefunden. First-Run-Register muss angereichert werden.</p>}
-            {Object.entries(detailRow.detailSections || {}).map(([key, value]) => value ? <p key={key}><b>{key}:</b> {value}</p> : null)}
-            {asText(detailRow.detailText) && (
-              <div>
-                <p className="mt-2 font-semibold">Dossierauszug</p>
-                <p className="whitespace-pre-wrap">{asText(detailRow.detailText)}</p>
-              </div>
-            )}
-            <p>Allowed Files: {asStringArray(detailRow.allowedFiles).join(", ") || "—"}</p>
-            <p>Blocked Files: {asStringArray(detailRow.blockedFiles).join(", ") || "—"}</p>
-            <p>Required Checks: {asStringArray(detailRow.requiredChecks).join(", ") || "—"}</p>
-            <p>Nächster Schritt nach Zustimmung: Approved Inbox → Task Proposal.</p>
+            <p>Detailstatus: {details.isComplete ? "structured" : "missing"}</p>
+            {!details.isComplete && <div className="mt-2 rounded border border-amber-300/50 bg-amber-300/10 p-2 text-amber-100"><p className="font-semibold">Dossierdaten unvollständig</p><p>Fehlende Entscheidungsfelder: {details.missing.join(", ")}</p><p>Sperrgrund: Dossier unvollständig – zuerst Überarbeiten wählen.</p></div>}
+            {info("Was ist der Vorschlag?", details.summary)}
+            {info("Was soll geändert/gebaut werden?", details.what)}
+            {info("Warum ist das sinnvoll?", details.why)}
+            {info("Vorteil für WellFit", details.wellFitBenefit)}
+            {info("Nutzen für User", details.userBenefit)}
+            {info("Economy Impact", details.economyImpact)}
+            {info("Risiko", details.risk)}
+            {info("Empfehlung", details.recommendation)}
+            {fileList("Betroffene/erlaubte Dateien", details.allowedFiles)}
+            {fileList("Blockierte Dateien", details.blockedFiles)}
+            {fileList("Required Checks", details.requiredChecks)}
+            {info("Quelle", `${details.source || "—"}${detailRow.sourceDossierId ? ` · ${detailRow.sourceDossierId}` : ""}`)}
+            {info("Nächster Schritt nach Zustimmung", details.nextStep)}
           </div>
         </div>
-      )}
+        );
+      })()}
     </section>
   );
 }
