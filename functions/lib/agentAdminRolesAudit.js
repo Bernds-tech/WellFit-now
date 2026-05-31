@@ -272,6 +272,64 @@ function buildWorkerQueueReleaseDecision(item) {
   };
 }
 
+function buildRunnerPickupPreviewFailureMessage(missing) {
+  const reasons = Array.isArray(missing) ? missing : [];
+  if (reasons.includes("workerQueueId")) return "Worker Queue ID fehlt.";
+  if (reasons.includes("status_not_ready_for_worker")) return "Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden.";
+  const missingRequired = reasons.filter((reason) => ["allowedFiles", "blockedFiles", "requiredChecks"].includes(reason));
+  if (missingRequired.length) return `Pflichtdaten fehlen: ${missingRequired.join("/")}.`;
+  if (reasons.some((reason) => ["noRunnerStarted", "runnerStarted", "noBranchOrPrOrMerge", "branch_pr_merge", "noDeploy", "deploy"].includes(reason))) return "Sicherheitsflags verhindern Runner-Pickup Preview.";
+  return "Runner-Pickup Preview blockiert.";
+}
+
+function buildRunnerPickupPreviewDecision(item, workerQueueIdOverride) {
+  const workerQueueId = optionalString(workerQueueIdOverride || (item && item.workerQueueId), 180);
+  const currentStatus = optionalString(item && (item.workerStatus || item.status), 80) || "pending_worker_review";
+  const allowedFiles = parseStringList((item && item.allowedFiles) || [], 80, 260);
+  const blockedFiles = parseStringList((item && item.blockedFiles) || [], 80, 260);
+  const requiredChecks = parseStringList((item && item.requiredChecks) || [], 80, 260);
+  const missing = [];
+  if (!workerQueueId) missing.push("workerQueueId");
+  if (currentStatus !== "ready_for_worker") missing.push("status_not_ready_for_worker");
+  if (!allowedFiles.length) missing.push("allowedFiles");
+  if (!blockedFiles.length) missing.push("blockedFiles");
+  if (!requiredChecks.length) missing.push("requiredChecks");
+  if (item && item.noRunnerStarted === false) missing.push("noRunnerStarted");
+  if (item && item.runnerStarted === true) missing.push("runnerStarted");
+  if (item && item.noBranchOrPrOrMerge === false) missing.push("noBranchOrPrOrMerge");
+  if (item && (item.branchCreated === true || item.prCreated === true || item.merged === true || item.autoMerge === true)) missing.push("branch_pr_merge");
+  if (item && item.noDeploy === false) missing.push("noDeploy");
+  if (item && (item.deployStarted === true || item.autoDeploy === true)) missing.push("deploy");
+  return {
+    previewable: missing.length === 0,
+    currentStatus,
+    missing,
+    failureMessage: buildRunnerPickupPreviewFailureMessage(missing),
+    preview: {
+      workerQueueId: workerQueueId || null,
+      taskProposalId: optionalString(item && (item.taskProposalId || item.proposalId), 180) || null,
+      title: optionalString(item && (item.title || item.taskTitle), 240) || (workerQueueId ? `Worker Queue ${workerQueueId}` : "Worker Queue"),
+      requestedAction: optionalString(item && item.requestedAction, 1200) || optionalString(item && item.summary, 1200) || "",
+      status: currentStatus,
+      riskLevel: normalizeRiskLevel((item && item.riskLevel) || "medium"),
+      allowedFiles,
+      blockedFiles,
+      requiredChecks,
+      plannedExecutionMode: "preview_only",
+      wouldCreateBranch: false,
+      wouldCreatePr: false,
+      wouldRunChecks: false,
+      wouldDeploy: false,
+      runnerStartAllowed: false,
+      nextRequiredOwnerAction: "runner_start_approval_required",
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+      safetySummary: ["Kein Runner gestartet", "Kein Branch erstellt", "Kein PR erstellt", "Kein Merge", "Kein Deploy"],
+    },
+  };
+}
+
 function normalizeCheckEntries(value) {
   if (!Array.isArray(value)) return [];
   return value.slice(0, 80).map((entry) => ({
@@ -1519,6 +1577,19 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { accepted: true, items, workerQueueItems: items, loadedCount: items.length, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true };
   });
 
+  exportsTarget.previewRunnerPickupForWorkerQueueItem = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "admin_operator"]);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
+    const workerRef = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
+    const workerSnap = await workerRef.get();
+    if (!workerSnap.exists) throw new HttpsError("not-found", "worker_queue_item_not_found");
+    const item = workerSnap.data() || {};
+    const decision = buildRunnerPickupPreviewDecision({ ...item, workerQueueId }, workerQueueId);
+    if (!decision.previewable) throw new HttpsError("failed-precondition", decision.failureMessage || `runner_pickup_preview_blocked:${decision.missing.join(",")}`);
+    const preview = decision.preview;
+    return { accepted: true, ...preview, preview, message: "Runner-Pickup Preview bereit. Keine Ausführung gestartet." };
+  });
+
   exportsTarget.releaseWorkerQueueItemForWorker = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
     const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
@@ -2105,4 +2176,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, REVISION_DOSSIER_MESSAGE };

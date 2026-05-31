@@ -28,6 +28,7 @@ import type {
   ProductEvolutionInboxSyncInput,
   TaskProposalWorkerQueueInput,
   WorkerQueueReleaseInput,
+  WorkerQueueRunnerPreviewInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -66,13 +67,16 @@ function sanitizeAdminError(error: unknown, callableName?: string): string {
   const diagnostic = `${code} ${text}`;
   const isWorkerRelease = callableName === "releaseWorkerQueueItemForWorker";
   if (hasFirestoreIndexError(diagnostic)) return "Firestore-Index fehlt. Bitte Index deployen oder in Firebase erstellen.";
-  if (isWorkerRelease && code.includes("invalid-argument")) return "Worker Queue ID fehlt.";
-  if (isWorkerRelease && code.includes("not-found")) return "Worker Queue Eintrag nicht gefunden.";
+  const isRunnerPreview = callableName === "previewRunnerPickupForWorkerQueueItem";
+  if ((isWorkerRelease || isRunnerPreview) && code.includes("invalid-argument")) return "Worker Queue ID fehlt.";
+  if ((isWorkerRelease || isRunnerPreview) && code.includes("not-found")) return "Worker Queue Eintrag nicht gefunden.";
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
   if (diagnostic.includes("workerQueueId fehlt") || diagnostic.includes("workerqueueid fehlt")) return "Worker Queue ID fehlt.";
   if (diagnostic.includes("worker_queue_item_not_found")) return "Worker Queue Eintrag nicht gefunden.";
+  if (diagnostic.includes("Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden")) return "Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden.";
   if (diagnostic.includes("Status erlaubt diese Freigabe nicht")) return "Status erlaubt diese Freigabe nicht.";
   if (diagnostic.includes("Pflichtdaten fehlen")) return "Pflichtdaten fehlen: allowedFiles/blockedFiles/requiredChecks.";
+  if (diagnostic.includes("Sicherheitsflags verhindern Runner-Pickup Preview")) return "Sicherheitsflags verhindern Runner-Pickup Preview.";
   if (diagnostic.includes("Sicherheitsflags verhindern Freigabe")) return "Sicherheitsflags verhindern Freigabe.";
   if (diagnostic.includes("Owner-protected Bereich blockiert")) return "Owner-protected Bereich blockiert.";
   if (diagnostic.includes("worker_queue_release_blocked:status_not_releasable")) return "Status erlaubt diese Freigabe nicht.";
@@ -189,6 +193,11 @@ export const beta1AdminClient = {
   createWorkerQueueItemFromTaskProposal: (input: TaskProposalWorkerQueueInput) => callAdmin("createWorkerQueueItemFromTaskProposal", input),
   listAgentTaskWorkerQueueItems: (status?: string) => callAdmin("listAgentTaskWorkerQueueItems", status ? { status } : {}),
   releaseWorkerQueueItemForWorker: (input: WorkerQueueReleaseInput) => callAdmin("releaseWorkerQueueItemForWorker", {
+    workerQueueId: input.workerQueueId,
+    targetId: input.targetId,
+    id: input.id,
+  }),
+  previewRunnerPickupForWorkerQueueItem: (input: WorkerQueueRunnerPreviewInput) => callAdmin("previewRunnerPickupForWorkerQueueItem", {
     workerQueueId: input.workerQueueId,
     targetId: input.targetId,
     id: input.id,

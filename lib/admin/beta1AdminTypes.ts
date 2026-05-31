@@ -29,6 +29,7 @@ export type AgentHandoffPromptCopiedInput = { handoffPromptId: string };
 export type AgentWorkerQueueCreateInput = { executionId: string; handoffPromptId: string; workerMode?: "manual_codex" | "supervised_agent" | "automated_low_risk_planned" };
 export type AgentWorkerQueueActionInput = { workerQueueId: string; reason?: string; prRef?: string; workerStatus?: string };
 export type WorkerQueueReleaseInput = { workerQueueId?: string; targetId?: string; id?: string };
+export type WorkerQueueRunnerPreviewInput = { workerQueueId?: string; targetId?: string; id?: string };
 export type AgentWorkerQueueChecksInput = { workerQueueId: string; checks: Array<{ command: string; result: "pass" | "fail" | "blocked" | "skipped"; summary?: string; timestamp?: string }> };
 export type AgentAutomationPolicyInput = { workerQueueId?: string; policyId?: string; environment?: "preview" | "staging" | "production"; reason?: string; secondApproval?: boolean };
 
@@ -123,7 +124,7 @@ export type AgentTaskProposalStatusCounts = { total: number; pending: number; ap
 export type AgentTaskProposalListResult = AdminCallableResult & { proposals?: AgentTaskProposal[]; items?: AgentTaskProposal[]; loadedCount?: number; statusCounts?: AgentTaskProposalStatusCounts };
 
 
-export type AgentTaskWorkerQueueStatus = "pending_worker_review" | "queued_for_owner_review" | "queued_for_worker_review" | "ready_for_worker" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
+export type AgentTaskWorkerQueueStatus = "pending_worker_review" | "queued_for_owner_review" | "queued_for_worker_review" | "ready_for_worker" | "previewed_for_runner" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
 export type AgentTaskWorkerQueueItem = {
   workerQueueId: string;
   taskProposalId?: string | null;
@@ -150,6 +151,30 @@ export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string
 export type TaskProposalWorkerQueueInput = { taskProposalId: string; workerStatus?: "queued_for_owner_review" | "pending_worker_review" };
 export type TaskProposalWorkerQueueResult = AdminCallableResult & { taskProposalId?: string; proposalStatus?: string; workerQueueId?: string; workerStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 export type WorkerQueueReleaseResult = AdminCallableResult & { workerQueueId?: string; status?: string; workerStatus?: string; ownerReleaseDecision?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
+export type WorkerQueueRunnerPreview = {
+  workerQueueId?: string | null;
+  taskProposalId?: string | null;
+  title?: string;
+  requestedAction?: string;
+  status?: string;
+  riskLevel?: string;
+  allowedFiles?: string[];
+  blockedFiles?: string[];
+  requiredChecks?: string[];
+  plannedExecutionMode?: "preview_only";
+  wouldCreateBranch?: boolean;
+  wouldCreatePr?: boolean;
+  wouldRunChecks?: boolean;
+  wouldDeploy?: boolean;
+  runnerStartAllowed?: boolean;
+  nextRequiredOwnerAction?: "runner_start_approval_required";
+  noRunnerStarted?: boolean;
+  noBranchOrPrOrMerge?: boolean;
+  noDeploy?: boolean;
+  safetySummary?: string[];
+};
+export type WorkerQueueRunnerPreviewResult = AdminCallableResult & WorkerQueueRunnerPreview & { preview?: WorkerQueueRunnerPreview };
+
 export type ApprovedInboxToTaskProposalResult = AdminCallableResult & { inboxId?: string; taskProposalId?: string; proposalStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 export type ProductEvolutionInboxSyncInput = { registerSnapshot?: ProductEvolutionFirstRunOutputSnapshot | unknown; clientRequestShapeVersion?: string; clientHasRegisterSnapshot?: boolean; clientRegisterSnapshotKeys?: string[] };
 export type ProductEvolutionRevisionDossierResult = AdminCallableResult & { scanned?: number; regenerated?: number; stillRevisionRequested?: number; sampleRegeneratedIds?: string[]; sampleRevisionBlocked?: Array<Record<string, unknown>>; sourceTrust?: string; noRunnerStarted?: boolean; noDeploy?: boolean; noMerge?: boolean };
