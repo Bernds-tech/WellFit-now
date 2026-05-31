@@ -28,7 +28,7 @@ export type AgentHandoffPromptGetInput = { handoffPromptId: string };
 export type AgentHandoffPromptCopiedInput = { handoffPromptId: string };
 export type AgentWorkerQueueCreateInput = { executionId: string; handoffPromptId: string; workerMode?: "manual_codex" | "supervised_agent" | "automated_low_risk_planned" };
 export type AgentWorkerQueueActionInput = { workerQueueId: string; reason?: string; prRef?: string; workerStatus?: string };
-export type WorkerQueueReleaseInput = { workerQueueId: string };
+export type WorkerQueueReleaseInput = { workerQueueId?: string; targetId?: string; id?: string };
 export type AgentWorkerQueueChecksInput = { workerQueueId: string; checks: Array<{ command: string; result: "pass" | "fail" | "blocked" | "skipped"; summary?: string; timestamp?: string }> };
 export type AgentAutomationPolicyInput = { workerQueueId?: string; policyId?: string; environment?: "preview" | "staging" | "production"; reason?: string; secondApproval?: boolean };
 

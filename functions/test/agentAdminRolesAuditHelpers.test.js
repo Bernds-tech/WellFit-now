@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, buildWorkerQueueReleaseDecision } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision } = require('../lib/agentAdminRolesAudit');
 
 (function testResolveDirectSnapshot() {
   const input = { registerSnapshot: { generatedDossiers: [{ id: 'PE-1' }] } };
@@ -145,6 +145,13 @@ const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEv
 })();
 
 
+(function testWorkerQueueReleaseTargetAcceptsWorkerQueueIdAndAliases() {
+  assert.strictEqual(getWorkerQueueReleaseTargetId({ workerQueueId: 'wq-1' }), 'wq-1', 'workerQueueId should be the canonical release target');
+  assert.strictEqual(getWorkerQueueReleaseTargetId({ targetId: 'wq-target' }), 'wq-target', 'targetId alias should be accepted for legacy clients');
+  assert.strictEqual(getWorkerQueueReleaseTargetId({ id: 'wq-id' }), 'wq-id', 'id alias should be accepted for fallback clients');
+  assert.strictEqual(getWorkerQueueReleaseTargetId({}), null, 'missing release target should stay missing so callable returns Worker Queue ID fehlt');
+})();
+
 (function testWorkerQueueReleaseAllowsPendingWorkerReview() {
   const result = buildWorkerQueueReleaseDecision({
     workerStatus: 'pending_worker_review',
@@ -213,6 +220,28 @@ const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEv
   assert(result.missing.includes('runnerStarted'), 'runner execution must not have started');
   assert(result.missing.includes('branch_pr_merge'), 'branch/PR/merge side effects must block release');
   assert(result.missing.includes('deploy'), 'deploy side effects must block release');
+})();
+
+(function testWorkerQueueReleaseFailureMessagesAreSpecific() {
+  assert.strictEqual(buildWorkerQueueReleaseFailureMessage(['status_not_releasable']), 'Status erlaubt diese Freigabe nicht.');
+  assert.strictEqual(buildWorkerQueueReleaseFailureMessage(['allowedFiles', 'blockedFiles', 'requiredChecks']), 'Pflichtdaten fehlen: allowedFiles/blockedFiles/requiredChecks.');
+  assert.strictEqual(buildWorkerQueueReleaseFailureMessage(['noRunnerStarted']), 'Sicherheitsflags verhindern Freigabe.');
+  assert.strictEqual(buildWorkerQueueReleaseFailureMessage(['owner_protected_scope']), 'Owner-protected Bereich blockiert.');
+})();
+
+(function testWorkerQueueReleaseBlocksOwnerProtectedScopes() {
+  const result = buildWorkerQueueReleaseDecision({
+    workerStatus: 'pending_worker_review',
+    allowedFiles: ['project-register/wellfit-beta1-canonical-truth.json'],
+    blockedFiles: ['app/**'],
+    requiredChecks: ['npm run lint'],
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+  });
+  assert.strictEqual(result.releasable, false, 'canonical truth protected files must block worker release');
+  assert(result.missing.includes('owner_protected_scope'), 'owner-protected release block should be explicit');
+  assert.strictEqual(result.failureMessage, 'Owner-protected Bereich blockiert.');
 })();
 
 console.log('agentAdminRolesAudit helper tests passed');

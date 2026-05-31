@@ -184,12 +184,22 @@ const getSafeAdminDecisionFailureMessage = (resultMessage?: string, errorCode?: 
   if (code === "client_auth_missing") return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
   if (code === "client_auth_not_ready") return "Admin-Rolle fehlt oder wurde noch nicht geladen.";
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
+  if (diagnostic.includes("workerQueueId fehlt") || diagnostic.includes("workerqueueid fehlt")) return "Worker Queue ID fehlt.";
+  if (diagnostic.includes("worker_queue_item_not_found") || message === "Worker Queue Eintrag nicht gefunden.") return "Worker Queue Eintrag nicht gefunden.";
+  if (diagnostic.includes("Status erlaubt diese Freigabe nicht")) return "Status erlaubt diese Freigabe nicht.";
+  if (diagnostic.includes("Pflichtdaten fehlen")) return "Pflichtdaten fehlen: allowedFiles/blockedFiles/requiredChecks.";
+  if (diagnostic.includes("Sicherheitsflags verhindern Freigabe")) return "Sicherheitsflags verhindern Freigabe.";
+  if (diagnostic.includes("Owner-protected Bereich blockiert")) return "Owner-protected Bereich blockiert.";
+  if (diagnostic.includes("worker_queue_release_blocked:status_not_releasable")) return "Status erlaubt diese Freigabe nicht.";
+  if (diagnostic.includes("worker_queue_release_blocked") && (diagnostic.includes("allowedFiles") || diagnostic.includes("blockedFiles") || diagnostic.includes("requiredChecks"))) return "Pflichtdaten fehlen: allowedFiles/blockedFiles/requiredChecks.";
+  if (diagnostic.includes("worker_queue_release_blocked") && (diagnostic.includes("noRunnerStarted") || diagnostic.includes("runnerStarted") || diagnostic.includes("noBranchOrPrOrMerge") || diagnostic.includes("branch_pr_merge") || diagnostic.includes("noDeploy") || diagnostic.includes("deploy"))) return "Sicherheitsflags verhindern Freigabe.";
   if (diagnostic.includes("inbox_not_approved") || diagnostic.includes("inbox_status_not_allowed") || message === "Eintrag ist nicht approved.") return "Eintrag ist nicht approved.";
   if (diagnostic.includes("missing_approved_admin_decision") || message === "Missing approved admin decision.") return "Missing approved admin decision.";
   if (diagnostic.includes("missing_decision_data") || message === "Missing decision data.") return "Missing decision data.";
   if (diagnostic.includes("protected_scope_owner_required") || message === "Protected scope owner required.") return "Protected scope owner required.";
   if (diagnostic.includes("center_inbox_not_decidable") || message === "Eintrag ist nicht mehr entscheidbar.") return "Eintrag ist nicht mehr entscheidbar.";
-  if (diagnostic.includes("server_inbox_entry_not_found") || diagnostic.includes("inbox_not_found") || code.includes("not-found") || message === "Server-Inbox-Eintrag nicht gefunden.") return "Server-Inbox-Eintrag nicht gefunden.";
+  if (diagnostic.includes("server_inbox_entry_not_found") || diagnostic.includes("inbox_not_found") || message === "Server-Inbox-Eintrag nicht gefunden.") return "Server-Inbox-Eintrag nicht gefunden.";
+  if (code.includes("not-found")) return "Eintrag nicht gefunden.";
   if (diagnostic.includes("inbox_mirror_missing") || diagnostic.includes("not_mirrored")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
   if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
   if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
@@ -828,9 +838,16 @@ export default function AgentCenterInteractive({
 
   async function releaseWorkerQueueItemForWorker(item: AgentTaskWorkerQueueItem) {
     const reason = workerQueueReleaseButtonReason(item);
+    const releasePayload = { workerQueueId: item.workerQueueId };
+    const payloadTargetPresent = Boolean(releasePayload.workerQueueId);
     setSyncDebug((prev) => ({
       ...prev,
       lastWorkerReleaseAction: "release_for_worker",
+      lastWorkerReleasePayloadTargetPresent: payloadTargetPresent,
+      lastWorkerReleaseTargetIdPresent: false,
+      lastWorkerReleaseWorkerQueueIdPresent: Boolean(releasePayload.workerQueueId),
+      lastWorkerReleaseBackendCode: "-",
+      lastWorkerReleaseBackendMessage: "-",
       lastWorkerReleaseAccepted: false,
       lastWorkerReleaseStatus: reason ? "blocked_client" : "started",
       lastWorkerReleaseMessage: reason || "Worker-Freigabe wird gespeichert …",
@@ -846,9 +863,10 @@ export default function AgentCenterInteractive({
     setBusy(true);
     setFeedback("Worker-Freigabe wird gespeichert …");
     try {
-      const result = await beta1AdminClient.releaseWorkerQueueItemForWorker({ workerQueueId: item.workerQueueId }) as WorkerQueueReleaseResult;
+      const result = await beta1AdminClient.releaseWorkerQueueItemForWorker(releasePayload) as WorkerQueueReleaseResult;
       const accepted = Boolean(result.accepted);
       const releaseStatus = result.workerStatus || result.status || (accepted ? "ready_for_worker" : "failed");
+      const backendMessage = result.message || "-";
       const safeMessage = accepted
         ? "Worker-Freigabe gespeichert. Status: ready_for_worker."
         : `Worker-Freigabe konnte nicht gespeichert werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
@@ -857,6 +875,11 @@ export default function AgentCenterInteractive({
       setSyncDebug((prev) => ({
         ...prev,
         lastWorkerReleaseAction: "release_for_worker",
+        lastWorkerReleasePayloadTargetPresent: payloadTargetPresent,
+        lastWorkerReleaseTargetIdPresent: false,
+        lastWorkerReleaseWorkerQueueIdPresent: Boolean(releasePayload.workerQueueId),
+        lastWorkerReleaseBackendCode: result.clientErrorCode || "-",
+        lastWorkerReleaseBackendMessage: backendMessage,
         lastWorkerReleaseAccepted: accepted,
         lastWorkerReleaseStatus: releaseStatus,
         lastWorkerReleaseMessage: safeMessage,
@@ -866,12 +889,19 @@ export default function AgentCenterInteractive({
       }));
       if (accepted) setActive("worker_ready");
     } catch (error) {
+      const backendCode = getSafeAdminDecisionErrorCode(error) || "-";
+      const backendMessage = getSafeAdminDecisionErrorText(error) || "-";
       const safeMessage = `Worker-Freigabe konnte nicht gespeichert werden: ${getSafeAdminDecisionMessage(error)}`;
       setFeedback(safeMessage);
       setSyncStatus(safeMessage);
       setSyncDebug((prev) => ({
         ...prev,
         lastWorkerReleaseAction: "release_for_worker",
+        lastWorkerReleasePayloadTargetPresent: payloadTargetPresent,
+        lastWorkerReleaseTargetIdPresent: false,
+        lastWorkerReleaseWorkerQueueIdPresent: Boolean(releasePayload.workerQueueId),
+        lastWorkerReleaseBackendCode: backendCode,
+        lastWorkerReleaseBackendMessage: backendMessage,
         lastWorkerReleaseAccepted: false,
         lastWorkerReleaseStatus: "error",
         lastWorkerReleaseMessage: safeMessage,
@@ -1070,6 +1100,11 @@ export default function AgentCenterInteractive({
         <p>lastWorkerQueueNoBranchOrPrOrMerge: {String(syncDebug.lastWorkerQueueNoBranchOrPrOrMerge ?? "-")}</p>
         <p>lastWorkerQueueNoDeploy: {String(syncDebug.lastWorkerQueueNoDeploy ?? "-")}</p>
         <p>lastWorkerReleaseAction: {String(syncDebug.lastWorkerReleaseAction || "-")}</p>
+        <p>lastWorkerReleasePayloadTargetPresent: {String(syncDebug.lastWorkerReleasePayloadTargetPresent ?? "-")}</p>
+        <p>lastWorkerReleaseTargetIdPresent: {String(syncDebug.lastWorkerReleaseTargetIdPresent ?? "-")}</p>
+        <p>lastWorkerReleaseWorkerQueueIdPresent: {String(syncDebug.lastWorkerReleaseWorkerQueueIdPresent ?? "-")}</p>
+        <p>lastWorkerReleaseBackendCode: {String(syncDebug.lastWorkerReleaseBackendCode || "-")}</p>
+        <p>lastWorkerReleaseBackendMessage: {String(syncDebug.lastWorkerReleaseBackendMessage || "-")}</p>
         <p>lastWorkerReleaseAccepted: {String(syncDebug.lastWorkerReleaseAccepted ?? "-")}</p>
         <p>lastWorkerReleaseStatus: {String(syncDebug.lastWorkerReleaseStatus || "-")}</p>
         <p>lastWorkerReleaseMessage: {String(syncDebug.lastWorkerReleaseMessage || "-")}</p>

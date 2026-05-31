@@ -60,18 +60,31 @@ function hasFirestoreIndexError(diagnostic: string): boolean {
   return lowerDiagnostic.includes("requires an index") || (hasFailedPrecondition && lowerDiagnostic.includes("index"));
 }
 
-function sanitizeAdminError(error: unknown): string {
+function sanitizeAdminError(error: unknown, callableName?: string): string {
   const code = getAdminErrorCode(error);
   const text = getAdminErrorText(error);
   const diagnostic = `${code} ${text}`;
+  const isWorkerRelease = callableName === "releaseWorkerQueueItemForWorker";
   if (hasFirestoreIndexError(diagnostic)) return "Firestore-Index fehlt. Bitte Index deployen oder in Firebase erstellen.";
+  if (isWorkerRelease && code.includes("invalid-argument")) return "Worker Queue ID fehlt.";
+  if (isWorkerRelease && code.includes("not-found")) return "Worker Queue Eintrag nicht gefunden.";
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
+  if (diagnostic.includes("workerQueueId fehlt") || diagnostic.includes("workerqueueid fehlt")) return "Worker Queue ID fehlt.";
+  if (diagnostic.includes("worker_queue_item_not_found")) return "Worker Queue Eintrag nicht gefunden.";
+  if (diagnostic.includes("Status erlaubt diese Freigabe nicht")) return "Status erlaubt diese Freigabe nicht.";
+  if (diagnostic.includes("Pflichtdaten fehlen")) return "Pflichtdaten fehlen: allowedFiles/blockedFiles/requiredChecks.";
+  if (diagnostic.includes("Sicherheitsflags verhindern Freigabe")) return "Sicherheitsflags verhindern Freigabe.";
+  if (diagnostic.includes("Owner-protected Bereich blockiert")) return "Owner-protected Bereich blockiert.";
+  if (diagnostic.includes("worker_queue_release_blocked:status_not_releasable")) return "Status erlaubt diese Freigabe nicht.";
+  if (diagnostic.includes("worker_queue_release_blocked") && (diagnostic.includes("allowedFiles") || diagnostic.includes("blockedFiles") || diagnostic.includes("requiredChecks"))) return "Pflichtdaten fehlen: allowedFiles/blockedFiles/requiredChecks.";
+  if (diagnostic.includes("worker_queue_release_blocked") && (diagnostic.includes("noRunnerStarted") || diagnostic.includes("runnerStarted") || diagnostic.includes("noBranchOrPrOrMerge") || diagnostic.includes("branch_pr_merge") || diagnostic.includes("noDeploy") || diagnostic.includes("deploy"))) return "Sicherheitsflags verhindern Freigabe.";
   if (diagnostic.includes("inbox_not_approved") || diagnostic.includes("inbox_status_not_allowed")) return "Eintrag ist nicht approved.";
   if (diagnostic.includes("missing_approved_admin_decision")) return "Missing approved admin decision.";
   if (diagnostic.includes("missing_decision_data")) return "Missing decision data.";
   if (diagnostic.includes("protected_scope_owner_required")) return "Protected scope owner required.";
   if (diagnostic.includes("center_inbox_not_decidable")) return "Eintrag ist nicht mehr entscheidbar.";
-  if (diagnostic.includes("server_inbox_entry_not_found") || diagnostic.includes("inbox_not_found") || code.includes("not-found")) return "Server-Inbox-Eintrag nicht gefunden.";
+  if (diagnostic.includes("server_inbox_entry_not_found") || diagnostic.includes("inbox_not_found")) return "Server-Inbox-Eintrag nicht gefunden.";
+  if (code.includes("not-found")) return "Eintrag nicht gefunden.";
   if (diagnostic.includes("inbox_mirror_missing") || diagnostic.includes("not_mirrored")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
   if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
   if (code.includes("unauthenticated")) return "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
@@ -148,12 +161,12 @@ export async function assertAdminCallableAuthReady(): Promise<{ ok: true; state:
 async function callAdmin<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
   const authGuard = await assertAdminCallableAuthReady();
   if (!authGuard.ok) return authGuard.result;
-  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); return sanitizeAdminResult(result.data); } catch (error) { return { accepted: false, message: sanitizeAdminError(error), clientErrorCode: getAdminErrorCode(error) }; }
+  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); return sanitizeAdminResult(result.data); } catch (error) { return { accepted: false, message: sanitizeAdminError(error, name), clientErrorCode: getAdminErrorCode(error) }; }
 }
 async function callAdminPreserveDiagnostics<TInput>(name: string, input: TInput): Promise<AdminCallableResult> {
   const authGuard = await assertAdminCallableAuthReady();
   if (!authGuard.ok) return { ...authGuard.result, callableName: name };
-  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); const data = (result.data || {}) as AdminCallableResult; return { ...data, accepted: Boolean(data.accepted), message: data.accepted ? undefined : (data.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen.") }; } catch (error) { const clientErrorCode = getAdminErrorCode(error); return { accepted: false, message: sanitizeAdminError(error), callableName: name, clientErrorCode }; }
+  try { const callable = httpsCallable<TInput, AdminCallableResult>(getFunctions(), name); const result = await callable(input); const data = (result.data || {}) as AdminCallableResult; return { ...data, accepted: Boolean(data.accepted), message: data.accepted ? undefined : (data.message || "Eintrag konnte nicht entschieden werden. Bitte Inbox-Sync/Decision-Target prüfen.") }; } catch (error) { const clientErrorCode = getAdminErrorCode(error); return { accepted: false, message: sanitizeAdminError(error, name), callableName: name, clientErrorCode }; }
 }
 
 // keep exported object
@@ -175,7 +188,11 @@ export const beta1AdminClient = {
   listAgentTaskProposals: (status?: string) => callAdmin("listAgentTaskProposals", status ? { status } : {}),
   createWorkerQueueItemFromTaskProposal: (input: TaskProposalWorkerQueueInput) => callAdmin("createWorkerQueueItemFromTaskProposal", input),
   listAgentTaskWorkerQueueItems: (status?: string) => callAdmin("listAgentTaskWorkerQueueItems", status ? { status } : {}),
-  releaseWorkerQueueItemForWorker: (input: WorkerQueueReleaseInput) => callAdmin("releaseWorkerQueueItemForWorker", { workerQueueId: input.workerQueueId }),
+  releaseWorkerQueueItemForWorker: (input: WorkerQueueReleaseInput) => callAdmin("releaseWorkerQueueItemForWorker", {
+    workerQueueId: input.workerQueueId,
+    targetId: input.targetId,
+    id: input.id,
+  }),
   generateAgentTaskCodexPrompt: (input: AgentHandoffPromptGenerateInput) => callAdmin("generateAgentTaskCodexPrompt", input),
   getAgentTaskCodexPrompt: (input: AgentHandoffPromptGetInput) => callAdmin("getAgentTaskCodexPrompt", input),
   markAgentTaskCodexPromptCopied: (input: AgentHandoffPromptCopiedInput) => callAdmin("markAgentTaskCodexPromptCopied", input),
