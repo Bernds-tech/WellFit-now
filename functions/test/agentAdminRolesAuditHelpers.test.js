@@ -1,5 +1,79 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE } = require('../lib/agentAdminRolesAudit');
+
+
+function buildCompleteSingleDecisionDossier(overrides = {}) {
+  const allowedFiles = ['docs/**', 'todolist/**', 'project-register/**', 'app/**', 'functions/**', 'firestore.rules', '.github/**'];
+  const blockedFiles = ['native/**'];
+  const requiredChecks = ['npm run agent:validate', 'npm run lint', 'npm run build', 'npm --prefix functions run check', 'git diff --check', 'npx tsc --noEmit --pretty false'];
+  const validationPlan = ['Run all required checks.', 'Validate file paths against the envelope.'];
+  const rollbackPlan = ['Stop automation and revert the generated branch/PR if needed.'];
+  const stopConditions = ['file_outside_allowedFiles_required', 'blockedFiles_required', 'native_required', 'token_payment_blockchain_required', 'secrets_or_identity_in_debug', 'required_checks_failed', 'merge_conflict', 'deploy_failed', 'dossier_data_missing', 'target_environment_not_test_main', 'production_live_site_impacted'];
+  return {
+    title: 'Familien Abenteuerpfad Woche',
+    summary: 'Prepare single-decision contract only.',
+    what: 'Prepare status and data model for automatic test-main execution.',
+    why: 'The owner should decide once from a complete dossier.',
+    wellFitBenefit: 'WellFit gets a safer execution contract.',
+    userBenefit: 'Users benefit after separately reviewed implementation.',
+    economyImpact: 'Internal XP/WFP wording only; no token/payment/blockchain activation.',
+    risk: 'Medium test-main automation risk with stop conditions.',
+    recommendation: 'approve',
+    executionContract: { executionContractVersion: '2026-05-31.single-owner-decision.v1', mode: 'single_owner_decision', ownerDecisionRequiredOnce: true, decisionCoversTaskProposal: true, decisionCoversWorkerQueue: true, decisionCoversRunnerJob: true, decisionCoversPickupContract: true, decisionCoversImplementationPlan: true, decisionCoversFileWrites: true, decisionCoversBranchCreation: true, decisionCoversPrCreation: true, decisionCoversMerge: true, decisionCoversDeploy: true, decisionCoversNative: false, decisionCoversTokenPaymentBlockchain: false },
+    allowedExecution: { fileWriteAllowed: true, branchCreationAllowed: true, prCreationAllowed: true, mergeAllowed: true, deployAllowed: true, runnerStartAllowed: true, automaticProgressAllowed: true, requiresFurtherOwnerApproval: false },
+    forbiddenExecution: { nativeChangesAllowed: false, tokenPaymentBlockchainAllowed: false, secretsAllowedInDebug: false, productionLiveSiteDeployAllowed: false },
+    executionEnvelope: { allowedFiles, blockedFiles, requiredChecks, validationPlan, rollbackPlan, stopConditions, maxRiskLevel: 'medium', targetEnvironment: 'test_main', nextAutomaticSteps: ['task_proposal', 'worker_queue', 'runner_job', 'pickup_contract', 'implementation_plan', 'file_write_branch_pr_merge_deploy_if_allowed'] },
+    allowedFiles,
+    blockedFiles,
+    requiredChecks,
+    validationPlan,
+    rollbackPlan,
+    stopConditions,
+    targetEnvironment: 'test_main',
+    nextAutomaticSteps: ['task_proposal', 'worker_queue', 'runner_job', 'pickup_contract', 'implementation_plan', 'file_write_branch_pr_merge_deploy_if_allowed'],
+    ...overrides,
+  };
+}
+
+(function testCompleteSingleDecisionContractIsApprovable() {
+  const dossier = buildCompleteSingleDecisionDossier();
+  const result = validateSingleDecisionExecutionContract(dossier);
+  assert.strictEqual(result.approvable, true, 'complete single-owner contract should be approvable');
+  assert.strictEqual(isCompleteDecisionDossier(dossier), true, 'approval guard should accept complete single-owner contract');
+  assert(dossier.allowedFiles.includes('app/**'), 'app/** can be allowed');
+  assert(dossier.allowedFiles.includes('functions/**'), 'functions/** can be allowed');
+  assert(dossier.allowedFiles.includes('firestore.rules'), 'firestore.rules can be allowed');
+  assert(dossier.allowedFiles.includes('.github/**'), '.github/** can be allowed');
+  assert.strictEqual(dossier.executionEnvelope.targetEnvironment, 'test_main', 'Branch/PR/Merge/Deploy are scoped to test_main');
+  assert.strictEqual(dossier.allowedExecution.branchCreationAllowed, true, 'branch can be allowed for test_main');
+  assert.strictEqual(dossier.allowedExecution.prCreationAllowed, true, 'PR can be allowed for test_main');
+  assert.strictEqual(dossier.allowedExecution.mergeAllowed, true, 'merge can be allowed for test_main');
+  assert.strictEqual(dossier.allowedExecution.deployAllowed, true, 'deploy can be allowed for test_main');
+})();
+
+(function testIncompleteSingleDecisionContractIsBlocked() {
+  const dossier = buildCompleteSingleDecisionDossier({ requiredChecks: [], executionEnvelope: { ...buildCompleteSingleDecisionDossier().executionEnvelope, requiredChecks: [] } });
+  const result = validateSingleDecisionExecutionContract(dossier);
+  assert.strictEqual(result.approvable, false, 'incomplete single-owner contract must not be approvable');
+  assert.strictEqual(result.detailStatus, 'incomplete_single_decision_contract');
+  assert.strictEqual(result.blocker, SINGLE_DECISION_BLOCKER_MESSAGE);
+  assert(result.missing.includes('requiredChecks'), 'required checks must be present');
+})();
+
+(function testSingleDecisionSafetyBlocksNativeTokenSecretsAndProduction() {
+  const dossier = buildCompleteSingleDecisionDossier();
+  assert.strictEqual(dossier.forbiddenExecution.nativeChangesAllowed, false, 'native/** stays blocked when nativeChangesAllowed is false');
+  assert(dossier.blockedFiles.includes('native/**'), 'native/** must be blocked');
+  assert.strictEqual(dossier.forbiddenExecution.tokenPaymentBlockchainAllowed, false, 'token/payment/blockchain stays blocked');
+  assert.strictEqual(dossier.forbiddenExecution.secretsAllowedInDebug, false, 'debug output must not allow secrets/UID/e-mail/tokens');
+  assert.strictEqual(dossier.forbiddenExecution.productionLiveSiteDeployAllowed, false, 'production live site deploy remains false');
+  assert(dossier.stopConditions.length > 0, 'stop conditions must be present');
+})();
+
+(function testManualStepByStepModeRemainsCompatible() {
+  const complete = { what: 'Manual task proposal only.', why: 'Debug mode.', wellFitBenefit: 'Traceability.', userBenefit: 'Safer planning.', economyImpact: 'No token/payment activation.', risk: 'Low.', recommendation: 'approve', allowedFiles: ['docs/**'], blockedFiles: ['native/**'], requiredChecks: ['npm run lint'] };
+  assert.strictEqual(isCompleteDecisionDossier(complete), true, 'legacy/manual_step_by_step approval guard remains compatible');
+})();
 
 (function testResolveDirectSnapshot() {
   const input = { registerSnapshot: { generatedDossiers: [{ id: 'PE-1' }] } };

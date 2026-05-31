@@ -13,14 +13,16 @@ const SOURCE_MAP = new Map([
   ["todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md", { kind: "research_template", recommendation: "revise", riskLevel: "medium" }],
   ["docs/beta/BETA1_PRODUCT_EVOLUTION_FIRST_RUN_READINESS_GAPS.md", { kind: "readiness_gaps", recommendation: "revise", riskLevel: "high" }],
 ]);
-const DEFAULT_ALLOWED_FILES = ["docs/**", "todolist/**", "project-register/**"];
-const DEFAULT_BLOCKED_FILES = ["app/**", "functions/**", "firestore.rules", "native/**", ".github/**"];
-const DEFAULT_REQUIRED_CHECKS = ["npm run agent:validate", "npm run agent:quality-gate", "npm run lint", "npm run build", "git diff --check"];
-const REQUIRED_DECISION_FIELDS = ["summary", "whatWillChange", "whySuggested", "wellFitBenefit", "userBenefit", "businessBenefit", "economyImpact", "riskSummary", "recommendation", "recommendationLabel", "recommendationText", "allowedFiles", "blockedFiles", "requiredChecks"];
+const DEFAULT_ALLOWED_FILES = ["docs/**", "todolist/**", "project-register/**", "app/**", "functions/**", "firestore.rules", ".github/**"];
+const DEFAULT_BLOCKED_FILES = ["native/**"];
+const DEFAULT_REQUIRED_CHECKS = ["npm run agent:validate", "npm run lint", "npm run build", "npm --prefix functions run check", "git diff --check", "npx tsc --noEmit --pretty false"];
+const DEFAULT_STOP_CONDITIONS = ["file_outside_allowedFiles_required", "blockedFiles_required", "native_required", "token_payment_blockchain_required", "secrets_or_identity_in_debug", "required_checks_failed", "merge_conflict", "deploy_failed", "dossier_data_missing", "target_environment_not_test_main", "production_live_site_impacted"];
+const DEFAULT_NEXT_AUTOMATIC_STEPS = ["task_proposal", "worker_queue", "runner_job", "pickup_contract", "implementation_plan", "file_write_branch_pr_merge_deploy_if_allowed"];
+const REQUIRED_DECISION_FIELDS = ["summary", "whatWillChange", "whySuggested", "wellFitBenefit", "userBenefit", "businessBenefit", "economyImpact", "riskSummary", "recommendation", "recommendationLabel", "recommendationText", "executionContract", "allowedExecution", "forbiddenExecution", "executionEnvelope", "allowedFiles", "blockedFiles", "requiredChecks", "validationPlan", "rollbackPlan", "stopConditions", "targetEnvironment", "nextAutomaticSteps"];
 const RECOMMENDATION_COPY = {
   approve: {
     label: "Zur Zustimmung geeignet",
-    text: "Der Vorschlag ist als begrenztes Dossier oder Planungsarbeit geeignet. Trotzdem wird nichts automatisch umgesetzt: Ein Admin muss bewusst zustimmen, danach entsteht nur der naechste klar begrenzte Arbeitsschritt.",
+    text: "Der Vorschlag ist als begrenztes Dossier oder Planungsarbeit geeignet. Trotzdem wird nach vollstaendigem Ausfuehrungsvertrag automatisch nur die dort erlaubten Testseiten-Schritte gestartet: Task Proposal, Worker Queue, Runner Job, Pickup Contract, Implementierungsplan, Branch/PR/Merge/Deploy nur wenn Checks und Stop-Bedingungen passen.",
   },
   revise: {
     label: "Ueberarbeiten",
@@ -106,12 +108,84 @@ function extractLineValue(text, labels) {
   return "";
 }
 
-function extractBracketList(text, label, fallback) {
-  const rx = new RegExp(`${label}\\s*:\\s*\\[([^\\]]*)\\]`, "i");
-  const match = text.match(rx);
-  if (!match) return fallback;
-  const items = match[1].split(",").map((item) => item.trim()).filter(Boolean);
-  return items.length ? items : fallback;
+
+function buildSingleDecisionExecutionFields({ allowedFiles = DEFAULT_ALLOWED_FILES, blockedFiles = DEFAULT_BLOCKED_FILES, requiredChecks = DEFAULT_REQUIRED_CHECKS, maxRiskLevel = "medium" } = {}) {
+  const validationPlan = [
+    "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+    "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+    "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+  ];
+  const rollbackPlan = [
+    "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+    "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+    "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+  ];
+  const executionEnvelope = {
+    allowedFiles,
+    blockedFiles,
+    requiredChecks,
+    validationPlan,
+    rollbackPlan,
+    stopConditions: DEFAULT_STOP_CONDITIONS,
+    maxRiskLevel,
+    targetEnvironment: "test_main",
+    nextAutomaticSteps: DEFAULT_NEXT_AUTOMATIC_STEPS,
+  };
+  return {
+    executionContract: {
+      executionContractVersion: "2026-05-31.single-owner-decision.v1",
+      mode: "single_owner_decision",
+      ownerDecisionRequiredOnce: true,
+      decisionCoversTaskProposal: true,
+      decisionCoversWorkerQueue: true,
+      decisionCoversRunnerJob: true,
+      decisionCoversPickupContract: true,
+      decisionCoversImplementationPlan: true,
+      decisionCoversFileWrites: true,
+      decisionCoversBranchCreation: true,
+      decisionCoversPrCreation: true,
+      decisionCoversMerge: true,
+      decisionCoversDeploy: true,
+      decisionCoversNative: false,
+      decisionCoversTokenPaymentBlockchain: false,
+    },
+    allowedExecution: {
+      fileWriteAllowed: true,
+      branchCreationAllowed: true,
+      prCreationAllowed: true,
+      mergeAllowed: true,
+      deployAllowed: true,
+      runnerStartAllowed: true,
+      automaticProgressAllowed: true,
+      requiresFurtherOwnerApproval: false,
+    },
+    forbiddenExecution: {
+      nativeChangesAllowed: false,
+      tokenPaymentBlockchainAllowed: false,
+      secretsAllowedInDebug: false,
+      productionLiveSiteDeployAllowed: false,
+    },
+    executionEnvelope,
+    mode: "single_owner_decision",
+    singleDecisionStatus: "pending_single_decision",
+    targetEnvironment: "test_main",
+    validationPlan,
+    rollbackPlan,
+    stopConditions: DEFAULT_STOP_CONDITIONS,
+    nextAutomaticSteps: DEFAULT_NEXT_AUTOMATIC_STEPS,
+    taskProposalPlan: "Nach einmaliger Owner-Zustimmung automatisch aus dem Dossier erzeugen.",
+    workerQueuePlan: "Automatisch aus dem Task Proposal erzeugen, ohne weitere Owner-Freigabe, solange der Contract vollstaendig bleibt.",
+    runnerJobPlan: "Runner Job automatisch vorbereiten; Ausfuehrung nur innerhalb executionEnvelope.",
+    pickupContractPlan: "Pickup Contract automatisch als Ausfuehrungsvertrag aus dem Dossier ableiten.",
+    implementationPlan: "Implementierungsplan automatisch erzeugen; keine fachliche Produktumsetzung in diesem PR starten.",
+    fileWritePlan: "Dateien nur innerhalb allowedFiles aendern; native/** und nicht genehmigte Pfade stoppen die Pipeline.",
+    branchPlan: "Branch darf fuer test_main erstellt werden, wenn Checks/Stop-Bedingungen passen.",
+    prPlan: "PR darf fuer test_main erstellt werden, wenn Branch und Checks passen.",
+    mergePlan: "Merge darf im Testseitenfluss nach gruenen Required Checks erfolgen.",
+    deployPlan: "Deploy darf nur fuer targetEnvironment=test_main erfolgen; keine echte Live-/Produktionsuebernahme.",
+    tokenPaymentBlockchainPlan: "forbidden",
+    nativePlan: "forbidden",
+  };
 }
 
 function recommendationCopy(recommendation) {
@@ -199,6 +273,7 @@ function buildContextDossier(path, text, meta, index) {
     requiredChecks: DEFAULT_REQUIRED_CHECKS,
     nextStep: "Admin prueft Dossier; bei Freigabe nur Task-Proposal/Handoff vorbereiten, kein automatisches Zustimmen, Mergen oder Deployen.",
     detailStatus: "structured",
+    ...buildSingleDecisionExecutionFields({ allowedFiles: DEFAULT_ALLOWED_FILES, blockedFiles: DEFAULT_BLOCKED_FILES, requiredChecks: DEFAULT_REQUIRED_CHECKS, maxRiskLevel: meta.riskLevel }),
     missingCriticalDecisionFields: [],
   };
 
@@ -214,9 +289,10 @@ function buildContextDossier(path, text, meta, index) {
     base.economyImpact = [extractLineValue(section, ["WFP/XP economy impact"]), extractLineValue(section, ["internal economy impact"])].filter(Boolean).join("; ") || base.economyImpact;
     base.riskSummary = extractLineValue(section, ["risks"]) || base.riskSummary;
     base.recommendation = extractLineValue(section, ["recommendation"]) || base.recommendation;
-    base.allowedFiles = extractBracketList(section, "allowedFiles", base.allowedFiles);
-    base.blockedFiles = extractBracketList(section, "blockedFiles", base.blockedFiles);
-    base.requiredChecks = extractBracketList(section, "requiredChecks", base.requiredChecks);
+    base.allowedFiles = DEFAULT_ALLOWED_FILES;
+    base.blockedFiles = DEFAULT_BLOCKED_FILES;
+    base.requiredChecks = DEFAULT_REQUIRED_CHECKS;
+    Object.assign(base, buildSingleDecisionExecutionFields({ allowedFiles: base.allowedFiles, blockedFiles: base.blockedFiles, requiredChecks: base.requiredChecks, maxRiskLevel: base.riskLevel }));
   }
 
   if (meta.kind === "missions") {

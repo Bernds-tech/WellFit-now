@@ -42,6 +42,15 @@ export type AgentAutomationControl = { automationEnabled: boolean; automationMod
 export type AgentMergeOutcome = { prRef?: string; mergeStatus: "merged" | "failed" | "conflict" | "checks_failed" | "blocked"; reason?: string; };
 export type AgentRepairAttempt = { prRef?: string; result: "fixed" | "failed" | "blocked"; reason?: string; };
 
+
+export type AgentExecutionMode = "manual_step_by_step" | "single_owner_decision";
+export type AgentSingleDecisionStatus = "pending_single_decision" | "single_decision_approved" | "single_decision_rejected" | "single_decision_revision_requested" | "single_decision_blocked" | "auto_progress_ready" | "auto_progress_in_progress" | "auto_progress_paused" | "auto_progress_failed" | "auto_progress_completed";
+export type AgentExecutionContract = { executionContractVersion?: string; mode?: AgentExecutionMode; ownerDecisionRequiredOnce?: boolean; decisionCoversTaskProposal?: boolean; decisionCoversWorkerQueue?: boolean; decisionCoversRunnerJob?: boolean; decisionCoversPickupContract?: boolean; decisionCoversImplementationPlan?: boolean; decisionCoversFileWrites?: boolean; decisionCoversBranchCreation?: boolean; decisionCoversPrCreation?: boolean; decisionCoversMerge?: boolean; decisionCoversDeploy?: boolean; decisionCoversNative?: boolean; decisionCoversTokenPaymentBlockchain?: boolean };
+export type AgentAllowedExecution = { fileWriteAllowed?: boolean; branchCreationAllowed?: boolean; prCreationAllowed?: boolean; mergeAllowed?: boolean; deployAllowed?: boolean; runnerStartAllowed?: boolean; automaticProgressAllowed?: boolean; requiresFurtherOwnerApproval?: boolean };
+export type AgentForbiddenExecution = { nativeChangesAllowed?: boolean; tokenPaymentBlockchainAllowed?: boolean; secretsAllowedInDebug?: boolean; productionLiveSiteDeployAllowed?: boolean };
+export type AgentExecutionEnvelope = { allowedFiles?: string[]; blockedFiles?: string[]; requiredChecks?: string[]; validationPlan?: string[]; rollbackPlan?: string[]; stopConditions?: string[]; maxRiskLevel?: string; targetEnvironment?: "test_main" | string; nextAutomaticSteps?: string[] };
+export type AgentSingleDecisionExecutionFields = { mode?: AgentExecutionMode; singleDecisionStatus?: AgentSingleDecisionStatus | string; singleDecisionBlocker?: string; executionContract?: AgentExecutionContract; allowedExecution?: AgentAllowedExecution; forbiddenExecution?: AgentForbiddenExecution; executionEnvelope?: AgentExecutionEnvelope; validationPlan?: string[]; rollbackPlan?: string[]; stopConditions?: string[]; targetEnvironment?: "test_main" | string; nextAutomaticSteps?: string[] };
+
 export type AgentGithubRunnerStatus = "metadata_only"|"missing_server_config"|"github_api_not_implemented"|"branch_created"|"files_committed"|"pr_created"|"pr_blocked_no_changes"|"checks_pending"|"checks_passed"|"checks_failed"|"auto_merged"|"blocked"|"failed";
 
 export type AgentCenterInboxStatus = "pending_approval" | "approved" | "rejected" | "revision_requested" | "blocked" | "synced_to_task_proposal";
@@ -92,7 +101,7 @@ export type AgentCenterInboxItem = {
   beta1Allowed?: boolean;
   status: AgentCenterInboxStatus;
   mirrorTargetId?: string;
-};
+} & AgentSingleDecisionExecutionFields;
 
 export type AgentTaskProposalStatus = "proposed" | "review_required" | "approved" | "rejected" | "executed" | "blocked" | "queued" | "queued_for_worker_review" | "running" | "completed" | "failed" | "repair_required" | string;
 export type AgentTaskProposal = {
@@ -120,7 +129,7 @@ export type AgentTaskProposal = {
   createdAt?: unknown;
   updatedAt?: unknown;
   lastStatusChangedAt?: unknown;
-};
+} & AgentSingleDecisionExecutionFields;
 export type AgentTaskProposalStatusCounts = { total: number; pending: number; approved: number; rejected: number; in_progress: number; completed: number; blocked: number };
 export type AgentTaskProposalListResult = AdminCallableResult & { proposals?: AgentTaskProposal[]; items?: AgentTaskProposal[]; loadedCount?: number; statusCounts?: AgentTaskProposalStatusCounts };
 
@@ -144,7 +153,7 @@ export type AgentTaskWorkerQueueItem = {
   noDeploy?: boolean;
   createdAt?: unknown;
   updatedAt?: unknown;
-};
+} & AgentSingleDecisionExecutionFields;
 export type AgentTaskWorkerQueueCounts = { total: number; waiting_review: number; waiting_owner: number; ready_for_worker: number; in_progress: number; completed: number; blocked: number; repair_required: number; unknown: number };
 export type AgentTaskWorkerQueueListResult = AdminCallableResult & { items?: AgentTaskWorkerQueueItem[]; workerQueueItems?: AgentTaskWorkerQueueItem[]; loadedCount?: number; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 
@@ -200,7 +209,7 @@ export type AgentRunnerJob = {
   createdAt?: unknown;
   ownerApprovedAt?: unknown;
   pickupContractCreatedAt?: unknown;
-};
+} & AgentSingleDecisionExecutionFields;
 export type AgentRunnerJobCounts = { total: number; pending_runner_pickup: number; pickup_contract_created: number; planning: number; in_progress: number; completed: number; blocked: number; repair_required: number; unknown: number };
 export type AgentRunnerJobListResult = AdminCallableResult & { items?: AgentRunnerJob[]; runnerJobs?: AgentRunnerJob[]; loadedCount?: number; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 
@@ -227,7 +236,7 @@ export type AgentRunnerPickupContract = {
   fileWriteAllowed?: boolean;
   nextStep?: string;
   createdAt?: string | null;
-};
+} & AgentSingleDecisionExecutionFields;
 export type AgentRunnerPickupContractListResult = AdminCallableResult & { items?: AgentRunnerPickupContract[]; pickupContracts?: AgentRunnerPickupContract[]; loadedCount?: number; noDeploy?: boolean; noMerge?: boolean; runnerStartAllowed?: boolean; fileWriteAllowed?: boolean; branchCreationAllowed?: boolean; prCreationAllowed?: boolean };
 export type ManualRunnerPickupContractInput = { runnerJobId?: string; id?: string; targetId?: string };
 export type ManualRunnerPickupContractResult = AdminCallableResult & AgentRunnerPickupContract & { contract?: AgentRunnerPickupContract; message?: string };
@@ -263,7 +272,7 @@ export type AgentRunnerImplementationPlan = {
   ownerPlanApprovalDecision?: string | null;
   nextStep?: string;
   createdAt?: unknown;
-};
+} & AgentSingleDecisionExecutionFields;
 export type AgentRunnerImplementationPlanListResult = AdminCallableResult & { items?: AgentRunnerImplementationPlan[]; implementationPlans?: AgentRunnerImplementationPlan[]; loadedCount?: number; fileWriteAllowed?: boolean; branchCreationAllowed?: boolean; prCreationAllowed?: boolean; noDeploy?: boolean; noMerge?: boolean };
 export type ManualRunnerImplementationPlanInput = { pickupContractId?: string; id?: string; targetId?: string };
 export type ManualRunnerImplementationPlanResult = AdminCallableResult & AgentRunnerImplementationPlan & { plan?: AgentRunnerImplementationPlan; message?: string };
@@ -294,7 +303,7 @@ export type AgentCenterDecision = { decisionId: string; decision: "approved"|"re
 export type MissionCenterDecision = { decisionId: string; decision: "approved"|"rejected"|"revise"|"blocked"|"review"; targetId: string; targetType: "mission"; };
 
 
-export type AdminCenterDetailStatus = "missing"|"reference_only"|"structured";
+export type AdminCenterDetailStatus = "missing"|"reference_only"|"structured"|"incomplete_single_decision_contract";
 export type AdminCenterDossierDetail = {
   title?: string;
   summary?: string;

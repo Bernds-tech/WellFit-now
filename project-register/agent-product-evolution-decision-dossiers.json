@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-05-30T17:12:32.945Z",
+  "createdAt": "2026-05-31T17:20:23.811Z",
   "sourceRef": "project-register/agent-product-evolution-first-run-output.json",
   "dossiers": [
     {
@@ -19,24 +19,159 @@
       "allowedFiles": [
         "docs/**",
         "todolist/**",
-        "project-register/**"
-      ],
-      "blockedFiles": [
+        "project-register/**",
         "app/**",
         "functions/**",
         "firestore.rules",
-        "native/**",
         ".github/**"
+      ],
+      "blockedFiles": [
+        "native/**"
       ],
       "requiredChecks": [
         "npm run agent:validate",
-        "npm run agent:quality-gate",
         "npm run lint",
         "npm run build",
-        "git diff --check"
+        "npm --prefix functions run check",
+        "git diff --check",
+        "npx tsc --noEmit --pretty false"
       ],
       "nextStep": "Weiter pruefen: zuerst ein reines Konzept- oder Research-Dossier erstellen. Es wird noch nichts in App, Funktionen, Standortlogik oder laufenden Produktlogik gebaut.",
       "detailStatus": "structured",
+      "executionContract": {
+        "executionContractVersion": "2026-05-31.single-owner-decision.v1",
+        "mode": "single_owner_decision",
+        "ownerDecisionRequiredOnce": true,
+        "decisionCoversTaskProposal": true,
+        "decisionCoversWorkerQueue": true,
+        "decisionCoversRunnerJob": true,
+        "decisionCoversPickupContract": true,
+        "decisionCoversImplementationPlan": true,
+        "decisionCoversFileWrites": true,
+        "decisionCoversBranchCreation": true,
+        "decisionCoversPrCreation": true,
+        "decisionCoversMerge": true,
+        "decisionCoversDeploy": true,
+        "decisionCoversNative": false,
+        "decisionCoversTokenPaymentBlockchain": false
+      },
+      "allowedExecution": {
+        "fileWriteAllowed": true,
+        "branchCreationAllowed": true,
+        "prCreationAllowed": true,
+        "mergeAllowed": true,
+        "deployAllowed": true,
+        "runnerStartAllowed": true,
+        "automaticProgressAllowed": true,
+        "requiresFurtherOwnerApproval": false
+      },
+      "forbiddenExecution": {
+        "nativeChangesAllowed": false,
+        "tokenPaymentBlockchainAllowed": false,
+        "secretsAllowedInDebug": false,
+        "productionLiveSiteDeployAllowed": false
+      },
+      "executionEnvelope": {
+        "allowedFiles": [
+          "docs/**",
+          "todolist/**",
+          "project-register/**",
+          "app/**",
+          "functions/**",
+          "firestore.rules",
+          ".github/**"
+        ],
+        "blockedFiles": [
+          "native/**"
+        ],
+        "requiredChecks": [
+          "npm run agent:validate",
+          "npm run lint",
+          "npm run build",
+          "npm --prefix functions run check",
+          "git diff --check",
+          "npx tsc --noEmit --pretty false"
+        ],
+        "validationPlan": [
+          "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+          "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+          "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+        ],
+        "rollbackPlan": [
+          "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+          "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+          "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+        ],
+        "stopConditions": [
+          "file_outside_allowedFiles_required",
+          "blockedFiles_required",
+          "native_required",
+          "token_payment_blockchain_required",
+          "secrets_or_identity_in_debug",
+          "required_checks_failed",
+          "merge_conflict",
+          "deploy_failed",
+          "dossier_data_missing",
+          "target_environment_not_test_main",
+          "production_live_site_impacted"
+        ],
+        "maxRiskLevel": "medium",
+        "targetEnvironment": "test_main",
+        "nextAutomaticSteps": [
+          "task_proposal",
+          "worker_queue",
+          "runner_job",
+          "pickup_contract",
+          "implementation_plan",
+          "file_write_branch_pr_merge_deploy_if_allowed"
+        ]
+      },
+      "mode": "single_owner_decision",
+      "singleDecisionStatus": "pending_single_decision",
+      "targetEnvironment": "test_main",
+      "validationPlan": [
+        "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+        "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+        "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+      ],
+      "rollbackPlan": [
+        "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+        "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+        "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+      ],
+      "stopConditions": [
+        "file_outside_allowedFiles_required",
+        "blockedFiles_required",
+        "native_required",
+        "token_payment_blockchain_required",
+        "secrets_or_identity_in_debug",
+        "required_checks_failed",
+        "merge_conflict",
+        "deploy_failed",
+        "dossier_data_missing",
+        "target_environment_not_test_main",
+        "production_live_site_impacted"
+      ],
+      "nextAutomaticSteps": [
+        "task_proposal",
+        "worker_queue",
+        "runner_job",
+        "pickup_contract",
+        "implementation_plan",
+        "file_write_branch_pr_merge_deploy_if_allowed"
+      ],
+      "taskProposalPlan": "Nach einmaliger Owner-Zustimmung automatisch aus dem Dossier erzeugen.",
+      "workerQueuePlan": "Automatisch aus dem Task Proposal erzeugen, ohne weitere Owner-Freigabe, solange der Contract vollstaendig bleibt.",
+      "runnerJobPlan": "Runner Job automatisch vorbereiten; Ausfuehrung nur innerhalb executionEnvelope.",
+      "pickupContractPlan": "Pickup Contract automatisch als Ausfuehrungsvertrag aus dem Dossier ableiten.",
+      "implementationPlan": "Implementierungsplan automatisch erzeugen; keine fachliche Produktumsetzung in diesem PR starten.",
+      "fileWritePlan": "Dateien nur innerhalb allowedFiles aendern; native/** und nicht genehmigte Pfade stoppen die Pipeline.",
+      "branchPlan": "Branch darf fuer test_main erstellt werden, wenn Checks/Stop-Bedingungen passen.",
+      "prPlan": "PR darf fuer test_main erstellt werden, wenn Branch und Checks passen.",
+      "mergePlan": "Merge darf im Testseitenfluss nach gruenen Required Checks erfolgen.",
+      "deployPlan": "Deploy darf nur fuer targetEnvironment=test_main erfolgen; keine echte Live-/Produktionsuebernahme.",
+      "tokenPaymentBlockchainPlan": "forbidden",
+      "nativePlan": "forbidden",
       "missingCriticalDecisionFields": [],
       "recommendationLabel": "Weiter pruefen",
       "recommendationText": "Weiter pruefen – noch nicht umsetzen. Dieser Vorschlag braucht zuerst ein reines Konzept- oder Research-Dossier. Es wird noch nichts in App, Funktionen, Standortlogik oder laufenden Produktlogik gebaut."
@@ -58,26 +193,162 @@
       "allowedFiles": [
         "docs/**",
         "todolist/**",
-        "project-register/**"
-      ],
-      "blockedFiles": [
+        "project-register/**",
         "app/**",
         "functions/**",
         "firestore.rules",
+        ".github/**"
+      ],
+      "blockedFiles": [
         "native/**"
       ],
       "requiredChecks": [
         "npm run agent:validate",
-        "npm run agent:quality-gate",
         "npm run lint",
         "npm run build",
-        "git diff --check"
+        "npm --prefix functions run check",
+        "git diff --check",
+        "npx tsc --noEmit --pretty false"
       ],
       "nextStep": "Admin prueft Dossier; bei Freigabe nur Task-Proposal/Handoff vorbereiten, kein automatisches Zustimmen, Mergen oder Veroeffentlichen.",
       "detailStatus": "structured",
+      "executionContract": {
+        "executionContractVersion": "2026-05-31.single-owner-decision.v1",
+        "mode": "single_owner_decision",
+        "ownerDecisionRequiredOnce": true,
+        "decisionCoversTaskProposal": true,
+        "decisionCoversWorkerQueue": true,
+        "decisionCoversRunnerJob": true,
+        "decisionCoversPickupContract": true,
+        "decisionCoversImplementationPlan": true,
+        "decisionCoversFileWrites": true,
+        "decisionCoversBranchCreation": true,
+        "decisionCoversPrCreation": true,
+        "decisionCoversMerge": true,
+        "decisionCoversDeploy": true,
+        "decisionCoversNative": false,
+        "decisionCoversTokenPaymentBlockchain": false
+      },
+      "allowedExecution": {
+        "fileWriteAllowed": true,
+        "branchCreationAllowed": true,
+        "prCreationAllowed": true,
+        "mergeAllowed": true,
+        "deployAllowed": true,
+        "runnerStartAllowed": true,
+        "automaticProgressAllowed": true,
+        "requiresFurtherOwnerApproval": false
+      },
+      "forbiddenExecution": {
+        "nativeChangesAllowed": false,
+        "tokenPaymentBlockchainAllowed": false,
+        "secretsAllowedInDebug": false,
+        "productionLiveSiteDeployAllowed": false
+      },
+      "executionEnvelope": {
+        "allowedFiles": [
+          "docs/**",
+          "todolist/**",
+          "project-register/**",
+          "app/**",
+          "functions/**",
+          "firestore.rules",
+          ".github/**"
+        ],
+        "blockedFiles": [
+          "native/**"
+        ],
+        "requiredChecks": [
+          "npm run agent:validate",
+          "npm run lint",
+          "npm run build",
+          "npm --prefix functions run check",
+          "git diff --check",
+          "npx tsc --noEmit --pretty false"
+        ],
+        "validationPlan": [
+          "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+          "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+          "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+        ],
+        "rollbackPlan": [
+          "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+          "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+          "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+        ],
+        "stopConditions": [
+          "file_outside_allowedFiles_required",
+          "blockedFiles_required",
+          "native_required",
+          "token_payment_blockchain_required",
+          "secrets_or_identity_in_debug",
+          "required_checks_failed",
+          "merge_conflict",
+          "deploy_failed",
+          "dossier_data_missing",
+          "target_environment_not_test_main",
+          "production_live_site_impacted"
+        ],
+        "maxRiskLevel": "medium",
+        "targetEnvironment": "test_main",
+        "nextAutomaticSteps": [
+          "task_proposal",
+          "worker_queue",
+          "runner_job",
+          "pickup_contract",
+          "implementation_plan",
+          "file_write_branch_pr_merge_deploy_if_allowed"
+        ]
+      },
+      "mode": "single_owner_decision",
+      "singleDecisionStatus": "pending_single_decision",
+      "targetEnvironment": "test_main",
+      "validationPlan": [
+        "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+        "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+        "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+      ],
+      "rollbackPlan": [
+        "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+        "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+        "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+      ],
+      "stopConditions": [
+        "file_outside_allowedFiles_required",
+        "blockedFiles_required",
+        "native_required",
+        "token_payment_blockchain_required",
+        "secrets_or_identity_in_debug",
+        "required_checks_failed",
+        "merge_conflict",
+        "deploy_failed",
+        "dossier_data_missing",
+        "target_environment_not_test_main",
+        "production_live_site_impacted"
+      ],
+      "nextAutomaticSteps": [
+        "task_proposal",
+        "worker_queue",
+        "runner_job",
+        "pickup_contract",
+        "implementation_plan",
+        "file_write_branch_pr_merge_deploy_if_allowed"
+      ],
+      "taskProposalPlan": "Nach einmaliger Owner-Zustimmung automatisch aus dem Dossier erzeugen.",
+      "workerQueuePlan": "Automatisch aus dem Task Proposal erzeugen, ohne weitere Owner-Freigabe, solange der Contract vollstaendig bleibt.",
+      "runnerJobPlan": "Runner Job automatisch vorbereiten; Ausfuehrung nur innerhalb executionEnvelope.",
+      "pickupContractPlan": "Pickup Contract automatisch als Ausfuehrungsvertrag aus dem Dossier ableiten.",
+      "implementationPlan": "Implementierungsplan automatisch erzeugen; keine fachliche Produktumsetzung in diesem PR starten.",
+      "fileWritePlan": "Dateien nur innerhalb allowedFiles aendern; native/** und nicht genehmigte Pfade stoppen die Pipeline.",
+      "branchPlan": "Branch darf fuer test_main erstellt werden, wenn Checks/Stop-Bedingungen passen.",
+      "prPlan": "PR darf fuer test_main erstellt werden, wenn Branch und Checks passen.",
+      "mergePlan": "Merge darf im Testseitenfluss nach gruenen Required Checks erfolgen.",
+      "deployPlan": "Deploy darf nur fuer targetEnvironment=test_main erfolgen; keine echte Live-/Produktionsuebernahme.",
+      "tokenPaymentBlockchainPlan": "forbidden",
+      "nativePlan": "forbidden",
       "missingCriticalDecisionFields": [],
       "recommendationLabel": "Zur Zustimmung geeignet",
-      "recommendationText": "Der Vorschlag ist als begrenztes Dossier oder Planungsarbeit geeignet. Trotzdem wird nichts automatisch umgesetzt: Ein Admin muss bewusst zustimmen, danach entsteht nur der naechste klar begrenzte Arbeitsschritt."
+      "recommendationText": "Der Vorschlag ist als begrenztes Dossier oder Planungsarbeit geeignet. Trotzdem wird nach vollstaendigem Ausfuehrungsvertrag automatisch nur die dort erlaubten Testseiten-Schritte gestartet: Task Proposal, Worker Queue, Runner (automatisierter Arbeitslauf) Job, Pickup Contract, Implementierungsplan, Branch/PR/Merge/Deploy (Veroeffentlichung) nur wenn Checks und Stop-Bedingungen passen."
     },
     {
       "sourceDossierId": "todolist/AGENT_MISSION_STORY_PROPOSALS.md",
@@ -96,27 +367,162 @@
       "allowedFiles": [
         "docs/**",
         "todolist/**",
-        "project-register/**"
-      ],
-      "blockedFiles": [
+        "project-register/**",
         "app/**",
         "functions/**",
         "firestore.rules",
-        "native/**",
         ".github/**"
+      ],
+      "blockedFiles": [
+        "native/**"
       ],
       "requiredChecks": [
         "npm run agent:validate",
-        "npm run agent:quality-gate",
         "npm run lint",
         "npm run build",
-        "git diff --check"
+        "npm --prefix functions run check",
+        "git diff --check",
+        "npx tsc --noEmit --pretty false"
       ],
       "nextStep": "bewusste Admin-Zustimmung fuer detailliertes dossier.",
       "detailStatus": "structured",
+      "executionContract": {
+        "executionContractVersion": "2026-05-31.single-owner-decision.v1",
+        "mode": "single_owner_decision",
+        "ownerDecisionRequiredOnce": true,
+        "decisionCoversTaskProposal": true,
+        "decisionCoversWorkerQueue": true,
+        "decisionCoversRunnerJob": true,
+        "decisionCoversPickupContract": true,
+        "decisionCoversImplementationPlan": true,
+        "decisionCoversFileWrites": true,
+        "decisionCoversBranchCreation": true,
+        "decisionCoversPrCreation": true,
+        "decisionCoversMerge": true,
+        "decisionCoversDeploy": true,
+        "decisionCoversNative": false,
+        "decisionCoversTokenPaymentBlockchain": false
+      },
+      "allowedExecution": {
+        "fileWriteAllowed": true,
+        "branchCreationAllowed": true,
+        "prCreationAllowed": true,
+        "mergeAllowed": true,
+        "deployAllowed": true,
+        "runnerStartAllowed": true,
+        "automaticProgressAllowed": true,
+        "requiresFurtherOwnerApproval": false
+      },
+      "forbiddenExecution": {
+        "nativeChangesAllowed": false,
+        "tokenPaymentBlockchainAllowed": false,
+        "secretsAllowedInDebug": false,
+        "productionLiveSiteDeployAllowed": false
+      },
+      "executionEnvelope": {
+        "allowedFiles": [
+          "docs/**",
+          "todolist/**",
+          "project-register/**",
+          "app/**",
+          "functions/**",
+          "firestore.rules",
+          ".github/**"
+        ],
+        "blockedFiles": [
+          "native/**"
+        ],
+        "requiredChecks": [
+          "npm run agent:validate",
+          "npm run lint",
+          "npm run build",
+          "npm --prefix functions run check",
+          "git diff --check",
+          "npx tsc --noEmit --pretty false"
+        ],
+        "validationPlan": [
+          "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+          "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+          "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+        ],
+        "rollbackPlan": [
+          "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+          "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+          "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+        ],
+        "stopConditions": [
+          "file_outside_allowedFiles_required",
+          "blockedFiles_required",
+          "native_required",
+          "token_payment_blockchain_required",
+          "secrets_or_identity_in_debug",
+          "required_checks_failed",
+          "merge_conflict",
+          "deploy_failed",
+          "dossier_data_missing",
+          "target_environment_not_test_main",
+          "production_live_site_impacted"
+        ],
+        "maxRiskLevel": "medium",
+        "targetEnvironment": "test_main",
+        "nextAutomaticSteps": [
+          "task_proposal",
+          "worker_queue",
+          "runner_job",
+          "pickup_contract",
+          "implementation_plan",
+          "file_write_branch_pr_merge_deploy_if_allowed"
+        ]
+      },
+      "mode": "single_owner_decision",
+      "singleDecisionStatus": "pending_single_decision",
+      "targetEnvironment": "test_main",
+      "validationPlan": [
+        "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+        "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+        "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+      ],
+      "rollbackPlan": [
+        "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+        "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+        "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+      ],
+      "stopConditions": [
+        "file_outside_allowedFiles_required",
+        "blockedFiles_required",
+        "native_required",
+        "token_payment_blockchain_required",
+        "secrets_or_identity_in_debug",
+        "required_checks_failed",
+        "merge_conflict",
+        "deploy_failed",
+        "dossier_data_missing",
+        "target_environment_not_test_main",
+        "production_live_site_impacted"
+      ],
+      "nextAutomaticSteps": [
+        "task_proposal",
+        "worker_queue",
+        "runner_job",
+        "pickup_contract",
+        "implementation_plan",
+        "file_write_branch_pr_merge_deploy_if_allowed"
+      ],
+      "taskProposalPlan": "Nach einmaliger Owner-Zustimmung automatisch aus dem Dossier erzeugen.",
+      "workerQueuePlan": "Automatisch aus dem Task Proposal erzeugen, ohne weitere Owner-Freigabe, solange der Contract vollstaendig bleibt.",
+      "runnerJobPlan": "Runner Job automatisch vorbereiten; Ausfuehrung nur innerhalb executionEnvelope.",
+      "pickupContractPlan": "Pickup Contract automatisch als Ausfuehrungsvertrag aus dem Dossier ableiten.",
+      "implementationPlan": "Implementierungsplan automatisch erzeugen; keine fachliche Produktumsetzung in diesem PR starten.",
+      "fileWritePlan": "Dateien nur innerhalb allowedFiles aendern; native/** und nicht genehmigte Pfade stoppen die Pipeline.",
+      "branchPlan": "Branch darf fuer test_main erstellt werden, wenn Checks/Stop-Bedingungen passen.",
+      "prPlan": "PR darf fuer test_main erstellt werden, wenn Branch und Checks passen.",
+      "mergePlan": "Merge darf im Testseitenfluss nach gruenen Required Checks erfolgen.",
+      "deployPlan": "Deploy darf nur fuer targetEnvironment=test_main erfolgen; keine echte Live-/Produktionsuebernahme.",
+      "tokenPaymentBlockchainPlan": "forbidden",
+      "nativePlan": "forbidden",
       "missingCriticalDecisionFields": [],
       "recommendationLabel": "Zur Zustimmung geeignet",
-      "recommendationText": "Der Vorschlag ist als begrenztes Dossier oder Planungsarbeit geeignet. Trotzdem wird nichts automatisch umgesetzt: Ein Admin muss bewusst zustimmen, danach entsteht nur der naechste klar begrenzte Arbeitsschritt."
+      "recommendationText": "Der Vorschlag ist als begrenztes Dossier oder Planungsarbeit geeignet. Trotzdem wird nach vollstaendigem Ausfuehrungsvertrag automatisch nur die dort erlaubten Testseiten-Schritte gestartet: Task Proposal, Worker Queue, Runner (automatisierter Arbeitslauf) Job, Pickup Contract, Implementierungsplan, Branch/PR/Merge/Deploy (Veroeffentlichung) nur wenn Checks und Stop-Bedingungen passen."
     },
     {
       "sourceDossierId": "todolist/AGENT_RESEARCH_SUMMARY_TEMPLATE.md",
@@ -135,24 +541,159 @@
       "allowedFiles": [
         "docs/**",
         "todolist/**",
-        "project-register/**"
-      ],
-      "blockedFiles": [
+        "project-register/**",
         "app/**",
         "functions/**",
         "firestore.rules",
-        "native/**",
         ".github/**"
+      ],
+      "blockedFiles": [
+        "native/**"
       ],
       "requiredChecks": [
         "npm run agent:validate",
-        "npm run agent:quality-gate",
         "npm run lint",
         "npm run build",
-        "git diff --check"
+        "npm --prefix functions run check",
+        "git diff --check",
+        "npx tsc --noEmit --pretty false"
       ],
       "nextStep": "Konkrete Recherche-Zusammenfassung mit Quellen, Ergebnissen, Risiken, Bewertungs-Sicherheit und WellFit-Empfehlung nachreichen.",
       "detailStatus": "missing",
+      "executionContract": {
+        "executionContractVersion": "2026-05-31.single-owner-decision.v1",
+        "mode": "single_owner_decision",
+        "ownerDecisionRequiredOnce": true,
+        "decisionCoversTaskProposal": true,
+        "decisionCoversWorkerQueue": true,
+        "decisionCoversRunnerJob": true,
+        "decisionCoversPickupContract": true,
+        "decisionCoversImplementationPlan": true,
+        "decisionCoversFileWrites": true,
+        "decisionCoversBranchCreation": true,
+        "decisionCoversPrCreation": true,
+        "decisionCoversMerge": true,
+        "decisionCoversDeploy": true,
+        "decisionCoversNative": false,
+        "decisionCoversTokenPaymentBlockchain": false
+      },
+      "allowedExecution": {
+        "fileWriteAllowed": true,
+        "branchCreationAllowed": true,
+        "prCreationAllowed": true,
+        "mergeAllowed": true,
+        "deployAllowed": true,
+        "runnerStartAllowed": true,
+        "automaticProgressAllowed": true,
+        "requiresFurtherOwnerApproval": false
+      },
+      "forbiddenExecution": {
+        "nativeChangesAllowed": false,
+        "tokenPaymentBlockchainAllowed": false,
+        "secretsAllowedInDebug": false,
+        "productionLiveSiteDeployAllowed": false
+      },
+      "executionEnvelope": {
+        "allowedFiles": [
+          "docs/**",
+          "todolist/**",
+          "project-register/**",
+          "app/**",
+          "functions/**",
+          "firestore.rules",
+          ".github/**"
+        ],
+        "blockedFiles": [
+          "native/**"
+        ],
+        "requiredChecks": [
+          "npm run agent:validate",
+          "npm run lint",
+          "npm run build",
+          "npm --prefix functions run check",
+          "git diff --check",
+          "npx tsc --noEmit --pretty false"
+        ],
+        "validationPlan": [
+          "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+          "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+          "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+        ],
+        "rollbackPlan": [
+          "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+          "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+          "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+        ],
+        "stopConditions": [
+          "file_outside_allowedFiles_required",
+          "blockedFiles_required",
+          "native_required",
+          "token_payment_blockchain_required",
+          "secrets_or_identity_in_debug",
+          "required_checks_failed",
+          "merge_conflict",
+          "deploy_failed",
+          "dossier_data_missing",
+          "target_environment_not_test_main",
+          "production_live_site_impacted"
+        ],
+        "maxRiskLevel": "medium",
+        "targetEnvironment": "test_main",
+        "nextAutomaticSteps": [
+          "task_proposal",
+          "worker_queue",
+          "runner_job",
+          "pickup_contract",
+          "implementation_plan",
+          "file_write_branch_pr_merge_deploy_if_allowed"
+        ]
+      },
+      "mode": "single_owner_decision",
+      "singleDecisionStatus": "pending_single_decision",
+      "targetEnvironment": "test_main",
+      "validationPlan": [
+        "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+        "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+        "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+      ],
+      "rollbackPlan": [
+        "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+        "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+        "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+      ],
+      "stopConditions": [
+        "file_outside_allowedFiles_required",
+        "blockedFiles_required",
+        "native_required",
+        "token_payment_blockchain_required",
+        "secrets_or_identity_in_debug",
+        "required_checks_failed",
+        "merge_conflict",
+        "deploy_failed",
+        "dossier_data_missing",
+        "target_environment_not_test_main",
+        "production_live_site_impacted"
+      ],
+      "nextAutomaticSteps": [
+        "task_proposal",
+        "worker_queue",
+        "runner_job",
+        "pickup_contract",
+        "implementation_plan",
+        "file_write_branch_pr_merge_deploy_if_allowed"
+      ],
+      "taskProposalPlan": "Nach einmaliger Owner-Zustimmung automatisch aus dem Dossier erzeugen.",
+      "workerQueuePlan": "Automatisch aus dem Task Proposal erzeugen, ohne weitere Owner-Freigabe, solange der Contract vollstaendig bleibt.",
+      "runnerJobPlan": "Runner Job automatisch vorbereiten; Ausfuehrung nur innerhalb executionEnvelope.",
+      "pickupContractPlan": "Pickup Contract automatisch als Ausfuehrungsvertrag aus dem Dossier ableiten.",
+      "implementationPlan": "Implementierungsplan automatisch erzeugen; keine fachliche Produktumsetzung in diesem PR starten.",
+      "fileWritePlan": "Dateien nur innerhalb allowedFiles aendern; native/** und nicht genehmigte Pfade stoppen die Pipeline.",
+      "branchPlan": "Branch darf fuer test_main erstellt werden, wenn Checks/Stop-Bedingungen passen.",
+      "prPlan": "PR darf fuer test_main erstellt werden, wenn Branch und Checks passen.",
+      "mergePlan": "Merge darf im Testseitenfluss nach gruenen Required Checks erfolgen.",
+      "deployPlan": "Deploy darf nur fuer targetEnvironment=test_main erfolgen; keine echte Live-/Produktionsuebernahme.",
+      "tokenPaymentBlockchainPlan": "forbidden",
+      "nativePlan": "forbidden",
       "missingCriticalDecisionFields": [
         "concreteResearchFindings"
       ],
@@ -176,24 +717,159 @@
       "allowedFiles": [
         "docs/**",
         "todolist/**",
-        "project-register/**"
-      ],
-      "blockedFiles": [
+        "project-register/**",
         "app/**",
         "functions/**",
         "firestore.rules",
-        "native/**",
         ".github/**"
+      ],
+      "blockedFiles": [
+        "native/**"
       ],
       "requiredChecks": [
         "npm run agent:validate",
-        "npm run agent:quality-gate",
         "npm run lint",
         "npm run build",
-        "git diff --check"
+        "npm --prefix functions run check",
+        "git diff --check",
+        "npx tsc --noEmit --pretty false"
       ],
       "nextStep": "Ueberarbeiten und vom Owner pruefen lassen; fehlende Nachweismatrix und Freigabe-Probelauf separat ausarbeiten.",
       "detailStatus": "structured",
+      "executionContract": {
+        "executionContractVersion": "2026-05-31.single-owner-decision.v1",
+        "mode": "single_owner_decision",
+        "ownerDecisionRequiredOnce": true,
+        "decisionCoversTaskProposal": true,
+        "decisionCoversWorkerQueue": true,
+        "decisionCoversRunnerJob": true,
+        "decisionCoversPickupContract": true,
+        "decisionCoversImplementationPlan": true,
+        "decisionCoversFileWrites": true,
+        "decisionCoversBranchCreation": true,
+        "decisionCoversPrCreation": true,
+        "decisionCoversMerge": true,
+        "decisionCoversDeploy": true,
+        "decisionCoversNative": false,
+        "decisionCoversTokenPaymentBlockchain": false
+      },
+      "allowedExecution": {
+        "fileWriteAllowed": true,
+        "branchCreationAllowed": true,
+        "prCreationAllowed": true,
+        "mergeAllowed": true,
+        "deployAllowed": true,
+        "runnerStartAllowed": true,
+        "automaticProgressAllowed": true,
+        "requiresFurtherOwnerApproval": false
+      },
+      "forbiddenExecution": {
+        "nativeChangesAllowed": false,
+        "tokenPaymentBlockchainAllowed": false,
+        "secretsAllowedInDebug": false,
+        "productionLiveSiteDeployAllowed": false
+      },
+      "executionEnvelope": {
+        "allowedFiles": [
+          "docs/**",
+          "todolist/**",
+          "project-register/**",
+          "app/**",
+          "functions/**",
+          "firestore.rules",
+          ".github/**"
+        ],
+        "blockedFiles": [
+          "native/**"
+        ],
+        "requiredChecks": [
+          "npm run agent:validate",
+          "npm run lint",
+          "npm run build",
+          "npm --prefix functions run check",
+          "git diff --check",
+          "npx tsc --noEmit --pretty false"
+        ],
+        "validationPlan": [
+          "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+          "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+          "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+        ],
+        "rollbackPlan": [
+          "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+          "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+          "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+        ],
+        "stopConditions": [
+          "file_outside_allowedFiles_required",
+          "blockedFiles_required",
+          "native_required",
+          "token_payment_blockchain_required",
+          "secrets_or_identity_in_debug",
+          "required_checks_failed",
+          "merge_conflict",
+          "deploy_failed",
+          "dossier_data_missing",
+          "target_environment_not_test_main",
+          "production_live_site_impacted"
+        ],
+        "maxRiskLevel": "high",
+        "targetEnvironment": "test_main",
+        "nextAutomaticSteps": [
+          "task_proposal",
+          "worker_queue",
+          "runner_job",
+          "pickup_contract",
+          "implementation_plan",
+          "file_write_branch_pr_merge_deploy_if_allowed"
+        ]
+      },
+      "mode": "single_owner_decision",
+      "singleDecisionStatus": "pending_single_decision",
+      "targetEnvironment": "test_main",
+      "validationPlan": [
+        "Owner-Zustimmung nur erlauben, wenn der Single-Decision-Ausfuehrungsvertrag vollstaendig ist.",
+        "Required Checks ausfuehren und bei Fehlern auto_progress_failed/paused setzen.",
+        "Geplante Dateiänderungen gegen allowedFiles und blockedFiles pruefen, bevor Branch/PR/Merge/Deploy laufen."
+      ],
+      "rollbackPlan": [
+        "Bei Check-, Merge- oder Deploy-Fehlern automatische Pipeline stoppen und Owner-Review anfordern.",
+        "Bei Dateiänderungen nur den erzeugten Branch/PR zuruecksetzen oder schließen; main bleibt durch Checks/Merge-Gate geschuetzt.",
+        "Keine Live-/Produktionsuebernahme; Testseiten-main kann separat aus dem PR-Verlauf wiederhergestellt werden."
+      ],
+      "stopConditions": [
+        "file_outside_allowedFiles_required",
+        "blockedFiles_required",
+        "native_required",
+        "token_payment_blockchain_required",
+        "secrets_or_identity_in_debug",
+        "required_checks_failed",
+        "merge_conflict",
+        "deploy_failed",
+        "dossier_data_missing",
+        "target_environment_not_test_main",
+        "production_live_site_impacted"
+      ],
+      "nextAutomaticSteps": [
+        "task_proposal",
+        "worker_queue",
+        "runner_job",
+        "pickup_contract",
+        "implementation_plan",
+        "file_write_branch_pr_merge_deploy_if_allowed"
+      ],
+      "taskProposalPlan": "Nach einmaliger Owner-Zustimmung automatisch aus dem Dossier erzeugen.",
+      "workerQueuePlan": "Automatisch aus dem Task Proposal erzeugen, ohne weitere Owner-Freigabe, solange der Contract vollstaendig bleibt.",
+      "runnerJobPlan": "Runner Job automatisch vorbereiten; Ausfuehrung nur innerhalb executionEnvelope.",
+      "pickupContractPlan": "Pickup Contract automatisch als Ausfuehrungsvertrag aus dem Dossier ableiten.",
+      "implementationPlan": "Implementierungsplan automatisch erzeugen; keine fachliche Produktumsetzung in diesem PR starten.",
+      "fileWritePlan": "Dateien nur innerhalb allowedFiles aendern; native/** und nicht genehmigte Pfade stoppen die Pipeline.",
+      "branchPlan": "Branch darf fuer test_main erstellt werden, wenn Checks/Stop-Bedingungen passen.",
+      "prPlan": "PR darf fuer test_main erstellt werden, wenn Branch und Checks passen.",
+      "mergePlan": "Merge darf im Testseitenfluss nach gruenen Required Checks erfolgen.",
+      "deployPlan": "Deploy darf nur fuer targetEnvironment=test_main erfolgen; keine echte Live-/Produktionsuebernahme.",
+      "tokenPaymentBlockchainPlan": "forbidden",
+      "nativePlan": "forbidden",
       "missingCriticalDecisionFields": [],
       "recommendationLabel": "Ueberarbeiten",
       "recommendationText": "Bitte nicht zustimmen. Es fehlen noch verstaendliche Entscheidungsdaten, belastbare Begruendungen oder sichere Grenzen. Zuerst muss das Dossier nachgebessert werden."

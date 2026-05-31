@@ -105,6 +105,7 @@ function sanitizeAdminError(error: unknown, callableName?: string): string {
   if (diagnostic.includes("worker_queue_release_blocked") && (diagnostic.includes("noRunnerStarted") || diagnostic.includes("runnerStarted") || diagnostic.includes("noBranchOrPrOrMerge") || diagnostic.includes("branch_pr_merge") || diagnostic.includes("noDeploy") || diagnostic.includes("deploy"))) return "Sicherheitsflags verhindern Freigabe.";
   if (diagnostic.includes("inbox_not_approved") || diagnostic.includes("inbox_status_not_allowed")) return "Eintrag ist nicht approved.";
   if (diagnostic.includes("missing_approved_admin_decision")) return "Missing approved admin decision.";
+  if (diagnostic.includes("incomplete_single_decision_contract")) return "Dossier unvollständig – die einmalige Entscheidung muss alle späteren Ausführungsschritte beschreiben.";
   if (diagnostic.includes("missing_decision_data")) return "Missing decision data.";
   if (diagnostic.includes("protected_scope_owner_required")) return "Protected scope owner required.";
   if (diagnostic.includes("center_inbox_not_decidable")) return "Eintrag ist nicht mehr entscheidbar.";
