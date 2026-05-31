@@ -33,6 +33,83 @@
     "noRunnerStartedDefault": true,
     "noBranchOrPrOrMergeDefault": true,
     "noDeployDefault": true,
-    "metadataOnlyUntilOwnerApproval": true
+    "metadataOnlyUntilOwnerApproval": true,
+    "persistentOwnerDecisionUntilReapprovalGuard": true,
+    "serialBuilderExecutionGroup": "main_repo",
+    "maxConcurrentInSerialGroup": 1
+  },
+  "approvedBuilderBacklogFields": [
+    "ownerDecisionId",
+    "ownerDecisionStatus",
+    "ownerDecisionPersistent",
+    "approvedForSerialExecution",
+    "reapprovalRequired",
+    "reapprovalReason",
+    "lastRevalidatedAt",
+    "revalidationStatus",
+    "staleAfterMainSha",
+    "sourceMainShaAtApproval",
+    "currentMainShaAtLastValidation",
+    "executionOrder",
+    "serialGroup",
+    "maxConcurrentInSerialGroup"
+  ],
+  "verificationPlanFields": [
+    "verificationRequired",
+    "verificationStatus",
+    "verificationChecklist",
+    "postMergeChecks",
+    "adminSnapshotRequired",
+    "uiSmokeSnapshotRequired",
+    "lastVerificationAt",
+    "verificationFailureReason",
+    "createsRepairDossierOnFailure"
+  ],
+  "conversationIdeaDossier": {
+    "collection": "agentConversationIdeaDossiers",
+    "callable": "createConversationIdeaDossier",
+    "sourceValues": [
+      "chat",
+      "admin_note",
+      "uploaded_transcript",
+      "manual"
+    ],
+    "ownerDecisionRequiredDefault": true,
+    "metadataOnly": true,
+    "sanitizing": [
+      "redact_private_emails",
+      "redact_tokens_secrets_sessions",
+      "truncate_large_text",
+      "no_personal_payloads"
+    ],
+    "outputFields": [
+      "dossierId",
+      "title",
+      "shortSummary",
+      "plainLanguageSummary",
+      "problem",
+      "proposedChange",
+      "whyNow",
+      "wellfitBenefit",
+      "userBenefit",
+      "financialBenefit",
+      "internalEconomyImpact",
+      "affectedAreas",
+      "affectedFiles",
+      "dependencies",
+      "risks",
+      "riskLevel",
+      "requiredChecks",
+      "acceptanceCriteria",
+      "sources",
+      "recommendation",
+      "ownerDecisionRequired",
+      "suggestedPipelineStep",
+      "noRuntimeChanges",
+      "noRunnerStarted",
+      "noBranchOrPrOrMerge",
+      "noDeploy",
+      "noTokenPaymentBlockchain"
+    ]
   }
 }

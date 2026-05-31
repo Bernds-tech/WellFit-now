@@ -5,13 +5,15 @@ import { useEffect, useMemo, useState } from "react";
 import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
 
 import safetyDossierRegister from "@/project-register/agent-safety-dossiers.json";
+import conversationIdeaDossierRegister from "@/project-register/agent-conversation-idea-dossiers.json";
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier, AgentCenterAutopilotSnapshot, AgentCenterAutopilotSnapshotResult, BuilderWorkPackage, PrepareBuilderWorkPackageResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier, AgentCenterAutopilotSnapshot, AgentCenterAutopilotSnapshotResult, BuilderWorkPackage, PrepareBuilderWorkPackageResult, ConversationIdeaDossier } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
 const SAFETY_DOSSIERS = (safetyDossierRegister.dossiers || []) as AgentSafetyDossier[];
+const STATIC_CONVERSATION_IDEA_DOSSIERS = (conversationIdeaDossierRegister.dossiers || []) as ConversationIdeaDossier[];
 const P1_RESET_SAFETY_DOSSIER = SAFETY_DOSSIERS.find((dossier) => dossier.id === "safety-p1-agent-center-reset-scope-archive-v1") || SAFETY_DOSSIERS[0];
 type Row = Record<string, unknown> & {
   id?: string;
@@ -113,8 +115,8 @@ type WorkerQueueFilter = "worker_total" | "worker_waiting_review" | "worker_wait
 type WorkerQueueBucket = "waiting_review" | "waiting_owner" | "ready_for_worker" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
 type RunnerJobBucket = "pending_runner_pickup" | "pickup_contract_created" | "implementation_plan_created" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
 type PickupContractBucket = "planning_open" | "implementation_plan_created" | "implementation_plan_review" | "implementation_plan_approved" | "planning" | "completed" | "blocked" | "repair_required" | "unknown";
-type BuilderQueueFilter = "builder_total" | "builder_waiting" | "builder_active" | "builder_blocked" | "builder_repair_required" | "builder_completed" | "builder_paused";
-type BuilderQueueBucket = "waiting" | "active" | "blocked" | "repair_required" | "completed" | "paused" | "proposed" | "cancelled" | "unknown";
+type BuilderQueueFilter = "builder_total" | "builder_waiting" | "builder_next_up" | "builder_active" | "builder_blocked" | "builder_repair_required" | "builder_completed" | "builder_paused";
+type BuilderQueueBucket = "waiting" | "next_up" | "active" | "blocked" | "repair_required" | "completed" | "paused" | "proposed" | "cancelled" | "unknown";
 type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter | WorkerQueueFilter | BuilderQueueFilter;
 
 const SERVER_FILTER_TO_BUCKET: Record<ServerInboxFilter, ReturnType<typeof getServerInboxStatusBucket> | "total"> = { server_total: "total", server_pending: "pending_approval", server_approved: "approved", server_rejected: "rejected", server_blocked: "blocked", server_revision_requested: "revision_requested", server_synced_to_task_proposal: "synced_to_task_proposal" };
@@ -131,8 +133,8 @@ const WORKER_QUEUE_FILTER_TO_BUCKET: Record<WorkerQueueFilter, WorkerQueueBucket
 const WORKER_QUEUE_FILTER_LABELS: Record<WorkerQueueFilter, string> = { worker_total: "Worker Queue gesamt", worker_waiting_review: "Wartet auf Review", worker_waiting_owner: "Wartet auf Owner", worker_ready: "Bereit für Worker", worker_in_progress: "In Arbeit", worker_completed: "Fertig", worker_blocked: "Blockiert", worker_repair_required: "Repair Required" };
 const WORKER_QUEUE_FILTER_KEYS = Object.keys(WORKER_QUEUE_FILTER_TO_BUCKET) as WorkerQueueFilter[];
 const isWorkerQueueFilter = (value: ActiveListFilter): value is WorkerQueueFilter => value.startsWith("worker_");
-const BUILDER_QUEUE_FILTER_TO_BUCKET: Record<BuilderQueueFilter, BuilderQueueBucket | "total"> = { builder_total: "total", builder_waiting: "waiting", builder_active: "active", builder_blocked: "blocked", builder_repair_required: "repair_required", builder_completed: "completed", builder_paused: "paused" };
-const BUILDER_QUEUE_FILTER_LABELS: Record<BuilderQueueFilter, string> = { builder_total: "Builder Queue gesamt", builder_waiting: "Bauaufträge: warten", builder_active: "Bauaufträge: aktiv", builder_blocked: "Bauaufträge: blockiert", builder_repair_required: "Bauaufträge: Repair", builder_completed: "Bauaufträge: fertig", builder_paused: "Bauaufträge: pausiert" };
+const BUILDER_QUEUE_FILTER_TO_BUCKET: Record<BuilderQueueFilter, BuilderQueueBucket | "total"> = { builder_total: "total", builder_waiting: "waiting", builder_next_up: "next_up", builder_active: "active", builder_blocked: "blocked", builder_repair_required: "repair_required", builder_completed: "completed", builder_paused: "paused" };
+const BUILDER_QUEUE_FILTER_LABELS: Record<BuilderQueueFilter, string> = { builder_total: "Builder Queue gesamt", builder_waiting: "Bauaufträge: warten", builder_next_up: "Bauaufträge: next_up", builder_active: "Bauaufträge: aktiv", builder_blocked: "Bauaufträge: blockiert", builder_repair_required: "Bauaufträge: Repair", builder_completed: "Bauaufträge: fertig", builder_paused: "Bauaufträge: pausiert" };
 const BUILDER_QUEUE_FILTER_KEYS = Object.keys(BUILDER_QUEUE_FILTER_TO_BUCKET) as BuilderQueueFilter[];
 const isBuilderQueueFilter = (value: ActiveListFilter): value is BuilderQueueFilter => value.startsWith("builder_");
 
@@ -182,6 +184,7 @@ function buildWorkerQueueCounts(items: AgentTaskWorkerQueueItem[]) {
 function getBuilderQueueBucket(item: BuilderWorkPackage): BuilderQueueBucket {
   const status = String(item.status || "").toLowerCase();
   if (status === "approved_waiting") return "waiting";
+  if (status === "next_up") return "next_up";
   if (status === "active_metadata_only") return "active";
   if (["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base"].includes(status)) return "blocked";
   if (status === "repair_required") return "repair_required";
@@ -193,7 +196,7 @@ function getBuilderQueueBucket(item: BuilderWorkPackage): BuilderQueueBucket {
 }
 
 function buildBuilderQueueCounts(items: BuilderWorkPackage[]) {
-  const counts: Record<BuilderQueueBucket, number> & { total: number } = { total: items.length, waiting: 0, active: 0, blocked: 0, repair_required: 0, completed: 0, paused: 0, proposed: 0, cancelled: 0, unknown: 0 };
+  const counts: Record<BuilderQueueBucket, number> & { total: number } = { total: items.length, waiting: 0, next_up: 0, active: 0, blocked: 0, repair_required: 0, completed: 0, paused: 0, proposed: 0, cancelled: 0, unknown: 0 };
   items.forEach((item) => { counts[getBuilderQueueBucket(item)] += 1; });
   return counts;
 }
@@ -566,6 +569,7 @@ export default function AgentCenterInteractive({
   const runnerJobCounts = useMemo(() => buildRunnerJobCounts(runnerJobs), [runnerJobs]);
   const pickupContractCounts = useMemo(() => buildPickupContractCounts(pickupContracts), [pickupContracts]);
   const builderWorkPackages = useMemo(() => agentSnapshot?.builderWorkPackages || [], [agentSnapshot]);
+  const conversationIdeaDossiers = useMemo(() => [ ...(agentSnapshot?.conversationIdeaDossiers || []), ...STATIC_CONVERSATION_IDEA_DOSSIERS ].filter((item, index, all) => all.findIndex((candidate) => candidate.dossierId === item.dossierId) === index), [agentSnapshot]);
   const builderQueueCounts = useMemo(() => buildBuilderQueueCounts(builderWorkPackages), [builderWorkPackages]);
 
   const visibleTaskProposals = useMemo(() => {
@@ -2009,12 +2013,22 @@ export default function AgentCenterInteractive({
         <div className="mt-3 grid gap-3 md:grid-cols-4">
           <p className="rounded border border-white/15 p-2">Freigegebene Dossiers: {agentSnapshot?.agentCenterCounts?.approvedDossiers ?? serverInboxCounts.approved}</p>
           <p className="rounded border border-white/15 p-2">Builder warten: {builderQueueCounts.waiting}</p>
+          <p className="rounded border border-white/15 p-2">next_up: {builderQueueCounts.next_up}</p>
           <p className="rounded border border-white/15 p-2">Builder aktiv: {builderQueueCounts.active}</p>
           <p className="rounded border border-white/15 p-2">Builder blockiert/Repair: {builderQueueCounts.blocked + builderQueueCounts.repair_required}</p>
         </div>
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          <p className="rounded border border-white/15 p-2">completed: {builderQueueCounts.completed}</p>
+          <p className="rounded border border-white/15 p-2">repair_required: {builderQueueCounts.repair_required}</p>
+          <p className="rounded border border-white/15 p-2">Conversation-Ideen: {conversationIdeaDossiers.length}</p>
+        </div>
+        <div className="mt-3 rounded border border-emerald-300/30 bg-emerald-500/10 p-3 text-emerald-50">
+          <p className="font-semibold">Warum keine neue Freigabe nötig?</p>
+          <p>Owner-Freigaben bleiben persistent gültig, solange kein Reapproval-Guard greift: Scope-/Dateiänderung, blockedFiles, requiredChecks, Canonical Truth, Token/Payment/Cashout/SUI/WFT, Health/Child/Location/Camera/Face/Sensitive Data, stale mainSha/Konflikt oder Safety-Sentinel-Blocker.</p>
+        </div>
         <p className="mt-3 text-cyan-100/80">Warum keine Screenshots mehr nötig sein sollten: {agentSnapshot?.screenshotsNoLongerNeededReason || "Der Button liest nur den sanitized Snapshot und startet nichts."}</p>
         <p className="mt-2 text-amber-100">Autopilot: {agentSnapshot?.autopilotControl?.mode || "planning_only"} · enabled: {String(agentSnapshot?.autopilotControl?.enabled ?? false)} · paused: {String(agentSnapshot?.autopilotControl?.paused ?? false)} · echte GitHub-Automation bleibt aus.</p>
-        <pre className="mt-3 max-h-52 overflow-auto rounded border border-white/15 bg-black/20 p-2 text-[11px] text-cyan-50/85">{JSON.stringify(agentSnapshot ? { snapshotCreatedAt: agentSnapshot.snapshotCreatedAt, agentCenterCounts: agentSnapshot.agentCenterCounts, taskProposalCounts: agentSnapshot.taskProposalCounts, workerQueueCounts: agentSnapshot.workerQueueCounts, builderWorkPackageCounts: agentSnapshot.builderWorkPackageCounts, builderQueueGuard: agentSnapshot.builderQueueGuard, autopilotControl: agentSnapshot.autopilotControl, nextRecommendedAction: agentSnapshot.nextRecommendedAction, noRunnerStarted: agentSnapshot.noRunnerStarted, noBranchOrPrOrMerge: agentSnapshot.noBranchOrPrOrMerge, noDeploy: agentSnapshot.noDeploy, noTokenPaymentBlockchain: agentSnapshot.noTokenPaymentBlockchain } : { status: "not_loaded" }, null, 2)}</pre>
+        <pre className="mt-3 max-h-52 overflow-auto rounded border border-white/15 bg-black/20 p-2 text-[11px] text-cyan-50/85">{JSON.stringify(agentSnapshot ? { snapshotCreatedAt: agentSnapshot.snapshotCreatedAt, agentCenterCounts: agentSnapshot.agentCenterCounts, taskProposalCounts: agentSnapshot.taskProposalCounts, workerQueueCounts: agentSnapshot.workerQueueCounts, builderWorkPackageCounts: agentSnapshot.builderWorkPackageCounts, conversationIdeaDossierCounts: agentSnapshot.conversationIdeaDossierCounts, builderQueueGuard: agentSnapshot.builderQueueGuard, autopilotControl: agentSnapshot.autopilotControl, nextRecommendedAction: agentSnapshot.nextRecommendedAction, noRunnerStarted: agentSnapshot.noRunnerStarted, noBranchOrPrOrMerge: agentSnapshot.noBranchOrPrOrMerge, noDeploy: agentSnapshot.noDeploy, noTokenPaymentBlockchain: agentSnapshot.noTokenPaymentBlockchain } : { status: "not_loaded" }, null, 2)}</pre>
       </div>
       {!authDebug.firebaseUserPresent && (
         <div className="rounded border border-amber-300/60 bg-amber-500/10 p-2 text-xs">
@@ -2467,6 +2481,44 @@ export default function AgentCenterInteractive({
         {implementationPlans.length === 0 && <p className="rounded border border-white/15 p-3 text-white/70">Keine Implementation Plans geladen.</p>}
       </div>
 
+
+      <section className="space-y-3 rounded-xl border border-fuchsia-300/30 bg-fuchsia-500/10 p-4 text-xs text-fuchsia-50">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="uppercase tracking-[0.2em] text-fuchsia-100/80">Conversation / Ideen-Dossiers</p>
+            <h2 className="mt-1 text-lg font-semibold">Gesprächswünsche als Admin-Dossiers</h2>
+            <p className="mt-1 text-fuchsia-50/80">Statische Seed-Dossiers plus sanitized Server-Dossiers aus agentConversationIdeaDossiers. Alles bleibt metadata-only: kein Runner, kein Branch/PR/Merge, kein Deploy.</p>
+          </div>
+          <span className="rounded-full border border-fuchsia-200/50 px-2 py-1">{conversationIdeaDossiers.length} sichtbar</span>
+        </div>
+        <div className="grid gap-2 md:grid-cols-2">
+          {conversationIdeaDossiers.map((dossier) => (
+            <article key={dossier.dossierId} className="rounded border border-white/15 bg-black/10 p-3">
+              <b>{dossier.title}</b>
+              <p>{dossier.shortSummary || dossier.plainLanguageSummary}</p>
+              <p>Status: {dossier.status || "pending_approval"} · Risiko: {dossier.riskLevel || "medium"}</p>
+              <p>Quelle: {dossier.source || "seed"} · Pipeline: {dossier.suggestedPipelineStep || dossier.nextPipelineStep || "owner_review"}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button className="cursor-pointer rounded border border-white/30 px-2 py-1" onClick={() => setDetailRow(dossier as unknown as Row)}>Dossier öffnen</button>
+                <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100" onClick={() => setDetailRow(dossier as unknown as Row)}>freigeben / ablehnen / überarbeiten / blockieren</button>
+                <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100" onClick={() => setDetailRow(dossier as unknown as Row)}>Als Bauauftrag vorbereiten (metadata-only)</button>
+              </div>
+              <p className="mt-2 text-fuchsia-100/80">Flags: noRuntimeChanges={String(dossier.noRuntimeChanges !== false)} · noRunnerStarted={String(dossier.noRunnerStarted !== false)} · noBranchOrPrOrMerge={String(dossier.noBranchOrPrOrMerge !== false)} · noDeploy={String(dossier.noDeploy !== false)} · noTokenPaymentBlockchain={String(dossier.noTokenPaymentBlockchain !== false)}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-orange-300/30 bg-orange-500/10 p-4 text-xs text-orange-50">
+        <p className="uppercase tracking-[0.2em] text-orange-100/80">Post-Merge Prüfung</p>
+        <h2 className="mt-1 text-lg font-semibold">Verification Plan</h2>
+        <div className="mt-3 grid gap-3 md:grid-cols-4">
+          <p className="rounded border border-white/15 p-2">Letzte Prüfung: {formatAdminDate(builderWorkPackages.find((item) => item.lastVerificationAt)?.lastVerificationAt)}</p>
+          <p className="rounded border border-white/15 p-2">Nächste erforderliche Prüfung: {builderWorkPackages.find((item) => item.verificationRequired !== false && item.verificationStatus !== "passed")?.title || "Snapshot laden / keine offene Prüfung"}</p>
+          <p className="rounded border border-white/15 p-2">Fehler: {builderWorkPackages.find((item) => item.verificationFailureReason)?.verificationFailureReason || "keine im Snapshot"}</p>
+          <p className="rounded border border-white/15 p-2">Repair-Dossier notwendig? {String(builderWorkPackages.some((item) => item.verificationStatus === "failed" && item.createsRepairDossierOnFailure !== false))}</p>
+        </div>
+      </section>
       {isBuilderQueueFilter(active) && (
         <div className="space-y-3">
           {visibleBuilderWorkPackages.map((item) => (
@@ -2477,6 +2529,9 @@ export default function AgentCenterInteractive({
                   <p>{item.shortSummary || "metadata-only Builder Work Package"}</p>
                   <p>Status: {item.status || "approved_waiting"} · serialGroup: {item.serialGroup || "main_repo"} · baseBranch: {item.baseBranch || "main"}</p>
                   <p>Repair: {item.repairAttemptCount ?? 0}/{item.maxRepairAttempts ?? 3} · Stop/Pause: {item.automationPaused ? "ja" : "nein"}</p>
+                  <p>Owner Decision: {item.ownerDecisionStatus || "approved"} · persistent={String(item.ownerDecisionPersistent !== false)} · reapprovalRequired={String(item.reapprovalRequired === true)} · executionOrder={item.executionOrder ?? item.sequenceNumber ?? "—"}</p>
+                  <p>Revalidation: {item.revalidationStatus || "pending"} · sourceMainSha={item.sourceMainShaAtApproval || "—"} · currentMainSha={item.currentMainShaAtLastValidation || "—"}</p>
+                  <p>Post-Merge Prüfung: {item.verificationStatus || "pending"} · adminSnapshotRequired={String(item.adminSnapshotRequired !== false)} · uiSmokeSnapshotRequired={String(item.uiSmokeSnapshotRequired !== false)} · repairDossierOnFailure={String(item.createsRepairDossierOnFailure !== false)}</p>
                   <p>Nächste Aktion: {item.recommendedNextAction || "Warten; keine GitHub-/Runner-/Deploy-Aktion."}</p>
                   <p>Safety: noRunnerStarted={String(item.noRunnerStarted)} · noBranchOrPrOrMerge={String(item.noBranchOrPrOrMerge)} · noDeploy={String(item.noDeploy)} · noTokenPaymentBlockchain={String(item.noTokenPaymentBlockchain)}</p>
                 </div>

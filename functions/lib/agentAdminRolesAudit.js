@@ -13,7 +13,22 @@ const RUNNER_JOB_STATUSES = ["pending_runner_pickup", "pickup_contract_created",
 const RUNNER_PICKUP_CONTRACT_STATUSES = ["pickup_contract_created", "implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "picked_up", "planning", "in_progress", "completed", "blocked", "repair_required"];
 const RUNNER_IMPLEMENTATION_PLAN_STATUSES = ["implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "planning", "in_progress", "completed", "repair_required", "blocked"];
 const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
-const BUILDER_WORK_PACKAGE_STATUSES = ["proposed", "approved_waiting", "active_metadata_only", "blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "repair_required", "completed_metadata_only", "cancelled", "paused_by_owner"];
+const BUILDER_WORK_PACKAGE_STATUSES = ["proposed", "approved_waiting", "next_up", "active_metadata_only", "blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "repair_required", "completed_metadata_only", "cancelled", "paused_by_owner"];
+const OWNER_DECISION_STATUSES = ["approved", "rejected", "revision_requested", "blocked"];
+const VERIFICATION_STATUSES = ["pending", "passed", "failed", "blocked", "not_run"];
+const CONVERSATION_IDEA_SOURCES = ["chat", "admin_note", "uploaded_transcript", "manual"];
+const BUILDER_POST_MERGE_CHECKLIST = [
+  "npm run agent:validate",
+  "npm run lint",
+  "npm run build",
+  "npm --prefix functions run check",
+  "npx tsc --noEmit --pretty false",
+  "git diff --check",
+  "Admin Snapshot laden",
+  "Agent Center Zähler prüfen",
+  "noRunnerStarted/noBranchOrPrOrMerge/noDeploy/noTokenPaymentBlockchain prüfen",
+  "Smoke prüfen: dashboard, missionen, buddy, shop, leaderboard, marketplace, admin/agent-center",
+];
 const BUILDER_SERIAL_GROUP = "main_repo";
 const BUILDER_MAX_REPAIR_ATTEMPTS = 3;
 const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
@@ -196,6 +211,7 @@ function getBuilderWorkPackageStatusBucket(statusValue) {
   const status = String(statusValue || "").toLowerCase();
   if (status === "active_metadata_only") return "active";
   if (status === "approved_waiting") return "waiting";
+  if (status === "next_up") return "next_up";
   if (["proposed"].includes(status)) return "proposed";
   if (["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base"].includes(status)) return "blocked";
   if (status === "repair_required") return "repair_required";
@@ -234,6 +250,127 @@ function sanitizeTelemetryObject(value, depth = 0) {
     }
   }
   return safe;
+}
+
+function sanitizeConversationIdeaText(value, maxLength = 4000) {
+  const raw = optionalString(value, maxLength * 2) || "";
+  return raw
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/ig, "[redacted-email]")
+    .replace(/\b(?:token|secret|api[_-]?key|session|bearer)\s*[:=]\s*[^\s,;]+/ig, "$1=[redacted]")
+    .replace(/\b(?:uid|userId|sessionId)\s*[:=]\s*[^\s,;]+/ig, "$1=[redacted]")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function buildDefaultVerificationPlan(overrides = {}) {
+  return {
+    verificationRequired: true,
+    verificationStatus: VERIFICATION_STATUSES.includes(String(overrides.verificationStatus || "")) ? String(overrides.verificationStatus) : "pending",
+    verificationChecklist: sanitizeTelemetryList(overrides.verificationChecklist || BUILDER_POST_MERGE_CHECKLIST, 40, 260),
+    postMergeChecks: sanitizeTelemetryList(overrides.postMergeChecks || BUILDER_POST_MERGE_CHECKLIST, 40, 260),
+    adminSnapshotRequired: true,
+    uiSmokeSnapshotRequired: true,
+    lastVerificationAt: overrides.lastVerificationAt || null,
+    verificationFailureReason: sanitizeTelemetryText(overrides.verificationFailureReason, 400),
+    createsRepairDossierOnFailure: true,
+  };
+}
+
+function detectBuilderReapprovalGuard(workPackage = {}, previous = {}) {
+  const affectedFiles = sanitizeTelemetryList(workPackage.affectedFiles || workPackage.allowedFiles || [], 120, 260);
+  const blockedFiles = sanitizeTelemetryList(workPackage.blockedFiles || [], 120, 260);
+  const requiredChecks = sanitizeTelemetryList(workPackage.requiredChecks || [], 120, 260);
+  const previousAffectedFiles = sanitizeTelemetryList(previous.affectedFiles || previous.allowedFiles || affectedFiles, 120, 260);
+  const previousBlockedFiles = sanitizeTelemetryList(previous.blockedFiles || blockedFiles, 120, 260);
+  const previousRequiredChecks = sanitizeTelemetryList(previous.requiredChecks || requiredChecks, 120, 260);
+  const reasons = [];
+  const stable = (list) => JSON.stringify([...list].sort());
+  if (stable(affectedFiles) !== stable(previousAffectedFiles)) reasons.push("affectedFiles_changed");
+  if (stable(blockedFiles) !== stable(previousBlockedFiles)) reasons.push("blockedFiles_changed");
+  if (stable(requiredChecks) !== stable(previousRequiredChecks)) reasons.push("requiredChecks_changed");
+  const allScopeText = [...affectedFiles, ...blockedFiles, ...requiredChecks, sanitizeTelemetryText(workPackage.revalidationStatus, 200) || ""].join(" ").toLowerCase();
+  if (touchesCanonicalTruthProtectedFiles([...affectedFiles, ...blockedFiles]).length) reasons.push("canonical_truth_protected_file");
+  if (/(token|nft|payment|cashout|wallet|sui|wft|blockchain)/i.test(allScopeText)) reasons.push("token_payment_blockchain_scope");
+  if (/(health|child|location|camera|face|sensitive)/i.test(allScopeText)) reasons.push("sensitive_data_scope");
+  if (String(workPackage.revalidationStatus || "").toLowerCase().includes("stale") || (workPackage.staleAfterMainSha && workPackage.currentMainShaAtLastValidation && workPackage.staleAfterMainSha !== workPackage.currentMainShaAtLastValidation)) reasons.push("main_sha_stale_or_conflict_suspected");
+  if (String(workPackage.safetySentinelStatus || "").toLowerCase() === "blocked") reasons.push("safety_sentinel_blocked");
+  return { reapprovalRequired: reasons.length > 0, reapprovalReason: reasons.join(", ") || null, reasons };
+}
+
+function planNextBuilderQueueState(packages = []) {
+  const sorted = [...packages].sort((a, b) => Number(a.executionOrder || a.sequenceNumber || 0) - Number(b.executionOrder || b.sequenceNumber || 0));
+  const active = sorted.filter((wp) => String(wp.serialGroup || BUILDER_SERIAL_GROUP) === BUILDER_SERIAL_GROUP && String(wp.status || "") === "active_metadata_only");
+  const waiting = sorted.filter((wp) => String(wp.serialGroup || BUILDER_SERIAL_GROUP) === BUILDER_SERIAL_GROUP && String(wp.status || "") === "approved_waiting" && wp.reapprovalRequired !== true);
+  const next = active.length === 0 ? (waiting[0] || null) : null;
+  return { serialGroup: BUILDER_SERIAL_GROUP, maxConcurrentInSerialGroup: 1, activeCount: active.length, canMarkNextUp: active.length === 0 && Boolean(next), nextUpWorkPackageId: next ? next.workPackageId || null : null, nextUpSourceDossierId: next ? next.sourceDossierId || null : null, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
+}
+
+function buildRepairDossierFromVerificationFailure(workPackage = {}, reason = "verification_failed") {
+  return {
+    dossierId: `repair-${sanitizeFirestoreDocIdPart(workPackage.workPackageId || workPackage.sourceDossierId || "work-package", 120)}`,
+    type: "builder_repair_dossier",
+    status: "repair_required",
+    title: `Repair: ${sanitizeTelemetryText(workPackage.title, 160) || "Builder Work Package"}`,
+    shortSummary: "Metadata-only Repair-Dossier nach fehlgeschlagener Post-Merge/Post-Completion-Verifikation.",
+    sourceWorkPackageId: sanitizeTelemetryText(workPackage.workPackageId, 180),
+    verificationFailureReason: sanitizeTelemetryText(reason, 400) || "verification_failed",
+    ownerDecisionRequired: true,
+    noRuntimeChanges: true,
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+    noTokenPaymentBlockchain: true,
+    queuePauseRequired: true,
+  };
+}
+
+function buildConversationIdeaDossier(input = {}) {
+  const rawIdeaText = sanitizeConversationIdeaText(input.rawIdeaText, 4000);
+  const source = CONVERSATION_IDEA_SOURCES.includes(String(input.source || "")) ? String(input.source) : "manual";
+  const sourceRef = sanitizeTelemetryText(input.sourceRef, 180);
+  const titleSeed = rawIdeaText.split(/[.!?]/)[0] || "Conversation Idea Dossier";
+  const title = sanitizeTelemetryText(input.title || titleSeed, 120) || "Conversation Idea Dossier";
+  const dossierId = sanitizeFirestoreDocIdPart(input.dossierId || `conversation-idea-${crypto.createHash("sha256").update(`${source}:${sourceRef || ""}:${rawIdeaText}`).digest("hex").slice(0, 16)}`, 180);
+  const affectedFiles = sanitizeTelemetryList(input.affectedFiles || ["project-register/agent-conversation-idea-dossiers.json", "functions/lib/agentAdminRolesAudit.js", "app/admin/agent-center/AgentCenterInteractive.tsx", "lib/admin/beta1AdminClient.ts", "lib/admin/beta1AdminTypes.ts"], 40, 260);
+  const requiredChecks = sanitizeTelemetryList(input.requiredChecks || BUILDER_POST_MERGE_CHECKLIST.slice(0, 6), 20, 260);
+  return {
+    dossierId,
+    type: "conversation_idea_dossier",
+    status: "pending_approval",
+    title,
+    shortSummary: sanitizeTelemetryText(input.shortSummary || rawIdeaText, 500) || "Gesprächsidee als metadata-only Dossier erfasst.",
+    plainLanguageSummary: sanitizeTelemetryText(input.plainLanguageSummary || rawIdeaText, 800) || "Bernds Gesprächswunsch wird als entscheidbarer Vorschlag im Admin Center abgelegt.",
+    problem: sanitizeTelemetryText(input.problem || "Gute Ideen aus Gesprächen können verloren gehen, wenn sie nicht als Dossier entscheidbar werden.", 800),
+    proposedChange: sanitizeTelemetryText(input.proposedChange || "Gesprächswunsch als metadata-only Dossier erfassen; keine Runtime-, Runner-, GitHub- oder Deploy-Aktion starten.", 800),
+    whyNow: sanitizeTelemetryText(input.whyNow || "Bernd möchte Gesprächswünsche im Admin Center freigeben können.", 500),
+    wellfitBenefit: sanitizeTelemetryText(input.wellfitBenefit || "WellFit erhält eine nachvollziehbare Ideen-Pipeline mit Owner-Entscheidung.", 500),
+    userBenefit: sanitizeTelemetryText(input.userBenefit || "Nutzer profitieren später nur von geprüften, freigegebenen Verbesserungen.", 500),
+    financialBenefit: sanitizeTelemetryText(input.financialBenefit || "Bessere Priorisierung reduziert Fehlentwicklungen und Review-Aufwand.", 500),
+    internalEconomyImpact: sanitizeTelemetryText(input.internalEconomyImpact || "Keine Token-, NFT-, Payment-, Cashout-, SUI- oder WFT-Aktivierung; nur interne Planung.", 500),
+    affectedAreas: sanitizeTelemetryList(input.affectedAreas || ["Admin Center", "Agent Governance", "Builder Backlog"], 20, 180),
+    affectedFiles,
+    dependencies: sanitizeTelemetryList(input.dependencies || ["Owner/Admin Entscheidung", "Safety Sentinel bleibt aktiv"], 20, 180),
+    risks: sanitizeTelemetryList(input.risks || ["Idee kann zu breit sein und muss vor Umsetzung präzisiert werden", "Protected Scope erfordert Reapproval/Blocker"], 20, 260),
+    riskLevel: sanitizeTelemetryText(input.riskLevel || input.priorityHint || "medium", 80) || "medium",
+    requiredChecks,
+    acceptanceCriteria: sanitizeTelemetryList(input.acceptanceCriteria || ["Dossier ist im Admin Center sichtbar", "Owner kann approve/reject/revision/block entscheiden", "Keine Runner-/Branch-/PR-/Merge-/Deploy-Aktion"], 20, 260),
+    sources: sanitizeTelemetryList(input.sources || [sourceRef || source], 20, 260),
+    source,
+    sourceRef,
+    priorityHint: sanitizeTelemetryText(input.priorityHint, 80),
+    categoryHint: sanitizeTelemetryText(input.categoryHint, 120),
+    recommendation: sanitizeTelemetryText(input.recommendation || "owner_review", 240),
+    ownerDecisionRequired: true,
+    suggestedPipelineStep: sanitizeTelemetryText(input.suggestedPipelineStep || "conversation_idea_owner_review_then_prepare_builder_work_package_metadata_only", 240),
+    noRuntimeChanges: true,
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+    noTokenPaymentBlockchain: true,
+    createdAt: input.createdAt || null,
+    updatedAt: input.updatedAt || null,
+  };
 }
 
 function buildDefaultAutopilotControl() {
@@ -318,10 +455,23 @@ function mapSafeBuilderWorkPackageDoc(doc) {
     ownerApproved: data.ownerApproved === true,
     ownerApprovedAt: sanitizeTelemetryObject(data.ownerApprovedAt),
     ownerApprovedByRole: sanitizeTelemetryText(data.ownerApprovedByRole, 80),
+    ownerDecisionId: sanitizeTelemetryText(data.ownerDecisionId, 180),
+    ownerDecisionStatus: OWNER_DECISION_STATUSES.includes(String(data.ownerDecisionStatus || "")) ? String(data.ownerDecisionStatus) : (data.ownerApproved === true ? "approved" : null),
+    ownerDecisionPersistent: data.ownerDecisionPersistent !== false,
+    approvedForSerialExecution: data.approvedForSerialExecution !== false,
+    reapprovalRequired: data.reapprovalRequired === true,
+    reapprovalReason: sanitizeTelemetryText(data.reapprovalReason, 400),
+    lastRevalidatedAt: sanitizeTelemetryObject(data.lastRevalidatedAt),
+    revalidationStatus: sanitizeTelemetryText(data.revalidationStatus, 160),
+    staleAfterMainSha: sanitizeTelemetryText(data.staleAfterMainSha, 120),
+    sourceMainShaAtApproval: sanitizeTelemetryText(data.sourceMainShaAtApproval, 120),
+    currentMainShaAtLastValidation: sanitizeTelemetryText(data.currentMainShaAtLastValidation, 120),
     priority: sanitizeTelemetryText(data.priority, 40),
-    sequenceNumber: Number(data.sequenceNumber || 0),
+    sequenceNumber: Number(data.sequenceNumber || data.executionOrder || 0),
+    executionOrder: Number(data.executionOrder || data.sequenceNumber || 0),
     status: sanitizeTelemetryText(data.status, 80),
     serialGroup: sanitizeTelemetryText(data.serialGroup, 80) || BUILDER_SERIAL_GROUP,
+    maxConcurrentInSerialGroup: 1,
     baseBranch: sanitizeTelemetryText(data.baseBranch, 80) || "main",
     baseSha: sanitizeTelemetryText(data.baseSha, 120),
     allowedFiles: sanitizeTelemetryList(data.allowedFiles || [], 40, 260),
@@ -335,6 +485,15 @@ function mapSafeBuilderWorkPackageDoc(doc) {
     noDeploy: true,
     noTokenPaymentBlockchain: true,
     automationPaused: data.automationPaused === true,
+    verificationRequired: data.verificationRequired !== false,
+    verificationStatus: VERIFICATION_STATUSES.includes(String(data.verificationStatus || "")) ? String(data.verificationStatus) : "pending",
+    verificationChecklist: sanitizeTelemetryList(data.verificationChecklist || [], 40, 260),
+    postMergeChecks: sanitizeTelemetryList(data.postMergeChecks || [], 40, 260),
+    adminSnapshotRequired: data.adminSnapshotRequired !== false,
+    uiSmokeSnapshotRequired: data.uiSmokeSnapshotRequired !== false,
+    lastVerificationAt: sanitizeTelemetryObject(data.lastVerificationAt),
+    verificationFailureReason: sanitizeTelemetryText(data.verificationFailureReason, 400),
+    createsRepairDossierOnFailure: data.createsRepairDossierOnFailure !== false,
     recommendedNextAction: sanitizeTelemetryText(data.recommendedNextAction, 400),
   };
 }
@@ -342,6 +501,8 @@ function mapSafeBuilderWorkPackageDoc(doc) {
 function buildBuilderQueueGuardState(packages, autopilotControl) {
   const safePackages = Array.isArray(packages) ? packages : [];
   const active = safePackages.filter((wp) => String(wp.status || "") === "active_metadata_only");
+  const waiting = safePackages.filter((wp) => String(wp.status || "") === "approved_waiting");
+  const nextUp = safePackages.filter((wp) => String(wp.status || "") === "next_up");
   const blocking = safePackages.filter((wp) => ["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "repair_required", "paused_by_owner"].includes(String(wp.status || "")));
   const repairLimitHit = safePackages.some((wp) => Number(wp.repairAttemptCount || 0) >= BUILDER_MAX_REPAIR_ATTEMPTS || String(wp.status || "") === "repair_required");
   const failedOrBlocking = blocking.length > 0 || safePackages.some((wp) => ["blocked", "failed"].includes(String(wp.status || "")));
@@ -351,7 +512,10 @@ function buildBuilderQueueGuardState(packages, autopilotControl) {
     serialGroup: BUILDER_SERIAL_GROUP,
     maxConcurrentWorkPackages: 1,
     activeCount: active.length,
+    waitingCount: waiting.length,
+    nextUpCount: nextUp.length,
     hasActiveWorkPackage: active.length > 0,
+    nextUpWorkPackageId: active.length === 0 && waiting[0] ? (waiting[0].workPackageId || null) : (nextUp[0] ? nextUp[0].workPackageId || null : null),
     queuePaused: paused,
     pauseReason: sanitizeTelemetryText(reason, 240),
     automationPaused: paused,
@@ -376,15 +540,29 @@ function buildBuilderWorkPackageFromDossier({ dossier, dossierId, actorRole, seq
     ownerApproved: true,
     ownerApprovedAt: source.approvedAt || null,
     ownerApprovedByRole: sanitizeTelemetryText(source.approvedByRole || actorRole, 80) || actorRole,
+    ownerDecisionId: sanitizeTelemetryText(source.ownerDecisionId || source.decisionId || source.approvalId || source.inboxDecisionId || dossierId, 180) || dossierId,
+    ownerDecisionStatus: "approved",
+    ownerDecisionPersistent: true,
+    approvedForSerialExecution: true,
+    reapprovalRequired: false,
+    reapprovalReason: null,
+    lastRevalidatedAt: null,
+    revalidationStatus: "pending_initial_metadata_validation",
+    staleAfterMainSha: null,
+    sourceMainShaAtApproval: sanitizeTelemetryText(baseSha || source.baseSha || source.mainSha, 120),
+    currentMainShaAtLastValidation: sanitizeTelemetryText(baseSha || source.baseSha || source.mainSha, 120),
     priority: sanitizeTelemetryText(source.priority, 40) || "P2",
     sequenceNumber,
+    executionOrder: sequenceNumber,
     status: "approved_waiting",
     serialGroup: BUILDER_SERIAL_GROUP,
+    maxConcurrentInSerialGroup: 1,
     baseBranch: "main",
     baseSha: sanitizeTelemetryText(baseSha || source.baseSha, 120),
     allowedFiles,
     blockedFiles,
     requiredChecks,
+    ...buildDefaultVerificationPlan(source),
     maxRepairAttempts: BUILDER_MAX_REPAIR_ATTEMPTS,
     repairAttemptCount: 0,
     noParallelExecution: true,
@@ -3505,7 +3683,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
   exportsTarget.getAgentCenterAutopilotSnapshot = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
-    const [inboxRaw, safetyDossierRaw, proposalsRaw, workerRaw, runnerRaw, pickupRaw, planRaw, builderPackages, autopilotDoc] = await Promise.all([
+    const [inboxRaw, safetyDossierRaw, proposalsRaw, workerRaw, runnerRaw, pickupRaw, planRaw, conversationIdeaRaw, builderPackages, autopilotDoc] = await Promise.all([
       readLimitedCollection("agentCenterInbox", 200),
       readLimitedCollection("agentSafetyDossiers", 200),
       readLimitedCollection("agentTaskProposals", 200),
@@ -3513,10 +3691,11 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       readLimitedCollection("agentRunnerJobs", 200),
       readLimitedCollection("agentRunnerPickupContracts", 200),
       readLimitedCollection("agentRunnerImplementationPlans", 200),
+      readLimitedCollection("agentConversationIdeaDossiers", 200),
       getBuilderWorkPackagesForSerialGroup(BUILDER_SERIAL_GROUP),
       getAutopilotControl(db),
     ]);
-    const [inboxTotal, decisionsTotal] = await Promise.all([safeCountCollection("agentCenterInbox"), safeCountCollection("agentCenterDecisions")]);
+    const [inboxTotal, decisionsTotal, conversationIdeaTotal] = await Promise.all([safeCountCollection("agentCenterInbox"), safeCountCollection("agentCenterDecisions"), safeCountCollection("agentConversationIdeaDossiers")]);
     const inbox = inboxRaw.map((doc) => mapSafeAgentCenterDossierDoc(doc));
     const openDossiers = inbox.filter((item) => !["approved", "rejected", "blocked", "synced_to_task_proposal"].includes(String(item.status || ""))).slice(0, 25);
     const approvedDossiers = inbox.filter((item) => String(item.status || "") === "approved").slice(0, 25);
@@ -3552,7 +3731,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       runnerJobCounts: getStatusCountsByBucket(runnerRaw, (item) => getRunnerJobStatusBucket(item.status || item.runnerJobStatus), ["pending_runner_pickup", "pickup_contract_created", "implementation_plan_created", "planning", "in_progress", "completed", "blocked", "repair_required"]),
       pickupContractCounts: getStatusCountsByBucket(pickupRaw, (item) => getPickupContractStatusBucket(item.status), ["planning_open", "implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "planning", "completed", "blocked", "repair_required"]),
       implementationPlanCounts: getStatusCountsByBucket(planRaw, (item) => getImplementationPlanStatusBucket(item.status), ["created", "review", "approved", "planning", "completed", "blocked", "repair_required"]),
-      builderWorkPackageCounts: getStatusCountsByBucket(builderPackages, (item) => getBuilderWorkPackageStatusBucket(item.status), ["proposed", "waiting", "active", "blocked", "repair_required", "completed", "cancelled", "paused"]),
+      conversationIdeaDossierCounts: { ...getStatusCountsByBucket(conversationIdeaRaw, (item) => String(item.status || "pending_approval"), ["pending_approval", "approved", "rejected", "revision_requested", "blocked"]), total: conversationIdeaTotal },
+      conversationIdeaDossiers: conversationIdeaRaw.map((item) => sanitizeTelemetryObject(item)).slice(0, 50),
+      builderWorkPackageCounts: getStatusCountsByBucket(builderPackages, (item) => getBuilderWorkPackageStatusBucket(item.status), ["proposed", "waiting", "next_up", "active", "blocked", "repair_required", "completed", "cancelled", "paused"]),
       builderWorkPackages: builderPackages.slice(0, 50),
       builderQueueGuard: builderGuard,
       lastKnownBlocker: sanitizeTelemetryText(lastKnownBlocker, 260),
@@ -3634,6 +3815,18 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { accepted: true, workPackage: result.workPackage, workPackageId: result.workPackage.workPackageId, status: result.workPackage.status, existing: result.existing, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
   });
 
+  exportsTarget.createConversationIdeaDossier = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const input = request.data || {};
+    if (!optionalString(input.rawIdeaText, 4000)) throw new HttpsError("invalid-argument", "rawIdeaText fehlt.");
+    const now = FieldValue.serverTimestamp();
+    const dossier = buildConversationIdeaDossier({ ...input, createdAt: now, updatedAt: now });
+    const ref = db.collection("agentConversationIdeaDossiers").doc(dossier.dossierId);
+    await ref.set({ ...dossier, createdBy: actorId, createdByRole: actorRole }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "conversation_idea_dossier_created", proposalId: dossier.dossierId, result: "pending_approval" });
+    return { accepted: true, dossierId: dossier.dossierId, dossier: sanitizeTelemetryObject(dossier), noRuntimeChanges: true, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
+  });
+
   exportsTarget.pauseAgentAutopilotMetadataOnly = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
     const reason = optionalString(request.data && request.data.reason, 240) || "paused_by_owner";
@@ -3665,4 +3858,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS, AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getStatusCountsByBucket, getWorkerQueueStatusBucket, getRunnerJobStatusBucket, getPickupContractStatusBucket, getImplementationPlanStatusBucket, getBuilderWorkPackageStatusBucket, sanitizeTelemetryObject, sanitizeAutopilotControl, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES, buildExecutionContractHash, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract };
+module.exports = { registerAgentAdminRolesAudit, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS, AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getStatusCountsByBucket, getWorkerQueueStatusBucket, getRunnerJobStatusBucket, getPickupContractStatusBucket, getImplementationPlanStatusBucket, getBuilderWorkPackageStatusBucket, sanitizeTelemetryObject, sanitizeAutopilotControl, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, sanitizeConversationIdeaText, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES, buildExecutionContractHash, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract };

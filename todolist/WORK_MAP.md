@@ -498,3 +498,10 @@ Nutze diese Map, um vorhandene Dateien gezielt zu finden. Wenn ein Thema fehlt, 
 | Admin-Center Auth | Fix vorbereitet | `app/admin/agent-center/AgentCenterInteractive.tsx` | Nach Frontend-Deploy Popup-Fehlerfall pruefen; Redirect-Fallback darf keine UID/E-Mail/Tokens anzeigen. |
 | Product-Evolution Inbox Sync | Fix vorbereitet | `functions/lib/agentAdminRolesAudit.js`, `functions/test/agentAdminRolesAuditInboxIdTest.js` | Nach Functions-Deploy `syncProductEvolutionFirstRunInbox` erneut aus Admin-Center starten; slash-haltige `sourceDossierId` muss syncbar bleiben. |
 | Product-Evolution Worker Queue | wartend | `runtime/admin-center-task-proposal-to-worker-queue` | Erst nach erfolgreichem Server-Inbox-Sync fortsetzen. |
+
+## Approved Builder Backlog / Conversation Intake (2026-05-31)
+
+- Builder-Queue-Metadaten: `functions/lib/agentAdminRolesAudit.js`, `lib/admin/beta1AdminTypes.ts`, `lib/admin/beta1AdminClient.ts`, `app/admin/agent-center/AgentCenterInteractive.tsx`.
+- Conversation-Idea-Seed-Dossiers: `project-register/agent-conversation-idea-dossiers.json`.
+- Schema-/Dokumentationsanker: `project-register/agent-dossier-schema.json`, `docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md`, `docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md`.
+- Grenzen: metadata-only; kein Runner, kein echter Branch/PR/Merge/Deploy, keine GitHub-Automation, keine Token/NFT/Payment/Cashout/SUI/WFT-Aktivierung.

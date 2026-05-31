@@ -126,3 +126,16 @@ AR and the AI buddy are public-beta product areas. SUI/WFT/token/payment/cashout
 - AI buddy and AR are public-beta product areas and can be considered after P0/P1 safety, build/deploy, and pipeline blockers are handled.
 - SUI, WFT, token, payment, cashout, wallet trading, NFT, Dynamic Assets, and blockchain activation are not part of Beta-1 activation. They remain future topics behind explicit Owner plus Legal/Policy gates.
 - Agents and builders must order proposals accordingly: public-beta AR/AI-buddy before any later token/Dynamic-Assets work, and token/payment/blockchain proposals must remain blocked/deferred unless separately approved.
+
+## Conversation Intake and serial Builder handoff (2026-05-31)
+
+Conversation-/Idea-Intake ergänzt die Product-Evolution-Loop nur metadata-only:
+
+1. Gesprächsnotizen aus Chat, Admin-Notiz, Upload-Transkript oder manuellem Eintrag werden sanitized und gekürzt.
+2. Daraus entstehen `agentConversationIdeaDossiers` mit Problem, vorgeschlagener Änderung, Nutzen, Risiken, Checks, Acceptance Criteria und Safety-Flags.
+3. Bernd entscheidet im Admin Center: freigeben, ablehnen, Überarbeitung anfordern oder blockieren.
+4. Freigegebene Dossiers können als Builder Work Package vorbereitet werden, bleiben aber in `approved_waiting`, bis die serielle Queue sie als `next_up` einplant.
+5. Der Builder arbeitet nur genehmigte Work Packages ab; mehrere Freigaben bleiben persistent, die Umsetzung bleibt seriell.
+6. Nach Completion/Merge folgt die geplante Post-Merge-Verifikation; Fehler erzeugen Repair-Dossiers oder pausieren die Queue.
+
+Grenzen: kein frischer Agent-Vorschlagslauf in diesem Schritt, kein Runner-Start, kein echter Branch/PR/Merge/Deploy, keine GitHub-Automation und keine Token/NFT/Payment/Cashout/SUI/WFT-Aktivierung.

@@ -103,3 +103,15 @@ AR and the AI buddy are public-beta product areas. SUI/WFT/token/payment/cashout
 - AI buddy and AR are public-beta product areas and can be considered after P0/P1 safety, build/deploy, and pipeline blockers are handled.
 - SUI, WFT, token, payment, cashout, wallet trading, NFT, Dynamic Assets, and blockchain activation are not part of Beta-1 activation. They remain future topics behind explicit Owner plus Legal/Policy gates.
 - Agents and builders must order proposals accordingly: public-beta AR/AI-buddy before any later token/Dynamic-Assets work, and token/payment/blockchain proposals must remain blocked/deferred unless separately approved.
+
+## Approved Builder Backlog and Conversation Intake (2026-05-31)
+
+- Mehrere Dossiers dürfen gleichzeitig durch Owner/Admin entschieden und als `approved_waiting` Work Packages in `agentBuilderWorkPackages` liegen.
+- Die Umsetzung bleibt für `serialGroup=main_repo` strikt seriell: `maxConcurrentInSerialGroup=1`, höchstens ein `active_metadata_only`, danach erst `next_up` für das nächste freigegebene Paket.
+- Eine Owner-Freigabe bleibt persistent (`ownerDecisionPersistent=true`, `approvedForSerialExecution=true`, `reapprovalRequired=false`), bis ein Guard explizit Reapproval setzt.
+- Reapproval wird nur bei wesentlicher Scope-/Risikoänderung nötig: geänderte `affectedFiles`, `blockedFiles`, `requiredChecks`, Canonical-Truth-Berührung, Token/Payment/Cashout/SUI/WFT, Health/Child/Location/Camera/Face/Sensitive Data, stale/konfliktverdächtiger `mainSha` oder Safety-Sentinel-Blocker.
+- Nach jedem Merge oder Completion ist ein metadata-only Verification Plan Pflicht: Checks, Admin Snapshot, Agent-Center-Zähler, Sicherheitsflags und UI-Smoke-Bereiche werden geplant; Browser-Automation wird dadurch noch nicht gestartet.
+- Verification-Fehler erzeugen metadata-only Repair-Dossiers oder pausieren die Queue. Maximal drei Repair-Versuche bleiben die Grenze, danach `halted_waiting_owner`.
+- Conversation Intake speichert Bernds Gesprächsideen als sanitized `agentConversationIdeaDossiers`; Bernd bleibt finale Entscheidungsinstanz.
+- Product Brain/Research-Orchestrator darf Vorschläge vorbereiten. Builder setzt ausschließlich genehmigte Arbeit um.
+- Dieser Abschnitt aktiviert keine echte GitHub-, Runner-, Branch-, PR-, Merge- oder Deploy-Automation und keine Token-/Payment-/Blockchain-Funktion.
