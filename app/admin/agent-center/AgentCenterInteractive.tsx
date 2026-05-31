@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -62,6 +62,7 @@ type TaskProposalFilter = "task_total" | "task_pending" | "task_approved" | "tas
 type TaskProposalBucket = "pending" | "approved" | "rejected" | "in_progress" | "completed" | "blocked" | "unknown";
 type WorkerQueueFilter = "worker_total" | "worker_waiting_review" | "worker_waiting_owner" | "worker_ready" | "worker_in_progress" | "worker_completed" | "worker_blocked" | "worker_repair_required";
 type WorkerQueueBucket = "waiting_review" | "waiting_owner" | "ready_for_worker" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
+type RunnerJobBucket = "pending_runner_pickup" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
 type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter | WorkerQueueFilter;
 
 const SERVER_FILTER_TO_BUCKET: Record<ServerInboxFilter, ReturnType<typeof getServerInboxStatusBucket> | "total"> = { server_total: "total", server_pending: "pending_approval", server_approved: "approved", server_rejected: "rejected", server_blocked: "blocked", server_revision_requested: "revision_requested", server_synced_to_task_proposal: "synced_to_task_proposal" };
@@ -107,7 +108,7 @@ function getWorkerQueueBucket(item: AgentTaskWorkerQueueItem): WorkerQueueBucket
   const status = String(item.status || "").toLowerCase();
   if (["pending_worker_review", "queued_for_worker_review"].includes(status)) return "waiting_review";
   if (status === "queued_for_owner_review") return "waiting_owner";
-  if (["ready_for_worker", "previewed_for_runner"].includes(status)) return "ready_for_worker";
+  if (["ready_for_worker", "previewed_for_runner", "runner_start_approved"].includes(status)) return "ready_for_worker";
   if (["in_progress", "claimed", "running", "checks_recorded", "pr_prepared"].includes(status)) return "in_progress";
   if (status === "completed") return "completed";
   if (["blocked", "failed"].includes(status)) return "blocked";
@@ -119,6 +120,28 @@ function buildWorkerQueueCounts(items: AgentTaskWorkerQueueItem[]) {
   const counts: Record<WorkerQueueBucket, number> & { total: number } = { total: items.length, waiting_review: 0, waiting_owner: 0, ready_for_worker: 0, in_progress: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
   items.forEach((item) => { counts[getWorkerQueueBucket(item)] += 1; });
   return counts;
+}
+
+function getRunnerJobBucket(item: AgentRunnerJob): RunnerJobBucket {
+  const status = String(item.status || "").toLowerCase();
+  if (["pending_runner_pickup", "runner_job_created", "picked_up"].includes(status)) return "pending_runner_pickup";
+  if (["in_progress", "claimed", "running"].includes(status)) return "in_progress";
+  if (["completed", "done"].includes(status)) return "completed";
+  if (["blocked", "failed"].includes(status)) return "blocked";
+  if (status === "repair_required") return "repair_required";
+  return "unknown";
+}
+
+function buildRunnerJobCounts(items: AgentRunnerJob[]) {
+  const counts: Record<RunnerJobBucket, number> & { total: number } = { total: items.length, pending_runner_pickup: 0, in_progress: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
+  items.forEach((item) => { counts[getRunnerJobBucket(item)] += 1; });
+  return counts;
+}
+
+function extractRunnerJobs(result: AgentRunnerJobListResult): AgentRunnerJob[] {
+  const runnerJobs = Array.isArray(result.runnerJobs) ? result.runnerJobs : [];
+  const items = Array.isArray(result.items) ? result.items : [];
+  return runnerJobs.length > 0 ? runnerJobs : items;
 }
 
 function extractWorkerQueueItems(result: AgentTaskWorkerQueueListResult): AgentTaskWorkerQueueItem[] {
@@ -186,10 +209,13 @@ const getSafeAdminDecisionFailureMessage = (resultMessage?: string, errorCode?: 
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
   if (diagnostic.includes("workerQueueId fehlt") || diagnostic.includes("workerqueueid fehlt")) return "Worker Queue ID fehlt.";
   if (diagnostic.includes("worker_queue_item_not_found") || message === "Worker Queue Eintrag nicht gefunden.") return "Worker Queue Eintrag nicht gefunden.";
+  if (diagnostic.includes("Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden")) return "Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden.";
   if (diagnostic.includes("Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden")) return "Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden.";
+  if (diagnostic.includes("Nur ready_for_worker oder previewed_for_runner darf")) return "Nur ready_for_worker oder previewed_for_runner darf für manuellen Runner-Pickup freigegeben werden.";
   if (diagnostic.includes("Status erlaubt diese Freigabe nicht")) return "Status erlaubt diese Freigabe nicht.";
   if (diagnostic.includes("Pflichtdaten fehlen")) return "Pflichtdaten fehlen: allowedFiles/blockedFiles/requiredChecks.";
   if (diagnostic.includes("Sicherheitsflags verhindern Runner-Pickup Preview")) return "Sicherheitsflags verhindern Runner-Pickup Preview.";
+  if (diagnostic.includes("Sicherheitsflags verhindern Runner-Start-Freigabe")) return "Sicherheitsflags verhindern Runner-Start-Freigabe.";
   if (diagnostic.includes("Sicherheitsflags verhindern Freigabe")) return "Sicherheitsflags verhindern Freigabe.";
   if (diagnostic.includes("Owner-protected Bereich blockiert")) return "Owner-protected Bereich blockiert.";
   if (diagnostic.includes("worker_queue_release_blocked:status_not_releasable")) return "Status erlaubt diese Freigabe nicht.";
@@ -258,10 +284,12 @@ export default function AgentCenterInteractive({
   const [inboxItems, setInboxItems] = useState<AgentCenterInboxItem[]>([]);
   const [taskProposals, setTaskProposals] = useState<AgentTaskProposal[]>([]);
   const [workerQueueItems, setWorkerQueueItems] = useState<AgentTaskWorkerQueueItem[]>([]);
+  const [runnerJobs, setRunnerJobs] = useState<AgentRunnerJob[]>([]);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [taskProposalDetail, setTaskProposalDetail] = useState<AgentTaskProposal | null>(null);
   const [workerQueueDetail, setWorkerQueueDetail] = useState<AgentTaskWorkerQueueItem | null>(null);
   const [runnerPickupPreview, setRunnerPickupPreview] = useState<WorkerQueueRunnerPreview | null>(null);
+  const [runnerJobDetail, setRunnerJobDetail] = useState<AgentRunnerJob | null>(null);
   const [syncDebug, setSyncDebug] = useState<Record<string, unknown>>({});
   const [authDebug, setAuthDebug] = useState<AdminCallableAuthState>({ authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "" });
   const [authActionPending, setAuthActionPending] = useState(false);
@@ -273,6 +301,7 @@ export default function AgentCenterInteractive({
       if (state.adminCallableAuthReady) {
         void refreshTaskProposals();
         void refreshWorkerQueueItems();
+        void refreshRunnerJobs();
       }
     });
     return () => unsubscribe();
@@ -332,6 +361,7 @@ export default function AgentCenterInteractive({
   const serverInboxPendingCount = serverInboxCounts.pending_approval;
   const taskProposalCounts = useMemo(() => buildTaskProposalCounts(taskProposals), [taskProposals]);
   const workerQueueCounts = useMemo(() => buildWorkerQueueCounts(workerQueueItems), [workerQueueItems]);
+  const runnerJobCounts = useMemo(() => buildRunnerJobCounts(runnerJobs), [runnerJobs]);
 
   const visibleTaskProposals = useMemo(() => {
     const sorted = [...taskProposals].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
@@ -758,6 +788,54 @@ export default function AgentCenterInteractive({
     return "";
   }
 
+
+  async function refreshRunnerJobs() {
+    setSyncDebug((prev) => ({
+      ...prev,
+      runnerJobLoadAttempted: true,
+      runnerJobLoadAccepted: false,
+      runnerJobLoadError: "",
+    }));
+    if (!(await ensureAdminAuthReady())) {
+      const safeMessage = "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+      setSyncDebug((prev) => ({ ...prev, runnerJobLoadError: safeMessage }));
+      setFeedback(`Runner Jobs konnten nicht geladen werden: ${safeMessage}`);
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await beta1AdminClient.listAgentRunnerJobs() as AgentRunnerJobListResult;
+      const items = extractRunnerJobs(result);
+      const accepted = Boolean(result.accepted);
+      const responseKeys = safeResponseKeys(result);
+      setSyncDebug((prev) => ({
+        ...prev,
+        runnerJobLoadAttempted: true,
+        runnerJobLoadAccepted: accepted,
+        runnerJobLoadedCount: Number(result.loadedCount ?? items.length),
+        runnerJobResponseKeys: responseKeys,
+        runnerJobLoadError: accepted ? "" : getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode),
+      }));
+      if (!accepted) {
+        const safeMessage = getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode);
+        setRunnerJobs([]);
+        setFeedback(`Runner Jobs konnten nicht geladen werden: ${safeMessage}`);
+        setSyncStatus(`Runner Jobs konnten nicht geladen werden: ${safeMessage}`);
+        return;
+      }
+      setRunnerJobs(items);
+      setSyncStatus(`Runner Jobs geladen: ${items.length}. Wartet auf manuellen Runner-Pickup; kein Runner gestartet.`);
+    } catch (error) {
+      const safeMessage = getSafeAdminDecisionMessage(error);
+      setRunnerJobs([]);
+      setSyncDebug((prev) => ({ ...prev, runnerJobLoadAccepted: false, runnerJobLoadError: safeMessage }));
+      setFeedback(`Runner Jobs konnten nicht geladen werden: ${safeMessage}`);
+      setSyncStatus(`Runner Jobs konnten nicht geladen werden: ${safeMessage}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function createTaskProposal(row: Row) {
     const inboxId = asText(row.inboxId);
     const reason = taskProposalButtonReason(row);
@@ -843,7 +921,18 @@ export default function AgentCenterInteractive({
     const status = String(item.status || "pending_worker_review").toLowerCase();
     if (!item.workerQueueId) return "Worker-Queue-ID fehlt";
     if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
-    if (status !== "ready_for_worker") return "Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden.";
+    if (!["ready_for_worker", "previewed_for_runner"].includes(status)) return "Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden.";
+    if (!item.allowedFiles?.length || !item.blockedFiles?.length || !item.requiredChecks?.length) return "Safety-Listen oder requiredChecks fehlen";
+    if (item.noRunnerStarted !== true || item.noBranchOrPrOrMerge !== true || item.noDeploy !== true) return "Safety-Flags sind nicht vollständig true";
+    return "";
+  }
+
+
+  function runnerStartApprovalButtonReason(item: AgentTaskWorkerQueueItem): string {
+    const status = String(item.status || "pending_worker_review").toLowerCase();
+    if (!item.workerQueueId) return "Worker-Queue-ID fehlt";
+    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
+    if (!["ready_for_worker", "previewed_for_runner"].includes(status)) return "Nur ready_for_worker oder previewed_for_runner darf freigegeben werden.";
     if (!item.allowedFiles?.length || !item.blockedFiles?.length || !item.requiredChecks?.length) return "Safety-Listen oder requiredChecks fehlen";
     if (item.noRunnerStarted !== true || item.noBranchOrPrOrMerge !== true || item.noDeploy !== true) return "Safety-Flags sind nicht vollständig true";
     return "";
@@ -921,6 +1010,76 @@ export default function AgentCenterInteractive({
     } finally {
       try {
         await refreshWorkerQueueItems();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
+
+  async function approveRunnerStartForWorkerQueueItem(item: AgentTaskWorkerQueueItem) {
+    const reason = runnerStartApprovalButtonReason(item);
+    const approvalPayload = { workerQueueId: item.workerQueueId };
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastRunnerStartApprovalAction: "approve_runner_start_manual_pickup",
+      lastRunnerStartApprovalAccepted: false,
+      lastRunnerStartApprovalStatus: reason ? "blocked_client" : "started",
+      lastRunnerStartApprovalMessage: reason || "Runner-Start-Freigabe wird gespeichert …",
+      lastRunnerStartApprovalWorkerQueueIdPresent: Boolean(approvalPayload.workerQueueId),
+      lastRunnerStartApprovalRunnerJobIdPresent: false,
+      lastRunnerStartApprovalNoRunnerStarted: "-",
+      lastRunnerStartApprovalNoBranchOrPrOrMerge: "-",
+      lastRunnerStartApprovalNoDeploy: "-",
+    }));
+    if (reason) {
+      setFeedback(reason);
+      return;
+    }
+    setBusy(true);
+    setFeedback("Runner-Start-Freigabe wird gespeichert …");
+    try {
+      const result = await beta1AdminClient.approveRunnerStartForWorkerQueueItem(approvalPayload) as WorkerQueueRunnerStartApprovalResult;
+      const accepted = Boolean(result.accepted);
+      const runnerJobId = asText(result.runnerJobId);
+      const safeMessage = accepted
+        ? `Runner-Start-Freigabe gespeichert. Kein Runner gestartet.${runnerJobId ? ` runnerJobId: ${runnerJobId}` : ""}`
+        : `Runner-Start-Freigabe konnte nicht gespeichert werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastRunnerStartApprovalAction: "approve_runner_start_manual_pickup",
+        lastRunnerStartApprovalAccepted: accepted,
+        lastRunnerStartApprovalStatus: result.status || result.runnerJobStatus || (accepted ? "runner_start_approved" : "failed"),
+        lastRunnerStartApprovalMessage: safeMessage,
+        lastRunnerStartApprovalWorkerQueueIdPresent: Boolean(result.workerQueueId || approvalPayload.workerQueueId),
+        lastRunnerStartApprovalRunnerJobIdPresent: Boolean(runnerJobId),
+        lastRunnerStartApprovalNoRunnerStarted: result.noRunnerStarted ?? "-",
+        lastRunnerStartApprovalNoBranchOrPrOrMerge: result.noBranchOrPrOrMerge ?? "-",
+        lastRunnerStartApprovalNoDeploy: result.noDeploy ?? "-",
+      }));
+      if (accepted) setActive("worker_ready");
+    } catch (error) {
+      const safeMessage = `Runner-Start-Freigabe konnte nicht gespeichert werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastRunnerStartApprovalAction: "approve_runner_start_manual_pickup",
+        lastRunnerStartApprovalAccepted: false,
+        lastRunnerStartApprovalStatus: "error",
+        lastRunnerStartApprovalMessage: safeMessage,
+        lastRunnerStartApprovalWorkerQueueIdPresent: Boolean(approvalPayload.workerQueueId),
+        lastRunnerStartApprovalRunnerJobIdPresent: false,
+        lastRunnerStartApprovalNoRunnerStarted: "-",
+        lastRunnerStartApprovalNoBranchOrPrOrMerge: "-",
+        lastRunnerStartApprovalNoDeploy: "-",
+      }));
+    } finally {
+      try {
+        await refreshWorkerQueueItems();
+        await refreshRunnerJobs();
       } finally {
         setBusy(false);
       }
@@ -1143,6 +1302,7 @@ export default function AgentCenterInteractive({
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshInbox}>Server-Inbox neu laden</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshTaskProposals}>Task Proposals neu laden</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshWorkerQueueItems}>Worker Queue ansehen</button>
+        <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshRunnerJobs}>Runner Jobs ansehen</button>
         {canRunRevisionDossierGenerator && <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runRevisionDossierGenerator}>Revision-Dossiers neu erzeugen</button>}
       </div>
       {!authDebug.firebaseUserPresent && (
@@ -1214,6 +1374,20 @@ export default function AgentCenterInteractive({
         <p>lastRunnerPreviewWouldCreatePr: {String(syncDebug.lastRunnerPreviewWouldCreatePr ?? "-")}</p>
         <p>lastRunnerPreviewWouldDeploy: {String(syncDebug.lastRunnerPreviewWouldDeploy ?? "-")}</p>
         <p>lastRunnerPreviewRunnerStartAllowed: {String(syncDebug.lastRunnerPreviewRunnerStartAllowed ?? "-")}</p>
+        <p>lastRunnerStartApprovalAction: {String(syncDebug.lastRunnerStartApprovalAction ?? "-")}</p>
+        <p>lastRunnerStartApprovalAccepted: {String(syncDebug.lastRunnerStartApprovalAccepted ?? "-")}</p>
+        <p>lastRunnerStartApprovalStatus: {String(syncDebug.lastRunnerStartApprovalStatus ?? "-")}</p>
+        <p>lastRunnerStartApprovalMessage: {String(syncDebug.lastRunnerStartApprovalMessage ?? "-")}</p>
+        <p>lastRunnerStartApprovalWorkerQueueIdPresent: {String(syncDebug.lastRunnerStartApprovalWorkerQueueIdPresent ?? "-")}</p>
+        <p>lastRunnerStartApprovalRunnerJobIdPresent: {String(syncDebug.lastRunnerStartApprovalRunnerJobIdPresent ?? "-")}</p>
+        <p>lastRunnerStartApprovalNoRunnerStarted: {String(syncDebug.lastRunnerStartApprovalNoRunnerStarted ?? "-")}</p>
+        <p>lastRunnerStartApprovalNoBranchOrPrOrMerge: {String(syncDebug.lastRunnerStartApprovalNoBranchOrPrOrMerge ?? "-")}</p>
+        <p>lastRunnerStartApprovalNoDeploy: {String(syncDebug.lastRunnerStartApprovalNoDeploy ?? "-")}</p>
+        <p>runnerJobLoadAttempted: {String(syncDebug.runnerJobLoadAttempted ?? false)}</p>
+        <p>runnerJobLoadAccepted: {String(syncDebug.runnerJobLoadAccepted ?? "-")}</p>
+        <p>runnerJobLoadedCount: {String(syncDebug.runnerJobLoadedCount ?? runnerJobs.length)}</p>
+        <p>runnerJobResponseKeys: [{((syncDebug.runnerJobResponseKeys as string[] | undefined) || []).join(", ")}]</p>
+        <p>runnerJobLoadError: {String(syncDebug.runnerJobLoadError || "-")}</p>
         <p>taskProposalPendingCount: {String(syncDebug.taskProposalPendingCount ?? taskProposalCounts.pending)}</p>
         <p>taskProposalNoRunnerStartedVisible: {String(syncDebug.taskProposalNoRunnerStartedVisible ?? "-")}</p>
         <p>taskProposalNoBranchOrPrOrMergeVisible: {String(syncDebug.taskProposalNoBranchOrPrOrMergeVisible ?? "-")}</p>
@@ -1358,8 +1532,11 @@ export default function AgentCenterInteractive({
               </dl>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100" onClick={() => setWorkerQueueDetail(item)}>Worker Queue ansehen</button>
-                {String(item.status || "").toLowerCase() === "ready_for_worker" && (
+                {["ready_for_worker", "previewed_for_runner"].includes(String(item.status || "").toLowerCase()) && (
                   <button title={runnerPickupPreviewButtonReason(item) || "Runner-Pickup prüfen"} className="cursor-pointer rounded border border-orange-300/70 px-2 py-1 text-orange-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(runnerPickupPreviewButtonReason(item))} onClick={() => previewRunnerPickupForWorkerQueueItem(item)}>Runner-Pickup prüfen</button>
+                )}
+                {["ready_for_worker", "previewed_for_runner"].includes(String(item.status || "").toLowerCase()) && (
+                  <button title={runnerStartApprovalButtonReason(item) || "Runner-Start freigeben"} className="cursor-pointer rounded border border-amber-300/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(runnerStartApprovalButtonReason(item))} onClick={() => approveRunnerStartForWorkerQueueItem(item)}>Runner-Start freigeben</button>
                 )}
                 {["pending_worker_review", "queued_for_owner_review"].includes(String(item.status || "").toLowerCase()) && (
                   <button title={workerQueueReleaseButtonReason(item) || "Für Worker freigeben"} className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(workerQueueReleaseButtonReason(item))} onClick={() => releaseWorkerQueueItemForWorker(item)}>Für Worker freigeben</button>
@@ -1370,6 +1547,52 @@ export default function AgentCenterInteractive({
           {visibleWorkerQueueItems.length === 0 && <p className="rounded border border-white/15 p-3 text-xs text-white/70">Keine Worker Queue Items für diesen Filter geladen.</p>}
         </div>
       )}
+
+
+      <div className="space-y-3 rounded border border-amber-300/25 bg-amber-400/5 p-3 text-xs">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-amber-100">Agent Runner Jobs / agentRunnerJobs — wartet auf manuellen Runner-Pickup, startet keinen Runner.</h3>
+            <p className="text-amber-50/80">Read-only Liste. Diese Ansicht erzeugt keinen Runner, Branch, PR, Merge oder Deploy.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 lg:justify-end">
+            <span className="rounded-full border border-white/20 px-2 py-1">Runner Jobs gesamt: {runnerJobCounts.total}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Pending Runner Pickup: {runnerJobCounts.pending_runner_pickup}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">In Arbeit: {runnerJobCounts.in_progress}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Fertig: {runnerJobCounts.completed}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Blockiert: {runnerJobCounts.blocked}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Repair Required: {runnerJobCounts.repair_required}</span>
+          </div>
+        </div>
+        {runnerJobs.map((job) => (
+          <article key={job.runnerJobId} className="rounded border border-amber-200/25 bg-amber-400/5 p-3">
+            <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="font-mono text-amber-100/75">runnerJobId: {job.runnerJobId || "—"}</p>
+                <p className="font-mono text-cyan-100/75">workerQueueId: {job.workerQueueId || "—"}</p>
+                <p className="font-mono text-emerald-100/75">taskProposalId: {job.taskProposalId || "—"}</p>
+                <b>{job.title || "Unbenannter Runner Job"}</b>
+              </div>
+              <div className="flex flex-wrap gap-2 lg:justify-end">
+                <span className="rounded-full border border-white/20 px-2 py-1">Status: {job.status || "pending_runner_pickup"}</span>
+                <span className="rounded-full border border-white/20 px-2 py-1">executionMode: {job.executionMode || "owner_approved_manual_pickup"}</span>
+                <span className="rounded-full border border-emerald-300/50 px-2 py-1">noRunnerStarted: {String(job.noRunnerStarted === true)}</span>
+                <span className="rounded-full border border-emerald-300/50 px-2 py-1">noBranchOrPrOrMerge: {String(job.noBranchOrPrOrMerge === true)}</span>
+                <span className="rounded-full border border-emerald-300/50 px-2 py-1">noDeploy: {String(job.noDeploy === true)}</span>
+                <span className="rounded-full border border-orange-300/50 px-2 py-1">runnerStartAllowed: {String(job.runnerStartAllowed === true)}</span>
+                <span className="rounded-full border border-orange-300/50 px-2 py-1">requiresManualRunnerPickup: {String(job.requiresManualRunnerPickup === true)}</span>
+              </div>
+            </div>
+            <dl className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <div><dt className="font-semibold">allowedFiles</dt><dd>{(job.allowedFiles || []).join(", ") || "—"}</dd></div>
+              <div><dt className="font-semibold">blockedFiles</dt><dd>{(job.blockedFiles || []).join(", ") || "—"}</dd></div>
+              <div><dt className="font-semibold">requiredChecks</dt><dd>{(job.requiredChecks || []).join(", ") || "—"}</dd></div>
+            </dl>
+            <button className="mt-2 cursor-pointer rounded border border-amber-300/70 px-2 py-1 text-amber-100" onClick={() => setRunnerJobDetail(job)}>Runner Job ansehen</button>
+          </article>
+        ))}
+        {runnerJobs.length === 0 && <p className="rounded border border-white/15 p-3 text-white/70">Keine Runner Jobs geladen.</p>}
+      </div>
 
       {isTaskProposalFilter(active) && (
         <div className="space-y-3">
@@ -1457,6 +1680,46 @@ export default function AgentCenterInteractive({
         })}
       </div>}
 
+
+
+      {runnerJobDetail && (() => {
+        const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
+        const info = (label: string, value: string | undefined | null) => (<div><p className="mt-2 font-semibold">{label}</p><p className="whitespace-pre-wrap">{value || "—"}</p></div>);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 p-4" onClick={() => setRunnerJobDetail(null)}>
+            <div className="mx-auto max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg bg-slate-900 p-4 text-xs text-white" onClick={(event) => event.stopPropagation()}>
+              <div className="sticky top-0 mb-2 flex justify-between bg-slate-900 pb-2">
+                <h3 className="text-base font-semibold">Runner Job ansehen · {runnerJobDetail.title || runnerJobDetail.runnerJobId}</h3>
+                <button className="cursor-pointer rounded border px-2" onClick={() => setRunnerJobDetail(null)}>Schließen</button>
+              </div>
+              <p className="font-mono text-amber-100/75">runnerJobId: {runnerJobDetail.runnerJobId || "—"}</p>
+              <p className="font-mono text-cyan-100/75">workerQueueId: {runnerJobDetail.workerQueueId || "—"}</p>
+              <p className="font-mono text-emerald-100/75">taskProposalId: {runnerJobDetail.taskProposalId || "—"}</p>
+              <p>Status: {runnerJobDetail.status || "pending_runner_pickup"} · executionMode: {runnerJobDetail.executionMode || "owner_approved_manual_pickup"}</p>
+              {info("Was darf der Runner später tun?", runnerJobDetail.title || "Manueller Runner-Pickup darf separat gestartet werden.")}
+              {fileList("Welche Dateien darf er ändern?", runnerJobDetail.allowedFiles)}
+              {fileList("Welche Dateien sind blockiert?", runnerJobDetail.blockedFiles)}
+              {fileList("Welche Checks sind Pflicht?", runnerJobDetail.requiredChecks)}
+              <div className="mt-3 rounded border border-orange-300/40 bg-orange-400/10 p-3 text-orange-50">
+                <p className="font-semibold">Was passiert jetzt NICHT?</p>
+                <ul className="list-disc pl-5">
+                  <li>Kein Runner-Start</li>
+                  <li>Kein Branch</li>
+                  <li>Kein PR</li>
+                  <li>Kein Merge</li>
+                  <li>Kein Deploy</li>
+                </ul>
+                <p className="mt-2">noRunnerStarted: {String(runnerJobDetail.noRunnerStarted === true)}</p>
+                <p>noBranchOrPrOrMerge: {String(runnerJobDetail.noBranchOrPrOrMerge === true)}</p>
+                <p>noDeploy: {String(runnerJobDetail.noDeploy === true)}</p>
+                <p>runnerStartAllowed: {String(runnerJobDetail.runnerStartAllowed === true)}</p>
+                <p>requiresManualRunnerPickup: {String(runnerJobDetail.requiresManualRunnerPickup === true)}</p>
+              </div>
+              {info("Nächster Schritt", "Manueller Runner-Pickup muss separat gestartet werden.")}
+            </div>
+          </div>
+        );
+      })()}
 
       {runnerPickupPreview && (() => {
         const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
