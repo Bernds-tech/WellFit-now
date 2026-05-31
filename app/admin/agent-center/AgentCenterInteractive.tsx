@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, WorkerQueueReleaseResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -107,7 +107,7 @@ function getWorkerQueueBucket(item: AgentTaskWorkerQueueItem): WorkerQueueBucket
   const status = String(item.status || "").toLowerCase();
   if (["pending_worker_review", "queued_for_worker_review"].includes(status)) return "waiting_review";
   if (status === "queued_for_owner_review") return "waiting_owner";
-  if (status === "ready_for_worker") return "ready_for_worker";
+  if (["ready_for_worker", "previewed_for_runner"].includes(status)) return "ready_for_worker";
   if (["in_progress", "claimed", "running", "checks_recorded", "pr_prepared"].includes(status)) return "in_progress";
   if (status === "completed") return "completed";
   if (["blocked", "failed"].includes(status)) return "blocked";
@@ -186,8 +186,10 @@ const getSafeAdminDecisionFailureMessage = (resultMessage?: string, errorCode?: 
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
   if (diagnostic.includes("workerQueueId fehlt") || diagnostic.includes("workerqueueid fehlt")) return "Worker Queue ID fehlt.";
   if (diagnostic.includes("worker_queue_item_not_found") || message === "Worker Queue Eintrag nicht gefunden.") return "Worker Queue Eintrag nicht gefunden.";
+  if (diagnostic.includes("Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden")) return "Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden.";
   if (diagnostic.includes("Status erlaubt diese Freigabe nicht")) return "Status erlaubt diese Freigabe nicht.";
   if (diagnostic.includes("Pflichtdaten fehlen")) return "Pflichtdaten fehlen: allowedFiles/blockedFiles/requiredChecks.";
+  if (diagnostic.includes("Sicherheitsflags verhindern Runner-Pickup Preview")) return "Sicherheitsflags verhindern Runner-Pickup Preview.";
   if (diagnostic.includes("Sicherheitsflags verhindern Freigabe")) return "Sicherheitsflags verhindern Freigabe.";
   if (diagnostic.includes("Owner-protected Bereich blockiert")) return "Owner-protected Bereich blockiert.";
   if (diagnostic.includes("worker_queue_release_blocked:status_not_releasable")) return "Status erlaubt diese Freigabe nicht.";
@@ -259,6 +261,7 @@ export default function AgentCenterInteractive({
   const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [taskProposalDetail, setTaskProposalDetail] = useState<AgentTaskProposal | null>(null);
   const [workerQueueDetail, setWorkerQueueDetail] = useState<AgentTaskWorkerQueueItem | null>(null);
+  const [runnerPickupPreview, setRunnerPickupPreview] = useState<WorkerQueueRunnerPreview | null>(null);
   const [syncDebug, setSyncDebug] = useState<Record<string, unknown>>({});
   const [authDebug, setAuthDebug] = useState<AdminCallableAuthState>({ authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "" });
   const [authActionPending, setAuthActionPending] = useState(false);
@@ -836,6 +839,94 @@ export default function AgentCenterInteractive({
     return "";
   }
 
+  function runnerPickupPreviewButtonReason(item: AgentTaskWorkerQueueItem): string {
+    const status = String(item.status || "pending_worker_review").toLowerCase();
+    if (!item.workerQueueId) return "Worker-Queue-ID fehlt";
+    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
+    if (status !== "ready_for_worker") return "Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden.";
+    if (!item.allowedFiles?.length || !item.blockedFiles?.length || !item.requiredChecks?.length) return "Safety-Listen oder requiredChecks fehlen";
+    if (item.noRunnerStarted !== true || item.noBranchOrPrOrMerge !== true || item.noDeploy !== true) return "Safety-Flags sind nicht vollständig true";
+    return "";
+  }
+
+  async function previewRunnerPickupForWorkerQueueItem(item: AgentTaskWorkerQueueItem) {
+    const reason = runnerPickupPreviewButtonReason(item);
+    const previewPayload = { workerQueueId: item.workerQueueId };
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastRunnerPreviewAction: "preview_runner_pickup",
+      lastRunnerPreviewAccepted: false,
+      lastRunnerPreviewStatus: reason ? "blocked_client" : "started",
+      lastRunnerPreviewMessage: reason || "Runner-Pickup Preview wird erstellt …",
+      lastRunnerPreviewWorkerQueueIdPresent: Boolean(previewPayload.workerQueueId),
+      lastRunnerPreviewNoRunnerStarted: "-",
+      lastRunnerPreviewNoBranchOrPrOrMerge: "-",
+      lastRunnerPreviewNoDeploy: "-",
+      lastRunnerPreviewWouldCreateBranch: "-",
+      lastRunnerPreviewWouldCreatePr: "-",
+      lastRunnerPreviewWouldDeploy: "-",
+      lastRunnerPreviewRunnerStartAllowed: "-",
+    }));
+    if (reason) {
+      setFeedback(reason);
+      return;
+    }
+
+    setBusy(true);
+    setFeedback("Runner-Pickup Preview wird erstellt …");
+    try {
+      const result = await beta1AdminClient.previewRunnerPickupForWorkerQueueItem(previewPayload) as WorkerQueueRunnerPreviewResult;
+      const accepted = Boolean(result.accepted);
+      const preview = result.preview || result;
+      const safeMessage = accepted
+        ? "Runner-Pickup Preview bereit. Keine Ausführung gestartet."
+        : `Runner-Pickup Preview konnte nicht erstellt werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      if (accepted) setRunnerPickupPreview(preview);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastRunnerPreviewAction: "preview_runner_pickup",
+        lastRunnerPreviewAccepted: accepted,
+        lastRunnerPreviewStatus: preview.status || (accepted ? "preview_ready" : "failed"),
+        lastRunnerPreviewMessage: safeMessage,
+        lastRunnerPreviewWorkerQueueIdPresent: Boolean(preview.workerQueueId || previewPayload.workerQueueId),
+        lastRunnerPreviewNoRunnerStarted: preview.noRunnerStarted ?? result.noRunnerStarted ?? "-",
+        lastRunnerPreviewNoBranchOrPrOrMerge: preview.noBranchOrPrOrMerge ?? result.noBranchOrPrOrMerge ?? "-",
+        lastRunnerPreviewNoDeploy: preview.noDeploy ?? result.noDeploy ?? "-",
+        lastRunnerPreviewWouldCreateBranch: preview.wouldCreateBranch ?? result.wouldCreateBranch ?? "-",
+        lastRunnerPreviewWouldCreatePr: preview.wouldCreatePr ?? result.wouldCreatePr ?? "-",
+        lastRunnerPreviewWouldDeploy: preview.wouldDeploy ?? result.wouldDeploy ?? "-",
+        lastRunnerPreviewRunnerStartAllowed: preview.runnerStartAllowed ?? result.runnerStartAllowed ?? "-",
+      }));
+    } catch (error) {
+      const safeMessage = `Runner-Pickup Preview konnte nicht erstellt werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastRunnerPreviewAction: "preview_runner_pickup",
+        lastRunnerPreviewAccepted: false,
+        lastRunnerPreviewStatus: "error",
+        lastRunnerPreviewMessage: safeMessage,
+        lastRunnerPreviewWorkerQueueIdPresent: Boolean(previewPayload.workerQueueId),
+        lastRunnerPreviewNoRunnerStarted: "-",
+        lastRunnerPreviewNoBranchOrPrOrMerge: "-",
+        lastRunnerPreviewNoDeploy: "-",
+        lastRunnerPreviewWouldCreateBranch: "-",
+        lastRunnerPreviewWouldCreatePr: "-",
+        lastRunnerPreviewWouldDeploy: "-",
+        lastRunnerPreviewRunnerStartAllowed: "-",
+      }));
+    } finally {
+      try {
+        await refreshWorkerQueueItems();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
   async function releaseWorkerQueueItemForWorker(item: AgentTaskWorkerQueueItem) {
     const reason = workerQueueReleaseButtonReason(item);
     const releasePayload = { workerQueueId: item.workerQueueId };
@@ -1111,6 +1202,18 @@ export default function AgentCenterInteractive({
         <p>lastWorkerReleaseNoRunnerStarted: {String(syncDebug.lastWorkerReleaseNoRunnerStarted ?? "-")}</p>
         <p>lastWorkerReleaseNoBranchOrPrOrMerge: {String(syncDebug.lastWorkerReleaseNoBranchOrPrOrMerge ?? "-")}</p>
         <p>lastWorkerReleaseNoDeploy: {String(syncDebug.lastWorkerReleaseNoDeploy ?? "-")}</p>
+        <p>lastRunnerPreviewAction: {String(syncDebug.lastRunnerPreviewAction ?? "-")}</p>
+        <p>lastRunnerPreviewAccepted: {String(syncDebug.lastRunnerPreviewAccepted ?? "-")}</p>
+        <p>lastRunnerPreviewStatus: {String(syncDebug.lastRunnerPreviewStatus ?? "-")}</p>
+        <p>lastRunnerPreviewMessage: {String(syncDebug.lastRunnerPreviewMessage ?? "-")}</p>
+        <p>lastRunnerPreviewWorkerQueueIdPresent: {String(syncDebug.lastRunnerPreviewWorkerQueueIdPresent ?? "-")}</p>
+        <p>lastRunnerPreviewNoRunnerStarted: {String(syncDebug.lastRunnerPreviewNoRunnerStarted ?? "-")}</p>
+        <p>lastRunnerPreviewNoBranchOrPrOrMerge: {String(syncDebug.lastRunnerPreviewNoBranchOrPrOrMerge ?? "-")}</p>
+        <p>lastRunnerPreviewNoDeploy: {String(syncDebug.lastRunnerPreviewNoDeploy ?? "-")}</p>
+        <p>lastRunnerPreviewWouldCreateBranch: {String(syncDebug.lastRunnerPreviewWouldCreateBranch ?? "-")}</p>
+        <p>lastRunnerPreviewWouldCreatePr: {String(syncDebug.lastRunnerPreviewWouldCreatePr ?? "-")}</p>
+        <p>lastRunnerPreviewWouldDeploy: {String(syncDebug.lastRunnerPreviewWouldDeploy ?? "-")}</p>
+        <p>lastRunnerPreviewRunnerStartAllowed: {String(syncDebug.lastRunnerPreviewRunnerStartAllowed ?? "-")}</p>
         <p>taskProposalPendingCount: {String(syncDebug.taskProposalPendingCount ?? taskProposalCounts.pending)}</p>
         <p>taskProposalNoRunnerStartedVisible: {String(syncDebug.taskProposalNoRunnerStartedVisible ?? "-")}</p>
         <p>taskProposalNoBranchOrPrOrMergeVisible: {String(syncDebug.taskProposalNoBranchOrPrOrMergeVisible ?? "-")}</p>
@@ -1255,6 +1358,9 @@ export default function AgentCenterInteractive({
               </dl>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100" onClick={() => setWorkerQueueDetail(item)}>Worker Queue ansehen</button>
+                {String(item.status || "").toLowerCase() === "ready_for_worker" && (
+                  <button title={runnerPickupPreviewButtonReason(item) || "Runner-Pickup prüfen"} className="cursor-pointer rounded border border-orange-300/70 px-2 py-1 text-orange-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(runnerPickupPreviewButtonReason(item))} onClick={() => previewRunnerPickupForWorkerQueueItem(item)}>Runner-Pickup prüfen</button>
+                )}
                 {["pending_worker_review", "queued_for_owner_review"].includes(String(item.status || "").toLowerCase()) && (
                   <button title={workerQueueReleaseButtonReason(item) || "Für Worker freigeben"} className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(workerQueueReleaseButtonReason(item))} onClick={() => releaseWorkerQueueItemForWorker(item)}>Für Worker freigeben</button>
                 )}
@@ -1351,6 +1457,43 @@ export default function AgentCenterInteractive({
         })}
       </div>}
 
+
+      {runnerPickupPreview && (() => {
+        const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
+        const info = (label: string, value: string | undefined | null) => (<div><p className="mt-2 font-semibold">{label}</p><p className="whitespace-pre-wrap">{value || "—"}</p></div>);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 p-4" onClick={() => setRunnerPickupPreview(null)}>
+            <div className="mx-auto max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg bg-slate-900 p-4 text-xs text-white" onClick={(event) => event.stopPropagation()}>
+              <div className="sticky top-0 mb-2 flex justify-between bg-slate-900 pb-2">
+                <h3 className="text-base font-semibold">Runner-Pickup Preview</h3>
+                <button className="cursor-pointer rounded border px-2" onClick={() => setRunnerPickupPreview(null)}>Schließen</button>
+              </div>
+              <p className="font-mono text-cyan-100/75">workerQueueId: {runnerPickupPreview.workerQueueId || "—"}</p>
+              <p className="font-mono text-emerald-100/75">taskProposalId: {runnerPickupPreview.taskProposalId || "—"}</p>
+              <p>Status: {runnerPickupPreview.status || "ready_for_worker"} · Risiko: {runnerPickupPreview.riskLevel || "medium"}</p>
+              {info("Was soll der Runner später tun?", runnerPickupPreview.requestedAction || runnerPickupPreview.title || "Preview-only Runner-Pickup prüfen.")}
+              {fileList("Welche Dateien darf er ändern?", runnerPickupPreview.allowedFiles)}
+              {fileList("Welche Dateien sind blockiert?", runnerPickupPreview.blockedFiles)}
+              {fileList("Welche Checks sind Pflicht?", runnerPickupPreview.requiredChecks)}
+              <div className="mt-3 rounded border border-orange-300/40 bg-orange-400/10 p-3 text-orange-50">
+                <p className="font-semibold">Was würde NICHT passieren?</p>
+                <ul className="list-disc pl-5">
+                  <li>Kein Runner-Start</li>
+                  <li>Kein Branch</li>
+                  <li>Kein PR</li>
+                  <li>Kein Merge</li>
+                  <li>Kein Deploy</li>
+                </ul>
+                <p className="mt-2">wouldCreateBranch: {String(runnerPickupPreview.wouldCreateBranch === true)}</p>
+                <p>wouldCreatePr: {String(runnerPickupPreview.wouldCreatePr === true)}</p>
+                <p>wouldDeploy: {String(runnerPickupPreview.wouldDeploy === true)}</p>
+                <p>runnerStartAllowed: {String(runnerPickupPreview.runnerStartAllowed === true)}</p>
+              </div>
+              {info("Nächster Schritt", "Owner muss Runner-Start separat freigeben.")}
+            </div>
+          </div>
+        );
+      })()}
 
       {workerQueueDetail && (() => {
         const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);

@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage } = require('../lib/agentAdminRolesAudit');
 
 (function testResolveDirectSnapshot() {
   const input = { registerSnapshot: { generatedDossiers: [{ id: 'PE-1' }] } };
@@ -242,6 +242,92 @@ const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEv
   assert.strictEqual(result.releasable, false, 'canonical truth protected files must block worker release');
   assert(result.missing.includes('owner_protected_scope'), 'owner-protected release block should be explicit');
   assert.strictEqual(result.failureMessage, 'Owner-protected Bereich blockiert.');
+})();
+
+(function testRunnerPickupPreviewAllowsReadyForWorkerOnlyWithoutSideEffects() {
+  const result = buildRunnerPickupPreviewDecision({
+    workerQueueId: 'queue-ready',
+    taskProposalId: 'proposal-1',
+    title: 'Familien Abenteuerpfad Woche',
+    requestedAction: 'Prepare a later runner pickup preview.',
+    workerStatus: 'ready_for_worker',
+    riskLevel: 'medium',
+    allowedFiles: ['docs/**', 'todolist/**', 'project-register/**'],
+    blockedFiles: ['app/**', 'functions/**', 'firestore.rules', 'native/**', '.github/**'],
+    requiredChecks: ['npm run agent:validate', 'npm run agent:quality-gate', 'npm run lint', 'npm run build', 'git diff --check'],
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+  });
+  assert.strictEqual(result.previewable, true, 'ready_for_worker can create a runner pickup preview');
+  assert.strictEqual(result.preview.plannedExecutionMode, 'preview_only');
+  assert.strictEqual(result.preview.wouldCreateBranch, false, 'preview must not create a branch');
+  assert.strictEqual(result.preview.wouldCreatePr, false, 'preview must not create a PR');
+  assert.strictEqual(result.preview.wouldDeploy, false, 'preview must not deploy');
+  assert.strictEqual(result.preview.runnerStartAllowed, false, 'preview must not allow runner start');
+  assert.strictEqual(result.preview.noRunnerStarted, true, 'preview keeps noRunnerStarted true');
+  assert.strictEqual(result.preview.noBranchOrPrOrMerge, true, 'preview keeps noBranchOrPrOrMerge true');
+  assert.strictEqual(result.preview.noDeploy, true, 'preview keeps noDeploy true');
+  assert.deepStrictEqual(result.preview.safetySummary, ['Kein Runner gestartet', 'Kein Branch erstellt', 'Kein PR erstellt', 'Kein Merge', 'Kein Deploy']);
+})();
+
+(function testRunnerPickupPreviewBlocksNonReadyStatuses() {
+  for (const workerStatus of ['pending_worker_review', 'blocked', 'completed', 'in_progress']) {
+    const result = buildRunnerPickupPreviewDecision({
+      workerQueueId: `queue-${workerStatus}`,
+      workerStatus,
+      allowedFiles: ['docs/**'],
+      blockedFiles: ['functions/**'],
+      requiredChecks: ['npm run lint'],
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+    });
+    assert.strictEqual(result.previewable, false, `${workerStatus} must not create a runner pickup preview`);
+    assert(result.missing.includes('status_not_ready_for_worker'), 'non-ready status reason should be explicit');
+  }
+})();
+
+(function testRunnerPickupPreviewBlocksMissingWorkerQueueIdAndRequiredLists() {
+  const result = buildRunnerPickupPreviewDecision({
+    workerStatus: 'ready_for_worker',
+    allowedFiles: [],
+    blockedFiles: [],
+    requiredChecks: [],
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+  });
+  assert.strictEqual(result.previewable, false, 'preview must block missing workerQueueId and safety lists');
+  assert(result.missing.includes('workerQueueId'), 'workerQueueId is required');
+  assert(result.missing.includes('allowedFiles'), 'allowedFiles are required');
+  assert(result.missing.includes('blockedFiles'), 'blockedFiles are required');
+  assert(result.missing.includes('requiredChecks'), 'requiredChecks are required');
+  assert.strictEqual(buildRunnerPickupPreviewFailureMessage(['workerQueueId']), 'Worker Queue ID fehlt.');
+})();
+
+(function testRunnerPickupPreviewBlocksRunnerBranchPrMergeDeploySideEffects() {
+  const result = buildRunnerPickupPreviewDecision({
+    workerQueueId: 'queue-side-effects',
+    workerStatus: 'ready_for_worker',
+    allowedFiles: ['docs/**'],
+    blockedFiles: ['functions/**'],
+    requiredChecks: ['npm run lint'],
+    noRunnerStarted: false,
+    runnerStarted: true,
+    noBranchOrPrOrMerge: false,
+    branchCreated: true,
+    prCreated: true,
+    merged: true,
+    noDeploy: false,
+    deployStarted: true,
+  });
+  assert.strictEqual(result.previewable, false, 'preview must block runner, branch, PR, merge, or deploy side effects');
+  assert(result.missing.includes('noRunnerStarted'), 'noRunnerStarted must stay true');
+  assert(result.missing.includes('runnerStarted'), 'runnerStarted must remain false');
+  assert(result.missing.includes('branch_pr_merge'), 'branch/PR/merge side effects must block preview');
+  assert(result.missing.includes('deploy'), 'deploy side effects must block preview');
+  assert.strictEqual(buildRunnerPickupPreviewFailureMessage(['runnerStarted']), 'Sicherheitsflags verhindern Runner-Pickup Preview.');
 })();
 
 console.log('agentAdminRolesAudit helper tests passed');
