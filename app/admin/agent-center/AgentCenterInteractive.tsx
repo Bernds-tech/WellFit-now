@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -160,6 +160,17 @@ function buildPickupContractCounts(items: AgentRunnerPickupContract[]) {
   const counts: Record<PickupContractBucket, number> & { total: number } = { total: items.length, planning_open: 0, implementation_plan_created: 0, implementation_plan_review: 0, implementation_plan_approved: 0, planning: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
   items.forEach((item) => { counts[getPickupContractBucket(item)] += 1; });
   return counts;
+}
+
+
+function canApproveImplementationPlan(plan: AgentRunnerImplementationPlan) {
+  const status = String(plan.status || "implementation_plan_created").toLowerCase();
+  return status === "implementation_plan_created" || status === "implementation_plan_review";
+}
+
+function getImplementationPlanNextStep(plan: AgentRunnerImplementationPlan) {
+  if (String(plan.status || "").toLowerCase() === "implementation_plan_approved") return "kontrolliertes Dateiänderungs-Paket vorbereiten";
+  return plan.nextStep || "Owner muss den Implementierungsplan separat freigeben.";
 }
 
 function extractPickupContracts(result: AgentRunnerPickupContractListResult): AgentRunnerPickupContract[] {
@@ -962,6 +973,74 @@ export default function AgentCenterInteractive({
         lastImplementationPlanPrCreationAllowed: "-",
         lastImplementationPlanNoDeploy: "-",
         lastImplementationPlanNoMerge: "-",
+      }));
+    } finally {
+      try {
+        await refreshPickupContracts();
+        await refreshImplementationPlans();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
+  async function approveManualRunnerImplementationPlan(plan: AgentRunnerImplementationPlan) {
+    const implementationPlanId = asText(plan.implementationPlanId);
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastImplementationPlanApprovalAction: "approve",
+      lastImplementationPlanApprovalAccepted: false,
+      lastImplementationPlanApprovalStatus: implementationPlanId ? "started" : "blocked_client",
+      lastImplementationPlanApprovalMessage: implementationPlanId ? "Implementierungsplan-Freigabe wird gespeichert …" : "Implementation Plan ID fehlt.",
+      lastImplementationPlanApprovalIdPresent: Boolean(implementationPlanId),
+      lastImplementationPlanApprovalFileWriteAllowed: "-",
+      lastImplementationPlanApprovalBranchCreationAllowed: "-",
+      lastImplementationPlanApprovalPrCreationAllowed: "-",
+      lastImplementationPlanApprovalNoDeploy: "-",
+      lastImplementationPlanApprovalNoMerge: "-",
+    }));
+    if (!implementationPlanId) {
+      setFeedback("Implementation Plan ID fehlt.");
+      return;
+    }
+    setBusy(true);
+    setFeedback("Implementierungsplan-Freigabe wird gespeichert …");
+    try {
+      const result = await beta1AdminClient.approveManualRunnerImplementationPlan({ implementationPlanId }) as ManualRunnerImplementationPlanApprovalResult;
+      const accepted = Boolean(result.accepted);
+      const approvedPlan = result.plan || result;
+      const safeMessage = accepted ? "Implementierungsplan freigegeben. Noch keine Dateiänderung gestartet." : `Implementierungsplan konnte nicht freigegeben werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastImplementationPlanApprovalAction: "approve",
+        lastImplementationPlanApprovalAccepted: accepted,
+        lastImplementationPlanApprovalStatus: approvedPlan.status || (accepted ? "implementation_plan_approved" : "failed"),
+        lastImplementationPlanApprovalMessage: safeMessage,
+        lastImplementationPlanApprovalIdPresent: Boolean(approvedPlan.implementationPlanId || implementationPlanId),
+        lastImplementationPlanApprovalFileWriteAllowed: approvedPlan.fileWriteAllowed ?? "-",
+        lastImplementationPlanApprovalBranchCreationAllowed: approvedPlan.branchCreationAllowed ?? "-",
+        lastImplementationPlanApprovalPrCreationAllowed: approvedPlan.prCreationAllowed ?? "-",
+        lastImplementationPlanApprovalNoDeploy: approvedPlan.noDeploy ?? "-",
+        lastImplementationPlanApprovalNoMerge: approvedPlan.noMerge ?? "-",
+      }));
+    } catch (error) {
+      const safeMessage = `Implementierungsplan konnte nicht freigegeben werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastImplementationPlanApprovalAction: "approve",
+        lastImplementationPlanApprovalAccepted: false,
+        lastImplementationPlanApprovalStatus: "error",
+        lastImplementationPlanApprovalMessage: safeMessage,
+        lastImplementationPlanApprovalIdPresent: Boolean(implementationPlanId),
+        lastImplementationPlanApprovalFileWriteAllowed: "-",
+        lastImplementationPlanApprovalBranchCreationAllowed: "-",
+        lastImplementationPlanApprovalPrCreationAllowed: "-",
+        lastImplementationPlanApprovalNoDeploy: "-",
+        lastImplementationPlanApprovalNoMerge: "-",
       }));
     } finally {
       try {
@@ -1952,8 +2031,12 @@ export default function AgentCenterInteractive({
               <div><dt className="font-semibold">expectedFilesToTouch</dt><dd>{(plan.expectedFilesToTouch || []).join(", ") || "—"}</dd></div>
               <div><dt className="font-semibold">validationPlan</dt><dd>{(plan.validationPlan || []).join(" · ") || "—"}</dd></div>
               <div><dt className="font-semibold">rollbackPlan</dt><dd>{(plan.rollbackPlan || []).join(" · ") || "—"}</dd></div>
+              <div><dt className="font-semibold">Nächster Schritt</dt><dd>{getImplementationPlanNextStep(plan)}</dd></div>
             </dl>
-            <button className="mt-2 cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100" onClick={() => setImplementationPlanDetail(plan)}>Implementierungsplan ansehen</button>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100" onClick={() => setImplementationPlanDetail(plan)}>Implementierungsplan ansehen</button>
+              {canApproveImplementationPlan(plan) && <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy} onClick={() => approveManualRunnerImplementationPlan(plan)}>Implementierungsplan freigeben</button>}
+            </div>
           </article>
         ))}
         {implementationPlans.length === 0 && <p className="rounded border border-white/15 p-3 text-white/70">Keine Implementation Plans geladen.</p>}
@@ -2076,7 +2159,7 @@ export default function AgentCenterInteractive({
                 <p>noDeploy: {String(implementationPlanDetail.noDeploy === true)}</p>
                 <p>noMerge: {String(implementationPlanDetail.noMerge === true)}</p>
               </div>
-              {info("Nächster Schritt", implementationPlanDetail.nextStep || "Owner muss den Implementierungsplan separat freigeben.")}
+              {info("Nächster Schritt", getImplementationPlanNextStep(implementationPlanDetail))}
             </div>
           </div>
         );

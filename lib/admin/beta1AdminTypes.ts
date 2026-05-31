@@ -259,12 +259,16 @@ export type AgentRunnerImplementationPlan = {
   noDeploy?: boolean;
   noMerge?: boolean;
   requiresOwnerPlanApproval?: boolean;
+  ownerPlanApprovedAt?: unknown;
+  ownerPlanApprovalDecision?: string | null;
   nextStep?: string;
   createdAt?: unknown;
 };
 export type AgentRunnerImplementationPlanListResult = AdminCallableResult & { items?: AgentRunnerImplementationPlan[]; implementationPlans?: AgentRunnerImplementationPlan[]; loadedCount?: number; fileWriteAllowed?: boolean; branchCreationAllowed?: boolean; prCreationAllowed?: boolean; noDeploy?: boolean; noMerge?: boolean };
 export type ManualRunnerImplementationPlanInput = { pickupContractId?: string; id?: string; targetId?: string };
 export type ManualRunnerImplementationPlanResult = AdminCallableResult & AgentRunnerImplementationPlan & { plan?: AgentRunnerImplementationPlan; message?: string };
+export type ManualRunnerImplementationPlanApprovalInput = { implementationPlanId?: string; id?: string; targetId?: string };
+export type ManualRunnerImplementationPlanApprovalResult = AdminCallableResult & AgentRunnerImplementationPlan & { plan?: AgentRunnerImplementationPlan; message?: string };
 
 export type WorkerQueueRunnerStartApprovalResult = AdminCallableResult & { runnerJobId?: string; workerQueueId?: string; taskProposalId?: string | null; status?: string; runnerJobStatus?: string; runnerStartApprovalDecision?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; runnerStartAllowed?: boolean; requiresManualRunnerPickup?: boolean };
 

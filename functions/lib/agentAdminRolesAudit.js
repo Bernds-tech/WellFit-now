@@ -502,6 +502,70 @@ function buildManualRunnerImplementationPlanDecision(contract, pickupContractIdO
   };
 }
 
+
+function buildManualRunnerImplementationPlanApprovalFailureMessage(missing) {
+  const reasons = Array.isArray(missing) ? missing : [];
+  if (reasons.includes("implementationPlanId")) return "Implementation Plan ID fehlt.";
+  if (reasons.includes("status_not_approvable")) return "Nur implementation_plan_created oder implementation_plan_review darf freigegeben werden.";
+  const missingRequired = reasons.filter((reason) => ["planSummary", "plannedSteps", "expectedFilesToTouch", "validationPlan", "rollbackPlan", "allowedFiles", "blockedFiles", "requiredChecks"].includes(reason));
+  if (missingRequired.length) return `Pflichtdaten fehlen: ${missingRequired.join("/")}.`;
+  if (reasons.includes("expectedFilesToTouch_outside_allowedFiles")) return "expectedFilesToTouch liegt außerhalb allowedFiles.";
+  if (reasons.includes("expectedFilesToTouch_inside_blockedFiles")) return "expectedFilesToTouch trifft blockedFiles.";
+  if (reasons.some((reason) => ["fileWriteAllowed", "branchCreationAllowed", "prCreationAllowed", "noDeploy", "noMerge"].includes(reason))) return "Sicherheitsflags verhindern Planfreigabe.";
+  return "Implementierungsplan-Freigabe blockiert.";
+}
+
+function buildManualRunnerImplementationPlanApprovalDecision(plan, implementationPlanIdOverride) {
+  const implementationPlanId = optionalString(implementationPlanIdOverride || (plan && plan.implementationPlanId), 180);
+  const currentStatus = optionalString(plan && plan.status, 80) || "implementation_plan_created";
+  const allowedFiles = parseStringList((plan && plan.allowedFiles) || [], 80, 260);
+  const blockedFiles = parseStringList((plan && plan.blockedFiles) || [], 80, 260);
+  const requiredChecks = parseStringList((plan && plan.requiredChecks) || [], 80, 260);
+  const plannedSteps = parseStringList((plan && plan.plannedSteps) || [], 80, 1000);
+  const expectedFilesToTouch = parseStringList((plan && plan.expectedFilesToTouch) || [], 80, 260);
+  const validationPlan = parseStringList((plan && plan.validationPlan) || [], 80, 1000);
+  const rollbackPlan = parseStringList((plan && plan.rollbackPlan) || [], 80, 1000);
+  const planSummary = optionalString(plan && plan.planSummary, 2000);
+  const missing = [];
+  if (!implementationPlanId) missing.push("implementationPlanId");
+  if (!["implementation_plan_created", "implementation_plan_review"].includes(currentStatus)) missing.push("status_not_approvable");
+  if (!planSummary) missing.push("planSummary");
+  if (!plannedSteps.length) missing.push("plannedSteps");
+  if (!expectedFilesToTouch.length) missing.push("expectedFilesToTouch");
+  if (!validationPlan.length) missing.push("validationPlan");
+  if (!rollbackPlan.length) missing.push("rollbackPlan");
+  if (!allowedFiles.length) missing.push("allowedFiles");
+  if (!blockedFiles.length) missing.push("blockedFiles");
+  if (!requiredChecks.length) missing.push("requiredChecks");
+  if (expectedFilesToTouch.length && allowedFiles.length && !expectedFilesStayWithinAllowedFiles(expectedFilesToTouch, allowedFiles)) missing.push("expectedFilesToTouch_outside_allowedFiles");
+  if (expectedFilesToTouch.length && blockedFiles.length && !expectedFilesAvoidBlockedFiles(expectedFilesToTouch, blockedFiles)) missing.push("expectedFilesToTouch_inside_blockedFiles");
+  if (plan && plan.fileWriteAllowed === true) missing.push("fileWriteAllowed");
+  if (plan && plan.branchCreationAllowed === true) missing.push("branchCreationAllowed");
+  if (plan && plan.prCreationAllowed === true) missing.push("prCreationAllowed");
+  if (plan && plan.noDeploy === false) missing.push("noDeploy");
+  if (plan && plan.noMerge === false) missing.push("noMerge");
+  return {
+    approvable: missing.length === 0,
+    currentStatus,
+    missing,
+    failureMessage: buildManualRunnerImplementationPlanApprovalFailureMessage(missing),
+    approvalUpdate: {
+      status: "implementation_plan_approved",
+      ownerPlanApprovalDecision: "approved_for_file_write_preparation",
+      fileWriteAllowed: false,
+      branchCreationAllowed: false,
+      prCreationAllowed: false,
+      noDeploy: true,
+      noMerge: true,
+      nextStep: "Prepare controlled file-write package. Owner approval still required before branch or PR.",
+    },
+    safeFlags: { fileWriteAllowed: false, branchCreationAllowed: false, prCreationAllowed: false, noDeploy: true, noMerge: true },
+    allowedFiles,
+    blockedFiles,
+    requiredChecks,
+  };
+}
+
 function buildManualRunnerPickupContractFailureMessage(missing) {
   const reasons = Array.isArray(missing) ? missing : [];
   if (reasons.includes("runnerJobId")) return "Runner Job ID fehlt.";
@@ -583,6 +647,36 @@ function requireRole(request, HttpsError, allowedRoles) {
 function parseStringList(value, maxEntries = 80, maxLength = 240) {
   if (!Array.isArray(value)) return [];
   return value.map((entry) => optionalString(entry, maxLength)).filter(Boolean).slice(0, maxEntries);
+}
+
+
+function normalizePlanScopePattern(value) {
+  return String(value || "").trim().replace(/^\.\//, "").replace(/\\/g, "/").replace(/\/+$/g, "");
+}
+
+function scopePatternContainsCandidate(scopePattern, candidatePattern) {
+  const scope = normalizePlanScopePattern(scopePattern);
+  const candidate = normalizePlanScopePattern(candidatePattern);
+  if (!scope || !candidate) return false;
+  if (scope === "**" || scope === "*") return true;
+  if (scope === candidate) return true;
+  if (scope.endsWith("/**")) {
+    const prefix = scope.slice(0, -3);
+    return candidate === prefix || candidate.startsWith(`${prefix}/`) || candidate.startsWith(`${prefix}/**`);
+  }
+  return false;
+}
+
+function scopePatternIntersectsCandidate(scopePattern, candidatePattern) {
+  return scopePatternContainsCandidate(scopePattern, candidatePattern) || scopePatternContainsCandidate(candidatePattern, scopePattern);
+}
+
+function expectedFilesStayWithinAllowedFiles(expectedFilesToTouch, allowedFiles) {
+  return expectedFilesToTouch.every((candidate) => allowedFiles.some((allowed) => scopePatternContainsCandidate(allowed, candidate)));
+}
+
+function expectedFilesAvoidBlockedFiles(expectedFilesToTouch, blockedFiles) {
+  return expectedFilesToTouch.every((candidate) => !blockedFiles.some((blocked) => scopePatternIntersectsCandidate(blocked, candidate)));
 }
 
 function normalizeRiskLevel(value) {
@@ -1848,6 +1942,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       noDeploy: data.noDeploy !== false,
       noMerge: data.noMerge !== false,
       requiresOwnerPlanApproval: data.requiresOwnerPlanApproval === true,
+      ownerPlanApprovedAt: safeTimestampValue(data.ownerPlanApprovedAt),
+      ownerPlanApprovalDecision: optionalString(data.ownerPlanApprovalDecision, 160) || null,
       nextStep: optionalString(data.nextStep, 500) || "Owner must approve implementation plan before any file write or branch creation.",
       createdAt: safeTimestampValue(data.createdAt),
     };
@@ -2042,6 +2138,44 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     }
     await writeAgentAudit(db, { actorId, actorRole, action: "manual_runner_implementation_plan_created", proposalId: item.taskProposalId || null, result: "implementation_plan_created", allowedFiles: decision.plan.allowedFiles, blockedFiles: decision.plan.blockedFiles });
     return { accepted: true, ...plan, plan, message: "Implementierungsplan erzeugt. Noch keine Dateiänderung gestartet." };
+  });
+
+  exportsTarget.approveManualRunnerImplementationPlan = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
+    const implementationPlanId = requiredString(request.data && request.data.implementationPlanId, "implementationPlanId", HttpsError, 180);
+    const planRef = db.collection("agentRunnerImplementationPlans").doc(implementationPlanId);
+    const planSnap = await planRef.get();
+    if (!planSnap.exists) throw new HttpsError("not-found", "implementation_plan_not_found");
+    const item = planSnap.data() || {};
+    const decision = buildManualRunnerImplementationPlanApprovalDecision({ ...item, implementationPlanId }, implementationPlanId);
+    if (!decision.approvable) throw new HttpsError("failed-precondition", decision.failureMessage || `manual_runner_implementation_plan_approval_blocked:${decision.missing.join(",")}`);
+    const now = FieldValue.serverTimestamp();
+    const approvalUpdate = {
+      ...decision.approvalUpdate,
+      ownerPlanApprovedAt: now,
+      ownerPlanApprovedByRole: actorRole,
+      lastStatusChangedAt: now,
+      updatedAt: now,
+    };
+    await planRef.set(approvalUpdate, { merge: true });
+    const pickupContractId = optionalString(item.pickupContractId, 180);
+    if (pickupContractId) {
+      await db.collection("agentRunnerPickupContracts").doc(pickupContractId).set({
+        status: "implementation_plan_approved",
+        implementationPlanId,
+        implementationPlanApprovedAt: now,
+        fileWriteAllowed: false,
+        branchCreationAllowed: false,
+        prCreationAllowed: false,
+        noDeploy: true,
+        noMerge: true,
+        lastStatusChangedAt: now,
+        updatedAt: now,
+      }, { merge: true });
+    }
+    await writeAgentAudit(db, { actorId, actorRole, action: "manual_runner_implementation_plan_approved", proposalId: item.taskProposalId || null, result: "implementation_plan_approved", allowedFiles: decision.allowedFiles, blockedFiles: decision.blockedFiles });
+    const approvedPlan = { ...item, ...approvalUpdate, implementationPlanId };
+    return { accepted: true, ...approvedPlan, plan: approvedPlan, message: "Implementierungsplan freigegeben. Noch keine Dateiänderung gestartet." };
   });
 
   exportsTarget.listAgentRunnerImplementationPlans = onCall(async (request) => {
@@ -2660,4 +2794,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE };
