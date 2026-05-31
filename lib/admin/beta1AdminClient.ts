@@ -173,6 +173,7 @@ export const beta1AdminClient = {
   listAgentTaskExecutions: (status?: string) => callAdmin("listAgentTaskExecutions", status ? { status } : {}),
   listAgentTaskProposals: (status?: string) => callAdmin("listAgentTaskProposals", status ? { status } : {}),
   createWorkerQueueItemFromTaskProposal: (input: TaskProposalWorkerQueueInput) => callAdmin("createWorkerQueueItemFromTaskProposal", input),
+  listAgentTaskWorkerQueueItems: (status?: string) => callAdmin("listAgentTaskWorkerQueueItems", status ? { status } : {}),
   generateAgentTaskCodexPrompt: (input: AgentHandoffPromptGenerateInput) => callAdmin("generateAgentTaskCodexPrompt", input),
   getAgentTaskCodexPrompt: (input: AgentHandoffPromptGetInput) => callAdmin("getAgentTaskCodexPrompt", input),
   markAgentTaskCodexPromptCopied: (input: AgentHandoffPromptCopiedInput) => callAdmin("markAgentTaskCodexPromptCopied", input),
