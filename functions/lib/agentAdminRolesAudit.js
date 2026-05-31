@@ -225,16 +225,32 @@ function validateWorkerStatusTransition(currentStatus, nextStatus) {
 }
 
 
+function getWorkerQueueReleaseTargetId(data) {
+  return optionalString(data && (data.workerQueueId || data.targetId || data.id), 180);
+}
+
+function buildWorkerQueueReleaseFailureMessage(missing) {
+  const reasons = Array.isArray(missing) ? missing : [];
+  if (reasons.includes("status_not_releasable")) return "Status erlaubt diese Freigabe nicht.";
+  const missingRequired = reasons.filter((reason) => ["allowedFiles", "blockedFiles", "requiredChecks"].includes(reason));
+  if (missingRequired.length) return `Pflichtdaten fehlen: ${missingRequired.join("/")}.`;
+  if (reasons.includes("owner_protected_scope")) return "Owner-protected Bereich blockiert.";
+  if (reasons.some((reason) => ["noRunnerStarted", "runnerStarted", "noBranchOrPrOrMerge", "branch_pr_merge", "noDeploy", "deploy"].includes(reason))) return "Sicherheitsflags verhindern Freigabe.";
+  return "Worker-Freigabe fehlgeschlagen.";
+}
+
 function buildWorkerQueueReleaseDecision(item) {
   const currentStatus = optionalString(item && (item.workerStatus || item.status), 80) || "pending_worker_review";
   const allowedFiles = parseStringList((item && item.allowedFiles) || [], 80, 260);
   const blockedFiles = parseStringList((item && item.blockedFiles) || [], 80, 260);
   const requiredChecks = parseStringList((item && item.requiredChecks) || [], 80, 260);
+  const protectedScopes = parseStringList((item && item.protectedScopes) || [], 80, 260);
   const missing = [];
   if (!["pending_worker_review", "queued_for_owner_review"].includes(currentStatus)) missing.push("status_not_releasable");
   if (!allowedFiles.length) missing.push("allowedFiles");
   if (!blockedFiles.length) missing.push("blockedFiles");
   if (!requiredChecks.length) missing.push("requiredChecks");
+  if (touchesCanonicalTruthProtectedFiles(allowedFiles).length || protectedScopes.some((scope) => BLOCKED_PROTECTED_SCOPES.has(String(scope || "").toLowerCase()))) missing.push("owner_protected_scope");
   if (item && item.noRunnerStarted === false) missing.push("noRunnerStarted");
   if (item && item.runnerStarted === true) missing.push("runnerStarted");
   if (item && item.noBranchOrPrOrMerge === false) missing.push("noBranchOrPrOrMerge");
@@ -252,6 +268,7 @@ function buildWorkerQueueReleaseDecision(item) {
     noRunnerStarted: true,
     noBranchOrPrOrMerge: true,
     noDeploy: true,
+    failureMessage: buildWorkerQueueReleaseFailureMessage(missing),
   };
 }
 
@@ -1088,7 +1105,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
   exportsTarget.claimAgentWorkerQueueItem = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
-    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
     const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
     const snap = await ref.get();
     if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
@@ -1101,7 +1118,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
   exportsTarget.updateAgentWorkerQueueStatus = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
-    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
     const workerStatus = requiredString(request.data && request.data.workerStatus, "workerStatus", HttpsError, 60);
     if (!WORKER_QUEUE_STATUSES.includes(workerStatus)) throw new HttpsError("invalid-argument", "Ungültiger Worker-Status.");
     const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
@@ -1128,7 +1145,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
   exportsTarget.recordAgentWorkerQueueChecks = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
-    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
     const checks = normalizeCheckEntries(request.data && request.data.checks);
     if (!checks.length) throw new HttpsError("invalid-argument", "Checks fehlen.");
     const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
@@ -1154,7 +1171,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
   exportsTarget.markAgentWorkerPrPrepared = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
-    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
     const prRef = optionalString(request.data && request.data.prRef, 220);
     const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
     const snap = await ref.get();
@@ -1167,7 +1184,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
   exportsTarget.blockAgentWorkerQueueItem = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor"]);
-    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
     const reason = optionalString(request.data && request.data.reason, 1000) || "worker_blocked";
     const ref = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
     const snap = await ref.get();
@@ -1189,7 +1206,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
   exportsTarget.getAgentWorkerQueueItem = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator", "agent_executor_service"]);
-    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
     const snap = await db.collection("agentTaskWorkerQueue").doc(workerQueueId).get();
     if (!snap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
     return { accepted: true, item: snap.data() };
@@ -1199,7 +1216,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const automationControl = (await getGlobalAutomationControl(db)).data;
     assertAutomationMayStartNewWork(automationControl, HttpsError, optionalString(request.data && request.data.taskType, 80));
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
-    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
     const workerSnap = await db.collection("agentTaskWorkerQueue").doc(workerQueueId).get();
     if (!workerSnap.exists) throw new HttpsError("not-found", "Worker Queue Item nicht gefunden.");
     const worker = workerSnap.data() || {};
@@ -1504,13 +1521,13 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
   exportsTarget.releaseWorkerQueueItemForWorker = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
-    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
     const workerRef = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
     const workerSnap = await workerRef.get();
     if (!workerSnap.exists) throw new HttpsError("not-found", "worker_queue_item_not_found");
     const item = workerSnap.data() || {};
     const decision = buildWorkerQueueReleaseDecision(item);
-    if (!decision.releasable) throw new HttpsError("failed-precondition", `worker_queue_release_blocked:${decision.missing.join(",")}`);
+    if (!decision.releasable) throw new HttpsError("failed-precondition", decision.failureMessage || `worker_queue_release_blocked:${decision.missing.join(",")}`);
     const now = FieldValue.serverTimestamp();
     await workerRef.set({
       workerStatus: "ready_for_worker",
@@ -2088,4 +2105,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, buildWorkerQueueReleaseDecision, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, REVISION_DOSSIER_MESSAGE };
