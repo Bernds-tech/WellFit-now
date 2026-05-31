@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -62,7 +62,8 @@ type TaskProposalFilter = "task_total" | "task_pending" | "task_approved" | "tas
 type TaskProposalBucket = "pending" | "approved" | "rejected" | "in_progress" | "completed" | "blocked" | "unknown";
 type WorkerQueueFilter = "worker_total" | "worker_waiting_review" | "worker_waiting_owner" | "worker_ready" | "worker_in_progress" | "worker_completed" | "worker_blocked" | "worker_repair_required";
 type WorkerQueueBucket = "waiting_review" | "waiting_owner" | "ready_for_worker" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
-type RunnerJobBucket = "pending_runner_pickup" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
+type RunnerJobBucket = "pending_runner_pickup" | "pickup_contract_created" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
+type PickupContractBucket = "planning_open" | "planning" | "completed" | "blocked" | "repair_required" | "unknown";
 type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter | WorkerQueueFilter;
 
 const SERVER_FILTER_TO_BUCKET: Record<ServerInboxFilter, ReturnType<typeof getServerInboxStatusBucket> | "total"> = { server_total: "total", server_pending: "pending_approval", server_approved: "approved", server_rejected: "rejected", server_blocked: "blocked", server_revision_requested: "revision_requested", server_synced_to_task_proposal: "synced_to_task_proposal" };
@@ -124,7 +125,9 @@ function buildWorkerQueueCounts(items: AgentTaskWorkerQueueItem[]) {
 
 function getRunnerJobBucket(item: AgentRunnerJob): RunnerJobBucket {
   const status = String(item.status || "").toLowerCase();
-  if (["pending_runner_pickup", "runner_job_created", "picked_up"].includes(status)) return "pending_runner_pickup";
+  if (["pending_runner_pickup", "runner_job_created"].includes(status)) return "pending_runner_pickup";
+  if (status === "pickup_contract_created") return "pickup_contract_created";
+  if (["picked_up", "planning"].includes(status)) return "planning";
   if (["in_progress", "claimed", "running"].includes(status)) return "in_progress";
   if (["completed", "done"].includes(status)) return "completed";
   if (["blocked", "failed"].includes(status)) return "blocked";
@@ -133,9 +136,32 @@ function getRunnerJobBucket(item: AgentRunnerJob): RunnerJobBucket {
 }
 
 function buildRunnerJobCounts(items: AgentRunnerJob[]) {
-  const counts: Record<RunnerJobBucket, number> & { total: number } = { total: items.length, pending_runner_pickup: 0, in_progress: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
+  const counts: Record<RunnerJobBucket, number> & { total: number } = { total: items.length, pending_runner_pickup: 0, pickup_contract_created: 0, planning: 0, in_progress: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
   items.forEach((item) => { counts[getRunnerJobBucket(item)] += 1; });
   return counts;
+}
+
+
+function getPickupContractBucket(item: AgentRunnerPickupContract): PickupContractBucket {
+  const status = String(item.status || "").toLowerCase();
+  if (status === "pickup_contract_created") return "planning_open";
+  if (["picked_up", "planning", "in_progress"].includes(status)) return "planning";
+  if (["completed", "done"].includes(status)) return "completed";
+  if (["blocked", "failed"].includes(status)) return "blocked";
+  if (status === "repair_required") return "repair_required";
+  return "unknown";
+}
+
+function buildPickupContractCounts(items: AgentRunnerPickupContract[]) {
+  const counts: Record<PickupContractBucket, number> & { total: number } = { total: items.length, planning_open: 0, planning: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
+  items.forEach((item) => { counts[getPickupContractBucket(item)] += 1; });
+  return counts;
+}
+
+function extractPickupContracts(result: AgentRunnerPickupContractListResult): AgentRunnerPickupContract[] {
+  const contracts = Array.isArray(result.pickupContracts) ? result.pickupContracts : [];
+  const items = Array.isArray(result.items) ? result.items : [];
+  return contracts.length > 0 ? contracts : items;
 }
 
 function extractRunnerJobs(result: AgentRunnerJobListResult): AgentRunnerJob[] {
@@ -285,11 +311,13 @@ export default function AgentCenterInteractive({
   const [taskProposals, setTaskProposals] = useState<AgentTaskProposal[]>([]);
   const [workerQueueItems, setWorkerQueueItems] = useState<AgentTaskWorkerQueueItem[]>([]);
   const [runnerJobs, setRunnerJobs] = useState<AgentRunnerJob[]>([]);
+  const [pickupContracts, setPickupContracts] = useState<AgentRunnerPickupContract[]>([]);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [taskProposalDetail, setTaskProposalDetail] = useState<AgentTaskProposal | null>(null);
   const [workerQueueDetail, setWorkerQueueDetail] = useState<AgentTaskWorkerQueueItem | null>(null);
   const [runnerPickupPreview, setRunnerPickupPreview] = useState<WorkerQueueRunnerPreview | null>(null);
   const [runnerJobDetail, setRunnerJobDetail] = useState<AgentRunnerJob | null>(null);
+  const [pickupContractDetail, setPickupContractDetail] = useState<AgentRunnerPickupContract | null>(null);
   const [syncDebug, setSyncDebug] = useState<Record<string, unknown>>({});
   const [authDebug, setAuthDebug] = useState<AdminCallableAuthState>({ authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "" });
   const [authActionPending, setAuthActionPending] = useState(false);
@@ -302,6 +330,7 @@ export default function AgentCenterInteractive({
         void refreshTaskProposals();
         void refreshWorkerQueueItems();
         void refreshRunnerJobs();
+        void refreshPickupContracts();
       }
     });
     return () => unsubscribe();
@@ -362,6 +391,7 @@ export default function AgentCenterInteractive({
   const taskProposalCounts = useMemo(() => buildTaskProposalCounts(taskProposals), [taskProposals]);
   const workerQueueCounts = useMemo(() => buildWorkerQueueCounts(workerQueueItems), [workerQueueItems]);
   const runnerJobCounts = useMemo(() => buildRunnerJobCounts(runnerJobs), [runnerJobs]);
+  const pickupContractCounts = useMemo(() => buildPickupContractCounts(pickupContracts), [pickupContracts]);
 
   const visibleTaskProposals = useMemo(() => {
     const sorted = [...taskProposals].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
@@ -788,6 +818,101 @@ export default function AgentCenterInteractive({
     return "";
   }
 
+
+  async function refreshPickupContracts() {
+    setSyncDebug((prev) => ({ ...prev, pickupContractLoadAttempted: true, pickupContractLoadAccepted: false, pickupContractLoadError: "" }));
+    if (!(await ensureAdminAuthReady())) {
+      const safeMessage = "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+      setSyncDebug((prev) => ({ ...prev, pickupContractLoadError: safeMessage }));
+      setFeedback(`Pickup Contracts konnten nicht geladen werden: ${safeMessage}`);
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await beta1AdminClient.listAgentRunnerPickupContracts() as AgentRunnerPickupContractListResult;
+      const items = extractPickupContracts(result);
+      const accepted = Boolean(result.accepted);
+      setSyncDebug((prev) => ({
+        ...prev,
+        pickupContractLoadAttempted: true,
+        pickupContractLoadAccepted: accepted,
+        pickupContractLoadedCount: Number(result.loadedCount ?? items.length),
+        pickupContractLoadError: accepted ? "" : getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode),
+      }));
+      if (!accepted) {
+        const safeMessage = getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode);
+        setPickupContracts([]);
+        setFeedback(`Pickup Contracts konnten nicht geladen werden: ${safeMessage}`);
+        setSyncStatus(`Pickup Contracts konnten nicht geladen werden: ${safeMessage}`);
+        return;
+      }
+      setPickupContracts(items);
+      setSyncStatus(`Pickup Contracts geladen: ${items.length}. Planungsfreigabe, keine Dateiänderung.`);
+    } catch (error) {
+      const safeMessage = getSafeAdminDecisionMessage(error);
+      setPickupContracts([]);
+      setSyncDebug((prev) => ({ ...prev, pickupContractLoadAccepted: false, pickupContractLoadError: safeMessage }));
+      setFeedback(`Pickup Contracts konnten nicht geladen werden: ${safeMessage}`);
+      setSyncStatus(`Pickup Contracts konnten nicht geladen werden: ${safeMessage}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function createManualRunnerPickupContract(job: AgentRunnerJob) {
+    const runnerJobId = asText(job.runnerJobId);
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastPickupContractCreated: false,
+      lastPickupContractIdPresent: false,
+      lastPickupContractStatus: runnerJobId ? "started" : "blocked_client",
+      lastPickupContractMessage: runnerJobId ? "Pickup-Contract wird erzeugt …" : "Runner Job ID fehlt.",
+      lastPickupContractRunnerStartAllowed: "-",
+      lastPickupContractFileWriteAllowed: "-",
+      lastPickupContractBranchCreationAllowed: "-",
+      lastPickupContractPrCreationAllowed: "-",
+      lastPickupContractNoDeploy: "-",
+      lastPickupContractNoMerge: "-",
+    }));
+    if (!runnerJobId) {
+      setFeedback("Runner Job ID fehlt.");
+      return;
+    }
+    setBusy(true);
+    setFeedback("Pickup-Contract wird erzeugt …");
+    try {
+      const result = await beta1AdminClient.createManualRunnerPickupContract({ runnerJobId }) as ManualRunnerPickupContractResult;
+      const accepted = Boolean(result.accepted);
+      const safeMessage = accepted ? "Pickup-Contract erzeugt. Noch keine Ausführung gestartet." : `Pickup-Contract konnte nicht erzeugt werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastPickupContractCreated: accepted,
+        lastPickupContractIdPresent: Boolean(result.pickupContractId),
+        lastPickupContractStatus: result.status || (accepted ? "pickup_contract_created" : "failed"),
+        lastPickupContractMessage: safeMessage,
+        lastPickupContractRunnerStartAllowed: result.runnerStartAllowed ?? "-",
+        lastPickupContractFileWriteAllowed: result.fileWriteAllowed ?? "-",
+        lastPickupContractBranchCreationAllowed: result.branchCreationAllowed ?? "-",
+        lastPickupContractPrCreationAllowed: result.prCreationAllowed ?? "-",
+        lastPickupContractNoDeploy: result.noDeploy ?? "-",
+        lastPickupContractNoMerge: result.noMerge ?? "-",
+      }));
+    } catch (error) {
+      const safeMessage = `Pickup-Contract konnte nicht erzeugt werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({ ...prev, lastPickupContractCreated: false, lastPickupContractIdPresent: false, lastPickupContractStatus: "error", lastPickupContractMessage: safeMessage }));
+    } finally {
+      try {
+        await refreshRunnerJobs();
+        await refreshPickupContracts();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
 
   async function refreshRunnerJobs() {
     setSyncDebug((prev) => ({
@@ -1388,6 +1513,19 @@ export default function AgentCenterInteractive({
         <p>runnerJobLoadedCount: {String(syncDebug.runnerJobLoadedCount ?? runnerJobs.length)}</p>
         <p>runnerJobResponseKeys: [{((syncDebug.runnerJobResponseKeys as string[] | undefined) || []).join(", ")}]</p>
         <p>runnerJobLoadError: {String(syncDebug.runnerJobLoadError || "-")}</p>
+        <p>pickupContractLoadAttempted: {String(syncDebug.pickupContractLoadAttempted ?? false)}</p>
+        <p>pickupContractLoadAccepted: {String(syncDebug.pickupContractLoadAccepted ?? "-")}</p>
+        <p>pickupContractLoadedCount: {String(syncDebug.pickupContractLoadedCount ?? pickupContracts.length)}</p>
+        <p>lastPickupContractCreated: {String(syncDebug.lastPickupContractCreated ?? "-")}</p>
+        <p>lastPickupContractIdPresent: {String(syncDebug.lastPickupContractIdPresent ?? "-")}</p>
+        <p>lastPickupContractStatus: {String(syncDebug.lastPickupContractStatus || "-")}</p>
+        <p>lastPickupContractMessage: {String(syncDebug.lastPickupContractMessage || "-")}</p>
+        <p>lastPickupContractRunnerStartAllowed: {String(syncDebug.lastPickupContractRunnerStartAllowed ?? "-")}</p>
+        <p>lastPickupContractFileWriteAllowed: {String(syncDebug.lastPickupContractFileWriteAllowed ?? "-")}</p>
+        <p>lastPickupContractBranchCreationAllowed: {String(syncDebug.lastPickupContractBranchCreationAllowed ?? "-")}</p>
+        <p>lastPickupContractPrCreationAllowed: {String(syncDebug.lastPickupContractPrCreationAllowed ?? "-")}</p>
+        <p>lastPickupContractNoDeploy: {String(syncDebug.lastPickupContractNoDeploy ?? "-")}</p>
+        <p>lastPickupContractNoMerge: {String(syncDebug.lastPickupContractNoMerge ?? "-")}</p>
         <p>taskProposalPendingCount: {String(syncDebug.taskProposalPendingCount ?? taskProposalCounts.pending)}</p>
         <p>taskProposalNoRunnerStartedVisible: {String(syncDebug.taskProposalNoRunnerStartedVisible ?? "-")}</p>
         <p>taskProposalNoBranchOrPrOrMergeVisible: {String(syncDebug.taskProposalNoBranchOrPrOrMergeVisible ?? "-")}</p>
@@ -1558,6 +1696,8 @@ export default function AgentCenterInteractive({
           <div className="flex flex-wrap gap-2 lg:justify-end">
             <span className="rounded-full border border-white/20 px-2 py-1">Runner Jobs gesamt: {runnerJobCounts.total}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Pending Runner Pickup: {runnerJobCounts.pending_runner_pickup}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Pickup Contract Created: {runnerJobCounts.pickup_contract_created}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Planung: {runnerJobCounts.planning}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">In Arbeit: {runnerJobCounts.in_progress}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Fertig: {runnerJobCounts.completed}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Blockiert: {runnerJobCounts.blocked}</span>
@@ -1588,10 +1728,61 @@ export default function AgentCenterInteractive({
               <div><dt className="font-semibold">blockedFiles</dt><dd>{(job.blockedFiles || []).join(", ") || "—"}</dd></div>
               <div><dt className="font-semibold">requiredChecks</dt><dd>{(job.requiredChecks || []).join(", ") || "—"}</dd></div>
             </dl>
-            <button className="mt-2 cursor-pointer rounded border border-amber-300/70 px-2 py-1 text-amber-100" onClick={() => setRunnerJobDetail(job)}>Runner Job ansehen</button>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button className="cursor-pointer rounded border border-amber-300/70 px-2 py-1 text-amber-100" onClick={() => setRunnerJobDetail(job)}>Runner Job ansehen</button>
+              {String(job.status || "").toLowerCase() === "pending_runner_pickup" && (
+                <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy} onClick={() => createManualRunnerPickupContract(job)}>Pickup-Contract erzeugen</button>
+              )}
+            </div>
           </article>
         ))}
         {runnerJobs.length === 0 && <p className="rounded border border-white/15 p-3 text-white/70">Keine Runner Jobs geladen.</p>}
+      </div>
+
+
+
+      <div className="space-y-3 rounded border border-cyan-300/25 bg-cyan-400/5 p-3 text-xs">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-cyan-100">Runner Pickup Contracts — Planungsfreigabe, keine Dateiänderung.</h3>
+            <p className="text-cyan-50/80">Diese Contracts erlauben nur einen Umsetzungsplan. Kein Branch, PR, Merge, Deploy oder Datei-Write.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 lg:justify-end">
+            <span className="rounded-full border border-white/20 px-2 py-1">Pickup Contracts gesamt: {pickupContractCounts.total}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Planung offen: {pickupContractCounts.planning_open}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">In Planung: {pickupContractCounts.planning}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Fertig: {pickupContractCounts.completed}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Blockiert: {pickupContractCounts.blocked}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Repair Required: {pickupContractCounts.repair_required}</span>
+          </div>
+        </div>
+        {pickupContracts.map((contract) => (
+          <article key={contract.pickupContractId} className="rounded border border-cyan-200/25 bg-cyan-400/5 p-3">
+            <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="font-mono text-cyan-100/75">pickupContractId: {contract.pickupContractId || "—"}</p>
+                <p className="font-mono text-amber-100/75">runnerJobId: {contract.runnerJobId || "—"}</p>
+                <b>{contract.title || "Unbenannter Pickup Contract"}</b>
+              </div>
+              <div className="flex flex-wrap gap-2 lg:justify-end">
+                <span className="rounded-full border border-white/20 px-2 py-1">Status: {contract.status || "pickup_contract_created"}</span>
+                <span className="rounded-full border border-orange-300/50 px-2 py-1">runnerStartAllowed: {String(contract.runnerStartAllowed === true)}</span>
+                <span className="rounded-full border border-orange-300/50 px-2 py-1">fileWriteAllowed: {String(contract.fileWriteAllowed === true)}</span>
+                <span className="rounded-full border border-orange-300/50 px-2 py-1">branchCreationAllowed: {String(contract.branchCreationAllowed === true)}</span>
+                <span className="rounded-full border border-orange-300/50 px-2 py-1">prCreationAllowed: {String(contract.prCreationAllowed === true)}</span>
+                <span className="rounded-full border border-emerald-300/50 px-2 py-1">noDeploy: {String(contract.noDeploy === true)}</span>
+                <span className="rounded-full border border-emerald-300/50 px-2 py-1">noMerge: {String(contract.noMerge === true)}</span>
+              </div>
+            </div>
+            <dl className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <div><dt className="font-semibold">allowedFiles</dt><dd>{(contract.allowedFiles || []).join(", ") || "—"}</dd></div>
+              <div><dt className="font-semibold">blockedFiles</dt><dd>{(contract.blockedFiles || []).join(", ") || "—"}</dd></div>
+              <div><dt className="font-semibold">requiredChecks</dt><dd>{(contract.requiredChecks || []).join(", ") || "—"}</dd></div>
+            </dl>
+            <button className="mt-2 cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100" onClick={() => setPickupContractDetail(contract)}>Pickup Contract ansehen</button>
+          </article>
+        ))}
+        {pickupContracts.length === 0 && <p className="rounded border border-white/15 p-3 text-white/70">Keine Pickup Contracts geladen.</p>}
       </div>
 
       {isTaskProposalFilter(active) && (
@@ -1681,6 +1872,41 @@ export default function AgentCenterInteractive({
       </div>}
 
 
+
+
+      {pickupContractDetail && (() => {
+        const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 p-4" onClick={() => setPickupContractDetail(null)}>
+            <div className="mx-auto max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg bg-slate-900 p-4 text-xs text-white" onClick={(event) => event.stopPropagation()}>
+              <div className="sticky top-0 mb-2 flex justify-between bg-slate-900 pb-2">
+                <h3 className="text-base font-semibold">Pickup Contract ansehen · {pickupContractDetail.title || pickupContractDetail.pickupContractId}</h3>
+                <button className="cursor-pointer rounded border px-2" onClick={() => setPickupContractDetail(null)}>Schließen</button>
+              </div>
+              <p className="font-mono text-cyan-100/75">pickupContractId: {pickupContractDetail.pickupContractId || "—"}</p>
+              <p className="font-mono text-amber-100/75">runnerJobId: {pickupContractDetail.runnerJobId || "—"}</p>
+              <p>Status: {pickupContractDetail.status || "pickup_contract_created"} · executionMode: {pickupContractDetail.executionMode || "manual_runner_pickup_contract"}</p>
+              {fileList("allowedFiles", pickupContractDetail.allowedFiles)}
+              {fileList("blockedFiles", pickupContractDetail.blockedFiles)}
+              {fileList("requiredChecks", pickupContractDetail.requiredChecks)}
+              <div className="mt-3 rounded border border-cyan-300/40 bg-cyan-400/10 p-3 text-cyan-50">
+                <p className="font-semibold">Was darf der Runner jetzt tun?</p>
+                <ul className="list-disc pl-5"><li>Nur Umsetzungsplan erstellen</li></ul>
+                <p className="mt-3 font-semibold">Was darf er jetzt NICHT tun?</p>
+                <ul className="list-disc pl-5"><li>Keine Dateien ändern</li><li>Kein Branch</li><li>Kein PR</li><li>Kein Merge</li><li>Kein Deploy</li></ul>
+                <p className="mt-3 font-semibold">Nächster Schritt:</p>
+                <p>Owner muss Implementierungsplan separat freigeben.</p>
+                <p className="mt-2">runnerStartAllowed: {String(pickupContractDetail.runnerStartAllowed === true)}</p>
+                <p>fileWriteAllowed: {String(pickupContractDetail.fileWriteAllowed === true)}</p>
+                <p>branchCreationAllowed: {String(pickupContractDetail.branchCreationAllowed === true)}</p>
+                <p>prCreationAllowed: {String(pickupContractDetail.prCreationAllowed === true)}</p>
+                <p>noDeploy: {String(pickupContractDetail.noDeploy === true)}</p>
+                <p>noMerge: {String(pickupContractDetail.noMerge === true)}</p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {runnerJobDetail && (() => {
         const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);

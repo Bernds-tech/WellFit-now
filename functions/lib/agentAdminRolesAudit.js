@@ -8,7 +8,8 @@ const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
 const HANDOFF_PROMPT_STATUSES = ["generated", "copied", "superseded", "blocked"];
 const WORKER_QUEUE_STATUSES = ["queued_for_owner_review", "queued_for_worker_review", "pending_worker_review", "ready_for_worker", "previewed_for_runner", "runner_start_approved", "in_progress", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed", "repair_required"];
-const RUNNER_JOB_STATUSES = ["pending_runner_pickup", "runner_job_created", "picked_up", "in_progress", "completed", "blocked", "repair_required"];
+const RUNNER_JOB_STATUSES = ["pending_runner_pickup", "pickup_contract_created", "runner_job_created", "picked_up", "planning", "in_progress", "completed", "blocked", "repair_required"];
+const RUNNER_PICKUP_CONTRACT_STATUSES = ["pickup_contract_created", "picked_up", "planning", "in_progress", "completed", "blocked", "repair_required"];
 const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
 const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
@@ -384,6 +385,65 @@ function buildRunnerStartApprovalDecision(item, workerQueueIdOverride) {
       noDeploy: true,
       runnerStartAllowed: false,
       requiresManualRunnerPickup: true,
+    },
+  };
+}
+function buildManualRunnerPickupContractFailureMessage(missing) {
+  const reasons = Array.isArray(missing) ? missing : [];
+  if (reasons.includes("runnerJobId")) return "Runner Job ID fehlt.";
+  if (reasons.includes("status_not_pending_runner_pickup")) return "Nur pending_runner_pickup darf einen Pickup-Contract erzeugen.";
+  const missingRequired = reasons.filter((reason) => ["allowedFiles", "blockedFiles", "requiredChecks"].includes(reason));
+  if (missingRequired.length) return `Pflichtdaten fehlen: ${missingRequired.join("/")}.`;
+  if (reasons.some((reason) => ["runnerStartAllowed", "requiresManualRunnerPickup", "noDeploy", "noMerge", "noAutoApproval", "fileWriteAllowed", "branchCreationAllowed", "prCreationAllowed"].includes(reason))) return "Sicherheitsflags verhindern Pickup-Contract.";
+  return "Pickup-Contract blockiert.";
+}
+
+function buildManualRunnerPickupContractDecision(item, runnerJobIdOverride) {
+  const runnerJobId = optionalString(runnerJobIdOverride || (item && item.runnerJobId), 180);
+  const currentStatus = optionalString(item && item.status, 80) || "pending_runner_pickup";
+  const allowedFiles = parseStringList((item && item.allowedFiles) || [], 80, 260);
+  const blockedFiles = parseStringList((item && item.blockedFiles) || [], 80, 260);
+  const requiredChecks = parseStringList((item && item.requiredChecks) || [], 80, 260);
+  const missing = [];
+  if (!runnerJobId) missing.push("runnerJobId");
+  if (currentStatus !== "pending_runner_pickup") missing.push("status_not_pending_runner_pickup");
+  if (!allowedFiles.length) missing.push("allowedFiles");
+  if (!blockedFiles.length) missing.push("blockedFiles");
+  if (!requiredChecks.length) missing.push("requiredChecks");
+  if (item && item.runnerStartAllowed === true) missing.push("runnerStartAllowed");
+  if (item && item.requiresManualRunnerPickup !== true) missing.push("requiresManualRunnerPickup");
+  if (item && item.noDeploy === false) missing.push("noDeploy");
+  if (item && (item.noMerge === false || item.merged === true || item.mergeAllowed === true || item.autoMerge === true)) missing.push("noMerge");
+  if (item && (item.noAutoApproval === false || item.autoApproval === true || item.autoApproved === true || item.autoApprove === true)) missing.push("noAutoApproval");
+  if (item && item.fileWriteAllowed === true) missing.push("fileWriteAllowed");
+  if (item && item.branchCreationAllowed === true) missing.push("branchCreationAllowed");
+  if (item && item.prCreationAllowed === true) missing.push("prCreationAllowed");
+  return {
+    contractable: missing.length === 0,
+    currentStatus,
+    missing,
+    failureMessage: buildManualRunnerPickupContractFailureMessage(missing),
+    contract: {
+      runnerJobId: runnerJobId || null,
+      workerQueueId: optionalString(item && item.workerQueueId, 180) || null,
+      taskProposalId: optionalString(item && item.taskProposalId, 180) || null,
+      title: optionalString(item && item.title, 240) || (runnerJobId ? `Runner Job ${runnerJobId}` : "Runner Job"),
+      requestedAction: optionalString(item && item.requestedAction, 1200) || optionalString(item && item.summary, 1200) || "Manual runner may create an implementation plan only.",
+      allowedFiles,
+      blockedFiles,
+      requiredChecks,
+      riskLevel: normalizeRiskLevel((item && item.riskLevel) || "medium"),
+      status: "pickup_contract_created",
+      executionMode: "manual_runner_pickup_contract",
+      runnerStartAllowed: false,
+      requiresManualRunnerPickup: true,
+      noDeploy: true,
+      noMerge: true,
+      noAutoApproval: true,
+      branchCreationAllowed: false,
+      prCreationAllowed: false,
+      fileWriteAllowed: false,
+      nextStep: "Manual runner may create an implementation plan only.",
     },
   };
 }
@@ -1597,6 +1657,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       runnerJobId: optionalString(data.runnerJobId, 180) || doc.id,
       workerQueueId: optionalString(data.workerQueueId, 180) || null,
       taskProposalId: optionalString(data.taskProposalId, 180) || null,
+      pickupContractId: optionalString(data.pickupContractId, 180) || null,
       title: optionalString(data.title, 240) || `Runner Job ${doc.id}`,
       status: optionalString(data.status, 80) || "pending_runner_pickup",
       executionMode: optionalString(data.executionMode, 120) || "owner_approved_manual_pickup",
@@ -1611,6 +1672,35 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       requiresManualRunnerPickup: data.requiresManualRunnerPickup === true,
       createdAt: safeTimestampValue(data.createdAt),
       ownerApprovedAt: safeTimestampValue(data.ownerApprovedAt),
+      pickupContractCreatedAt: safeTimestampValue(data.pickupContractCreatedAt),
+    };
+  }
+
+  function mapSafeAgentRunnerPickupContract(doc) {
+    const data = doc.data() || {};
+    return {
+      pickupContractId: optionalString(data.pickupContractId, 180) || doc.id,
+      runnerJobId: optionalString(data.runnerJobId, 180) || null,
+      workerQueueId: optionalString(data.workerQueueId, 180) || null,
+      taskProposalId: optionalString(data.taskProposalId, 180) || null,
+      title: optionalString(data.title, 240) || `Pickup Contract ${doc.id}`,
+      requestedAction: optionalString(data.requestedAction, 1200) || "Manual runner may create an implementation plan only.",
+      allowedFiles: parseStringList(data.allowedFiles || [], 80, 260),
+      blockedFiles: parseStringList(data.blockedFiles || [], 80, 260),
+      requiredChecks: parseStringList(data.requiredChecks || [], 80, 260),
+      riskLevel: normalizeRiskLevel(data.riskLevel || "medium"),
+      status: optionalString(data.status, 80) || "pickup_contract_created",
+      executionMode: optionalString(data.executionMode, 120) || "manual_runner_pickup_contract",
+      runnerStartAllowed: data.runnerStartAllowed === true,
+      requiresManualRunnerPickup: data.requiresManualRunnerPickup === true,
+      noDeploy: data.noDeploy !== false,
+      noMerge: data.noMerge !== false,
+      noAutoApproval: data.noAutoApproval !== false,
+      branchCreationAllowed: data.branchCreationAllowed === true,
+      prCreationAllowed: data.prCreationAllowed === true,
+      fileWriteAllowed: data.fileWriteAllowed === true,
+      nextStep: optionalString(data.nextStep, 500) || "Manual runner may create an implementation plan only.",
+      createdAt: safeTimestampValue(data.createdAt),
     };
   }
 
@@ -1711,6 +1801,57 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     }, { merge: true });
     await writeAgentAudit(db, { actorId, actorRole, action: "runner_start_approval_saved", proposalId: item.taskProposalId || item.proposalId || null, result: "pending_runner_pickup", allowedFiles: decision.runnerJob.allowedFiles, blockedFiles: decision.runnerJob.blockedFiles });
     return { accepted: true, runnerJobId: runnerRef.id, workerQueueId, taskProposalId: runnerJob.taskProposalId, status: "runner_start_approved", runnerJobStatus: "pending_runner_pickup", runnerStartApprovalDecision: "approved_for_manual_runner_pickup", noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, runnerStartAllowed: false, requiresManualRunnerPickup: true, message: "Runner-Start-Freigabe gespeichert. Kein Runner gestartet." };
+  });
+
+
+  exportsTarget.createManualRunnerPickupContract = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
+    const runnerJobId = requiredString(request.data && request.data.runnerJobId, "runnerJobId", HttpsError, 180);
+    const runnerRef = db.collection("agentRunnerJobs").doc(runnerJobId);
+    const runnerSnap = await runnerRef.get();
+    if (!runnerSnap.exists) throw new HttpsError("not-found", "runner_job_not_found");
+    const item = runnerSnap.data() || {};
+    const decision = buildManualRunnerPickupContractDecision({ ...item, runnerJobId }, runnerJobId);
+    if (!decision.contractable) throw new HttpsError("failed-precondition", decision.failureMessage || `manual_runner_pickup_contract_blocked:${decision.missing.join(",")}`);
+    const now = FieldValue.serverTimestamp();
+    const contractRef = db.collection("agentRunnerPickupContracts").doc();
+    const contract = {
+      ...decision.contract,
+      pickupContractId: contractRef.id,
+      createdAt: now,
+      createdByRole: actorRole,
+    };
+    await contractRef.set(contract);
+    await runnerRef.set({
+      status: "pickup_contract_created",
+      pickupContractId: contractRef.id,
+      pickupContractCreatedAt: now,
+      runnerStartAllowed: false,
+      requiresManualRunnerPickup: true,
+      noDeploy: true,
+      noMerge: true,
+      noAutoApproval: true,
+      branchCreationAllowed: false,
+      prCreationAllowed: false,
+      fileWriteAllowed: false,
+      runnerStarted: false,
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      lastStatusChangedAt: now,
+      updatedAt: now,
+    }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "manual_runner_pickup_contract_created", proposalId: item.taskProposalId || null, result: "pickup_contract_created", allowedFiles: decision.contract.allowedFiles, blockedFiles: decision.contract.blockedFiles });
+    return { accepted: true, ...contract, contract, message: "Pickup-Contract erzeugt. Noch keine Ausführung gestartet." };
+  });
+
+  exportsTarget.listAgentRunnerPickupContracts = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
+    const status = optionalString(request.data && request.data.status, 80);
+    let query = db.collection("agentRunnerPickupContracts").orderBy("createdAt", "desc").limit(100);
+    if (status && RUNNER_PICKUP_CONTRACT_STATUSES.includes(status)) query = query.where("status", "==", status);
+    const snapshot = await query.get();
+    const items = snapshot.docs.map(mapSafeAgentRunnerPickupContract);
+    return { accepted: true, items, pickupContracts: items, loadedCount: items.length, noDeploy: true, noMerge: true, runnerStartAllowed: false, fileWriteAllowed: false, branchCreationAllowed: false, prCreationAllowed: false };
   });
 
   exportsTarget.listAgentRunnerJobs = onCall(async (request) => {
@@ -2309,4 +2450,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, REVISION_DOSSIER_MESSAGE };
