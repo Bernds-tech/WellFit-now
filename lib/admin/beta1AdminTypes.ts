@@ -116,7 +116,8 @@ export type AgentTaskProposal = {
   updatedAt?: unknown;
   lastStatusChangedAt?: unknown;
 };
-export type AgentTaskProposalListResult = AdminCallableResult & { proposals?: AgentTaskProposal[] };
+export type AgentTaskProposalStatusCounts = { total: number; pending: number; approved: number; rejected: number; in_progress: number; completed: number; blocked: number };
+export type AgentTaskProposalListResult = AdminCallableResult & { proposals?: AgentTaskProposal[]; items?: AgentTaskProposal[]; loadedCount?: number; statusCounts?: AgentTaskProposalStatusCounts };
 
 export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
 export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string; reason?: string; suggestedBranch?: string };
