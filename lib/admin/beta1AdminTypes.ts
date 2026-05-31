@@ -91,7 +91,7 @@ export type AgentCenterInboxItem = {
   mirrorTargetId?: string;
 };
 
-export type AgentTaskProposalStatus = "proposed" | "review_required" | "approved" | "rejected" | "executed" | "blocked" | "queued" | "running" | "completed" | "failed" | "repair_required" | string;
+export type AgentTaskProposalStatus = "proposed" | "review_required" | "approved" | "rejected" | "executed" | "blocked" | "queued" | "queued_for_worker_review" | "running" | "completed" | "failed" | "repair_required" | string;
 export type AgentTaskProposal = {
   taskProposalId: string;
   proposalId?: string;
@@ -112,6 +112,8 @@ export type AgentTaskProposal = {
   noRunnerStarted?: boolean;
   noBranchOrPrOrMerge?: boolean;
   noDeploy?: boolean;
+  workerQueueId?: string | null;
+  lastWorkerQueueStatus?: string | null;
   createdAt?: unknown;
   updatedAt?: unknown;
   lastStatusChangedAt?: unknown;
@@ -121,6 +123,8 @@ export type AgentTaskProposalListResult = AdminCallableResult & { proposals?: Ag
 
 export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
 export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string; reason?: string; suggestedBranch?: string };
+export type TaskProposalWorkerQueueInput = { taskProposalId: string; workerStatus?: "queued_for_owner_review" | "pending_worker_review" };
+export type TaskProposalWorkerQueueResult = AdminCallableResult & { taskProposalId?: string; proposalStatus?: string; workerQueueId?: string; workerStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 export type ApprovedInboxToTaskProposalResult = AdminCallableResult & { inboxId?: string; taskProposalId?: string; proposalStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 export type ProductEvolutionInboxSyncInput = { registerSnapshot?: ProductEvolutionFirstRunOutputSnapshot | unknown; clientRequestShapeVersion?: string; clientHasRegisterSnapshot?: boolean; clientRegisterSnapshotKeys?: string[] };
 export type ProductEvolutionRevisionDossierResult = AdminCallableResult & { scanned?: number; regenerated?: number; stillRevisionRequested?: number; sampleRegeneratedIds?: string[]; sampleRevisionBlocked?: Array<Record<string, unknown>>; sourceTrust?: string; noRunnerStarted?: boolean; noDeploy?: boolean; noMerge?: boolean };

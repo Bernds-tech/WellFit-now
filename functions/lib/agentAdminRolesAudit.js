@@ -2,12 +2,12 @@ const { FieldValue } = require("firebase-admin/firestore");
 const { optionalString, requiredString } = require("./beta1Runtime");
 
 const ALLOWED_TARGET_TRACKS = ["docs_register", "runtime_ui", "runtime_backend", "live_page", "evidence", "blocked"];
-const PROPOSAL_STATUSES = ["proposed", "review_required", "pending", "pending_approval", "approved", "approved_ready", "approved_for_work", "rejected", "declined", "queued", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress", "executed", "completed", "done", "blocked", "failed", "repair_required"];
+const PROPOSAL_STATUSES = ["proposed", "review_required", "pending", "pending_approval", "approved", "approved_ready", "approved_for_work", "rejected", "declined", "queued", "queued_for_worker_review", "queued_for_owner_review", "pending_worker_review", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress", "executed", "completed", "done", "blocked", "failed", "repair_required"];
 const APPROVAL_STATUSES = ["approved", "rejected", "revoked"];
 const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked"];
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
 const HANDOFF_PROMPT_STATUSES = ["generated", "copied", "superseded", "blocked"];
-const WORKER_QUEUE_STATUSES = ["ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed"];
+const WORKER_QUEUE_STATUSES = ["queued_for_owner_review", "pending_worker_review", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed"];
 const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
 const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
@@ -28,7 +28,7 @@ function getAgentTaskProposalStatusBucket(statusValue) {
   if (["proposed", "review_required", "pending", "pending_approval", "draft"].includes(status)) return "pending";
   if (["approved", "approved_ready", "approved_for_work"].includes(status)) return "approved";
   if (["rejected", "declined"].includes(status)) return "rejected";
-  if (["queued", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress"].includes(status)) return "in_progress";
+  if (["queued", "queued_for_worker_review", "queued_for_owner_review", "pending_worker_review", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress"].includes(status)) return "in_progress";
   if (["completed", "done", "executed"].includes(status)) return "completed";
   if (["blocked", "failed", "repair_required"].includes(status)) return "blocked";
   return "pending";
@@ -1420,11 +1420,82 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       noRunnerStarted: data.noRunnerStarted !== false,
       noBranchOrPrOrMerge: data.noBranchOrPrOrMerge !== false,
       noDeploy: data.noDeploy !== false,
+      workerQueueId: optionalString(data.workerQueueId, 180) || null,
+      lastWorkerQueueStatus: optionalString(data.lastWorkerQueueStatus, 80) || null,
       createdAt: safeTimestampValue(data.createdAt),
       updatedAt: safeTimestampValue(data.updatedAt),
       lastStatusChangedAt: safeTimestampValue(data.lastStatusChangedAt),
     };
   }
+
+
+  exportsTarget.createWorkerQueueItemFromTaskProposal = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const taskProposalId = requiredString(request.data && (request.data.taskProposalId || request.data.proposalId), "taskProposalId", HttpsError, 180);
+    const proposalRef = db.collection("agentTaskProposals").doc(taskProposalId);
+    const proposalSnap = await proposalRef.get();
+    if (!proposalSnap.exists) throw new HttpsError("not-found", "task_proposal_not_found");
+    const proposal = proposalSnap.data() || {};
+    const currentStatus = optionalString(proposal.status, 80) || "proposed";
+    if (!["proposed", "review_required"].includes(currentStatus)) throw new HttpsError("failed-precondition", "task_proposal_status_not_reviewable");
+    const allowedFiles = parseStringList(proposal.allowedFiles || [], 80, 260);
+    const blockedFiles = parseStringList(proposal.blockedFiles || [], 80, 260);
+    const requiredChecks = parseStringList(proposal.requiredChecks || [], 80, 260);
+    assertCanonicalTruthChangeAllowed({ files: [...allowedFiles, ...blockedFiles], actorRole, ownerApprovalFlag: false, HttpsError });
+    const now = FieldValue.serverTimestamp();
+    const workerStatus = optionalString(request.data && request.data.workerStatus, 80) === "queued_for_owner_review" ? "queued_for_owner_review" : "pending_worker_review";
+    const workerMode = "manual_codex";
+    const workerRef = db.collection("agentTaskWorkerQueue").doc();
+    const workerDoc = {
+      workerQueueId: workerRef.id,
+      taskProposalId,
+      proposalId: optionalString(proposal.proposalId, 180) || taskProposalId,
+      sourceInboxId: optionalString(proposal.sourceInboxId, 180) || null,
+      sourceDossierId: optionalString(proposal.sourceDossierId, 180) || null,
+      workerStatus,
+      workerMode,
+      taskTitle: optionalString(proposal.title, 240) || `Task Proposal ${taskProposalId}`,
+      summary: optionalString(proposal.summary, 1200) || optionalString(proposal.requestedAction, 1200) || "",
+      requestedAction: optionalString(proposal.requestedAction, 1200) || "",
+      targetTrack: optionalString(proposal.targetTrack, 80) || "docs_register",
+      riskLevel: normalizeRiskLevel(proposal.riskLevel || "medium"),
+      allowedFiles,
+      blockedFiles,
+      requiredChecks,
+      suggestedBranch: optionalString(proposal.suggestedBranch, 180) || null,
+      canonicalTruthReadRequired: true,
+      canonicalTruthProtectedFiles: CANONICAL_TRUTH_PROTECTED_FILES,
+      canonicalTruthEditable: false,
+      canonicalTruthOwnerApprovalRequired: true,
+      canonicalTruthChangeProposalFile: CANONICAL_TRUTH_PROPOSAL_FILE,
+      humanMergeRequired: true,
+      autoMerge: false,
+      autoDeploy: false,
+      runnerStarted: false,
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+      createdBy: actorId,
+      createdByRole: actorRole,
+      queuedAt: now,
+      lastStatusChangedAt: now,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await workerRef.set(workerDoc, { merge: true });
+    await proposalRef.set({
+      status: "queued_for_worker_review",
+      workerQueueId: workerRef.id,
+      lastWorkerQueueStatus: workerStatus,
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+      lastStatusChangedAt: now,
+      updatedAt: now,
+    }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_prepared_from_task_proposal", proposalId: taskProposalId, result: workerStatus, allowedFiles, blockedFiles });
+    return { accepted: true, taskProposalId, proposalStatus: "queued_for_worker_review", workerQueueId: workerRef.id, workerStatus, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true };
+  });
 
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);

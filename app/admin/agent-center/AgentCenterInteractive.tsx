@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -83,7 +83,7 @@ function getTaskProposalBucket(proposal: AgentTaskProposal): TaskProposalBucket 
   if (["proposed", "review_required", "pending", "pending_approval", "draft"].includes(status)) return "pending";
   if (["approved", "approved_ready", "approved_for_work"].includes(status)) return "approved";
   if (["rejected", "declined"].includes(status)) return "rejected";
-  if (["queued", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress"].includes(status)) return "in_progress";
+  if (["queued", "queued_for_worker_review", "queued_for_owner_review", "pending_worker_review", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress"].includes(status)) return "in_progress";
   if (["completed", "done", "executed"].includes(status)) return "completed";
   if (["blocked", "failed", "repair_required"].includes(status)) return "blocked";
   return "unknown";
@@ -449,7 +449,7 @@ export default function AgentCenterInteractive({
         return;
       }
       setTaskProposals(proposals);
-      setSyncStatus(`Task Proposals geladen: ${proposals.length}. Read-only Review; keine Worker Queue, kein Runner, kein Deploy.`);
+      setSyncStatus(`Task Proposals geladen: ${proposals.length}. Review/Worker-Queue-Vorbereitung möglich; kein Runner, kein Deploy.`);
     } catch (error) {
       const safeMessage = getSafeAdminDecisionMessage(error);
       setTaskProposals([]);
@@ -706,6 +706,78 @@ export default function AgentCenterInteractive({
     }
   }
 
+  function workerQueueButtonReason(proposal: AgentTaskProposal): string {
+    const status = String(proposal.status || "proposed").toLowerCase();
+    const taskProposalId = asText(proposal.taskProposalId || proposal.proposalId);
+    if (!taskProposalId) return "Task-Proposal-ID fehlt";
+    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
+    if (!["proposed", "review_required"].includes(status)) return "Nur proposed/review_required kann vorbereitet werden.";
+    return "";
+  }
+
+  async function prepareWorkerQueueFromTaskProposal(proposal: AgentTaskProposal) {
+    const taskProposalId = asText(proposal.taskProposalId || proposal.proposalId);
+    const reason = workerQueueButtonReason(proposal);
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastWorkerQueueCreated: false,
+      lastWorkerQueueIdPresent: false,
+      lastWorkerQueueStatus: reason ? "blocked_client" : "started",
+      lastWorkerQueueMessage: reason || "Worker Queue wird vorbereitet …",
+      lastWorkerQueueNoRunnerStarted: "-",
+      lastWorkerQueueNoBranchOrPrOrMerge: "-",
+      lastWorkerQueueNoDeploy: "-",
+    }));
+    if (reason) {
+      setFeedback(reason);
+      return;
+    }
+
+    setBusy(true);
+    setFeedback("Worker Queue wird vorbereitet …");
+    try {
+      const result = await beta1AdminClient.createWorkerQueueItemFromTaskProposal({ taskProposalId }) as TaskProposalWorkerQueueResult;
+      const accepted = Boolean(result.accepted);
+      const workerQueueId = asText(result.workerQueueId);
+      const safeMessage = accepted
+        ? `Worker Queue vorbereitet.${workerQueueId ? ` workerQueueId: ${workerQueueId}` : ""}`
+        : `Worker Queue konnte nicht vorbereitet werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastWorkerQueueCreated: accepted,
+        lastWorkerQueueIdPresent: Boolean(workerQueueId),
+        lastWorkerQueueStatus: result.workerStatus || result.proposalStatus || (accepted ? "prepared" : "failed"),
+        lastWorkerQueueMessage: safeMessage,
+        lastWorkerQueueNoRunnerStarted: result.noRunnerStarted ?? "-",
+        lastWorkerQueueNoBranchOrPrOrMerge: result.noBranchOrPrOrMerge ?? "-",
+        lastWorkerQueueNoDeploy: result.noDeploy ?? "-",
+      }));
+      if (accepted) setActive("task_in_progress");
+    } catch (error) {
+      const safeMessage = `Worker Queue konnte nicht vorbereitet werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastWorkerQueueCreated: false,
+        lastWorkerQueueIdPresent: false,
+        lastWorkerQueueStatus: "error",
+        lastWorkerQueueMessage: safeMessage,
+        lastWorkerQueueNoRunnerStarted: "-",
+        lastWorkerQueueNoBranchOrPrOrMerge: "-",
+        lastWorkerQueueNoDeploy: "-",
+      }));
+    } finally {
+      try {
+        await refreshTaskProposals();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
   async function decide(kind: "agent" | "mission", action: "approve" | "reject" | "revise" | "block", row: Row) {
     const actionLabel = { approve: "Zustimmen", reject: "Ablehnen", revise: "Überarbeiten", block: "Blockieren" }[action];
     const reason = buttonReason(action, row);
@@ -807,6 +879,13 @@ export default function AgentCenterInteractive({
         <p>taskProposalLoadedCount: {String(syncDebug.taskProposalLoadedCount ?? taskProposals.length)}</p>
         <p>taskProposalResponseKeys: [{((syncDebug.taskProposalResponseKeys as string[] | undefined) || []).join(", ")}]</p>
         <p>taskProposalLoadError: {String(syncDebug.taskProposalLoadError || "-")}</p>
+        <p>lastWorkerQueueCreated: {String(syncDebug.lastWorkerQueueCreated ?? "-")}</p>
+        <p>lastWorkerQueueIdPresent: {String(syncDebug.lastWorkerQueueIdPresent ?? "-")}</p>
+        <p>lastWorkerQueueStatus: {String(syncDebug.lastWorkerQueueStatus || "-")}</p>
+        <p>lastWorkerQueueMessage: {String(syncDebug.lastWorkerQueueMessage || "-")}</p>
+        <p>lastWorkerQueueNoRunnerStarted: {String(syncDebug.lastWorkerQueueNoRunnerStarted ?? "-")}</p>
+        <p>lastWorkerQueueNoBranchOrPrOrMerge: {String(syncDebug.lastWorkerQueueNoBranchOrPrOrMerge ?? "-")}</p>
+        <p>lastWorkerQueueNoDeploy: {String(syncDebug.lastWorkerQueueNoDeploy ?? "-")}</p>
         <p>taskProposalPendingCount: {String(syncDebug.taskProposalPendingCount ?? taskProposalCounts.pending)}</p>
         <p>taskProposalNoRunnerStartedVisible: {String(syncDebug.taskProposalNoRunnerStartedVisible ?? "-")}</p>
         <p>taskProposalNoBranchOrPrOrMergeVisible: {String(syncDebug.taskProposalNoBranchOrPrOrMergeVisible ?? "-")}</p>
@@ -940,6 +1019,13 @@ export default function AgentCenterInteractive({
               </dl>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100" onClick={() => setTaskProposalDetail(proposal)}>Task Proposal ansehen</button>
+                {["proposed", "review_required"].includes(String(proposal.status || "proposed").toLowerCase()) && (() => {
+                  const reason = workerQueueButtonReason(proposal);
+                  return (
+                    <button title={reason || "Worker Queue vorbereiten"} className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(reason)} onClick={() => prepareWorkerQueueFromTaskProposal(proposal)}>Worker Queue vorbereiten</button>
+                  );
+                })()}
+                {asText(proposal.workerQueueId) && <span className="rounded border border-cyan-300/40 px-2 py-1 text-cyan-100">workerQueueId: {asText(proposal.workerQueueId)}</span>}
               </div>
             </article>
           ))}
@@ -1010,7 +1096,7 @@ export default function AgentCenterInteractive({
               {fileList("Welche Dateien dürfen geändert werden?", taskProposalDetail.allowedFiles)}
               {fileList("Welche Dateien sind blockiert?", taskProposalDetail.blockedFiles)}
               {fileList("Welche Checks sind Pflicht?", taskProposalDetail.requiredChecks)}
-              {info("Was passiert als nächstes?", "Admin prüft dieses Task Proposal manuell. Erst nach separater Freigabe darf daraus eine Worker Queue oder ein Runner-Handoff entstehen; diese Ansicht startet nichts.")}
+              {info("Was passiert als nächstes?", "Admin prüft dieses Task Proposal manuell. Für proposed/review_required kann eine Worker Queue vorbereitet werden; Runner, Branch, PR, Merge und Deploy bleiben deaktiviert.")}
               <div className="mt-3 rounded border border-emerald-300/40 bg-emerald-400/10 p-3 text-emerald-50">
                 <p className="font-semibold">Sicherheitsstatus: Kein Runner, kein Deploy, kein Merge.</p>
                 <p>noRunnerStarted: {String(taskProposalDetail.noRunnerStarted === true)}</p>
