@@ -66,6 +66,17 @@ type Row = Record<string, unknown> & {
   stopConditions?: string[];
   targetEnvironment?: string;
   nextAutomaticSteps?: string[];
+  executionContractVersion?: string;
+  executionContractMode?: string;
+  executionContractHash?: string;
+  stableContractFingerprint?: string;
+  approvedExecutionContractVersion?: string;
+  approvedExecutionContractHash?: string;
+  approvalMode?: string;
+  approvalCoversAutomaticExecution?: boolean;
+  requiresSingleDecisionReapproval?: boolean;
+  reapprovalReason?: string;
+  autoProgressStatus?: string;
 };
 
 type DataProps = { agents: Row[]; missions: Row[]; stats: Partial<Record<AdminCenterListFilter, number>> };
@@ -239,6 +250,10 @@ const getRollbackPlan = (row: Row): string[] => asStringArray(row.rollbackPlan).
 const getStopConditions = (row: Row): string[] => asStringArray(row.stopConditions).length ? asStringArray(row.stopConditions) : asStringArray(getExecutionEnvelope(row).stopConditions);
 const getNextAutomaticSteps = (row: Row): string[] => asStringArray(row.nextAutomaticSteps).length ? asStringArray(row.nextAutomaticSteps) : asStringArray(getExecutionEnvelope(row).nextAutomaticSteps);
 const getTargetEnvironment = (row: Row): string => asText(row.targetEnvironment || getExecutionEnvelope(row).targetEnvironment);
+const getCurrentExecutionContractHash = (row: Row): string => asText(row.executionContractHash || row.stableContractFingerprint);
+const isLegacyApprovedReapprovalRequired = (row: Row): boolean => row.requiresSingleDecisionReapproval === true || asText(row.singleDecisionStatus) === "pending_single_decision_reapproval";
+const contractApprovalMatchesCurrent = (row: Row): boolean => Boolean(asText(row.approvalMode) === "single_owner_decision" && row.approvalCoversAutomaticExecution === true && getCurrentExecutionContractHash(row) && asText(row.approvedExecutionContractHash) === getCurrentExecutionContractHash(row) && !isLegacyApprovedReapprovalRequired(row));
+const AUTO_PROGRESS_CONTRACT_BLOCKED = "Automatische Ausführung blockiert: Der aktuelle Ausführungsvertrag wurde noch nicht einmalig freigegeben.";
 
 const validateSingleDecisionExecutionContract = (row: Row) => {
   const executionContract = objectValue(row.executionContract);
@@ -263,6 +278,8 @@ const validateSingleDecisionExecutionContract = (row: Row) => {
   if (!firstText(row.risk, row.riskSummary, row.detailSections?.risk, row.detailSections?.risks)) missing.push("risk");
   if (!firstText(row.recommendationText, row.recommendationLabel, row.recommendation, row.detailSections?.recommendation)) missing.push("recommendation");
   if (executionContract.mode !== "single_owner_decision") missing.push("executionContract.mode");
+  if (!asText(row.executionContractVersion || executionContract.executionContractVersion)) missing.push("executionContractVersion");
+  if (!getCurrentExecutionContractHash(row)) missing.push("executionContractHash");
   for (const key of ["ownerDecisionRequiredOnce", "decisionCoversTaskProposal", "decisionCoversWorkerQueue", "decisionCoversRunnerJob", "decisionCoversPickupContract", "decisionCoversImplementationPlan", "decisionCoversFileWrites", "decisionCoversBranchCreation", "decisionCoversPrCreation", "decisionCoversMerge", "decisionCoversDeploy"]) if (!boolValue(executionContract, key)) missing.push(`executionContract.${key}`);
   if (executionContract.decisionCoversNative !== false) missing.push("executionContract.decisionCoversNative");
   if (executionContract.decisionCoversTokenPaymentBlockchain !== false) missing.push("executionContract.decisionCoversTokenPaymentBlockchain");
@@ -845,6 +862,12 @@ export default function AgentCenterInteractive({
         sampleSkipped: result.sampleSkipped || [],
         invalidInboxIdSanitized: result.invalidInboxIdSanitized,
         sourceDossierIdHadSlash: result.sourceDossierIdHadSlash,
+        contractUpgradeDetectedCount: result.contractUpgradeDetectedCount ?? 0,
+        reapprovalRequiredCount: result.reapprovalRequiredCount ?? 0,
+        sampleReapprovalRequiredIds: result.sampleReapprovalRequiredIds || [],
+        currentExecutionContractHashPresent: result.currentExecutionContractHashPresent ?? false,
+        approvedExecutionContractHashPresent: result.approvedExecutionContractHashPresent ?? false,
+        approvalCoversAutomaticExecution: result.approvalCoversAutomaticExecution ?? false,
       }));
       if (result.clientErrorCode === "client_auth_missing") {
         setSyncStatus("Auth-Fehler: Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.");
@@ -905,7 +928,8 @@ export default function AgentCenterInteractive({
     if (!hasInbox) return "Server-Inbox-Eintrag fehlt";
     if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
     if (status === "blocked" || protectedScope) return "Eintrag blockiert";
-    if (status !== "pending_approval") return "Status erlaubt diese Aktion nicht";
+    const reapprovalRequired = isLegacyApprovedReapprovalRequired(row);
+    if (status !== "pending_approval" && !(reapprovalRequired && status === "approved" && _action === "approve")) return "Status erlaubt diese Aktion nicht";
     if (_action === "approve") {
       const details = getDecisionDetails(row);
       if (details.singleDecision.isSingleDecision && !details.singleDecision.isComplete) return SINGLE_DECISION_BLOCKER;
@@ -921,6 +945,7 @@ export default function AgentCenterInteractive({
     if (!inboxId) return "Server-Inbox-Eintrag fehlt";
     if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
     if (status !== "approved") return "Eintrag ist nicht approved.";
+    if (((row.executionContract && row.executionContract.mode) || row.mode) === "single_owner_decision" && !contractApprovalMatchesCurrent(row)) return AUTO_PROGRESS_CONTRACT_BLOCKED;
     return "";
   }
 
@@ -2180,7 +2205,8 @@ export default function AgentCenterInteractive({
           const blockReason = buttonReason("block", row);
           const reviseReason = buttonReason("revise", row);
           const taskProposalReason = taskProposalButtonReason(row);
-          const canShowTaskProposalAction = String(row.status || "").toLowerCase() === "approved";
+          const reapprovalRequired = isLegacyApprovedReapprovalRequired(row);
+          const canShowTaskProposalAction = String(row.status || "").toLowerCase() === "approved" && !reapprovalRequired;
           const decisionBlocker = approveReason || rejectReason || blockReason || reviseReason;
 
           return (
@@ -2190,13 +2216,14 @@ export default function AgentCenterInteractive({
               <p>Status: {String(row.status || "pending_approval")} · Inbox: {hasInbox ? "synchronisiert" : "Noch nicht synchronisiert"}</p>
               {asText(row.recommendationLabel) && <p className="text-emerald-200">Empfehlung: {asText(row.recommendationLabel)}</p>}
               {row.supersededByReadableDecisionDossier === true && <p className="text-amber-200">Legacy/alte Quelle: lesbares Decision-Dossier wird bevorzugt ({asText(row.readableDossierInboxId) || "decisionDossiers"}).</p>}
+              {reapprovalRequired && <div className="mt-2 rounded border border-amber-300/50 bg-amber-300/10 p-2 text-amber-100"><p className="font-semibold">Alte Freigabe erkannt</p><p>Diese Freigabe gilt nur für den alten eingeschränkten Vertrag.</p><p>Für automatische Ausführung ist eine neue einmalige Entscheidung nötig.</p><p>{asText(row.reapprovalReason) || "Dieser Vorschlag wurde früher mit einem alten, engen Vertrag freigegeben. Für automatische Ausführung ist eine neue einmalige Entscheidung auf Basis des vollständigen Ausführungsvertrags nötig."}</p></div>}
               <p>inboxId: {hasInbox ? asText(row.inboxId) : "—"}</p>
               <p>Warum Buttons ggf. gesperrt: {decisionBlocker || (missing.length > 0 ? `Dossierdaten unvollständig (${missing.join(", ")})` : "entscheidbar")}</p>
 
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasDossierDetails && !row.hasReportDetails} onClick={() => setDetailRow(row)}>Dossier ansehen (konkrete Entscheidungsvorlage)</button>
                 <button className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={!row.hasReportDetails} onClick={() => setDetailRow(row)}>Bericht ansehen (übergeordnete Analyse / Hintergrundbericht)</button>
-                <button title={approveReason || "Zustimmen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(approveReason)} onClick={() => decide(decisionKind, "approve", row)}>Zustimmen</button>
+                <button title={approveReason || (reapprovalRequired ? "Single-Decision neu freigeben" : "Zustimmen")} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(approveReason)} onClick={() => decide(decisionKind, "approve", row)}>{reapprovalRequired ? "Single-Decision neu freigeben" : "Zustimmen"}</button>
                 <button title={rejectReason || "Ablehnen"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(rejectReason)} onClick={() => decide(decisionKind, "reject", row)}>Ablehnen</button>
                 <button title={reviseReason || "Überarbeiten"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(reviseReason)} onClick={() => decide(decisionKind, "revise", row)}>Überarbeiten</button>
                 <button title={blockReason || "Blockieren"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(blockReason)} onClick={() => decide(decisionKind, "block", row)}>Blockieren</button>
@@ -2457,6 +2484,8 @@ export default function AgentCenterInteractive({
             <p>Source Type: {String(detailRow.sourceType || "—")} · List Type: {String(detailRow.listType || "—")}</p>
             <p>Status: {String(detailRow.status || "pending_approval")}</p>
             <p>Detailstatus: {details.isComplete ? "structured" : "missing"}</p>
+            {isLegacyApprovedReapprovalRequired(detailRow) && <div className="mt-2 rounded border border-amber-300/50 bg-amber-300/10 p-2 text-amber-100"><p className="font-semibold">Alte Freigabe erkannt</p><p>Diese Freigabe gilt nur für den alten eingeschränkten Vertrag.</p><p>Für automatische Ausführung ist eine neue einmalige Entscheidung nötig.</p><p>{asText(detailRow.reapprovalReason) || "Dieser Vorschlag wurde früher mit einem alten, engen Vertrag freigegeben. Für automatische Ausführung ist eine neue einmalige Entscheidung auf Basis des vollständigen Ausführungsvertrags nötig."}</p></div>}
+            {details.singleDecision.isSingleDecision && <p>Contract: {asText(detailRow.executionContractVersion) || "—"} · Hash vorhanden: {String(Boolean(getCurrentExecutionContractHash(detailRow)))} · Approved Hash passt: {String(contractApprovalMatchesCurrent(detailRow))}</p>}
             {!details.isComplete && <div className="mt-2 rounded border border-amber-300/50 bg-amber-300/10 p-2 text-amber-100"><p className="font-semibold">Dossierdaten unvollständig</p><p>Fehlende Entscheidungsfelder: {details.missing.join(", ")}</p><p>Sperrgrund: {details.singleDecision.isSingleDecision ? SINGLE_DECISION_BLOCKER : "Dossier unvollständig – zuerst Überarbeiten wählen."}</p></div>}
             {details.singleDecision.isSingleDecision && <div className="mt-3 rounded border border-cyan-300/40 bg-cyan-400/10 p-3 text-cyan-50">
               <p className="font-semibold">Diese eine Entscheidung erlaubt</p>

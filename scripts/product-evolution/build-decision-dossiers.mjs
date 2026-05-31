@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import crypto from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
@@ -18,6 +19,7 @@ const DEFAULT_BLOCKED_FILES = ["native/**"];
 const DEFAULT_REQUIRED_CHECKS = ["npm run agent:validate", "npm run lint", "npm run build", "npm --prefix functions run check", "git diff --check", "npx tsc --noEmit --pretty false"];
 const DEFAULT_STOP_CONDITIONS = ["file_outside_allowedFiles_required", "blockedFiles_required", "native_required", "token_payment_blockchain_required", "secrets_or_identity_in_debug", "required_checks_failed", "merge_conflict", "deploy_failed", "dossier_data_missing", "target_environment_not_test_main", "production_live_site_impacted"];
 const DEFAULT_NEXT_AUTOMATIC_STEPS = ["task_proposal", "worker_queue", "runner_job", "pickup_contract", "implementation_plan", "file_write_branch_pr_merge_deploy_if_allowed"];
+const CONTRACT_FINGERPRINT_FIELDS = ["executionContract", "allowedExecution", "forbiddenExecution", "executionEnvelope", "allowedFiles", "blockedFiles", "requiredChecks", "validationPlan", "rollbackPlan", "stopConditions", "targetEnvironment", "nextAutomaticSteps"];
 const REQUIRED_DECISION_FIELDS = ["summary", "whatWillChange", "whySuggested", "wellFitBenefit", "userBenefit", "businessBenefit", "economyImpact", "riskSummary", "recommendation", "recommendationLabel", "recommendationText", "executionContract", "allowedExecution", "forbiddenExecution", "executionEnvelope", "allowedFiles", "blockedFiles", "requiredChecks", "validationPlan", "rollbackPlan", "stopConditions", "targetEnvironment", "nextAutomaticSteps"];
 const RECOMMENDATION_COPY = {
   approve: {
@@ -78,6 +80,34 @@ function dossierIdFromPath(path, index) {
   return `PE-DOSSIER-${String(index + 1).padStart(2, "0")}-${slug.slice(0, 80)}`;
 }
 
+function stableContractValue(value) {
+  if (Array.isArray(value)) return value.map(stableContractValue);
+  if (value && typeof value === "object") {
+    return Object.keys(value).sort().reduce((acc, key) => {
+      const nested = stableContractValue(value[key]);
+      if (nested !== undefined) acc[key] = nested;
+      return acc;
+    }, {});
+  }
+  return value === undefined ? undefined : value;
+}
+
+function buildExecutionContractHash(source) {
+  const fingerprintSource = CONTRACT_FINGERPRINT_FIELDS.reduce((acc, field) => {
+    const value = stableContractValue(source?.[field]);
+    if (value !== undefined && value !== null && !(Array.isArray(value) && value.length === 0)) acc[field] = value;
+    return acc;
+  }, {});
+  return crypto.createHash("sha256").update(JSON.stringify(stableContractValue(fingerprintSource))).digest("hex");
+}
+
+function withExecutionContractApprovalFields(fields) {
+  const executionContractVersion = fields.executionContract?.executionContractVersion || "2026-05-31.single-owner-decision.v1";
+  const executionContractMode = fields.executionContract?.mode || fields.mode || "single_owner_decision";
+  const executionContractHash = buildExecutionContractHash(fields);
+  return { ...fields, executionContractVersion, executionContractMode, executionContractHash, stableContractFingerprint: executionContractHash, approvedExecutionContractVersion: "", approvedExecutionContractHash: "", approvalMode: "", approvalCoversAutomaticExecution: false, requiresSingleDecisionReapproval: false, reapprovalReason: "" };
+}
+
 function clip(text, max = 520) {
   const clean = String(text || "").replace(/\s+/g, " ").trim();
   if (clean.length <= max) return clean;
@@ -131,7 +161,7 @@ function buildSingleDecisionExecutionFields({ allowedFiles = DEFAULT_ALLOWED_FIL
     targetEnvironment: "test_main",
     nextAutomaticSteps: DEFAULT_NEXT_AUTOMATIC_STEPS,
   };
-  return {
+  return withExecutionContractApprovalFields({
     executionContract: {
       executionContractVersion: "2026-05-31.single-owner-decision.v1",
       mode: "single_owner_decision",
@@ -185,7 +215,7 @@ function buildSingleDecisionExecutionFields({ allowedFiles = DEFAULT_ALLOWED_FIL
     deployPlan: "Deploy darf nur fuer targetEnvironment=test_main erfolgen; keine echte Live-/Produktionsuebernahme.",
     tokenPaymentBlockchainPlan: "forbidden",
     nativePlan: "forbidden",
-  };
+  });
 }
 
 function recommendationCopy(recommendation) {
