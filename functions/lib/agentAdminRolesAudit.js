@@ -8,8 +8,9 @@ const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
 const HANDOFF_PROMPT_STATUSES = ["generated", "copied", "superseded", "blocked"];
 const WORKER_QUEUE_STATUSES = ["queued_for_owner_review", "queued_for_worker_review", "pending_worker_review", "ready_for_worker", "previewed_for_runner", "runner_start_approved", "in_progress", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed", "repair_required"];
-const RUNNER_JOB_STATUSES = ["pending_runner_pickup", "pickup_contract_created", "runner_job_created", "picked_up", "planning", "in_progress", "completed", "blocked", "repair_required"];
-const RUNNER_PICKUP_CONTRACT_STATUSES = ["pickup_contract_created", "picked_up", "planning", "in_progress", "completed", "blocked", "repair_required"];
+const RUNNER_JOB_STATUSES = ["pending_runner_pickup", "pickup_contract_created", "implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "runner_job_created", "picked_up", "planning", "in_progress", "completed", "blocked", "repair_required"];
+const RUNNER_PICKUP_CONTRACT_STATUSES = ["pickup_contract_created", "implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "picked_up", "planning", "in_progress", "completed", "blocked", "repair_required"];
+const RUNNER_IMPLEMENTATION_PLAN_STATUSES = ["implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "planning", "in_progress", "completed", "repair_required", "blocked"];
 const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
 const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
@@ -388,6 +389,119 @@ function buildRunnerStartApprovalDecision(item, workerQueueIdOverride) {
     },
   };
 }
+
+function buildManualRunnerImplementationPlanFailureMessage(missing) {
+  const reasons = Array.isArray(missing) ? missing : [];
+  if (reasons.includes("pickupContractId")) return "Pickup Contract ID fehlt.";
+  if (reasons.includes("status_not_pickup_contract_created")) return "Nur pickup_contract_created darf einen Implementierungsplan erzeugen.";
+  const missingRequired = reasons.filter((reason) => ["allowedFiles", "blockedFiles", "requiredChecks"].includes(reason));
+  if (missingRequired.length) return `Pflichtdaten fehlen: ${missingRequired.join("/")}.`;
+  if (reasons.some((reason) => ["runnerStartAllowed", "fileWriteAllowed", "branchCreationAllowed", "prCreationAllowed", "noDeploy", "noMerge"].includes(reason))) return "Sicherheitsflags verhindern Implementierungsplan.";
+  return "Implementierungsplan blockiert.";
+}
+
+function buildFamilyAdventureImplementationPlanContent(contract) {
+  const title = optionalString(contract && contract.title, 240) || "Familien Abenteuerpfad Woche";
+  const isFamilyAdventure = title.toLowerCase().includes("familien abenteuerpfad");
+  if (isFamilyAdventure) {
+    return {
+      planSummary: "Es wird ein laienverständlicher 5-Tage-Familien-Abenteuerpfad als Dokumentations- und Konzeptplan vorbereitet. Jeder Tag kombiniert eine kleine Bewegungsaufgabe, einen Mini-Lernimpuls und ein soziales Check-in. Es entsteht noch keine App-Umsetzung und es werden keine Produktdateien geändert.",
+      plannedSteps: [
+        "Rahmen und Zielgruppe für die Familien-Abenteuerpfad-Woche beschreiben.",
+        "Fünf Tagesstationen skizzieren: pro Tag eine kleine sichere Bewegungsaufgabe, ein Mini-Lernimpuls und ein soziales Check-in.",
+        "Dokumentieren, dass erwartete spätere Dateien nur unter docs/**, todolist/** oder project-register/** liegen dürfen.",
+        "Sperren ausdrücklich festhalten: app/**, functions/**, firestore.rules, native/** und .github/** bleiben unangetastet.",
+        "Prüfplan, offene Fragen und Rollback für eine spätere Owner-Freigabe notieren."
+      ],
+      expectedFilesToTouch: ["docs/**", "todolist/**", "project-register/**"],
+      expectedOutputs: [
+        "Ein freigabefähiges Konzeptdokument für die 5-Tage-Familien-Abenteuerpfad-Woche.",
+        "Eine kurze TODO-/Register-Notiz für den Owner-Review, falls später freigegeben.",
+        "Keine App-, Functions-, Firestore-Rules-, native-App- oder GitHub-Actions-Änderung."
+      ],
+      validationPlan: [
+        "Prüfen, dass der Plan nur Dokumentation/Konzept beschreibt und keine App-Umsetzung startet.",
+        "Prüfen, dass expectedFilesToTouch ausschließlich docs/**, todolist/** oder project-register/** enthält.",
+        "Pflichtchecks für eine spätere Umsetzung festhalten: npm run agent:validate, npm run agent:quality-gate, npm run lint, npm run build und git diff --check."
+      ],
+      rollbackPlan: [
+        "Falls der Owner den Plan nicht freigibt, bleibt der Contract im Planungsstand und es wird keine Datei geändert.",
+        "Falls ein Plan-Dokument korrigiert werden muss, wird nur das Plan-Dokument ersetzt oder auf repair_required gesetzt.",
+        "Es gibt keinen Branch, PR, Merge oder Deploy, der zurückgerollt werden müsste."
+      ],
+      openQuestions: [
+        "Soll der spätere Konzepttext eher für Eltern, Kinder oder interne Planung formuliert werden?",
+        "Soll die Woche einen Natur-, Stadt- oder Zuhause-Schwerpunkt bekommen?",
+        "Welche Sicherheits-/Altersgrenzen soll der Owner vor einer späteren Umsetzung ergänzen?"
+      ],
+    };
+  }
+  return {
+    planSummary: "Manueller Implementierungsplan: Der Pickup Contract wird in einen reviewbaren Plan übersetzt. Es werden keine Dateien geändert, kein Branch erstellt, kein PR geöffnet, kein Merge und kein Deploy ausgelöst.",
+    plannedSteps: ["Ziel und Scope aus dem Pickup Contract zusammenfassen.", "Erwartete spätere Dateien gegen allowedFiles und blockedFiles abgleichen.", "Prüf-, Rollback- und offene Fragen für den Owner-Review dokumentieren."],
+    expectedFilesToTouch: parseStringList(contract && contract.allowedFiles || [], 80, 260),
+    expectedOutputs: ["Owner-reviewbarer Implementierungsplan", "Keine Dateiänderung", "Keine Ausführung"],
+    validationPlan: ["Plan gegen allowedFiles/blockedFiles/requiredChecks prüfen.", "Sicherheitsflags bestätigen: fileWriteAllowed=false, branchCreationAllowed=false, prCreationAllowed=false, noDeploy=true, noMerge=true."],
+    rollbackPlan: ["Plan auf repair_required setzen oder verwerfen; keine Produktänderung muss zurückgerollt werden."],
+    openQuestions: [],
+  };
+}
+
+function buildManualRunnerImplementationPlanDecision(contract, pickupContractIdOverride) {
+  const pickupContractId = optionalString(pickupContractIdOverride || (contract && contract.pickupContractId), 180);
+  const currentStatus = optionalString(contract && contract.status, 80) || "pickup_contract_created";
+  const allowedFiles = parseStringList((contract && contract.allowedFiles) || [], 80, 260);
+  const blockedFiles = parseStringList((contract && contract.blockedFiles) || [], 80, 260);
+  const requiredChecks = parseStringList((contract && contract.requiredChecks) || [], 80, 260);
+  const missing = [];
+  if (!pickupContractId) missing.push("pickupContractId");
+  if (currentStatus !== "pickup_contract_created") missing.push("status_not_pickup_contract_created");
+  if (!allowedFiles.length) missing.push("allowedFiles");
+  if (!blockedFiles.length) missing.push("blockedFiles");
+  if (!requiredChecks.length) missing.push("requiredChecks");
+  if (contract && contract.runnerStartAllowed === true) missing.push("runnerStartAllowed");
+  if (contract && contract.fileWriteAllowed === true) missing.push("fileWriteAllowed");
+  if (contract && contract.branchCreationAllowed === true) missing.push("branchCreationAllowed");
+  if (contract && contract.prCreationAllowed === true) missing.push("prCreationAllowed");
+  if (contract && contract.noDeploy === false) missing.push("noDeploy");
+  if (contract && contract.noMerge === false) missing.push("noMerge");
+  const content = buildFamilyAdventureImplementationPlanContent(contract || {});
+  return {
+    plannable: missing.length === 0,
+    currentStatus,
+    missing,
+    failureMessage: buildManualRunnerImplementationPlanFailureMessage(missing),
+    plan: {
+      pickupContractId: pickupContractId || null,
+      runnerJobId: optionalString(contract && contract.runnerJobId, 180) || null,
+      workerQueueId: optionalString(contract && contract.workerQueueId, 180) || null,
+      taskProposalId: optionalString(contract && contract.taskProposalId, 180) || null,
+      title: optionalString(contract && contract.title, 240) || (pickupContractId ? `Pickup Contract ${pickupContractId}` : "Pickup Contract"),
+      requestedAction: optionalString(contract && contract.requestedAction, 1200) || "Create a manual implementation plan only.",
+      status: "implementation_plan_created",
+      executionMode: "manual_plan_only",
+      allowedFiles,
+      blockedFiles,
+      requiredChecks,
+      riskLevel: normalizeRiskLevel((contract && contract.riskLevel) || "medium"),
+      planSummary: content.planSummary,
+      plannedSteps: content.plannedSteps,
+      expectedFilesToTouch: content.expectedFilesToTouch,
+      expectedOutputs: content.expectedOutputs,
+      validationPlan: content.validationPlan,
+      rollbackPlan: content.rollbackPlan,
+      openQuestions: content.openQuestions,
+      fileWriteAllowed: false,
+      branchCreationAllowed: false,
+      prCreationAllowed: false,
+      noDeploy: true,
+      noMerge: true,
+      requiresOwnerPlanApproval: true,
+      nextStep: "Owner must approve implementation plan before any file write or branch creation.",
+    },
+  };
+}
+
 function buildManualRunnerPickupContractFailureMessage(missing) {
   const reasons = Array.isArray(missing) ? missing : [];
   if (reasons.includes("runnerJobId")) return "Runner Job ID fehlt.";
@@ -1704,6 +1818,41 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     };
   }
 
+
+  function mapSafeAgentRunnerImplementationPlan(doc) {
+    const data = doc.data() || {};
+    return {
+      implementationPlanId: optionalString(data.implementationPlanId, 180) || doc.id,
+      pickupContractId: optionalString(data.pickupContractId, 180) || null,
+      runnerJobId: optionalString(data.runnerJobId, 180) || null,
+      workerQueueId: optionalString(data.workerQueueId, 180) || null,
+      taskProposalId: optionalString(data.taskProposalId, 180) || null,
+      title: optionalString(data.title, 240) || `Implementation Plan ${doc.id}`,
+      requestedAction: optionalString(data.requestedAction, 1200) || "Create a manual implementation plan only.",
+      status: optionalString(data.status, 80) || "implementation_plan_created",
+      executionMode: optionalString(data.executionMode, 120) || "manual_plan_only",
+      allowedFiles: parseStringList(data.allowedFiles || [], 80, 260),
+      blockedFiles: parseStringList(data.blockedFiles || [], 80, 260),
+      requiredChecks: parseStringList(data.requiredChecks || [], 80, 260),
+      riskLevel: normalizeRiskLevel(data.riskLevel || "medium"),
+      planSummary: optionalString(data.planSummary, 2000) || "",
+      plannedSteps: parseStringList(data.plannedSteps || [], 80, 1000),
+      expectedFilesToTouch: parseStringList(data.expectedFilesToTouch || [], 80, 260),
+      expectedOutputs: parseStringList(data.expectedOutputs || [], 80, 1000),
+      validationPlan: parseStringList(data.validationPlan || [], 80, 1000),
+      rollbackPlan: parseStringList(data.rollbackPlan || [], 80, 1000),
+      openQuestions: parseStringList(data.openQuestions || [], 80, 1000),
+      fileWriteAllowed: data.fileWriteAllowed === true,
+      branchCreationAllowed: data.branchCreationAllowed === true,
+      prCreationAllowed: data.prCreationAllowed === true,
+      noDeploy: data.noDeploy !== false,
+      noMerge: data.noMerge !== false,
+      requiresOwnerPlanApproval: data.requiresOwnerPlanApproval === true,
+      nextStep: optionalString(data.nextStep, 500) || "Owner must approve implementation plan before any file write or branch creation.",
+      createdAt: safeTimestampValue(data.createdAt),
+    };
+  }
+
   function mapSafeAgentTaskProposal(doc, sourceInbox) {
     const data = doc.data() || {};
     const summary = optionalString(data.summary, 1200) || optionalString(data.plainSummary, 1200) || optionalString(sourceInbox && (sourceInbox.summary || sourceInbox.plainSummary), 1200) || optionalString(data.requestedAction, 1200);
@@ -1842,6 +1991,67 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     }, { merge: true });
     await writeAgentAudit(db, { actorId, actorRole, action: "manual_runner_pickup_contract_created", proposalId: item.taskProposalId || null, result: "pickup_contract_created", allowedFiles: decision.contract.allowedFiles, blockedFiles: decision.contract.blockedFiles });
     return { accepted: true, ...contract, contract, message: "Pickup-Contract erzeugt. Noch keine Ausführung gestartet." };
+  });
+
+
+  exportsTarget.createManualRunnerImplementationPlan = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
+    const pickupContractId = requiredString(request.data && request.data.pickupContractId, "pickupContractId", HttpsError, 180);
+    const contractRef = db.collection("agentRunnerPickupContracts").doc(pickupContractId);
+    const contractSnap = await contractRef.get();
+    if (!contractSnap.exists) throw new HttpsError("not-found", "pickup_contract_not_found");
+    const item = contractSnap.data() || {};
+    const decision = buildManualRunnerImplementationPlanDecision({ ...item, pickupContractId }, pickupContractId);
+    if (!decision.plannable) throw new HttpsError("failed-precondition", decision.failureMessage || `manual_runner_implementation_plan_blocked:${decision.missing.join(",")}`);
+    const now = FieldValue.serverTimestamp();
+    const planRef = db.collection("agentRunnerImplementationPlans").doc();
+    const plan = {
+      ...decision.plan,
+      implementationPlanId: planRef.id,
+      createdAt: now,
+      createdByRole: actorRole,
+    };
+    await planRef.set(plan);
+    await contractRef.set({
+      status: "implementation_plan_created",
+      implementationPlanId: planRef.id,
+      implementationPlanCreatedAt: now,
+      fileWriteAllowed: false,
+      branchCreationAllowed: false,
+      prCreationAllowed: false,
+      noDeploy: true,
+      noMerge: true,
+      runnerStartAllowed: false,
+      lastStatusChangedAt: now,
+      updatedAt: now,
+    }, { merge: true });
+    if (decision.plan.runnerJobId) {
+      await db.collection("agentRunnerJobs").doc(decision.plan.runnerJobId).set({
+        status: "implementation_plan_created",
+        implementationPlanId: planRef.id,
+        implementationPlanCreatedAt: now,
+        runnerStartAllowed: false,
+        fileWriteAllowed: false,
+        branchCreationAllowed: false,
+        prCreationAllowed: false,
+        noDeploy: true,
+        noMerge: true,
+        lastStatusChangedAt: now,
+        updatedAt: now,
+      }, { merge: true });
+    }
+    await writeAgentAudit(db, { actorId, actorRole, action: "manual_runner_implementation_plan_created", proposalId: item.taskProposalId || null, result: "implementation_plan_created", allowedFiles: decision.plan.allowedFiles, blockedFiles: decision.plan.blockedFiles });
+    return { accepted: true, ...plan, plan, message: "Implementierungsplan erzeugt. Noch keine Dateiänderung gestartet." };
+  });
+
+  exportsTarget.listAgentRunnerImplementationPlans = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
+    const status = optionalString(request.data && request.data.status, 80);
+    let query = db.collection("agentRunnerImplementationPlans").orderBy("createdAt", "desc").limit(100);
+    if (status && RUNNER_IMPLEMENTATION_PLAN_STATUSES.includes(status)) query = query.where("status", "==", status);
+    const snapshot = await query.get();
+    const items = snapshot.docs.map(mapSafeAgentRunnerImplementationPlan);
+    return { accepted: true, items, implementationPlans: items, loadedCount: items.length, fileWriteAllowed: false, branchCreationAllowed: false, prCreationAllowed: false, noDeploy: true, noMerge: true };
   });
 
   exportsTarget.listAgentRunnerPickupContracts = onCall(async (request) => {
@@ -2450,4 +2660,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, REVISION_DOSSIER_MESSAGE };

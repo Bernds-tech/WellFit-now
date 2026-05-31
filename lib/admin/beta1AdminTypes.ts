@@ -179,7 +179,7 @@ export type WorkerQueueRunnerPreview = {
 export type WorkerQueueRunnerPreviewResult = AdminCallableResult & WorkerQueueRunnerPreview & { preview?: WorkerQueueRunnerPreview };
 
 
-export type AgentRunnerJobStatus = "pending_runner_pickup" | "pickup_contract_created" | "runner_job_created" | "picked_up" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
+export type AgentRunnerJobStatus = "pending_runner_pickup" | "pickup_contract_created" | "implementation_plan_created" | "implementation_plan_review" | "implementation_plan_approved" | "runner_job_created" | "picked_up" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
 export type AgentRunnerJob = {
   runnerJobId: string;
   workerQueueId?: string | null;
@@ -215,7 +215,7 @@ export type AgentRunnerPickupContract = {
   blockedFiles?: string[];
   requiredChecks?: string[];
   riskLevel?: string;
-  status?: "pickup_contract_created" | "picked_up" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
+  status?: "pickup_contract_created" | "implementation_plan_created" | "implementation_plan_review" | "implementation_plan_approved" | "picked_up" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
   executionMode?: string;
   runnerStartAllowed?: boolean;
   requiresManualRunnerPickup?: boolean;
@@ -231,6 +231,40 @@ export type AgentRunnerPickupContract = {
 export type AgentRunnerPickupContractListResult = AdminCallableResult & { items?: AgentRunnerPickupContract[]; pickupContracts?: AgentRunnerPickupContract[]; loadedCount?: number; noDeploy?: boolean; noMerge?: boolean; runnerStartAllowed?: boolean; fileWriteAllowed?: boolean; branchCreationAllowed?: boolean; prCreationAllowed?: boolean };
 export type ManualRunnerPickupContractInput = { runnerJobId?: string; id?: string; targetId?: string };
 export type ManualRunnerPickupContractResult = AdminCallableResult & AgentRunnerPickupContract & { contract?: AgentRunnerPickupContract; message?: string };
+
+export type AgentRunnerImplementationPlan = {
+  implementationPlanId: string;
+  pickupContractId?: string | null;
+  runnerJobId?: string | null;
+  workerQueueId?: string | null;
+  taskProposalId?: string | null;
+  title?: string;
+  requestedAction?: string;
+  status?: "implementation_plan_created" | "implementation_plan_review" | "implementation_plan_approved" | "planning" | "in_progress" | "completed" | "repair_required" | "blocked" | string;
+  executionMode?: "manual_plan_only" | string;
+  allowedFiles?: string[];
+  blockedFiles?: string[];
+  requiredChecks?: string[];
+  riskLevel?: string;
+  planSummary?: string;
+  plannedSteps?: string[];
+  expectedFilesToTouch?: string[];
+  expectedOutputs?: string[];
+  validationPlan?: string[];
+  rollbackPlan?: string[];
+  openQuestions?: string[];
+  fileWriteAllowed?: boolean;
+  branchCreationAllowed?: boolean;
+  prCreationAllowed?: boolean;
+  noDeploy?: boolean;
+  noMerge?: boolean;
+  requiresOwnerPlanApproval?: boolean;
+  nextStep?: string;
+  createdAt?: unknown;
+};
+export type AgentRunnerImplementationPlanListResult = AdminCallableResult & { items?: AgentRunnerImplementationPlan[]; implementationPlans?: AgentRunnerImplementationPlan[]; loadedCount?: number; fileWriteAllowed?: boolean; branchCreationAllowed?: boolean; prCreationAllowed?: boolean; noDeploy?: boolean; noMerge?: boolean };
+export type ManualRunnerImplementationPlanInput = { pickupContractId?: string; id?: string; targetId?: string };
+export type ManualRunnerImplementationPlanResult = AdminCallableResult & AgentRunnerImplementationPlan & { plan?: AgentRunnerImplementationPlan; message?: string };
 
 export type WorkerQueueRunnerStartApprovalResult = AdminCallableResult & { runnerJobId?: string; workerQueueId?: string; taskProposalId?: string | null; status?: string; runnerJobStatus?: string; runnerStartApprovalDecision?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; runnerStartAllowed?: boolean; requiresManualRunnerPickup?: boolean };
 

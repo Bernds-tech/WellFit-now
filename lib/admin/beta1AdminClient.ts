@@ -30,6 +30,7 @@ import type {
   WorkerQueueReleaseInput,
   WorkerQueueRunnerPreviewInput,
   WorkerQueueRunnerStartApprovalInput,
+  ManualRunnerImplementationPlanInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -77,6 +78,10 @@ function sanitizeAdminError(error: unknown, callableName?: string): string {
   if (diagnostic.includes("Nur pending_runner_pickup darf einen Pickup-Contract erzeugen")) return "Nur pending_runner_pickup darf einen Pickup-Contract erzeugen.";
   if (diagnostic.includes("Sicherheitsflags verhindern Pickup-Contract")) return "Sicherheitsflags verhindern Pickup-Contract.";
   if (diagnostic.includes("runner_job_not_found")) return "Runner Job nicht gefunden.";
+  if (diagnostic.includes("pickupContractId fehlt") || diagnostic.includes("pickupcontractid fehlt")) return "Pickup Contract ID fehlt.";
+  if (diagnostic.includes("pickup_contract_not_found")) return "Pickup Contract nicht gefunden.";
+  if (diagnostic.includes("Nur pickup_contract_created darf einen Implementierungsplan erzeugen")) return "Nur pickup_contract_created darf einen Implementierungsplan erzeugen.";
+  if (diagnostic.includes("Sicherheitsflags verhindern Implementierungsplan")) return "Sicherheitsflags verhindern Implementierungsplan.";
   if (diagnostic.includes("workerQueueId fehlt") || diagnostic.includes("workerqueueid fehlt")) return "Worker Queue ID fehlt.";
   if (diagnostic.includes("worker_queue_item_not_found")) return "Worker Queue Eintrag nicht gefunden.";
   if (diagnostic.includes("Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden")) return "Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden.";
@@ -220,6 +225,12 @@ export const beta1AdminClient = {
   listAgentRunnerPickupContracts: (status?: string) => callAdmin("listAgentRunnerPickupContracts", status ? { status } : {}),
   createManualRunnerPickupContract: (input: { runnerJobId?: string; targetId?: string; id?: string }) => callAdmin("createManualRunnerPickupContract", {
     runnerJobId: input.runnerJobId,
+    targetId: input.targetId,
+    id: input.id,
+  }),
+  listAgentRunnerImplementationPlans: (status?: string) => callAdmin("listAgentRunnerImplementationPlans", status ? { status } : {}),
+  createManualRunnerImplementationPlan: (input: ManualRunnerImplementationPlanInput) => callAdmin("createManualRunnerImplementationPlan", {
+    pickupContractId: input.pickupContractId,
     targetId: input.targetId,
     id: input.id,
   }),

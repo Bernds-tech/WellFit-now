@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -62,8 +62,8 @@ type TaskProposalFilter = "task_total" | "task_pending" | "task_approved" | "tas
 type TaskProposalBucket = "pending" | "approved" | "rejected" | "in_progress" | "completed" | "blocked" | "unknown";
 type WorkerQueueFilter = "worker_total" | "worker_waiting_review" | "worker_waiting_owner" | "worker_ready" | "worker_in_progress" | "worker_completed" | "worker_blocked" | "worker_repair_required";
 type WorkerQueueBucket = "waiting_review" | "waiting_owner" | "ready_for_worker" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
-type RunnerJobBucket = "pending_runner_pickup" | "pickup_contract_created" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
-type PickupContractBucket = "planning_open" | "planning" | "completed" | "blocked" | "repair_required" | "unknown";
+type RunnerJobBucket = "pending_runner_pickup" | "pickup_contract_created" | "implementation_plan_created" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
+type PickupContractBucket = "planning_open" | "implementation_plan_created" | "implementation_plan_review" | "implementation_plan_approved" | "planning" | "completed" | "blocked" | "repair_required" | "unknown";
 type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter | WorkerQueueFilter;
 
 const SERVER_FILTER_TO_BUCKET: Record<ServerInboxFilter, ReturnType<typeof getServerInboxStatusBucket> | "total"> = { server_total: "total", server_pending: "pending_approval", server_approved: "approved", server_rejected: "rejected", server_blocked: "blocked", server_revision_requested: "revision_requested", server_synced_to_task_proposal: "synced_to_task_proposal" };
@@ -127,6 +127,7 @@ function getRunnerJobBucket(item: AgentRunnerJob): RunnerJobBucket {
   const status = String(item.status || "").toLowerCase();
   if (["pending_runner_pickup", "runner_job_created"].includes(status)) return "pending_runner_pickup";
   if (status === "pickup_contract_created") return "pickup_contract_created";
+  if (status === "implementation_plan_created" || status === "implementation_plan_review" || status === "implementation_plan_approved") return "implementation_plan_created";
   if (["picked_up", "planning"].includes(status)) return "planning";
   if (["in_progress", "claimed", "running"].includes(status)) return "in_progress";
   if (["completed", "done"].includes(status)) return "completed";
@@ -136,7 +137,7 @@ function getRunnerJobBucket(item: AgentRunnerJob): RunnerJobBucket {
 }
 
 function buildRunnerJobCounts(items: AgentRunnerJob[]) {
-  const counts: Record<RunnerJobBucket, number> & { total: number } = { total: items.length, pending_runner_pickup: 0, pickup_contract_created: 0, planning: 0, in_progress: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
+  const counts: Record<RunnerJobBucket, number> & { total: number } = { total: items.length, pending_runner_pickup: 0, pickup_contract_created: 0, implementation_plan_created: 0, planning: 0, in_progress: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
   items.forEach((item) => { counts[getRunnerJobBucket(item)] += 1; });
   return counts;
 }
@@ -145,6 +146,9 @@ function buildRunnerJobCounts(items: AgentRunnerJob[]) {
 function getPickupContractBucket(item: AgentRunnerPickupContract): PickupContractBucket {
   const status = String(item.status || "").toLowerCase();
   if (status === "pickup_contract_created") return "planning_open";
+  if (status === "implementation_plan_created") return "implementation_plan_created";
+  if (status === "implementation_plan_review") return "implementation_plan_review";
+  if (status === "implementation_plan_approved") return "implementation_plan_approved";
   if (["picked_up", "planning", "in_progress"].includes(status)) return "planning";
   if (["completed", "done"].includes(status)) return "completed";
   if (["blocked", "failed"].includes(status)) return "blocked";
@@ -153,7 +157,7 @@ function getPickupContractBucket(item: AgentRunnerPickupContract): PickupContrac
 }
 
 function buildPickupContractCounts(items: AgentRunnerPickupContract[]) {
-  const counts: Record<PickupContractBucket, number> & { total: number } = { total: items.length, planning_open: 0, planning: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
+  const counts: Record<PickupContractBucket, number> & { total: number } = { total: items.length, planning_open: 0, implementation_plan_created: 0, implementation_plan_review: 0, implementation_plan_approved: 0, planning: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
   items.forEach((item) => { counts[getPickupContractBucket(item)] += 1; });
   return counts;
 }
@@ -168,6 +172,12 @@ function extractRunnerJobs(result: AgentRunnerJobListResult): AgentRunnerJob[] {
   const runnerJobs = Array.isArray(result.runnerJobs) ? result.runnerJobs : [];
   const items = Array.isArray(result.items) ? result.items : [];
   return runnerJobs.length > 0 ? runnerJobs : items;
+}
+
+function extractImplementationPlans(result: AgentRunnerImplementationPlanListResult): AgentRunnerImplementationPlan[] {
+  const plans = Array.isArray(result.implementationPlans) ? result.implementationPlans : [];
+  const items = Array.isArray(result.items) ? result.items : [];
+  return plans.length > 0 ? plans : items;
 }
 
 function extractWorkerQueueItems(result: AgentTaskWorkerQueueListResult): AgentTaskWorkerQueueItem[] {
@@ -312,12 +322,14 @@ export default function AgentCenterInteractive({
   const [workerQueueItems, setWorkerQueueItems] = useState<AgentTaskWorkerQueueItem[]>([]);
   const [runnerJobs, setRunnerJobs] = useState<AgentRunnerJob[]>([]);
   const [pickupContracts, setPickupContracts] = useState<AgentRunnerPickupContract[]>([]);
+  const [implementationPlans, setImplementationPlans] = useState<AgentRunnerImplementationPlan[]>([]);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [taskProposalDetail, setTaskProposalDetail] = useState<AgentTaskProposal | null>(null);
   const [workerQueueDetail, setWorkerQueueDetail] = useState<AgentTaskWorkerQueueItem | null>(null);
   const [runnerPickupPreview, setRunnerPickupPreview] = useState<WorkerQueueRunnerPreview | null>(null);
   const [runnerJobDetail, setRunnerJobDetail] = useState<AgentRunnerJob | null>(null);
   const [pickupContractDetail, setPickupContractDetail] = useState<AgentRunnerPickupContract | null>(null);
+  const [implementationPlanDetail, setImplementationPlanDetail] = useState<AgentRunnerImplementationPlan | null>(null);
   const [syncDebug, setSyncDebug] = useState<Record<string, unknown>>({});
   const [authDebug, setAuthDebug] = useState<AdminCallableAuthState>({ authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "" });
   const [authActionPending, setAuthActionPending] = useState(false);
@@ -331,6 +343,7 @@ export default function AgentCenterInteractive({
         void refreshWorkerQueueItems();
         void refreshRunnerJobs();
         void refreshPickupContracts();
+        void refreshImplementationPlans();
       }
     });
     return () => unsubscribe();
@@ -856,6 +869,107 @@ export default function AgentCenterInteractive({
       setSyncStatus(`Pickup Contracts konnten nicht geladen werden: ${safeMessage}`);
     } finally {
       setBusy(false);
+    }
+  }
+
+
+  async function refreshImplementationPlans() {
+    setSyncDebug((prev) => ({ ...prev, implementationPlanLoadAttempted: true, implementationPlanLoadAccepted: false }));
+    if (!(await ensureAdminAuthReady())) {
+      const safeMessage = "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+      setFeedback(`Implementation Plans konnten nicht geladen werden: ${safeMessage}`);
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await beta1AdminClient.listAgentRunnerImplementationPlans() as AgentRunnerImplementationPlanListResult;
+      const items = extractImplementationPlans(result);
+      const accepted = Boolean(result.accepted);
+      setSyncDebug((prev) => ({
+        ...prev,
+        implementationPlanLoadAttempted: true,
+        implementationPlanLoadAccepted: accepted,
+        implementationPlanLoadedCount: Number(result.loadedCount ?? items.length),
+      }));
+      if (!accepted) {
+        const safeMessage = getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode);
+        setImplementationPlans([]);
+        setFeedback(`Implementation Plans konnten nicht geladen werden: ${safeMessage}`);
+        return;
+      }
+      setImplementationPlans(items);
+    } catch (error) {
+      const safeMessage = getSafeAdminDecisionMessage(error);
+      setImplementationPlans([]);
+      setFeedback(`Implementation Plans konnten nicht geladen werden: ${safeMessage}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function createManualRunnerImplementationPlan(contract: AgentRunnerPickupContract) {
+    const pickupContractId = asText(contract.pickupContractId);
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastImplementationPlanCreated: false,
+      lastImplementationPlanIdPresent: false,
+      lastImplementationPlanStatus: pickupContractId ? "started" : "blocked_client",
+      lastImplementationPlanMessage: pickupContractId ? "Implementierungsplan wird erzeugt …" : "Pickup Contract ID fehlt.",
+      lastImplementationPlanFileWriteAllowed: "-",
+      lastImplementationPlanBranchCreationAllowed: "-",
+      lastImplementationPlanPrCreationAllowed: "-",
+      lastImplementationPlanNoDeploy: "-",
+      lastImplementationPlanNoMerge: "-",
+    }));
+    if (!pickupContractId) {
+      setFeedback("Pickup Contract ID fehlt.");
+      return;
+    }
+    setBusy(true);
+    setFeedback("Implementierungsplan wird erzeugt …");
+    try {
+      const result = await beta1AdminClient.createManualRunnerImplementationPlan({ pickupContractId }) as ManualRunnerImplementationPlanResult;
+      const accepted = Boolean(result.accepted);
+      const plan = result.plan || result;
+      const implementationPlanId = asText(plan.implementationPlanId);
+      const safeMessage = accepted ? "Implementierungsplan erzeugt. Noch keine Dateiänderung gestartet." : `Implementierungsplan konnte nicht erzeugt werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastImplementationPlanCreated: accepted,
+        lastImplementationPlanIdPresent: Boolean(implementationPlanId),
+        lastImplementationPlanStatus: result.status || (accepted ? "implementation_plan_created" : "failed"),
+        lastImplementationPlanMessage: safeMessage,
+        lastImplementationPlanFileWriteAllowed: plan.fileWriteAllowed ?? "-",
+        lastImplementationPlanBranchCreationAllowed: plan.branchCreationAllowed ?? "-",
+        lastImplementationPlanPrCreationAllowed: plan.prCreationAllowed ?? "-",
+        lastImplementationPlanNoDeploy: plan.noDeploy ?? "-",
+        lastImplementationPlanNoMerge: plan.noMerge ?? "-",
+      }));
+    } catch (error) {
+      const safeMessage = `Implementierungsplan konnte nicht erzeugt werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastImplementationPlanCreated: false,
+        lastImplementationPlanIdPresent: false,
+        lastImplementationPlanStatus: "error",
+        lastImplementationPlanMessage: safeMessage,
+        lastImplementationPlanFileWriteAllowed: "-",
+        lastImplementationPlanBranchCreationAllowed: "-",
+        lastImplementationPlanPrCreationAllowed: "-",
+        lastImplementationPlanNoDeploy: "-",
+        lastImplementationPlanNoMerge: "-",
+      }));
+    } finally {
+      try {
+        await refreshPickupContracts();
+        await refreshImplementationPlans();
+      } finally {
+        setBusy(false);
+      }
     }
   }
 
@@ -1526,6 +1640,18 @@ export default function AgentCenterInteractive({
         <p>lastPickupContractPrCreationAllowed: {String(syncDebug.lastPickupContractPrCreationAllowed ?? "-")}</p>
         <p>lastPickupContractNoDeploy: {String(syncDebug.lastPickupContractNoDeploy ?? "-")}</p>
         <p>lastPickupContractNoMerge: {String(syncDebug.lastPickupContractNoMerge ?? "-")}</p>
+        <p>implementationPlanLoadAttempted: {String(syncDebug.implementationPlanLoadAttempted ?? false)}</p>
+        <p>implementationPlanLoadAccepted: {String(syncDebug.implementationPlanLoadAccepted ?? "-")}</p>
+        <p>implementationPlanLoadedCount: {String(syncDebug.implementationPlanLoadedCount ?? implementationPlans.length)}</p>
+        <p>lastImplementationPlanCreated: {String(syncDebug.lastImplementationPlanCreated ?? "-")}</p>
+        <p>lastImplementationPlanIdPresent: {String(syncDebug.lastImplementationPlanIdPresent ?? "-")}</p>
+        <p>lastImplementationPlanStatus: {String(syncDebug.lastImplementationPlanStatus || "-")}</p>
+        <p>lastImplementationPlanMessage: {String(syncDebug.lastImplementationPlanMessage || "-")}</p>
+        <p>lastImplementationPlanFileWriteAllowed: {String(syncDebug.lastImplementationPlanFileWriteAllowed ?? "-")}</p>
+        <p>lastImplementationPlanBranchCreationAllowed: {String(syncDebug.lastImplementationPlanBranchCreationAllowed ?? "-")}</p>
+        <p>lastImplementationPlanPrCreationAllowed: {String(syncDebug.lastImplementationPlanPrCreationAllowed ?? "-")}</p>
+        <p>lastImplementationPlanNoDeploy: {String(syncDebug.lastImplementationPlanNoDeploy ?? "-")}</p>
+        <p>lastImplementationPlanNoMerge: {String(syncDebug.lastImplementationPlanNoMerge ?? "-")}</p>
         <p>taskProposalPendingCount: {String(syncDebug.taskProposalPendingCount ?? taskProposalCounts.pending)}</p>
         <p>taskProposalNoRunnerStartedVisible: {String(syncDebug.taskProposalNoRunnerStartedVisible ?? "-")}</p>
         <p>taskProposalNoBranchOrPrOrMergeVisible: {String(syncDebug.taskProposalNoBranchOrPrOrMergeVisible ?? "-")}</p>
@@ -1697,6 +1823,7 @@ export default function AgentCenterInteractive({
             <span className="rounded-full border border-white/20 px-2 py-1">Runner Jobs gesamt: {runnerJobCounts.total}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Pending Runner Pickup: {runnerJobCounts.pending_runner_pickup}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Pickup Contract Created: {runnerJobCounts.pickup_contract_created}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Implementation Plan Created: {runnerJobCounts.implementation_plan_created}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Planung: {runnerJobCounts.planning}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">In Arbeit: {runnerJobCounts.in_progress}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Fertig: {runnerJobCounts.completed}</span>
@@ -1750,6 +1877,9 @@ export default function AgentCenterInteractive({
           <div className="flex flex-wrap gap-2 lg:justify-end">
             <span className="rounded-full border border-white/20 px-2 py-1">Pickup Contracts gesamt: {pickupContractCounts.total}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Planung offen: {pickupContractCounts.planning_open}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Plan erstellt: {pickupContractCounts.implementation_plan_created}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Plan Review: {pickupContractCounts.implementation_plan_review}</span>
+            <span className="rounded-full border border-white/20 px-2 py-1">Plan freigegeben: {pickupContractCounts.implementation_plan_approved}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">In Planung: {pickupContractCounts.planning}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Fertig: {pickupContractCounts.completed}</span>
             <span className="rounded-full border border-white/20 px-2 py-1">Blockiert: {pickupContractCounts.blocked}</span>
@@ -1779,10 +1909,54 @@ export default function AgentCenterInteractive({
               <div><dt className="font-semibold">blockedFiles</dt><dd>{(contract.blockedFiles || []).join(", ") || "—"}</dd></div>
               <div><dt className="font-semibold">requiredChecks</dt><dd>{(contract.requiredChecks || []).join(", ") || "—"}</dd></div>
             </dl>
-            <button className="mt-2 cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100" onClick={() => setPickupContractDetail(contract)}>Pickup Contract ansehen</button>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100" onClick={() => setPickupContractDetail(contract)}>Pickup Contract ansehen</button>
+              {String(contract.status || "").toLowerCase() === "pickup_contract_created" && (
+                <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy} onClick={() => createManualRunnerImplementationPlan(contract)}>Implementierungsplan erzeugen</button>
+              )}
+            </div>
           </article>
         ))}
         {pickupContracts.length === 0 && <p className="rounded border border-white/15 p-3 text-white/70">Keine Pickup Contracts geladen.</p>}
+      </div>
+
+
+      <div className="space-y-3 rounded border border-emerald-300/25 bg-emerald-400/5 p-3 text-xs">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-emerald-100">Runner Implementation Plans — Planungsdokumente, keine Dateiänderung.</h3>
+            <p className="text-emerald-50/80">Diese Pläne sind Owner-Review-Dokumente. Sie starten keinen Runner und ändern keine Dateien.</p>
+          </div>
+          <span className="rounded-full border border-white/20 px-2 py-1">Implementation Plans gesamt: {implementationPlans.length}</span>
+        </div>
+        {implementationPlans.map((plan) => (
+          <article key={plan.implementationPlanId} className="rounded border border-emerald-200/25 bg-emerald-400/5 p-3">
+            <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="font-mono text-emerald-100/75">implementationPlanId: {plan.implementationPlanId || "—"}</p>
+                <p className="font-mono text-cyan-100/75">pickupContractId: {plan.pickupContractId || "—"}</p>
+                <b>{plan.title || "Unbenannter Implementierungsplan"}</b>
+                <p className="mt-1 whitespace-pre-wrap">{plan.planSummary || "Keine Zusammenfassung hinterlegt."}</p>
+              </div>
+              <div className="flex flex-wrap gap-2 lg:justify-end">
+                <span className="rounded-full border border-white/20 px-2 py-1">Status: {plan.status || "implementation_plan_created"}</span>
+                <span className="rounded-full border border-orange-300/50 px-2 py-1">fileWriteAllowed: {String(plan.fileWriteAllowed === true)}</span>
+                <span className="rounded-full border border-orange-300/50 px-2 py-1">branchCreationAllowed: {String(plan.branchCreationAllowed === true)}</span>
+                <span className="rounded-full border border-orange-300/50 px-2 py-1">prCreationAllowed: {String(plan.prCreationAllowed === true)}</span>
+                <span className="rounded-full border border-emerald-300/50 px-2 py-1">noDeploy: {String(plan.noDeploy === true)}</span>
+                <span className="rounded-full border border-emerald-300/50 px-2 py-1">noMerge: {String(plan.noMerge === true)}</span>
+              </div>
+            </div>
+            <dl className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <div><dt className="font-semibold">plannedSteps</dt><dd>{(plan.plannedSteps || []).join(" · ") || "—"}</dd></div>
+              <div><dt className="font-semibold">expectedFilesToTouch</dt><dd>{(plan.expectedFilesToTouch || []).join(", ") || "—"}</dd></div>
+              <div><dt className="font-semibold">validationPlan</dt><dd>{(plan.validationPlan || []).join(" · ") || "—"}</dd></div>
+              <div><dt className="font-semibold">rollbackPlan</dt><dd>{(plan.rollbackPlan || []).join(" · ") || "—"}</dd></div>
+            </dl>
+            <button className="mt-2 cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100" onClick={() => setImplementationPlanDetail(plan)}>Implementierungsplan ansehen</button>
+          </article>
+        ))}
+        {implementationPlans.length === 0 && <p className="rounded border border-white/15 p-3 text-white/70">Keine Implementation Plans geladen.</p>}
       </div>
 
       {isTaskProposalFilter(active) && (
@@ -1873,6 +2047,40 @@ export default function AgentCenterInteractive({
 
 
 
+
+
+      {implementationPlanDetail && (() => {
+        const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
+        const info = (label: string, value: string | undefined | null) => (<div><p className="mt-2 font-semibold">{label}</p><p className="whitespace-pre-wrap">{value || "—"}</p></div>);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 p-4" onClick={() => setImplementationPlanDetail(null)}>
+            <div className="mx-auto max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg bg-slate-900 p-4 text-xs text-white" onClick={(event) => event.stopPropagation()}>
+              <div className="sticky top-0 mb-2 flex justify-between bg-slate-900 pb-2">
+                <h3 className="text-base font-semibold">Implementierungsplan ansehen · {implementationPlanDetail.title || implementationPlanDetail.implementationPlanId}</h3>
+                <button className="cursor-pointer rounded border px-2" onClick={() => setImplementationPlanDetail(null)}>Schließen</button>
+              </div>
+              <p className="font-mono text-emerald-100/75">implementationPlanId: {implementationPlanDetail.implementationPlanId || "—"}</p>
+              <p className="font-mono text-cyan-100/75">pickupContractId: {implementationPlanDetail.pickupContractId || "—"}</p>
+              <p>Status: {implementationPlanDetail.status || "implementation_plan_created"} · executionMode: {implementationPlanDetail.executionMode || "manual_plan_only"}</p>
+              {info("Was soll geplant werden?", implementationPlanDetail.planSummary)}
+              {fileList("Geplante Schritte", implementationPlanDetail.plannedSteps)}
+              {fileList("Welche Dateien könnten später betroffen sein?", implementationPlanDetail.expectedFilesToTouch)}
+              {fileList("Was ist die Prüfung?", implementationPlanDetail.validationPlan)}
+              {fileList("Wie wird zurückgerollt?", implementationPlanDetail.rollbackPlan)}
+              <div className="mt-3 rounded border border-orange-300/40 bg-orange-400/10 p-3 text-orange-50">
+                <p className="font-semibold">Was passiert jetzt NICHT?</p>
+                <ul className="list-disc pl-5"><li>Keine Dateiänderung</li><li>Kein Branch</li><li>Kein PR</li><li>Kein Merge</li><li>Kein Deploy</li></ul>
+                <p className="mt-2">fileWriteAllowed: {String(implementationPlanDetail.fileWriteAllowed === true)}</p>
+                <p>branchCreationAllowed: {String(implementationPlanDetail.branchCreationAllowed === true)}</p>
+                <p>prCreationAllowed: {String(implementationPlanDetail.prCreationAllowed === true)}</p>
+                <p>noDeploy: {String(implementationPlanDetail.noDeploy === true)}</p>
+                <p>noMerge: {String(implementationPlanDetail.noMerge === true)}</p>
+              </div>
+              {info("Nächster Schritt", implementationPlanDetail.nextStep || "Owner muss den Implementierungsplan separat freigeben.")}
+            </div>
+          </div>
+        );
+      })()}
 
       {pickupContractDetail && (() => {
         const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
