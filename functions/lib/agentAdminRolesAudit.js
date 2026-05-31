@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const { FieldValue } = require("firebase-admin/firestore");
 const { optionalString, requiredString } = require("./beta1Runtime");
 
@@ -22,7 +23,7 @@ const CANONICAL_TRUTH_PROTECTED_FILES = [
 ];
 const CANONICAL_TRUTH_PROPOSAL_FILE = "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md";
 
-const AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE = "Reset blockiert: ungescopte Pipeline-Daten dürfen nicht gelöscht werden. Bitte Safe-Reset-Scope/Archivierung implementieren.";
+const AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE = "Reset blockiert: ungescopte Pipeline-Daten dürfen nicht gelöscht werden. Bitte Safe-Reset-Scope und bereinigte Archivierung freigeben.";
 const AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS = [
   "agentCenterInbox",
   "agentCenterDecisions",
@@ -50,6 +51,45 @@ const AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS = new Set([
   "users",
   "rewards",
 ]);
+
+
+function buildAgentCenterPipelineResetSafetyDecision(input = {}) {
+  const dryRun = input.dryRun !== false;
+  const previewOnly = input.previewOnly !== false;
+  const confirmResetText = optionalString(input.confirmResetText, 120);
+  const requestedDestructiveDelete = Boolean(
+    confirmResetText ||
+    input.dryRun === false ||
+    input.previewOnly === false ||
+    input.deleteRequested === true
+  );
+  const safeScopeApproved = input.safeResetScopeApproved === true && typeof input.safeResetScopeId === "string" && input.safeResetScopeId.trim().startsWith("safe-reset-scope:");
+  const sanitizedArchiveSnapshotsApproved = input.sanitizedArchiveSnapshotsApproved === true && input.archivePayloadSnapshotMode === "sanitized_full_payload_before_delete";
+  const blockedReasons = [];
+
+  if (requestedDestructiveDelete) blockedReasons.push("destructive_delete_requested");
+  if (confirmResetText) blockedReasons.push("confirm_reset_text_is_not_safe_scope");
+  if (!safeScopeApproved) blockedReasons.push("safe_reset_scope_missing_or_not_approved");
+  if (!sanitizedArchiveSnapshotsApproved) blockedReasons.push("sanitized_payload_snapshots_not_approved");
+  blockedReasons.push("pipeline_collections_are_unscoped_preview_only");
+
+  return {
+    accepted: !requestedDestructiveDelete,
+    blocked: true,
+    deletionBlocked: true,
+    dryRun: true,
+    previewOnly: true,
+    deleteAllowed: false,
+    requestedDestructiveDelete,
+    safeScopeApproved,
+    sanitizedArchiveSnapshotsApproved,
+    blockedReasons: Array.from(new Set(blockedReasons)),
+    skippedReasons: Array.from(new Set(blockedReasons)),
+    safetyStatus: "blocked_unscoped_pipeline_delete",
+    recommendedNextAction: "Safe-Reset-Scope definieren, ungescopte Collections ausschliessen und echte bereinigte Payload-Snapshots vor jedem Delete freigeben.",
+    message: AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE,
+  };
+}
 
 function buildAgentCenterPipelineResetScope() {
   return AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS.map((collectionName) => ({
@@ -2282,16 +2322,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   exportsTarget.archiveAndResetAgentCenterPipelineData = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator", "admin"]);
     const reason = requiredString(request.data && request.data.reason, "reason", HttpsError, 1000);
-    const confirmResetText = optionalString(request.data && request.data.confirmResetText, 120);
-    const deleteRequested = Boolean(
-      confirmResetText ||
-      (request.data && request.data.dryRun === false) ||
-      (request.data && request.data.previewOnly === false) ||
-      (request.data && request.data.deleteRequested === true)
-    );
-    if (deleteRequested) {
-      throw new HttpsError("failed-precondition", AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE);
-    }
+    const safetyDecision = buildAgentCenterPipelineResetSafetyDecision(request.data || {});
 
     const resetScope = buildAgentCenterPipelineResetScope();
     const invalidScope = resetScope.find((entry) => AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS.has(entry.collectionName));
@@ -2318,19 +2349,25 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     });
 
     return {
-      accepted: true,
+      accepted: safetyDecision.accepted,
+      blocked: safetyDecision.blocked,
       dryRun: true,
       previewOnly: true,
       deletionBlocked: true,
+      deleteAllowed: false,
       countsBeforeReset,
       sampleIds,
       deletedCounts: {},
       archivedCounts: {},
       skippedCollections: resetScope.map((entry) => entry.collectionName),
+      skippedReasons: safetyDecision.skippedReasons,
+      blockedReasons: safetyDecision.blockedReasons,
+      safetyStatus: safetyDecision.safetyStatus,
+      recommendedNextAction: safetyDecision.recommendedNextAction,
       noRunnerStarted: true,
       noBranchOrPrOrMerge: true,
       noDeploy: true,
-      message: "Reset derzeit aus Sicherheitsgründen nur als Prüfung verfügbar.",
+      message: safetyDecision.message,
     };
   });
 
@@ -3174,4 +3211,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES, buildExecutionContractHash, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract };
+module.exports = { registerAgentAdminRolesAudit, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS, AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES, buildExecutionContractHash, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract };

@@ -1,5 +1,7 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE } = require('../lib/agentAdminRolesAudit');
+const safetyDossierRegister = require('../../project-register/agent-safety-dossiers.json');
+const dossierSchema = require('../../project-register/agent-dossier-schema.json');
 
 
 function buildCompleteSingleDecisionDossier(overrides = {}) {
@@ -559,3 +561,64 @@ function buildCompleteSingleDecisionDossier(overrides = {}) {
 })();
 
 console.log('agentAdminRolesAudit helper tests passed');
+
+
+(function testAgentCenterResetWithoutSafeScopeDeletesNothing() {
+  const result = buildAgentCenterPipelineResetSafetyDecision({ reason: 'unit-test', confirmResetText: 'RESET' });
+  assert.strictEqual(result.accepted, false, 'confirm text alone must not allow destructive reset');
+  assert.strictEqual(result.blocked, true, 'unsafe reset should be blocked');
+  assert.strictEqual(result.deleteAllowed, false, 'delete must not be allowed');
+  assert.strictEqual(result.message, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE);
+  assert(result.blockedReasons.includes('confirm_reset_text_is_not_safe_scope'));
+})();
+
+(function testAgentCenterResetPreviewDeletesNothing() {
+  const result = buildAgentCenterPipelineResetSafetyDecision({ reason: 'unit-test', dryRun: true, previewOnly: true });
+  assert.strictEqual(result.accepted, true, 'preview call may be accepted for counts only');
+  assert.strictEqual(result.dryRun, true);
+  assert.strictEqual(result.previewOnly, true);
+  assert.strictEqual(result.deleteAllowed, false);
+  assert.strictEqual(result.deletionBlocked, true);
+})();
+
+(function testAgentCenterResetBlocksUnscopedCollectionDeletes() {
+  const scope = buildAgentCenterPipelineResetScope();
+  const result = buildAgentCenterPipelineResetSafetyDecision({ reason: 'unit-test', dryRun: false, previewOnly: false, deleteRequested: true, safeResetScopeId: 'safe-reset-scope:test-only', safeResetScopeApproved: true, sanitizedArchiveSnapshotsApproved: true, archivePayloadSnapshotMode: 'sanitized_full_payload_before_delete' });
+  assert(scope.length > 0, 'pipeline reset preview scope should list affected collections');
+  assert(scope.every((entry) => entry.action === 'preview_collection_counts_only'), 'unscoped collections must be preview-only');
+  assert.strictEqual(result.accepted, false, 'delete request remains blocked until a real scoped implementation replaces preview-only collections');
+  assert.strictEqual(result.deleteAllowed, false);
+  assert(result.blockedReasons.includes('pipeline_collections_are_unscoped_preview_only'));
+})();
+
+(function testSafetyDossierExistsAndHasRequiredPlainFields() {
+  const dossier = safetyDossierRegister.dossiers.find((item) => item.id === 'safety-p1-agent-center-reset-scope-archive-v1');
+  assert(dossier, 'P1 reset safety dossier must exist');
+  assert.strictEqual(dossier.title, 'P1 Sicherheitsfix: Agent-Center-Reset sicher scopen und echte Archive schreiben');
+  assert.strictEqual(dossier.status, 'safety_blocker');
+  assert.strictEqual(dossier.priority, 'P1');
+  for (const field of dossierSchema.minimumFields) {
+    assert(Object.prototype.hasOwnProperty.call(dossier, field), `Safety dossier missing ${field}`);
+    if (Array.isArray(dossier[field])) assert(dossier[field].length > 0, `Safety dossier ${field} should be understandable/non-empty`);
+    else if (typeof dossier[field] === 'string') assert(dossier[field].trim().length > 0, `Safety dossier ${field} should be understandable/non-empty`);
+  }
+  assert(dossier.problem.includes('Reset'), 'dossier explains problem in plain language');
+  assert(dossier.recommendation.includes('Vor neuen Agent-Vorschlägen beheben'), 'dossier recommends fixing before new agent suggestions');
+})();
+
+(function testSafetyDossierAutomationFlagsStaySafe() {
+  const dossier = safetyDossierRegister.dossiers.find((item) => item.id === 'safety-p1-agent-center-reset-scope-archive-v1');
+  assert.strictEqual(dossier.noRunnerStarted, true);
+  assert.strictEqual(dossier.noBranchOrPrOrMerge, true);
+  assert.strictEqual(dossier.noDeploy, true);
+  assert.strictEqual(dossier.noRuntimeChanges, true);
+  assert.strictEqual(dossier.noTokenPaymentBlockchain, true);
+  assert(!JSON.stringify(dossier).includes('github_api_start'), 'dossier must not trigger GitHub automation');
+})();
+
+(function testCanonicalTruthProtectedFilesRemainReadOnlyByPolicy() {
+  const dossierText = JSON.stringify(safetyDossierRegister);
+  assert(!dossierText.includes('project-register/wellfit-beta1-canonical-truth.json"'), 'dossier must not propose editing canonical truth JSON');
+  assert(!dossierText.includes('docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md"'), 'dossier must not propose editing canonical truth doc');
+  assert(!dossierText.includes('todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"'), 'dossier must not propose editing canonical context');
+})();

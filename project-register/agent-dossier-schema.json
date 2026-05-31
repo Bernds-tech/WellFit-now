@@ -1,0 +1,38 @@
+{
+  "schemaId": "wellfit.agent-dossier.minimum-fields.v1",
+  "purpose": "Shared minimum field contract for Safety, Agent, Mission, and Research dossiers shown in the Admin Center.",
+  "minimumFields": [
+    "title",
+    "shortSummary",
+    "plainLanguageSummary",
+    "problem",
+    "proposedChange",
+    "whyNow",
+    "wellfitBenefit",
+    "userBenefit",
+    "financialBenefit",
+    "internalEconomyImpact",
+    "risks",
+    "riskLevel",
+    "affectedAreas",
+    "affectedFiles",
+    "requiredChecks",
+    "sources",
+    "recommendation",
+    "ownerDecisionRequired",
+    "nextPipelineStep",
+    "noRuntimeChanges",
+    "noTokenPaymentBlockchain",
+    "noRunnerStarted",
+    "noBranchOrPrOrMerge",
+    "noDeploy"
+  ],
+  "guardrails": {
+    "noRuntimeChangesDefault": true,
+    "noTokenPaymentBlockchainDefault": true,
+    "noRunnerStartedDefault": true,
+    "noBranchOrPrOrMergeDefault": true,
+    "noDeployDefault": true,
+    "metadataOnlyUntilOwnerApproval": true
+  }
+}

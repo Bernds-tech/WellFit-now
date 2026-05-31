@@ -4,12 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 
 import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
 
+import safetyDossierRegister from "@/project-register/agent-safety-dossiers.json";
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
+const SAFETY_DOSSIERS = (safetyDossierRegister.dossiers || []) as AgentSafetyDossier[];
+const P1_RESET_SAFETY_DOSSIER = SAFETY_DOSSIERS.find((dossier) => dossier.id === "safety-p1-agent-center-reset-scope-archive-v1") || SAFETY_DOSSIERS[0];
 type Row = Record<string, unknown> & {
   id?: string;
   title?: string;
@@ -41,6 +44,29 @@ type Row = Record<string, unknown> & {
   legacyProductEvolutionSource?: string | null;
   adminCenterSourcePriority?: number;
   nextStep?: string;
+  priority?: string;
+  shortSummary?: string;
+  plainLanguageSummary?: string;
+  problem?: string;
+  proposedChange?: string;
+  whyNow?: string;
+  financialBenefit?: string;
+  internalEconomyImpact?: string;
+  risks?: string[];
+  riskLevel?: string;
+  affectedAreas?: string[];
+  affectedFiles?: string[];
+  sources?: string[];
+  ownerDecisionRequired?: boolean;
+  nextPipelineStep?: string;
+  whyFirst?: string;
+  afterApproval?: string;
+  protectedData?: string[];
+  noRuntimeChanges?: boolean;
+  noTokenPaymentBlockchain?: boolean;
+  noRunnerStarted?: boolean;
+  noBranchOrPrOrMerge?: boolean;
+  noDeploy?: boolean;
   sourceType?: string;
   sourceRef?: string;
   sourcePath?: string;
@@ -308,20 +334,20 @@ const getDecisionDetails = (row: Row) => {
   const requiredChecks = contractValidation.isSingleDecision ? getContractRequiredChecks(row) : asStringArray(row.requiredChecks);
   const details = {
     title: firstText(row.title, row.id),
-    summary: firstText(row.summary, row.plainSummary, row.detailSections?.summary, row.detailText),
-    what: firstText(row.what, row.whatWillChange, row.detailSections?.what, row.detailSections?.proposedChange),
-    why: firstText(row.why, row.whySuggested, row.detailSections?.why, row.detailSections?.whyNow),
+    summary: firstText(row.shortSummary, row.summary, row.plainLanguageSummary, row.plainSummary, row.detailSections?.summary, row.detailText),
+    what: firstText(row.proposedChange, row.what, row.whatWillChange, row.detailSections?.what, row.detailSections?.proposedChange),
+    why: firstText(row.whyNow, row.why, row.whySuggested, row.detailSections?.why, row.detailSections?.whyNow),
     wellFitBenefit: firstText(row.wellFitBenefit, row.wellfitBenefit, row.detailSections?.wellFitBenefit),
     userBenefit: firstText(row.userBenefit, row.detailSections?.userBenefit),
-    economyImpact: firstText(row.economyImpact, row.detailSections?.economyImpact),
-    risk: firstText(row.risk, row.riskSummary, row.detailSections?.risk, row.detailSections?.risks),
+    economyImpact: firstText(row.internalEconomyImpact, row.economyImpact, row.detailSections?.economyImpact),
+    risk: firstText(asStringArray(row.risks).join("\n"), row.risk, row.riskSummary, row.detailSections?.risk, row.detailSections?.risks),
     recommendationLabel: firstText(row.recommendationLabel, row.recommendation, row.detailSections?.recommendation),
     recommendationText: firstText(row.recommendationText, row.recommendationLabel, row.recommendation, row.detailSections?.recommendation),
     recommendation: firstText(row.recommendationText, row.recommendationLabel, row.recommendation, row.detailSections?.recommendation),
     recommendationDebug: firstText(row.recommendation, row.detailSections?.recommendation),
     source: firstText(row.sourceRef, row.sourcePath, row.dossierRef, row.sourceType),
-    nextStep: firstText(row.nextStep, "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch."),
-    allowedFiles, blockedFiles, requiredChecks,
+    nextStep: firstText(row.nextPipelineStep, row.nextStep, "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch."),
+    allowedFiles: allowedFiles.length ? allowedFiles : asStringArray(row.affectedFiles), blockedFiles, requiredChecks,
     validationPlan: getValidationPlan(row), rollbackPlan: getRollbackPlan(row), stopConditions: getStopConditions(row), nextAutomaticSteps: getNextAutomaticSteps(row),
     targetEnvironment: getTargetEnvironment(row), singleDecision: contractValidation,
   };
@@ -1778,6 +1804,34 @@ export default function AgentCenterInteractive({
 
   return (
     <section className="space-y-4 rounded-xl border border-white/12 bg-slate-950/35 p-4">
+      {P1_RESET_SAFETY_DOSSIER && (
+        <div className="rounded-xl border border-red-300/50 bg-red-500/10 p-4 text-sm text-red-50">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-red-200/80">Autopilot / Safety Empfehlungen</p>
+              <h2 className="mt-1 text-lg font-semibold">Nächster empfohlener Schritt</h2>
+              <p className="mt-1 font-semibold">{P1_RESET_SAFETY_DOSSIER.title}</p>
+              <p className="mt-1 text-red-50/85">{P1_RESET_SAFETY_DOSSIER.shortSummary}</p>
+            </div>
+            <span className="rounded-full border border-red-200/60 px-3 py-1 text-xs font-semibold">Priorität {P1_RESET_SAFETY_DOSSIER.priority}</span>
+          </div>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            <div className="rounded border border-white/15 bg-black/15 p-3">
+              <p className="font-semibold">Warum zuerst?</p>
+              <p className="mt-1 text-red-50/80">{P1_RESET_SAFETY_DOSSIER.whyFirst || P1_RESET_SAFETY_DOSSIER.recommendation}</p>
+            </div>
+            <div className="rounded border border-white/15 bg-black/15 p-3">
+              <p className="font-semibold">Was passiert nach Freigabe?</p>
+              <p className="mt-1 text-red-50/80">{P1_RESET_SAFETY_DOSSIER.afterApproval || P1_RESET_SAFETY_DOSSIER.nextPipelineStep}</p>
+            </div>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button className="cursor-pointer rounded border border-red-100/70 px-3 py-1 text-red-50" onClick={() => setDetailRow({ ...(P1_RESET_SAFETY_DOSSIER as unknown as Row), id: P1_RESET_SAFETY_DOSSIER.id, sourceDossierId: P1_RESET_SAFETY_DOSSIER.id, sourceType: "safety_dossier", listType: "safety_blocker", hasDossierDetails: true, hasReportDetails: true, visibleListSource: "local_snapshot" })}>Dossier öffnen</button>
+            <button className="cursor-pointer rounded border border-amber-200/70 px-3 py-1 text-amber-100" onClick={() => setFeedback("Metadata-only vorbereitet: kein Runner, kein Branch/PR/Merge, kein Deploy und keine GitHub-Automation gestartet.")}>Als Bauauftrag vorbereiten</button>
+          </div>
+          <p className="mt-2 text-xs text-red-100/80">Status: {P1_RESET_SAFETY_DOSSIER.status} · Empfehlung: vor neuen Agent-Vorschlägen beheben · noRunnerStarted/noBranchOrPrOrMerge/noDeploy bleiben {String(P1_RESET_SAFETY_DOSSIER.noRunnerStarted && P1_RESET_SAFETY_DOSSIER.noBranchOrPrOrMerge && P1_RESET_SAFETY_DOSSIER.noDeploy)}.</p>
+        </div>
+      )}
       <div className="flex gap-2">
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runSync}>Product-Evolution Inbox synchronisieren</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshInbox}>Server-Inbox neu laden</button>
@@ -1785,7 +1839,7 @@ export default function AgentCenterInteractive({
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshWorkerQueueItems}>Worker Queue ansehen</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshRunnerJobs}>Runner Jobs ansehen</button>
         <button disabled={busy} className="cursor-pointer rounded border border-amber-300/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={archiveAndResetAgentCenterPipelineData}>Reset-Prüfung anzeigen</button>
-        <button disabled={busy} className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={generateFreshAgentProposals}>Frische Agent-Vorschläge erzeugen</button>
+        <button disabled className="cursor-not-allowed rounded border border-slate-500/70 px-2 py-1 text-slate-300 opacity-60" title="P1-Safety-Dossier zuerst beheben; keine frischen Agent-Vorschläge in diesem Schritt." onClick={generateFreshAgentProposals}>Frische Agent-Vorschläge erzeugen</button>
         {canRunRevisionDossierGenerator && <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runRevisionDossierGenerator}>Revision-Dossiers neu erzeugen</button>}
       </div>
       <p className="text-xs text-amber-100">Reset derzeit aus Sicherheitsgründen nur als Prüfung verfügbar. Der Button löst keinen destruktiven Delete aus; ungescopte Pipeline-Daten dürfen nicht gelöscht werden.</p>
@@ -2563,22 +2617,27 @@ export default function AgentCenterInteractive({
               <p>{details.targetEnvironment === "test_main" ? "Testseite/main" : (details.targetEnvironment || "—")}</p>
               <p>Keine echte Live-/Produktionsübernahme ohne separaten späteren Prozess.</p>
             </div>}
-            {info("Was ist der Vorschlag?", details.summary)}
+            {info("Was ist das Problem?", firstText(detailRow.problem, details.summary))}
+            {info("Laienverständliche Kurzfassung", firstText(detailRow.plainLanguageSummary, details.summary))}
             {info("Was soll geändert/gebaut werden?", details.what)}
             {info("Warum ist das sinnvoll?", details.why)}
             {info("Vorteil für WellFit", details.wellFitBenefit)}
+            {info("Finanziell/operativer Nutzen", firstText(detailRow.financialBenefit))}
             {info("Nutzen für User", details.userBenefit)}
-            {info("Economy Impact", details.economyImpact)}
-            {info("Risiko", details.risk)}
+            {info("Interner Economy Impact", details.economyImpact)}
+            {info("Welche Risiken bleiben?", details.risk)}
             {info("Empfehlung", details.recommendationLabel)}
             {details.recommendationText && details.recommendationText !== details.recommendationLabel && info("Empfehlungstext", details.recommendationText)}
             {details.recommendationDebug && details.recommendationDebug !== details.recommendationLabel && details.recommendationDebug !== details.recommendationText && info("Technischer Empfehlungswert (Debug)", details.recommendationDebug)}
             {detailRow.supersededByReadableDecisionDossier === true && info("Legacy/alte Quelle", `Dieser technische Eintrag wurde durch ein lesbares Decision-Dossier ergaenzt: ${asText(detailRow.readableDossierInboxId) || "decisionDossiers"}`)}
+            {fileList("Welche Nutzer-/Produktdaten werden geschützt?", asStringArray(detailRow.protectedData))}
+            {fileList("Betroffene Bereiche", asStringArray(detailRow.affectedAreas))}
             {fileList("Betroffene/erlaubte Dateien", details.allowedFiles)}
             {fileList("Blockierte Dateien", details.blockedFiles)}
             {fileList("Required Checks", details.requiredChecks)}
             {info("Quelle", `${details.source || "—"}${detailRow.sourceDossierId ? ` · ${detailRow.sourceDossierId}` : ""}`)}
             {info("Nächster Schritt nach Zustimmung", details.nextStep)}
+            {info("Safety-Grenzen", `noRuntimeChanges:${String(detailRow.noRuntimeChanges === true)} · noTokenPaymentBlockchain:${String(detailRow.noTokenPaymentBlockchain === true)} · noRunnerStarted:${String(detailRow.noRunnerStarted === true)} · noBranchOrPrOrMerge:${String(detailRow.noBranchOrPrOrMerge === true)} · noDeploy:${String(detailRow.noDeploy === true)}`)}
           </div>
         </div>
         );

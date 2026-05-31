@@ -1,3 +1,43 @@
+
+export type AgentDossierPriority = "P0" | "P1" | "P2" | "P3" | string;
+export type AgentDossierBase = {
+  title: string;
+  shortSummary: string;
+  plainLanguageSummary: string;
+  problem: string;
+  proposedChange: string;
+  whyNow: string;
+  wellfitBenefit: string;
+  userBenefit: string;
+  financialBenefit: string;
+  internalEconomyImpact: string;
+  risks: string[];
+  riskLevel: string;
+  affectedAreas: string[];
+  affectedFiles: string[];
+  requiredChecks: string[];
+  sources: string[];
+  recommendation: string;
+  ownerDecisionRequired: boolean;
+  nextPipelineStep: string;
+  noRuntimeChanges: boolean;
+  noTokenPaymentBlockchain: boolean;
+  noRunnerStarted: boolean;
+  noBranchOrPrOrMerge: boolean;
+  noDeploy: boolean;
+};
+
+export type AgentSafetyDossier = AgentDossierBase & {
+  id: string;
+  type: "safety_dossier" | string;
+  status: "safety_blocker" | string;
+  priority: AgentDossierPriority;
+  whyFirst?: string;
+  afterApproval?: string;
+  recommendedOrder?: string;
+  protectedData?: string[];
+};
+
 export type AdminCallableResult = {
   accepted: boolean;
   message?: string;
@@ -158,8 +198,8 @@ export type AgentTaskWorkerQueueCounts = { total: number; waiting_review: number
 export type AgentTaskWorkerQueueListResult = AdminCallableResult & { items?: AgentTaskWorkerQueueItem[]; workerQueueItems?: AgentTaskWorkerQueueItem[]; loadedCount?: number; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 
 
-export type AgentCenterPipelineResetInput = { reason: string; confirmResetText?: string; dryRun?: boolean; previewOnly?: boolean; deleteRequested?: boolean };
-export type AgentCenterPipelineResetResult = AdminCallableResult & { archiveRunId?: string; dryRun?: boolean; previewOnly?: boolean; deletionBlocked?: boolean; countsBeforeReset?: Record<string, number>; sampleIds?: Record<string, string[]>; deletedCounts?: Record<string, number>; archivedCounts?: Record<string, number>; skippedCollections?: string[]; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; message?: string };
+export type AgentCenterPipelineResetInput = { reason: string; confirmResetText?: string; dryRun?: boolean; previewOnly?: boolean; deleteRequested?: boolean; safeResetScopeId?: string; safeResetScopeApproved?: boolean; sanitizedArchiveSnapshotsApproved?: boolean; archivePayloadSnapshotMode?: string };
+export type AgentCenterPipelineResetResult = AdminCallableResult & { archiveRunId?: string; dryRun?: boolean; previewOnly?: boolean; blocked?: boolean; deletionBlocked?: boolean; deleteAllowed?: boolean; countsBeforeReset?: Record<string, number>; sampleIds?: Record<string, string[]>; deletedCounts?: Record<string, number>; archivedCounts?: Record<string, number>; skippedCollections?: string[]; skippedReasons?: string[]; blockedReasons?: string[]; safetyStatus?: string; recommendedNextAction?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; message?: string };
 
 export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
 export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string; reason?: string; suggestedBranch?: string };

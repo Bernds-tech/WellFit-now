@@ -81,3 +81,17 @@ Produktgrenzen:
 - 2026-05-27 Admin-Center Auth-Guard Ergänzung: Client unterscheidet `client_auth_loading`, `client_auth_missing`, `client_auth_not_ready`; nur bei Firebase-User+Token+Claim werden Admin-Callables freigegeben. Keine UID/E-Mail/Token-Ausgabe im Debug.
 
 - 2026-05-28: Admin-Center Login-/Inbox-ID-Fix: Auth/Owner-Claim ist live funktionsfaehig (`agentRoleClaim=owner`, `adminCallableAuthReady=true`). Google Popup-Login erhaelt einen Redirect-Fallback inklusive `getRedirectResult`-Auswertung und privacy-sicheren Meldungen; Product-Evolution Inbox-Dokument-IDs werden slash-sicher/idempotent erzeugt, waehrend `sourceDossierId` unveraendert im Dokumentfeld erhalten bleibt. Kein Runner/Branch-PR-Merge/Deploy im PR. Nach Merge gezielt Functions-Deploy fuer `syncProductEvolutionFirstRunInbox` und anschliessend Frontend/Hosting-Deploy einplanen. Naechster Schritt nach erfolgreichem Sync: `runtime/admin-center-task-proposal-to-worker-queue`.
+
+## Autopilot priority order update (2026-05-31)
+
+The Safety Sentinel must sort future Autopilot and Product-Evolution work in this order before any worker/runner automation is considered:
+
+1. P0/P1 safety blockers.
+2. Auth/deploy/build/merge blockers.
+3. Agent-pipeline blockers.
+4. Beta-1 core functions.
+5. Public-beta functions including AR and the AI buddy.
+6. B2B fiat/economic-loop extensions.
+7. SUI, Dynamic Assets, token, WFT, payment, and cashout work only later and only after explicit Owner plus Legal/Policy approval.
+
+AR and the AI buddy are public-beta product areas. SUI/WFT/token/payment/cashout are not part of Beta-1 activation. P0/P1 reset-safety work must be recommended before a Product-Evolution restart or worker automation. Dossiers may prepare metadata-only build orders, but they must not start GitHub, runner, branch, PR, merge, or deploy automation.
