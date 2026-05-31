@@ -30,6 +30,7 @@ export type AgentWorkerQueueCreateInput = { executionId: string; handoffPromptId
 export type AgentWorkerQueueActionInput = { workerQueueId: string; reason?: string; prRef?: string; workerStatus?: string };
 export type WorkerQueueReleaseInput = { workerQueueId?: string; targetId?: string; id?: string };
 export type WorkerQueueRunnerPreviewInput = { workerQueueId?: string; targetId?: string; id?: string };
+export type WorkerQueueRunnerStartApprovalInput = { workerQueueId?: string; targetId?: string; id?: string };
 export type AgentWorkerQueueChecksInput = { workerQueueId: string; checks: Array<{ command: string; result: "pass" | "fail" | "blocked" | "skipped"; summary?: string; timestamp?: string }> };
 export type AgentAutomationPolicyInput = { workerQueueId?: string; policyId?: string; environment?: "preview" | "staging" | "production"; reason?: string; secondApproval?: boolean };
 
@@ -124,7 +125,7 @@ export type AgentTaskProposalStatusCounts = { total: number; pending: number; ap
 export type AgentTaskProposalListResult = AdminCallableResult & { proposals?: AgentTaskProposal[]; items?: AgentTaskProposal[]; loadedCount?: number; statusCounts?: AgentTaskProposalStatusCounts };
 
 
-export type AgentTaskWorkerQueueStatus = "pending_worker_review" | "queued_for_owner_review" | "queued_for_worker_review" | "ready_for_worker" | "previewed_for_runner" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
+export type AgentTaskWorkerQueueStatus = "pending_worker_review" | "queued_for_owner_review" | "queued_for_worker_review" | "ready_for_worker" | "previewed_for_runner" | "runner_start_approved" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
 export type AgentTaskWorkerQueueItem = {
   workerQueueId: string;
   taskProposalId?: string | null;
@@ -174,6 +175,31 @@ export type WorkerQueueRunnerPreview = {
   safetySummary?: string[];
 };
 export type WorkerQueueRunnerPreviewResult = AdminCallableResult & WorkerQueueRunnerPreview & { preview?: WorkerQueueRunnerPreview };
+
+
+export type AgentRunnerJobStatus = "pending_runner_pickup" | "runner_job_created" | "picked_up" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
+export type AgentRunnerJob = {
+  runnerJobId: string;
+  workerQueueId?: string | null;
+  taskProposalId?: string | null;
+  title?: string;
+  status?: AgentRunnerJobStatus;
+  executionMode?: string;
+  allowedFiles?: string[];
+  blockedFiles?: string[];
+  requiredChecks?: string[];
+  riskLevel?: string;
+  noRunnerStarted?: boolean;
+  noBranchOrPrOrMerge?: boolean;
+  noDeploy?: boolean;
+  runnerStartAllowed?: boolean;
+  requiresManualRunnerPickup?: boolean;
+  createdAt?: unknown;
+  ownerApprovedAt?: unknown;
+};
+export type AgentRunnerJobCounts = { total: number; pending_runner_pickup: number; in_progress: number; completed: number; blocked: number; repair_required: number; unknown: number };
+export type AgentRunnerJobListResult = AdminCallableResult & { items?: AgentRunnerJob[]; runnerJobs?: AgentRunnerJob[]; loadedCount?: number; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
+export type WorkerQueueRunnerStartApprovalResult = AdminCallableResult & { runnerJobId?: string; workerQueueId?: string; taskProposalId?: string | null; status?: string; runnerJobStatus?: string; runnerStartApprovalDecision?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; runnerStartAllowed?: boolean; requiresManualRunnerPickup?: boolean };
 
 export type ApprovedInboxToTaskProposalResult = AdminCallableResult & { inboxId?: string; taskProposalId?: string; proposalStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 export type ProductEvolutionInboxSyncInput = { registerSnapshot?: ProductEvolutionFirstRunOutputSnapshot | unknown; clientRequestShapeVersion?: string; clientHasRegisterSnapshot?: boolean; clientRegisterSnapshotKeys?: string[] };

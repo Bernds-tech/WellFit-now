@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage } = require('../lib/agentAdminRolesAudit');
 
 (function testResolveDirectSnapshot() {
   const input = { registerSnapshot: { generatedDossiers: [{ id: 'PE-1' }] } };
@@ -328,6 +328,110 @@ const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEv
   assert(result.missing.includes('branch_pr_merge'), 'branch/PR/merge side effects must block preview');
   assert(result.missing.includes('deploy'), 'deploy side effects must block preview');
   assert.strictEqual(buildRunnerPickupPreviewFailureMessage(['runnerStarted']), 'Sicherheitsflags verhindern Runner-Pickup Preview.');
+})();
+
+
+(function testRunnerStartApprovalAllowsReadyForWorkerAndCreatesSafeJobShape() {
+  const result = buildRunnerStartApprovalDecision({
+    workerQueueId: 'queue-ready',
+    taskProposalId: 'proposal-1',
+    title: 'Familien Abenteuerpfad Woche',
+    summary: 'Owner-approved manual runner pickup preparation only.',
+    requestedAction: 'Prepare a separate manual pickup job.',
+    workerStatus: 'ready_for_worker',
+    riskLevel: 'medium',
+    sourceInboxId: 'inbox-1',
+    allowedFiles: ['docs/**', 'todolist/**', 'project-register/**'],
+    blockedFiles: ['app/**', 'functions/**', 'firestore.rules', 'native/**', '.github/**'],
+    requiredChecks: ['npm run agent:validate', 'npm run agent:quality-gate', 'npm run lint', 'npm run build', 'git diff --check'],
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+  });
+  assert.strictEqual(result.approvable, true, 'ready_for_worker can receive runner-start approval');
+  assert.strictEqual(result.nextStatus, 'runner_start_approved');
+  assert.strictEqual(result.runnerJob.status, 'pending_runner_pickup', 'runner job waits for manual pickup');
+  assert.strictEqual(result.runnerJob.executionMode, 'owner_approved_manual_pickup');
+  assert.strictEqual(result.runnerJob.runnerStartAllowed, false, 'approval gate must not allow immediate runner start');
+  assert.strictEqual(result.runnerJob.requiresManualRunnerPickup, true, 'manual pickup remains required');
+  assert.strictEqual(result.runnerJob.noRunnerStarted, true, 'noRunnerStarted remains true');
+  assert.strictEqual(result.runnerJob.noBranchOrPrOrMerge, true, 'no branch/PR/merge remains true');
+  assert.strictEqual(result.runnerJob.noDeploy, true, 'no deploy remains true');
+  assert.deepStrictEqual(result.runnerJob.allowedFiles, ['docs/**', 'todolist/**', 'project-register/**']);
+  assert.deepStrictEqual(result.runnerJob.blockedFiles, ['app/**', 'functions/**', 'firestore.rules', 'native/**', '.github/**']);
+})();
+
+(function testRunnerStartApprovalAllowsPreviewedForRunnerStatus() {
+  const result = buildRunnerStartApprovalDecision({
+    workerQueueId: 'queue-previewed',
+    workerStatus: 'previewed_for_runner',
+    allowedFiles: ['docs/**'],
+    blockedFiles: ['functions/**'],
+    requiredChecks: ['npm run lint'],
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+  });
+  assert.strictEqual(result.approvable, true, 'previewed_for_runner can receive runner-start approval');
+})();
+
+(function testRunnerStartApprovalBlocksPendingWorkerReviewAndActiveOrTerminalStatuses() {
+  for (const workerStatus of ['pending_worker_review', 'blocked', 'completed', 'in_progress']) {
+    const result = buildRunnerStartApprovalDecision({
+      workerQueueId: `queue-${workerStatus}`,
+      workerStatus,
+      allowedFiles: ['docs/**'],
+      blockedFiles: ['functions/**'],
+      requiredChecks: ['npm run lint'],
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+    });
+    assert.strictEqual(result.approvable, false, `${workerStatus} must not receive runner-start approval`);
+    assert(result.missing.includes('status_not_approvable'), 'blocked status reason should be explicit');
+  }
+})();
+
+(function testRunnerStartApprovalBlocksMissingWorkerQueueIdAndRequiredLists() {
+  const result = buildRunnerStartApprovalDecision({
+    workerStatus: 'ready_for_worker',
+    allowedFiles: [],
+    blockedFiles: [],
+    requiredChecks: [],
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+  });
+  assert.strictEqual(result.approvable, false, 'approval must block missing workerQueueId and safety lists');
+  assert(result.missing.includes('workerQueueId'), 'workerQueueId is required');
+  assert(result.missing.includes('allowedFiles'), 'allowedFiles are required');
+  assert(result.missing.includes('blockedFiles'), 'blockedFiles are required');
+  assert(result.missing.includes('requiredChecks'), 'requiredChecks are required');
+  assert.strictEqual(buildRunnerStartApprovalFailureMessage(['workerQueueId']), 'Worker Queue ID fehlt.');
+})();
+
+(function testRunnerStartApprovalBlocksRunnerBranchPrMergeDeploySideEffects() {
+  const result = buildRunnerStartApprovalDecision({
+    workerQueueId: 'queue-side-effects',
+    workerStatus: 'ready_for_worker',
+    allowedFiles: ['docs/**'],
+    blockedFiles: ['functions/**'],
+    requiredChecks: ['npm run lint'],
+    noRunnerStarted: false,
+    runnerStarted: true,
+    noBranchOrPrOrMerge: false,
+    branchCreated: true,
+    prCreated: true,
+    merged: true,
+    noDeploy: false,
+    deployStarted: true,
+  });
+  assert.strictEqual(result.approvable, false, 'approval must block runner, branch, PR, merge, or deploy side effects');
+  assert(result.missing.includes('noRunnerStarted'), 'noRunnerStarted must stay true');
+  assert(result.missing.includes('runnerStarted'), 'runnerStarted must remain false');
+  assert(result.missing.includes('branch_pr_merge'), 'branch/PR/merge side effects must block approval');
+  assert(result.missing.includes('deploy'), 'deploy side effects must block approval');
+  assert.strictEqual(buildRunnerStartApprovalFailureMessage(['runnerStarted']), 'Sicherheitsflags verhindern Runner-Start-Freigabe.');
 })();
 
 console.log('agentAdminRolesAudit helper tests passed');

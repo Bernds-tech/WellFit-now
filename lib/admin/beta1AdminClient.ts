@@ -29,6 +29,7 @@ import type {
   TaskProposalWorkerQueueInput,
   WorkerQueueReleaseInput,
   WorkerQueueRunnerPreviewInput,
+  WorkerQueueRunnerStartApprovalInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -68,15 +69,19 @@ function sanitizeAdminError(error: unknown, callableName?: string): string {
   const isWorkerRelease = callableName === "releaseWorkerQueueItemForWorker";
   if (hasFirestoreIndexError(diagnostic)) return "Firestore-Index fehlt. Bitte Index deployen oder in Firebase erstellen.";
   const isRunnerPreview = callableName === "previewRunnerPickupForWorkerQueueItem";
-  if ((isWorkerRelease || isRunnerPreview) && code.includes("invalid-argument")) return "Worker Queue ID fehlt.";
-  if ((isWorkerRelease || isRunnerPreview) && code.includes("not-found")) return "Worker Queue Eintrag nicht gefunden.";
+  const isRunnerStartApproval = callableName === "approveRunnerStartForWorkerQueueItem";
+  if ((isWorkerRelease || isRunnerPreview || isRunnerStartApproval) && code.includes("invalid-argument")) return "Worker Queue ID fehlt.";
+  if ((isWorkerRelease || isRunnerPreview || isRunnerStartApproval) && code.includes("not-found")) return "Worker Queue Eintrag nicht gefunden.";
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
   if (diagnostic.includes("workerQueueId fehlt") || diagnostic.includes("workerqueueid fehlt")) return "Worker Queue ID fehlt.";
   if (diagnostic.includes("worker_queue_item_not_found")) return "Worker Queue Eintrag nicht gefunden.";
+  if (diagnostic.includes("Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden")) return "Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden.";
   if (diagnostic.includes("Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden")) return "Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden.";
+  if (diagnostic.includes("Nur ready_for_worker oder previewed_for_runner darf")) return "Nur ready_for_worker oder previewed_for_runner darf für manuellen Runner-Pickup freigegeben werden.";
   if (diagnostic.includes("Status erlaubt diese Freigabe nicht")) return "Status erlaubt diese Freigabe nicht.";
   if (diagnostic.includes("Pflichtdaten fehlen")) return "Pflichtdaten fehlen: allowedFiles/blockedFiles/requiredChecks.";
   if (diagnostic.includes("Sicherheitsflags verhindern Runner-Pickup Preview")) return "Sicherheitsflags verhindern Runner-Pickup Preview.";
+  if (diagnostic.includes("Sicherheitsflags verhindern Runner-Start-Freigabe")) return "Sicherheitsflags verhindern Runner-Start-Freigabe.";
   if (diagnostic.includes("Sicherheitsflags verhindern Freigabe")) return "Sicherheitsflags verhindern Freigabe.";
   if (diagnostic.includes("Owner-protected Bereich blockiert")) return "Owner-protected Bereich blockiert.";
   if (diagnostic.includes("worker_queue_release_blocked:status_not_releasable")) return "Status erlaubt diese Freigabe nicht.";
@@ -202,6 +207,12 @@ export const beta1AdminClient = {
     targetId: input.targetId,
     id: input.id,
   }),
+  approveRunnerStartForWorkerQueueItem: (input: WorkerQueueRunnerStartApprovalInput) => callAdmin("approveRunnerStartForWorkerQueueItem", {
+    workerQueueId: input.workerQueueId,
+    targetId: input.targetId,
+    id: input.id,
+  }),
+  listAgentRunnerJobs: (status?: string) => callAdmin("listAgentRunnerJobs", status ? { status } : {}),
   generateAgentTaskCodexPrompt: (input: AgentHandoffPromptGenerateInput) => callAdmin("generateAgentTaskCodexPrompt", input),
   getAgentTaskCodexPrompt: (input: AgentHandoffPromptGetInput) => callAdmin("getAgentTaskCodexPrompt", input),
   markAgentTaskCodexPromptCopied: (input: AgentHandoffPromptCopiedInput) => callAdmin("markAgentTaskCodexPromptCopied", input),

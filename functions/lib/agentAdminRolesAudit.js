@@ -7,7 +7,8 @@ const APPROVAL_STATUSES = ["approved", "rejected", "revoked"];
 const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked"];
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
 const HANDOFF_PROMPT_STATUSES = ["generated", "copied", "superseded", "blocked"];
-const WORKER_QUEUE_STATUSES = ["queued_for_owner_review", "queued_for_worker_review", "pending_worker_review", "ready_for_worker", "in_progress", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed", "repair_required"];
+const WORKER_QUEUE_STATUSES = ["queued_for_owner_review", "queued_for_worker_review", "pending_worker_review", "ready_for_worker", "previewed_for_runner", "runner_start_approved", "in_progress", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed", "repair_required"];
+const RUNNER_JOB_STATUSES = ["pending_runner_pickup", "runner_job_created", "picked_up", "in_progress", "completed", "blocked", "repair_required"];
 const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
 const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
@@ -275,7 +276,7 @@ function buildWorkerQueueReleaseDecision(item) {
 function buildRunnerPickupPreviewFailureMessage(missing) {
   const reasons = Array.isArray(missing) ? missing : [];
   if (reasons.includes("workerQueueId")) return "Worker Queue ID fehlt.";
-  if (reasons.includes("status_not_ready_for_worker")) return "Nur ready_for_worker kann als Runner-Pickup Preview geprüft werden.";
+  if (reasons.includes("status_not_ready_for_worker")) return "Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden.";
   const missingRequired = reasons.filter((reason) => ["allowedFiles", "blockedFiles", "requiredChecks"].includes(reason));
   if (missingRequired.length) return `Pflichtdaten fehlen: ${missingRequired.join("/")}.`;
   if (reasons.some((reason) => ["noRunnerStarted", "runnerStarted", "noBranchOrPrOrMerge", "branch_pr_merge", "noDeploy", "deploy"].includes(reason))) return "Sicherheitsflags verhindern Runner-Pickup Preview.";
@@ -290,7 +291,7 @@ function buildRunnerPickupPreviewDecision(item, workerQueueIdOverride) {
   const requiredChecks = parseStringList((item && item.requiredChecks) || [], 80, 260);
   const missing = [];
   if (!workerQueueId) missing.push("workerQueueId");
-  if (currentStatus !== "ready_for_worker") missing.push("status_not_ready_for_worker");
+  if (!["ready_for_worker", "previewed_for_runner"].includes(currentStatus)) missing.push("status_not_ready_for_worker");
   if (!allowedFiles.length) missing.push("allowedFiles");
   if (!blockedFiles.length) missing.push("blockedFiles");
   if (!requiredChecks.length) missing.push("requiredChecks");
@@ -326,6 +327,63 @@ function buildRunnerPickupPreviewDecision(item, workerQueueIdOverride) {
       noBranchOrPrOrMerge: true,
       noDeploy: true,
       safetySummary: ["Kein Runner gestartet", "Kein Branch erstellt", "Kein PR erstellt", "Kein Merge", "Kein Deploy"],
+    },
+  };
+}
+
+
+function buildRunnerStartApprovalFailureMessage(missing) {
+  const reasons = Array.isArray(missing) ? missing : [];
+  if (reasons.includes("workerQueueId")) return "Worker Queue ID fehlt.";
+  if (reasons.includes("status_not_approvable")) return "Nur ready_for_worker oder previewed_for_runner darf für manuellen Runner-Pickup freigegeben werden.";
+  const missingRequired = reasons.filter((reason) => ["allowedFiles", "blockedFiles", "requiredChecks"].includes(reason));
+  if (missingRequired.length) return `Pflichtdaten fehlen: ${missingRequired.join("/")}.`;
+  if (reasons.some((reason) => ["noRunnerStarted", "runnerStarted", "noBranchOrPrOrMerge", "branch_pr_merge", "noDeploy", "deploy"].includes(reason))) return "Sicherheitsflags verhindern Runner-Start-Freigabe.";
+  return "Runner-Start-Freigabe blockiert.";
+}
+
+function buildRunnerStartApprovalDecision(item, workerQueueIdOverride) {
+  const workerQueueId = optionalString(workerQueueIdOverride || (item && item.workerQueueId), 180);
+  const currentStatus = optionalString(item && (item.workerStatus || item.status), 80) || "pending_worker_review";
+  const allowedFiles = parseStringList((item && item.allowedFiles) || [], 80, 260);
+  const blockedFiles = parseStringList((item && item.blockedFiles) || [], 80, 260);
+  const requiredChecks = parseStringList((item && item.requiredChecks) || [], 80, 260);
+  const missing = [];
+  if (!workerQueueId) missing.push("workerQueueId");
+  if (!["ready_for_worker", "previewed_for_runner"].includes(currentStatus)) missing.push("status_not_approvable");
+  if (!allowedFiles.length) missing.push("allowedFiles");
+  if (!blockedFiles.length) missing.push("blockedFiles");
+  if (!requiredChecks.length) missing.push("requiredChecks");
+  if (item && item.noRunnerStarted === false) missing.push("noRunnerStarted");
+  if (item && item.runnerStarted === true) missing.push("runnerStarted");
+  if (item && item.noBranchOrPrOrMerge === false) missing.push("noBranchOrPrOrMerge");
+  if (item && (item.branchCreated === true || item.prCreated === true || item.merged === true || item.autoMerge === true)) missing.push("branch_pr_merge");
+  if (item && item.noDeploy === false) missing.push("noDeploy");
+  if (item && (item.deployStarted === true || item.autoDeploy === true)) missing.push("deploy");
+  return {
+    approvable: missing.length === 0,
+    currentStatus,
+    nextStatus: "runner_start_approved",
+    missing,
+    failureMessage: buildRunnerStartApprovalFailureMessage(missing),
+    runnerJob: {
+      workerQueueId: workerQueueId || null,
+      taskProposalId: optionalString(item && (item.taskProposalId || item.proposalId), 180) || null,
+      title: optionalString(item && (item.title || item.taskTitle), 240) || (workerQueueId ? `Worker Queue ${workerQueueId}` : "Worker Queue"),
+      summary: optionalString(item && item.summary, 1200) || "",
+      requestedAction: optionalString(item && item.requestedAction, 1200) || optionalString(item && item.summary, 1200) || "",
+      status: "pending_runner_pickup",
+      executionMode: "owner_approved_manual_pickup",
+      allowedFiles,
+      blockedFiles,
+      requiredChecks,
+      riskLevel: normalizeRiskLevel((item && item.riskLevel) || "medium"),
+      sourceInboxId: optionalString(item && item.sourceInboxId, 180) || null,
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+      runnerStartAllowed: false,
+      requiresManualRunnerPickup: true,
     },
   };
 }
@@ -1532,6 +1590,30 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     };
   }
 
+
+  function mapSafeAgentRunnerJob(doc) {
+    const data = doc.data() || {};
+    return {
+      runnerJobId: optionalString(data.runnerJobId, 180) || doc.id,
+      workerQueueId: optionalString(data.workerQueueId, 180) || null,
+      taskProposalId: optionalString(data.taskProposalId, 180) || null,
+      title: optionalString(data.title, 240) || `Runner Job ${doc.id}`,
+      status: optionalString(data.status, 80) || "pending_runner_pickup",
+      executionMode: optionalString(data.executionMode, 120) || "owner_approved_manual_pickup",
+      allowedFiles: parseStringList(data.allowedFiles || [], 80, 260),
+      blockedFiles: parseStringList(data.blockedFiles || [], 80, 260),
+      requiredChecks: parseStringList(data.requiredChecks || [], 80, 260),
+      riskLevel: normalizeRiskLevel(data.riskLevel || "medium"),
+      noRunnerStarted: data.noRunnerStarted !== false && data.runnerStarted !== true,
+      noBranchOrPrOrMerge: data.noBranchOrPrOrMerge !== false && data.autoMerge !== true,
+      noDeploy: data.noDeploy !== false && data.autoDeploy !== true,
+      runnerStartAllowed: data.runnerStartAllowed === true,
+      requiresManualRunnerPickup: data.requiresManualRunnerPickup === true,
+      createdAt: safeTimestampValue(data.createdAt),
+      ownerApprovedAt: safeTimestampValue(data.ownerApprovedAt),
+    };
+  }
+
   function mapSafeAgentTaskProposal(doc, sourceInbox) {
     const data = doc.data() || {};
     const summary = optionalString(data.summary, 1200) || optionalString(data.plainSummary, 1200) || optionalString(sourceInbox && (sourceInbox.summary || sourceInbox.plainSummary), 1200) || optionalString(data.requestedAction, 1200);
@@ -1588,6 +1670,57 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     if (!decision.previewable) throw new HttpsError("failed-precondition", decision.failureMessage || `runner_pickup_preview_blocked:${decision.missing.join(",")}`);
     const preview = decision.preview;
     return { accepted: true, ...preview, preview, message: "Runner-Pickup Preview bereit. Keine Ausführung gestartet." };
+  });
+
+
+  exportsTarget.approveRunnerStartForWorkerQueueItem = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
+    const workerQueueId = requiredString(getWorkerQueueReleaseTargetId(request.data), "workerQueueId", HttpsError, 180);
+    const workerRef = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
+    const workerSnap = await workerRef.get();
+    if (!workerSnap.exists) throw new HttpsError("not-found", "worker_queue_item_not_found");
+    const item = workerSnap.data() || {};
+    const decision = buildRunnerStartApprovalDecision({ ...item, workerQueueId }, workerQueueId);
+    if (!decision.approvable) throw new HttpsError("failed-precondition", decision.failureMessage || `runner_start_approval_blocked:${decision.missing.join(",")}`);
+    const now = FieldValue.serverTimestamp();
+    const runnerRef = db.collection("agentRunnerJobs").doc();
+    const runnerJob = {
+      ...decision.runnerJob,
+      runnerJobId: runnerRef.id,
+      createdAt: now,
+      ownerApprovedAt: now,
+    };
+    await runnerRef.set(runnerJob);
+    await workerRef.set({
+      workerStatus: "runner_start_approved",
+      status: "runner_start_approved",
+      runnerJobId: runnerRef.id,
+      runnerStartApprovedAt: now,
+      runnerStartApprovalDecision: "approved_for_manual_runner_pickup",
+      noRunnerStarted: true,
+      runnerStarted: false,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+      runnerStartAllowed: false,
+      requiresManualRunnerPickup: true,
+      humanMergeRequired: true,
+      autoMerge: false,
+      autoDeploy: false,
+      lastStatusChangedAt: now,
+      updatedAt: now,
+    }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "runner_start_approval_saved", proposalId: item.taskProposalId || item.proposalId || null, result: "pending_runner_pickup", allowedFiles: decision.runnerJob.allowedFiles, blockedFiles: decision.runnerJob.blockedFiles });
+    return { accepted: true, runnerJobId: runnerRef.id, workerQueueId, taskProposalId: runnerJob.taskProposalId, status: "runner_start_approved", runnerJobStatus: "pending_runner_pickup", runnerStartApprovalDecision: "approved_for_manual_runner_pickup", noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, runnerStartAllowed: false, requiresManualRunnerPickup: true, message: "Runner-Start-Freigabe gespeichert. Kein Runner gestartet." };
+  });
+
+  exportsTarget.listAgentRunnerJobs = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
+    const status = optionalString(request.data && request.data.status, 80);
+    let query = db.collection("agentRunnerJobs").orderBy("createdAt", "desc").limit(100);
+    if (status && RUNNER_JOB_STATUSES.includes(status)) query = query.where("status", "==", status);
+    const snapshot = await query.get();
+    const items = snapshot.docs.map(mapSafeAgentRunnerJob);
+    return { accepted: true, items, runnerJobs: items, loadedCount: items.length, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true };
   });
 
   exportsTarget.releaseWorkerQueueItemForWorker = onCall(async (request) => {
@@ -2176,4 +2309,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, REVISION_DOSSIER_MESSAGE };
