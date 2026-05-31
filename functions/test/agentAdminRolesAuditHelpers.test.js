@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract } = require('../lib/agentAdminRolesAudit');
 
 
 function buildCompleteSingleDecisionDossier(overrides = {}) {
@@ -506,6 +506,56 @@ function buildCompleteSingleDecisionDossier(overrides = {}) {
   assert(result.missing.includes('branch_pr_merge'), 'branch/PR/merge side effects must block approval');
   assert(result.missing.includes('deploy'), 'deploy side effects must block approval');
   assert.strictEqual(buildRunnerStartApprovalFailureMessage(['runnerStarted']), 'Sicherheitsflags verhindern Runner-Start-Freigabe.');
+})();
+
+(function testLegacyApprovedWithoutContractHashRequiresReapproval() {
+  const dossier = buildCompleteSingleDecisionDossier();
+  const contractFields = buildExecutionContractApprovalFields(dossier);
+  const state = buildSingleDecisionReapprovalState({ existingData: { status: 'approved' }, currentContractFields: contractFields });
+  assert.strictEqual(state.requiresSingleDecisionReapproval, true, 'legacy approved without approved hash must require reapproval');
+  assert.strictEqual(state.singleDecisionStatus, 'pending_single_decision_reapproval');
+  assert.strictEqual(state.reapprovalReason, SINGLE_DECISION_REAPPROVAL_REASON);
+  assert.strictEqual(contractApprovalCoversCurrentExecutionContract({ status: 'approved', ...contractFields }), false, 'legacy approved must not be auto-progress-ready');
+})();
+
+(function testLegacyApprovedWithOldHashAndNewContractRequiresReapproval() {
+  const dossier = buildCompleteSingleDecisionDossier();
+  const contractFields = buildExecutionContractApprovalFields(dossier);
+  const state = buildSingleDecisionReapprovalState({ existingData: { status: 'approved', approvalMode: 'single_owner_decision', approvedExecutionContractHash: 'old-hash', approvalCoversAutomaticExecution: true }, currentContractFields: contractFields });
+  assert.strictEqual(state.contractUpgradeDetected, true, 'changed hash should be detected as contract upgrade');
+  assert.strictEqual(state.requiresSingleDecisionReapproval, true, 'changed hash requires reapproval');
+  assert.strictEqual(contractApprovalCoversCurrentExecutionContract({ ...contractFields, approvalMode: 'single_owner_decision', approvedExecutionContractHash: 'old-hash', approvalCoversAutomaticExecution: true }), false, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE);
+})();
+
+(function testApprovedWithMatchingHashCanAutoProgress() {
+  const dossier = buildCompleteSingleDecisionDossier();
+  const contractFields = buildExecutionContractApprovalFields(dossier);
+  const approved = { status: 'approved', ...dossier, ...contractFields, approvalMode: 'single_owner_decision', approvedExecutionContractVersion: contractFields.executionContractVersion, approvedExecutionContractHash: contractFields.executionContractHash, approvalCoversAutomaticExecution: true, requiresSingleDecisionReapproval: false };
+  assert.strictEqual(contractApprovalCoversCurrentExecutionContract(approved), true, 'matching single decision approval covers current contract');
+  assert.strictEqual(approved.allowedFiles.includes('app/**'), true, 'app/** is allowed only with matching approval');
+  assert.strictEqual(approved.allowedFiles.includes('functions/**'), true, 'functions/** is allowed only with matching approval');
+  assert.strictEqual(approved.allowedFiles.includes('firestore.rules'), true, 'firestore.rules is allowed only with matching approval');
+  assert.strictEqual(approved.allowedFiles.includes('.github/**'), true, '.github/** is allowed only with matching approval');
+})();
+
+(function testReapprovalSetsSingleOwnerApprovalHashAndSafetyBlocksRemain() {
+  const dossier = buildCompleteSingleDecisionDossier();
+  const contractFields = buildExecutionContractApprovalFields(dossier);
+  const reapproved = { ...dossier, ...contractFields, status: 'approved', singleDecisionStatus: 'single_decision_approved', autoProgressStatus: 'auto_progress_ready', approvalMode: 'single_owner_decision', approvedExecutionContractVersion: contractFields.executionContractVersion, approvedExecutionContractHash: contractFields.executionContractHash, approvalCoversAutomaticExecution: true, requiresSingleDecisionReapproval: false };
+  assert.strictEqual(contractApprovalCoversCurrentExecutionContract(reapproved), true, 'reapproval should cover automatic execution');
+  assert(reapproved.blockedFiles.includes('native/**'), 'native/** remains blocked');
+  assert.strictEqual(reapproved.forbiddenExecution.tokenPaymentBlockchainAllowed, false, 'Token/Payment/Blockchain remains blocked');
+  assert.strictEqual(reapproved.forbiddenExecution.nativeChangesAllowed, false, 'native changes remain blocked');
+})();
+
+(function testContractHashDebugDoesNotExposeSecretsUidEmailOrTokens() {
+  const dossier = buildCompleteSingleDecisionDossier({ ownerUid: 'uid-should-not-be-hashed-debugged', ownerEmail: 'owner@example.com', token: 'secret-token' });
+  const contractFields = buildExecutionContractApprovalFields(dossier);
+  const debug = { currentExecutionContractHashPresent: Boolean(contractFields.executionContractHash), approvedExecutionContractHashPresent: false, approvalCoversAutomaticExecution: false };
+  const debugText = JSON.stringify(debug);
+  assert(!debugText.includes('uid-should-not-be-hashed-debugged'), 'debug must not include UID');
+  assert(!debugText.includes('owner@example.com'), 'debug must not include email');
+  assert(!debugText.includes('secret-token'), 'debug must not include token/secret');
 })();
 
 console.log('agentAdminRolesAudit helper tests passed');

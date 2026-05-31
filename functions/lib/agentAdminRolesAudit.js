@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const { FieldValue } = require("firebase-admin/firestore");
 const { optionalString, requiredString } = require("./beta1Runtime");
 
@@ -52,7 +53,10 @@ function buildAgentTaskProposalStatusCounts(proposals) {
 const SINGLE_DECISION_BLOCKER_MESSAGE = "Dossier unvollständig – die einmalige Entscheidung muss alle späteren Ausführungsschritte beschreiben.";
 const SINGLE_DECISION_DETAIL_STATUS = "incomplete_single_decision_contract";
 const EXECUTION_MODES = ["manual_step_by_step", "single_owner_decision"];
-const SINGLE_DECISION_STATUSES = ["pending_single_decision", "single_decision_approved", "single_decision_rejected", "single_decision_revision_requested", "single_decision_blocked", "auto_progress_ready", "auto_progress_in_progress", "auto_progress_paused", "auto_progress_failed", "auto_progress_completed"];
+const SINGLE_DECISION_STATUSES = ["pending_single_decision", "pending_single_decision_reapproval", "single_decision_approved", "single_decision_rejected", "single_decision_revision_requested", "single_decision_blocked", "auto_progress_ready", "auto_progress_in_progress", "auto_progress_paused", "auto_progress_failed", "auto_progress_completed"];
+const SINGLE_DECISION_REAPPROVAL_REASON = "Dieser Vorschlag wurde früher mit einem alten, engen Vertrag freigegeben. Für automatische Ausführung ist eine neue einmalige Entscheidung auf Basis des vollständigen Ausführungsvertrags nötig.";
+const AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE = "Automatische Ausführung blockiert: Der aktuelle Ausführungsvertrag wurde noch nicht einmalig freigegeben.";
+const CONTRACT_FINGERPRINT_FIELDS = ["executionContract", "allowedExecution", "forbiddenExecution", "executionEnvelope", "allowedFiles", "blockedFiles", "requiredChecks", "validationPlan", "rollbackPlan", "stopConditions", "targetEnvironment", "nextAutomaticSteps"];
 const SINGLE_DECISION_REQUIRED_ALLOWED_FILES = ["docs/**", "todolist/**", "project-register/**", "app/**", "functions/**", "firestore.rules", ".github/**"];
 const SINGLE_DECISION_REQUIRED_BLOCKED_FILES = ["native/**"];
 const SINGLE_DECISION_REQUIRED_STOP_CONDITIONS = [
@@ -192,6 +196,59 @@ function validateSingleDecisionExecutionContract(dossier) {
   };
 }
 
+function stableContractValue(value) {
+  if (Array.isArray(value)) return value.map(stableContractValue);
+  if (value && typeof value === "object") {
+    return Object.keys(value).sort().reduce((acc, key) => {
+      const nested = stableContractValue(value[key]);
+      if (nested !== undefined) acc[key] = nested;
+      return acc;
+    }, {});
+  }
+  if (value === undefined) return undefined;
+  return value;
+}
+
+function buildExecutionContractFingerprintSource(dossier) {
+  const source = dossier && typeof dossier === "object" ? dossier : {};
+  return CONTRACT_FINGERPRINT_FIELDS.reduce((acc, field) => {
+    const value = stableContractValue(source[field]);
+    if (value !== undefined && value !== null && !(Array.isArray(value) && value.length === 0)) acc[field] = value;
+    return acc;
+  }, {});
+}
+
+function buildExecutionContractHash(dossier) {
+  const canonical = JSON.stringify(stableContractValue(buildExecutionContractFingerprintSource(dossier)));
+  return crypto.createHash("sha256").update(canonical).digest("hex");
+}
+
+function buildExecutionContractApprovalFields(dossier) {
+  const source = dossier && typeof dossier === "object" ? dossier : {};
+  const executionContract = source.executionContract && typeof source.executionContract === "object" ? source.executionContract : {};
+  const executionContractVersion = sanitizeInboxText(source.executionContractVersion || executionContract.executionContractVersion, 120);
+  const executionContractMode = sanitizeInboxText(source.executionContractMode || source.mode || executionContract.mode, 80) || "manual_step_by_step";
+  const executionContractHash = buildExecutionContractHash({ ...source, executionContract });
+  return { executionContractVersion, executionContractMode, executionContractHash, stableContractFingerprint: executionContractHash };
+}
+
+function contractApprovalCoversCurrentExecutionContract(source) {
+  const doc = source && typeof source === "object" ? source : {};
+  const currentHash = sanitizeInboxText(doc.executionContractHash || doc.stableContractFingerprint, 120);
+  return Boolean(sanitizeInboxText(doc.approvalMode, 80) === "single_owner_decision" && doc.approvalCoversAutomaticExecution === true && currentHash && sanitizeInboxText(doc.approvedExecutionContractHash, 120) === currentHash && doc.requiresSingleDecisionReapproval !== true);
+}
+
+function buildSingleDecisionReapprovalState({ existingData, currentContractFields }) {
+  const existing = existingData && typeof existingData === "object" ? existingData : {};
+  const current = currentContractFields && typeof currentContractFields === "object" ? currentContractFields : {};
+  const existingStatus = sanitizeInboxText(existing.status, 40);
+  const currentMode = sanitizeInboxText(current.executionContractMode, 80);
+  const currentHash = sanitizeInboxText(current.executionContractHash, 120);
+  const approvedHash = sanitizeInboxText(existing.approvedExecutionContractHash, 120);
+  const legacyApproved = existingStatus === "approved" && currentMode === "single_owner_decision" && (sanitizeInboxText(existing.approvalMode, 80) !== "single_owner_decision" || !approvedHash || approvedHash !== currentHash || existing.approvalCoversAutomaticExecution !== true);
+  return { requiresSingleDecisionReapproval: legacyApproved, reapprovalReason: legacyApproved ? SINGLE_DECISION_REAPPROVAL_REASON : "", singleDecisionStatus: legacyApproved ? "pending_single_decision_reapproval" : null, autoProgressStatus: legacyApproved ? "auto_progress_paused" : null, contractUpgradeDetected: existingStatus === "approved" && currentMode === "single_owner_decision" && approvedHash !== currentHash };
+}
+
 const REVISION_DOSSIER_REQUIRED_FIELDS = ["what", "why", "wellFitBenefit", "userBenefit", "economyImpact", "risk", "recommendation"];
 const REVISION_DOSSIER_LIST_FIELDS = ["allowedFiles", "blockedFiles", "requiredChecks"];
 const REVISION_DOSSIER_MESSAGE = "Revision konnte nicht ausreichend begründet werden.";
@@ -299,12 +356,24 @@ function buildProductEvolutionRevisionDossier({ inbox, sourcePayload, sourceMeta
 function extractExecutionContractFields(source) {
   const safeSource = source && typeof source === "object" ? source : {};
   const executionEnvelope = safeSource.executionEnvelope && typeof safeSource.executionEnvelope === "object" ? safeSource.executionEnvelope : {};
+  const executionContract = safeSource.executionContract && typeof safeSource.executionContract === "object" ? safeSource.executionContract : null;
+  const approvalFields = buildExecutionContractApprovalFields({ ...safeSource, executionContract });
   return {
-    executionContract: safeSource.executionContract && typeof safeSource.executionContract === "object" ? safeSource.executionContract : null,
+    executionContract,
     allowedExecution: safeSource.allowedExecution && typeof safeSource.allowedExecution === "object" ? safeSource.allowedExecution : null,
     forbiddenExecution: safeSource.forbiddenExecution && typeof safeSource.forbiddenExecution === "object" ? safeSource.forbiddenExecution : null,
     executionEnvelope: safeSource.executionEnvelope && typeof safeSource.executionEnvelope === "object" ? safeSource.executionEnvelope : null,
     mode: sanitizeInboxText(safeSource.mode || (safeSource.executionContract && safeSource.executionContract.mode) || "", 80),
+    executionContractVersion: approvalFields.executionContractVersion,
+    executionContractMode: approvalFields.executionContractMode,
+    executionContractHash: approvalFields.executionContractHash,
+    stableContractFingerprint: approvalFields.stableContractFingerprint,
+    approvedExecutionContractVersion: sanitizeInboxText(safeSource.approvedExecutionContractVersion, 120),
+    approvedExecutionContractHash: sanitizeInboxText(safeSource.approvedExecutionContractHash, 120),
+    approvalMode: sanitizeInboxText(safeSource.approvalMode, 80),
+    approvalCoversAutomaticExecution: safeSource.approvalCoversAutomaticExecution === true,
+    requiresSingleDecisionReapproval: safeSource.requiresSingleDecisionReapproval === true,
+    reapprovalReason: sanitizeInboxText(safeSource.reapprovalReason, 1200),
     targetEnvironment: sanitizeInboxText(safeSource.targetEnvironment || executionEnvelope.targetEnvironment || "", 80),
     validationPlan: firstPresentList(safeSource, ["validationPlan", "executionEnvelope.validationPlan"], 80, 1000),
     rollbackPlan: firstPresentList(safeSource, ["rollbackPlan", "executionEnvelope.rollbackPlan"], 80, 1000),
@@ -978,6 +1047,7 @@ function buildInboxDecisionDetails(payload, { sourceType, listType, sourceDossie
   const recommendationText = firstPresentText(payload, ["recommendationText", "recommendation.text", "decisionText"], 1200) || recommendationLabel;
   const nextStep = firstPresentText(payload, ["nextStep", "nextSteps", "suggestedTaskProposal", "handoff"], 1200) || "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch.";
   const executionFields = extractExecutionContractFields(payload);
+  const contractFields = buildExecutionContractApprovalFields({ ...payload, allowedFiles, blockedFiles, requiredChecks, ...executionFields });
   const singleDecisionValidation = executionFields.mode === "single_owner_decision" || executionFields.executionContract ? validateSingleDecisionExecutionContract({ ...payload, allowedFiles, blockedFiles, requiredChecks, ...executionFields }) : null;
   const missingCriticalDecisionFields = [];
   for (const [field, value] of Object.entries({ summary, what, why, wellFitBenefit, userBenefit, economyImpact, risk, recommendation, recommendationLabel, recommendationText })) if (!value) missingCriticalDecisionFields.push(field);
@@ -985,7 +1055,7 @@ function buildInboxDecisionDetails(payload, { sourceType, listType, sourceDossie
   if (!blockedFiles.length) missingCriticalDecisionFields.push("blockedFiles");
   if (!requiredChecks.length) missingCriticalDecisionFields.push("requiredChecks");
   const mergedMissing = singleDecisionValidation ? Array.from(new Set([...missingCriticalDecisionFields, ...singleDecisionValidation.missing])) : missingCriticalDecisionFields;
-  return { title, summary, plainSummary: summary, what, whatWillChange: what, why, whySuggested: why, wellFitBenefit, userBenefit, economyImpact, risk, riskSummary: risk, recommendation, recommendationLabel, recommendationText, sourceDossierId, sourceType, listType, allowedFiles, blockedFiles, requiredChecks, nextStep, ...Object.fromEntries(Object.entries(executionFields).filter(([, value]) => value !== null && value !== "" && !(Array.isArray(value) && value.length === 0))), singleDecisionStatus: singleDecisionValidation ? singleDecisionValidation.singleDecisionStatus : "", singleDecisionBlocker: singleDecisionValidation ? singleDecisionValidation.blocker : "", detailStatus: singleDecisionValidation ? singleDecisionValidation.detailStatus : (mergedMissing.length ? "missing" : "structured"), missingCriticalDecisionFields: mergedMissing, dossierIncomplete: mergedMissing.length > 0 };
+  return { title, summary, plainSummary: summary, what, whatWillChange: what, why, whySuggested: why, wellFitBenefit, userBenefit, economyImpact, risk, riskSummary: risk, recommendation, recommendationLabel, recommendationText, sourceDossierId, sourceType, listType, allowedFiles, blockedFiles, requiredChecks, nextStep, ...contractFields, ...Object.fromEntries(Object.entries(executionFields).filter(([, value]) => value !== null && value !== "" && !(Array.isArray(value) && value.length === 0))), singleDecisionStatus: singleDecisionValidation ? singleDecisionValidation.singleDecisionStatus : "", singleDecisionBlocker: singleDecisionValidation ? singleDecisionValidation.blocker : "", detailStatus: singleDecisionValidation ? singleDecisionValidation.detailStatus : (mergedMissing.length ? "missing" : "structured"), missingCriticalDecisionFields: mergedMissing, dossierIncomplete: mergedMissing.length > 0 };
 }
 
 function getFirstRunCandidateCollections(snapshot) {
@@ -2529,6 +2599,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const requiredChecks = firstPresentList(payload, ["requiredChecks", "checks", "qualityChecks", "requiredCommands", "validationCommands"], 80, 260);
     assertCanonicalTruthChangeAllowed({ files: allowedFiles, actorRole, ownerApprovalFlag: actorRole === "owner", HttpsError });
     const decisionDetails = buildInboxDecisionDetails(payload, { sourceType, listType, sourceDossierId, allowedFiles, blockedFiles, requiredChecks });
+    const reapprovalState = buildSingleDecisionReapprovalState({ existingData, currentContractFields: decisionDetails });
     const doc = {
       inboxId,
       sourceType,
@@ -2559,10 +2630,11 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       supersededByReadableDecisionDossier: payload.supersededByReadableDecisionDossier === true,
       legacyProductEvolutionSource: payload.legacyProductEvolutionSource || null,
       adminCenterSourcePriority: Number(payload.adminCenterSourcePriority || (listType === "decisionDossiers" ? 10 : 50)),
+      ...(reapprovalState.requiresSingleDecisionReapproval ? { singleDecisionStatus: reapprovalState.singleDecisionStatus, autoProgressStatus: reapprovalState.autoProgressStatus, requiresSingleDecisionReapproval: true, reapprovalReason: reapprovalState.reapprovalReason, approvalCoversAutomaticExecution: false } : { requiresSingleDecisionReapproval: false, reapprovalReason: "" }),
       updatedAt: now,
     };
     await ref.set(doc, { merge: true });
-    return { inboxId, existingStatusPreserved: preserveDecisionStatus, preservedStatus: preserveDecisionStatus ? existingStatus : "" };
+    return { inboxId, existingStatusPreserved: preserveDecisionStatus, preservedStatus: preserveDecisionStatus ? existingStatus : "", requiresSingleDecisionReapproval: reapprovalState.requiresSingleDecisionReapproval, contractUpgradeDetected: reapprovalState.contractUpgradeDetected, currentExecutionContractHashPresent: Boolean(decisionDetails.executionContractHash), approvedExecutionContractHashPresent: Boolean(existingData && existingData.approvedExecutionContractHash), approvalCoversAutomaticExecution: Boolean(existingData && existingData.approvalCoversAutomaticExecution === true) };
   }
 
   exportsTarget.syncProductEvolutionFirstRunInbox = onCall(async (request) => {
@@ -2594,6 +2666,12 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       const skippedReasons = { missing_sourceDossierId: 0, missing_decision_data: 0, protected_scope: 0, invalid_inbox_id: 0 };
       const sampleCreatedIds = [];
       const sampleSkipped = [];
+      let contractUpgradeDetectedCount = 0;
+      let reapprovalRequiredCount = 0;
+      const sampleReapprovalRequiredIds = [];
+      let currentExecutionContractHashPresent = false;
+      let approvedExecutionContractHashPresent = false;
+      let approvalCoversAutomaticExecution = false;
       let serverCandidateCount = 0;
       let invalidInboxIdSanitized = false;
       let sourceDossierIdHadSlash = false;
@@ -2612,7 +2690,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
             skipped += 1;
             continue;
           }
-          if (hasProtectedFileScope(item.allowedFiles || [])) {
+          const executionFieldsForScope = extractExecutionContractFields(item);
+          const canSyncVersionedSingleDecisionContract = collection.listType === "decisionDossiers" && (executionFieldsForScope.mode === "single_owner_decision" || (executionFieldsForScope.executionContract && executionFieldsForScope.executionContract.mode === "single_owner_decision"));
+          if (hasProtectedFileScope(item.allowedFiles || []) && !canSyncVersionedSingleDecisionContract) {
             sampleSkipped.push({ listType: collection.listType, reason: "protected_scope", id: sourceDossierId });
             skippedReasons.protected_scope = Number(skippedReasons.protected_scope || 0) + 1;
             skipped += 1;
@@ -2641,6 +2721,14 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
           const existing = await db.collection("agentCenterInbox").doc(inboxIdInfo.inboxId).get();
           const itemSourceRef = collection.listType === "decisionDossiers" ? sanitizeInboxText(register.decisionDossiersSourceRef, 240) || decisionDossiersSourceRef : sourceRef;
           const upsertResult = await upsertInboxItem({ actorId, actorRole, sourceType: "product_evolution_first_run", listType: collection.listType, sourceRef: itemSourceRef, sourceDossierId, payload: item, createdAtFallback, preserveExistingDecisionStatus: true });
+          if (upsertResult.contractUpgradeDetected) contractUpgradeDetectedCount += 1;
+          if (upsertResult.requiresSingleDecisionReapproval) {
+            reapprovalRequiredCount += 1;
+            if (sampleReapprovalRequiredIds.length < 10) sampleReapprovalRequiredIds.push(inboxIdInfo.inboxId);
+          }
+          currentExecutionContractHashPresent = currentExecutionContractHashPresent || Boolean(upsertResult.currentExecutionContractHashPresent);
+          approvedExecutionContractHashPresent = approvedExecutionContractHashPresent || Boolean(upsertResult.approvedExecutionContractHashPresent);
+          approvalCoversAutomaticExecution = approvalCoversAutomaticExecution || Boolean(upsertResult.approvalCoversAutomaticExecution);
           if (upsertResult.existingStatusPreserved) {
             preservedDecisionStatusCount += 1;
             if (samplePreservedDecisionIds.length < 10) samplePreservedDecisionIds.push(inboxIdInfo.inboxId);
@@ -2657,7 +2745,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         registerSnapshotValueType: snapshotResolution.registerSnapshotValueType,
       });
       const synced = created + updated;
-      const base = { ...responseBase, ...diagnostics, accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, preservedDecisionStatusCount, samplePreservedDecisionIds, sampleCreatedIds, sampleSkipped, invalidInboxIdSanitized, sourceDossierIdHadSlash, serverSnapshotReceived, serverSnapshotKeys, idempotent: true, sourceRef, sourceTrust: useMirror ? "firestore_mirror" : "admin_provided_repo_snapshot" };
+      const base = { ...responseBase, ...diagnostics, accepted: synced > 0 || skipped > 0, syncedCount: synced, created, updated, skipped, skippedReasons, preservedDecisionStatusCount, samplePreservedDecisionIds, sampleCreatedIds, sampleSkipped, contractUpgradeDetectedCount, reapprovalRequiredCount, sampleReapprovalRequiredIds, currentExecutionContractHashPresent, approvedExecutionContractHashPresent, approvalCoversAutomaticExecution, invalidInboxIdSanitized, sourceDossierIdHadSlash, serverSnapshotReceived, serverSnapshotKeys, idempotent: true, sourceRef, sourceTrust: useMirror ? "firestore_mirror" : "admin_provided_repo_snapshot" };
 
       if (!useMirror && !registerSnapshot) {
         return { ...base, message: "Kein Snapshot empfangen und Firestore-Mirror leer." };
@@ -2836,6 +2924,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const inbox = inboxSnap.data() || {};
     if (String(inbox.status || "") !== "approved") throw new HttpsError("failed-precondition", "inbox_not_approved");
     if (["rejected", "blocked", "revision_requested", "pending_approval"].includes(String(inbox.status || ""))) throw new HttpsError("failed-precondition", "inbox_status_not_allowed");
+    if (((inbox.executionContract && inbox.executionContract.mode) || inbox.mode) === "single_owner_decision" && !contractApprovalCoversCurrentExecutionContract(inbox)) throw new HttpsError("failed-precondition", AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE);
     const decisionQuery = await db.collection("agentCenterDecisions").where("targetId", "==", inboxId).where("decision", "==", "approved").orderBy("createdAt", "desc").limit(1).get();
     if (decisionQuery.empty) throw new HttpsError("failed-precondition", "missing_approved_admin_decision");
     const allowedFiles = parseStringList(inbox.allowedFiles || [], 80, 260);
@@ -2947,7 +3036,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const now = FieldValue.serverTimestamp();
     const statusByDecision = { approved: "approved", rejected: "rejected", blocked: "blocked", revise: "revision_requested", review: "review" };
     const timelineByDecision = { approvedAt: decision === "approved" ? now : null, rejectedAt: decision === "rejected" ? now : null, blockedAt: decision === "blocked" ? now : null, revisionRequestedAt: decision === "revise" ? now : null, waitingForApprovalAt: decision === "review" ? now : null };
-    const doc = { decisionId: ref.id, targetType, targetId, sourceRef, decision, status: statusByDecision[decision] || decision, decidedBy: actorId, decidedByRole: actorRole, reason, riskLevel, protectedScopeDetected, ownerRequired, lastStatusChangedAt: now, ...timelineByDecision, createdAt: now };
+    const approvalFields = resolved.inbox ? buildExecutionContractApprovalFields(resolved.inbox) : {};
+    const isSingleDecisionInbox = Boolean(resolved.inbox && (((resolved.inbox.executionContract && resolved.inbox.executionContract.mode) || resolved.inbox.mode) === "single_owner_decision"));
+    const doc = { decisionId: ref.id, targetType, targetId, sourceRef, decision, status: statusByDecision[decision] || decision, decidedBy: actorId, decidedByRole: actorRole, reason, riskLevel, protectedScopeDetected, ownerRequired, ...(isSingleDecisionInbox && decision === "approved" ? { approvalMode: "single_owner_decision", approvedExecutionContractVersion: approvalFields.executionContractVersion || null, approvedExecutionContractHash: approvalFields.executionContractHash || null, approvalCoversAutomaticExecution: true } : {}), lastStatusChangedAt: now, ...timelineByDecision, createdAt: now };
     await ref.set(doc);
     if (resolved.inboxRef) {
       await resolved.inboxRef.set({
@@ -2959,7 +3050,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         waitingForApprovalAt: decision === "review" ? now : null,
         lastStatusChangedAt: now,
         auditRef: ref.id,
-        ...(resolved.inbox && ((resolved.inbox.executionContract && resolved.inbox.executionContract.mode) || resolved.inbox.mode) === "single_owner_decision" ? { singleDecisionStatus: decision === "approved" ? "single_decision_approved" : (decision === "rejected" ? "single_decision_rejected" : (decision === "revise" ? "single_decision_revision_requested" : (decision === "blocked" ? "single_decision_blocked" : "pending_single_decision"))), autoProgressStatus: decision === "approved" ? "auto_progress_ready" : "auto_progress_paused" } : {}),
+        ...(isSingleDecisionInbox ? { singleDecisionStatus: decision === "approved" ? "single_decision_approved" : (decision === "rejected" ? "single_decision_rejected" : (decision === "revise" ? "single_decision_revision_requested" : (decision === "blocked" ? "single_decision_blocked" : "pending_single_decision"))), autoProgressStatus: decision === "approved" ? "auto_progress_ready" : "auto_progress_paused", ...(decision === "approved" ? { approvedExecutionContractVersion: approvalFields.executionContractVersion || null, approvedExecutionContractHash: approvalFields.executionContractHash || null, approvalMode: "single_owner_decision", approvalCoversAutomaticExecution: true, requiresSingleDecisionReapproval: false, reapprovalReason: "" } : { approvalCoversAutomaticExecution: false }) } : {}),
         updatedAt: now,
       }, { merge: true });
     }
@@ -2981,4 +3072,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES, buildExecutionContractHash, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract };
