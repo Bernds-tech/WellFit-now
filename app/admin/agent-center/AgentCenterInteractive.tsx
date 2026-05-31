@@ -54,6 +54,18 @@ type Row = Record<string, unknown> & {
   allowedFiles?: string[];
   blockedFiles?: string[];
   requiredChecks?: string[];
+  mode?: string;
+  singleDecisionStatus?: string;
+  singleDecisionBlocker?: string;
+  executionContract?: Record<string, unknown>;
+  allowedExecution?: Record<string, unknown>;
+  forbiddenExecution?: Record<string, unknown>;
+  executionEnvelope?: Record<string, unknown>;
+  validationPlan?: string[];
+  rollbackPlan?: string[];
+  stopConditions?: string[];
+  targetEnvironment?: string;
+  nextAutomaticSteps?: string[];
 };
 
 type DataProps = { agents: Row[]; missions: Row[]; stats: Partial<Record<AdminCenterListFilter, number>> };
@@ -210,10 +222,73 @@ function safeResponseKeys(value: unknown): string[] {
 }
 
 const firstText = (...values: unknown[]): string => { for (const value of values) { const text = asText(value).trim(); if (text) return text; } return ""; };
+const SINGLE_DECISION_BLOCKER = "Dossier unvollständig – die einmalige Entscheidung muss alle späteren Ausführungsschritte beschreiben.";
+const SINGLE_DECISION_ALLOWED_FILES = ["docs/**", "todolist/**", "project-register/**", "app/**", "functions/**", "firestore.rules", ".github/**"];
+const SINGLE_DECISION_BLOCKED_FILES = ["native/**"];
+const SINGLE_DECISION_STOP_CONDITIONS = ["file_outside_allowedFiles_required", "blockedFiles_required", "native_required", "token_payment_blockchain_required", "secrets_or_identity_in_debug", "required_checks_failed", "merge_conflict", "deploy_failed", "dossier_data_missing", "target_environment_not_test_main", "production_live_site_impacted"];
+
+const objectValue = (value: unknown): Record<string, unknown> => (value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {});
+const boolValue = (source: Record<string, unknown>, key: string): boolean => source[key] === true;
+const includesAll = (values: string[], required: string[]): boolean => required.every((value) => values.includes(value));
+const getExecutionEnvelope = (row: Row) => objectValue(row.executionEnvelope);
+const getContractAllowedFiles = (row: Row): string[] => asStringArray(getExecutionEnvelope(row).allowedFiles).length ? asStringArray(getExecutionEnvelope(row).allowedFiles) : asStringArray(row.allowedFiles);
+const getContractBlockedFiles = (row: Row): string[] => asStringArray(getExecutionEnvelope(row).blockedFiles).length ? asStringArray(getExecutionEnvelope(row).blockedFiles) : asStringArray(row.blockedFiles);
+const getContractRequiredChecks = (row: Row): string[] => asStringArray(getExecutionEnvelope(row).requiredChecks).length ? asStringArray(getExecutionEnvelope(row).requiredChecks) : asStringArray(row.requiredChecks);
+const getValidationPlan = (row: Row): string[] => asStringArray(row.validationPlan).length ? asStringArray(row.validationPlan) : asStringArray(getExecutionEnvelope(row).validationPlan);
+const getRollbackPlan = (row: Row): string[] => asStringArray(row.rollbackPlan).length ? asStringArray(row.rollbackPlan) : asStringArray(getExecutionEnvelope(row).rollbackPlan);
+const getStopConditions = (row: Row): string[] => asStringArray(row.stopConditions).length ? asStringArray(row.stopConditions) : asStringArray(getExecutionEnvelope(row).stopConditions);
+const getNextAutomaticSteps = (row: Row): string[] => asStringArray(row.nextAutomaticSteps).length ? asStringArray(row.nextAutomaticSteps) : asStringArray(getExecutionEnvelope(row).nextAutomaticSteps);
+const getTargetEnvironment = (row: Row): string => asText(row.targetEnvironment || getExecutionEnvelope(row).targetEnvironment);
+
+const validateSingleDecisionExecutionContract = (row: Row) => {
+  const executionContract = objectValue(row.executionContract);
+  const allowedExecution = objectValue(row.allowedExecution);
+  const forbiddenExecution = objectValue(row.forbiddenExecution);
+  const envelope = getExecutionEnvelope(row);
+  const allowedFiles = getContractAllowedFiles(row);
+  const blockedFiles = getContractBlockedFiles(row);
+  const requiredChecks = getContractRequiredChecks(row);
+  const validationPlan = getValidationPlan(row);
+  const rollbackPlan = getRollbackPlan(row);
+  const stopConditions = getStopConditions(row);
+  const nextAutomaticSteps = getNextAutomaticSteps(row);
+  const missing: string[] = [];
+  if (!asText(row.title)) missing.push("title");
+  if (!firstText(row.summary, row.plainSummary, row.detailSections?.summary)) missing.push("summary");
+  if (!firstText(row.what, row.whatWillChange, row.detailSections?.what, row.detailSections?.proposedChange)) missing.push("what");
+  if (!firstText(row.why, row.whySuggested, row.detailSections?.why, row.detailSections?.whyNow)) missing.push("why");
+  if (!firstText(row.wellFitBenefit, row.wellfitBenefit, row.detailSections?.wellFitBenefit)) missing.push("wellFitBenefit");
+  if (!firstText(row.userBenefit, row.detailSections?.userBenefit)) missing.push("userBenefit");
+  if (!firstText(row.economyImpact, row.detailSections?.economyImpact)) missing.push("economyImpact");
+  if (!firstText(row.risk, row.riskSummary, row.detailSections?.risk, row.detailSections?.risks)) missing.push("risk");
+  if (!firstText(row.recommendationText, row.recommendationLabel, row.recommendation, row.detailSections?.recommendation)) missing.push("recommendation");
+  if (executionContract.mode !== "single_owner_decision") missing.push("executionContract.mode");
+  for (const key of ["ownerDecisionRequiredOnce", "decisionCoversTaskProposal", "decisionCoversWorkerQueue", "decisionCoversRunnerJob", "decisionCoversPickupContract", "decisionCoversImplementationPlan", "decisionCoversFileWrites", "decisionCoversBranchCreation", "decisionCoversPrCreation", "decisionCoversMerge", "decisionCoversDeploy"]) if (!boolValue(executionContract, key)) missing.push(`executionContract.${key}`);
+  if (executionContract.decisionCoversNative !== false) missing.push("executionContract.decisionCoversNative");
+  if (executionContract.decisionCoversTokenPaymentBlockchain !== false) missing.push("executionContract.decisionCoversTokenPaymentBlockchain");
+  for (const key of ["fileWriteAllowed", "branchCreationAllowed", "prCreationAllowed", "mergeAllowed", "deployAllowed", "runnerStartAllowed", "automaticProgressAllowed"]) if (!boolValue(allowedExecution, key)) missing.push(`allowedExecution.${key}`);
+  if (allowedExecution.requiresFurtherOwnerApproval !== false) missing.push("allowedExecution.requiresFurtherOwnerApproval");
+  if (forbiddenExecution.nativeChangesAllowed !== false) missing.push("forbiddenExecution.nativeChangesAllowed");
+  if (forbiddenExecution.tokenPaymentBlockchainAllowed !== false) missing.push("forbiddenExecution.tokenPaymentBlockchainAllowed");
+  if (forbiddenExecution.secretsAllowedInDebug !== false) missing.push("forbiddenExecution.secretsAllowedInDebug");
+  if (forbiddenExecution.productionLiveSiteDeployAllowed !== false) missing.push("forbiddenExecution.productionLiveSiteDeployAllowed");
+  if (!includesAll(allowedFiles, SINGLE_DECISION_ALLOWED_FILES)) missing.push("allowedFiles");
+  if (!includesAll(blockedFiles, SINGLE_DECISION_BLOCKED_FILES)) missing.push("blockedFiles");
+  if (requiredChecks.length === 0) missing.push("requiredChecks");
+  if (validationPlan.length === 0) missing.push("validationPlan");
+  if (rollbackPlan.length === 0) missing.push("rollbackPlan");
+  if (!includesAll(stopConditions, SINGLE_DECISION_STOP_CONDITIONS)) missing.push("stopConditions");
+  if (!asText(envelope.maxRiskLevel)) missing.push("maxRiskLevel");
+  if (getTargetEnvironment(row) !== "test_main") missing.push("targetEnvironment");
+  if (nextAutomaticSteps.length === 0) missing.push("nextAutomaticSteps");
+  const uniqueMissing = Array.from(new Set(missing));
+  return { isSingleDecision: executionContract.mode === "single_owner_decision" || asText(row.mode) === "single_owner_decision", isComplete: uniqueMissing.length === 0, missing: uniqueMissing, blocker: uniqueMissing.length ? SINGLE_DECISION_BLOCKER : "" };
+};
 const getDecisionDetails = (row: Row) => {
-  const allowedFiles = asStringArray(row.allowedFiles);
-  const blockedFiles = asStringArray(row.blockedFiles);
-  const requiredChecks = asStringArray(row.requiredChecks);
+  const contractValidation = validateSingleDecisionExecutionContract(row);
+  const allowedFiles = contractValidation.isSingleDecision ? getContractAllowedFiles(row) : asStringArray(row.allowedFiles);
+  const blockedFiles = contractValidation.isSingleDecision ? getContractBlockedFiles(row) : asStringArray(row.blockedFiles);
+  const requiredChecks = contractValidation.isSingleDecision ? getContractRequiredChecks(row) : asStringArray(row.requiredChecks);
   const details = {
     title: firstText(row.title, row.id),
     summary: firstText(row.summary, row.plainSummary, row.detailSections?.summary, row.detailText),
@@ -230,9 +305,12 @@ const getDecisionDetails = (row: Row) => {
     source: firstText(row.sourceRef, row.sourcePath, row.dossierRef, row.sourceType),
     nextStep: firstText(row.nextStep, "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch."),
     allowedFiles, blockedFiles, requiredChecks,
+    validationPlan: getValidationPlan(row), rollbackPlan: getRollbackPlan(row), stopConditions: getStopConditions(row), nextAutomaticSteps: getNextAutomaticSteps(row),
+    targetEnvironment: getTargetEnvironment(row), singleDecision: contractValidation,
   };
-  const missing = [!details.summary ? "summary" : "", !details.what ? "what" : "", !details.why ? "why" : "", !details.wellFitBenefit ? "wellFitBenefit" : "", !details.userBenefit ? "userBenefit" : "", !details.economyImpact ? "economyImpact" : "", !details.risk ? "risk" : "", !details.recommendation ? "recommendation" : "", allowedFiles.length === 0 ? "allowedFiles" : "", blockedFiles.length === 0 ? "blockedFiles" : "", requiredChecks.length === 0 ? "requiredChecks" : ""].filter(Boolean);
-  return { ...details, missing, isComplete: missing.length === 0 };
+  const manualMissing = [!details.summary ? "summary" : "", !details.what ? "what" : "", !details.why ? "why" : "", !details.wellFitBenefit ? "wellFitBenefit" : "", !details.userBenefit ? "userBenefit" : "", !details.economyImpact ? "economyImpact" : "", !details.risk ? "risk" : "", !details.recommendation ? "recommendation" : "", allowedFiles.length === 0 ? "allowedFiles" : "", blockedFiles.length === 0 ? "blockedFiles" : "", requiredChecks.length === 0 ? "requiredChecks" : ""].filter(Boolean);
+  const missing = contractValidation.isSingleDecision ? contractValidation.missing : manualMissing;
+  return { ...details, missing, isComplete: missing.length === 0, detailStatus: contractValidation.isSingleDecision && missing.length > 0 ? "incomplete_single_decision_contract" : (missing.length === 0 ? "structured" : "missing") };
 };
 const isMissionFilter = (value: ActiveListFilter): value is Extract<AdminCenterListFilter, `mission_${string}`> => value.startsWith("mission_");
 
@@ -828,7 +906,11 @@ export default function AgentCenterInteractive({
     if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
     if (status === "blocked" || protectedScope) return "Eintrag blockiert";
     if (status !== "pending_approval") return "Status erlaubt diese Aktion nicht";
-    if (_action === "approve" && getDecisionDetails(row).missing.length > 0) return "Dossier unvollständig – zuerst Überarbeiten wählen";
+    if (_action === "approve") {
+      const details = getDecisionDetails(row);
+      if (details.singleDecision.isSingleDecision && !details.singleDecision.isComplete) return SINGLE_DECISION_BLOCKER;
+      if (details.missing.length > 0) return "Dossier unvollständig – zuerst Überarbeiten wählen";
+    }
 
     return "";
   }
@@ -2341,6 +2423,28 @@ export default function AgentCenterInteractive({
         const details = getDecisionDetails(detailRow);
         const fileList = (label: string, values: string[]) => (<div><p className="mt-2 font-semibold">{label}</p>{values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
         const info = (label: string, value: string) => (<div><p className="mt-2 font-semibold">{label}</p><p className="whitespace-pre-wrap">{value || "—"}</p></div>);
+        const executionContract = objectValue(detailRow.executionContract);
+        const allowedExecution = objectValue(detailRow.allowedExecution);
+        const forbiddenExecution = objectValue(detailRow.forbiddenExecution);
+        const allowedLabel = (value: boolean) => value ? "erlaubt" : "nicht erlaubt";
+        const decisionAllows = [
+          ["Task Proposal", executionContract.decisionCoversTaskProposal === true],
+          ["Worker Queue", executionContract.decisionCoversWorkerQueue === true],
+          ["Runner Job", executionContract.decisionCoversRunnerJob === true],
+          ["Pickup Contract", executionContract.decisionCoversPickupContract === true],
+          ["Implementierungsplan", executionContract.decisionCoversImplementationPlan === true],
+          ["Dateiänderungen", allowedExecution.fileWriteAllowed === true && executionContract.decisionCoversFileWrites === true],
+          ["Branch", allowedExecution.branchCreationAllowed === true && executionContract.decisionCoversBranchCreation === true],
+          ["PR", allowedExecution.prCreationAllowed === true && executionContract.decisionCoversPrCreation === true],
+          ["Merge", allowedExecution.mergeAllowed === true && executionContract.decisionCoversMerge === true],
+          ["Deploy", allowedExecution.deployAllowed === true && executionContract.decisionCoversDeploy === true],
+          ["app/**", details.allowedFiles.includes("app/**")],
+          ["functions/**", details.allowedFiles.includes("functions/**")],
+          ["firestore.rules", details.allowedFiles.includes("firestore.rules")],
+          [".github/**", details.allowedFiles.includes(".github/**")],
+          ["native/**", forbiddenExecution.nativeChangesAllowed === true || !details.blockedFiles.includes("native/**")],
+          ["Token/Payment/Blockchain", forbiddenExecution.tokenPaymentBlockchainAllowed === true],
+        ];
         return (
         <div className="fixed inset-0 z-50 bg-black/70 p-4" onClick={() => setDetailRow(null)}>
           <div className="mx-auto max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg bg-slate-900 p-4 text-xs text-white" onClick={(event) => event.stopPropagation()}>
@@ -2353,7 +2457,17 @@ export default function AgentCenterInteractive({
             <p>Source Type: {String(detailRow.sourceType || "—")} · List Type: {String(detailRow.listType || "—")}</p>
             <p>Status: {String(detailRow.status || "pending_approval")}</p>
             <p>Detailstatus: {details.isComplete ? "structured" : "missing"}</p>
-            {!details.isComplete && <div className="mt-2 rounded border border-amber-300/50 bg-amber-300/10 p-2 text-amber-100"><p className="font-semibold">Dossierdaten unvollständig</p><p>Fehlende Entscheidungsfelder: {details.missing.join(", ")}</p><p>Sperrgrund: Dossier unvollständig – zuerst Überarbeiten wählen.</p></div>}
+            {!details.isComplete && <div className="mt-2 rounded border border-amber-300/50 bg-amber-300/10 p-2 text-amber-100"><p className="font-semibold">Dossierdaten unvollständig</p><p>Fehlende Entscheidungsfelder: {details.missing.join(", ")}</p><p>Sperrgrund: {details.singleDecision.isSingleDecision ? SINGLE_DECISION_BLOCKER : "Dossier unvollständig – zuerst Überarbeiten wählen."}</p></div>}
+            {details.singleDecision.isSingleDecision && <div className="mt-3 rounded border border-cyan-300/40 bg-cyan-400/10 p-3 text-cyan-50">
+              <p className="font-semibold">Diese eine Entscheidung erlaubt</p>
+              <p className="text-cyan-50/80">{details.singleDecision.isComplete ? "Zustimmen bedeutet: einmalige Owner-Freigabe für diesen Vertrag." : SINGLE_DECISION_BLOCKER}</p>
+              <dl className="mt-2 grid gap-1 sm:grid-cols-2">{decisionAllows.map(([label, value]) => <div key={String(label)} className="flex justify-between gap-3"><dt>{String(label)}</dt><dd className={value ? "text-emerald-200" : "text-amber-200"}>{allowedLabel(Boolean(value))}</dd></div>)}</dl>
+              <p className="mt-3 font-semibold">Automatische Stop-Bedingungen</p>
+              {details.stopConditions.length > 0 ? <ul className="list-disc pl-5">{details.stopConditions.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}
+              <p className="mt-3 font-semibold">Zielumgebung</p>
+              <p>{details.targetEnvironment === "test_main" ? "Testseite/main" : (details.targetEnvironment || "—")}</p>
+              <p>Keine echte Live-/Produktionsübernahme ohne separaten späteren Prozess.</p>
+            </div>}
             {info("Was ist der Vorschlag?", details.summary)}
             {info("Was soll geändert/gebaut werden?", details.what)}
             {info("Warum ist das sinnvoll?", details.why)}

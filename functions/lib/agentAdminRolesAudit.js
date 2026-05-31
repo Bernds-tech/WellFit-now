@@ -48,6 +48,150 @@ function buildAgentTaskProposalStatusCounts(proposals) {
 }
 
 
+
+const SINGLE_DECISION_BLOCKER_MESSAGE = "Dossier unvollständig – die einmalige Entscheidung muss alle späteren Ausführungsschritte beschreiben.";
+const SINGLE_DECISION_DETAIL_STATUS = "incomplete_single_decision_contract";
+const EXECUTION_MODES = ["manual_step_by_step", "single_owner_decision"];
+const SINGLE_DECISION_STATUSES = ["pending_single_decision", "single_decision_approved", "single_decision_rejected", "single_decision_revision_requested", "single_decision_blocked", "auto_progress_ready", "auto_progress_in_progress", "auto_progress_paused", "auto_progress_failed", "auto_progress_completed"];
+const SINGLE_DECISION_REQUIRED_ALLOWED_FILES = ["docs/**", "todolist/**", "project-register/**", "app/**", "functions/**", "firestore.rules", ".github/**"];
+const SINGLE_DECISION_REQUIRED_BLOCKED_FILES = ["native/**"];
+const SINGLE_DECISION_REQUIRED_STOP_CONDITIONS = [
+  "file_outside_allowedFiles_required",
+  "blockedFiles_required",
+  "native_required",
+  "token_payment_blockchain_required",
+  "secrets_or_identity_in_debug",
+  "required_checks_failed",
+  "merge_conflict",
+  "deploy_failed",
+  "dossier_data_missing",
+  "target_environment_not_test_main",
+  "production_live_site_impacted"
+];
+const SINGLE_DECISION_REQUIRED_NEXT_STEPS = ["task_proposal", "worker_queue", "runner_job", "pickup_contract", "implementation_plan", "file_write_branch_pr_merge_deploy_if_allowed"];
+
+function hasOwn(obj, key) {
+  return Boolean(obj && typeof obj === "object" && Object.prototype.hasOwnProperty.call(obj, key));
+}
+
+function readNested(obj, path) {
+  let cur = obj;
+  for (const part of path.split(".")) {
+    if (!cur || typeof cur !== "object") return undefined;
+    cur = cur[part];
+  }
+  return cur;
+}
+
+function requireBoolean(obj, path, expected, missing) {
+  const value = readNested(obj, path);
+  if (value !== expected) missing.push(path);
+}
+
+function requireNonEmptyTextValue(value, field, missing) {
+  if (!sanitizeInboxText(value, 2000)) missing.push(field);
+}
+
+function requireNonEmptyText(obj, paths, field, missing) {
+  const value = paths.map((path) => readNested(obj, path)).find((candidate) => sanitizeInboxText(candidate, 2000));
+  if (!sanitizeInboxText(value, 2000)) missing.push(field);
+}
+
+function requireListContainsAll(list, required, field, missing) {
+  const actual = parseStringList(list || [], 120, 260).map((entry) => String(entry || "").trim());
+  for (const requiredEntry of required) {
+    if (!actual.includes(requiredEntry)) missing.push(`${field}:${requiredEntry}`);
+  }
+  if (!actual.length) missing.push(field);
+}
+
+function requireNonEmptyList(list, field, missing) {
+  if (!parseStringList(list || [], 120, 1000).length) missing.push(field);
+}
+
+function validateSingleDecisionExecutionContract(dossier) {
+  const source = dossier && typeof dossier === "object" ? dossier : {};
+  const executionContract = source.executionContract && typeof source.executionContract === "object" ? source.executionContract : null;
+  const allowedExecution = source.allowedExecution && typeof source.allowedExecution === "object" ? source.allowedExecution : null;
+  const forbiddenExecution = source.forbiddenExecution && typeof source.forbiddenExecution === "object" ? source.forbiddenExecution : null;
+  const executionEnvelope = source.executionEnvelope && typeof source.executionEnvelope === "object" ? source.executionEnvelope : null;
+  const missing = [];
+
+  for (const [field, paths] of Object.entries({
+    title: ["title"],
+    summary: ["summary", "plainSummary"],
+    what: ["what", "whatWillChange", "proposedChange"],
+    why: ["why", "whySuggested", "whyNow"],
+    wellfitBenefit: ["wellFitBenefit", "wellfitBenefit"],
+    userBenefit: ["userBenefit"],
+    economyImpact: ["economyImpact"],
+    risk: ["risk", "riskSummary", "risks"],
+    recommendation: ["recommendation", "recommendationText", "recommendationLabel"],
+  })) requireNonEmptyText(source, paths, field, missing);
+
+  if (!executionContract) missing.push("executionContract");
+  if (!allowedExecution) missing.push("allowedExecution");
+  if (!forbiddenExecution) missing.push("forbiddenExecution");
+  if (!executionEnvelope) missing.push("executionEnvelope");
+  const nextAutomaticSteps = parseStringList(source.nextAutomaticSteps || (executionEnvelope && executionEnvelope.nextAutomaticSteps) || [], 80, 1000);
+  requireNonEmptyList(nextAutomaticSteps, "nextAutomaticSteps", missing);
+  for (const nextStep of SINGLE_DECISION_REQUIRED_NEXT_STEPS) {
+    if (!nextAutomaticSteps.includes(nextStep)) missing.push(`nextAutomaticSteps:${nextStep}`);
+  }
+
+  if (executionContract) {
+    requireNonEmptyTextValue(executionContract.executionContractVersion, "executionContract.executionContractVersion", missing);
+    if (executionContract.mode !== "single_owner_decision") missing.push("executionContract.mode");
+    for (const field of ["ownerDecisionRequiredOnce", "decisionCoversTaskProposal", "decisionCoversWorkerQueue", "decisionCoversRunnerJob", "decisionCoversPickupContract", "decisionCoversImplementationPlan", "decisionCoversFileWrites", "decisionCoversBranchCreation", "decisionCoversPrCreation", "decisionCoversMerge", "decisionCoversDeploy"]) requireBoolean(executionContract, field, true, missing);
+    requireBoolean(executionContract, "decisionCoversNative", false, missing);
+    requireBoolean(executionContract, "decisionCoversTokenPaymentBlockchain", false, missing);
+  }
+  if (allowedExecution) {
+    for (const field of ["fileWriteAllowed", "branchCreationAllowed", "prCreationAllowed", "mergeAllowed", "deployAllowed", "runnerStartAllowed", "automaticProgressAllowed"]) requireBoolean(allowedExecution, field, true, missing);
+    requireBoolean(allowedExecution, "requiresFurtherOwnerApproval", false, missing);
+  }
+  if (forbiddenExecution) {
+    requireBoolean(forbiddenExecution, "nativeChangesAllowed", false, missing);
+    requireBoolean(forbiddenExecution, "tokenPaymentBlockchainAllowed", false, missing);
+    requireBoolean(forbiddenExecution, "secretsAllowedInDebug", false, missing);
+    if (hasOwn(forbiddenExecution, "productionLiveSiteDeployAllowed")) requireBoolean(forbiddenExecution, "productionLiveSiteDeployAllowed", false, missing);
+    else missing.push("forbiddenExecution.productionLiveSiteDeployAllowed");
+  }
+  if (executionEnvelope) {
+    requireListContainsAll(executionEnvelope.allowedFiles || source.allowedFiles, SINGLE_DECISION_REQUIRED_ALLOWED_FILES, "executionEnvelope.allowedFiles", missing);
+    requireListContainsAll(executionEnvelope.blockedFiles || source.blockedFiles, SINGLE_DECISION_REQUIRED_BLOCKED_FILES, "executionEnvelope.blockedFiles", missing);
+    requireNonEmptyList(executionEnvelope.requiredChecks || source.requiredChecks, "executionEnvelope.requiredChecks", missing);
+    requireNonEmptyList(executionEnvelope.validationPlan, "executionEnvelope.validationPlan", missing);
+    requireNonEmptyList(executionEnvelope.rollbackPlan, "executionEnvelope.rollbackPlan", missing);
+    requireNonEmptyList(executionEnvelope.stopConditions, "executionEnvelope.stopConditions", missing);
+    requireNonEmptyTextValue(executionEnvelope.maxRiskLevel, "executionEnvelope.maxRiskLevel", missing);
+    if (executionEnvelope.targetEnvironment !== "test_main") missing.push("executionEnvelope.targetEnvironment");
+  }
+  requireListContainsAll(source.allowedFiles || (executionEnvelope && executionEnvelope.allowedFiles), SINGLE_DECISION_REQUIRED_ALLOWED_FILES, "allowedFiles", missing);
+  requireListContainsAll(source.blockedFiles || (executionEnvelope && executionEnvelope.blockedFiles), SINGLE_DECISION_REQUIRED_BLOCKED_FILES, "blockedFiles", missing);
+  requireNonEmptyList(source.requiredChecks || (executionEnvelope && executionEnvelope.requiredChecks), "requiredChecks", missing);
+  requireNonEmptyList(source.validationPlan || (executionEnvelope && executionEnvelope.validationPlan), "validationPlan", missing);
+  requireNonEmptyList(source.rollbackPlan || (executionEnvelope && executionEnvelope.rollbackPlan), "rollbackPlan", missing);
+  requireNonEmptyList(source.stopConditions || (executionEnvelope && executionEnvelope.stopConditions), "stopConditions", missing);
+  if ((source.targetEnvironment || (executionEnvelope && executionEnvelope.targetEnvironment)) !== "test_main") missing.push("targetEnvironment");
+
+  const stopConditions = parseStringList(source.stopConditions || (executionEnvelope && executionEnvelope.stopConditions) || [], 120, 1000);
+  for (const stopCondition of SINGLE_DECISION_REQUIRED_STOP_CONDITIONS) {
+    if (!stopConditions.includes(stopCondition)) missing.push(`stopConditions:${stopCondition}`);
+  }
+
+  const missingUnique = Array.from(new Set(missing));
+  return {
+    approvable: missingUnique.length === 0,
+    complete: missingUnique.length === 0,
+    missing: missingUnique,
+    detailStatus: missingUnique.length === 0 ? "structured" : SINGLE_DECISION_DETAIL_STATUS,
+    blocker: missingUnique.length === 0 ? "" : SINGLE_DECISION_BLOCKER_MESSAGE,
+    mode: "single_owner_decision",
+    singleDecisionStatus: missingUnique.length === 0 ? "pending_single_decision" : "single_decision_blocked",
+  };
+}
+
 const REVISION_DOSSIER_REQUIRED_FIELDS = ["what", "why", "wellFitBenefit", "userBenefit", "economyImpact", "risk", "recommendation"];
 const REVISION_DOSSIER_LIST_FIELDS = ["allowedFiles", "blockedFiles", "requiredChecks"];
 const REVISION_DOSSIER_MESSAGE = "Revision konnte nicht ausreichend begründet werden.";
@@ -72,6 +216,8 @@ function getRevisionMissingFields(dossier) {
 }
 
 function isCompleteDecisionDossier(dossier) {
+  const mode = String((dossier && dossier.executionContract && dossier.executionContract.mode) || (dossier && dossier.mode) || "manual_step_by_step");
+  if (mode === "single_owner_decision" || (dossier && dossier.executionContract)) return validateSingleDecisionExecutionContract(dossier).approvable;
   return getRevisionMissingFields(dossier).length === 0;
 }
 
@@ -119,6 +265,7 @@ function buildProductEvolutionRevisionDossier({ inbox, sourcePayload, sourceMeta
   const completeCandidate = { what, why, wellFitBenefit, userBenefit, economyImpact, risk, recommendation, allowedFiles, blockedFiles, requiredChecks };
   const sourceHasEnoughNarrative = Boolean(summary && what && why && wellFitBenefit && userBenefit && economyImpact && risk);
   const hydratedRequiredChecks = requiredChecks.length ? requiredChecks : (sourceHasEnoughNarrative && allowedFiles.length ? buildRevisionDefaultRequiredChecks({ allowedFiles, sourceType }) : []);
+  const executionFields = extractExecutionContractFields(source);
   const dossier = {
     title,
     summary,
@@ -141,11 +288,41 @@ function buildProductEvolutionRevisionDossier({ inbox, sourcePayload, sourceMeta
     listType,
     sourceRef: sanitizeInboxText(source.sourceRef || (inbox && inbox.sourceRef), 260),
     nextStep: firstPresentText(source, ["nextStep", "nextSteps", "suggestedTaskProposal", "handoff"], 1200) || "Nach Admin-Zustimmung manuell als Task Proposal weiterführen. Kein Runner, Deploy, Merge oder automatische Zustimmung.",
+    ...Object.fromEntries(Object.entries(executionFields).filter(([, value]) => value !== null && value !== "" && !(Array.isArray(value) && value.length === 0))),
     revisionSourceDossierId: sourceDossierId,
     revisionSourceCollectionPath: sanitizeInboxText(sourceMeta && sourceMeta.collectionPath, 120),
   };
   const missing = getRevisionMissingFields(dossier);
   return { dossier, missing, complete: missing.length === 0, sourceHasEnoughNarrative, completeCandidate };
+}
+
+function extractExecutionContractFields(source) {
+  const safeSource = source && typeof source === "object" ? source : {};
+  const executionEnvelope = safeSource.executionEnvelope && typeof safeSource.executionEnvelope === "object" ? safeSource.executionEnvelope : {};
+  return {
+    executionContract: safeSource.executionContract && typeof safeSource.executionContract === "object" ? safeSource.executionContract : null,
+    allowedExecution: safeSource.allowedExecution && typeof safeSource.allowedExecution === "object" ? safeSource.allowedExecution : null,
+    forbiddenExecution: safeSource.forbiddenExecution && typeof safeSource.forbiddenExecution === "object" ? safeSource.forbiddenExecution : null,
+    executionEnvelope: safeSource.executionEnvelope && typeof safeSource.executionEnvelope === "object" ? safeSource.executionEnvelope : null,
+    mode: sanitizeInboxText(safeSource.mode || (safeSource.executionContract && safeSource.executionContract.mode) || "", 80),
+    targetEnvironment: sanitizeInboxText(safeSource.targetEnvironment || executionEnvelope.targetEnvironment || "", 80),
+    validationPlan: firstPresentList(safeSource, ["validationPlan", "executionEnvelope.validationPlan"], 80, 1000),
+    rollbackPlan: firstPresentList(safeSource, ["rollbackPlan", "executionEnvelope.rollbackPlan"], 80, 1000),
+    stopConditions: firstPresentList(safeSource, ["stopConditions", "executionEnvelope.stopConditions"], 120, 1000),
+    nextAutomaticSteps: firstPresentList(safeSource, ["nextAutomaticSteps", "executionEnvelope.nextAutomaticSteps"], 80, 1000),
+    taskProposalPlan: safeSource.taskProposalPlan || null,
+    workerQueuePlan: safeSource.workerQueuePlan || null,
+    runnerJobPlan: safeSource.runnerJobPlan || null,
+    pickupContractPlan: safeSource.pickupContractPlan || null,
+    implementationPlan: safeSource.implementationPlan || null,
+    fileWritePlan: safeSource.fileWritePlan || null,
+    branchPlan: safeSource.branchPlan || null,
+    prPlan: safeSource.prPlan || null,
+    mergePlan: safeSource.mergePlan || null,
+    deployPlan: safeSource.deployPlan || null,
+    tokenPaymentBlockchainPlan: safeSource.tokenPaymentBlockchainPlan || null,
+    nativePlan: safeSource.nativePlan || null,
+  };
 }
 
 function touchesCanonicalTruthProtectedFiles(files) {
@@ -800,12 +977,15 @@ function buildInboxDecisionDetails(payload, { sourceType, listType, sourceDossie
   const recommendationLabel = firstPresentText(payload, ["recommendationLabel", "recommendation.label", "decisionLabel"], 160) || recommendation;
   const recommendationText = firstPresentText(payload, ["recommendationText", "recommendation.text", "decisionText"], 1200) || recommendationLabel;
   const nextStep = firstPresentText(payload, ["nextStep", "nextSteps", "suggestedTaskProposal", "handoff"], 1200) || "Approved Inbox → Task Proposal. Kein Runner/Deploy automatisch.";
+  const executionFields = extractExecutionContractFields(payload);
+  const singleDecisionValidation = executionFields.mode === "single_owner_decision" || executionFields.executionContract ? validateSingleDecisionExecutionContract({ ...payload, allowedFiles, blockedFiles, requiredChecks, ...executionFields }) : null;
   const missingCriticalDecisionFields = [];
   for (const [field, value] of Object.entries({ summary, what, why, wellFitBenefit, userBenefit, economyImpact, risk, recommendation, recommendationLabel, recommendationText })) if (!value) missingCriticalDecisionFields.push(field);
   if (!allowedFiles.length) missingCriticalDecisionFields.push("allowedFiles");
   if (!blockedFiles.length) missingCriticalDecisionFields.push("blockedFiles");
   if (!requiredChecks.length) missingCriticalDecisionFields.push("requiredChecks");
-  return { title, summary, plainSummary: summary, what, whatWillChange: what, why, whySuggested: why, wellFitBenefit, userBenefit, economyImpact, risk, riskSummary: risk, recommendation, recommendationLabel, recommendationText, sourceDossierId, sourceType, listType, allowedFiles, blockedFiles, requiredChecks, nextStep, detailStatus: missingCriticalDecisionFields.length ? "missing" : "structured", missingCriticalDecisionFields, dossierIncomplete: missingCriticalDecisionFields.length > 0 };
+  const mergedMissing = singleDecisionValidation ? Array.from(new Set([...missingCriticalDecisionFields, ...singleDecisionValidation.missing])) : missingCriticalDecisionFields;
+  return { title, summary, plainSummary: summary, what, whatWillChange: what, why, whySuggested: why, wellFitBenefit, userBenefit, economyImpact, risk, riskSummary: risk, recommendation, recommendationLabel, recommendationText, sourceDossierId, sourceType, listType, allowedFiles, blockedFiles, requiredChecks, nextStep, ...Object.fromEntries(Object.entries(executionFields).filter(([, value]) => value !== null && value !== "" && !(Array.isArray(value) && value.length === 0))), singleDecisionStatus: singleDecisionValidation ? singleDecisionValidation.singleDecisionStatus : "", singleDecisionBlocker: singleDecisionValidation ? singleDecisionValidation.blocker : "", detailStatus: singleDecisionValidation ? singleDecisionValidation.detailStatus : (mergedMissing.length ? "missing" : "structured"), missingCriticalDecisionFields: mergedMissing, dossierIncomplete: mergedMissing.length > 0 };
 }
 
 function getFirstRunCandidateCollections(snapshot) {
@@ -2727,7 +2907,13 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
           const inbox = inboxSnap.data() || {};
           const inboxStatus = String(inbox.status || "");
           if (inboxStatus !== "pending_approval") throw new HttpsError("failed-precondition", "center_inbox_not_decidable");
-          if (decision === "approved" && !isCompleteDecisionDossier(inbox)) throw new HttpsError("failed-precondition", "missing_decision_data");
+          if (decision === "approved") {
+            const mode = String((inbox.executionContract && inbox.executionContract.mode) || inbox.mode || "manual_step_by_step");
+            if (mode === "single_owner_decision" || inbox.executionContract) {
+              const validation = validateSingleDecisionExecutionContract(inbox);
+              if (!validation.approvable) throw new HttpsError("failed-precondition", "incomplete_single_decision_contract");
+            } else if (!isCompleteDecisionDossier(inbox)) throw new HttpsError("failed-precondition", "missing_decision_data");
+          }
           return { sourceRef: "agentCenterInbox", riskLevel: normalizeRiskLevel(inbox.riskLevel), protectedScopes: parseStringList(inbox.forbiddenScope || []), allowedFiles: parseStringList(inbox.allowedFiles || []), inboxRef: inboxSnap.ref, inbox };
         }
         if (proposalSnap.exists) return { sourceRef: "agentTaskProposals", riskLevel: normalizeRiskLevel(proposalSnap.data().riskLevel), protectedScopes: parseStringList(proposalSnap.data().protectedScopes || []), allowedFiles: parseStringList(proposalSnap.data().allowedFiles || []) };
@@ -2773,6 +2959,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         waitingForApprovalAt: decision === "review" ? now : null,
         lastStatusChangedAt: now,
         auditRef: ref.id,
+        ...(resolved.inbox && ((resolved.inbox.executionContract && resolved.inbox.executionContract.mode) || resolved.inbox.mode) === "single_owner_decision" ? { singleDecisionStatus: decision === "approved" ? "single_decision_approved" : (decision === "rejected" ? "single_decision_rejected" : (decision === "revise" ? "single_decision_revision_requested" : (decision === "blocked" ? "single_decision_blocked" : "pending_single_decision"))), autoProgressStatus: decision === "approved" ? "auto_progress_ready" : "auto_progress_paused" } : {}),
         updatedAt: now,
       }, { merge: true });
     }
@@ -2794,4 +2981,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES };
