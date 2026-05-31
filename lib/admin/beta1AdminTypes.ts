@@ -28,6 +28,7 @@ export type AgentHandoffPromptGetInput = { handoffPromptId: string };
 export type AgentHandoffPromptCopiedInput = { handoffPromptId: string };
 export type AgentWorkerQueueCreateInput = { executionId: string; handoffPromptId: string; workerMode?: "manual_codex" | "supervised_agent" | "automated_low_risk_planned" };
 export type AgentWorkerQueueActionInput = { workerQueueId: string; reason?: string; prRef?: string; workerStatus?: string };
+export type WorkerQueueReleaseInput = { workerQueueId: string };
 export type AgentWorkerQueueChecksInput = { workerQueueId: string; checks: Array<{ command: string; result: "pass" | "fail" | "blocked" | "skipped"; summary?: string; timestamp?: string }> };
 export type AgentAutomationPolicyInput = { workerQueueId?: string; policyId?: string; environment?: "preview" | "staging" | "production"; reason?: string; secondApproval?: boolean };
 
@@ -148,6 +149,7 @@ export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
 export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string; reason?: string; suggestedBranch?: string };
 export type TaskProposalWorkerQueueInput = { taskProposalId: string; workerStatus?: "queued_for_owner_review" | "pending_worker_review" };
 export type TaskProposalWorkerQueueResult = AdminCallableResult & { taskProposalId?: string; proposalStatus?: string; workerQueueId?: string; workerStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
+export type WorkerQueueReleaseResult = AdminCallableResult & { workerQueueId?: string; status?: string; workerStatus?: string; ownerReleaseDecision?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 export type ApprovedInboxToTaskProposalResult = AdminCallableResult & { inboxId?: string; taskProposalId?: string; proposalStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 export type ProductEvolutionInboxSyncInput = { registerSnapshot?: ProductEvolutionFirstRunOutputSnapshot | unknown; clientRequestShapeVersion?: string; clientHasRegisterSnapshot?: boolean; clientRegisterSnapshotKeys?: string[] };
 export type ProductEvolutionRevisionDossierResult = AdminCallableResult & { scanned?: number; regenerated?: number; stillRevisionRequested?: number; sampleRegeneratedIds?: string[]; sampleRevisionBlocked?: Array<Record<string, unknown>>; sourceTrust?: string; noRunnerStarted?: boolean; noDeploy?: boolean; noMerge?: boolean };

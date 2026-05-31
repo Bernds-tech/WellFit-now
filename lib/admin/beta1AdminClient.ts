@@ -27,6 +27,7 @@ import type {
   ApprovedInboxToTaskProposalInput,
   ProductEvolutionInboxSyncInput,
   TaskProposalWorkerQueueInput,
+  WorkerQueueReleaseInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -174,6 +175,7 @@ export const beta1AdminClient = {
   listAgentTaskProposals: (status?: string) => callAdmin("listAgentTaskProposals", status ? { status } : {}),
   createWorkerQueueItemFromTaskProposal: (input: TaskProposalWorkerQueueInput) => callAdmin("createWorkerQueueItemFromTaskProposal", input),
   listAgentTaskWorkerQueueItems: (status?: string) => callAdmin("listAgentTaskWorkerQueueItems", status ? { status } : {}),
+  releaseWorkerQueueItemForWorker: (input: WorkerQueueReleaseInput) => callAdmin("releaseWorkerQueueItemForWorker", { workerQueueId: input.workerQueueId }),
   generateAgentTaskCodexPrompt: (input: AgentHandoffPromptGenerateInput) => callAdmin("generateAgentTaskCodexPrompt", input),
   getAgentTaskCodexPrompt: (input: AgentHandoffPromptGetInput) => callAdmin("getAgentTaskCodexPrompt", input),
   markAgentTaskCodexPromptCopied: (input: AgentHandoffPromptCopiedInput) => callAdmin("markAgentTaskCodexPromptCopied", input),

@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, WorkerQueueReleaseResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -816,6 +816,78 @@ export default function AgentCenterInteractive({
     return "";
   }
 
+  function workerQueueReleaseButtonReason(item: AgentTaskWorkerQueueItem): string {
+    const status = String(item.status || "pending_worker_review").toLowerCase();
+    if (!item.workerQueueId) return "Worker-Queue-ID fehlt";
+    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
+    if (!["pending_worker_review", "queued_for_owner_review"].includes(status)) return "Status erlaubt diese Freigabe nicht";
+    if (!item.allowedFiles?.length || !item.blockedFiles?.length || !item.requiredChecks?.length) return "Safety-Listen oder requiredChecks fehlen";
+    if (item.noRunnerStarted !== true || item.noBranchOrPrOrMerge !== true || item.noDeploy !== true) return "Safety-Flags sind nicht vollständig true";
+    return "";
+  }
+
+  async function releaseWorkerQueueItemForWorker(item: AgentTaskWorkerQueueItem) {
+    const reason = workerQueueReleaseButtonReason(item);
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastWorkerReleaseAction: "release_for_worker",
+      lastWorkerReleaseAccepted: false,
+      lastWorkerReleaseStatus: reason ? "blocked_client" : "started",
+      lastWorkerReleaseMessage: reason || "Worker-Freigabe wird gespeichert …",
+      lastWorkerReleaseNoRunnerStarted: "-",
+      lastWorkerReleaseNoBranchOrPrOrMerge: "-",
+      lastWorkerReleaseNoDeploy: "-",
+    }));
+    if (reason) {
+      setFeedback(reason);
+      return;
+    }
+
+    setBusy(true);
+    setFeedback("Worker-Freigabe wird gespeichert …");
+    try {
+      const result = await beta1AdminClient.releaseWorkerQueueItemForWorker({ workerQueueId: item.workerQueueId }) as WorkerQueueReleaseResult;
+      const accepted = Boolean(result.accepted);
+      const releaseStatus = result.workerStatus || result.status || (accepted ? "ready_for_worker" : "failed");
+      const safeMessage = accepted
+        ? "Worker-Freigabe gespeichert. Status: ready_for_worker."
+        : `Worker-Freigabe konnte nicht gespeichert werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastWorkerReleaseAction: "release_for_worker",
+        lastWorkerReleaseAccepted: accepted,
+        lastWorkerReleaseStatus: releaseStatus,
+        lastWorkerReleaseMessage: safeMessage,
+        lastWorkerReleaseNoRunnerStarted: result.noRunnerStarted ?? "-",
+        lastWorkerReleaseNoBranchOrPrOrMerge: result.noBranchOrPrOrMerge ?? "-",
+        lastWorkerReleaseNoDeploy: result.noDeploy ?? "-",
+      }));
+      if (accepted) setActive("worker_ready");
+    } catch (error) {
+      const safeMessage = `Worker-Freigabe konnte nicht gespeichert werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastWorkerReleaseAction: "release_for_worker",
+        lastWorkerReleaseAccepted: false,
+        lastWorkerReleaseStatus: "error",
+        lastWorkerReleaseMessage: safeMessage,
+        lastWorkerReleaseNoRunnerStarted: "-",
+        lastWorkerReleaseNoBranchOrPrOrMerge: "-",
+        lastWorkerReleaseNoDeploy: "-",
+      }));
+    } finally {
+      try {
+        await refreshWorkerQueueItems();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
   async function prepareWorkerQueueFromTaskProposal(proposal: AgentTaskProposal) {
     const taskProposalId = asText(proposal.taskProposalId || proposal.proposalId);
     const reason = workerQueueButtonReason(proposal);
@@ -997,6 +1069,13 @@ export default function AgentCenterInteractive({
         <p>lastWorkerQueueNoRunnerStarted: {String(syncDebug.lastWorkerQueueNoRunnerStarted ?? "-")}</p>
         <p>lastWorkerQueueNoBranchOrPrOrMerge: {String(syncDebug.lastWorkerQueueNoBranchOrPrOrMerge ?? "-")}</p>
         <p>lastWorkerQueueNoDeploy: {String(syncDebug.lastWorkerQueueNoDeploy ?? "-")}</p>
+        <p>lastWorkerReleaseAction: {String(syncDebug.lastWorkerReleaseAction || "-")}</p>
+        <p>lastWorkerReleaseAccepted: {String(syncDebug.lastWorkerReleaseAccepted ?? "-")}</p>
+        <p>lastWorkerReleaseStatus: {String(syncDebug.lastWorkerReleaseStatus || "-")}</p>
+        <p>lastWorkerReleaseMessage: {String(syncDebug.lastWorkerReleaseMessage || "-")}</p>
+        <p>lastWorkerReleaseNoRunnerStarted: {String(syncDebug.lastWorkerReleaseNoRunnerStarted ?? "-")}</p>
+        <p>lastWorkerReleaseNoBranchOrPrOrMerge: {String(syncDebug.lastWorkerReleaseNoBranchOrPrOrMerge ?? "-")}</p>
+        <p>lastWorkerReleaseNoDeploy: {String(syncDebug.lastWorkerReleaseNoDeploy ?? "-")}</p>
         <p>taskProposalPendingCount: {String(syncDebug.taskProposalPendingCount ?? taskProposalCounts.pending)}</p>
         <p>taskProposalNoRunnerStartedVisible: {String(syncDebug.taskProposalNoRunnerStartedVisible ?? "-")}</p>
         <p>taskProposalNoBranchOrPrOrMergeVisible: {String(syncDebug.taskProposalNoBranchOrPrOrMergeVisible ?? "-")}</p>
@@ -1141,6 +1220,9 @@ export default function AgentCenterInteractive({
               </dl>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100" onClick={() => setWorkerQueueDetail(item)}>Worker Queue ansehen</button>
+                {["pending_worker_review", "queued_for_owner_review"].includes(String(item.status || "").toLowerCase()) && (
+                  <button title={workerQueueReleaseButtonReason(item) || "Für Worker freigeben"} className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(workerQueueReleaseButtonReason(item))} onClick={() => releaseWorkerQueueItemForWorker(item)}>Für Worker freigeben</button>
+                )}
               </div>
             </article>
           ))}

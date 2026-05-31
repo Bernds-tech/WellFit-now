@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, buildWorkerQueueReleaseDecision } = require('../lib/agentAdminRolesAudit');
 
 (function testResolveDirectSnapshot() {
   const input = { registerSnapshot: { generatedDossiers: [{ id: 'PE-1' }] } };
@@ -142,6 +142,77 @@ const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEv
   const statusCounts = buildAgentTaskProposalStatusCounts([{ status: 'queued_for_worker_review' }]);
   assert.strictEqual(statusCounts.total, 1, 'queued_for_worker_review proposal should count as total 1');
   assert.strictEqual(statusCounts.in_progress, 1, 'queued_for_worker_review must count as in_progress');
+})();
+
+
+(function testWorkerQueueReleaseAllowsPendingWorkerReview() {
+  const result = buildWorkerQueueReleaseDecision({
+    workerStatus: 'pending_worker_review',
+    allowedFiles: ['docs/**'],
+    blockedFiles: ['app/**', 'functions/**'],
+    requiredChecks: ['npm run lint'],
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+  });
+  assert.strictEqual(result.releasable, true, 'pending_worker_review can become ready_for_worker');
+  assert.strictEqual(result.nextStatus, 'ready_for_worker');
+  assert.strictEqual(result.noRunnerStarted, true, 'release keeps noRunnerStarted true');
+  assert.strictEqual(result.noBranchOrPrOrMerge, true, 'release keeps noBranchOrPrOrMerge true');
+  assert.strictEqual(result.noDeploy, true, 'release keeps noDeploy true');
+})();
+
+(function testWorkerQueueReleaseAllowsQueuedForOwnerReview() {
+  const result = buildWorkerQueueReleaseDecision({
+    workerStatus: 'queued_for_owner_review',
+    allowedFiles: ['docs/**'],
+    blockedFiles: ['native/**'],
+    requiredChecks: ['git diff --check'],
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+  });
+  assert.strictEqual(result.releasable, true, 'queued_for_owner_review can become ready_for_worker');
+})();
+
+(function testWorkerQueueReleaseBlocksTerminalAndActiveStatuses() {
+  for (const workerStatus of ['completed', 'blocked', 'in_progress']) {
+    const result = buildWorkerQueueReleaseDecision({
+      workerStatus,
+      allowedFiles: ['docs/**'],
+      blockedFiles: ['functions/**'],
+      requiredChecks: ['npm run lint'],
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+    });
+    assert.strictEqual(result.releasable, false, `${workerStatus} must not be released for worker pickup`);
+    assert(result.missing.includes('status_not_releasable'), 'blocked status reason should be explicit');
+  }
+})();
+
+(function testWorkerQueueReleaseBlocksMissingSafetyAndAutomationSideEffects() {
+  const result = buildWorkerQueueReleaseDecision({
+    workerStatus: 'pending_worker_review',
+    allowedFiles: ['docs/**'],
+    blockedFiles: [],
+    requiredChecks: [],
+    noRunnerStarted: false,
+    runnerStarted: true,
+    noBranchOrPrOrMerge: false,
+    branchCreated: true,
+    prCreated: true,
+    merged: true,
+    noDeploy: false,
+    deployStarted: true,
+  });
+  assert.strictEqual(result.releasable, false, 'missing checks/flags and runner or delivery side effects must block release');
+  assert(result.missing.includes('blockedFiles'), 'blockedFiles are required');
+  assert(result.missing.includes('requiredChecks'), 'requiredChecks are required');
+  assert(result.missing.includes('noRunnerStarted'), 'noRunnerStarted must remain true');
+  assert(result.missing.includes('runnerStarted'), 'runner execution must not have started');
+  assert(result.missing.includes('branch_pr_merge'), 'branch/PR/merge side effects must block release');
+  assert(result.missing.includes('deploy'), 'deploy side effects must block release');
 })();
 
 console.log('agentAdminRolesAudit helper tests passed');
