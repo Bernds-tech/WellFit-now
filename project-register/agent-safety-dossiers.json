@@ -1,0 +1,76 @@
+{
+  "schemaRef": "project-register/agent-dossier-schema.json",
+  "dossiers": [
+    {
+      "id": "safety-p1-agent-center-reset-scope-archive-v1",
+      "type": "safety_dossier",
+      "status": "safety_blocker",
+      "priority": "P1",
+      "title": "P1 Sicherheitsfix: Agent-Center-Reset sicher scopen und echte Archive schreiben",
+      "shortSummary": "Der Agent-Center-Reset darf keine ungescopten Pipeline-Collections löschen und muss vor jedem späteren Delete echte bereinigte Payload-Snapshots archivieren.",
+      "plainLanguageSummary": "Bevor neue Agent-Vorschläge oder Bauarbeiter-Automation weiterlaufen, muss der Reset so abgesichert werden, dass er nur klar freigegebene Test-/Pipeline-Daten sieht und löscht. Außerdem muss das Archiv echte bereinigte Kopien der Dokumente enthalten, nicht nur Zähler oder IDs.",
+      "problem": "Der bisherige Reset wurde als Archiv-und-Reset beschrieben, konnte aber Pipeline-Collections breit lesen/löschen und schrieb keine echten bereinigten Dokument-Payloads vor dem Delete. Dadurch war nicht eindeutig bewiesen, dass nur sichere Test-/Pipeline-Daten betroffen sind.",
+      "proposedChange": "Safe-Reset-Scope einführen, ungescopte Collection-Deletes blockieren, Preview/Dry-Run als Standard behalten und erst nach separater Owner-Freigabe echte bereinigte Payload-Snapshots vor einem eng gescopten Delete erlauben.",
+      "whyNow": "PR #293 ist bereits gemerged und der Reset wurde einmal ausgeführt. Die P1-Review-Hinweise betreffen Datenverlust- und Nachvollziehbarkeitsrisiken und müssen vor neuen Agent-Vorschlägen behoben werden.",
+      "wellfitBenefit": "WellFit bekommt einen nachvollziehbaren Sicherheitsstopp: kritische Agent-Pipeline-Werkzeuge werden zuerst repariert, bevor das System wieder neue Arbeit erzeugt.",
+      "userBenefit": "Nutzer-, Produkt- und Missionsdaten werden nicht versehentlich durch interne Agent-Wartung gelöscht oder mit Pipeline-Testdaten vermischt.",
+      "financialBenefit": "Verhindert operative Kosten durch Datenwiederherstellung, Review-Schleifen, Support-Aufwand, Vertrauensverlust und fehlerhafte Agent-Arbeit auf unvollständiger Historie.",
+      "internalEconomyImpact": "Nur interne Agent-Pipeline- und Beta-Governance-Sicherheit; keine Token-, NFT-, Payment-, Cashout-, SUI- oder WFT-Aktivierung.",
+      "risks": [
+        "Bis der Safe-Reset-Scope gebaut ist, bleibt der Reset absichtlich nur Preview/Dry-Run.",
+        "Bestehende Pipeline-Daten müssen ggf. manuell bewertet werden, bevor ein späterer bereinigter Reset erlaubt wird.",
+        "Ein späterer Delete braucht Emulator-/Testdaten-Beweise und Owner-Freigabe."
+      ],
+      "riskLevel": "high",
+      "affectedAreas": [
+        "Agent Center Admin UI",
+        "Firebase Callable archiveAndResetAgentCenterPipelineData",
+        "Agent-Pipeline-Inbox/Worker/Runner Collections",
+        "Agent Safety Sentinel / Autopilot-Reihenfolge",
+        "Dossier-Schema"
+      ],
+      "affectedFiles": [
+        "functions/lib/agentAdminRolesAudit.js",
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts",
+        "project-register/agent-dossier-schema.json",
+        "project-register/agent-safety-dossiers.json",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md"
+      ],
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run lint",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npx tsc --noEmit --pretty false",
+        "git diff --check"
+      ],
+      "sources": [
+        "Codex P1 Review Hinweis: Reset nennt es Archiv, speichert aber keine echten bereinigten Dokument-Payloads.",
+        "Codex P1 Review Hinweis: Reset liest/löscht Pipeline-Collections unfiltered und ist nicht sicher auf Testdaten gescoped.",
+        "docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md",
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md"
+      ],
+      "recommendation": "Vor neuen Agent-Vorschlägen beheben. Empfohlene Reihenfolge: vor Product-Evolution-Neustart und vor Bauarbeiter-Automation.",
+      "ownerDecisionRequired": true,
+      "nextPipelineStep": "Als Bauauftrag metadata-only vorbereiten: Safe-Reset-Scope, bereinigte Archiv-Payloads, Emulator-Tests und Owner-Freigabe planen; keinen Runner starten.",
+      "whyFirst": "P1/P0-Sicherheitsblocker kommen vor Feature-Arbeit, weil sonst ein Agent auf unsicheren Pipeline-Daten weiterarbeitet oder Datenverlust wiederholt.",
+      "afterApproval": "Nach Freigabe darf nur ein Bauauftrag/Task Proposal vorbereitet werden. GitHub-/Runner-/Branch-/PR-/Merge-/Deploy-Automation bleibt aus, bis ein separater kontrollierter Auftrag freigegeben ist.",
+      "recommendedOrder": "Vor Product-Evolution-Neustart und vor Bauarbeiter-Automation.",
+      "protectedData": [
+        "Produktdaten",
+        "Userdaten",
+        "Register-/Legacy-Daten",
+        "Agent-Systemregister",
+        "Mission-/Reward-/Runner-Historie"
+      ],
+      "noRuntimeChanges": true,
+      "noTokenPaymentBlockchain": true,
+      "noRunnerStarted": true,
+      "noBranchOrPrOrMerge": true,
+      "noDeploy": true
+    }
+  ]
+}
