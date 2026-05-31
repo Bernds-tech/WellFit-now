@@ -24,37 +24,33 @@ async function run() {
   await db.collection("missions").doc("product-mission").set({ missionId: "product-mission", title: "Product Mission" });
   await db.collection("users").doc("product-user").set({ displayName: "Product User" });
 
-  await expectFail("archiveAndResetAgentCenterPipelineData", user, { reason: "cleanup", confirmResetText: "RESET_AGENT_CENTER_PIPELINE_TEST_DATA" });
-  await expectFail("archiveAndResetAgentCenterPipelineData", owner, { reason: "cleanup", confirmResetText: "WRONG" });
-  const resetResult = await expectOk("archiveAndResetAgentCenterPipelineData", owner, { reason: "cleanup before single-owner retest", confirmResetText: "RESET_AGENT_CENTER_PIPELINE_TEST_DATA" });
-  assert(resetResult.accepted === true, "reset should be accepted for owner");
-  assert(resetResult.archiveRunId, "reset should return archiveRunId");
+  await expectFail("archiveAndResetAgentCenterPipelineData", user, { reason: "cleanup", dryRun: true, previewOnly: true });
+  const blockedWrongConfirm = await expectFail("archiveAndResetAgentCenterPipelineData", owner, { reason: "cleanup", confirmResetText: "WRONG" });
+  assert(blockedWrongConfirm.rawText.includes("Reset blockiert: ungescopte Pipeline-Daten dürfen nicht gelöscht werden. Bitte Safe-Reset-Scope/Archivierung implementieren."), "delete request should return the scoped reset blocker message");
+  const blockedConfirmedDelete = await expectFail("archiveAndResetAgentCenterPipelineData", owner, { reason: "cleanup before single-owner retest", confirmResetText: "RESET_AGENT_CENTER_PIPELINE_TEST_DATA" });
+  assert(blockedConfirmedDelete.rawText.includes("Reset blockiert: ungescopte Pipeline-Daten dürfen nicht gelöscht werden. Bitte Safe-Reset-Scope/Archivierung implementieren."), "confirmed delete request should return the scoped reset blocker message");
+  const resetResult = await expectOk("archiveAndResetAgentCenterPipelineData", owner, { reason: "cleanup preview before scoped reset", dryRun: true, previewOnly: true });
+  assert(resetResult.accepted === true, "reset preview should be accepted for owner");
+  assert(resetResult.dryRun === true, "reset must be dry-run only");
+  assert(resetResult.previewOnly === true, "reset must be preview-only");
+  assert(resetResult.deletionBlocked === true, "reset deletion must be blocked");
+  assert(!resetResult.archiveRunId, "dry-run reset must not create an archive run until sanitized payload archival exists");
   assert(resetResult.noRunnerStarted === true, "reset must not start runner");
   assert(resetResult.noBranchOrPrOrMerge === true, "reset must not branch/pr/merge");
   assert(resetResult.noDeploy === true, "reset must not deploy");
-  assert(resetResult.deletedCounts.agentCenterInbox === 1, "inbox test data should be deleted");
-  assert(resetResult.deletedCounts.agentRunnerImplementationPlans === 1, "implementation plans should be deleted");
-  const archiveRun = await db.collection("agentCenterArchiveRuns").doc(resetResult.archiveRunId).get();
-  assert(archiveRun.exists, "archive run document should exist before reset deletion");
-  const archiveData = archiveRun.data() || {};
-  assert(archiveData.countsBeforeReset.agentTaskProposals === 1, "archive should keep countsBeforeReset for proposals");
-  assert(archiveData.countsBeforeReset.agentTaskWorkerQueue === 1, "archive should keep countsBeforeReset for worker queue");
-  assert(archiveData.noUserDataDeleted === true, "archive should state no user data deleted");
-  assert(archiveData.noProductFilesChanged === true, "archive should state no product files changed");
-  assert(archiveData.noRunnerStarted === true, "archive should state no runner started");
-  assert(archiveData.noBranchOrPrOrMerge === true, "archive should state no branch/pr/merge");
-  assert(archiveData.noDeploy === true, "archive should state no deploy");
-  assert(archiveData.noTokenPaymentBlockchain === true, "archive should state no token/payment/blockchain");
-  assert(Array.isArray(archiveData.sampleIds.agentCenterInbox), "archive should include sanitized sample IDs");
-  assert(!JSON.stringify(archiveData.sampleIds).includes("owner@example.test"), "archive sample IDs must not include emails");
-  assert(!(await db.collection("agentCenterInbox").doc("reset-inbox").get()).exists, "active inbox reset doc should be deleted");
-  assert(!(await db.collection("agentRunnerJobs").doc("reset-job").get()).exists, "active runner job reset doc should be deleted");
+  assert(Object.keys(resetResult.deletedCounts || {}).length === 0, "dry-run reset must not delete data");
+  assert(resetResult.countsBeforeReset.agentTaskProposals === 1, "preview should keep countsBeforeReset for proposals");
+  assert(resetResult.countsBeforeReset.agentTaskWorkerQueue === 1, "preview should keep countsBeforeReset for worker queue");
+  assert(Array.isArray(resetResult.sampleIds.agentCenterInbox), "preview should keep the existing sampleIds debug shape");
+  assert(resetResult.sampleIds.agentCenterInbox.length === 0, "preview must not read or expose document sample IDs before sanitized archival exists");
+  assert((await db.collection("agentCenterInbox").doc("reset-inbox").get()).exists, "active inbox reset doc must remain during dry-run");
+  assert((await db.collection("agentRunnerJobs").doc("reset-job").get()).exists, "active runner job reset doc must remain during dry-run");
   assert((await db.collection("agentSystemRegisters").doc("legacy-register").get()).exists, "legacy register should remain");
   assert((await db.collection("agentCenterMissionProposals").doc("legacy-mission-proposal").get()).exists, "legacy mission proposal should remain");
   assert((await db.collection("missions").doc("product-mission").get()).exists, "product mission should remain");
   assert((await db.collection("users").doc("product-user").get()).exists, "user data should remain");
 
-  await expectOk("archiveAndResetAgentCenterPipelineData", operator, { reason: "admin cleanup empty scope", confirmResetText: "RESET_AGENT_CENTER_PIPELINE_TEST_DATA" });
+  await expectOk("archiveAndResetAgentCenterPipelineData", operator, { reason: "admin cleanup empty scope preview", dryRun: true, previewOnly: true });
 
   await expectFail("approveAgentTaskProposal", user, { proposalId: "x" });
 
