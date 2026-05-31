@@ -2,12 +2,12 @@ const { FieldValue } = require("firebase-admin/firestore");
 const { optionalString, requiredString } = require("./beta1Runtime");
 
 const ALLOWED_TARGET_TRACKS = ["docs_register", "runtime_ui", "runtime_backend", "live_page", "evidence", "blocked"];
-const PROPOSAL_STATUSES = ["proposed", "review_required", "approved", "rejected", "executed", "blocked"];
+const PROPOSAL_STATUSES = ["proposed", "review_required", "queued_for_worker_review", "approved", "rejected", "executed", "blocked"];
 const APPROVAL_STATUSES = ["approved", "rejected", "revoked"];
 const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked"];
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
 const HANDOFF_PROMPT_STATUSES = ["generated", "copied", "superseded", "blocked"];
-const WORKER_QUEUE_STATUSES = ["ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed"];
+const WORKER_QUEUE_STATUSES = ["queued_for_owner_review", "pending_worker_review", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed"];
 const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
 const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
@@ -224,6 +224,23 @@ function requireRole(request, HttpsError, allowedRoles) {
 function parseStringList(value, maxEntries = 80, maxLength = 240) {
   if (!Array.isArray(value)) return [];
   return value.map((entry) => optionalString(entry, maxLength)).filter(Boolean).slice(0, maxEntries);
+}
+
+
+function normalizeRepoPathForPolicy(value) {
+  return optionalString(value, 260).replace(/^\.\//, "");
+}
+
+function allowedFilesTouchOwnerProtectedCanonicalTruth(allowedFiles) {
+  const protectedSet = new Set(CANONICAL_TRUTH_PROTECTED_FILES.map((file) => file.toLowerCase()));
+  return allowedFiles.some((file) => {
+    const normalized = normalizeRepoPathForPolicy(file).toLowerCase();
+    if (protectedSet.has(normalized)) return true;
+    return CANONICAL_TRUTH_PROTECTED_FILES.some((protectedFile) => {
+      const protectedLower = protectedFile.toLowerCase();
+      return normalized.includes(protectedLower) || normalized === `${protectedLower}/**`;
+    });
+  });
 }
 
 function normalizeRiskLevel(value) {
@@ -1034,6 +1051,85 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { accepted: true, workerQueueId: ref.id, workerStatus: "ready_for_worker", humanMergeRequired: true, autoMerge: false, autoDeploy: false };
   });
 
+  exportsTarget.createWorkerQueueItemFromTaskProposal = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
+    const taskProposalId = requiredString(request.data && (request.data.taskProposalId || request.data.proposalId), "taskProposalId", HttpsError, 180);
+    const proposalRef = db.collection("agentTaskProposals").doc(taskProposalId);
+    const workerRef = db.collection("agentTaskWorkerQueue").doc();
+    let resultDoc = null;
+
+    await db.runTransaction(async (transaction) => {
+      const proposalSnap = await transaction.get(proposalRef);
+      if (!proposalSnap.exists) throw new HttpsError("not-found", "task_proposal_not_found");
+      const proposal = proposalSnap.data() || {};
+      const status = optionalString(proposal.status, 60) || "proposed";
+      if (!["proposed", "review_required"].includes(status)) throw new HttpsError("failed-precondition", "task_proposal_status_not_allowed");
+
+      const allowedFiles = parseStringList(proposal.allowedFiles, 80, 260);
+      const blockedFiles = parseStringList(proposal.blockedFiles, 80, 260);
+      const requiredChecks = parseStringList(proposal.requiredChecks, 80, 260);
+      if (!allowedFiles.length) throw new HttpsError("failed-precondition", "missing_allowedFiles");
+      if (!blockedFiles.length) throw new HttpsError("failed-precondition", "missing_blockedFiles");
+      if (!requiredChecks.length) throw new HttpsError("failed-precondition", "missing_requiredChecks");
+      if (allowedFilesTouchOwnerProtectedCanonicalTruth(allowedFiles)) throw new HttpsError("failed-precondition", "owner_protected_canonical_truth_allowed_scope_blocked");
+
+      const riskLevel = normalizeRiskLevel(proposal.riskLevel);
+      const workerStatus = riskLevel === "low" ? "pending_worker_review" : "queued_for_owner_review";
+      resultDoc = {
+        workerQueueId: workerRef.id,
+        taskProposalId,
+        proposalId: optionalString(proposal.proposalId, 180) || taskProposalId,
+        title: sanitizeInboxText(proposal.title, 240) || "Task Proposal",
+        taskTitle: sanitizeInboxText(proposal.title, 240) || "Task Proposal",
+        summary: sanitizeInboxText(proposal.summary, 1200),
+        requestedAction: sanitizeInboxText(proposal.requestedAction, 1200),
+        allowedFiles,
+        blockedFiles,
+        requiredChecks,
+        sourceInboxId: optionalString(proposal.sourceInboxId, 180) || null,
+        riskLevel,
+        status: workerStatus,
+        workerStatus,
+        noRunnerStarted: true,
+        noBranchOrPrOrMerge: true,
+        noDeploy: true,
+        runnerStarted: false,
+        branchCreated: false,
+        prCreated: false,
+        merged: false,
+        deployed: false,
+        humanMergeRequired: true,
+        autoMerge: false,
+        autoDeploy: false,
+        workerMode: "manual_codex",
+        canonicalTruthReadRequired: true,
+        canonicalTruthProtectedFiles: CANONICAL_TRUTH_PROTECTED_FILES,
+        canonicalTruthEditable: false,
+        canonicalTruthOwnerApprovalRequired: true,
+        canonicalTruthChangeProposalFile: CANONICAL_TRUTH_PROPOSAL_FILE,
+        createdBy: actorId,
+        createdByRole: actorRole,
+        queuedAt: FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+        lastStatusChangedAt: FieldValue.serverTimestamp(),
+      };
+      transaction.set(workerRef, resultDoc);
+      transaction.set(proposalRef, {
+        status: "queued_for_worker_review",
+        workerQueueId: workerRef.id,
+        noRunnerStarted: true,
+        noBranchOrPrOrMerge: true,
+        noDeploy: true,
+        updatedAt: FieldValue.serverTimestamp(),
+        lastStatusChangedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+    });
+
+    await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_created_from_task_proposal", proposalId: taskProposalId, allowedFiles: resultDoc.allowedFiles, blockedFiles: resultDoc.blockedFiles, riskLevel: resultDoc.riskLevel, result: resultDoc.workerStatus });
+    return { accepted: true, taskProposalId, workerQueueId: workerRef.id, workerQueueStatus: resultDoc.workerStatus, status: resultDoc.workerStatus, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true };
+  });
+
   exportsTarget.claimAgentWorkerQueueItem = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "agent_executor_service"]);
     const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
@@ -1396,6 +1492,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       recommendation: recommendation || "",
       targetTrack: optionalString(data.targetTrack, 80) || null,
       suggestedBranch: optionalString(data.suggestedBranch, 180) || null,
+      workerQueueId: optionalString(data.workerQueueId, 180) || null,
       noRunnerStarted: data.noRunnerStarted !== false,
       noBranchOrPrOrMerge: data.noBranchOrPrOrMerge !== false,
       noDeploy: data.noDeploy !== false,

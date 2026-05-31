@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, ProductEvolutionRevisionDossierResult, TaskProposalWorkerQueueCreateResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -58,16 +58,16 @@ type Row = Record<string, unknown> & {
 
 type DataProps = { agents: Row[]; missions: Row[]; stats: Partial<Record<AdminCenterListFilter, number>> };
 type ServerInboxFilter = "server_total" | "server_pending" | "server_approved" | "server_rejected" | "server_blocked" | "server_revision_requested" | "server_synced_to_task_proposal";
-type TaskProposalFilter = "task_total" | "task_pending" | "task_approved" | "task_rejected" | "task_in_progress" | "task_completed" | "task_blocked";
-type TaskProposalBucket = "pending" | "approved" | "rejected" | "in_progress" | "completed" | "blocked" | "unknown";
+type TaskProposalFilter = "task_total" | "task_pending" | "task_queued_for_worker_review" | "task_approved" | "task_rejected" | "task_in_progress" | "task_completed" | "task_blocked";
+type TaskProposalBucket = "pending" | "queued_for_worker_review" | "approved" | "rejected" | "in_progress" | "completed" | "blocked" | "unknown";
 type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter;
 
 const SERVER_FILTER_TO_BUCKET: Record<ServerInboxFilter, ReturnType<typeof getServerInboxStatusBucket> | "total"> = { server_total: "total", server_pending: "pending_approval", server_approved: "approved", server_rejected: "rejected", server_blocked: "blocked", server_revision_requested: "revision_requested", server_synced_to_task_proposal: "synced_to_task_proposal" };
 const SERVER_FILTER_LABELS: Record<ServerInboxFilter, string> = { server_total: "Server-Inbox gesamt", server_pending: "Server: wartet auf Freigabe", server_approved: "Server: freigegeben", server_rejected: "Server: abgelehnt", server_blocked: "Server: blockiert", server_revision_requested: "Server: Überarbeitung angefordert", server_synced_to_task_proposal: "Server: Task Proposal erzeugt" };
 const SERVER_FILTER_KEYS = Object.keys(SERVER_FILTER_TO_BUCKET) as ServerInboxFilter[];
 const isServerInboxFilter = (value: ActiveListFilter): value is ServerInboxFilter => value.startsWith("server_");
-const TASK_PROPOSAL_FILTER_TO_BUCKET: Record<TaskProposalFilter, TaskProposalBucket | "total"> = { task_total: "total", task_pending: "pending", task_approved: "approved", task_rejected: "rejected", task_in_progress: "in_progress", task_completed: "completed", task_blocked: "blocked" };
-const TASK_PROPOSAL_FILTER_LABELS: Record<TaskProposalFilter, string> = { task_total: "Task Proposals gesamt", task_pending: "Task Proposals: warten/pending", task_approved: "Task Proposals: freigegeben", task_rejected: "Task Proposals: abgelehnt", task_in_progress: "Task Proposals: in Arbeit", task_completed: "Task Proposals: fertig", task_blocked: "Task Proposals: blockiert" };
+const TASK_PROPOSAL_FILTER_TO_BUCKET: Record<TaskProposalFilter, TaskProposalBucket | "total"> = { task_total: "total", task_pending: "pending", task_queued_for_worker_review: "queued_for_worker_review", task_approved: "approved", task_rejected: "rejected", task_in_progress: "in_progress", task_completed: "completed", task_blocked: "blocked" };
+const TASK_PROPOSAL_FILTER_LABELS: Record<TaskProposalFilter, string> = { task_total: "Task Proposals gesamt", task_pending: "Task Proposals: warten/pending", task_queued_for_worker_review: "Task Proposals: Worker Review vorbereitet", task_approved: "Task Proposals: freigegeben", task_rejected: "Task Proposals: abgelehnt", task_in_progress: "Task Proposals: in Arbeit", task_completed: "Task Proposals: fertig", task_blocked: "Task Proposals: blockiert" };
 const TASK_PROPOSAL_FILTER_KEYS = Object.keys(TASK_PROPOSAL_FILTER_TO_BUCKET) as TaskProposalFilter[];
 const isTaskProposalFilter = (value: ActiveListFilter): value is TaskProposalFilter => value.startsWith("task_");
 
@@ -80,6 +80,7 @@ const asStringArray = (value: unknown): string[] => (Array.isArray(value) ? valu
 
 function getTaskProposalBucket(proposal: AgentTaskProposal): TaskProposalBucket {
   const status = String(proposal.status || "").toLowerCase();
+  if (status === "queued_for_worker_review") return "queued_for_worker_review";
   if (["proposed", "review_required", "pending", "pending_approval", "draft"].includes(status)) return "pending";
   if (["approved", "approved_ready", "approved_for_work"].includes(status)) return "approved";
   if (["rejected", "declined"].includes(status)) return "rejected";
@@ -90,7 +91,7 @@ function getTaskProposalBucket(proposal: AgentTaskProposal): TaskProposalBucket 
 }
 
 function buildTaskProposalCounts(proposals: AgentTaskProposal[]) {
-  const counts: Record<TaskProposalBucket, number> & { total: number } = { total: proposals.length, pending: 0, approved: 0, rejected: 0, in_progress: 0, completed: 0, blocked: 0, unknown: 0 };
+  const counts: Record<TaskProposalBucket, number> & { total: number } = { total: proposals.length, pending: 0, queued_for_worker_review: 0, approved: 0, rejected: 0, in_progress: 0, completed: 0, blocked: 0, unknown: 0 };
   proposals.forEach((proposal) => { counts[getTaskProposalBucket(proposal)] += 1; });
   return counts;
 }
@@ -144,6 +145,11 @@ const getSafeAdminDecisionFailureMessage = (resultMessage?: string, errorCode?: 
   if (diagnostic.includes("missing_approved_admin_decision") || message === "Missing approved admin decision.") return "Missing approved admin decision.";
   if (diagnostic.includes("missing_decision_data") || message === "Missing decision data.") return "Missing decision data.";
   if (diagnostic.includes("protected_scope_owner_required") || message === "Protected scope owner required.") return "Protected scope owner required.";
+  if (diagnostic.includes("task_proposal_status_not_allowed")) return "Status erlaubt Worker-Queue-Vorbereitung nicht.";
+  if (diagnostic.includes("missing_allowedFiles")) return "allowedFiles fehlen.";
+  if (diagnostic.includes("missing_blockedFiles")) return "blockedFiles fehlen.";
+  if (diagnostic.includes("missing_requiredChecks")) return "requiredChecks fehlen.";
+  if (diagnostic.includes("owner_protected_canonical_truth_allowed_scope_blocked")) return "Owner-protected Canonical-Truth-Dateien sind im allowedFiles-Scope blockiert.";
   if (diagnostic.includes("center_inbox_not_decidable") || message === "Eintrag ist nicht mehr entscheidbar.") return "Eintrag ist nicht mehr entscheidbar.";
   if (diagnostic.includes("server_inbox_entry_not_found") || diagnostic.includes("inbox_not_found") || code.includes("not-found") || message === "Server-Inbox-Eintrag nicht gefunden.") return "Server-Inbox-Eintrag nicht gefunden.";
   if (diagnostic.includes("inbox_mirror_missing") || diagnostic.includes("not_mirrored")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
@@ -405,11 +411,12 @@ export default function AgentCenterInteractive({
         ...prev,
         taskProposalLoadedCount: proposals.length,
         taskProposalPendingCount: proposals.filter((proposal) => getTaskProposalBucket(proposal) === "pending").length,
+        taskProposalQueuedForWorkerReviewCount: proposals.filter((proposal) => getTaskProposalBucket(proposal) === "queued_for_worker_review").length,
         taskProposalNoRunnerStartedVisible: proposals.some((proposal) => proposal.noRunnerStarted === true),
         taskProposalNoBranchOrPrOrMergeVisible: proposals.some((proposal) => proposal.noBranchOrPrOrMerge === true),
         taskProposalNoDeployVisible: proposals.some((proposal) => proposal.noDeploy === true),
       }));
-      setSyncStatus(`Task Proposals geladen: ${proposals.length}. Read-only Review; keine Worker Queue, kein Runner, kein Deploy.`);
+      setSyncStatus(`Task Proposals geladen: ${proposals.length}. Review/Handoff: Worker Queue wird nur per Button vorbereitet; kein Runner, kein Branch, kein Deploy.`);
     } finally {
       setBusy(false);
     }
@@ -656,6 +663,78 @@ export default function AgentCenterInteractive({
     }
   }
 
+  function workerQueueButtonReason(proposal: AgentTaskProposal): string {
+    const status = String(proposal.status || "").toLowerCase();
+    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
+    if (!["proposed", "review_required"].includes(status)) return "Status erlaubt Worker-Queue-Vorbereitung nicht";
+    if (!(proposal.allowedFiles || []).length) return "allowedFiles fehlen";
+    if (!(proposal.blockedFiles || []).length) return "blockedFiles fehlen";
+    if (!(proposal.requiredChecks || []).length) return "requiredChecks fehlen";
+    return "";
+  }
+
+  async function prepareWorkerQueueFromTaskProposal(proposal: AgentTaskProposal) {
+    const taskProposalId = proposal.taskProposalId || proposal.proposalId || "";
+    const reason = workerQueueButtonReason(proposal);
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastWorkerQueueCreated: false,
+      lastWorkerQueueIdPresent: false,
+      lastWorkerQueueStatus: reason ? "blocked_client" : "started",
+      lastWorkerQueueMessage: reason || "Worker Queue wird vorbereitet …",
+      lastWorkerQueueNoRunnerStarted: "-",
+      lastWorkerQueueNoBranchOrPrOrMerge: "-",
+      lastWorkerQueueNoDeploy: "-",
+    }));
+    if (reason) {
+      setFeedback(reason);
+      return;
+    }
+    if (!(await ensureAdminAuthReady())) return;
+
+    setBusy(true);
+    setFeedback("Worker Queue wird vorbereitet …");
+    try {
+      const result = await beta1AdminClient.createWorkerQueueItemFromTaskProposal({ taskProposalId }) as TaskProposalWorkerQueueCreateResult;
+      const accepted = Boolean(result.accepted);
+      const workerQueueId = asText(result.workerQueueId);
+      const safeMessage = accepted
+        ? `Worker Queue vorbereitet.${workerQueueId ? ` workerQueueId: ${workerQueueId}` : ""}`
+        : `Worker Queue konnte nicht vorbereitet werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      if (accepted) setActive("task_queued_for_worker_review");
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastWorkerQueueCreated: accepted,
+        lastWorkerQueueIdPresent: Boolean(workerQueueId),
+        lastWorkerQueueStatus: result.workerQueueStatus || result.status || (accepted ? "queued_for_worker_review" : "failed"),
+        lastWorkerQueueMessage: safeMessage,
+        lastWorkerQueueNoRunnerStarted: result.noRunnerStarted ?? "-",
+        lastWorkerQueueNoBranchOrPrOrMerge: result.noBranchOrPrOrMerge ?? "-",
+        lastWorkerQueueNoDeploy: result.noDeploy ?? "-",
+      }));
+    } catch (error) {
+      const safeMessage = `Worker Queue konnte nicht vorbereitet werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastWorkerQueueCreated: false,
+        lastWorkerQueueIdPresent: false,
+        lastWorkerQueueStatus: "error",
+        lastWorkerQueueMessage: safeMessage,
+        lastWorkerQueueNoRunnerStarted: "-",
+        lastWorkerQueueNoBranchOrPrOrMerge: "-",
+        lastWorkerQueueNoDeploy: "-",
+      }));
+    } finally {
+      try {
+        await refreshTaskProposals();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
   async function decide(kind: "agent" | "mission", action: "approve" | "reject" | "revise" | "block", row: Row) {
     const actionLabel = { approve: "Zustimmen", reject: "Ablehnen", revise: "Überarbeiten", block: "Blockieren" }[action];
     const reason = buttonReason(action, row);
@@ -777,6 +856,13 @@ export default function AgentCenterInteractive({
         <p>lastTaskProposalNoRunnerStarted: {String(syncDebug.lastTaskProposalNoRunnerStarted ?? "-")}</p>
         <p>lastTaskProposalNoBranchOrPrOrMerge: {String(syncDebug.lastTaskProposalNoBranchOrPrOrMerge ?? "-")}</p>
         <p>lastTaskProposalNoDeploy: {String(syncDebug.lastTaskProposalNoDeploy ?? "-")}</p>
+        <p>lastWorkerQueueCreated: {String(syncDebug.lastWorkerQueueCreated ?? "-")}</p>
+        <p>lastWorkerQueueIdPresent: {String(syncDebug.lastWorkerQueueIdPresent ?? "-")}</p>
+        <p>lastWorkerQueueStatus: {String(syncDebug.lastWorkerQueueStatus || "-")}</p>
+        <p>lastWorkerQueueMessage: {String(syncDebug.lastWorkerQueueMessage || "-")}</p>
+        <p>lastWorkerQueueNoRunnerStarted: {String(syncDebug.lastWorkerQueueNoRunnerStarted ?? "-")}</p>
+        <p>lastWorkerQueueNoBranchOrPrOrMerge: {String(syncDebug.lastWorkerQueueNoBranchOrPrOrMerge ?? "-")}</p>
+        <p>lastWorkerQueueNoDeploy: {String(syncDebug.lastWorkerQueueNoDeploy ?? "-")}</p>
         <p>lastAuthGuardMessage: {String(authDebug.lastAuthGuardMessage || "-")}</p>
         <p>clientSendingRegisterSnapshot: {String(syncDebug.clientSendingRegisterSnapshot ?? "-")}</p>
         <p>clientSendingRegisterSnapshotKeys: [{((syncDebug.clientSendingRegisterSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
@@ -819,7 +905,7 @@ export default function AgentCenterInteractive({
       </div>
 
       <div className="space-y-2 text-xs">
-        <p className="text-cyan-100">Agent Task Proposals / agentTaskProposals — Read-only Review, erzeugt keine Worker Queue und startet keinen Runner.</p>
+        <p className="text-cyan-100">Agent Task Proposals / agentTaskProposals — Review/Handoff; Worker Queue nur per Button vorbereiten, kein Runner.</p>
         <div className="flex flex-wrap gap-2">
           {TASK_PROPOSAL_FILTER_KEYS.map((key) => {
             const activeCard = active === key;
@@ -878,6 +964,7 @@ export default function AgentCenterInteractive({
               </div>
               <dl className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 <div><dt className="font-semibold">sourceInboxId</dt><dd className="break-words font-mono text-cyan-100/75">{proposal.sourceInboxId || "—"}</dd></div>
+                <div><dt className="font-semibold">workerQueueId</dt><dd className="break-words font-mono text-cyan-100/75">{proposal.workerQueueId || "—"}</dd></div>
                 <div><dt className="font-semibold">recommendation</dt><dd>{proposal.recommendation || "—"}</dd></div>
                 <div><dt className="font-semibold">createdAt</dt><dd>{formatAdminDate(proposal.createdAt)}</dd></div>
                 <div><dt className="font-semibold">allowedFiles</dt><dd>{(proposal.allowedFiles || []).join(", ") || "—"}</dd></div>
@@ -886,6 +973,10 @@ export default function AgentCenterInteractive({
               </dl>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100" onClick={() => setTaskProposalDetail(proposal)}>Task Proposal ansehen</button>
+                {["proposed", "review_required"].includes(String(proposal.status || "").toLowerCase()) && (
+                  <button title={workerQueueButtonReason(proposal) || "Worker Queue vorbereiten"} className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(workerQueueButtonReason(proposal))} onClick={() => prepareWorkerQueueFromTaskProposal(proposal)}>Worker Queue vorbereiten</button>
+                )}
+                {proposal.workerQueueId && <p className="w-full text-cyan-100">workerQueueId: <span className="font-mono">{proposal.workerQueueId}</span></p>}
               </div>
             </article>
           ))}
@@ -951,6 +1042,7 @@ export default function AgentCenterInteractive({
               <p className="font-mono text-cyan-100/75">taskProposalId: {taskProposalDetail.taskProposalId || taskProposalDetail.proposalId || "—"}</p>
               <p>Status: {taskProposalDetail.status || "proposed"} · Risiko: {taskProposalDetail.riskLevel || "medium"}</p>
               <p>sourceInboxId: {taskProposalDetail.sourceInboxId || "—"}</p>
+              <p>workerQueueId: {taskProposalDetail.workerQueueId || "—"}</p>
               {info("Was soll gemacht werden?", taskProposalDetail.requestedAction || taskProposalDetail.summary)}
               {info("Warum?", taskProposalDetail.recommendation || taskProposalDetail.summary)}
               {fileList("Welche Dateien dürfen geändert werden?", taskProposalDetail.allowedFiles)}

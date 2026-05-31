@@ -26,6 +26,7 @@ import type {
   AgentGithubCreatePullRequestInput,
   ApprovedInboxToTaskProposalInput,
   ProductEvolutionInboxSyncInput,
+  TaskProposalWorkerQueueCreateInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -68,6 +69,11 @@ function sanitizeAdminError(error: unknown): string {
   if (diagnostic.includes("missing_approved_admin_decision")) return "Missing approved admin decision.";
   if (diagnostic.includes("missing_decision_data")) return "Missing decision data.";
   if (diagnostic.includes("protected_scope_owner_required")) return "Protected scope owner required.";
+  if (diagnostic.includes("task_proposal_status_not_allowed")) return "Status erlaubt Worker-Queue-Vorbereitung nicht.";
+  if (diagnostic.includes("missing_allowedFiles")) return "allowedFiles fehlen.";
+  if (diagnostic.includes("missing_blockedFiles")) return "blockedFiles fehlen.";
+  if (diagnostic.includes("missing_requiredChecks")) return "requiredChecks fehlen.";
+  if (diagnostic.includes("owner_protected_canonical_truth_allowed_scope_blocked")) return "Owner-protected Canonical-Truth-Dateien sind im allowedFiles-Scope blockiert.";
   if (diagnostic.includes("center_inbox_not_decidable")) return "Eintrag ist nicht mehr entscheidbar.";
   if (diagnostic.includes("server_inbox_entry_not_found") || diagnostic.includes("inbox_not_found") || code.includes("not-found")) return "Server-Inbox-Eintrag nicht gefunden.";
   if (diagnostic.includes("inbox_mirror_missing") || diagnostic.includes("not_mirrored")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
@@ -176,6 +182,7 @@ export const beta1AdminClient = {
   markAgentTaskCodexPromptCopied: (input: AgentHandoffPromptCopiedInput) => callAdmin("markAgentTaskCodexPromptCopied", input),
   listAgentTaskHandoffPrompts: (executionId?: string) => callAdmin("listAgentTaskHandoffPrompts", executionId ? { executionId } : {}),
   createAgentWorkerQueueItem: (input: AgentWorkerQueueCreateInput) => callAdmin("createAgentWorkerQueueItem", input),
+  createWorkerQueueItemFromTaskProposal: (input: TaskProposalWorkerQueueCreateInput) => callAdmin("createWorkerQueueItemFromTaskProposal", input),
   claimAgentWorkerQueueItem: (input: AgentWorkerQueueActionInput) => callAdmin("claimAgentWorkerQueueItem", { workerQueueId: input.workerQueueId }),
   updateAgentWorkerQueueStatus: (input: AgentWorkerQueueActionInput) => callAdmin("updateAgentWorkerQueueStatus", { workerQueueId: input.workerQueueId, workerStatus: input.workerStatus }),
   recordAgentWorkerQueueChecks: (input: AgentWorkerQueueChecksInput) => callAdmin("recordAgentWorkerQueueChecks", input),

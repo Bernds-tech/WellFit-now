@@ -27,6 +27,7 @@ export type AgentHandoffPromptGenerateInput = { executionId: string; commitMessa
 export type AgentHandoffPromptGetInput = { handoffPromptId: string };
 export type AgentHandoffPromptCopiedInput = { handoffPromptId: string };
 export type AgentWorkerQueueCreateInput = { executionId: string; handoffPromptId: string; workerMode?: "manual_codex" | "supervised_agent" | "automated_low_risk_planned" };
+export type TaskProposalWorkerQueueCreateInput = { taskProposalId: string };
 export type AgentWorkerQueueActionInput = { workerQueueId: string; reason?: string; prRef?: string; workerStatus?: string };
 export type AgentWorkerQueueChecksInput = { workerQueueId: string; checks: Array<{ command: string; result: "pass" | "fail" | "blocked" | "skipped"; summary?: string; timestamp?: string }> };
 export type AgentAutomationPolicyInput = { workerQueueId?: string; policyId?: string; environment?: "preview" | "staging" | "production"; reason?: string; secondApproval?: boolean };
@@ -91,7 +92,7 @@ export type AgentCenterInboxItem = {
   mirrorTargetId?: string;
 };
 
-export type AgentTaskProposalStatus = "proposed" | "review_required" | "approved" | "rejected" | "executed" | "blocked" | "queued" | "running" | "completed" | "failed" | "repair_required" | string;
+export type AgentTaskProposalStatus = "proposed" | "review_required" | "queued_for_worker_review" | "approved" | "rejected" | "executed" | "blocked" | "queued" | "running" | "completed" | "failed" | "repair_required" | string;
 export type AgentTaskProposal = {
   taskProposalId: string;
   proposalId?: string;
@@ -109,6 +110,7 @@ export type AgentTaskProposal = {
   recommendation?: string;
   targetTrack?: string | null;
   suggestedBranch?: string | null;
+  workerQueueId?: string | null;
   noRunnerStarted?: boolean;
   noBranchOrPrOrMerge?: boolean;
   noDeploy?: boolean;
@@ -121,6 +123,7 @@ export type AgentTaskProposalListResult = AdminCallableResult & { proposals?: Ag
 export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
 export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string; reason?: string; suggestedBranch?: string };
 export type ApprovedInboxToTaskProposalResult = AdminCallableResult & { inboxId?: string; taskProposalId?: string; proposalStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
+export type TaskProposalWorkerQueueCreateResult = AdminCallableResult & { taskProposalId?: string; workerQueueId?: string; workerQueueStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 export type ProductEvolutionInboxSyncInput = { registerSnapshot?: ProductEvolutionFirstRunOutputSnapshot | unknown; clientRequestShapeVersion?: string; clientHasRegisterSnapshot?: boolean; clientRegisterSnapshotKeys?: string[] };
 export type ProductEvolutionRevisionDossierResult = AdminCallableResult & { scanned?: number; regenerated?: number; stillRevisionRequested?: number; sampleRegeneratedIds?: string[]; sampleRevisionBlocked?: Array<Record<string, unknown>>; sourceTrust?: string; noRunnerStarted?: boolean; noDeploy?: boolean; noMerge?: boolean };
 export type ProductEvolutionInboxSyncResult = AdminCallableResult & { syncedCount?: number; idempotent?: boolean; created?: number; updated?: number; skipped?: number; skippedReasons?: Record<string, number>; sampleCreatedIds?: string[]; sampleSkipped?: Array<Record<string, unknown>>; serverSnapshotReceived?: boolean; serverSnapshotKeys?: string[]; serverCandidateCount?: number; serverCandidateCollections?: Array<{ listType: string; count: number; path?: string }>; callableName?: string; callableVersion?: string; responseShapeVersion?: string; serverTimestamp?: string; serverReceivedInputKeys?: string[]; hasRegisterSnapshot?: boolean; registerSnapshotType?: string; registerSnapshotKeys?: string[]; payloadUnwrappedFrom?: string; registerSnapshotFieldPresent?: boolean; registerSnapshotValueType?: string; clientHasRegisterSnapshot?: boolean; clientRegisterSnapshotKeys?: string[]; invalidInboxIdSanitized?: boolean; sourceDossierIdHadSlash?: boolean };

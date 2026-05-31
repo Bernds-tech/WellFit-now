@@ -338,6 +338,42 @@ async function run() {
   const workerQueueAfterTaskProposal = await db.collection("agentTaskWorkerQueue").where("proposalId", "==", createdFromInbox.taskProposalId).get();
   assert(workerQueueAfterTaskProposal.empty, "creating/listing a task proposal should not create worker queue items");
 
+  await db.collection("agentTaskProposals").doc("p-worker-proposed").set({
+    taskProposalId: "p-worker-proposed", proposalId: "p-worker-proposed", status: "proposed", title: "Worker handoff proposal", summary: "Prepare only.", requestedAction: "Prepare a worker queue review item.", sourceInboxId: "ibox-approved",
+    allowedFiles: ["docs/**", "todolist/**", "project-register/**"], blockedFiles: ["app/**", "functions/**", "firestore.rules", "native/**", ".github/**"], requiredChecks: ["npm run agent:validate", "npm run lint", "git diff --check"], riskLevel: "medium", noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, createdAt: new Date(), updatedAt: new Date(),
+  });
+  const workerFromProposal = await expectOk("createWorkerQueueItemFromTaskProposal", owner, { taskProposalId: "p-worker-proposed" });
+  assert(workerFromProposal.workerQueueId, "proposed task proposal should create worker queue item");
+  assert(workerFromProposal.noRunnerStarted === true, "worker queue result must keep noRunnerStarted");
+  assert(workerFromProposal.noBranchOrPrOrMerge === true, "worker queue result must keep noBranchOrPrOrMerge");
+  assert(workerFromProposal.noDeploy === true, "worker queue result must keep noDeploy");
+  const workerSnap = await db.collection("agentTaskWorkerQueue").doc(workerFromProposal.workerQueueId).get();
+  const workerData = workerSnap.data() || {};
+  assert(workerData.taskProposalId === "p-worker-proposed", "worker queue should store taskProposalId");
+  assert(workerData.title === "Worker handoff proposal", "worker queue should store title");
+  assert(workerData.status === "queued_for_owner_review" || workerData.status === "pending_worker_review", "worker queue should use review-only status");
+  assert(workerData.workerStatus === workerData.status, "workerStatus should mirror review-only status");
+  assert(workerData.noRunnerStarted === true && workerData.noBranchOrPrOrMerge === true && workerData.noDeploy === true, "worker queue item must store safety flags");
+  assert(workerData.runnerStarted === false && workerData.branchCreated === false && workerData.prCreated === false && workerData.merged === false && workerData.deployed === false, "worker queue item must not create runner/branch/pr/merge/deploy metadata");
+  assert((workerData.allowedFiles || []).includes("docs/**"), "worker queue should copy allowedFiles");
+  assert((workerData.blockedFiles || []).includes("functions/**"), "worker queue should preserve blockedFiles");
+  assert((workerData.requiredChecks || []).includes("npm run lint"), "worker queue should copy requiredChecks");
+  const proposalAfterWorker = await db.collection("agentTaskProposals").doc("p-worker-proposed").get();
+  assert(proposalAfterWorker.data().status === "queued_for_worker_review", "task proposal should become queued_for_worker_review");
+  assert(proposalAfterWorker.data().workerQueueId === workerFromProposal.workerQueueId, "task proposal should get workerQueueId");
+  const runnerAfterWorker = await db.collection("agentTaskSupervisedRunnerJobs").where("workerQueueId", "==", workerFromProposal.workerQueueId).get();
+  assert(runnerAfterWorker.empty, "worker queue handoff must not create runner jobs");
+  await expectFail("createGithubRunnerJobFromWorkerQueue", owner, { workerQueueId: workerFromProposal.workerQueueId, policyId: "missing-policy" });
+
+  await db.collection("agentTaskProposals").doc("p-worker-missing-allowed").set({ proposalId: "p-worker-missing-allowed", status: "proposed", blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"], createdAt: new Date(), updatedAt: new Date() });
+  await expectFail("createWorkerQueueItemFromTaskProposal", owner, { taskProposalId: "p-worker-missing-allowed" });
+  await db.collection("agentTaskProposals").doc("p-worker-missing-blocked").set({ proposalId: "p-worker-missing-blocked", status: "proposed", allowedFiles: ["docs/**"], requiredChecks: ["npm run lint"], createdAt: new Date(), updatedAt: new Date() });
+  await expectFail("createWorkerQueueItemFromTaskProposal", owner, { taskProposalId: "p-worker-missing-blocked" });
+  await db.collection("agentTaskProposals").doc("p-worker-missing-checks").set({ proposalId: "p-worker-missing-checks", status: "proposed", allowedFiles: ["docs/**"], blockedFiles: ["functions/**"], createdAt: new Date(), updatedAt: new Date() });
+  await expectFail("createWorkerQueueItemFromTaskProposal", owner, { taskProposalId: "p-worker-missing-checks" });
+  await db.collection("agentTaskProposals").doc("p-worker-canonical").set({ proposalId: "p-worker-canonical", status: "proposed", allowedFiles: ["docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md"], blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"], createdAt: new Date(), updatedAt: new Date() });
+  await expectFail("createWorkerQueueItemFromTaskProposal", owner, { taskProposalId: "p-worker-canonical" });
+
   await db.collection("agentCenterInbox").doc("ibox-pending").set({ inboxId: "ibox-pending", status: "pending_approval", allowedFiles: ["docs/**"], blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"] });
   await expectFail("createAgentTaskProposalFromApprovedInboxItem", owner, { inboxId: "ibox-pending" });
   await db.collection("agentCenterInbox").doc("ibox-rejected").set({ inboxId: "ibox-rejected", status: "rejected", allowedFiles: ["docs/**"], blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"] });
