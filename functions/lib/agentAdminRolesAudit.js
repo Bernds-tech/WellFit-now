@@ -2,7 +2,7 @@ const { FieldValue } = require("firebase-admin/firestore");
 const { optionalString, requiredString } = require("./beta1Runtime");
 
 const ALLOWED_TARGET_TRACKS = ["docs_register", "runtime_ui", "runtime_backend", "live_page", "evidence", "blocked"];
-const PROPOSAL_STATUSES = ["proposed", "review_required", "approved", "rejected", "executed", "blocked"];
+const PROPOSAL_STATUSES = ["proposed", "review_required", "pending", "pending_approval", "approved", "approved_ready", "approved_for_work", "rejected", "declined", "queued", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress", "executed", "completed", "done", "blocked", "failed", "repair_required"];
 const APPROVAL_STATUSES = ["approved", "rejected", "revoked"];
 const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked"];
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
@@ -22,6 +22,27 @@ const INBOX_STATUSES = ["pending_approval", "approved", "rejected", "revision_re
 const INBOX_DECISION_PRESERVED_STATUSES = new Set(["approved", "rejected", "blocked", "revision_requested", "synced_to_task_proposal"]);
 const INBOX_SOURCE_TYPES = ["product_evolution_first_run", "opportunity_dossier", "mission_story", "research_summary", "product_radar", "legacy_catalog", "backlog", "proposal"];
 const INBOX_LIST_TYPES = ["generatedDossiers", "decisionDossiers", "suggestedTaskQueue", "recommendedApprovals", "recommendedResearchMore", "blockedItems", "missionStoryProposals", "productOpportunityProposals"];
+
+function getAgentTaskProposalStatusBucket(statusValue) {
+  const status = String(statusValue || "").toLowerCase();
+  if (["proposed", "review_required", "pending", "pending_approval", "draft"].includes(status)) return "pending";
+  if (["approved", "approved_ready", "approved_for_work"].includes(status)) return "approved";
+  if (["rejected", "declined"].includes(status)) return "rejected";
+  if (["queued", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress"].includes(status)) return "in_progress";
+  if (["completed", "done", "executed"].includes(status)) return "completed";
+  if (["blocked", "failed", "repair_required"].includes(status)) return "blocked";
+  return "pending";
+}
+
+function buildAgentTaskProposalStatusCounts(proposals) {
+  const statusCounts = { total: 0, pending: 0, approved: 0, rejected: 0, in_progress: 0, completed: 0, blocked: 0 };
+  for (const proposal of Array.isArray(proposals) ? proposals : []) {
+    statusCounts.total += 1;
+    const bucket = getAgentTaskProposalStatusBucket(proposal && proposal.status);
+    if (Object.prototype.hasOwnProperty.call(statusCounts, bucket)) statusCounts[bucket] += 1;
+  }
+  return statusCounts;
+}
 
 
 const REVISION_DOSSIER_REQUIRED_FIELDS = ["what", "why", "wellFitBenefit", "userBenefit", "economyImpact", "risk", "recommendation"];
@@ -1408,8 +1429,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   exportsTarget.listAgentTaskProposals = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
     const status = optionalString(request.data && request.data.status, 40);
-    let query = db.collection("agentTaskProposals").orderBy("createdAt", "desc").limit(100);
+    let query = db.collection("agentTaskProposals");
     if (status && PROPOSAL_STATUSES.includes(status)) query = query.where("status", "==", status);
+    query = query.limit(100);
     const snapshot = await query.get();
     const sourceInboxIds = Array.from(new Set(snapshot.docs.map((doc) => optionalString((doc.data() || {}).sourceInboxId, 180)).filter(Boolean)));
     const sourceInboxById = new Map();
@@ -1417,7 +1439,11 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       const inboxSnap = await db.collection("agentCenterInbox").doc(inboxId).get();
       sourceInboxById.set(inboxId, inboxSnap.exists ? (inboxSnap.data() || {}) : null);
     }));
-    return { accepted: true, proposals: snapshot.docs.map((doc) => mapSafeAgentTaskProposal(doc, sourceInboxById.get(optionalString((doc.data() || {}).sourceInboxId, 180)))) };
+    const proposals = snapshot.docs
+      .map((doc) => mapSafeAgentTaskProposal(doc, sourceInboxById.get(optionalString((doc.data() || {}).sourceInboxId, 180))))
+      .sort((a, b) => String(b.createdAt || b.updatedAt || b.taskProposalId || "").localeCompare(String(a.createdAt || a.updatedAt || a.taskProposalId || "")));
+    const statusCounts = buildAgentTaskProposalStatusCounts(proposals);
+    return { accepted: true, proposals, items: proposals, loadedCount: proposals.length, statusCounts };
   });
 
   async function upsertInboxItem({ actorId, actorRole, sourceType, listType, sourceRef, sourceDossierId, payload, createdAtFallback, preserveExistingDecisionStatus = false }) {
@@ -1888,4 +1914,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE };

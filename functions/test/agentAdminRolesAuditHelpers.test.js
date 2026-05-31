@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, REVISION_DOSSIER_MESSAGE } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE } = require('../lib/agentAdminRolesAudit');
 
 (function testResolveDirectSnapshot() {
   const input = { registerSnapshot: { generatedDossiers: [{ id: 'PE-1' }] } };
@@ -121,5 +121,21 @@ const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEv
   assert.strictEqual(isCompleteDecisionDossier(incomplete), false, 'incomplete decision dossier must not be approvable');
 })();
 
+(function testTaskProposalStatusCountsAndAliasShapeContract() {
+  const proposals = [{ taskProposalId: 'JF7JcYxg4HOJ4lzK6G4o', title: 'Familien Abenteuerpfad Woche', status: 'proposed' }];
+  const statusCounts = buildAgentTaskProposalStatusCounts(proposals);
+  const response = { accepted: true, proposals, items: proposals, loadedCount: proposals.length, statusCounts };
+  assert.strictEqual(response.proposals, response.items, 'listAgentTaskProposals must expose items as proposals alias');
+  assert.strictEqual(response.loadedCount, 1, 'loadedCount should match proposal count');
+  assert.strictEqual(response.statusCounts.total, 1, 'one proposal should count as total 1');
+  assert.strictEqual(response.statusCounts.pending, 1, 'proposed must count as pending');
+  assert.strictEqual(response.statusCounts.approved, 0, 'approved count should stay zero');
+})();
+
+(function testReviewRequiredCountsAsPending() {
+  const statusCounts = buildAgentTaskProposalStatusCounts([{ status: 'review_required' }]);
+  assert.strictEqual(statusCounts.total, 1, 'review_required proposal should count as total 1');
+  assert.strictEqual(statusCounts.pending, 1, 'review_required must count as pending');
+})();
 
 console.log('agentAdminRolesAudit helper tests passed');

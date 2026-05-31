@@ -95,6 +95,17 @@ function buildTaskProposalCounts(proposals: AgentTaskProposal[]) {
   return counts;
 }
 
+function extractTaskProposals(result: AgentTaskProposalListResult): AgentTaskProposal[] {
+  const proposals = Array.isArray(result.proposals) ? result.proposals : [];
+  const items = Array.isArray(result.items) ? result.items : [];
+  return proposals.length > 0 ? proposals : items;
+}
+
+function safeResponseKeys(value: unknown): string[] {
+  if (!value || typeof value !== "object") return [];
+  return Object.keys(value as Record<string, unknown>).filter((key) => !/uid|email|token/i.test(key)).sort();
+}
+
 const firstText = (...values: unknown[]): string => { for (const value of values) { const text = asText(value).trim(); if (text) return text; } return ""; };
 const getDecisionDetails = (row: Row) => {
   const allowedFiles = asStringArray(row.allowedFiles);
@@ -211,8 +222,12 @@ export default function AgentCenterInteractive({
     const unsubscribe = onAuthStateChanged(auth, async () => {
       const state = await beta1AdminClient.getAdminCallableAuthState(false);
       setAuthDebug(state);
+      if (state.adminCallableAuthReady) void refreshTaskProposals();
     });
     return () => unsubscribe();
+    // refreshTaskProposals is intentionally invoked from the auth observer so the
+    // Admin Center loads proposals exactly when callable auth becomes ready.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -395,21 +410,56 @@ export default function AgentCenterInteractive({
   }
 
   async function refreshTaskProposals() {
-    if (!(await ensureAdminAuthReady())) return;
+    setSyncDebug((prev) => ({
+      ...prev,
+      taskProposalLoadAttempted: true,
+      taskProposalLoadAccepted: false,
+      taskProposalLoadError: "",
+    }));
+    if (!(await ensureAdminAuthReady())) {
+      const safeMessage = "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+      setSyncDebug((prev) => ({ ...prev, taskProposalLoadError: safeMessage }));
+      setFeedback(`Task Proposals konnten nicht geladen werden: ${safeMessage}`);
+      return;
+    }
     setBusy(true);
     try {
       const result = await beta1AdminClient.listAgentTaskProposals() as AgentTaskProposalListResult;
-      const proposals = Array.isArray(result.proposals) ? result.proposals : [];
-      setTaskProposals(proposals);
+      const proposals = extractTaskProposals(result);
+      const counts = buildTaskProposalCounts(proposals);
+      const accepted = Boolean(result.accepted);
+      const responseKeys = safeResponseKeys(result);
       setSyncDebug((prev) => ({
         ...prev,
-        taskProposalLoadedCount: proposals.length,
-        taskProposalPendingCount: proposals.filter((proposal) => getTaskProposalBucket(proposal) === "pending").length,
+        taskProposalLoadAttempted: true,
+        taskProposalLoadAccepted: accepted,
+        taskProposalLoadedCount: Number(result.loadedCount ?? proposals.length),
+        taskProposalResponseKeys: responseKeys,
+        taskProposalLoadError: accepted ? "" : getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode),
+        taskProposalPendingCount: counts.pending,
         taskProposalNoRunnerStartedVisible: proposals.some((proposal) => proposal.noRunnerStarted === true),
         taskProposalNoBranchOrPrOrMergeVisible: proposals.some((proposal) => proposal.noBranchOrPrOrMerge === true),
         taskProposalNoDeployVisible: proposals.some((proposal) => proposal.noDeploy === true),
       }));
+      if (!accepted) {
+        const safeMessage = getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode);
+        setTaskProposals([]);
+        setFeedback(`Task Proposals konnten nicht geladen werden: ${safeMessage}`);
+        setSyncStatus(`Task Proposals konnten nicht geladen werden: ${safeMessage}`);
+        return;
+      }
+      setTaskProposals(proposals);
       setSyncStatus(`Task Proposals geladen: ${proposals.length}. Read-only Review; keine Worker Queue, kein Runner, kein Deploy.`);
+    } catch (error) {
+      const safeMessage = getSafeAdminDecisionMessage(error);
+      setTaskProposals([]);
+      setSyncDebug((prev) => ({
+        ...prev,
+        taskProposalLoadAccepted: false,
+        taskProposalLoadError: safeMessage,
+      }));
+      setFeedback(`Task Proposals konnten nicht geladen werden: ${safeMessage}`);
+      setSyncStatus(`Task Proposals konnten nicht geladen werden: ${safeMessage}`);
     } finally {
       setBusy(false);
     }
@@ -752,7 +802,11 @@ export default function AgentCenterInteractive({
         <p>agentRoleClaim: {String(authDebug.agentRoleClaim || "-")}</p>
         <p>serverInboxLoadedCount: {String(syncDebug.serverInboxLoadedCount ?? serverInboxRows.length)}</p>
         <p>serverInboxPendingCount: {String(syncDebug.serverInboxPendingCount ?? serverInboxPendingCount)}</p>
+        <p>taskProposalLoadAttempted: {String(syncDebug.taskProposalLoadAttempted ?? false)}</p>
+        <p>taskProposalLoadAccepted: {String(syncDebug.taskProposalLoadAccepted ?? "-")}</p>
         <p>taskProposalLoadedCount: {String(syncDebug.taskProposalLoadedCount ?? taskProposals.length)}</p>
+        <p>taskProposalResponseKeys: [{((syncDebug.taskProposalResponseKeys as string[] | undefined) || []).join(", ")}]</p>
+        <p>taskProposalLoadError: {String(syncDebug.taskProposalLoadError || "-")}</p>
         <p>taskProposalPendingCount: {String(syncDebug.taskProposalPendingCount ?? taskProposalCounts.pending)}</p>
         <p>taskProposalNoRunnerStartedVisible: {String(syncDebug.taskProposalNoRunnerStartedVisible ?? "-")}</p>
         <p>taskProposalNoBranchOrPrOrMergeVisible: {String(syncDebug.taskProposalNoBranchOrPrOrMergeVisible ?? "-")}</p>
