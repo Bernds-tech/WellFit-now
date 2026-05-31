@@ -10,6 +10,52 @@ async function run() {
   const supervisor = await createAuthUser("agent-supervisor", false);
   const operator = await createAuthUser("agent-operator", false);
 
+  await db.collection("agentCenterInbox").doc("reset-inbox").set({ title: "Reset Inbox", status: "pending_approval", ownerUid: "secret-owner", email: "owner@example.test" });
+  await db.collection("agentCenterDecisions").doc("reset-decision").set({ targetId: "reset-inbox", decision: "approved" });
+  await db.collection("agentTaskProposals").doc("reset-proposal").set({ proposalId: "reset-proposal", title: "Reset Proposal", status: "proposed" });
+  await db.collection("agentTaskWorkerQueue").doc("reset-worker").set({ workerQueueId: "reset-worker", status: "pending_worker_review" });
+  await db.collection("agentRunnerJobs").doc("reset-job").set({ runnerJobId: "reset-job", status: "pending_runner_pickup" });
+  await db.collection("agentRunnerPickupContracts").doc("reset-contract").set({ pickupContractId: "reset-contract", status: "pickup_contract_created" });
+  await db.collection("agentRunnerImplementationPlans").doc("reset-plan").set({ implementationPlanId: "reset-plan", status: "implementation_plan_created" });
+  await db.collection("agentControlledFileWritePackages").doc("reset-package").set({ packageId: "reset-package", status: "created" });
+  await db.collection("agentRunnerImplementationPlanApprovals").doc("reset-plan-approval").set({ approvalId: "reset-plan-approval", status: "approved" });
+  await db.collection("agentSystemRegisters").doc("legacy-register").set({ status: "legacy_visible_counter" });
+  await db.collection("agentCenterMissionProposals").doc("legacy-mission-proposal").set({ status: "legacy" });
+  await db.collection("missions").doc("product-mission").set({ missionId: "product-mission", title: "Product Mission" });
+  await db.collection("users").doc("product-user").set({ displayName: "Product User" });
+
+  await expectFail("archiveAndResetAgentCenterPipelineData", user, { reason: "cleanup", confirmResetText: "RESET_AGENT_CENTER_PIPELINE_TEST_DATA" });
+  await expectFail("archiveAndResetAgentCenterPipelineData", owner, { reason: "cleanup", confirmResetText: "WRONG" });
+  const resetResult = await expectOk("archiveAndResetAgentCenterPipelineData", owner, { reason: "cleanup before single-owner retest", confirmResetText: "RESET_AGENT_CENTER_PIPELINE_TEST_DATA" });
+  assert(resetResult.accepted === true, "reset should be accepted for owner");
+  assert(resetResult.archiveRunId, "reset should return archiveRunId");
+  assert(resetResult.noRunnerStarted === true, "reset must not start runner");
+  assert(resetResult.noBranchOrPrOrMerge === true, "reset must not branch/pr/merge");
+  assert(resetResult.noDeploy === true, "reset must not deploy");
+  assert(resetResult.deletedCounts.agentCenterInbox === 1, "inbox test data should be deleted");
+  assert(resetResult.deletedCounts.agentRunnerImplementationPlans === 1, "implementation plans should be deleted");
+  const archiveRun = await db.collection("agentCenterArchiveRuns").doc(resetResult.archiveRunId).get();
+  assert(archiveRun.exists, "archive run document should exist before reset deletion");
+  const archiveData = archiveRun.data() || {};
+  assert(archiveData.countsBeforeReset.agentTaskProposals === 1, "archive should keep countsBeforeReset for proposals");
+  assert(archiveData.countsBeforeReset.agentTaskWorkerQueue === 1, "archive should keep countsBeforeReset for worker queue");
+  assert(archiveData.noUserDataDeleted === true, "archive should state no user data deleted");
+  assert(archiveData.noProductFilesChanged === true, "archive should state no product files changed");
+  assert(archiveData.noRunnerStarted === true, "archive should state no runner started");
+  assert(archiveData.noBranchOrPrOrMerge === true, "archive should state no branch/pr/merge");
+  assert(archiveData.noDeploy === true, "archive should state no deploy");
+  assert(archiveData.noTokenPaymentBlockchain === true, "archive should state no token/payment/blockchain");
+  assert(Array.isArray(archiveData.sampleIds.agentCenterInbox), "archive should include sanitized sample IDs");
+  assert(!JSON.stringify(archiveData.sampleIds).includes("owner@example.test"), "archive sample IDs must not include emails");
+  assert(!(await db.collection("agentCenterInbox").doc("reset-inbox").get()).exists, "active inbox reset doc should be deleted");
+  assert(!(await db.collection("agentRunnerJobs").doc("reset-job").get()).exists, "active runner job reset doc should be deleted");
+  assert((await db.collection("agentSystemRegisters").doc("legacy-register").get()).exists, "legacy register should remain");
+  assert((await db.collection("agentCenterMissionProposals").doc("legacy-mission-proposal").get()).exists, "legacy mission proposal should remain");
+  assert((await db.collection("missions").doc("product-mission").get()).exists, "product mission should remain");
+  assert((await db.collection("users").doc("product-user").get()).exists, "user data should remain");
+
+  await expectOk("archiveAndResetAgentCenterPipelineData", operator, { reason: "admin cleanup empty scope", confirmResetText: "RESET_AGENT_CENTER_PIPELINE_TEST_DATA" });
+
   await expectFail("approveAgentTaskProposal", user, { proposalId: "x" });
 
   await expectFail("createAgentTaskProposal", supervisor, {

@@ -35,8 +35,15 @@ async function safeDeleteUser(uid) {
 async function createAuthUser(uid, adminClaim) {
   await safeDeleteUser(uid);
   await auth.createUser({ uid, email: `${uid}@wellfit.test`, emailVerified: true });
-  if (adminClaim) await auth.setCustomUserClaims(uid, { admin: true });
-  const customToken = await auth.createCustomToken(uid, adminClaim ? { admin: true } : undefined);
+  const agentRoleByUid = {
+    "agent-owner": "owner",
+    "agent-supervisor": "agent_supervisor",
+    "agent-operator": "admin_operator",
+    "agent-readonly": "readonly_observer",
+  };
+  const customClaims = { ...(adminClaim ? { admin: true } : {}), ...(agentRoleByUid[uid] ? { agentRole: agentRoleByUid[uid] } : {}) };
+  if (Object.keys(customClaims).length) await auth.setCustomUserClaims(uid, customClaims);
+  const customToken = await auth.createCustomToken(uid, Object.keys(customClaims).length ? customClaims : undefined);
   const response = await fetch(`http://${AUTH_EMULATOR_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=fake-api-key`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -46,6 +53,7 @@ async function createAuthUser(uid, adminClaim) {
   if (!response.ok || !json.idToken) throw new Error(`Auth Emulator signInWithCustomToken failed: ${JSON.stringify(json)}`);
   const decoded = decodeJwtPayload(json.idToken);
   if (adminClaim) assert(decoded.admin === true, `Admin ID token enthaelt keinen admin Claim: ${JSON.stringify(decoded)}`);
+  if (agentRoleByUid[uid]) assert(decoded.agentRole === agentRoleByUid[uid], `Admin ID token enthaelt keinen agentRole Claim: ${JSON.stringify(decoded)}`);
   return json.idToken;
 }
 

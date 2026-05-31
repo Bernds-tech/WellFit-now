@@ -157,6 +157,10 @@ export type AgentTaskWorkerQueueItem = {
 export type AgentTaskWorkerQueueCounts = { total: number; waiting_review: number; waiting_owner: number; ready_for_worker: number; in_progress: number; completed: number; blocked: number; repair_required: number; unknown: number };
 export type AgentTaskWorkerQueueListResult = AdminCallableResult & { items?: AgentTaskWorkerQueueItem[]; workerQueueItems?: AgentTaskWorkerQueueItem[]; loadedCount?: number; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 
+
+export type AgentCenterPipelineResetInput = { reason: string; confirmResetText: string };
+export type AgentCenterPipelineResetResult = AdminCallableResult & { archiveRunId?: string; deletedCounts?: Record<string, number>; archivedCounts?: Record<string, number>; skippedCollections?: string[]; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; message?: string };
+
 export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
 export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string; reason?: string; suggestedBranch?: string };
 export type TaskProposalWorkerQueueInput = { taskProposalId: string; workerStatus?: "queued_for_owner_review" | "pending_worker_review" };

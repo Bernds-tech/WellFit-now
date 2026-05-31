@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -1657,6 +1657,92 @@ export default function AgentCenterInteractive({
     }
   }
 
+  async function refreshAgentCenterPipelineListsAfterReset() {
+    await refreshInbox();
+    await refreshTaskProposals();
+    await refreshWorkerQueueItems();
+    await refreshRunnerJobs();
+    await refreshPickupContracts();
+    await refreshImplementationPlans();
+  }
+
+  async function archiveAndResetAgentCenterPipelineData() {
+    if (!(await ensureAdminAuthReady())) return;
+    const warning = "Dies archiviert und entfernt nur Agent-Center-Test-/Vorschlagsdaten. Produktdaten, Userdaten und WellFit-Dokumente bleiben erhalten.";
+    const confirmResetText = window.prompt(`${warning}
+
+Bitte exakt eingeben: RESET_AGENT_CENTER_PIPELINE_TEST_DATA`) || "";
+    if (confirmResetText !== "RESET_AGENT_CENTER_PIPELINE_TEST_DATA") {
+      const message = "Reset abgebrochen: Sicherheitsbestätigung stimmt nicht exakt.";
+      setFeedback(message);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastAgentCenterResetAccepted: false,
+        lastAgentCenterResetArchiveRunIdPresent: false,
+        lastAgentCenterResetMessage: message,
+        lastAgentCenterResetDeletedCountsPresent: false,
+        lastAgentCenterResetNoRunnerStarted: "-",
+        lastAgentCenterResetNoBranchOrPrOrMerge: "-",
+        lastAgentCenterResetNoDeploy: "-",
+      }));
+      return;
+    }
+
+    setBusy(true);
+    setFeedback("Agent-Center-Testdaten werden archiviert und zurückgesetzt …");
+    try {
+      const result = await beta1AdminClient.archiveAndResetAgentCenterPipelineData({
+        reason: "Admin Center manual cleanup before retesting Single-Owner-Decision pipeline",
+        confirmResetText,
+      }) as AgentCenterPipelineResetResult;
+      const accepted = Boolean(result.accepted);
+      const archiveRunId = asText(result.archiveRunId);
+      const deletedCounts = result.deletedCounts && typeof result.deletedCounts === "object" ? result.deletedCounts : {};
+      const archivedCounts = result.archivedCounts && typeof result.archivedCounts === "object" ? result.archivedCounts : {};
+      const safeMessage = accepted
+        ? `Agent-Center-Testdaten zurückgesetzt.${archiveRunId ? ` archiveRunId: ${archiveRunId}` : ""}`
+        : `Agent-Center-Testdaten konnten nicht zurückgesetzt werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastAgentCenterResetAccepted: accepted,
+        lastAgentCenterResetArchiveRunIdPresent: Boolean(archiveRunId),
+        lastAgentCenterResetMessage: accepted ? "Agent-Center-Testdaten zurückgesetzt." : safeMessage,
+        lastAgentCenterResetDeletedCountsPresent: Object.keys(deletedCounts).length > 0,
+        lastAgentCenterResetArchivedCountsPresent: Object.keys(archivedCounts).length > 0,
+        lastAgentCenterResetNoRunnerStarted: result.noRunnerStarted ?? "-",
+        lastAgentCenterResetNoBranchOrPrOrMerge: result.noBranchOrPrOrMerge ?? "-",
+        lastAgentCenterResetNoDeploy: result.noDeploy ?? "-",
+        lastAgentCenterResetSkippedCollections: Array.isArray(result.skippedCollections) ? result.skippedCollections : [],
+      }));
+      if (accepted) {
+        setActive("server_total");
+        await refreshAgentCenterPipelineListsAfterReset();
+      }
+    } catch (error) {
+      const safeMessage = `Agent-Center-Testdaten konnten nicht zurückgesetzt werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastAgentCenterResetAccepted: false,
+        lastAgentCenterResetArchiveRunIdPresent: false,
+        lastAgentCenterResetMessage: safeMessage,
+        lastAgentCenterResetDeletedCountsPresent: false,
+        lastAgentCenterResetNoRunnerStarted: "-",
+        lastAgentCenterResetNoBranchOrPrOrMerge: "-",
+        lastAgentCenterResetNoDeploy: "-",
+      }));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function generateFreshAgentProposals() {
+    setFeedback("Frische Agent-Vorschläge werden als Dossiers/Vorschläge vorbereitet. Kein Runner, kein Branch, kein PR, kein Merge, kein Deploy.");
+    await runSync();
+  }
+
   async function decide(kind: "agent" | "mission", action: "approve" | "reject" | "revise" | "block", row: Row) {
     const actionLabel = { approve: "Zustimmen", reject: "Ablehnen", revise: "Überarbeiten", block: "Blockieren" }[action];
     const reason = buttonReason(action, row);
@@ -1728,8 +1814,11 @@ export default function AgentCenterInteractive({
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshTaskProposals}>Task Proposals neu laden</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshWorkerQueueItems}>Worker Queue ansehen</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshRunnerJobs}>Runner Jobs ansehen</button>
+        <button disabled={busy} className="cursor-pointer rounded border border-amber-300/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={archiveAndResetAgentCenterPipelineData}>Agent-Testdaten zurücksetzen</button>
+        <button disabled={busy} className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={generateFreshAgentProposals}>Frische Agent-Vorschläge erzeugen</button>
         {canRunRevisionDossierGenerator && <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runRevisionDossierGenerator}>Revision-Dossiers neu erzeugen</button>}
       </div>
+      <p className="text-xs text-amber-100">Reset-Hinweis: Dies archiviert und entfernt nur Agent-Center-Test-/Vorschlagsdaten. Produktdaten, Userdaten und WellFit-Dokumente bleiben erhalten.</p>
       {!authDebug.firebaseUserPresent && (
         <div className="rounded border border-amber-300/60 bg-amber-500/10 p-2 text-xs">
           <p>Admin-Login erforderlich. Bitte mit Firebase anmelden.</p>
@@ -1862,6 +1951,13 @@ export default function AgentCenterInteractive({
         <p>lastTaskProposalNoRunnerStarted: {String(syncDebug.lastTaskProposalNoRunnerStarted ?? "-")}</p>
         <p>lastTaskProposalNoBranchOrPrOrMerge: {String(syncDebug.lastTaskProposalNoBranchOrPrOrMerge ?? "-")}</p>
         <p>lastTaskProposalNoDeploy: {String(syncDebug.lastTaskProposalNoDeploy ?? "-")}</p>
+        <p>lastAgentCenterResetAccepted: {String(syncDebug.lastAgentCenterResetAccepted ?? "-")}</p>
+        <p>lastAgentCenterResetArchiveRunIdPresent: {String(syncDebug.lastAgentCenterResetArchiveRunIdPresent ?? "-")}</p>
+        <p>lastAgentCenterResetMessage: {String(syncDebug.lastAgentCenterResetMessage || "-")}</p>
+        <p>lastAgentCenterResetDeletedCountsPresent: {String(syncDebug.lastAgentCenterResetDeletedCountsPresent ?? "-")}</p>
+        <p>lastAgentCenterResetNoRunnerStarted: {String(syncDebug.lastAgentCenterResetNoRunnerStarted ?? "-")}</p>
+        <p>lastAgentCenterResetNoBranchOrPrOrMerge: {String(syncDebug.lastAgentCenterResetNoBranchOrPrOrMerge ?? "-")}</p>
+        <p>lastAgentCenterResetNoDeploy: {String(syncDebug.lastAgentCenterResetNoDeploy ?? "-")}</p>
         <p>lastAuthGuardMessage: {String(authDebug.lastAuthGuardMessage || "-")}</p>
         <p>clientSendingRegisterSnapshot: {String(syncDebug.clientSendingRegisterSnapshot ?? "-")}</p>
         <p>clientSendingRegisterSnapshotKeys: [{((syncDebug.clientSendingRegisterSnapshotKeys as string[] | undefined) || []).join(", ")}]</p>
