@@ -129,6 +129,7 @@ export type AgentTaskWorkerQueueStatus = "pending_worker_review" | "queued_for_o
 export type AgentTaskWorkerQueueItem = {
   workerQueueId: string;
   taskProposalId?: string | null;
+  pickupContractId?: string | null;
   title?: string;
   summary?: string;
   requestedAction?: string;
@@ -155,6 +156,7 @@ export type WorkerQueueReleaseResult = AdminCallableResult & { workerQueueId?: s
 export type WorkerQueueRunnerPreview = {
   workerQueueId?: string | null;
   taskProposalId?: string | null;
+  pickupContractId?: string | null;
   title?: string;
   requestedAction?: string;
   status?: string;
@@ -177,11 +179,12 @@ export type WorkerQueueRunnerPreview = {
 export type WorkerQueueRunnerPreviewResult = AdminCallableResult & WorkerQueueRunnerPreview & { preview?: WorkerQueueRunnerPreview };
 
 
-export type AgentRunnerJobStatus = "pending_runner_pickup" | "runner_job_created" | "picked_up" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
+export type AgentRunnerJobStatus = "pending_runner_pickup" | "pickup_contract_created" | "runner_job_created" | "picked_up" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
 export type AgentRunnerJob = {
   runnerJobId: string;
   workerQueueId?: string | null;
   taskProposalId?: string | null;
+  pickupContractId?: string | null;
   title?: string;
   status?: AgentRunnerJobStatus;
   executionMode?: string;
@@ -196,9 +199,39 @@ export type AgentRunnerJob = {
   requiresManualRunnerPickup?: boolean;
   createdAt?: unknown;
   ownerApprovedAt?: unknown;
+  pickupContractCreatedAt?: unknown;
 };
-export type AgentRunnerJobCounts = { total: number; pending_runner_pickup: number; in_progress: number; completed: number; blocked: number; repair_required: number; unknown: number };
+export type AgentRunnerJobCounts = { total: number; pending_runner_pickup: number; pickup_contract_created: number; planning: number; in_progress: number; completed: number; blocked: number; repair_required: number; unknown: number };
 export type AgentRunnerJobListResult = AdminCallableResult & { items?: AgentRunnerJob[]; runnerJobs?: AgentRunnerJob[]; loadedCount?: number; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
+
+export type AgentRunnerPickupContract = {
+  pickupContractId: string;
+  runnerJobId?: string | null;
+  workerQueueId?: string | null;
+  taskProposalId?: string | null;
+  title?: string;
+  requestedAction?: string;
+  allowedFiles?: string[];
+  blockedFiles?: string[];
+  requiredChecks?: string[];
+  riskLevel?: string;
+  status?: "pickup_contract_created" | "picked_up" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
+  executionMode?: string;
+  runnerStartAllowed?: boolean;
+  requiresManualRunnerPickup?: boolean;
+  noDeploy?: boolean;
+  noMerge?: boolean;
+  noAutoApproval?: boolean;
+  branchCreationAllowed?: boolean;
+  prCreationAllowed?: boolean;
+  fileWriteAllowed?: boolean;
+  nextStep?: string;
+  createdAt?: string | null;
+};
+export type AgentRunnerPickupContractListResult = AdminCallableResult & { items?: AgentRunnerPickupContract[]; pickupContracts?: AgentRunnerPickupContract[]; loadedCount?: number; noDeploy?: boolean; noMerge?: boolean; runnerStartAllowed?: boolean; fileWriteAllowed?: boolean; branchCreationAllowed?: boolean; prCreationAllowed?: boolean };
+export type ManualRunnerPickupContractInput = { runnerJobId?: string; id?: string; targetId?: string };
+export type ManualRunnerPickupContractResult = AdminCallableResult & AgentRunnerPickupContract & { contract?: AgentRunnerPickupContract; message?: string };
+
 export type WorkerQueueRunnerStartApprovalResult = AdminCallableResult & { runnerJobId?: string; workerQueueId?: string; taskProposalId?: string | null; status?: string; runnerJobStatus?: string; runnerStartApprovalDecision?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; runnerStartAllowed?: boolean; requiresManualRunnerPickup?: boolean };
 
 export type ApprovedInboxToTaskProposalResult = AdminCallableResult & { inboxId?: string; taskProposalId?: string; proposalStatus?: string; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };

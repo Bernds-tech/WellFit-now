@@ -73,6 +73,10 @@ function sanitizeAdminError(error: unknown, callableName?: string): string {
   if ((isWorkerRelease || isRunnerPreview || isRunnerStartApproval) && code.includes("invalid-argument")) return "Worker Queue ID fehlt.";
   if ((isWorkerRelease || isRunnerPreview || isRunnerStartApproval) && code.includes("not-found")) return "Worker Queue Eintrag nicht gefunden.";
   if (diagnostic.includes("automation_control_blocked")) return "Admin-Entscheidung ist durch Automation-Control blockiert.";
+  if (diagnostic.includes("runnerJobId fehlt") || diagnostic.includes("runnerjobid fehlt")) return "Runner Job ID fehlt.";
+  if (diagnostic.includes("Nur pending_runner_pickup darf einen Pickup-Contract erzeugen")) return "Nur pending_runner_pickup darf einen Pickup-Contract erzeugen.";
+  if (diagnostic.includes("Sicherheitsflags verhindern Pickup-Contract")) return "Sicherheitsflags verhindern Pickup-Contract.";
+  if (diagnostic.includes("runner_job_not_found")) return "Runner Job nicht gefunden.";
   if (diagnostic.includes("workerQueueId fehlt") || diagnostic.includes("workerqueueid fehlt")) return "Worker Queue ID fehlt.";
   if (diagnostic.includes("worker_queue_item_not_found")) return "Worker Queue Eintrag nicht gefunden.";
   if (diagnostic.includes("Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden")) return "Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden.";
@@ -213,6 +217,12 @@ export const beta1AdminClient = {
     id: input.id,
   }),
   listAgentRunnerJobs: (status?: string) => callAdmin("listAgentRunnerJobs", status ? { status } : {}),
+  listAgentRunnerPickupContracts: (status?: string) => callAdmin("listAgentRunnerPickupContracts", status ? { status } : {}),
+  createManualRunnerPickupContract: (input: { runnerJobId?: string; targetId?: string; id?: string }) => callAdmin("createManualRunnerPickupContract", {
+    runnerJobId: input.runnerJobId,
+    targetId: input.targetId,
+    id: input.id,
+  }),
   generateAgentTaskCodexPrompt: (input: AgentHandoffPromptGenerateInput) => callAdmin("generateAgentTaskCodexPrompt", input),
   getAgentTaskCodexPrompt: (input: AgentHandoffPromptGetInput) => callAdmin("getAgentTaskCodexPrompt", input),
   markAgentTaskCodexPromptCopied: (input: AgentHandoffPromptCopiedInput) => callAdmin("markAgentTaskCodexPromptCopied", input),
