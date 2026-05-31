@@ -31,6 +31,7 @@ import type {
   WorkerQueueRunnerPreviewInput,
   WorkerQueueRunnerStartApprovalInput,
   ManualRunnerImplementationPlanInput,
+  ManualRunnerImplementationPlanApprovalInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -82,6 +83,12 @@ function sanitizeAdminError(error: unknown, callableName?: string): string {
   if (diagnostic.includes("pickup_contract_not_found")) return "Pickup Contract nicht gefunden.";
   if (diagnostic.includes("Nur pickup_contract_created darf einen Implementierungsplan erzeugen")) return "Nur pickup_contract_created darf einen Implementierungsplan erzeugen.";
   if (diagnostic.includes("Sicherheitsflags verhindern Implementierungsplan")) return "Sicherheitsflags verhindern Implementierungsplan.";
+  if (diagnostic.includes("Implementation Plan ID fehlt") || diagnostic.includes("implementationplanid fehlt")) return "Implementation Plan ID fehlt.";
+  if (diagnostic.includes("implementation_plan_not_found")) return "Implementierungsplan nicht gefunden.";
+  if (diagnostic.includes("Nur implementation_plan_created oder implementation_plan_review darf freigegeben werden")) return "Nur implementation_plan_created oder implementation_plan_review darf freigegeben werden.";
+  if (diagnostic.includes("expectedFilesToTouch liegt außerhalb allowedFiles")) return "expectedFilesToTouch liegt außerhalb allowedFiles.";
+  if (diagnostic.includes("expectedFilesToTouch trifft blockedFiles")) return "expectedFilesToTouch trifft blockedFiles.";
+  if (diagnostic.includes("Sicherheitsflags verhindern Planfreigabe")) return "Sicherheitsflags verhindern Planfreigabe.";
   if (diagnostic.includes("workerQueueId fehlt") || diagnostic.includes("workerqueueid fehlt")) return "Worker Queue ID fehlt.";
   if (diagnostic.includes("worker_queue_item_not_found")) return "Worker Queue Eintrag nicht gefunden.";
   if (diagnostic.includes("Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden")) return "Nur ready_for_worker oder previewed_for_runner kann als Runner-Pickup Preview geprüft werden.";
@@ -231,6 +238,11 @@ export const beta1AdminClient = {
   listAgentRunnerImplementationPlans: (status?: string) => callAdmin("listAgentRunnerImplementationPlans", status ? { status } : {}),
   createManualRunnerImplementationPlan: (input: ManualRunnerImplementationPlanInput) => callAdmin("createManualRunnerImplementationPlan", {
     pickupContractId: input.pickupContractId,
+    targetId: input.targetId,
+    id: input.id,
+  }),
+  approveManualRunnerImplementationPlan: (input: ManualRunnerImplementationPlanApprovalInput) => callAdmin("approveManualRunnerImplementationPlan", {
+    implementationPlanId: input.implementationPlanId,
     targetId: input.targetId,
     id: input.id,
   }),
