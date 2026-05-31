@@ -224,6 +224,37 @@ function validateWorkerStatusTransition(currentStatus, nextStatus) {
   return (allowedTransitions[currentStatus] || []).includes(nextStatus);
 }
 
+
+function buildWorkerQueueReleaseDecision(item) {
+  const currentStatus = optionalString(item && (item.workerStatus || item.status), 80) || "pending_worker_review";
+  const allowedFiles = parseStringList((item && item.allowedFiles) || [], 80, 260);
+  const blockedFiles = parseStringList((item && item.blockedFiles) || [], 80, 260);
+  const requiredChecks = parseStringList((item && item.requiredChecks) || [], 80, 260);
+  const missing = [];
+  if (!["pending_worker_review", "queued_for_owner_review"].includes(currentStatus)) missing.push("status_not_releasable");
+  if (!allowedFiles.length) missing.push("allowedFiles");
+  if (!blockedFiles.length) missing.push("blockedFiles");
+  if (!requiredChecks.length) missing.push("requiredChecks");
+  if (item && item.noRunnerStarted === false) missing.push("noRunnerStarted");
+  if (item && item.runnerStarted === true) missing.push("runnerStarted");
+  if (item && item.noBranchOrPrOrMerge === false) missing.push("noBranchOrPrOrMerge");
+  if (item && (item.branchCreated === true || item.prCreated === true || item.merged === true || item.autoMerge === true)) missing.push("branch_pr_merge");
+  if (item && item.noDeploy === false) missing.push("noDeploy");
+  if (item && (item.deployStarted === true || item.autoDeploy === true)) missing.push("deploy");
+  return {
+    releasable: missing.length === 0,
+    currentStatus,
+    nextStatus: "ready_for_worker",
+    missing,
+    allowedFiles,
+    blockedFiles,
+    requiredChecks,
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+  };
+}
+
 function normalizeCheckEntries(value) {
   if (!Array.isArray(value)) return [];
   return value.slice(0, 80).map((entry) => ({
@@ -1471,6 +1502,36 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { accepted: true, items, workerQueueItems: items, loadedCount: items.length, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true };
   });
 
+  exportsTarget.releaseWorkerQueueItemForWorker = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
+    const workerQueueId = requiredString(request.data && request.data.workerQueueId, "workerQueueId", HttpsError, 180);
+    const workerRef = db.collection("agentTaskWorkerQueue").doc(workerQueueId);
+    const workerSnap = await workerRef.get();
+    if (!workerSnap.exists) throw new HttpsError("not-found", "worker_queue_item_not_found");
+    const item = workerSnap.data() || {};
+    const decision = buildWorkerQueueReleaseDecision(item);
+    if (!decision.releasable) throw new HttpsError("failed-precondition", `worker_queue_release_blocked:${decision.missing.join(",")}`);
+    const now = FieldValue.serverTimestamp();
+    await workerRef.set({
+      workerStatus: "ready_for_worker",
+      status: "ready_for_worker",
+      ownerReleasedAt: now,
+      ownerReleasedByRole: actorRole,
+      ownerReleaseDecision: "approved_for_worker_pickup",
+      noRunnerStarted: true,
+      runnerStarted: false,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+      humanMergeRequired: true,
+      autoMerge: false,
+      autoDeploy: false,
+      lastStatusChangedAt: now,
+      updatedAt: now,
+    }, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "worker_queue_owner_released", proposalId: item.taskProposalId || item.proposalId || null, result: "ready_for_worker", allowedFiles: decision.allowedFiles, blockedFiles: decision.blockedFiles });
+    return { accepted: true, workerQueueId, workerStatus: "ready_for_worker", status: "ready_for_worker", ownerReleaseDecision: "approved_for_worker_pickup", noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true };
+  });
+
   exportsTarget.createWorkerQueueItemFromTaskProposal = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
     const taskProposalId = requiredString(request.data && (request.data.taskProposalId || request.data.proposalId), "taskProposalId", HttpsError, 180);
@@ -2027,4 +2088,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE };
+module.exports = { registerAgentAdminRolesAudit, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, buildWorkerQueueReleaseDecision, REVISION_DOSSIER_MESSAGE };
