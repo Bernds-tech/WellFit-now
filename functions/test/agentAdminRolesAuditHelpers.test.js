@@ -138,4 +138,10 @@ const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEv
   assert.strictEqual(statusCounts.pending, 1, 'review_required must count as pending');
 })();
 
+(function testQueuedForWorkerReviewCountsAsInProgress() {
+  const statusCounts = buildAgentTaskProposalStatusCounts([{ status: 'queued_for_worker_review' }]);
+  assert.strictEqual(statusCounts.total, 1, 'queued_for_worker_review proposal should count as total 1');
+  assert.strictEqual(statusCounts.in_progress, 1, 'queued_for_worker_review must count as in_progress');
+})();
+
 console.log('agentAdminRolesAudit helper tests passed');

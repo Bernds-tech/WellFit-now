@@ -337,6 +337,18 @@ async function run() {
   assert(visibleTaskProposal.noBranchOrPrOrMerge === true, "listed task proposal should show noBranchOrPrOrMerge");
   const workerQueueAfterTaskProposal = await db.collection("agentTaskWorkerQueue").where("proposalId", "==", createdFromInbox.taskProposalId).get();
   assert(workerQueueAfterTaskProposal.empty, "creating/listing a task proposal should not create worker queue items");
+  const preparedWorkerQueue = await expectOk("createWorkerQueueItemFromTaskProposal", owner, { taskProposalId: createdFromInbox.taskProposalId });
+  assert(preparedWorkerQueue.workerQueueId, "worker queue handoff should return workerQueueId");
+  assert(preparedWorkerQueue.workerStatus === "pending_worker_review", "worker queue handoff should wait for worker review");
+  assert(preparedWorkerQueue.proposalStatus === "queued_for_worker_review", "task proposal should move to queued_for_worker_review");
+  assert(preparedWorkerQueue.noRunnerStarted === true && preparedWorkerQueue.noBranchOrPrOrMerge === true && preparedWorkerQueue.noDeploy === true, "worker queue handoff must not start runner/branch/pr/merge/deploy");
+  const preparedWorkerDoc = await db.collection("agentTaskWorkerQueue").doc(preparedWorkerQueue.workerQueueId).get();
+  assert(preparedWorkerDoc.data().noRunnerStarted === true, "worker queue doc should record noRunnerStarted");
+  assert(preparedWorkerDoc.data().noBranchOrPrOrMerge === true, "worker queue doc should record noBranchOrPrOrMerge");
+  assert(preparedWorkerDoc.data().noDeploy === true, "worker queue doc should record noDeploy");
+  const proposalAfterWorkerQueue = await db.collection("agentTaskProposals").doc(createdFromInbox.taskProposalId).get();
+  assert(proposalAfterWorkerQueue.data().status === "queued_for_worker_review", "proposal doc should be queued_for_worker_review after handoff");
+  await expectFail("createWorkerQueueItemFromTaskProposal", owner, { taskProposalId: createdFromInbox.taskProposalId });
 
   await db.collection("agentCenterInbox").doc("ibox-pending").set({ inboxId: "ibox-pending", status: "pending_approval", allowedFiles: ["docs/**"], blockedFiles: ["functions/**"], requiredChecks: ["npm run lint"] });
   await expectFail("createAgentTaskProposalFromApprovedInboxItem", owner, { inboxId: "ibox-pending" });
