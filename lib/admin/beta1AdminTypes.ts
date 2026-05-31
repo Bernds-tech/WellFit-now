@@ -121,6 +121,29 @@ export type AgentTaskProposal = {
 export type AgentTaskProposalStatusCounts = { total: number; pending: number; approved: number; rejected: number; in_progress: number; completed: number; blocked: number };
 export type AgentTaskProposalListResult = AdminCallableResult & { proposals?: AgentTaskProposal[]; items?: AgentTaskProposal[]; loadedCount?: number; statusCounts?: AgentTaskProposalStatusCounts };
 
+
+export type AgentTaskWorkerQueueStatus = "pending_worker_review" | "queued_for_owner_review" | "queued_for_worker_review" | "ready_for_worker" | "in_progress" | "completed" | "blocked" | "repair_required" | string;
+export type AgentTaskWorkerQueueItem = {
+  workerQueueId: string;
+  taskProposalId?: string | null;
+  title?: string;
+  summary?: string;
+  requestedAction?: string;
+  sourceInboxId?: string | null;
+  status?: AgentTaskWorkerQueueStatus;
+  riskLevel?: string;
+  allowedFiles?: string[];
+  blockedFiles?: string[];
+  requiredChecks?: string[];
+  noRunnerStarted?: boolean;
+  noBranchOrPrOrMerge?: boolean;
+  noDeploy?: boolean;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+};
+export type AgentTaskWorkerQueueCounts = { total: number; waiting_review: number; waiting_owner: number; ready_for_worker: number; in_progress: number; completed: number; blocked: number; repair_required: number; unknown: number };
+export type AgentTaskWorkerQueueListResult = AdminCallableResult & { items?: AgentTaskWorkerQueueItem[]; workerQueueItems?: AgentTaskWorkerQueueItem[]; loadedCount?: number; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
+
 export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
 export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string; reason?: string; suggestedBranch?: string };
 export type TaskProposalWorkerQueueInput = { taskProposalId: string; workerStatus?: "queued_for_owner_review" | "pending_worker_review" };

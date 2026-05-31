@@ -7,7 +7,7 @@ const APPROVAL_STATUSES = ["approved", "rejected", "revoked"];
 const EXECUTION_STATUSES = ["queued", "running", "completed", "failed", "blocked"];
 const CHECK_RESULTS = ["pass", "fail", "blocked", "skipped"];
 const HANDOFF_PROMPT_STATUSES = ["generated", "copied", "superseded", "blocked"];
-const WORKER_QUEUE_STATUSES = ["queued_for_owner_review", "pending_worker_review", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed"];
+const WORKER_QUEUE_STATUSES = ["queued_for_owner_review", "queued_for_worker_review", "pending_worker_review", "ready_for_worker", "in_progress", "claimed", "running", "checks_recorded", "pr_prepared", "blocked", "failed", "completed", "repair_required"];
 const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
 const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
@@ -1396,6 +1396,36 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return value;
   }
 
+  function getWorkerQueueStatusValue(data) {
+    const status = optionalString(data.workerStatus, 80) || optionalString(data.status, 80) || "pending_worker_review";
+    if (status === "claimed" || status === "running" || status === "checks_recorded" || status === "pr_prepared") return "in_progress";
+    if (status === "failed") return "blocked";
+    return status;
+  }
+
+  function mapSafeAgentTaskWorkerQueueItem(doc) {
+    const data = doc.data() || {};
+    const taskProposalId = optionalString(data.taskProposalId, 180) || optionalString(data.proposalId, 180) || null;
+    return {
+      workerQueueId: optionalString(data.workerQueueId, 180) || doc.id,
+      taskProposalId,
+      title: optionalString(data.title, 240) || optionalString(data.taskTitle, 240) || (taskProposalId ? `Task Proposal ${taskProposalId}` : `Worker Queue ${doc.id}`),
+      summary: optionalString(data.summary, 1200) || "",
+      requestedAction: optionalString(data.requestedAction, 1200) || "",
+      sourceInboxId: optionalString(data.sourceInboxId, 180) || null,
+      status: getWorkerQueueStatusValue(data),
+      riskLevel: normalizeRiskLevel(data.riskLevel || "medium"),
+      allowedFiles: parseStringList(data.allowedFiles || [], 80, 260),
+      blockedFiles: parseStringList(data.blockedFiles || [], 80, 260),
+      requiredChecks: parseStringList(data.requiredChecks || [], 80, 260),
+      noRunnerStarted: data.noRunnerStarted !== false && data.runnerStarted !== true,
+      noBranchOrPrOrMerge: data.noBranchOrPrOrMerge !== false && data.autoMerge !== true,
+      noDeploy: data.noDeploy !== false && data.autoDeploy !== true,
+      createdAt: safeTimestampValue(data.createdAt || data.queuedAt),
+      updatedAt: safeTimestampValue(data.updatedAt || data.lastStatusChangedAt),
+    };
+  }
+
   function mapSafeAgentTaskProposal(doc, sourceInbox) {
     const data = doc.data() || {};
     const summary = optionalString(data.summary, 1200) || optionalString(data.plainSummary, 1200) || optionalString(sourceInbox && (sourceInbox.summary || sourceInbox.plainSummary), 1200) || optionalString(data.requestedAction, 1200);
@@ -1428,6 +1458,18 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     };
   }
 
+
+  exportsTarget.listAgentTaskWorkerQueueItems = onCall(async (request) => {
+    requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);
+    const status = optionalString(request.data && request.data.status, 80);
+    let query = db.collection("agentTaskWorkerQueue").orderBy("createdAt", "desc").limit(100);
+    if (status && WORKER_QUEUE_STATUSES.includes(status)) {
+      query = query.where("workerStatus", "==", status);
+    }
+    const snapshot = await query.get();
+    const items = snapshot.docs.map(mapSafeAgentTaskWorkerQueueItem);
+    return { accepted: true, items, workerQueueItems: items, loadedCount: items.length, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true };
+  });
 
   exportsTarget.createWorkerQueueItemFromTaskProposal = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);

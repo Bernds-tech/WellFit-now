@@ -6,7 +6,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -60,7 +60,9 @@ type DataProps = { agents: Row[]; missions: Row[]; stats: Partial<Record<AdminCe
 type ServerInboxFilter = "server_total" | "server_pending" | "server_approved" | "server_rejected" | "server_blocked" | "server_revision_requested" | "server_synced_to_task_proposal";
 type TaskProposalFilter = "task_total" | "task_pending" | "task_approved" | "task_rejected" | "task_in_progress" | "task_completed" | "task_blocked";
 type TaskProposalBucket = "pending" | "approved" | "rejected" | "in_progress" | "completed" | "blocked" | "unknown";
-type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter;
+type WorkerQueueFilter = "worker_total" | "worker_waiting_review" | "worker_waiting_owner" | "worker_ready" | "worker_in_progress" | "worker_completed" | "worker_blocked" | "worker_repair_required";
+type WorkerQueueBucket = "waiting_review" | "waiting_owner" | "ready_for_worker" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
+type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter | WorkerQueueFilter;
 
 const SERVER_FILTER_TO_BUCKET: Record<ServerInboxFilter, ReturnType<typeof getServerInboxStatusBucket> | "total"> = { server_total: "total", server_pending: "pending_approval", server_approved: "approved", server_rejected: "rejected", server_blocked: "blocked", server_revision_requested: "revision_requested", server_synced_to_task_proposal: "synced_to_task_proposal" };
 const SERVER_FILTER_LABELS: Record<ServerInboxFilter, string> = { server_total: "Server-Inbox gesamt", server_pending: "Server: wartet auf Freigabe", server_approved: "Server: freigegeben", server_rejected: "Server: abgelehnt", server_blocked: "Server: blockiert", server_revision_requested: "Server: Überarbeitung angefordert", server_synced_to_task_proposal: "Server: Task Proposal erzeugt" };
@@ -70,6 +72,12 @@ const TASK_PROPOSAL_FILTER_TO_BUCKET: Record<TaskProposalFilter, TaskProposalBuc
 const TASK_PROPOSAL_FILTER_LABELS: Record<TaskProposalFilter, string> = { task_total: "Task Proposals gesamt", task_pending: "Task Proposals: warten/pending", task_approved: "Task Proposals: freigegeben", task_rejected: "Task Proposals: abgelehnt", task_in_progress: "Task Proposals: in Arbeit", task_completed: "Task Proposals: fertig", task_blocked: "Task Proposals: blockiert" };
 const TASK_PROPOSAL_FILTER_KEYS = Object.keys(TASK_PROPOSAL_FILTER_TO_BUCKET) as TaskProposalFilter[];
 const isTaskProposalFilter = (value: ActiveListFilter): value is TaskProposalFilter => value.startsWith("task_");
+
+
+const WORKER_QUEUE_FILTER_TO_BUCKET: Record<WorkerQueueFilter, WorkerQueueBucket | "total"> = { worker_total: "total", worker_waiting_review: "waiting_review", worker_waiting_owner: "waiting_owner", worker_ready: "ready_for_worker", worker_in_progress: "in_progress", worker_completed: "completed", worker_blocked: "blocked", worker_repair_required: "repair_required" };
+const WORKER_QUEUE_FILTER_LABELS: Record<WorkerQueueFilter, string> = { worker_total: "Worker Queue gesamt", worker_waiting_review: "Wartet auf Review", worker_waiting_owner: "Wartet auf Owner", worker_ready: "Bereit für Worker", worker_in_progress: "In Arbeit", worker_completed: "Fertig", worker_blocked: "Blockiert", worker_repair_required: "Repair Required" };
+const WORKER_QUEUE_FILTER_KEYS = Object.keys(WORKER_QUEUE_FILTER_TO_BUCKET) as WorkerQueueFilter[];
+const isWorkerQueueFilter = (value: ActiveListFilter): value is WorkerQueueFilter => value.startsWith("worker_");
 
 const FILTER_TO_BUCKET: Record<AdminCenterListFilter, "total" | ReturnType<typeof getAgentStatusBucket>> = { agent_total: "total", agent_pending: "pending_approval", agent_approved: "approved_ready", agent_rejected: "rejected", agent_blocked: "blocked", agent_in_progress: "in_progress", agent_completed: "completed", agent_repair_required: "repair_required", agent_halted_waiting_owner: "halted_waiting_owner", agent_cycle_restart_required: "cycle_restart_required", mission_total: "total", mission_pending: "pending_approval", mission_approved: "approved_ready", mission_rejected: "rejected", mission_blocked: "blocked", mission_in_progress: "in_progress", mission_completed: "completed" };
 const FILTER_LABELS: Record<AdminCenterListFilter, string> = { agent_total: "Alle Agenten/Register gesamt", agent_pending: "Register/Legacy: Warten", agent_approved: "Register/Legacy: Freigegeben", agent_rejected: "Register/Legacy: Abgelehnt", agent_blocked: "Register/Legacy: Blockiert", agent_in_progress: "Register/Legacy: In Arbeit", agent_completed: "Register/Legacy: Fertig", agent_repair_required: "Register/Legacy: Repair Required", agent_halted_waiting_owner: "Register/Legacy: Wartet auf Owner", agent_cycle_restart_required: "Register/Legacy: Nächster Zyklus", mission_total: "Missionsvorschläge gesamt", mission_pending: "Missionen: Warten auf Freigabe", mission_approved: "Missionen: Freigegeben", mission_rejected: "Missionen: Abgelehnt", mission_blocked: "Missionen: Blockiert", mission_in_progress: "Missionen: In Arbeit", mission_completed: "Missionen: Fertig" };
@@ -94,6 +102,31 @@ function buildTaskProposalCounts(proposals: AgentTaskProposal[]) {
   proposals.forEach((proposal) => { counts[getTaskProposalBucket(proposal)] += 1; });
   return counts;
 }
+
+function getWorkerQueueBucket(item: AgentTaskWorkerQueueItem): WorkerQueueBucket {
+  const status = String(item.status || "").toLowerCase();
+  if (["pending_worker_review", "queued_for_worker_review"].includes(status)) return "waiting_review";
+  if (status === "queued_for_owner_review") return "waiting_owner";
+  if (status === "ready_for_worker") return "ready_for_worker";
+  if (["in_progress", "claimed", "running", "checks_recorded", "pr_prepared"].includes(status)) return "in_progress";
+  if (status === "completed") return "completed";
+  if (["blocked", "failed"].includes(status)) return "blocked";
+  if (status === "repair_required") return "repair_required";
+  return "unknown";
+}
+
+function buildWorkerQueueCounts(items: AgentTaskWorkerQueueItem[]) {
+  const counts: Record<WorkerQueueBucket, number> & { total: number } = { total: items.length, waiting_review: 0, waiting_owner: 0, ready_for_worker: 0, in_progress: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
+  items.forEach((item) => { counts[getWorkerQueueBucket(item)] += 1; });
+  return counts;
+}
+
+function extractWorkerQueueItems(result: AgentTaskWorkerQueueListResult): AgentTaskWorkerQueueItem[] {
+  const workerQueueItems = Array.isArray(result.workerQueueItems) ? result.workerQueueItems : [];
+  const items = Array.isArray(result.items) ? result.items : [];
+  return workerQueueItems.length > 0 ? workerQueueItems : items;
+}
+
 
 function extractTaskProposals(result: AgentTaskProposalListResult): AgentTaskProposal[] {
   const proposals = Array.isArray(result.proposals) ? result.proposals : [];
@@ -212,8 +245,10 @@ export default function AgentCenterInteractive({
   const [busy, setBusy] = useState(false);
   const [inboxItems, setInboxItems] = useState<AgentCenterInboxItem[]>([]);
   const [taskProposals, setTaskProposals] = useState<AgentTaskProposal[]>([]);
+  const [workerQueueItems, setWorkerQueueItems] = useState<AgentTaskWorkerQueueItem[]>([]);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [taskProposalDetail, setTaskProposalDetail] = useState<AgentTaskProposal | null>(null);
+  const [workerQueueDetail, setWorkerQueueDetail] = useState<AgentTaskWorkerQueueItem | null>(null);
   const [syncDebug, setSyncDebug] = useState<Record<string, unknown>>({});
   const [authDebug, setAuthDebug] = useState<AdminCallableAuthState>({ authReady: false, firebaseUserPresent: false, firebaseUidPresent: false, idTokenAvailable: false, tokenClaimsLoaded: false, agentRoleClaim: null, adminCallableAuthReady: false, lastAuthGuardMessage: "" });
   const [authActionPending, setAuthActionPending] = useState(false);
@@ -222,7 +257,10 @@ export default function AgentCenterInteractive({
     const unsubscribe = onAuthStateChanged(auth, async () => {
       const state = await beta1AdminClient.getAdminCallableAuthState(false);
       setAuthDebug(state);
-      if (state.adminCallableAuthReady) void refreshTaskProposals();
+      if (state.adminCallableAuthReady) {
+        void refreshTaskProposals();
+        void refreshWorkerQueueItems();
+      }
     });
     return () => unsubscribe();
     // refreshTaskProposals is intentionally invoked from the auth observer so the
@@ -275,11 +313,12 @@ export default function AgentCenterInteractive({
       dossierIncomplete: !details.isComplete,
     };
   }), [inboxItems]);
-  const visibleListSource: "server_inbox" | "local_snapshot" | "task_proposals" = isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : "local_snapshot");
-  const activeCountSource: "server_inbox" | "legacy_register" | "mission_proposals" | "task_proposals" = isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : (isMissionFilter(active) ? "mission_proposals" : "legacy_register"));
+  const visibleListSource: "server_inbox" | "local_snapshot" | "task_proposals" | "worker_queue" = isWorkerQueueFilter(active) ? "worker_queue" : (isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : "local_snapshot"));
+  const activeCountSource: "server_inbox" | "legacy_register" | "mission_proposals" | "task_proposals" | "worker_queue" = isWorkerQueueFilter(active) ? "worker_queue" : (isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : (isMissionFilter(active) ? "mission_proposals" : "legacy_register")));
   const serverInboxCounts = useMemo(() => buildServerInboxCounts(serverInboxRows), [serverInboxRows]);
   const serverInboxPendingCount = serverInboxCounts.pending_approval;
   const taskProposalCounts = useMemo(() => buildTaskProposalCounts(taskProposals), [taskProposals]);
+  const workerQueueCounts = useMemo(() => buildWorkerQueueCounts(workerQueueItems), [workerQueueItems]);
 
   const visibleTaskProposals = useMemo(() => {
     const sorted = [...taskProposals].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
@@ -289,8 +328,16 @@ export default function AgentCenterInteractive({
     return sorted.filter((proposal) => getTaskProposalBucket(proposal) === bucket);
   }, [active, taskProposals]);
 
+  const visibleWorkerQueueItems = useMemo(() => {
+    const sorted = [...workerQueueItems].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+    if (!isWorkerQueueFilter(active)) return [];
+    const bucket = WORKER_QUEUE_FILTER_TO_BUCKET[active];
+    if (bucket === "total") return sorted;
+    return sorted.filter((item) => getWorkerQueueBucket(item) === bucket);
+  }, [active, workerQueueItems]);
+
   const visible = useMemo(() => {
-    if (isTaskProposalFilter(active)) return [];
+    if (isTaskProposalFilter(active) || isWorkerQueueFilter(active)) return [];
     if (isServerInboxFilter(active)) {
       const bucket = SERVER_FILTER_TO_BUCKET[active];
       const sorted = [...serverInboxRows].sort(compareReadableDossierRows);
@@ -460,6 +507,60 @@ export default function AgentCenterInteractive({
       }));
       setFeedback(`Task Proposals konnten nicht geladen werden: ${safeMessage}`);
       setSyncStatus(`Task Proposals konnten nicht geladen werden: ${safeMessage}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function refreshWorkerQueueItems() {
+    setSyncDebug((prev) => ({
+      ...prev,
+      workerQueueLoadAttempted: true,
+      workerQueueLoadAccepted: false,
+      workerQueueLoadError: "",
+    }));
+    if (!(await ensureAdminAuthReady())) {
+      const safeMessage = "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+      setSyncDebug((prev) => ({ ...prev, workerQueueLoadError: safeMessage }));
+      setFeedback(`Worker Queue konnte nicht geladen werden: ${safeMessage}`);
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await beta1AdminClient.listAgentTaskWorkerQueueItems() as AgentTaskWorkerQueueListResult;
+      const items = extractWorkerQueueItems(result);
+      const accepted = Boolean(result.accepted);
+      const responseKeys = safeResponseKeys(result);
+      setSyncDebug((prev) => ({
+        ...prev,
+        workerQueueLoadAttempted: true,
+        workerQueueLoadAccepted: accepted,
+        workerQueueLoadedCount: Number(result.loadedCount ?? items.length),
+        workerQueueResponseKeys: responseKeys,
+        workerQueueLoadError: accepted ? "" : getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode),
+        workerQueueNoRunnerStartedVisible: items.some((item) => item.noRunnerStarted === true),
+        workerQueueNoBranchOrPrOrMergeVisible: items.some((item) => item.noBranchOrPrOrMerge === true),
+        workerQueueNoDeployVisible: items.some((item) => item.noDeploy === true),
+      }));
+      if (!accepted) {
+        const safeMessage = getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode);
+        setWorkerQueueItems([]);
+        setFeedback(`Worker Queue konnte nicht geladen werden: ${safeMessage}`);
+        setSyncStatus(`Worker Queue konnte nicht geladen werden: ${safeMessage}`);
+        return;
+      }
+      setWorkerQueueItems(items);
+      setSyncStatus(`Worker Queue geladen: ${items.length}. Review-only; kein Runner, kein Branch, kein PR, kein Merge, kein Deploy.`);
+    } catch (error) {
+      const safeMessage = getSafeAdminDecisionMessage(error);
+      setWorkerQueueItems([]);
+      setSyncDebug((prev) => ({
+        ...prev,
+        workerQueueLoadAccepted: false,
+        workerQueueLoadError: safeMessage,
+      }));
+      setFeedback(`Worker Queue konnte nicht geladen werden: ${safeMessage}`);
+      setSyncStatus(`Worker Queue konnte nicht geladen werden: ${safeMessage}`);
     } finally {
       setBusy(false);
     }
@@ -754,7 +855,7 @@ export default function AgentCenterInteractive({
         lastWorkerQueueNoBranchOrPrOrMerge: result.noBranchOrPrOrMerge ?? "-",
         lastWorkerQueueNoDeploy: result.noDeploy ?? "-",
       }));
-      if (accepted) setActive("task_in_progress");
+      if (accepted) setActive("worker_waiting_review");
     } catch (error) {
       const safeMessage = `Worker Queue konnte nicht vorbereitet werden: ${getSafeAdminDecisionMessage(error)}`;
       setFeedback(safeMessage);
@@ -772,6 +873,7 @@ export default function AgentCenterInteractive({
     } finally {
       try {
         await refreshTaskProposals();
+        await refreshWorkerQueueItems();
       } finally {
         setBusy(false);
       }
@@ -847,6 +949,7 @@ export default function AgentCenterInteractive({
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runSync}>Product-Evolution Inbox synchronisieren</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshInbox}>Server-Inbox neu laden</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshTaskProposals}>Task Proposals neu laden</button>
+        <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshWorkerQueueItems}>Worker Queue ansehen</button>
         {canRunRevisionDossierGenerator && <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runRevisionDossierGenerator}>Revision-Dossiers neu erzeugen</button>}
       </div>
       {!authDebug.firebaseUserPresent && (
@@ -879,6 +982,14 @@ export default function AgentCenterInteractive({
         <p>taskProposalLoadedCount: {String(syncDebug.taskProposalLoadedCount ?? taskProposals.length)}</p>
         <p>taskProposalResponseKeys: [{((syncDebug.taskProposalResponseKeys as string[] | undefined) || []).join(", ")}]</p>
         <p>taskProposalLoadError: {String(syncDebug.taskProposalLoadError || "-")}</p>
+        <p>workerQueueLoadAttempted: {String(syncDebug.workerQueueLoadAttempted ?? false)}</p>
+        <p>workerQueueLoadAccepted: {String(syncDebug.workerQueueLoadAccepted ?? "-")}</p>
+        <p>workerQueueLoadedCount: {String(syncDebug.workerQueueLoadedCount ?? workerQueueItems.length)}</p>
+        <p>workerQueueResponseKeys: [{((syncDebug.workerQueueResponseKeys as string[] | undefined) || []).join(", ")}]</p>
+        <p>workerQueueLoadError: {String(syncDebug.workerQueueLoadError || "-")}</p>
+        <p>workerQueueNoRunnerStartedVisible: {String(syncDebug.workerQueueNoRunnerStartedVisible ?? "-")}</p>
+        <p>workerQueueNoBranchOrPrOrMergeVisible: {String(syncDebug.workerQueueNoBranchOrPrOrMergeVisible ?? "-")}</p>
+        <p>workerQueueNoDeployVisible: {String(syncDebug.workerQueueNoDeployVisible ?? "-")}</p>
         <p>lastWorkerQueueCreated: {String(syncDebug.lastWorkerQueueCreated ?? "-")}</p>
         <p>lastWorkerQueueIdPresent: {String(syncDebug.lastWorkerQueueIdPresent ?? "-")}</p>
         <p>lastWorkerQueueStatus: {String(syncDebug.lastWorkerQueueStatus || "-")}</p>
@@ -952,7 +1063,20 @@ export default function AgentCenterInteractive({
       </div>
 
       <div className="space-y-2 text-xs">
-        <p className="text-cyan-100">Agent Task Proposals / agentTaskProposals — Read-only Review, erzeugt keine Worker Queue und startet keinen Runner.</p>
+        <p className="text-cyan-100">Agent Worker Queue / agentTaskWorkerQueue — Review-only, startet keinen Runner.</p>
+        <div className="flex flex-wrap gap-2">
+          {WORKER_QUEUE_FILTER_KEYS.map((key) => {
+            const activeCard = active === key;
+            const bucket = WORKER_QUEUE_FILTER_TO_BUCKET[key];
+            const count = bucket === "total" ? workerQueueCounts.total : workerQueueCounts[bucket];
+            return (
+              <button key={key} onClick={() => setActive(key)} className={`cursor-pointer rounded border px-2 py-1 ${activeCard ? "border-cyan-300 bg-cyan-400/10 text-cyan-100 ring-1 ring-orange-300/60" : "border-white/25 hover:border-white/60 hover:bg-white/5"}`}>
+                {WORKER_QUEUE_FILTER_LABELS[key]} ({count})
+              </button>
+            );
+          })}
+        </div>
+        <p className="pt-2 text-cyan-100">Agent Task Proposals / agentTaskProposals — Read-only Review, erzeugt keine Worker Queue und startet keinen Runner.</p>
         <div className="flex flex-wrap gap-2">
           {TASK_PROPOSAL_FILTER_KEYS.map((key) => {
             const activeCard = active === key;
@@ -990,6 +1114,39 @@ export default function AgentCenterInteractive({
           })}
         </div>
       </div>
+
+      {isWorkerQueueFilter(active) && (
+        <div className="space-y-3">
+          {visibleWorkerQueueItems.map((item) => (
+            <article key={item.workerQueueId} className="rounded border border-cyan-200/25 bg-cyan-400/5 p-3 text-xs">
+              <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="font-mono text-cyan-100/75">workerQueueId: {item.workerQueueId || "—"}</p>
+                  <p className="font-mono text-emerald-100/75">taskProposalId: {item.taskProposalId || "—"}</p>
+                  <b>{item.title || "Unbenanntes Worker Queue Item"}</b>
+                  <p className="mt-1 whitespace-pre-wrap">{item.summary || item.requestedAction || "Keine Zusammenfassung hinterlegt."}</p>
+                </div>
+                <div className="flex flex-wrap gap-2 lg:justify-end">
+                  <span className="rounded-full border border-white/20 px-2 py-1">Status: {item.status || "pending_worker_review"}</span>
+                  <span className="rounded-full border border-white/20 px-2 py-1">Risiko: {item.riskLevel || "medium"}</span>
+                  <span className="rounded-full border border-emerald-300/50 px-2 py-1">noRunnerStarted: {String(item.noRunnerStarted === true)}</span>
+                  <span className="rounded-full border border-emerald-300/50 px-2 py-1">noBranchOrPrOrMerge: {String(item.noBranchOrPrOrMerge === true)}</span>
+                  <span className="rounded-full border border-emerald-300/50 px-2 py-1">noDeploy: {String(item.noDeploy === true)}</span>
+                </div>
+              </div>
+              <dl className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                <div><dt className="font-semibold">allowedFiles</dt><dd>{(item.allowedFiles || []).join(", ") || "—"}</dd></div>
+                <div><dt className="font-semibold">blockedFiles</dt><dd>{(item.blockedFiles || []).join(", ") || "—"}</dd></div>
+                <div><dt className="font-semibold">requiredChecks</dt><dd>{(item.requiredChecks || []).join(", ") || "—"}</dd></div>
+              </dl>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100" onClick={() => setWorkerQueueDetail(item)}>Worker Queue ansehen</button>
+              </div>
+            </article>
+          ))}
+          {visibleWorkerQueueItems.length === 0 && <p className="rounded border border-white/15 p-3 text-xs text-white/70">Keine Worker Queue Items für diesen Filter geladen.</p>}
+        </div>
+      )}
 
       {isTaskProposalFilter(active) && (
         <div className="space-y-3">
@@ -1033,7 +1190,7 @@ export default function AgentCenterInteractive({
         </div>
       )}
 
-      {!isTaskProposalFilter(active) && <div className="space-y-3">
+      {!isTaskProposalFilter(active) && !isWorkerQueueFilter(active) && <div className="space-y-3">
         {visible.map((row) => {
           const summary = buildAdminDecisionSummary(row);
           const timeline = deriveTimeline(row);
@@ -1077,6 +1234,37 @@ export default function AgentCenterInteractive({
         })}
       </div>}
 
+
+      {workerQueueDetail && (() => {
+        const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
+        const info = (label: string, value: string | undefined | null) => (<div><p className="mt-2 font-semibold">{label}</p><p className="whitespace-pre-wrap">{value || "—"}</p></div>);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 p-4" onClick={() => setWorkerQueueDetail(null)}>
+            <div className="mx-auto max-h-[85vh] max-w-3xl overflow-y-auto rounded-lg bg-slate-900 p-4 text-xs text-white" onClick={(event) => event.stopPropagation()}>
+              <div className="sticky top-0 mb-2 flex justify-between bg-slate-900 pb-2">
+                <h3 className="text-base font-semibold">Worker Queue ansehen · {workerQueueDetail.title || workerQueueDetail.workerQueueId}</h3>
+                <button className="cursor-pointer rounded border px-2" onClick={() => setWorkerQueueDetail(null)}>Schließen</button>
+              </div>
+              <p className="font-mono text-cyan-100/75">workerQueueId: {workerQueueDetail.workerQueueId || "—"}</p>
+              <p className="font-mono text-emerald-100/75">taskProposalId: {workerQueueDetail.taskProposalId || "—"}</p>
+              <p>Status: {workerQueueDetail.status || "pending_worker_review"} · Risiko: {workerQueueDetail.riskLevel || "medium"}</p>
+              {info("Was soll gemacht werden?", workerQueueDetail.requestedAction || workerQueueDetail.summary)}
+              {info("Warum?", workerQueueDetail.summary)}
+              {fileList("Welche Dateien dürfen geändert werden?", workerQueueDetail.allowedFiles)}
+              {fileList("Welche Dateien sind blockiert?", workerQueueDetail.blockedFiles)}
+              {fileList("Welche Checks sind Pflicht?", workerQueueDetail.requiredChecks)}
+              <div className="mt-3 rounded border border-emerald-300/40 bg-emerald-400/10 p-3 text-emerald-50">
+                <p className="font-semibold">Sicherheitsstatus: Kein Runner, kein Deploy, kein Merge.</p>
+                <p>noRunnerStarted: {String(workerQueueDetail.noRunnerStarted === true)}</p>
+                <p>noBranchOrPrOrMerge: {String(workerQueueDetail.noBranchOrPrOrMerge === true)}</p>
+                <p>noDeploy: {String(workerQueueDetail.noDeploy === true)}</p>
+              </div>
+              {info("Nächster Schritt", "Owner muss Runner-Freigabe separat erteilen. Diese Ansicht startet keinen Runner und erzeugt keinen Branch, PR, Merge oder Deploy.")}
+              <p className="mt-2">createdAt: {formatAdminDate(workerQueueDetail.createdAt)}</p>
+            </div>
+          </div>
+        );
+      })()}
 
       {taskProposalDetail && (() => {
         const fileList = (label: string, values: string[] | undefined) => (<div><p className="mt-2 font-semibold">{label}</p>{values && values.length > 0 ? <ul className="list-disc pl-5">{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p>—</p>}</div>);
