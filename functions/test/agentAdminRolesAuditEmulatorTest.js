@@ -52,6 +52,52 @@ async function run() {
 
   await expectOk("archiveAndResetAgentCenterPipelineData", operator, { reason: "admin cleanup empty scope preview", dryRun: true, previewOnly: true });
 
+
+  await db.collection("agentCenterInbox").doc("builder-unapproved").set({ inboxId: "builder-unapproved", sourceDossierId: "builder-unapproved", status: "pending_approval", title: "Not approved", summary: "No work", allowedFiles: ["docs/**"], blockedFiles: ["native/**"], requiredChecks: ["npm run lint"] });
+  await db.collection("agentCenterInbox").doc("builder-approved-1").set({ inboxId: "builder-approved-1", sourceDossierId: "builder-approved-1", sourceType: "product_evolution_first_run", listType: "decisionDossiers", status: "approved", title: "Approved Builder 1", summary: "Safe metadata task", priority: "P1", allowedFiles: ["docs/**"], blockedFiles: ["native/**"], requiredChecks: ["npm run lint"], approvedAt: new Date() });
+  await expectFail("getAgentCenterAutopilotSnapshot", user, {});
+  const snapshotBefore = await expectOk("getAgentCenterAutopilotSnapshot", owner, {});
+  assert(snapshotBefore.accepted === true, "snapshot should be owner-readable");
+  const snapshotSerialized = JSON.stringify(snapshotBefore.snapshot || {});
+  assert(!snapshotSerialized.includes("owner@example.test"), "snapshot must not leak private emails");
+  assert(!/secret-token|authToken|session/i.test(snapshotSerialized), "snapshot must not leak secrets/tokens/session data");
+  assert(snapshotBefore.snapshot.noRunnerStarted === true && snapshotBefore.snapshot.noBranchOrPrOrMerge === true && snapshotBefore.snapshot.noDeploy === true && snapshotBefore.snapshot.noTokenPaymentBlockchain === true, "snapshot safety flags stay true");
+  const builderCountBefore = (snapshotBefore.snapshot.builderWorkPackageCounts || {}).total || 0;
+  assert(builderCountBefore === 0, "snapshot is read-only and should not create work packages");
+
+  await expectFail("prepareBuilderWorkPackageFromApprovedDossier", user, { dossierId: "builder-approved-1" });
+  await expectFail("prepareBuilderWorkPackageFromApprovedDossier", owner, { dossierId: "builder-unapproved" });
+  assert((await db.collection("agentBuilderWorkPackages").get()).size === 0, "unapproved dossier must not create work package");
+  const preparedOne = await expectOk("prepareBuilderWorkPackageFromApprovedDossier", owner, { dossierId: "builder-approved-1", baseSha: "base-1" });
+  assert(preparedOne.workPackageId, "approved dossier creates a work package");
+  assert(preparedOne.status === "approved_waiting", "prepared package starts approved_waiting");
+  assert(preparedOne.noRunnerStarted === true && preparedOne.noBranchOrPrOrMerge === true && preparedOne.noDeploy === true && preparedOne.noTokenPaymentBlockchain === true, "builder preparation must not trigger runner/github/deploy/token");
+  assert((await db.collection("agentBuilderWorkPackages").get()).size === 1, "approved dossier creates exactly one work package");
+
+  for (let i = 2; i <= 5; i += 1) {
+    await db.collection("agentCenterInbox").doc(`builder-approved-${i}`).set({ inboxId: `builder-approved-${i}`, sourceDossierId: `builder-approved-${i}`, sourceType: "product_evolution_first_run", listType: "decisionDossiers", status: "approved", title: `Approved Builder ${i}`, summary: "Safe metadata task", priority: "P2", allowedFiles: ["docs/**"], blockedFiles: ["native/**"], requiredChecks: ["npm run lint"], approvedAt: new Date() });
+    await expectOk("prepareBuilderWorkPackageFromApprovedDossier", owner, { dossierId: `builder-approved-${i}` });
+  }
+  const fivePackages = await db.collection("agentBuilderWorkPackages").get();
+  assert(fivePackages.size === 5, "5 approved dossiers create 5 work packages");
+  assert(fivePackages.docs.every((doc) => (doc.data() || {}).status === "approved_waiting"), "all created packages wait until later activation");
+  assert(fivePackages.docs.every((doc) => (doc.data() || {}).noRunnerStarted === true && (doc.data() || {}).noBranchOrPrOrMerge === true && (doc.data() || {}).noDeploy === true && (doc.data() || {}).noTokenPaymentBlockchain === true), "all builder packages keep safety flags");
+
+  const firstPackage = fivePackages.docs[0];
+  await firstPackage.ref.set({ status: "active_metadata_only", lastStatusChangedAt: new Date() }, { merge: true });
+  await db.collection("agentCenterInbox").doc("builder-approved-6").set({ inboxId: "builder-approved-6", sourceDossierId: "builder-approved-6", sourceType: "product_evolution_first_run", listType: "decisionDossiers", status: "approved", title: "Approved Builder 6", summary: "Safe metadata task", priority: "P2", allowedFiles: ["docs/**"], blockedFiles: ["native/**"], requiredChecks: ["npm run lint"], approvedAt: new Date() });
+  const preparedSix = await expectOk("prepareBuilderWorkPackageFromApprovedDossier", owner, { dossierId: "builder-approved-6" });
+  assert(preparedSix.status === "approved_waiting", "second package remains waiting while one is active");
+  const activePackages = await db.collection("agentBuilderWorkPackages").where("status", "==", "active_metadata_only").get();
+  assert(activePackages.size === 1, "only one active work package is allowed");
+
+  await firstPackage.ref.set({ status: "repair_required", repairAttemptCount: 3, automationPaused: true }, { merge: true });
+  const pausedSnapshot = await expectOk("getAgentCenterAutopilotSnapshot", owner, {});
+  assert(pausedSnapshot.snapshot.builderQueueGuard.queuePaused === true, "repair_required pauses queue");
+  assert(pausedSnapshot.snapshot.builderQueueGuard.automationPaused === true, "three repair attempts set automationPaused");
+  assert(!pausedSnapshot.rawGithubActionTriggered, "no GitHub action marker should exist");
+
+
   await expectFail("approveAgentTaskProposal", user, { proposalId: "x" });
 
   await expectFail("createAgentTaskProposal", supervisor, {

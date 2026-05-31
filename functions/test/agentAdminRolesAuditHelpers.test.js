@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
 const safetyDossierRegister = require('../../project-register/agent-safety-dossiers.json');
 const dossierSchema = require('../../project-register/agent-dossier-schema.json');
 
@@ -558,6 +558,49 @@ function buildCompleteSingleDecisionDossier(overrides = {}) {
   assert(!debugText.includes('uid-should-not-be-hashed-debugged'), 'debug must not include UID');
   assert(!debugText.includes('owner@example.com'), 'debug must not include email');
   assert(!debugText.includes('secret-token'), 'debug must not include token/secret');
+})();
+
+
+
+(function testBuilderQueueGuardSerializesAndPausesOnRepair() {
+  const packages = [
+    { workPackageId: 'wp-1', status: 'active_metadata_only', repairAttemptCount: 0 },
+    { workPackageId: 'wp-2', status: 'approved_waiting', repairAttemptCount: 0 },
+  ];
+  const guard = buildBuilderQueueGuardState(packages, { paused: false });
+  assert.strictEqual(guard.maxConcurrentWorkPackages, 1, 'builder queue stays serial');
+  assert.strictEqual(guard.activeCount, 1, 'only one active work package is tracked');
+  assert.strictEqual(guard.noRunnerStarted, true, 'guard must not start runner');
+  const repairGuard = buildBuilderQueueGuardState([{ workPackageId: 'wp-r', status: 'repair_required', repairAttemptCount: 3 }], { paused: false });
+  assert.strictEqual(repairGuard.queuePaused, true, 'repair_required pauses the queue');
+  assert.strictEqual(repairGuard.automationPaused, true, 'repair_required sets automationPaused');
+  assert.strictEqual(repairGuard.pauseReason, 'repair_limit_reached', 'three repair attempts trigger repair limit');
+})();
+
+(function testBuilderWorkPackageFromDossierKeepsSafetyFlags() {
+  const wp = buildBuilderWorkPackageFromDossier({
+    dossier: { sourceDossierId: 'dossier-1', title: 'Safe task', summary: 'Prepare safe metadata.', status: 'approved', allowedFiles: ['docs/**'], blockedFiles: ['native/**'], requiredChecks: ['npm run lint'] },
+    dossierId: 'inbox-1',
+    actorRole: 'owner',
+    sequenceNumber: 5,
+    baseSha: 'abc123',
+  });
+  assert.strictEqual(wp.status, 'approved_waiting', 'prepared builder work remains waiting');
+  assert.strictEqual(wp.sequenceNumber, 5, 'sequence number is assigned');
+  assert.strictEqual(wp.serialGroup, 'main_repo', 'serial group is main_repo');
+  assert.strictEqual(wp.noParallelExecution, true, 'parallel execution is forbidden');
+  assert.strictEqual(wp.noRunnerStarted, true, 'runner stays off');
+  assert.strictEqual(wp.noBranchOrPrOrMerge, true, 'branch/pr/merge stay off');
+  assert.strictEqual(wp.noDeploy, true, 'deploy stays off');
+  assert.strictEqual(wp.noTokenPaymentBlockchain, true, 'token/payment/blockchain stays off');
+})();
+
+(function testTelemetrySanitizerRedactsSensitiveKeys() {
+  const safe = sanitizeTelemetryObject({ email: 'owner@example.test', token: 'secret-token', nested: { title: 'Ok', authToken: 'abc' }, list: ['hello'] });
+  const serialized = JSON.stringify(safe);
+  assert(!serialized.includes('owner@example.test'), 'sanitized snapshot must not contain emails');
+  assert(!serialized.includes('secret-token'), 'sanitized snapshot must not contain tokens');
+  assert(serialized.includes('[redacted]'), 'sensitive fields are redacted');
 })();
 
 console.log('agentAdminRolesAudit helper tests passed');

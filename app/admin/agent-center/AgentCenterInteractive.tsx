@@ -7,7 +7,7 @@ import { getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPo
 import safetyDossierRegister from "@/project-register/agent-safety-dossiers.json";
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier, AgentCenterAutopilotSnapshot, AgentCenterAutopilotSnapshotResult, BuilderWorkPackage, PrepareBuilderWorkPackageResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -113,7 +113,9 @@ type WorkerQueueFilter = "worker_total" | "worker_waiting_review" | "worker_wait
 type WorkerQueueBucket = "waiting_review" | "waiting_owner" | "ready_for_worker" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
 type RunnerJobBucket = "pending_runner_pickup" | "pickup_contract_created" | "implementation_plan_created" | "planning" | "in_progress" | "completed" | "blocked" | "repair_required" | "unknown";
 type PickupContractBucket = "planning_open" | "implementation_plan_created" | "implementation_plan_review" | "implementation_plan_approved" | "planning" | "completed" | "blocked" | "repair_required" | "unknown";
-type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter | WorkerQueueFilter;
+type BuilderQueueFilter = "builder_total" | "builder_waiting" | "builder_active" | "builder_blocked" | "builder_repair_required" | "builder_completed" | "builder_paused";
+type BuilderQueueBucket = "waiting" | "active" | "blocked" | "repair_required" | "completed" | "paused" | "proposed" | "cancelled" | "unknown";
+type ActiveListFilter = AdminCenterListFilter | ServerInboxFilter | TaskProposalFilter | WorkerQueueFilter | BuilderQueueFilter;
 
 const SERVER_FILTER_TO_BUCKET: Record<ServerInboxFilter, ReturnType<typeof getServerInboxStatusBucket> | "total"> = { server_total: "total", server_pending: "pending_approval", server_approved: "approved", server_rejected: "rejected", server_blocked: "blocked", server_revision_requested: "revision_requested", server_synced_to_task_proposal: "synced_to_task_proposal" };
 const SERVER_FILTER_LABELS: Record<ServerInboxFilter, string> = { server_total: "Server-Inbox gesamt", server_pending: "Server: wartet auf Freigabe", server_approved: "Server: freigegeben", server_rejected: "Server: abgelehnt", server_blocked: "Server: blockiert", server_revision_requested: "Server: Überarbeitung angefordert", server_synced_to_task_proposal: "Server: Task Proposal erzeugt" };
@@ -129,6 +131,10 @@ const WORKER_QUEUE_FILTER_TO_BUCKET: Record<WorkerQueueFilter, WorkerQueueBucket
 const WORKER_QUEUE_FILTER_LABELS: Record<WorkerQueueFilter, string> = { worker_total: "Worker Queue gesamt", worker_waiting_review: "Wartet auf Review", worker_waiting_owner: "Wartet auf Owner", worker_ready: "Bereit für Worker", worker_in_progress: "In Arbeit", worker_completed: "Fertig", worker_blocked: "Blockiert", worker_repair_required: "Repair Required" };
 const WORKER_QUEUE_FILTER_KEYS = Object.keys(WORKER_QUEUE_FILTER_TO_BUCKET) as WorkerQueueFilter[];
 const isWorkerQueueFilter = (value: ActiveListFilter): value is WorkerQueueFilter => value.startsWith("worker_");
+const BUILDER_QUEUE_FILTER_TO_BUCKET: Record<BuilderQueueFilter, BuilderQueueBucket | "total"> = { builder_total: "total", builder_waiting: "waiting", builder_active: "active", builder_blocked: "blocked", builder_repair_required: "repair_required", builder_completed: "completed", builder_paused: "paused" };
+const BUILDER_QUEUE_FILTER_LABELS: Record<BuilderQueueFilter, string> = { builder_total: "Builder Queue gesamt", builder_waiting: "Bauaufträge: warten", builder_active: "Bauaufträge: aktiv", builder_blocked: "Bauaufträge: blockiert", builder_repair_required: "Bauaufträge: Repair", builder_completed: "Bauaufträge: fertig", builder_paused: "Bauaufträge: pausiert" };
+const BUILDER_QUEUE_FILTER_KEYS = Object.keys(BUILDER_QUEUE_FILTER_TO_BUCKET) as BuilderQueueFilter[];
+const isBuilderQueueFilter = (value: ActiveListFilter): value is BuilderQueueFilter => value.startsWith("builder_");
 
 const FILTER_TO_BUCKET: Record<AdminCenterListFilter, "total" | ReturnType<typeof getAgentStatusBucket>> = { agent_total: "total", agent_pending: "pending_approval", agent_approved: "approved_ready", agent_rejected: "rejected", agent_blocked: "blocked", agent_in_progress: "in_progress", agent_completed: "completed", agent_repair_required: "repair_required", agent_halted_waiting_owner: "halted_waiting_owner", agent_cycle_restart_required: "cycle_restart_required", mission_total: "total", mission_pending: "pending_approval", mission_approved: "approved_ready", mission_rejected: "rejected", mission_blocked: "blocked", mission_in_progress: "in_progress", mission_completed: "completed" };
 const FILTER_LABELS: Record<AdminCenterListFilter, string> = { agent_total: "Alle Agenten/Register gesamt", agent_pending: "Register/Legacy: Warten", agent_approved: "Register/Legacy: Freigegeben", agent_rejected: "Register/Legacy: Abgelehnt", agent_blocked: "Register/Legacy: Blockiert", agent_in_progress: "Register/Legacy: In Arbeit", agent_completed: "Register/Legacy: Fertig", agent_repair_required: "Register/Legacy: Repair Required", agent_halted_waiting_owner: "Register/Legacy: Wartet auf Owner", agent_cycle_restart_required: "Register/Legacy: Nächster Zyklus", mission_total: "Missionsvorschläge gesamt", mission_pending: "Missionen: Warten auf Freigabe", mission_approved: "Missionen: Freigegeben", mission_rejected: "Missionen: Abgelehnt", mission_blocked: "Missionen: Blockiert", mission_in_progress: "Missionen: In Arbeit", mission_completed: "Missionen: Fertig" };
@@ -169,6 +175,26 @@ function getWorkerQueueBucket(item: AgentTaskWorkerQueueItem): WorkerQueueBucket
 function buildWorkerQueueCounts(items: AgentTaskWorkerQueueItem[]) {
   const counts: Record<WorkerQueueBucket, number> & { total: number } = { total: items.length, waiting_review: 0, waiting_owner: 0, ready_for_worker: 0, in_progress: 0, completed: 0, blocked: 0, repair_required: 0, unknown: 0 };
   items.forEach((item) => { counts[getWorkerQueueBucket(item)] += 1; });
+  return counts;
+}
+
+
+function getBuilderQueueBucket(item: BuilderWorkPackage): BuilderQueueBucket {
+  const status = String(item.status || "").toLowerCase();
+  if (status === "approved_waiting") return "waiting";
+  if (status === "active_metadata_only") return "active";
+  if (["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base"].includes(status)) return "blocked";
+  if (status === "repair_required") return "repair_required";
+  if (status === "completed_metadata_only") return "completed";
+  if (status === "paused_by_owner") return "paused";
+  if (status === "proposed") return "proposed";
+  if (status === "cancelled") return "cancelled";
+  return "unknown";
+}
+
+function buildBuilderQueueCounts(items: BuilderWorkPackage[]) {
+  const counts: Record<BuilderQueueBucket, number> & { total: number } = { total: items.length, waiting: 0, active: 0, blocked: 0, repair_required: 0, completed: 0, paused: 0, proposed: 0, cancelled: 0, unknown: 0 };
+  items.forEach((item) => { counts[getBuilderQueueBucket(item)] += 1; });
   return counts;
 }
 
@@ -455,6 +481,7 @@ export default function AgentCenterInteractive({
   const [runnerJobs, setRunnerJobs] = useState<AgentRunnerJob[]>([]);
   const [pickupContracts, setPickupContracts] = useState<AgentRunnerPickupContract[]>([]);
   const [implementationPlans, setImplementationPlans] = useState<AgentRunnerImplementationPlan[]>([]);
+  const [agentSnapshot, setAgentSnapshot] = useState<AgentCenterAutopilotSnapshot | null>(null);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [taskProposalDetail, setTaskProposalDetail] = useState<AgentTaskProposal | null>(null);
   const [workerQueueDetail, setWorkerQueueDetail] = useState<AgentTaskWorkerQueueItem | null>(null);
@@ -476,6 +503,7 @@ export default function AgentCenterInteractive({
         void refreshRunnerJobs();
         void refreshPickupContracts();
         void refreshImplementationPlans();
+        void refreshAgentSnapshot();
       }
     });
     return () => unsubscribe();
@@ -529,14 +557,16 @@ export default function AgentCenterInteractive({
       dossierIncomplete: !details.isComplete,
     };
   }), [inboxItems]);
-  const visibleListSource: "server_inbox" | "local_snapshot" | "task_proposals" | "worker_queue" = isWorkerQueueFilter(active) ? "worker_queue" : (isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : "local_snapshot"));
-  const activeCountSource: "server_inbox" | "legacy_register" | "mission_proposals" | "task_proposals" | "worker_queue" = isWorkerQueueFilter(active) ? "worker_queue" : (isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : (isMissionFilter(active) ? "mission_proposals" : "legacy_register")));
+  const visibleListSource: "server_inbox" | "local_snapshot" | "task_proposals" | "worker_queue" | "builder_queue" = isBuilderQueueFilter(active) ? "builder_queue" : (isWorkerQueueFilter(active) ? "worker_queue" : (isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : "local_snapshot")));
+  const activeCountSource: "server_inbox" | "legacy_register" | "mission_proposals" | "task_proposals" | "worker_queue" | "builder_queue" = isBuilderQueueFilter(active) ? "builder_queue" : (isWorkerQueueFilter(active) ? "worker_queue" : (isTaskProposalFilter(active) ? "task_proposals" : (isServerInboxFilter(active) ? "server_inbox" : (isMissionFilter(active) ? "mission_proposals" : "legacy_register"))));
   const serverInboxCounts = useMemo(() => buildServerInboxCounts(serverInboxRows), [serverInboxRows]);
   const serverInboxPendingCount = serverInboxCounts.pending_approval;
   const taskProposalCounts = useMemo(() => buildTaskProposalCounts(taskProposals), [taskProposals]);
   const workerQueueCounts = useMemo(() => buildWorkerQueueCounts(workerQueueItems), [workerQueueItems]);
   const runnerJobCounts = useMemo(() => buildRunnerJobCounts(runnerJobs), [runnerJobs]);
   const pickupContractCounts = useMemo(() => buildPickupContractCounts(pickupContracts), [pickupContracts]);
+  const builderWorkPackages = useMemo(() => agentSnapshot?.builderWorkPackages || [], [agentSnapshot]);
+  const builderQueueCounts = useMemo(() => buildBuilderQueueCounts(builderWorkPackages), [builderWorkPackages]);
 
   const visibleTaskProposals = useMemo(() => {
     const sorted = [...taskProposals].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
@@ -545,6 +575,14 @@ export default function AgentCenterInteractive({
     if (bucket === "total") return sorted;
     return sorted.filter((proposal) => getTaskProposalBucket(proposal) === bucket);
   }, [active, taskProposals]);
+
+  const visibleBuilderWorkPackages = useMemo(() => {
+    const sorted = [...builderWorkPackages].sort((a, b) => Number(a.sequenceNumber || 0) - Number(b.sequenceNumber || 0));
+    if (!isBuilderQueueFilter(active)) return [];
+    const bucket = BUILDER_QUEUE_FILTER_TO_BUCKET[active];
+    if (bucket === "total") return sorted;
+    return sorted.filter((item) => getBuilderQueueBucket(item) === bucket);
+  }, [active, builderWorkPackages]);
 
   const visibleWorkerQueueItems = useMemo(() => {
     const sorted = [...workerQueueItems].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
@@ -555,7 +593,7 @@ export default function AgentCenterInteractive({
   }, [active, workerQueueItems]);
 
   const visible = useMemo(() => {
-    if (isTaskProposalFilter(active) || isWorkerQueueFilter(active)) return [];
+    if (isTaskProposalFilter(active) || isWorkerQueueFilter(active) || isBuilderQueueFilter(active)) return [];
     if (isServerInboxFilter(active)) {
       const bucket = SERVER_FILTER_TO_BUCKET[active];
       const sorted = [...serverInboxRows].sort(compareReadableDossierRows);
@@ -671,6 +709,51 @@ export default function AgentCenterInteractive({
       setFeedback("Admin-Abmeldung fehlgeschlagen.");
     } finally {
       setAuthActionPending(false);
+    }
+  }
+
+
+  async function refreshAgentSnapshot() {
+    setSyncDebug((prev) => ({ ...prev, agentSnapshotLoadAttempted: true, agentSnapshotLoadAccepted: false, agentSnapshotLoadError: "" }));
+    if (!(await ensureAdminAuthReady())) {
+      const safeMessage = "Admin-Login erforderlich. Bitte neu anmelden oder Admin-Rolle prüfen.";
+      setSyncDebug((prev) => ({ ...prev, agentSnapshotLoadError: safeMessage }));
+      setFeedback(`Agent Snapshot konnte nicht geladen werden: ${safeMessage}`);
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await beta1AdminClient.getAgentCenterAutopilotSnapshot() as AgentCenterAutopilotSnapshotResult;
+      const accepted = Boolean(result.accepted);
+      const snapshot = result.snapshot || null;
+      setSyncDebug((prev) => ({
+        ...prev,
+        agentSnapshotLoadAttempted: true,
+        agentSnapshotLoadAccepted: accepted,
+        agentSnapshotLoadError: accepted ? "" : getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode),
+        agentSnapshotVersion: snapshot?.snapshotVersion || "-",
+        agentSnapshotCreatedAt: snapshot?.snapshotCreatedAt || "-",
+        agentSnapshotNextAction: snapshot?.nextRecommendedAction || "-",
+        agentSnapshotBuilderCount: snapshot?.builderWorkPackageCounts?.total ?? 0,
+        agentSnapshotApprovedDossiers: snapshot?.agentCenterCounts?.approvedDossiers ?? 0,
+      }));
+      if (!accepted || !snapshot) {
+        const safeMessage = getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode);
+        setAgentSnapshot(null);
+        setFeedback(`Agent Snapshot konnte nicht geladen werden: ${safeMessage}`);
+        setSyncStatus(`Agent Snapshot konnte nicht geladen werden: ${safeMessage}`);
+        return;
+      }
+      setAgentSnapshot(snapshot);
+      setSyncStatus(`Agent Snapshot geladen: ${snapshot.snapshotCreatedAt || "jetzt"}. Screenshots sind für Queue/Counts nicht mehr nötig.`);
+    } catch (error) {
+      const safeMessage = getSafeAdminDecisionMessage(error);
+      setAgentSnapshot(null);
+      setSyncDebug((prev) => ({ ...prev, agentSnapshotLoadAccepted: false, agentSnapshotLoadError: safeMessage }));
+      setFeedback(`Agent Snapshot konnte nicht geladen werden: ${safeMessage}`);
+      setSyncStatus(`Agent Snapshot konnte nicht geladen werden: ${safeMessage}`);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -1287,6 +1370,71 @@ export default function AgentCenterInteractive({
     }
   }
 
+
+  function builderWorkPackageButtonReason(row: Row): string {
+    const inboxId = asText(row.inboxId);
+    const status = String(row.status || "").toLowerCase();
+    if (!inboxId) return "Server-Inbox-Eintrag fehlt";
+    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
+    if (status !== "approved") return "Nur freigegebene Dossiers können als Bauauftrag vorbereitet werden.";
+    return "";
+  }
+
+  async function prepareBuilderWorkPackage(row: Row) {
+    const inboxId = asText(row.inboxId);
+    const reason = builderWorkPackageButtonReason(row);
+    setSyncDebug((prev) => ({
+      ...prev,
+      lastBuilderWorkPackageCreated: false,
+      lastBuilderWorkPackageIdPresent: false,
+      lastBuilderWorkPackageStatus: reason ? "blocked_client" : "started",
+      lastBuilderWorkPackageMessage: reason || "Bauauftrag wird metadata-only vorbereitet …",
+      lastBuilderNoRunnerStarted: "-",
+      lastBuilderNoBranchOrPrOrMerge: "-",
+      lastBuilderNoDeploy: "-",
+      lastBuilderNoTokenPaymentBlockchain: "-",
+    }));
+    if (reason) {
+      setFeedback(reason);
+      return;
+    }
+    setBusy(true);
+    setFeedback("Bauauftrag wird metadata-only vorbereitet …");
+    try {
+      const result = await beta1AdminClient.prepareBuilderWorkPackageFromApprovedDossier({ dossierId: inboxId }) as PrepareBuilderWorkPackageResult;
+      const accepted = Boolean(result.accepted);
+      const workPackageId = asText(result.workPackageId || result.workPackage?.workPackageId);
+      const safeMessage = accepted
+        ? `Bauauftrag vorbereitet.${workPackageId ? ` workPackageId: ${workPackageId}` : ""} Status: ${result.status || result.workPackage?.status || "approved_waiting"}. Keine GitHub-Aktion gestartet.`
+        : `Bauauftrag konnte nicht vorbereitet werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({
+        ...prev,
+        lastBuilderWorkPackageCreated: accepted,
+        lastBuilderWorkPackageIdPresent: Boolean(workPackageId),
+        lastBuilderWorkPackageStatus: result.status || result.workPackage?.status || (accepted ? "approved_waiting" : "failed"),
+        lastBuilderWorkPackageMessage: safeMessage,
+        lastBuilderNoRunnerStarted: result.noRunnerStarted ?? "-",
+        lastBuilderNoBranchOrPrOrMerge: result.noBranchOrPrOrMerge ?? "-",
+        lastBuilderNoDeploy: result.noDeploy ?? "-",
+        lastBuilderNoTokenPaymentBlockchain: result.noTokenPaymentBlockchain ?? "-",
+      }));
+      if (accepted) setActive("builder_waiting");
+    } catch (error) {
+      const safeMessage = `Bauauftrag konnte nicht vorbereitet werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({ ...prev, lastBuilderWorkPackageCreated: false, lastBuilderWorkPackageIdPresent: false, lastBuilderWorkPackageStatus: "error", lastBuilderWorkPackageMessage: safeMessage }));
+    } finally {
+      try {
+        await refreshAgentSnapshot();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
   async function createTaskProposal(row: Row) {
     const inboxId = asText(row.inboxId);
     const reason = taskProposalButtonReason(row);
@@ -1838,11 +1986,36 @@ export default function AgentCenterInteractive({
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshTaskProposals}>Task Proposals neu laden</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshWorkerQueueItems}>Worker Queue ansehen</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshRunnerJobs}>Runner Jobs ansehen</button>
+        <button disabled={busy} className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshAgentSnapshot}>Agent-Snapshot neu laden</button>
         <button disabled={busy} className="cursor-pointer rounded border border-amber-300/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={archiveAndResetAgentCenterPipelineData}>Reset-Prüfung anzeigen</button>
         <button disabled className="cursor-not-allowed rounded border border-slate-500/70 px-2 py-1 text-slate-300 opacity-60" title="P1-Safety-Dossier zuerst beheben; keine frischen Agent-Vorschläge in diesem Schritt." onClick={generateFreshAgentProposals}>Frische Agent-Vorschläge erzeugen</button>
         {canRunRevisionDossierGenerator && <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runRevisionDossierGenerator}>Revision-Dossiers neu erzeugen</button>}
       </div>
       <p className="text-xs text-amber-100">Reset derzeit aus Sicherheitsgründen nur als Prüfung verfügbar. Der Button löst keinen destruktiven Delete aus; ungescopte Pipeline-Daten dürfen nicht gelöscht werden.</p>
+      <div className="rounded-xl border border-cyan-300/30 bg-cyan-500/10 p-4 text-xs text-cyan-50">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="uppercase tracking-[0.2em] text-cyan-100/80">Agent Snapshot / Bauarbeiter-Sicht</p>
+            <h2 className="mt-1 text-lg font-semibold">Was der Agent aktuell sieht</h2>
+            <p className="mt-1 text-cyan-50/80">Bereinigter Admin-Telemetry-Snapshot: Counts, Safety, Queue und Blocker ohne E-Mails, Tokens, Secrets, Sessiondaten oder ungekürzte Payloads.</p>
+          </div>
+          <button disabled={busy} className="cursor-pointer rounded border border-cyan-100/70 px-3 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshAgentSnapshot}>Agent-Snapshot neu laden</button>
+        </div>
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          <div className="rounded border border-white/15 bg-black/15 p-3"><p className="font-semibold">Letzte Snapshot-Zeit</p><p>{agentSnapshot?.snapshotCreatedAt || "Noch nicht geladen"}</p></div>
+          <div className="rounded border border-white/15 bg-black/15 p-3"><p className="font-semibold">Nächste empfohlene Aktion</p><p>{agentSnapshot?.nextRecommendedAction || "Snapshot laden, dann freigegebene Dossiers prüfen."}</p></div>
+          <div className="rounded border border-white/15 bg-black/15 p-3"><p className="font-semibold">Aktive Blocker</p><p>{agentSnapshot?.lastKnownBlocker || String(agentSnapshot?.builderQueueGuard?.pauseReason || "Keine im Snapshot erkannt")}</p></div>
+        </div>
+        <div className="mt-3 grid gap-3 md:grid-cols-4">
+          <p className="rounded border border-white/15 p-2">Freigegebene Dossiers: {agentSnapshot?.agentCenterCounts?.approvedDossiers ?? serverInboxCounts.approved}</p>
+          <p className="rounded border border-white/15 p-2">Builder warten: {builderQueueCounts.waiting}</p>
+          <p className="rounded border border-white/15 p-2">Builder aktiv: {builderQueueCounts.active}</p>
+          <p className="rounded border border-white/15 p-2">Builder blockiert/Repair: {builderQueueCounts.blocked + builderQueueCounts.repair_required}</p>
+        </div>
+        <p className="mt-3 text-cyan-100/80">Warum keine Screenshots mehr nötig sein sollten: {agentSnapshot?.screenshotsNoLongerNeededReason || "Der Button liest nur den sanitized Snapshot und startet nichts."}</p>
+        <p className="mt-2 text-amber-100">Autopilot: {agentSnapshot?.autopilotControl?.mode || "planning_only"} · enabled: {String(agentSnapshot?.autopilotControl?.enabled ?? false)} · paused: {String(agentSnapshot?.autopilotControl?.paused ?? false)} · echte GitHub-Automation bleibt aus.</p>
+        <pre className="mt-3 max-h-52 overflow-auto rounded border border-white/15 bg-black/20 p-2 text-[11px] text-cyan-50/85">{JSON.stringify(agentSnapshot ? { snapshotCreatedAt: agentSnapshot.snapshotCreatedAt, agentCenterCounts: agentSnapshot.agentCenterCounts, taskProposalCounts: agentSnapshot.taskProposalCounts, workerQueueCounts: agentSnapshot.workerQueueCounts, builderWorkPackageCounts: agentSnapshot.builderWorkPackageCounts, builderQueueGuard: agentSnapshot.builderQueueGuard, autopilotControl: agentSnapshot.autopilotControl, nextRecommendedAction: agentSnapshot.nextRecommendedAction, noRunnerStarted: agentSnapshot.noRunnerStarted, noBranchOrPrOrMerge: agentSnapshot.noBranchOrPrOrMerge, noDeploy: agentSnapshot.noDeploy, noTokenPaymentBlockchain: agentSnapshot.noTokenPaymentBlockchain } : { status: "not_loaded" }, null, 2)}</pre>
+      </div>
       {!authDebug.firebaseUserPresent && (
         <div className="rounded border border-amber-300/60 bg-amber-500/10 p-2 text-xs">
           <p>Admin-Login erforderlich. Bitte mit Firebase anmelden.</p>
@@ -1975,6 +2148,18 @@ export default function AgentCenterInteractive({
         <p>lastTaskProposalNoRunnerStarted: {String(syncDebug.lastTaskProposalNoRunnerStarted ?? "-")}</p>
         <p>lastTaskProposalNoBranchOrPrOrMerge: {String(syncDebug.lastTaskProposalNoBranchOrPrOrMerge ?? "-")}</p>
         <p>lastTaskProposalNoDeploy: {String(syncDebug.lastTaskProposalNoDeploy ?? "-")}</p>
+        <p>agentSnapshotLoadAccepted: {String(syncDebug.agentSnapshotLoadAccepted ?? "-")}</p>
+        <p>agentSnapshotCreatedAt: {String(syncDebug.agentSnapshotCreatedAt || "-")}</p>
+        <p>agentSnapshotNextAction: {String(syncDebug.agentSnapshotNextAction || "-")}</p>
+        <p>agentSnapshotBuilderCount: {String(syncDebug.agentSnapshotBuilderCount ?? builderQueueCounts.total)}</p>
+        <p>lastBuilderWorkPackageCreated: {String(syncDebug.lastBuilderWorkPackageCreated ?? "-")}</p>
+        <p>lastBuilderWorkPackageIdPresent: {String(syncDebug.lastBuilderWorkPackageIdPresent ?? "-")}</p>
+        <p>lastBuilderWorkPackageStatus: {String(syncDebug.lastBuilderWorkPackageStatus || "-")}</p>
+        <p>lastBuilderWorkPackageMessage: {String(syncDebug.lastBuilderWorkPackageMessage || "-")}</p>
+        <p>lastBuilderNoRunnerStarted: {String(syncDebug.lastBuilderNoRunnerStarted ?? "-")}</p>
+        <p>lastBuilderNoBranchOrPrOrMerge: {String(syncDebug.lastBuilderNoBranchOrPrOrMerge ?? "-")}</p>
+        <p>lastBuilderNoDeploy: {String(syncDebug.lastBuilderNoDeploy ?? "-")}</p>
+        <p>lastBuilderNoTokenPaymentBlockchain: {String(syncDebug.lastBuilderNoTokenPaymentBlockchain ?? "-")}</p>
         <p>lastAgentCenterResetAccepted: {String(syncDebug.lastAgentCenterResetAccepted ?? "-")}</p>
         <p>lastAgentCenterResetArchiveRunIdPresent: {String(syncDebug.lastAgentCenterResetArchiveRunIdPresent ?? "-")}</p>
         <p>lastAgentCenterResetMessage: {String(syncDebug.lastAgentCenterResetMessage || "-")}</p>
@@ -2024,6 +2209,19 @@ export default function AgentCenterInteractive({
       </div>
 
       <div className="space-y-2 text-xs">
+        <p className="text-cyan-100">Builder Work Packages / agentBuilderWorkPackages — metadata-only, seriell, keine GitHub-Aktion.</p>
+        <div className="flex flex-wrap gap-2">
+          {BUILDER_QUEUE_FILTER_KEYS.map((key) => {
+            const activeCard = active === key;
+            const bucket = BUILDER_QUEUE_FILTER_TO_BUCKET[key];
+            const count = bucket === "total" ? builderQueueCounts.total : builderQueueCounts[bucket];
+            return (
+              <button key={key} onClick={() => setActive(key)} className={`cursor-pointer rounded border px-2 py-1 ${activeCard ? "border-cyan-300 bg-cyan-400/10 text-cyan-100 ring-1 ring-orange-300/60" : "border-white/25 hover:border-white/60 hover:bg-white/5"}`}>
+                {BUILDER_QUEUE_FILTER_LABELS[key]} ({count})
+              </button>
+            );
+          })}
+        </div>
         <p className="text-cyan-100">Agent Worker Queue / agentTaskWorkerQueue — Review-only, startet keinen Runner.</p>
         <div className="flex flex-wrap gap-2">
           {WORKER_QUEUE_FILTER_KEYS.map((key) => {
@@ -2269,6 +2467,27 @@ export default function AgentCenterInteractive({
         {implementationPlans.length === 0 && <p className="rounded border border-white/15 p-3 text-white/70">Keine Implementation Plans geladen.</p>}
       </div>
 
+      {isBuilderQueueFilter(active) && (
+        <div className="space-y-3">
+          {visibleBuilderWorkPackages.map((item) => (
+            <div key={item.workPackageId} className="rounded border border-white/20 p-3 text-xs">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <b>{item.sequenceNumber ? `#${item.sequenceNumber} · ` : ""}{item.title || "Unbenannter Bauauftrag"}</b>
+                  <p>{item.shortSummary || "metadata-only Builder Work Package"}</p>
+                  <p>Status: {item.status || "approved_waiting"} · serialGroup: {item.serialGroup || "main_repo"} · baseBranch: {item.baseBranch || "main"}</p>
+                  <p>Repair: {item.repairAttemptCount ?? 0}/{item.maxRepairAttempts ?? 3} · Stop/Pause: {item.automationPaused ? "ja" : "nein"}</p>
+                  <p>Nächste Aktion: {item.recommendedNextAction || "Warten; keine GitHub-/Runner-/Deploy-Aktion."}</p>
+                  <p>Safety: noRunnerStarted={String(item.noRunnerStarted)} · noBranchOrPrOrMerge={String(item.noBranchOrPrOrMerge)} · noDeploy={String(item.noDeploy)} · noTokenPaymentBlockchain={String(item.noTokenPaymentBlockchain)}</p>
+                </div>
+                <span className="rounded-full border border-white/20 px-2 py-1">{getBuilderQueueBucket(item)}</span>
+              </div>
+            </div>
+          ))}
+          {visibleBuilderWorkPackages.length === 0 && <p className="rounded border border-white/15 p-3 text-xs text-white/70">Keine Builder Work Packages für diesen Filter geladen. Snapshot neu laden.</p>}
+        </div>
+      )}
+
       {isTaskProposalFilter(active) && (
         <div className="space-y-3">
           {visibleTaskProposals.map((proposal) => (
@@ -2348,6 +2567,7 @@ export default function AgentCenterInteractive({
                 <button title={reviseReason || "Überarbeiten"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(reviseReason)} onClick={() => decide(decisionKind, "revise", row)}>Überarbeiten</button>
                 <button title={blockReason || "Blockieren"} className="cursor-pointer rounded border px-2 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(blockReason)} onClick={() => decide(decisionKind, "block", row)}>Blockieren</button>
                 {canShowTaskProposalAction && <button title={taskProposalReason || "Task Proposal erzeugen"} className="cursor-pointer rounded border border-emerald-300/70 px-2 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(taskProposalReason)} onClick={() => createTaskProposal(row)}>Task Proposal erzeugen</button>}
+                {canShowTaskProposalAction && <button title={builderWorkPackageButtonReason(row) || "Bauauftrag vorbereiten"} className="cursor-pointer rounded border border-cyan-300/70 px-2 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || Boolean(builderWorkPackageButtonReason(row))} onClick={() => prepareBuilderWorkPackage(row)}>Bauauftrag vorbereiten</button>}
                 {decisionBlocker && <p className="w-full text-amber-300">Sperrgrund: {decisionBlocker}</p>}
                 {canShowTaskProposalAction && taskProposalReason && <p className="w-full text-amber-300">Task-Proposal-Sperrgrund: {taskProposalReason}</p>}
               </div>

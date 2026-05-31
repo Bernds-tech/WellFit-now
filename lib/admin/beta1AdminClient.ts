@@ -33,6 +33,7 @@ import type {
   ManualRunnerImplementationPlanInput,
   ManualRunnerImplementationPlanApprovalInput,
   AgentCenterPipelineResetInput,
+  PrepareBuilderWorkPackageInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -335,5 +336,9 @@ export const beta1AdminClient = {
   listAgentCenterInboxItems: (filters?: { status?: string; sourceType?: string; recommendation?: string; listType?: string }) => callAdmin("listAgentCenterInboxItems", filters || {}),
   getAgentCenterInboxItem: (inboxId: string) => callAdmin("getAgentCenterInboxItem", { inboxId }),
   createAgentTaskProposalFromApprovedInboxItem: (input: ApprovedInboxToTaskProposalInput) => callAdmin("createAgentTaskProposalFromApprovedInboxItem", input),
+  getAgentCenterAutopilotSnapshot: () => callAdmin("getAgentCenterAutopilotSnapshot", {}),
+  prepareBuilderWorkPackageFromApprovedDossier: (input: PrepareBuilderWorkPackageInput) => callAdmin("prepareBuilderWorkPackageFromApprovedDossier", input),
+  pauseAgentAutopilotMetadataOnly: (reason?: string) => callAdmin("pauseAgentAutopilotMetadataOnly", reason ? { reason } : {}),
+  resumeAgentAutopilotMetadataOnly: () => callAdmin("resumeAgentAutopilotMetadataOnly", {}),
 
 };

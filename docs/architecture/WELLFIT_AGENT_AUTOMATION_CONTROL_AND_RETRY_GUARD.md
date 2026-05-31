@@ -95,3 +95,11 @@ The Safety Sentinel must sort future Autopilot and Product-Evolution work in thi
 7. SUI, Dynamic Assets, token, WFT, payment, and cashout work only later and only after explicit Owner plus Legal/Policy approval.
 
 AR and the AI buddy are public-beta product areas. SUI/WFT/token/payment/cashout are not part of Beta-1 activation. P0/P1 reset-safety work must be recommended before a Product-Evolution restart or worker automation. Dossiers may prepare metadata-only build orders, but they must not start GitHub, runner, branch, PR, merge, or deploy automation.
+
+## Builder serial queue and public-beta order (2026-05-31)
+
+- Builder work packages are metadata-only in `agentBuilderWorkPackages` and must stay serial for `serialGroup=main_repo` with `maxConcurrentWorkPackages=1`.
+- Approved dossiers may be converted into waiting work packages, but this does not start a runner, create a branch, create a PR, merge, deploy, or call GitHub APIs.
+- AI buddy and AR are public-beta product areas and can be considered after P0/P1 safety, build/deploy, and pipeline blockers are handled.
+- SUI, WFT, token, payment, cashout, wallet trading, NFT, Dynamic Assets, and blockchain activation are not part of Beta-1 activation. They remain future topics behind explicit Owner plus Legal/Policy gates.
+- Agents and builders must order proposals accordingly: public-beta AR/AI-buddy before any later token/Dynamic-Assets work, and token/payment/blockchain proposals must remain blocked/deferred unless separately approved.
