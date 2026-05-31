@@ -22,6 +22,71 @@ const CANONICAL_TRUTH_PROTECTED_FILES = [
   "todolist/CODEX_CONTEXT_WELLFIT_BETA1.md",
 ];
 const CANONICAL_TRUTH_PROPOSAL_FILE = "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md";
+
+const AGENT_CENTER_PIPELINE_RESET_CONFIRM_TEXT = "RESET_AGENT_CENTER_PIPELINE_TEST_DATA";
+const AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS = [
+  "agentCenterInbox",
+  "agentCenterDecisions",
+  "agentTaskProposals",
+  "agentTaskWorkerQueue",
+  "agentRunnerJobs",
+  "agentRunnerPickupContracts",
+  "agentRunnerImplementationPlans",
+  "agentControlledFileWritePackages",
+  "agentRunnerImplementationPlanApprovals",
+];
+const AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS = new Set([
+  "agentSystemRegisters",
+  "agentCatalogMirror",
+  "approvedAgentBuildBacklogMirror",
+  "agentCenterMissionProposals",
+  "agentTaskApprovals",
+  "agentTaskExecutions",
+  "agentTaskHandoffPrompts",
+  "agentTaskAuditLog",
+  "agentTaskAutomationPolicies",
+  "agentTaskSupervisedRunnerJobs",
+  "agentAutomationControl",
+  "missions",
+  "users",
+  "rewards",
+]);
+
+function sanitizeArchiveSampleId(collectionName, docId) {
+  const digest = crypto.createHash("sha256").update(`${collectionName}/${docId}`).digest("hex").slice(0, 16);
+  return `${collectionName}:${digest}`;
+}
+
+function buildAgentCenterPipelineResetScope() {
+  return AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS.map((collectionName) => ({
+    collectionName,
+    action: "delete_collection_docs",
+    reason: "active_agent_center_pipeline_test_data_only",
+  }));
+}
+
+async function snapshotAgentCenterPipelineCollection(db, collectionName) {
+  const snapshot = await db.collection(collectionName).get();
+  return {
+    collectionName,
+    count: snapshot.size,
+    sampleIds: snapshot.docs.slice(0, 10).map((doc) => sanitizeArchiveSampleId(collectionName, doc.id)),
+    docRefs: snapshot.docs.map((doc) => doc.ref),
+  };
+}
+
+async function deleteDocumentRefsInChunks(db, docRefs) {
+  let deleted = 0;
+  for (let index = 0; index < docRefs.length; index += 450) {
+    const batch = db.batch();
+    const chunk = docRefs.slice(index, index + 450);
+    chunk.forEach((ref) => batch.delete(ref));
+    if (chunk.length) await batch.commit();
+    deleted += chunk.length;
+  }
+  return deleted;
+}
+
 const INBOX_STATUSES = ["pending_approval", "approved", "rejected", "revision_requested", "blocked", "synced_to_task_proposal"];
 const INBOX_DECISION_PRESERVED_STATUSES = new Set(["approved", "rejected", "blocked", "revision_requested", "synced_to_task_proposal"]);
 const INBOX_SOURCE_TYPES = ["product_evolution_first_run", "opportunity_dossier", "mission_story", "research_summary", "product_radar", "legacy_catalog", "backlog", "proposal"];
@@ -2231,6 +2296,81 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     };
   }
 
+
+  exportsTarget.archiveAndResetAgentCenterPipelineData = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator", "admin"]);
+    const reason = requiredString(request.data && request.data.reason, "reason", HttpsError, 1000);
+    const confirmResetText = requiredString(request.data && request.data.confirmResetText, "confirmResetText", HttpsError, 120);
+    if (confirmResetText !== AGENT_CENTER_PIPELINE_RESET_CONFIRM_TEXT) {
+      throw new HttpsError("failed-precondition", "confirm_reset_text_mismatch");
+    }
+
+    const resetScope = buildAgentCenterPipelineResetScope();
+    const invalidScope = resetScope.find((entry) => AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS.has(entry.collectionName));
+    if (invalidScope) throw new HttpsError("failed-precondition", `protected_collection_in_reset_scope:${invalidScope.collectionName}`);
+
+    const snapshots = [];
+    for (const scopeEntry of resetScope) {
+      snapshots.push(await snapshotAgentCenterPipelineCollection(db, scopeEntry.collectionName));
+    }
+
+    const countsBeforeReset = {};
+    const sampleIds = {};
+    snapshots.forEach((snapshot) => {
+      countsBeforeReset[snapshot.collectionName] = snapshot.count;
+      sampleIds[snapshot.collectionName] = snapshot.sampleIds;
+    });
+
+    const archiveRef = db.collection("agentCenterArchiveRuns").doc();
+    const archiveRunId = archiveRef.id;
+    await archiveRef.set({
+      archiveRunId,
+      createdAt: FieldValue.serverTimestamp(),
+      createdByRole: actorRole,
+      reason,
+      resetScope,
+      countsBeforeReset,
+      sampleIds,
+      noUserDataDeleted: true,
+      noProductFilesChanged: true,
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+      noTokenPaymentBlockchain: true,
+    });
+
+    const deletedCounts = {};
+    const archivedCounts = {};
+    const skippedCollections = [];
+    for (const snapshot of snapshots) {
+      if (!AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS.includes(snapshot.collectionName) || AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS.has(snapshot.collectionName)) {
+        skippedCollections.push(snapshot.collectionName);
+        continue;
+      }
+      deletedCounts[snapshot.collectionName] = await deleteDocumentRefsInChunks(db, snapshot.docRefs);
+    }
+
+    await writeAgentAudit(db, {
+      actorId,
+      actorRole,
+      action: "agent_center_pipeline_archive_reset",
+      result: "accepted",
+      proposalId: archiveRunId,
+      riskLevel: "medium",
+    });
+
+    return {
+      accepted: true,
+      archiveRunId,
+      deletedCounts,
+      archivedCounts,
+      skippedCollections,
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+      message: "Agent-Center-Testdaten zurückgesetzt. Archiv wurde vor dem Entfernen erstellt.",
+    };
+  });
 
   exportsTarget.listAgentTaskWorkerQueueItems = onCall(async (request) => {
     requireRole(request, HttpsError, ["owner", "agent_supervisor", "readonly_observer", "support_operator", "admin_operator"]);

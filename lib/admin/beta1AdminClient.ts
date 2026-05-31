@@ -32,6 +32,7 @@ import type {
   WorkerQueueRunnerStartApprovalInput,
   ManualRunnerImplementationPlanInput,
   ManualRunnerImplementationPlanApprovalInput,
+  AgentCenterPipelineResetInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -330,6 +331,7 @@ export const beta1AdminClient = {
     });
   },
   syncAgentCenterLocalRegistersInbox: () => callAdmin("syncAgentCenterLocalRegistersInbox", {}),
+  archiveAndResetAgentCenterPipelineData: (input: AgentCenterPipelineResetInput) => callAdmin("archiveAndResetAgentCenterPipelineData", input),
   listAgentCenterInboxItems: (filters?: { status?: string; sourceType?: string; recommendation?: string; listType?: string }) => callAdmin("listAgentCenterInboxItems", filters || {}),
   getAgentCenterInboxItem: (inboxId: string) => callAdmin("getAgentCenterInboxItem", { inboxId }),
   createAgentTaskProposalFromApprovedInboxItem: (input: ApprovedInboxToTaskProposalInput) => callAdmin("createAgentTaskProposalFromApprovedInboxItem", input),
