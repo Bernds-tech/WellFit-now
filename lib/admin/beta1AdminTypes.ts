@@ -158,8 +158,8 @@ export type AgentTaskWorkerQueueCounts = { total: number; waiting_review: number
 export type AgentTaskWorkerQueueListResult = AdminCallableResult & { items?: AgentTaskWorkerQueueItem[]; workerQueueItems?: AgentTaskWorkerQueueItem[]; loadedCount?: number; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean };
 
 
-export type AgentCenterPipelineResetInput = { reason: string; confirmResetText: string };
-export type AgentCenterPipelineResetResult = AdminCallableResult & { archiveRunId?: string; deletedCounts?: Record<string, number>; archivedCounts?: Record<string, number>; skippedCollections?: string[]; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; message?: string };
+export type AgentCenterPipelineResetInput = { reason: string; confirmResetText?: string; dryRun?: boolean; previewOnly?: boolean; deleteRequested?: boolean };
+export type AgentCenterPipelineResetResult = AdminCallableResult & { archiveRunId?: string; dryRun?: boolean; previewOnly?: boolean; deletionBlocked?: boolean; countsBeforeReset?: Record<string, number>; sampleIds?: Record<string, string[]>; deletedCounts?: Record<string, number>; archivedCounts?: Record<string, number>; skippedCollections?: string[]; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; message?: string };
 
 export type ProductEvolutionFirstRunOutputSnapshot = Record<string, unknown>;
 export type ApprovedInboxToTaskProposalInput = { inboxId: string; title?: string; reason?: string; suggestedBranch?: string };

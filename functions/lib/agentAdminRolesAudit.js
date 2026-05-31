@@ -1,4 +1,3 @@
-const crypto = require("crypto");
 const { FieldValue } = require("firebase-admin/firestore");
 const { optionalString, requiredString } = require("./beta1Runtime");
 
@@ -23,7 +22,7 @@ const CANONICAL_TRUTH_PROTECTED_FILES = [
 ];
 const CANONICAL_TRUTH_PROPOSAL_FILE = "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md";
 
-const AGENT_CENTER_PIPELINE_RESET_CONFIRM_TEXT = "RESET_AGENT_CENTER_PIPELINE_TEST_DATA";
+const AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE = "Reset blockiert: ungescopte Pipeline-Daten dürfen nicht gelöscht werden. Bitte Safe-Reset-Scope/Archivierung implementieren.";
 const AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS = [
   "agentCenterInbox",
   "agentCenterDecisions",
@@ -52,39 +51,22 @@ const AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS = new Set([
   "rewards",
 ]);
 
-function sanitizeArchiveSampleId(collectionName, docId) {
-  const digest = crypto.createHash("sha256").update(`${collectionName}/${docId}`).digest("hex").slice(0, 16);
-  return `${collectionName}:${digest}`;
-}
-
 function buildAgentCenterPipelineResetScope() {
   return AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS.map((collectionName) => ({
     collectionName,
-    action: "delete_collection_docs",
-    reason: "active_agent_center_pipeline_test_data_only",
+    action: "preview_collection_counts_only",
+    reason: "unsafe_unscoped_delete_blocked_until_safe_reset_scope_exists",
   }));
 }
 
-async function snapshotAgentCenterPipelineCollection(db, collectionName) {
-  const snapshot = await db.collection(collectionName).get();
+async function previewAgentCenterPipelineCollection(db, collectionName) {
+  const countSnapshot = await db.collection(collectionName).count().get();
+  const count = Number((countSnapshot.data() || {}).count || 0);
   return {
     collectionName,
-    count: snapshot.size,
-    sampleIds: snapshot.docs.slice(0, 10).map((doc) => sanitizeArchiveSampleId(collectionName, doc.id)),
-    docRefs: snapshot.docs.map((doc) => doc.ref),
+    count,
+    sampleIds: [],
   };
-}
-
-async function deleteDocumentRefsInChunks(db, docRefs) {
-  let deleted = 0;
-  for (let index = 0; index < docRefs.length; index += 450) {
-    const batch = db.batch();
-    const chunk = docRefs.slice(index, index + 450);
-    chunk.forEach((ref) => batch.delete(ref));
-    if (chunk.length) await batch.commit();
-    deleted += chunk.length;
-  }
-  return deleted;
 }
 
 const INBOX_STATUSES = ["pending_approval", "approved", "rejected", "revision_requested", "blocked", "synced_to_task_proposal"];
@@ -2300,9 +2282,15 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   exportsTarget.archiveAndResetAgentCenterPipelineData = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator", "admin"]);
     const reason = requiredString(request.data && request.data.reason, "reason", HttpsError, 1000);
-    const confirmResetText = requiredString(request.data && request.data.confirmResetText, "confirmResetText", HttpsError, 120);
-    if (confirmResetText !== AGENT_CENTER_PIPELINE_RESET_CONFIRM_TEXT) {
-      throw new HttpsError("failed-precondition", "confirm_reset_text_mismatch");
+    const confirmResetText = optionalString(request.data && request.data.confirmResetText, 120);
+    const deleteRequested = Boolean(
+      confirmResetText ||
+      (request.data && request.data.dryRun === false) ||
+      (request.data && request.data.previewOnly === false) ||
+      (request.data && request.data.deleteRequested === true)
+    );
+    if (deleteRequested) {
+      throw new HttpsError("failed-precondition", AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE);
     }
 
     const resetScope = buildAgentCenterPipelineResetScope();
@@ -2311,7 +2299,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
     const snapshots = [];
     for (const scopeEntry of resetScope) {
-      snapshots.push(await snapshotAgentCenterPipelineCollection(db, scopeEntry.collectionName));
+      snapshots.push(await previewAgentCenterPipelineCollection(db, scopeEntry.collectionName));
     }
 
     const countsBeforeReset = {};
@@ -2321,54 +2309,28 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       sampleIds[snapshot.collectionName] = snapshot.sampleIds;
     });
 
-    const archiveRef = db.collection("agentCenterArchiveRuns").doc();
-    const archiveRunId = archiveRef.id;
-    await archiveRef.set({
-      archiveRunId,
-      createdAt: FieldValue.serverTimestamp(),
-      createdByRole: actorRole,
-      reason,
-      resetScope,
-      countsBeforeReset,
-      sampleIds,
-      noUserDataDeleted: true,
-      noProductFilesChanged: true,
-      noRunnerStarted: true,
-      noBranchOrPrOrMerge: true,
-      noDeploy: true,
-      noTokenPaymentBlockchain: true,
-    });
-
-    const deletedCounts = {};
-    const archivedCounts = {};
-    const skippedCollections = [];
-    for (const snapshot of snapshots) {
-      if (!AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS.includes(snapshot.collectionName) || AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS.has(snapshot.collectionName)) {
-        skippedCollections.push(snapshot.collectionName);
-        continue;
-      }
-      deletedCounts[snapshot.collectionName] = await deleteDocumentRefsInChunks(db, snapshot.docRefs);
-    }
-
     await writeAgentAudit(db, {
       actorId,
       actorRole,
-      action: "agent_center_pipeline_archive_reset",
+      action: "agent_center_pipeline_reset_preview",
       result: "accepted",
-      proposalId: archiveRunId,
-      riskLevel: "medium",
+      riskLevel: "low",
     });
 
     return {
       accepted: true,
-      archiveRunId,
-      deletedCounts,
-      archivedCounts,
-      skippedCollections,
+      dryRun: true,
+      previewOnly: true,
+      deletionBlocked: true,
+      countsBeforeReset,
+      sampleIds,
+      deletedCounts: {},
+      archivedCounts: {},
+      skippedCollections: resetScope.map((entry) => entry.collectionName),
       noRunnerStarted: true,
       noBranchOrPrOrMerge: true,
       noDeploy: true,
-      message: "Agent-Center-Testdaten zurückgesetzt. Archiv wurde vor dem Entfernen erstellt.",
+      message: "Reset derzeit aus Sicherheitsgründen nur als Prüfung verfügbar.",
     };
   });
 

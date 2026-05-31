@@ -1657,58 +1657,31 @@ export default function AgentCenterInteractive({
     }
   }
 
-  async function refreshAgentCenterPipelineListsAfterReset() {
-    await refreshInbox();
-    await refreshTaskProposals();
-    await refreshWorkerQueueItems();
-    await refreshRunnerJobs();
-    await refreshPickupContracts();
-    await refreshImplementationPlans();
-  }
-
   async function archiveAndResetAgentCenterPipelineData() {
     if (!(await ensureAdminAuthReady())) return;
-    const warning = "Dies archiviert und entfernt nur Agent-Center-Test-/Vorschlagsdaten. Produktdaten, Userdaten und WellFit-Dokumente bleiben erhalten.";
-    const confirmResetText = window.prompt(`${warning}
-
-Bitte exakt eingeben: RESET_AGENT_CENTER_PIPELINE_TEST_DATA`) || "";
-    if (confirmResetText !== "RESET_AGENT_CENTER_PIPELINE_TEST_DATA") {
-      const message = "Reset abgebrochen: Sicherheitsbestätigung stimmt nicht exakt.";
-      setFeedback(message);
-      setSyncDebug((prev) => ({
-        ...prev,
-        lastAgentCenterResetAccepted: false,
-        lastAgentCenterResetArchiveRunIdPresent: false,
-        lastAgentCenterResetMessage: message,
-        lastAgentCenterResetDeletedCountsPresent: false,
-        lastAgentCenterResetNoRunnerStarted: "-",
-        lastAgentCenterResetNoBranchOrPrOrMerge: "-",
-        lastAgentCenterResetNoDeploy: "-",
-      }));
-      return;
-    }
 
     setBusy(true);
-    setFeedback("Agent-Center-Testdaten werden archiviert und zurückgesetzt …");
+    setFeedback("Reset derzeit aus Sicherheitsgründen nur als Prüfung verfügbar.");
     try {
       const result = await beta1AdminClient.archiveAndResetAgentCenterPipelineData({
-        reason: "Admin Center manual cleanup before retesting Single-Owner-Decision pipeline",
-        confirmResetText,
+        reason: "Admin Center safety preview before scoped reset implementation",
+        dryRun: true,
+        previewOnly: true,
       }) as AgentCenterPipelineResetResult;
       const accepted = Boolean(result.accepted);
       const archiveRunId = asText(result.archiveRunId);
       const deletedCounts = result.deletedCounts && typeof result.deletedCounts === "object" ? result.deletedCounts : {};
       const archivedCounts = result.archivedCounts && typeof result.archivedCounts === "object" ? result.archivedCounts : {};
       const safeMessage = accepted
-        ? `Agent-Center-Testdaten zurückgesetzt.${archiveRunId ? ` archiveRunId: ${archiveRunId}` : ""}`
-        : `Agent-Center-Testdaten konnten nicht zurückgesetzt werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+        ? result.message || "Reset derzeit aus Sicherheitsgründen nur als Prüfung verfügbar."
+        : `Agent-Center-Testdaten konnten nicht geprüft werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
       setFeedback(safeMessage);
       setSyncStatus(safeMessage);
       setSyncDebug((prev) => ({
         ...prev,
         lastAgentCenterResetAccepted: accepted,
         lastAgentCenterResetArchiveRunIdPresent: Boolean(archiveRunId),
-        lastAgentCenterResetMessage: accepted ? "Agent-Center-Testdaten zurückgesetzt." : safeMessage,
+        lastAgentCenterResetMessage: safeMessage,
         lastAgentCenterResetDeletedCountsPresent: Object.keys(deletedCounts).length > 0,
         lastAgentCenterResetArchivedCountsPresent: Object.keys(archivedCounts).length > 0,
         lastAgentCenterResetNoRunnerStarted: result.noRunnerStarted ?? "-",
@@ -1716,12 +1689,9 @@ Bitte exakt eingeben: RESET_AGENT_CENTER_PIPELINE_TEST_DATA`) || "";
         lastAgentCenterResetNoDeploy: result.noDeploy ?? "-",
         lastAgentCenterResetSkippedCollections: Array.isArray(result.skippedCollections) ? result.skippedCollections : [],
       }));
-      if (accepted) {
-        setActive("server_total");
-        await refreshAgentCenterPipelineListsAfterReset();
-      }
+      if (accepted) setActive("server_total");
     } catch (error) {
-      const safeMessage = `Agent-Center-Testdaten konnten nicht zurückgesetzt werden: ${getSafeAdminDecisionMessage(error)}`;
+      const safeMessage = `Agent-Center-Testdaten konnten nicht geprüft werden: ${getSafeAdminDecisionMessage(error)}`;
       setFeedback(safeMessage);
       setSyncDebug((prev) => ({
         ...prev,
@@ -1814,11 +1784,11 @@ Bitte exakt eingeben: RESET_AGENT_CENTER_PIPELINE_TEST_DATA`) || "";
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshTaskProposals}>Task Proposals neu laden</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshWorkerQueueItems}>Worker Queue ansehen</button>
         <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={refreshRunnerJobs}>Runner Jobs ansehen</button>
-        <button disabled={busy} className="cursor-pointer rounded border border-amber-300/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={archiveAndResetAgentCenterPipelineData}>Agent-Testdaten zurücksetzen</button>
+        <button disabled={busy} className="cursor-pointer rounded border border-amber-300/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={archiveAndResetAgentCenterPipelineData}>Reset-Prüfung anzeigen</button>
         <button disabled={busy} className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" onClick={generateFreshAgentProposals}>Frische Agent-Vorschläge erzeugen</button>
         {canRunRevisionDossierGenerator && <button disabled={busy} className="cursor-pointer rounded border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" onClick={runRevisionDossierGenerator}>Revision-Dossiers neu erzeugen</button>}
       </div>
-      <p className="text-xs text-amber-100">Reset-Hinweis: Dies archiviert und entfernt nur Agent-Center-Test-/Vorschlagsdaten. Produktdaten, Userdaten und WellFit-Dokumente bleiben erhalten.</p>
+      <p className="text-xs text-amber-100">Reset derzeit aus Sicherheitsgründen nur als Prüfung verfügbar. Der Button löst keinen destruktiven Delete aus; ungescopte Pipeline-Daten dürfen nicht gelöscht werden.</p>
       {!authDebug.firebaseUserPresent && (
         <div className="rounded border border-amber-300/60 bg-amber-500/10 p-2 text-xs">
           <p>Admin-Login erforderlich. Bitte mit Firebase anmelden.</p>
