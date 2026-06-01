@@ -8,7 +8,7 @@ import safetyDossierRegister from "@/project-register/agent-safety-dossiers.json
 import conversationIdeaDossierRegister from "@/project-register/agent-conversation-idea-dossiers.json";
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier, AgentCenterAutopilotSnapshot, AgentCenterAutopilotSnapshotResult, BuilderWorkPackage, PrepareBuilderWorkPackageResult, ConversationIdeaDossier } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier, AgentCenterAutopilotSnapshot, AgentCenterAutopilotSnapshotResult, BuilderWorkPackage, PrepareBuilderWorkPackageResult, ConversationIdeaDossier, ConversationIdeaDecisionResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -1375,6 +1375,84 @@ export default function AgentCenterInteractive({
   }
 
 
+  function conversationDossierId(row: ConversationIdeaDossier | Row): string {
+    return asText((row as Row).dossierId || (row as Row).id || (row as Row).sourceDossierId);
+  }
+
+  async function decideConversationIdea(row: ConversationIdeaDossier | Row, decision: "approve" | "reject" | "revision_requested" | "block") {
+    const dossierId = conversationDossierId(row);
+    if (!dossierId) {
+      setFeedback("Conversation-Idee kann nicht entschieden werden: Dossier-ID fehlt.");
+      return;
+    }
+    if (!authDebug.adminCallableAuthReady) {
+      setFeedback("Conversation-Idee kann nicht entschieden werden: Admin-Auth fehlt.");
+      return;
+    }
+    const label = decision === "approve" ? "freigegeben" : decision === "reject" ? "abgelehnt" : decision === "revision_requested" ? "zur Überarbeitung markiert" : "blockiert";
+    setBusy(true);
+    setFeedback(`Conversation-Idee wird ${label} …`);
+    try {
+      const result = await beta1AdminClient.decideConversationIdeaDossier({ dossierId, decision, reason: `admin_center_${decision}` }) as ConversationIdeaDecisionResult;
+      const message = result.accepted
+        ? `Conversation-Idee ${label}. Status: ${result.status || "aktualisiert"}. Keine GitHub-/Runner-/Branch-/PR-/Merge-/Deploy-Aktion gestartet.`
+        : `Conversation-Idee konnte nicht entschieden werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(message);
+      setSyncStatus(message);
+      if (result.accepted) setDetailRow((prev) => prev && conversationDossierId(prev) === dossierId ? { ...prev, status: result.status, decision } : prev);
+    } catch (error) {
+      const message = `Conversation-Idee konnte nicht entschieden werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(message);
+      setSyncStatus(message);
+    } finally {
+      try {
+        await refreshAgentSnapshot();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
+  async function prepareConversationBuilderWorkPackage(row: ConversationIdeaDossier | Row) {
+    const dossierId = conversationDossierId(row);
+    const status = String((row as Row).status || "").toLowerCase();
+    if (!dossierId) {
+      setFeedback("Conversation-Bauauftrag kann nicht vorbereitet werden: Dossier-ID fehlt.");
+      return;
+    }
+    if (!authDebug.adminCallableAuthReady) {
+      setFeedback("Conversation-Bauauftrag kann nicht vorbereitet werden: Admin-Auth fehlt.");
+      return;
+    }
+    if (status !== "approved") {
+      setFeedback("Nur freigegebene Conversation-Ideen können als Bauauftrag vorbereitet werden.");
+      return;
+    }
+    setBusy(true);
+    setFeedback("Conversation-Bauauftrag wird metadata-only vorbereitet …");
+    try {
+      const result = await beta1AdminClient.prepareBuilderWorkPackageFromConversationDossier({ dossierId }) as PrepareBuilderWorkPackageResult;
+      const workPackageId = asText(result.workPackageId || result.workPackage?.workPackageId);
+      const reapproval = result.reapprovalRequired || result.workPackage?.reapprovalRequired;
+      const message = result.accepted
+        ? `Conversation-Bauauftrag vorbereitet.${workPackageId ? ` workPackageId: ${workPackageId}` : ""} Status: ${result.status || result.workPackage?.status || "approved_waiting"}${reapproval ? " · Owner-Reapproval erforderlich, nicht next_up." : ""}. Keine GitHub-/Runner-/Branch-/PR-/Merge-/Deploy-Aktion gestartet.`
+        : `Conversation-Bauauftrag konnte nicht vorbereitet werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(message);
+      setSyncStatus(message);
+      if (result.accepted) setActive("builder_waiting");
+    } catch (error) {
+      const message = `Conversation-Bauauftrag konnte nicht vorbereitet werden: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(message);
+      setSyncStatus(message);
+    } finally {
+      try {
+        await refreshAgentSnapshot();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
   function builderWorkPackageButtonReason(row: Row): string {
     const inboxId = asText(row.inboxId);
     const status = String(row.status || "").toLowerCase();
@@ -2500,8 +2578,11 @@ export default function AgentCenterInteractive({
               <p>Quelle: {dossier.source || "seed"} · Pipeline: {dossier.suggestedPipelineStep || dossier.nextPipelineStep || "owner_review"}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border border-white/30 px-2 py-1" onClick={() => setDetailRow(dossier as unknown as Row)}>Dossier öffnen</button>
-                <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100" onClick={() => setDetailRow(dossier as unknown as Row)}>freigeben / ablehnen / überarbeiten / blockieren</button>
-                <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100" onClick={() => setDetailRow(dossier as unknown as Row)}>Als Bauauftrag vorbereiten (metadata-only)</button>
+                <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(dossier, "approve")}>Zustimmen</button>
+                <button className="cursor-pointer rounded border border-red-200/70 px-2 py-1 text-red-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(dossier, "reject")}>Ablehnen</button>
+                <button className="cursor-pointer rounded border border-amber-200/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(dossier, "revision_requested")}>Überarbeiten</button>
+                <button className="cursor-pointer rounded border border-white/30 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(dossier, "block")}>Blockieren</button>
+                <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady || String(dossier.status || "").toLowerCase() !== "approved"} onClick={() => prepareConversationBuilderWorkPackage(dossier)}>Als Bauauftrag vorbereiten (metadata-only)</button>
               </div>
               <p className="mt-2 text-fuchsia-100/80">Flags: noRuntimeChanges={String(dossier.noRuntimeChanges !== false)} · noRunnerStarted={String(dossier.noRunnerStarted !== false)} · noBranchOrPrOrMerge={String(dossier.noBranchOrPrOrMerge !== false)} · noDeploy={String(dossier.noDeploy !== false)} · noTokenPaymentBlockchain={String(dossier.noTokenPaymentBlockchain !== false)}</p>
             </article>
@@ -2848,6 +2929,8 @@ export default function AgentCenterInteractive({
         const executionContract = objectValue(detailRow.executionContract);
         const allowedExecution = objectValue(detailRow.allowedExecution);
         const forbiddenExecution = objectValue(detailRow.forbiddenExecution);
+        const isConversationIdeaDetail = asText(detailRow.type) === "conversation_idea_dossier" || Boolean(asText(detailRow.dossierId) && asText(detailRow.suggestedPipelineStep).includes("conversation_idea"));
+        const conversationDetailStatus = String(detailRow.status || "pending_approval").toLowerCase();
         const allowedLabel = (value: boolean) => value ? "erlaubt" : "nicht erlaubt";
         const decisionAllows = [
           ["Task Proposal", executionContract.decisionCoversTaskProposal === true],
@@ -2878,6 +2961,13 @@ export default function AgentCenterInteractive({
             <p>Quelle: {details.source || "—"}</p>
             <p>Source Type: {String(detailRow.sourceType || "—")} · List Type: {String(detailRow.listType || "—")}</p>
             <p>Status: {String(detailRow.status || "pending_approval")}</p>
+            {isConversationIdeaDetail && <div className="mt-2 flex flex-wrap gap-2 rounded border border-fuchsia-200/30 bg-fuchsia-400/10 p-2">
+              <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(detailRow, "approve")}>Zustimmen</button>
+              <button className="cursor-pointer rounded border border-red-200/70 px-2 py-1 text-red-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(detailRow, "reject")}>Ablehnen</button>
+              <button className="cursor-pointer rounded border border-amber-200/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(detailRow, "revision_requested")}>Überarbeiten</button>
+              <button className="cursor-pointer rounded border border-white/30 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(detailRow, "block")}>Blockieren</button>
+              <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady || conversationDetailStatus !== "approved"} onClick={() => prepareConversationBuilderWorkPackage(detailRow)}>Als Bauauftrag vorbereiten</button>
+            </div>}
             <p>Detailstatus: {details.isComplete ? "structured" : "missing"}</p>
             {isLegacyApprovedReapprovalRequired(detailRow) && <div className="mt-2 rounded border border-amber-300/50 bg-amber-300/10 p-2 text-amber-100"><p className="font-semibold">Alte Freigabe erkannt</p><p>Diese Freigabe gilt nur für den alten eingeschränkten Vertrag.</p><p>Für automatische Ausführung ist eine neue einmalige Entscheidung nötig.</p><p>{asText(detailRow.reapprovalReason) || "Dieser Vorschlag wurde früher mit einem alten, engen Vertrag freigegeben. Für automatische Ausführung ist eine neue einmalige Entscheidung auf Basis des vollständigen Ausführungsvertrags nötig."}</p></div>}
             {details.singleDecision.isSingleDecision && <p>Contract: {asText(detailRow.executionContractVersion) || "—"} · Hash vorhanden: {String(Boolean(getCurrentExecutionContractHash(detailRow)))} · Approved Hash passt: {String(contractApprovalMatchesCurrent(detailRow))}</p>}

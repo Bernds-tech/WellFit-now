@@ -348,10 +348,12 @@ export type ConversationIdeaDossier = AgentDossierBase & {
   noTokenPaymentBlockchain?: boolean;
 };
 export type CreateConversationIdeaDossierInput = { rawIdeaText: string; source: "chat" | "admin_note" | "uploaded_transcript" | "manual"; sourceRef?: string; priorityHint?: string; categoryHint?: string };
-export type CreateConversationIdeaDossierResult = AdminCallableResult & { dossierId?: string; dossier?: ConversationIdeaDossier; noRuntimeChanges?: boolean; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
+export type CreateConversationIdeaDossierResult = AdminCallableResult & { dossierId?: string; dossier?: ConversationIdeaDossier; duplicatePreserved?: boolean; noRuntimeChanges?: boolean; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
+export type ConversationIdeaDecisionInput = { dossierId: string; decision: "approve" | "reject" | "revision_requested" | "block"; reason?: string };
+export type ConversationIdeaDecisionResult = AdminCallableResult & { dossierId?: string; status?: string; decision?: string; noRuntimeChanges?: boolean; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
 
 
-export type BuilderWorkPackageStatus = "proposed" | "approved_waiting" | "next_up" | "active_metadata_only" | "blocked_by_existing_active_work" | "blocked_by_failed_checks" | "blocked_by_stale_base" | "repair_required" | "completed_metadata_only" | "cancelled" | "paused_by_owner" | string;
+export type BuilderWorkPackageStatus = "proposed" | "approved_waiting" | "next_up" | "active_metadata_only" | "blocked_by_existing_active_work" | "blocked_by_failed_checks" | "blocked_by_stale_base" | "blocked_by_reapproval_required" | "repair_required" | "completed_metadata_only" | "cancelled" | "paused_by_owner" | string;
 export type BuilderWorkPackage = {
   workPackageId: string;
   sourceDossierId?: string | null;
@@ -435,7 +437,8 @@ export type AgentCenterAutopilotSnapshot = {
 };
 export type AgentCenterAutopilotSnapshotResult = AdminCallableResult & { snapshot?: AgentCenterAutopilotSnapshot };
 export type PrepareBuilderWorkPackageInput = { dossierId?: string; inboxId?: string; sourceDossierId?: string; baseSha?: string };
-export type PrepareBuilderWorkPackageResult = AdminCallableResult & { workPackage?: BuilderWorkPackage; workPackageId?: string; existing?: boolean; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
+export type PrepareConversationBuilderWorkPackageInput = { dossierId: string; baseSha?: string };
+export type PrepareBuilderWorkPackageResult = AdminCallableResult & { workPackage?: BuilderWorkPackage; workPackageId?: string; status?: string; existing?: boolean; reapprovalRequired?: boolean; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
 export type AgentGithubFileChange = { path: string; content: string; changeType: "create" | "update"; encoding?: string };
 export type AgentGithubApplyFileChangesInput = { jobId: string; fileChanges: AgentGithubFileChange[]; commitMessage: string };
 export type AgentGithubPrResult = { prNumber?: number; prUrl?: string; status: AgentGithubRunnerStatus };

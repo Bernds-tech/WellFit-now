@@ -13,8 +13,10 @@ const RUNNER_JOB_STATUSES = ["pending_runner_pickup", "pickup_contract_created",
 const RUNNER_PICKUP_CONTRACT_STATUSES = ["pickup_contract_created", "implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "picked_up", "planning", "in_progress", "completed", "blocked", "repair_required"];
 const RUNNER_IMPLEMENTATION_PLAN_STATUSES = ["implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "planning", "in_progress", "completed", "repair_required", "blocked"];
 const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
-const BUILDER_WORK_PACKAGE_STATUSES = ["proposed", "approved_waiting", "next_up", "active_metadata_only", "blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "repair_required", "completed_metadata_only", "cancelled", "paused_by_owner"];
+const BUILDER_WORK_PACKAGE_STATUSES = ["proposed", "approved_waiting", "next_up", "active_metadata_only", "blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "blocked_by_reapproval_required", "repair_required", "completed_metadata_only", "cancelled", "paused_by_owner"];
 const OWNER_DECISION_STATUSES = ["approved", "rejected", "revision_requested", "blocked"];
+const CONVERSATION_IDEA_DECISIONS = ["approve", "reject", "revision_requested", "block"];
+const CONVERSATION_IDEA_TERMINAL_STATUSES = ["approved", "rejected", "revision_requested", "blocked"];
 const VERIFICATION_STATUSES = ["pending", "passed", "failed", "blocked", "not_run"];
 const CONVERSATION_IDEA_SOURCES = ["chat", "admin_note", "uploaded_transcript", "manual"];
 const BUILDER_POST_MERGE_CHECKLIST = [
@@ -213,7 +215,7 @@ function getBuilderWorkPackageStatusBucket(statusValue) {
   if (status === "approved_waiting") return "waiting";
   if (status === "next_up") return "next_up";
   if (["proposed"].includes(status)) return "proposed";
-  if (["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base"].includes(status)) return "blocked";
+  if (["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "blocked_by_reapproval_required"].includes(status)) return "blocked";
   if (status === "repair_required") return "repair_required";
   if (status === "completed_metadata_only") return "completed";
   if (status === "cancelled") return "cancelled";
@@ -240,7 +242,7 @@ function sanitizeTelemetryObject(value, depth = 0) {
   if (Array.isArray(value)) return value.slice(0, 10).map((entry) => sanitizeTelemetryObject(entry, depth + 1));
   if (typeof value !== "object") return sanitizeTelemetryText(value, 160);
   if (depth >= 2) return "[truncated]";
-  const denied = /(email|mail|token|secret|auth|session|uid|userId|ownerUid|payload|health|child|location|camera|gps|lat|lng|longitude|latitude)/i;
+  const denied = /(email|mail|token|secret|auth|session|uid|userId|createdBy|actorId|ownerUid|firebaseUid|authUid|payload|health|child|location|camera|gps|lat|lng|longitude|latitude)/i;
   const safe = {};
   for (const [key, nested] of Object.entries(value).slice(0, 40)) {
     if (denied.test(key)) {
@@ -256,11 +258,23 @@ function sanitizeConversationIdeaText(value, maxLength = 4000) {
   const raw = optionalString(value, maxLength * 2) || "";
   return raw
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/ig, "[redacted-email]")
-    .replace(/\b(?:token|secret|api[_-]?key|session|bearer)\s*[:=]\s*[^\s,;]+/ig, "$1=[redacted]")
-    .replace(/\b(?:uid|userId|sessionId)\s*[:=]\s*[^\s,;]+/ig, "$1=[redacted]")
+    .replace(/\bauthorization\s*:\s*bearer\s+[^\s,;]+/ig, "Authorization: Bearer [redacted]")
+    .replace(/\bbearer\s+[^\s,;]+/ig, "Bearer [redacted]")
+    .replace(/\b(access_token|refresh_token|token|session|cookie|api[_-]?key|key|secret)\s*[:=]\s*[^\s,;&]+/ig, "$1=[redacted]")
+    .replace(/([?&])(access_token|refresh_token|token|session|cookie|api[_-]?key|key|secret)=([^\s,;&]+)/ig, "$1$2=[redacted]")
+    .replace(/\b(uid|userId|sessionId|createdBy|actorId|ownerUid|firebaseUid|authUid)\s*[:=]\s*[^\s,;]+/ig, "$1=[redacted]")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, maxLength);
+}
+
+function sanitizeConversationIdeaRef(value, maxLength = 260) {
+  const sanitized = sanitizeConversationIdeaText(value, maxLength);
+  if (!sanitized) return "";
+  if (sanitized.includes("[redacted]")) {
+    return `sanitized-hash:${crypto.createHash("sha256").update(sanitized).digest("hex").slice(0, 16)}`;
+  }
+  return sanitized;
 }
 
 function buildDefaultVerificationPlan(overrides = {}) {
@@ -291,8 +305,9 @@ function detectBuilderReapprovalGuard(workPackage = {}, previous = {}) {
   if (stable(requiredChecks) !== stable(previousRequiredChecks)) reasons.push("requiredChecks_changed");
   const allScopeText = [...affectedFiles, ...blockedFiles, ...requiredChecks, sanitizeTelemetryText(workPackage.revalidationStatus, 200) || ""].join(" ").toLowerCase();
   if (touchesCanonicalTruthProtectedFiles([...affectedFiles, ...blockedFiles]).length) reasons.push("canonical_truth_protected_file");
+  if (blockedFiles.length > 0) reasons.push("blocked_files_scope");
   if (/(token|nft|payment|cashout|wallet|sui|wft|blockchain)/i.test(allScopeText)) reasons.push("token_payment_blockchain_scope");
-  if (/(health|child|location|camera|face|sensitive)/i.test(allScopeText)) reasons.push("sensitive_data_scope");
+  if (/(health|child|location|camera|face|sensitive|firestore\s*rules|firestore\.rules|runtime\s*reward|ledger|anti[-_ ]?cheat)/i.test(allScopeText)) reasons.push("sensitive_or_guardrail_scope");
   if (String(workPackage.revalidationStatus || "").toLowerCase().includes("stale") || (workPackage.staleAfterMainSha && workPackage.currentMainShaAtLastValidation && workPackage.staleAfterMainSha !== workPackage.currentMainShaAtLastValidation)) reasons.push("main_sha_stale_or_conflict_suspected");
   if (String(workPackage.safetySentinelStatus || "").toLowerCase() === "blocked") reasons.push("safety_sentinel_blocked");
   return { reapprovalRequired: reasons.length > 0, reapprovalReason: reasons.join(", ") || null, reasons };
@@ -301,9 +316,11 @@ function detectBuilderReapprovalGuard(workPackage = {}, previous = {}) {
 function planNextBuilderQueueState(packages = []) {
   const sorted = [...packages].sort((a, b) => Number(a.executionOrder || a.sequenceNumber || 0) - Number(b.executionOrder || b.sequenceNumber || 0));
   const active = sorted.filter((wp) => String(wp.serialGroup || BUILDER_SERIAL_GROUP) === BUILDER_SERIAL_GROUP && String(wp.status || "") === "active_metadata_only");
-  const waiting = sorted.filter((wp) => String(wp.serialGroup || BUILDER_SERIAL_GROUP) === BUILDER_SERIAL_GROUP && String(wp.status || "") === "approved_waiting" && wp.reapprovalRequired !== true);
-  const next = active.length === 0 ? (waiting[0] || null) : null;
-  return { serialGroup: BUILDER_SERIAL_GROUP, maxConcurrentInSerialGroup: 1, activeCount: active.length, canMarkNextUp: active.length === 0 && Boolean(next), nextUpWorkPackageId: next ? next.workPackageId || null : null, nextUpSourceDossierId: next ? next.sourceDossierId || null : null, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
+  const waiting = sorted.filter((wp) => String(wp.serialGroup || BUILDER_SERIAL_GROUP) === BUILDER_SERIAL_GROUP && String(wp.status || "") === "approved_waiting");
+  const validWaiting = waiting.filter((wp) => wp.reapprovalRequired !== true);
+  const blockedWaiting = waiting.filter((wp) => wp.reapprovalRequired === true);
+  const next = active.length === 0 ? (validWaiting[0] || null) : null;
+  return { serialGroup: BUILDER_SERIAL_GROUP, maxConcurrentInSerialGroup: 1, activeCount: active.length, waitingCount: waiting.length, reapprovalBlockedWaitingCount: blockedWaiting.length, queuePaused: active.length === 0 && waiting.length > 0 && validWaiting.length === 0, pauseReason: active.length === 0 && waiting.length > 0 && validWaiting.length === 0 ? "all_waiting_packages_require_owner_reapproval" : null, canMarkNextUp: active.length === 0 && Boolean(next), nextUpWorkPackageId: next ? next.workPackageId || null : null, nextUpSourceDossierId: next ? next.sourceDossierId || null : null, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
 }
 
 function buildRepairDossierFromVerificationFailure(workPackage = {}, reason = "verification_failed") {
@@ -328,7 +345,7 @@ function buildRepairDossierFromVerificationFailure(workPackage = {}, reason = "v
 function buildConversationIdeaDossier(input = {}) {
   const rawIdeaText = sanitizeConversationIdeaText(input.rawIdeaText, 4000);
   const source = CONVERSATION_IDEA_SOURCES.includes(String(input.source || "")) ? String(input.source) : "manual";
-  const sourceRef = sanitizeTelemetryText(input.sourceRef, 180);
+  const sourceRef = sanitizeConversationIdeaRef(input.sourceRef, 180);
   const titleSeed = rawIdeaText.split(/[.!?]/)[0] || "Conversation Idea Dossier";
   const title = sanitizeTelemetryText(input.title || titleSeed, 120) || "Conversation Idea Dossier";
   const dossierId = sanitizeFirestoreDocIdPart(input.dossierId || `conversation-idea-${crypto.createHash("sha256").update(`${source}:${sourceRef || ""}:${rawIdeaText}`).digest("hex").slice(0, 16)}`, 180);
@@ -355,7 +372,7 @@ function buildConversationIdeaDossier(input = {}) {
     riskLevel: sanitizeTelemetryText(input.riskLevel || input.priorityHint || "medium", 80) || "medium",
     requiredChecks,
     acceptanceCriteria: sanitizeTelemetryList(input.acceptanceCriteria || ["Dossier ist im Admin Center sichtbar", "Owner kann approve/reject/revision/block entscheiden", "Keine Runner-/Branch-/PR-/Merge-/Deploy-Aktion"], 20, 260),
-    sources: sanitizeTelemetryList(input.sources || [sourceRef || source], 20, 260),
+    sources: sanitizeTelemetryList(input.sources || [sourceRef || source], 20, 260).map((entry) => sanitizeConversationIdeaRef(entry, 260)).filter(Boolean),
     source,
     sourceRef,
     priorityHint: sanitizeTelemetryText(input.priorityHint, 80),
@@ -502,20 +519,24 @@ function buildBuilderQueueGuardState(packages, autopilotControl) {
   const safePackages = Array.isArray(packages) ? packages : [];
   const active = safePackages.filter((wp) => String(wp.status || "") === "active_metadata_only");
   const waiting = safePackages.filter((wp) => String(wp.status || "") === "approved_waiting");
-  const nextUp = safePackages.filter((wp) => String(wp.status || "") === "next_up");
-  const blocking = safePackages.filter((wp) => ["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "repair_required", "paused_by_owner"].includes(String(wp.status || "")));
+  const validWaiting = waiting.filter((wp) => wp.reapprovalRequired !== true);
+  const reapprovalBlockedWaiting = waiting.filter((wp) => wp.reapprovalRequired === true);
+  const nextUp = safePackages.filter((wp) => String(wp.status || "") === "next_up" && wp.reapprovalRequired !== true);
+  const blocking = safePackages.filter((wp) => ["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "blocked_by_reapproval_required", "repair_required", "paused_by_owner"].includes(String(wp.status || "")));
   const repairLimitHit = safePackages.some((wp) => Number(wp.repairAttemptCount || 0) >= BUILDER_MAX_REPAIR_ATTEMPTS || String(wp.status || "") === "repair_required");
-  const failedOrBlocking = blocking.length > 0 || safePackages.some((wp) => ["blocked", "failed"].includes(String(wp.status || "")));
+  const allWaitingNeedReapproval = active.length === 0 && waiting.length > 0 && validWaiting.length === 0;
+  const failedOrBlocking = blocking.length > 0 || safePackages.some((wp) => ["blocked", "failed"].includes(String(wp.status || ""))) || allWaitingNeedReapproval;
   const paused = Boolean(autopilotControl && autopilotControl.paused) || repairLimitHit || failedOrBlocking;
-  const reason = repairLimitHit ? "repair_limit_reached" : (failedOrBlocking ? "open_blocker" : (active.length > 1 ? "more_than_one_active_work_package" : (autopilotControl && autopilotControl.pauseReason) || null));
+  const reason = repairLimitHit ? "repair_limit_reached" : (allWaitingNeedReapproval ? "all_waiting_packages_require_owner_reapproval" : (failedOrBlocking ? "open_blocker" : (active.length > 1 ? "more_than_one_active_work_package" : (autopilotControl && autopilotControl.pauseReason) || null)));
   return {
     serialGroup: BUILDER_SERIAL_GROUP,
     maxConcurrentWorkPackages: 1,
     activeCount: active.length,
     waitingCount: waiting.length,
     nextUpCount: nextUp.length,
+    reapprovalBlockedWaitingCount: reapprovalBlockedWaiting.length,
     hasActiveWorkPackage: active.length > 0,
-    nextUpWorkPackageId: active.length === 0 && waiting[0] ? (waiting[0].workPackageId || null) : (nextUp[0] ? nextUp[0].workPackageId || null : null),
+    nextUpWorkPackageId: active.length === 0 && validWaiting[0] ? (validWaiting[0].workPackageId || null) : (nextUp[0] ? nextUp[0].workPackageId || null : null),
     queuePaused: paused,
     pauseReason: sanitizeTelemetryText(reason, 240),
     automationPaused: paused,
@@ -532,7 +553,7 @@ function buildBuilderWorkPackageFromDossier({ dossier, dossierId, actorRole, seq
   const allowedFiles = sanitizeTelemetryList(source.allowedFiles || source.allowedWriteScopes || source.affectedFiles || [], 80, 260);
   const blockedFiles = sanitizeTelemetryList(source.blockedFiles || source.blockedWriteScopes || source.forbiddenFiles || [], 80, 260);
   const requiredChecks = sanitizeTelemetryList(source.requiredChecks || source.checks || source.validationCommands || [], 80, 260);
-  return {
+  const workPackage = {
     sourceDossierId: sanitizeTelemetryText(source.sourceDossierId || dossierId, 180) || dossierId,
     sourceDossierType: sanitizeTelemetryText(source.sourceType || source.listType || source.type || "agent_center_inbox", 120) || "agent_center_inbox",
     title: sanitizeTelemetryText(source.title, 220) || `Bauauftrag ${dossierId}`,
@@ -572,6 +593,17 @@ function buildBuilderWorkPackageFromDossier({ dossier, dossierId, actorRole, seq
     noTokenPaymentBlockchain: true,
     recommendedNextAction: "Warten, bis alle vorherigen Work Packages abgeschlossen und Checks gruen sind. Keine GitHub-/Runner-/Deploy-Aktion starten.",
   };
+  const reapprovalGuard = detectBuilderReapprovalGuard(workPackage, workPackage);
+  if (reapprovalGuard.reapprovalRequired) {
+    workPackage.reapprovalRequired = true;
+    workPackage.reapprovalReason = reapprovalGuard.reapprovalReason;
+    workPackage.status = "blocked_by_reapproval_required";
+    workPackage.approvedForSerialExecution = false;
+    workPackage.automationPaused = true;
+    workPackage.pauseReason = "owner_reapproval_required";
+    workPackage.recommendedNextAction = `Owner-Reapproval erforderlich, bevor dieses Work Package in approved_waiting/next_up darf: ${reapprovalGuard.reapprovalReason || "protected_scope"}. Keine GitHub-/Runner-/Deploy-Aktion starten.`;
+  }
+  return workPackage;
 }
 
 function buildAgentTaskProposalStatusCounts(proposals) {
@@ -3777,15 +3809,15 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       const sequenceNumber = await getNextBuilderSequenceNumber(transaction);
       const wpRef = db.collection("agentBuilderWorkPackages").doc();
       const wpBase = buildBuilderWorkPackageFromDossier({ dossier, dossierId, actorRole, sequenceNumber, baseSha });
-      const automationPaused = repairLimitHit || blocking.length > 0 || (autopilotSnap.exists && (autopilotSnap.data() || {}).paused === true);
-      const status = "approved_waiting";
+      const automationPaused = wpBase.reapprovalRequired === true || repairLimitHit || blocking.length > 0 || (autopilotSnap.exists && (autopilotSnap.data() || {}).paused === true);
+      const status = wpBase.reapprovalRequired === true ? "blocked_by_reapproval_required" : "approved_waiting";
       const workPackage = {
         ...wpBase,
         workPackageId: wpRef.id,
         status,
         existingActiveWorkPackageCount: active.length,
         automationPaused,
-        pauseReason: automationPaused ? (repairLimitHit ? "repair_limit_reached" : "open_previous_blocker") : null,
+        pauseReason: automationPaused ? (wpBase.reapprovalRequired === true ? "owner_reapproval_required" : (repairLimitHit ? "repair_limit_reached" : "open_previous_blocker")) : null,
         createdBy: actorId,
         createdByRole: actorRole,
         ownerApprovedAt: dossier.approvedAt || now,
@@ -3804,7 +3836,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         maxRepairAttempts: BUILDER_MAX_REPAIR_ATTEMPTS,
         paused: automationPaused,
         pauseReason: automationPaused ? workPackage.pauseReason : ((autopilotSnap.exists && (autopilotSnap.data() || {}).pauseReason) || null),
-        nextRecommendedAction: automationPaused ? "Vorherigen Blocker/Repair pruefen; neue Bauauftraege bleiben approved_waiting." : "Naechstes Work Package bleibt approved_waiting, bis Owner spaeter Aktivierung erlaubt.",
+        nextRecommendedAction: wpBase.reapprovalRequired === true ? "Owner-Reapproval erforderlich; reapproval-blockierte Work Packages werden nicht next_up. Keine GitHub-/Runner-/Deploy-Aktion starten." : (automationPaused ? "Vorherigen Blocker/Repair pruefen; neue Bauauftraege bleiben approved_waiting." : "Naechstes Work Package bleibt approved_waiting, bis Owner spaeter Aktivierung erlaubt."),
         lastOwnerDecisionAt: now,
         updatedAt: now,
       }, { merge: true });
@@ -3822,9 +3854,127 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const now = FieldValue.serverTimestamp();
     const dossier = buildConversationIdeaDossier({ ...input, createdAt: now, updatedAt: now });
     const ref = db.collection("agentConversationIdeaDossiers").doc(dossier.dossierId);
-    await ref.set({ ...dossier, createdBy: actorId, createdByRole: actorRole }, { merge: true });
-    await writeAgentAudit(db, { actorId, actorRole, action: "conversation_idea_dossier_created", proposalId: dossier.dossierId, result: "pending_approval" });
-    return { accepted: true, dossierId: dossier.dossierId, dossier: sanitizeTelemetryObject(dossier), noRuntimeChanges: true, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
+    const result = await db.runTransaction(async (transaction) => {
+      const existingSnap = await transaction.get(ref);
+      if (existingSnap.exists) {
+        const existing = existingSnap.data() || {};
+        const existingStatus = String(existing.status || "");
+        if (CONVERSATION_IDEA_TERMINAL_STATUSES.includes(existingStatus)) {
+          const update = {
+            duplicateSubmissionCount: Number(existing.duplicateSubmissionCount || 0) + 1,
+            lastSubmittedAt: now,
+            updatedAt: now,
+            lastDuplicateSubmittedByRole: actorRole,
+            noRuntimeChanges: true,
+            noRunnerStarted: true,
+            noBranchOrPrOrMerge: true,
+            noDeploy: true,
+            noTokenPaymentBlockchain: true,
+          };
+          transaction.set(ref, update, { merge: true });
+          return { duplicatePreserved: true, dossier: { ...existing, ...update, createdByRole: existing.createdByRole || actorRole }, status: existingStatus };
+        }
+      }
+      const write = { ...dossier, createdBy: actorId, createdByRole: actorRole, lastSubmittedAt: now, duplicateSubmissionCount: existingSnap.exists ? Number((existingSnap.data() || {}).duplicateSubmissionCount || 0) + 1 : 0 };
+      transaction.set(ref, write, { merge: true });
+      return { duplicatePreserved: false, dossier: write, status: "pending_approval" };
+    });
+    await writeAgentAudit(db, { actorId, actorRole, action: result.duplicatePreserved ? "conversation_idea_dossier_duplicate_preserved" : "conversation_idea_dossier_created", proposalId: dossier.dossierId, result: result.status });
+    return { accepted: true, duplicatePreserved: result.duplicatePreserved, dossierId: dossier.dossierId, dossier: sanitizeTelemetryObject(result.dossier), noRuntimeChanges: true, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
+  });
+
+  exportsTarget.decideConversationIdeaDossier = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
+    const data = request.data || {};
+    const dossierId = requiredString(data.dossierId, "dossierId", HttpsError, 180);
+    const requestedDecision = requiredString(data.decision, "decision", HttpsError, 80);
+    if (!CONVERSATION_IDEA_DECISIONS.includes(requestedDecision)) throw new HttpsError("invalid-argument", "decision_not_allowed");
+    const statusByDecision = { approve: "approved", reject: "rejected", revision_requested: "revision_requested", block: "blocked" };
+    const status = statusByDecision[requestedDecision];
+    const reason = sanitizeConversationIdeaText(data.reason || data.decisionReason || "", 1200);
+    const now = FieldValue.serverTimestamp();
+    const ref = db.collection("agentConversationIdeaDossiers").doc(dossierId);
+    const decisionId = `conversation-decision-${sanitizeFirestoreDocIdPart(dossierId, 120)}-${Date.now()}`;
+    const update = {
+      status,
+      decision: requestedDecision,
+      ownerDecisionStatus: status,
+      ownerDecisionReason: reason || null,
+      ownerDecisionId: decisionId,
+      decidedAt: now,
+      decidedByRole: actorRole,
+      updatedAt: now,
+      lastStatusChangedAt: now,
+      noRuntimeChanges: true,
+      noRunnerStarted: true,
+      noBranchOrPrOrMerge: true,
+      noDeploy: true,
+      noTokenPaymentBlockchain: true,
+      ...(status === "approved" ? { approvedAt: now, approvedByRole: actorRole, ownerDecisionPersistent: true } : {}),
+    };
+    await ref.set(update, { merge: true });
+    await writeAgentAudit(db, { actorId, actorRole, action: "conversation_idea_dossier_decided", proposalId: dossierId, result: status });
+    return { accepted: true, dossierId, status, decision: requestedDecision, noRuntimeChanges: true, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
+  });
+
+  exportsTarget.prepareBuilderWorkPackageFromConversationDossier = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
+    const data = request.data || {};
+    const dossierId = requiredString(data.dossierId, "dossierId", HttpsError, 180);
+    const baseSha = optionalString(data.baseSha, 120);
+    const dossierRef = db.collection("agentConversationIdeaDossiers").doc(dossierId);
+    const now = FieldValue.serverTimestamp();
+    const result = await db.runTransaction(async (transaction) => {
+      const [dossierSnap, packagesSnap, autopilotSnap] = await Promise.all([
+        transaction.get(dossierRef),
+        transaction.get(db.collection("agentBuilderWorkPackages").where("serialGroup", "==", BUILDER_SERIAL_GROUP).limit(200)),
+        transaction.get(db.collection("agentAutomationControl").doc("autopilot")),
+      ]);
+      if (!dossierSnap.exists) throw new HttpsError("not-found", "conversation_dossier_not_found");
+      const dossier = dossierSnap.data() || {};
+      if (String(dossier.status || "") !== "approved") throw new HttpsError("failed-precondition", "conversation_dossier_not_approved");
+      const existingForDossier = packagesSnap.docs.find((doc) => String((doc.data() || {}).sourceDossierId || "") === dossierId);
+      if (existingForDossier) return { existing: true, workPackage: mapSafeBuilderWorkPackageDoc(existingForDossier) };
+      const active = packagesSnap.docs.filter((doc) => String((doc.data() || {}).status || "") === "active_metadata_only");
+      const blocking = packagesSnap.docs.filter((doc) => ["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "blocked_by_reapproval_required", "repair_required", "paused_by_owner"].includes(String((doc.data() || {}).status || "")));
+      const repairLimitHit = packagesSnap.docs.some((doc) => Number((doc.data() || {}).repairAttemptCount || 0) >= BUILDER_MAX_REPAIR_ATTEMPTS || String((doc.data() || {}).status || "") === "repair_required");
+      const sequenceNumber = await getNextBuilderSequenceNumber(transaction);
+      const wpRef = db.collection("agentBuilderWorkPackages").doc();
+      const wpBase = buildBuilderWorkPackageFromDossier({ dossier: { ...dossier, sourceDossierId: dossierId, sourceType: "conversation_idea_dossier" }, dossierId, actorRole, sequenceNumber, baseSha });
+      if (!wpBase.allowedFiles.length || !wpBase.blockedFiles.length || !wpBase.requiredChecks.length) throw new HttpsError("failed-precondition", "missing_allowed_blocked_files_or_required_checks");
+      const automationPaused = wpBase.reapprovalRequired === true || repairLimitHit || blocking.length > 0 || (autopilotSnap.exists && (autopilotSnap.data() || {}).paused === true);
+      const status = wpBase.reapprovalRequired === true ? "blocked_by_reapproval_required" : "approved_waiting";
+      const workPackage = {
+        ...wpBase,
+        workPackageId: wpRef.id,
+        status,
+        reapprovalRequired: wpBase.reapprovalRequired === true,
+        reapprovalReason: wpBase.reapprovalReason || null,
+        existingActiveWorkPackageCount: active.length,
+        automationPaused,
+        pauseReason: automationPaused ? (wpBase.reapprovalRequired === true ? "owner_reapproval_required" : (repairLimitHit ? "repair_limit_reached" : "open_previous_blocker")) : null,
+        createdBy: actorId,
+        createdByRole: actorRole,
+        ownerApprovedAt: dossier.approvedAt || now,
+        createdAt: now,
+        updatedAt: now,
+        lastStatusChangedAt: now,
+      };
+      transaction.set(wpRef, workPackage, { merge: true });
+      transaction.set(dossierRef, { builderWorkPackageId: wpRef.id, builderWorkPackageStatus: status, lastPreparedAsBuilderWorkPackageAt: now, updatedAt: now }, { merge: true });
+      transaction.set(db.collection("agentAutomationControl").doc("autopilot"), {
+        ...buildDefaultAutopilotControl(),
+        ...(autopilotSnap.exists ? (autopilotSnap.data() || {}) : {}),
+        mode: (autopilotSnap.exists && (autopilotSnap.data() || {}).mode) || "builder_metadata_only",
+        paused: automationPaused,
+        pauseReason: automationPaused ? workPackage.pauseReason : ((autopilotSnap.exists && (autopilotSnap.data() || {}).pauseReason) || null),
+        nextRecommendedAction: wpBase.reapprovalRequired === true ? "Owner-Reapproval erforderlich; reapproval-blockierte Conversation-Bauauftraege werden nicht next_up. Keine GitHub-/Runner-/Deploy-Aktion starten." : (automationPaused ? "Vorherigen Blocker/Repair pruefen; neue Bauauftraege bleiben approved_waiting." : "Naechstes Work Package bleibt approved_waiting, bis Owner spaeter Aktivierung erlaubt."),
+        updatedAt: now,
+      }, { merge: true });
+      return { existing: false, workPackage: mapSafeBuilderWorkPackageDoc({ id: wpRef.id, data: () => workPackage }) };
+    });
+    await writeAgentAudit(db, { actorId, actorRole, action: result.existing ? "conversation_builder_work_package_existing" : "conversation_builder_work_package_prepared", proposalId: dossierId, result: result.workPackage.status || "approved_waiting" });
+    return { accepted: true, dossierId, workPackage: result.workPackage, workPackageId: result.workPackage.workPackageId, status: result.workPackage.status, existing: result.existing, reapprovalRequired: result.workPackage.reapprovalRequired === true, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
   });
 
   exportsTarget.pauseAgentAutopilotMetadataOnly = onCall(async (request) => {

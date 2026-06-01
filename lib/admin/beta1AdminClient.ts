@@ -35,6 +35,8 @@ import type {
   AgentCenterPipelineResetInput,
   PrepareBuilderWorkPackageInput,
   CreateConversationIdeaDossierInput,
+  ConversationIdeaDecisionInput,
+  PrepareConversationBuilderWorkPackageInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -340,6 +342,8 @@ export const beta1AdminClient = {
   getAgentCenterAutopilotSnapshot: () => callAdmin("getAgentCenterAutopilotSnapshot", {}),
   prepareBuilderWorkPackageFromApprovedDossier: (input: PrepareBuilderWorkPackageInput) => callAdmin("prepareBuilderWorkPackageFromApprovedDossier", input),
   createConversationIdeaDossier: (input: CreateConversationIdeaDossierInput) => callAdmin("createConversationIdeaDossier", input),
+  decideConversationIdeaDossier: (input: ConversationIdeaDecisionInput) => callAdmin("decideConversationIdeaDossier", input),
+  prepareBuilderWorkPackageFromConversationDossier: (input: PrepareConversationBuilderWorkPackageInput) => callAdmin("prepareBuilderWorkPackageFromConversationDossier", input),
   pauseAgentAutopilotMetadataOnly: (reason?: string) => callAdmin("pauseAgentAutopilotMetadataOnly", reason ? { reason } : {}),
   resumeAgentAutopilotMetadataOnly: () => callAdmin("resumeAgentAutopilotMetadataOnly", {}),
 
