@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, sanitizeConversationIdeaText, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, sanitizeConversationIdeaText, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
 const safetyDossierRegister = require('../../project-register/agent-safety-dossiers.json');
 const dossierSchema = require('../../project-register/agent-dossier-schema.json');
 
@@ -834,4 +834,86 @@ console.log('agentAdminRolesAudit helper tests passed');
   assert.strictEqual(wp.noBranchOrPrOrMerge, true, 'no branch/pr/merge starts');
   assert.strictEqual(wp.noDeploy, true, 'no deploy starts');
   assert.strictEqual(wp.noTokenPaymentBlockchain, true, 'no token/payment/blockchain starts');
+})();
+
+
+(function testGithubBuilderExecutionContractContainsRequiredSafetyFields() {
+  const wp = buildBuilderWorkPackageFromDossier({
+    dossier: { sourceDossierId: 'safe-branch', title: 'Safe branch', status: 'approved', allowedFiles: ['docs/readme.md'], blockedFiles: [], requiredChecks: ['npm run lint'], affectedFiles: ['docs/readme.md'] },
+    dossierId: 'safe-branch',
+    actorRole: 'owner',
+    sequenceNumber: 7,
+    baseSha: 'main-sha',
+  });
+  const contract = buildBuilderExecutionContractV1({ ...wp, workPackageId: 'wp-safe' });
+  assert.strictEqual(contract.workPackageId, 'wp-safe');
+  assert.strictEqual(contract.serialGroup, 'main_repo');
+  assert.strictEqual(contract.baseBranch, 'main');
+  assert.strictEqual(contract.maxRepairAttempts, 3);
+  assert.strictEqual(contract.noParallelExecution, true);
+  assert.strictEqual(contract.noAutoMerge, true);
+  assert.strictEqual(contract.noAutoDeploy, true);
+  assert.strictEqual(contract.noTokenPaymentBlockchain, true);
+  assert.strictEqual(contract.noCanonicalTruthAutonomousChange, true);
+  assert.strictEqual(contract.noFirestoreRulesChangeUnlessExplicitlyAllowed, true);
+  assert.strictEqual(contract.noRuntimeRewardLedgerAntiCheatChangeUnlessExplicitlyAllowed, true);
+})();
+
+(function testGithubBuilderGuardBlocksUnapprovedAndReapprovalRequiredPackages() {
+  const base = { workPackageId: 'wp-guard', status: 'next_up', serialGroup: 'main_repo', maxConcurrentInSerialGroup: 1, ownerApproved: true, ownerDecisionPersistent: true, approvedForSerialExecution: true, reapprovalRequired: false, baseBranch: 'main', baseSha: 'sha', allowedFiles: ['docs/a.md'], blockedFiles: [], requiredChecks: ['npm run lint'], intendedFileChanges: ['docs/a.md'] };
+  const unapproved = evaluateGithubBuilderBranchPrGuards({ workPackage: { ...base, ownerApproved: false }, allPackages: [{ ...base, ownerApproved: false }], autopilotControl: { paused: false } });
+  assert.strictEqual(unapproved.ok, false, 'not approved work package cannot prepare branch/pr');
+  assert(unapproved.reasons.includes('owner_approved_required'), 'owner approval guard is explicit');
+  const reapproval = evaluateGithubBuilderBranchPrGuards({ workPackage: { ...base, reapprovalRequired: true }, allPackages: [{ ...base, reapprovalRequired: true }], autopilotControl: { paused: false } });
+  assert.strictEqual(reapproval.ok, false, 'reapprovalRequired blocks branch/pr');
+  assert.strictEqual(reapproval.statusOnFailure, 'blocked_by_reapproval_required');
+})();
+
+(function testGithubBuilderFileEnforcementBlocksProtectedBlockedAndForbiddenScopes() {
+  const protectedScope = enforceBuilderAllowedBlockedFiles({ allowedFiles: ['docs/**'], blockedFiles: [], requiredChecks: ['npm run lint'], intendedFileChanges: ['project-register/wellfit-beta1-canonical-truth.json'] });
+  assert.strictEqual(protectedScope.ok, false, 'canonical truth files are protected');
+  assert(protectedScope.reasons.some((reason) => reason.includes('canonical_truth_protected_files')), 'canonical truth reason present');
+  const blocked = enforceBuilderAllowedBlockedFiles({ allowedFiles: ['docs/**'], blockedFiles: ['docs/blocked.md'], requiredChecks: ['npm run lint'], intendedFileChanges: ['docs/blocked.md'] });
+  assert.strictEqual(blocked.ok, false, 'blockedFiles block branch/pr plan');
+  assert(blocked.reasons.some((reason) => reason.includes('blocked_files_touched')), 'blocked files reason present');
+  const tokenPayment = enforceBuilderAllowedBlockedFiles({ allowedFiles: ['docs/**'], blockedFiles: [], requiredChecks: ['npm run lint'], intendedFileChanges: ['docs/sui-wft-token-payment.md'] });
+  assert.strictEqual(tokenPayment.ok, false, 'token/payment/SUI/WFT/NFT activation text is blocked');
+  assert(tokenPayment.reasons.includes('token_payment_blockchain_activation_blocked'), 'token/payment reason present');
+})();
+
+(function testGithubBuilderMissingCredentialsCreatesPlanOnlyWithRequiredChecks() {
+  const wp = { workPackageId: 'wp-plan', status: 'next_up', serialGroup: 'main_repo', maxConcurrentInSerialGroup: 1, ownerApproved: true, ownerDecisionPersistent: true, approvedForSerialExecution: true, reapprovalRequired: false, baseBranch: 'main', baseSha: 'sha', allowedFiles: ['docs/a.md'], blockedFiles: [], requiredChecks: ['npm run lint', 'npm run build'], intendedFileChanges: ['docs/a.md'], title: 'Plan only' };
+  const guard = evaluateGithubBuilderBranchPrGuards({ workPackage: wp, allPackages: [wp], autopilotControl: { paused: false } });
+  assert.strictEqual(guard.ok, true, 'safe package passes guards');
+  const plan = buildBuilderPrPlanFromWorkPackage(wp, guard.fileGuard);
+  assert.strictEqual(plan.githubWriteReady, false, 'GitHub write remains disabled without credentials');
+  assert.strictEqual(plan.reason, 'GitHub credentials not configured');
+  assert.deepStrictEqual(plan.requiredChecks, ['npm run lint', 'npm run build'], 'required checks are included in PR plan');
+  assert.strictEqual(plan.noAutoMerge, true, 'auto merge remains disabled');
+  assert.strictEqual(plan.noAutoDeploy, true, 'auto deploy remains disabled');
+})();
+
+(function testGithubBuilderOnlyOneActiveOrNextUpPerSerialGroup() {
+  const candidate = { workPackageId: 'wp-candidate', status: 'approved_waiting', serialGroup: 'main_repo', maxConcurrentInSerialGroup: 1, ownerApproved: true, ownerDecisionPersistent: true, approvedForSerialExecution: true, reapprovalRequired: false, baseBranch: 'main', baseSha: 'sha', allowedFiles: ['docs/a.md'], blockedFiles: [], requiredChecks: ['npm run lint'], intendedFileChanges: ['docs/a.md'] };
+  const activeBlocked = evaluateGithubBuilderBranchPrGuards({ workPackage: candidate, allPackages: [candidate, { workPackageId: 'wp-active', status: 'pr_created', serialGroup: 'main_repo' }], autopilotControl: { paused: false } });
+  assert.strictEqual(activeBlocked.ok, false, 'active PR work blocks next builder preparation');
+  assert(activeBlocked.reasons.includes('another_active_work_package_exists'), 'active blocker reason present');
+  const nextUpBlocked = evaluateGithubBuilderBranchPrGuards({ workPackage: candidate, allPackages: [candidate, { workPackageId: 'wp-next', status: 'next_up', serialGroup: 'main_repo' }], autopilotControl: { paused: false } });
+  assert.strictEqual(nextUpBlocked.ok, false, 'another next_up blocks approved_waiting package');
+  assert(nextUpBlocked.reasons.includes('another_next_up_work_package_exists'), 'next_up blocker reason present');
+})();
+
+(function testAdminSnapshotBuilderPrPlanShapeIsSanitizedAndVisible() {
+  const wp = buildBuilderWorkPackageFromDossier({ dossier: { sourceDossierId: 'snapshot', title: 'Snapshot', status: 'approved', allowedFiles: ['docs/a.md'], blockedFiles: [], requiredChecks: ['npm run lint'], affectedFiles: ['docs/a.md'] }, dossierId: 'snapshot', actorRole: 'owner', sequenceNumber: 1, baseSha: 'sha' });
+  const plan = buildBuilderPrPlanFromWorkPackage({ ...wp, workPackageId: 'wp-snapshot' });
+  const serialized = sanitizeTelemetryObject({ workPackageId: 'wp-snapshot', status: 'branch_pr_plan_created', githubWriteReady: false, builderPrPlan: plan, guardStatus: { ok: true } });
+  assert.strictEqual(serialized.githubWriteReady, false, 'snapshot exposes GitHub write readiness');
+  assert.strictEqual(serialized.builderPrPlan.githubWriteReady, false, 'snapshot exposes PR plan status');
+  assert.strictEqual(serialized.guardStatus.ok, true, 'snapshot exposes guard status');
+})();
+
+(function testCanonicalTruthProtectedListRemainsOwnerOnlyAndUnchanged() {
+  const expected = ['project-register/wellfit-beta1-canonical-truth.json', 'docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md', 'todolist/CODEX_CONTEXT_WELLFIT_BETA1.md'];
+  const { CANONICAL_TRUTH_PROTECTED_FILES } = require('../lib/agentAdminRolesAudit');
+  assert.deepStrictEqual(CANONICAL_TRUTH_PROTECTED_FILES, expected, 'canonical truth protected files remain unchanged');
 })();

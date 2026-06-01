@@ -13,7 +13,7 @@ const RUNNER_JOB_STATUSES = ["pending_runner_pickup", "pickup_contract_created",
 const RUNNER_PICKUP_CONTRACT_STATUSES = ["pickup_contract_created", "implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "picked_up", "planning", "in_progress", "completed", "blocked", "repair_required"];
 const RUNNER_IMPLEMENTATION_PLAN_STATUSES = ["implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "planning", "in_progress", "completed", "repair_required", "blocked"];
 const WORKER_QUEUE_MODES = ["manual_codex", "supervised_agent", "automated_low_risk_planned"];
-const BUILDER_WORK_PACKAGE_STATUSES = ["proposed", "approved_waiting", "next_up", "active_metadata_only", "blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "blocked_by_reapproval_required", "repair_required", "completed_metadata_only", "cancelled", "paused_by_owner"];
+const BUILDER_WORK_PACKAGE_STATUSES = ["proposed", "approved_waiting", "next_up", "active_metadata_only", "branch_pr_plan_created", "branch_created", "pr_created", "checks_pending", "checks_passed", "checks_failed", "repair_attempt_1", "repair_attempt_2", "repair_attempt_3", "repair_required", "ready_for_owner_merge_decision", "blocked_by_guard", "blocked_by_missing_github_credentials", "blocked_by_protected_files", "blocked_by_reapproval_required", "blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "completed_metadata_only", "cancelled", "paused_by_owner"];
 const OWNER_DECISION_STATUSES = ["approved", "rejected", "revision_requested", "blocked"];
 const CONVERSATION_IDEA_DECISIONS = ["approve", "reject", "revision_requested", "block"];
 const CONVERSATION_IDEA_TERMINAL_STATUSES = ["approved", "rejected", "revision_requested", "blocked"];
@@ -33,6 +33,9 @@ const BUILDER_POST_MERGE_CHECKLIST = [
 ];
 const BUILDER_SERIAL_GROUP = "main_repo";
 const BUILDER_MAX_REPAIR_ATTEMPTS = 3;
+const BUILDER_ACTIVE_EXECUTION_STATUSES = ["active_metadata_only", "branch_created", "pr_created", "checks_pending", "repair_attempt_1", "repair_attempt_2", "repair_attempt_3", "repair_required"];
+const BUILDER_BLOCKED_STATUSES = ["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "blocked_by_reapproval_required", "blocked_by_guard", "blocked_by_missing_github_credentials", "blocked_by_protected_files", "repair_required", "paused_by_owner"];
+const BUILDER_PR_PLAN_VERSION = "github-builder-branch-pr-only-v1";
 const CHECK_RESULT_VALUES = ["pass", "fail", "blocked", "skipped"];
 const BLOCKED_PROTECTED_SCOPES = new Set(["token", "nft", "payment", "cashout", "blockchain", "sui", "wft", "child", "health", "location", "privacy", "legal"]);
 
@@ -211,12 +214,12 @@ function getImplementationPlanStatusBucket(statusValue) {
 
 function getBuilderWorkPackageStatusBucket(statusValue) {
   const status = String(statusValue || "").toLowerCase();
-  if (status === "active_metadata_only") return "active";
+  if (BUILDER_ACTIVE_EXECUTION_STATUSES.includes(status)) return status === "repair_required" ? "repair_required" : "active";
   if (status === "approved_waiting") return "waiting";
   if (status === "next_up") return "next_up";
   if (["proposed"].includes(status)) return "proposed";
-  if (["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "blocked_by_reapproval_required"].includes(status)) return "blocked";
-  if (status === "repair_required") return "repair_required";
+  if (BUILDER_BLOCKED_STATUSES.includes(status)) return status === "repair_required" ? "repair_required" : "blocked";
+  if (["branch_pr_plan_created", "checks_passed", "ready_for_owner_merge_decision"].includes(status)) return "active";
   if (status === "completed_metadata_only") return "completed";
   if (status === "cancelled") return "cancelled";
   if (status === "paused_by_owner") return "paused";
@@ -315,7 +318,7 @@ function detectBuilderReapprovalGuard(workPackage = {}, previous = {}) {
 
 function planNextBuilderQueueState(packages = []) {
   const sorted = [...packages].sort((a, b) => Number(a.executionOrder || a.sequenceNumber || 0) - Number(b.executionOrder || b.sequenceNumber || 0));
-  const active = sorted.filter((wp) => String(wp.serialGroup || BUILDER_SERIAL_GROUP) === BUILDER_SERIAL_GROUP && String(wp.status || "") === "active_metadata_only");
+  const active = sorted.filter((wp) => String(wp.serialGroup || BUILDER_SERIAL_GROUP) === BUILDER_SERIAL_GROUP && BUILDER_ACTIVE_EXECUTION_STATUSES.includes(String(wp.status || "")));
   const waiting = sorted.filter((wp) => String(wp.serialGroup || BUILDER_SERIAL_GROUP) === BUILDER_SERIAL_GROUP && String(wp.status || "") === "approved_waiting");
   const validWaiting = waiting.filter((wp) => wp.reapprovalRequired !== true);
   const blockedWaiting = waiting.filter((wp) => wp.reapprovalRequired === true);
@@ -494,6 +497,20 @@ function mapSafeBuilderWorkPackageDoc(doc) {
     allowedFiles: sanitizeTelemetryList(data.allowedFiles || [], 40, 260),
     blockedFiles: sanitizeTelemetryList(data.blockedFiles || [], 40, 260),
     requiredChecks: sanitizeTelemetryList(data.requiredChecks || [], 40, 260),
+    allowedGlobs: sanitizeTelemetryList(data.allowedGlobs || [], 40, 260),
+    intendedFileChanges: getWorkPackageIntendedFileChanges(data),
+    branchName: sanitizeTelemetryText(data.branchName, 180),
+    commitMessage: sanitizeTelemetryText(data.commitMessage, 220),
+    prTitle: sanitizeTelemetryText(data.prTitle, 220),
+    prBody: sanitizeTelemetryText(data.prBody, 1600),
+    prUrl: sanitizeTelemetryText(data.prUrl, 260),
+    githubWriteReady: data.githubWriteReady === true,
+    githubWriteStatus: sanitizeTelemetryText(data.githubWriteStatus, 120),
+    guardStatus: data.guardStatus ? sanitizeTelemetryObject(data.guardStatus) : null,
+    builderPrPlan: data.builderPrPlan ? sanitizeTelemetryObject(data.builderPrPlan) : null,
+    executionContract: data.executionContract ? sanitizeTelemetryObject(data.executionContract) : null,
+    checkStatus: sanitizeTelemetryText(data.checkStatus, 80),
+    checksPending: Array.isArray(data.checksPending) ? sanitizeTelemetryObject(data.checksPending) : [],
     maxRepairAttempts: BUILDER_MAX_REPAIR_ATTEMPTS,
     repairAttemptCount: Number(data.repairAttemptCount || 0),
     noParallelExecution: true,
@@ -517,12 +534,12 @@ function mapSafeBuilderWorkPackageDoc(doc) {
 
 function buildBuilderQueueGuardState(packages, autopilotControl) {
   const safePackages = Array.isArray(packages) ? packages : [];
-  const active = safePackages.filter((wp) => String(wp.status || "") === "active_metadata_only");
+  const active = safePackages.filter((wp) => BUILDER_ACTIVE_EXECUTION_STATUSES.includes(String(wp.status || "")));
   const waiting = safePackages.filter((wp) => String(wp.status || "") === "approved_waiting");
   const validWaiting = waiting.filter((wp) => wp.reapprovalRequired !== true);
   const reapprovalBlockedWaiting = waiting.filter((wp) => wp.reapprovalRequired === true);
   const nextUp = safePackages.filter((wp) => String(wp.status || "") === "next_up" && wp.reapprovalRequired !== true);
-  const blocking = safePackages.filter((wp) => ["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "blocked_by_reapproval_required", "repair_required", "paused_by_owner"].includes(String(wp.status || "")));
+  const blocking = safePackages.filter((wp) => BUILDER_BLOCKED_STATUSES.includes(String(wp.status || "")));
   const repairLimitHit = safePackages.some((wp) => Number(wp.repairAttemptCount || 0) >= BUILDER_MAX_REPAIR_ATTEMPTS || String(wp.status || "") === "repair_required");
   const allWaitingNeedReapproval = active.length === 0 && waiting.length > 0 && validWaiting.length === 0;
   const failedOrBlocking = blocking.length > 0 || safePackages.some((wp) => ["blocked", "failed"].includes(String(wp.status || ""))) || allWaitingNeedReapproval;
@@ -583,6 +600,19 @@ function buildBuilderWorkPackageFromDossier({ dossier, dossierId, actorRole, seq
     allowedFiles,
     blockedFiles,
     requiredChecks,
+    allowedGlobs: sanitizeTelemetryList(source.allowedGlobs || source.allowedWriteGlobs || [], 80, 260),
+    intendedFileChanges: getWorkPackageIntendedFileChanges(source),
+    branchName: sanitizeTelemetryText(source.branchName, 180),
+    commitMessage: sanitizeTelemetryText(source.commitMessage, 220),
+    prTitle: sanitizeTelemetryText(source.prTitle, 220),
+    prBody: sanitizeTelemetryText(source.prBody, 1600),
+    githubWriteReady: false,
+    githubWriteStatus: "not_configured",
+    noAutoMerge: true,
+    noAutoDeploy: true,
+    noCanonicalTruthAutonomousChange: true,
+    noFirestoreRulesChangeUnlessExplicitlyAllowed: true,
+    noRuntimeRewardLedgerAntiCheatChangeUnlessExplicitlyAllowed: true,
     ...buildDefaultVerificationPlan(source),
     maxRepairAttempts: BUILDER_MAX_REPAIR_ATTEMPTS,
     repairAttemptCount: 0,
@@ -1491,6 +1521,153 @@ function expectedFilesStayWithinAllowedFiles(expectedFilesToTouch, allowedFiles)
 
 function expectedFilesAvoidBlockedFiles(expectedFilesToTouch, blockedFiles) {
   return expectedFilesToTouch.every((candidate) => !blockedFiles.some((blocked) => scopePatternIntersectsCandidate(blocked, candidate)));
+}
+
+
+function candidatePathMatchesScopes(candidate, scopes) {
+  const normalized = normalizePlanScopePattern(candidate);
+  return Boolean(normalized) && parseStringList(scopes, 120, 260).some((scope) => scopePatternContainsCandidate(scope, normalized));
+}
+
+function getWorkPackageIntendedFileChanges(workPackage = {}) {
+  const raw = Array.isArray(workPackage.intendedFileChanges) ? workPackage.intendedFileChanges : (Array.isArray(workPackage.affectedFiles) ? workPackage.affectedFiles : []);
+  return raw.map((entry) => {
+    if (typeof entry === "string") return { path: normalizePlanScopePattern(entry), changeType: "update" };
+    if (entry && typeof entry === "object") return { path: normalizePlanScopePattern(entry.path || entry.file || entry.filePath), changeType: sanitizeTelemetryText(entry.changeType || "update", 40) || "update" };
+    return { path: "", changeType: "update" };
+  }).filter((entry) => Boolean(entry.path)).slice(0, 80);
+}
+
+function containsForbiddenActivationText(values = []) {
+  return /(token|nft|payment|cashout|wallet|sui|wft|blockchain|trading|presale|staking|payout)/i.test(parseStringList(values, 160, 500).join(" "));
+}
+
+function enforceBuilderAllowedBlockedFiles(workPackage = {}) {
+  const intendedFileChanges = getWorkPackageIntendedFileChanges(workPackage);
+  const allowedFiles = sanitizeTelemetryList(workPackage.allowedFiles || [], 120, 260);
+  const allowedGlobs = sanitizeTelemetryList(workPackage.allowedGlobs || [], 120, 260);
+  const blockedFiles = sanitizeTelemetryList(workPackage.blockedFiles || [], 120, 260);
+  const protectedFilesTouched = touchesCanonicalTruthProtectedFiles(intendedFileChanges.map((entry) => entry.path));
+  const blockedMatches = intendedFileChanges.filter((entry) => blockedFiles.some((blocked) => scopePatternIntersectsCandidate(blocked, entry.path))).map((entry) => entry.path);
+  const outsideAllowed = intendedFileChanges.filter((entry) => !candidatePathMatchesScopes(entry.path, [...allowedFiles, ...allowedGlobs])).map((entry) => entry.path);
+  const firestoreRulesTouched = intendedFileChanges.some((entry) => normalizePlanScopePattern(entry.path) === "firestore.rules" || normalizePlanScopePattern(entry.path).endsWith("/firestore.rules"));
+  const runtimeCriticalTouched = intendedFileChanges.some((entry) => /(reward|ledger|anti[-_ ]?cheat)/i.test(entry.path));
+  const forbiddenActivation = containsForbiddenActivationText([
+    ...intendedFileChanges.map((entry) => entry.path),
+    ...(workPackage.allowedFiles || []),
+    ...(workPackage.allowedGlobs || []),
+    ...(workPackage.blockedFiles || []),
+    ...(workPackage.requiredChecks || []),
+    workPackage.title || "",
+    workPackage.shortSummary || "",
+  ]);
+  const reasons = [];
+  if (!allowedFiles.length && !allowedGlobs.length) reasons.push("allowed_files_missing");
+  if (outsideAllowed.length) reasons.push(`files_outside_allowed_scope:${outsideAllowed.join(",")}`);
+  if (blockedMatches.length) reasons.push(`blocked_files_touched:${blockedMatches.join(",")}`);
+  if (protectedFilesTouched.length) reasons.push(`canonical_truth_protected_files:${protectedFilesTouched.join(",")}`);
+  if (firestoreRulesTouched && workPackage.allowFirestoreRulesChange !== true) reasons.push("firestore_rules_change_requires_explicit_allow");
+  if (runtimeCriticalTouched && workPackage.allowRuntimeCriticalChange !== true) reasons.push("runtime_reward_ledger_anticheat_change_requires_explicit_allow");
+  if (forbiddenActivation) reasons.push("token_payment_blockchain_activation_blocked");
+  return {
+    ok: reasons.length === 0,
+    reasons,
+    intendedFileChanges,
+    outsideAllowed,
+    blockedMatches,
+    protectedFilesTouched,
+    noCanonicalTruthAutonomousChange: true,
+    noFirestoreRulesChangeUnlessExplicitlyAllowed: true,
+    noRuntimeRewardLedgerAntiCheatChangeUnlessExplicitlyAllowed: true,
+    noTokenPaymentBlockchain: true,
+  };
+}
+
+function buildBuilderExecutionContractV1(workPackage = {}) {
+  return {
+    contractVersion: BUILDER_PR_PLAN_VERSION,
+    workPackageId: sanitizeTelemetryText(workPackage.workPackageId, 180),
+    sourceDossierId: sanitizeTelemetryText(workPackage.sourceDossierId, 180),
+    sourceDossierType: sanitizeTelemetryText(workPackage.sourceDossierType, 120),
+    ownerDecisionId: sanitizeTelemetryText(workPackage.ownerDecisionId, 180),
+    ownerApproved: workPackage.ownerApproved === true,
+    ownerDecisionPersistent: workPackage.ownerDecisionPersistent === true,
+    approvedForSerialExecution: workPackage.approvedForSerialExecution === true,
+    serialGroup: BUILDER_SERIAL_GROUP,
+    executionOrder: Number(workPackage.executionOrder || workPackage.sequenceNumber || 0),
+    baseBranch: "main",
+    baseSha: sanitizeTelemetryText(workPackage.baseSha, 120),
+    branchName: sanitizeTelemetryText(workPackage.branchName, 180) || `builder/${sanitizeFirestoreDocIdPart(workPackage.workPackageId || workPackage.sourceDossierId || "work-package", 120)}`,
+    prTitle: sanitizeTelemetryText(workPackage.prTitle, 220) || `Builder: ${sanitizeTelemetryText(workPackage.title, 160) || workPackage.workPackageId || "Work Package"}`,
+    prBody: sanitizeTelemetryText(workPackage.prBody, 1600) || "Kontrollierter GitHub-Builder-v1 PR: kein Merge, kein Deploy, keine Token/Payment/Blockchain-Aktivierung.",
+    allowedFiles: sanitizeTelemetryList(workPackage.allowedFiles || [], 120, 260),
+    allowedGlobs: sanitizeTelemetryList(workPackage.allowedGlobs || [], 120, 260),
+    blockedFiles: sanitizeTelemetryList(workPackage.blockedFiles || [], 120, 260),
+    requiredChecks: sanitizeTelemetryList(workPackage.requiredChecks || [], 80, 260),
+    maxRepairAttempts: BUILDER_MAX_REPAIR_ATTEMPTS,
+    repairAttemptCount: Number(workPackage.repairAttemptCount || 0),
+    reapprovalRequired: workPackage.reapprovalRequired === true,
+    reapprovalReason: sanitizeTelemetryText(workPackage.reapprovalReason, 400),
+    noParallelExecution: true,
+    noAutoMerge: true,
+    noAutoDeploy: true,
+    noTokenPaymentBlockchain: true,
+    noCanonicalTruthAutonomousChange: true,
+    noFirestoreRulesChangeUnlessExplicitlyAllowed: true,
+    noRuntimeRewardLedgerAntiCheatChangeUnlessExplicitlyAllowed: true,
+  };
+}
+
+function buildBuilderPrPlanFromWorkPackage(workPackage = {}, fileGuard = enforceBuilderAllowedBlockedFiles(workPackage)) {
+  const executionContract = buildBuilderExecutionContractV1(workPackage);
+  return {
+    planVersion: BUILDER_PR_PLAN_VERSION,
+    workPackageId: executionContract.workPackageId,
+    branchName: executionContract.branchName,
+    commitMessage: sanitizeTelemetryText(workPackage.commitMessage, 220) || `Prepare ${executionContract.workPackageId || "builder work package"}`,
+    prTitle: executionContract.prTitle,
+    prBody: executionContract.prBody,
+    intendedFileChanges: fileGuard.intendedFileChanges,
+    requiredChecks: executionContract.requiredChecks,
+    checkStatus: "not_started",
+    checksPending: executionContract.requiredChecks.map((command) => ({ command, status: "pending" })),
+    nextManualCommand: `git switch -c ${executionContract.branchName} main && git status --short && # apply only allowed files, run required checks, commit, then open PR to main`,
+    githubWriteReady: false,
+    reason: "GitHub credentials not configured",
+    noAutoMerge: true,
+    noAutoDeploy: true,
+    noTokenPaymentBlockchain: true,
+    noCanonicalTruthAutonomousChange: true,
+  };
+}
+
+function evaluateGithubBuilderBranchPrGuards({ workPackage = {}, allPackages = [], autopilotControl = {} } = {}) {
+  const status = String(workPackage.status || "");
+  const sameGroup = (allPackages || []).filter((wp) => String(wp.serialGroup || BUILDER_SERIAL_GROUP) === BUILDER_SERIAL_GROUP);
+  const activeOthers = sameGroup.filter((wp) => String(wp.workPackageId || "") !== String(workPackage.workPackageId || "") && BUILDER_ACTIVE_EXECUTION_STATUSES.includes(String(wp.status || "")));
+  const nextUpOthers = sameGroup.filter((wp) => String(wp.workPackageId || "") !== String(workPackage.workPackageId || "") && String(wp.status || "") === "next_up");
+  const fileGuard = enforceBuilderAllowedBlockedFiles(workPackage);
+  const reasons = [];
+  if (!workPackage.workPackageId) reasons.push("work_package_missing");
+  if (!["next_up", "approved_waiting"].includes(status)) reasons.push("status_must_be_next_up_or_approved_waiting");
+  if (activeOthers.length) reasons.push("another_active_work_package_exists");
+  if (nextUpOthers.length && status !== "next_up") reasons.push("another_next_up_work_package_exists");
+  if (workPackage.ownerApproved !== true) reasons.push("owner_approved_required");
+  if (workPackage.ownerDecisionPersistent !== true) reasons.push("owner_decision_persistent_required");
+  if (workPackage.approvedForSerialExecution !== true) reasons.push("approved_for_serial_execution_required");
+  if (workPackage.reapprovalRequired === true) reasons.push("reapproval_required");
+  if (String(workPackage.serialGroup || BUILDER_SERIAL_GROUP) !== BUILDER_SERIAL_GROUP) reasons.push("serial_group_must_be_main_repo");
+  if (Number(workPackage.maxConcurrentInSerialGroup || 1) !== 1) reasons.push("max_concurrent_in_serial_group_must_be_1");
+  if (String(workPackage.baseBranch || "main") !== "main") reasons.push("base_branch_must_be_main");
+  if (!sanitizeTelemetryText(workPackage.baseSha, 120)) reasons.push("base_sha_required");
+  if (!sanitizeTelemetryList(workPackage.allowedFiles || [], 120, 260).length && !sanitizeTelemetryList(workPackage.allowedGlobs || [], 120, 260).length) reasons.push("allowed_files_required");
+  if (!sanitizeTelemetryList(workPackage.requiredChecks || [], 80, 260).length) reasons.push("required_checks_required");
+  if (autopilotControl && autopilotControl.paused === true) reasons.push("autopilot_paused");
+  if (String(workPackage.safetySentinelStatus || "").toLowerCase() === "blocked") reasons.push("safety_sentinel_blocked");
+  if (!fileGuard.ok) reasons.push(...fileGuard.reasons);
+  const protectedFileBlock = fileGuard.protectedFilesTouched.length > 0 || fileGuard.blockedMatches.length > 0 || fileGuard.outsideAllowed.length > 0 || fileGuard.reasons.some((reason) => /canonical_truth|firestore_rules|runtime_reward|token_payment|blocked_files|outside_allowed/.test(reason));
+  const statusOnFailure = workPackage.reapprovalRequired === true || reasons.includes("reapproval_required") ? "blocked_by_reapproval_required" : (protectedFileBlock ? "blocked_by_protected_files" : "blocked_by_guard");
+  return { ok: reasons.length === 0, reasons, statusOnFailure, fileGuard, activeOtherCount: activeOthers.length, nextUpOtherCount: nextUpOthers.length, noAutoMerge: true, noAutoDeploy: true, noTokenPaymentBlockchain: true };
 }
 
 function normalizeRiskLevel(value) {
@@ -3977,6 +4154,91 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     return { accepted: true, dossierId, workPackage: result.workPackage, workPackageId: result.workPackage.workPackageId, status: result.workPackage.status, existing: result.existing, reapprovalRequired: result.workPackage.reapprovalRequired === true, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
   });
 
+  exportsTarget.prepareGithubBuilderBranchPrFromWorkPackage = onCall(async (request) => {
+    const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
+    const data = request.data || {};
+    const workPackageId = requiredString(data.workPackageId || data.id, "workPackageId", HttpsError, 180);
+    const wpRef = db.collection("agentBuilderWorkPackages").doc(workPackageId);
+    const now = FieldValue.serverTimestamp();
+    const result = await db.runTransaction(async (transaction) => {
+      const [wpSnap, packagesSnap, autopilotSnap] = await Promise.all([
+        transaction.get(wpRef),
+        transaction.get(db.collection("agentBuilderWorkPackages").where("serialGroup", "==", BUILDER_SERIAL_GROUP).limit(200)),
+        transaction.get(db.collection("agentAutomationControl").doc("autopilot")),
+      ]);
+      if (!wpSnap.exists) {
+        return { accepted: false, status: "blocked_by_guard", message: "Work Package existiert nicht; kein Branch/PR/Plan erstellt.", noBranchCreated: true, noPrCreated: true };
+      }
+      const rawWorkPackage = { ...(wpSnap.data() || {}), workPackageId: wpSnap.id };
+      const workPackage = mapSafeBuilderWorkPackageDoc({ id: wpSnap.id, data: () => rawWorkPackage });
+      const allPackages = packagesSnap.docs.map((doc) => mapSafeBuilderWorkPackageDoc(doc));
+      const guard = evaluateGithubBuilderBranchPrGuards({ workPackage: rawWorkPackage, allPackages, autopilotControl: autopilotSnap.exists ? (autopilotSnap.data() || {}) : {} });
+      if (!guard.ok) {
+        const message = `Branch/PR-Vorbereitung blockiert: ${guard.reasons.join(", ")}. Kein Branch, kein PR, kein Deploy.`;
+        transaction.set(wpRef, {
+          status: guard.statusOnFailure,
+          guardStatus: sanitizeTelemetryObject({ ok: false, reasons: guard.reasons, checkedAt: new Date().toISOString(), noAutoMerge: true, noAutoDeploy: true, noTokenPaymentBlockchain: true }),
+          recommendedNextAction: message,
+          githubWriteReady: false,
+          githubWriteStatus: "blocked_by_guard",
+          noAutoMerge: true,
+          noAutoDeploy: true,
+          noTokenPaymentBlockchain: true,
+          noCanonicalTruthAutonomousChange: true,
+          updatedAt: now,
+          lastStatusChangedAt: now,
+        }, { merge: true });
+        return { accepted: false, status: guard.statusOnFailure, message, workPackageId, guardStatus: { ok: false, reasons: guard.reasons }, noBranchCreated: true, noPrCreated: true, noAutoMerge: true, noAutoDeploy: true, noTokenPaymentBlockchain: true };
+      }
+      const executionContract = buildBuilderExecutionContractV1(rawWorkPackage);
+      const builderPrPlan = buildBuilderPrPlanFromWorkPackage({ ...rawWorkPackage, ...executionContract }, guard.fileGuard);
+      const update = {
+        status: "branch_pr_plan_created",
+        executionContract,
+        builderPrPlan,
+        branchName: builderPrPlan.branchName,
+        commitMessage: builderPrPlan.commitMessage,
+        prTitle: builderPrPlan.prTitle,
+        prBody: builderPrPlan.prBody,
+        githubWriteReady: false,
+        githubWriteStatus: "missing_github_credentials_plan_only",
+        prUrl: null,
+        requiredChecks: builderPrPlan.requiredChecks,
+        checkStatus: "not_started",
+        checksPending: builderPrPlan.checksPending,
+        guardStatus: sanitizeTelemetryObject({ ok: true, reasons: [], checkedAt: new Date().toISOString(), maxConcurrentInSerialGroup: 1, noAutoMerge: true, noAutoDeploy: true, noTokenPaymentBlockchain: true }),
+        recommendedNextAction: "Builder-PR-Plan erstellt. GitHub-Credentials sind nicht konfiguriert; manuelle Branch/PR-Erstellung nur nach allowedFiles/blockedFiles und Required Checks. Kein Merge, kein Deploy.",
+        maxRepairAttempts: BUILDER_MAX_REPAIR_ATTEMPTS,
+        repairAttemptCount: Number(rawWorkPackage.repairAttemptCount || 0),
+        noParallelExecution: true,
+        noAutoMerge: true,
+        noAutoDeploy: true,
+        noRunnerStarted: true,
+        noBranchOrPrOrMerge: true,
+        noDeploy: true,
+        noTokenPaymentBlockchain: true,
+        noCanonicalTruthAutonomousChange: true,
+        noFirestoreRulesChangeUnlessExplicitlyAllowed: true,
+        noRuntimeRewardLedgerAntiCheatChangeUnlessExplicitlyAllowed: true,
+        updatedAt: now,
+        lastStatusChangedAt: now,
+      };
+      transaction.set(wpRef, update, { merge: true });
+      transaction.set(db.collection("agentAutomationControl").doc("autopilot"), {
+        ...buildDefaultAutopilotControl(),
+        ...(autopilotSnap.exists ? (autopilotSnap.data() || {}) : {}),
+        mode: "builder_metadata_only",
+        paused: false,
+        maxConcurrentWorkPackages: 1,
+        nextRecommendedAction: "Builder-PR-Plan liegt vor; kein Auto-Merge, kein Auto-Deploy. Naechster Schritt: Checks lesen/Repair-Agent v1 planen.",
+        updatedAt: now,
+      }, { merge: true });
+      return { accepted: true, status: "branch_pr_plan_created", message: "Builder-PR-Plan erstellt; GitHub credentials not configured, daher kein echter Branch/PR.", workPackageId, builderPrPlan, executionContract, guardStatus: { ok: true, reasons: [] }, noBranchCreated: true, noPrCreated: true, noAutoMerge: true, noAutoDeploy: true, noTokenPaymentBlockchain: true };
+    });
+    await writeAgentAudit(db, { actorId, actorRole, action: "github_builder_branch_pr_prepare_from_work_package", proposalId: workPackageId, result: result.status || "unknown" });
+    return result;
+  });
+
   exportsTarget.pauseAgentAutopilotMetadataOnly = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "agent_supervisor", "admin_operator"]);
     const reason = optionalString(request.data && request.data.reason, 240) || "paused_by_owner";
@@ -4008,4 +4270,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS, AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getStatusCountsByBucket, getWorkerQueueStatusBucket, getRunnerJobStatusBucket, getPickupContractStatusBucket, getImplementationPlanStatusBucket, getBuilderWorkPackageStatusBucket, sanitizeTelemetryObject, sanitizeAutopilotControl, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, sanitizeConversationIdeaText, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES, buildExecutionContractHash, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract };
+module.exports = { registerAgentAdminRolesAudit, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS, AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getStatusCountsByBucket, getWorkerQueueStatusBucket, getRunnerJobStatusBucket, getPickupContractStatusBucket, getImplementationPlanStatusBucket, getBuilderWorkPackageStatusBucket, sanitizeTelemetryObject, sanitizeAutopilotControl, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, sanitizeConversationIdeaText, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES, buildExecutionContractHash, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract };

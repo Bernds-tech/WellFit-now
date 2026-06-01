@@ -37,6 +37,7 @@ import type {
   CreateConversationIdeaDossierInput,
   ConversationIdeaDecisionInput,
   PrepareConversationBuilderWorkPackageInput,
+  PrepareGithubBuilderBranchPrInput,
 } from "./beta1AdminTypes";
 
 function getAdminErrorCode(error: unknown): string {
@@ -344,6 +345,7 @@ export const beta1AdminClient = {
   createConversationIdeaDossier: (input: CreateConversationIdeaDossierInput) => callAdmin("createConversationIdeaDossier", input),
   decideConversationIdeaDossier: (input: ConversationIdeaDecisionInput) => callAdmin("decideConversationIdeaDossier", input),
   prepareBuilderWorkPackageFromConversationDossier: (input: PrepareConversationBuilderWorkPackageInput) => callAdmin("prepareBuilderWorkPackageFromConversationDossier", input),
+  prepareGithubBuilderBranchPrFromWorkPackage: (input: PrepareGithubBuilderBranchPrInput) => callAdmin("prepareGithubBuilderBranchPrFromWorkPackage", input),
   pauseAgentAutopilotMetadataOnly: (reason?: string) => callAdmin("pauseAgentAutopilotMetadataOnly", reason ? { reason } : {}),
   resumeAgentAutopilotMetadataOnly: () => callAdmin("resumeAgentAutopilotMetadataOnly", {}),
 
