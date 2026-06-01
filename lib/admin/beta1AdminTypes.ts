@@ -330,8 +330,28 @@ export type ProductEvolutionInboxSyncInput = { registerSnapshot?: ProductEvoluti
 export type ProductEvolutionRevisionDossierResult = AdminCallableResult & { scanned?: number; regenerated?: number; stillRevisionRequested?: number; sampleRegeneratedIds?: string[]; sampleRevisionBlocked?: Array<Record<string, unknown>>; sourceTrust?: string; noRunnerStarted?: boolean; noDeploy?: boolean; noMerge?: boolean };
 export type ProductEvolutionInboxSyncResult = AdminCallableResult & { syncedCount?: number; idempotent?: boolean; created?: number; updated?: number; skipped?: number; skippedReasons?: Record<string, number>; sampleCreatedIds?: string[]; sampleSkipped?: Array<Record<string, unknown>>; serverSnapshotReceived?: boolean; serverSnapshotKeys?: string[]; serverCandidateCount?: number; serverCandidateCollections?: Array<{ listType: string; count: number; path?: string }>; callableName?: string; callableVersion?: string; responseShapeVersion?: string; serverTimestamp?: string; serverReceivedInputKeys?: string[]; hasRegisterSnapshot?: boolean; registerSnapshotType?: string; registerSnapshotKeys?: string[]; payloadUnwrappedFrom?: string; registerSnapshotFieldPresent?: boolean; registerSnapshotValueType?: string; clientHasRegisterSnapshot?: boolean; clientRegisterSnapshotKeys?: string[]; invalidInboxIdSanitized?: boolean; sourceDossierIdHadSlash?: boolean; contractUpgradeDetectedCount?: number; reapprovalRequiredCount?: number; sampleReapprovalRequiredIds?: string[]; currentExecutionContractHashPresent?: boolean; approvedExecutionContractHashPresent?: boolean; approvalCoversAutomaticExecution?: boolean };
 export type LocalRegisterInboxSyncResult = AdminCallableResult & { syncedCount?: number; idempotent?: boolean };
+export type ConversationIdeaDossier = AgentDossierBase & {
+  dossierId: string;
+  type?: "conversation_idea_dossier" | string;
+  status?: "pending_approval" | "approved" | "rejected" | "revision_requested" | "blocked" | string;
+  source?: "chat" | "admin_note" | "uploaded_transcript" | "manual" | string;
+  sourceRef?: string | null;
+  priorityHint?: string | null;
+  categoryHint?: string | null;
+  dependencies?: string[];
+  acceptanceCriteria?: string[];
+  suggestedPipelineStep?: string;
+  noRuntimeChanges?: boolean;
+  noRunnerStarted?: boolean;
+  noBranchOrPrOrMerge?: boolean;
+  noDeploy?: boolean;
+  noTokenPaymentBlockchain?: boolean;
+};
+export type CreateConversationIdeaDossierInput = { rawIdeaText: string; source: "chat" | "admin_note" | "uploaded_transcript" | "manual"; sourceRef?: string; priorityHint?: string; categoryHint?: string };
+export type CreateConversationIdeaDossierResult = AdminCallableResult & { dossierId?: string; dossier?: ConversationIdeaDossier; noRuntimeChanges?: boolean; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
 
-export type BuilderWorkPackageStatus = "proposed" | "approved_waiting" | "active_metadata_only" | "blocked_by_existing_active_work" | "blocked_by_failed_checks" | "blocked_by_stale_base" | "repair_required" | "completed_metadata_only" | "cancelled" | "paused_by_owner" | string;
+
+export type BuilderWorkPackageStatus = "proposed" | "approved_waiting" | "next_up" | "active_metadata_only" | "blocked_by_existing_active_work" | "blocked_by_failed_checks" | "blocked_by_stale_base" | "repair_required" | "completed_metadata_only" | "cancelled" | "paused_by_owner" | string;
 export type BuilderWorkPackage = {
   workPackageId: string;
   sourceDossierId?: string | null;
@@ -341,10 +361,23 @@ export type BuilderWorkPackage = {
   ownerApproved?: boolean;
   ownerApprovedAt?: unknown;
   ownerApprovedByRole?: string | null;
+  ownerDecisionId?: string | null;
+  ownerDecisionStatus?: "approved" | "rejected" | "revision_requested" | "blocked" | string | null;
+  ownerDecisionPersistent?: boolean;
+  approvedForSerialExecution?: boolean;
+  reapprovalRequired?: boolean;
+  reapprovalReason?: string | null;
+  lastRevalidatedAt?: unknown;
+  revalidationStatus?: string | null;
+  staleAfterMainSha?: string | null;
+  sourceMainShaAtApproval?: string | null;
+  currentMainShaAtLastValidation?: string | null;
   priority?: string | null;
   sequenceNumber?: number;
+  executionOrder?: number;
   status?: BuilderWorkPackageStatus;
   serialGroup?: "main_repo" | string;
+  maxConcurrentInSerialGroup?: number;
   baseBranch?: "main" | string;
   baseSha?: string | null;
   allowedFiles?: string[];
@@ -358,9 +391,18 @@ export type BuilderWorkPackage = {
   noDeploy?: boolean;
   noTokenPaymentBlockchain?: boolean;
   automationPaused?: boolean;
+  verificationRequired?: boolean;
+  verificationStatus?: "pending" | "passed" | "failed" | "blocked" | "not_run" | string;
+  verificationChecklist?: string[];
+  postMergeChecks?: string[];
+  adminSnapshotRequired?: boolean;
+  uiSmokeSnapshotRequired?: boolean;
+  lastVerificationAt?: unknown;
+  verificationFailureReason?: string | null;
+  createsRepairDossierOnFailure?: boolean;
   recommendedNextAction?: string | null;
 };
-export type BuilderWorkPackageCounts = { total: number; proposed: number; waiting: number; active: number; blocked: number; repair_required: number; completed: number; cancelled: number; paused: number; unknown: number };
+export type BuilderWorkPackageCounts = { total: number; proposed: number; waiting: number; next_up: number; active: number; blocked: number; repair_required: number; completed: number; cancelled: number; paused: number; unknown: number };
 export type AgentAutopilotControlSnapshot = { enabled: boolean; mode: "off" | "proposal_only" | "planning_only" | "builder_metadata_only" | string; maxConcurrentWorkPackages: number; stopOnFailedCheck: boolean; stopOnMergeConflict: boolean; maxRepairAttempts: number; paused: boolean; pauseReason?: string | null; lastOwnerDecisionAt?: unknown; nextRecommendedAction?: string | null; noRunnerStarted: boolean; noBranchOrPrOrMerge: boolean; noDeploy: boolean; noTokenPaymentBlockchain: boolean };
 export type AgentCenterAutopilotSnapshot = {
   snapshotVersion?: string;
@@ -378,6 +420,8 @@ export type AgentCenterAutopilotSnapshot = {
   builderWorkPackageCounts?: BuilderWorkPackageCounts;
   builderWorkPackages?: BuilderWorkPackage[];
   builderQueueGuard?: Record<string, unknown>;
+  conversationIdeaDossierCounts?: Record<string, number>;
+  conversationIdeaDossiers?: ConversationIdeaDossier[];
   lastKnownBlocker?: string | null;
   lastCheckOrRepairStatus?: Record<string, unknown> | null;
   autopilotControl?: AgentAutopilotControlSnapshot;

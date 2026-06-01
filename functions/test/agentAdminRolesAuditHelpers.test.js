@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, sanitizeConversationIdeaText, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
 const safetyDossierRegister = require('../../project-register/agent-safety-dossiers.json');
 const dossierSchema = require('../../project-register/agent-dossier-schema.json');
 
@@ -593,6 +593,89 @@ function buildCompleteSingleDecisionDossier(overrides = {}) {
   assert.strictEqual(wp.noBranchOrPrOrMerge, true, 'branch/pr/merge stay off');
   assert.strictEqual(wp.noDeploy, true, 'deploy stays off');
   assert.strictEqual(wp.noTokenPaymentBlockchain, true, 'token/payment/blockchain stays off');
+})();
+
+
+(function testEightApprovedDossiersBecomePersistentApprovedWaitingWorkPackages() {
+  const workPackages = Array.from({ length: 8 }, (_, index) => buildBuilderWorkPackageFromDossier({
+    dossier: { sourceDossierId: `dossier-${index + 1}`, title: `Approved ${index + 1}`, status: 'approved', allowedFiles: ['docs/**'], blockedFiles: ['native/**'], requiredChecks: ['npm run lint'], decisionId: `decision-${index + 1}` },
+    dossierId: `inbox-${index + 1}`,
+    actorRole: 'owner',
+    sequenceNumber: index + 1,
+    baseSha: 'main-sha-1',
+  }));
+  assert.strictEqual(workPackages.length, 8, 'eight approvals should prepare eight work packages');
+  assert.strictEqual(workPackages.every((wp) => wp.status === 'approved_waiting'), true, 'all approved items remain approved_waiting');
+  assert.strictEqual(workPackages.every((wp) => wp.ownerDecisionPersistent === true), true, 'owner decision stays persistent');
+  assert.strictEqual(workPackages.every((wp) => wp.reapprovalRequired === false), true, 'unchanged scope does not require reapproval');
+  assert.strictEqual(workPackages.every((wp) => wp.approvedForSerialExecution === true), true, 'all are approved for serial execution');
+})();
+
+(function testOnlyOneBuilderWorkPackageCanBeActiveAndNextUpIsPlanned() {
+  const packages = [
+    { workPackageId: 'wp-1', status: 'active_metadata_only', serialGroup: 'main_repo', executionOrder: 1 },
+    { workPackageId: 'wp-2', status: 'approved_waiting', serialGroup: 'main_repo', executionOrder: 2 },
+  ];
+  const activePlan = planNextBuilderQueueState(packages);
+  assert.strictEqual(activePlan.activeCount, 1, 'one active package blocks another active package');
+  assert.strictEqual(activePlan.canMarkNextUp, false, 'next_up is not marked while active exists');
+  const afterCompleted = planNextBuilderQueueState([{ ...packages[0], status: 'completed_metadata_only' }, packages[1]]);
+  assert.strictEqual(afterCompleted.activeCount, 0, 'completed package frees serial group');
+  assert.strictEqual(afterCompleted.canMarkNextUp, true, 'next approved_waiting can become next_up after completion');
+  assert.strictEqual(afterCompleted.nextUpWorkPackageId, 'wp-2', 'wp-2 is next up');
+  assert.strictEqual(afterCompleted.noRunnerStarted, true, 'queue planning starts no runner');
+})();
+
+(function testReapprovalGuardKeepsUnchangedScopeFalseAndBlocksRiskyChanges() {
+  const wp = buildBuilderWorkPackageFromDossier({ dossier: { sourceDossierId: 'safe', title: 'Safe', allowedFiles: ['docs/**'], blockedFiles: ['native/**'], requiredChecks: ['npm run lint'] }, dossierId: 'safe', actorRole: 'owner', sequenceNumber: 1, baseSha: 'sha' });
+  assert.strictEqual(detectBuilderReapprovalGuard(wp, wp).reapprovalRequired, false, 'unchanged scope remains approved');
+  const risky = detectBuilderReapprovalGuard({ ...wp, blockedFiles: ['project-register/wellfit-beta1-canonical-truth.json'], requiredChecks: ['npm run lint', 'npm run build'], revalidationStatus: 'stale main sha', safetySentinelStatus: 'blocked' }, wp);
+  assert.strictEqual(risky.reapprovalRequired, true, 'canonical/stale/sentinel risk requires reapproval');
+  assert(risky.reasons.includes('canonical_truth_protected_file'), 'canonical truth risk is explicit');
+  const sensitive = detectBuilderReapprovalGuard({ ...wp, affectedFiles: ['app/health/location-camera.tsx'], blockedFiles: ['token/payment/wft/sui'], requiredChecks: ['npm run lint'] }, wp);
+  assert.strictEqual(sensitive.reapprovalRequired, true, 'token/payment/health/location/camera risk requires reapproval');
+  assert(sensitive.reasons.includes('token_payment_blockchain_scope'), 'token/payment risk is explicit');
+  assert(sensitive.reasons.includes('sensitive_data_scope'), 'sensitive data risk is explicit');
+})();
+
+(function testConversationIdeaDossierSanitizesAndContainsRequiredFields() {
+  const dossier = buildConversationIdeaDossier({ rawIdeaText: 'Bitte Product Brain bauen. E-Mail owner@example.test token:abc123 sessionId:secret', source: 'chat', sourceRef: 'chat-1', priorityHint: 'P2', categoryHint: 'agent' });
+  const serialized = JSON.stringify(dossier);
+  assert.strictEqual(dossier.ownerDecisionRequired, true, 'conversation idea requires owner decision');
+  assert.strictEqual(dossier.noRuntimeChanges, true, 'conversation idea is metadata-only');
+  assert.strictEqual(dossier.noRunnerStarted, true, 'runner stays off');
+  assert.strictEqual(dossier.noBranchOrPrOrMerge, true, 'branch/pr/merge stay off');
+  assert.strictEqual(dossier.noDeploy, true, 'deploy stays off');
+  assert.strictEqual(dossier.noTokenPaymentBlockchain, true, 'token/payment/blockchain stays off');
+  for (const field of dossierSchema.minimumFields.filter((name) => !['nextPipelineStep'].includes(name))) assert.notStrictEqual(dossier[field], undefined, `${field} should be present`);
+  assert(!serialized.includes('owner@example.test'), 'email must be redacted');
+  assert(!serialized.includes('abc123'), 'token value must be redacted');
+  assert(!serialized.includes('sessionId:secret'), 'session payload must be redacted');
+  assert.strictEqual(sanitizeConversationIdeaText('x'.repeat(5000)).length, 4000, 'large texts are truncated');
+})();
+
+(function testPostMergeVerificationPlanAndRepairDossierAreMetadataOnly() {
+  const plan = buildDefaultVerificationPlan();
+  assert.strictEqual(plan.verificationRequired, true, 'verification is required');
+  assert(plan.verificationChecklist.includes('npm run agent:validate'), 'agent validate is included');
+  assert(plan.postMergeChecks.includes('git diff --check'), 'git diff check is included');
+  assert.strictEqual(plan.adminSnapshotRequired, true, 'admin snapshot is required');
+  assert.strictEqual(plan.uiSmokeSnapshotRequired, true, 'ui smoke snapshot is required');
+  const repair = buildRepairDossierFromVerificationFailure({ workPackageId: 'wp-1', title: 'Work' }, 'npm run build failed');
+  assert.strictEqual(repair.status, 'repair_required', 'verification failure creates repair metadata');
+  assert.strictEqual(repair.queuePauseRequired, true, 'queue pause is required after failure');
+  assert.strictEqual(repair.noRunnerStarted, true, 'repair dossier starts no runner');
+  assert.strictEqual(repair.noBranchOrPrOrMerge, true, 'repair dossier starts no branch/pr/merge');
+  assert.strictEqual(repair.noDeploy, true, 'repair dossier starts no deploy');
+})();
+
+(function testCanonicalTruthFilesRemainProtectedByDossierSchemaAndNoAutomationFlags() {
+  assert(dossierSchema.approvedBuilderBacklogFields.includes('ownerDecisionPersistent'), 'schema tracks persistent owner decisions');
+  assert(dossierSchema.verificationPlanFields.includes('createsRepairDossierOnFailure'), 'schema tracks repair dossier fallback');
+  assert.strictEqual(dossierSchema.guardrails.noRunnerStartedDefault, true, 'schema keeps noRunnerStarted default true');
+  assert.strictEqual(dossierSchema.guardrails.noBranchOrPrOrMergeDefault, true, 'schema keeps branch/pr/merge default off');
+  assert.strictEqual(dossierSchema.guardrails.noDeployDefault, true, 'schema keeps deploy default off');
+  assert.strictEqual(dossierSchema.guardrails.noTokenPaymentBlockchainDefault, true, 'schema keeps token/payment/blockchain default off');
 })();
 
 (function testTelemetrySanitizerRedactsSensitiveKeys() {

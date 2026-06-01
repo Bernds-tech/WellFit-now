@@ -722,3 +722,9 @@ Pflicht fuer Agenten/Coder vor Beta-1-relevanten Aufgaben: Codex, wellfit-dev-ag
 - Deploy-Hinweis nach Merge: `firebase deploy --only functions:syncProductEvolutionFirstRunInbox --project wellfit-b7d27` plus Frontend/Hosting-Deploy.
 - Anschluss: `runtime/admin-center-task-proposal-to-worker-queue` erst nach erfolgreichem Inbox-Sync.
 - Dokumentationsreferenz: `docs/beta/ADMIN_OWNER_CLAIM_SETUP.md` enthaelt den Admin-Owner-Claim, Login-Fallback und Deploy-Hinweis fuer `syncProductEvolutionFirstRunInbox`.
+
+## Approved Builder Backlog / Conversation Intake (2026-05-31)
+
+- `project-register/agent-conversation-idea-dossiers.json` enthält metadata-only Seed-Dossiers aus Bernds Gesprächswünschen; keine Runner-/Branch-/PR-/Merge-/Deploy-Automation.
+- `project-register/agent-dossier-schema.json` dokumentiert Approved-Builder-Backlog-Felder, Post-Merge-Verifikationsfelder und Conversation-Idea-Dossier-Felder.
+- `docs/architecture/WELLFIT_AGENT_AUTOMATION_CONTROL_AND_RETRY_GUARD.md` und `docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md` beschreiben persistente Owner-Freigaben, serielle Umsetzung und Reapproval-Guards.
