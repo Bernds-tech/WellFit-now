@@ -8,7 +8,7 @@ import safetyDossierRegister from "@/project-register/agent-safety-dossiers.json
 import conversationIdeaDossierRegister from "@/project-register/agent-conversation-idea-dossiers.json";
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
-import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier, AgentCenterAutopilotSnapshot, AgentCenterAutopilotSnapshotResult, BuilderWorkPackage, PrepareBuilderWorkPackageResult, ConversationIdeaDossier, ConversationIdeaDecisionResult } from "@/lib/admin/beta1AdminTypes";
+import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier, AgentCenterAutopilotSnapshot, AgentCenterAutopilotSnapshotResult, BuilderWorkPackage, PrepareBuilderWorkPackageResult, ConversationIdeaDossier, ConversationIdeaDecisionResult, PrepareGithubBuilderBranchPrResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
 type DetailSections = Record<string, string>;
@@ -1462,6 +1462,45 @@ export default function AgentCenterInteractive({
     return "";
   }
 
+  function builderPrPrepareButtonReason(item: BuilderWorkPackage): string {
+    const status = String(item.status || "").toLowerCase();
+    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
+    if (!item.workPackageId) return "Work Package ID fehlt";
+    if (!["next_up", "approved_waiting"].includes(status)) return "Nur next_up oder approved_waiting kann Branch/PR vorbereiten.";
+    if (item.reapprovalRequired === true) return "Reapproval erforderlich";
+    if (item.ownerApproved !== true || item.ownerDecisionPersistent !== true || item.approvedForSerialExecution !== true) return "Owner-/Serial-Freigabe fehlt";
+    return "";
+  }
+
+  async function prepareGithubBuilderBranchPr(item: BuilderWorkPackage) {
+    const reason = builderPrPrepareButtonReason(item);
+    if (reason) {
+      setFeedback(reason);
+      return;
+    }
+    setBusy(true);
+    setFeedback("Branch/PR wird nach Guards vorbereitet — kein Merge, kein Deploy …");
+    try {
+      const result = await beta1AdminClient.prepareGithubBuilderBranchPrFromWorkPackage({ workPackageId: item.workPackageId }) as PrepareGithubBuilderBranchPrResult;
+      const safeMessage = result.accepted
+        ? `Builder-PR-Plan vorbereitet: ${result.builderPrPlan?.branchName || item.branchName || item.workPackageId}. Kein Merge, kein Deploy.`
+        : `Branch/PR-Vorbereitung blockiert: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+      setSyncDebug((prev) => ({ ...prev, lastBuilderWorkPackageStatus: result.status || (result.accepted ? "branch_pr_plan_created" : "blocked"), lastBuilderWorkPackageMessage: safeMessage, lastBuilderNoDeploy: result.noAutoDeploy ?? true, lastBuilderNoTokenPaymentBlockchain: result.noTokenPaymentBlockchain ?? true }));
+    } catch (error) {
+      const safeMessage = `Branch/PR-Vorbereitung fehlgeschlagen: ${getSafeAdminDecisionMessage(error)}`;
+      setFeedback(safeMessage);
+      setSyncStatus(safeMessage);
+    } finally {
+      try {
+        await refreshAgentSnapshot();
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
   async function prepareBuilderWorkPackage(row: Row) {
     const inboxId = asText(row.inboxId);
     const reason = builderWorkPackageButtonReason(row);
@@ -2301,7 +2340,7 @@ export default function AgentCenterInteractive({
       </div>
 
       <div className="space-y-2 text-xs">
-        <p className="text-cyan-100">Builder Work Packages / agentBuilderWorkPackages — metadata-only, seriell, keine GitHub-Aktion.</p>
+        <p className="text-cyan-100">Builder Work Packages / agentBuilderWorkPackages — seriell, Branch/PR nur nach Guards; kein Merge, kein Deploy.</p>
         <div className="flex flex-wrap gap-2">
           {BUILDER_QUEUE_FILTER_KEYS.map((key) => {
             const activeCard = active === key;
@@ -2608,13 +2647,19 @@ export default function AgentCenterInteractive({
                 <div>
                   <b>{item.sequenceNumber ? `#${item.sequenceNumber} · ` : ""}{item.title || "Unbenannter Bauauftrag"}</b>
                   <p>{item.shortSummary || "metadata-only Builder Work Package"}</p>
-                  <p>Status: {item.status || "approved_waiting"} · serialGroup: {item.serialGroup || "main_repo"} · baseBranch: {item.baseBranch || "main"}</p>
+                  <p>Work Package ID: {item.workPackageId} · Quelle: {item.sourceDossierType || "—"}/{item.sourceDossierId || "—"}</p>
+                  <p>Status: {item.status || "approved_waiting"} · next_up={String(String(item.status || "") === "next_up")} · serialGroup: {item.serialGroup || "main_repo"} · baseBranch: {item.baseBranch || "main"}</p>
+                  <p>baseSha: {item.baseSha || item.sourceMainShaAtApproval || "—"} · branchName: {item.branchName || item.builderPrPlan?.branchName || "—"} · PR URL: {item.prUrl || "—"}</p>
+                  <p>GitHub write ready? {String(item.githubWriteReady === true)} · Guard Status: {String((item.guardStatus as { ok?: unknown } | null | undefined)?.ok ?? "—")} · GitHub Status: {item.githubWriteStatus || "—"}</p>
+                  <p>Required Checks: {(item.requiredChecks || []).join(" · ") || "—"}</p>
                   <p>Repair: {item.repairAttemptCount ?? 0}/{item.maxRepairAttempts ?? 3} · Stop/Pause: {item.automationPaused ? "ja" : "nein"}</p>
-                  <p>Owner Decision: {item.ownerDecisionStatus || "approved"} · persistent={String(item.ownerDecisionPersistent !== false)} · reapprovalRequired={String(item.reapprovalRequired === true)} · executionOrder={item.executionOrder ?? item.sequenceNumber ?? "—"}</p>
+                  <p>Owner Decision: {item.ownerDecisionStatus || "approved"} · ownerDecisionPersistent={String(item.ownerDecisionPersistent !== false)} · reapprovalRequired={String(item.reapprovalRequired === true)} · executionOrder={item.executionOrder ?? item.sequenceNumber ?? "—"}</p>
                   <p>Revalidation: {item.revalidationStatus || "pending"} · sourceMainSha={item.sourceMainShaAtApproval || "—"} · currentMainSha={item.currentMainShaAtLastValidation || "—"}</p>
-                  <p>Post-Merge Prüfung: {item.verificationStatus || "pending"} · adminSnapshotRequired={String(item.adminSnapshotRequired !== false)} · uiSmokeSnapshotRequired={String(item.uiSmokeSnapshotRequired !== false)} · repairDossierOnFailure={String(item.createsRepairDossierOnFailure !== false)}</p>
+                  <p>Checks: {item.checkStatus || item.verificationStatus || "pending"} · adminSnapshotRequired={String(item.adminSnapshotRequired !== false)} · uiSmokeSnapshotRequired={String(item.uiSmokeSnapshotRequired !== false)} · repairDossierOnFailure={String(item.createsRepairDossierOnFailure !== false)}</p>
                   <p>Nächste Aktion: {item.recommendedNextAction || "Warten; keine GitHub-/Runner-/Deploy-Aktion."}</p>
-                  <p>Safety: noRunnerStarted={String(item.noRunnerStarted)} · noBranchOrPrOrMerge={String(item.noBranchOrPrOrMerge)} · noDeploy={String(item.noDeploy)} · noTokenPaymentBlockchain={String(item.noTokenPaymentBlockchain)}</p>
+                  <p>Safety: noAutoMerge={String(item.noAutoMerge !== false)} · noAutoDeploy={String(item.noAutoDeploy !== false)} · noDeploy={String(item.noDeploy)} · noTokenPaymentBlockchain={String(item.noTokenPaymentBlockchain)}</p>
+                  <p className="text-amber-200">Kein Merge, kein Deploy. Erstellt nur Plan/Branch/PR nach Guards.</p>
+                  <button className="mt-2 cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" title={builderPrPrepareButtonReason(item) || "Branch/PR vorbereiten"} disabled={busy || Boolean(builderPrPrepareButtonReason(item))} onClick={() => prepareGithubBuilderBranchPr(item)}>Branch/PR vorbereiten</button>
                 </div>
                 <span className="rounded-full border border-white/20 px-2 py-1">{getBuilderQueueBucket(item)}</span>
               </div>

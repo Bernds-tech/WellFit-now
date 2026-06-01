@@ -353,7 +353,7 @@ export type ConversationIdeaDecisionInput = { dossierId: string; decision: "appr
 export type ConversationIdeaDecisionResult = AdminCallableResult & { dossierId?: string; status?: string; decision?: string; noRuntimeChanges?: boolean; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
 
 
-export type BuilderWorkPackageStatus = "proposed" | "approved_waiting" | "next_up" | "active_metadata_only" | "blocked_by_existing_active_work" | "blocked_by_failed_checks" | "blocked_by_stale_base" | "blocked_by_reapproval_required" | "repair_required" | "completed_metadata_only" | "cancelled" | "paused_by_owner" | string;
+export type BuilderWorkPackageStatus = "proposed" | "approved_waiting" | "next_up" | "active_metadata_only" | "branch_pr_plan_created" | "branch_created" | "pr_created" | "checks_pending" | "checks_passed" | "checks_failed" | "repair_attempt_1" | "repair_attempt_2" | "repair_attempt_3" | "repair_required" | "ready_for_owner_merge_decision" | "blocked_by_guard" | "blocked_by_missing_github_credentials" | "blocked_by_protected_files" | "blocked_by_reapproval_required" | "blocked_by_existing_active_work" | "blocked_by_failed_checks" | "blocked_by_stale_base" | "completed_metadata_only" | "cancelled" | "paused_by_owner" | string;
 export type BuilderWorkPackage = {
   workPackageId: string;
   sourceDossierId?: string | null;
@@ -385,6 +385,25 @@ export type BuilderWorkPackage = {
   allowedFiles?: string[];
   blockedFiles?: string[];
   requiredChecks?: string[];
+  allowedGlobs?: string[];
+  intendedFileChanges?: Array<{ path: string; changeType?: string }>;
+  branchName?: string | null;
+  commitMessage?: string | null;
+  prTitle?: string | null;
+  prBody?: string | null;
+  prUrl?: string | null;
+  githubWriteReady?: boolean;
+  githubWriteStatus?: string | null;
+  guardStatus?: Record<string, unknown> | null;
+  builderPrPlan?: BuilderPrPlan | null;
+  executionContract?: BuilderExecutionContractV1 | null;
+  checkStatus?: string | null;
+  checksPending?: Array<Record<string, unknown>>;
+  noAutoMerge?: boolean;
+  noAutoDeploy?: boolean;
+  noCanonicalTruthAutonomousChange?: boolean;
+  noFirestoreRulesChangeUnlessExplicitlyAllowed?: boolean;
+  noRuntimeRewardLedgerAntiCheatChangeUnlessExplicitlyAllowed?: boolean;
   maxRepairAttempts?: number;
   repairAttemptCount?: number;
   noParallelExecution?: boolean;
@@ -404,6 +423,11 @@ export type BuilderWorkPackage = {
   createsRepairDossierOnFailure?: boolean;
   recommendedNextAction?: string | null;
 };
+
+export type BuilderExecutionContractV1 = { workPackageId?: string | null; sourceDossierId?: string | null; sourceDossierType?: string | null; ownerDecisionId?: string | null; ownerApproved: boolean; ownerDecisionPersistent: boolean; approvedForSerialExecution: boolean; serialGroup: "main_repo"; executionOrder: number; baseBranch: "main"; baseSha?: string | null; branchName: string; prTitle: string; prBody: string; allowedFiles: string[]; allowedGlobs?: string[]; blockedFiles: string[]; requiredChecks: string[]; maxRepairAttempts: 3; repairAttemptCount: number; reapprovalRequired: boolean; reapprovalReason?: string | null; noParallelExecution: true; noAutoMerge: true; noAutoDeploy: true; noTokenPaymentBlockchain: true; noCanonicalTruthAutonomousChange: true; noFirestoreRulesChangeUnlessExplicitlyAllowed: true; noRuntimeRewardLedgerAntiCheatChangeUnlessExplicitlyAllowed: true };
+export type BuilderPrPlan = { planVersion?: string; workPackageId?: string | null; branchName: string; commitMessage: string; prTitle: string; prBody: string; intendedFileChanges: Array<{ path: string; changeType?: string }>; requiredChecks: string[]; checkStatus?: string; checksPending?: Array<Record<string, unknown>>; nextManualCommand: string; githubWriteReady: false; reason: string; noAutoMerge: true; noAutoDeploy: true; noTokenPaymentBlockchain: true; noCanonicalTruthAutonomousChange: true };
+export type PrepareGithubBuilderBranchPrInput = { workPackageId: string };
+export type PrepareGithubBuilderBranchPrResult = AdminCallableResult & { workPackageId?: string; builderPrPlan?: BuilderPrPlan; executionContract?: BuilderExecutionContractV1; guardStatus?: Record<string, unknown>; noBranchCreated?: boolean; noPrCreated?: boolean; noAutoMerge?: boolean; noAutoDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
 export type BuilderWorkPackageCounts = { total: number; proposed: number; waiting: number; next_up: number; active: number; blocked: number; repair_required: number; completed: number; cancelled: number; paused: number; unknown: number };
 export type AgentAutopilotControlSnapshot = { enabled: boolean; mode: "off" | "proposal_only" | "planning_only" | "builder_metadata_only" | string; maxConcurrentWorkPackages: number; stopOnFailedCheck: boolean; stopOnMergeConflict: boolean; maxRepairAttempts: number; paused: boolean; pauseReason?: string | null; lastOwnerDecisionAt?: unknown; nextRecommendedAction?: string | null; noRunnerStarted: boolean; noBranchOrPrOrMerge: boolean; noDeploy: boolean; noTokenPaymentBlockchain: boolean };
 export type AgentCenterAutopilotSnapshot = {
