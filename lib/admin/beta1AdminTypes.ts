@@ -332,9 +332,15 @@ export type ProductEvolutionInboxSyncResult = AdminCallableResult & { syncedCoun
 export type LocalRegisterInboxSyncResult = AdminCallableResult & { syncedCount?: number; idempotent?: boolean };
 export type ConversationIdeaDossier = AgentDossierBase & {
   dossierId: string;
+  id?: string;
+  sourceDossierId?: string;
+  sourceDossierType?: "conversation_idea" | string;
+  serverDossierId?: string | null;
+  seedDossierId?: string | null;
   type?: "conversation_idea_dossier" | string;
   status?: "pending_approval" | "approved" | "rejected" | "revision_requested" | "blocked" | string;
-  source?: "chat" | "admin_note" | "uploaded_transcript" | "manual" | string;
+  source?: "seed" | "server" | "chat" | "admin_note" | "uploaded_transcript" | "manual" | string;
+  ownerDecisionStatus?: "pending_approval" | "approved" | "rejected" | "revision_requested" | "blocked" | string;
   sourceRef?: string | null;
   priorityHint?: string | null;
   categoryHint?: string | null;
@@ -461,8 +467,8 @@ export type AgentCenterAutopilotSnapshot = {
 };
 export type AgentCenterAutopilotSnapshotResult = AdminCallableResult & { snapshot?: AgentCenterAutopilotSnapshot };
 export type PrepareBuilderWorkPackageInput = { dossierId?: string; inboxId?: string; sourceDossierId?: string; baseSha?: string };
-export type PrepareConversationBuilderWorkPackageInput = { dossierId: string; baseSha?: string };
-export type PrepareBuilderWorkPackageResult = AdminCallableResult & { workPackage?: BuilderWorkPackage; workPackageId?: string; status?: string; existing?: boolean; reapprovalRequired?: boolean; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
+export type PrepareConversationBuilderWorkPackageInput = { dossierId: string; sourceDossierId?: string; seedDossierId?: string; serverDossierId?: string; baseSha?: string };
+export type PrepareBuilderWorkPackageResult = AdminCallableResult & { workPackage?: BuilderWorkPackage; workPackageId?: string; status?: string; existing?: boolean; clientErrorCode?: string; reapprovalRequired?: boolean; noRunnerStarted?: boolean; noBranchOrPrOrMerge?: boolean; noDeploy?: boolean; noTokenPaymentBlockchain?: boolean };
 export type AgentGithubFileChange = { path: string; content: string; changeType: "create" | "update"; encoding?: string };
 export type AgentGithubApplyFileChangesInput = { jobId: string; fileChanges: AgentGithubFileChange[]; commitMessage: string };
 export type AgentGithubPrResult = { prNumber?: number; prUrl?: string; status: AgentGithubRunnerStatus };

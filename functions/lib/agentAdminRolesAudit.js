@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const { FieldValue } = require("firebase-admin/firestore");
 const { optionalString, requiredString } = require("./beta1Runtime");
+const conversationIdeaDossierRegister = require("../../project-register/agent-conversation-idea-dossiers.json");
 
 const ALLOWED_TARGET_TRACKS = ["docs_register", "runtime_ui", "runtime_backend", "live_page", "evidence", "blocked"];
 const PROPOSAL_STATUSES = ["proposed", "review_required", "pending", "pending_approval", "approved", "approved_ready", "approved_for_work", "rejected", "declined", "queued", "queued_for_worker_review", "queued_for_owner_review", "pending_worker_review", "ready_for_worker", "claimed", "running", "checks_recorded", "pr_prepared", "in_progress", "executed", "completed", "done", "blocked", "failed", "repair_required"];
@@ -18,7 +19,8 @@ const OWNER_DECISION_STATUSES = ["approved", "rejected", "revision_requested", "
 const CONVERSATION_IDEA_DECISIONS = ["approve", "reject", "revision_requested", "block"];
 const CONVERSATION_IDEA_TERMINAL_STATUSES = ["approved", "rejected", "revision_requested", "blocked"];
 const VERIFICATION_STATUSES = ["pending", "passed", "failed", "blocked", "not_run"];
-const CONVERSATION_IDEA_SOURCES = ["chat", "admin_note", "uploaded_transcript", "manual"];
+const CONVERSATION_IDEA_SOURCES = ["chat", "admin_note", "uploaded_transcript", "manual", "seed", "server"];
+const CONVERSATION_IDEA_DOSSIER_TYPE = "conversation_idea";
 const BUILDER_POST_MERGE_CHECKLIST = [
   "npm run agent:validate",
   "npm run lint",
@@ -345,6 +347,92 @@ function buildRepairDossierFromVerificationFailure(workPackage = {}, reason = "v
   };
 }
 
+
+function getConversationIdeaSeedDossiers() {
+  return Array.isArray(conversationIdeaDossierRegister.dossiers) ? conversationIdeaDossierRegister.dossiers : [];
+}
+
+function getConversationIdeaSeedDossierById(dossierId) {
+  const id = sanitizeFirestoreDocIdPart(dossierId, 180);
+  return getConversationIdeaSeedDossiers().find((dossier) => sanitizeFirestoreDocIdPart(dossier && (dossier.dossierId || dossier.sourceDossierId || dossier.id), 180) === id) || null;
+}
+
+function normalizeConversationIdeaDossier(raw = {}, options = {}) {
+  const data = raw && typeof raw === "object" ? raw : {};
+  const requestedId = sanitizeFirestoreDocIdPart(options.dossierId || data.dossierId || data.sourceDossierId || data.id || data.seedDossierId || data.serverDossierId, 180);
+  const seed = options.seed || getConversationIdeaSeedDossierById(requestedId) || null;
+  const merged = seed ? { ...seed, ...data } : { ...data };
+  const source = sanitizeTelemetryText(options.source || merged.source, 40) || (seed && !options.serverDossierId ? "seed" : "server");
+  const dossierId = sanitizeFirestoreDocIdPart(merged.dossierId || merged.sourceDossierId || requestedId, 180);
+  const serverDossierId = sanitizeFirestoreDocIdPart(options.serverDossierId || merged.serverDossierId || (source === "server" ? (data.id || dossierId) : ""), 180) || null;
+  const seedDossierId = sanitizeFirestoreDocIdPart(options.seedDossierId || merged.seedDossierId || (seed ? (seed.dossierId || dossierId) : ""), 180) || null;
+  const status = sanitizeTelemetryText(merged.status || merged.ownerDecisionStatus || "pending_approval", 80) || "pending_approval";
+  const ownerDecisionStatus = sanitizeTelemetryText(merged.ownerDecisionStatus || (OWNER_DECISION_STATUSES.includes(status) ? status : ""), 80) || (status === "pending_approval" ? "pending_approval" : status);
+  return {
+    ...merged,
+    dossierId,
+    id: dossierId,
+    sourceDossierId: sanitizeTelemetryText(merged.sourceDossierId || dossierId, 180) || dossierId,
+    sourceDossierType: CONVERSATION_IDEA_DOSSIER_TYPE,
+    source: source === "server" || source === "seed" ? source : (serverDossierId ? "server" : "seed"),
+    serverDossierId,
+    seedDossierId,
+    ownerDecisionStatus,
+    status,
+    type: "conversation_idea_dossier",
+    noRuntimeChanges: true,
+    noRunnerStarted: true,
+    noBranchOrPrOrMerge: true,
+    noDeploy: true,
+    noTokenPaymentBlockchain: true,
+  };
+}
+
+function isEmptyTechnicalConversationIdeaDossier(dossier = {}) {
+  const title = sanitizeTelemetryText(dossier.title, 80);
+  const summary = sanitizeTelemetryText(dossier.shortSummary || dossier.plainLanguageSummary || dossier.problem || dossier.proposedChange, 120);
+  return !title && !summary;
+}
+
+function getConversationDossierCandidateIds(dossier = {}, requestedId = "") {
+  return Array.from(new Set([
+    requestedId,
+    dossier.dossierId,
+    dossier.sourceDossierId,
+    dossier.serverDossierId,
+    dossier.seedDossierId,
+    dossier.id,
+  ].map((value) => sanitizeFirestoreDocIdPart(value, 180)).filter(Boolean)));
+}
+
+function findExistingBuilderWorkPackageForConversationDossier(packageDocs = [], dossier = {}, requestedId = "") {
+  const candidateIds = getConversationDossierCandidateIds(dossier, requestedId);
+  return packageDocs.find((doc) => {
+    const data = doc.data ? (doc.data() || {}) : (doc || {});
+    return getConversationDossierCandidateIds(data, data.sourceDossierId).some((id) => candidateIds.includes(id));
+  }) || null;
+}
+
+function getConversationBuilderPreparationFailureCode(message = "") {
+  const text = String(message || "");
+  if (text.includes("dossierId") || text.includes("conversation_dossier_id_missing")) return "conversation_dossier_id_missing";
+  if (text.includes("conversation_dossier_not_approved")) return "conversation_dossier_not_approved";
+  if (text.includes("conversation_seed_dossier_not_materialized")) return "conversation_seed_dossier_not_materialized";
+  if (text.includes("conversation_builder_work_package_exists")) return "conversation_builder_work_package_exists";
+  if (text.includes("blocked_by_reapproval_required")) return "conversation_reapproval_required";
+  if (text.includes("guard") || text.includes("blocked")) return "conversation_guard_blocked";
+  if (text.includes("not_found")) return "conversation_dossier_not_found";
+  return "conversation_builder_prepare_failed";
+}
+
+function getNextConversationBuilderWorkPackageStatus({ wpBase = {}, packageDocs = [], autopilotPaused = false, repairLimitHit = false, blockingCount = 0 }) {
+  if (wpBase.reapprovalRequired === true) return "blocked_by_reapproval_required";
+  const hasActive = packageDocs.some((doc) => BUILDER_ACTIVE_EXECUTION_STATUSES.includes(String((doc.data ? (doc.data() || {}) : doc).status || "")));
+  const hasNextUp = packageDocs.some((doc) => String((doc.data ? (doc.data() || {}) : doc).status || "") === "next_up");
+  if (!hasActive && !hasNextUp && !autopilotPaused && !repairLimitHit && blockingCount === 0) return "next_up";
+  return "approved_waiting";
+}
+
 function buildConversationIdeaDossier(input = {}) {
   const rawIdeaText = sanitizeConversationIdeaText(input.rawIdeaText, 4000);
   const source = CONVERSATION_IDEA_SOURCES.includes(String(input.source || "")) ? String(input.source) : "manual";
@@ -356,8 +444,14 @@ function buildConversationIdeaDossier(input = {}) {
   const requiredChecks = sanitizeTelemetryList(input.requiredChecks || BUILDER_POST_MERGE_CHECKLIST.slice(0, 6), 20, 260);
   return {
     dossierId,
+    id: dossierId,
+    sourceDossierId: dossierId,
+    sourceDossierType: CONVERSATION_IDEA_DOSSIER_TYPE,
+    serverDossierId: input.serverDossierId || null,
+    seedDossierId: input.seedDossierId || (source === "seed" ? dossierId : null),
     type: "conversation_idea_dossier",
-    status: "pending_approval",
+    status: input.status || "pending_approval",
+    ownerDecisionStatus: input.ownerDecisionStatus || input.status || "pending_approval",
     title,
     shortSummary: sanitizeTelemetryText(input.shortSummary || rawIdeaText, 500) || "Gesprächsidee als metadata-only Dossier erfasst.",
     plainLanguageSummary: sanitizeTelemetryText(input.plainLanguageSummary || rawIdeaText, 800) || "Bernds Gesprächswunsch wird als entscheidbarer Vorschlag im Admin Center abgelegt.",
@@ -553,7 +647,7 @@ function buildBuilderQueueGuardState(packages, autopilotControl) {
     nextUpCount: nextUp.length,
     reapprovalBlockedWaitingCount: reapprovalBlockedWaiting.length,
     hasActiveWorkPackage: active.length > 0,
-    nextUpWorkPackageId: active.length === 0 && validWaiting[0] ? (validWaiting[0].workPackageId || null) : (nextUp[0] ? nextUp[0].workPackageId || null : null),
+    nextUpWorkPackageId: nextUp[0] ? (nextUp[0].workPackageId || null) : (active.length === 0 && validWaiting[0] ? (validWaiting[0].workPackageId || null) : null),
     queuePaused: paused,
     pauseReason: sanitizeTelemetryText(reason, 240),
     automationPaused: paused,
@@ -3914,6 +4008,9 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const lastKnownBlocker = builderGuard.lastKnownBlocker || (blockedBuilders[0] ? `${blockedBuilders[0].workPackageId}:${blockedBuilders[0].status}` : null) || sanitizeTelemetryText((autopilotDoc.data || {}).pauseReason, 240);
     const lastCheckOrRepairStatus = builderPackages.find((item) => Number(item.repairAttemptCount || 0) > 0 || String(item.status || "") === "repair_required") || null;
     const sanitizedAutopilotControl = sanitizeAutopilotControl(autopilotDoc.data);
+    const conversationIdeaDossiers = conversationIdeaRaw
+      .map((item) => normalizeConversationIdeaDossier(item, { dossierId: item.dossierId || item.id, serverDossierId: item.id || item.dossierId, source: "server" }))
+      .filter((item) => !isEmptyTechnicalConversationIdeaDossier(item));
     const nextRecommendedAction = lastKnownBlocker
       ? "Blocker/Repair im Admin Center pruefen; keine neue Builder-Arbeit starten."
       : (approvedDossiers.length > 0 ? "Freigegebene Dossiers nacheinander als metadata-only Bauauftraege vorbereiten." : sanitizedAutopilotControl.nextRecommendedAction);
@@ -3940,8 +4037,8 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
       runnerJobCounts: getStatusCountsByBucket(runnerRaw, (item) => getRunnerJobStatusBucket(item.status || item.runnerJobStatus), ["pending_runner_pickup", "pickup_contract_created", "implementation_plan_created", "planning", "in_progress", "completed", "blocked", "repair_required"]),
       pickupContractCounts: getStatusCountsByBucket(pickupRaw, (item) => getPickupContractStatusBucket(item.status), ["planning_open", "implementation_plan_created", "implementation_plan_review", "implementation_plan_approved", "planning", "completed", "blocked", "repair_required"]),
       implementationPlanCounts: getStatusCountsByBucket(planRaw, (item) => getImplementationPlanStatusBucket(item.status), ["created", "review", "approved", "planning", "completed", "blocked", "repair_required"]),
-      conversationIdeaDossierCounts: { ...getStatusCountsByBucket(conversationIdeaRaw, (item) => String(item.status || "pending_approval"), ["pending_approval", "approved", "rejected", "revision_requested", "blocked"]), total: conversationIdeaTotal },
-      conversationIdeaDossiers: conversationIdeaRaw.map((item) => sanitizeTelemetryObject(item)).slice(0, 50),
+      conversationIdeaDossierCounts: { ...getStatusCountsByBucket(conversationIdeaDossiers, (item) => String(item.status || "pending_approval"), ["pending_approval", "approved", "rejected", "revision_requested", "blocked"]), total: conversationIdeaTotal },
+      conversationIdeaDossiers: conversationIdeaDossiers.map((item) => sanitizeTelemetryObject(item)).slice(0, 50),
       builderWorkPackageCounts: getStatusCountsByBucket(builderPackages, (item) => getBuilderWorkPackageStatusBucket(item.status), ["proposed", "waiting", "next_up", "active", "blocked", "repair_required", "completed", "cancelled", "paused"]),
       builderWorkPackages: builderPackages.slice(0, 50),
       builderQueueGuard: builderGuard,
@@ -4071,8 +4168,14 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
     const reason = sanitizeConversationIdeaText(data.reason || data.decisionReason || "", 1200);
     const now = FieldValue.serverTimestamp();
     const ref = db.collection("agentConversationIdeaDossiers").doc(dossierId);
+    const existingSnap = await ref.get();
+    const existing = existingSnap.exists ? (existingSnap.data() || {}) : {};
+    const seed = getConversationIdeaSeedDossierById(dossierId);
+    const baseDossier = normalizeConversationIdeaDossier({ ...(seed || {}), ...existing }, { dossierId, seed, serverDossierId: dossierId, source: "server" });
+    if (!seed && !existingSnap.exists) throw new HttpsError("not-found", "conversation_dossier_not_found");
     const decisionId = `conversation-decision-${sanitizeFirestoreDocIdPart(dossierId, 120)}-${Date.now()}`;
     const update = {
+      ...baseDossier,
       status,
       decision: requestedDecision,
       ownerDecisionStatus: status,
@@ -4097,7 +4200,7 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
   exportsTarget.prepareBuilderWorkPackageFromConversationDossier = onCall(async (request) => {
     const { actorId, actorRole } = requireRole(request, HttpsError, ["owner", "admin_operator"]);
     const data = request.data || {};
-    const dossierId = requiredString(data.dossierId, "dossierId", HttpsError, 180);
+    const dossierId = requiredString(data.dossierId || data.sourceDossierId || data.seedDossierId || data.serverDossierId, "dossierId", HttpsError, 180);
     const baseSha = optionalString(data.baseSha, 120);
     const dossierRef = db.collection("agentConversationIdeaDossiers").doc(dossierId);
     const now = FieldValue.serverTimestamp();
@@ -4107,23 +4210,29 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         transaction.get(db.collection("agentBuilderWorkPackages").where("serialGroup", "==", BUILDER_SERIAL_GROUP).limit(200)),
         transaction.get(db.collection("agentAutomationControl").doc("autopilot")),
       ]);
-      if (!dossierSnap.exists) throw new HttpsError("not-found", "conversation_dossier_not_found");
-      const dossier = dossierSnap.data() || {};
-      if (String(dossier.status || "") !== "approved") throw new HttpsError("failed-precondition", "conversation_dossier_not_approved");
-      const existingForDossier = packagesSnap.docs.find((doc) => String((doc.data() || {}).sourceDossierId || "") === dossierId);
-      if (existingForDossier) return { existing: true, workPackage: mapSafeBuilderWorkPackageDoc(existingForDossier) };
+      const seed = getConversationIdeaSeedDossierById(dossierId);
+      if (!dossierSnap.exists && !seed) throw new HttpsError("not-found", "conversation_dossier_not_found");
+      const persisted = dossierSnap.exists ? (dossierSnap.data() || {}) : {};
+      const dossier = normalizeConversationIdeaDossier({ ...(seed || {}), ...persisted }, { dossierId, seed, serverDossierId: dossierId, source: "server" });
+      if (isEmptyTechnicalConversationIdeaDossier(dossier)) throw new HttpsError("failed-precondition", "conversation_seed_dossier_not_materialized");
+      if (String(dossier.status || dossier.ownerDecisionStatus || "") !== "approved") throw new HttpsError("failed-precondition", "conversation_dossier_not_approved");
+      const existingForDossier = findExistingBuilderWorkPackageForConversationDossier(packagesSnap.docs, dossier, dossierId);
+      if (existingForDossier) return { existing: true, workPackage: mapSafeBuilderWorkPackageDoc(existingForDossier), code: "conversation_builder_work_package_exists" };
       const active = packagesSnap.docs.filter((doc) => String((doc.data() || {}).status || "") === "active_metadata_only");
       const blocking = packagesSnap.docs.filter((doc) => ["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base", "blocked_by_reapproval_required", "repair_required", "paused_by_owner"].includes(String((doc.data() || {}).status || "")));
       const repairLimitHit = packagesSnap.docs.some((doc) => Number((doc.data() || {}).repairAttemptCount || 0) >= BUILDER_MAX_REPAIR_ATTEMPTS || String((doc.data() || {}).status || "") === "repair_required");
       const sequenceNumber = await getNextBuilderSequenceNumber(transaction);
       const wpRef = db.collection("agentBuilderWorkPackages").doc();
-      const wpBase = buildBuilderWorkPackageFromDossier({ dossier: { ...dossier, sourceDossierId: dossierId, sourceType: "conversation_idea_dossier" }, dossierId, actorRole, sequenceNumber, baseSha });
-      if (!wpBase.allowedFiles.length || !wpBase.blockedFiles.length || !wpBase.requiredChecks.length) throw new HttpsError("failed-precondition", "missing_allowed_blocked_files_or_required_checks");
-      const automationPaused = wpBase.reapprovalRequired === true || repairLimitHit || blocking.length > 0 || (autopilotSnap.exists && (autopilotSnap.data() || {}).paused === true);
-      const status = wpBase.reapprovalRequired === true ? "blocked_by_reapproval_required" : "approved_waiting";
+      const wpBase = buildBuilderWorkPackageFromDossier({ dossier: { ...dossier, sourceDossierId: dossier.sourceDossierId || dossierId, sourceDossierType: CONVERSATION_IDEA_DOSSIER_TYPE, sourceType: CONVERSATION_IDEA_DOSSIER_TYPE }, dossierId, actorRole, sequenceNumber, baseSha });
+      if (!wpBase.allowedFiles.length || !wpBase.requiredChecks.length) throw new HttpsError("failed-precondition", "missing_allowed_files_or_required_checks");
+      const autopilotPaused = autopilotSnap.exists && (autopilotSnap.data() || {}).paused === true;
+      const status = getNextConversationBuilderWorkPackageStatus({ wpBase, packageDocs: packagesSnap.docs, autopilotPaused, repairLimitHit, blockingCount: blocking.length });
+      const automationPaused = wpBase.reapprovalRequired === true || repairLimitHit || blocking.length > 0 || autopilotPaused;
       const workPackage = {
         ...wpBase,
         workPackageId: wpRef.id,
+        sourceDossierId: dossier.sourceDossierId || dossierId,
+        sourceDossierType: CONVERSATION_IDEA_DOSSIER_TYPE,
         status,
         reapprovalRequired: wpBase.reapprovalRequired === true,
         reapprovalReason: wpBase.reapprovalReason || null,
@@ -4136,22 +4245,26 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
         createdAt: now,
         updatedAt: now,
         lastStatusChangedAt: now,
+        noRunnerStarted: true,
+        noBranchOrPrOrMerge: true,
+        noDeploy: true,
+        noTokenPaymentBlockchain: true,
       };
       transaction.set(wpRef, workPackage, { merge: true });
-      transaction.set(dossierRef, { builderWorkPackageId: wpRef.id, builderWorkPackageStatus: status, lastPreparedAsBuilderWorkPackageAt: now, updatedAt: now }, { merge: true });
+      transaction.set(dossierRef, { ...dossier, status: "approved", ownerDecisionStatus: "approved", serverDossierId: dossierId, builderWorkPackageId: wpRef.id, builderWorkPackageStatus: status, lastPreparedAsBuilderWorkPackageAt: now, updatedAt: now }, { merge: true });
       transaction.set(db.collection("agentAutomationControl").doc("autopilot"), {
         ...buildDefaultAutopilotControl(),
         ...(autopilotSnap.exists ? (autopilotSnap.data() || {}) : {}),
         mode: (autopilotSnap.exists && (autopilotSnap.data() || {}).mode) || "builder_metadata_only",
         paused: automationPaused,
         pauseReason: automationPaused ? workPackage.pauseReason : ((autopilotSnap.exists && (autopilotSnap.data() || {}).pauseReason) || null),
-        nextRecommendedAction: wpBase.reapprovalRequired === true ? "Owner-Reapproval erforderlich; reapproval-blockierte Conversation-Bauauftraege werden nicht next_up. Keine GitHub-/Runner-/Deploy-Aktion starten." : (automationPaused ? "Vorherigen Blocker/Repair pruefen; neue Bauauftraege bleiben approved_waiting." : "Naechstes Work Package bleibt approved_waiting, bis Owner spaeter Aktivierung erlaubt."),
+        nextRecommendedAction: status === "next_up" ? "Ein metadata-only Work Package ist next_up. Erst nach explizitem Owner-Start darf weitere GitHub-Planung erfolgen; kein Runner/Branch/PR/Merge/Deploy gestartet." : (wpBase.reapprovalRequired === true ? "Owner-Reapproval erforderlich; reapproval-blockierte Conversation-Bauauftraege werden nicht next_up. Keine GitHub-/Runner-/Deploy-Aktion starten." : "Weitere Work Packages bleiben approved_waiting, bis das next_up Paket explizit weitergefuehrt wird."),
         updatedAt: now,
       }, { merge: true });
-      return { existing: false, workPackage: mapSafeBuilderWorkPackageDoc({ id: wpRef.id, data: () => workPackage }) };
+      return { existing: false, workPackage: mapSafeBuilderWorkPackageDoc({ id: wpRef.id, data: () => workPackage }), code: "conversation_builder_work_package_prepared" };
     });
     await writeAgentAudit(db, { actorId, actorRole, action: result.existing ? "conversation_builder_work_package_existing" : "conversation_builder_work_package_prepared", proposalId: dossierId, result: result.workPackage.status || "approved_waiting" });
-    return { accepted: true, dossierId, workPackage: result.workPackage, workPackageId: result.workPackage.workPackageId, status: result.workPackage.status, existing: result.existing, reapprovalRequired: result.workPackage.reapprovalRequired === true, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
+    return { accepted: true, dossierId, workPackage: result.workPackage, workPackageId: result.workPackage.workPackageId, status: result.workPackage.status, existing: result.existing, clientErrorCode: result.code, reapprovalRequired: result.workPackage.reapprovalRequired === true, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true };
   });
 
   exportsTarget.prepareGithubBuilderBranchPrFromWorkPackage = onCall(async (request) => {
@@ -4270,4 +4383,4 @@ function registerAgentAdminRolesAudit(exportsTarget, { db, onCall, HttpsError })
 
 }
 
-module.exports = { registerAgentAdminRolesAudit, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS, AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getStatusCountsByBucket, getWorkerQueueStatusBucket, getRunnerJobStatusBucket, getPickupContractStatusBucket, getImplementationPlanStatusBucket, getBuilderWorkPackageStatusBucket, sanitizeTelemetryObject, sanitizeAutopilotControl, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, sanitizeConversationIdeaText, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES, buildExecutionContractHash, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract };
+module.exports = { registerAgentAdminRolesAudit, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, AGENT_CENTER_PIPELINE_DELETE_COLLECTIONS, AGENT_CENTER_PIPELINE_PROTECTED_COLLECTIONS, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, BLOCKED_PROTECTED_SCOPES, CANONICAL_TRUTH_PROTECTED_FILES, CANONICAL_TRUTH_PROPOSAL_FILE, touchesCanonicalTruthProtectedFiles, assertCanonicalTruthChangeAllowed, buildCanonicalTruthPromptGuardrail, resolveRegisterSnapshot, getFirstRunCandidateCollections, sanitizeFirestoreDocIdPart, buildAgentCenterInboxId, buildProductEvolutionRevisionDossier, getRevisionMissingFields, isCompleteDecisionDossier, validateSingleDecisionExecutionContract, findRevisionSourcePayload, buildReadableDecisionDossierLookup, findReadableDecisionDossierForItem, overlayReadableDecisionDossierFields, getAgentTaskProposalStatusBucket, buildAgentTaskProposalStatusCounts, getStatusCountsByBucket, getWorkerQueueStatusBucket, getRunnerJobStatusBucket, getPickupContractStatusBucket, getImplementationPlanStatusBucket, getBuilderWorkPackageStatusBucket, sanitizeTelemetryObject, sanitizeAutopilotControl, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, normalizeConversationIdeaDossier, getConversationIdeaSeedDossierById, findExistingBuilderWorkPackageForConversationDossier, getNextConversationBuilderWorkPackageStatus, getConversationBuilderPreparationFailureCode, sanitizeConversationIdeaText, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerPickupPreviewDecision, buildRunnerStartApprovalFailureMessage, buildRunnerStartApprovalDecision, buildManualRunnerPickupContractFailureMessage, buildManualRunnerPickupContractDecision, buildManualRunnerImplementationPlanFailureMessage, buildManualRunnerImplementationPlanDecision, buildManualRunnerImplementationPlanApprovalFailureMessage, buildManualRunnerImplementationPlanApprovalDecision, REVISION_DOSSIER_MESSAGE, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, SINGLE_DECISION_STATUSES, EXECUTION_MODES, buildExecutionContractHash, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract };
