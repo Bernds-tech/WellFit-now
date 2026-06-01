@@ -585,7 +585,8 @@ function buildCompleteSingleDecisionDossier(overrides = {}) {
     sequenceNumber: 5,
     baseSha: 'abc123',
   });
-  assert.strictEqual(wp.status, 'approved_waiting', 'prepared builder work remains waiting');
+  assert.strictEqual(wp.status, 'blocked_by_reapproval_required', 'blocked scopes require reapproval before waiting');
+  assert.strictEqual(wp.reapprovalRequired, true, 'blockedFiles scope requires owner reapproval');
   assert.strictEqual(wp.sequenceNumber, 5, 'sequence number is assigned');
   assert.strictEqual(wp.serialGroup, 'main_repo', 'serial group is main_repo');
   assert.strictEqual(wp.noParallelExecution, true, 'parallel execution is forbidden');
@@ -598,7 +599,7 @@ function buildCompleteSingleDecisionDossier(overrides = {}) {
 
 (function testEightApprovedDossiersBecomePersistentApprovedWaitingWorkPackages() {
   const workPackages = Array.from({ length: 8 }, (_, index) => buildBuilderWorkPackageFromDossier({
-    dossier: { sourceDossierId: `dossier-${index + 1}`, title: `Approved ${index + 1}`, status: 'approved', allowedFiles: ['docs/**'], blockedFiles: ['native/**'], requiredChecks: ['npm run lint'], decisionId: `decision-${index + 1}` },
+    dossier: { sourceDossierId: `dossier-${index + 1}`, title: `Approved ${index + 1}`, status: 'approved', allowedFiles: ['docs/**'], blockedFiles: [], requiredChecks: ['npm run lint'], decisionId: `decision-${index + 1}` },
     dossierId: `inbox-${index + 1}`,
     actorRole: 'owner',
     sequenceNumber: index + 1,
@@ -607,8 +608,8 @@ function buildCompleteSingleDecisionDossier(overrides = {}) {
   assert.strictEqual(workPackages.length, 8, 'eight approvals should prepare eight work packages');
   assert.strictEqual(workPackages.every((wp) => wp.status === 'approved_waiting'), true, 'all approved items remain approved_waiting');
   assert.strictEqual(workPackages.every((wp) => wp.ownerDecisionPersistent === true), true, 'owner decision stays persistent');
-  assert.strictEqual(workPackages.every((wp) => wp.reapprovalRequired === false), true, 'unchanged scope does not require reapproval');
-  assert.strictEqual(workPackages.every((wp) => wp.approvedForSerialExecution === true), true, 'all are approved for serial execution');
+  assert.strictEqual(workPackages.every((wp) => wp.reapprovalRequired === false), true, 'safe docs-only scope does not require reapproval');
+  assert.strictEqual(workPackages.every((wp) => wp.approvedForSerialExecution === true), true, 'all safe docs-only items are approved for serial execution');
 })();
 
 (function testOnlyOneBuilderWorkPackageCanBeActiveAndNextUpIsPlanned() {
@@ -627,7 +628,7 @@ function buildCompleteSingleDecisionDossier(overrides = {}) {
 })();
 
 (function testReapprovalGuardKeepsUnchangedScopeFalseAndBlocksRiskyChanges() {
-  const wp = buildBuilderWorkPackageFromDossier({ dossier: { sourceDossierId: 'safe', title: 'Safe', allowedFiles: ['docs/**'], blockedFiles: ['native/**'], requiredChecks: ['npm run lint'] }, dossierId: 'safe', actorRole: 'owner', sequenceNumber: 1, baseSha: 'sha' });
+  const wp = buildBuilderWorkPackageFromDossier({ dossier: { sourceDossierId: 'safe', title: 'Safe', allowedFiles: ['docs/**'], blockedFiles: [], requiredChecks: ['npm run lint'] }, dossierId: 'safe', actorRole: 'owner', sequenceNumber: 1, baseSha: 'sha' });
   assert.strictEqual(detectBuilderReapprovalGuard(wp, wp).reapprovalRequired, false, 'unchanged scope remains approved');
   const risky = detectBuilderReapprovalGuard({ ...wp, blockedFiles: ['project-register/wellfit-beta1-canonical-truth.json'], requiredChecks: ['npm run lint', 'npm run build'], revalidationStatus: 'stale main sha', safetySentinelStatus: 'blocked' }, wp);
   assert.strictEqual(risky.reapprovalRequired, true, 'canonical/stale/sentinel risk requires reapproval');
@@ -635,7 +636,7 @@ function buildCompleteSingleDecisionDossier(overrides = {}) {
   const sensitive = detectBuilderReapprovalGuard({ ...wp, affectedFiles: ['app/health/location-camera.tsx'], blockedFiles: ['token/payment/wft/sui'], requiredChecks: ['npm run lint'] }, wp);
   assert.strictEqual(sensitive.reapprovalRequired, true, 'token/payment/health/location/camera risk requires reapproval');
   assert(sensitive.reasons.includes('token_payment_blockchain_scope'), 'token/payment risk is explicit');
-  assert(sensitive.reasons.includes('sensitive_data_scope'), 'sensitive data risk is explicit');
+  assert(sensitive.reasons.includes('sensitive_or_guardrail_scope'), 'sensitive data risk is explicit');
 })();
 
 (function testConversationIdeaDossierSanitizesAndContainsRequiredFields() {
@@ -747,4 +748,90 @@ console.log('agentAdminRolesAudit helper tests passed');
   assert(!dossierText.includes('project-register/wellfit-beta1-canonical-truth.json"'), 'dossier must not propose editing canonical truth JSON');
   assert(!dossierText.includes('docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md"'), 'dossier must not propose editing canonical truth doc');
   assert(!dossierText.includes('todolist/CODEX_CONTEXT_WELLFIT_BETA1.md"'), 'dossier must not propose editing canonical context');
+})();
+
+(function testConversationIdeaSanitizesBearerSessionCookieAndKeys() {
+  const dossier = buildConversationIdeaDossier({
+    rawIdeaText: 'Authorization: Bearer raw-secret Bearer loose-secret token=tokSECRET access_token=accSECRET refresh_token=refSECRET session=sessSECRET cookie=cookieSECRET api_key=apiSECRET key=keySECRET secret=secretSECRET',
+    sourceRef: 'chat?session=sessSECRET2&token=tokSECRET2 Authorization: Bearer source-secret cookie=source-cookie api_key=source-api key=source-key secret=source-secret',
+    sources: ['Bearer array-secret refresh_token=array-refresh'],
+  });
+  const serialized = JSON.stringify(dossier);
+  for (const secret of ['raw-secret', 'loose-secret', 'tokSECRET', 'accSECRET', 'refSECRET', 'sessSECRET', 'tokSECRET2', 'sessSECRET2', 'source-cookie', 'source-api', 'source-key', 'source-secret', 'array-secret', 'array-refresh']) {
+    assert(!serialized.includes(secret), `conversation dossier must redact ${secret}`);
+  }
+  assert(serialized.includes('Bearer [redacted]'), 'Bearer tokens should be explicitly redacted');
+})();
+
+(function testTelemetrySanitizerRedactsCreatedByAndFirebaseUid() {
+  const safe = sanitizeTelemetryObject({ createdBy: 'firebase-user-1', actorId: 'actor-1', ownerUid: 'owner-1', firebaseUid: 'firebase-uid-1', authUid: 'auth-uid-1', createdByRole: 'owner' });
+  const serialized = JSON.stringify(safe);
+  for (const secret of ['firebase-user-1', 'actor-1', 'owner-1', 'firebase-uid-1', 'auth-uid-1']) {
+    assert(!serialized.includes(secret), `snapshot must redact ${secret}`);
+  }
+  assert(serialized.includes('owner'), 'role may remain visible');
+})();
+
+(function testDuplicateConversationIdeaWouldPreserveTerminalDecisionShape() {
+  const first = buildConversationIdeaDossier({ rawIdeaText: 'duplicate idea', source: 'chat', sourceRef: 'thread-1' });
+  const second = buildConversationIdeaDossier({ rawIdeaText: 'duplicate idea', source: 'chat', sourceRef: 'thread-1' });
+  const existingApproved = { ...first, status: 'approved', ownerDecisionStatus: 'approved', ownerDecisionPersistent: true, ownerDecisionReason: 'approved by owner' };
+  const duplicateUpdate = { duplicateSubmissionCount: Number(existingApproved.duplicateSubmissionCount || 0) + 1, lastSubmittedAt: 'now' };
+  const merged = { ...existingApproved, ...duplicateUpdate };
+  assert.strictEqual(first.dossierId, second.dossierId, 'deterministic dossier id catches duplicates');
+  assert.strictEqual(merged.status, 'approved', 'duplicate update must not reset approved status');
+  assert.strictEqual(merged.ownerDecisionPersistent, true, 'persistent owner approval is retained');
+  assert.strictEqual(merged.ownerDecisionReason, 'approved by owner', 'owner decision fields are retained');
+})();
+
+(function testBuilderReapprovalBlocksBeforeApprovedWaitingForProtectedScopes() {
+  const wp = buildBuilderWorkPackageFromDossier({
+    dossier: { sourceDossierId: 'risky', title: 'Risky', status: 'approved', allowedFiles: ['functions/lib/rewards.js'], blockedFiles: ['firestore.rules'], requiredChecks: ['npm run lint', 'anti-cheat ledger check'] },
+    dossierId: 'risky',
+    actorRole: 'owner',
+    sequenceNumber: 1,
+  });
+  assert.strictEqual(wp.reapprovalRequired, true, 'risky package requires reapproval');
+  assert.strictEqual(wp.status, 'blocked_by_reapproval_required', 'risky package is not approved_waiting');
+  assert.strictEqual(wp.noRunnerStarted, true);
+  assert.strictEqual(wp.noBranchOrPrOrMerge, true);
+  assert.strictEqual(wp.noDeploy, true);
+  assert.strictEqual(wp.noTokenPaymentBlockchain, true);
+})();
+
+(function testNextUpSkipsReapprovalRequiredWaitingPackage() {
+  const queue = planNextBuilderQueueState([
+    { workPackageId: 'blocked-first', status: 'approved_waiting', reapprovalRequired: true, executionOrder: 1, serialGroup: 'main_repo' },
+    { workPackageId: 'valid-second', status: 'approved_waiting', reapprovalRequired: false, executionOrder: 2, serialGroup: 'main_repo' },
+  ]);
+  assert.strictEqual(queue.canMarkNextUp, true, 'valid later package can be next_up');
+  assert.strictEqual(queue.nextUpWorkPackageId, 'valid-second', 'reapproval-blocked first package is skipped');
+  const paused = planNextBuilderQueueState([{ workPackageId: 'only-blocked', status: 'approved_waiting', reapprovalRequired: true, executionOrder: 1, serialGroup: 'main_repo' }]);
+  assert.strictEqual(paused.canMarkNextUp, false, 'all blocked waiting packages cannot become next_up');
+  assert.strictEqual(paused.queuePaused, true, 'queue reports paused/blocker when all waiting require reapproval');
+})();
+
+(function testBuilderQueueGuardSkipsReapprovalRequiredWaitingPackage() {
+  const guard = buildBuilderQueueGuardState([
+    { workPackageId: 'blocked-first', status: 'approved_waiting', reapprovalRequired: true, executionOrder: 1 },
+    { workPackageId: 'valid-second', status: 'approved_waiting', reapprovalRequired: false, executionOrder: 2 },
+  ], { paused: false });
+  assert.strictEqual(guard.nextUpWorkPackageId, 'valid-second', 'guard should choose later valid waiting package');
+  assert.strictEqual(guard.queuePaused, false, 'queue can continue when a valid waiting package exists');
+  const paused = buildBuilderQueueGuardState([{ workPackageId: 'blocked-only', status: 'approved_waiting', reapprovalRequired: true }], { paused: false });
+  assert.strictEqual(paused.queuePaused, true, 'guard pauses when only reapproval-blocked waiting packages exist');
+  assert.strictEqual(paused.pauseReason, 'all_waiting_packages_require_owner_reapproval');
+})();
+
+(function testNoAutomationFlagsRemainTrueForConversationBuilderPreparationShape() {
+  const wp = buildBuilderWorkPackageFromDossier({
+    dossier: { sourceDossierId: 'safe-docs', title: 'Safe docs', status: 'approved', allowedFiles: ['docs/readme.md'], blockedFiles: [], requiredChecks: ['npm run lint'] },
+    dossierId: 'safe-docs',
+    actorRole: 'admin_operator',
+    sequenceNumber: 2,
+  });
+  assert.strictEqual(wp.noRunnerStarted, true, 'no runner starts');
+  assert.strictEqual(wp.noBranchOrPrOrMerge, true, 'no branch/pr/merge starts');
+  assert.strictEqual(wp.noDeploy, true, 'no deploy starts');
+  assert.strictEqual(wp.noTokenPaymentBlockchain, true, 'no token/payment/blockchain starts');
 })();
