@@ -15,6 +15,29 @@ type DetailSections = Record<string, string>;
 const SAFETY_DOSSIERS = (safetyDossierRegister.dossiers || []) as AgentSafetyDossier[];
 const STATIC_CONVERSATION_IDEA_DOSSIERS = (conversationIdeaDossierRegister.dossiers || []) as ConversationIdeaDossier[];
 const P1_RESET_SAFETY_DOSSIER = SAFETY_DOSSIERS.find((dossier) => dossier.id === "safety-p1-agent-center-reset-scope-archive-v1") || SAFETY_DOSSIERS[0];
+const CONVERSATION_DOSSIER_SOURCE_TYPE = "conversation_idea";
+const normalizeConversationIdeaDossierForDisplay = (dossier: ConversationIdeaDossier, source: "seed" | "server"): ConversationIdeaDossier => {
+  const dossierId = asText(dossier.dossierId || dossier.sourceDossierId || dossier.id || dossier.seedDossierId || dossier.serverDossierId);
+  const status = asText(dossier.status || dossier.ownerDecisionStatus) || "pending_approval";
+  return {
+    ...dossier,
+    id: dossierId,
+    dossierId,
+    sourceDossierId: asText(dossier.sourceDossierId || dossierId) || dossierId,
+    sourceDossierType: CONVERSATION_DOSSIER_SOURCE_TYPE,
+    source,
+    serverDossierId: source === "server" ? asText(dossier.serverDossierId || dossier.id || dossierId) || dossierId : asText(dossier.serverDossierId) || null,
+    seedDossierId: source === "seed" ? asText(dossier.seedDossierId || dossierId) || dossierId : asText(dossier.seedDossierId) || null,
+    ownerDecisionStatus: asText(dossier.ownerDecisionStatus || status) || status,
+    status,
+    noRuntimeChanges: dossier.noRuntimeChanges !== false,
+    noRunnerStarted: dossier.noRunnerStarted !== false,
+    noBranchOrPrOrMerge: dossier.noBranchOrPrOrMerge !== false,
+    noDeploy: dossier.noDeploy !== false,
+    noTokenPaymentBlockchain: dossier.noTokenPaymentBlockchain !== false,
+  };
+};
+const isVisibleConversationIdeaDossier = (dossier: ConversationIdeaDossier): boolean => Boolean(asText(dossier.dossierId) && asText(dossier.title || dossier.shortSummary || dossier.plainLanguageSummary));
 type Row = Record<string, unknown> & {
   id?: string;
   title?: string;
@@ -424,6 +447,13 @@ const getSafeAdminDecisionFailureMessage = (resultMessage?: string, errorCode?: 
   if (diagnostic.includes("protected_scope_owner_required") || message === "Protected scope owner required.") return "Protected scope owner required.";
   if (diagnostic.includes("center_inbox_not_decidable") || message === "Eintrag ist nicht mehr entscheidbar.") return "Eintrag ist nicht mehr entscheidbar.";
   if (diagnostic.includes("server_inbox_entry_not_found") || diagnostic.includes("inbox_not_found") || message === "Server-Inbox-Eintrag nicht gefunden.") return "Server-Inbox-Eintrag nicht gefunden.";
+  if (diagnostic.includes("conversation_dossier_id_missing")) return "Dossier-ID fehlt.";
+  if (diagnostic.includes("conversation_dossier_not_approved")) return "Dossier ist nicht approved.";
+  if (diagnostic.includes("conversation_seed_dossier_not_materialized")) return "Seed-Dossier nicht materialisiert.";
+  if (diagnostic.includes("conversation_builder_work_package_exists")) return "Work Package existiert bereits.";
+  if (diagnostic.includes("conversation_reapproval_required") || diagnostic.includes("blocked_by_reapproval_required")) return "Reapproval erforderlich.";
+  if (diagnostic.includes("conversation_guard_blocked") || diagnostic.includes("open_previous_blocker") || diagnostic.includes("repair_limit_reached")) return "Guard blockiert.";
+  if (diagnostic.includes("conversation_dossier_not_found")) return "Conversation-Dossier nicht gefunden.";
   if (code.includes("not-found")) return "Eintrag nicht gefunden.";
   if (diagnostic.includes("inbox_mirror_missing") || diagnostic.includes("not_mirrored")) return "Eintrag ist noch nicht in der Inbox gespiegelt.";
   if (code.includes("permission-denied")) return "Keine Berechtigung für diese Admin-Aktion.";
@@ -569,7 +599,20 @@ export default function AgentCenterInteractive({
   const runnerJobCounts = useMemo(() => buildRunnerJobCounts(runnerJobs), [runnerJobs]);
   const pickupContractCounts = useMemo(() => buildPickupContractCounts(pickupContracts), [pickupContracts]);
   const builderWorkPackages = useMemo(() => agentSnapshot?.builderWorkPackages || [], [agentSnapshot]);
-  const conversationIdeaDossiers = useMemo(() => [ ...(agentSnapshot?.conversationIdeaDossiers || []), ...STATIC_CONVERSATION_IDEA_DOSSIERS ].filter((item, index, all) => all.findIndex((candidate) => candidate.dossierId === item.dossierId) === index), [agentSnapshot]);
+  const conversationIdeaDossiers = useMemo(() => {
+    const byId = new Map<string, ConversationIdeaDossier>();
+    for (const seed of STATIC_CONVERSATION_IDEA_DOSSIERS) {
+      const normalized = normalizeConversationIdeaDossierForDisplay(seed, "seed");
+      if (isVisibleConversationIdeaDossier(normalized)) byId.set(normalized.dossierId, normalized);
+    }
+    for (const server of agentSnapshot?.conversationIdeaDossiers || []) {
+      const normalized = normalizeConversationIdeaDossierForDisplay(server, "server");
+      if (!isVisibleConversationIdeaDossier(normalized)) continue;
+      const seed = byId.get(normalized.dossierId);
+      byId.set(normalized.dossierId, seed ? { ...seed, ...normalized, title: normalized.title || seed.title, shortSummary: normalized.shortSummary || seed.shortSummary, plainLanguageSummary: normalized.plainLanguageSummary || seed.plainLanguageSummary } : normalized);
+    }
+    return Array.from(byId.values());
+  }, [agentSnapshot]);
   const builderQueueCounts = useMemo(() => buildBuilderQueueCounts(builderWorkPackages), [builderWorkPackages]);
 
   const visibleTaskProposals = useMemo(() => {
@@ -1376,7 +1419,12 @@ export default function AgentCenterInteractive({
 
 
   function conversationDossierId(row: ConversationIdeaDossier | Row): string {
-    return asText((row as Row).dossierId || (row as Row).id || (row as Row).sourceDossierId);
+    return asText((row as Row).dossierId || (row as Row).sourceDossierId || (row as Row).id || (row as Row).seedDossierId || (row as Row).serverDossierId);
+  }
+
+  function existingConversationWorkPackage(row: ConversationIdeaDossier | Row): BuilderWorkPackage | undefined {
+    const ids = [conversationDossierId(row), asText((row as Row).sourceDossierId), asText((row as Row).seedDossierId), asText((row as Row).serverDossierId)].filter(Boolean);
+    return builderWorkPackages.find((item) => ids.includes(asText(item.sourceDossierId)));
   }
 
   async function decideConversationIdea(row: ConversationIdeaDossier | Row, decision: "approve" | "reject" | "revision_requested" | "block") {
@@ -1431,11 +1479,13 @@ export default function AgentCenterInteractive({
     setBusy(true);
     setFeedback("Conversation-Bauauftrag wird metadata-only vorbereitet …");
     try {
-      const result = await beta1AdminClient.prepareBuilderWorkPackageFromConversationDossier({ dossierId }) as PrepareBuilderWorkPackageResult;
+      const result = await beta1AdminClient.prepareBuilderWorkPackageFromConversationDossier({ dossierId, sourceDossierId: asText((row as Row).sourceDossierId), seedDossierId: asText((row as Row).seedDossierId), serverDossierId: asText((row as Row).serverDossierId) }) as PrepareBuilderWorkPackageResult;
       const workPackageId = asText(result.workPackageId || result.workPackage?.workPackageId);
       const reapproval = result.reapprovalRequired || result.workPackage?.reapprovalRequired;
       const message = result.accepted
-        ? `Conversation-Bauauftrag vorbereitet.${workPackageId ? ` workPackageId: ${workPackageId}` : ""} Status: ${result.status || result.workPackage?.status || "approved_waiting"}${reapproval ? " · Owner-Reapproval erforderlich, nicht next_up." : ""}. Keine GitHub-/Runner-/Branch-/PR-/Merge-/Deploy-Aktion gestartet.`
+        ? result.existing
+          ? `Bauauftrag bereits vorbereitet.${workPackageId ? ` workPackageId: ${workPackageId}` : ""} Status: ${result.status || result.workPackage?.status || "approved_waiting"}. Keine GitHub-/Runner-/Branch-/PR-/Merge-/Deploy-Aktion gestartet.`
+          : `Conversation-Bauauftrag vorbereitet.${workPackageId ? ` workPackageId: ${workPackageId}` : ""} Status: ${result.status || result.workPackage?.status || "approved_waiting"}${reapproval ? " · Owner-Reapproval erforderlich, nicht next_up." : ""}. Keine GitHub-/Runner-/Branch-/PR-/Merge-/Deploy-Aktion gestartet.`
         : `Conversation-Bauauftrag konnte nicht vorbereitet werden: ${getSafeAdminDecisionFailureMessage(result.message, result.clientErrorCode)}`;
       setFeedback(message);
       setSyncStatus(message);
@@ -2613,15 +2663,21 @@ export default function AgentCenterInteractive({
             <article key={dossier.dossierId} className="rounded border border-white/15 bg-black/10 p-3">
               <b>{dossier.title}</b>
               <p>{dossier.shortSummary || dossier.plainLanguageSummary}</p>
-              <p>Status: {dossier.status || "pending_approval"} · Risiko: {dossier.riskLevel || "medium"}</p>
-              <p>Quelle: {dossier.source || "seed"} · Pipeline: {dossier.suggestedPipelineStep || dossier.nextPipelineStep || "owner_review"}</p>
+              <p>Status: {dossier.status || "pending_approval"} · Owner: {dossier.ownerDecisionStatus || dossier.status || "pending_approval"} · Risiko: {dossier.riskLevel || "medium"}</p>
+              <p>Quelle: {dossier.source || "seed"} · Dossier: {dossier.dossierId} · Source: {dossier.sourceDossierId} · Pipeline: {dossier.suggestedPipelineStep || dossier.nextPipelineStep || "owner_review"}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button className="cursor-pointer rounded border border-white/30 px-2 py-1" onClick={() => setDetailRow(dossier as unknown as Row)}>Dossier öffnen</button>
                 <button className="cursor-pointer rounded border border-emerald-300/70 px-2 py-1 text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(dossier, "approve")}>Zustimmen</button>
                 <button className="cursor-pointer rounded border border-red-200/70 px-2 py-1 text-red-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(dossier, "reject")}>Ablehnen</button>
                 <button className="cursor-pointer rounded border border-amber-200/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(dossier, "revision_requested")}>Überarbeiten</button>
                 <button className="cursor-pointer rounded border border-white/30 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(dossier, "block")}>Blockieren</button>
-                <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady || String(dossier.status || "").toLowerCase() !== "approved"} onClick={() => prepareConversationBuilderWorkPackage(dossier)}>Als Bauauftrag vorbereiten (metadata-only)</button>
+                {(() => {
+                  const existing = existingConversationWorkPackage(dossier);
+                  const approved = String(dossier.status || dossier.ownerDecisionStatus || "").toLowerCase() === "approved";
+                  const disabled = busy || !authDebug.adminCallableAuthReady || !approved || Boolean(existing);
+                  const title = existing ? "Bauauftrag bereits vorbereitet" : (!conversationDossierId(dossier) ? "Dossier-ID fehlt" : (!approved ? "Dossier ist nicht approved" : "Als Bauauftrag vorbereiten"));
+                  return <button title={title} className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={disabled} onClick={() => prepareConversationBuilderWorkPackage(dossier)}>{existing ? "Bauauftrag bereits vorbereitet" : "Als Bauauftrag vorbereiten"}</button>;
+                })()}
               </div>
               <p className="mt-2 text-fuchsia-100/80">Flags: noRuntimeChanges={String(dossier.noRuntimeChanges !== false)} · noRunnerStarted={String(dossier.noRunnerStarted !== false)} · noBranchOrPrOrMerge={String(dossier.noBranchOrPrOrMerge !== false)} · noDeploy={String(dossier.noDeploy !== false)} · noTokenPaymentBlockchain={String(dossier.noTokenPaymentBlockchain !== false)}</p>
             </article>

@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, sanitizeConversationIdeaText, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, normalizeConversationIdeaDossier, getConversationIdeaSeedDossierById, findExistingBuilderWorkPackageForConversationDossier, getNextConversationBuilderWorkPackageStatus, getConversationBuilderPreparationFailureCode, sanitizeConversationIdeaText, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
 const safetyDossierRegister = require('../../project-register/agent-safety-dossiers.json');
 const dossierSchema = require('../../project-register/agent-dossier-schema.json');
 
@@ -834,6 +834,89 @@ console.log('agentAdminRolesAudit helper tests passed');
   assert.strictEqual(wp.noBranchOrPrOrMerge, true, 'no branch/pr/merge starts');
   assert.strictEqual(wp.noDeploy, true, 'no deploy starts');
   assert.strictEqual(wp.noTokenPaymentBlockchain, true, 'no token/payment/blockchain starts');
+})();
+
+
+
+(function testConversationSeedAndServerDossiersNormalizeToStableIds() {
+  const seed = getConversationIdeaSeedDossierById('conversation-serial-approved-builder-backlog-v1');
+  assert(seed, 'static seed dossier exists');
+  const normalizedSeed = normalizeConversationIdeaDossier(seed, { source: 'seed' });
+  assert.strictEqual(normalizedSeed.dossierId, 'conversation-serial-approved-builder-backlog-v1');
+  assert.strictEqual(normalizedSeed.sourceDossierId, 'conversation-serial-approved-builder-backlog-v1');
+  assert.strictEqual(normalizedSeed.sourceDossierType, 'conversation_idea');
+  assert.strictEqual(normalizedSeed.source, 'seed');
+  assert.strictEqual(normalizedSeed.seedDossierId, 'conversation-serial-approved-builder-backlog-v1');
+  const normalizedServer = normalizeConversationIdeaDossier({ ...seed, status: 'approved', ownerDecisionStatus: 'approved' }, { source: 'server', serverDossierId: seed.dossierId });
+  assert.strictEqual(normalizedServer.source, 'server');
+  assert.strictEqual(normalizedServer.serverDossierId, seed.dossierId);
+  assert.strictEqual(normalizedServer.ownerDecisionStatus, 'approved');
+  assert.strictEqual(normalizedServer.status, 'approved');
+})();
+
+(function testApprovedConversationServerDossierProducesSafeWorkPackageShape() {
+  const dossier = normalizeConversationIdeaDossier({ dossierId: 'server-approved', sourceDossierId: 'server-approved', status: 'approved', title: 'Server approved', shortSummary: 'Server dossier', affectedFiles: ['docs/server.md'], blockedFiles: [], requiredChecks: ['npm run lint'], ownerDecisionId: 'decision-server' }, { source: 'server', serverDossierId: 'server-approved' });
+  const status = getNextConversationBuilderWorkPackageStatus({ wpBase: { reapprovalRequired: false }, packageDocs: [], autopilotPaused: false, repairLimitHit: false, blockingCount: 0 });
+  const wp = buildBuilderWorkPackageFromDossier({ dossier: { ...dossier, sourceType: 'conversation_idea' }, dossierId: dossier.dossierId, actorRole: 'owner', sequenceNumber: 1 });
+  assert.strictEqual(status, 'next_up', 'first approved server dossier becomes next_up candidate');
+  assert.strictEqual(wp.sourceDossierId, 'server-approved');
+  assert.strictEqual(wp.sourceDossierType, 'conversation_idea');
+  assert.strictEqual(wp.noRunnerStarted, true);
+  assert.strictEqual(wp.noBranchOrPrOrMerge, true);
+  assert.strictEqual(wp.noDeploy, true);
+  assert.strictEqual(wp.noTokenPaymentBlockchain, true);
+})();
+
+(function testApprovedConversationSeedDossierProducesSafeWorkPackageShape() {
+  const seed = normalizeConversationIdeaDossier({ ...getConversationIdeaSeedDossierById('conversation-post-merge-verification-agent-v1'), status: 'approved', ownerDecisionStatus: 'approved' }, { source: 'seed' });
+  const wp = buildBuilderWorkPackageFromDossier({ dossier: { ...seed, sourceType: 'conversation_idea' }, dossierId: seed.dossierId, actorRole: 'admin_operator', sequenceNumber: 2 });
+  assert.strictEqual(wp.sourceDossierId, seed.dossierId);
+  assert.strictEqual(wp.sourceDossierType, 'conversation_idea');
+  assert.strictEqual(wp.ownerDecisionStatus, 'approved');
+  assert.strictEqual(wp.noRunnerStarted, true);
+})();
+
+(function testPendingRejectedBlockedRevisionConversationDossiersDoNotQualifyForWorkPackages() {
+  for (const status of ['pending_approval', 'rejected', 'blocked', 'revision_requested']) {
+    const dossier = normalizeConversationIdeaDossier({ dossierId: `conv-${status}`, title: status, status, ownerDecisionStatus: status, affectedFiles: ['docs/a.md'], blockedFiles: [], requiredChecks: ['npm run lint'] }, { source: 'server' });
+    assert.notStrictEqual(dossier.status, 'approved', `${status} must not be approved`);
+  }
+  assert.strictEqual(getConversationBuilderPreparationFailureCode('conversation_dossier_not_approved'), 'conversation_dossier_not_approved');
+})();
+
+(function testDuplicateConversationBuilderClickReturnsExistingPackageIdentity() {
+  const dossier = normalizeConversationIdeaDossier({ dossierId: 'conv-dup', status: 'approved', title: 'Duplicate', affectedFiles: ['docs/a.md'], blockedFiles: [], requiredChecks: ['npm run lint'] }, { source: 'server' });
+  const existingDoc = { id: 'wp-existing', data: () => ({ workPackageId: 'wp-existing', sourceDossierId: 'conv-dup', sourceDossierType: 'conversation_idea', status: 'next_up' }) };
+  const found = findExistingBuilderWorkPackageForConversationDossier([existingDoc], dossier, 'conv-dup');
+  assert(found, 'existing work package should be found for same dossier');
+  assert.strictEqual(found.id, 'wp-existing');
+})();
+
+(function testFiveApprovedConversationDossiersProduceOneNextUpAndFourWaiting() {
+  const packages = [];
+  for (let index = 0; index < 5; index += 1) {
+    const status = getNextConversationBuilderWorkPackageStatus({ wpBase: { reapprovalRequired: false }, packageDocs: packages, autopilotPaused: false, repairLimitHit: false, blockingCount: 0 });
+    packages.push({ id: `wp-${index + 1}`, data: () => ({ workPackageId: `wp-${index + 1}`, sourceDossierId: `conversation-${index + 1}`, status, serialGroup: 'main_repo', executionOrder: index + 1, reapprovalRequired: false }) });
+  }
+  const mapped = packages.map((doc) => doc.data());
+  const counts = mapped.reduce((acc, item) => ({ ...acc, [item.status]: (acc[item.status] || 0) + 1 }), {});
+  const guard = buildBuilderQueueGuardState(mapped, { paused: false });
+  assert.strictEqual(counts.next_up, 1, 'only one package is next_up');
+  assert.strictEqual(counts.approved_waiting, 4, 'remaining four packages wait');
+  assert.strictEqual(guard.nextUpWorkPackageId, 'wp-1', 'snapshot guard exposes next_up id');
+  assert.strictEqual(guard.noRunnerStarted, true);
+  assert.strictEqual(guard.noBranchOrPrOrMerge, true);
+  assert.strictEqual(guard.noDeploy, true);
+  assert.strictEqual(guard.noTokenPaymentBlockchain, true);
+})();
+
+(function testConversationBuilderPreparationFailureCodesAreSpecific() {
+  assert.strictEqual(getConversationBuilderPreparationFailureCode('conversation_dossier_id_missing'), 'conversation_dossier_id_missing');
+  assert.strictEqual(getConversationBuilderPreparationFailureCode('conversation_dossier_not_approved'), 'conversation_dossier_not_approved');
+  assert.strictEqual(getConversationBuilderPreparationFailureCode('conversation_seed_dossier_not_materialized'), 'conversation_seed_dossier_not_materialized');
+  assert.strictEqual(getConversationBuilderPreparationFailureCode('conversation_builder_work_package_exists'), 'conversation_builder_work_package_exists');
+  assert.strictEqual(getConversationBuilderPreparationFailureCode('blocked_by_reapproval_required'), 'conversation_reapproval_required');
+  assert.strictEqual(getConversationBuilderPreparationFailureCode('guard blocked'), 'conversation_guard_blocked');
 })();
 
 
