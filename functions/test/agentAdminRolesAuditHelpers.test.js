@@ -1,6 +1,8 @@
 const assert = require('assert');
+const fs = require('fs');
 const path = require('path');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, normalizeConversationIdeaDossier, getConversationIdeaSeedDossiers, getConversationIdeaSeedDossierById, findExistingBuilderWorkPackageForConversationDossier, getNextConversationBuilderWorkPackageStatus, getConversationBuilderPreparationFailureCode, sanitizeConversationIdeaText, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
+const ts = require('typescript');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackagesSnapshotList, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, normalizeConversationIdeaDossier, getConversationIdeaSeedDossiers, getConversationIdeaSeedDossierById, findExistingBuilderWorkPackageForConversationDossier, getNextConversationBuilderWorkPackageStatus, getConversationBuilderPreparationFailureCode, sanitizeConversationIdeaText, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
 const safetyDossierRegister = require('../../project-register/agent-safety-dossiers.json');
 const dossierSchema = require('../../project-register/agent-dossier-schema.json');
 
@@ -1016,4 +1018,74 @@ console.log('agentAdminRolesAudit helper tests passed');
   const expected = ['project-register/wellfit-beta1-canonical-truth.json', 'docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md', 'todolist/CODEX_CONTEXT_WELLFIT_BETA1.md'];
   const { CANONICAL_TRUTH_PROTECTED_FILES } = require('../lib/agentAdminRolesAudit');
   assert.deepStrictEqual(CANONICAL_TRUTH_PROTECTED_FILES, expected, 'canonical truth protected files remain unchanged');
+})();
+
+
+(function testSnapshotListKeepsNextUpWorkPackageInFivePackageSnapshot() {
+  const packages = [
+    { workPackageId: 'GOnEbzEI4KF7jLPXjZ77', title: 'Freigegebene Bauaufträge seriell vollständig abarbeiten', status: 'next_up', executionOrder: 1, sequenceNumber: 1, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true },
+    { workPackageId: 'wp-2', title: 'Second', status: 'approved_waiting', executionOrder: 2, sequenceNumber: 2, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true },
+    { workPackageId: 'wp-3', title: 'Third', status: 'approved_waiting', executionOrder: 3, sequenceNumber: 3, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true },
+    { workPackageId: 'wp-4', title: 'Fourth', status: 'approved_waiting', executionOrder: 4, sequenceNumber: 4, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true },
+    { workPackageId: 'wp-5', title: 'Fifth', status: 'approved_waiting', executionOrder: 5, sequenceNumber: 5, noRunnerStarted: true, noBranchOrPrOrMerge: true, noDeploy: true, noTokenPaymentBlockchain: true },
+  ];
+  const guard = buildBuilderQueueGuardState(packages, { paused: false });
+  const snapshotList = buildBuilderWorkPackagesSnapshotList(packages, guard, 50);
+  assert.strictEqual(packages.length, 5, 'fixture has five work packages');
+  assert.strictEqual(snapshotList.length, 5, 'snapshot list includes all five work packages');
+  assert.strictEqual(guard.nextUpWorkPackageId, 'GOnEbzEI4KF7jLPXjZ77');
+  assert(snapshotList.some((item) => item.workPackageId === guard.nextUpWorkPackageId), 'nextUpWorkPackageId must be present in builderWorkPackages');
+  assert.strictEqual(snapshotList[0].workPackageId, 'GOnEbzEI4KF7jLPXjZ77', 'next_up package is sorted as #1');
+  assert(snapshotList.every((item) => item.noRunnerStarted === true), 'snapshot list remains runner-free');
+  assert(snapshotList.every((item) => item.noBranchOrPrOrMerge === true), 'snapshot list does not signal branch/pr/merge automation');
+  assert(snapshotList.every((item) => item.noDeploy === true), 'snapshot list remains deploy-free');
+  assert(snapshotList.every((item) => item.noTokenPaymentBlockchain === true), 'snapshot list remains token/payment/blockchain-free');
+})();
+
+(function testBuilderWorkPackageViewModelShowsNextUpAndDisablesWaitingPackages() {
+  const helperPath = path.join(__dirname, '../../lib/admin/builderWorkPackageView.ts');
+  const source = fs.readFileSync(helperPath, 'utf8');
+  const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2019, esModuleInterop: true } }).outputText;
+  const moduleShim = { exports: {} };
+  const requireShim = (request) => { throw new Error(`Unexpected runtime require from builderWorkPackageView.ts: ${request}`); };
+  new Function('require', 'module', 'exports', output)(requireShim, moduleShim, moduleShim.exports);
+  const { buildVisibleBuilderWorkPackages, buildBuilderWorkPackageDebug, getBuilderPrPrepareButtonReason } = moduleShim.exports;
+  const items = [
+    { workPackageId: 'wp-5', title: 'Fifth', status: 'approved_waiting', executionOrder: 5, sequenceNumber: 5, ownerApproved: true, ownerDecisionPersistent: true, approvedForSerialExecution: true },
+    { workPackageId: 'wp-2', title: 'Second', status: 'approved_waiting', executionOrder: 2, sequenceNumber: 2, ownerApproved: true, ownerDecisionPersistent: true, approvedForSerialExecution: true },
+    { workPackageId: 'GOnEbzEI4KF7jLPXjZ77', title: 'Freigegebene Bauaufträge seriell vollständig abarbeiten', status: 'next_up', executionOrder: 1, sequenceNumber: 1, ownerApproved: true, ownerDecisionPersistent: true, approvedForSerialExecution: true },
+    { workPackageId: 'wp-4', title: 'Fourth', status: 'approved_waiting', executionOrder: 4, sequenceNumber: 4, ownerApproved: true, ownerDecisionPersistent: true, approvedForSerialExecution: true },
+    { workPackageId: 'wp-3', title: 'Third', status: 'approved_waiting', executionOrder: 3, sequenceNumber: 3, ownerApproved: true, ownerDecisionPersistent: true, approvedForSerialExecution: true },
+  ];
+  const rendered = buildVisibleBuilderWorkPackages(items);
+  const debug = buildBuilderWorkPackageDebug(items, rendered, 'GOnEbzEI4KF7jLPXjZ77', 5);
+  assert.deepStrictEqual(rendered.map((item) => item.sequenceNumber), [1, 2, 3, 4, 5], 'UI model sorts #1 before #2-#5');
+  assert.strictEqual(rendered[0].title, 'Freigegebene Bauaufträge seriell vollständig abarbeiten');
+  assert.strictEqual(getBuilderPrPrepareButtonReason(rendered[0], 'GOnEbzEI4KF7jLPXjZ77', true), '', 'next_up button is available for #1');
+  assert.strictEqual(getBuilderPrPrepareButtonReason(rendered[1], 'GOnEbzEI4KF7jLPXjZ77', true), 'Wartet auf vorheriges Work Package', 'waiting #2 is visible but not active');
+  assert.strictEqual(debug.snapshotListCount, 5);
+  assert.strictEqual(debug.renderedCardCount, 5);
+  assert.strictEqual(debug.nextUpMissingFromSnapshotList, false);
+  assert.strictEqual(debug.renderedCountMismatch, false);
+})();
+
+(function testBuilderWorkPackageViewModelWarnsWhenNextUpMissing() {
+  const helperPath = path.join(__dirname, '../../lib/admin/builderWorkPackageView.ts');
+  const source = fs.readFileSync(helperPath, 'utf8');
+  const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2019, esModuleInterop: true } }).outputText;
+  const moduleShim = { exports: {} };
+  new Function('require', 'module', 'exports', output)((request) => { throw new Error(request); }, moduleShim, moduleShim.exports);
+  const { buildVisibleBuilderWorkPackages, buildBuilderWorkPackageDebug } = moduleShim.exports;
+  const items = [
+    { workPackageId: 'wp-2', status: 'approved_waiting', executionOrder: 2 },
+    { workPackageId: 'wp-3', status: 'approved_waiting', executionOrder: 3 },
+    { workPackageId: 'wp-4', status: 'approved_waiting', executionOrder: 4 },
+    { workPackageId: 'wp-5', status: 'approved_waiting', executionOrder: 5 },
+  ];
+  const rendered = buildVisibleBuilderWorkPackages(items);
+  const debug = buildBuilderWorkPackageDebug(items, rendered, 'GOnEbzEI4KF7jLPXjZ77', 5);
+  assert.strictEqual(debug.snapshotListCount, 4);
+  assert.strictEqual(debug.renderedCardCount, 4);
+  assert.strictEqual(debug.nextUpMissingFromSnapshotList, true, 'missing next_up warning is exposed');
+  assert.strictEqual(debug.snapshotTotalMismatch, true, 'snapshot total/list mismatch warning is exposed');
 })();
