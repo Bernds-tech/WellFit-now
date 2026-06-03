@@ -1,5 +1,6 @@
 const assert = require('assert');
-const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, normalizeConversationIdeaDossier, getConversationIdeaSeedDossierById, findExistingBuilderWorkPackageForConversationDossier, getNextConversationBuilderWorkPackageStatus, getConversationBuilderPreparationFailureCode, sanitizeConversationIdeaText, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
+const path = require('path');
+const { resolveRegisterSnapshot, getFirstRunCandidateCollections, buildProductEvolutionRevisionDossier, findRevisionSourcePayload, isCompleteDecisionDossier, buildAgentTaskProposalStatusCounts, REVISION_DOSSIER_MESSAGE, getWorkerQueueReleaseTargetId, buildWorkerQueueReleaseFailureMessage, buildWorkerQueueReleaseDecision, buildRunnerPickupPreviewDecision, buildRunnerPickupPreviewFailureMessage, buildRunnerStartApprovalDecision, buildRunnerStartApprovalFailureMessage, validateSingleDecisionExecutionContract, SINGLE_DECISION_BLOCKER_MESSAGE, SINGLE_DECISION_REAPPROVAL_REASON, AUTO_PROGRESS_CONTRACT_BLOCKED_MESSAGE, buildExecutionContractApprovalFields, buildSingleDecisionReapprovalState, contractApprovalCoversCurrentExecutionContract, buildAgentCenterPipelineResetSafetyDecision, buildAgentCenterPipelineResetScope, AGENT_CENTER_PIPELINE_RESET_BLOCKED_MESSAGE, buildBuilderQueueGuardState, buildBuilderWorkPackageFromDossier, buildBuilderExecutionContractV1, enforceBuilderAllowedBlockedFiles, evaluateGithubBuilderBranchPrGuards, buildBuilderPrPlanFromWorkPackage, buildDefaultVerificationPlan, detectBuilderReapprovalGuard, planNextBuilderQueueState, buildRepairDossierFromVerificationFailure, buildConversationIdeaDossier, normalizeConversationIdeaDossier, getConversationIdeaSeedDossiers, getConversationIdeaSeedDossierById, findExistingBuilderWorkPackageForConversationDossier, getNextConversationBuilderWorkPackageStatus, getConversationBuilderPreparationFailureCode, sanitizeConversationIdeaText, sanitizeTelemetryObject } = require('../lib/agentAdminRolesAudit');
 const safetyDossierRegister = require('../../project-register/agent-safety-dossiers.json');
 const dossierSchema = require('../../project-register/agent-dossier-schema.json');
 
@@ -837,6 +838,22 @@ console.log('agentAdminRolesAudit helper tests passed');
 })();
 
 
+
+
+(function testFunctionsPackagedConversationSeedDossiersAreDeploySafe() {
+  const seeds = getConversationIdeaSeedDossiers();
+  assert.strictEqual(seeds.length, 5, 'five functions-packaged conversation seed dossiers are visible');
+  const packagedRegisterPath = require.resolve('../config/agent-conversation-idea-dossiers.json');
+  const functionsRoot = path.resolve(__dirname, '..');
+  assert(!path.relative(functionsRoot, packagedRegisterPath).startsWith('..'), 'seed register resolves inside functions package');
+  for (const seed of seeds) {
+    assert(seed.title || seed.shortSummary || seed.plainLanguageSummary, `seed ${seed.dossierId} must not render as an empty technical card`);
+    assert.strictEqual(seed.noRunnerStarted, true, 'seed noRunnerStarted remains true');
+    assert.strictEqual(seed.noBranchOrPrOrMerge, true, 'seed noBranchOrPrOrMerge remains true');
+    assert.strictEqual(seed.noDeploy, true, 'seed noDeploy remains true');
+    assert.strictEqual(seed.noTokenPaymentBlockchain, true, 'seed noTokenPaymentBlockchain remains true');
+  }
+})();
 
 (function testConversationSeedAndServerDossiersNormalizeToStableIds() {
   const seed = getConversationIdeaSeedDossierById('conversation-serial-approved-builder-backlog-v1');

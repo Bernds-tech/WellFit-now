@@ -1,0 +1,296 @@
+{
+  "schemaRef": "project-register/agent-dossier-schema.json",
+  "collectionSuggestion": "agentConversationIdeaDossiers",
+  "callable": "createConversationIdeaDossier",
+  "metadataOnly": true,
+  "noRuntimeChanges": true,
+  "noRunnerStarted": true,
+  "noBranchOrPrOrMerge": true,
+  "noDeploy": true,
+  "noTokenPaymentBlockchain": true,
+  "dossiers": [
+    {
+      "dossierId": "conversation-serial-approved-builder-backlog-v1",
+      "status": "pending_approval",
+      "title": "Freigegebene Bauaufträge seriell vollständig abarbeiten",
+      "shortSummary": "Mehrere bereits freigegebene Dossiers bleiben persistent freigegeben und werden als metadata-only Bau-Backlog nacheinander eingeplant.",
+      "plainLanguageSummary": "Wenn Bernd mehrere Dossiers freigibt, muss der Bauarbeiter sie nicht erneut fragen, sondern eins nach dem anderen abarbeiten, solange kein Reapproval-Guard greift.",
+      "problem": "Einzelne erneute Freigaben pro Work Package erzeugen unnötige Wartezeiten und widersprechen Bernds Wunsch nach dauerhafter Freigabe.",
+      "proposedChange": "Approved Builder Backlog mit approved_waiting, next_up und maxConcurrentInSerialGroup=1 metadata-only vorbereiten.",
+      "whyNow": "Nach PR #296 soll die Builder-/Autopilot-Logik Owner-Entscheidungen dauerhaft respektieren.",
+      "wellfitBenefit": "Schnellere, nachvollziehbare Umsetzung ohne parallele Konflikte.",
+      "userBenefit": "Verbesserungen kommen später verlässlicher an, weil die Arbeit kontrolliert sequenziert wird.",
+      "financialBenefit": "Reduziert Review- und Koordinationskosten durch weniger unnötige Entscheidungsloops.",
+      "internalEconomyImpact": "Keine Token-, NFT-, Payment-, Cashout-, SUI- oder WFT-Aktivierung.",
+      "affectedAreas": [
+        "Admin Center",
+        "Builder Backlog",
+        "Agent Governance"
+      ],
+      "affectedFiles": [
+        "functions/lib/agentAdminRolesAudit.js",
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "lib/admin/beta1AdminTypes.ts"
+      ],
+      "dependencies": [
+        "Owner/Admin-Entscheidung",
+        "Safety Sentinel"
+      ],
+      "risks": [
+        "Stale main SHA kann Reapproval erzwingen",
+        "Blocked Files oder Protected Scope müssen stoppen"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run lint",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npx tsc --noEmit --pretty false",
+        "git diff --check"
+      ],
+      "acceptanceCriteria": [
+        "Beliebig viele approved_waiting Work Packages",
+        "Maximal ein active_metadata_only in main_repo",
+        "Keine GitHub-/Runner-/Deploy-Aktion"
+      ],
+      "sources": [
+        "Bernds aktuelle Anforderung vom 2026-05-31"
+      ],
+      "recommendation": "approve_metadata_only",
+      "ownerDecisionRequired": true,
+      "suggestedPipelineStep": "prepare_builder_backlog_metadata_only",
+      "noRuntimeChanges": true,
+      "noRunnerStarted": true,
+      "noBranchOrPrOrMerge": true,
+      "noDeploy": true,
+      "noTokenPaymentBlockchain": true
+    },
+    {
+      "dossierId": "conversation-post-merge-verification-agent-v1",
+      "status": "pending_approval",
+      "title": "Post-Merge-Verifikationsagent für automatische Kontrollläufe",
+      "shortSummary": "Jedes Work Package erhält einen metadata-only Verifikationsplan für Checks, Admin Snapshot und UI Smoke Bereiche.",
+      "plainLanguageSummary": "Nach Abschluss oder Merge soll ein Kontrollplan prüfen, ob alles weiter funktioniert, ohne jetzt Browser-Automation zu starten.",
+      "problem": "Ohne standardisierte Nachprüfung bleiben spätere Fehler oder fehlende Screenshots schwer nachvollziehbar.",
+      "proposedChange": "VerificationChecklist, postMergeChecks, Snapshot-Pflichten und Repair-Dossier-Fallback je Work Package modellieren.",
+      "whyNow": "Bernd möchte nach jedem Merge/main-Update verlässlich prüfen lassen.",
+      "wellfitBenefit": "Bessere Stabilität und weniger manuelle Screenshot-Arbeit.",
+      "userBenefit": "Nutzer sehen weniger Regressionen in Kernbereichen.",
+      "financialBenefit": "Frühe Fehlererkennung spart Reparatur- und Reviewkosten.",
+      "internalEconomyImpact": "Nur Verifikation; keine Economy-Autorität oder Blockchain-Aktivierung.",
+      "affectedAreas": [
+        "Verification",
+        "Admin Snapshot",
+        "Builder Backlog"
+      ],
+      "affectedFiles": [
+        "functions/lib/agentAdminRolesAudit.js",
+        "app/admin/agent-center/AgentCenterInteractive.tsx"
+      ],
+      "dependencies": [
+        "Admin Snapshot",
+        "Quality Checks"
+      ],
+      "risks": [
+        "Checks können Umgebungslimits treffen",
+        "Repair-Dossiers müssen Owner-Review behalten"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run lint",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npx tsc --noEmit --pretty false",
+        "git diff --check"
+      ],
+      "acceptanceCriteria": [
+        "Verification-Plan vorhanden",
+        "Failure erzeugt metadata-only Repair-Dossier oder Queue-Pause",
+        "Keine Browser-Automation startet"
+      ],
+      "sources": [
+        "Bernds aktuelle Anforderung vom 2026-05-31"
+      ],
+      "recommendation": "approve_metadata_only",
+      "ownerDecisionRequired": true,
+      "suggestedPipelineStep": "prepare_post_merge_verification_plan",
+      "noRuntimeChanges": true,
+      "noRunnerStarted": true,
+      "noBranchOrPrOrMerge": true,
+      "noDeploy": true,
+      "noTokenPaymentBlockchain": true
+    },
+    {
+      "dossierId": "conversation-intake-agent-admin-dossiers-v1",
+      "status": "pending_approval",
+      "title": "Conversation Intake Agent: Chat-Wünsche als Admin-Dossiers erfassen",
+      "shortSummary": "Gesprächswünsche werden sanitized als entscheidbare Dossier-Kandidaten im Admin Center abgelegt.",
+      "plainLanguageSummary": "Bernds Ideen aus Chats sollen nicht verloren gehen, sondern als Vorschläge sichtbar und freigebbar werden.",
+      "problem": "Chat-Ideen sind ohne Intake-Pfad nicht dauerhaft in der Admin-Entscheidungspipeline.",
+      "proposedChange": "Collection agentConversationIdeaDossiers und Callable createConversationIdeaDossier metadata-only vorbereiten.",
+      "whyNow": "Bernd hat ausdrücklich Gesprächswünsche als Admin-Dossiers gefordert.",
+      "wellfitBenefit": "Klare Ideen-Pipeline mit Owner-Entscheidung.",
+      "userBenefit": "Spätere Verbesserungen basieren auf geprüften und priorisierten Ideen.",
+      "financialBenefit": "Verbessert Priorisierung und verhindert Streuverluste.",
+      "internalEconomyImpact": "Keine Token-, Payment- oder Ledger-Änderung.",
+      "affectedAreas": [
+        "Conversation Intake",
+        "Admin Center",
+        "Dossier Schema"
+      ],
+      "affectedFiles": [
+        "functions/lib/agentAdminRolesAudit.js",
+        "project-register/agent-conversation-idea-dossiers.json",
+        "lib/admin/beta1AdminClient.ts",
+        "lib/admin/beta1AdminTypes.ts"
+      ],
+      "dependencies": [
+        "Owner/Admin Auth",
+        "Sanitizing"
+      ],
+      "risks": [
+        "Zu große oder sensible Texte müssen gekürzt/redigiert werden"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run lint",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npx tsc --noEmit --pretty false",
+        "git diff --check"
+      ],
+      "acceptanceCriteria": [
+        "Dossier enthält Pflichtfelder",
+        "E-Mail/Tokens/Sessiondaten redigiert",
+        "Owner/Admin only"
+      ],
+      "sources": [
+        "Bernds aktuelle Anforderung vom 2026-05-31"
+      ],
+      "recommendation": "approve_metadata_only",
+      "ownerDecisionRequired": true,
+      "suggestedPipelineStep": "conversation_idea_owner_review",
+      "noRuntimeChanges": true,
+      "noRunnerStarted": true,
+      "noBranchOrPrOrMerge": true,
+      "noDeploy": true,
+      "noTokenPaymentBlockchain": true
+    },
+    {
+      "dossierId": "conversation-product-brain-research-orchestrator-v1",
+      "status": "pending_approval",
+      "title": "Product Brain / Research Orchestrator für selbstoptimierendes WellFit",
+      "shortSummary": "Research/Product Brain soll Vorschläge erzeugen, während Builder nur genehmigte Arbeit umsetzt.",
+      "plainLanguageSummary": "Ein Denk-/Recherche-Agent darf Ideen vorbereiten, aber Bernd bleibt Entscheider und der Builder baut nur Freigegebenes.",
+      "problem": "Produktideen, Research und Umsetzung müssen sauber getrennt bleiben.",
+      "proposedChange": "Metadata-only Dossier für Research-Orchestrierung ohne Runner oder Runtime-Änderung vorbereiten.",
+      "whyNow": "Die Product-Evolution-Loop braucht klare Grenzen vor weiterer Automation.",
+      "wellfitBenefit": "Bessere Vorschläge ohne Kontrollverlust.",
+      "userBenefit": "Nutzer profitieren später von durchdachten, geprüften Verbesserungen.",
+      "financialBenefit": "Research-Fokus kann Markt-/Produktchancen früher erkennen.",
+      "internalEconomyImpact": "Keine Economy- oder Blockchain-Aktivierung.",
+      "affectedAreas": [
+        "Product Evolution",
+        "Research",
+        "Agent Governance"
+      ],
+      "affectedFiles": [
+        "docs/architecture/WELLFIT_AGENT_PRODUCT_EVOLUTION_LOOP.md",
+        "project-register/agent-conversation-idea-dossiers.json"
+      ],
+      "dependencies": [
+        "Owner Review",
+        "Safety Ordering"
+      ],
+      "risks": [
+        "Darf keine frischen Agent-Vorschläge autonom erzeugen",
+        "Research darf keine Builder-Arbeit starten"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run lint",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npx tsc --noEmit --pretty false",
+        "git diff --check"
+      ],
+      "acceptanceCriteria": [
+        "Research schlägt nur vor",
+        "Builder setzt nur genehmigte Arbeit um",
+        "Keine frischen Agent-Vorschläge in diesem PR"
+      ],
+      "sources": [
+        "Bernds aktuelle Anforderung vom 2026-05-31"
+      ],
+      "recommendation": "review_later_metadata_only",
+      "ownerDecisionRequired": true,
+      "suggestedPipelineStep": "product_brain_research_dossier_only",
+      "noRuntimeChanges": true,
+      "noRunnerStarted": true,
+      "noBranchOrPrOrMerge": true,
+      "noDeploy": true,
+      "noTokenPaymentBlockchain": true
+    },
+    {
+      "dossierId": "conversation-admin-browser-snapshot-v1",
+      "status": "pending_approval",
+      "title": "Admin-/Browser-Snapshot statt manueller Screenshots",
+      "shortSummary": "Bereinigte Admin-/Browser-Snapshots sollen spätere manuelle Screenshot-Arbeit ersetzen oder reduzieren.",
+      "plainLanguageSummary": "Der Admin Center Snapshot soll zeigen, was Agenten sehen und prüfen müssen, ohne produktive Daten offenzulegen.",
+      "problem": "Manuelle Screenshots sind langsam und können private Daten enthalten.",
+      "proposedChange": "Metadata-only Snapshot-Pflichten und UI-Anzeige vorbereiten; keine echte Browser-Automation bauen.",
+      "whyNow": "Post-Merge-Prüfungen brauchen nachvollziehbare, datenschutzsichere Evidenz.",
+      "wellfitBenefit": "Schnellere Reviews mit bereinigter Evidenz.",
+      "userBenefit": "Weniger Risiko, dass private Daten in Debug-/Review-Artefakten auftauchen.",
+      "financialBenefit": "Reduziert manuellen QA-Aufwand.",
+      "internalEconomyImpact": "Keine Economy-Auswirkung.",
+      "affectedAreas": [
+        "Admin Snapshot",
+        "Verification",
+        "Privacy"
+      ],
+      "affectedFiles": [
+        "app/admin/agent-center/AgentCenterInteractive.tsx",
+        "functions/lib/agentAdminRolesAudit.js"
+      ],
+      "dependencies": [
+        "Sanitized Snapshot",
+        "Owner Review"
+      ],
+      "risks": [
+        "Snapshot darf keine E-Mails, Tokens, Secrets, Sessions oder personenbezogene Payloads enthalten"
+      ],
+      "riskLevel": "medium",
+      "requiredChecks": [
+        "npm run agent:validate",
+        "npm run lint",
+        "npm run build",
+        "npm --prefix functions run check",
+        "npx tsc --noEmit --pretty false",
+        "git diff --check"
+      ],
+      "acceptanceCriteria": [
+        "Snapshot-Pflicht sichtbar",
+        "Keine privaten Daten",
+        "Keine Browser-Automation startet"
+      ],
+      "sources": [
+        "Bernds aktuelle Anforderung vom 2026-05-31"
+      ],
+      "recommendation": "approve_metadata_only",
+      "ownerDecisionRequired": true,
+      "suggestedPipelineStep": "admin_snapshot_verification_plan",
+      "noRuntimeChanges": true,
+      "noRunnerStarted": true,
+      "noBranchOrPrOrMerge": true,
+      "noDeploy": true,
+      "noTokenPaymentBlockchain": true
+    }
+  ],
+  "runtimeArtifactNote": "Deployable Firebase Functions runtime seed artifact copied from project-register/agent-conversation-idea-dossiers.json; contains metadata-only conversation seed dossiers and no secrets, user data, tokens, payment, cashout, SUI, WFT, or blockchain activation.",
+  "runtimeArtifactSourceRef": "project-register/agent-conversation-idea-dossiers.json"
+}

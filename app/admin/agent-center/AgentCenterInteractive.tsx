@@ -614,6 +614,9 @@ export default function AgentCenterInteractive({
     return Array.from(byId.values());
   }, [agentSnapshot]);
   const builderQueueCounts = useMemo(() => buildBuilderQueueCounts(builderWorkPackages), [builderWorkPackages]);
+  const functionsBackendUnavailable = Boolean(syncDebug.agentSnapshotLoadAttempted) && syncDebug.agentSnapshotLoadAccepted !== true;
+  const conversationBuilderCallableAvailable = Boolean(agentSnapshot) && !functionsBackendUnavailable;
+  const functionsVersionUnavailableMessage = "Functions-Version nicht aktuell oder nicht erreichbar. Bitte Functions-Deploy prüfen.";
 
   const visibleTaskProposals = useMemo(() => {
     const sorted = [...taskProposals].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
@@ -1474,6 +1477,11 @@ export default function AgentCenterInteractive({
     }
     if (status !== "approved") {
       setFeedback("Nur freigegebene Conversation-Ideen können als Bauauftrag vorbereitet werden.");
+      return;
+    }
+    if (!conversationBuilderCallableAvailable) {
+      setFeedback(functionsVersionUnavailableMessage);
+      setSyncStatus(functionsVersionUnavailableMessage);
       return;
     }
     setBusy(true);
@@ -2383,7 +2391,7 @@ export default function AgentCenterInteractive({
         <p>sourceDossierIdHadSlash: {String(syncDebug.sourceDossierIdHadSlash ?? "-")}</p>
         <p>sampleCreatedIds: {JSON.stringify(syncDebug.sampleCreatedIds || [])}</p>
         <p>sampleSkipped: {JSON.stringify(syncDebug.sampleSkipped || [])}</p>
-        {!String(syncDebug.callableVersion || "") && <p className="text-amber-300">Backend-Callable liefert keine Version. Wahrscheinlich läuft noch eine alte Functions-Version. Bitte Functions deployen.</p>}
+        {!String(syncDebug.callableVersion || "") && <p className="text-amber-300">{functionsVersionUnavailableMessage}</p>}
         {String(syncDebug.callableVersion || "") !== "" && <p className="text-emerald-300">Backend-Callable-Version erkannt: {String(syncDebug.callableVersion)}</p>}
         {(String(syncDebug.callableVersion || "") === "" || String(syncDebug.responseShapeVersion || "") === "") && <p className="text-amber-300">Frontend ist neuer als Backend. Bitte Firebase Functions deployen oder Backend-Callable prüfen.</p>}
         {String(syncDebug.clientErrorCode || "") !== "client_auth_missing" && String(syncDebug.callableVersion || "") !== "" && String(syncDebug.responseShapeVersion || "") !== "" && Number(syncDebug.serverCandidateCount || 0) === 0 && snapshotStats.localFirstRunCandidateCount > 0 && <p className="text-amber-300">Backend ist aktuell, aber Snapshot-Struktur wird nicht verarbeitet. Siehe serverSnapshotKeys/serverCandidateCollections.</p>}
@@ -2655,6 +2663,7 @@ export default function AgentCenterInteractive({
             <p className="uppercase tracking-[0.2em] text-fuchsia-100/80">Conversation / Ideen-Dossiers</p>
             <h2 className="mt-1 text-lg font-semibold">Gesprächswünsche als Admin-Dossiers</h2>
             <p className="mt-1 text-fuchsia-50/80">Statische Seed-Dossiers plus sanitized Server-Dossiers aus agentConversationIdeaDossiers. Alles bleibt metadata-only: kein Runner, kein Branch/PR/Merge, kein Deploy.</p>
+            {!conversationBuilderCallableAvailable && <p className="mt-2 rounded border border-amber-300/50 bg-amber-300/10 p-2 text-amber-100">{functionsVersionUnavailableMessage}</p>}
           </div>
           <span className="rounded-full border border-fuchsia-200/50 px-2 py-1">{conversationIdeaDossiers.length} sichtbar</span>
         </div>
@@ -2674,8 +2683,8 @@ export default function AgentCenterInteractive({
                 {(() => {
                   const existing = existingConversationWorkPackage(dossier);
                   const approved = String(dossier.status || dossier.ownerDecisionStatus || "").toLowerCase() === "approved";
-                  const disabled = busy || !authDebug.adminCallableAuthReady || !approved || Boolean(existing);
-                  const title = existing ? "Bauauftrag bereits vorbereitet" : (!conversationDossierId(dossier) ? "Dossier-ID fehlt" : (!approved ? "Dossier ist nicht approved" : "Als Bauauftrag vorbereiten"));
+                  const disabled = busy || !authDebug.adminCallableAuthReady || !conversationBuilderCallableAvailable || !approved || Boolean(existing);
+                  const title = !conversationBuilderCallableAvailable ? functionsVersionUnavailableMessage : (existing ? "Bauauftrag bereits vorbereitet" : (!conversationDossierId(dossier) ? "Dossier-ID fehlt" : (!approved ? "Dossier ist nicht approved" : "Als Bauauftrag vorbereiten")));
                   return <button title={title} className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={disabled} onClick={() => prepareConversationBuilderWorkPackage(dossier)}>{existing ? "Bauauftrag bereits vorbereitet" : "Als Bauauftrag vorbereiten"}</button>;
                 })()}
               </div>
@@ -3067,7 +3076,7 @@ export default function AgentCenterInteractive({
               <button className="cursor-pointer rounded border border-red-200/70 px-2 py-1 text-red-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(detailRow, "reject")}>Ablehnen</button>
               <button className="cursor-pointer rounded border border-amber-200/70 px-2 py-1 text-amber-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(detailRow, "revision_requested")}>Überarbeiten</button>
               <button className="cursor-pointer rounded border border-white/30 px-2 py-1 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady} onClick={() => decideConversationIdea(detailRow, "block")}>Blockieren</button>
-              <button className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady || conversationDetailStatus !== "approved"} onClick={() => prepareConversationBuilderWorkPackage(detailRow)}>Als Bauauftrag vorbereiten</button>
+              <button title={!conversationBuilderCallableAvailable ? functionsVersionUnavailableMessage : "Als Bauauftrag vorbereiten"} className="cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" disabled={busy || !authDebug.adminCallableAuthReady || !conversationBuilderCallableAvailable || conversationDetailStatus !== "approved"} onClick={() => prepareConversationBuilderWorkPackage(detailRow)}>Als Bauauftrag vorbereiten</button>
             </div>}
             <p>Detailstatus: {details.isComplete ? "structured" : "missing"}</p>
             {isLegacyApprovedReapprovalRequired(detailRow) && <div className="mt-2 rounded border border-amber-300/50 bg-amber-300/10 p-2 text-amber-100"><p className="font-semibold">Alte Freigabe erkannt</p><p>Diese Freigabe gilt nur für den alten eingeschränkten Vertrag.</p><p>Für automatische Ausführung ist eine neue einmalige Entscheidung nötig.</p><p>{asText(detailRow.reapprovalReason) || "Dieser Vorschlag wurde früher mit einem alten, engen Vertrag freigegeben. Für automatische Ausführung ist eine neue einmalige Entscheidung auf Basis des vollständigen Ausführungsvertrags nötig."}</p></div>}
