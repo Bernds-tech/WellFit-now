@@ -8,6 +8,7 @@ import safetyDossierRegister from "@/project-register/agent-safety-dossiers.json
 import conversationIdeaDossierRegister from "@/project-register/agent-conversation-idea-dossiers.json";
 import { beta1AdminClient } from "@/lib/admin/beta1AdminClient";
 import { buildAdminDecisionSummary, buildServerInboxCounts, deriveTimeline, formatAdminDate, getAgentStatusBucket, getMissionStatusBucket, getServerInboxStatusBucket } from "@/lib/admin/agentCenterStatus";
+import { buildBuilderQueueCounts, buildBuilderWorkPackageDebug, buildVisibleBuilderWorkPackages, getBuilderPrPrepareButtonReason, getBuilderQueueBucket } from "@/lib/admin/builderWorkPackageView";
 import type { AdminCallableAuthState, AdminCenterDetailStatus, AdminCenterListFilter, AgentCenterDecisionInput, AgentCenterInboxItem, MissionCenterDecisionInput, ApprovedInboxToTaskProposalResult, AgentTaskProposal, AgentTaskProposalListResult, ProductEvolutionInboxSyncResult, TaskProposalWorkerQueueResult, ProductEvolutionRevisionDossierResult, AgentTaskWorkerQueueItem, AgentTaskWorkerQueueListResult, AgentRunnerJob, AgentRunnerJobListResult, AgentRunnerPickupContract, AgentRunnerPickupContractListResult, ManualRunnerPickupContractResult, AgentRunnerImplementationPlan, AgentRunnerImplementationPlanListResult, ManualRunnerImplementationPlanResult, ManualRunnerImplementationPlanApprovalResult, WorkerQueueReleaseResult, WorkerQueueRunnerPreview, WorkerQueueRunnerPreviewResult, WorkerQueueRunnerStartApprovalResult, AgentCenterPipelineResetResult, AgentSafetyDossier, AgentCenterAutopilotSnapshot, AgentCenterAutopilotSnapshotResult, BuilderWorkPackage, PrepareBuilderWorkPackageResult, ConversationIdeaDossier, ConversationIdeaDecisionResult, PrepareGithubBuilderBranchPrResult } from "@/lib/admin/beta1AdminTypes";
 import { auth } from "@/lib/firebase";
 
@@ -203,26 +204,6 @@ function buildWorkerQueueCounts(items: AgentTaskWorkerQueueItem[]) {
   return counts;
 }
 
-
-function getBuilderQueueBucket(item: BuilderWorkPackage): BuilderQueueBucket {
-  const status = String(item.status || "").toLowerCase();
-  if (status === "approved_waiting") return "waiting";
-  if (status === "next_up") return "next_up";
-  if (status === "active_metadata_only") return "active";
-  if (["blocked_by_existing_active_work", "blocked_by_failed_checks", "blocked_by_stale_base"].includes(status)) return "blocked";
-  if (status === "repair_required") return "repair_required";
-  if (status === "completed_metadata_only") return "completed";
-  if (status === "paused_by_owner") return "paused";
-  if (status === "proposed") return "proposed";
-  if (status === "cancelled") return "cancelled";
-  return "unknown";
-}
-
-function buildBuilderQueueCounts(items: BuilderWorkPackage[]) {
-  const counts: Record<BuilderQueueBucket, number> & { total: number } = { total: items.length, waiting: 0, next_up: 0, active: 0, blocked: 0, repair_required: 0, completed: 0, paused: 0, proposed: 0, cancelled: 0, unknown: 0 };
-  items.forEach((item) => { counts[getBuilderQueueBucket(item)] += 1; });
-  return counts;
-}
 
 function getRunnerJobBucket(item: AgentRunnerJob): RunnerJobBucket {
   const status = String(item.status || "").toLowerCase();
@@ -614,6 +595,7 @@ export default function AgentCenterInteractive({
     return Array.from(byId.values());
   }, [agentSnapshot]);
   const builderQueueCounts = useMemo(() => buildBuilderQueueCounts(builderWorkPackages), [builderWorkPackages]);
+  const builderQueueGuardNextUpWorkPackageId = String((agentSnapshot?.builderQueueGuard as { nextUpWorkPackageId?: unknown } | null | undefined)?.nextUpWorkPackageId || "");
   const functionsBackendUnavailable = Boolean(syncDebug.agentSnapshotLoadAttempted) && syncDebug.agentSnapshotLoadAccepted !== true;
   const conversationBuilderCallableAvailable = Boolean(agentSnapshot) && !functionsBackendUnavailable;
   const functionsVersionUnavailableMessage = "Functions-Version nicht aktuell oder nicht erreichbar. Bitte Functions-Deploy prüfen.";
@@ -626,13 +608,12 @@ export default function AgentCenterInteractive({
     return sorted.filter((proposal) => getTaskProposalBucket(proposal) === bucket);
   }, [active, taskProposals]);
 
+  const builderCardWorkPackages = useMemo(() => buildVisibleBuilderWorkPackages(builderWorkPackages), [builderWorkPackages]);
   const visibleBuilderWorkPackages = useMemo(() => {
-    const sorted = [...builderWorkPackages].sort((a, b) => Number(a.sequenceNumber || 0) - Number(b.sequenceNumber || 0));
     if (!isBuilderQueueFilter(active)) return [];
-    const bucket = BUILDER_QUEUE_FILTER_TO_BUCKET[active];
-    if (bucket === "total") return sorted;
-    return sorted.filter((item) => getBuilderQueueBucket(item) === bucket);
-  }, [active, builderWorkPackages]);
+    return builderCardWorkPackages;
+  }, [active, builderCardWorkPackages]);
+  const builderWorkPackageDebug = useMemo(() => buildBuilderWorkPackageDebug(builderWorkPackages, builderCardWorkPackages, builderQueueGuardNextUpWorkPackageId, agentSnapshot?.builderWorkPackageCounts?.total), [agentSnapshot?.builderWorkPackageCounts?.total, builderCardWorkPackages, builderQueueGuardNextUpWorkPackageId, builderWorkPackages]);
 
   const visibleWorkerQueueItems = useMemo(() => {
     const sorted = [...workerQueueItems].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
@@ -1521,13 +1502,7 @@ export default function AgentCenterInteractive({
   }
 
   function builderPrPrepareButtonReason(item: BuilderWorkPackage): string {
-    const status = String(item.status || "").toLowerCase();
-    if (!authDebug.adminCallableAuthReady) return "Admin-Auth fehlt";
-    if (!item.workPackageId) return "Work Package ID fehlt";
-    if (!["next_up", "approved_waiting"].includes(status)) return "Nur next_up oder approved_waiting kann Branch/PR vorbereiten.";
-    if (item.reapprovalRequired === true) return "Reapproval erforderlich";
-    if (item.ownerApproved !== true || item.ownerDecisionPersistent !== true || item.approvedForSerialExecution !== true) return "Owner-/Serial-Freigabe fehlt";
-    return "";
+    return getBuilderPrPrepareButtonReason(item, builderQueueGuardNextUpWorkPackageId, authDebug.adminCallableAuthReady);
   }
 
   async function prepareGithubBuilderBranchPr(item: BuilderWorkPackage) {
@@ -2399,6 +2374,14 @@ export default function AgentCenterInteractive({
 
       <div className="space-y-2 text-xs">
         <p className="text-cyan-100">Builder Work Packages / agentBuilderWorkPackages — seriell, Branch/PR nur nach Guards; kein Merge, kein Deploy.</p>
+        <div className="grid gap-2 rounded border border-cyan-300/30 bg-cyan-400/10 p-3 text-cyan-50 md:grid-cols-3">
+          <p>nextUpWorkPackageId: {builderWorkPackageDebug.nextUpWorkPackageId || "—"}</p>
+          <p>builderWorkPackages im Snapshot: {builderWorkPackageDebug.snapshotListCount}</p>
+          <p>gerenderte Builder Cards: {builderWorkPackageDebug.renderedCardCount}</p>
+          {builderWorkPackageDebug.snapshotTotalMismatch && <p className="text-amber-200 md:col-span-3">Warnung: Snapshot-Count total ({builderWorkPackageDebug.snapshotCountTotal}) und builderWorkPackages-Liste ({builderWorkPackageDebug.snapshotListCount}) weichen ab.</p>}
+          {builderWorkPackageDebug.renderedCountMismatch && <p className="text-amber-200 md:col-span-3">Warnung: builderWorkPackages im Snapshot und gerenderte Builder Cards weichen ab.</p>}
+          {builderWorkPackageDebug.nextUpMissingFromSnapshotList && <p className="text-red-200 md:col-span-3">next_up Work Package fehlt in Snapshot-Liste.</p>}
+        </div>
         <div className="flex flex-wrap gap-2">
           {BUILDER_QUEUE_FILTER_KEYS.map((key) => {
             const activeCard = active === key;
@@ -2723,6 +2706,7 @@ export default function AgentCenterInteractive({
                   <p>Checks: {item.checkStatus || item.verificationStatus || "pending"} · adminSnapshotRequired={String(item.adminSnapshotRequired !== false)} · uiSmokeSnapshotRequired={String(item.uiSmokeSnapshotRequired !== false)} · repairDossierOnFailure={String(item.createsRepairDossierOnFailure !== false)}</p>
                   <p>Nächste Aktion: {item.recommendedNextAction || "Warten; keine GitHub-/Runner-/Deploy-Aktion."}</p>
                   <p>Safety: noAutoMerge={String(item.noAutoMerge !== false)} · noAutoDeploy={String(item.noAutoDeploy !== false)} · noDeploy={String(item.noDeploy)} · noTokenPaymentBlockchain={String(item.noTokenPaymentBlockchain)}</p>
+                  {builderPrPrepareButtonReason(item) && <p className="text-amber-200">{builderPrPrepareButtonReason(item)}</p>}
                   <p className="text-amber-200">Kein Merge, kein Deploy. Erstellt nur Plan/Branch/PR nach Guards.</p>
                   <button className="mt-2 cursor-pointer rounded border border-cyan-300/70 px-2 py-1 text-cyan-100 disabled:cursor-not-allowed disabled:opacity-50" title={builderPrPrepareButtonReason(item) || "Branch/PR vorbereiten"} disabled={busy || Boolean(builderPrPrepareButtonReason(item))} onClick={() => prepareGithubBuilderBranchPr(item)}>Branch/PR vorbereiten</button>
                 </div>
