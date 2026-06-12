@@ -31,12 +31,25 @@ jobs:
           SSH_USER: ${{ secrets.FANMIND_SSH_USER }}
         run: |
           set -euo pipefail
-          ssh -i ~/.ssh/fanmind_deploy_key -p "${SSH_PORT:-22}" "$SSH_USER@$SSH_HOST" << 'EOF'
+          ssh \
+            -i ~/.ssh/fanmind_deploy_key \
+            -p "${SSH_PORT:-22}" \
+            -o ServerAliveInterval=20 \
+            -o ServerAliveCountMax=30 \
+            -o TCPKeepAlive=yes \
+            -o ConnectTimeout=30 \
+            "$SSH_USER@$SSH_HOST" << 'EOF'
             set -euo pipefail
+            echo "[deploy] $(date -u) entering /srv/www/fanmind"
             cd /srv/www/fanmind
+            echo "[deploy] $(date -u) git pull"
             git pull --ff-only
+            echo "[deploy] $(date -u) npm ci"
             npm ci --no-audit --no-fund
+            echo "[deploy] $(date -u) build"
             npm run build
+            echo "[deploy] $(date -u) restart service"
             systemctl restart fanmind
+            echo "[deploy] $(date -u) service status"
             systemctl status fanmind --no-pager
           EOF
