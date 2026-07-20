@@ -2,6 +2,10 @@
 
 WellFit is an existing Next.js product baseline for the Move-Learn-Social-Earn platform. Work in this repository should extend the current app, registers, TODO files, and architecture notes in small scoped steps. Do not create duplicate app shells, route maps, environment systems, reward systems, or agent-governance systems.
 
+## Current operating mode
+
+WellFit is currently developed exclusively through GitHub branches and pull requests. There is no active WellFit server or SSH deployment target in use. GitHub Actions may build the application and run emulator checks, but they must not deploy unrelated products or external services. See `docs/operations/GITHUB_ONLY_DEVELOPMENT_STATUS.md`.
+
 ## Safe development boundaries
 
 Before changing files, read `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, and `todolist/TODO_INDEX.md`. For setup and environment work, also read `todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md`.
@@ -122,11 +126,11 @@ node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs
 
 Auto-merge and auto-repair checks are report-only in this repository. They must not merge, repair, deploy, or approve work automatically.
 
-## Deployment and PM2 notes
+## Future deployment notes
 
-Use deployment-specific environment configuration for Firebase public config and server-only keys. Do not deploy from an agent session unless the task explicitly authorizes deployment. Documentation, lint, build, Functions syntax, quality-gate, and report-only agent checks are not deployment approval.
+No active WellFit server, PM2 process, Firebase production deployment, or SSH target is currently configured or used by this project. Historical self-hosting and PM2 notes are planning references only.
 
-For self-hosted/PM2 operation, preserve the existing status/TODO history, keep only one intended WellFit process running, and verify process status before restarting. PM2 restarts, server environment changes, Firebase deploys, Firestore rules publishes, and production data migrations require explicit human approval and must not be bundled into documentation-only product-foundation tasks.
+Any future hosting setup, server provisioning, Firebase deployment, Firestore Rules publication, production data migration, or secret configuration requires a separate explicit owner decision and a scoped pull request. Do not add cross-product deployment workflows or external service targets to this repository.
 
 ## Learn More
 
