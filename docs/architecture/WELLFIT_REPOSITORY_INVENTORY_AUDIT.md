@@ -1,6 +1,6 @@
 # WellFit Repository Inventory and Coverage Audit
 
-Updated: 2026-05-15
+Updated: 2026-07-20
 
 ## Purpose
 
@@ -12,6 +12,7 @@ The machine-readable inventory lives in [`project-register/repository-inventory.
 
 The inventory/check scans these repository areas:
 
+- `.github/**`, including GitHub Actions workflows
 - `app/**`
 - `components/**`
 - `lib/**`
@@ -57,8 +58,9 @@ The validator compares repository files against existing sources of truth:
 5. `app/api/**/route.ts` routes against `project-register/apis.json`.
 6. Protected path patterns from AGENTS.md and WellFit safety rules.
 7. Likely stale/duplicate indicators such as `old`, `stale`, `duplicate`, `deprecated`, `legacy`, `backup`, `archive`, `handoff`, and `status` path markers, plus duplicate basenames.
+8. GitHub workflow contents for unrelated-product markers. A workflow containing `FanMind` is a blocking failure because WellFit must not build or deploy another product.
 
-Warnings are expected and are not automatic failures. They are triage signals for future documentation/register work. The script never rewrites files.
+Warnings are expected and are not automatic failures. They are triage signals for future documentation/register work. The script never rewrites files. Cross-product workflow findings are failures rather than warnings.
 
 ## Current inventory summary
 
@@ -73,7 +75,7 @@ At creation time, the inventory recorded:
 - 9 API-register entries.
 - 21 product-readiness modules.
 
-Use `jq '.summary' project-register/repository-inventory.json` for the current machine-readable counts after future refreshes.
+These historical baseline counts predate `.github/**` coverage. Use `jq '.summary' project-register/repository-inventory.json` for the current machine-readable counts after future refreshes.
 
 ## How future agents should use this audit
 
@@ -85,10 +87,13 @@ Before editing WellFit:
 4. If a file is unmapped, update existing leading registers/docs only when the current task justifies it.
 5. If a file is protected, stop unless the user explicitly assigned that protected work and all human-review rules are satisfied.
 6. If a stale/duplicate candidate appears, mark or cross-reference it in existing TODO/status docs; do not delete historical context automatically.
+7. If a GitHub workflow references FanMind or another unrelated product, stop and remove that cross-product workflow in a scoped pull request.
 
-## Quality gate integration
+## Quality gate and CI integration
 
-`npm run agent:quality-gate` now runs the repository inventory check after the cross-reference maintenance check. The inventory check is PASS/FAIL for structural validation, but unmapped/protected/stale findings are warning/report sections so future agents can triage them without creating duplicate architecture.
+`npm run agent:quality-gate` runs the repository inventory check after the cross-reference maintenance check. The inventory check is PASS/FAIL for structural validation, while unmapped/protected/stale findings remain warning/report sections.
+
+The normal GitHub `Build` workflow also runs `node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs` before `npm run build`. This makes unrelated-product workflows a pull-request blocker without deploying, writing production data, or requiring a WellFit server.
 
 ## Recommended follow-up
 
@@ -96,6 +101,7 @@ Before editing WellFit:
 - Reduce unmapped warnings by adding justified references to existing Work Map, Product Readiness, route/API, or governance registers.
 - Preserve protected runtime, compliance, and Unity areas unless a future task explicitly authorizes a narrow change.
 - Continue using this inventory as a pre-flight map before expanding mission, buddy, economy, AR, route, API, or governance work.
+- Keep the repository product boundary explicit: WellFit workflows may validate WellFit, but must not deploy FanMind or another external product.
 
 ## KI-Fortsetzungs-Prompt
 

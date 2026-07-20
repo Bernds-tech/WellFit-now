@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Repository product boundary check
+        run: node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs
+
       - name: Build
         run: npm run build
         env:

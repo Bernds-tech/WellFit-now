@@ -6,7 +6,7 @@ import path from "node:path";
 const ROOT = process.cwd();
 const OUTPUT = path.join(ROOT, "scripts", "wellfit-dev-agent", "output", "repository-inventory-check.md");
 
-const SCAN_ROOTS = ["app", "components", "lib", "functions", "project-register", "todolist", "docs", "scripts", "public", "native"];
+const SCAN_ROOTS = [".github", "app", "components", "lib", "functions", "project-register", "todolist", "docs", "scripts", "public", "native"];
 const EXCLUDED_SEGMENTS = new Set([".git", "node_modules", ".next", "out", "dist", "build", "coverage", ".turbo"]);
 const EXCLUDED_PATH_PREFIXES = ["scripts/wellfit-dev-agent/output/"];
 const EXCLUDED_UNITY_SEGMENTS = new Set(["Library", "Temp", "Obj", "Logs", "Build", "Builds"]);
@@ -20,6 +20,10 @@ const PROTECTED_PATTERNS = [
   /(^|\/)(wallet|token|nft|payment|payments|purchase|payout|marketplace|staking|presale|trading|betting|pvp|reward|rewards|health|child|children|location|privacy|datenschutz|legal|agb|impressum)(\/|\.|-|_|$)/iu
 ];
 const DUPLICATE_STALE_PATTERN = /(^|\/)(old|stale|duplicate|deprecated|legacy|backup|copy|archiv|archive|handoff|status)(\/|\.|-|_|$)/iu;
+const WORKFLOW_PATH_PATTERN = /^\.github\/workflows\/.*\.ya?ml$/iu;
+const CROSS_PRODUCT_WORKFLOW_MARKERS = [
+  { name: "FanMind", pattern: /fanmind/iu }
+];
 
 function norm(value) {
   return value.split(path.sep).join("/");
@@ -149,6 +153,23 @@ function findDuplicateBasenames(files) {
     .flatMap(([basename, paths]) => paths.map((file) => ({ file, reason: `basename also appears in ${paths.length - 1} other path(s): ${basename}` })));
 }
 
+function findCrossProductWorkflowArtifacts(files, results) {
+  const artifacts = [];
+  const workflowFiles = files.filter((file) => WORKFLOW_PATH_PATTERN.test(file));
+
+  for (const file of workflowFiles) {
+    try {
+      const content = fs.readFileSync(path.join(ROOT, file), "utf8");
+      const markers = CROSS_PRODUCT_WORKFLOW_MARKERS.filter(({ pattern }) => pattern.test(content)).map(({ name }) => name);
+      if (markers.length > 0) artifacts.push({ file, markers });
+    } catch (error) {
+      results.fail.push(`Unable to read GitHub workflow ${file}: ${error.message}`);
+    }
+  }
+
+  return artifacts;
+}
+
 function renderList(items, formatter = (item) => `- ${item}`, fallback = "- None.") {
   return items.length ? items.map(formatter).join("\n") : fallback;
 }
@@ -176,11 +197,17 @@ function main() {
   const duplicateCandidates = findDuplicateBasenames(files).filter(({ file }) => /\.(md|json|tsx?|mjs|js)$/iu.test(file));
   const routeGaps = discoveredRoutes.filter(({ route }) => !registeredRoutes.has(route));
   const apiGaps = discoveredApis.filter(({ route }) => !registeredApis.has(route));
+  const crossProductWorkflowArtifacts = findCrossProductWorkflowArtifacts(files, results);
 
   if (files.length > 0) results.pass.push(`Scanned ${files.length} files across ${SCAN_ROOTS.join(", ")}.`);
   else results.fail.push("Repository scan found no files in required scope.");
 
   if (protectedFiles.length > 0) results.pass.push(`Reported ${protectedFiles.length} protected/read-only files without modifying them.`);
+  if (crossProductWorkflowArtifacts.length === 0) {
+    results.pass.push("GitHub workflows contain no FanMind cross-product references.");
+  } else {
+    results.fail.push(`${crossProductWorkflowArtifacts.length} GitHub workflow(s) reference an unrelated product and must be removed from WellFit.`);
+  }
   if (unmappedFiles.length > 0) results.warning.push(`${unmappedFiles.length} scanned files are not referenced by WORK_MAP.md, product-readiness.json, or repository-inventory.json mapped_files.`);
   if (routeGaps.length > 0) results.warning.push(`${routeGaps.length} app page route(s) are not present in project-register/routes.json.`);
   if (apiGaps.length > 0) results.warning.push(`${apiGaps.length} API route(s) are not present in project-register/apis.json.`);
@@ -196,7 +223,7 @@ function main() {
   }
 
   const passed = results.fail.length === 0;
-  const report = `# WellFit Repository Inventory Check\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## PASS\n\n${renderList(results.pass)}\n\n## FAIL\n\n${renderList(results.fail)}\n\n## WARNING\n\n${renderList(results.warning)}\n\n## Protected Files\n\n${renderList(protectedFiles.slice(0, 200), (file) => `- \`${file}\``, protectedFiles.length > 200 ? "- List truncated in console report; see repository-inventory.json for persistent grouping." : "- None.")}\n\n## Unmapped Files\n\n${renderList(unmappedFiles.slice(0, 250), (file) => `- \`${file}\``, unmappedFiles.length > 250 ? "- List truncated in report. Re-run or inspect repository-inventory.json for a curated persistent list." : "- None.")}\n\n## App Route Register Gaps\n\n${renderList(routeGaps, (item) => `- \`${item.route}\` from \`${item.file}\``)}\n\n## API Register Gaps\n\n${renderList(apiGaps, (item) => `- \`${item.route}\` from \`${item.file}\``)}\n\n## Stale / Duplicate Candidates\n\n${renderList([...staleCandidates, ...duplicateCandidates].slice(0, 250), (item) => `- \`${item.file}\` — ${item.reason}`)}\n\n## Notes\n\n- This check is report-only and does not rewrite files.\n- Warnings are expected during repository inventory work; use them to update existing registers instead of creating parallel architecture.\n`;
+  const report = `# WellFit Repository Inventory Check\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## PASS\n\n${renderList(results.pass)}\n\n## FAIL\n\n${renderList(results.fail)}\n\n## WARNING\n\n${renderList(results.warning)}\n\n## Cross-product Workflow Violations\n\n${renderList(crossProductWorkflowArtifacts, (item) => `- \`${item.file}\` references: ${item.markers.join(", ")}`)}\n\n## Protected Files\n\n${renderList(protectedFiles.slice(0, 200), (file) => `- \`${file}\``, protectedFiles.length > 200 ? "- List truncated in console report; see repository-inventory.json for persistent grouping." : "- None.")}\n\n## Unmapped Files\n\n${renderList(unmappedFiles.slice(0, 250), (file) => `- \`${file}\``, unmappedFiles.length > 250 ? "- List truncated in report. Re-run or inspect repository-inventory.json for a curated persistent list." : "- None.")}\n\n## App Route Register Gaps\n\n${renderList(routeGaps, (item) => `- \`${item.route}\` from \`${item.file}\``)}\n\n## API Register Gaps\n\n${renderList(apiGaps, (item) => `- \`${item.route}\` from \`${item.file}\``)}\n\n## Stale / Duplicate Candidates\n\n${renderList([...staleCandidates, ...duplicateCandidates].slice(0, 250), (item) => `- \`${item.file}\` — ${item.reason}`)}\n\n## Notes\n\n- This check is report-only and does not rewrite files.\n- FanMind references in GitHub workflow files are blocking failures because WellFit must not deploy unrelated products.\n- Warnings are expected during repository inventory work; use them to update existing registers instead of creating parallel architecture.\n`;
 
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.writeFileSync(OUTPUT, report, "utf8");
