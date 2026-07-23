@@ -12,12 +12,15 @@ const {
   clientContext,
 } = require("./beta1Runtime");
 const { calculateLevelFromXp } = require("./beta1DailyMissionProgress");
+const { requirePublishedNearbyMissionLocation } = require("./beta1NearbyMissionLocations");
 
 const MAX_HISTORY_DOCS = 500;
 const ADVENTURE_MISSION_IDS = new Set(adventureCatalog.missions.map((mission) => mission.missionId));
 const ADVENTURE_EVIDENCE_TYPE = "adventure-user-confirmation";
 const ADVENTURE_COMPLETION_POLICY = "once-per-mission-per-user";
 const ADVENTURE_ACCESS_POLICY = "one-time-wfxp-access-per-user";
+const ADVENTURE_LOCATION_POLICY = "nearby-published-location";
+const ADVENTURE_START_RADIUS_KM = Number(adventureCatalog.startRadiusMeters || 500) / 1000;
 
 function safeDocIdPart(value) {
   return encodeURIComponent(String(value || "none")).replace(/\./g, "%2E");
@@ -67,6 +70,8 @@ async function readAdventureMission(db, missionId, HttpsError) {
     || mission.catalogId !== adventureCatalog.catalogId
     || mission.completionPolicy !== ADVENTURE_COMPLETION_POLICY
     || mission.accessPolicy !== ADVENTURE_ACCESS_POLICY
+    || mission.locationPolicy !== ADVENTURE_LOCATION_POLICY
+    || Number(mission.startRadiusMeters) !== Number(adventureCatalog.startRadiusMeters)
     || !mission.evidencePolicy
     || !Array.isArray(mission.evidencePolicy.allowedEvidenceTypes)
     || !mission.evidencePolicy.allowedEvidenceTypes.includes(ADVENTURE_EVIDENCE_TYPE)
@@ -74,6 +79,20 @@ async function readAdventureMission(db, missionId, HttpsError) {
     throw new HttpsError("failed-precondition", "Abenteuer ist serverseitig nicht sicher veroeffentlicht.");
   }
   return { snapshot: missionSnapshot, data: mission };
+}
+
+function locationFields(location) {
+  return {
+    locationId: location.locationId,
+    locationTitle: location.title,
+    regionId: location.regionId,
+    countryCode: location.countryCode,
+    locality: location.locality,
+    locationType: location.locationType,
+    locationAuthority: location.locationAuthority,
+    accessStartDistanceMeters: location.distanceMeters,
+    userLocationStored: false,
+  };
 }
 
 function ledgerDocument({
@@ -84,6 +103,7 @@ function ledgerDocument({
   sourceType,
   sourceId,
   metadata,
+  actorUserId = userId,
 }) {
   return {
     ledgerEventId,
@@ -92,7 +112,7 @@ function ledgerDocument({
     reason,
     sourceType,
     sourceId,
-    actorUserId: userId,
+    actorUserId,
     idempotencyKey: ledgerEventId,
     currency: BETA1_INTERNAL_CURRENCY,
     noMonetaryValue: true,
@@ -105,10 +125,10 @@ function ledgerDocument({
   };
 }
 
-function auditDocument({ auditId, userId, actionType, targetType, targetId, metadata }) {
+function auditDocument({ auditId, userId, actionType, targetType, targetId, metadata, actorUserId = userId }) {
   return {
     auditEventId: auditId,
-    actorUserId: userId,
+    actorUserId,
     actionType,
     targetType,
     targetId,
@@ -178,6 +198,14 @@ function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds,
       accessAuthorized: true,
       accessCostWfxp: Math.max(0, Math.floor(Number(attempt.accessCostWfxp || 0))),
       accessLedgerEventId: optionalString(attempt.accessLedgerEventId, 220),
+      locationId: optionalString(attempt.locationId, 160),
+      locationTitle: optionalString(attempt.locationTitle, 120),
+      regionId: optionalString(attempt.regionId, 80),
+      countryCode: optionalString(attempt.countryCode, 8),
+      locality: optionalString(attempt.locality, 120),
+      locationType: optionalString(attempt.locationType, 80),
+      locationAuthority: optionalString(attempt.locationAuthority, 80),
+      accessStartDistanceMeters: Math.max(0, Math.floor(Number(attempt.accessStartDistanceMeters || 0))),
       evidenceId: evidence ? evidence.id : null,
       reviewStatus: evidence ? optionalString(evidence.data.reviewStatus, 80) || "pending-server-review" : null,
       serverValidationStatus: evidence ? optionalString(evidence.data.serverValidationStatus, 120) || "evidence-received" : null,
@@ -200,6 +228,13 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
     if (mission.data.childAllowed === true || optionalString(data.childProfileId, 160)) {
       throw new HttpsError("failed-precondition", "Child Profiles sind fuer den ersten Abenteuerkatalog deaktiviert.");
     }
+    const location = await requirePublishedNearbyMissionLocation(db, {
+      locationId: data.locationId,
+      missionId,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      maxDistanceKm: ADVENTURE_START_RADIUS_KM,
+    }, HttpsError);
 
     const attemptId = adventureMissionAttemptId(userId, missionId);
     const accessLedgerEventId = adventureAccessLedgerId(userId, missionId);
@@ -213,7 +248,7 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
     const walletRef = await getWalletRef(db, userId, null);
     const accessCostWfxp = Math.max(0, Math.floor(Number(mission.data.accessCostWfxp || 0)));
 
-    const result = await db.runTransaction(async (transaction) => {
+    return db.runTransaction(async (transaction) => {
       const [attemptSnapshot, completionSnapshot, walletSnapshot, ledgerSnapshot] = await Promise.all([
         transaction.get(attemptRef),
         transaction.get(completionRef),
@@ -235,6 +270,11 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
           accessAuthorized: true,
           missionCompletionAuthorized: true,
           xpAuthorized: true,
+          locationId: optionalString(attempt.locationId, 160) || location.locationId,
+          locationTitle: optionalString(attempt.locationTitle, 120) || location.title,
+          regionId: optionalString(attempt.regionId, 80) || location.regionId,
+          locationAuthority: "server-published-nearby",
+          userLocationStored: false,
           idempotent: true,
           noMonetaryValue: true,
           tokenAuthorized: false,
@@ -247,6 +287,7 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         || attempt.missionId !== missionId
         || attempt.completionPolicy !== ADVENTURE_COMPLETION_POLICY
         || attempt.accessPolicy !== ADVENTURE_ACCESS_POLICY
+        || attempt.locationPolicy !== ADVENTURE_LOCATION_POLICY
       )) {
         throw new HttpsError("failed-precondition", "Deterministischer Abenteuer-Attempt ist inkonsistent.");
       }
@@ -265,6 +306,11 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
           accessAuthorized: true,
           missionCompletionAuthorized: false,
           xpAuthorized: false,
+          locationId: optionalString(attempt.locationId, 160),
+          locationTitle: optionalString(attempt.locationTitle, 120),
+          regionId: optionalString(attempt.regionId, 80),
+          locationAuthority: "server-published-nearby",
+          userLocationStored: false,
           idempotent: true,
           noMonetaryValue: true,
           tokenAuthorized: false,
@@ -296,6 +342,11 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
             accessAuthorized: false,
             missionCompletionAuthorized: false,
             xpAuthorized: false,
+            locationId: location.locationId,
+            locationTitle: location.title,
+            regionId: location.regionId,
+            locationAuthority: location.locationAuthority,
+            userLocationStored: false,
             idempotent: false,
             noMonetaryValue: true,
             tokenAuthorized: false,
@@ -303,6 +354,16 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
           };
         }
         remainingWfxp = currentBalance - accessCostWfxp;
+        const accessMetadata = {
+          missionId,
+          catalogId: adventureCatalog.catalogId,
+          locationId: location.locationId,
+          regionId: location.regionId,
+          locality: location.locality,
+          startDistanceMeters: location.distanceMeters,
+          locationAuthority: location.locationAuthority,
+          userLocationStored: false,
+        };
         const ledger = ledgerDocument({
           ledgerEventId: accessLedgerEventId,
           userId,
@@ -310,7 +371,7 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
           reason: "adventure-access",
           sourceType: "adventureMissionAttempt",
           sourceId: attemptId,
-          metadata: { missionId, catalogId: adventureCatalog.catalogId },
+          metadata: accessMetadata,
         });
         transaction.set(ledgerRef, ledger);
         transaction.set(legacyLedgerRef, ledger);
@@ -332,6 +393,7 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
       }
 
       const accessedAt = new Date().toISOString();
+      const storedLocation = locationFields(location);
       transaction.set(attemptRef, {
         attemptId,
         missionId,
@@ -341,11 +403,13 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         catalogVersion: adventureCatalog.version,
         completionPolicy: ADVENTURE_COMPLETION_POLICY,
         accessPolicy: ADVENTURE_ACCESS_POLICY,
+        locationPolicy: ADVENTURE_LOCATION_POLICY,
         accessAuthorized: true,
         accessStatus: "paid",
         accessCostWfxp,
         accessLedgerEventId,
         accessedAt,
+        ...storedLocation,
         missionCompletionAuthorized: false,
         xpAuthorized: false,
         ...clientContext(data),
@@ -360,6 +424,7 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         xpLedgerEventId: accessLedgerEventId,
         status: "completed",
         currency: BETA1_INTERNAL_CURRENCY,
+        ...storedLocation,
         noMonetaryValue: true,
         tokenAuthorized: false,
         cashoutAllowed: false,
@@ -372,7 +437,15 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         actionType: "adventure-access-completed",
         targetType: "missionAttempt",
         targetId: attemptId,
-        metadata: { missionId, accessCostWfxp, ledgerEventId: accessLedgerEventId },
+        metadata: {
+          missionId,
+          accessCostWfxp,
+          ledgerEventId: accessLedgerEventId,
+          locationId: location.locationId,
+          regionId: location.regionId,
+          startDistanceMeters: location.distanceMeters,
+          userLocationStored: false,
+        },
       });
       transaction.set(adminActionRef, { adminActionId: adminActionRef.id, ...audit });
       transaction.set(auditEventRef, audit);
@@ -387,14 +460,19 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         accessAuthorized: true,
         missionCompletionAuthorized: false,
         xpAuthorized: false,
+        locationId: location.locationId,
+        locationTitle: location.title,
+        regionId: location.regionId,
+        locality: location.locality,
+        locationAuthority: location.locationAuthority,
+        accessStartDistanceMeters: location.distanceMeters,
+        userLocationStored: false,
         idempotent: recoveredFromLedger,
         noMonetaryValue: true,
         tokenAuthorized: false,
         cashoutAllowed: false,
       };
     });
-
-    return result;
   });
 
   exportsTarget.submitAdventureForReview = onCall(async (request) => {
@@ -417,8 +495,11 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
       || attempt.missionId !== missionId
       || attempt.accessAuthorized !== true
       || attempt.accessStatus !== "paid"
+      || attempt.locationPolicy !== ADVENTURE_LOCATION_POLICY
+      || !optionalString(attempt.locationId, 160)
+      || attempt.locationAuthority !== "server-published-nearby"
     ) {
-      throw new HttpsError("failed-precondition", "Ein serverseitig bezahlter Abenteuerzugang ist erforderlich.");
+      throw new HttpsError("failed-precondition", "Ein serverseitig bezahlter und ortsgepruefter Abenteuerzugang ist erforderlich.");
     }
     if (completionSnapshot.exists && (completionSnapshot.data() || {}).status === "completed") {
       throw new HttpsError("failed-precondition", "Dieses Abenteuer wurde bereits abgeschlossen.");
@@ -440,6 +521,8 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         attemptStatus: optionalString(attempt.status, 80) || "evidence-submitted",
         reviewStatus: existingEvidence.reviewStatus,
         accessAuthorized: true,
+        locationId: attempt.locationId,
+        regionId: attempt.regionId || null,
         missionCompletionAuthorized: false,
         xpAuthorized: false,
         idempotent: true,
@@ -462,6 +545,8 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
           attemptStatus: "evidence-submitted",
           reviewStatus: "pending-server-review",
           accessAuthorized: true,
+          locationId: attempt.locationId,
+          regionId: attempt.regionId || null,
           missionCompletionAuthorized: false,
           xpAuthorized: false,
           idempotent: true,
@@ -494,6 +579,9 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
       metadata: {
         source: "adventure-missions",
         accessLedgerEventId: attempt.accessLedgerEventId,
+        locationId: attempt.locationId,
+        regionId: attempt.regionId || null,
+        locationAuthority: attempt.locationAuthority,
         requiresHumanReview: true,
         grantsClientReward: false,
         rawMediaStored: false,
@@ -518,6 +606,8 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
       attemptStatus: "evidence-submitted",
       reviewStatus: "pending-server-review",
       accessAuthorized: true,
+      locationId: attempt.locationId,
+      regionId: attempt.regionId || null,
       missionCompletionAuthorized: false,
       xpAuthorized: false,
       idempotent: false,
@@ -552,7 +642,7 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
     const auditEventRef = db.collection("auditEvents").doc(rewardLedgerEventId);
     const walletRef = await getWalletRef(db, userId, null);
 
-    const result = await db.runTransaction(async (transaction) => {
+    return db.runTransaction(async (transaction) => {
       const [attemptSnapshot, completionSnapshot, missionSnapshot, evidenceSnapshot, walletSnapshot, rewardLedgerSnapshot] = await Promise.all([
         transaction.get(attemptRef),
         transaction.get(completionRef),
@@ -576,6 +666,8 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
           rewardXp: completion.rewardXp,
           evidenceId: completion.evidenceId,
           remainingWfxp: currentBalance,
+          locationId: completion.locationId || attempt.locationId || null,
+          regionId: completion.regionId || attempt.regionId || null,
           xpAuthorized: true,
           missionCompletionAuthorized: true,
           tokenAuthorized: false,
@@ -592,9 +684,12 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         || attempt.accessAuthorized !== true
         || attempt.accessStatus !== "paid"
         || attempt.completionPolicy !== ADVENTURE_COMPLETION_POLICY
+        || attempt.locationPolicy !== ADVENTURE_LOCATION_POLICY
+        || attempt.locationAuthority !== "server-published-nearby"
+        || !optionalString(attempt.locationId, 160)
         || attempt.latestEvidenceId !== latestEvidenceId
       ) {
-        throw new HttpsError("failed-precondition", "Abenteuer-Attempt hat keine gueltige Zugangs- oder Evidence-Autoritaet.");
+        throw new HttpsError("failed-precondition", "Abenteuer-Attempt hat keine gueltige Zugangs-, Orts- oder Evidence-Autoritaet.");
       }
       if (
         !missionSnapshot.exists
@@ -602,6 +697,7 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         || mission.catalogId !== adventureCatalog.catalogId
         || mission.completionPolicy !== ADVENTURE_COMPLETION_POLICY
         || mission.accessPolicy !== ADVENTURE_ACCESS_POLICY
+        || mission.locationPolicy !== ADVENTURE_LOCATION_POLICY
       ) {
         throw new HttpsError("failed-precondition", "Abenteuer ist serverseitig nicht sicher veroeffentlicht.");
       }
@@ -639,11 +735,15 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
           reason: "mission-completion",
           sourceType: "adventureMissionCompletion",
           sourceId: completionRef.id,
+          actorUserId: "server",
           metadata: {
             missionId,
             attemptId,
             evidenceId: evidenceRef.id,
             catalogId: adventureCatalog.catalogId,
+            locationId: attempt.locationId,
+            regionId: attempt.regionId || null,
+            locationAuthority: attempt.locationAuthority,
           },
         });
         transaction.set(rewardLedgerRef, rewardLedger);
@@ -682,6 +782,15 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         catalogVersion: adventureCatalog.version,
         completionPolicy: ADVENTURE_COMPLETION_POLICY,
         accessPolicy: ADVENTURE_ACCESS_POLICY,
+        locationPolicy: ADVENTURE_LOCATION_POLICY,
+        locationId: attempt.locationId,
+        locationTitle: attempt.locationTitle || null,
+        regionId: attempt.regionId || null,
+        countryCode: attempt.countryCode || null,
+        locality: attempt.locality || null,
+        locationType: attempt.locationType || null,
+        locationAuthority: attempt.locationAuthority,
+        userLocationStored: false,
         completedAt,
         noMonetaryValue: true,
         tokenAuthorized: false,
@@ -697,6 +806,7 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
       const audit = auditDocument({
         auditId: rewardLedgerEventId,
         userId,
+        actorUserId: "server",
         actionType: "adventure-mission-completed",
         targetType: "missionCompletion",
         targetId: completionRef.id,
@@ -706,6 +816,8 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
           evidenceId: evidenceRef.id,
           accessLedgerEventId: attempt.accessLedgerEventId,
           catalogId: adventureCatalog.catalogId,
+          locationId: attempt.locationId,
+          regionId: attempt.regionId || null,
         },
       });
       transaction.set(adminActionRef, { adminActionId: adminActionRef.id, ...audit });
@@ -718,6 +830,8 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         rewardXp,
         evidenceId: evidenceRef.id,
         remainingWfxp,
+        locationId: attempt.locationId,
+        regionId: attempt.regionId || null,
         xpAuthorized: true,
         missionCompletionAuthorized: true,
         tokenAuthorized: false,
@@ -726,8 +840,6 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         idempotent: ledgerWasExisting,
       };
     });
-
-    return result;
   });
 
   exportsTarget.getAdventureProgress = onCall(async (request) => {
@@ -752,7 +864,13 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
         .filter((doc) => {
           const attempt = doc.data() || {};
           const missionId = optionalString(attempt.missionId, 160);
-          return Boolean(missionId && ADVENTURE_MISSION_IDS.has(missionId) && attempt.accessAuthorized === true && attempt.accessStatus === "paid");
+          return Boolean(
+            missionId
+            && ADVENTURE_MISSION_IDS.has(missionId)
+            && attempt.accessAuthorized === true
+            && attempt.accessStatus === "paid"
+            && attempt.locationAuthority === "server-published-nearby"
+          );
         })
         .map((doc) => optionalString((doc.data() || {}).missionId, 160))
         .filter(Boolean),
@@ -770,6 +888,8 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
       catalogVersion: adventureCatalog.version,
       completionPolicy: adventureCatalog.completionPolicy,
       accessPolicy: adventureCatalog.accessPolicy,
+      locationPolicy: adventureCatalog.locationPolicy,
+      startRadiusMeters: adventureCatalog.startRadiusMeters,
       startedMissionIds,
       completedMissionIds,
       activeAttempts,
@@ -779,6 +899,7 @@ function registerBeta1AdventureMissionProgress(exportsTarget, { db, onCall, Http
       ...level,
       walletAvailable: walletSnapshot.exists,
       progressAuthority: "server-read",
+      locationAuthority: "server-published-nearby",
       rewardAuthority: false,
       missionCompletionAuthority: false,
       tokenAuthorized: false,
@@ -795,4 +916,6 @@ module.exports = {
   adventureMissionEvidenceId,
   adventureAccessLedgerId,
   adventureRewardLedgerId,
+  ADVENTURE_LOCATION_POLICY,
+  ADVENTURE_START_RADIUS_KM,
 };
