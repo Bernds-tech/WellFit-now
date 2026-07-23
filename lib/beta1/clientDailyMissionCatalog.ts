@@ -3,12 +3,14 @@ import { auth } from "@/lib/firebase";
 import {
   DAILY_MISSION_CATALOG_ID,
   DAILY_MISSION_CATALOG_VERSION,
+  DAILY_MISSION_COMPLETION_POLICY,
   type DailyMission,
 } from "@/app/missionen/tagesmissionen/missions";
 
 export type Beta1DailyMissionCatalogResult = {
   catalogId: string;
   catalogVersion: string;
+  completionPolicy: typeof DAILY_MISSION_COMPLETION_POLICY;
   count: number;
   currency: "WFXP";
   noMonetaryValue: true;
@@ -21,6 +23,7 @@ type RawCatalogResponse = {
   accepted?: boolean;
   catalogId?: string;
   catalogVersion?: string;
+  completionPolicy?: string;
   count?: number;
   currency?: string;
   noMonetaryValue?: boolean;
@@ -70,6 +73,7 @@ function mapMission(value: Record<string, unknown>): DailyMission | null {
     || value.evidenceType !== "daily-user-confirmation"
     || value.reviewRequired !== true
     || value.childAllowed !== false
+    || value.completionPolicy !== DAILY_MISSION_COMPLETION_POLICY
     || value.status !== "published"
     || value.noMonetaryValue !== true
     || value.tokenAuthorized === true
@@ -108,6 +112,7 @@ export async function ensureDailyMissionCatalogForAdmin(): Promise<Beta1DailyMis
       !data.accepted
       || data.catalogId !== DAILY_MISSION_CATALOG_ID
       || data.catalogVersion !== DAILY_MISSION_CATALOG_VERSION
+      || data.completionPolicy !== DAILY_MISSION_COMPLETION_POLICY
       || data.currency !== "WFXP"
       || data.noMonetaryValue !== true
       || data.tokenAuthorized === true
@@ -120,6 +125,7 @@ export async function ensureDailyMissionCatalogForAdmin(): Promise<Beta1DailyMis
     return {
       catalogId: data.catalogId,
       catalogVersion: data.catalogVersion,
+      completionPolicy: DAILY_MISSION_COMPLETION_POLICY,
       count: missions.length,
       currency: "WFXP",
       noMonetaryValue: true,
