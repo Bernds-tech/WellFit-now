@@ -1,10 +1,9 @@
 "use client";
 
 /* eslint-disable react-hooks/set-state-in-effect */
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DeviceLocationSnapshot } from "@/app/components/DeviceLocationCard";
 import { WELLFIT_LAST_DEVICE_LOCATION_KEY } from "@/app/components/DeviceLocationCard";
 
@@ -40,6 +39,8 @@ type StoredPermissions = {
 };
 
 const GOOGLE_MAPS_SCRIPT_ID = "wellfit-google-maps-js";
+const GLOBAL_FALLBACK_CENTER = { lat: 20, lng: 0 };
+const GLOBAL_FALLBACK_ZOOM = 2;
 
 const OWN_LOCATION_DOT_SVG = encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -48,72 +49,62 @@ const OWN_LOCATION_DOT_SVG = encodeURIComponent(`
 </svg>
 `);
 
-const detectDeviceType = (): DeviceLocationSnapshot["deviceType"] => {
+function detectDeviceType(): DeviceLocationSnapshot["deviceType"] {
   if (typeof navigator === "undefined") return "unknown";
   const userAgent = navigator.userAgent.toLowerCase();
   if (/ipad|tablet/.test(userAgent)) return "tablet";
   if (/android|iphone|ipod|mobile/.test(userAgent)) return "mobile";
   if (/windows|macintosh|linux|x11/.test(userAgent)) return "desktop";
   return "unknown";
-};
+}
 
-const readStoredPermissions = (): StoredPermissions => {
+function readStoredPermissions(): StoredPermissions {
   if (typeof window === "undefined") return {};
   try {
-    return JSON.parse(localStorage.getItem("wellfit-permissions") ?? "{}") as StoredPermissions;
+    return JSON.parse(window.localStorage.getItem("wellfit-permissions") ?? "{}") as StoredPermissions;
   } catch {
     return {};
   }
-};
+}
 
-const mergeStoredPermissions = (patch: StoredPermissions) => {
+function mergeStoredPermissions(patch: StoredPermissions) {
   if (typeof window === "undefined") return;
   try {
     const current = readStoredPermissions();
-    localStorage.setItem("wellfit-permissions", JSON.stringify({ ...current, ...patch }));
+    window.localStorage.setItem("wellfit-permissions", JSON.stringify({ ...current, ...patch }));
   } catch {}
-};
+}
 
-const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
+function readLastDeviceLocation(): DeviceLocationSnapshot | null {
   if (typeof window === "undefined") return null;
-
   try {
-    const saved = localStorage.getItem(WELLFIT_LAST_DEVICE_LOCATION_KEY);
-    return saved ? (JSON.parse(saved) as DeviceLocationSnapshot) : null;
+    const saved = window.localStorage.getItem(WELLFIT_LAST_DEVICE_LOCATION_KEY);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved) as DeviceLocationSnapshot;
+    return Number.isFinite(parsed.latitude) && Number.isFinite(parsed.longitude) ? parsed : null;
   } catch {
     return null;
   }
-};
+}
 
-const writeLastDeviceLocation = (snapshot: DeviceLocationSnapshot) => {
+function writeLastDeviceLocation(snapshot: DeviceLocationSnapshot) {
   if (typeof window === "undefined") return;
-
   try {
-    localStorage.setItem(WELLFIT_LAST_DEVICE_LOCATION_KEY, JSON.stringify(snapshot));
+    window.localStorage.setItem(WELLFIT_LAST_DEVICE_LOCATION_KEY, JSON.stringify(snapshot));
     window.dispatchEvent(new CustomEvent("wellfit-device-location-updated", { detail: snapshot }));
   } catch {}
-};
+}
 
-const loadGoogleMaps = (apiKey: string): Promise<void> => {
+function loadGoogleMaps(apiKey: string): Promise<void> {
   const browserWindow = window as GoogleMapsWindow;
-
   if (browserWindow.google?.maps) return Promise.resolve();
-  if (browserWindow.__wellfitGoogleMapsPromise) {
-    return browserWindow.__wellfitGoogleMapsPromise;
-  }
+  if (browserWindow.__wellfitGoogleMapsPromise) return browserWindow.__wellfitGoogleMapsPromise;
 
   browserWindow.__wellfitGoogleMapsPromise = new Promise((resolve, reject) => {
-    const existingScript = document.getElementById(
-      GOOGLE_MAPS_SCRIPT_ID,
-    ) as HTMLScriptElement | null;
-
+    const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID) as HTMLScriptElement | null;
     if (existingScript) {
       existingScript.addEventListener("load", () => resolve(), { once: true });
-      existingScript.addEventListener(
-        "error",
-        () => reject(new Error("Google Maps konnte nicht geladen werden.")),
-        { once: true },
-      );
+      existingScript.addEventListener("error", () => reject(new Error("Google Maps konnte nicht geladen werden.")), { once: true });
       return;
     }
 
@@ -123,20 +114,23 @@ const loadGoogleMaps = (apiKey: string): Promise<void> => {
     script.async = true;
     script.defer = true;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Google Maps konnte nicht geladen werden."));
+    script.onerror = () => {
+      browserWindow.__wellfitGoogleMapsPromise = undefined;
+      reject(new Error("Google Maps konnte nicht geladen werden."));
+    };
     document.head.appendChild(script);
   });
 
   return browserWindow.__wellfitGoogleMapsPromise;
-};
+}
 
-const markerColor = (marker: GoogleMissionMapMarker) => {
+function markerColor(marker: GoogleMissionMapMarker) {
   const status = marker.status?.toLowerCase() ?? "";
   if (status.includes("aktiv")) return "#f97316";
   if (status.includes("gesperrt")) return "#eab308";
-  if (status.includes("live")) return "#22c55e";
+  if (status.includes("live") || status.includes("veröffentlicht")) return "#22c55e";
   return "#0891b2";
-};
+}
 
 export default function GoogleMissionMap({
   title,
@@ -154,20 +148,26 @@ export default function GoogleMissionMap({
   const ownLocationMarkerRef = useRef<any>(null);
   const ownLocationCircleRef = useRef<any>(null);
   const autoLocationRequestedRef = useRef(false);
-  const [loadState, setLoadState] = useState<
-    "missing-key" | "loading" | "ready" | "error"
-  >("loading");
+  const [loadState, setLoadState] = useState<"missing-key" | "loading" | "ready" | "error">("loading");
   const [ownLocation, setOwnLocation] = useState<DeviceLocationSnapshot | null>(() => readLastDeviceLocation());
-  const [, setLocationMessage] = useState<string>("");
-  const [, setIsLocating] = useState(false);
+  const [locationMessage, setLocationMessage] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  const validMarkers = useMemo(
+    () => markers.filter((marker) => Number.isFinite(marker.lat) && Number.isFinite(marker.lng)),
+    [markers],
+  );
+  const selectedMarker = useMemo(
+    () => validMarkers.find((marker) => marker.id === selectedMarkerId) ?? null,
+    [selectedMarkerId, validMarkers],
+  );
 
   const focusOwnLocation = useCallback((location: DeviceLocationSnapshot | null = ownLocation) => {
     const map = mapRef.current;
     if (!map || !location) return;
-
     map.panTo({ lat: location.latitude, lng: location.longitude });
-    map.setZoom(Math.max(map.getZoom?.() ?? zoom, 15));
+    map.setZoom(Math.max(Number(map.getZoom?.() ?? zoom), 15));
   }, [ownLocation, zoom]);
 
   const requestOwnLocation = useCallback((options?: { silent?: boolean }) => {
@@ -178,24 +178,22 @@ export default function GoogleMissionMap({
 
     setIsLocating(true);
     if (!options?.silent) setLocationMessage("Standort wird ermittelt ...");
-
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const snapshot: DeviceLocationSnapshot = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          accuracyMeters: Math.round(position.coords.accuracy),
+          accuracyMeters: Math.max(0, Math.round(position.coords.accuracy)),
           deviceType: detectDeviceType(),
           source: "browser-geolocation",
           capturedAt: new Date().toISOString(),
         };
-
         mergeStoredPermissions({ location: true, locationTracking: true });
         setOwnLocation(snapshot);
         writeLastDeviceLocation(snapshot);
         setLocationMessage(`Standort aktiv · Genauigkeit ca. ${snapshot.accuracyMeters} m`);
         setIsLocating(false);
-        setTimeout(() => focusOwnLocation(snapshot), 50);
+        window.setTimeout(() => focusOwnLocation(snapshot), 50);
       },
       (error) => {
         setIsLocating(false);
@@ -208,89 +206,68 @@ export default function GoogleMissionMap({
     );
   }, [focusOwnLocation]);
 
-  const renderOwnLocation = useCallback(
-    (google: any, map: any, location: DeviceLocationSnapshot | null) => {
-      if (!google?.maps || !map) return;
+  const renderOwnLocation = useCallback((google: any, map: any, location: DeviceLocationSnapshot | null) => {
+    if (!google?.maps || !map) return;
+    if (!location) {
+      ownLocationMarkerRef.current?.setMap(null);
+      ownLocationCircleRef.current?.setMap(null);
+      ownLocationMarkerRef.current = null;
+      ownLocationCircleRef.current = null;
+      return;
+    }
 
-      if (!location) {
-        ownLocationMarkerRef.current?.setMap(null);
-        ownLocationCircleRef.current?.setMap(null);
-        ownLocationMarkerRef.current = null;
-        ownLocationCircleRef.current = null;
-        return;
-      }
+    const position = { lat: location.latitude, lng: location.longitude };
+    const ownLocationIcon = {
+      url: `data:image/svg+xml;charset=UTF-8,${OWN_LOCATION_DOT_SVG}`,
+      scaledSize: new google.maps.Size(32, 32),
+      anchor: new google.maps.Point(16, 16),
+    };
 
-      const position = {
-        lat: location.latitude,
-        lng: location.longitude,
-      };
+    if (!ownLocationMarkerRef.current) {
+      ownLocationMarkerRef.current = new google.maps.Marker({
+        position,
+        map,
+        title: `Mein Standort · Genauigkeit ca. ${location.accuracyMeters} m`,
+        icon: ownLocationIcon,
+        zIndex: 999999,
+        optimized: false,
+      });
+    } else {
+      ownLocationMarkerRef.current.setPosition(position);
+      ownLocationMarkerRef.current.setIcon(ownLocationIcon);
+      ownLocationMarkerRef.current.setTitle(`Mein Standort · Genauigkeit ca. ${location.accuracyMeters} m`);
+      ownLocationMarkerRef.current.setMap(map);
+    }
 
-      const ownLocationIcon = {
-        url: `data:image/svg+xml;charset=UTF-8,${OWN_LOCATION_DOT_SVG}`,
-        scaledSize: new google.maps.Size(32, 32),
-        anchor: new google.maps.Point(16, 16),
-      };
-
-      if (!ownLocationMarkerRef.current) {
-        ownLocationMarkerRef.current = new google.maps.Marker({
-          position,
-          map,
-          title: `Mein Standort · Genauigkeit ca. ${location.accuracyMeters} m`,
-          icon: ownLocationIcon,
-          zIndex: 999999,
-          optimized: false,
-        });
-      } else {
-        ownLocationMarkerRef.current.setPosition(position);
-        ownLocationMarkerRef.current.setIcon(ownLocationIcon);
-        ownLocationMarkerRef.current.setTitle(
-          `Mein Standort · Genauigkeit ca. ${location.accuracyMeters} m`,
-        );
-        ownLocationMarkerRef.current.setMap(map);
-      }
-
-      const visibleRadius = Math.max(location.accuracyMeters, 40);
-
-      if (!ownLocationCircleRef.current) {
-        ownLocationCircleRef.current = new google.maps.Circle({
-          map,
-          center: position,
-          radius: visibleRadius,
-          strokeColor: "#1a73e8",
-          strokeOpacity: 0.35,
-          strokeWeight: 1,
-          fillColor: "#1a73e8",
-          fillOpacity: 0.12,
-          clickable: false,
-        });
-      } else {
-        ownLocationCircleRef.current.setCenter(position);
-        ownLocationCircleRef.current.setRadius(visibleRadius);
-        ownLocationCircleRef.current.setOptions({
-          strokeColor: "#1a73e8",
-          strokeOpacity: 0.35,
-          strokeWeight: 1,
-          fillColor: "#1a73e8",
-          fillOpacity: 0.12,
-          clickable: false,
-        });
-        ownLocationCircleRef.current.setMap(map);
-      }
-    },
-    [],
-  );
+    const visibleRadius = Math.max(location.accuracyMeters, 40);
+    if (!ownLocationCircleRef.current) {
+      ownLocationCircleRef.current = new google.maps.Circle({
+        map,
+        center: position,
+        radius: visibleRadius,
+        strokeColor: "#1a73e8",
+        strokeOpacity: 0.35,
+        strokeWeight: 1,
+        fillColor: "#1a73e8",
+        fillOpacity: 0.12,
+        clickable: false,
+      });
+    } else {
+      ownLocationCircleRef.current.setCenter(position);
+      ownLocationCircleRef.current.setRadius(visibleRadius);
+      ownLocationCircleRef.current.setMap(map);
+    }
+  }, []);
 
   useEffect(() => {
     const onLocationUpdate = (event: Event) => {
       const customEvent = event as CustomEvent<DeviceLocationSnapshot>;
       const nextLocation = customEvent.detail ?? readLastDeviceLocation();
       setOwnLocation(nextLocation);
-      if (nextLocation) setTimeout(() => focusOwnLocation(nextLocation), 50);
+      if (nextLocation) window.setTimeout(() => focusOwnLocation(nextLocation), 50);
     };
-
     window.addEventListener("wellfit-device-location-updated", onLocationUpdate);
-    return () =>
-      window.removeEventListener("wellfit-device-location-updated", onLocationUpdate);
+    return () => window.removeEventListener("wellfit-device-location-updated", onLocationUpdate);
   }, [focusOwnLocation]);
 
   useEffect(() => {
@@ -301,25 +278,18 @@ export default function GoogleMissionMap({
 
     let cancelled = false;
     setLoadState("loading");
-
     loadGoogleMaps(apiKey)
       .then(() => {
         if (cancelled || !mapElementRef.current) return;
-
         const google = (window as GoogleMapsWindow).google;
-        if (!google?.maps) throw new Error("Google Maps API nicht verfuegbar.");
-
-        const selected =
-          markers.find((marker) => marker.id === selectedMarkerId) ?? markers[0];
-        const center = ownLocation
-          ? { lat: ownLocation.latitude, lng: ownLocation.longitude }
-          : selected
-            ? { lat: selected.lat, lng: selected.lng }
-            : { lat: 48.2082, lng: 16.3738 };
-
-        const map = new google.maps.Map(mapElementRef.current, {
+        if (!google?.maps) throw new Error("Google Maps API nicht verfügbar.");
+        const storedLocation = readLastDeviceLocation();
+        const center = storedLocation
+          ? { lat: storedLocation.latitude, lng: storedLocation.longitude }
+          : GLOBAL_FALLBACK_CENTER;
+        mapRef.current = new google.maps.Map(mapElementRef.current, {
           center,
-          zoom: ownLocation ? Math.max(zoom, 15) : zoom,
+          zoom: storedLocation ? Math.max(zoom, 15) : GLOBAL_FALLBACK_ZOOM,
           minZoom: 2,
           maxZoom: 20,
           mapTypeControl: true,
@@ -328,37 +298,6 @@ export default function GoogleMissionMap({
           zoomControl: true,
           gestureHandling: "greedy",
         });
-
-        mapRef.current = map;
-
-        markerRefs.current.forEach((marker) => marker.setMap(null));
-        markerRefs.current = markers.map((markerItem) => {
-          const isSelected = markerItem.id === selectedMarkerId;
-          const marker = new google.maps.Marker({
-            position: { lat: markerItem.lat, lng: markerItem.lng },
-            map,
-            title: `${markerItem.title}${
-              markerItem.subtitle ? ` · ${markerItem.subtitle}` : ""
-            }`,
-            label: {
-              text: isSelected ? "★" : markerItem.icon,
-              fontSize: isSelected ? "24px" : "20px",
-            },
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: markerColor(markerItem),
-              fillOpacity: 0.95,
-              strokeColor: isSelected ? "#fde047" : "#ffffff",
-              strokeWeight: isSelected ? 4 : 2,
-              scale: isSelected ? 17 : 14,
-            },
-          });
-
-          marker.addListener("click", () => onSelectMarker(markerItem.id));
-          return marker;
-        });
-
-        renderOwnLocation(google, map, ownLocation);
         setLoadState("ready");
       })
       .catch((error) => {
@@ -369,104 +308,112 @@ export default function GoogleMissionMap({
     return () => {
       cancelled = true;
     };
-  }, [
-    apiKey,
-    markers,
-    onSelectMarker,
-    ownLocation,
-    renderOwnLocation,
-    selectedMarkerId,
-    zoom,
-  ]);
+  }, [apiKey, zoom]);
 
   useEffect(() => {
-    if (!autoRequestLocation || autoLocationRequestedRef.current || ownLocation || loadState !== "ready") return;
-
-    autoLocationRequestedRef.current = true;
-    requestOwnLocation({ silent: true });
-  }, [autoRequestLocation, loadState, ownLocation, requestOwnLocation]);
-
-  useEffect(() => {
-    if (loadState === "ready" && ownLocation) focusOwnLocation(ownLocation);
-  }, [focusOwnLocation, loadState, ownLocation]);
-
-  useEffect(() => {
+    if (loadState !== "ready") return;
     const google = (window as GoogleMapsWindow).google;
     const map = mapRef.current;
     if (!google?.maps || !map) return;
 
-    markerRefs.current.forEach((marker, index) => {
-      const markerItem = markers[index];
-      if (!markerItem) return;
-
+    markerRefs.current.forEach((marker) => marker.setMap(null));
+    markerRefs.current = validMarkers.map((markerItem) => {
       const isSelected = markerItem.id === selectedMarkerId;
-      marker.setLabel({
-        text: isSelected ? "★" : markerItem.icon,
-        fontSize: isSelected ? "24px" : "20px",
+      const marker = new google.maps.Marker({
+        position: { lat: markerItem.lat, lng: markerItem.lng },
+        map,
+        title: `${markerItem.title}${markerItem.subtitle ? ` · ${markerItem.subtitle}` : ""}`,
+        label: { text: isSelected ? "★" : markerItem.icon, fontSize: isSelected ? "24px" : "20px" },
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: markerColor(markerItem),
+          fillOpacity: 0.95,
+          strokeColor: isSelected ? "#fde047" : "#ffffff",
+          strokeWeight: isSelected ? 4 : 2,
+          scale: isSelected ? 17 : 14,
+        },
       });
-      marker.setIcon({
-        path: google.maps.SymbolPath.CIRCLE,
-        fillColor: markerColor(markerItem),
-        fillOpacity: 0.95,
-        strokeColor: isSelected ? "#fde047" : "#ffffff",
-        strokeWeight: isSelected ? 4 : 2,
-        scale: isSelected ? 17 : 14,
-      });
+      marker.addListener("click", () => onSelectMarker(markerItem.id));
+      return marker;
     });
-  }, [markers, selectedMarkerId]);
+
+    if (!ownLocation && validMarkers.length > 1) {
+      const bounds = new google.maps.LatLngBounds();
+      validMarkers.forEach((marker) => bounds.extend({ lat: marker.lat, lng: marker.lng }));
+      map.fitBounds(bounds, 72);
+    } else if (!ownLocation && validMarkers.length === 0) {
+      map.panTo(GLOBAL_FALLBACK_CENTER);
+      map.setZoom(GLOBAL_FALLBACK_ZOOM);
+    }
+  }, [loadState, onSelectMarker, ownLocation, selectedMarkerId, validMarkers]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (loadState !== "ready" || !map || !selectedMarker) return;
+    map.panTo({ lat: selectedMarker.lat, lng: selectedMarker.lng });
+    map.setZoom(Math.max(Number(map.getZoom?.() ?? zoom), zoom));
+  }, [loadState, selectedMarker, zoom]);
 
   useEffect(() => {
     const google = (window as GoogleMapsWindow).google;
     renderOwnLocation(google, mapRef.current, ownLocation);
-  }, [ownLocation, renderOwnLocation]);
+    if (loadState === "ready" && ownLocation) focusOwnLocation(ownLocation);
+  }, [focusOwnLocation, loadState, ownLocation, renderOwnLocation]);
+
+  useEffect(() => {
+    if (!autoRequestLocation || autoLocationRequestedRef.current || ownLocation) return;
+    autoLocationRequestedRef.current = true;
+    requestOwnLocation({ silent: true });
+  }, [autoRequestLocation, ownLocation, requestOwnLocation]);
+
+  useEffect(() => () => {
+    markerRefs.current.forEach((marker) => marker.setMap(null));
+    ownLocationMarkerRef.current?.setMap(null);
+    ownLocationCircleRef.current?.setMap(null);
+  }, []);
 
   if (loadState === "missing-key") {
     return (
-      <div
-        className={`relative flex ${minHeightClassName} flex-col items-center justify-center rounded-[22px] border border-yellow-300/30 bg-[#053841]/95 p-8 text-center shadow-[0_14px_34px_rgba(0,0,0,0.2)]`}
-      >
+      <div className={`relative flex ${minHeightClassName} flex-col items-center justify-center rounded-[22px] border border-yellow-300/30 bg-[#053841]/95 p-8 text-center shadow-[0_14px_34px_rgba(0,0,0,0.2)]`}>
         <div className="text-5xl">🗺️</div>
-        <h2 className="mt-4 text-3xl font-extrabold text-white">
-          Google Maps Key fehlt
-        </h2>
+        <h2 className="mt-4 text-3xl font-extrabold text-white">Google Maps Key fehlt</h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/75">
-          Setze `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, dann erscheint hier die echte
-          Google-Straßenkarte mit Zoom, Drag und Markern.
+          Setze `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, dann erscheint hier die weltweite Google-Straßenkarte mit Zoom, Drag und sicheren Missionsorten.
         </p>
       </div>
     );
   }
 
   return (
-    <div
-      className={`relative ${minHeightClassName} overflow-hidden rounded-[22px] border border-cyan-300/20 bg-[#053841] shadow-[0_14px_34px_rgba(0,0,0,0.2)]`}
-    >
+    <div className={`relative ${minHeightClassName} overflow-hidden rounded-[22px] border border-cyan-300/20 bg-[#053841] shadow-[0_14px_34px_rgba(0,0,0,0.2)]`}>
       <div ref={mapElementRef} className="absolute inset-0" />
 
       {loadState === "loading" && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#053841]/90 text-lg font-bold text-white">
-          Google Maps wird geladen ...
-        </div>
+        <div className="absolute inset-0 flex items-center justify-center bg-[#053841]/90 text-lg font-bold text-white">Google Maps wird geladen ...</div>
       )}
-
       {loadState === "error" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#053841]/95 p-8 text-center">
           <div className="text-5xl">⚠️</div>
-          <h2 className="mt-4 text-2xl font-extrabold text-white">
-            Google Maps konnte nicht geladen werden
-          </h2>
-          <p className="mt-3 max-w-xl text-sm text-white/70">
-            Bitte API-Key, Domain-Referrer, Billing und Maps JavaScript API
-            prüfen.
-          </p>
+          <h2 className="mt-4 text-2xl font-extrabold text-white">Google Maps konnte nicht geladen werden</h2>
+          <p className="mt-3 max-w-xl text-sm text-white/70">Bitte API-Key, Domain-Referrer, Billing und Maps JavaScript API prüfen.</p>
         </div>
       )}
 
-      <div className="pointer-events-none absolute left-5 top-5 z-10 rounded-xl bg-white/95 px-4 py-3 text-slate-800 shadow-lg backdrop-blur-sm">
-        <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">
-          {title}
-        </p>
+      <div className="pointer-events-none absolute left-5 top-5 z-10 max-w-[70%] rounded-xl bg-white/95 px-4 py-3 text-slate-800 shadow-lg backdrop-blur-sm">
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">{title}</p>
         <p className="mt-1 text-sm font-semibold">{subtitle}</p>
+      </div>
+
+      <div className="absolute bottom-5 right-5 z-10 flex max-w-[70%] flex-col items-end gap-2">
+        {locationMessage && <p className="rounded-lg bg-slate-950/80 px-3 py-2 text-right text-xs font-semibold text-white shadow-lg">{locationMessage}</p>}
+        <button
+          type="button"
+          onClick={() => ownLocation ? focusOwnLocation() : requestOwnLocation()}
+          disabled={isLocating || loadState !== "ready"}
+          className="rounded-xl bg-white/95 px-4 py-2 text-sm font-black text-cyan-800 shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isLocating ? "Standort wird ermittelt ..." : ownLocation ? "Zu meinem Standort" : "Standort freigeben"}
+        </button>
       </div>
     </div>
   );
