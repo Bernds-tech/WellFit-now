@@ -8,6 +8,7 @@ const {
   writeAudit,
 } = require("./beta1Runtime");
 const { registerBeta1DailyMissionCatalog } = require("./beta1DailyMissionCatalog");
+const { registerBeta1DailyMissionProgress } = require("./beta1DailyMissionProgress");
 
 const MISSION_EVIDENCE_REVIEW_STATUSES = new Set([
   "pending-server-review",
@@ -47,10 +48,10 @@ function publicMissionEvidence(doc) {
 function registerBeta1SafetyAdmin(exportsTarget, deps) {
   const { db, onCall, HttpsError } = deps;
 
-  // The daily catalog is an admin-controlled mission operation and reuses the
-  // existing Beta-1 callable registration surface instead of adding another
-  // Functions entrypoint or parallel mission service.
+  // Daily mission catalog and progress use the existing Beta-1 mission, evidence,
+  // completion and WFXP runtime. No parallel mission or economy service is created.
   registerBeta1DailyMissionCatalog(exportsTarget, deps);
+  registerBeta1DailyMissionProgress(exportsTarget, deps);
 
   // User-owned status projection for the evidence-review completion loop.
   // It exposes no evidence payload, no other-user data and no write authority.
