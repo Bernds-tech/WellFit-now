@@ -1,6 +1,8 @@
 import type { RewardPreviewDecision } from "@/lib/economy";
 
 export type PersonalMission = {
+  id?: string;
+  serverBacked?: boolean;
   title: string;
   steps: number;
   activity: string;
