@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { getClientTimeZone } from "@/lib/beta1/clientUserContext";
 import {
   fetchWeeklyMissionProgress,
   reconcileWeeklyMissionAttempt,
@@ -23,6 +24,10 @@ export type WeeklyMissionState = {
   weekKey: string | null;
   weekStartDateKey: string | null;
   weekEndDateKey: string | null;
+  timeZone: string;
+  calendarAuthority: "server-user-time-zone" | "device-preview";
+  timeZoneChangeDeferred: boolean;
+  nextTimeZoneChangeAt: string | null;
   weeklyGoal: number;
   goalCompleted: boolean;
   walletBalance: number;
@@ -65,6 +70,10 @@ function emptyState(userId: string | null, ready = false): WeeklyMissionState {
     weekKey: null,
     weekStartDateKey: null,
     weekEndDateKey: null,
+    timeZone: getClientTimeZone(),
+    calendarAuthority: "device-preview",
+    timeZoneChangeDeferred: false,
+    nextTimeZoneChangeAt: null,
     weeklyGoal: 3,
     goalCompleted: false,
     walletBalance: 0,
@@ -95,6 +104,10 @@ function stateFromProjection(
     weekKey: projection.weekKey,
     weekStartDateKey: projection.weekStartDateKey,
     weekEndDateKey: projection.weekEndDateKey,
+    timeZone: projection.timeZone,
+    calendarAuthority: projection.calendarAuthority,
+    timeZoneChangeDeferred: projection.timeZoneChangeDeferred,
+    nextTimeZoneChangeAt: projection.nextTimeZoneChangeAt,
     weeklyGoal: projection.weeklyGoal,
     goalCompleted: projection.goalCompleted,
     walletBalance: projection.walletBalance,
