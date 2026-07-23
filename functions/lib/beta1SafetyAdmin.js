@@ -9,6 +9,7 @@ const {
 } = require("./beta1Runtime");
 const { registerBeta1DailyMissionCatalog } = require("./beta1DailyMissionCatalog");
 const { registerBeta1DailyMissionProgress } = require("./beta1DailyMissionProgress");
+const { registerBeta1PoseEvidence } = require("./beta1PoseEvidence");
 
 const MISSION_EVIDENCE_REVIEW_STATUSES = new Set([
   "pending-server-review",
@@ -24,8 +25,67 @@ function timestampToIso(value) {
   return null;
 }
 
-function publicMissionEvidence(doc) {
+function boundedNumber(value, fallback, min, max, digits = 3) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Number(Math.max(min, Math.min(max, number)).toFixed(digits));
+}
+
+function safePoseSummary(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return {
+    schemaVersion: optionalString(value.schemaVersion, 80) || "beta1-pose-summary-v1",
+    exercise: optionalString(value.exercise, 80) || "unknown",
+    targetReps: Math.floor(boundedNumber(value.targetReps, 0, 0, 100, 0)),
+    validReps: Math.floor(boundedNumber(value.validReps, 0, 0, 250, 0)),
+    invalidReps: Math.floor(boundedNumber(value.invalidReps, 0, 0, 250, 0)),
+    qualityScore: boundedNumber(value.qualityScore, 0, 0, 100, 1),
+    confidence: boundedNumber(value.confidence, 0, 0, 1, 3),
+    moodSignal: optionalString(value.moodSignal, 40),
+    rawMediaStored: value.rawMediaStored === true,
+    rawMediaUploaded: value.rawMediaUploaded === true,
+    onDeviceAnalysis: value.onDeviceAnalysis === true,
+  };
+}
+
+async function readPoseEvidenceProjection(db, evidenceData) {
+  const metadata = evidenceData.metadata && typeof evidenceData.metadata === "object"
+    ? evidenceData.metadata
+    : {};
+  if (metadata.source !== "mobile-pose") {
+    return { poseProofStatus: "not-applicable", poseSummary: null };
+  }
+  const proofEventId = optionalString(metadata.trackingProofEventId, 180);
+  if (!proofEventId) {
+    return { poseProofStatus: "missing-server-record", poseSummary: null };
+  }
+  const proofSnapshot = await db.collection("trackingProofEvents").doc(proofEventId).get();
+  if (!proofSnapshot.exists) {
+    return { poseProofStatus: "missing-server-record", poseSummary: null };
+  }
+  const proof = proofSnapshot.data() || {};
+  const ownerMatches = proof.userId === evidenceData.ownerUserId || proof.ownerUserId === evidenceData.ownerUserId;
+  if (
+    !ownerMatches
+    || proof.missionId !== evidenceData.missionId
+    || proof.proofType !== "pose"
+    || proof.serverValidationStatus !== "pose-summary-received"
+  ) {
+    return { poseProofStatus: "mismatched-server-record", poseSummary: null };
+  }
+  const poseSummary = safePoseSummary(proof.proofSummary);
+  if (!poseSummary) {
+    return { poseProofStatus: "invalid-server-summary", poseSummary: null };
+  }
+  return {
+    poseProofStatus: "verified-server-record",
+    poseSummary,
+  };
+}
+
+async function publicMissionEvidence(db, doc) {
   const data = doc.data() || {};
+  const poseProjection = await readPoseEvidenceProjection(db, data);
   return {
     evidenceId: doc.id,
     attemptId: optionalString(data.attemptId, 180),
@@ -40,6 +100,7 @@ function publicMissionEvidence(doc) {
     metadataKeys: data.metadata && typeof data.metadata === "object"
       ? Object.keys(data.metadata).filter((key) => typeof key === "string").slice(0, 12)
       : [],
+    ...poseProjection,
     createdAt: timestampToIso(data.createdAt),
     reviewedAt: timestampToIso(data.reviewedAt) || optionalString(data.reviewedAt, 80),
   };
@@ -48,10 +109,11 @@ function publicMissionEvidence(doc) {
 function registerBeta1SafetyAdmin(exportsTarget, deps) {
   const { db, onCall, HttpsError } = deps;
 
-  // Daily mission catalog and progress use the existing Beta-1 mission, evidence,
-  // completion and WFXP runtime. No parallel mission or economy service is created.
+  // These modules reuse the existing Beta-1 mission, evidence, completion and
+  // WFXP runtime. No parallel mission or economy service is created.
   registerBeta1DailyMissionCatalog(exportsTarget, deps);
   registerBeta1DailyMissionProgress(exportsTarget, deps);
+  registerBeta1PoseEvidence(exportsTarget, deps);
 
   // User-owned status projection for the evidence-review completion loop.
   // It exposes no evidence payload, no other-user data and no write authority.
@@ -120,11 +182,11 @@ function registerBeta1SafetyAdmin(exportsTarget, deps) {
     }
     const requestedLimit = normalizedPositiveInteger(data.limit, 50, 100);
     const snapshot = await db.collection("missionEvidence").limit(100).get();
-    const evidence = snapshot.docs
-      .map(publicMissionEvidence)
-      .filter((item) => item.reviewStatus === reviewStatus)
-      .sort((left, right) => String(right.createdAt || "").localeCompare(String(left.createdAt || "")))
+    const selectedDocs = snapshot.docs
+      .filter((doc) => (doc.data() || {}).reviewStatus === reviewStatus)
+      .sort((left, right) => String(timestampToIso((right.data() || {}).createdAt) || "").localeCompare(String(timestampToIso((left.data() || {}).createdAt) || "")))
       .slice(0, requestedLimit);
+    const evidence = await Promise.all(selectedDocs.map((doc) => publicMissionEvidence(db, doc)));
     return {
       accepted: true,
       reviewStatus,
@@ -132,6 +194,7 @@ function registerBeta1SafetyAdmin(exportsTarget, deps) {
       count: evidence.length,
       rawMetadataIncluded: false,
       storageContentIncluded: false,
+      poseSummaryIncluded: true,
     };
   });
 
@@ -161,4 +224,8 @@ function registerBeta1SafetyAdmin(exportsTarget, deps) {
   });
 }
 
-module.exports = { registerBeta1SafetyAdmin };
+module.exports = {
+  registerBeta1SafetyAdmin,
+  safePoseSummary,
+  readPoseEvidenceProjection,
+};
