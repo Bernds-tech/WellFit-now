@@ -5,23 +5,14 @@ import { useEffect, useMemo, useState } from "react";
 import AppSidebar from "@/app/AppSidebar";
 import AppFooter from "@/app/AppFooter";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
-import { mergeClientBetaProjection, readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import DailyHeader from "./DailyHeader";
 import DailySlots from "./DailySlots";
 import FavoritesStrip from "./FavoritesStrip";
 import MissionPool from "./MissionPool";
 import MissionDetails from "./MissionDetails";
 import { dailyMissions } from "./missions";
-import {
-  calculateDailyReward,
-  createDailyMissionRewardPreview,
-  getDailyMissionRewardPreviewLabel,
-} from "./rewardEngine";
-import { fetchDailyMissionCompletion } from "./serverCompletionApi";
-import { fetchDailyMissionProjection } from "./serverProjectionApi";
-import { fetchDailyBuddySyncPreview } from "./serverBuddySyncApi";
+import { calculateDailyReward } from "./rewardEngine";
 import { useDailyMissionFirebase } from "./useDailyMissionFirebase";
-import { applyMissionBuddyBridge } from "../lib/missionBuddyBridge";
 
 type MissionTab = "Tagesmissionen" | "Wochenmissionen" | "Abenteuer" | "Challenge" | "Wettkämpfe" | "Favoriten" | "History";
 
@@ -56,20 +47,20 @@ export default function MissionenPage() {
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
   const [rewardDetailsOpen, setRewardDetailsOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Ziehe Missionen in deine 3 Tagesfelder.");
-  const [projectionSource, setProjectionSource] = useState<"server" | "local">("local");
-  const [projectionHint, setProjectionHint] = useState("Projection Read: lokaler Fallback");
 
   const {
     favoriteIds,
     dailySlotIds,
     startedMissionIds,
     completedMissionIds,
+    activeAttempts,
     setFavoriteIds,
     setDailySlotIds,
-    startMission: persistStartMission,
-    completeMission: persistCompleteMission,
+    startMission: submitMissionForReview,
+    completeMission: reconcileMissionReview,
     ready,
     userId,
+    lastError,
     dailyGoal,
     goalCompleted,
     currentStreak,
@@ -79,43 +70,24 @@ export default function MissionenPage() {
     level,
     xpForCurrentLevel,
     xpForNextLevel,
+    walletAvailable,
+    progressSource,
+    busyMissionId,
   } = useDailyMissionFirebase();
 
   useEffect(() => {
-    if (!ready) return;
-
-    let isCancelled = false;
-
-    fetchDailyMissionProjection({
-      userId,
-      xp,
-      level,
-      currentStreak,
-      longestStreak,
-    }).then((projection) => {
-      if (isCancelled) return;
-      setProjectionSource(projection.source);
-      setProjectionHint(
-        projection.source === "server"
-          ? "Projection Read: API-Vorstufe aktiv"
-          : userId
-            ? "Projection Read: lokaler Fallback"
-            : "Projection Read: kein Profil geladen"
-      );
-    });
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [currentStreak, level, longestStreak, ready, userId, xp]);
+    if (lastError) setStatusMessage(lastError);
+  }, [lastError]);
 
   const selectedMission = dailyMissions.find((mission) => mission.id === selectedMissionId) ?? dailyMissions[0];
-  const isStarted = startedMissionIds.includes(selectedMission.id);
+  const activeAttempt = activeAttempts.find((attempt) => attempt.missionId === selectedMission.id) ?? null;
+  const isStarted = Boolean(activeAttempt) || startedMissionIds.includes(selectedMission.id);
   const isCompleted = completedMissionIds.includes(selectedMission.id);
+  const missionActionBusy = busyMissionId === selectedMission.id;
 
   const recommendedIds = useMemo(
     () => ["daily-plank-60", "daily-8000-steps", "daily-healthy-meal"],
-    []
+    [],
   );
 
   const selectedTypes = dailySlotIds
@@ -123,162 +95,85 @@ export default function MissionenPage() {
     .filter(Boolean) as string[];
 
   const reward = calculateDailyReward(selectedMission, selectedTypes, streakBonus);
-
-  const rewardPreview = useMemo(
-    () =>
-      createDailyMissionRewardPreview({
-        userId,
-        mission: selectedMission,
-        selectedTypes,
-        streakBonus,
-      }),
-    [selectedMission, selectedTypes, streakBonus, userId]
-  );
-
-  const rewardPreviewLabel = getDailyMissionRewardPreviewLabel(rewardPreview);
-  const displayReward = rewardPreview.cappedPoints;
-
-  const createPreviewForMission = (missionId: string) => {
-    const mission = dailyMissions.find((item) => item.id === missionId);
-    if (!mission) return null;
-
-    return {
-      mission,
-      preview: createDailyMissionRewardPreview({
-        userId,
-        mission,
-        selectedTypes,
-        streakBonus,
-      }),
-    };
-  };
+  const displayReward = selectedMission.reward;
 
   const toggleFavorite = async (missionId: string) => {
     const next = favoriteIds.includes(missionId)
       ? favoriteIds.filter((id) => id !== missionId)
       : [...favoriteIds, missionId];
-
-    await setFavoriteIds(next);
-    setStatusMessage(
-      next.includes(missionId)
-        ? "Mission wurde zu Favoriten hinzugefügt."
-        : "Mission wurde aus Favoriten entfernt."
-    );
+    try {
+      await setFavoriteIds(next);
+      setStatusMessage(
+        next.includes(missionId)
+          ? userId
+            ? "Mission wurde serverseitig zu den Favoriten hinzugefügt."
+            : "Mission wurde lokal zu den Favoriten hinzugefügt. Für Server-Sync bitte einloggen."
+          : userId
+            ? "Mission wurde serverseitig aus den Favoriten entfernt."
+            : "Mission wurde lokal aus den Favoriten entfernt.",
+      );
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Favoriten konnten nicht gespeichert werden.");
+    }
   };
 
   const assignSlot = async (slotIndex: number, missionId: string) => {
     const next = dailySlotIds.map((id) => (id === missionId ? null : id));
     next[slotIndex] = missionId;
-
-    await setDailySlotIds(next);
-    setSelectedMissionId(missionId);
-    setDragOverSlot(null);
-    setStatusMessage(
-      userId
-        ? "Mission wurde gespeichert und in deine Tagesauswahl gelegt."
-        : "Mission wurde lokal in deine Tagesauswahl gelegt. Für Sync bitte einloggen."
-    );
+    try {
+      await setDailySlotIds(next);
+      setSelectedMissionId(missionId);
+      setDragOverSlot(null);
+      setStatusMessage(
+        userId
+          ? "Mission wurde über den Server in deine Tagesauswahl gelegt."
+          : "Mission wurde nur lokal vorgemerkt. Für sichere Missionen und WFXP bitte einloggen.",
+      );
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Tagesauswahl konnte nicht gespeichert werden.");
+    }
   };
 
   const clearSlot = async (slotIndex: number) => {
     const next = dailySlotIds.map((id, index) => (index === slotIndex ? null : id));
-    await setDailySlotIds(next);
-    setStatusMessage("Tagesfeld wurde geleert.");
+    try {
+      await setDailySlotIds(next);
+      setStatusMessage(userId ? "Tagesfeld wurde serverseitig geleert." : "Tagesfeld wurde lokal geleert.");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Tagesfeld konnte nicht geleert werden.");
+    }
   };
 
   const startMission = async (missionId: string) => {
-    const result = createPreviewForMission(missionId);
-    if (!result) return;
-
-    if (result.preview.status === "blocked") {
-      setStatusMessage(`${result.mission.title} ist aktuell durch interne Beta-Limits blockiert.`);
-      return;
+    try {
+      setStatusMessage("Mission wird serverseitig gestartet und zur Evidence-Prüfung eingereicht...");
+      const result = await submitMissionForReview(missionId);
+      setStatusMessage(result.message);
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Mission konnte nicht sicher gestartet werden.");
     }
-
-    await persistStartMission(missionId);
-    setStatusMessage(
-      `${result.mission.title} gestartet. ${getDailyMissionRewardPreviewLabel(result.preview)}: ${result.preview.cappedPoints} interne Punkte vorgemerkt.`
-    );
   };
 
   const completeMission = async (missionId: string) => {
-    const result = createPreviewForMission(missionId);
-    if (!result) return;
-
-    if (result.preview.status === "blocked") {
-      setStatusMessage(`${result.mission.title} ist aktuell durch interne Beta-Limits blockiert.`);
-      return;
+    try {
+      setStatusMessage("Der aktuelle Reviewstatus wird serverseitig geprüft...");
+      const result = await reconcileMissionReview(missionId);
+      if (result.kind === "completed") {
+        window.dispatchEvent(new CustomEvent("wellfit-beta1-projection-updated"));
+      }
+      setStatusMessage(result.message);
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Reviewstatus konnte nicht sicher verarbeitet werden.");
     }
-
-    if (result.preview.status === "manual_review") {
-      setStatusMessage(`${result.mission.title} wurde für Review vorgemerkt. Keine direkte Punktegutschrift.`);
-      return;
-    }
-
-    const completion = await fetchDailyMissionCompletion({
-      userId,
-      mission: result.mission,
-      rewardPreview: result.preview,
-      selectedTypes,
-      streakBonus,
-    });
-
-    if (completion.status === "completion_blocked") {
-      setStatusMessage(`${result.mission.title} wurde servernah blockiert. Keine Punktegutschrift.`);
-      return;
-    }
-
-    if (completion.status === "manual_review_required") {
-      setStatusMessage(`${result.mission.title} wurde servernah für Review vorgemerkt. Keine direkte Punktegutschrift.`);
-      return;
-    }
-
-    await persistCompleteMission(missionId, completion.approvedXpPreview || completion.approvedPointsPreview);
-
-    const currentProjection = readClientBetaProjection(userId);
-    const projectedPoints = (currentProjection?.points ?? 0) + completion.approvedPointsPreview;
-    const projectedXp = (currentProjection?.xp ?? xp) + (completion.approvedXpPreview || completion.approvedPointsPreview);
-    const projectedAvatarEnergy = Math.max(0, (currentProjection?.avatar.energy ?? 100) - 4);
-    const projectedAvatarHunger = Math.max(0, (currentProjection?.avatar.hunger ?? 100) - 2);
-
-    mergeClientBetaProjection(userId, {
-      points: projectedPoints,
-      xp: projectedXp,
-      level,
-      avatar: {
-        ...(currentProjection?.avatar ?? {}),
-        energy: projectedAvatarEnergy,
-        hunger: projectedAvatarHunger,
-        level,
-      },
-      source: "mission_completion",
-    });
-
-    const bridgeResult = await applyMissionBuddyBridge({
-      mission: result.mission,
-      rewardPoints: completion.approvedPointsPreview,
-      source: "dailyMission",
-      rewardPreviewEvent: result.preview.ledgerEvent,
-    });
-
-    const buddySyncPreview = bridgeResult.ok
-      ? null
-      : await fetchDailyBuddySyncPreview({
-          userId,
-          mission: result.mission,
-          rewardPoints: completion.approvedPointsPreview,
-        });
-
-    const completionSource = completion.source === "server" ? "Server-Completion" : "lokaler Completion-Fallback";
-
-    setStatusMessage(
-      bridgeResult.ok
-        ? bridgeResult.alreadyApplied
-          ? `${result.mission.title} war bereits verbunden. Keine doppelte Punktevergabe. Flammi bleibt synchron. ${completionSource}.`
-          : `${result.mission.title} abgeschlossen. +${completion.approvedPointsPreview} interne Punkte. ${completionSource}; finale Ledger-Autorität folgt serverseitig.`
-        : `${result.mission.title} abgeschlossen. +${completion.approvedPointsPreview} interne Punkte lokal vorgemerkt. ${completionSource}; ${buddySyncPreview?.message ?? "Buddy-Sync bleibt als MVP-Bruecke vorgemerkt."}`
-    );
   };
+
+  const projectionHint = !userId
+    ? "Gastmodus: nur lokale Auswahl, keine Mission und keine WFXP"
+    : progressSource === "server"
+      ? walletAvailable
+        ? "Server-Autorität aktiv · WFXP-Wallet verbunden · ein Abschluss je Mission und Wien-Tag"
+        : "Server-Autorität aktiv · WFXP-Wallet wird mit der ersten Buchung angelegt"
+      : "Server-Projektion momentan nicht erreichbar · keine Client-Belohnung";
 
   return (
     <main
@@ -305,16 +200,10 @@ export default function MissionenPage() {
           />
 
           <p className="-mt-3 mb-1 text-sm font-semibold text-cyan-100/80">
-            {!ready
-              ? "Lade Tagesmissionen..."
-              : isCompleted
-                ? `${selectedMission.title} ist abgeschlossen.`
-                : isStarted
-                  ? `${selectedMission.title} läuft bereits.`
-                  : statusMessage}
+            {!ready ? "Lade serverseitige Tagesmissionen..." : statusMessage}
           </p>
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100/45">
-            {projectionHint} · {projectionSource === "server" ? "keine finale Autorität" : "MVP-Brücke bleibt aktiv"}
+            {projectionHint}
           </p>
 
           <div className="mb-4 flex justify-center">
@@ -329,7 +218,7 @@ export default function MissionenPage() {
                   <Link key={tab} href={tabHref(tab)} className="pb-1 text-base text-white/85 hover:text-white">
                     {tab}
                   </Link>
-                )
+                ),
               )}
             </div>
           </div>
@@ -376,13 +265,16 @@ export default function MissionenPage() {
               reward={displayReward}
               diversityMultiplier={reward.diversityMultiplier}
               antiFarmingMultiplier={reward.antiFarmingMultiplier}
-              reserveRewardRate={rewardPreview.rewardRate}
-              rewardPreviewLabel={rewardPreviewLabel}
-              rewardPreviewStatus={rewardPreview.status}
-              capReasons={rewardPreview.reasons}
+              reserveRewardRate={1}
+              rewardPreviewLabel="Server-Katalog · Admin-Review"
+              rewardPreviewStatus="manual_review"
+              capReasons={["WFXP werden ausschließlich nach serverseitiger Evidence-Freigabe gebucht."]}
               isFavorite={favoriteIds.includes(selectedMission.id)}
               isStarted={isStarted}
               isCompleted={isCompleted}
+              activeReviewStatus={activeAttempt?.reviewStatus ?? null}
+              activeAttemptStatus={activeAttempt?.attemptStatus ?? null}
+              actionBusy={missionActionBusy}
               rewardDetailsOpen={rewardDetailsOpen}
               onToggleFavorite={toggleFavorite}
               onToggleRewardDetails={() => setRewardDetailsOpen((open) => !open)}

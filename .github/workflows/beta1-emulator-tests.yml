@@ -48,4 +48,16 @@ jobs:
         run: npm --prefix functions run check
 
       - name: Run focused Beta-1 emulator suites
-        run: npx firebase-tools emulators:exec --project demo-no-project --only auth,firestore,functions "npm --prefix functions run beta1:test:emulator"
+        shell: bash
+        run: |
+          set -o pipefail
+          npx firebase-tools emulators:exec --project demo-no-project --only auth,firestore,functions "npm --prefix functions run beta1:test:emulator" 2>&1 | tee beta1-emulator.log
+
+      - name: Upload Beta-1 emulator diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beta1-emulator-diagnostics-${{ github.run_id }}
+          path: beta1-emulator.log
+          if-no-files-found: warn
+          retention-days: 3
