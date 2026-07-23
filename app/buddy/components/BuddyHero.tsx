@@ -37,7 +37,8 @@ export default function BuddyHero({ buddy }: BuddyHeroProps) {
             <div className="h-full rounded-full bg-cyan-300 transition-all" style={{ width: `${progress}%` }} />
           </div>
           <p className="mt-3 text-sm text-white/70">{buddy.xp} / {buddy.nextLevelXp} XP</p>
-          <p className="mt-2 text-2xl font-black text-yellow-300">{buddy.points} Punkte</p>
+          <p className="mt-2 text-2xl font-black text-yellow-300">{buddy.points} WFXP</p>
+          <p className="mt-1 text-[11px] font-semibold text-white/45">Interne Beta-Punkte · kein Geldwert</p>
         </div>
       </div>
     </section>
