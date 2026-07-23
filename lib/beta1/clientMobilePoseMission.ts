@@ -1,6 +1,7 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth } from "@/lib/firebase";
 import { finishTrackingSession, startTrackingSession } from "@/lib/tracking";
+import { getClientTimeZone } from "@/lib/beta1/clientUserContext";
 import {
   completeDashboardMissionAttempt,
   getDashboardMissionAttemptStatus,
@@ -59,7 +60,7 @@ function callableErrorMessage(error: unknown) {
   const message = error instanceof Error ? error.message : "";
   const diagnostic = `${code} ${message}`.toLowerCase();
   if (diagnostic.includes("unauthenticated")) return "Bitte melde dich erneut an, bevor du die Mission verwendest.";
-  if (diagnostic.includes("bereits abgeschlossen")) return "Die Kniebeugen-Mission wurde heute bereits abgeschlossen.";
+  if (diagnostic.includes("bereits abgeschlossen")) return "Die Kniebeugen-Mission wurde an deinem lokalen Kalendertag bereits abgeschlossen.";
   if (diagnostic.includes("permission-denied")) return "Dieser Missions- oder Trackingvorgang gehört nicht zu deinem Konto.";
   if (diagnostic.includes("nicht publiziert")) return "Die Kniebeugen-Mission ist im Beta-1-Katalog noch nicht veröffentlicht.";
   if (diagnostic.includes("not-found")) return "Der sichere Missions- oder Trackingvorgang wurde nicht gefunden.";
@@ -90,13 +91,14 @@ export async function submitMobileSquatPoseForReview(
   try {
     const appSessionId = createAppSessionId();
     const startAttempt = httpsCallable<
-      { missionId: string; appSessionId: string; clientVersion: string },
+      { missionId: string; appSessionId: string; clientVersion: string; timeZone: string },
       StartMissionAttemptResponse
     >(getFunctions(), "startMissionAttempt");
     const attemptResult = await startAttempt({
       missionId: MOBILE_SQUAT_MISSION_ID,
       appSessionId,
-      clientVersion: "mobile-squat-beta1-v1",
+      clientVersion: "mobile-squat-beta1-v2",
+      timeZone: getClientTimeZone(),
     });
     if (!attemptResult.data.accepted || !attemptResult.data.attemptId) {
       throw new Error("Der Missions-Attempt wurde vom Server nicht angenommen.");
@@ -134,7 +136,7 @@ export async function submitMobileSquatPoseForReview(
       attemptId: attemptResult.data.attemptId,
       evidenceType: "daily-user-confirmation",
       appSessionId,
-      clientVersion: "mobile-squat-beta1-v1",
+      clientVersion: "mobile-squat-beta1-v2",
       metadata: {
         source: "mobile-pose",
         verificationMode: "on-device-pose-summary",
@@ -156,7 +158,7 @@ export async function submitMobileSquatPoseForReview(
 
     return {
       state: "submitted",
-      message: "Pose-Zusammenfassung wurde serverseitig gespeichert. Sie wartet auf Admin-Prüfung; WFXP werden erst nach Freigabe und Completion gebucht.",
+      message: "Pose-Zusammenfassung wurde für deinen lokalen Kalendertag serverseitig gespeichert. Sie wartet auf Admin-Prüfung; WFXP werden erst nach Freigabe und Completion gebucht.",
       reviewStatus: evidenceResult.data.reviewStatus || "pending-server-review",
       rewardXp: 0,
     };
