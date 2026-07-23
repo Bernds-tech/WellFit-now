@@ -3,7 +3,7 @@ const { FieldValue } = require("firebase-admin/firestore");
 const BETA1_INTERNAL_CURRENCY = "WFXP";
 const MAX_GLITCH_MULTIPLIER = 10;
 const MAX_GLITCH_DURATION_MINUTES = 10;
-const BETA1_ALLOWED_GLITCH_REGION_IDS = new Set(["vienna", "wien", "lower-austria", "lower_austria", "niederoesterreich", "niederösterreich"]);
+const BETA1_REGION_ID_PATTERN = /^[a-z0-9](?:[a-z0-9._:-]{0,78}[a-z0-9])?$/i;
 
 function requireAuth(request, HttpsError) {
   if (!request.auth || !request.auth.uid) {
@@ -121,7 +121,7 @@ function requireChildPermission(childProfile, permissionName, HttpsError) {
 
 function isAllowedBeta1GlitchRegion(regionId) {
   const normalized = optionalString(regionId, 80);
-  return !!normalized && BETA1_ALLOWED_GLITCH_REGION_IDS.has(normalized.toLowerCase());
+  return Boolean(normalized && BETA1_REGION_ID_PATTERN.test(normalized));
 }
 
 function parseRequiredDate(value, fieldName, HttpsError) {
@@ -169,7 +169,7 @@ module.exports = {
   BETA1_INTERNAL_CURRENCY,
   MAX_GLITCH_MULTIPLIER,
   MAX_GLITCH_DURATION_MINUTES,
-  BETA1_ALLOWED_GLITCH_REGION_IDS,
+  BETA1_REGION_ID_PATTERN,
   requireAuth,
   requireAdmin,
   optionalString,
