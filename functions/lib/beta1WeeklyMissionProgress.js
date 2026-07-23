@@ -1,8 +1,14 @@
 const weeklyMissionCatalog = require("../config/beta1-weekly-missions.json");
 const {
   requireAuth,
+  requiredString,
   optionalString,
+  serverTimestamps,
+  updatedTimestamp,
+  clientContext,
+  writeAudit,
 } = require("./beta1Runtime");
+const { applyXpDelta } = require("./beta1XpLedger");
 const {
   dateKeyInVienna,
   documentDateKey,
@@ -11,6 +17,8 @@ const {
 
 const MAX_HISTORY_DOCS = 500;
 const WEEKLY_MISSION_IDS = new Set(weeklyMissionCatalog.missions.map((mission) => mission.missionId));
+const WEEKLY_EVIDENCE_TYPE = "weekly-user-confirmation";
+const WEEKLY_COMPLETION_POLICY = "once-per-mission-per-vienna-week";
 
 function dateKeyToUtcDate(dateKey) {
   const [year, month, day] = String(dateKey).split("-").map(Number);
@@ -99,6 +107,10 @@ function weeklyMissionAttemptId(ownerUserId, missionId, weekKey) {
   return ["weekly", safeDocIdPart(ownerUserId), safeDocIdPart(weekKey), safeDocIdPart(missionId)].join("__");
 }
 
+function weeklyMissionEvidenceId(attemptId, revision) {
+  return ["weekly_evidence", safeDocIdPart(attemptId), String(revision)].join("__");
+}
+
 function weeklyMissionCompletionIdempotencyKey(ownerUserId, missionId, weekKey) {
   return ["weekly_mission_completion", safeDocIdPart(ownerUserId), safeDocIdPart(weekKey), safeDocIdPart(missionId)].join("__");
 }
@@ -176,7 +188,309 @@ function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds,
   return [...byMission.values()].slice(0, weeklyMissionCatalog.missions.length);
 }
 
+async function readWeeklyMission(db, missionId, HttpsError) {
+  if (!isWeeklyMissionId(missionId)) {
+    throw new HttpsError("invalid-argument", "Unbekannte Beta-1 Wochenmission.");
+  }
+  const missionSnapshot = await db.collection("missions").doc(missionId).get();
+  const mission = missionSnapshot.exists ? missionSnapshot.data() || {} : {};
+  if (
+    !missionSnapshot.exists
+    || mission.status !== "published"
+    || mission.catalogId !== weeklyMissionCatalog.catalogId
+    || mission.completionPolicy !== WEEKLY_COMPLETION_POLICY
+    || !mission.evidencePolicy
+    || !Array.isArray(mission.evidencePolicy.allowedEvidenceTypes)
+    || !mission.evidencePolicy.allowedEvidenceTypes.includes(WEEKLY_EVIDENCE_TYPE)
+  ) {
+    throw new HttpsError("failed-precondition", "Wochenmission ist serverseitig nicht sicher veroeffentlicht.");
+  }
+  return { snapshot: missionSnapshot, data: mission };
+}
+
 function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsError }) {
+  exportsTarget.submitWeeklyMissionForReview = onCall(async (request) => {
+    const userId = requireAuth(request, HttpsError);
+    const data = request.data || {};
+    const missionId = requiredString(data.missionId, "missionId", HttpsError, 160);
+    const mission = await readWeeklyMission(db, missionId, HttpsError);
+    if (mission.data.childAllowed === true || optionalString(data.childProfileId, 160)) {
+      throw new HttpsError("failed-precondition", "Child Profiles sind fuer den ersten Wochenmissionskatalog deaktiviert.");
+    }
+
+    const currentRange = weekRangeInVienna(new Date());
+    if (!currentRange) throw new HttpsError("internal", "Aktuelle Wien-Woche konnte nicht bestimmt werden.");
+    const attemptId = weeklyMissionAttemptId(userId, missionId, currentRange.weekKey);
+    const attemptRef = db.collection("missionAttempts").doc(attemptId);
+    const completionRef = db.collection("missionCompletions").doc(attemptId);
+    const [attemptSnapshot, completionSnapshot] = await Promise.all([attemptRef.get(), completionRef.get()]);
+    if (completionSnapshot.exists && (completionSnapshot.data() || {}).status === "completed") {
+      throw new HttpsError("failed-precondition", "Diese Wochenmission wurde in der aktuellen Wien-Woche bereits abgeschlossen.");
+    }
+
+    const attempt = attemptSnapshot.exists ? attemptSnapshot.data() || {} : {};
+    if (attemptSnapshot.exists && (
+      attempt.ownerUserId !== userId
+      || attempt.missionId !== missionId
+      || documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"]) !== currentRange.weekKey
+    )) {
+      throw new HttpsError("failed-precondition", "Deterministischer Wochenmissions-Attempt ist inkonsistent.");
+    }
+    if (attempt.status === "completed") {
+      throw new HttpsError("failed-precondition", "Diese Wochenmission wurde bereits abgeschlossen.");
+    }
+
+    let evidenceRevision = Math.max(1, Math.floor(Number(attempt.latestEvidenceRevision || 1)));
+    let evidenceRef = db.collection("missionEvidence").doc(weeklyMissionEvidenceId(attemptId, evidenceRevision));
+    let evidenceSnapshot = await evidenceRef.get();
+    let existingEvidence = evidenceSnapshot.exists ? evidenceSnapshot.data() || {} : {};
+
+    if (
+      evidenceSnapshot.exists
+      && (existingEvidence.reviewStatus === "pending-server-review" || existingEvidence.reviewStatus === "approved")
+    ) {
+      return {
+        accepted: true,
+        attemptId,
+        evidenceId: evidenceRef.id,
+        weekKey: currentRange.weekKey,
+        attemptStatus: optionalString(attempt.status, 80) || "evidence-submitted",
+        reviewStatus: existingEvidence.reviewStatus,
+        missionCompletionAuthorized: false,
+        xpAuthorized: false,
+        idempotent: true,
+        noMonetaryValue: true,
+        tokenAuthorized: false,
+        cashoutAllowed: false,
+      };
+    }
+
+    if (evidenceSnapshot.exists) {
+      evidenceRevision += 1;
+      evidenceRef = db.collection("missionEvidence").doc(weeklyMissionEvidenceId(attemptId, evidenceRevision));
+      evidenceSnapshot = await evidenceRef.get();
+      existingEvidence = evidenceSnapshot.exists ? evidenceSnapshot.data() || {} : {};
+      if (evidenceSnapshot.exists && existingEvidence.reviewStatus === "pending-server-review") {
+        return {
+          accepted: true,
+          attemptId,
+          evidenceId: evidenceRef.id,
+          weekKey: currentRange.weekKey,
+          attemptStatus: "evidence-submitted",
+          reviewStatus: "pending-server-review",
+          missionCompletionAuthorized: false,
+          xpAuthorized: false,
+          idempotent: true,
+          noMonetaryValue: true,
+          tokenAuthorized: false,
+          cashoutAllowed: false,
+        };
+      }
+    }
+
+    const batch = db.batch();
+    batch.set(attemptRef, {
+      attemptId,
+      missionId,
+      ownerUserId: userId,
+      userId,
+      childProfileId: null,
+      status: "evidence-submitted",
+      weekKey: currentRange.weekKey,
+      weekStartDateKey: currentRange.weekStartDateKey,
+      weekEndDateKey: currentRange.weekEndDateKey,
+      catalogId: weeklyMissionCatalog.catalogId,
+      catalogVersion: weeklyMissionCatalog.version,
+      completionPolicy: WEEKLY_COMPLETION_POLICY,
+      latestEvidenceId: evidenceRef.id,
+      latestEvidenceRevision: evidenceRevision,
+      latestEvidenceReviewStatus: "pending-server-review",
+      missionCompletionAuthorized: false,
+      xpAuthorized: false,
+      ...clientContext(data),
+      ...(attemptSnapshot.exists ? updatedTimestamp() : serverTimestamps()),
+    }, { merge: true });
+    batch.set(evidenceRef, {
+      evidenceId: evidenceRef.id,
+      attemptId,
+      missionId,
+      ownerUserId: userId,
+      userId,
+      childProfileId: null,
+      evidenceType: WEEKLY_EVIDENCE_TYPE,
+      evidenceRevision,
+      storageRef: null,
+      metadata: {
+        source: "weekly-missions",
+        weekKey: currentRange.weekKey,
+        requiresHumanReview: true,
+        grantsClientReward: false,
+        rawMediaStored: false,
+        rawMediaUploaded: false,
+      },
+      status: "submitted",
+      reviewStatus: "pending-server-review",
+      serverValidationStatus: "evidence-received",
+      reviewedByAdminId: null,
+      reviewedAt: null,
+      missionCompletionAuthorized: false,
+      xpAuthorized: false,
+      ...clientContext(data),
+      ...serverTimestamps(),
+    });
+    await batch.commit();
+
+    return {
+      accepted: true,
+      attemptId,
+      evidenceId: evidenceRef.id,
+      weekKey: currentRange.weekKey,
+      attemptStatus: "evidence-submitted",
+      reviewStatus: "pending-server-review",
+      missionCompletionAuthorized: false,
+      xpAuthorized: false,
+      idempotent: false,
+      noMonetaryValue: true,
+      tokenAuthorized: false,
+      cashoutAllowed: false,
+    };
+  });
+
+  exportsTarget.completeWeeklyMissionAttempt = onCall(async (request) => {
+    const userId = requireAuth(request, HttpsError);
+    const attemptId = requiredString((request.data || {}).attemptId, "attemptId", HttpsError, 220);
+    const attemptRef = db.collection("missionAttempts").doc(attemptId);
+    const completionRef = db.collection("missionCompletions").doc(attemptId);
+    const [attemptSnapshot, existingCompletion] = await Promise.all([attemptRef.get(), completionRef.get()]);
+    if (!attemptSnapshot.exists || (attemptSnapshot.data() || {}).ownerUserId !== userId) {
+      throw new HttpsError("permission-denied", "Wochenmissions-Attempt gehoert nicht diesem Nutzer.");
+    }
+    const attempt = attemptSnapshot.data() || {};
+    if (!isWeeklyMissionId(attempt.missionId)) {
+      throw new HttpsError("invalid-argument", "Attempt ist keine kanonische Wochenmission.");
+    }
+    const currentRange = weekRangeInVienna(new Date());
+    if (!currentRange || documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"]) !== currentRange.weekKey) {
+      throw new HttpsError("failed-precondition", "Wochenmissions-Attempt gehoert nicht zur aktuellen Wien-Woche.");
+    }
+    if (existingCompletion.exists && (existingCompletion.data() || {}).status === "completed") {
+      const completion = existingCompletion.data() || {};
+      return {
+        accepted: true,
+        completionId: completionRef.id,
+        xpLedgerEventId: completion.xpLedgerEventId,
+        rewardXp: completion.rewardXp,
+        evidenceId: completion.evidenceId,
+        weekKey: currentRange.weekKey,
+        xpAuthorized: true,
+        missionCompletionAuthorized: true,
+        tokenAuthorized: false,
+        cashoutAllowed: false,
+        noMonetaryValue: true,
+        idempotent: true,
+      };
+    }
+
+    const latestEvidenceId = requiredString(attempt.latestEvidenceId, "latestEvidenceId", HttpsError, 220);
+    const evidenceSnapshot = await db.collection("missionEvidence").doc(latestEvidenceId).get();
+    const evidence = evidenceSnapshot.exists ? evidenceSnapshot.data() || {} : {};
+    if (
+      !evidenceSnapshot.exists
+      || evidence.ownerUserId !== userId
+      || evidence.attemptId !== attemptId
+      || evidence.missionId !== attempt.missionId
+      || evidence.evidenceType !== WEEKLY_EVIDENCE_TYPE
+      || evidence.reviewStatus !== "approved"
+      || evidence.serverValidationStatus !== "evidence-approved"
+    ) {
+      throw new HttpsError("failed-precondition", "Serverseitig freigegebene Wochenmissions-Evidence ist erforderlich.");
+    }
+
+    const mission = await readWeeklyMission(db, attempt.missionId, HttpsError);
+    const rewardXp = Math.min(Math.max(1, Math.floor(Number(mission.data.rewardXp || 1))), 100);
+    const idempotencyKey = weeklyMissionCompletionIdempotencyKey(userId, attempt.missionId, currentRange.weekKey);
+    const ledger = await applyXpDelta(db, {
+      ownerUserId: userId,
+      childProfileId: null,
+      delta: rewardXp,
+      reason: "mission-completion",
+      sourceType: "weeklyMissionCompletion",
+      sourceId: completionRef.id,
+      actorUserId: "server",
+      idempotencyKey,
+      metadata: {
+        evidenceId: evidenceSnapshot.id,
+        attemptId,
+        missionId: attempt.missionId,
+        weekKey: currentRange.weekKey,
+      },
+    });
+    if (ledger.idempotent && ledger.sourceId !== completionRef.id) {
+      throw new HttpsError("failed-precondition", "Diese Wochenmission wurde in der aktuellen Wien-Woche bereits belohnt.");
+    }
+
+    await completionRef.set({
+      completionId: completionRef.id,
+      attemptId,
+      missionId: attempt.missionId,
+      ownerUserId: userId,
+      userId,
+      childProfileId: null,
+      evidenceId: evidenceSnapshot.id,
+      evidenceReviewStatus: "approved",
+      status: "completed",
+      serverValidationStatus: "completion-authorized",
+      rewardXp,
+      xpLedgerEventId: ledger.ledgerEventId,
+      dateKey: dateKeyInVienna(new Date()),
+      weekKey: currentRange.weekKey,
+      weekStartDateKey: currentRange.weekStartDateKey,
+      weekEndDateKey: currentRange.weekEndDateKey,
+      catalogId: weeklyMissionCatalog.catalogId,
+      catalogVersion: weeklyMissionCatalog.version,
+      completionPolicy: WEEKLY_COMPLETION_POLICY,
+      completedAt: new Date().toISOString(),
+      noMonetaryValue: true,
+      tokenAuthorized: false,
+      cashoutAllowed: false,
+      ...serverTimestamps(),
+    });
+    await attemptRef.set({
+      status: "completed",
+      completionId: completionRef.id,
+      approvedEvidenceId: evidenceSnapshot.id,
+      ...updatedTimestamp(),
+    }, { merge: true });
+    await writeAudit(db, {
+      actorUserId: "server",
+      actionType: "weekly-mission-completed",
+      targetType: "missionCompletion",
+      targetId: completionRef.id,
+      ownerUserId: userId,
+      metadata: {
+        rewardXp,
+        ledgerEventId: ledger.ledgerEventId,
+        evidenceId: evidenceSnapshot.id,
+        weekKey: currentRange.weekKey,
+      },
+    });
+
+    return {
+      accepted: true,
+      completionId: completionRef.id,
+      xpLedgerEventId: ledger.ledgerEventId,
+      rewardXp,
+      evidenceId: evidenceSnapshot.id,
+      weekKey: currentRange.weekKey,
+      xpAuthorized: true,
+      missionCompletionAuthorized: true,
+      tokenAuthorized: false,
+      cashoutAllowed: false,
+      noMonetaryValue: true,
+      idempotent: ledger.idempotent,
+    };
+  });
+
   exportsTarget.getWeeklyMissionProgress = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
     const currentRange = weekRangeInVienna(new Date());
@@ -250,6 +564,7 @@ module.exports = {
   documentWeekKey,
   isWeeklyMissionId,
   weeklyMissionAttemptId,
+  weeklyMissionEvidenceId,
   weeklyMissionCompletionIdempotencyKey,
   addUtcDays,
 };
