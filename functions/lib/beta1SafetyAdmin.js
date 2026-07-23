@@ -15,6 +15,7 @@ const { registerBeta1ChallengeMissionCatalog } = require("./beta1ChallengeMissio
 const { registerBeta1ChallengeMissionProgress } = require("./beta1ChallengeMissionProgress");
 const { registerBeta1AdventureMissionCatalog } = require("./beta1AdventureMissionCatalog");
 const { registerBeta1AdventureMissionProgress } = require("./beta1AdventureMissionProgress");
+const { registerBeta1NearbyMissionLocations } = require("./beta1NearbyMissionLocations");
 const { registerBeta1PoseEvidence } = require("./beta1PoseEvidence");
 const { registerBeta1BuddyActions } = require("./beta1BuddyActions");
 
@@ -126,6 +127,7 @@ function registerBeta1SafetyAdmin(exportsTarget, deps) {
   registerBeta1ChallengeMissionProgress(exportsTarget, deps);
   registerBeta1AdventureMissionCatalog(exportsTarget, deps);
   registerBeta1AdventureMissionProgress(exportsTarget, deps);
+  registerBeta1NearbyMissionLocations(exportsTarget, deps);
   registerBeta1PoseEvidence(exportsTarget, deps);
   registerBeta1BuddyActions(exportsTarget, deps);
 
