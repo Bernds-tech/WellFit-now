@@ -169,7 +169,7 @@ function buildLatestEvidenceByAttempt(evidenceDocs) {
   return evidenceByAttempt;
 }
 
-function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds, completedMissionIds, timeZone }) {
+function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds, completedMissionIds, timeZone, todayKey }) {
   const byMission = new Map();
   const sortedAttempts = [...attempts].sort((left, right) => {
     const leftTime = documentTime(left.data() || {});
@@ -181,14 +181,16 @@ function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds,
     const attempt = attemptDoc.data() || {};
     const missionId = optionalString(attempt.missionId, 160);
     if (!missionId || !DAILY_MISSION_IDS.has(missionId) || byMission.has(missionId)) continue;
+    const attemptDateKey = optionalString(attempt.dateKey, 20)
+      || documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"], timeZone);
+    if (!attemptDateKey || attemptDateKey !== todayKey) continue;
     if (completedMissionIds.has(missionId)) continue;
     if (completedAttemptIds.has(attemptDoc.id) || attempt.status === "completed") continue;
     const evidence = evidenceByAttempt.get(attemptDoc.id) || null;
     byMission.set(missionId, {
       missionId,
       attemptId: attemptDoc.id,
-      startedDateKey: optionalString(attempt.dateKey, 20)
-        || documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"], timeZone),
+      startedDateKey: attemptDateKey,
       attemptStatus: optionalString(attempt.status, 80) || "started",
       evidenceId: evidence ? evidence.id : null,
       reviewStatus: evidence ? optionalString(evidence.data.reviewStatus, 80) || "pending-server-review" : null,
@@ -232,6 +234,8 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
       dateKey: todayKey,
       timeZone: calendar.timeZone,
       calendarAuthority: calendar.calendarAuthority,
+      timeZoneChangePolicy: calendar.timeZoneChangePolicy,
+      timeZoneChangeCooldownHours: calendar.timeZoneChangeCooldownHours,
       timeZoneChangeDeferred: calendar.timeZoneChangeDeferred,
       nextTimeZoneChangeAt: calendar.nextTimeZoneChangeAt,
       ...preferences,
@@ -271,6 +275,7 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
       completedAttemptIds,
       completedMissionIds: new Set(todayCompletedIds),
       timeZone: calendar.timeZone,
+      todayKey,
     });
     const todayStartedIds = attemptsSnapshot.docs
       .filter((doc) => {
@@ -296,6 +301,8 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
       dateKey: todayKey,
       timeZone: calendar.timeZone,
       calendarAuthority: calendar.calendarAuthority,
+      timeZoneChangePolicy: calendar.timeZoneChangePolicy,
+      timeZoneChangeCooldownHours: calendar.timeZoneChangeCooldownHours,
       timeZoneChangeDeferred: calendar.timeZoneChangeDeferred,
       nextTimeZoneChangeAt: calendar.nextTimeZoneChangeAt,
       catalogId: dailyMissionCatalog.catalogId,
