@@ -85,8 +85,8 @@ async function resetBeta1Collections() {
   const collections = [
     "familyAccounts", "childProfiles", "guardianChildLinks", "parentalConsents", "missions", "missionAttempts", "missionEvidence", "missionCompletions",
     "trackingSessions", "trackingProofEvents", "missionBuddyEvents", "missionContextEvaluations", "missionCompletionEvaluations", "missionRewardPreviews", "missionEvidenceReviews", "missionPatternReviews", "missionCooldownReviews", "missionRewardEvents",
-    "userDailyMissionState", "userDailyStreaks", "userLevels", "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "itemDefinitions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory", "userAvatars", "buddyCareActions",
-    "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "glitchSafetyRules", "safetyReports",
+    "userCalendarSettings", "userDailyMissionState", "userDailyStreaks", "userLevels", "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "itemDefinitions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory", "userAvatars", "buddyCareActions",
+    "missionLocations", "adventureAccessEvents", "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "glitchSafetyRules", "safetyReports",
   ];
   for (const collectionName of collections) {
     const snapshot = await db.collection(collectionName).limit(500).get();
