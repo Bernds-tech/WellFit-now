@@ -4,6 +4,10 @@ type DashboardAvatarPanelProps = {
   buddyHunger: number;
   pointsBalance: number;
   foodPrice: number;
+  serverCareReady: boolean;
+  foodItemAvailable: boolean;
+  buddyCareError?: string | null;
+  isFeeding: boolean;
   onFeedBuddy: () => void;
 };
 
@@ -19,11 +23,29 @@ export default function DashboardAvatarPanel({
   buddyHunger,
   pointsBalance,
   foodPrice,
+  serverCareReady,
+  foodItemAvailable,
+  buddyCareError,
+  isFeeding,
   onFeedBuddy,
 }: DashboardAvatarPanelProps) {
   const mood = getBuddyMood(buddyEnergy, buddyHunger);
-  const canFeed = pointsBalance >= foodPrice;
+  const isFull = buddyHunger >= 100;
+  const hasBalance = pointsBalance >= foodPrice;
+  const canFeed = serverCareReady && foodItemAvailable && hasBalance && !isFull && !isFeeding;
   const remainingAfterFood = Math.max(0, pointsBalance - foodPrice);
+
+  const buttonLabel = isFeeding
+    ? "Serverkauf und Fütterung laufen..."
+    : !serverCareReady
+      ? "Buddy-Care-Server nicht bereit"
+      : !foodItemAvailable
+        ? "Energie-Snack nicht veröffentlicht"
+        : isFull
+          ? "Flammi ist satt"
+          : !hasBalance
+            ? "Zu wenig WFXP"
+            : `Füttern · ${foodPrice} WFXP`;
 
   return (
     <div className="rounded-[24px] bg-[#053841]/85 p-5 shadow-[0_8px_22px_rgba(0,0,0,0.12)]">
@@ -50,23 +72,25 @@ export default function DashboardAvatarPanel({
         </div>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-cyan-200/10 bg-cyan-100/5 p-3 text-xs leading-relaxed text-cyan-50/70">
-        Futter ist ein interner Punkte-Sink. Es ist kein Kauf, kein Token, kein NFT und keine Auszahlung.
+      <div className={`mt-4 rounded-2xl border p-3 text-xs leading-relaxed ${serverCareReady ? "border-emerald-200/15 bg-emerald-100/5 text-emerald-50/75" : "border-amber-200/20 bg-amber-100/5 text-amber-50/80"}`}>
+        {serverCareReady
+          ? "Hunger, Kauf, Inventarverbrauch und WFXP-Bilanz werden serverseitig autorisiert. Der Browser schreibt keine Punkte oder Avatarwerte mehr direkt."
+          : buddyCareError || "Die serverseitige Buddy-Care-Projektion ist derzeit nicht verfügbar."}
       </div>
 
       <div className="mt-3 grid gap-2 md:grid-cols-3">
         <div className="rounded-xl border border-white/10 bg-black/18 p-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Spend Preview</p>
-          <p className="mt-1 text-xs font-black text-cyan-100">Server zuerst</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Authority</p>
+          <p className="mt-1 text-xs font-black text-cyan-100">{serverCareReady ? "Server-owned" : "Nicht bereit"}</p>
         </div>
         <div className="rounded-xl border border-white/10 bg-black/18 p-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Sink-Kosten</p>
-          <p className="mt-1 text-xs font-black text-cyan-100">{foodPrice} Punkte</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Energie-Snack</p>
+          <p className="mt-1 text-xs font-black text-cyan-100">{foodItemAvailable ? `${foodPrice} WFXP` : "nicht publiziert"}</p>
         </div>
         <div className="rounded-xl border border-white/10 bg-black/18 p-3">
           <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Rest danach</p>
           <p className="mt-1 text-xs font-black text-cyan-100">
-            {canFeed ? remainingAfterFood.toLocaleString("de-DE") : "zu wenig"}
+            {foodItemAvailable && hasBalance ? `${remainingAfterFood.toLocaleString("de-DE")} WFXP` : "–"}
           </p>
         </div>
       </div>
@@ -77,7 +101,7 @@ export default function DashboardAvatarPanel({
         disabled={!canFeed}
         className="mt-4 w-full rounded-2xl bg-cyan-400 px-4 py-2 text-sm font-black text-[#053841] transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/50"
       >
-        Füttern · {foodPrice} interne Punkte
+        {buttonLabel}
       </button>
     </div>
   );
