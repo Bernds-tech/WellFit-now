@@ -18,13 +18,19 @@ const ALLOWED_DISPLAY_TYPES = new Set(["Bewegung", "Workout", "Abenteuer"]);
 const ALLOWED_SERVER_TYPES = new Set(["movement", "workout", "learning", "skill", "ar", "wellness"]);
 const REQUIRED_COMPLETION_POLICY = "once-per-mission-per-user";
 const REQUIRED_EVIDENCE_TYPE = "challenge-user-confirmation";
+const REQUIRED_LOCATION_POLICY = "nearby-published-location";
+const REQUIRED_START_RADIUS_METERS = 500;
 
 function validateChallengeCatalog(HttpsError) {
   if (!catalog || !Array.isArray(catalog.missions) || catalog.missions.length !== 6) {
     throw new HttpsError("failed-precondition", "Beta-1 Challenge-Katalog muss genau sechs Missionen enthalten.");
   }
-  if (catalog.completionPolicy !== REQUIRED_COMPLETION_POLICY) {
-    throw new HttpsError("failed-precondition", "Beta-1 Challenge-Katalog hat keine sichere Abschlussgrenze.");
+  if (
+    catalog.completionPolicy !== REQUIRED_COMPLETION_POLICY
+    || catalog.locationPolicy !== REQUIRED_LOCATION_POLICY
+    || Number(catalog.startRadiusMeters) !== REQUIRED_START_RADIUS_METERS
+  ) {
+    throw new HttpsError("failed-precondition", "Beta-1 Challenge-Katalog hat keine sichere Abschluss- und Standortgrenze.");
   }
 
   const ids = new Set();
@@ -80,6 +86,8 @@ function publicChallengeMission(mission) {
     evidenceType: REQUIRED_EVIDENCE_TYPE,
     reviewRequired: true,
     completionPolicy: REQUIRED_COMPLETION_POLICY,
+    locationPolicy: REQUIRED_LOCATION_POLICY,
+    startRadiusMeters: REQUIRED_START_RADIUS_METERS,
     status: "published",
     noMonetaryValue: true,
     tokenAuthorized: false,
@@ -111,6 +119,8 @@ function registerBeta1ChallengeMissionCatalog(exportsTarget, { db, onCall, Https
         childAllowed: false,
         status: "published",
         completionPolicy: REQUIRED_COMPLETION_POLICY,
+        locationPolicy: REQUIRED_LOCATION_POLICY,
+        startRadiusMeters: REQUIRED_START_RADIUS_METERS,
         evidencePolicy: {
           reviewRequired: true,
           allowedEvidenceTypes: [REQUIRED_EVIDENCE_TYPE],
@@ -138,6 +148,8 @@ function registerBeta1ChallengeMissionCatalog(exportsTarget, { db, onCall, Https
         childAllowed: false,
         reviewRequired: true,
         completionPolicy: REQUIRED_COMPLETION_POLICY,
+        locationPolicy: REQUIRED_LOCATION_POLICY,
+        startRadiusMeters: REQUIRED_START_RADIUS_METERS,
       },
     });
 
@@ -146,6 +158,8 @@ function registerBeta1ChallengeMissionCatalog(exportsTarget, { db, onCall, Https
       catalogId: catalog.catalogId,
       catalogVersion: catalog.version,
       completionPolicy: REQUIRED_COMPLETION_POLICY,
+      locationPolicy: REQUIRED_LOCATION_POLICY,
+      startRadiusMeters: REQUIRED_START_RADIUS_METERS,
       count: missions.length,
       currency: "WFXP",
       noMonetaryValue: true,
@@ -162,4 +176,6 @@ module.exports = {
   publicChallengeMission,
   REQUIRED_COMPLETION_POLICY,
   REQUIRED_EVIDENCE_TYPE,
+  REQUIRED_LOCATION_POLICY,
+  REQUIRED_START_RADIUS_METERS,
 };
