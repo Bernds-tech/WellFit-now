@@ -13,8 +13,16 @@ const {
   writeAudit,
 } = require("./beta1Runtime");
 const { applyXpDelta } = require("./beta1XpLedger");
+const {
+  dateKeyInVienna,
+  documentDateKey,
+  isDailyMissionId,
+  dailyMissionAttemptId,
+  dailyMissionCompletionIdempotencyKey,
+} = require("./beta1DailyMissionProgress");
 
 const MISSION_EVIDENCE_REVIEW_DECISIONS = new Set(["approved", "rejected", "needs-more-evidence"]);
+const MAX_DAILY_HISTORY_DOCS = 500;
 
 function publicMission(doc) {
   const data = doc.data() || {};
@@ -32,6 +40,59 @@ function evidenceReviewServerStatus(decision) {
   if (decision === "approved") return "evidence-approved";
   if (decision === "rejected") return "evidence-rejected";
   return "evidence-more-required";
+}
+
+function timestampToMillis(value) {
+  if (!value) return 0;
+  if (typeof value.toDate === "function") return value.toDate().getTime();
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+}
+
+function newestDocument(docs, preferredFields = ["createdAt", "reviewedAt", "updatedAt"]) {
+  return [...docs].sort((left, right) => {
+    const leftData = left.data() || {};
+    const rightData = right.data() || {};
+    const leftTime = preferredFields.reduce((value, field) => value || timestampToMillis(leftData[field]), 0);
+    const rightTime = preferredFields.reduce((value, field) => value || timestampToMillis(rightData[field]), 0);
+    return rightTime - leftTime;
+  })[0] || null;
+}
+
+function safeEvidenceMetadata(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const safe = {};
+  for (const [key, rawValue] of Object.entries(value).slice(0, 12)) {
+    const safeKey = optionalString(key, 80);
+    if (!safeKey) continue;
+    if (typeof rawValue === "boolean") safe[safeKey] = rawValue;
+    else if (typeof rawValue === "number" && Number.isFinite(rawValue)) safe[safeKey] = rawValue;
+    else if (typeof rawValue === "string") safe[safeKey] = rawValue.slice(0, 240);
+  }
+  return safe;
+}
+
+async function getDailyMissionReuseState(db, userId, missionId, todayKey) {
+  const [attemptsSnapshot, completionsSnapshot] = await Promise.all([
+    db.collection("missionAttempts").where("ownerUserId", "==", userId).limit(MAX_DAILY_HISTORY_DOCS).get(),
+    db.collection("missionCompletions").where("ownerUserId", "==", userId).limit(MAX_DAILY_HISTORY_DOCS).get(),
+  ]);
+  const completedToday = completionsSnapshot.docs.some((doc) => {
+    const completion = doc.data() || {};
+    const completionDateKey = optionalString(completion.dateKey, 20)
+      || documentDateKey(completion, ["completedAt", "updatedAt", "createdAt"]);
+    return completion.status === "completed"
+      && completion.missionId === missionId
+      && completionDateKey === todayKey;
+  });
+  const openAttempts = attemptsSnapshot.docs.filter((doc) => {
+    const attempt = doc.data() || {};
+    return attempt.missionId === missionId && attempt.status !== "completed";
+  });
+  return {
+    completedToday,
+    openAttempt: newestDocument(openAttempts, ["createdAt", "startedAt", "updatedAt"]),
+  };
 }
 
 function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
@@ -134,10 +195,47 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
     if (!mission.exists || (mission.data() || {}).status !== "published") {
       throw new HttpsError("failed-precondition", "Mission ist nicht publiziert.");
     }
-    if (childProfileId && (mission.data() || {}).childAllowed !== true) {
+    const missionData = mission.data() || {};
+    if (childProfileId && missionData.childAllowed !== true) {
       throw new HttpsError("failed-precondition", "Mission ist nicht fuer Child Profiles freigegeben.");
     }
-    const attemptRef = db.collection("missionAttempts").doc();
+
+    const todayKey = dateKeyInVienna(new Date());
+    if (isDailyMissionId(missionId)) {
+      const reuseState = await getDailyMissionReuseState(db, userId, missionId, todayKey);
+      if (reuseState.completedToday) {
+        throw new HttpsError("failed-precondition", "Diese Tagesmission wurde heute bereits abgeschlossen.");
+      }
+      if (reuseState.openAttempt) {
+        const openAttempt = reuseState.openAttempt.data() || {};
+        return {
+          accepted: true,
+          attemptId: reuseState.openAttempt.id,
+          status: optionalString(openAttempt.status, 80) || "started",
+          missionCompletionAuthorized: false,
+          idempotent: true,
+          reusedDailyAttempt: true,
+        };
+      }
+    }
+
+    const attemptRef = isDailyMissionId(missionId)
+      ? db.collection("missionAttempts").doc(dailyMissionAttemptId(userId, missionId, todayKey))
+      : db.collection("missionAttempts").doc();
+    const existingAttempt = await attemptRef.get();
+    if (existingAttempt.exists) {
+      if ((existingAttempt.data() || {}).status === "completed") {
+        throw new HttpsError("failed-precondition", "Diese Tagesmission wurde heute bereits abgeschlossen.");
+      }
+      return {
+        accepted: true,
+        attemptId: attemptRef.id,
+        status: optionalString((existingAttempt.data() || {}).status, 80) || "started",
+        missionCompletionAuthorized: false,
+        idempotent: true,
+        reusedDailyAttempt: isDailyMissionId(missionId),
+      };
+    }
     await attemptRef.set({
       attemptId: attemptRef.id,
       missionId,
@@ -145,41 +243,84 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       userId,
       childProfileId: childProfileId || null,
       status: "started",
+      dateKey: isDailyMissionId(missionId) ? todayKey : null,
+      catalogId: missionData.catalogId || null,
+      completionPolicy: missionData.completionPolicy || null,
       ...clientContext(data),
       ...serverTimestamps(),
     });
-    return { accepted: true, attemptId: attemptRef.id, status: "started", missionCompletionAuthorized: false };
+    return {
+      accepted: true,
+      attemptId: attemptRef.id,
+      status: "started",
+      missionCompletionAuthorized: false,
+      idempotent: false,
+      reusedDailyAttempt: false,
+    };
   });
 
   exportsTarget.submitMissionEvidence = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
     const data = request.data || {};
     const attemptId = requiredString(data.attemptId, "attemptId", HttpsError);
-    const attempt = await db.collection("missionAttempts").doc(attemptId).get();
+    const attemptRef = db.collection("missionAttempts").doc(attemptId);
+    const attempt = await attemptRef.get();
     if (!attempt.exists || (attempt.data() || {}).ownerUserId !== userId) {
       throw new HttpsError("permission-denied", "Attempt gehoert nicht diesem Nutzer.");
     }
-    if ((attempt.data() || {}).status === "completed") {
+    const attemptData = attempt.data() || {};
+    if (attemptData.status === "completed") {
       throw new HttpsError("failed-precondition", "Abgeschlossene Missionen akzeptieren keine neue Evidence.");
     }
-    const childProfileId = (attempt.data() || {}).childProfileId || null;
+    const mission = await db.collection("missions").doc(attemptData.missionId).get();
+    if (!mission.exists || (mission.data() || {}).status !== "published") {
+      throw new HttpsError("failed-precondition", "Mission ist nicht mehr publiziert.");
+    }
+    const missionData = mission.data() || {};
+    const childProfileId = attemptData.childProfileId || null;
     const evidenceType = optionalString(data.evidenceType, 80) || "client-request";
+    const allowedEvidenceTypes = missionData.evidencePolicy && Array.isArray(missionData.evidencePolicy.allowedEvidenceTypes)
+      ? missionData.evidencePolicy.allowedEvidenceTypes
+      : [];
+    if (allowedEvidenceTypes.length > 0 && !allowedEvidenceTypes.includes(evidenceType)) {
+      throw new HttpsError("invalid-argument", "Dieser Evidence-Typ ist fuer die Mission nicht erlaubt.");
+    }
     if (childProfileId && ["camera", "camera-evidence", "photo", "video"].includes(evidenceType)) {
       const childProfile = await assertGuardianCanUseChild(db, userId, childProfileId, HttpsError);
       requireChildPermission(childProfile, "cameraEvidence", HttpsError);
       await requireChildConsent(db, userId, childProfileId, "cameraEvidence", HttpsError);
     }
+
+    const existingEvidenceSnapshot = await db.collection("missionEvidence").where("attemptId", "==", attemptId).limit(20).get();
+    const latestEvidenceDoc = newestDocument(existingEvidenceSnapshot.docs);
+    if (latestEvidenceDoc) {
+      const latestEvidence = latestEvidenceDoc.data() || {};
+      if (
+        latestEvidence.evidenceType === evidenceType
+        && ["pending-server-review", "approved"].includes(latestEvidence.reviewStatus)
+      ) {
+        return {
+          accepted: true,
+          evidenceId: latestEvidenceDoc.id,
+          reviewStatus: latestEvidence.reviewStatus,
+          missionCompletionAuthorized: false,
+          xpAuthorized: false,
+          idempotent: true,
+        };
+      }
+    }
+
     const evidenceRef = db.collection("missionEvidence").doc();
     await evidenceRef.set({
       evidenceId: evidenceRef.id,
       attemptId,
-      missionId: (attempt.data() || {}).missionId,
+      missionId: attemptData.missionId,
       ownerUserId: userId,
       userId,
       childProfileId,
       evidenceType,
-      storageRef: optionalString(data.storageRef, 500),
-      metadata: data.metadata && typeof data.metadata === "object" ? data.metadata : {},
+      storageRef: evidenceType === "daily-user-confirmation" ? null : optionalString(data.storageRef, 500),
+      metadata: safeEvidenceMetadata(data.metadata),
       status: "submitted",
       reviewStatus: "pending-server-review",
       serverValidationStatus: "evidence-received",
@@ -190,8 +331,13 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       ...clientContext(data),
       ...serverTimestamps(),
     });
-    await db.collection("missionAttempts").doc(attemptId).set(
-      { status: "evidence-submitted", ...updatedTimestamp() },
+    await attemptRef.set(
+      {
+        status: "evidence-submitted",
+        latestEvidenceId: evidenceRef.id,
+        latestEvidenceReviewStatus: "pending-server-review",
+        ...updatedTimestamp(),
+      },
       { merge: true },
     );
     return {
@@ -200,6 +346,7 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       reviewStatus: "pending-server-review",
       missionCompletionAuthorized: false,
       xpAuthorized: false,
+      idempotent: false,
     };
   });
 
@@ -229,6 +376,11 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
         return { accepted: true, evidenceId, decision, idempotent: true, missionCompletionAuthorized: decision === "approved" };
       }
       throw new HttpsError("failed-precondition", "Evidence einer abgeschlossenen Mission kann nicht nachtraeglich geaendert werden.");
+    }
+    const attemptEvidenceSnapshot = await db.collection("missionEvidence").where("attemptId", "==", evidence.attemptId).limit(20).get();
+    const latestEvidenceDoc = newestDocument(attemptEvidenceSnapshot.docs);
+    if (latestEvidenceDoc && latestEvidenceDoc.id !== evidenceId) {
+      throw new HttpsError("failed-precondition", "Fuer diesen Attempt liegt bereits neuere Evidence vor.");
     }
 
     const serverValidationStatus = evidenceReviewServerStatus(decision);
@@ -303,14 +455,15 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
     }
 
     const evidenceSnapshot = await db.collection("missionEvidence").where("attemptId", "==", attemptId).limit(20).get();
-    const approvedEvidenceDoc = evidenceSnapshot.docs.find((doc) => {
-      const evidence = doc.data() || {};
-      return evidence.ownerUserId === userId
-        && evidence.missionId === attempt.missionId
-        && evidence.reviewStatus === "approved"
-        && evidence.serverValidationStatus === "evidence-approved";
-    });
-    if (!approvedEvidenceDoc) {
+    const approvedEvidenceDoc = newestDocument(evidenceSnapshot.docs);
+    const approvedEvidence = approvedEvidenceDoc ? approvedEvidenceDoc.data() || {} : {};
+    if (
+      !approvedEvidenceDoc
+      || approvedEvidence.ownerUserId !== userId
+      || approvedEvidence.missionId !== attempt.missionId
+      || approvedEvidence.reviewStatus !== "approved"
+      || approvedEvidence.serverValidationStatus !== "evidence-approved"
+    ) {
       throw new HttpsError("failed-precondition", "Serverseitig freigegebene Mission Evidence ist erforderlich.");
     }
 
@@ -318,7 +471,13 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
     if (!mission.exists || (mission.data() || {}).status !== "published") {
       throw new HttpsError("failed-precondition", "Mission ist nicht mehr publiziert.");
     }
-    const rewardXp = Math.min(Number((mission.data() || {}).rewardXp || 25), 100);
+    const missionData = mission.data() || {};
+    const rewardXp = Math.min(Number(missionData.rewardXp || 25), 100);
+    const completionDateKey = dateKeyInVienna(new Date());
+    const dailyMission = isDailyMissionId(attempt.missionId);
+    const idempotencyKey = dailyMission
+      ? dailyMissionCompletionIdempotencyKey(userId, attempt.missionId, completionDateKey)
+      : `mission_completion_${attemptId}`;
     const ledger = await applyXpDelta(db, {
       ownerUserId: userId,
       childProfileId: attempt.childProfileId || null,
@@ -327,9 +486,12 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       sourceType: "missionCompletion",
       sourceId: completionRef.id,
       actorUserId: "server",
-      idempotencyKey: `mission_completion_${attemptId}`,
-      metadata: { evidenceId: approvedEvidenceDoc.id, attemptId, missionId: attempt.missionId },
+      idempotencyKey,
+      metadata: { evidenceId: approvedEvidenceDoc.id, attemptId, missionId: attempt.missionId, dateKey: completionDateKey },
     });
+    if (dailyMission && ledger.idempotent && ledger.sourceId !== completionRef.id) {
+      throw new HttpsError("failed-precondition", "Diese Tagesmission wurde heute bereits abgeschlossen.");
+    }
 
     await completionRef.set({
       completionId: completionRef.id,
@@ -344,6 +506,9 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       serverValidationStatus: "completion-authorized",
       rewardXp,
       xpLedgerEventId: ledger.ledgerEventId,
+      dateKey: completionDateKey,
+      catalogId: missionData.catalogId || null,
+      completionPolicy: missionData.completionPolicy || null,
       completedAt: new Date().toISOString(),
       ...serverTimestamps(),
     });
@@ -363,7 +528,7 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       targetId: completionRef.id,
       ownerUserId: userId,
       childProfileId: attempt.childProfileId || null,
-      metadata: { rewardXp, ledgerEventId: ledger.ledgerEventId, evidenceId: approvedEvidenceDoc.id },
+      metadata: { rewardXp, ledgerEventId: ledger.ledgerEventId, evidenceId: approvedEvidenceDoc.id, dateKey: completionDateKey },
     });
     return {
       accepted: true,
@@ -374,7 +539,7 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       xpAuthorized: true,
       missionCompletionAuthorized: true,
       tokenAuthorized: false,
-      idempotent: false,
+      idempotent: ledger.idempotent,
     };
   });
 
