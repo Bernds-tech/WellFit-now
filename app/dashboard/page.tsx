@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { economyConfig, getPriceRate } from "@/config/economy";
 import { auth } from "@/lib/firebase";
 import type { InternalEconomyHealthSnapshot } from "@/lib/economy";
 import type { Beta1MissionSummary } from "@/lib/beta1/beta1Types";
@@ -49,8 +48,12 @@ export default function DashboardPage() {
   const [buddyLevel, setBuddyLevel] = useState(1);
   const [stepsToday, setStepsToday] = useState(0);
   const [buddyEnergy, setBuddyEnergy] = useState(100);
-  const [buddyHunger, setBuddyHunger] = useState(100);
+  const [buddyHunger, setBuddyHunger] = useState(70);
   const [foodPrice, setFoodPrice] = useState(5);
+  const [wfxpWalletReady, setWfxpWalletReady] = useState(false);
+  const [buddyCareServerOwned, setBuddyCareServerOwned] = useState(false);
+  const [buddyFoodAvailable, setBuddyFoodAvailable] = useState(false);
+  const [buddyCareError, setBuddyCareError] = useState<string | null>(null);
   const [serverMissionPreview, setServerMissionPreview] = useState<DashboardMissionPreview | undefined>(undefined);
   const [projectionSource, setProjectionSource] = useState<DashboardProjectionSource>("local");
   const [economyHealth, setEconomyHealth] = useState<InternalEconomyHealthSnapshot | null>(null);
@@ -152,6 +155,15 @@ export default function DashboardPage() {
           setBuddyLevel(projection.avatarLevel);
           setStepsToday(projection.stepsToday);
           setProjectionSource(projection.source);
+          setFoodPrice(projection.buddyFoodPriceWfxp);
+          setWfxpWalletReady(
+            projection.walletEnabled
+              && projection.balanceFinalAuthority
+              && projection.currency === "WFXP",
+          );
+          setBuddyCareServerOwned(projection.buddyCareServerOwned);
+          setBuddyFoodAvailable(projection.buddyFoodAvailable);
+          setBuddyCareError(projection.buddyCareError);
         });
       });
     };
@@ -168,13 +180,6 @@ export default function DashboardPage() {
       window.removeEventListener("wellfit-beta1-projection-updated", onProjectionUpdated);
     };
   }, [user]);
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      const priceRate = getPriceRate(economyConfig.reserve, economyConfig.totalSupply);
-      setFoodPrice(Math.round(economyConfig.baseFoodPrice * priceRate));
-    });
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -193,14 +198,12 @@ export default function DashboardPage() {
     handleFeedBuddy,
     isSubmittingMission,
     isCheckingMission,
+    isFeedingBuddy,
     pendingMission,
   } = useDashboardActions({
     user,
     mission,
     missionPreview,
-    pointsBalance,
-    buddyHunger,
-    foodPrice,
     setMessage,
     setPointsBalance,
     setBuddyHunger,
@@ -258,6 +261,11 @@ export default function DashboardPage() {
             buddyHunger={buddyHunger}
             pointsBalance={pointsBalance}
             foodPrice={foodPrice}
+            wfxpWalletReady={wfxpWalletReady}
+            serverCareReady={buddyCareServerOwned}
+            foodItemAvailable={buddyFoodAvailable}
+            buddyCareError={buddyCareError}
+            isFeeding={isFeedingBuddy}
             onFeedBuddy={handleFeedBuddy}
           />
 
