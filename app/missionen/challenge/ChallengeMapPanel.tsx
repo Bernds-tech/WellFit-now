@@ -1,32 +1,44 @@
+import type { Beta1NearbyMissionLocation } from "@/lib/beta1/clientNearbyMissionLocations";
 import GoogleMissionMap from "../components/GoogleMissionMap";
-import type { Challenge, ChallengeCategory } from "./challengeData";
+import type { ChallengeCategory } from "./challengeData";
 
 type ChallengeMapPanelProps = {
   categories: ChallengeCategory[];
   selectedCategory: ChallengeCategory;
   onSelectCategory: (category: ChallengeCategory) => void;
-  challenges: Challenge[];
-  selectedChallengeId: number;
-  onSelectChallenge: (challengeId: number) => void;
+  locations: Beta1NearbyMissionLocation[];
+  selectedLocationId: string | null;
+  onSelectLocation: (location: Beta1NearbyMissionLocation) => void;
+  radiusKm: number;
+  locationReady: boolean;
 };
+
+function formatDistance(distanceKm: number) {
+  return distanceKm < 1
+    ? `${Math.max(1, Math.round(distanceKm * 1000))} m`
+    : `${distanceKm.toFixed(1)} km`;
+}
 
 export default function ChallengeMapPanel({
   categories,
   selectedCategory,
   onSelectCategory,
-  challenges,
-  selectedChallengeId,
-  onSelectChallenge,
+  locations,
+  selectedLocationId,
+  onSelectLocation,
+  radiusKm,
+  locationReady,
 }: ChallengeMapPanelProps) {
-  const challengeMarkers = challenges.map((challenge) => ({
-    id: challenge.id,
-    title: challenge.title,
-    subtitle: challenge.category,
-    icon: challenge.icon,
-    lat: challenge.lat,
-    lng: challenge.lng,
-    status: challenge.playersActive > 10 ? "aktiv" : "live",
+  const markers = locations.map((location, index) => ({
+    id: index + 1,
+    title: location.title,
+    subtitle: `${formatDistance(location.distanceKm)}${location.locality ? ` · ${location.locality}` : ""}`,
+    icon: location.icon || "📍",
+    lat: location.latitude,
+    lng: location.longitude,
+    status: "sicher veröffentlicht",
   }));
+  const selectedMarkerId = Math.max(0, locations.findIndex((location) => location.locationId === selectedLocationId) + 1);
 
   return (
     <div className="min-h-0 overflow-hidden rounded-[22px] border border-cyan-300/10 bg-[#0a5564]/55">
@@ -34,6 +46,7 @@ export default function ChallengeMapPanel({
         {categories.map((category) => (
           <button
             key={category}
+            type="button"
             onClick={() => onSelectCategory(category)}
             className={`flex-1 border-r border-white/10 px-2 py-3 text-center text-sm font-semibold transition last:border-r-0 ${
               selectedCategory === category
@@ -46,11 +59,16 @@ export default function ChallengeMapPanel({
         ))}
       </div>
       <GoogleMissionMap
-        title="Google Maps Challenge"
-        subtitle="Standort automatisch · bewegen · lokale Challenges wählen"
-        markers={challengeMarkers}
-        selectedMarkerId={selectedChallengeId}
-        onSelectMarker={onSelectChallenge}
+        title="WellFit-Challenges in deiner Umgebung"
+        subtitle={locationReady
+          ? `${locations.length} sichere Orte im Radius von ${radiusKm} km`
+          : "Standortfreigabe lädt nur nahe, serverseitig veröffentlichte Orte"}
+        markers={markers}
+        selectedMarkerId={selectedMarkerId}
+        onSelectMarker={(markerId) => {
+          const location = locations[markerId - 1];
+          if (location) onSelectLocation(location);
+        }}
         zoom={13}
         minHeightClassName="h-[calc(100%-45px)] min-h-[480px]"
         autoRequestLocation
