@@ -71,6 +71,12 @@ function registerBeta1PoseEvidence(exportsTarget, { db, onCall, HttpsError }) {
       if (session.userId !== userId && session.ownerUserId !== userId) {
         throw new HttpsError("permission-denied", "Tracking-Session gehoert nicht diesem Nutzer.");
       }
+      if (session.proofType !== "pose") {
+        throw new HttpsError("failed-precondition", "Pose-Zusammenfassungen sind nur fuer Pose-Tracking-Sessions erlaubt.");
+      }
+      if (!optionalString(session.missionId, 180)) {
+        throw new HttpsError("failed-precondition", "Tracking-Session hat keine Mission-Zuordnung.");
+      }
       if (proofSnapshot.exists) {
         idempotent = true;
         return;
