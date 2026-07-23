@@ -10,6 +10,7 @@ const {
 const { registerBeta1DailyMissionCatalog } = require("./beta1DailyMissionCatalog");
 const { registerBeta1DailyMissionProgress } = require("./beta1DailyMissionProgress");
 const { registerBeta1PoseEvidence } = require("./beta1PoseEvidence");
+const { registerBeta1BuddyActions } = require("./beta1BuddyActions");
 
 const MISSION_EVIDENCE_REVIEW_STATUSES = new Set([
   "pending-server-review",
@@ -109,11 +110,12 @@ async function publicMissionEvidence(db, doc) {
 function registerBeta1SafetyAdmin(exportsTarget, deps) {
   const { db, onCall, HttpsError } = deps;
 
-  // These modules reuse the existing Beta-1 mission, evidence, completion and
-  // WFXP runtime. No parallel mission or economy service is created.
+  // These modules reuse the existing Beta-1 mission, evidence, completion,
+  // Buddy projection and WFXP runtime. No parallel economy service is created.
   registerBeta1DailyMissionCatalog(exportsTarget, deps);
   registerBeta1DailyMissionProgress(exportsTarget, deps);
   registerBeta1PoseEvidence(exportsTarget, deps);
+  registerBeta1BuddyActions(exportsTarget, deps);
 
   // User-owned status projection for the evidence-review completion loop.
   // It exposes no evidence payload, no other-user data and no write authority.

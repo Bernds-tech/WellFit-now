@@ -17,7 +17,14 @@ import { useBuddyState } from "./hooks/useBuddyState";
 export default function BuddyPage() {
   const { user, message, setMessage, isRealtimeConnected, loadedFromCache } = useDashboardUser();
   const [brightness, setBrightness] = useWellFitBrightness(100);
-  const { buddy, actions, buddyMessage, isSavingBuddy, handleBuddyAction } = useBuddyState(user);
+  const {
+    buddy,
+    actions,
+    buddyMessage,
+    isSavingBuddy,
+    serverReady,
+    handleBuddyAction,
+  } = useBuddyState(user);
 
   const story = useMemo(() => getBuddyStory(buddy), [buddy]);
 
@@ -48,6 +55,7 @@ export default function BuddyPage() {
             isRealtimeConnected={isRealtimeConnected}
             loadedFromCache={loadedFromCache}
             isSavingBuddy={isSavingBuddy}
+            serverReady={serverReady}
           />
 
           <BuddyHero buddy={buddy} />

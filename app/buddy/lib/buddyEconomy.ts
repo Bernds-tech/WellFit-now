@@ -10,4 +10,4 @@ export const buddyActionPrices: Record<BuddyActionType, number> = {
 };
 
 export const buddyEconomyNotice =
-  "MVP: Punkteaktionen sind aktuell nur als interne WellFit-Logik vorbereitet. Produktkritische Abzüge, Rewards, Inventar und Rückholmechaniken müssen später serverseitig abgesichert werden.";
+  "Beta 1: Buddy-Zustand, WFXP-Abzüge, Inventar und Audit werden ausschließlich serverseitig autorisiert. WFXP haben keinen Geldwert und können nicht ausgezahlt werden.";

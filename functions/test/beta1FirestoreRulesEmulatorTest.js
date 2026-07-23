@@ -25,6 +25,8 @@ async function run() {
       await adminDb.collection("userLevels").doc("alice").set({ ownerUserId: "alice", userId: "alice", xp: 120, level: 2 });
       await adminDb.collection("xpWallets").doc("alice").set({ ownerUserId: "alice", userId: "alice", balance: 100 });
       await adminDb.collection("xpLedgerEvents").doc("xp_alice").set({ ownerUserId: "alice", userId: "alice", delta: 25 });
+      await adminDb.collection("userAvatars").doc("alice_self_default").set({ ownerUserId: "alice", userId: "alice", buddyId: "default", hunger: 70, serverValidationStatus: "server-projected" });
+      await adminDb.collection("buddyCareActions").doc("action_alice").set({ ownerUserId: "alice", userId: "alice", actionType: "care", status: "completed" });
       await adminDb.collection("shopItems").doc("shop_public").set({ status: "published", priceWfxp: 20 });
       await adminDb.collection("shopPurchaseIntents").doc("intent_alice").set({ ownerUserId: "alice", userId: "alice", status: "pending" });
       await adminDb.collection("shopPurchaseEvents").doc("purchase_alice").set({ ownerUserId: "alice", userId: "alice", result: "completed" });
@@ -65,6 +67,7 @@ async function run() {
       ["missionCompletions", "completion_alice", { ownerUserId: "alice", xpLedgerEventId: "fake" }],
       ["xpWallets", "alice", { ownerUserId: "alice", balance: 999999 }],
       ["xpLedgerEvents", "xp_alice", { ownerUserId: "alice", delta: 999999 }],
+      ["userAvatars", "alice_self_default", { ownerUserId: "alice", hunger: 100 }],
       ["shopPurchaseIntents", "intent_alice", { ownerUserId: "alice", status: "completed" }],
       ["shopPurchaseEvents", "purchase_alice", { ownerUserId: "alice", result: "completed" }],
       ["userInventory", "inv_alice", { ownerUserId: "alice", itemDefinitionId: "rare" }],
@@ -91,6 +94,13 @@ async function run() {
       await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).update(mutation));
       await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).delete());
     }
+
+    await assertFails(aliceDb.collection("buddyCareActions").doc("action_alice").get());
+    await assertFails(bobDb.collection("buddyCareActions").doc("action_alice").get());
+    await assertFails(anonDb.collection("buddyCareActions").doc("action_alice").get());
+    await assertFails(aliceDb.collection("buddyCareActions").doc("action_hack").set({ ownerUserId: "alice", actionType: "care", status: "completed" }));
+    await assertFails(aliceDb.collection("buddyCareActions").doc("action_alice").update({ costWfxp: 0 }));
+    await assertFails(aliceDb.collection("buddyCareActions").doc("action_alice").delete());
 
     await assertFails(anonDb.collection("shopItems").doc("shop_public").get());
     await assertSucceeds(aliceDb.collection("shopItems").doc("shop_public").get());

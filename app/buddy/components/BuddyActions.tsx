@@ -13,7 +13,7 @@ export default function BuddyActions({ actions, onAction }: BuddyActionsProps) {
           <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-100/60">Interaktion</p>
           <h2 className="text-2xl font-black text-cyan-300">Aktionen</h2>
         </div>
-        <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-cyan-100">MVP</span>
+        <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200">Server-Authority</span>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -27,12 +27,16 @@ export default function BuddyActions({ actions, onAction }: BuddyActionsProps) {
           >
             <div className="flex items-center justify-between gap-2">
               <span className="font-black">{action.label}</span>
-              <span className="text-xs font-bold">{action.cost > 0 ? `${action.cost} P` : "frei"}</span>
+              <span className="text-xs font-bold">{action.cost > 0 ? `${action.cost} WFXP` : "frei"}</span>
             </div>
             <p className="mt-1 text-xs font-semibold opacity-80">{action.description}</p>
           </button>
         ))}
       </div>
+
+      <p className="mt-3 text-[11px] font-semibold leading-relaxed text-cyan-50/55">
+        Kostenpflichtige Aktionen werden atomar in der WFXP-Wallet, im Ledger und im Audit verbucht. Der Browser kann weder Guthaben noch Buddy-Zustand autorisieren.
+      </p>
     </section>
   );
 }
