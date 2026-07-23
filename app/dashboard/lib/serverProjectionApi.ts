@@ -2,7 +2,7 @@ import { readXpWalletProjection } from "@/lib/beta1/clientReadProjections";
 import { readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import type { User } from "@/types/user";
 
-export type DashboardProjectionSource = "beta1-wallet" | "server-preview" | "local";
+export type DashboardProjectionSource = "server" | "local";
 
 export type DashboardUserProjection = {
   source: DashboardProjectionSource;
@@ -118,7 +118,7 @@ const readLegacyServerPreview = async (
     const avatar = readObject(projection.avatar);
 
     return {
-      source: "server-preview",
+      source: "server",
       finalAuthority: false,
       balanceFinalAuthority: false,
       tokenized: false,
@@ -156,7 +156,7 @@ export const fetchDashboardUserProjection = async (user: User | null): Promise<D
 
   return {
     ...legacyPreview,
-    source: "beta1-wallet",
+    source: "server",
     balanceFinalAuthority: true,
     walletEnabled: true,
     currency: "WFXP",
