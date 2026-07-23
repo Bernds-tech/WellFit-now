@@ -50,6 +50,7 @@ export default function DashboardPage() {
   const [buddyEnergy, setBuddyEnergy] = useState(100);
   const [buddyHunger, setBuddyHunger] = useState(70);
   const [foodPrice, setFoodPrice] = useState(5);
+  const [wfxpWalletReady, setWfxpWalletReady] = useState(false);
   const [buddyCareServerOwned, setBuddyCareServerOwned] = useState(false);
   const [buddyFoodAvailable, setBuddyFoodAvailable] = useState(false);
   const [buddyCareError, setBuddyCareError] = useState<string | null>(null);
@@ -155,6 +156,11 @@ export default function DashboardPage() {
           setStepsToday(projection.stepsToday);
           setProjectionSource(projection.source);
           setFoodPrice(projection.buddyFoodPriceWfxp);
+          setWfxpWalletReady(
+            projection.walletEnabled
+              && projection.balanceFinalAuthority
+              && projection.currency === "WFXP",
+          );
           setBuddyCareServerOwned(projection.buddyCareServerOwned);
           setBuddyFoodAvailable(projection.buddyFoodAvailable);
           setBuddyCareError(projection.buddyCareError);
@@ -255,6 +261,7 @@ export default function DashboardPage() {
             buddyHunger={buddyHunger}
             pointsBalance={pointsBalance}
             foodPrice={foodPrice}
+            wfxpWalletReady={wfxpWalletReady}
             serverCareReady={buddyCareServerOwned}
             foodItemAvailable={buddyFoodAvailable}
             buddyCareError={buddyCareError}
