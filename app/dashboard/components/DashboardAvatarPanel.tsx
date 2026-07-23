@@ -4,6 +4,7 @@ type DashboardAvatarPanelProps = {
   buddyHunger: number;
   pointsBalance: number;
   foodPrice: number;
+  wfxpWalletReady: boolean;
   serverCareReady: boolean;
   foodItemAvailable: boolean;
   buddyCareError?: string | null;
@@ -23,6 +24,7 @@ export default function DashboardAvatarPanel({
   buddyHunger,
   pointsBalance,
   foodPrice,
+  wfxpWalletReady,
   serverCareReady,
   foodItemAvailable,
   buddyCareError,
@@ -32,20 +34,22 @@ export default function DashboardAvatarPanel({
   const mood = getBuddyMood(buddyEnergy, buddyHunger);
   const isFull = buddyHunger >= 100;
   const hasBalance = pointsBalance >= foodPrice;
-  const canFeed = serverCareReady && foodItemAvailable && hasBalance && !isFull && !isFeeding;
+  const canFeed = wfxpWalletReady && serverCareReady && foodItemAvailable && hasBalance && !isFull && !isFeeding;
   const remainingAfterFood = Math.max(0, pointsBalance - foodPrice);
 
   const buttonLabel = isFeeding
     ? "Serverkauf und Fütterung laufen..."
-    : !serverCareReady
-      ? "Buddy-Care-Server nicht bereit"
-      : !foodItemAvailable
-        ? "Energie-Snack nicht veröffentlicht"
-        : isFull
-          ? "Flammi ist satt"
-          : !hasBalance
-            ? "Zu wenig WFXP"
-            : `Füttern · ${foodPrice} WFXP`;
+    : !wfxpWalletReady
+      ? "WFXP-Wallet nicht bereit"
+      : !serverCareReady
+        ? "Buddy-Care-Server nicht bereit"
+        : !foodItemAvailable
+          ? "Energie-Snack nicht veröffentlicht"
+          : isFull
+            ? "Flammi ist satt"
+            : !hasBalance
+              ? "Zu wenig WFXP"
+              : `Füttern · ${foodPrice} WFXP`;
 
   return (
     <div className="rounded-[24px] bg-[#053841]/85 p-5 shadow-[0_8px_22px_rgba(0,0,0,0.12)]">
@@ -72,16 +76,18 @@ export default function DashboardAvatarPanel({
         </div>
       </div>
 
-      <div className={`mt-4 rounded-2xl border p-3 text-xs leading-relaxed ${serverCareReady ? "border-emerald-200/15 bg-emerald-100/5 text-emerald-50/75" : "border-amber-200/20 bg-amber-100/5 text-amber-50/80"}`}>
-        {serverCareReady
+      <div className={`mt-4 rounded-2xl border p-3 text-xs leading-relaxed ${serverCareReady && wfxpWalletReady ? "border-emerald-200/15 bg-emerald-100/5 text-emerald-50/75" : "border-amber-200/20 bg-amber-100/5 text-amber-50/80"}`}>
+        {serverCareReady && wfxpWalletReady
           ? "Hunger, Kauf, Inventarverbrauch und WFXP-Bilanz werden serverseitig autorisiert. Der Browser schreibt keine Punkte oder Avatarwerte mehr direkt."
-          : buddyCareError || "Die serverseitige Buddy-Care-Projektion ist derzeit nicht verfügbar."}
+          : !wfxpWalletReady
+            ? "Für Buddy-Care ist eine serverseitige WFXP-Wallet erforderlich. WFXP entstehen ausschließlich über freigegebene Serveraktionen."
+            : buddyCareError || "Die serverseitige Buddy-Care-Projektion ist derzeit nicht verfügbar."}
       </div>
 
       <div className="mt-3 grid gap-2 md:grid-cols-3">
         <div className="rounded-xl border border-white/10 bg-black/18 p-3">
           <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Authority</p>
-          <p className="mt-1 text-xs font-black text-cyan-100">{serverCareReady ? "Server-owned" : "Nicht bereit"}</p>
+          <p className="mt-1 text-xs font-black text-cyan-100">{serverCareReady && wfxpWalletReady ? "Server-owned" : "Nicht bereit"}</p>
         </div>
         <div className="rounded-xl border border-white/10 bg-black/18 p-3">
           <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Energie-Snack</p>
@@ -90,7 +96,7 @@ export default function DashboardAvatarPanel({
         <div className="rounded-xl border border-white/10 bg-black/18 p-3">
           <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/40">Rest danach</p>
           <p className="mt-1 text-xs font-black text-cyan-100">
-            {foodItemAvailable && hasBalance ? `${remainingAfterFood.toLocaleString("de-DE")} WFXP` : "–"}
+            {wfxpWalletReady && foodItemAvailable && hasBalance ? `${remainingAfterFood.toLocaleString("de-DE")} WFXP` : "–"}
           </p>
         </div>
       </div>
