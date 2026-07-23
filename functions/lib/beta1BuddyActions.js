@@ -75,7 +75,11 @@ function calculateLevelFromXp(totalXp) {
     remaining -= 100 + (level - 1) * 50;
     level += 1;
   }
-  return { level, xpForCurrentLevel: remaining, xpForNextLevel: 100 + (level - 1) * 50 };
+  return {
+    level,
+    xpForCurrentLevel: remaining,
+    xpForNextLevel: 100 + (level - 1) * 50,
+  };
 }
 
 function getBuddyStatus(state) {
@@ -122,13 +126,16 @@ function publicBuddyState(ownerUserId, childProfileId, avatarData, walletData, i
   const lifetimeEarned = Math.max(0, Math.floor(Number(walletData.lifetimeEarned || 0)));
   const levelInfo = calculateLevelFromXp(lifetimeEarned);
   const level = Math.max(normalized.level, levelInfo.level);
+  const xpForCurrentLevel = level === levelInfo.level ? levelInfo.xpForCurrentLevel : 0;
+  const xpForNextLevel = 100 + (level - 1) * 50;
   const state = { ...normalized, level };
   return {
     name: "Flammi",
     title: level >= 10 ? "Legendärer Feuerdrache" : level >= 5 ? "Mutiger Abenteuer-Buddy" : "Junger Feuerdrache",
     level,
-    xp: lifetimeEarned,
-    nextLevelXp: Math.max(100, level * 150),
+    xp: xpForCurrentLevel,
+    nextLevelXp: xpForNextLevel,
+    xpTotal: lifetimeEarned,
     points: Math.max(0, Math.floor(Number(walletData.balance || 0))),
     energy: state.energy,
     hunger: state.hunger,
@@ -142,7 +149,9 @@ function publicBuddyState(ownerUserId, childProfileId, avatarData, walletData, i
     initialized,
     serverValidationStatus: "server-projected",
     currency: BETA1_INTERNAL_CURRENCY,
+    finalAuthority: true,
     noMonetaryValue: true,
+    blockchainBacked: false,
     tokenAuthorized: false,
     cashoutAllowed: false,
   };
@@ -163,6 +172,7 @@ function hasStateChange(before, after, effects) {
 
 function parseActionTimestamp(value) {
   if (!value) return 0;
+  if (typeof value.toDate === "function") return value.toDate().getTime();
   const date = value instanceof Date ? value : new Date(value);
   return Number.isNaN(date.getTime()) ? 0 : date.getTime();
 }
@@ -189,6 +199,14 @@ function actionAuditBase({ actionId, userId, childProfileId, actionType, costWfx
   };
 }
 
+function publicActionPolicies() {
+  return Object.fromEntries(Object.entries(BUDDY_ACTION_POLICIES).map(([actionType, policy]) => [actionType, {
+    actionType,
+    costWfxp: policy.costWfxp,
+    cooldownSeconds: policy.cooldownSeconds,
+  }]));
+}
+
 function registerBeta1BuddyActions(exportsTarget, { db, onCall, HttpsError }) {
   exportsTarget.getBuddyStateProjection = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
@@ -211,13 +229,10 @@ function registerBeta1BuddyActions(exportsTarget, { db, onCall, HttpsError }) {
     return {
       accepted: true,
       buddy: publicBuddyState(userId, childProfileId, avatarData, walletData, avatarSnapshot.exists),
-      actionPolicies: Object.fromEntries(Object.entries(BUDDY_ACTION_POLICIES).map(([actionType, policy]) => [actionType, {
-        actionType,
-        costWfxp: policy.costWfxp,
-        cooldownSeconds: policy.cooldownSeconds,
-      }])),
+      actionPolicies: publicActionPolicies(),
       finalAuthority: true,
       noMonetaryValue: true,
+      blockchainBacked: false,
       tokenAuthorized: false,
       cashoutAllowed: false,
     };
@@ -264,6 +279,8 @@ function registerBeta1BuddyActions(exportsTarget, { db, onCall, HttpsError }) {
           costWfxp: policy.costWfxp,
           buddy: publicBuddyState(userId, childProfileId, avatarData, walletData, avatarSnapshot.exists),
           remainingWfxp: Math.max(0, Number(walletData.balance || 0)),
+          finalAuthority: true,
+          noMonetaryValue: true,
           tokenAuthorized: false,
           cashoutAllowed: false,
         };
@@ -275,6 +292,9 @@ function registerBeta1BuddyActions(exportsTarget, { db, onCall, HttpsError }) {
       }
       if (currentStatus !== "ranAway" && actionType === "search") {
         throw new HttpsError("failed-precondition", "Flammi ist nicht verschwunden.");
+      }
+      if (actionType === "clean" && currentStatus !== "messy") {
+        throw new HttpsError("failed-precondition", "Aufraeumen ist erst bei einem chaotischen Buddy-Zustand erforderlich.");
       }
       if (actionType === "play" && (before.energy <= 10 || before.hunger <= 10)) {
         throw new HttpsError("failed-precondition", "Flammi braucht zuerst Futter oder Ruhe.");
@@ -296,6 +316,8 @@ function registerBeta1BuddyActions(exportsTarget, { db, onCall, HttpsError }) {
           costWfxp: policy.costWfxp,
           buddy: publicBuddyState(userId, childProfileId, avatarData, walletData, avatarSnapshot.exists),
           remainingWfxp: currentBalance,
+          finalAuthority: true,
+          noMonetaryValue: true,
           tokenAuthorized: false,
           cashoutAllowed: false,
         };
@@ -311,6 +333,8 @@ function registerBeta1BuddyActions(exportsTarget, { db, onCall, HttpsError }) {
           costWfxp: policy.costWfxp,
           buddy: publicBuddyState(userId, childProfileId, avatarData, walletData, avatarSnapshot.exists),
           remainingWfxp: currentBalance,
+          finalAuthority: true,
+          noMonetaryValue: true,
           tokenAuthorized: false,
           cashoutAllowed: false,
         };
@@ -348,7 +372,9 @@ function registerBeta1BuddyActions(exportsTarget, { db, onCall, HttpsError }) {
         before: Object.fromEntries(BUDDY_STAT_KEYS.map((key) => [key, before[key]])),
         after: Object.fromEntries(BUDDY_STAT_KEYS.map((key) => [key, after[key]])),
         status: "completed",
+        finalAuthority: true,
         noMonetaryValue: true,
+        blockchainBacked: false,
         tokenAuthorized: false,
         cashoutAllowed: false,
         performedAt,
@@ -416,6 +442,8 @@ function registerBeta1BuddyActions(exportsTarget, { db, onCall, HttpsError }) {
         costWfxp: policy.costWfxp,
         buddy: publicBuddyState(userId, childProfileId, nextAvatar, projectedWallet, true),
         remainingWfxp,
+        finalAuthority: true,
+        noMonetaryValue: true,
         tokenAuthorized: false,
         cashoutAllowed: false,
       };
@@ -429,6 +457,7 @@ module.exports = {
   registerBeta1BuddyActions,
   BUDDY_ACTION_POLICIES,
   buddyAvatarId,
+  calculateLevelFromXp,
   getBuddyStatus,
   getBuddyDailyMode,
   normalizedBuddyData,
