@@ -1,74 +1,34 @@
 "use client";
 
-/* eslint-disable react-hooks/set-state-in-effect */
-
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppSidebar from "@/app/AppSidebar";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
-import { mergeClientBetaProjection, readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
-import type { User } from "@/types/user";
-import { appendClientMissionHistory } from "../lib/clientMissionHistory";
 import ChallengeDetailsPanel from "./ChallengeDetailsPanel";
 import ChallengeMapPanel from "./ChallengeMapPanel";
-import { challengeCategories, challenges, missionTabs, type Challenge, type ChallengeCategory } from "./challengeData";
-import { fetchChallengeRewardCompletion } from "./serverChallengeEconomyApi";
+import {
+  challengeCategories,
+  challenges,
+  missionTabs,
+  type Challenge,
+  type ChallengeCategory,
+} from "./challengeData";
+import { useChallengeMissionFirebase } from "./useChallengeMissionFirebase";
 
-const createUserFromProjection = (fallbackUser: User | null): User | null => {
-  const projection = readClientBetaProjection(fallbackUser?.id ?? null);
-  if (!projection) return fallbackUser;
-
-  return {
-    ...(fallbackUser ?? {
-      id: projection.userId,
-      firstName: "",
-      lastName: "",
-      email: "",
-      energy: projection.avatar.energy,
-      currency: "points" as const,
-      inventory: [],
-    }),
-    id: fallbackUser?.id ?? projection.userId,
-    points: projection.points,
-    xp: projection.xp,
-    level: projection.level,
-    stepsToday: projection.stepsToday,
-    avatar: projection.avatar,
-  };
-};
+function reviewStatusLabel(status: string | null | undefined) {
+  if (status === "approved") return "Evidence freigegeben";
+  if (status === "rejected") return "Evidence abgelehnt";
+  if (status === "needs-more-evidence") return "Neue Evidence erforderlich";
+  if (status === "pending-server-review") return "Admin-Review offen";
+  return "Server-Attempt gestartet";
+}
 
 export default function ChallengePage() {
   const [brightness, setBrightness] = useWellFitBrightness(100);
-  const [user, setUser] = useState<User | null>(null);
-  const [message, setMessage] = useState("Bereit für neue Challenges?");
-  const [serverPathLabel, setServerPathLabel] = useState("Reward Preview · Completion · Projection · Buddy-Sync bereit");
+  const [message, setMessage] = useState("Die serverseitige Challenge-Projektion wird geladen...");
   const [selectedCategory, setSelectedCategory] = useState<ChallengeCategory>("Wissen & Klarheit");
   const [selectedChallengeId, setSelectedChallengeId] = useState<number>(3);
-  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem("wellfit-user");
-    const savedFavorites = localStorage.getItem("wellfit-favorite-challenges");
-    let parsedUser: User | null = null;
-
-    if (savedUser) {
-      try {
-        parsedUser = JSON.parse(savedUser) as User;
-      } catch (error) {
-        console.error("Fehler beim Laden des Users", error);
-      }
-    }
-
-    setUser(createUserFromProjection(parsedUser));
-
-    if (savedFavorites) {
-      try {
-        setFavoriteIds(JSON.parse(savedFavorites));
-      } catch (error) {
-        console.error("Fehler beim Laden der Challenge-Favoriten", error);
-      }
-    }
-  }, []);
+  const challengeState = useChallengeMissionFirebase();
 
   const filteredChallenges = useMemo(
     () => challenges.filter((challenge) => challenge.category === selectedCategory),
@@ -81,101 +41,72 @@ export default function ChallengePage() {
   }, [filteredChallenges, selectedChallengeId]);
 
   const selectedChallenge = challenges.find((challenge) => challenge.id === selectedChallengeId) ?? challenges[0];
+  const activeAttemptByMission = useMemo(
+    () => new Map(challengeState.activeAttempts.map((attempt) => [attempt.missionId, attempt])),
+    [challengeState.activeAttempts],
+  );
+  const selectedAttempt = activeAttemptByMission.get(selectedChallenge.missionId) ?? null;
+  const selectedStarted = challengeState.startedMissionIds.includes(selectedChallenge.missionId);
+  const selectedCompleted = challengeState.completedMissionIds.includes(selectedChallenge.missionId);
+  const selectedBusy = challengeState.busyMissionId === selectedChallenge.missionId;
 
-  const toggleFavorite = (challengeId: number) => {
-    const updated = favoriteIds.includes(challengeId)
-      ? favoriteIds.filter((id) => id !== challengeId)
-      : [...favoriteIds, challengeId];
-    setFavoriteIds(updated);
-    localStorage.setItem("wellfit-favorite-challenges", JSON.stringify(updated));
+  const challengeProgress = (challenge: Challenge) => {
+    if (challengeState.completedMissionIds.includes(challenge.missionId)) return 100;
+    const attempt = activeAttemptByMission.get(challenge.missionId);
+    if (attempt?.reviewStatus === "approved") return 80;
+    if (attempt?.reviewStatus === "pending-server-review") return 55;
+    if (attempt?.reviewStatus === "rejected" || attempt?.reviewStatus === "needs-more-evidence") return 40;
+    if (challengeState.startedMissionIds.includes(challenge.missionId)) return 25;
+    return 0;
   };
 
-  const syncUserFromProjection = (nextUserId: string) => {
-    const nextUser = createUserFromProjection(user ?? {
-      id: nextUserId,
-      firstName: "",
-      lastName: "",
-      email: "",
-      points: 0,
-      xp: 0,
-      energy: 100,
-      level: 1,
-      stepsToday: 0,
-      currency: "points",
-      avatar: { hunger: 100, mood: 100, energy: 100, level: 1 },
-      inventory: [],
-    });
-
-    if (nextUser) {
-      setUser(nextUser);
-      localStorage.setItem("wellfit-user", JSON.stringify(nextUser));
-    }
+  const toggleFavorite = (missionId: string) => {
+    const updated = challengeState.favoriteMissionIds.includes(missionId)
+      ? challengeState.favoriteMissionIds.filter((id) => id !== missionId)
+      : [...challengeState.favoriteMissionIds, missionId];
+    challengeState.setFavoriteMissionIds(updated);
   };
 
   const prepareRoute = (challenge: Challenge) => {
-    setMessage(`Challenge-Route vorbereitet: ${challenge.title}. Standort dient als Bewegungskontext, keine Token/NFTs.`);
-    localStorage.setItem("wellfit-active-challenge", JSON.stringify(challenge.id));
+    setMessage(`Challenge-Route vorbereitet: ${challenge.title}. Die Karte ist nur Bewegungskontext und gewährt weder Abschluss noch WFXP.`);
+    window.localStorage.setItem("wellfit-active-challenge", challenge.missionId);
   };
 
-  const completeChallenge = async (challenge: Challenge) => {
-    const projection = readClientBetaProjection(user?.id ?? null);
-    const userId = user?.id ?? projection?.userId ?? "challenge-local-beta-user";
-    const currentPoints = projection?.points ?? user?.points ?? 0;
-    const currentXp = projection?.xp ?? user?.xp ?? 0;
-    const currentLevel = projection?.level ?? user?.level ?? 1;
-    const currentAvatar = projection?.avatar ?? user?.avatar ?? { hunger: 100, mood: 100, energy: 100, level: currentLevel };
-    const completedKey = `wellfit-challenge-${challenge.id}-completed`;
-
-    if (localStorage.getItem(completedKey)) {
-      setMessage(`Challenge bereits abgeschlossen: ${challenge.title}`);
+  const continueChallenge = async (challenge: Challenge) => {
+    if (!challengeState.userId) {
+      setMessage("Bitte melde dich an, um Challenges serverseitig zu starten.");
+      return;
+    }
+    if (challengeState.completedMissionIds.includes(challenge.missionId)) {
+      setMessage(`${challenge.title} wurde bereits serverseitig abgeschlossen.`);
       return;
     }
 
-    const completion = await fetchChallengeRewardCompletion({ userId, mission: challenge, currentPoints, currentXp, currentLevel });
-
-    if (completion.status === "completion_blocked") {
-      setMessage(`${challenge.title} wurde servernah blockiert. Keine Punkte vorgemerkt.`);
-      setServerPathLabel(`Reward Preview: ${completion.rewardPreviewStatus}`);
-      return;
+    try {
+      const result = await challengeState.continueChallenge(challenge);
+      setMessage(result.message);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Die Challenge konnte nicht sicher verarbeitet werden.");
     }
-
-    if (completion.status === "manual_review_required") {
-      setMessage(`${challenge.title} wurde für Review vorgemerkt. Keine direkte Punktegutschrift.`);
-      setServerPathLabel(`Reward Preview: ${completion.rewardPreviewStatus}`);
-      return;
-    }
-
-    mergeClientBetaProjection(userId, {
-      points: completion.projectedPoints,
-      xp: completion.projectedXp,
-      level: currentLevel,
-      avatar: {
-        ...currentAvatar,
-        energy: Math.max(0, (currentAvatar.energy ?? 100) - 2),
-        hunger: Math.max(0, (currentAvatar.hunger ?? 100) - 1),
-      },
-      source: "mission_completion",
-    });
-
-    localStorage.setItem(completedKey, "true");
-    appendClientMissionHistory({
-      id: `challenge-${challenge.id}-${new Date().toISOString().slice(0, 10)}`,
-      title: challenge.title,
-      category: "Challenge",
-      rewardLabel: `+${completion.approvedPointsPreview} interne Punkte`,
-      completedAt: new Date().toISOString(),
-      icon: challenge.icon,
-      pointsDelta: completion.approvedPointsPreview,
-      status: "geschafft",
-    });
-    setMessage(`${challenge.title} abgeschlossen: +${completion.approvedPointsPreview} interne Punkte. ${completion.message} ${completion.buddySyncMessage}`);
-    setServerPathLabel(
-      completion.draftCollections.length > 0
-        ? `Challenge-Drafts: ${completion.draftCollections.slice(0, 4).join(" · ")}`
-        : "Reward Preview · Completion · Projection im Fallback",
-    );
-    syncUserFromProjection(userId);
   };
+
+  const actionLabel = () => {
+    if (selectedCompleted) return "Challenge erledigt";
+    if (!challengeState.userId) return "Login erforderlich";
+    if (!selectedStarted) return "Challenge starten & bestätigen";
+    if (selectedAttempt?.reviewStatus === "approved") return "Freigabe abschließen";
+    if (selectedAttempt?.reviewStatus === "rejected" || selectedAttempt?.reviewStatus === "needs-more-evidence") {
+      return "Bestätigung erneut einreichen";
+    }
+    if (selectedAttempt?.reviewStatus === "pending-server-review") return "Reviewstatus prüfen";
+    return "Evidence einreichen";
+  };
+
+  const serverPathLabel = !challengeState.ready
+    ? "Serverprojektion wird geladen"
+    : challengeState.progressSource === "server"
+      ? "Attempt → Evidence → Admin-Review → Completion → WFXP"
+      : "Nur lokale Favoritenanzeige · keine Reward-Autorität";
 
   return (
     <main
@@ -186,16 +117,27 @@ export default function ChallengePage() {
         <AppSidebar brightness={brightness} onBrightnessChange={setBrightness} />
 
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
-          <div className="mb-4 flex justify-between">
+          <div className="mb-4 flex justify-between gap-4">
             <div>
               <h1 className="text-5xl font-extrabold leading-none">Challenge</h1>
-              <p className="mt-1 text-lg text-cyan-100/90">{message}</p>
+              <p className="mt-1 text-lg text-cyan-100/90">{challengeState.lastError || message}</p>
               <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100/45">{serverPathLabel}</p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="rounded-full border border-cyan-300/20 bg-[#0a6b78]/20 px-4 py-2 text-sm text-white/90">Synchron</button>
-              <button className="rounded-[16px] bg-orange-500 px-5 py-3 text-sm font-bold">Tracker starten</button>
-              <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">Flammi LVL {user?.avatar?.level ?? 1}</div>
+              <button
+                type="button"
+                onClick={() => void challengeState.refreshProgress()}
+                disabled={!challengeState.userId || selectedBusy}
+                className="rounded-full border border-cyan-300/20 bg-[#0a6b78]/20 px-4 py-2 text-sm text-white/90 disabled:opacity-40"
+              >
+                Serverstatus aktualisieren
+              </button>
+              <Link href="/mobile/analyse" className="rounded-[16px] bg-orange-500 px-5 py-3 text-sm font-bold transition hover:bg-orange-400">
+                Tracker starten
+              </Link>
+              <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">
+                Level {challengeState.level} · {challengeState.walletBalance} WFXP
+              </div>
             </div>
           </div>
 
@@ -222,29 +164,39 @@ export default function ChallengePage() {
             />
             <ChallengeDetailsPanel
               challenge={selectedChallenge}
-              isFavorite={favoriteIds.includes(selectedChallenge.id)}
-              onToggleFavorite={() => toggleFavorite(selectedChallenge.id)}
+              isFavorite={challengeState.favoriteMissionIds.includes(selectedChallenge.missionId)}
+              progress={challengeProgress(selectedChallenge)}
+              isStarted={selectedStarted}
+              isCompleted={selectedCompleted}
+              reviewStatus={selectedAttempt?.reviewStatus}
+              attemptStatus={selectedAttempt?.attemptStatus}
+              actionBusy={selectedBusy}
+              actionDisabled={!challengeState.ready || !challengeState.userId}
+              actionLabel={actionLabel()}
+              onToggleFavorite={() => toggleFavorite(selectedChallenge.missionId)}
               onPrepareRoute={() => prepareRoute(selectedChallenge)}
-              onCompleteChallenge={() => completeChallenge(selectedChallenge)}
+              onContinueChallenge={() => void continueChallenge(selectedChallenge)}
             />
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-5 py-3">
             <div className="flex items-center gap-3">
-              <div className="min-w-[150px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2">
-                <p className="text-[10px] uppercase text-white/50">Letzter Login: Heute 9:43</p>
-                <p className="mt-1 text-sm font-semibold text-white">Interne Beta aktiv</p>
+              <div className="min-w-[170px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2">
+                <p className="text-[10px] uppercase text-white/50">Challenge-Authority</p>
+                <p className="mt-1 text-sm font-semibold text-white">{reviewStatusLabel(selectedAttempt?.reviewStatus)}</p>
               </div>
               <div className="min-w-[150px] rounded-xl border border-yellow-500/60 bg-[#041f24] px-3 py-2 text-center">
-                <p className="text-[10px] uppercase text-white/50">Interne Punkte</p>
-                <p className="mt-1 text-lg font-bold text-white">{user?.points ?? 0}</p>
+                <p className="text-[10px] uppercase text-white/50">WFXP-Wallet</p>
+                <p className="mt-1 text-lg font-bold text-white">{challengeState.walletBalance}</p>
               </div>
-              <div className="min-w-[220px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2 text-center">
-                <p className="text-[10px] uppercase text-white/50">Beta-Hinweis</p>
-                <p className="mt-1 text-xs font-semibold text-white/70">Keine Token · keine NFTs · keine Auszahlung</p>
+              <div className="min-w-[230px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2 text-center">
+                <p className="text-[10px] uppercase text-white/50">Beta-Sicherheitsgrenze</p>
+                <p className="mt-1 text-xs font-semibold text-white/70">Server-Review · kein Geldwert · kein Cashout</p>
               </div>
-              <div className="min-w-[170px] rounded-xl border border-yellow-500/40 bg-[#0a3d46] px-3 py-2 text-center">
-                <p className="text-sm font-semibold text-yellow-400">⚠ Server-Event vorbereitet</p>
+              <div className={`min-w-[190px] rounded-xl border px-3 py-2 text-center ${challengeState.progressSource === "server" ? "border-emerald-400/40 bg-emerald-500/10" : "border-amber-400/40 bg-amber-500/10"}`}>
+                <p className={`text-sm font-semibold ${challengeState.progressSource === "server" ? "text-emerald-200" : "text-amber-200"}`}>
+                  {challengeState.progressSource === "server" ? "✓ Serverprojektion aktiv" : "⚠ Keine Reward-Autorität"}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3 text-xl text-white/80"><span>f</span><span>X</span><span>in</span></div>

@@ -11,6 +11,8 @@ const { registerBeta1DailyMissionCatalog } = require("./beta1DailyMissionCatalog
 const { registerBeta1DailyMissionProgress } = require("./beta1DailyMissionProgress");
 const { registerBeta1WeeklyMissionCatalog } = require("./beta1WeeklyMissionCatalog");
 const { registerBeta1WeeklyMissionProgress } = require("./beta1WeeklyMissionProgress");
+const { registerBeta1ChallengeMissionCatalog } = require("./beta1ChallengeMissionCatalog");
+const { registerBeta1ChallengeMissionProgress } = require("./beta1ChallengeMissionProgress");
 const { registerBeta1PoseEvidence } = require("./beta1PoseEvidence");
 const { registerBeta1BuddyActions } = require("./beta1BuddyActions");
 
@@ -118,6 +120,8 @@ function registerBeta1SafetyAdmin(exportsTarget, deps) {
   registerBeta1DailyMissionProgress(exportsTarget, deps);
   registerBeta1WeeklyMissionCatalog(exportsTarget, deps);
   registerBeta1WeeklyMissionProgress(exportsTarget, deps);
+  registerBeta1ChallengeMissionCatalog(exportsTarget, deps);
+  registerBeta1ChallengeMissionProgress(exportsTarget, deps);
   registerBeta1PoseEvidence(exportsTarget, deps);
   registerBeta1BuddyActions(exportsTarget, deps);
 

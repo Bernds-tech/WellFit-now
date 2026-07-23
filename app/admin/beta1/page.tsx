@@ -3,6 +3,7 @@
 import AppShell from "@/app/components/AppShell";
 import Beta1AdminPanel from "@/components/admin/Beta1AdminPanel";
 import BuddyCareCatalogAdminCard from "@/components/admin/BuddyCareCatalogAdminCard";
+import ChallengeMissionCatalogAdminCard from "@/components/admin/ChallengeMissionCatalogAdminCard";
 import DailyMissionCatalogAdminCard from "@/components/admin/DailyMissionCatalogAdminCard";
 import WeeklyMissionCatalogAdminCard from "@/components/admin/WeeklyMissionCatalogAdminCard";
 import MissionEvidenceReviewQueue from "@/components/admin/MissionEvidenceReviewQueue";
@@ -17,6 +18,7 @@ export default function Beta1AdminPage() {
       >
         <DailyMissionCatalogAdminCard />
         <WeeklyMissionCatalogAdminCard />
+        <ChallengeMissionCatalogAdminCard />
         <BuddyCareCatalogAdminCard />
         <MissionEvidenceReviewQueue />
         <Beta1AdminPanel />
