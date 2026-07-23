@@ -91,15 +91,16 @@ export function createUserProjectionSnapshot(input: UserProjectionInput): UserPr
     projectionDocuments: {
       balance: `${userId}_balance`,
       avatar: `${userId}_avatar`,
-      daily: `${userId}_daily_current`,
-      progress: `${userId}_progress`,
+      daily: "getDailyMissionProgress",
+      progress: "getDailyMissionProgress",
     },
     persistence,
     projectionPlan,
     warnings: [
-      "Projection is a beta read fallback, not final ledger authority.",
-      "Do not harden firestore.rules for points, XP, level, avatar or daily state until UI reads server projections safely.",
-      "No token, NFT, wallet, payout, purchase or blockchain transfer is enabled.",
+      "This endpoint remains a beta fallback for legacy balance and avatar consumers, not final ledger authority.",
+      "Daily mission state, streak and level have moved to getDailyMissionProgress and their legacy Firestore collections are client read-only.",
+      "Do not remove the remaining users/{userId} points, XP, level or avatar bridge until every unrelated UI consumer has migrated.",
+      "No token, NFT, payout, purchase or blockchain transfer is enabled.",
     ],
   };
 }
