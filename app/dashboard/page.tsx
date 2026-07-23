@@ -4,6 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { economyConfig, getPriceRate } from "@/config/economy";
 import { auth } from "@/lib/firebase";
 import type { InternalEconomyHealthSnapshot } from "@/lib/economy";
+import type { Beta1MissionSummary } from "@/lib/beta1/beta1Types";
+import { readPublishedMissions } from "@/lib/beta1/clientReadProjections";
 import { signOut } from "firebase/auth";
 
 import AppSidebar from "@/app/AppSidebar";
@@ -17,7 +19,11 @@ import Beta1ReadProjectionPanel from "./components/Beta1ReadProjectionPanel";
 import { useDashboardUser } from "./hooks/useDashboardUser";
 import { useDashboardActions } from "./hooks/useDashboardActions";
 import type { DashboardMissionPreview } from "./types";
-import { getPersonalMission } from "./lib/personalMission";
+import {
+  getPersonalMission,
+  getServerBackedDashboardMission,
+  selectPublishedDashboardMission,
+} from "./lib/personalMission";
 import {
   createDashboardMissionRewardPreview,
   getRewardPreviewUiLabel,
@@ -46,10 +52,17 @@ export default function DashboardPage() {
   const [projectionSource, setProjectionSource] = useState<"server" | "local">("local");
   const [economyHealth, setEconomyHealth] = useState<InternalEconomyHealthSnapshot | null>(null);
   const [economyHealthSource, setEconomyHealthSource] = useState<"server" | "local">("local");
+  const [publishedMission, setPublishedMission] = useState<Beta1MissionSummary | null>(null);
+  const [missionCatalogLoading, setMissionCatalogLoading] = useState(false);
+  const [missionCatalogError, setMissionCatalogError] = useState<string | null>(null);
 
-  const mission = useMemo(() => getPersonalMission(user), [user]);
-  const localMissionPreview = useMemo<DashboardMissionPreview | undefined>(() => {
-    if (!mission) return undefined;
+  const personalMission = useMemo(() => getPersonalMission(user), [user]);
+  const mission = useMemo(
+    () => publishedMission ? getServerBackedDashboardMission(publishedMission, personalMission) : personalMission,
+    [personalMission, publishedMission],
+  );
+
+  const localMissionPreview = useMemo<DashboardMissionPreview>(() => {
     const localDecision = createDashboardMissionRewardPreview({ user, mission, stepsToday });
     return {
       decision: localDecision,
@@ -60,18 +73,47 @@ export default function DashboardPage() {
   const missionPreview = serverMissionPreview ?? localMissionPreview;
 
   useEffect(() => {
-    if (!mission) {
-      queueMicrotask(() => setServerMissionPreview(undefined));
-      return;
+    let cancelled = false;
+    if (!user) {
+      queueMicrotask(() => {
+        if (cancelled) return;
+        setPublishedMission(null);
+        setMissionCatalogLoading(false);
+        setMissionCatalogError(null);
+      });
+      return () => {
+        cancelled = true;
+      };
     }
 
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setMissionCatalogLoading(true);
+      setMissionCatalogError(null);
+    });
+
+    readPublishedMissions().then((result) => {
+      if (cancelled) return;
+      const selected = selectPublishedDashboardMission(result.data);
+      setPublishedMission(selected);
+      setMissionCatalogLoading(false);
+      setMissionCatalogError(
+        result.error
+          ?? (selected ? null : "Derzeit ist keine veröffentlichte Beta-1-Mission vorhanden."),
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
     let isCancelled = false;
     queueMicrotask(() => setServerMissionPreview(undefined));
 
     fetchDashboardMissionRewardPreview({ user, mission, stepsToday }).then((preview) => {
-      if (!isCancelled) {
-        setServerMissionPreview(preview);
-      }
+      if (!isCancelled) setServerMissionPreview(preview);
     });
 
     return () => {
@@ -82,7 +124,7 @@ export default function DashboardPage() {
   useEffect(() => {
     let isCancelled = false;
 
-    fetchDashboardEconomyHealthPreview({ requestedReward: mission?.reward ?? 100 }).then((preview) => {
+    fetchDashboardEconomyHealthPreview({ requestedReward: mission.reward }).then((preview) => {
       if (isCancelled) return;
       setEconomyHealth(preview.health);
       setEconomyHealthSource(preview.source);
@@ -91,7 +133,7 @@ export default function DashboardPage() {
     return () => {
       isCancelled = true;
     };
-  }, [mission?.reward]);
+  }, [mission.reward]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -139,29 +181,23 @@ export default function DashboardPage() {
     }
   };
 
-  const { handleStartMission, handleFeedBuddy } = useDashboardActions({
+  const { handleStartMission, handleFeedBuddy, isSubmittingMission } = useDashboardActions({
     user,
     mission,
     missionPreview,
     pointsBalance,
-    stepsToday,
-    buddyEnergy,
     buddyHunger,
-    buddyLevel,
     foodPrice,
     setMessage,
     setPointsBalance,
-    setStepsToday,
-    setBuddyEnergy,
     setBuddyHunger,
-    setBuddyLevel,
   });
 
   return (
     <main
       className="h-screen w-screen overflow-hidden text-white"
       style={{
-        background: `linear-gradient(160deg, rgba(15,23,42,0.98), rgba(30,41,59,0.96))`,
+        background: "linear-gradient(160deg, rgba(15,23,42,0.98), rgba(30,41,59,0.96))",
       }}
     >
       <div className="flex h-full">
@@ -189,14 +225,15 @@ export default function DashboardPage() {
             economyHealthSource={economyHealthSource}
           />
 
-          {mission && (
-            <DashboardMissionPanel
-              mission={mission}
-              missionPreview={missionPreview}
-              stepsToday={stepsToday}
-              onStartMission={handleStartMission}
-            />
-          )}
+          <DashboardMissionPanel
+            mission={mission}
+            missionPreview={missionPreview}
+            stepsToday={stepsToday}
+            onStartMission={handleStartMission}
+            isSubmittingMission={isSubmittingMission}
+            missionCatalogLoading={missionCatalogLoading}
+            missionCatalogError={missionCatalogError}
+          />
 
           <DashboardAvatarPanel
             buddyLevel={buddyLevel}
