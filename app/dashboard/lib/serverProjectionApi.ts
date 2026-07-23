@@ -1,3 +1,4 @@
+import { getBuddyCareDashboardSnapshot } from "@/lib/beta1/clientBuddyCareCommands";
 import { readXpWalletProjection } from "@/lib/beta1/clientReadProjections";
 import { readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import type { User } from "@/types/user";
@@ -8,6 +9,10 @@ export type DashboardUserProjection = {
   source: DashboardProjectionSource;
   finalAuthority: false;
   balanceFinalAuthority: boolean;
+  buddyCareServerOwned: boolean;
+  buddyFoodAvailable: boolean;
+  buddyFoodPriceWfxp: number;
+  buddyCareError: string | null;
   tokenized: false;
   walletEnabled: boolean;
   nftEnabled: false;
@@ -30,7 +35,7 @@ const asFiniteNumber = (value: unknown, fallback: number) => {
 };
 
 const readObject = (value: unknown): Record<string, unknown> => {
-  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 };
 
 export const createLocalDashboardUserProjection = (user: User | null): DashboardUserProjection => {
@@ -41,6 +46,10 @@ export const createLocalDashboardUserProjection = (user: User | null): Dashboard
       source: "local",
       finalAuthority: false,
       balanceFinalAuthority: false,
+      buddyCareServerOwned: false,
+      buddyFoodAvailable: false,
+      buddyFoodPriceWfxp: 5,
+      buddyCareError: "Serverseitige Buddy-Care-Projektion ist noch nicht verfügbar.",
       tokenized: false,
       walletEnabled: false,
       nftEnabled: false,
@@ -54,7 +63,7 @@ export const createLocalDashboardUserProjection = (user: User | null): Dashboard
       avatarEnergy: clientProjection.avatar.energy,
       avatarHunger: clientProjection.avatar.hunger,
       checkedAt: new Date().toISOString(),
-      warnings: ["Client beta projection fallback. WFXP wallet is not available yet."],
+      warnings: ["Client beta projection fallback. WFXP wallet and Buddy-care server projection are not available yet."],
     };
   }
 
@@ -62,6 +71,10 @@ export const createLocalDashboardUserProjection = (user: User | null): Dashboard
     source: "local",
     finalAuthority: false,
     balanceFinalAuthority: false,
+    buddyCareServerOwned: false,
+    buddyFoodAvailable: false,
+    buddyFoodPriceWfxp: 5,
+    buddyCareError: "Serverseitige Buddy-Care-Projektion ist noch nicht verfügbar.",
     tokenized: false,
     walletEnabled: false,
     nftEnabled: false,
@@ -75,7 +88,7 @@ export const createLocalDashboardUserProjection = (user: User | null): Dashboard
     avatarEnergy: Math.max(0, Math.min(100, user?.avatar?.energy ?? 100)),
     avatarHunger: Math.max(0, Math.min(100, user?.avatar?.hunger ?? 100)),
     checkedAt: new Date().toISOString(),
-    warnings: ["Local legacy fallback. WFXP wallet is not available yet."],
+    warnings: ["Local legacy fallback. WFXP wallet and Buddy-care server projection are not available yet."],
   };
 };
 
@@ -106,7 +119,7 @@ const readLegacyServerPreview = async (
 
     if (!response.ok) return fallback;
 
-    const data = (await response.json()) as {
+    const data = await response.json() as {
       ok?: boolean;
       projection?: unknown;
     };
@@ -118,14 +131,8 @@ const readLegacyServerPreview = async (
     const avatar = readObject(projection.avatar);
 
     return {
+      ...fallback,
       source: "server",
-      finalAuthority: false,
-      balanceFinalAuthority: false,
-      tokenized: false,
-      walletEnabled: false,
-      nftEnabled: false,
-      writeEnabledNow: false,
-      currency: "legacy-points",
       points: Math.max(0, asFiniteNumber(balance.points, fallback.points)),
       xp: Math.max(0, asFiniteNumber(balance.xp, fallback.xp)),
       level: Math.max(1, asFiniteNumber(balance.level, fallback.level)),
@@ -147,24 +154,56 @@ export const fetchDashboardUserProjection = async (user: User | null): Promise<D
   const fallback = createLocalDashboardUserProjection(user);
   if (!user) return fallback;
 
-  const [walletResult, legacyPreview] = await Promise.all([
+  const [walletResult, legacyPreview, buddyCare] = await Promise.all([
     readXpWalletProjection(),
     readLegacyServerPreview(user, fallback),
+    getBuddyCareDashboardSnapshot(),
   ]);
 
-  if (!walletResult.data) return legacyPreview;
+  const walletProjection: DashboardUserProjection = walletResult.data
+    ? {
+        ...legacyPreview,
+        source: "server",
+        balanceFinalAuthority: true,
+        walletEnabled: true,
+        currency: "WFXP",
+        points: Math.max(0, walletResult.data.balance),
+      }
+    : legacyPreview;
+
+  if (!buddyCare.buddy) {
+    return {
+      ...walletProjection,
+      buddyCareServerOwned: false,
+      buddyFoodAvailable: buddyCare.foodItemAvailable,
+      buddyFoodPriceWfxp: buddyCare.foodItem?.priceWfxp ?? 5,
+      buddyCareError: buddyCare.error,
+      checkedAt: new Date().toISOString(),
+      warnings: [
+        ...walletProjection.warnings,
+        buddyCare.error ?? "Buddy-care server projection is not available.",
+      ],
+    };
+  }
 
   return {
-    ...legacyPreview,
+    ...walletProjection,
     source: "server",
-    balanceFinalAuthority: true,
-    walletEnabled: true,
-    currency: "WFXP",
-    points: Math.max(0, walletResult.data.balance),
+    buddyCareServerOwned: true,
+    buddyFoodAvailable: buddyCare.foodItemAvailable,
+    buddyFoodPriceWfxp: buddyCare.foodItem?.priceWfxp ?? 5,
+    buddyCareError: buddyCare.error,
+    avatarLevel: buddyCare.buddy.level,
+    avatarEnergy: buddyCare.buddy.energy,
+    avatarHunger: buddyCare.buddy.hunger,
     checkedAt: new Date().toISOString(),
     warnings: [
-      "Balance comes from the server-authoritative Beta-1 WFXP wallet.",
-      "Avatar and step fields still use the existing display projection until their separate server migration is complete.",
+      ...(walletResult.data
+        ? ["Balance comes from the server-authoritative Beta-1 WFXP wallet."]
+        : walletProjection.warnings),
+      "Buddy hunger, energy and level come from the server-owned userAvatars projection.",
+      "Step display remains on the transitional projection until its separate migration is complete.",
+      ...(buddyCare.error ? [buddyCare.error] : []),
     ],
   };
 };
