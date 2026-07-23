@@ -12,6 +12,7 @@ const {
 const MAX_LOCATION_DOCS = 500;
 const MAX_NEARBY_RESULTS = 50;
 const MAX_RADIUS_KM = 100;
+const DEFAULT_START_DISTANCE_KM = 0.5;
 const REGION_ID_PATTERN = /^[a-z0-9](?:[a-z0-9._:-]{0,78}[a-z0-9])?$/i;
 
 function normalizeRegionId(value) {
@@ -46,6 +47,12 @@ function haversineDistanceKm(left, right) {
   return radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function safeMissionIds(value) {
+  return Array.isArray(value)
+    ? value.map((entry) => optionalString(entry, 160)).filter(Boolean).slice(0, 20)
+    : [];
+}
+
 function publicMissionLocation(doc, distanceKm) {
   const data = doc.data() || {};
   return {
@@ -61,11 +68,55 @@ function publicMissionLocation(doc, distanceKm) {
     distanceKm: Number(distanceKm.toFixed(2)),
     icon: optionalString(data.icon, 12) || "📍",
     partnerName: optionalString(data.partnerName, 120),
-    missionIds: Array.isArray(data.missionIds)
-      ? data.missionIds.map((value) => optionalString(value, 160)).filter(Boolean).slice(0, 20)
-      : [],
+    missionIds: safeMissionIds(data.missionIds),
     safeLocationReviewed: data.safeLocationReviewed === true,
     status: "published",
+  };
+}
+
+async function requirePublishedNearbyMissionLocation(db, input, HttpsError) {
+  const locationId = requiredString(input.locationId, "locationId", HttpsError, 160);
+  const missionId = requiredString(input.missionId, "missionId", HttpsError, 160);
+  const origin = normalizeCoordinates(input, HttpsError);
+  const maximumDistanceKm = Number.isFinite(Number(input.maxDistanceKm))
+    ? Math.max(0.05, Math.min(5, Number(input.maxDistanceKm)))
+    : DEFAULT_START_DISTANCE_KM;
+  const snapshot = await db.collection("missionLocations").doc(locationId).get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "Der ausgewaehlte WellFit-Ort wurde nicht gefunden.");
+  const location = snapshot.data() || {};
+  const missionIds = safeMissionIds(location.missionIds);
+  if (
+    location.status !== "published"
+    || location.safeLocationReviewed !== true
+    || !missionIds.includes(missionId)
+    || !Number.isFinite(Number(location.latitude))
+    || !Number.isFinite(Number(location.longitude))
+  ) {
+    throw new HttpsError("failed-precondition", "Der ausgewaehlte Ort ist fuer diese Mission nicht sicher veroeffentlicht.");
+  }
+  const distanceKm = haversineDistanceKm(origin, {
+    latitude: Number(location.latitude),
+    longitude: Number(location.longitude),
+  });
+  if (!Number.isFinite(distanceKm) || distanceKm > maximumDistanceKm) {
+    throw new HttpsError(
+      "failed-precondition",
+      `Die Mission kann nur in der Naehe des veroeffentlichten Orts gestartet werden (maximal ${Math.round(maximumDistanceKm * 1000)} Meter).`,
+    );
+  }
+  return {
+    locationId,
+    missionId,
+    title: optionalString(location.title, 120) || "WellFit Ort",
+    regionId: optionalString(location.regionId, 80),
+    countryCode: optionalString(location.countryCode, 8),
+    locality: optionalString(location.locality, 120),
+    locationType: optionalString(location.locationType, 80) || "public-space",
+    distanceKm,
+    distanceMeters: Math.round(distanceKm * 1000),
+    maximumDistanceKm,
+    locationAuthority: "server-published-nearby",
+    userLocationStored: false,
   };
 }
 
@@ -78,9 +129,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
     const radiusKm = Number.isFinite(requestedRadius)
       ? Math.max(0.25, Math.min(MAX_RADIUS_KM, requestedRadius))
       : 25;
-    const missionIds = new Set(Array.isArray(data.missionIds)
-      ? data.missionIds.map((value) => optionalString(value, 160)).filter(Boolean).slice(0, 20)
-      : []);
+    const missionIds = new Set(safeMissionIds(data.missionIds));
     const locationTypes = new Set(Array.isArray(data.locationTypes)
       ? data.locationTypes.map((value) => optionalString(value, 80)).filter(Boolean).slice(0, 10)
       : []);
@@ -97,9 +146,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
         ) {
           return [];
         }
-        const publishedMissionIds = Array.isArray(location.missionIds)
-          ? location.missionIds.map((value) => optionalString(value, 160)).filter(Boolean)
-          : [];
+        const publishedMissionIds = safeMissionIds(location.missionIds);
         if (missionIds.size > 0 && !publishedMissionIds.some((missionId) => missionIds.has(missionId))) return [];
         const locationType = optionalString(location.locationType, 80) || "public-space";
         if (locationTypes.size > 0 && !locationTypes.has(locationType)) return [];
@@ -135,9 +182,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
     const regionId = normalizeRegionId(data.regionId);
     if (!regionId) throw new HttpsError("invalid-argument", "regionId ist ungueltig.");
     const coordinates = normalizeCoordinates(data, HttpsError);
-    const missionIds = Array.isArray(data.missionIds)
-      ? [...new Set(data.missionIds.map((value) => optionalString(value, 160)).filter(Boolean))].slice(0, 20)
-      : [];
+    const missionIds = [...new Set(safeMissionIds(data.missionIds))];
     if (missionIds.length === 0) {
       throw new HttpsError("invalid-argument", "Mindestens eine Mission muss dem Ort zugeordnet sein.");
     }
@@ -215,5 +260,8 @@ module.exports = {
   normalizeRegionId,
   normalizeCoordinates,
   haversineDistanceKm,
+  safeMissionIds,
   publicMissionLocation,
+  requirePublishedNearbyMissionLocation,
+  DEFAULT_START_DISTANCE_KM,
 };
