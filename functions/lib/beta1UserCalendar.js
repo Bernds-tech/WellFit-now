@@ -1,7 +1,8 @@
 const { optionalString, serverTimestamps, updatedTimestamp } = require("./beta1Runtime");
 
 const DEFAULT_TIME_ZONE = "UTC";
-const TIME_ZONE_CHANGE_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+const TIME_ZONE_CHANGE_COOLDOWN_HOURS = 20;
+const TIME_ZONE_CHANGE_COOLDOWN_MS = TIME_ZONE_CHANGE_COOLDOWN_HOURS * 60 * 60 * 1000;
 
 function timestampToDate(value) {
   if (!value) return null;
@@ -125,7 +126,8 @@ async function resolveUserCalendarContext(db, userId, requestedTimeZoneValue, Ht
       previousTimeZone: null,
       timeZoneChangedAt: changedAt,
       calendarAuthority: "server-user-time-zone",
-      changeCooldownDays: 7,
+      timeZoneChangePolicy: "minimum-20-hours",
+      changeCooldownHours: TIME_ZONE_CHANGE_COOLDOWN_HOURS,
       ...serverTimestamps(),
     });
     timeZoneChanged = true;
@@ -148,7 +150,9 @@ async function resolveUserCalendarContext(db, userId, requestedTimeZoneValue, Ht
         previousTimeZone: storedTimeZone || null,
         timeZoneChangedAt: changedAtIso,
         calendarAuthority: "server-user-time-zone",
-        changeCooldownDays: 7,
+        timeZoneChangePolicy: "minimum-20-hours",
+        changeCooldownDays: null,
+        changeCooldownHours: TIME_ZONE_CHANGE_COOLDOWN_HOURS,
         ...updatedTimestamp(),
       }, { merge: true });
       timeZoneChanged = true;
@@ -166,6 +170,8 @@ async function resolveUserCalendarContext(db, userId, requestedTimeZoneValue, Ht
     dateKey,
     ...weekRange,
     calendarAuthority: "server-user-time-zone",
+    timeZoneChangePolicy: "minimum-20-hours",
+    timeZoneChangeCooldownHours: TIME_ZONE_CHANGE_COOLDOWN_HOURS,
     configured: snapshot.exists || Boolean(requestedTimeZone),
     timeZoneChanged,
     timeZoneChangeDeferred,
@@ -175,6 +181,7 @@ async function resolveUserCalendarContext(db, userId, requestedTimeZoneValue, Ht
 
 module.exports = {
   DEFAULT_TIME_ZONE,
+  TIME_ZONE_CHANGE_COOLDOWN_HOURS,
   TIME_ZONE_CHANGE_COOLDOWN_MS,
   timestampToDate,
   normalizeTimeZone,
