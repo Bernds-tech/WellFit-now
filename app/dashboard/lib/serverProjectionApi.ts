@@ -1,3 +1,4 @@
+import { readXpWalletProjection } from "@/lib/beta1/clientReadProjections";
 import { readClientBetaProjection } from "@/lib/economy/clientBetaProjection";
 import type { User } from "@/types/user";
 
@@ -6,10 +7,12 @@ export type DashboardProjectionSource = "server" | "local";
 export type DashboardUserProjection = {
   source: DashboardProjectionSource;
   finalAuthority: false;
+  balanceFinalAuthority: boolean;
   tokenized: false;
-  walletEnabled: false;
+  walletEnabled: boolean;
   nftEnabled: false;
   writeEnabledNow: false;
+  currency: "WFXP" | "legacy-points";
   points: number;
   xp: number;
   level: number;
@@ -37,10 +40,12 @@ export const createLocalDashboardUserProjection = (user: User | null): Dashboard
     return {
       source: "local",
       finalAuthority: false,
+      balanceFinalAuthority: false,
       tokenized: false,
       walletEnabled: false,
       nftEnabled: false,
       writeEnabledNow: false,
+      currency: "legacy-points",
       points: clientProjection.points,
       xp: clientProjection.xp,
       level: clientProjection.level,
@@ -49,17 +54,19 @@ export const createLocalDashboardUserProjection = (user: User | null): Dashboard
       avatarEnergy: clientProjection.avatar.energy,
       avatarHunger: clientProjection.avatar.hunger,
       checkedAt: new Date().toISOString(),
-      warnings: ["Client beta projection fallback. Final authority remains server ledger/projection target."],
+      warnings: ["Client beta projection fallback. WFXP wallet is not available yet."],
     };
   }
 
   return {
     source: "local",
     finalAuthority: false,
+    balanceFinalAuthority: false,
     tokenized: false,
     walletEnabled: false,
     nftEnabled: false,
     writeEnabledNow: false,
+    currency: "legacy-points",
     points: Math.max(0, user?.points ?? 0),
     xp: Math.max(0, user?.xp ?? 0),
     level: Math.max(1, user?.level ?? user?.avatar?.level ?? 1),
@@ -68,14 +75,14 @@ export const createLocalDashboardUserProjection = (user: User | null): Dashboard
     avatarEnergy: Math.max(0, Math.min(100, user?.avatar?.energy ?? 100)),
     avatarHunger: Math.max(0, Math.min(100, user?.avatar?.hunger ?? 100)),
     checkedAt: new Date().toISOString(),
-    warnings: ["Local fallback projection. Final authority remains server ledger/projection target."],
+    warnings: ["Local legacy fallback. WFXP wallet is not available yet."],
   };
 };
 
-export const fetchDashboardUserProjection = async (user: User | null): Promise<DashboardUserProjection> => {
-  const fallback = createLocalDashboardUserProjection(user);
-  if (!user) return fallback;
-
+const readLegacyServerPreview = async (
+  user: User,
+  fallback: DashboardUserProjection,
+): Promise<DashboardUserProjection> => {
   try {
     const response = await fetch("/api/economy/user-projection", {
       method: "POST",
@@ -113,10 +120,12 @@ export const fetchDashboardUserProjection = async (user: User | null): Promise<D
     return {
       source: "server",
       finalAuthority: false,
+      balanceFinalAuthority: false,
       tokenized: false,
       walletEnabled: false,
       nftEnabled: false,
       writeEnabledNow: false,
+      currency: "legacy-points",
       points: Math.max(0, asFiniteNumber(balance.points, fallback.points)),
       xp: Math.max(0, asFiniteNumber(balance.xp, fallback.xp)),
       level: Math.max(1, asFiniteNumber(balance.level, fallback.level)),
@@ -132,4 +141,30 @@ export const fetchDashboardUserProjection = async (user: User | null): Promise<D
   } catch {
     return fallback;
   }
+};
+
+export const fetchDashboardUserProjection = async (user: User | null): Promise<DashboardUserProjection> => {
+  const fallback = createLocalDashboardUserProjection(user);
+  if (!user) return fallback;
+
+  const [walletResult, legacyPreview] = await Promise.all([
+    readXpWalletProjection(),
+    readLegacyServerPreview(user, fallback),
+  ]);
+
+  if (!walletResult.data) return legacyPreview;
+
+  return {
+    ...legacyPreview,
+    source: "server",
+    balanceFinalAuthority: true,
+    walletEnabled: true,
+    currency: "WFXP",
+    points: Math.max(0, walletResult.data.balance),
+    checkedAt: new Date().toISOString(),
+    warnings: [
+      "Balance comes from the server-authoritative Beta-1 WFXP wallet.",
+      "Avatar and step fields still use the existing display projection until their separate server migration is complete.",
+    ],
+  };
 };

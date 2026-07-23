@@ -29,7 +29,10 @@ import {
   getRewardPreviewUiLabel,
 } from "./lib/missionRewardPreview";
 import { fetchDashboardEconomyHealthPreview, fetchDashboardMissionRewardPreview } from "./lib/serverPreviewApi";
-import { fetchDashboardUserProjection } from "./lib/serverProjectionApi";
+import {
+  fetchDashboardUserProjection,
+  type DashboardProjectionSource,
+} from "./lib/serverProjectionApi";
 
 export default function DashboardPage() {
   const {
@@ -49,7 +52,7 @@ export default function DashboardPage() {
   const [buddyHunger, setBuddyHunger] = useState(100);
   const [foodPrice, setFoodPrice] = useState(5);
   const [serverMissionPreview, setServerMissionPreview] = useState<DashboardMissionPreview | undefined>(undefined);
-  const [projectionSource, setProjectionSource] = useState<"server" | "local">("local");
+  const [projectionSource, setProjectionSource] = useState<DashboardProjectionSource>("local");
   const [economyHealth, setEconomyHealth] = useState<InternalEconomyHealthSnapshot | null>(null);
   const [economyHealthSource, setEconomyHealthSource] = useState<"server" | "local">("local");
   const [publishedMission, setPublishedMission] = useState<Beta1MissionSummary | null>(null);
@@ -157,10 +160,12 @@ export default function DashboardPage() {
 
     const onProjectionUpdated = () => loadProjection();
     window.addEventListener("wellfit-client-beta-projection-updated", onProjectionUpdated);
+    window.addEventListener("wellfit-beta1-projection-updated", onProjectionUpdated);
 
     return () => {
       isCancelled = true;
       window.removeEventListener("wellfit-client-beta-projection-updated", onProjectionUpdated);
+      window.removeEventListener("wellfit-beta1-projection-updated", onProjectionUpdated);
     };
   }, [user]);
 
