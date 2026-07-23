@@ -17,10 +17,15 @@ async function run() {
       await adminDb.collection("parentalConsents").doc("consent_alice").set({ guardianUserId: "alice", childProfileId: "child_alice", status: "active" });
       await adminDb.collection("missions").doc("mission_public").set({ status: "published", title: "Public Mission", rewardXp: 25 });
       await adminDb.collection("missions").doc("mission_draft").set({ status: "draft", title: "Draft Mission" });
+      await adminDb.collection("missionLocations").doc("location_public_safe").set({ status: "published", safeLocationReviewed: true, regionId: "jp-tokyo", countryCode: "JP", title: "Tokyo Safe Mission Hub" });
+      await adminDb.collection("missionLocations").doc("location_public_unreviewed").set({ status: "published", safeLocationReviewed: false, regionId: "us-new-york", countryCode: "US", title: "Unreviewed Mission Hub" });
+      await adminDb.collection("missionLocations").doc("location_draft_safe").set({ status: "draft", safeLocationReviewed: true, regionId: "de-berlin", countryCode: "DE", title: "Draft Mission Hub" });
       await adminDb.collection("missionAttempts").doc("attempt_alice").set({ ownerUserId: "alice", userId: "alice", missionId: "mission_public", status: "started" });
       await adminDb.collection("missionEvidence").doc("evidence_alice").set({ ownerUserId: "alice", userId: "alice", attemptId: "attempt_alice" });
       await adminDb.collection("missionCompletions").doc("completion_alice").set({ ownerUserId: "alice", userId: "alice", attemptId: "attempt_alice", xpLedgerEventId: "xp_alice" });
+      await adminDb.collection("adventureAccessEvents").doc("access_alice").set({ ownerUserId: "alice", userId: "alice", attemptId: "attempt_alice", locationId: "location_public_safe", status: "completed" });
       await adminDb.collection("userDailyMissionState").doc("alice_2026-07-23").set({ ownerUserId: "alice", userId: "alice", dateKey: "2026-07-23", favoriteIds: ["mission_public"], dailySlotIds: ["mission_public", null, null] });
+      await adminDb.collection("userCalendarSettings").doc("alice").set({ ownerUserId: "alice", userId: "alice", timeZone: "Asia/Tokyo", calendarAuthority: "server-user-time-zone" });
       await adminDb.collection("userDailyStreaks").doc("alice").set({ ownerUserId: "alice", userId: "alice", currentStreak: 2, longestStreak: 3 });
       await adminDb.collection("userLevels").doc("alice").set({ ownerUserId: "alice", userId: "alice", xp: 120, level: 2 });
       await adminDb.collection("xpWallets").doc("alice").set({ ownerUserId: "alice", userId: "alice", balance: 100 });
@@ -35,10 +40,10 @@ async function run() {
       await adminDb.collection("checkpointScores").doc("score_alice").set({ ownerUserId: "alice", userId: "alice", checkpointId: "cp_public" });
       await adminDb.collection("checkpointMayors").doc("mayor_cp").set({ checkpointId: "cp_public", ownerUserId: "alice" });
       await adminDb.collection("mayorShareEvents").doc("share_alice").set({ mayorUserId: "alice", ownerUserId: "alice", xpAmount: 5 });
-      await adminDb.collection("glitchEvents").doc("glitch_active").set({ status: "active", multiplierCap: 10 });
+      await adminDb.collection("glitchEvents").doc("glitch_active").set({ status: "active", multiplierCap: 10, regionId: "de-berlin" });
       await adminDb.collection("glitchParticipants").doc("glitch_alice").set({ ownerUserId: "alice", userId: "alice", glitchEventId: "glitch_active" });
       await adminDb.collection("glitchBoostWindows").doc("boost_alice").set({ ownerUserId: "alice", userId: "alice", multiplier: 2 });
-      await adminDb.collection("glitchSafetyRules").doc("rule_beta1").set({ regionId: "vienna", status: "active" });
+      await adminDb.collection("glitchSafetyRules").doc("rule_beta1").set({ regionId: "de-berlin", status: "active" });
       await adminDb.collection("safetyReports").doc("report_alice").set({ reporterUserId: "alice", ownerUserId: "alice", status: "submitted" });
       await adminDb.collection("adminActions").doc("admin_action").set({ actorUserId: "admin", actionType: "mission-published" });
     });
@@ -61,10 +66,20 @@ async function run() {
     await assertFails(aliceDb.collection("missions").doc("mission_draft").get());
     await assertFails(aliceDb.collection("missions").doc("mission_hack").set({ status: "published", rewardXp: 9999 }));
 
+    await assertSucceeds(aliceDb.collection("missionLocations").doc("location_public_safe").get());
+    await assertSucceeds(bobDb.collection("missionLocations").doc("location_public_safe").get());
+    await assertFails(anonDb.collection("missionLocations").doc("location_public_safe").get());
+    await assertFails(aliceDb.collection("missionLocations").doc("location_public_unreviewed").get());
+    await assertFails(aliceDb.collection("missionLocations").doc("location_draft_safe").get());
+    await assertFails(aliceDb.collection("missionLocations").doc("location_hack").set({ status: "published", safeLocationReviewed: true, title: "Fake" }));
+    await assertFails(aliceDb.collection("missionLocations").doc("location_public_safe").update({ safeLocationReviewed: false }));
+    await assertFails(aliceDb.collection("missionLocations").doc("location_public_safe").delete());
+
     for (const [collectionName, ownedDocId, hackPayload] of [
       ["missionAttempts", "attempt_alice", { ownerUserId: "alice", status: "completed" }],
       ["missionEvidence", "evidence_alice", { ownerUserId: "alice", reviewStatus: "accepted" }],
       ["missionCompletions", "completion_alice", { ownerUserId: "alice", xpLedgerEventId: "fake" }],
+      ["adventureAccessEvents", "access_alice", { ownerUserId: "alice", accessCostWfxp: 0 }],
       ["xpWallets", "alice", { ownerUserId: "alice", balance: 999999 }],
       ["xpLedgerEvents", "xp_alice", { ownerUserId: "alice", delta: 999999 }],
       ["userAvatars", "alice_self_default", { ownerUserId: "alice", hunger: 100 }],
@@ -77,6 +92,8 @@ async function run() {
       ["safetyReports", "report_alice", { reporterUserId: "alice", status: "reviewed" }],
     ]) {
       await assertSucceeds(aliceDb.collection(collectionName).doc(ownedDocId).get());
+      await assertFails(bobDb.collection(collectionName).doc(ownedDocId).get());
+      await assertFails(anonDb.collection(collectionName).doc(ownedDocId).get());
       await assertFails(aliceDb.collection(collectionName).doc(`${collectionName}_hack`).set(hackPayload));
       await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).update(hackPayload));
       await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).delete());
@@ -84,6 +101,7 @@ async function run() {
 
     for (const [collectionName, ownedDocId, createDocId, mutation] of [
       ["userDailyMissionState", "alice_2026-07-23", "alice_2026-07-24", { favoriteIds: ["mission_public"] }],
+      ["userCalendarSettings", "alice", "alice_new", { timeZone: "Europe/London" }],
       ["userDailyStreaks", "alice", "alice_new", { currentStreak: 99 }],
       ["userLevels", "alice", "alice_new", { xp: 999999, level: 99 }],
     ]) {
@@ -113,7 +131,7 @@ async function run() {
     await assertSucceeds(aliceDb.collection("glitchEvents").doc("glitch_active").get());
     await assertFails(aliceDb.collection("glitchEvents").doc("glitch_hack").set({ status: "active", multiplierCap: 100 }));
     await assertFails(aliceDb.collection("glitchSafetyRules").doc("rule_beta1").get());
-    await assertFails(aliceDb.collection("glitchSafetyRules").doc("glitchSafetyRules_hack").set({ regionId: "vienna", status: "active" }));
+    await assertFails(aliceDb.collection("glitchSafetyRules").doc("glitchSafetyRules_hack").set({ regionId: "de-berlin", status: "active" }));
     await assertFails(aliceDb.collection("glitchSafetyRules").doc("rule_beta1").update({ status: "inactive" }));
     await assertFails(aliceDb.collection("glitchSafetyRules").doc("rule_beta1").delete());
     await assertFails(aliceDb.collection("adminActions").doc("admin_action").get());
