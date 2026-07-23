@@ -7,6 +7,7 @@ const {
   updatedTimestamp,
   writeAudit,
 } = require("./beta1Runtime");
+const { registerBeta1DailyMissionCatalog } = require("./beta1DailyMissionCatalog");
 
 const MISSION_EVIDENCE_REVIEW_STATUSES = new Set([
   "pending-server-review",
@@ -43,7 +44,14 @@ function publicMissionEvidence(doc) {
   };
 }
 
-function registerBeta1SafetyAdmin(exportsTarget, { db, onCall, HttpsError }) {
+function registerBeta1SafetyAdmin(exportsTarget, deps) {
+  const { db, onCall, HttpsError } = deps;
+
+  // The daily catalog is an admin-controlled mission operation and reuses the
+  // existing Beta-1 callable registration surface instead of adding another
+  // Functions entrypoint or parallel mission service.
+  registerBeta1DailyMissionCatalog(exportsTarget, deps);
+
   // User-owned status projection for the evidence-review completion loop.
   // It exposes no evidence payload, no other-user data and no write authority.
   exportsTarget.getMissionAttemptStatus = onCall(async (request) => {
