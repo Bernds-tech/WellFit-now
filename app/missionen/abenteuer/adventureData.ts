@@ -1,10 +1,14 @@
-export const ADVENTURE_CATALOG_ID = "wellfit-beta1-adventure-missions";
-export const ADVENTURE_CATALOG_VERSION = "1.0.0";
+import adventureCatalog from "@/functions/config/beta1-adventure-missions.json";
+
+export const ADVENTURE_CATALOG_ID = adventureCatalog.catalogId;
+export const ADVENTURE_CATALOG_VERSION = adventureCatalog.version;
 export const ADVENTURE_COMPLETION_POLICY = "once-per-mission-per-user" as const;
 export const ADVENTURE_ACCESS_POLICY = "one-time-wfxp-access-per-user" as const;
+export const ADVENTURE_LOCATION_POLICY = "nearby-published-location" as const;
+export const ADVENTURE_START_RADIUS_METERS = 500 as const;
 export const ADVENTURE_EVIDENCE_TYPE = "adventure-user-confirmation" as const;
 
-export type AdventureCategory = "Wissen & Kultur" | "Bewegung & Stadt" | "Lernen & Natur" | "AR & Erlebnis";
+export type AdventureCategory = "Museen" | "Parks & Städte" | "Tierparks" | "Burgen & Natur";
 export type AdventureDisplayType = "Bewegung" | "Abenteuer";
 export type AdventureServerType = "movement" | "learning" | "ar";
 
@@ -17,99 +21,91 @@ export type Adventure = {
   accessCostWfxp: number;
   category: AdventureCategory;
   description: string;
-  statusLabel: string;
-  distanceLabel: string;
-  playersLabel: string;
   icon: string;
   displayType: AdventureDisplayType;
   serverType: AdventureServerType;
+  locationTypes: string[];
+  milestones: string[];
   evidenceType: typeof ADVENTURE_EVIDENCE_TYPE;
   reviewRequired: true;
   childAllowed: false;
-  position: { left: string; top: string };
+  locationPolicy: typeof ADVENTURE_LOCATION_POLICY;
 };
 
-export const adventures: Adventure[] = [
-  {
-    id: 1,
-    missionId: "adventure-museum-quiz",
-    title: "Museums-Quiz",
-    shortLabel: "Quiz",
-    rewardWfxp: 240,
-    accessCostWfxp: 10,
-    category: "Wissen & Kultur",
-    description: "Entdecke ein Museum, löse Fragen und reiche den Abschluss zur serverseitigen Prüfung ein.",
-    statusLabel: "Premium",
-    distanceLabel: "2,6 km",
-    playersLabel: "4 vor Ort",
-    icon: "🏛️",
-    displayType: "Abenteuer",
-    serverType: "learning",
+const categoryValues: AdventureCategory[] = ["Museen", "Parks & Städte", "Tierparks", "Burgen & Natur"];
+const displayTypeValues: AdventureDisplayType[] = ["Bewegung", "Abenteuer"];
+const serverTypeValues: AdventureServerType[] = ["movement", "learning", "ar"];
+
+function asCategory(value: string): AdventureCategory {
+  if (categoryValues.includes(value as AdventureCategory)) return value as AdventureCategory;
+  throw new Error(`Invalid adventure category: ${value}`);
+}
+
+function asDisplayType(value: string): AdventureDisplayType {
+  if (displayTypeValues.includes(value as AdventureDisplayType)) return value as AdventureDisplayType;
+  throw new Error(`Invalid adventure display type: ${value}`);
+}
+
+function asServerType(value: string): AdventureServerType {
+  if (serverTypeValues.includes(value as AdventureServerType)) return value as AdventureServerType;
+  throw new Error(`Invalid adventure server type: ${value}`);
+}
+
+function iconForMission(missionId: string) {
+  if (missionId === "adventure-museum-quiz") return "🏛️";
+  if (missionId === "adventure-city-sprint") return "🏃";
+  if (missionId === "adventure-zoo-explorer") return "🦁";
+  return "🗺️";
+}
+
+if (
+  adventureCatalog.completionPolicy !== ADVENTURE_COMPLETION_POLICY
+  || adventureCatalog.accessPolicy !== ADVENTURE_ACCESS_POLICY
+  || adventureCatalog.locationPolicy !== ADVENTURE_LOCATION_POLICY
+  || adventureCatalog.startRadiusMeters !== ADVENTURE_START_RADIUS_METERS
+) {
+  throw new Error("Unsafe adventure catalog policy.");
+}
+
+export const adventures: Adventure[] = adventureCatalog.missions.map((mission, index) => {
+  if (
+    mission.evidenceType !== ADVENTURE_EVIDENCE_TYPE
+    || mission.reviewRequired !== true
+    || mission.childAllowed !== false
+    || !Array.isArray(mission.locationTypes)
+    || mission.locationTypes.length === 0
+    || !Array.isArray(mission.milestones)
+    || mission.milestones.length === 0
+  ) {
+    throw new Error(`Unsafe adventure catalog boundary: ${mission.missionId}`);
+  }
+  return {
+    id: index + 1,
+    missionId: mission.missionId,
+    title: mission.title,
+    shortLabel: mission.shortLabel,
+    rewardWfxp: mission.rewardXp,
+    accessCostWfxp: mission.accessCostWfxp,
+    category: asCategory(mission.category),
+    description: mission.description,
+    icon: iconForMission(mission.missionId),
+    displayType: asDisplayType(mission.displayType),
+    serverType: asServerType(mission.type),
+    locationTypes: [...mission.locationTypes],
+    milestones: [...mission.milestones],
     evidenceType: ADVENTURE_EVIDENCE_TYPE,
     reviewRequired: true,
     childAllowed: false,
-    position: { left: "24%", top: "18%" },
-  },
-  {
-    id: 2,
-    missionId: "adventure-city-sprint",
-    title: "City-Sprint",
-    shortLabel: "City",
-    rewardWfxp: 180,
-    accessCostWfxp: 8,
-    category: "Bewegung & Stadt",
-    description: "Erkunde eine Stadtstrecke, erreiche die Checkpoints und bestätige das Abenteuer zur Prüfung.",
-    statusLabel: "Startpunkt",
-    distanceLabel: "1,8 km",
-    playersLabel: "8 vor Ort",
-    icon: "🏃",
-    displayType: "Bewegung",
-    serverType: "movement",
-    evidenceType: ADVENTURE_EVIDENCE_TYPE,
-    reviewRequired: true,
-    childAllowed: false,
-    position: { left: "44%", top: "40%" },
-  },
-  {
-    id: 3,
-    missionId: "adventure-zoo-explorer",
-    title: "Zoo-Explorer",
-    shortLabel: "Zoo",
-    rewardWfxp: 180,
-    accessCostWfxp: 10,
-    category: "Lernen & Natur",
-    description: "Folge der Tierparkroute, löse Wissensaufgaben und reiche den Abschluss zur Prüfung ein.",
-    statusLabel: "Premium",
-    distanceLabel: "1,4 km",
-    playersLabel: "5 vor Ort",
-    icon: "🦁",
-    displayType: "Abenteuer",
-    serverType: "learning",
-    evidenceType: ADVENTURE_EVIDENCE_TYPE,
-    reviewRequired: true,
-    childAllowed: false,
-    position: { left: "65%", top: "28%" },
-  },
-  {
-    id: 4,
-    missionId: "adventure-ar-treasure",
-    title: "AR-Schatzsuche",
-    shortLabel: "AR",
-    rewardWfxp: 300,
-    accessCostWfxp: 12,
-    category: "AR & Erlebnis",
-    description: "Finde AR-Marker in deiner Umgebung und lasse den Abschluss serverseitig prüfen.",
-    statusLabel: "Premium",
-    distanceLabel: "3,0 km",
-    playersLabel: "9 vor Ort",
-    icon: "🗺️",
-    displayType: "Abenteuer",
-    serverType: "ar",
-    evidenceType: ADVENTURE_EVIDENCE_TYPE,
-    reviewRequired: true,
-    childAllowed: false,
-    position: { left: "76%", top: "58%" },
-  },
+    locationPolicy: ADVENTURE_LOCATION_POLICY,
+  };
+});
+
+export const adventureCategories: ("Alle Orte" | AdventureCategory)[] = [
+  "Alle Orte",
+  "Museen",
+  "Parks & Städte",
+  "Tierparks",
+  "Burgen & Natur",
 ];
 
 export const missionTabs = [
