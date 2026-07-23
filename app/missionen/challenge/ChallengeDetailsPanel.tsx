@@ -1,8 +1,12 @@
+import type { Beta1NearbyMissionLocation } from "@/lib/beta1/clientNearbyMissionLocations";
 import type { Beta1MissionReviewStatus } from "@/lib/beta1/clientMissionCommands";
 import type { Challenge } from "./challengeData";
 
 type ChallengeDetailsPanelProps = {
   challenge: Challenge;
+  location: Beta1NearbyMissionLocation | null;
+  activeLocationTitle?: string | null;
+  activeStartDistanceMeters?: number | null;
   isFavorite: boolean;
   progress: number;
   isStarted: boolean;
@@ -11,6 +15,7 @@ type ChallengeDetailsPanelProps = {
   attemptStatus?: string | null;
   actionBusy?: boolean;
   actionDisabled?: boolean;
+  routeDisabled?: boolean;
   actionLabel: string;
   onToggleFavorite: () => void;
   onPrepareRoute: () => void;
@@ -25,8 +30,17 @@ function reviewStatusLabel(status?: Beta1MissionReviewStatus | null) {
   return "Server-Attempt gestartet";
 }
 
+function formatDistance(distanceKm: number) {
+  return distanceKm < 1
+    ? `${Math.max(1, Math.round(distanceKm * 1000))} m`
+    : `${distanceKm.toFixed(1)} km`;
+}
+
 export default function ChallengeDetailsPanel({
   challenge,
+  location,
+  activeLocationTitle = null,
+  activeStartDistanceMeters = null,
   isFavorite,
   progress,
   isStarted,
@@ -35,17 +49,18 @@ export default function ChallengeDetailsPanel({
   attemptStatus = null,
   actionBusy = false,
   actionDisabled = false,
+  routeDisabled = false,
   actionLabel,
   onToggleFavorite,
   onPrepareRoute,
   onContinueChallenge,
 }: ChallengeDetailsPanelProps) {
+  const locationTitle = activeLocationTitle ?? location?.title ?? "Kein veröffentlichter Challenge-Ort ausgewählt";
+
   return (
     <div className="min-h-0 overflow-y-auto rounded-[22px] border border-cyan-300/10 bg-[#053841]/95 p-5 shadow-[0_10px_28px_rgba(0,0,0,0.18)]">
       <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="rounded-lg bg-cyan-500/20 px-3 py-2 text-sm font-bold text-cyan-300">
-          {challenge.category}
-        </div>
+        <div className="rounded-lg bg-cyan-500/20 px-3 py-2 text-sm font-bold text-cyan-300">{challenge.category}</div>
         <button
           type="button"
           onClick={onToggleFavorite}
@@ -74,9 +89,22 @@ export default function ChallengeDetailsPanel({
 
       <p className="mb-4 text-sm leading-relaxed text-white/85">{challenge.description}</p>
 
-      <div className="mb-4 rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-3 text-xs leading-relaxed text-white/65">
-        <span className="font-black uppercase tracking-[0.16em] text-cyan-200">Bewegungskontext</span><br />
-        Die Karte hilft dir, die Challenge-Route vorzubereiten. Eine Route oder lokale Browsermarkierung autorisiert weder Abschluss noch WFXP. Dafür sind Evidence-Review und Server-Completion erforderlich.
+      <div className="mb-4 rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-3 text-xs leading-relaxed text-white/70">
+        <span className="font-black uppercase tracking-[0.16em] text-cyan-200">Challenge-Ort</span>
+        <p className="mt-2 text-sm font-black text-white">{locationTitle}</p>
+        {location && !activeLocationTitle && (
+          <p className="mt-1">
+            {formatDistance(location.distanceKm)} entfernt
+            {location.locality ? ` · ${location.locality}` : ""}
+            {location.countryCode ? ` · ${location.countryCode}` : ""}
+          </p>
+        )}
+        {activeLocationTitle && activeStartDistanceMeters !== null && (
+          <p className="mt-1">Start bei {activeStartDistanceMeters} m Entfernung serverseitig autorisiert.</p>
+        )}
+        <p className="mt-2 text-white/55">
+          Eine neue Einreichung ist nur innerhalb von 500 Metern eines sicher veröffentlichten Ortes möglich. Rohkoordinaten werden nicht im Challenge-Datensatz gespeichert.
+        </p>
       </div>
 
       <div className="mb-2 flex items-center justify-between text-xs font-semibold text-white/65">
@@ -88,7 +116,7 @@ export default function ChallengeDetailsPanel({
       </div>
 
       <div className="space-y-2 text-sm text-white/80">
-        <p>👥 Vor Ort aktiv: {challenge.playersActive}</p>
+        <p>📍 Ortsautorität: veröffentlichter Ort in deiner Umgebung</p>
         <p>🏅 Server-Katalogwert: +{challenge.rewardWfxp} WFXP nach Freigabe</p>
         <p>📶 Level-Empfehlung: {challenge.level}</p>
         <p>🎁 Bewegungsziel: {challenge.movementGoal}</p>
@@ -102,9 +130,10 @@ export default function ChallengeDetailsPanel({
         <button
           type="button"
           onClick={onPrepareRoute}
-          className="w-full rounded-xl bg-cyan-500 px-4 py-3 text-base font-bold text-black transition hover:bg-cyan-400"
+          disabled={routeDisabled}
+          className="w-full rounded-xl bg-cyan-500 px-4 py-3 text-base font-bold text-black transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-45"
         >
-          Challenge-Route vorbereiten
+          Challenge-Ort auf Karte vorbereiten
         </button>
         <button
           type="button"
