@@ -6,12 +6,19 @@ const {
   writeAudit,
 } = require("./beta1Runtime");
 
-const ALLOWED_CATEGORIES = new Set(["Wissen & Kultur", "Bewegung & Stadt", "Lernen & Natur", "AR & Erlebnis"]);
+const ALLOWED_CATEGORIES = new Set(["Museen", "Parks & Städte", "Tierparks", "Burgen & Natur"]);
 const ALLOWED_DISPLAY_TYPES = new Set(["Bewegung", "Abenteuer"]);
 const ALLOWED_SERVER_TYPES = new Set(["movement", "learning", "ar"]);
 const REQUIRED_COMPLETION_POLICY = "once-per-mission-per-user";
 const REQUIRED_ACCESS_POLICY = "one-time-wfxp-access-per-user";
+const REQUIRED_LOCATION_POLICY = "nearby-published-location";
 const REQUIRED_EVIDENCE_TYPE = "adventure-user-confirmation";
+
+function asStringList(value, maxItems = 10, maxLength = 120) {
+  return Array.isArray(value)
+    ? value.map((item) => optionalString(item, maxLength)).filter(Boolean).slice(0, maxItems)
+    : [];
+}
 
 function validateAdventureCatalog(HttpsError) {
   if (!catalog || !Array.isArray(catalog.missions) || catalog.missions.length !== 4) {
@@ -20,8 +27,10 @@ function validateAdventureCatalog(HttpsError) {
   if (
     catalog.completionPolicy !== REQUIRED_COMPLETION_POLICY
     || catalog.accessPolicy !== REQUIRED_ACCESS_POLICY
+    || catalog.locationPolicy !== REQUIRED_LOCATION_POLICY
+    || Number(catalog.startRadiusMeters) !== 500
   ) {
-    throw new HttpsError("failed-precondition", "Beta-1 Abenteuerkatalog hat keine sichere Zugangs- und Abschlussgrenze.");
+    throw new HttpsError("failed-precondition", "Beta-1 Abenteuerkatalog hat keine sichere Zugangs-, Orts- und Abschlussgrenze.");
   }
 
   const ids = new Set();
@@ -30,12 +39,11 @@ function validateAdventureCatalog(HttpsError) {
     const title = optionalString(mission.title, 120);
     const shortLabel = optionalString(mission.shortLabel, 40);
     const description = optionalString(mission.description, 600);
-    const statusLabel = optionalString(mission.statusLabel, 80);
-    const distanceLabel = optionalString(mission.distanceLabel, 80);
-    const playersLabel = optionalString(mission.playersLabel, 80);
     const rewardXp = Number(mission.rewardXp);
     const accessCostWfxp = Number(mission.accessCostWfxp);
-    if (!missionId || !title || !shortLabel || !description || !statusLabel || !distanceLabel || !playersLabel) {
+    const locationTypes = asStringList(mission.locationTypes);
+    const milestones = asStringList(mission.milestones, 10, 240);
+    if (!missionId || !title || !shortLabel || !description || locationTypes.length === 0 || milestones.length === 0) {
       throw new HttpsError("failed-precondition", "Abenteuerkatalog enthaelt unvollstaendige Pflichtfelder.");
     }
     if (ids.has(missionId)) {
@@ -77,16 +85,17 @@ function publicAdventureMission(mission) {
     accessCostWfxp: mission.accessCostWfxp,
     category: mission.category,
     description: mission.description,
-    statusLabel: mission.statusLabel,
-    distanceLabel: mission.distanceLabel,
-    playersLabel: mission.playersLabel,
     displayType: mission.displayType,
     type: mission.type,
+    locationTypes: asStringList(mission.locationTypes),
+    milestones: asStringList(mission.milestones, 10, 240),
     childAllowed: false,
     evidenceType: REQUIRED_EVIDENCE_TYPE,
     reviewRequired: true,
     completionPolicy: REQUIRED_COMPLETION_POLICY,
     accessPolicy: REQUIRED_ACCESS_POLICY,
+    locationPolicy: REQUIRED_LOCATION_POLICY,
+    startRadiusMeters: 500,
     status: "published",
     noMonetaryValue: true,
     tokenAuthorized: false,
@@ -113,15 +122,16 @@ function registerBeta1AdventureMissionCatalog(exportsTarget, { db, onCall, Https
         displayType: mission.displayType,
         category: mission.category,
         description: mission.description,
-        statusLabel: mission.statusLabel,
-        distanceLabel: mission.distanceLabel,
-        playersLabel: mission.playersLabel,
+        locationTypes: asStringList(mission.locationTypes),
+        milestones: asStringList(mission.milestones, 10, 240),
         rewardXp: mission.rewardXp,
         accessCostWfxp: mission.accessCostWfxp,
         childAllowed: false,
         status: "published",
         completionPolicy: REQUIRED_COMPLETION_POLICY,
         accessPolicy: REQUIRED_ACCESS_POLICY,
+        locationPolicy: REQUIRED_LOCATION_POLICY,
+        startRadiusMeters: 500,
         evidencePolicy: {
           reviewRequired: true,
           allowedEvidenceTypes: [REQUIRED_EVIDENCE_TYPE],
@@ -150,6 +160,8 @@ function registerBeta1AdventureMissionCatalog(exportsTarget, { db, onCall, Https
         reviewRequired: true,
         completionPolicy: REQUIRED_COMPLETION_POLICY,
         accessPolicy: REQUIRED_ACCESS_POLICY,
+        locationPolicy: REQUIRED_LOCATION_POLICY,
+        startRadiusMeters: 500,
       },
     });
 
@@ -159,6 +171,8 @@ function registerBeta1AdventureMissionCatalog(exportsTarget, { db, onCall, Https
       catalogVersion: catalog.version,
       completionPolicy: REQUIRED_COMPLETION_POLICY,
       accessPolicy: REQUIRED_ACCESS_POLICY,
+      locationPolicy: REQUIRED_LOCATION_POLICY,
+      startRadiusMeters: 500,
       count: missions.length,
       currency: "WFXP",
       noMonetaryValue: true,
@@ -175,5 +189,6 @@ module.exports = {
   publicAdventureMission,
   REQUIRED_COMPLETION_POLICY,
   REQUIRED_ACCESS_POLICY,
+  REQUIRED_LOCATION_POLICY,
   REQUIRED_EVIDENCE_TYPE,
 };
