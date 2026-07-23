@@ -43,8 +43,9 @@ service cloud.firestore {
     }
 
     // Temporary MVP bridge fields.
-    // These must become server-only after the server ledger / projection path is active:
-    // RewardPreview -> Completion -> Ledger/Audit -> UserStats/UserAvatar projection.
+    // These must become server-only after every remaining UI consumer uses the
+    // server ledger / projection path. Daily missions and Buddy care are migrated,
+    // but unrelated screens may still use this compatibility bridge.
     function hasOnlyTemporaryEconomyBridgeKeys() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
         'points',
@@ -58,9 +59,6 @@ service cloud.firestore {
       ]);
     }
 
-    // Current beta compatibility rule.
-    // Do not harden this to safe profile keys only until Dashboard, Tagesmissionen and
-    // Buddy sinks write through a server-only ledger/projection path.
     function hasOnlyUserWritableKeys() {
       return hasOnlySafeUserProfileKeys() || hasOnlyTemporaryEconomyBridgeKeys();
     }
@@ -72,22 +70,27 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // Temporary MVP bridge: daily mission UI state is still owner-writable.
-    // Target: server projection / completion state after ledger persistence is active.
+    // Daily mission preferences are written through saveDailyMissionPreferences.
+    // Progress, goal, streak and level are derived server-side from mission
+    // completions and the WFXP wallet. Clients may read only their own legacy
+    // projection document and may never create, update or delete it directly.
     match /userDailyMissionState/{stateId} {
-      allow read, write: if isSignedIn() && stateId.matches(request.auth.uid + '_.*');
+      allow read: if isSignedIn() && stateId.matches(request.auth.uid + '_.*');
+      allow create, update, delete: if false;
     }
 
-    // Temporary MVP bridge: streaks are still owner-writable.
-    // Target: derive from server-authorized mission completion ledger events.
+    // Legacy compatibility projection. The active daily mission UI reads streaks
+    // from getDailyMissionProgress; direct client mutation is permanently denied.
     match /userDailyStreaks/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read: if isOwner(userId);
+      allow create, update, delete: if false;
     }
 
-    // Temporary MVP bridge: levels are still owner-writable.
-    // Target: derive from server-authorized XP ledger events.
+    // Legacy compatibility projection. Level and XP are derived from the
+    // server-authoritative WFXP wallet; direct client mutation is denied.
     match /userLevels/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read: if isOwner(userId);
+      allow create, update, delete: if false;
     }
 
     match /missionBuddyEvents/{eventId} {
@@ -150,9 +153,8 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Server-only economy authority collections prepared in Mega-Block 21.
-    // Clients may read their own records for transparency, but must never create,
-    // update or delete these records. Future server writes must use Admin/server code.
+    // Server-only economy authority collections. Clients may read their own
+    // records for transparency, but all writes use Admin/server code.
     match /ledgerEvents/{ledgerEventId} {
       allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
@@ -210,7 +212,6 @@ service cloud.firestore {
       allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
     }
-
 
     // Beta 1 runtime authority: clients may read only scoped records or published
     // definitions. All protected XP, mission, shop, inventory, mayor, glitch and
@@ -354,7 +355,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-
     function hasAgentAdminReadRole() {
       return isSignedIn() && request.auth.token.agentRole in ["owner", "admin_operator", "agent_supervisor", "readonly_observer", "support_operator", "agent_executor_service"];
     }
@@ -362,7 +362,6 @@ service cloud.firestore {
     match /adminActions/{actionId} {
       allow read, write: if false;
     }
-
 
     match /agentTaskProposals/{docId} {
       allow read: if hasAgentAdminReadRole();
@@ -404,7 +403,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-
     match /agentCenterDecisions/{docId} {
       allow read: if hasAgentAdminReadRole();
       allow create, update, delete: if false;
@@ -423,6 +421,7 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow create, update, delete: if false;
     }
+
     match /agentTaskGithubRunnerJobs/{jobId} {
       allow read: if isSignedIn();
       allow create, update, delete: if false;
@@ -432,6 +431,5 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow create, update, delete: if false;
     }
-
   }
 }
