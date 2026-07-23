@@ -9,6 +9,8 @@ const {
 } = require("./beta1Runtime");
 const { registerBeta1DailyMissionCatalog } = require("./beta1DailyMissionCatalog");
 const { registerBeta1DailyMissionProgress } = require("./beta1DailyMissionProgress");
+const { registerBeta1WeeklyMissionCatalog } = require("./beta1WeeklyMissionCatalog");
+const { registerBeta1WeeklyMissionProgress } = require("./beta1WeeklyMissionProgress");
 const { registerBeta1PoseEvidence } = require("./beta1PoseEvidence");
 const { registerBeta1BuddyActions } = require("./beta1BuddyActions");
 
@@ -114,6 +116,8 @@ function registerBeta1SafetyAdmin(exportsTarget, deps) {
   // Buddy projection and WFXP runtime. No parallel economy service is created.
   registerBeta1DailyMissionCatalog(exportsTarget, deps);
   registerBeta1DailyMissionProgress(exportsTarget, deps);
+  registerBeta1WeeklyMissionCatalog(exportsTarget, deps);
+  registerBeta1WeeklyMissionProgress(exportsTarget, deps);
   registerBeta1PoseEvidence(exportsTarget, deps);
   registerBeta1BuddyActions(exportsTarget, deps);
 
