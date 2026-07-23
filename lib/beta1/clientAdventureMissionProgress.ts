@@ -1,5 +1,7 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth } from "@/lib/firebase";
+import { requestCurrentCoordinates } from "@/lib/beta1/clientUserContext";
+import type { Beta1NearbyMissionLocation } from "@/lib/beta1/clientNearbyMissionLocations";
 import {
   getDashboardMissionAttemptStatus,
   type Beta1MissionReviewStatus,
@@ -9,6 +11,8 @@ import {
   ADVENTURE_CATALOG_ID,
   ADVENTURE_CATALOG_VERSION,
   ADVENTURE_COMPLETION_POLICY,
+  ADVENTURE_LOCATION_POLICY,
+  ADVENTURE_START_RADIUS_METERS,
   type Adventure,
 } from "@/app/missionen/abenteuer/adventureData";
 
@@ -19,6 +23,14 @@ export type Beta1AdventureActiveAttempt = {
   accessAuthorized: true;
   accessCostWfxp: number;
   accessLedgerEventId: string | null;
+  locationId: string;
+  locationTitle: string | null;
+  regionId: string | null;
+  countryCode: string | null;
+  locality: string | null;
+  locationType: string | null;
+  locationAuthority: "server-published-nearby";
+  accessStartDistanceMeters: number;
   evidenceId: string | null;
   reviewStatus: Beta1MissionReviewStatus | null;
   serverValidationStatus: string | null;
@@ -30,6 +42,8 @@ export type Beta1AdventureProgress = {
   catalogVersion: typeof ADVENTURE_CATALOG_VERSION;
   completionPolicy: typeof ADVENTURE_COMPLETION_POLICY;
   accessPolicy: typeof ADVENTURE_ACCESS_POLICY;
+  locationPolicy: typeof ADVENTURE_LOCATION_POLICY;
+  startRadiusMeters: typeof ADVENTURE_START_RADIUS_METERS;
   startedMissionIds: string[];
   completedMissionIds: string[];
   activeAttempts: Beta1AdventureActiveAttempt[];
@@ -41,6 +55,7 @@ export type Beta1AdventureProgress = {
   xpForNextLevel: number;
   walletAvailable: boolean;
   progressAuthority: "server-read";
+  locationAuthority: "server-published-nearby";
   noMonetaryValue: true;
 };
 
@@ -49,6 +64,9 @@ export type Beta1AdventureAccessResult = {
   message: string;
   remainingWfxp: number;
   accessCostWfxp: number;
+  locationId: string;
+  locationTitle: string | null;
+  regionId: string | null;
   idempotent: boolean;
 };
 
@@ -79,6 +97,12 @@ type StartAdventureResponse = AuthorityEnvelope & {
   accessAuthorized?: boolean;
   missionCompletionAuthorized?: boolean;
   xpAuthorized?: boolean;
+  locationId?: string;
+  locationTitle?: string | null;
+  regionId?: string | null;
+  locationAuthority?: unknown;
+  accessStartDistanceMeters?: unknown;
+  userLocationStored?: unknown;
   idempotent?: boolean;
 };
 
@@ -88,6 +112,8 @@ type SubmitAdventureResponse = AuthorityEnvelope & {
   attemptStatus?: string;
   reviewStatus?: unknown;
   accessAuthorized?: boolean;
+  locationId?: string;
+  regionId?: string | null;
   missionCompletionAuthorized?: boolean;
   xpAuthorized?: boolean;
   idempotent?: boolean;
@@ -99,6 +125,8 @@ type CompleteAdventureResponse = AuthorityEnvelope & {
   rewardXp?: number;
   evidenceId?: string;
   remainingWfxp?: number;
+  locationId?: string;
+  regionId?: string | null;
   xpAuthorized?: boolean;
   missionCompletionAuthorized?: boolean;
   idempotent?: boolean;
@@ -113,6 +141,10 @@ function isReviewStatus(value: unknown): value is Beta1MissionReviewStatus {
     || value === "approved"
     || value === "rejected"
     || value === "needs-more-evidence";
+}
+
+function asNullableString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value : null;
 }
 
 function asStringArray(value: unknown): string[] {
@@ -143,14 +175,17 @@ function callableErrorMessage(error: unknown): string {
 
   if (diagnostic.includes("unauthenticated")) return "Bitte melde dich erneut an, um Abenteuer zu verwenden.";
   if (diagnostic.includes("insufficient-wfxp-balance")) return "Dein WFXP-Guthaben reicht für diesen Abenteuerzugang nicht aus.";
+  if (diagnostic.includes("standortfreigabe") || diagnostic.includes("standortdienste")) return message;
+  if (diagnostic.includes("maximal 500 meter") || diagnostic.includes("naehe des veroeffentlichten orts")) return "Du musst dich höchstens 500 Meter vom veröffentlichten Startpunkt entfernt befinden.";
+  if (diagnostic.includes("ort ist fuer diese mission nicht sicher")) return "Der ausgewählte Ort ist für dieses Abenteuer nicht mehr sicher veröffentlicht.";
   if (diagnostic.includes("bereits abgeschlossen") || diagnostic.includes("bereits belohnt")) return "Dieses Abenteuer wurde bereits serverseitig abgeschlossen.";
-  if (diagnostic.includes("bezahlter abenteuerzugang")) return "Bitte buche zuerst den einmaligen WFXP-Zugang für dieses Abenteuer.";
+  if (diagnostic.includes("ortsgepruefter abenteuerzugang") || diagnostic.includes("bezahlter abenteuerzugang")) return "Bitte buche zuerst am veröffentlichten Startpunkt den einmaligen WFXP-Zugang.";
   if (diagnostic.includes("freigegebene abenteuer-evidence")) return "Das Abenteuer wartet noch auf eine serverseitige Evidence-Freigabe.";
   if (diagnostic.includes("permission-denied")) return "Dieser Abenteuer-Vorgang gehört nicht zu deinem Konto.";
-  if (diagnostic.includes("not-found")) return "Der Abenteuer-Vorgang wurde nicht gefunden.";
+  if (diagnostic.includes("not-found")) return "Der Abenteuer-Vorgang oder Startort wurde nicht gefunden.";
   if (diagnostic.includes("nicht sicher veroeffentlicht")) return "Der Abenteuerkatalog ist serverseitig noch nicht veröffentlicht.";
   if (diagnostic.includes("invalid adventure projection")) return "Die Abenteuer-Projektion war unvollständig und wurde verworfen.";
-  if (diagnostic.includes("failed-precondition")) return "Das Abenteuer kann in seinem aktuellen Zugangs- oder Prüfstatus nicht fortgesetzt werden.";
+  if (diagnostic.includes("failed-precondition")) return "Das Abenteuer kann in seinem aktuellen Zugangs-, Orts- oder Prüfstatus nicht fortgesetzt werden.";
   if (diagnostic.includes("network") || diagnostic.includes("unavailable")) return "Der sichere Abenteuerdienst ist gerade nicht erreichbar.";
   return message || "Das Abenteuer konnte nicht sicher verarbeitet werden.";
 }
@@ -164,6 +199,8 @@ function parseActiveAttempts(value: unknown): Beta1AdventureActiveAttempt[] {
       typeof item.missionId !== "string"
       || typeof item.attemptId !== "string"
       || item.accessAuthorized !== true
+      || typeof item.locationId !== "string"
+      || item.locationAuthority !== "server-published-nearby"
     ) {
       return [];
     }
@@ -173,10 +210,18 @@ function parseActiveAttempts(value: unknown): Beta1AdventureActiveAttempt[] {
       attemptStatus: typeof item.attemptStatus === "string" ? item.attemptStatus : "started",
       accessAuthorized: true,
       accessCostWfxp: asNonNegativeInteger(item.accessCostWfxp),
-      accessLedgerEventId: typeof item.accessLedgerEventId === "string" ? item.accessLedgerEventId : null,
-      evidenceId: typeof item.evidenceId === "string" ? item.evidenceId : null,
+      accessLedgerEventId: asNullableString(item.accessLedgerEventId),
+      locationId: item.locationId,
+      locationTitle: asNullableString(item.locationTitle),
+      regionId: asNullableString(item.regionId),
+      countryCode: asNullableString(item.countryCode),
+      locality: asNullableString(item.locality),
+      locationType: asNullableString(item.locationType),
+      locationAuthority: "server-published-nearby",
+      accessStartDistanceMeters: asNonNegativeInteger(item.accessStartDistanceMeters),
+      evidenceId: asNullableString(item.evidenceId),
       reviewStatus: isReviewStatus(item.reviewStatus) ? item.reviewStatus : null,
-      serverValidationStatus: typeof item.serverValidationStatus === "string" ? item.serverValidationStatus : null,
+      serverValidationStatus: asNullableString(item.serverValidationStatus),
       canRequestCompletion: item.canRequestCompletion === true,
     }];
   });
@@ -189,7 +234,10 @@ function parseProgress(data: RawProgressResponse): Beta1AdventureProgress {
     || data.catalogVersion !== ADVENTURE_CATALOG_VERSION
     || data.completionPolicy !== ADVENTURE_COMPLETION_POLICY
     || data.accessPolicy !== ADVENTURE_ACCESS_POLICY
+    || data.locationPolicy !== ADVENTURE_LOCATION_POLICY
+    || Number(data.startRadiusMeters) !== ADVENTURE_START_RADIUS_METERS
     || data.progressAuthority !== "server-read"
+    || data.locationAuthority !== "server-published-nearby"
   ) {
     throw new Error("invalid adventure projection");
   }
@@ -199,6 +247,8 @@ function parseProgress(data: RawProgressResponse): Beta1AdventureProgress {
     catalogVersion: ADVENTURE_CATALOG_VERSION,
     completionPolicy: ADVENTURE_COMPLETION_POLICY,
     accessPolicy: ADVENTURE_ACCESS_POLICY,
+    locationPolicy: ADVENTURE_LOCATION_POLICY,
+    startRadiusMeters: ADVENTURE_START_RADIUS_METERS,
     startedMissionIds: asStringArray(data.startedMissionIds),
     completedMissionIds: asStringArray(data.completedMissionIds),
     activeAttempts: parseActiveAttempts(data.activeAttempts),
@@ -210,6 +260,7 @@ function parseProgress(data: RawProgressResponse): Beta1AdventureProgress {
     xpForNextLevel: Math.max(1, asNonNegativeInteger(data.xpForNextLevel, 100)),
     walletAvailable: data.walletAvailable === true,
     progressAuthority: "server-read",
+    locationAuthority: "server-published-nearby",
     noMonetaryValue: true,
   };
 }
@@ -225,11 +276,22 @@ export async function fetchAdventureProgress(): Promise<Beta1AdventureProgress> 
   }
 }
 
-export async function startAdventureAccess(adventure: Adventure): Promise<Beta1AdventureAccessResult> {
+export async function startAdventureAccess(
+  adventure: Adventure,
+  location: Pick<Beta1NearbyMissionLocation, "locationId" | "title">,
+): Promise<Beta1AdventureAccessResult> {
   requireSignedInUser();
   try {
+    const coordinates = await requestCurrentCoordinates({ enableHighAccuracy: true, maximumAge: 15000 });
     const callable = httpsCallable<
-      { missionId: string; clientVersion: string; appSessionId: string },
+      {
+        missionId: string;
+        locationId: string;
+        latitude: number;
+        longitude: number;
+        clientVersion: string;
+        appSessionId: string;
+      },
       StartAdventureResponse
     >(getFunctions(), "startAdventureMission");
     const appSessionId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
@@ -237,7 +299,10 @@ export async function startAdventureAccess(adventure: Adventure): Promise<Beta1A
       : `adventure-access-${Date.now()}`;
     const result = await callable({
       missionId: adventure.missionId,
-      clientVersion: "adventure-beta1-runtime-v1",
+      locationId: location.locationId,
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude,
+      clientVersion: "adventure-beta1-runtime-v2",
       appSessionId,
     });
     const data = result.data;
@@ -253,19 +318,26 @@ export async function startAdventureAccess(adventure: Adventure): Promise<Beta1A
       || typeof data.missionId !== "string"
       || typeof data.accessLedgerEventId !== "string"
       || data.accessAuthorized !== true
+      || typeof data.locationId !== "string"
+      || data.locationAuthority !== "server-published-nearby"
+      || data.userLocationStored !== false
     ) {
       throw new Error("failed-precondition: invalid adventure access authority");
     }
     const completed = data.missionCompletionAuthorized === true && data.xpAuthorized === true;
+    const locationTitle = asNullableString(data.locationTitle) ?? location.title;
     return {
       kind: completed ? "already-completed" : data.idempotent === true ? "already-accessed" : "accessed",
       message: completed
         ? "Dieses Abenteuer wurde bereits serverseitig abgeschlossen."
         : data.idempotent === true
-          ? "Der Abenteuerzugang war bereits serverseitig gebucht; es gab keinen zweiten WFXP-Abzug."
-          : `Abenteuerzugang gebucht: ${asNonNegativeInteger(data.accessCostWfxp)} WFXP wurden atomar aus Wallet und Ledger abgezogen.`,
+          ? `Der Zugang bei „${locationTitle}“ war bereits serverseitig gebucht; es gab keinen zweiten WFXP-Abzug.`
+          : `Abenteuerzugang bei „${locationTitle}“ gebucht: ${asNonNegativeInteger(data.accessCostWfxp)} WFXP wurden atomar aus Wallet und Ledger abgezogen.`,
       remainingWfxp: asNonNegativeInteger(data.remainingWfxp),
       accessCostWfxp: asNonNegativeInteger(data.accessCostWfxp),
+      locationId: data.locationId,
+      locationTitle,
+      regionId: asNullableString(data.regionId),
       idempotent: data.idempotent === true,
     };
   } catch (error) {
@@ -285,7 +357,7 @@ export async function submitAdventureForReview(adventure: Adventure): Promise<Be
       : `adventure-review-${Date.now()}`;
     const result = await callable({
       missionId: adventure.missionId,
-      clientVersion: "adventure-beta1-runtime-v1",
+      clientVersion: "adventure-beta1-runtime-v2",
       appSessionId,
     });
     const data = result.data;
@@ -295,6 +367,7 @@ export async function submitAdventureForReview(adventure: Adventure): Promise<Be
       || typeof data.evidenceId !== "string"
       || !isReviewStatus(data.reviewStatus)
       || data.accessAuthorized !== true
+      || typeof data.locationId !== "string"
       || data.missionCompletionAuthorized === true
       || data.xpAuthorized === true
     ) {
@@ -304,7 +377,7 @@ export async function submitAdventureForReview(adventure: Adventure): Promise<Be
       kind: data.reviewStatus === "pending-server-review" ? "submitted" : "pending",
       message: data.reviewStatus === "approved"
         ? "Die vorhandene Abenteuer-Evidence ist bereits freigegeben. Bitte den Abschluss erneut prüfen."
-        : "Abenteuerbestätigung wurde eingereicht. Der Vorgang wartet auf Admin-Prüfung; es wurden noch keine WFXP gutgeschrieben.",
+        : "Abenteuerbestätigung wurde mit dem serverseitigen Startort verknüpft. Der Vorgang wartet auf Admin-Prüfung; es wurden noch keine WFXP gutgeschrieben.",
       rewardXp: 0,
       remainingWfxp: null,
       reviewStatus: data.reviewStatus,
@@ -332,6 +405,7 @@ async function completeAdventure(attemptId: string): Promise<{
     || typeof data.completionId !== "string"
     || typeof data.xpLedgerEventId !== "string"
     || typeof data.evidenceId !== "string"
+    || typeof data.locationId !== "string"
   ) {
     throw new Error("failed-precondition: adventure completion was not authorized");
   }
@@ -356,10 +430,8 @@ export async function reconcileAdventureAttempt(
       const result = await submitAdventureForReview(adventure);
       return {
         ...result,
-        kind: activeAttempt.evidenceId ? "resubmitted" : "submitted",
-        message: activeAttempt.evidenceId
-          ? "Eine neue sichere Abenteuerbestätigung wurde eingereicht. Der Vorgang wartet wieder auf Admin-Prüfung."
-          : result.message,
+        kind: "resubmitted",
+        message: "Eine neue sichere Abenteuerbestätigung wurde eingereicht. Der Vorgang wartet wieder auf Admin-Prüfung.",
       };
     }
 
@@ -388,7 +460,7 @@ export async function reconcileAdventureAttempt(
       const completion = await completeAdventure(activeAttempt.attemptId);
       return {
         kind: "completed",
-        message: `Abenteuer abgeschlossen: +${completion.rewardXp} WFXP wurden atomar im serverseitigen Ledger verbucht${completion.idempotent ? " (bereits vorhanden)" : ""}.`,
+        message: `Abenteuer abgeschlossen: +${completion.rewardXp} WFXP wurden im serverseitigen Ledger verbucht${completion.idempotent ? " (bereits vorhanden)" : ""}.`,
         rewardXp: completion.rewardXp,
         remainingWfxp: completion.remainingWfxp,
         reviewStatus: status.reviewStatus,
@@ -396,7 +468,7 @@ export async function reconcileAdventureAttempt(
     }
     return {
       kind: "pending",
-      message: "Das Abenteuer wartet weiterhin auf Admin-Prüfung. Es wurden noch keine Reward-WFXP gutgeschrieben.",
+      message: "Das Abenteuer wartet weiterhin auf Admin-Prüfung. Es wurden noch keine WFXP gutgeschrieben.",
       rewardXp: 0,
       remainingWfxp: null,
       reviewStatus: status.reviewStatus,
