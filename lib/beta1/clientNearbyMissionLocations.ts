@@ -1,6 +1,6 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth } from "@/lib/firebase";
-import { requestCurrentCoordinates } from "@/lib/beta1/clientUserContext";
+import { requestCurrentCoordinates, type ClientCoordinates } from "@/lib/beta1/clientUserContext";
 
 export type Beta1NearbyMissionLocation = {
   locationId: string;
@@ -23,6 +23,7 @@ export type Beta1NearbyMissionLocation = {
 export type Beta1NearbyMissionLocationResult = {
   radiusKm: number;
   locations: Beta1NearbyMissionLocation[];
+  origin: ClientCoordinates;
   accuracyMeters: number | null;
   locationAuthority: "server-published-nearby";
   userLocationStored: false;
@@ -97,7 +98,7 @@ function errorMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : "";
   const diagnostic = `${code} ${message}`.toLowerCase();
   if (diagnostic.includes("unauthenticated")) return "Bitte melde dich erneut an, um nahe WellFit-Orte zu laden.";
-  if (diagnostic.includes("standortfreigabe") || diagnostic.includes("geolocation")) return message;
+  if (diagnostic.includes("standortfreigabe") || diagnostic.includes("geolocation") || diagnostic.includes("standortdienste")) return message;
   if (diagnostic.includes("permission-denied")) return "Der Standortzugriff wurde nicht freigegeben.";
   if (diagnostic.includes("network") || diagnostic.includes("unavailable")) return "Die sichere Umgebungssuche ist gerade nicht erreichbar.";
   return message || "WellFit-Orte in deiner Umgebung konnten nicht geladen werden.";
@@ -142,6 +143,7 @@ export async function fetchNearbyMissionLocations(input?: {
     return {
       radiusKm: Number.isFinite(Number(data.radiusKm)) ? Math.max(0, Number(data.radiusKm)) : payload.radiusKm,
       locations,
+      origin: coordinates,
       accuracyMeters: coordinates.accuracyMeters,
       locationAuthority: "server-published-nearby",
       userLocationStored: false,
