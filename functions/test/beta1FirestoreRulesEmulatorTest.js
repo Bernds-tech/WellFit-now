@@ -20,6 +20,9 @@ async function run() {
       await adminDb.collection("missionAttempts").doc("attempt_alice").set({ ownerUserId: "alice", userId: "alice", missionId: "mission_public", status: "started" });
       await adminDb.collection("missionEvidence").doc("evidence_alice").set({ ownerUserId: "alice", userId: "alice", attemptId: "attempt_alice" });
       await adminDb.collection("missionCompletions").doc("completion_alice").set({ ownerUserId: "alice", userId: "alice", attemptId: "attempt_alice", xpLedgerEventId: "xp_alice" });
+      await adminDb.collection("userDailyMissionState").doc("alice_2026-07-23").set({ ownerUserId: "alice", userId: "alice", dateKey: "2026-07-23", favoriteIds: ["mission_public"], dailySlotIds: ["mission_public", null, null] });
+      await adminDb.collection("userDailyStreaks").doc("alice").set({ ownerUserId: "alice", userId: "alice", currentStreak: 2, longestStreak: 3 });
+      await adminDb.collection("userLevels").doc("alice").set({ ownerUserId: "alice", userId: "alice", xp: 120, level: 2 });
       await adminDb.collection("xpWallets").doc("alice").set({ ownerUserId: "alice", userId: "alice", balance: 100 });
       await adminDb.collection("xpLedgerEvents").doc("xp_alice").set({ ownerUserId: "alice", userId: "alice", delta: 25 });
       await adminDb.collection("shopItems").doc("shop_public").set({ status: "published", priceWfxp: 20 });
@@ -73,6 +76,19 @@ async function run() {
       await assertSucceeds(aliceDb.collection(collectionName).doc(ownedDocId).get());
       await assertFails(aliceDb.collection(collectionName).doc(`${collectionName}_hack`).set(hackPayload));
       await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).update(hackPayload));
+      await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).delete());
+    }
+
+    for (const [collectionName, ownedDocId, createDocId, mutation] of [
+      ["userDailyMissionState", "alice_2026-07-23", "alice_2026-07-24", { favoriteIds: ["mission_public"] }],
+      ["userDailyStreaks", "alice", "alice_new", { currentStreak: 99 }],
+      ["userLevels", "alice", "alice_new", { xp: 999999, level: 99 }],
+    ]) {
+      await assertSucceeds(aliceDb.collection(collectionName).doc(ownedDocId).get());
+      await assertFails(bobDb.collection(collectionName).doc(ownedDocId).get());
+      await assertFails(anonDb.collection(collectionName).doc(ownedDocId).get());
+      await assertFails(aliceDb.collection(collectionName).doc(createDocId).set({ ownerUserId: "alice", userId: "alice", ...mutation }));
+      await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).update(mutation));
       await assertFails(aliceDb.collection(collectionName).doc(ownedDocId).delete());
     }
 

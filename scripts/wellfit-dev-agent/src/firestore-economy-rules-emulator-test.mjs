@@ -37,6 +37,12 @@ const serverOnlyCollections = [
   "pointsSinkEvents",
 ];
 
+const dailyReadOnlyCollections = [
+  "userDailyMissionState",
+  "userDailyStreaks",
+  "userLevels",
+];
+
 function parseHostPort(value) {
   const [host, portText] = value.split(":");
   return { host, port: Number.parseInt(portText, 10) };
@@ -132,18 +138,25 @@ async function main() {
       });
     });
 
-    await expectAllow(results, "users points update temporary bridge", async () => {
+    await expectAllow(results, "users points update remaining temporary bridge", async () => {
       await updateDoc(doc(db, "users", ownerUserId), { points: 25 });
     });
 
-    await expectAllow(results, "daily mission state write temporary bridge", async () => {
-      await setDoc(doc(db, "userDailyMissionState", `${ownerUserId}_2026-05-10`), {
-        userId: ownerUserId,
-        missionId: "daily-test",
-        state: "started",
-        updatedAt: new Date().toISOString(),
+    for (const collectionName of dailyReadOnlyCollections) {
+      const documentId = collectionName === "userDailyMissionState"
+        ? `${ownerUserId}_2026-07-23`
+        : ownerUserId;
+      await expectDeny(results, `${collectionName} client create`, async () => {
+        await setDoc(doc(db, collectionName, documentId), {
+          ownerUserId,
+          userId: ownerUserId,
+          currentStreak: 99,
+          xp: 999999,
+          favoriteIds: ["daily-hack"],
+          updatedAt: new Date().toISOString(),
+        });
       });
-    });
+    }
 
     for (const collectionName of serverOnlyCollections) {
       await expectDeny(results, `${collectionName} create`, async () => {

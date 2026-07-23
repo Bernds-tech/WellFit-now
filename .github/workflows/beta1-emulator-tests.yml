@@ -9,6 +9,8 @@ on:
       - "firebase.json"
       - "firestore.rules"
       - "functions/**"
+      - "scripts/wellfit-dev-agent/src/firestore-economy-rules-check.mjs"
+      - "scripts/wellfit-dev-agent/src/firestore-economy-rules-emulator-test.mjs"
       - "package.json"
       - "package-lock.json"
   workflow_dispatch:
@@ -43,6 +45,9 @@ jobs:
 
       - name: Install functions dependencies
         run: npm --prefix functions ci
+
+      - name: Check Firestore economy rule posture
+        run: npm run agent:firestore-economy-rules-check
 
       - name: Check functions syntax
         run: npm --prefix functions run check

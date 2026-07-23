@@ -28,7 +28,7 @@ const requiredSafeProfileFields = [
   "inventory",
 ];
 
-const temporaryAllowCollections = [
+const dailyReadOnlyCollections = [
   "userDailyMissionState",
   "userDailyStreaks",
   "userLevels",
@@ -57,8 +57,11 @@ const ownerReadCollections = [
 const expectedChecks = [
   "/users/{uid}.profile update -> ALLOW",
   "/users/{uid}.settings update -> ALLOW",
-  "/users/{uid}.points update -> ALLOW for the MVP bridge",
-  "/userDailyMissionState write -> ALLOW for the MVP bridge",
+  "/users/{uid}.points update -> ALLOW for the remaining repository-wide MVP bridge",
+  "/userDailyMissionState owner read -> ALLOW",
+  "/userDailyMissionState create/update/delete -> DENY",
+  "/userDailyStreaks create/update/delete -> DENY",
+  "/userLevels create/update/delete -> DENY",
   "/missionRewardEvents create -> DENY",
   "/missionRewardPreviews create -> DENY",
   "/missionCompletionEvaluations create -> DENY",
@@ -158,12 +161,35 @@ function main() {
 
   const userBody = getMatchBody(rules, "users");
   addCheck(checks, "User documents remain owner-readable", /allow\s+read\s*:\s*if\s+isOwner\(userId\)\s*;/.test(userBody), "users/{userId} read owner only");
-  addCheck(checks, "User update uses writable-key gate", /allow\s+update\s*:\s*if\s+isOwner\(userId\)\s*&&\s*hasOnlyUserWritableKeys\(\)\s*;/.test(userBody), "profile/settings and MVP bridge only");
+  addCheck(checks, "User update uses writable-key gate", /allow\s+update\s*:\s*if\s+isOwner\(userId\)\s*&&\s*hasOnlyUserWritableKeys\(\)\s*;/.test(userBody), "profile/settings and remaining MVP bridge only");
   addCheck(checks, "User delete denied", /allow\s+delete\s*:\s*if\s+false\s*;/.test(userBody), "users/{userId} delete denied");
 
-  for (const collectionName of temporaryAllowCollections) {
+  for (const collectionName of dailyReadOnlyCollections) {
     const body = getMatchBody(rules, collectionName);
     addCheck(checks, `${collectionName} rule exists`, body.length > 0, collectionName);
+    addCheck(
+      checks,
+      `${collectionName} client create/update/delete denied`,
+      /allow\s+create\s*,\s*update\s*,\s*delete\s*:\s*if\s+false\s*;/.test(body),
+      "allow create, update, delete: if false",
+    );
+  }
+
+  const dailyMissionStateBody = getMatchBody(rules, "userDailyMissionState");
+  addCheck(
+    checks,
+    "userDailyMissionState owner read guard present",
+    /allow\s+read\s*:\s*if\s+isSignedIn\(\)\s*&&\s*stateId\.matches\(request\.auth\.uid\s*\+\s*'_\.\*'\)\s*;/.test(dailyMissionStateBody),
+    "document ID is scoped to authenticated owner",
+  );
+  for (const collectionName of ["userDailyStreaks", "userLevels"]) {
+    const body = getMatchBody(rules, collectionName);
+    addCheck(
+      checks,
+      `${collectionName} owner read guard present`,
+      /allow\s+read\s*:\s*if\s+isOwner\(userId\)\s*;/.test(body),
+      "isOwner(userId)",
+    );
   }
 
   for (const collectionName of serverOnlyCollections) {
@@ -188,7 +214,7 @@ function main() {
   }
 
   const passed = checks.every((check) => check.passed);
-  const report = `# Firestore Economy Rules Check\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Scope\n\nThis is a static WellFit guardrail check for the current beta rules posture. It verifies that safe user profile keys and temporary MVP economy bridge keys are separated, and that server-only economy authority collections deny client create/update/delete writes.\n\n## Expected Beta Allow/Deny Cases\n\n${expectedChecks.map((item) => `- ${item}`).join("\n")}\n\n## Checks\n\n${renderChecks(checks)}\n\n## Important Limits\n\n- This check does not replace Firebase Emulator tests.\n- It does not enable hard rules for points, XP, level or avatar yet.\n- It must stay aligned with \`docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md\`.\n- No token, NFT, wallet, payout, purchase or blockchain function is activated by this check.\n`;
+  const report = `# Firestore Economy Rules Check\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Scope\n\nThis static WellFit guardrail verifies the current staged hardening posture. Safe user profile keys and the remaining repository-wide users economy bridge stay separated. The legacy daily mission state, streak and level collections are owner-readable but client read-only after the daily mission callable migration. Server-authority economy collections continue to deny client create/update/delete writes.\n\n## Expected Beta Allow/Deny Cases\n\n${expectedChecks.map((item) => `- ${item}`).join("\n")}\n\n## Checks\n\n${renderChecks(checks)}\n\n## Important Limits\n\n- This check does not replace Firebase Emulator tests.\n- It does not yet remove the broader temporary points, XP, level or avatar fields from users/{userId}; unrelated consumers must migrate first.\n- It must stay aligned with \`docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md\`.\n- No token, NFT, payout, purchase or blockchain function is activated by this check.\n`;
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(REPORT_PATH, report, "utf8");
