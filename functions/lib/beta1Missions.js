@@ -296,8 +296,8 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
     if (latestEvidenceDoc) {
       const latestEvidence = latestEvidenceDoc.data() || {};
       if (
-        latestEvidence.evidenceType === evidenceType
-        && ["pending-server-review", "approved"].includes(latestEvidence.reviewStatus)
+        latestEvidence.reviewStatus === "approved"
+        || (latestEvidence.evidenceType === evidenceType && latestEvidence.reviewStatus === "pending-server-review")
       ) {
         return {
           accepted: true,
