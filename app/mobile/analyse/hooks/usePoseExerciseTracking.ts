@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import type { RefObject } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { analyzeSquatPose } from "@/lib/vision/exerciseRules";
 import { initialExerciseCounterState, updateSquatCounter } from "@/lib/vision/exerciseCounter";
 import { getBuddyCoachFeedback } from "@/lib/vision/buddyCoachFeedback";
@@ -30,6 +30,12 @@ export function usePoseExerciseTracking({ videoRef, permissionState }: UsePoseEx
   const [analysis, setAnalysis] = useState<PoseAnalysisResult | null>(null);
   const [trackerStatus, setTrackerStatus] = useState("wartet auf Kamera");
   const [trackerError, setTrackerError] = useState<string | null>(null);
+
+  const resetCounter = useCallback(() => {
+    counterRef.current = initialExerciseCounterState;
+    setCounter(initialExerciseCounterState);
+    setAnalysis(null);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -105,14 +111,12 @@ export function usePoseExerciseTracking({ videoRef, permissionState }: UsePoseEx
 
   useEffect(() => {
     if (permissionState !== "granted") {
-      counterRef.current = initialExerciseCounterState;
-      setCounter(initialExerciseCounterState);
+      resetCounter();
       setLandmarks({});
-      setAnalysis(null);
       setTrackerStatus("wartet auf Kamera");
       setTrackerError(null);
     }
-  }, [permissionState]);
+  }, [permissionState, resetCounter]);
 
   return {
     counter,
@@ -120,6 +124,6 @@ export function usePoseExerciseTracking({ videoRef, permissionState }: UsePoseEx
     analysis,
     trackerStatus,
     trackerError,
+    resetCounter,
   };
 }
-
