@@ -15,6 +15,7 @@ const USER_ID = "daily-progress-user";
 const OTHER_ID = "daily-progress-other";
 const USER_TIME_ZONE = "Pacific/Auckland";
 const OTHER_TIME_ZONE = "America/Los_Angeles";
+const TRAVEL_TIME_ZONE = "Asia/Tokyo";
 
 async function expectOk(functionName, token, data) {
   const response = await callCallable(functionName, token, data);
@@ -81,6 +82,7 @@ async function run() {
   });
   assert(saved.timeZone === USER_TIME_ZONE, "Server muss die nutzerlokale Zeitzone speichern.");
   assert(saved.calendarAuthority === "server-user-time-zone", "Kalenderautoritaet muss serverseitig sein.");
+  assert(saved.timeZoneChangeCooldownHours === 20, "Zeitzonenwechsel brauchen eine reisetaugliche 20-Stunden-Anti-Abuse-Grenze.");
 
   await expectCallableError(
     "saveDailyMissionPreferences",
@@ -100,17 +102,41 @@ async function run() {
   assert(initial.progressAuthority === "server-read", "Fortschritt muss aus der Serverprojektion kommen.");
   assert(initial.completionPolicy === "once-per-mission-per-user-local-day", "Nutzerlokale Tagesabschlussgrenze muss aktiv sein.");
   assert(initial.timeZone === USER_TIME_ZONE && initial.calendarAuthority === "server-user-time-zone", "Progress muss die servergesicherte Nutzerzeitzone verwenden.");
+  assert(initial.timeZoneChangePolicy === "minimum-20-hours" && initial.timeZoneChangeCooldownHours === 20, "Progress muss die Reise-Anti-Abuse-Policy offenlegen.");
   assert(initial.walletAvailable === true && initial.xp === 160 && initial.level === 2, "WFXP-Levelprojektion muss serverseitig sein.");
   assert(initial.favoriteIds.includes("daily-8000-steps"), "Gespeicherte Favoriten muessen gelesen werden.");
   assert(initial.noMonetaryValue === true && initial.tokenAuthorized === false, "Tagesmissionen bleiben WFXP-only.");
 
   const deferredChange = await expectOk("getDailyMissionProgress", userToken, { timeZone: OTHER_TIME_ZONE });
   assert(deferredChange.timeZone === USER_TIME_ZONE, "Sofortiger Zeitzonenwechsel darf die Reward-Periode nicht verschieben.");
-  assert(deferredChange.timeZoneChangeDeferred === true && typeof deferredChange.nextTimeZoneChangeAt === "string", "Zeitzonenwechsel muss waehrend der Anti-Abuse-Frist aufgeschoben werden.");
+  assert(deferredChange.timeZoneChangeDeferred === true && typeof deferredChange.nextTimeZoneChangeAt === "string", "Schnelles Zeitzonen-Hopping muss aufgeschoben werden.");
 
   const otherProgress = await expectOk("getDailyMissionProgress", otherToken, { timeZone: OTHER_TIME_ZONE });
   assert(otherProgress.timeZone === OTHER_TIME_ZONE, "Andere Nutzer muessen unabhaengige lokale Kalender haben.");
   assert(otherProgress.favoriteIds.length === 0 && otherProgress.xp === 0, "Andere Nutzer duerfen keine fremde Projektion sehen.");
+  await db.collection("userCalendarSettings").doc(OTHER_ID).set({
+    timeZoneChangedAt: new Date(Date.now() - 21 * 60 * 60 * 1000).toISOString(),
+  }, { merge: true });
+  const acceptedTravelChange = await expectOk("getDailyMissionProgress", otherToken, { timeZone: TRAVEL_TIME_ZONE });
+  assert(acceptedTravelChange.timeZone === TRAVEL_TIME_ZONE, "Ein plausibler Reisewechsel nach 20 Stunden muss akzeptiert werden.");
+  assert(acceptedTravelChange.timeZoneChangeDeferred === false, "Akzeptierter Reisewechsel darf nicht als deferred markiert sein.");
+
+  const staleDateKey = previousDateKey(initial.dateKey);
+  await db.collection("missionAttempts").doc("stale_daily_open_attempt").set({
+    attemptId: "stale_daily_open_attempt",
+    missionId: "daily-breathing-3",
+    ownerUserId: USER_ID,
+    userId: USER_ID,
+    childProfileId: null,
+    status: "started",
+    dateKey: staleDateKey,
+    timeZone: USER_TIME_ZONE,
+    calendarAuthority: "server-user-time-zone",
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  const staleAttemptProjection = await expectOk("getDailyMissionProgress", userToken, { timeZone: USER_TIME_ZONE });
+  assert(!staleAttemptProjection.activeAttempts.some((attempt) => attempt.attemptId === "stale_daily_open_attempt"), "Offener Attempt vom Vortag darf heute nicht aktiv erscheinen.");
+  assert(!staleAttemptProjection.startedMissionIds.includes("daily-breathing-3"), "Offener Attempt vom Vortag darf die heutige Startprojektion nicht verunreinigen.");
 
   const firstAttempt = await expectOk("startMissionAttempt", userToken, {
     missionId: "daily-8000-steps",
