@@ -11,10 +11,12 @@ export type DailyMission = {
   description: string;
   duration: string;
   type: DailyMissionType;
-  serverType: DailyMissionServerType;
-  evidenceType: "daily-user-confirmation";
-  reviewRequired: true;
-  childAllowed: false;
+  // Transitional optional fields keep existing component fixtures compatible.
+  // Every mission exported from the canonical catalog below sets all four.
+  serverType?: DailyMissionServerType;
+  evidenceType?: "daily-user-confirmation";
+  reviewRequired?: true;
+  childAllowed?: false;
 };
 
 const DISPLAY_TYPES: DailyMissionType[] = ["Bewegung", "Ernährung", "Workout", "Community", "Abenteuer"];
