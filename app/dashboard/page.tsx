@@ -181,7 +181,15 @@ export default function DashboardPage() {
     }
   };
 
-  const { handleStartMission, handleFeedBuddy, isSubmittingMission } = useDashboardActions({
+  const {
+    handleStartMission,
+    handleCheckMissionStatus,
+    handleDismissPendingMission,
+    handleFeedBuddy,
+    isSubmittingMission,
+    isCheckingMission,
+    pendingMission,
+  } = useDashboardActions({
     user,
     mission,
     missionPreview,
@@ -230,7 +238,11 @@ export default function DashboardPage() {
             missionPreview={missionPreview}
             stepsToday={stepsToday}
             onStartMission={handleStartMission}
+            onCheckMissionStatus={handleCheckMissionStatus}
+            onDismissPendingMission={handleDismissPendingMission}
+            pendingMission={pendingMission}
             isSubmittingMission={isSubmittingMission}
+            isCheckingMission={isCheckingMission}
             missionCatalogLoading={missionCatalogLoading}
             missionCatalogError={missionCatalogError}
           />
