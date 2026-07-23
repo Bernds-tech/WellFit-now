@@ -14,12 +14,12 @@ const {
 } = require("./beta1Runtime");
 const { applyXpDelta } = require("./beta1XpLedger");
 const {
-  dateKeyInVienna,
   documentDateKey,
   isDailyMissionId,
   dailyMissionAttemptId,
   dailyMissionCompletionIdempotencyKey,
 } = require("./beta1DailyMissionProgress");
+const { resolveUserCalendarContext } = require("./beta1UserCalendar");
 
 const MISSION_EVIDENCE_REVIEW_DECISIONS = new Set(["approved", "rejected", "needs-more-evidence"]);
 const MAX_DAILY_HISTORY_DOCS = 500;
@@ -72,7 +72,7 @@ function safeEvidenceMetadata(value) {
   return safe;
 }
 
-async function getDailyMissionReuseState(db, userId, missionId, todayKey) {
+async function getDailyMissionReuseState(db, userId, missionId, todayKey, timeZone) {
   const [attemptsSnapshot, completionsSnapshot] = await Promise.all([
     db.collection("missionAttempts").where("ownerUserId", "==", userId).limit(MAX_DAILY_HISTORY_DOCS).get(),
     db.collection("missionCompletions").where("ownerUserId", "==", userId).limit(MAX_DAILY_HISTORY_DOCS).get(),
@@ -80,14 +80,18 @@ async function getDailyMissionReuseState(db, userId, missionId, todayKey) {
   const completedToday = completionsSnapshot.docs.some((doc) => {
     const completion = doc.data() || {};
     const completionDateKey = optionalString(completion.dateKey, 20)
-      || documentDateKey(completion, ["completedAt", "updatedAt", "createdAt"]);
+      || documentDateKey(completion, ["completedAt", "updatedAt", "createdAt"], timeZone);
     return completion.status === "completed"
       && completion.missionId === missionId
       && completionDateKey === todayKey;
   });
   const openAttempts = attemptsSnapshot.docs.filter((doc) => {
     const attempt = doc.data() || {};
-    return attempt.missionId === missionId && attempt.status !== "completed";
+    const attemptDateKey = optionalString(attempt.dateKey, 20)
+      || documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"], timeZone);
+    return attempt.missionId === missionId
+      && attempt.status !== "completed"
+      && attemptDateKey === todayKey;
   });
   return {
     completedToday,
@@ -200,11 +204,15 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       throw new HttpsError("failed-precondition", "Mission ist nicht fuer Child Profiles freigegeben.");
     }
 
-    const todayKey = dateKeyInVienna(new Date());
-    if (isDailyMissionId(missionId)) {
-      const reuseState = await getDailyMissionReuseState(db, userId, missionId, todayKey);
+    const dailyMission = isDailyMissionId(missionId);
+    const calendar = dailyMission
+      ? await resolveUserCalendarContext(db, userId, data.timeZone, HttpsError)
+      : null;
+    const todayKey = calendar ? calendar.dateKey : null;
+    if (dailyMission) {
+      const reuseState = await getDailyMissionReuseState(db, userId, missionId, todayKey, calendar.timeZone);
       if (reuseState.completedToday) {
-        throw new HttpsError("failed-precondition", "Diese Tagesmission wurde heute bereits abgeschlossen.");
+        throw new HttpsError("failed-precondition", "Diese Tagesmission wurde am aktuellen nutzerlokalen Tag bereits abgeschlossen.");
       }
       if (reuseState.openAttempt) {
         const openAttempt = reuseState.openAttempt.data() || {};
@@ -212,6 +220,11 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
           accepted: true,
           attemptId: reuseState.openAttempt.id,
           status: optionalString(openAttempt.status, 80) || "started",
+          dateKey: todayKey,
+          timeZone: calendar.timeZone,
+          calendarAuthority: calendar.calendarAuthority,
+          timeZoneChangeDeferred: calendar.timeZoneChangeDeferred,
+          nextTimeZoneChangeAt: calendar.nextTimeZoneChangeAt,
           missionCompletionAuthorized: false,
           idempotent: true,
           reusedDailyAttempt: true,
@@ -219,21 +232,26 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       }
     }
 
-    const attemptRef = isDailyMissionId(missionId)
+    const attemptRef = dailyMission
       ? db.collection("missionAttempts").doc(dailyMissionAttemptId(userId, missionId, todayKey))
       : db.collection("missionAttempts").doc();
     const existingAttempt = await attemptRef.get();
     if (existingAttempt.exists) {
       if ((existingAttempt.data() || {}).status === "completed") {
-        throw new HttpsError("failed-precondition", "Diese Tagesmission wurde heute bereits abgeschlossen.");
+        throw new HttpsError("failed-precondition", "Diese Tagesmission wurde am aktuellen nutzerlokalen Tag bereits abgeschlossen.");
       }
       return {
         accepted: true,
         attemptId: attemptRef.id,
         status: optionalString((existingAttempt.data() || {}).status, 80) || "started",
+        dateKey: dailyMission ? todayKey : null,
+        timeZone: calendar ? calendar.timeZone : null,
+        calendarAuthority: calendar ? calendar.calendarAuthority : null,
+        timeZoneChangeDeferred: calendar ? calendar.timeZoneChangeDeferred : false,
+        nextTimeZoneChangeAt: calendar ? calendar.nextTimeZoneChangeAt : null,
         missionCompletionAuthorized: false,
         idempotent: true,
-        reusedDailyAttempt: isDailyMissionId(missionId),
+        reusedDailyAttempt: dailyMission,
       };
     }
     await attemptRef.set({
@@ -243,7 +261,9 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       userId,
       childProfileId: childProfileId || null,
       status: "started",
-      dateKey: isDailyMissionId(missionId) ? todayKey : null,
+      dateKey: dailyMission ? todayKey : null,
+      timeZone: calendar ? calendar.timeZone : null,
+      calendarAuthority: calendar ? calendar.calendarAuthority : null,
       catalogId: missionData.catalogId || null,
       completionPolicy: missionData.completionPolicy || null,
       ...clientContext(data),
@@ -253,6 +273,11 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       accepted: true,
       attemptId: attemptRef.id,
       status: "started",
+      dateKey: dailyMission ? todayKey : null,
+      timeZone: calendar ? calendar.timeZone : null,
+      calendarAuthority: calendar ? calendar.calendarAuthority : null,
+      timeZoneChangeDeferred: calendar ? calendar.timeZoneChangeDeferred : false,
+      nextTimeZoneChangeAt: calendar ? calendar.nextTimeZoneChangeAt : null,
       missionCompletionAuthorized: false,
       idempotent: false,
       reusedDailyAttempt: false,
@@ -473,8 +498,16 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
     }
     const missionData = mission.data() || {};
     const rewardXp = Math.min(Number(missionData.rewardXp || 25), 100);
-    const completionDateKey = dateKeyInVienna(new Date());
     const dailyMission = isDailyMissionId(attempt.missionId);
+    let completionDateKey = dailyMission ? optionalString(attempt.dateKey, 20) : null;
+    let completionTimeZone = dailyMission ? optionalString(attempt.timeZone, 120) : null;
+    let calendarAuthority = dailyMission ? optionalString(attempt.calendarAuthority, 80) : null;
+    if (dailyMission && (!completionDateKey || !completionTimeZone)) {
+      const calendar = await resolveUserCalendarContext(db, userId, data.timeZone, HttpsError);
+      completionDateKey = completionDateKey || calendar.dateKey;
+      completionTimeZone = completionTimeZone || calendar.timeZone;
+      calendarAuthority = calendarAuthority || calendar.calendarAuthority;
+    }
     const idempotencyKey = dailyMission
       ? dailyMissionCompletionIdempotencyKey(userId, attempt.missionId, completionDateKey)
       : `mission_completion_${attemptId}`;
@@ -487,10 +520,16 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       sourceId: completionRef.id,
       actorUserId: "server",
       idempotencyKey,
-      metadata: { evidenceId: approvedEvidenceDoc.id, attemptId, missionId: attempt.missionId, dateKey: completionDateKey },
+      metadata: {
+        evidenceId: approvedEvidenceDoc.id,
+        attemptId,
+        missionId: attempt.missionId,
+        dateKey: completionDateKey,
+        timeZone: completionTimeZone,
+      },
     });
     if (dailyMission && ledger.idempotent && ledger.sourceId !== completionRef.id) {
-      throw new HttpsError("failed-precondition", "Diese Tagesmission wurde heute bereits abgeschlossen.");
+      throw new HttpsError("failed-precondition", "Diese Tagesmission wurde am nutzerlokalen Tag bereits abgeschlossen.");
     }
 
     await completionRef.set({
@@ -507,6 +546,8 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       rewardXp,
       xpLedgerEventId: ledger.ledgerEventId,
       dateKey: completionDateKey,
+      timeZone: completionTimeZone,
+      calendarAuthority,
       catalogId: missionData.catalogId || null,
       completionPolicy: missionData.completionPolicy || null,
       completedAt: new Date().toISOString(),
@@ -528,7 +569,13 @@ function registerBeta1Missions(exportsTarget, { db, onCall, HttpsError }) {
       targetId: completionRef.id,
       ownerUserId: userId,
       childProfileId: attempt.childProfileId || null,
-      metadata: { rewardXp, ledgerEventId: ledger.ledgerEventId, evidenceId: approvedEvidenceDoc.id, dateKey: completionDateKey },
+      metadata: {
+        rewardXp,
+        ledgerEventId: ledger.ledgerEventId,
+        evidenceId: approvedEvidenceDoc.id,
+        dateKey: completionDateKey,
+        timeZone: completionTimeZone,
+      },
     });
     return {
       accepted: true,
