@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { User } from "@/types/user";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
-import { submitDashboardMissionForReview } from "@/lib/beta1/clientMissionCommands";
+import {
+  clearPendingDashboardMission,
+  completeDashboardMissionAttempt,
+  getDashboardMissionAttemptStatus,
+  readPendingDashboardMission,
+  submitDashboardMissionForReview,
+  writePendingDashboardMission,
+  type Beta1PendingDashboardMission,
+} from "@/lib/beta1/clientMissionCommands";
 import type { DashboardMissionPreview, PersonalMission } from "../types";
 import { writeCachedUser } from "../lib/dashboardUser";
 import { fetchDashboardSpendPreview } from "../lib/serverPreviewApi";
@@ -43,6 +51,17 @@ export function useDashboardActions({
   setBuddyHunger,
 }: Params) {
   const [isSubmittingMission, setIsSubmittingMission] = useState(false);
+  const [isCheckingMission, setIsCheckingMission] = useState(false);
+  const [pendingMission, setPendingMission] = useState<Beta1PendingDashboardMission | null>(null);
+
+  useEffect(() => {
+    const userId = user?.id;
+    if (!userId) {
+      setPendingMission(null);
+      return;
+    }
+    setPendingMission(readPendingDashboardMission(userId));
+  }, [user?.id]);
 
   const persistTemporaryEconomyBridgePatch = async (
     patch: Record<string, unknown>,
@@ -83,9 +102,13 @@ export function useDashboardActions({
   };
 
   const handleStartMission = async () => {
-    if (isSubmittingMission) return;
+    if (isSubmittingMission || isCheckingMission) return;
     if (!user) {
       setMessage("Bitte warte, bis dein WellFit Profil geladen ist.");
+      return;
+    }
+    if (pendingMission) {
+      setMessage("Eine Mission wartet bereits auf Review. Bitte zuerst den Prüfstatus aktualisieren.");
       return;
     }
     if (!mission.serverBacked || !mission.id) {
@@ -100,15 +123,100 @@ export function useDashboardActions({
     try {
       setIsSubmittingMission(true);
       setMessage("Mission wird sicher gestartet und zur Evidence-Prüfung eingereicht...");
-      await submitDashboardMissionForReview(mission.id);
+      const submission = await submitDashboardMissionForReview(mission.id);
+      const nextPending: Beta1PendingDashboardMission = {
+        version: 1,
+        userId: user.id,
+        missionId: mission.id,
+        missionTitle: mission.title,
+        attemptId: submission.attemptId,
+        evidenceId: submission.evidenceId,
+        submittedAt: new Date().toISOString(),
+        lastCheckedAt: null,
+        attemptStatus: "evidence-submitted",
+        reviewStatus: submission.reviewStatus,
+        completionStatus: "not-completed",
+        rewardXp: 0,
+      };
+      writePendingDashboardMission(nextPending);
+      setPendingMission(nextPending);
       setMessage(
-        "Mission wurde serverseitig gestartet. Deine Bestätigung wartet auf Admin-Prüfung; XP werden erst nach Freigabe gutgeschrieben.",
+        "Mission wurde serverseitig gestartet. Deine Bestätigung wartet auf Admin-Prüfung; WFXP werden erst nach Freigabe gutgeschrieben.",
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Die Mission konnte nicht sicher eingereicht werden.");
     } finally {
       setIsSubmittingMission(false);
     }
+  };
+
+  const handleCheckMissionStatus = async () => {
+    if (isCheckingMission || isSubmittingMission) return;
+    if (!user || !pendingMission) {
+      setMessage("Es gibt derzeit keine offene Mission zur Prüfung.");
+      return;
+    }
+
+    try {
+      setIsCheckingMission(true);
+      setMessage("Reviewstatus wird serverseitig geprüft...");
+      const status = await getDashboardMissionAttemptStatus(pendingMission);
+      const checkedAt = new Date().toISOString();
+      const updatedPending: Beta1PendingDashboardMission = {
+        ...pendingMission,
+        lastCheckedAt: checkedAt,
+        attemptStatus: status.attemptStatus,
+        reviewStatus: status.reviewStatus,
+        completionStatus: status.completionStatus,
+        rewardXp: status.rewardXp,
+      };
+
+      if (status.completionStatus === "completed") {
+        clearPendingDashboardMission(user.id);
+        setPendingMission(null);
+        window.dispatchEvent(new CustomEvent("wellfit-beta1-projection-updated"));
+        setMessage(`Mission ist bereits abgeschlossen. +${status.rewardXp} WFXP wurden serverseitig verbucht.`);
+        return;
+      }
+
+      writePendingDashboardMission(updatedPending);
+      setPendingMission(updatedPending);
+
+      if (status.canRequestCompletion) {
+        setMessage("Evidence ist freigegeben. Mission wird jetzt serverseitig abgeschlossen...");
+        const completion = await completeDashboardMissionAttempt(pendingMission.attemptId);
+        clearPendingDashboardMission(user.id);
+        setPendingMission(null);
+        window.dispatchEvent(new CustomEvent("wellfit-beta1-projection-updated"));
+        setMessage(
+          `Mission abgeschlossen: +${completion.rewardXp} WFXP wurden im serverseitigen Ledger verbucht${completion.idempotent ? " (bereits vorhanden)" : ""}.`,
+        );
+        return;
+      }
+
+      if (status.reviewStatus === "rejected") {
+        setMessage("Die Evidence wurde abgelehnt. Du kannst den Vorgang schließen und die Mission neu starten.");
+      } else if (status.reviewStatus === "needs-more-evidence") {
+        setMessage("Für diese Mission wird weitere Evidence benötigt. Du kannst den Vorgang schließen und neu starten.");
+      } else {
+        setMessage("Die Mission wartet weiterhin auf Admin-Prüfung. Es wurden noch keine WFXP gutgeschrieben.");
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Der Reviewstatus konnte nicht sicher geladen werden.");
+    } finally {
+      setIsCheckingMission(false);
+    }
+  };
+
+  const handleDismissPendingMission = () => {
+    if (!user || !pendingMission) return;
+    if (pendingMission.reviewStatus !== "rejected" && pendingMission.reviewStatus !== "needs-more-evidence") {
+      setMessage("Ein laufender Review kann nicht verworfen werden. Bitte zuerst den Status aktualisieren.");
+      return;
+    }
+    clearPendingDashboardMission(user.id);
+    setPendingMission(null);
+    setMessage("Der abgelehnte beziehungsweise unvollständige Vorgang wurde lokal geschlossen. Serverseitige Auditdaten bleiben erhalten.");
   };
 
   const handleFeedBuddy = async () => {
@@ -153,5 +261,13 @@ export function useDashboardActions({
     );
   };
 
-  return { handleStartMission, handleFeedBuddy, isSubmittingMission };
+  return {
+    handleStartMission,
+    handleCheckMissionStatus,
+    handleDismissPendingMission,
+    handleFeedBuddy,
+    isSubmittingMission,
+    isCheckingMission,
+    pendingMission,
+  };
 }
