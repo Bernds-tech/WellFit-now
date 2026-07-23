@@ -12,6 +12,9 @@ import VisionCapabilityList from "./components/VisionCapabilityList";
 import { useCameraPreview } from "./hooks/useCameraPreview";
 import { usePoseExerciseTracking } from "./hooks/usePoseExerciseTracking";
 
+const SQUAT_MISSION_ID = "daily-squats-15";
+const SQUAT_TARGET_REPS = 15;
+
 export default function MobileAnalysePage() {
   const { videoRef, permissionState, errorMessage, startCamera, stopCamera } = useCameraPreview();
   const { counter, landmarks, trackerStatus, trackerError } = usePoseExerciseTracking({ videoRef, permissionState });
@@ -26,12 +29,13 @@ export default function MobileAnalysePage() {
       const sessionId = await startTrackingSession({
         source: "pose",
         activityType: "pose",
-        missionId: "mobile-squat-test",
-        missionTitle: "Kniebeugen-Test",
+        missionId: SQUAT_MISSION_ID,
+        missionTitle: "15 saubere Kniebeugen",
       });
 
-      await finishTrackingSession({
+      const proof = await finishTrackingSession({
         sessionId,
+        targetReps: SQUAT_TARGET_REPS,
         eventsCount: counter.validReps + counter.invalidReps,
         validReps: counter.validReps,
         invalidReps: counter.invalidReps,
@@ -42,9 +46,11 @@ export default function MobileAnalysePage() {
         notes: "Pose-basierter Kniebeugen-Test aus /mobile/analyse. Rohbilder und Videos werden nicht gespeichert.",
       });
 
-      setSessionMessage("Training gespeichert. Diese Daten können später Missionen und Flammi-Reaktionen auslösen.");
+      setSessionMessage(
+        `Pose-Zusammenfassung serverseitig gespeichert (${proof.serverValidationStatus}). Sie vergibt keine WFXP und schließt keine Mission ab.`,
+      );
     } catch (error) {
-      setSessionMessage(error instanceof Error ? error.message : "Training konnte nicht gespeichert werden.");
+      setSessionMessage(error instanceof Error ? error.message : "Training konnte nicht sicher gespeichert werden.");
     } finally {
       setIsSavingSession(false);
     }

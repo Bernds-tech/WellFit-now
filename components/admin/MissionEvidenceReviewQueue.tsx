@@ -26,6 +26,40 @@ const shortId = (value?: string | null) => {
   return value.length <= 18 ? value : `${value.slice(0, 8)}…${value.slice(-6)}`;
 };
 
+function PoseSummaryCard({ item }: { item: MissionEvidenceQueueItem }) {
+  if (item.poseProofStatus === "not-applicable" || !item.poseProofStatus) return null;
+  if (item.poseProofStatus !== "verified-server-record" || !item.poseSummary) {
+    return (
+      <div className="mt-3 rounded-lg border border-rose-300/30 bg-rose-400/10 p-3 text-xs leading-relaxed text-rose-100">
+        <strong>Pose-Nachweis nicht verifiziert:</strong> {item.poseProofStatus}. Diese Evidence darf ohne unabhängigen Nachweis nicht freigegeben werden.
+      </div>
+    );
+  }
+
+  const summary = item.poseSummary;
+  return (
+    <div className="mt-3 rounded-lg border border-cyan-300/25 bg-cyan-300/10 p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <Beta1StatusBadge tone="info">Pose-Summary serverseitig referenziert</Beta1StatusBadge>
+        <Beta1StatusBadge tone="neutral">Keine Rohbilder</Beta1StatusBadge>
+      </div>
+      <div className="mt-3 grid gap-2 text-xs text-cyan-50/85 sm:grid-cols-2 lg:grid-cols-4">
+        <p><span className="font-semibold text-white">Übung:</span> {summary.exercise}</p>
+        <p><span className="font-semibold text-white">Sauber:</span> {summary.validReps}/{summary.targetReps}</p>
+        <p><span className="font-semibold text-white">Unsauber:</span> {summary.invalidReps}</p>
+        <p><span className="font-semibold text-white">Qualität:</span> {summary.qualityScore}%</p>
+        <p><span className="font-semibold text-white">Confidence:</span> {Math.round(summary.confidence * 100)}%</p>
+        <p><span className="font-semibold text-white">On-Device:</span> {summary.onDeviceAnalysis ? "ja" : "nein"}</p>
+        <p><span className="font-semibold text-white">Rohmedien gespeichert:</span> {summary.rawMediaStored ? "ja" : "nein"}</p>
+        <p><span className="font-semibold text-white">Rohmedien hochgeladen:</span> {summary.rawMediaUploaded ? "ja" : "nein"}</p>
+      </div>
+      <p className="mt-2 text-[11px] leading-relaxed text-cyan-100/65">
+        Die Werte stammen aus einer on-device erzeugten Zusammenfassung, die über ein serverseitiges Tracking-Proof-Dokument referenziert wird. Sie sind ein Triage-Signal, aber keine automatische Freigabe. „Approved“ benötigt weiterhin einen externen, gespeicherten oder QA-Nachweis.
+      </p>
+    </div>
+  );
+}
+
 export default function MissionEvidenceReviewQueue() {
   const [items, setItems] = useState<MissionEvidenceQueueItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +117,7 @@ export default function MissionEvidenceReviewQueue() {
   return (
     <Beta1SectionCard
       title="Mission Evidence Review Queue"
-      description="Admin-only Warteschlange für serverseitige Evidence-Entscheidungen. Die Queue zeigt absichtlich keine Rohbilder, Videos oder freien Metadateninhalte."
+      description="Admin-only Warteschlange für serverseitige Evidence-Entscheidungen. Die Queue zeigt keine Rohbilder, Videos oder freien Metadateninhalte; bei mobilen Pose-Missionen wird nur eine begrenzte serverreferenzierte Zusammenfassung eingeblendet."
     >
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Beta1StatusBadge tone="info">Server-Authority</Beta1StatusBadge>
@@ -126,6 +160,8 @@ export default function MissionEvidenceReviewQueue() {
               <p className="mt-2 text-[11px] text-slate-300/65">
                 Storage-Referenz: {item.storageRefPresent ? "vorhanden" : "keine"} · Metadatenfelder: {item.metadataKeys.length ? item.metadataKeys.join(", ") : "keine"}
               </p>
+
+              <PoseSummaryCard item={item} />
 
               <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,230px)_1fr]">
                 <select

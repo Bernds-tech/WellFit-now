@@ -9,6 +9,20 @@ export type MissionEvidenceReviewStatus =
 
 export type MissionEvidenceReviewDecision = "approved" | "rejected" | "needs-more-evidence";
 
+export type MissionEvidencePoseSummary = {
+  schemaVersion: string;
+  exercise: string;
+  targetReps: number;
+  validReps: number;
+  invalidReps: number;
+  qualityScore: number;
+  confidence: number;
+  moodSignal?: string | null;
+  rawMediaStored: boolean;
+  rawMediaUploaded: boolean;
+  onDeviceAnalysis: boolean;
+};
+
 export type MissionEvidenceQueueItem = {
   evidenceId: string;
   attemptId?: string | null;
@@ -21,6 +35,13 @@ export type MissionEvidenceQueueItem = {
   serverValidationStatus: string;
   storageRefPresent: boolean;
   metadataKeys: string[];
+  poseProofStatus?:
+    | "not-applicable"
+    | "missing-server-record"
+    | "mismatched-server-record"
+    | "invalid-server-summary"
+    | "verified-server-record";
+  poseSummary?: MissionEvidencePoseSummary | null;
   createdAt?: string | null;
   reviewedAt?: string | null;
 };
@@ -32,6 +53,7 @@ type EvidenceListResponse = {
   count?: number;
   rawMetadataIncluded?: boolean;
   storageContentIncluded?: boolean;
+  poseSummaryIncluded?: boolean;
   message?: string;
 };
 
