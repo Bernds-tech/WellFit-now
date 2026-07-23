@@ -4,50 +4,18 @@ const {
   optionalString,
   updatedTimestamp,
 } = require("./beta1Runtime");
+const {
+  timestampToDate,
+  dateKeyInTimeZone,
+  documentDateKey,
+  addUtcDays,
+  resolveUserCalendarContext,
+} = require("./beta1UserCalendar");
 
 const DAILY_GOAL = 3;
 const MAX_DAILY_MISSIONS = 10;
 const MAX_HISTORY_DOCS = 500;
 const DAILY_MISSION_IDS = new Set(dailyMissionCatalog.missions.map((mission) => mission.missionId));
-
-function dateKeyInVienna(value = new Date()) {
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Vienna",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
-  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  return `${byType.year}-${byType.month}-${byType.day}`;
-}
-
-function addUtcDays(dateKey, delta) {
-  const [year, month, day] = String(dateKey).split("-").map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day + delta, 12, 0, 0));
-  return date.toISOString().slice(0, 10);
-}
-
-function timestampToDate(value) {
-  if (!value) return null;
-  if (value instanceof Date) return value;
-  if (typeof value.toDate === "function") return value.toDate();
-  if (typeof value === "string" || typeof value === "number") {
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? null : parsed;
-  }
-  return null;
-}
-
-function documentDateKey(data, preferredFields) {
-  for (const field of preferredFields) {
-    const date = timestampToDate(data[field]);
-    const key = date ? dateKeyInVienna(date) : null;
-    if (key) return key;
-  }
-  return null;
-}
 
 function documentTime(data, preferredFields = ["createdAt", "startedAt", "updatedAt"]) {
   for (const field of preferredFields) {
@@ -129,14 +97,14 @@ function validatePreferences(data, HttpsError) {
   return { favoriteIds, dailySlotIds };
 }
 
-function buildCompletionDays(completionDocs) {
+function buildCompletionDays(completionDocs, timeZone) {
   const missionIdsByDate = new Map();
   for (const doc of completionDocs) {
     const data = doc.data() || {};
     const missionId = optionalString(data.missionId, 160);
     if (!missionId || !DAILY_MISSION_IDS.has(missionId) || data.status !== "completed") continue;
     const dateKey = optionalString(data.dateKey, 20)
-      || documentDateKey(data, ["completedAt", "updatedAt", "createdAt"]);
+      || documentDateKey(data, ["completedAt", "updatedAt", "createdAt"], timeZone);
     if (!dateKey) continue;
     if (!missionIdsByDate.has(dateKey)) missionIdsByDate.set(dateKey, new Set());
     missionIdsByDate.get(dateKey).add(missionId);
@@ -201,7 +169,7 @@ function buildLatestEvidenceByAttempt(evidenceDocs) {
   return evidenceByAttempt;
 }
 
-function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds, completedMissionIds }) {
+function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds, completedMissionIds, timeZone }) {
   const byMission = new Map();
   const sortedAttempts = [...attempts].sort((left, right) => {
     const leftTime = documentTime(left.data() || {});
@@ -220,7 +188,7 @@ function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds,
       missionId,
       attemptId: attemptDoc.id,
       startedDateKey: optionalString(attempt.dateKey, 20)
-        || documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"]),
+        || documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"], timeZone),
       attemptStatus: optionalString(attempt.status, 80) || "started",
       evidenceId: evidence ? evidence.id : null,
       reviewStatus: evidence ? optionalString(evidence.data.reviewStatus, 80) || "pending-server-review" : null,
@@ -240,13 +208,16 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
     const userId = requireAuth(request, HttpsError);
     const data = request.data || {};
     const preferences = validatePreferences(data, HttpsError);
-    const todayKey = dateKeyInVienna(new Date());
+    const calendar = await resolveUserCalendarContext(db, userId, data.timeZone, HttpsError);
+    const todayKey = calendar.dateKey;
     const stateRef = db.collection("userDailyMissionState").doc(`${userId}_${todayKey}`);
     const stateSnapshot = await stateRef.get();
     const patch = {
       userId,
       ownerUserId: userId,
       dateKey: todayKey,
+      timeZone: calendar.timeZone,
+      calendarAuthority: calendar.calendarAuthority,
       favoriteIds: preferences.favoriteIds,
       dailySlotIds: preferences.dailySlotIds,
       preferenceAuthority: "server-callable",
@@ -259,6 +230,10 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
     return {
       accepted: true,
       dateKey: todayKey,
+      timeZone: calendar.timeZone,
+      calendarAuthority: calendar.calendarAuthority,
+      timeZoneChangeDeferred: calendar.timeZoneChangeDeferred,
+      nextTimeZoneChangeAt: calendar.nextTimeZoneChangeAt,
       ...preferences,
       rewardAuthority: false,
       missionCompletionAuthority: false,
@@ -267,7 +242,9 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
 
   exportsTarget.getDailyMissionProgress = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
-    const todayKey = dateKeyInVienna(new Date());
+    const data = request.data || {};
+    const calendar = await resolveUserCalendarContext(db, userId, data.timeZone, HttpsError);
+    const todayKey = calendar.dateKey;
     const stateRef = db.collection("userDailyMissionState").doc(`${userId}_${todayKey}`);
     const [stateSnapshot, attemptsSnapshot, evidenceSnapshot, completionsSnapshot, walletSnapshot] = await Promise.all([
       stateRef.get(),
@@ -286,20 +263,21 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
       if (attemptId && completion.status === "completed") completedAttemptIds.add(attemptId);
     }
 
-    const completionDays = buildCompletionDays(completionsSnapshot.docs);
+    const completionDays = buildCompletionDays(completionsSnapshot.docs, calendar.timeZone);
     const todayCompletedIds = [...(completionDays.get(todayKey) || new Set())];
     const activeAttempts = buildActiveAttempts({
       attempts: attemptsSnapshot.docs,
       evidenceByAttempt,
       completedAttemptIds,
       completedMissionIds: new Set(todayCompletedIds),
+      timeZone: calendar.timeZone,
     });
     const todayStartedIds = attemptsSnapshot.docs
       .filter((doc) => {
         const attempt = doc.data() || {};
         return isDailyMissionId(attempt.missionId)
           && (optionalString(attempt.dateKey, 20)
-            || documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"])) === todayKey;
+            || documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"], calendar.timeZone)) === todayKey;
       })
       .map((doc) => optionalString((doc.data() || {}).missionId, 160))
       .filter(Boolean);
@@ -316,6 +294,10 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
     return {
       accepted: true,
       dateKey: todayKey,
+      timeZone: calendar.timeZone,
+      calendarAuthority: calendar.calendarAuthority,
+      timeZoneChangeDeferred: calendar.timeZoneChangeDeferred,
+      nextTimeZoneChangeAt: calendar.nextTimeZoneChangeAt,
       catalogId: dailyMissionCatalog.catalogId,
       catalogVersion: dailyMissionCatalog.version,
       completionPolicy: dailyMissionCatalog.completionPolicy,
@@ -344,7 +326,7 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
 
 module.exports = {
   registerBeta1DailyMissionProgress,
-  dateKeyInVienna,
+  dateKeyInTimeZone,
   documentDateKey,
   calculateLevelFromXp,
   buildStreakSummary,
