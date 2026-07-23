@@ -84,7 +84,7 @@ function describeCall(callResponse) {
 async function resetBeta1Collections() {
   const collections = [
     "familyAccounts", "childProfiles", "guardianChildLinks", "parentalConsents", "missions", "missionAttempts", "missionEvidence", "missionCompletions",
-    "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory",
+    "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "itemDefinitions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory", "userAvatars",
     "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "glitchSafetyRules", "safetyReports",
   ];
   for (const collectionName of collections) {
