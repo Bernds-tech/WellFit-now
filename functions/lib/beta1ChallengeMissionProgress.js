@@ -10,11 +10,14 @@ const {
 } = require("./beta1Runtime");
 const { applyXpDelta } = require("./beta1XpLedger");
 const { calculateLevelFromXp } = require("./beta1DailyMissionProgress");
+const { requirePublishedNearbyMissionLocation } = require("./beta1NearbyMissionLocations");
 
 const MAX_HISTORY_DOCS = 500;
 const CHALLENGE_MISSION_IDS = new Set(challengeCatalog.missions.map((mission) => mission.missionId));
 const CHALLENGE_EVIDENCE_TYPE = "challenge-user-confirmation";
 const CHALLENGE_COMPLETION_POLICY = "once-per-mission-per-user";
+const CHALLENGE_LOCATION_POLICY = "nearby-published-location";
+const CHALLENGE_START_RADIUS_KM = Number(challengeCatalog.startRadiusMeters || 500) / 1000;
 
 function safeDocIdPart(value) {
   return encodeURIComponent(String(value || "none")).replace(/\./g, "%2E");
@@ -48,6 +51,41 @@ function documentTime(data, preferredFields = ["createdAt", "startedAt", "update
   return 0;
 }
 
+function locationFields(location) {
+  return {
+    locationId: location.locationId,
+    locationTitle: location.title,
+    regionId: location.regionId,
+    countryCode: location.countryCode,
+    locality: location.locality,
+    locationType: location.locationType,
+    locationAuthority: location.locationAuthority,
+    challengeStartDistanceMeters: location.distanceMeters,
+    userLocationStored: false,
+  };
+}
+
+function storedLocationFields(data) {
+  return {
+    locationId: optionalString(data.locationId, 160),
+    locationTitle: optionalString(data.locationTitle, 120),
+    regionId: optionalString(data.regionId, 80),
+    countryCode: optionalString(data.countryCode, 8),
+    locality: optionalString(data.locality, 120),
+    locationType: optionalString(data.locationType, 80),
+    locationAuthority: optionalString(data.locationAuthority, 80),
+    challengeStartDistanceMeters: Math.max(0, Math.floor(Number(data.challengeStartDistanceMeters || 0))),
+    userLocationStored: false,
+  };
+}
+
+function isLocatedChallengeAttempt(attempt) {
+  return attempt
+    && attempt.locationPolicy === CHALLENGE_LOCATION_POLICY
+    && optionalString(attempt.locationId, 160)
+    && attempt.locationAuthority === "server-published-nearby";
+}
+
 function buildLatestEvidenceByAttempt(evidenceDocs) {
   const evidenceByAttempt = new Map();
   for (const doc of evidenceDocs) {
@@ -72,7 +110,15 @@ function buildCompletedChallenges(completionDocs) {
   for (const doc of completionDocs) {
     const completion = doc.data() || {};
     const missionId = optionalString(completion.missionId, 160);
-    if (completion.status !== "completed" || !missionId || !CHALLENGE_MISSION_IDS.has(missionId)) continue;
+    if (
+      completion.status !== "completed"
+      || !missionId
+      || !CHALLENGE_MISSION_IDS.has(missionId)
+      || completion.locationPolicy !== CHALLENGE_LOCATION_POLICY
+      || completion.locationAuthority !== "server-published-nearby"
+    ) {
+      continue;
+    }
     completedMissionIds.add(missionId);
     const attemptId = optionalString(completion.attemptId, 220);
     if (attemptId) completedAttemptIds.add(attemptId);
@@ -92,6 +138,7 @@ function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds,
     const attempt = attemptDoc.data() || {};
     const missionId = optionalString(attempt.missionId, 160);
     if (!missionId || !CHALLENGE_MISSION_IDS.has(missionId) || byMission.has(missionId)) continue;
+    if (!isLocatedChallengeAttempt(attempt)) continue;
     if (completedMissionIds.has(missionId)) continue;
     if (completedAttemptIds.has(attemptDoc.id) || attempt.status === "completed") continue;
     const evidence = evidenceByAttempt.get(attemptDoc.id) || null;
@@ -99,11 +146,13 @@ function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds,
       missionId,
       attemptId: attemptDoc.id,
       attemptStatus: optionalString(attempt.status, 80) || "started",
+      ...storedLocationFields(attempt),
       evidenceId: evidence ? evidence.id : null,
       reviewStatus: evidence ? optionalString(evidence.data.reviewStatus, 80) || "pending-server-review" : null,
       serverValidationStatus: evidence ? optionalString(evidence.data.serverValidationStatus, 120) || "evidence-received" : null,
       canRequestCompletion: Boolean(
         evidence
+        && evidence.data.locationId === attempt.locationId
         && evidence.data.reviewStatus === "approved"
         && evidence.data.serverValidationStatus === "evidence-approved"
       ),
@@ -123,6 +172,8 @@ async function readChallengeMission(db, missionId, HttpsError) {
     || mission.status !== "published"
     || mission.catalogId !== challengeCatalog.catalogId
     || mission.completionPolicy !== CHALLENGE_COMPLETION_POLICY
+    || mission.locationPolicy !== CHALLENGE_LOCATION_POLICY
+    || Number(mission.startRadiusMeters) !== Number(challengeCatalog.startRadiusMeters)
     || !mission.evidencePolicy
     || !Array.isArray(mission.evidencePolicy.allowedEvidenceTypes)
     || !mission.evidencePolicy.allowedEvidenceTypes.includes(CHALLENGE_EVIDENCE_TYPE)
@@ -142,6 +193,14 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       throw new HttpsError("failed-precondition", "Child Profiles sind fuer den ersten Challenge-Katalog deaktiviert.");
     }
 
+    const location = await requirePublishedNearbyMissionLocation(db, {
+      locationId: data.locationId,
+      missionId,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      maxDistanceKm: CHALLENGE_START_RADIUS_KM,
+    }, HttpsError);
+
     const attemptId = challengeMissionAttemptId(userId, missionId);
     const attemptRef = db.collection("missionAttempts").doc(attemptId);
     const completionRef = db.collection("missionCompletions").doc(attemptId);
@@ -155,8 +214,10 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       attempt.ownerUserId !== userId
       || attempt.missionId !== missionId
       || attempt.completionPolicy !== CHALLENGE_COMPLETION_POLICY
+      || attempt.locationPolicy !== CHALLENGE_LOCATION_POLICY
+      || attempt.locationId !== location.locationId
     )) {
-      throw new HttpsError("failed-precondition", "Deterministischer Challenge-Attempt ist inkonsistent.");
+      throw new HttpsError("failed-precondition", "Deterministischer Challenge-Attempt ist inkonsistent oder an einen anderen Ort gebunden.");
     }
     if (attempt.status === "completed") {
       throw new HttpsError("failed-precondition", "Diese Challenge wurde bereits abgeschlossen.");
@@ -169,6 +230,7 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
 
     if (
       evidenceSnapshot.exists
+      && existingEvidence.locationId === location.locationId
       && (existingEvidence.reviewStatus === "pending-server-review" || existingEvidence.reviewStatus === "approved")
     ) {
       return {
@@ -177,6 +239,7 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
         evidenceId: evidenceRef.id,
         attemptStatus: optionalString(attempt.status, 80) || "evidence-submitted",
         reviewStatus: existingEvidence.reviewStatus,
+        ...locationFields(location),
         missionCompletionAuthorized: false,
         xpAuthorized: false,
         idempotent: true,
@@ -191,13 +254,18 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       evidenceRef = db.collection("missionEvidence").doc(challengeMissionEvidenceId(attemptId, evidenceRevision));
       evidenceSnapshot = await evidenceRef.get();
       existingEvidence = evidenceSnapshot.exists ? evidenceSnapshot.data() || {} : {};
-      if (evidenceSnapshot.exists && existingEvidence.reviewStatus === "pending-server-review") {
+      if (
+        evidenceSnapshot.exists
+        && existingEvidence.locationId === location.locationId
+        && existingEvidence.reviewStatus === "pending-server-review"
+      ) {
         return {
           accepted: true,
           attemptId,
           evidenceId: evidenceRef.id,
           attemptStatus: "evidence-submitted",
           reviewStatus: "pending-server-review",
+          ...locationFields(location),
           missionCompletionAuthorized: false,
           xpAuthorized: false,
           idempotent: true,
@@ -208,6 +276,7 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       }
     }
 
+    const safeLocation = locationFields(location);
     const batch = db.batch();
     batch.set(attemptRef, {
       attemptId,
@@ -219,6 +288,9 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       catalogId: challengeCatalog.catalogId,
       catalogVersion: challengeCatalog.version,
       completionPolicy: CHALLENGE_COMPLETION_POLICY,
+      locationPolicy: CHALLENGE_LOCATION_POLICY,
+      startRadiusMeters: Number(challengeCatalog.startRadiusMeters),
+      ...safeLocation,
       latestEvidenceId: evidenceRef.id,
       latestEvidenceRevision: evidenceRevision,
       latestEvidenceReviewStatus: "pending-server-review",
@@ -236,9 +308,17 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       childProfileId: null,
       evidenceType: CHALLENGE_EVIDENCE_TYPE,
       evidenceRevision,
+      ...safeLocation,
       storageRef: null,
       metadata: {
         source: "challenge-missions",
+        locationId: location.locationId,
+        regionId: location.regionId,
+        countryCode: location.countryCode,
+        locality: location.locality,
+        challengeStartDistanceMeters: location.distanceMeters,
+        locationAuthority: location.locationAuthority,
+        userLocationStored: false,
         requiresHumanReview: true,
         grantsClientReward: false,
         rawMediaStored: false,
@@ -262,6 +342,7 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       evidenceId: evidenceRef.id,
       attemptStatus: "evidence-submitted",
       reviewStatus: "pending-server-review",
+      ...safeLocation,
       missionCompletionAuthorized: false,
       xpAuthorized: false,
       idempotent: false,
@@ -281,8 +362,12 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       throw new HttpsError("permission-denied", "Challenge-Attempt gehoert nicht diesem Nutzer.");
     }
     const attempt = attemptSnapshot.data() || {};
-    if (!isChallengeMissionId(attempt.missionId) || attempt.completionPolicy !== CHALLENGE_COMPLETION_POLICY) {
-      throw new HttpsError("invalid-argument", "Attempt ist keine kanonische Challenge.");
+    if (
+      !isChallengeMissionId(attempt.missionId)
+      || attempt.completionPolicy !== CHALLENGE_COMPLETION_POLICY
+      || !isLocatedChallengeAttempt(attempt)
+    ) {
+      throw new HttpsError("invalid-argument", "Attempt ist keine kanonische, standortautorisierte Challenge.");
     }
     if (existingCompletion.exists && (existingCompletion.data() || {}).status === "completed") {
       const completion = existingCompletion.data() || {};
@@ -292,6 +377,7 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
         xpLedgerEventId: completion.xpLedgerEventId,
         rewardXp: completion.rewardXp,
         evidenceId: completion.evidenceId,
+        ...storedLocationFields(completion),
         xpAuthorized: true,
         missionCompletionAuthorized: true,
         tokenAuthorized: false,
@@ -309,11 +395,13 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       || evidence.ownerUserId !== userId
       || evidence.attemptId !== attemptId
       || evidence.missionId !== attempt.missionId
+      || evidence.locationId !== attempt.locationId
+      || evidence.locationAuthority !== "server-published-nearby"
       || evidence.evidenceType !== CHALLENGE_EVIDENCE_TYPE
       || evidence.reviewStatus !== "approved"
       || evidence.serverValidationStatus !== "evidence-approved"
     ) {
-      throw new HttpsError("failed-precondition", "Serverseitig freigegebene Challenge-Evidence ist erforderlich.");
+      throw new HttpsError("failed-precondition", "Serverseitig freigegebene, ortsgebundene Challenge-Evidence ist erforderlich.");
     }
 
     const mission = await readChallengeMission(db, attempt.missionId, HttpsError);
@@ -333,12 +421,16 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
         attemptId,
         missionId: attempt.missionId,
         catalogId: challengeCatalog.catalogId,
+        locationId: attempt.locationId,
+        regionId: attempt.regionId || null,
+        countryCode: attempt.countryCode || null,
       },
     });
     if (ledger.idempotent && ledger.sourceId !== completionRef.id) {
       throw new HttpsError("failed-precondition", "Diese Challenge wurde bereits belohnt.");
     }
 
+    const safeLocation = storedLocationFields(attempt);
     await completionRef.set({
       completionId: completionRef.id,
       attemptId,
@@ -355,6 +447,9 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       catalogId: challengeCatalog.catalogId,
       catalogVersion: challengeCatalog.version,
       completionPolicy: CHALLENGE_COMPLETION_POLICY,
+      locationPolicy: CHALLENGE_LOCATION_POLICY,
+      startRadiusMeters: Number(challengeCatalog.startRadiusMeters),
+      ...safeLocation,
       completedAt: new Date().toISOString(),
       noMonetaryValue: true,
       tokenAuthorized: false,
@@ -378,6 +473,9 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
         ledgerEventId: ledger.ledgerEventId,
         evidenceId: evidenceSnapshot.id,
         catalogId: challengeCatalog.catalogId,
+        locationId: attempt.locationId,
+        regionId: attempt.regionId || null,
+        countryCode: attempt.countryCode || null,
       },
     });
 
@@ -387,6 +485,7 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       xpLedgerEventId: ledger.ledgerEventId,
       rewardXp,
       evidenceId: evidenceSnapshot.id,
+      ...safeLocation,
       xpAuthorized: true,
       missionCompletionAuthorized: true,
       tokenAuthorized: false,
@@ -415,8 +514,13 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
     });
     const startedMissionIds = [...new Set([
       ...attemptsSnapshot.docs
+        .filter((doc) => {
+          const attempt = doc.data() || {};
+          const missionId = optionalString(attempt.missionId, 160);
+          return Boolean(missionId && CHALLENGE_MISSION_IDS.has(missionId) && isLocatedChallengeAttempt(attempt));
+        })
         .map((doc) => optionalString((doc.data() || {}).missionId, 160))
-        .filter((missionId) => missionId && CHALLENGE_MISSION_IDS.has(missionId)),
+        .filter(Boolean),
       ...activeAttempts.map((attempt) => attempt.missionId),
       ...completed.completedMissionIds,
     ])];
@@ -430,6 +534,8 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       catalogId: challengeCatalog.catalogId,
       catalogVersion: challengeCatalog.version,
       completionPolicy: challengeCatalog.completionPolicy,
+      locationPolicy: challengeCatalog.locationPolicy,
+      startRadiusMeters: Number(challengeCatalog.startRadiusMeters),
       startedMissionIds,
       completedMissionIds,
       activeAttempts,
@@ -438,6 +544,9 @@ function registerBeta1ChallengeMissionProgress(exportsTarget, { db, onCall, Http
       ...level,
       walletAvailable: walletSnapshot.exists,
       progressAuthority: "server-read",
+      locationAuthority: "server-published-nearby",
+      globalCatalog: true,
+      userLocationStored: false,
       rewardAuthority: false,
       missionCompletionAuthority: false,
       tokenAuthorized: false,
@@ -453,4 +562,6 @@ module.exports = {
   challengeMissionAttemptId,
   challengeMissionEvidenceId,
   challengeMissionCompletionIdempotencyKey,
+  CHALLENGE_LOCATION_POLICY,
+  CHALLENGE_START_RADIUS_KM,
 };
