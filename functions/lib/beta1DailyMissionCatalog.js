@@ -9,10 +9,14 @@ const {
 const ALLOWED_DIFFICULTIES = new Set(["Leicht", "Mittel", "Schwer"]);
 const ALLOWED_DISPLAY_TYPES = new Set(["Bewegung", "Ernährung", "Workout", "Community", "Abenteuer"]);
 const ALLOWED_SERVER_TYPES = new Set(["movement", "workout", "learning", "nutrition", "wellness"]);
+const REQUIRED_COMPLETION_POLICY = "once-per-mission-per-vienna-day";
 
 function validateCatalog(HttpsError) {
   if (!catalog || !Array.isArray(catalog.missions) || catalog.missions.length === 0) {
     throw new HttpsError("failed-precondition", "Beta-1 Tagesmissionskatalog fehlt oder ist leer.");
+  }
+  if (catalog.completionPolicy !== REQUIRED_COMPLETION_POLICY) {
+    throw new HttpsError("failed-precondition", "Beta-1 Tagesmissionskatalog hat keine sichere Tagesabschlussgrenze.");
   }
   const ids = new Set();
   for (const mission of catalog.missions) {
@@ -60,6 +64,7 @@ function publicCatalogMission(mission) {
     childAllowed: false,
     evidenceType: "daily-user-confirmation",
     reviewRequired: true,
+    completionPolicy: REQUIRED_COMPLETION_POLICY,
     status: "published",
     noMonetaryValue: true,
     tokenAuthorized: false,
@@ -89,6 +94,7 @@ function registerBeta1DailyMissionCatalog(exportsTarget, { db, onCall, HttpsErro
         rewardXp: mission.rewardXp,
         childAllowed: false,
         status: "published",
+        completionPolicy: REQUIRED_COMPLETION_POLICY,
         evidencePolicy: {
           reviewRequired: true,
           allowedEvidenceTypes: ["daily-user-confirmation"],
@@ -115,6 +121,7 @@ function registerBeta1DailyMissionCatalog(exportsTarget, { db, onCall, HttpsErro
         missionCount: missions.length,
         childAllowed: false,
         reviewRequired: true,
+        completionPolicy: REQUIRED_COMPLETION_POLICY,
       },
     });
 
@@ -122,6 +129,7 @@ function registerBeta1DailyMissionCatalog(exportsTarget, { db, onCall, HttpsErro
       accepted: true,
       catalogId: catalog.catalogId,
       catalogVersion: catalog.version,
+      completionPolicy: REQUIRED_COMPLETION_POLICY,
       count: missions.length,
       currency: "WFXP",
       noMonetaryValue: true,
