@@ -44,10 +44,16 @@ async function applyXpDelta(db, { ownerUserId, childProfileId, delta, reason, so
   const walletRef = await getWalletRef(db, ownerUserId, childProfileId);
   const ledgerRef = idempotencyKey ? db.collection("xpLedgerEvents").doc(idempotencyKey) : db.collection("xpLedgerEvents").doc();
   const legacyLedgerRef = db.collection("ledgerEvents").doc(ledgerRef.id);
+  let idempotent = false;
+  let existingSourceId = null;
 
   await db.runTransaction(async (transaction) => {
     const existingLedger = await transaction.get(ledgerRef);
-    if (existingLedger.exists) return;
+    if (existingLedger.exists) {
+      idempotent = true;
+      existingSourceId = optionalString((existingLedger.data() || {}).sourceId, 180);
+      return;
+    }
     const walletSnapshot = await transaction.get(walletRef);
     const wallet = walletSnapshot.exists ? walletSnapshot.data() || {} : {};
     const currentBalance = Number(wallet.balance || 0);
@@ -94,18 +100,25 @@ async function applyXpDelta(db, { ownerUserId, childProfileId, delta, reason, so
     }, { merge: true });
   });
 
-  await writeAudit(db, {
-    actorUserId: actorUserId || "server",
-    actionType: safeDelta > 0 ? "xp-grant" : "xp-spend",
-    targetType: "xpWallet",
-    targetId: walletRef.id,
-    ownerUserId,
-    childProfileId,
-    reason,
-    metadata: { ledgerEventId: ledgerRef.id, delta: safeDelta, sourceType, sourceId },
-  });
+  if (!idempotent) {
+    await writeAudit(db, {
+      actorUserId: actorUserId || "server",
+      actionType: safeDelta > 0 ? "xp-grant" : "xp-spend",
+      targetType: "xpWallet",
+      targetId: walletRef.id,
+      ownerUserId,
+      childProfileId,
+      reason,
+      metadata: { ledgerEventId: ledgerRef.id, delta: safeDelta, sourceType, sourceId },
+    });
+  }
 
-  return { ledgerEventId: ledgerRef.id, walletId: walletRef.id };
+  return {
+    ledgerEventId: ledgerRef.id,
+    walletId: walletRef.id,
+    idempotent,
+    sourceId: idempotent ? existingSourceId : optionalString(sourceId, 180),
+  };
 }
 
 function registerBeta1XpLedger(exportsTarget, { db, onCall, HttpsError }) {
