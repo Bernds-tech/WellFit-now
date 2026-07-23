@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "catalogId": "wellfit-beta1-weekly-missions",
+  "currency": "WFXP",
+  "completionPolicy": "once-per-mission-per-vienna-week",
+  "weeklyGoal": 3,
+  "noMonetaryValue": true,
+  "tokenAuthorized": false,
+  "cashoutAllowed": false,
+  "missions": [
+    {
+      "missionId": "weekly-steps-50000",
+      "title": "Wöchentliche Bewegungsmission",
+      "rewardXp": 25,
+      "difficulty": "Mittel",
+      "description": "Sammle innerhalb der aktuellen Wien-Woche insgesamt 50.000 Schritte.",
+      "duration": "1 Woche",
+      "displayType": "Bewegung",
+      "type": "movement",
+      "childAllowed": false,
+      "evidenceType": "weekly-user-confirmation",
+      "reviewRequired": true,
+      "targetValue": 50000,
+      "targetUnit": "steps"
+    },
+    {
+      "missionId": "weekly-workouts-3",
+      "title": "Wöchentliche Fitnessmission",
+      "rewardXp": 15,
+      "difficulty": "Mittel",
+      "description": "Absolviere in der aktuellen Wien-Woche drei kontrollierte Ganzkörper-Trainings.",
+      "duration": "1 Woche",
+      "displayType": "Workout",
+      "type": "workout",
+      "childAllowed": false,
+      "evidenceType": "weekly-user-confirmation",
+      "reviewRequired": true,
+      "targetValue": 3,
+      "targetUnit": "workouts"
+    },
+    {
+      "missionId": "weekly-learning-5",
+      "title": "Wöchentliche Wissensmission",
+      "rewardXp": 25,
+      "difficulty": "Mittel",
+      "description": "Schließe in der aktuellen Wien-Woche fünf Lernmodule oder Wissensaufgaben ab.",
+      "duration": "1 Woche",
+      "displayType": "Abenteuer",
+      "type": "learning",
+      "childAllowed": false,
+      "evidenceType": "weekly-user-confirmation",
+      "reviewRequired": true,
+      "targetValue": 5,
+      "targetUnit": "learning-modules"
+    }
+  ]
+}
