@@ -1,9 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { readCheckpointAndGlitch, readGuardianChildProfiles, readInventoryAndShop, readPublishedMissions, readXpLedgerEvents, readXpWalletProjection } from "@/lib/beta1/clientReadProjections";
-import type { Beta1CheckpointSummary, Beta1ChildProfileSummary, Beta1GlitchEventSummary, Beta1InventoryItem, Beta1MissionSummary, Beta1ShopItem, Beta1XpLedgerEvent, Beta1XpWalletProjection } from "@/lib/beta1/beta1Types";
-import { Beta1EmptyState, Beta1MetricCard, Beta1SectionCard, Beta1StatusBadge } from "@/components/beta1/Beta1Foundation";
+import { useCallback, useEffect, useState } from "react";
+import {
+  readCheckpointAndGlitch,
+  readGuardianChildProfiles,
+  readInventoryAndShop,
+  readPublishedMissions,
+  readXpLedgerEvents,
+  readXpWalletProjection,
+} from "@/lib/beta1/clientReadProjections";
+import type {
+  Beta1CheckpointSummary,
+  Beta1ChildProfileSummary,
+  Beta1GlitchEventSummary,
+  Beta1InventoryItem,
+  Beta1MissionSummary,
+  Beta1ShopItem,
+  Beta1XpLedgerEvent,
+  Beta1XpWalletProjection,
+} from "@/lib/beta1/beta1Types";
+import {
+  Beta1EmptyState,
+  Beta1MetricCard,
+  Beta1SectionCard,
+  Beta1StatusBadge,
+} from "@/components/beta1/Beta1Foundation";
 
 export default function Beta1ReadProjectionPanel() {
   const [loading, setLoading] = useState(true);
@@ -17,36 +38,52 @@ export default function Beta1ReadProjectionPanel() {
   const [glitches, setGlitches] = useState<Beta1GlitchEventSummary[]>([]);
   const [childProfiles, setChildProfiles] = useState<Beta1ChildProfileSummary[]>([]);
 
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      const [walletRes, ledgerRes, missionRes, inventoryShopRes, checkpointGlitchRes, childRes] = await Promise.all([
-        readXpWalletProjection(),
-        readXpLedgerEvents(),
-        readPublishedMissions(),
-        readInventoryAndShop(),
-        readCheckpointAndGlitch(),
-        readGuardianChildProfiles(),
-      ]);
-      if (cancelled) return;
-      setWallet(walletRes.data);
-      setLedger(ledgerRes.data);
-      setMissions(missionRes.data);
-      setInventory(inventoryShopRes.inventory);
-      setShopItems(inventoryShopRes.shopItems);
-      setCheckpoints(checkpointGlitchRes.checkpoints);
-      setGlitches(checkpointGlitchRes.glitches);
-      setChildProfiles(childRes.data);
-      setError(walletRes.error || ledgerRes.error || missionRes.error || inventoryShopRes.error || checkpointGlitchRes.error || childRes.error);
-      setLoading(false);
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    const [walletRes, ledgerRes, missionRes, inventoryShopRes, checkpointGlitchRes, childRes] = await Promise.all([
+      readXpWalletProjection(),
+      readXpLedgerEvents(),
+      readPublishedMissions(),
+      readInventoryAndShop(),
+      readCheckpointAndGlitch(),
+      readGuardianChildProfiles(),
+    ]);
+    setWallet(walletRes.data);
+    setLedger(ledgerRes.data);
+    setMissions(missionRes.data);
+    setInventory(inventoryShopRes.inventory);
+    setShopItems(inventoryShopRes.shopItems);
+    setCheckpoints(checkpointGlitchRes.checkpoints);
+    setGlitches(checkpointGlitchRes.glitches);
+    setChildProfiles(childRes.data);
+    setError(
+      walletRes.error
+        || ledgerRes.error
+        || missionRes.error
+        || inventoryShopRes.error
+        || checkpointGlitchRes.error
+        || childRes.error,
+    );
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    const safeLoad = async () => {
+      if (!active) return;
+      await load();
+    };
+    safeLoad();
+    const onProjectionUpdated = () => {
+      safeLoad();
+    };
+    window.addEventListener("wellfit-beta1-projection-updated", onProjectionUpdated);
+    return () => {
+      active = false;
+      window.removeEventListener("wellfit-beta1-projection-updated", onProjectionUpdated);
+    };
+  }, [load]);
 
   return (
     <Beta1SectionCard
