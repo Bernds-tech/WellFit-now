@@ -10,7 +10,7 @@ import {
   type Beta1ServerBuddyActionType,
 } from "@/lib/beta1/clientBuddyActions";
 import { feedBuddyWithWfxp } from "@/lib/beta1/clientBuddyCare";
-import type { BuddyAction, BuddyActionType, BuddyState } from "../types";
+import type { BuddyAction, BuddyState } from "../types";
 import { getBuddyActions, type BuddyActionPriceMap } from "../lib/buddyCopy";
 import { buddyEconomyNotice } from "../lib/buddyEconomy";
 import { createBuddyStateFromUser } from "../lib/buddyState";
@@ -29,8 +29,6 @@ function mergeBuddyFoodProjection(
     hunger: number;
     energy: number;
     mood: number;
-    level: number;
-    xpTotal: number;
   },
   remainingWfxp: number | null,
 ): BuddyState {
@@ -39,8 +37,6 @@ function mergeBuddyFoodProjection(
     hunger: projection.hunger,
     energy: projection.energy,
     mood: projection.mood,
-    level: projection.level,
-    xp: projection.xpTotal,
     points: remainingWfxp ?? current.points,
   };
 }
@@ -88,7 +84,6 @@ export function useBuddyState(user: User | null) {
       })
       .catch((error) => {
         if (cancelled) return;
-        setBuddy(createBuddyStateFromUser(user));
         setServerReady(false);
         setBuddyMessage(error instanceof Error ? error.message : "Flammis Serverprojektion konnte nicht geladen werden.");
       });
