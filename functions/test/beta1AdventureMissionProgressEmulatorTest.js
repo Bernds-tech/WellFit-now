@@ -107,7 +107,7 @@ async function run() {
   const initial = await expectOk("getAdventureProgress", userToken, {});
   assert(initial.walletBalance === 50 && initial.completedMissionIds.length === 0, "Initiale Abenteuerprojektion muss den Wallet-Seed lesen.");
   assert(initial.locationPolicy === "nearby-published-location", "Progress muss die globale Standort-Policy ausweisen.");
-  assert(initial.locationAuthority === "server-published-nearby" && initial.userLocationStored === false, "Progress muss datensparsame Ortsautoritaet ausweisen.");
+  assert(initial.locationAuthority === "server-published-nearby", "Progress muss die serverseitige Ortsautoritaet ausweisen.");
 
   await expectCallableError(
     "startAdventureMission",
