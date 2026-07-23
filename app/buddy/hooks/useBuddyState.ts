@@ -9,7 +9,7 @@ import {
   type Beta1BuddyActionPolicy,
   type Beta1ServerBuddyActionType,
 } from "@/lib/beta1/clientBuddyActions";
-import { feedBuddyWithWfxp } from "@/lib/beta1/clientBuddyCare";
+import { feedBuddyWithWfxp } from "@/lib/beta1/clientBuddyCareCommands";
 import type { BuddyAction, BuddyState } from "../types";
 import { getBuddyActions, type BuddyActionPriceMap } from "../lib/buddyCopy";
 import { buddyEconomyNotice } from "../lib/buddyEconomy";
