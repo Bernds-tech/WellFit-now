@@ -1,17 +1,24 @@
 "use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
+import {
+  fetchDailyMissionProgress,
+  reconcileDailyMissionAttempt,
+  saveDailyMissionPreferences,
+  submitDailyMissionForReview,
+  type Beta1DailyActiveAttempt,
+  type Beta1DailyMissionActionResult,
+  type Beta1DailyMissionProgress,
+} from "@/lib/beta1/clientDailyMissionProgress";
 
-type DailyMissionState = {
+export type DailyMissionState = {
   favoriteIds: string[];
   dailySlotIds: (string | null)[];
   startedMissionIds: string[];
   completedMissionIds: string[];
+  activeAttempts: Beta1DailyActiveAttempt[];
   userId: string | null;
   ready: boolean;
   lastError: string | null;
@@ -24,289 +31,232 @@ type DailyMissionState = {
   level: number;
   xpForCurrentLevel: number;
   xpForNextLevel: number;
+  walletAvailable: boolean;
+  progressSource: "server" | "local";
+  busyMissionId: string | null;
 };
 
-const defaultSlots: (string | null)[] = [null, null, null];
+const DEFAULT_SLOTS: (string | null)[] = [null, null, null];
 const DEFAULT_DAILY_GOAL = 3;
 
-const todayKey = () => new Date().toISOString().slice(0, 10);
-
-const yesterdayKey = () => {
-  const date = new Date();
-  date.setDate(date.getDate() - 1);
-  return date.toISOString().slice(0, 10);
+const localDateKey = () => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Vienna",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${byType.year}-${byType.month}-${byType.day}`;
 };
+const localStorageKey = (userId?: string | null) => `wellfit-daily-preferences:${userId ?? "guest"}:${localDateKey()}`;
 
-const storageKey = (userId?: string | null) => `wellfit-daily-missions-${userId ?? "local"}-${todayKey()}`;
-const streakStorageKey = (userId?: string | null) => `wellfit-daily-streak-${userId ?? "local"}`;
-const levelStorageKey = (userId?: string | null) => `wellfit-level-${userId ?? "local"}`;
-
-const calculateStreakBonus = (streak: number) => Math.min(25, 5 + Math.floor(Math.max(1, streak) / 3) * 2);
-const levelBaseXp = (level: number) => 100 + (Math.max(1, level) - 1) * 50;
-
-const createTemporaryDailyMissionProjectionMeta = (projectionType: "daily_state" | "streak" | "level") => ({
-  projectionType,
-  bridgeMode: "temporary_client_projection",
-  finalAuthority: false,
-  tokenized: false,
-  serverTarget: "mission_completion_to_ledger_to_user_projection",
-  rulesHardeningTarget: "remove_client_daily_mission_streak_level_authority",
-  createdAt: new Date().toISOString(),
-});
-
-function calculateLevelFromXp(totalXp: number) {
-  let remaining = Math.max(0, totalXp);
-  let level = 1;
-
-  while (remaining >= levelBaseXp(level)) {
-    remaining -= levelBaseXp(level);
-    level += 1;
-  }
-
-  return { level, xpForCurrentLevel: remaining, xpForNextLevel: levelBaseXp(level) };
-}
-
-function readJson<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-
+function readLocalPreferences(userId?: string | null) {
+  if (typeof window === "undefined") return { favoriteIds: [], dailySlotIds: DEFAULT_SLOTS };
   try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
+    const raw = window.localStorage.getItem(localStorageKey(userId));
+    const value = raw ? JSON.parse(raw) as { favoriteIds?: unknown; dailySlotIds?: unknown } : {};
+    const favoriteIds = Array.isArray(value.favoriteIds)
+      ? value.favoriteIds.filter((entry): entry is string => typeof entry === "string")
+      : [];
+    const dailySlotIds = Array.isArray(value.dailySlotIds)
+      ? value.dailySlotIds.map((entry) => typeof entry === "string" ? entry : null).slice(0, 3)
+      : [...DEFAULT_SLOTS];
+    while (dailySlotIds.length < 3) dailySlotIds.push(null);
+    return { favoriteIds, dailySlotIds };
   } catch {
-    return fallback;
+    return { favoriteIds: [], dailySlotIds: [...DEFAULT_SLOTS] };
   }
 }
 
-function writeJson(key: string, value: unknown) {
+function writeLocalPreferences(userId: string | null, value: { favoriteIds: string[]; dailySlotIds: (string | null)[] }) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(key, JSON.stringify(value));
+  window.localStorage.setItem(localStorageKey(userId), JSON.stringify(value));
 }
 
-function readLocal(userId?: string | null): Partial<DailyMissionState> {
-  return readJson(storageKey(userId), {} as Partial<DailyMissionState>);
-}
-
-function readLocalStreak(userId?: string | null) {
-  return readJson(streakStorageKey(userId), {} as { currentStreak?: number; longestStreak?: number; lastCompletedDate?: string });
-}
-
-function readLocalLevel(userId?: string | null) {
-  return readJson(levelStorageKey(userId), {} as { xp?: number });
-}
-
-function writeLocal(userId: string | null, next: Partial<DailyMissionState>) {
-  const current = readLocal(userId);
-  writeJson(storageKey(userId), { ...current, ...next });
-}
-
-function writeLocalStreak(userId: string | null, next: { currentStreak: number; longestStreak: number; lastCompletedDate: string }) {
-  writeJson(streakStorageKey(userId), next);
-}
-
-function writeLocalLevel(userId: string | null, next: { xp: number }) {
-  writeJson(levelStorageKey(userId), next);
-}
-
-function buildState(data: any, userId: string | null): DailyMissionState {
-  const completedMissionIds = Array.isArray(data.completedMissionIds) ? data.completedMissionIds.map(String) : [];
-  const dailyGoal = Number(data.dailyGoal ?? DEFAULT_DAILY_GOAL);
-  const streak = readLocalStreak(userId);
-  const levelData = readLocalLevel(userId);
-  const xp = Number(data.xp ?? levelData.xp ?? 0);
-  const levelInfo = calculateLevelFromXp(xp);
-  const currentStreak = Number(data.currentStreak ?? streak.currentStreak ?? 0);
-  const longestStreak = Number(data.longestStreak ?? streak.longestStreak ?? 0);
-  const goalCompleted = Boolean(data.goalCompleted ?? completedMissionIds.length >= dailyGoal);
-
+function emptyState(userId: string | null, ready = false): DailyMissionState {
+  const local = readLocalPreferences(userId);
   return {
-    favoriteIds: Array.isArray(data.favoriteIds) ? data.favoriteIds.map(String) : [],
-    dailySlotIds:
-      Array.isArray(data.dailySlotIds) && data.dailySlotIds.length === 3
-        ? data.dailySlotIds.map((item: string | null) => (item ? String(item) : null))
-        : defaultSlots,
-    startedMissionIds: Array.isArray(data.startedMissionIds) ? data.startedMissionIds.map(String) : [],
-    completedMissionIds,
-    userId,
-    ready: true,
-    lastError: null,
-    dailyGoal,
-    goalCompleted,
-    currentStreak,
-    longestStreak,
-    streakBonus: Number(data.streakBonus ?? calculateStreakBonus(currentStreak)),
-    xp,
-    ...levelInfo,
-  };
-}
-
-export function useDailyMissionFirebase() {
-  const [state, setState] = useState<DailyMissionState>({
-    favoriteIds: [],
-    dailySlotIds: defaultSlots,
+    favoriteIds: local.favoriteIds,
+    dailySlotIds: local.dailySlotIds,
     startedMissionIds: [],
     completedMissionIds: [],
-    userId: null,
-    ready: false,
+    activeAttempts: [],
+    userId,
+    ready,
     lastError: null,
     dailyGoal: DEFAULT_DAILY_GOAL,
     goalCompleted: false,
     currentStreak: 0,
     longestStreak: 0,
-    streakBonus: calculateStreakBonus(0),
+    streakBonus: 5,
     xp: 0,
     level: 1,
     xpForCurrentLevel: 0,
     xpForNextLevel: 100,
-  });
+    walletAvailable: false,
+    progressSource: "local",
+    busyMissionId: null,
+  };
+}
 
-  useEffect(() => {
-    return onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        setState(buildState(readLocal(null), null));
-        return;
-      }
+function stateFromProjection(
+  projection: Beta1DailyMissionProgress,
+  userId: string,
+  busyMissionId: string | null,
+): DailyMissionState {
+  return {
+    favoriteIds: projection.favoriteIds,
+    dailySlotIds: projection.dailySlotIds,
+    startedMissionIds: projection.startedMissionIds,
+    completedMissionIds: projection.completedMissionIds,
+    activeAttempts: projection.activeAttempts,
+    userId,
+    ready: true,
+    lastError: null,
+    dailyGoal: projection.dailyGoal,
+    goalCompleted: projection.goalCompleted,
+    currentStreak: projection.currentStreak,
+    longestStreak: projection.longestStreak,
+    streakBonus: projection.streakBonus,
+    xp: projection.xp,
+    level: projection.level,
+    xpForCurrentLevel: projection.xpForCurrentLevel,
+    xpForNextLevel: projection.xpForNextLevel,
+    walletAvailable: projection.walletAvailable,
+    progressSource: "server",
+    busyMissionId,
+  };
+}
 
-      const local = readLocal(user.uid);
+export function useDailyMissionFirebase() {
+  const [state, setState] = useState<DailyMissionState>(() => emptyState(null, false));
 
-      try {
-        const ref = doc(db, "userDailyMissionState", `${user.uid}_${todayKey()}`);
-        const streakRef = doc(db, "userDailyStreaks", user.uid);
-        const levelRef = doc(db, "userLevels", user.uid);
-        const snap = await getDoc(ref);
-        const streakSnap = await getDoc(streakRef);
-        const levelSnap = await getDoc(levelRef);
-        const data = snap.exists() ? snap.data() : local;
-        const streakData = streakSnap.exists() ? streakSnap.data() : readLocalStreak(user.uid);
-        const levelData = levelSnap.exists() ? levelSnap.data() : readLocalLevel(user.uid);
-        setState(buildState({ ...data, ...streakData, ...levelData }, user.uid));
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Firebase konnte nicht gelesen werden.";
-        setState({ ...buildState(local, user.uid), lastError: message });
-      }
+  const refresh = useCallback(async (userId: string) => {
+    const projection = await fetchDailyMissionProgress();
+    setState((current) => stateFromProjection(projection, userId, current.busyMissionId));
+    writeLocalPreferences(userId, {
+      favoriteIds: projection.favoriteIds,
+      dailySlotIds: projection.dailySlotIds,
     });
+    return projection;
   }, []);
 
-  const persist = async (next: Partial<DailyMissionState>) => {
-    writeLocal(state.userId, next);
-    if (!state.userId) return;
-
-    try {
-      const ref = doc(db, "userDailyMissionState", `${state.userId}_${todayKey()}`);
-      await setDoc(
-        ref,
-        {
-          ...next,
-          temporaryProjection: createTemporaryDailyMissionProjectionMeta("daily_state"),
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      );
-      setState((current) => ({ ...current, lastError: null }));
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Firebase konnte nicht gespeichert werden.";
-      setState((current) => ({ ...current, lastError: message }));
-    }
-  };
-
-  const persistStreak = async (currentStreak: number, longestStreak: number) => {
-    const payload = { currentStreak, longestStreak, lastCompletedDate: todayKey() };
-    writeLocalStreak(state.userId, payload);
-    if (!state.userId) return;
-
-    try {
-      await setDoc(
-        doc(db, "userDailyStreaks", state.userId),
-        {
-          ...payload,
-          temporaryProjection: createTemporaryDailyMissionProjectionMeta("streak"),
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      );
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Streak konnte nicht gespeichert werden.";
-      setState((current) => ({ ...current, lastError: message }));
-    }
-  };
-
-  const persistLevel = async (xp: number) => {
-    writeLocalLevel(state.userId, { xp });
-    if (!state.userId) return;
-
-    try {
-      await setDoc(
-        doc(db, "userLevels", state.userId),
-        {
-          xp,
-          ...calculateLevelFromXp(xp),
-          temporaryProjection: createTemporaryDailyMissionProjectionMeta("level"),
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      );
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Level konnte nicht gespeichert werden.";
-      setState((current) => ({ ...current, lastError: message }));
-    }
-  };
-
-  const setFavoriteIds = async (favoriteIds: string[]) => {
-    setState((current) => ({ ...current, favoriteIds }));
-    await persist({ favoriteIds });
-  };
-
-  const setDailySlotIds = async (dailySlotIds: (string | null)[]) => {
-    setState((current) => ({ ...current, dailySlotIds }));
-    await persist({ dailySlotIds });
-  };
-
-  const startMission = async (missionId: string) => {
-    const startedMissionIds = Array.from(new Set([...state.startedMissionIds, missionId]));
-    setState((current) => ({ ...current, startedMissionIds }));
-    await persist({ startedMissionIds });
-  };
-
-  const completeMission = async (missionId: string, rewardPoints = 0) => {
-    if (state.completedMissionIds.includes(missionId)) return;
-
-    const completedMissionIds = Array.from(new Set([...state.completedMissionIds, missionId]));
-    const goalCompleted = completedMissionIds.length >= state.dailyGoal;
-    let currentStreak = state.currentStreak;
-    let longestStreak = state.longestStreak;
-    let streakBonus = state.streakBonus;
-
-    if (goalCompleted && !state.goalCompleted) {
-      const streak = readLocalStreak(state.userId);
-      const lastCompletedDate = String(streak.lastCompletedDate ?? "");
-      currentStreak =
-        lastCompletedDate === yesterdayKey()
-          ? state.currentStreak + 1
-          : lastCompletedDate === todayKey()
-            ? state.currentStreak
-            : 1;
-      longestStreak = Math.max(state.longestStreak, currentStreak);
-      streakBonus = calculateStreakBonus(currentStreak);
-      await persistStreak(currentStreak, longestStreak);
-    }
-
-    const xp = state.xp + Math.max(1, rewardPoints);
-    const levelInfo = calculateLevelFromXp(xp);
-    await persistLevel(xp);
-
-    const next = {
-      completedMissionIds,
-      goalCompleted,
-      currentStreak,
-      longestStreak,
-      streakBonus,
-      dailyGoal: state.dailyGoal,
-      xp,
-      ...levelInfo,
+  useEffect(() => {
+    let cancelled = false;
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        if (!cancelled) setState(emptyState(null, true));
+        return;
+      }
+      if (!cancelled) setState(emptyState(user.uid, false));
+      try {
+        const projection = await fetchDailyMissionProgress();
+        if (cancelled) return;
+        setState(stateFromProjection(projection, user.uid, null));
+        writeLocalPreferences(user.uid, {
+          favoriteIds: projection.favoriteIds,
+          dailySlotIds: projection.dailySlotIds,
+        });
+      } catch (error) {
+        if (cancelled) return;
+        const fallback = emptyState(user.uid, true);
+        setState({
+          ...fallback,
+          lastError: error instanceof Error ? error.message : "Tagesmissionen konnten nicht geladen werden.",
+        });
+      }
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe();
     };
+  }, []);
 
-    setState((current) => ({ ...current, ...next }));
-    await persist(next);
+  const persistPreferences = useCallback(async (
+    favoriteIds: string[],
+    dailySlotIds: (string | null)[],
+  ) => {
+    const userId = state.userId;
+    writeLocalPreferences(userId, { favoriteIds, dailySlotIds });
+    if (!userId) {
+      setState((current) => ({ ...current, favoriteIds, dailySlotIds, lastError: null }));
+      return;
+    }
+    const previous = { favoriteIds: state.favoriteIds, dailySlotIds: state.dailySlotIds };
+    setState((current) => ({ ...current, favoriteIds, dailySlotIds, lastError: null }));
+    try {
+      const saved = await saveDailyMissionPreferences({ favoriteIds, dailySlotIds });
+      setState((current) => ({
+        ...current,
+        favoriteIds: saved.favoriteIds,
+        dailySlotIds: saved.dailySlotIds,
+        progressSource: "server",
+        lastError: null,
+      }));
+      writeLocalPreferences(userId, saved);
+    } catch (error) {
+      setState((current) => ({
+        ...current,
+        ...previous,
+        lastError: error instanceof Error ? error.message : "Tagesauswahl konnte nicht gespeichert werden.",
+      }));
+      throw error;
+    }
+  }, [state.dailySlotIds, state.favoriteIds, state.userId]);
+
+  const setFavoriteIds = useCallback(async (favoriteIds: string[]) => {
+    await persistPreferences(favoriteIds, state.dailySlotIds);
+  }, [persistPreferences, state.dailySlotIds]);
+
+  const setDailySlotIds = useCallback(async (dailySlotIds: (string | null)[]) => {
+    await persistPreferences(state.favoriteIds, dailySlotIds);
+  }, [persistPreferences, state.favoriteIds]);
+
+  const runMissionAction = useCallback(async (
+    missionId: string,
+    action: () => Promise<Beta1DailyMissionActionResult>,
+  ) => {
+    if (!state.userId) throw new Error("Bitte melde dich an, um Tagesmissionen zu starten.");
+    if (state.busyMissionId) throw new Error("Eine Tagesmission wird bereits verarbeitet.");
+    setState((current) => ({ ...current, busyMissionId: missionId, lastError: null }));
+    try {
+      const result = await action();
+      await refresh(state.userId);
+      return result;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Tagesmission konnte nicht verarbeitet werden.";
+      setState((current) => ({ ...current, lastError: message }));
+      throw error;
+    } finally {
+      setState((current) => ({ ...current, busyMissionId: null }));
+    }
+  }, [refresh, state.busyMissionId, state.userId]);
+
+  const startMission = useCallback(async (missionId: string) => runMissionAction(
+    missionId,
+    () => submitDailyMissionForReview(missionId),
+  ), [runMissionAction]);
+
+  const completeMission = useCallback(async (missionId: string) => {
+    const activeAttempt = state.activeAttempts.find((attempt) => attempt.missionId === missionId);
+    if (!activeAttempt) {
+      throw new Error("Für diese Tagesmission gibt es keinen offenen serverseitigen Attempt.");
+    }
+    return runMissionAction(missionId, () => reconcileDailyMissionAttempt(activeAttempt));
+  }, [runMissionAction, state.activeAttempts]);
+
+  const refreshProgress = useCallback(async () => {
+    if (!state.userId) return null;
+    return refresh(state.userId);
+  }, [refresh, state.userId]);
+
+  return {
+    ...state,
+    setFavoriteIds,
+    setDailySlotIds,
+    startMission,
+    completeMission,
+    refreshProgress,
   };
-
-  return { ...state, setFavoriteIds, setDailySlotIds, startMission, completeMission };
 }
