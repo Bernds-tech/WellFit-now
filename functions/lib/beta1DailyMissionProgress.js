@@ -2,7 +2,6 @@ const dailyMissionCatalog = require("../config/beta1-daily-missions.json");
 const {
   requireAuth,
   optionalString,
-  serverTimestamps,
   updatedTimestamp,
 } = require("./beta1Runtime");
 
@@ -50,6 +49,14 @@ function documentDateKey(data, preferredFields) {
   return null;
 }
 
+function documentTime(data, preferredFields = ["createdAt", "startedAt", "updatedAt"]) {
+  for (const field of preferredFields) {
+    const date = timestampToDate(data[field]);
+    if (date) return date.getTime();
+  }
+  return 0;
+}
+
 function calculateStreakBonus(streak) {
   return Math.min(25, 5 + Math.floor(Math.max(1, streak) / 3) * 2);
 }
@@ -70,6 +77,23 @@ function calculateLevelFromXp(totalXp) {
     xpForCurrentLevel: remaining,
     xpForNextLevel: levelBaseXp(level),
   };
+}
+
+function isDailyMissionId(value) {
+  const missionId = optionalString(value, 160);
+  return Boolean(missionId && DAILY_MISSION_IDS.has(missionId));
+}
+
+function safeDocIdPart(value) {
+  return encodeURIComponent(String(value || "none")).replace(/\./g, "%2E");
+}
+
+function dailyMissionAttemptId(ownerUserId, missionId, dateKey) {
+  return ["daily", safeDocIdPart(ownerUserId), safeDocIdPart(dateKey), safeDocIdPart(missionId)].join("__");
+}
+
+function dailyMissionCompletionIdempotencyKey(ownerUserId, missionId, dateKey) {
+  return ["daily_mission_completion", safeDocIdPart(ownerUserId), safeDocIdPart(dateKey), safeDocIdPart(missionId)].join("__");
 }
 
 function uniqueKnownMissionIds(values) {
@@ -111,7 +135,8 @@ function buildCompletionDays(completionDocs) {
     const data = doc.data() || {};
     const missionId = optionalString(data.missionId, 160);
     if (!missionId || !DAILY_MISSION_IDS.has(missionId) || data.status !== "completed") continue;
-    const dateKey = documentDateKey(data, ["completedAt", "updatedAt", "createdAt"]);
+    const dateKey = optionalString(data.dateKey, 20)
+      || documentDateKey(data, ["completedAt", "updatedAt", "createdAt"]);
     if (!dateKey) continue;
     if (!missionIdsByDate.has(dateKey)) missionIdsByDate.set(dateKey, new Set());
     missionIdsByDate.get(dateKey).add(missionId);
@@ -135,10 +160,11 @@ function buildStreakSummary(completionDays, todayKey) {
     previous = dateKey;
   }
 
+  const yesterdayKey = addUtcDays(todayKey, -1);
   const streakAnchor = goalDateSet.has(todayKey)
     ? todayKey
-    : goalDateSet.has(addUtcDays(todayKey, -1))
-      ? addUtcDays(todayKey, -1)
+    : goalDateSet.has(yesterdayKey)
+      ? yesterdayKey
       : null;
   let currentStreak = 0;
   if (streakAnchor) {
@@ -157,18 +183,44 @@ function buildStreakSummary(completionDays, todayKey) {
   };
 }
 
-function boundedActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds, todayKey }) {
-  const active = [];
-  for (const attemptDoc of attempts) {
+function buildLatestEvidenceByAttempt(evidenceDocs) {
+  const evidenceByAttempt = new Map();
+  for (const doc of evidenceDocs) {
+    const evidence = doc.data() || {};
+    const attemptId = optionalString(evidence.attemptId, 180);
+    if (!attemptId) continue;
+    const existing = evidenceByAttempt.get(attemptId);
+    const currentTime = documentTime(evidence, ["createdAt", "reviewedAt", "updatedAt"]);
+    const existingTime = existing
+      ? documentTime(existing.data, ["createdAt", "reviewedAt", "updatedAt"])
+      : -1;
+    if (!existing || currentTime >= existingTime) {
+      evidenceByAttempt.set(attemptId, { id: doc.id, data: evidence });
+    }
+  }
+  return evidenceByAttempt;
+}
+
+function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds, completedMissionIds }) {
+  const byMission = new Map();
+  const sortedAttempts = [...attempts].sort((left, right) => {
+    const leftTime = documentTime(left.data() || {});
+    const rightTime = documentTime(right.data() || {});
+    return rightTime - leftTime;
+  });
+
+  for (const attemptDoc of sortedAttempts) {
     const attempt = attemptDoc.data() || {};
     const missionId = optionalString(attempt.missionId, 160);
-    if (!missionId || !DAILY_MISSION_IDS.has(missionId)) continue;
+    if (!missionId || !DAILY_MISSION_IDS.has(missionId) || byMission.has(missionId)) continue;
+    if (completedMissionIds.has(missionId)) continue;
     if (completedAttemptIds.has(attemptDoc.id) || attempt.status === "completed") continue;
-    if (documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"]) !== todayKey) continue;
     const evidence = evidenceByAttempt.get(attemptDoc.id) || null;
-    active.push({
+    byMission.set(missionId, {
       missionId,
       attemptId: attemptDoc.id,
+      startedDateKey: optionalString(attempt.dateKey, 20)
+        || documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"]),
       attemptStatus: optionalString(attempt.status, 80) || "started",
       evidenceId: evidence ? evidence.id : null,
       reviewStatus: evidence ? optionalString(evidence.data.reviewStatus, 80) || "pending-server-review" : null,
@@ -180,7 +232,7 @@ function boundedActiveAttempts({ attempts, evidenceByAttempt, completedAttemptId
       ),
     });
   }
-  return active.slice(0, MAX_DAILY_MISSIONS);
+  return [...byMission.values()].slice(0, MAX_DAILY_MISSIONS);
 }
 
 function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsError }) {
@@ -190,7 +242,8 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
     const preferences = validatePreferences(data, HttpsError);
     const todayKey = dateKeyInVienna(new Date());
     const stateRef = db.collection("userDailyMissionState").doc(`${userId}_${todayKey}`);
-    await stateRef.set({
+    const stateSnapshot = await stateRef.get();
+    const patch = {
       userId,
       ownerUserId: userId,
       dateKey: todayKey,
@@ -200,8 +253,9 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
       rewardAuthority: false,
       missionCompletionAuthority: false,
       ...updatedTimestamp(),
-      createdAt: serverTimestamps().createdAt,
-    }, { merge: true });
+    };
+    if (!stateSnapshot.exists) patch.createdAt = new Date().toISOString();
+    await stateRef.set(patch, { merge: true });
     return {
       accepted: true,
       dateKey: todayKey,
@@ -220,21 +274,11 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
       db.collection("missionAttempts").where("ownerUserId", "==", userId).limit(MAX_HISTORY_DOCS).get(),
       db.collection("missionEvidence").where("ownerUserId", "==", userId).limit(MAX_HISTORY_DOCS).get(),
       db.collection("missionCompletions").where("ownerUserId", "==", userId).limit(MAX_HISTORY_DOCS).get(),
-      db.collection("xpWallets").doc(`${userId}_self`).get(),
+      db.collection("xpWallets").doc(userId).get(),
     ]);
 
     const state = stateSnapshot.exists ? stateSnapshot.data() || {} : {};
-    const evidenceByAttempt = new Map();
-    for (const doc of evidenceSnapshot.docs) {
-      const evidence = doc.data() || {};
-      const attemptId = optionalString(evidence.attemptId, 180);
-      if (!attemptId) continue;
-      const existing = evidenceByAttempt.get(attemptId);
-      const currentDate = timestampToDate(evidence.createdAt)?.getTime() || 0;
-      const existingDate = existing ? timestampToDate(existing.data.createdAt)?.getTime() || 0 : -1;
-      if (!existing || currentDate >= existingDate) evidenceByAttempt.set(attemptId, { id: doc.id, data: evidence });
-    }
-
+    const evidenceByAttempt = buildLatestEvidenceByAttempt(evidenceSnapshot.docs);
     const completedAttemptIds = new Set();
     for (const doc of completionsSnapshot.docs) {
       const completion = doc.data() || {};
@@ -244,16 +288,26 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
 
     const completionDays = buildCompletionDays(completionsSnapshot.docs);
     const todayCompletedIds = [...(completionDays.get(todayKey) || new Set())];
-    const todayStartedIds = [...new Set(attemptsSnapshot.docs
-      .filter((doc) => documentDateKey(doc.data() || {}, ["createdAt", "startedAt", "updatedAt"]) === todayKey)
-      .map((doc) => optionalString((doc.data() || {}).missionId, 160))
-      .filter((missionId) => missionId && DAILY_MISSION_IDS.has(missionId)))];
-    const activeAttempts = boundedActiveAttempts({
+    const activeAttempts = buildActiveAttempts({
       attempts: attemptsSnapshot.docs,
       evidenceByAttempt,
       completedAttemptIds,
-      todayKey,
+      completedMissionIds: new Set(todayCompletedIds),
     });
+    const todayStartedIds = attemptsSnapshot.docs
+      .filter((doc) => {
+        const attempt = doc.data() || {};
+        return isDailyMissionId(attempt.missionId)
+          && (optionalString(attempt.dateKey, 20)
+            || documentDateKey(attempt, ["createdAt", "startedAt", "updatedAt"])) === todayKey;
+      })
+      .map((doc) => optionalString((doc.data() || {}).missionId, 160))
+      .filter(Boolean);
+    const startedMissionIds = [...new Set([
+      ...todayStartedIds,
+      ...activeAttempts.map((attempt) => attempt.missionId),
+      ...todayCompletedIds,
+    ])];
     const streak = buildStreakSummary(completionDays, todayKey);
     const wallet = walletSnapshot.exists ? walletSnapshot.data() || {} : {};
     const xp = Math.max(0, Math.floor(Number(wallet.lifetimeEarned || 0)));
@@ -264,11 +318,12 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
       dateKey: todayKey,
       catalogId: dailyMissionCatalog.catalogId,
       catalogVersion: dailyMissionCatalog.version,
+      completionPolicy: dailyMissionCatalog.completionPolicy,
       favoriteIds: uniqueKnownMissionIds(state.favoriteIds),
       dailySlotIds: Array.isArray(state.dailySlotIds) && state.dailySlotIds.length === 3
         ? state.dailySlotIds.map((missionId) => missionId && DAILY_MISSION_IDS.has(missionId) ? missionId : null)
         : [null, null, null],
-      startedMissionIds: todayStartedIds,
+      startedMissionIds,
       completedMissionIds: todayCompletedIds,
       activeAttempts,
       dailyGoal: DAILY_GOAL,
@@ -276,6 +331,7 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
       ...streak,
       xp,
       ...level,
+      walletAvailable: walletSnapshot.exists,
       progressAuthority: "server-read",
       rewardAuthority: false,
       missionCompletionAuthority: false,
@@ -289,7 +345,11 @@ function registerBeta1DailyMissionProgress(exportsTarget, { db, onCall, HttpsErr
 module.exports = {
   registerBeta1DailyMissionProgress,
   dateKeyInVienna,
+  documentDateKey,
   calculateLevelFromXp,
   buildStreakSummary,
   validatePreferences,
+  isDailyMissionId,
+  dailyMissionAttemptId,
+  dailyMissionCompletionIdempotencyKey,
 };
