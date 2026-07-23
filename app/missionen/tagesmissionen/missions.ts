@@ -1,4 +1,7 @@
+import dailyMissionCatalog from "@/functions/config/beta1-daily-missions.json";
+
 export type DailyMissionType = "Bewegung" | "Ernährung" | "Workout" | "Community" | "Abenteuer";
+export type DailyMissionServerType = "movement" | "workout" | "learning" | "nutrition" | "wellness";
 
 export type DailyMission = {
   id: string;
@@ -8,20 +11,59 @@ export type DailyMission = {
   description: string;
   duration: string;
   type: DailyMissionType;
+  // Transitional optional fields keep existing component fixtures compatible.
+  // Every mission exported from the canonical catalog below sets all four.
+  serverType?: DailyMissionServerType;
+  evidenceType?: "daily-user-confirmation";
+  reviewRequired?: true;
+  childAllowed?: false;
 };
 
-export const dailyMissions: DailyMission[] = [
-  { id: "daily-8000-steps", title: "8.000 Schritte", reward: 8, difficulty: "Mittel", description: "Erreiche heute 8.000 Schritte. Eine starke Alltagsmission für Kreislauf, Ausdauer und Grundaktivität.", duration: "1 Tag", type: "Bewegung" },
-  { id: "daily-sprint-20", title: "20 Sek. Sprint", reward: 10, difficulty: "Schwer", description: "Führe 20 Sekunden intensive Bewegung aus: Sprint, Hampelmänner oder schnelles Treppensteigen.", duration: "20 Sekunden", type: "Bewegung" },
-  { id: "daily-squats-15", title: "15 saubere Kniebeugen", reward: 9, difficulty: "Mittel", description: "Mache 15 kontrollierte Kniebeugen. Saubere Ausführung zählt mehr als Geschwindigkeit.", duration: "3 Minuten", type: "Workout" },
-  { id: "daily-plank-60", title: "1 Min. Plank", reward: 12, difficulty: "Schwer", description: "Halte eine saubere Plank für 60 Sekunden. Stabilität, Core und Willenskraft werden belohnt.", duration: "1 Minute", type: "Workout" },
-  { id: "daily-pushups-10", title: "10 Liegestütze", reward: 11, difficulty: "Schwer", description: "Mache 10 saubere Liegestütze. Wenn nötig auf Knien, aber mit kontrollierter Bewegung.", duration: "4 Minuten", type: "Workout" },
-  { id: "daily-memory-3", title: "3 Begriffe merken", reward: 7, difficulty: "Mittel", description: "Merke dir drei Begriffe, warte kurz und rufe sie wieder ab. Trainiert Gedächtnis und Fokus.", duration: "5 Minuten", type: "Abenteuer" },
-  { id: "daily-healthy-meal", title: "Bewusste Mahlzeit", reward: 6, difficulty: "Leicht", description: "Iss eine bewusste Mahlzeit mit Gemüse, Eiweiß oder wenig Zucker. Ziel ist bessere Entscheidung, nicht Perfektion.", duration: "1 Mahlzeit", type: "Ernährung" },
-  { id: "daily-water-1500", title: "1,5L Wasser", reward: 6, difficulty: "Leicht", description: "Trinke über den Tag verteilt mindestens 1,5 Liter Wasser. Unterstützt Energie, Konzentration und Regeneration.", duration: "1 Tag", type: "Ernährung" },
-  { id: "daily-breathing-3", title: "3 Min. Atemruhe", reward: 5, difficulty: "Leicht", description: "Atme 3 Minuten ruhig und bewusst. Senkt Stress und stärkt Selbstkontrolle.", duration: "3 Minuten", type: "Community" },
-  { id: "daily-screen-break", title: "10 Min. Bildschirmpause", reward: 5, difficulty: "Leicht", description: "Lege das Handy weg und gönne Augen und Kopf 10 Minuten Pause. Ein kleiner Reset mit großer Wirkung.", duration: "10 Minuten", type: "Community" },
-];
+const DISPLAY_TYPES: DailyMissionType[] = ["Bewegung", "Ernährung", "Workout", "Community", "Abenteuer"];
+const SERVER_TYPES: DailyMissionServerType[] = ["movement", "workout", "learning", "nutrition", "wellness"];
+const DIFFICULTIES: DailyMission["difficulty"][] = ["Leicht", "Mittel", "Schwer"];
+
+function isDisplayType(value: string): value is DailyMissionType {
+  return DISPLAY_TYPES.includes(value as DailyMissionType);
+}
+
+function isServerType(value: string): value is DailyMissionServerType {
+  return SERVER_TYPES.includes(value as DailyMissionServerType);
+}
+
+function isDifficulty(value: string): value is DailyMission["difficulty"] {
+  return DIFFICULTIES.includes(value as DailyMission["difficulty"]);
+}
+
+export const DAILY_MISSION_CATALOG_ID = dailyMissionCatalog.catalogId;
+export const DAILY_MISSION_CATALOG_VERSION = dailyMissionCatalog.version;
+
+export const dailyMissions: DailyMission[] = dailyMissionCatalog.missions.map((mission) => {
+  if (!isDisplayType(mission.displayType)) throw new Error(`Invalid daily mission display type: ${mission.missionId}`);
+  if (!isServerType(mission.type)) throw new Error(`Invalid daily mission server type: ${mission.missionId}`);
+  if (!isDifficulty(mission.difficulty)) throw new Error(`Invalid daily mission difficulty: ${mission.missionId}`);
+  if (
+    mission.evidenceType !== "daily-user-confirmation"
+    || mission.reviewRequired !== true
+    || mission.childAllowed !== false
+  ) {
+    throw new Error(`Unsafe daily mission catalog boundary: ${mission.missionId}`);
+  }
+
+  return {
+    id: mission.missionId,
+    title: mission.title,
+    reward: mission.rewardXp,
+    difficulty: mission.difficulty,
+    description: mission.description,
+    duration: mission.duration,
+    type: mission.displayType,
+    serverType: mission.type,
+    evidenceType: "daily-user-confirmation",
+    reviewRequired: true,
+    childAllowed: false,
+  };
+});
 
 export function missionIcon(type: DailyMissionType) {
   return type === "Bewegung" ? "🏃" : type === "Ernährung" ? "🥗" : type === "Workout" ? "💪" : type === "Community" ? "🧘" : "🧠";
