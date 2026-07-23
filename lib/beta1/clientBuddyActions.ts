@@ -29,7 +29,7 @@ export type Beta1BuddyActionResult = {
   buddy: BuddyState;
 };
 
-type CallableResult<T> = T & {
+type AuthorityEnvelope = {
   accepted?: boolean;
   message?: string;
   finalAuthority?: boolean;
@@ -38,6 +38,8 @@ type CallableResult<T> = T & {
   tokenAuthorized?: boolean;
   cashoutAllowed?: boolean;
 };
+
+type CallableResult<T> = T & AuthorityEnvelope;
 
 type BuddyProjectionResponse = CallableResult<{
   buddy?: unknown;
@@ -114,6 +116,7 @@ function mapBuddy(value: unknown): BuddyState | null {
     serverValidationStatus !== "server-projected"
     || data.finalAuthority !== true
     || data.noMonetaryValue !== true
+    || data.blockchainBacked === true
     || data.tokenAuthorized === true
     || data.cashoutAllowed === true
   ) {
@@ -161,9 +164,7 @@ function mapActionPolicies(value: unknown): Partial<Record<Beta1ServerBuddyActio
 }
 
 function requireSignedInUser() {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Bitte melde dich erneut an, um Flammi sicher zu verwalten.");
-  return user;
+  if (!auth.currentUser) throw new Error("Bitte melde dich erneut an, um Flammi sicher zu verwalten.");
 }
 
 function callableErrorMessage(error: unknown): string {
@@ -180,22 +181,25 @@ function callableErrorMessage(error: unknown): string {
   if (diagnostic.includes("permission-denied")) return "Dieses Buddy-Profil gehört nicht zu deinem Konto oder die Familienfreigabe fehlt.";
   if (diagnostic.includes("resource-exhausted")) {
     const cooldownMessage = details || message;
-    return cooldownMessage.includes("Cooldown") ? cooldownMessage : "Diese Buddy-Aktion hat noch eine kurze Abklingzeit.";
+    return cooldownMessage.toLowerCase().includes("cooldown") ? cooldownMessage : "Diese Buddy-Aktion hat noch eine kurze Abklingzeit.";
   }
   if (diagnostic.includes("flammi muss zuerst")) return "Flammi ist auf Abenteuer. Starte zuerst die sichere Rückholsuche.";
   if (diagnostic.includes("nicht verschwunden")) return "Flammi ist bereits bei dir; eine Rückholsuche ist nicht nötig.";
   if (diagnostic.includes("aufraeumen")) return "Aufräumen wird erst aktiv, wenn Flammis Zuhause wirklich chaotisch ist.";
   if (diagnostic.includes("futter oder ruhe")) return "Flammi braucht zuerst Futter oder Ruhe, bevor ihr spielen könnt.";
+  if (diagnostic.includes("invalid buddy projection authority")) return "Die Buddy-Serverprojektion war unvollständig und wurde aus Sicherheitsgründen verworfen.";
+  if (diagnostic.includes("invalid buddy action authority")) return "Die Buddy-Serverbuchung war unvollständig und wurde aus Sicherheitsgründen verworfen.";
   if (diagnostic.includes("failed-precondition")) return "Diese Buddy-Aktion ist im aktuellen Zustand nicht zulässig.";
   if (diagnostic.includes("invalid-argument")) return "Die Buddy-Aktion konnte nicht eindeutig verarbeitet werden.";
   if (diagnostic.includes("network") || diagnostic.includes("unavailable")) return "Der sichere Buddy-Server ist gerade nicht erreichbar.";
   return "Die Buddy-Aktion konnte nicht sicher serverseitig ausgeführt werden.";
 }
 
-function validateAuthority(data: CallableResult<Record<string, unknown>>) {
+function validateAuthority(data: AuthorityEnvelope) {
   return data.accepted === true
     && data.finalAuthority === true
     && data.noMonetaryValue === true
+    && data.blockchainBacked !== true
     && data.tokenAuthorized !== true
     && data.cashoutAllowed !== true;
 }
@@ -216,7 +220,7 @@ export async function getServerBuddyState(childProfileId?: string): Promise<Beta
     >(getFunctions(), "getBuddyStateProjection");
     const result = await callable(childProfileId ? { childProfileId } : {});
     const buddy = mapBuddy(result.data.buddy);
-    if (!validateAuthority(result.data as CallableResult<Record<string, unknown>>) || !buddy) {
+    if (!validateAuthority(result.data) || !buddy) {
       throw new Error("failed-precondition: invalid Buddy projection authority");
     }
     return {
@@ -264,7 +268,7 @@ export async function performServerBuddyAction(input: {
     const actionType = asString(result.data.actionType);
     const actionId = asString(result.data.actionId);
     if (
-      !validateAuthority(result.data as CallableResult<Record<string, unknown>>)
+      !validateAuthority(result.data)
       || !buddy
       || !actionId
       || !isServerActionType(actionType)
