@@ -99,6 +99,9 @@ export default function AccountManagementCard() {
   };
 
   const deletionPending = lifecycle?.status === "deletion-pending";
+  const deletionBlocked = lifecycle?.status === "deletion-blocked";
+  const deletionProcessing = lifecycle?.status === "deletion-processing";
+  const deletionCancellable = deletionPending || deletionBlocked;
   const soleGuardianCount = lifecycle?.dependencies?.soleGuardianChildProfiles || 0;
 
   return (
@@ -144,11 +147,15 @@ export default function AccountManagementCard() {
           Auf allen Geräten abmelden
         </button>
 
-        {deletionPending ? (
+        {deletionCancellable ? (
           <div className="rounded-lg border border-orange-400/40 bg-orange-400/10 p-3">
-            <p className="text-sm font-bold text-orange-200">Löschantrag aktiv</p>
+            <p className="text-sm font-bold text-orange-200">
+              {deletionBlocked ? "Löschantrag sicher angehalten" : "Löschantrag aktiv"}
+            </p>
             <p className="mt-1 text-xs text-orange-100/90">
-              Neue WFXP-Gutschriften und WFXP-Ausgaben sind eingefroren. Geplante Löschung: {formatDate(lifecycle.deletionScheduledFor)}.
+              {deletionBlocked
+                ? "Eine Guardian- oder Medienabhängigkeit verhindert derzeit die irreversible Löschung. Das Konto bleibt eingefroren, bis der Antrag widerrufen oder die Abhängigkeit geklärt wurde."
+                : `Neue WFXP-Gutschriften und WFXP-Ausgaben sind eingefroren. Geplante Löschung: ${formatDate(lifecycle?.deletionScheduledFor)}.`}
             </p>
             <button
               type="button"
@@ -158,6 +165,13 @@ export default function AccountManagementCard() {
             >
               Löschantrag widerrufen
             </button>
+          </div>
+        ) : deletionProcessing ? (
+          <div className="rounded-lg border border-red-400/40 bg-red-400/10 p-3">
+            <p className="text-sm font-bold text-red-200">Account-Löschung wird verarbeitet</p>
+            <p className="mt-1 text-xs text-red-100/90">
+              Die irreversible Verarbeitung hat begonnen. Sitzungen, Profildaten, Missionen, Buddy-, WFXP- und Inventardaten werden kontrolliert entfernt. Ein Widerruf ist in dieser Phase nicht mehr möglich.
+            </p>
           </div>
         ) : (
           <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3">
