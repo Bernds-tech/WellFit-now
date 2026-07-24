@@ -11,14 +11,14 @@ import type {
 } from "../types";
 
 export const sensitiveDataNotice =
-  "Diese Angaben dienen nur zur Personalisierung deines KI-Buddys, damit er sich besser auf deine Verfassung einstellen kann, und ersetzen keine medizinische Beratung.";
+  "Gesundheitsnahe Angaben sind freiwillig und werden nur nach separater Aktivierung der Health-Personalisierung im privaten Serverprofil gespeichert. Medikamentennamen und freie Gesundheitsnotizen werden nicht gespeichert. Die Angaben ersetzen keine medizinische Beratung.";
 
 export const defaultPermissions: Record<PermissionKey, boolean> = {
   location: false,
   locationTracking: false,
-  camera: true,
-  microphone: true,
-  backgroundTracking: true,
+  camera: false,
+  microphone: false,
+  backgroundTracking: false,
 };
 
 export const defaultProfile: ProfileForm = {
@@ -26,27 +26,25 @@ export const defaultProfile: ProfileForm = {
   email: "",
   phone: "",
   language: "Deutsch",
-  birthDate: "",
-  gender: "Männlich",
-  timezone: "Europe/Vienna",
+  timezone: "UTC",
   units: "kg / km",
 };
 
 export const defaultBiometrics: BiometricsForm = {
-  height: "180",
-  weight: "82",
+  height: "",
+  weight: "",
   targetWeightEnabled: false,
-  targetWeight: "78",
+  targetWeight: "",
   bodyType: "Schlank",
   fitnessLevel: "Anfänger",
-  limitations: "Keine",
+  limitations: "",
 };
 
 export const defaultNotifications: NotificationsForm = {
-  missionReminder: true,
-  sleepReminder: true,
-  weeklyReport: true,
-  glitchAlert: true,
+  missionReminder: false,
+  sleepReminder: false,
+  weeklyReport: false,
+  glitchAlert: false,
 };
 
 export const defaultVitalValues: VitalValuesForm = {
@@ -59,8 +57,7 @@ export const defaultVitalValues: VitalValuesForm = {
   stressLevel: "Mittel",
   energyLevel: "Mittel",
   painLevel: "Keine",
-  medicationNote: "",
-  healthNotes: "",
+  medicationDeclared: false,
 };
 
 export const defaultAiBuddy: AiBuddyForm = {
@@ -69,48 +66,46 @@ export const defaultAiBuddy: AiBuddyForm = {
   relationshipMode: "Begleiter",
   behaviorDynamics: "Adaptiv",
   motivationStyle: "Ausgewogen",
-  reactsToStress: true,
-  reactsToSleep: true,
+  reactsToStress: false,
+  reactsToSleep: false,
   reactsToActivity: true,
-  reactsToMood: true,
+  reactsToMood: false,
 };
 
 export const defaultLifestyle: LifestyleForm = {
   nutrition: "Ausgewogen",
   mealRhythm: "Regelmäßig",
   drinkReminder: "Normal",
-  drinkAmount: "2.0",
+  drinkAmount: "",
   caffeineIntake: "Mittel",
   alcoholFrequency: "Selten",
   sleepRoutine: "Unregelmäßig",
   natureMove: "Gelegentlich",
   stressCoping: "Spaziergang / Bewegung",
   screenTime: "Mittel",
-  notes: "",
 };
 
 export const defaultActivity: ActivityForm = {
   activityLevel: "Gelegentlich aktiv",
   trainingTime: "Abends",
-  communityMode: "Alleine & gelegentlich gemeinsam",
-  interests: "Fitness, Spazieren, Abenteuer",
-  activities: "Gehen, Radfahren, leichte Workouts",
-  goals: "Fitter werden, mehr Energie, gesünder leben",
-  preferredMissionTypes: "Bewegung, Alltag, Natur, Challenges",
-  socialPreference: "Freunde & kleine Gruppen",
-  competitionMode: "Locker",
-  notes: "",
+  communityMode: "Alleine",
+  interests: "",
+  activities: "Gehen",
+  goals: "Mehr Bewegung",
+  preferredMissionTypes: "Bewegung",
+  socialPreference: "Alleine",
+  competitionMode: "Aus",
 };
 
 export const defaultPrivacy: PrivacyForm = {
-  leaderboardVisible: true,
+  leaderboardVisible: false,
   buddySharing: false,
-  anonymousAnalytics: true,
-  friendRequests: true,
-  teamInvitations: true,
-  localUsersVisible: true,
-  pvpAllowed: true,
-  profileVisibility: "Freunde",
-  healthDataUsage: "Nur Personalisierung",
+  anonymousAnalytics: false,
+  friendRequests: false,
+  teamInvitations: false,
+  localUsersVisible: false,
+  pvpAllowed: false,
+  profileVisibility: "Privat",
+  healthDataUsage: "Nicht verwenden",
   locationSharing: "Nie",
 };
