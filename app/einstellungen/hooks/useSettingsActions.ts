@@ -41,10 +41,11 @@ type Params = {
   setHealthImprovementConsentActive: (value: boolean) => void;
 };
 
-function optionalNumber(value: string): number | null {
+function optionalNumber(value: string, label: string): number | null {
   if (!value.trim()) return null;
   const number = Number(value);
-  return Number.isFinite(number) ? number : Number.NaN;
+  if (!Number.isFinite(number)) throw new Error(`${label} muss eine gültige Zahl sein.`);
+  return number;
 }
 
 function errorMessage(error: unknown, fallback: string): string {
@@ -106,10 +107,12 @@ export function useSettingsActions({
     if (!requireUser("Bitte melde dich an, um Körperdaten zu speichern.")) return;
     try {
       await updateUserSettingsSection("biometrics", {
-        heightCm: optionalNumber(biometrics.height),
-        weightKg: optionalNumber(biometrics.weight),
+        heightCm: optionalNumber(biometrics.height, "Körpergröße"),
+        weightKg: optionalNumber(biometrics.weight, "Gewicht"),
         targetWeightEnabled: biometrics.targetWeightEnabled,
-        targetWeightKg: biometrics.targetWeightEnabled ? optionalNumber(biometrics.targetWeight) : null,
+        targetWeightKg: biometrics.targetWeightEnabled
+          ? optionalNumber(biometrics.targetWeight, "Zielgewicht")
+          : null,
         bodyType: biometrics.bodyType,
         fitnessLevel: biometrics.fitnessLevel,
         limitations: textToArray(biometrics.limitations),
@@ -136,11 +139,11 @@ export function useSettingsActions({
     if (!requireUser("Bitte melde dich an, um Vitalwerte zu speichern.")) return;
     try {
       await updateUserSettingsSection("vitals", {
-        bodyFatPercent: optionalNumber(vitalValues.bodyFat),
-        restingPulseBpm: optionalNumber(vitalValues.restingPulse),
-        averagePulseBpm: optionalNumber(vitalValues.averagePulse),
+        bodyFatPercent: optionalNumber(vitalValues.bodyFat, "Körperfettanteil"),
+        restingPulseBpm: optionalNumber(vitalValues.restingPulse, "Ruhepuls"),
+        averagePulseBpm: optionalNumber(vitalValues.averagePulse, "Durchschnittspuls"),
         bloodPressure: vitalValues.bloodPressure,
-        sleepHours: optionalNumber(vitalValues.sleepHours),
+        sleepHours: optionalNumber(vitalValues.sleepHours, "Schlafdauer"),
         sleepQuality: vitalValues.sleepQuality,
         stressLevel: vitalValues.stressLevel,
         energyLevel: vitalValues.energyLevel,
@@ -169,8 +172,16 @@ export function useSettingsActions({
     if (!requireUser("Bitte melde dich an, um Lebensstil & Ernährung zu speichern.")) return;
     try {
       await updateUserSettingsSection("lifestyle", {
-        ...lifestyle,
-        drinkAmountLiters: optionalNumber(lifestyle.drinkAmount),
+        nutrition: lifestyle.nutrition,
+        mealRhythm: lifestyle.mealRhythm,
+        drinkReminder: lifestyle.drinkReminder,
+        drinkAmountLiters: optionalNumber(lifestyle.drinkAmount, "Trinkziel"),
+        caffeineIntake: lifestyle.caffeineIntake,
+        alcoholFrequency: lifestyle.alcoholFrequency,
+        sleepRoutine: lifestyle.sleepRoutine,
+        natureMove: lifestyle.natureMove,
+        stressCoping: lifestyle.stressCoping,
+        screenTime: lifestyle.screenTime,
       });
       setSaveMessage("Lebensstil-Daten im privaten Serverprofil gespeichert.");
     } catch (error) {
@@ -183,11 +194,15 @@ export function useSettingsActions({
     if (!requireUser("Bitte melde dich an, um Aktivität & Interessen zu speichern.")) return;
     try {
       await updateUserSettingsSection("activity", {
-        ...activity,
+        activityLevel: activity.activityLevel,
+        trainingTime: activity.trainingTime,
+        communityMode: activity.communityMode,
         interests: textToArray(activity.interests),
         activities: textToArray(activity.activities),
         goals: textToArray(activity.goals),
         preferredMissionTypes: textToArray(activity.preferredMissionTypes),
+        socialPreference: activity.socialPreference,
+        competitionMode: activity.competitionMode,
       });
       setSaveMessage("Aktivität & Interessen serverseitig gespeichert.");
     } catch (error) {
