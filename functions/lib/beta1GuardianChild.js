@@ -10,10 +10,12 @@ const {
   writeAudit,
 } = require("./beta1Runtime");
 const { registerBeta1UserOnboarding } = require("./beta1UserOnboarding");
+const { registerBeta1UserSettings } = require("./beta1UserSettings");
 
 function registerBeta1GuardianChild(exportsTarget, deps) {
   const { db, onCall, HttpsError } = deps;
   registerBeta1UserOnboarding(exportsTarget, deps);
+  registerBeta1UserSettings(exportsTarget, deps);
 
   exportsTarget.createGuardianFamilyAccount = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
