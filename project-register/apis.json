@@ -3,9 +3,9 @@
     "project": "WellFit-now",
     "purpose": "Maschinenlesbares API-Register fuer Stufe-4-Checks, Security und Cross-References.",
     "issue": 19,
-    "status": "baseline-import",
-    "updated": "2026-05-15",
-    "backendReadinessReview": "2026-05-15 docs/register-only pass; existing API routes remain preview/draft/status/projection-read-preview unless explicit approved backend/rules/audit work changes runtime behavior."
+    "status": "runtime-synchronized",
+    "updated": "2026-07-24",
+    "backendReadinessReview": "2026-05-15 docs/register-only review remains historical for legacy preview APIs. The 2026-07-24 runtime health endpoint is explicitly no-write, no-secret and no-deployment."
   },
   "apiRoutes": [
     {
@@ -18,6 +18,33 @@
         "rules-fallback-required"
       ],
       "status": "active"
+    },
+    {
+      "route": "/api/health",
+      "area": "Runtime-Health",
+      "authority": "status-only-no-write",
+      "security": [
+        "no-secret-output",
+        "no-database-write",
+        "no-deployment",
+        "no-cache"
+      ],
+      "status": "active",
+      "backendReadiness": {
+        "reviewStatus": "runtime-validated",
+        "persistenceStatus": "no-persistence",
+        "forbiddenAuthority": [
+          "authentication-bypass",
+          "database-write",
+          "final-ledger-write",
+          "final-reward-grant",
+          "final-mission-completion",
+          "secret-output",
+          "production-write",
+          "deployment-trigger"
+        ],
+        "requiresBeforeAuthority": []
+      }
     },
     {
       "route": "/api/economy/buddy-sync-preview",
