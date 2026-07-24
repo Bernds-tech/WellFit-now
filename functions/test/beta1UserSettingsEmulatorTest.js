@@ -61,6 +61,17 @@ function onboardingPayload() {
   };
 }
 
+function profileUpdate(overrides = {}) {
+  return {
+    displayName: "Ada Lovelace",
+    phone: "+43 660 1234567",
+    language: "Deutsch",
+    timeZone: "Europe/Berlin",
+    units: "kg / km",
+    ...overrides,
+  };
+}
+
 async function run() {
   console.log("WellFit Beta 1 User Settings Emulator Test startet...");
   await resetBeta1Collections();
@@ -72,13 +83,7 @@ async function run() {
   await expectCallableError(
     "updateUserAccountProfile",
     uninitializedToken,
-    {
-      displayName: "No Profile",
-      phone: "",
-      language: "Deutsch",
-      timeZone: "Europe/Berlin",
-      units: "kg / km",
-    },
+    profileUpdate({ displayName: "No Profile" }),
     "Profilupdate vor sicherem Onboarding muss blockiert werden",
   );
 
@@ -87,35 +92,33 @@ async function run() {
   await expectCallableError(
     "updateUserAccountProfile",
     userToken,
-    {
-      displayName: "Ada Lovelace",
-      phone: "not-a-phone!",
-      language: "Deutsch",
-      timeZone: "Europe/Berlin",
-      units: "kg / km",
-    },
+    profileUpdate({ phone: "not-a-phone!" }),
     "Ungueltige Telefonnummer muss blockiert werden",
   );
   await expectCallableError(
     "updateUserAccountProfile",
     userToken,
-    {
-      displayName: "Ada Lovelace",
-      phone: "+43 660 1234567",
-      language: "Deutsch",
-      timeZone: "Mars/Olympus",
-      units: "kg / km",
-    },
+    profileUpdate({ timeZone: "Mars/Olympus" }),
     "Ungueltige Zeitzone muss blockiert werden",
   );
+  await expectCallableError(
+    "updateUserAccountProfile",
+    userToken,
+    profileUpdate({ language: "Deutsch<script>" }),
+    "Nicht freigegebene Sprache muss blockiert werden",
+  );
+  await expectCallableError(
+    "updateUserAccountProfile",
+    userToken,
+    profileUpdate({ units: "stone / furlong" }),
+    "Nicht freigegebene Einheit muss blockiert werden",
+  );
 
-  const updated = await expectOk("updateUserAccountProfile", userToken, {
+  const updated = await expectOk("updateUserAccountProfile", userToken, profileUpdate({
     displayName: "Ada Byron Lovelace",
-    phone: "+43 660 1234567",
     language: "English",
-    timeZone: "Europe/Berlin",
     units: "lb / mi",
-  });
+  }));
   assert(updated.serverValidationStatus === "server-profile-updated", "Profilupdate braucht serverseitige Validierung.");
   assert(updated.economyFieldsChanged === false, "Profilupdate darf keine Economy-Felder veraendern.");
   assert(updated.tokenAuthorized === false && updated.cashoutAllowed === false && updated.realMoney === false, "Profilupdate darf keine Token-, Cashout- oder Echtgeld-Autoritaet erzeugen.");
@@ -131,17 +134,21 @@ async function run() {
   assert(user.settings.displayName === "Ada Byron Lovelace", "Settings muessen den serverseitigen Anzeigenamen enthalten.");
   assert(user.settings.timeZone === "Europe/Berlin", "Settings muessen die gueltige Kalenderzeitzone enthalten.");
   assert(user.serverValidationStatus === "server-profile-updated", "Users-Dokument muss die Update-Autoritaet ausweisen.");
+  assert(user.profile.ageBand === "25-34", "Serverprofil-Update darf das minimierte Altersband nicht ueberschreiben.");
+  assert(user.profile.healthPersonalizationEnabled === false, "Serverprofil-Update darf die Health-Consent-Projektion nicht ueberschreiben.");
+  assert(user.profile.activity && user.profile.activity.communityMode === "solo", "Serverprofil-Update muss bestehende Aktivitaets-Praeferenzen erhalten.");
+  assert(user.settings.privacy && user.settings.privacy.profileVisibility === "Privat", "Serverprofil-Update muss konservative Privacy-Einstellungen erhalten.");
+  assert(user.settings.reminders && user.settings.reminders.missionReminder === false, "Serverprofil-Update muss Reminder-Einstellungen erhalten.");
   for (const forbiddenField of ["points", "xp", "level", "energy", "stepsToday", "avatar", "lastMissionCompletedAt", "deviceLocation"]) {
     assert(user[forbiddenField] === undefined, `Profilupdate darf ${forbiddenField} nicht anlegen.`);
   }
 
-  const deferred = await expectOk("updateUserAccountProfile", userToken, {
+  const deferred = await expectOk("updateUserAccountProfile", userToken, profileUpdate({
     displayName: "Ada Byron Lovelace",
-    phone: "+43 660 1234567",
     language: "English",
     timeZone: "Asia/Tokyo",
     units: "lb / mi",
-  });
+  }));
   assert(deferred.calendar.timeZone === "Europe/Berlin", "Schneller Zeitzonenwechsel muss bei der bestehenden Zone bleiben.");
   assert(deferred.calendar.timeZoneChangeDeferred === true, "Schneller Zeitzonenwechsel muss als deferred markiert werden.");
   assert(typeof deferred.calendar.nextTimeZoneChangeAt === "string", "Deferred-Zustand braucht einen naechsten erlaubten Zeitpunkt.");
