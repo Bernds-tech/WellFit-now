@@ -11,6 +11,7 @@ const {
 } = require("./beta1AccountLifecyclePolicy");
 const { requireAuth, optionalString, writeAudit } = require("./beta1Runtime");
 const { registerBeta1UserDataExport } = require("./beta1UserDataExport");
+const { registerBeta1AccountDeletionProcessor } = require("./beta1AccountDeletionProcessor");
 
 async function guardianDependencySummary(db, userId) {
   const [childrenSnapshot, familiesSnapshot, linksSnapshot] = await Promise.all([
@@ -51,6 +52,7 @@ function deletionStatusPayload(lifecycle, dependencies = null) {
 
 function registerBeta1AccountLifecycle(exportsTarget, { db, authAdmin, onCall, HttpsError }) {
   registerBeta1UserDataExport(exportsTarget, { db, authAdmin, onCall, HttpsError });
+  registerBeta1AccountDeletionProcessor(exportsTarget, { db, authAdmin, onCall, HttpsError });
 
   exportsTarget.getAccountLifecycleStatus = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
@@ -166,7 +168,8 @@ function registerBeta1AccountLifecycle(exportsTarget, { db, authAdmin, onCall, H
         transaction.get(recordRef),
         transaction.get(accountRef),
       ]);
-      if (!lifecycleSnapshot.exists || (lifecycleSnapshot.data() || {}).status !== "deletion-pending") {
+      const cancellableStatuses = new Set(["deletion-pending", "deletion-blocked"]);
+      if (!lifecycleSnapshot.exists || !cancellableStatuses.has((lifecycleSnapshot.data() || {}).status)) {
         const current = lifecycleSnapshot.exists
           ? { lifecycleId: lifecycleSnapshot.id, ...(lifecycleSnapshot.data() || {}) }
           : { lifecycleId: userId, ownerUserId: userId, userId, status: "active", freezeMutations: false };
@@ -180,6 +183,10 @@ function registerBeta1AccountLifecycle(exportsTarget, { db, authAdmin, onCall, H
         deletionCancellationReason: optionalString(data.reason, 160) || "user-cancelled",
         deletionRequestedAt: null,
         deletionScheduledFor: null,
+        processingLeaseId: null,
+        processingLeaseExpiresAt: null,
+        blockedChildProfileIds: [],
+        lastProcessingError: null,
         updatedAt: FieldValue.serverTimestamp(),
       };
       transaction.update(recordRef, payload);
