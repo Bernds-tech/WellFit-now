@@ -18,6 +18,7 @@ import {
 
 const FIRESTORE_HOST = process.env.FIRESTORE_EMULATOR_HOST ?? "127.0.0.1:8080";
 const AUTH_HOST = process.env.FIREBASE_AUTH_EMULATOR_HOST ?? "127.0.0.1:9099";
+const FUNCTIONS_BASE_URL = process.env.FUNCTIONS_EMULATOR_URL ?? "http://127.0.0.1:5001/demo-no-project/us-central1";
 const PROJECT_ID = process.env.FIREBASE_EMULATOR_PROJECT_ID ?? "demo-no-project";
 
 const now = Date.now();
@@ -83,11 +84,60 @@ function printResults(results) {
   console.log(`Project ID: ${PROJECT_ID}`);
   console.log(`Auth emulator: ${AUTH_HOST}`);
   console.log(`Firestore emulator: ${FIRESTORE_HOST}`);
-  if (results.length === 0) console.log("FAIL: no assertions ran. The emulator is probably not running.");
+  console.log(`Functions emulator: ${FUNCTIONS_BASE_URL}`);
+  if (results.length === 0) console.log("FAIL: no assertions ran. The emulators are probably not running.");
   for (const result of results) {
     console.log(`${result.passed ? "OK" : "FAIL"}: ${result.name} (${result.details})`);
   }
   if (!passed) process.exitCode = 1;
+}
+
+function adultBirthDate() {
+  const date = new Date();
+  return `${date.getUTCFullYear() - 30}-01-15`;
+}
+
+async function initializeOwnerProfile(user, results) {
+  const idToken = await user.getIdToken(true);
+  const response = await fetch(`${FUNCTIONS_BASE_URL}/initializeUserAccount`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({
+      data: {
+        firstName: "Rules",
+        lastName: "Owner",
+        displayName: "Rules Owner",
+        email: ownerEmail,
+        birthDate: adultBirthDate(),
+        language: "de",
+        timeZone: "Europe/Berlin",
+        buddy: { id: "flammi" },
+        registrationSource: "root-rules-emulator-test",
+        consents: {
+          termsAccepted: true,
+          privacyAccepted: true,
+          healthPersonalization: false,
+          anonymousAnalytics: false,
+          marketing: false,
+        },
+        preferences: {
+          activityLevel: "low",
+          trainingTime: "flexible",
+          communityMode: "solo",
+          interests: [],
+          goals: [],
+          activities: ["walking"],
+        },
+      },
+    }),
+  });
+  const json = await response.json().catch(() => ({}));
+  const accepted = response.ok && json?.result?.accepted === true;
+  addResult(results, "server onboarding fixture", accepted, accepted ? "created through initializeUserAccount" : JSON.stringify(json));
+  if (!accepted) throw new Error(`initializeUserAccount failed: ${JSON.stringify(json)}`);
 }
 
 async function main() {
@@ -110,41 +160,50 @@ async function main() {
     const ownerUser = ownerCredential.user;
     const ownerUserId = ownerUser.uid;
 
-    await expectAllow(results, "users owner doc create", async () => {
+    await expectDeny(results, "users owner doc client create", async () => {
       await setDoc(doc(db, "users", ownerUserId), {
-        profile: { displayName: "Rules Owner" },
+        profile: { displayName: "Client-created profile" },
         settings: { language: "de" },
-        consent: { beta: true },
-        inventory: {},
-        points: 0,
-        xp: 0,
-        level: 1,
-        avatar: { energy: 50 },
-        updatedAt: new Date().toISOString(),
       });
     });
 
+    await initializeOwnerProfile(ownerUser, results);
+
     await expectAllow(results, "users profile update", async () => {
       await updateDoc(doc(db, "users", ownerUserId), {
-        profile: { displayName: "Rules Owner Updated" },
+        profile: { account: { displayName: "Rules Owner Updated" } },
         updatedAt: new Date().toISOString(),
       });
     });
 
     await expectAllow(results, "users settings update", async () => {
       await updateDoc(doc(db, "users", ownerUserId), {
-        settings: { language: "de", brightness: 100 },
+        settings: { language: "Deutsch", brightness: 100 },
+        lastLoginAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
     });
 
-    await expectAllow(results, "users points update remaining temporary bridge", async () => {
-      await updateDoc(doc(db, "users", ownerUserId), { points: 25 });
-    });
+    for (const [field, value] of [
+      ["points", 25],
+      ["xp", 10],
+      ["level", 2],
+      ["energy", 100],
+      ["stepsToday", 9999],
+      ["avatar", { energy: 75 }],
+      ["lastMissionCompletedAt", new Date().toISOString()],
+      ["deviceLocation", { latitude: 1, longitude: 1 }],
+      ["consent", { bypass: true }],
+      ["inventory", { rare: true }],
+    ]) {
+      await expectDeny(results, `users protected ${field} update`, async () => {
+        await updateDoc(doc(db, "users", ownerUserId), { [field]: value });
+      });
+    }
 
     for (const collectionName of dailyReadOnlyCollections) {
       const documentId = collectionName === "userDailyMissionState"
-        ? `${ownerUserId}_2026-07-23`
+        ? `${ownerUserId}_2026-07-24`
         : ownerUserId;
       await expectDeny(results, `${collectionName} client create`, async () => {
         await setDoc(doc(db, collectionName, documentId), {
@@ -173,18 +232,17 @@ async function main() {
     });
 
     await signOut(auth);
-    const otherCredential = await createUserWithEmailAndPassword(auth, otherEmail, testCredential);
-    const otherUser = otherCredential.user;
+    await createUserWithEmailAndPassword(auth, otherEmail, testCredential);
 
     await expectDeny(results, "other user owner profile update", async () => {
       await updateDoc(doc(db, "users", ownerUserId), {
-        profile: { displayName: "Wrong User" },
+        profile: { account: { displayName: "Wrong User" } },
       });
     });
 
     await signOut(auth);
     await expectDeny(results, "signed out user doc create", async () => {
-      await setDoc(doc(db, "users", `${otherUser.uid}_signed_out_attempt`), {
+      await setDoc(doc(db, "users", `${ownerUserId}_signed_out_attempt`), {
         profile: { displayName: "Signed Out" },
       });
     });
@@ -199,6 +257,6 @@ async function main() {
 main().catch((error) => {
   console.error("Firestore economy rules emulator test crashed.");
   console.error(error);
-  console.error("Make sure Java is installed and Firebase emulators are running: npm run emulators");
+  console.error("Start Auth, Firestore and Functions emulators first: npm run emulators");
   process.exit(1);
 });
