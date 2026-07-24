@@ -21,6 +21,79 @@ function safeList(value, maxItems = 20, maxLength = 80) {
     .slice(0, maxItems);
 }
 
+function mappedValue(value, mapping, fallback) {
+  const normalized = asString(value);
+  return mapping[normalized] || normalized || fallback;
+}
+
+function activityLevelLabel(value) {
+  return mappedValue(value, {
+    low: "Kaum aktiv",
+    medium: "Gelegentlich aktiv",
+    high: "Sehr aktiv",
+  }, "Gelegentlich aktiv");
+}
+
+function trainingTimeLabel(value) {
+  return mappedValue(value, {
+    morning: "Morgens",
+    afternoon: "Nachmittags",
+    evening: "Abends",
+    flexible: "Flexibel",
+  }, "Abends");
+}
+
+function communityModeLabel(value) {
+  return mappedValue(value, {
+    solo: "Alleine",
+    private: "Freunde & kleine Gruppen",
+    public: "Community & Events",
+  }, "Alleine");
+}
+
+function fitnessLevelLabel(value) {
+  return mappedValue(value, {
+    beginner: "Anfänger",
+    medium: "Fortgeschritten",
+    pro: "Aktiv",
+  }, "Anfänger");
+}
+
+function sleepQualityLabel(value) {
+  return mappedValue(value, {
+    poor: "Niedrig",
+    okay: "Mittel",
+    good: "Hoch",
+  }, "Mittel");
+}
+
+function nutritionLabel(value) {
+  return mappedValue(value, {
+    all: "Ausgewogen",
+    vegetarian: "Vegetarisch",
+    vegan: "Vegan",
+    light: "Ausgewogen",
+  }, "Ausgewogen");
+}
+
+function stressLevelLabel(value) {
+  const numeric = Number(value);
+  if (Number.isFinite(numeric)) {
+    if (numeric <= 2) return "Niedrig";
+    if (numeric >= 4) return "Hoch";
+    return "Mittel";
+  }
+  return asString(value, "Mittel");
+}
+
+function legacySleepHours(value) {
+  const normalized = asString(value);
+  if (normalized === "<6") return "5.5";
+  if (normalized === "6-8") return "7";
+  if (normalized === ">8") return "8.5";
+  return normalized;
+}
+
 function buildProfileState({ user, settings, calendar, authEmail }) {
   const displayName = optionalString(settings.displayName, 160)
     || optionalString(user.displayName, 160)
@@ -63,9 +136,9 @@ function buildPublicSettingsState({ user, onboarding, calendar, authEmail }) {
       backgroundTracking: asBoolean(permissions.backgroundTracking),
     },
     activity: {
-      activityLevel: asString(activity.activityLevel, "Gelegentlich aktiv"),
-      trainingTime: asString(activity.trainingTime, "Abends"),
-      communityMode: asString(activity.communityMode, "Alleine"),
+      activityLevel: activityLevelLabel(activity.activityLevel),
+      trainingTime: trainingTimeLabel(activity.trainingTime),
+      communityMode: communityModeLabel(activity.communityMode),
       interests: safeList(activity.interests),
       activities: safeList(activity.activities),
       goals: safeList(activity.goals),
@@ -133,7 +206,7 @@ function buildPrivateHealthState(privateProfile, healthConsentActive) {
       targetWeightEnabled: biometrics.targetWeightEnabled === true,
       targetWeight: String(biometrics.targetWeightKg ?? ""),
       bodyType: asString(biometrics.bodyType, "Schlank"),
-      fitnessLevel: asString(biometrics.fitnessLevel, "Anfänger"),
+      fitnessLevel: fitnessLevelLabel(biometrics.fitnessLevel ?? legacyHealth.fitnessLevel),
       limitations: safeList(
         Array.isArray(biometrics.limitations) ? biometrics.limitations : legacyHealth.limitations,
         10,
@@ -146,15 +219,15 @@ function buildPrivateHealthState(privateProfile, healthConsentActive) {
       bloodPressure: bloodPressure.systolic && bloodPressure.diastolic
         ? `${bloodPressure.systolic}/${bloodPressure.diastolic}`
         : "",
-      sleepHours: String(vitals.sleepHours ?? ""),
-      sleepQuality: asString(vitals.sleepQuality, "Mittel"),
-      stressLevel: asString(vitals.stressLevel, "Mittel"),
+      sleepHours: String(vitals.sleepHours ?? legacySleepHours(legacyHealth.sleepHours)),
+      sleepQuality: sleepQualityLabel(vitals.sleepQuality ?? legacyHealth.sleepQuality),
+      stressLevel: stressLevelLabel(vitals.stressLevel ?? legacyHealth.stressLevel),
       energyLevel: asString(vitals.energyLevel, "Mittel"),
       painLevel: asString(vitals.painLevel, "Keine"),
-      medicationDeclared: vitals.medicationDeclared === true,
+      medicationDeclared: vitals.medicationDeclared === true || legacyHealth.medicationDeclared === true,
     },
     lifestyle: {
-      nutrition: asString(lifestyle.nutrition, "Ausgewogen"),
+      nutrition: nutritionLabel(lifestyle.nutrition ?? legacyHealth.nutrition),
       mealRhythm: asString(lifestyle.mealRhythm, "Regelmäßig"),
       drinkReminder: asString(lifestyle.drinkReminder, "Normal"),
       drinkAmount: String(lifestyle.drinkAmountLiters ?? ""),
@@ -164,7 +237,6 @@ function buildPrivateHealthState(privateProfile, healthConsentActive) {
       natureMove: asString(lifestyle.natureMove, "Gelegentlich"),
       stressCoping: asString(lifestyle.stressCoping, "Spaziergang / Bewegung"),
       screenTime: asString(lifestyle.screenTime, "Mittel"),
-      notes: "",
     },
     healthProfileStored: privateProfile.healthProfileStored === true,
     healthDataCategories: safeList(privateProfile.healthDataCategories, 20, 80),
