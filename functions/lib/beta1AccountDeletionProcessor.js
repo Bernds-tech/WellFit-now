@@ -32,7 +32,9 @@ const ADDITIONAL_USER_QUERY_SPECS = [
   { collection: "userDataExportChunks", fields: ["ownerUserId", "userId"] },
   { collection: "checkpointMayors", fields: ["ownerUserId", "userId", "mayorUserId"] },
   { collection: "nfcScanClaims", fields: ["ownerUserId", "userId"] },
-  { collection: "adminActions", fields: ["ownerUserId", "userId", "targetUserId"] },
+  // AuditEvents preserve selected cross-account evidence through explicit anonymization.
+  // The duplicate adminActions projection is deleted for both owner and actor scopes.
+  { collection: "adminActions", fields: ["ownerUserId", "userId", "targetUserId", "actorUserId"] },
 ];
 
 const CHILD_SCOPED_COLLECTIONS = [
@@ -100,7 +102,12 @@ function deletionIsDue(lifecycle, now = new Date()) {
 
 function leaseIsActive(lifecycle, now = new Date()) {
   const expiresAt = asDate(lifecycle && lifecycle.processingLeaseExpiresAt);
-  return lifecycle && lifecycle.status === "deletion-processing" && expiresAt && expiresAt.getTime() > now.getTime();
+  return Boolean(
+    lifecycle
+    && lifecycle.status === "deletion-processing"
+    && expiresAt
+    && expiresAt.getTime() > now.getTime()
+  );
 }
 
 function safeCountMap() {
@@ -400,16 +407,21 @@ async function acquireProcessingLease(db, userId, actorUserId, HttpsError) {
   });
 }
 
-async function releaseLeaseAfterFailure(ref, leaseId, error) {
+async function releaseLeaseAfterFailure(ref, error) {
+  const blockedCodes = new Set([
+    "sole-guardian-active-child",
+    "external-storage-cleanup-required",
+  ]);
   try {
     await ref.set({
-      status: error && error.code === "sole-guardian-active-child" ? "deletion-blocked" : "deletion-processing",
+      status: blockedCodes.has(error && error.code) ? "deletion-blocked" : "deletion-processing",
       freezeMutations: true,
       processingLeaseId: null,
       processingLeaseExpiresAt: new Date(0).toISOString(),
       lastProcessingError: optionalString(error && (error.code || error.message), 180) || "account-deletion-failed",
       lastProcessingErrorAt: new Date().toISOString(),
       blockedChildProfileIds: Array.isArray(error && error.childProfileIds) ? error.childProfileIds.slice(0, 20) : [],
+      blockedExternalStorageReferenceCount: Number(error && error.externalStorageReferenceCount || 0),
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
   } catch (releaseError) {
@@ -423,6 +435,30 @@ async function loadLifecycleForPreview(db, userId, HttpsError) {
   return { lifecycleId: snapshot.id, ...(snapshot.data() || {}) };
 }
 
+async function prepareDeletionPreflight(db, userId) {
+  const [dependencies, externalStorageReferences] = await Promise.all([
+    childDependencies(db, userId),
+    findExternalStorageReferences(db, userId),
+  ]);
+  return {
+    dependencies,
+    blockingChildProfileIds: dependencies.soleGuardianActive.map((doc) => doc.id).slice(0, 20),
+    externalStorageReferences,
+  };
+}
+
+async function disableAccountBeforeDeletion(authAdmin, userId) {
+  let authUserAlreadyMissing = false;
+  try {
+    await authAdmin.revokeRefreshTokens(userId);
+    await authAdmin.updateUser(userId, { disabled: true });
+  } catch (error) {
+    if (error && error.code === "auth/user-not-found") authUserAlreadyMissing = true;
+    else throw error;
+  }
+  return { authUserAlreadyMissing };
+}
+
 async function processAccountDeletion({ db, authAdmin, userId, actorUserId, dryRun, HttpsError }) {
   const previewLifecycle = await loadLifecycleForPreview(db, userId, HttpsError);
   if (!["deletion-pending", "deletion-processing", "deletion-blocked"].includes(previewLifecycle.status)) {
@@ -432,12 +468,13 @@ async function processAccountDeletion({ db, authAdmin, userId, actorUserId, dryR
   if (!due && !dryRun) throw new HttpsError("failed-precondition", "Die Karenzzeit ist noch nicht abgelaufen.");
 
   const counts = safeCountMap();
-  const externalStorageReferences = await findExternalStorageReferences(db, userId);
-  const dependencies = await childDependencies(db, userId);
-  const blockingChildren = dependencies.soleGuardianActive.map((doc) => doc.id).slice(0, 20);
+  const previewPreflight = await prepareDeletionPreflight(db, userId);
 
   if (dryRun) {
-    if (blockingChildren.length === 0 && externalStorageReferences.length === 0) {
+    if (
+      previewPreflight.blockingChildProfileIds.length === 0
+      && previewPreflight.externalStorageReferences.length === 0
+    ) {
       await detachFamilyDependencies(db, userId, true, counts);
       await deleteGenericUserDocuments(db, userId, true, counts);
       await deleteAndAnonymizeAuditEvents(db, userId, "dry-run", true, counts);
@@ -448,11 +485,14 @@ async function processAccountDeletion({ db, authAdmin, userId, actorUserId, dryR
       dryRun: true,
       userId,
       due,
-      eligible: due && blockingChildren.length === 0 && externalStorageReferences.length === 0,
+      eligible: due
+        && previewPreflight.blockingChildProfileIds.length === 0
+        && previewPreflight.externalStorageReferences.length === 0,
       lifecycleStatus: previewLifecycle.status,
-      blockingChildProfileIds: blockingChildren,
-      externalStorageReferenceCount: externalStorageReferences.length,
+      blockingChildProfileIds: previewPreflight.blockingChildProfileIds,
+      externalStorageReferenceCount: previewPreflight.externalStorageReferences.length,
       collectionCounts: { ...counts },
+      authDisablePlanned: true,
       authDeletionPlanned: true,
       tombstonePlanned: true,
       tokenAuthorized: false,
@@ -475,17 +515,24 @@ async function processAccountDeletion({ db, authAdmin, userId, actorUserId, dryR
   }
 
   try {
-    if (blockingChildren.length > 0) {
+    // Re-evaluate all blockers after the transactionally acquired lease. This closes
+    // the race between the preflight preview and irreversible processing.
+    const processingPreflight = await prepareDeletionPreflight(db, userId);
+    if (processingPreflight.blockingChildProfileIds.length > 0) {
       const error = new Error("sole-guardian-active-child");
       error.code = "sole-guardian-active-child";
-      error.childProfileIds = blockingChildren;
+      error.childProfileIds = processingPreflight.blockingChildProfileIds;
       throw error;
     }
-    if (externalStorageReferences.length > 0) {
+    if (processingPreflight.externalStorageReferences.length > 0) {
       const error = new Error("external-storage-cleanup-required");
       error.code = "external-storage-cleanup-required";
+      error.externalStorageReferenceCount = processingPreflight.externalStorageReferences.length;
       throw error;
     }
+
+    await setProcessingPhase(lease.ref, lease.leaseId, "auth-disabled");
+    const authState = await disableAccountBeforeDeletion(authAdmin, userId);
 
     await setProcessingPhase(lease.ref, lease.leaseId, "family-dependencies");
     const familyResult = await detachFamilyDependencies(db, userId, false, counts);
@@ -502,12 +549,11 @@ async function processAccountDeletion({ db, authAdmin, userId, actorUserId, dryR
     await setProcessingPhase(lease.ref, lease.leaseId, "firebase-auth-deletion", {
       deletedCollectionCounts: { ...counts },
     });
-    let authUserAlreadyMissing = false;
     try {
       await authAdmin.deleteUser(userId);
     } catch (error) {
-      if (error && error.code === "auth/user-not-found") authUserAlreadyMissing = true;
-      else throw error;
+      if (!(error && error.code === "auth/user-not-found")) throw error;
+      authState.authUserAlreadyMissing = true;
     }
 
     const completedAt = new Date().toISOString();
@@ -519,8 +565,10 @@ async function processAccountDeletion({ db, authAdmin, userId, actorUserId, dryR
       completedAt,
       deletedCollectionCounts: { ...counts },
       familyResult,
+      sessionsRevokedBeforeDeletion: true,
+      authDisabledBeforeDeletion: !authState.authUserAlreadyMissing,
       authDeleted: true,
-      authUserAlreadyMissing,
+      authUserAlreadyMissing: authState.authUserAlreadyMissing,
       externalStorageReferenceCount: 0,
       originalUserIdentifierStored: false,
       originalEmailStored: false,
@@ -559,7 +607,7 @@ async function processAccountDeletion({ db, authAdmin, userId, actorUserId, dryR
       realMoney: false,
     };
   } catch (error) {
-    await releaseLeaseAfterFailure(lease.ref, lease.leaseId, error);
+    await releaseLeaseAfterFailure(lease.ref, error);
     if (error && error.code === "sole-guardian-active-child") {
       throw new HttpsError("failed-precondition", "Die Loeschung ist blockiert, weil das Konto noch alleiniger Guardian eines aktiven Kinderprofils ist.");
     }
