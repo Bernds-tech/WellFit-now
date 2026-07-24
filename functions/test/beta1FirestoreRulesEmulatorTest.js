@@ -66,9 +66,12 @@ async function run() {
     await assertFails(aliceDb.collection("missions").doc("mission_draft").get());
     await assertFails(aliceDb.collection("missions").doc("mission_hack").set({ status: "published", rewardXp: 9999 }));
 
-    await assertSucceeds(aliceDb.collection("missionLocations").doc("location_public_safe").get());
-    await assertSucceeds(bobDb.collection("missionLocations").doc("location_public_safe").get());
+    // Exact location documents remain server-only. Users receive only the bounded,
+    // radius-filtered projection returned by getNearbyMissionLocations.
+    await assertFails(aliceDb.collection("missionLocations").doc("location_public_safe").get());
+    await assertFails(bobDb.collection("missionLocations").doc("location_public_safe").get());
     await assertFails(anonDb.collection("missionLocations").doc("location_public_safe").get());
+    await assertFails(aliceDb.collection("missionLocations").limit(10).get());
     await assertFails(aliceDb.collection("missionLocations").doc("location_public_unreviewed").get());
     await assertFails(aliceDb.collection("missionLocations").doc("location_draft_safe").get());
     await assertFails(aliceDb.collection("missionLocations").doc("location_hack").set({ status: "published", safeLocationReviewed: true, title: "Fake" }));
