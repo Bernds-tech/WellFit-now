@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useEffect } from "react";
 import { auth, db } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { doc, onSnapshot, setDoc, type Unsubscribe } from "firebase/firestore";
+import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
+import { doc, onSnapshot, type Unsubscribe } from "firebase/firestore";
 
 import type {
   ProfileForm,
@@ -31,9 +31,7 @@ import {
 import {
   genderToDisplay,
   bodyTypeToDisplay,
-  bodyTypeToStorage,
   fitnessLevelToDisplay,
-  fitnessLevelToStorage,
   arrayToText,
 } from "../lib/settingsMappers";
 
@@ -52,50 +50,35 @@ type UseSettingsDataParams = {
   setPrivacy: React.Dispatch<React.SetStateAction<PrivacyForm>>;
 };
 
-function createFallbackUserDocument(firebaseUser: { uid: string; displayName: string | null; email: string | null }) {
-  const fallbackProfile: ProfileForm = {
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
+
+function asString(value: unknown, fallback = ""): string {
+  return typeof value === "string" ? value : fallback;
+}
+
+function asBoolean(value: unknown, fallback: boolean): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function clientTimeZone(): string {
+  try {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return typeof timeZone === "string" && timeZone.trim() ? timeZone : "UTC";
+  } catch {
+    return "UTC";
+  }
+}
+
+function fallbackProfile(firebaseUser: FirebaseUser): ProfileForm {
+  return {
     ...defaultProfile,
     displayName: firebaseUser.displayName ?? "",
     email: firebaseUser.email ?? "",
-  };
-
-  return {
-    fallbackProfile,
-    payload: {
-      firstName: firebaseUser.displayName?.split(" ")[0] ?? "",
-      lastName: firebaseUser.displayName?.split(" ").slice(1).join(" ") ?? "",
-      email: firebaseUser.email ?? "",
-      points: 0,
-      xp: 0,
-      energy: 100,
-      level: 1,
-      stepsToday: 0,
-      currency: "points",
-      avatar: { hunger: 100, mood: 100, energy: 100, level: 1 },
-      profile: {
-        birthdate: "",
-        gender: "male",
-        height: Number(defaultBiometrics.height),
-        weight: Number(defaultBiometrics.weight),
-        targetWeight: defaultBiometrics.targetWeightEnabled,
-        targetWeightValue: Number(defaultBiometrics.targetWeight),
-        bodyType: bodyTypeToStorage(defaultBiometrics.bodyType),
-        fitnessLevel: fitnessLevelToStorage(defaultBiometrics.fitnessLevel),
-        otherRestriction: defaultBiometrics.limitations,
-        vitals: defaultVitalValues,
-        aiBuddy: defaultAiBuddy,
-        lifestyle: defaultLifestyle,
-        activity: defaultActivity,
-      },
-      settings: {
-        ...fallbackProfile,
-        permissions: defaultPermissions,
-        reminders: defaultNotifications,
-        privacy: defaultPrivacy,
-      },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
+    timezone: clientTimeZone(),
   };
 }
 
@@ -117,7 +100,7 @@ export function useSettingsData({
     const savedPermissions = localStorage.getItem("wellfit-permissions");
     if (savedPermissions) {
       try {
-        setPermissions((prev) => ({ ...prev, ...JSON.parse(savedPermissions) }));
+        setPermissions((previous) => ({ ...previous, ...JSON.parse(savedPermissions) }));
       } catch (error) {
         console.error("Fehler beim Laden der Berechtigungen", error);
       }
@@ -135,6 +118,19 @@ export function useSettingsData({
       setLifestyle(defaultLifestyle);
       setActivity(defaultActivity);
       setPrivacy(defaultPrivacy);
+    };
+
+    const applyMissingProfileState = (firebaseUser: FirebaseUser) => {
+      setProfile(fallbackProfile(firebaseUser));
+      setBiometrics(defaultBiometrics);
+      setNotifications(defaultNotifications);
+      setVitalValues(defaultVitalValues);
+      setAiBuddy(defaultAiBuddy);
+      setLifestyle(defaultLifestyle);
+      setActivity(defaultActivity);
+      setPrivacy(defaultPrivacy);
+      setSaveMessage("Sichere Registrierung noch nicht abgeschlossen. Bitte schließe zuerst das Onboarding ab.");
+      setIsLoadingUser(false);
     };
 
     const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
@@ -157,80 +153,63 @@ export function useSettingsData({
 
       unsubscribeUserDoc = onSnapshot(
         userRef,
-        async (userSnap) => {
-          if (!userSnap.exists()) {
-            const { fallbackProfile, payload } = createFallbackUserDocument(firebaseUser);
-            try {
-              await setDoc(userRef, payload, { merge: true });
-              setProfile(fallbackProfile);
-              setBiometrics(defaultBiometrics);
-              setNotifications(defaultNotifications);
-              setVitalValues(defaultVitalValues);
-              setAiBuddy(defaultAiBuddy);
-              setLifestyle(defaultLifestyle);
-              setActivity(defaultActivity);
-              setPrivacy(defaultPrivacy);
-              setSaveMessage("Profil wurde neu angelegt.");
-            } catch (error) {
-              console.error("Fehler beim Anlegen des Einstellungsprofils", error);
-              setSaveMessage("Profil konnte nicht angelegt werden.");
-            } finally {
-              setIsLoadingUser(false);
-            }
+        (userSnapshot) => {
+          if (!userSnapshot.exists()) {
+            applyMissingProfileState(firebaseUser);
             return;
           }
 
-          const data = userSnap.data();
-          const storedProfile = (data.profile ?? {}) as Record<string, unknown>;
-          const storedVitals = (storedProfile.vitals ?? {}) as Record<string, unknown>;
-          const storedAiBuddy = (storedProfile.aiBuddy ?? {}) as Record<string, unknown>;
-          const storedLifestyle = (storedProfile.lifestyle ?? {}) as Record<string, unknown>;
-          const storedActivity = (storedProfile.activity ?? {}) as Record<string, unknown>;
-          const storedSettings = (data.settings ?? {}) as Record<string, unknown>;
-          const storedReminders = (storedSettings.reminders ?? {}) as Record<string, unknown>;
-          const storedPrivacy = (storedSettings.privacy ?? {}) as Record<string, unknown>;
-          const storedPermissions =
-            (storedSettings.permissions as Partial<typeof defaultPermissions> | undefined) ?? undefined;
-          const firstName = typeof data.firstName === "string" ? data.firstName : "";
-          const lastName = typeof data.lastName === "string" ? data.lastName : "";
+          const data = userSnapshot.data();
+          const storedProfile = asRecord(data.profile);
+          const storedVitals = asRecord(storedProfile.vitals);
+          const storedAiBuddy = asRecord(storedProfile.aiBuddy);
+          const storedLifestyle = asRecord(storedProfile.lifestyle);
+          const storedActivity = asRecord(storedProfile.activity);
+          const storedSettings = asRecord(data.settings);
+          const storedReminders = asRecord(storedSettings.reminders);
+          const storedPrivacy = asRecord(storedSettings.privacy);
+          const storedPermissions = asRecord(storedSettings.permissions) as Partial<typeof defaultPermissions>;
+          const firstName = asString(data.firstName);
+          const lastName = asString(data.lastName);
           const displayNameFromUser = `${firstName} ${lastName}`.trim();
 
           setProfile({
             displayName:
-              (storedSettings.displayName as string | undefined) ??
-              displayNameFromUser ??
-              firebaseUser.displayName ??
-              "",
+              asString(storedSettings.displayName)
+              || displayNameFromUser
+              || firebaseUser.displayName
+              || "",
             email:
-              (storedSettings.email as string | undefined) ??
-              (typeof data.email === "string" ? data.email : firebaseUser.email ?? ""),
-            phone: (storedSettings.phone as string | undefined) ?? "",
-            language: (storedSettings.language as string | undefined) ?? "Deutsch",
+              asString(storedSettings.email)
+              || asString(data.email)
+              || firebaseUser.email
+              || "",
+            phone: asString(storedSettings.phone),
+            language: asString(storedSettings.language, "Deutsch"),
             birthDate:
-              (storedSettings.birthDate as string | undefined) ??
-              (storedProfile.birthdate as string | undefined) ??
-              "",
+              asString(storedSettings.birthDate)
+              || asString(storedProfile.birthdate),
             gender:
-              (storedSettings.gender as string | undefined) ??
-              genderToDisplay(storedProfile.gender as string | undefined),
-            timezone: (storedSettings.timezone as string | undefined) ?? "Europe/Vienna",
-            units: (storedSettings.units as string | undefined) ?? "kg / km",
+              asString(storedSettings.gender)
+              || genderToDisplay(asString(storedProfile.gender) || undefined),
+            timezone:
+              asString(storedSettings.timeZone)
+              || asString(storedSettings.timezone)
+              || clientTimeZone(),
+            units: asString(storedSettings.units, "kg / km"),
           });
 
           setBiometrics({
             height: String(storedProfile.height ?? defaultBiometrics.height),
             weight: String(storedProfile.weight ?? defaultBiometrics.weight),
-            targetWeightEnabled:
-              (storedProfile.targetWeight as boolean | undefined) ?? defaultBiometrics.targetWeightEnabled,
-            targetWeight: String(
-              storedProfile.targetWeightValue ?? storedSettings.targetWeight ?? defaultBiometrics.targetWeight,
-            ),
-            bodyType: bodyTypeToDisplay(storedProfile.bodyType as string | undefined),
-            fitnessLevel: fitnessLevelToDisplay(storedProfile.fitnessLevel as string | undefined),
+            targetWeightEnabled: asBoolean(storedProfile.targetWeight, defaultBiometrics.targetWeightEnabled),
+            targetWeight: String(storedProfile.targetWeightValue ?? storedSettings.targetWeight ?? defaultBiometrics.targetWeight),
+            bodyType: bodyTypeToDisplay(asString(storedProfile.bodyType) || undefined),
+            fitnessLevel: fitnessLevelToDisplay(asString(storedProfile.fitnessLevel) || undefined),
             limitations:
-              (storedProfile.otherRestriction as string | undefined) ??
-              (Array.isArray(storedProfile.limitations)
-                ? storedProfile.limitations.join(", ")
+              asString(storedProfile.otherRestriction)
+              || (Array.isArray(storedProfile.limitations)
+                ? storedProfile.limitations.map(String).join(", ")
                 : defaultBiometrics.limitations),
           });
 
@@ -240,116 +219,86 @@ export function useSettingsData({
             averagePulse: String(storedVitals.averagePulse ?? ""),
             bloodPressure: String(storedVitals.bloodPressure ?? ""),
             sleepHours: String(storedVitals.sleepHours ?? ""),
-            sleepQuality: (storedVitals.sleepQuality as string | undefined) ?? defaultVitalValues.sleepQuality,
-            stressLevel: (storedVitals.stressLevel as string | undefined) ?? defaultVitalValues.stressLevel,
-            energyLevel: (storedVitals.energyLevel as string | undefined) ?? defaultVitalValues.energyLevel,
-            painLevel: (storedVitals.painLevel as string | undefined) ?? defaultVitalValues.painLevel,
-            medicationNote:
-              (storedVitals.medicationNote as string | undefined) ?? defaultVitalValues.medicationNote,
-            healthNotes: (storedVitals.healthNotes as string | undefined) ?? defaultVitalValues.healthNotes,
+            sleepQuality: asString(storedVitals.sleepQuality, defaultVitalValues.sleepQuality),
+            stressLevel: asString(storedVitals.stressLevel, defaultVitalValues.stressLevel),
+            energyLevel: asString(storedVitals.energyLevel, defaultVitalValues.energyLevel),
+            painLevel: asString(storedVitals.painLevel, defaultVitalValues.painLevel),
+            medicationNote: asString(storedVitals.medicationNote, defaultVitalValues.medicationNote),
+            healthNotes: asString(storedVitals.healthNotes, defaultVitalValues.healthNotes),
           });
 
           setAiBuddy({
-            avatarType: (storedAiBuddy.avatarType as string | undefined) ?? defaultAiBuddy.avatarType,
-            personality: (storedAiBuddy.personality as string | undefined) ?? defaultAiBuddy.personality,
-            relationshipMode:
-              (storedAiBuddy.relationshipMode as string | undefined) ?? defaultAiBuddy.relationshipMode,
-            behaviorDynamics:
-              (storedAiBuddy.behaviorDynamics as string | undefined) ?? defaultAiBuddy.behaviorDynamics,
-            motivationStyle:
-              (storedAiBuddy.motivationStyle as string | undefined) ?? defaultAiBuddy.motivationStyle,
-            reactsToStress:
-              (storedAiBuddy.reactsToStress as boolean | undefined) ?? defaultAiBuddy.reactsToStress,
-            reactsToSleep: (storedAiBuddy.reactsToSleep as boolean | undefined) ?? defaultAiBuddy.reactsToSleep,
-            reactsToActivity:
-              (storedAiBuddy.reactsToActivity as boolean | undefined) ?? defaultAiBuddy.reactsToActivity,
-            reactsToMood: (storedAiBuddy.reactsToMood as boolean | undefined) ?? defaultAiBuddy.reactsToMood,
+            avatarType: asString(storedAiBuddy.avatarType, defaultAiBuddy.avatarType),
+            personality: asString(storedAiBuddy.personality, defaultAiBuddy.personality),
+            relationshipMode: asString(storedAiBuddy.relationshipMode, defaultAiBuddy.relationshipMode),
+            behaviorDynamics: asString(storedAiBuddy.behaviorDynamics, defaultAiBuddy.behaviorDynamics),
+            motivationStyle: asString(storedAiBuddy.motivationStyle, defaultAiBuddy.motivationStyle),
+            reactsToStress: asBoolean(storedAiBuddy.reactsToStress, defaultAiBuddy.reactsToStress),
+            reactsToSleep: asBoolean(storedAiBuddy.reactsToSleep, defaultAiBuddy.reactsToSleep),
+            reactsToActivity: asBoolean(storedAiBuddy.reactsToActivity, defaultAiBuddy.reactsToActivity),
+            reactsToMood: asBoolean(storedAiBuddy.reactsToMood, defaultAiBuddy.reactsToMood),
           });
 
           setLifestyle({
             nutrition:
-              (storedLifestyle.nutrition as string | undefined) ??
-              (storedProfile.nutrition as string | undefined) ??
-              defaultLifestyle.nutrition,
-            mealRhythm: (storedLifestyle.mealRhythm as string | undefined) ?? defaultLifestyle.mealRhythm,
+              asString(storedLifestyle.nutrition)
+              || asString(storedProfile.nutrition, defaultLifestyle.nutrition),
+            mealRhythm: asString(storedLifestyle.mealRhythm, defaultLifestyle.mealRhythm),
             drinkReminder:
-              (storedLifestyle.drinkReminder as string | undefined) ??
-              (storedProfile.drinkReminder as string | undefined) ??
-              defaultLifestyle.drinkReminder,
-            drinkAmount: String(
-              storedLifestyle.drinkAmount ?? storedProfile.drinkAmount ?? defaultLifestyle.drinkAmount,
-            ),
-            caffeineIntake:
-              (storedLifestyle.caffeineIntake as string | undefined) ?? defaultLifestyle.caffeineIntake,
-            alcoholFrequency:
-              (storedLifestyle.alcoholFrequency as string | undefined) ?? defaultLifestyle.alcoholFrequency,
-            sleepRoutine: (storedLifestyle.sleepRoutine as string | undefined) ?? defaultLifestyle.sleepRoutine,
+              asString(storedLifestyle.drinkReminder)
+              || asString(storedProfile.drinkReminder, defaultLifestyle.drinkReminder),
+            drinkAmount: String(storedLifestyle.drinkAmount ?? storedProfile.drinkAmount ?? defaultLifestyle.drinkAmount),
+            caffeineIntake: asString(storedLifestyle.caffeineIntake, defaultLifestyle.caffeineIntake),
+            alcoholFrequency: asString(storedLifestyle.alcoholFrequency, defaultLifestyle.alcoholFrequency),
+            sleepRoutine: asString(storedLifestyle.sleepRoutine, defaultLifestyle.sleepRoutine),
             natureMove:
-              (storedLifestyle.natureMove as string | undefined) ??
-              (storedProfile.natureMove as string | undefined) ??
-              defaultLifestyle.natureMove,
-            stressCoping: (storedLifestyle.stressCoping as string | undefined) ?? defaultLifestyle.stressCoping,
-            screenTime: (storedLifestyle.screenTime as string | undefined) ?? defaultLifestyle.screenTime,
-            notes: (storedLifestyle.notes as string | undefined) ?? "",
+              asString(storedLifestyle.natureMove)
+              || asString(storedProfile.natureMove, defaultLifestyle.natureMove),
+            stressCoping: asString(storedLifestyle.stressCoping, defaultLifestyle.stressCoping),
+            screenTime: asString(storedLifestyle.screenTime, defaultLifestyle.screenTime),
+            notes: asString(storedLifestyle.notes),
           });
 
           setActivity({
             activityLevel:
-              (storedActivity.activityLevel as string | undefined) ??
-              (storedProfile.activityLevel as string | undefined) ??
-              defaultActivity.activityLevel,
+              asString(storedActivity.activityLevel)
+              || asString(storedProfile.activityLevel, defaultActivity.activityLevel),
             trainingTime:
-              (storedActivity.trainingTime as string | undefined) ??
-              (storedProfile.trainingTime as string | undefined) ??
-              defaultActivity.trainingTime,
+              asString(storedActivity.trainingTime)
+              || asString(storedProfile.trainingTime, defaultActivity.trainingTime),
             communityMode:
-              (storedActivity.communityMode as string | undefined) ??
-              (storedProfile.communityMode as string | undefined) ??
-              defaultActivity.communityMode,
+              asString(storedActivity.communityMode)
+              || asString(storedProfile.communityMode, defaultActivity.communityMode),
             interests: arrayToText(storedActivity.interests ?? storedProfile.interests, defaultActivity.interests),
             activities: arrayToText(storedActivity.activities ?? storedProfile.activities, defaultActivity.activities),
             goals: arrayToText(storedActivity.goals ?? storedProfile.goals, defaultActivity.goals),
-            preferredMissionTypes: arrayToText(
-              storedActivity.preferredMissionTypes,
-              defaultActivity.preferredMissionTypes,
-            ),
-            socialPreference:
-              (storedActivity.socialPreference as string | undefined) ?? defaultActivity.socialPreference,
-            competitionMode:
-              (storedActivity.competitionMode as string | undefined) ?? defaultActivity.competitionMode,
-            notes: (storedActivity.notes as string | undefined) ?? "",
+            preferredMissionTypes: arrayToText(storedActivity.preferredMissionTypes, defaultActivity.preferredMissionTypes),
+            socialPreference: asString(storedActivity.socialPreference, defaultActivity.socialPreference),
+            competitionMode: asString(storedActivity.competitionMode, defaultActivity.competitionMode),
+            notes: asString(storedActivity.notes),
           });
 
           setPrivacy({
-            leaderboardVisible:
-              (storedPrivacy.leaderboardVisible as boolean | undefined) ?? defaultPrivacy.leaderboardVisible,
-            buddySharing: (storedPrivacy.buddySharing as boolean | undefined) ?? defaultPrivacy.buddySharing,
-            anonymousAnalytics:
-              (storedPrivacy.anonymousAnalytics as boolean | undefined) ?? defaultPrivacy.anonymousAnalytics,
-            friendRequests: (storedPrivacy.friendRequests as boolean | undefined) ?? defaultPrivacy.friendRequests,
-            teamInvitations:
-              (storedPrivacy.teamInvitations as boolean | undefined) ?? defaultPrivacy.teamInvitations,
-            localUsersVisible:
-              (storedPrivacy.localUsersVisible as boolean | undefined) ?? defaultPrivacy.localUsersVisible,
-            pvpAllowed: (storedPrivacy.pvpAllowed as boolean | undefined) ?? defaultPrivacy.pvpAllowed,
-            profileVisibility:
-              (storedPrivacy.profileVisibility as string | undefined) ?? defaultPrivacy.profileVisibility,
-            healthDataUsage:
-              (storedPrivacy.healthDataUsage as string | undefined) ?? defaultPrivacy.healthDataUsage,
-            locationSharing:
-              (storedPrivacy.locationSharing as string | undefined) ?? defaultPrivacy.locationSharing,
+            leaderboardVisible: asBoolean(storedPrivacy.leaderboardVisible, defaultPrivacy.leaderboardVisible),
+            buddySharing: asBoolean(storedPrivacy.buddySharing, defaultPrivacy.buddySharing),
+            anonymousAnalytics: asBoolean(storedPrivacy.anonymousAnalytics, defaultPrivacy.anonymousAnalytics),
+            friendRequests: asBoolean(storedPrivacy.friendRequests, defaultPrivacy.friendRequests),
+            teamInvitations: asBoolean(storedPrivacy.teamInvitations, defaultPrivacy.teamInvitations),
+            localUsersVisible: asBoolean(storedPrivacy.localUsersVisible, defaultPrivacy.localUsersVisible),
+            pvpAllowed: asBoolean(storedPrivacy.pvpAllowed, defaultPrivacy.pvpAllowed),
+            profileVisibility: asString(storedPrivacy.profileVisibility, defaultPrivacy.profileVisibility),
+            healthDataUsage: asString(storedPrivacy.healthDataUsage, defaultPrivacy.healthDataUsage),
+            locationSharing: asString(storedPrivacy.locationSharing, defaultPrivacy.locationSharing),
           });
 
           setNotifications({
-            missionReminder:
-              (storedReminders.missionReminder as boolean | undefined) ?? defaultNotifications.missionReminder,
-            sleepReminder:
-              (storedReminders.sleepReminder as boolean | undefined) ?? defaultNotifications.sleepReminder,
-            weeklyReport: (storedReminders.weeklyReport as boolean | undefined) ?? defaultNotifications.weeklyReport,
-            glitchAlert: (storedReminders.glitchAlert as boolean | undefined) ?? defaultNotifications.glitchAlert,
+            missionReminder: asBoolean(storedReminders.missionReminder, defaultNotifications.missionReminder),
+            sleepReminder: asBoolean(storedReminders.sleepReminder, defaultNotifications.sleepReminder),
+            weeklyReport: asBoolean(storedReminders.weeklyReport, defaultNotifications.weeklyReport),
+            glitchAlert: asBoolean(storedReminders.glitchAlert, defaultNotifications.glitchAlert),
           });
 
-          if (storedPermissions) {
+          if (Object.keys(storedPermissions).length > 0) {
             const mergedPermissions = { ...defaultPermissions, ...storedPermissions };
             setPermissions(mergedPermissions);
             localStorage.setItem("wellfit-permissions", JSON.stringify(mergedPermissions));
@@ -375,5 +324,3 @@ export function useSettingsData({
     };
   }, []);
 }
-
-
