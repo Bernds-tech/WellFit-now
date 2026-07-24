@@ -115,7 +115,7 @@ function optionalNumber(value, min, max, fieldName, HttpsError) {
   if (!Number.isFinite(number) || number < min || number > max) {
     throw new HttpsError("invalid-argument", `${fieldName} liegt ausserhalb des erlaubten Bereichs.`);
   }
-  return Number(number.toFixed(2));
+  return Math.round((number + Number.EPSILON) * 100) / 100;
 }
 
 function uniqueStringList(value, maxItems = 20, maxLength = 80) {
