@@ -28,45 +28,22 @@ service cloud.firestore {
       );
     }
 
-    // Safe owner-writable MVP profile fields.
-    // These may remain client-writable after the economy hardening step if they do not
-    // authorize points, XP, level, rewards, mission completion or anti-cheat decisions.
+    // Only non-authoritative profile and settings maps plus activity timestamps remain
+    // client-writable. Account creation and all economy, mission, Buddy, inventory,
+    // location and consent authority are server-only.
     function hasOnlySafeUserProfileKeys() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
         'updatedAt',
         'lastLoginAt',
         'profile',
-        'settings',
-        'consent',
-        'inventory'
+        'settings'
       ]);
-    }
-
-    // Temporary MVP bridge fields.
-    // These must become server-only after every remaining UI consumer uses the
-    // server ledger / projection path. Daily missions and Buddy care are migrated,
-    // but unrelated screens may still use this compatibility bridge.
-    function hasOnlyTemporaryEconomyBridgeKeys() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-        'points',
-        'avatar',
-        'lastMissionCompletedAt',
-        'xp',
-        'level',
-        'stepsToday',
-        'energy',
-        'deviceLocation'
-      ]);
-    }
-
-    function hasOnlyUserWritableKeys() {
-      return hasOnlySafeUserProfileKeys() || hasOnlyTemporaryEconomyBridgeKeys();
     }
 
     match /users/{userId} {
       allow read: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && hasOnlyUserWritableKeys();
+      allow create: if false;
+      allow update: if isOwner(userId) && hasOnlySafeUserProfileKeys();
       allow delete: if false;
     }
 
