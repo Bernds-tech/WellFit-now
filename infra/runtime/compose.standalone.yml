@@ -16,6 +16,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=64m
+      - /app/.next/cache:rw,noexec,nosuid,size=128m
     cap_drop:
       - ALL
     security_opt:
@@ -27,6 +28,9 @@ services:
       WELLFIT_RUNTIME_MODE: ${WELLFIT_RUNTIME_MODE:-production}
       WELLFIT_RELEASE_SHA: ${WELLFIT_RELEASE_SHA:-local}
       WELLFIT_RELEASE_CHANNEL: ${WELLFIT_RELEASE_CHANNEL:-local}
+      BUDDY_KI_MODEL_PROVIDER_ENABLED: ${BUDDY_KI_MODEL_PROVIDER_ENABLED:-false}
+      BUDDY_KI_PROVIDER: ${BUDDY_KI_PROVIDER:-rules}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
       - "${WELLFIT_BIND_ADDRESS:-127.0.0.1}:${WELLFIT_PORT:-3000}:3000"
     healthcheck:
