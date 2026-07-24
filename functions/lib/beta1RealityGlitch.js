@@ -20,6 +20,7 @@ const {
   normalizeCoordinates,
   haversineDistanceKm,
 } = require("./beta1NearbyMissionLocations");
+const { isPublishedSafeMissionLocation } = require("./beta1MissionLocationSafety");
 
 const MAX_CHECK_IN_DISTANCE_KM = 0.15;
 
@@ -77,12 +78,10 @@ function registerBeta1RealityGlitch(exportsTarget, { db, onCall, HttpsError }) {
     const invalidLocation = locationSnapshots.find((snapshot) => {
       if (!snapshot.exists) return true;
       const location = snapshot.data() || {};
-      return location.status !== "published"
-        || location.safeLocationReviewed !== true
-        || location.regionId !== regionId;
+      return !isPublishedSafeMissionLocation(location) || location.regionId !== regionId;
     });
     if (invalidLocation) {
-      throw new HttpsError("failed-precondition", "Alle Glitch-Locations muessen veroeffentlicht, sicher geprueft und derselben Region zugeordnet sein.");
+      throw new HttpsError("failed-precondition", "Alle Glitch-Locations muessen veroeffentlicht, kryptografisch pruefbar sicher und derselben Region zugeordnet sein.");
     }
 
     const requestedGlitchEventId = optionalString(data.glitchEventId, 160);
@@ -138,11 +137,10 @@ function registerBeta1RealityGlitch(exportsTarget, { db, onCall, HttpsError }) {
     const location = locationSnapshot.exists ? locationSnapshot.data() || {} : {};
     if (
       !locationSnapshot.exists
-      || location.status !== "published"
-      || location.safeLocationReviewed !== true
+      || !isPublishedSafeMissionLocation(location)
       || location.regionId !== glitchData.regionId
     ) {
-      throw new HttpsError("failed-precondition", "Glitch Location ist nicht sicher veroeffentlicht.");
+      throw new HttpsError("failed-precondition", "Glitch Location ist nicht nachvollziehbar sicher veroeffentlicht.");
     }
     const distanceKm = haversineDistanceKm(userCoordinates, {
       latitude: Number(location.latitude),
