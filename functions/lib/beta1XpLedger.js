@@ -42,14 +42,7 @@ async function applyXpDelta(db, { ownerUserId, childProfileId, delta, reason, so
   if (!Number.isFinite(safeDelta) || safeDelta === 0) {
     throw new Error("XP delta must be a non-zero integer.");
   }
-  await assertAccountMutationAllowed(db, ownerUserId, {
-    constructor: Error,
-  }).catch((error) => {
-    if (error && error.code) throw error;
-    const blocked = new Error(error && error.message ? error.message : "account-mutation-blocked");
-    blocked.code = "account-mutation-blocked";
-    throw blocked;
-  });
+  await assertAccountMutationAllowed(db, ownerUserId);
   const walletRef = await getWalletRef(db, ownerUserId, childProfileId);
   const ledgerRef = idempotencyKey ? db.collection("xpLedgerEvents").doc(idempotencyKey) : db.collection("xpLedgerEvents").doc();
   const legacyLedgerRef = db.collection("ledgerEvents").doc(ledgerRef.id);
@@ -176,25 +169,18 @@ function registerBeta1XpLedger(exportsTarget, { db, onCall, HttpsError }) {
       throw new HttpsError("invalid-argument", "delta muss eine ganze Zahl zwischen -1000 und 1000 ohne 0 sein.");
     }
     const reason = requiredString(data.reason, "reason", HttpsError, 240);
-    try {
-      const result = await applyXpDelta(db, {
-        ownerUserId,
-        childProfileId,
-        delta,
-        actorUserId,
-        reason,
-        sourceType: "admin-adjustment",
-        sourceId: optionalString(data.sourceId, 180),
-        idempotencyKey: optionalString(data.idempotencyKey, 180),
-      });
-      const wallet = await readWallet(db, ownerUserId, childProfileId);
-      return { accepted: true, ...result, wallet, xpAuthorized: true, tokenAuthorized: false, cashoutAllowed: false, noMonetaryValue: true };
-    } catch (error) {
-      if (error && error.code === "account-mutation-blocked") {
-        throw new HttpsError("failed-precondition", error.message);
-      }
-      throw error;
-    }
+    const result = await applyXpDelta(db, {
+      ownerUserId,
+      childProfileId,
+      delta,
+      actorUserId,
+      reason,
+      sourceType: "admin-adjustment",
+      sourceId: optionalString(data.sourceId, 180),
+      idempotencyKey: optionalString(data.idempotencyKey, 180),
+    });
+    const wallet = await readWallet(db, ownerUserId, childProfileId);
+    return { accepted: true, ...result, wallet, xpAuthorized: true, tokenAuthorized: false, cashoutAllowed: false, noMonetaryValue: true };
   });
 }
 
