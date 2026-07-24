@@ -13,13 +13,18 @@ const {
 const MAX_LOCATION_DOCS = 500;
 const MAX_NEARBY_RESULTS = 50;
 const MAX_RADIUS_KM = 100;
+const MAX_GEO_CANDIDATES = 10000;
 const DEFAULT_START_DISTANCE_KM = 0.5;
 const FIRESTORE_IN_VALUE_LIMIT = 30;
-const TARGET_MAX_GEO_CELLS = 60;
+const TARGET_MAX_GEO_CELLS = 240;
 const MAX_REINDEX_BATCH = 400;
 const GEO_INDEX_VERSION = "grid-v1";
 const GEO_INDEX_LEVELS = [
+  { field: "geoCell001", sizeDegrees: 0.01, idPrefix: "g001" },
+  { field: "geoCell005", sizeDegrees: 0.05, idPrefix: "g005" },
+  { field: "geoCell01", sizeDegrees: 0.1, idPrefix: "g01" },
   { field: "geoCell025", sizeDegrees: 0.25, idPrefix: "g025" },
+  { field: "geoCell05", sizeDegrees: 0.5, idPrefix: "g05" },
   { field: "geoCell1", sizeDegrees: 1, idPrefix: "g1" },
   { field: "geoCell5", sizeDegrees: 5, idPrefix: "g5" },
   { field: "geoCell15", sizeDegrees: 15, idPrefix: "g15" },
@@ -159,7 +164,6 @@ async function readGeoCandidateDocuments(db, origin, radiusKm) {
   const cellBatches = chunk(geoQuery.cells, FIRESTORE_IN_VALUE_LIMIT);
   const snapshots = await Promise.all(cellBatches.map((cells) => db.collection("missionLocations")
     .where(geoQuery.field, "in", cells)
-    .limit(MAX_LOCATION_DOCS)
     .get()));
   const byId = new Map();
   for (const snapshot of snapshots) {
@@ -262,6 +266,12 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       : []);
 
     const candidates = await readGeoCandidateDocuments(db, origin, radiusKm);
+    if (candidates.docs.length > MAX_GEO_CANDIDATES) {
+      throw new HttpsError(
+        "resource-exhausted",
+        "In dieser Umgebung liegen zu viele Missionsorte. Bitte Radius oder Missionsfilter verkleinern.",
+      );
+    }
     const locations = candidates.docs
       .flatMap((doc) => {
         const location = doc.data() || {};
@@ -297,6 +307,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       geoIndexAuthority: GEO_INDEX_VERSION,
       geoQueryCellSizeDegrees: candidates.sizeDegrees,
       geoQueryCellCount: candidates.cellCount,
+      geoQueryCount: candidates.queryCount,
       candidateCount: candidates.docs.length,
       userLocationStored: false,
       globalCatalog: true,
