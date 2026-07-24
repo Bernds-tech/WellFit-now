@@ -9,8 +9,12 @@ const {
   hasActiveConsent,
   writeAudit,
 } = require("./beta1Runtime");
+const { registerBeta1UserOnboarding } = require("./beta1UserOnboarding");
 
-function registerBeta1GuardianChild(exportsTarget, { db, onCall, HttpsError }) {
+function registerBeta1GuardianChild(exportsTarget, deps) {
+  const { db, onCall, HttpsError } = deps;
+  registerBeta1UserOnboarding(exportsTarget, deps);
+
   exportsTarget.createGuardianFamilyAccount = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
     const data = request.data || {};
