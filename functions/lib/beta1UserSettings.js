@@ -61,8 +61,8 @@ function registerBeta1UserSettings(exportsTarget, { db, onCall, HttpsError }) {
       db,
       userId,
       requestedTimeZone || DEFAULT_TIME_ZONE,
-      new Date(),
       HttpsError,
+      new Date(),
     );
     const tokenEmail = optionalString(request.auth.token && request.auth.token.email, 320);
     if (!tokenEmail) throw new HttpsError("failed-precondition", "Firebase-Auth-E-Mail fehlt.");
