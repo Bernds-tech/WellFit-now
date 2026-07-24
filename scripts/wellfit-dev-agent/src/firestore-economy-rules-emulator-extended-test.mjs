@@ -22,6 +22,9 @@ const additionalServerOnlyCollections = [
   "nfcScanEvents",
   "capabilityUnlockEvents",
   "buddyItemUseEvents",
+  "userOnboardingRecords",
+  "userPrivateProfiles",
+  "userConsentEvents",
 ];
 
 function parseHostPort(value) {
@@ -37,15 +40,6 @@ function denied(error) {
 
 function add(results, name, passed, details) {
   results.push({ name, passed, details });
-}
-
-async function allow(results, name, action) {
-  try {
-    await action();
-    add(results, name, true, "allowed as expected");
-  } catch (error) {
-    add(results, name, false, `${error?.code ?? "error"}: ${error?.message ?? error}`);
-  }
 }
 
 async function deny(results, name, action) {
@@ -135,15 +129,17 @@ async function main() {
 
     await initializeProfile(ownerCredential.user, ownerEmail);
 
-    await allow(results, "users safe profile update", () => updateDoc(doc(db, "users", ownerId), {
+    await deny(results, "users profile update denied", () => updateDoc(doc(db, "users", ownerId), {
       profile: { account: { displayName: "Extended Owner Updated" } },
       updatedAt: new Date().toISOString(),
     }));
-    await allow(results, "users safe settings update", () => updateDoc(doc(db, "users", ownerId), {
+    await deny(results, "users settings update denied", () => updateDoc(doc(db, "users", ownerId), {
       settings: { language: "English" },
       updatedAt: new Date().toISOString(),
     }));
-
+    await deny(results, "users session timestamp update denied", () => updateDoc(doc(db, "users", ownerId), {
+      lastLoginAt: new Date().toISOString(),
+    }));
     await deny(results, "users xp update denied", () => updateDoc(doc(db, "users", ownerId), { xp: 10 }));
     await deny(results, "users level update denied", () => updateDoc(doc(db, "users", ownerId), { level: 2 }));
     await deny(results, "users avatar update denied", () => updateDoc(doc(db, "users", ownerId), { avatar: { energy: 75 } }));

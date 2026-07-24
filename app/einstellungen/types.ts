@@ -5,8 +5,6 @@ export type ProfileForm = {
   email: string;
   phone: string;
   language: string;
-  birthDate: string;
-  gender: string;
   timezone: string;
   units: string;
 };
@@ -38,8 +36,7 @@ export type VitalValuesForm = {
   stressLevel: string;
   energyLevel: string;
   painLevel: string;
-  medicationNote: string;
-  healthNotes: string;
+  medicationDeclared: boolean;
 };
 
 export type AiBuddyForm = {
@@ -65,7 +62,6 @@ export type LifestyleForm = {
   natureMove: string;
   stressCoping: string;
   screenTime: string;
-  notes: string;
 };
 
 export type ActivityForm = {
@@ -78,7 +74,6 @@ export type ActivityForm = {
   preferredMissionTypes: string;
   socialPreference: string;
   competitionMode: string;
-  notes: string;
 };
 
 export type PrivacyForm = {

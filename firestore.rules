@@ -2,10 +2,6 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /agentCenterInbox/{inboxId} {
-      allow read, write: if false;
-    }
-
     function isSignedIn() {
       return request.auth != null;
     }
@@ -28,50 +24,56 @@ service cloud.firestore {
       );
     }
 
-    // Only non-authoritative profile and settings maps plus activity timestamps remain
-    // client-writable. Account creation and all economy, mission, Buddy, inventory,
-    // location and consent authority are server-only.
-    function hasOnlySafeUserProfileKeys() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-        'updatedAt',
-        'lastLoginAt',
-        'profile',
-        'settings'
-      ]);
+    function hasAgentAdminReadRole() {
+      return isSignedIn() && request.auth.token.agentRole in [
+        "owner",
+        "admin_operator",
+        "agent_supervisor",
+        "readonly_observer",
+        "support_operator",
+        "agent_executor_service"
+      ];
     }
 
+    match /agentCenterInbox/{inboxId} {
+      allow read, write: if false;
+    }
+
+    // Account identity, onboarding, consent and private-health state are written only
+    // by authenticated Firebase Admin callables. The owner may read the minimal public
+    // users projection, while private and consent records remain callable/export-only.
     match /users/{userId} {
       allow read: if isOwner(userId);
-      allow create: if false;
-      allow update: if isOwner(userId) && hasOnlySafeUserProfileKeys();
-      allow delete: if false;
+      allow create, update, delete: if false;
     }
 
-    // Daily mission preferences are written through saveDailyMissionPreferences.
-    // Progress, goal, streak and level are derived server-side from mission
-    // completions and the WFXP wallet. Clients may read only their own legacy
-    // projection document and may never create, update or delete it directly.
+    match /userOnboardingRecords/{userId} {
+      allow read, write: if false;
+    }
+
+    match /userPrivateProfiles/{userId} {
+      allow read, write: if false;
+    }
+
+    match /userConsentEvents/{eventId} {
+      allow read, write: if false;
+    }
+
     match /userDailyMissionState/{stateId} {
       allow read: if isSignedIn() && stateId.matches(request.auth.uid + '_.*');
       allow create, update, delete: if false;
     }
 
-    // The active IANA time zone and anti-abuse transition state are maintained only
-    // by callable server functions. Users may inspect only their own calendar record.
     match /userCalendarSettings/{userId} {
       allow read: if isOwner(userId);
       allow create, update, delete: if false;
     }
 
-    // Legacy compatibility projection. The active daily mission UI reads streaks
-    // from getDailyMissionProgress; direct client mutation is permanently denied.
     match /userDailyStreaks/{userId} {
       allow read: if isOwner(userId);
       allow create, update, delete: if false;
     }
 
-    // Legacy compatibility projection. Level and XP are derived from the
-    // server-authoritative WFXP wallet; direct client mutation is denied.
     match /userLevels/{userId} {
       allow read: if isOwner(userId);
       allow create, update, delete: if false;
@@ -137,8 +139,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Server-only economy authority collections. Clients may read their own
-    // records for transparency, but all writes use Admin/server code.
     match /ledgerEvents/{ledgerEventId} {
       allow read: if isReadableByOwnerUserId();
       allow create, update, delete: if false;
@@ -197,9 +197,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Beta 1 runtime authority: clients may read only scoped records or published
-    // definitions. All protected XP, mission, shop, inventory, mayor, glitch and
-    // admin decisions are written by Firebase Admin SDK callable functions only.
     match /familyAccounts/{familyAccountId} {
       allow read: if isSignedIn() && resource.data.guardianUserIds.hasAny([request.auth.uid]);
       allow create, update, delete: if false;
@@ -240,9 +237,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Exact coordinates and the worldwide location inventory are callable-only.
-    // getNearbyMissionLocations applies authentication, mission filters, radius
-    // checks and a bounded result set before returning safe public projections.
     match /missionLocations/{locationId} {
       allow read, write: if false;
     }
@@ -267,8 +261,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Adventure access debits are immutable server records. The owner or linked
-    // guardian may inspect them, but clients never create or alter access authority.
     match /adventureAccessEvents/{eventId} {
       allow read: if isReadableByOwnerOrGuardian();
       allow create, update, delete: if false;
@@ -348,10 +340,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    function hasAgentAdminReadRole() {
-      return isSignedIn() && request.auth.token.agentRole in ["owner", "admin_operator", "agent_supervisor", "readonly_observer", "support_operator", "agent_executor_service"];
-    }
-
     match /adminActions/{actionId} {
       allow read, write: if false;
     }
@@ -406,10 +394,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
     match /agentAutomationControl/{docId} {
       allow read: if isSignedIn();
       allow create, update, delete: if false;
@@ -423,6 +407,10 @@ service cloud.firestore {
     match /agentTaskSupervisedRunnerJobs/{jobId} {
       allow read: if isSignedIn();
       allow create, update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

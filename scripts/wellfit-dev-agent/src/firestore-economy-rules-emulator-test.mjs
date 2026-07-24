@@ -59,15 +59,6 @@ function addResult(results, name, passed, details) {
   results.push({ name, passed, details });
 }
 
-async function expectAllow(results, name, action) {
-  try {
-    await action();
-    addResult(results, name, true, "allowed as expected");
-  } catch (error) {
-    addResult(results, name, false, `${error?.code ?? "error"}: ${error?.message ?? error}`);
-  }
-}
-
 async function expectDeny(results, name, action) {
   try {
     await action();
@@ -169,22 +160,11 @@ async function main() {
 
     await initializeOwnerProfile(ownerUser, results);
 
-    await expectAllow(results, "users profile update", async () => {
-      await updateDoc(doc(db, "users", ownerUserId), {
-        profile: { account: { displayName: "Rules Owner Updated" } },
-        updatedAt: new Date().toISOString(),
-      });
-    });
-
-    await expectAllow(results, "users settings update", async () => {
-      await updateDoc(doc(db, "users", ownerUserId), {
-        settings: { language: "Deutsch", brightness: 100 },
-        lastLoginAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-    });
-
     for (const [field, value] of [
+      ["profile", { account: { displayName: "Rules Owner Updated" } }],
+      ["settings", { language: "Deutsch", brightness: 100 }],
+      ["lastLoginAt", new Date().toISOString()],
+      ["updatedAt", new Date().toISOString()],
       ["points", 25],
       ["xp", 10],
       ["level", 2],
@@ -198,6 +178,14 @@ async function main() {
     ]) {
       await expectDeny(results, `users protected ${field} update`, async () => {
         await updateDoc(doc(db, "users", ownerUserId), { [field]: value });
+      });
+    }
+
+    for (const collectionName of ["userOnboardingRecords", "userPrivateProfiles", "userConsentEvents"]) {
+      await expectDeny(results, `${collectionName} direct client read`, async () => {
+        await (collectionName === "userConsentEvents"
+          ? setDoc(doc(db, collectionName, `${ownerUserId}_${now}`), { ownerUserId, userId: ownerUserId })
+          : updateDoc(doc(db, collectionName, ownerUserId), { status: "hacked" }));
       });
     }
 

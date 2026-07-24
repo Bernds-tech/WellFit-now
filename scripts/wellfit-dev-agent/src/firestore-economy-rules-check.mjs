@@ -8,7 +8,7 @@ const RULES_PATH = path.join(ROOT, "firestore.rules");
 const OUTPUT_DIR = path.join(ROOT, "scripts", "wellfit-dev-agent", "output");
 const REPORT_PATH = path.join(OUTPUT_DIR, "firestore-economy-rules-check.md");
 
-const forbiddenUserEconomyFields = [
+const forbiddenUserClientFields = [
   "points",
   "avatar",
   "lastMissionCompletedAt",
@@ -19,13 +19,15 @@ const forbiddenUserEconomyFields = [
   "deviceLocation",
   "consent",
   "inventory",
-];
-
-const requiredSafeProfileFields = [
-  "updatedAt",
-  "lastLoginAt",
   "profile",
   "settings",
+  "lastLoginAt",
+];
+
+const privateAccountCollections = [
+  "userOnboardingRecords",
+  "userPrivateProfiles",
+  "userConsentEvents",
 ];
 
 const dailyReadOnlyCollections = [
@@ -44,20 +46,15 @@ const serverOnlyCollections = [
   "pointsSinkEvents",
 ];
 
-const ownerReadCollections = [...serverOnlyCollections];
-
 const expectedChecks = [
   "/users/{uid} owner read -> ALLOW",
-  "/users/{uid} client create -> DENY",
-  "/users/{uid}.profile update -> ALLOW",
-  "/users/{uid}.settings update -> ALLOW",
-  "/users/{uid}.lastLoginAt update -> ALLOW",
+  "/users/{uid} client create/update/delete -> DENY",
+  "/users/{uid}.profile|settings|lastLoginAt update -> DENY",
   "/users/{uid}.points|xp|level|avatar|energy|stepsToday|lastMissionCompletedAt|deviceLocation update -> DENY",
-  "/users/{uid}.consent|inventory top-level update -> DENY",
+  "/users/{uid}.consent|inventory update -> DENY",
+  "/userOnboardingRecords|userPrivateProfiles|userConsentEvents direct client access -> DENY",
   "/userDailyMissionState owner read -> ALLOW",
-  "/userDailyMissionState create/update/delete -> DENY",
-  "/userDailyStreaks create/update/delete -> DENY",
-  "/userLevels create/update/delete -> DENY",
+  "/userDailyMissionState|userDailyStreaks|userLevels client writes -> DENY",
   "/missionRewardEvents|missionRewardPreviews|missionCompletionEvaluations client writes -> DENY",
   "/ledgerEvents|auditEvents|userEconomyProjections|pointsSinkEvents client writes -> DENY",
 ];
@@ -105,10 +102,6 @@ function getMatchBody(rules, collectionName) {
   return "";
 }
 
-function hasQuotedField(body, field) {
-  return new RegExp(`["']${escapeRegExp(field)}["']`).test(body);
-}
-
 function addCheck(checks, name, passed, details) {
   checks.push({ name, passed, details });
 }
@@ -133,25 +126,42 @@ function main() {
   addCheck(checks, "Rules version is v2", /rules_version\s*=\s*['"]2['"]\s*;/.test(rules), "rules_version = '2'");
   addCheck(checks, "Default deny fallback exists", /match\s+\/\{document=\*\*\}\s*\{[\s\S]*allow\s+read\s*,\s*write\s*:\s*if\s+false\s*;[\s\S]*\}/.test(rules), "match /{document=**} denies read/write");
 
-  const safeProfileBody = getFunctionBody(rules, "hasOnlySafeUserProfileKeys");
-  addCheck(checks, "Safe profile helper exists", safeProfileBody.length > 0, "hasOnlySafeUserProfileKeys()");
-  for (const field of requiredSafeProfileFields) {
-    addCheck(checks, `Safe profile field '${field}' allowed`, hasQuotedField(safeProfileBody, field), field);
+  for (const helperName of ["hasOnlySafeUserProfileKeys", "hasOnlyTemporaryEconomyBridgeKeys", "hasOnlyUserWritableKeys"]) {
+    addCheck(
+      checks,
+      `${helperName} removed`,
+      getFunctionBody(rules, helperName).length === 0,
+      "no client user-write allowlist may remain",
+    );
   }
-  for (const field of forbiddenUserEconomyFields) {
-    addCheck(checks, `Protected users field '${field}' absent from client allowlist`, !hasQuotedField(safeProfileBody, field), field);
-  }
-
-  const temporaryBridgeBody = getFunctionBody(rules, "hasOnlyTemporaryEconomyBridgeKeys");
-  addCheck(checks, "Temporary economy bridge helper removed", temporaryBridgeBody.length === 0, "hasOnlyTemporaryEconomyBridgeKeys must not exist");
-  const combinedWritableBody = getFunctionBody(rules, "hasOnlyUserWritableKeys");
-  addCheck(checks, "Combined bridge helper removed", combinedWritableBody.length === 0, "hasOnlyUserWritableKeys must not exist");
 
   const userBody = getMatchBody(rules, "users");
   addCheck(checks, "User documents remain owner-readable", /allow\s+read\s*:\s*if\s+isOwner\(userId\)\s*;/.test(userBody), "users/{userId} read owner only");
-  addCheck(checks, "User client create denied", /allow\s+create\s*:\s*if\s+false\s*;/.test(userBody), "users/{userId} creation uses server authority");
-  addCheck(checks, "User update uses safe profile gate only", /allow\s+update\s*:\s*if\s+isOwner\(userId\)\s*&&\s*hasOnlySafeUserProfileKeys\(\)\s*;/.test(userBody), "profile/settings/activity timestamps only");
-  addCheck(checks, "User delete denied", /allow\s+delete\s*:\s*if\s+false\s*;/.test(userBody), "users/{userId} delete denied");
+  addCheck(
+    checks,
+    "User client create/update/delete denied",
+    /allow\s+create\s*,\s*update\s*,\s*delete\s*:\s*if\s+false\s*;/.test(userBody),
+    "all user writes use Firebase Admin callables",
+  );
+  for (const field of forbiddenUserClientFields) {
+    addCheck(
+      checks,
+      `No client allowlist for users field '${field}'`,
+      !new RegExp(`["']${escapeRegExp(field)}["']`).test(userBody),
+      field,
+    );
+  }
+
+  for (const collectionName of privateAccountCollections) {
+    const body = getMatchBody(rules, collectionName);
+    addCheck(checks, `${collectionName} rule exists`, body.length > 0, collectionName);
+    addCheck(
+      checks,
+      `${collectionName} direct client read/write denied`,
+      /allow\s+read\s*,\s*write\s*:\s*if\s+false\s*;/.test(body),
+      "callable/export-only private account data",
+    );
+  }
 
   for (const collectionName of dailyReadOnlyCollections) {
     const body = getMatchBody(rules, collectionName);
@@ -190,10 +200,6 @@ function main() {
       /allow\s+create\s*,\s*update\s*,\s*delete\s*:\s*if\s+false\s*;/.test(body),
       "allow create, update, delete: if false",
     );
-  }
-
-  for (const collectionName of ownerReadCollections) {
-    const body = getMatchBody(rules, collectionName);
     addCheck(
       checks,
       `${collectionName} owner read guard present`,
@@ -203,7 +209,7 @@ function main() {
   }
 
   const passed = checks.every((check) => check.passed);
-  const report = `# Firestore Economy Rules Check\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Scope\n\nThis static WellFit guard verifies the post-migration posture. Client creation of users/{userId} is denied. Only non-authoritative profile/settings maps and activity timestamps remain owner-writable. Points, XP, level, Buddy/avatar, steps, energy, device location, consent, inventory, mission completion and protected economy collections remain server-authoritative.\n\n## Expected Beta Allow/Deny Cases\n\n${expectedChecks.map((item) => `- ${item}`).join("\n")}\n\n## Checks\n\n${renderChecks(checks)}\n\n## Important Limits\n\n- This static check does not replace Firebase Emulator tests.\n- It does not prove production deployment, real-device behavior, legal approval or penetration-test readiness.\n- Health, consent and account-lifecycle writes require dedicated server-authority work beyond this economy bridge removal.\n- No token, NFT, payout, purchase, real-money or blockchain function is activated by this check.\n`;
+  const report = `# Firestore Economy and Account Rules Check\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Scope\n\nThis static WellFit guard verifies the fully server-write-only account posture. Clients may read their minimal users/{userId} projection, but account creation, profile/settings changes, session timestamps, consent decisions, private health state, points, XP, Buddy state, inventory, mission completion and economy authority all require authenticated Firebase Admin callables.\n\n## Expected Beta Allow/Deny Cases\n\n${expectedChecks.map((item) => `- ${item}`).join("\n")}\n\n## Checks\n\n${renderChecks(checks)}\n\n## Important Limits\n\n- This static check does not replace Firebase Emulator tests.\n- It does not prove production deployment, legal approval, real-device behavior or penetration-test readiness.\n- Account export and deletion require their own audited lifecycle callables.\n- No token, NFT, payout, purchase, real-money or blockchain function is activated by this check.\n`;
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(REPORT_PATH, report, "utf8");

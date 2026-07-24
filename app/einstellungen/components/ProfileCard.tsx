@@ -10,13 +10,11 @@ type ProfileCardProps = {
   saveButtonClass: string;
   isLoadingUser: boolean;
   updateProfileField: (key: keyof ProfileForm, value: string) => void;
-  saveProfile: () => void;
+  saveProfile: () => void | Promise<void>;
 };
 
 const languages = ["Deutsch", "English"];
-const genders = ["Männlich", "Weiblich", "Divers"];
-const timezones = ["Europe/Vienna", "Europe/Berlin", "UTC"];
-const units = ["kg / km", "lbs / miles"];
+const units = ["kg / km", "lb / mi"];
 
 export default function ProfileCard({
   profile,
@@ -29,6 +27,9 @@ export default function ProfileCard({
 }: ProfileCardProps) {
   return (
     <SettingsCard title="Profil & Account">
+      <p className="mb-3 rounded-lg border border-cyan-300/20 bg-[#0a3d46] px-3 py-2 text-xs text-cyan-100">
+        Das Geburtsdatum wird nach der Altersprüfung nicht gespeichert. Die E-Mail stammt ausschließlich aus Firebase Authentication. Zeitzonen werden weltweit als gültige IANA-Zonen serverseitig geprüft.
+      </p>
       <div className="space-y-3">
         <div>
           <label className="mb-1 block text-xs text-white/70">Anzeigename</label>
@@ -41,12 +42,12 @@ export default function ProfileCard({
         </div>
 
         <div>
-          <label className="mb-1 block text-xs text-white/70">E-Mail Adresse</label>
+          <label className="mb-1 block text-xs text-white/70">E-Mail-Adresse aus dem Auth-Konto</label>
           <input
-            className={inputClass}
+            className={`${inputClass} cursor-not-allowed opacity-70`}
             value={profile.email}
-            onChange={(event) => updateProfileField("email", event.target.value)}
-            placeholder="name@example.com"
+            readOnly
+            aria-readonly="true"
           />
         </div>
 
@@ -74,39 +75,14 @@ export default function ProfileCard({
         </div>
 
         <div>
-          <label className="mb-1 block text-xs text-white/70">Geburtsdatum</label>
+          <label className="mb-1 block text-xs text-white/70">Lokale IANA-Zeitzone</label>
           <input
-            type="date"
             className={inputClass}
-            value={profile.birthDate}
-            onChange={(event) => updateProfileField("birthDate", event.target.value)}
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Geschlecht</label>
-          <select
-            className={selectClass}
-            value={profile.gender}
-            onChange={(event) => updateProfileField("gender", event.target.value)}
-          >
-            {genders.map((gender) => (
-              <option key={gender}>{gender}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Zeitzone</label>
-          <select
-            className={selectClass}
             value={profile.timezone}
             onChange={(event) => updateProfileField("timezone", event.target.value)}
-          >
-            {timezones.map((timezone) => (
-              <option key={timezone}>{timezone}</option>
-            ))}
-          </select>
+            placeholder="z. B. Europe/Berlin, Asia/Tokyo"
+            autoComplete="off"
+          />
         </div>
 
         <div>
@@ -124,7 +100,7 @@ export default function ProfileCard({
       </div>
 
       <button className={saveButtonClass} onClick={saveProfile} disabled={isLoadingUser}>
-        Änderungen speichern
+        Änderungen serverseitig speichern
       </button>
     </SettingsCard>
   );

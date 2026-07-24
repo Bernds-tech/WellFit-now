@@ -11,11 +11,13 @@ const {
 } = require("./beta1Runtime");
 const { registerBeta1UserOnboarding } = require("./beta1UserOnboarding");
 const { registerBeta1UserSettings } = require("./beta1UserSettings");
+const { registerBeta1UserPreferences } = require("./beta1UserPreferences");
 
 function registerBeta1GuardianChild(exportsTarget, deps) {
   const { db, onCall, HttpsError } = deps;
   registerBeta1UserOnboarding(exportsTarget, deps);
   registerBeta1UserSettings(exportsTarget, deps);
+  registerBeta1UserPreferences(exportsTarget, deps);
 
   exportsTarget.createGuardianFamilyAccount = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);

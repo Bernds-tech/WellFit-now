@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
+import { recordUserSessionActivity } from "@/lib/beta1/clientUserPreferences";
 import { loginContent, Language } from "./loginContent";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,24 +35,44 @@ export default function LoginForm({ language }: { language: Language }) {
   const t = loginContent[language];
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsCheckingSession(false);
-      if (user) router.replace("/dashboard");
+    let disposed = false;
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        if (!disposed) setIsCheckingSession(false);
+        return;
+      }
+      try {
+        const session = await recordUserSessionActivity("login");
+        if (!disposed) router.replace(session.requiresInitialization ? "/register" : "/dashboard");
+      } catch {
+        if (!disposed) router.replace("/dashboard");
+      } finally {
+        if (!disposed) setIsCheckingSession(false);
+      }
     });
-    return () => unsubscribe();
+    return () => {
+      disposed = true;
+      unsubscribe();
+    };
   }, [router]);
 
   const handleLogin = async () => {
     if (isLoading || isCheckingSession) return;
     const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail || !password) { setMessage(language === "de" ? "Bitte E-Mail und Passwort eingeben." : "Please enter email and password."); return; }
-    if (!emailPattern.test(normalizedEmail)) { setMessage(language === "de" ? "Bitte gib eine gültige E-Mail-Adresse ein." : "Please enter a valid email address."); return; }
+    if (!normalizedEmail || !password) {
+      setMessage(language === "de" ? "Bitte E-Mail und Passwort eingeben." : "Please enter email and password.");
+      return;
+    }
+    if (!emailPattern.test(normalizedEmail)) {
+      setMessage(language === "de" ? "Bitte gib eine gültige E-Mail-Adresse ein." : "Please enter a valid email address.");
+      return;
+    }
     try {
       setIsLoading(true);
       setMessage(language === "de" ? "Anmeldung läuft..." : "Signing in...");
-      const credential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
-      await setDoc(doc(db, "users", credential.user.uid), { lastLoginAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, { merge: true });
-      router.replace("/dashboard");
+      await signInWithEmailAndPassword(auth, normalizedEmail, password);
+      const session = await recordUserSessionActivity("login");
+      router.replace(session.requiresInitialization ? "/register" : "/dashboard");
     } catch (error: unknown) {
       setIsLoading(false);
       setMessage(getLoginErrorMessage(error instanceof Error && "code" in error ? String((error as { code?: unknown }).code) : undefined, language));
@@ -61,7 +81,10 @@ export default function LoginForm({ language }: { language: Language }) {
 
   const handlePasswordReset = async () => {
     const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail || !emailPattern.test(normalizedEmail)) { setMessage(language === "de" ? "Bitte gib zuerst deine E-Mail-Adresse ein." : "Please enter your email address first."); return; }
+    if (!normalizedEmail || !emailPattern.test(normalizedEmail)) {
+      setMessage(language === "de" ? "Bitte gib zuerst deine E-Mail-Adresse ein." : "Please enter your email address first.");
+      return;
+    }
     try {
       await sendPasswordResetEmail(auth, normalizedEmail);
       setMessage(language === "de" ? "Wenn ein Konto existiert, wurde eine Reset-Mail gesendet." : "If an account exists, a reset email has been sent.");
@@ -82,11 +105,11 @@ export default function LoginForm({ language }: { language: Language }) {
         <p className="mt-1 text-sm text-white/70">{language === "de" ? "Willkommen zurück. Deine Missionen warten." : "Welcome back. Your missions are waiting."}</p>
       </div>
 
-      <input type="email" placeholder={t.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={handleKeyDown} autoComplete="email" className="mb-3 h-[48px] w-full rounded-xl bg-white px-4 text-[15px] text-gray-700 outline-none transition focus:ring-4 focus:ring-cyan-300/35" />
+      <input type="email" placeholder={t.emailPlaceholder} value={email} onChange={(event) => setEmail(event.target.value)} onKeyDown={handleKeyDown} autoComplete="email" className="mb-3 h-[48px] w-full rounded-xl bg-white px-4 text-[15px] text-gray-700 outline-none transition focus:ring-4 focus:ring-cyan-300/35" />
 
       <div className="relative mb-2">
-        <input type={showPassword ? "text" : "password"} placeholder={t.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={handleKeyDown} autoComplete="current-password" className="h-[48px] w-full rounded-xl bg-white px-4 pr-12 text-[15px] text-gray-700 outline-none transition focus:ring-4 focus:ring-cyan-300/35" />
-        <button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-xl text-gray-500 transition hover:bg-gray-100 hover:text-gray-800" aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}>{showPassword ? "🙈" : "👁️"}</button>
+        <input type={showPassword ? "text" : "password"} placeholder={t.passwordPlaceholder} value={password} onChange={(event) => setPassword(event.target.value)} onKeyDown={handleKeyDown} autoComplete="current-password" className="h-[48px] w-full rounded-xl bg-white px-4 pr-12 text-[15px] text-gray-700 outline-none transition focus:ring-4 focus:ring-cyan-300/35" />
+        <button type="button" onClick={() => setShowPassword((previous) => !previous)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-xl text-gray-500 transition hover:bg-gray-100 hover:text-gray-800" aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}>{showPassword ? "🙈" : "👁️"}</button>
       </div>
 
       <div className="mb-3 text-right"><button type="button" onClick={handlePasswordReset} className="text-sm font-semibold text-cyan-100 underline underline-offset-4 transition hover:text-white">{language === "de" ? "Passwort vergessen?" : "Forgot password?"}</button></div>
@@ -101,4 +124,3 @@ export default function LoginForm({ language }: { language: Language }) {
     </div>
   );
 }
-

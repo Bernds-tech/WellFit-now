@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import type { User } from "@/types/user";
 import { auth, db } from "@/lib/firebase";
+import { recordUserSessionActivity } from "@/lib/beta1/clientUserPreferences";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import {
   createDefaultUser,
   normalizeUser,
@@ -22,6 +23,7 @@ export function useDashboardUser() {
 
   useEffect(() => {
     let unsubscribeSnapshot: (() => void) | undefined;
+    let disposed = false;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       if (unsubscribeSnapshot) unsubscribeSnapshot();
@@ -45,30 +47,31 @@ export function useDashboardUser() {
         setMessage("Dashboard wird live synchronisiert...");
       }
 
-      const userRef = doc(db, "users", firebaseUser.uid);
-      const now = new Date().toISOString();
-
       try {
-        const initialSnapshot = await getDoc(userRef);
-        if (initialSnapshot.exists()) {
-          await setDoc(userRef, { lastLoginAt: now, updatedAt: now }, { merge: true });
+        const session = await recordUserSessionActivity("dashboard");
+        if (!disposed && session.requiresInitialization) {
+          setRequiresOnboarding(true);
+          setMessage("Dein Profil ist noch nicht vollständig serverseitig eingerichtet.");
         }
       } catch {
-        // A failed activity timestamp must never create a fallback profile or economy state.
+        // Session telemetry is non-authoritative and must never create a fallback profile.
       }
 
+      if (disposed) return;
+      const userRef = doc(db, "users", firebaseUser.uid);
       unsubscribeSnapshot = onSnapshot(
         userRef,
         (userSnapshot) => {
           if (userSnapshot.exists()) {
-            const normalizedUser = normalizeUser(userSnapshot.data() as Partial<User>, firebaseUser.uid);
+            const data = userSnapshot.data();
+            const normalizedUser = normalizeUser(data as Partial<User>, firebaseUser.uid);
             setUser(normalizedUser);
             writeCachedUser(normalizedUser);
             setLoadedFromCache(false);
             setIsRealtimeConnected(true);
-            setRequiresOnboarding(userSnapshot.data().onboardingCompleted !== true);
+            setRequiresOnboarding(data.onboardingCompleted !== true);
             setMessage(
-              userSnapshot.data().onboardingCompleted === true
+              data.onboardingCompleted === true
                 ? "Dashboard live synchronisiert."
                 : "Dein Profil ist noch nicht vollständig serverseitig eingerichtet.",
             );
@@ -97,6 +100,7 @@ export function useDashboardUser() {
     });
 
     return () => {
+      disposed = true;
       if (unsubscribeSnapshot) unsubscribeSnapshot();
       unsubscribeAuth();
     };
