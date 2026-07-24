@@ -12,6 +12,22 @@ async function run() {
     await testEnv.clearFirestore();
     await testEnv.withSecurityRulesDisabled(async (context) => {
       const adminDb = context.firestore();
+      await adminDb.collection("users").doc("alice").set({
+        firstName: "Alice",
+        email: "alice@wellfit.test",
+        profile: { account: { displayName: "Alice" } },
+        settings: { language: "Deutsch", privacy: { profileVisibility: "Privat" } },
+        points: 25,
+        xp: 50,
+        level: 2,
+        energy: 80,
+        stepsToday: 3000,
+        avatar: { hunger: 70 },
+        lastMissionCompletedAt: "2026-07-23T10:00:00.000Z",
+        deviceLocation: { regionId: "legacy" },
+        consent: { legacy: true },
+        inventory: { legacy: true },
+      });
       await adminDb.collection("familyAccounts").doc("fam_alice").set({ guardianUserIds: ["alice"], childProfileIds: ["child_alice"] });
       await adminDb.collection("childProfiles").doc("child_alice").set({ guardianUserIds: ["alice"], familyAccountId: "fam_alice", nickname: "Kid", status: "active" });
       await adminDb.collection("parentalConsents").doc("consent_alice").set({ guardianUserId: "alice", childProfileId: "child_alice", status: "active" });
@@ -51,6 +67,28 @@ async function run() {
     const aliceDb = testEnv.authenticatedContext("alice").firestore();
     const bobDb = testEnv.authenticatedContext("bob").firestore();
     const anonDb = testEnv.unauthenticatedContext().firestore();
+
+    await assertSucceeds(aliceDb.collection("users").doc("alice").get());
+    await assertFails(bobDb.collection("users").doc("alice").get());
+    await assertFails(anonDb.collection("users").doc("alice").get());
+    await assertFails(aliceDb.collection("users").doc("alice_new").set({ profile: { account: { displayName: "Client-created" } } }));
+    await assertSucceeds(aliceDb.collection("users").doc("alice").update({ profile: { account: { displayName: "Alice Safe" } } }));
+    await assertSucceeds(aliceDb.collection("users").doc("alice").update({ settings: { language: "English" }, lastLoginAt: "2026-07-24T12:00:00.000Z" }));
+    for (const [field, value] of [
+      ["points", 999999],
+      ["xp", 999999],
+      ["level", 99],
+      ["energy", 100],
+      ["stepsToday", 999999],
+      ["avatar", { hunger: 100 }],
+      ["lastMissionCompletedAt", "2099-01-01T00:00:00.000Z"],
+      ["deviceLocation", { regionId: "hack" }],
+      ["consent", { bypass: true }],
+      ["inventory", { rare: true }],
+    ]) {
+      await assertFails(aliceDb.collection("users").doc("alice").update({ [field]: value }));
+    }
+    await assertFails(aliceDb.collection("users").doc("alice").delete());
 
     await assertSucceeds(aliceDb.collection("familyAccounts").doc("fam_alice").get());
     await assertFails(bobDb.collection("familyAccounts").doc("fam_alice").get());

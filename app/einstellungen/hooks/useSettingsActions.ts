@@ -1,6 +1,7 @@
 "use client";
 
 import { auth, db } from "@/lib/firebase";
+import { updateUserAccountProfile } from "@/lib/beta1/clientUserSettings";
 import { sendPasswordResetEmail, signOut } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -18,7 +19,6 @@ import type {
 import {
   bodyTypeToStorage,
   fitnessLevelToStorage,
-  genderToStorage,
   textToArray,
 } from "../lib/settingsMappers";
 
@@ -58,38 +58,24 @@ export function useSettingsActions({
 
   const saveProfile = async (profile: ProfileForm, permissions: PermissionState) => {
     if (!requireUser("Bitte melde dich an, um dein Profil zu speichern.")) return;
+    void permissions;
 
     try {
-      const [firstName, ...lastNameParts] = profile.displayName.trim().split(" ");
-      await setDoc(
-        doc(db, "users", userId!),
-        {
-          firstName: firstName ?? "",
-          lastName: lastNameParts.join(" "),
-          email: profile.email,
-          profile: {
-            birthdate: profile.birthDate,
-            gender: genderToStorage(profile.gender),
-          },
-          settings: {
-            displayName: profile.displayName,
-            email: profile.email,
-            phone: profile.phone,
-            language: profile.language,
-            birthDate: profile.birthDate,
-            gender: profile.gender,
-            timezone: profile.timezone,
-            units: profile.units,
-            permissions,
-          },
-          updatedAt: new Date().toISOString(),
-        },
-        { merge: true },
+      const result = await updateUserAccountProfile({
+        displayName: profile.displayName,
+        phone: profile.phone,
+        language: profile.language,
+        timeZone: profile.timezone,
+        units: profile.units,
+      });
+      setSaveMessage(
+        result.timeZoneChangeDeferred
+          ? "Profil gespeichert. Der Zeitzonenwechsel wurde zum Schutz vor Mehrfachbelohnungen vorübergehend zurückgestellt."
+          : "Profil & Account serverseitig gespeichert.",
       );
-      setSaveMessage("Profil & Account gespeichert.");
     } catch (error) {
       console.error("Fehler beim Speichern des Profils", error);
-      setSaveMessage("Profil konnte nicht gespeichert werden.");
+      setSaveMessage(error instanceof Error ? error.message : "Profil konnte nicht gespeichert werden.");
     }
   };
 
