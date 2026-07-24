@@ -72,9 +72,10 @@ async function run() {
     radiusKm: 1,
   });
   assert(!blocked.ok, `Abfrage ueber dem Budget muss fehlschlagen: ${describeCall(blocked)}`);
+  const blockedStatus = String(blocked.json?.error?.status || "").toUpperCase();
   assert(
-    JSON.stringify(blocked.json).toLowerCase().includes("resource-exhausted"),
-    `Budgetfehler muss resource-exhausted liefern: ${describeCall(blocked)}`,
+    blocked.status === 429 && blockedStatus === "RESOURCE_EXHAUSTED",
+    `Budgetfehler muss HTTP 429 / RESOURCE_EXHAUSTED liefern: ${describeCall(blocked)}`,
   );
 
   const budgetSnapshot = await db.collection("locationQueryBudgets").doc(locationQueryBudgetId(USER_ID)).get();
