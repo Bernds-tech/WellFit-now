@@ -8,7 +8,7 @@ const RULES_PATH = path.join(ROOT, "firestore.rules");
 const OUTPUT_DIR = path.join(ROOT, "scripts", "wellfit-dev-agent", "output");
 const REPORT_PATH = path.join(OUTPUT_DIR, "firestore-economy-rules-check.md");
 
-const requiredUserBridgeFields = [
+const forbiddenUserEconomyFields = [
   "points",
   "avatar",
   "lastMissionCompletedAt",
@@ -17,6 +17,8 @@ const requiredUserBridgeFields = [
   "stepsToday",
   "energy",
   "deviceLocation",
+  "consent",
+  "inventory",
 ];
 
 const requiredSafeProfileFields = [
@@ -24,8 +26,6 @@ const requiredSafeProfileFields = [
   "lastLoginAt",
   "profile",
   "settings",
-  "consent",
-  "inventory",
 ];
 
 const dailyReadOnlyCollections = [
@@ -44,31 +44,22 @@ const serverOnlyCollections = [
   "pointsSinkEvents",
 ];
 
-const ownerReadCollections = [
-  "missionRewardEvents",
-  "missionRewardPreviews",
-  "missionCompletionEvaluations",
-  "ledgerEvents",
-  "auditEvents",
-  "userEconomyProjections",
-  "pointsSinkEvents",
-];
+const ownerReadCollections = [...serverOnlyCollections];
 
 const expectedChecks = [
+  "/users/{uid} owner read -> ALLOW",
+  "/users/{uid} client create -> DENY",
   "/users/{uid}.profile update -> ALLOW",
   "/users/{uid}.settings update -> ALLOW",
-  "/users/{uid}.points update -> ALLOW for the remaining repository-wide MVP bridge",
+  "/users/{uid}.lastLoginAt update -> ALLOW",
+  "/users/{uid}.points|xp|level|avatar|energy|stepsToday|lastMissionCompletedAt|deviceLocation update -> DENY",
+  "/users/{uid}.consent|inventory top-level update -> DENY",
   "/userDailyMissionState owner read -> ALLOW",
   "/userDailyMissionState create/update/delete -> DENY",
   "/userDailyStreaks create/update/delete -> DENY",
   "/userLevels create/update/delete -> DENY",
-  "/missionRewardEvents create -> DENY",
-  "/missionRewardPreviews create -> DENY",
-  "/missionCompletionEvaluations create -> DENY",
-  "/ledgerEvents create -> DENY",
-  "/auditEvents create -> DENY",
-  "/userEconomyProjections create -> DENY",
-  "/pointsSinkEvents create -> DENY",
+  "/missionRewardEvents|missionRewardPreviews|missionCompletionEvaluations client writes -> DENY",
+  "/ledgerEvents|auditEvents|userEconomyProjections|pointsSinkEvents client writes -> DENY",
 ];
 
 function normalize(text) {
@@ -83,10 +74,8 @@ function getFunctionBody(rules, functionName) {
   const marker = `function ${functionName}()`;
   const markerIndex = rules.indexOf(marker);
   if (markerIndex === -1) return "";
-
   const start = rules.indexOf("{", markerIndex);
   if (start === -1) return "";
-
   let depth = 0;
   for (let index = start; index < rules.length; index += 1) {
     const char = rules[index];
@@ -96,7 +85,6 @@ function getFunctionBody(rules, functionName) {
       if (depth === 0) return rules.slice(start + 1, index);
     }
   }
-
   return "";
 }
 
@@ -104,7 +92,6 @@ function getMatchBody(rules, collectionName) {
   const pattern = new RegExp(`match\\s+/${escapeRegExp(collectionName)}/\\{[^}]+\\}\\s*\\{`, "m");
   const match = rules.match(pattern);
   if (!match || typeof match.index !== "number") return "";
-
   const start = match.index + match[0].length - 1;
   let depth = 0;
   for (let index = start; index < rules.length; index += 1) {
@@ -115,7 +102,6 @@ function getMatchBody(rules, collectionName) {
       if (depth === 0) return rules.slice(start + 1, index);
     }
   }
-
   return "";
 }
 
@@ -152,16 +138,19 @@ function main() {
   for (const field of requiredSafeProfileFields) {
     addCheck(checks, `Safe profile field '${field}' allowed`, hasQuotedField(safeProfileBody, field), field);
   }
+  for (const field of forbiddenUserEconomyFields) {
+    addCheck(checks, `Protected users field '${field}' absent from client allowlist`, !hasQuotedField(safeProfileBody, field), field);
+  }
 
   const temporaryBridgeBody = getFunctionBody(rules, "hasOnlyTemporaryEconomyBridgeKeys");
-  addCheck(checks, "Temporary economy bridge helper exists", temporaryBridgeBody.length > 0, "hasOnlyTemporaryEconomyBridgeKeys()");
-  for (const field of requiredUserBridgeFields) {
-    addCheck(checks, `Temporary economy bridge field '${field}' still allowed`, hasQuotedField(temporaryBridgeBody, field), field);
-  }
+  addCheck(checks, "Temporary economy bridge helper removed", temporaryBridgeBody.length === 0, "hasOnlyTemporaryEconomyBridgeKeys must not exist");
+  const combinedWritableBody = getFunctionBody(rules, "hasOnlyUserWritableKeys");
+  addCheck(checks, "Combined bridge helper removed", combinedWritableBody.length === 0, "hasOnlyUserWritableKeys must not exist");
 
   const userBody = getMatchBody(rules, "users");
   addCheck(checks, "User documents remain owner-readable", /allow\s+read\s*:\s*if\s+isOwner\(userId\)\s*;/.test(userBody), "users/{userId} read owner only");
-  addCheck(checks, "User update uses writable-key gate", /allow\s+update\s*:\s*if\s+isOwner\(userId\)\s*&&\s*hasOnlyUserWritableKeys\(\)\s*;/.test(userBody), "profile/settings and remaining MVP bridge only");
+  addCheck(checks, "User client create denied", /allow\s+create\s*:\s*if\s+false\s*;/.test(userBody), "users/{userId} creation uses server authority");
+  addCheck(checks, "User update uses safe profile gate only", /allow\s+update\s*:\s*if\s+isOwner\(userId\)\s*&&\s*hasOnlySafeUserProfileKeys\(\)\s*;/.test(userBody), "profile/settings/activity timestamps only");
   addCheck(checks, "User delete denied", /allow\s+delete\s*:\s*if\s+false\s*;/.test(userBody), "users/{userId} delete denied");
 
   for (const collectionName of dailyReadOnlyCollections) {
@@ -214,7 +203,7 @@ function main() {
   }
 
   const passed = checks.every((check) => check.passed);
-  const report = `# Firestore Economy Rules Check\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Scope\n\nThis static WellFit guardrail verifies the current staged hardening posture. Safe user profile keys and the remaining repository-wide users economy bridge stay separated. The legacy daily mission state, streak and level collections are owner-readable but client read-only after the daily mission callable migration. Server-authority economy collections continue to deny client create/update/delete writes.\n\n## Expected Beta Allow/Deny Cases\n\n${expectedChecks.map((item) => `- ${item}`).join("\n")}\n\n## Checks\n\n${renderChecks(checks)}\n\n## Important Limits\n\n- This check does not replace Firebase Emulator tests.\n- It does not yet remove the broader temporary points, XP, level or avatar fields from users/{userId}; unrelated consumers must migrate first.\n- It must stay aligned with \`docs/architecture/FIRESTORE_ECONOMY_RULES_HARDENING_TEST_PLAN.md\`.\n- No token, NFT, payout, purchase or blockchain function is activated by this check.\n`;
+  const report = `# Firestore Economy Rules Check\n\nGenerated: ${new Date().toISOString()}\nResult: ${passed ? "PASS" : "FAIL"}\n\n## Scope\n\nThis static WellFit guard verifies the post-migration posture. Client creation of users/{userId} is denied. Only non-authoritative profile/settings maps and activity timestamps remain owner-writable. Points, XP, level, Buddy/avatar, steps, energy, device location, consent, inventory, mission completion and protected economy collections remain server-authoritative.\n\n## Expected Beta Allow/Deny Cases\n\n${expectedChecks.map((item) => `- ${item}`).join("\n")}\n\n## Checks\n\n${renderChecks(checks)}\n\n## Important Limits\n\n- This static check does not replace Firebase Emulator tests.\n- It does not prove production deployment, real-device behavior, legal approval or penetration-test readiness.\n- Health, consent and account-lifecycle writes require dedicated server-authority work beyond this economy bridge removal.\n- No token, NFT, payout, purchase, real-money or blockchain function is activated by this check.\n`;
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(REPORT_PATH, report, "utf8");
