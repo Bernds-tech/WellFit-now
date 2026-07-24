@@ -14,9 +14,13 @@ const {
 const ALLOWED_LANGUAGES = new Set(["Deutsch", "English"]);
 const ALLOWED_UNITS = new Set(["kg / km", "lb / mi"]);
 
-function enumValue(value, allowed, fallback) {
+function enumValue(value, allowed, fallback, fieldName, HttpsError) {
   const normalized = optionalString(value, 80);
-  return normalized && allowed.has(normalized) ? normalized : fallback;
+  if (!normalized) return fallback;
+  if (!allowed.has(normalized)) {
+    throw new HttpsError("invalid-argument", `${fieldName} ist nicht freigegeben.`);
+  }
+  return normalized;
 }
 
 function normalizePhone(value, HttpsError) {
@@ -49,8 +53,8 @@ function registerBeta1UserSettings(exportsTarget, { db, onCall, HttpsError }) {
     }
 
     const names = splitDisplayName(data.displayName, HttpsError);
-    const language = enumValue(data.language, ALLOWED_LANGUAGES, "Deutsch");
-    const units = enumValue(data.units, ALLOWED_UNITS, "kg / km");
+    const language = enumValue(data.language, ALLOWED_LANGUAGES, "Deutsch", "language", HttpsError);
+    const units = enumValue(data.units, ALLOWED_UNITS, "kg / km", "units", HttpsError);
     const phone = normalizePhone(data.phone, HttpsError);
     const requestedTimeZoneRaw = optionalString(data.timeZone, 120);
     const requestedTimeZone = normalizeTimeZone(requestedTimeZoneRaw);
@@ -73,27 +77,21 @@ function registerBeta1UserSettings(exportsTarget, { db, onCall, HttpsError }) {
       throw new HttpsError("failed-precondition", "Serverseitiges Nutzerprofil fehlt.");
     }
 
-    await userRef.set({
+    await userRef.update({
       firstName: names.firstName,
       lastName: names.lastName,
       displayName: names.displayName,
       email: tokenEmail.toLowerCase(),
-      profile: {
-        account: {
-          displayName: names.displayName,
-        },
-      },
-      settings: {
-        displayName: names.displayName,
-        email: tokenEmail.toLowerCase(),
-        phone,
-        language,
-        timeZone: calendar.timeZone,
-        units,
-      },
+      "profile.account.displayName": names.displayName,
+      "settings.displayName": names.displayName,
+      "settings.email": tokenEmail.toLowerCase(),
+      "settings.phone": phone,
+      "settings.language": language,
+      "settings.timeZone": calendar.timeZone,
+      "settings.units": units,
       serverValidationStatus: "server-profile-updated",
       updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    });
 
     await writeAudit(db, {
       actorUserId: userId,
