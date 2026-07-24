@@ -12,6 +12,7 @@ const {
 const {
   geoIndexFields,
   GEO_INDEX_VERSION,
+  GEO_INDEX_LEVELS,
 } = require("../lib/beta1NearbyMissionLocations");
 
 const ADMIN_ID = "nearby-admin";
@@ -41,28 +42,30 @@ async function upsertLocation(adminToken, input) {
   });
 }
 
-async function seedFarIndexedLocations() {
-  const coordinates = { latitude: -33.8688, longitude: 151.2093 };
+async function seedDenseOutsideRadiusLocations() {
+  // Roughly 6.7 km north of Tokyo Station: inside the selected fine-grid query
+  // envelope for a 5-km search, but outside the exact Haversine result radius.
+  const coordinates = { latitude: 35.74125, longitude: 139.76715 };
   const indexFields = geoIndexFields(coordinates);
   const writes = [];
   for (let index = 0; index < DECOY_COUNT; index += 1) {
     const suffix = String(index).padStart(4, "0");
     writes.push({
-      id: `0000-sydney-decoy-${suffix}`,
+      id: `0000-tokyo-ring-decoy-${suffix}`,
       data: {
-        locationId: `0000-sydney-decoy-${suffix}`,
-        title: `Sydney Decoy ${suffix}`,
-        regionId: "au-sydney",
-        countryCode: "AU",
-        locality: "Sydney",
-        locationType: "park",
+        locationId: `0000-tokyo-ring-decoy-${suffix}`,
+        title: `Tokyo Ring Decoy ${suffix}`,
+        regionId: "jp-tokyo",
+        countryCode: "JP",
+        locality: "Tokyo",
+        locationType: "city-route",
         latitude: coordinates.latitude,
         longitude: coordinates.longitude,
         ...indexFields,
-        icon: "🌏",
+        icon: "🌀",
         missionIds: ["adventure-city-sprint"],
         safeLocationReviewed: true,
-        safetyReviewNote: "[emulator-qa] Skalierungs-Decoy",
+        safetyReviewNote: "[emulator-qa] dichter Geo-Zellen-Decoy",
         status: "published",
         globalCatalog: true,
       },
@@ -170,11 +173,8 @@ async function run() {
   const tokyoLocation = (await db.collection("missionLocations").doc("tokyo-station").get()).data() || {};
   assert(tokyoLocation.geoIndexVersion === GEO_INDEX_VERSION, "Admin-Upsert muss den kanonischen Geo-Index schreiben.");
   assert(
-    typeof tokyoLocation.geoCell025 === "string"
-      && typeof tokyoLocation.geoCell1 === "string"
-      && typeof tokyoLocation.geoCell5 === "string"
-      && typeof tokyoLocation.geoCell15 === "string",
-    "Jeder Missionsort braucht die vier skalierbaren Geo-Zellen.",
+    GEO_INDEX_LEVELS.every((level) => typeof tokyoLocation[level.field] === "string"),
+    "Jeder Missionsort braucht alle skalierbaren Geo-Zellen.",
   );
 
   await expectCallableError(
@@ -193,9 +193,10 @@ async function run() {
     "Veroeffentlichter Ort ohne Sicherheitspruefung muss blockiert werden",
   );
 
-  // More than 500 earlier-sorting global documents prove that nearby search no
-  // longer depends on a bounded full-collection scan.
-  await seedFarIndexedLocations();
+  // More than 500 earlier-sorting candidates in the same local query envelope
+  // prove that neither a collection cap nor document order can hide the truly
+  // nearby Tokyo Station point.
+  await seedDenseOutsideRadiusLocations();
 
   const tokyo = await expectOk("getNearbyMissionLocations", userToken, {
     latitude: 35.68125,
@@ -205,9 +206,10 @@ async function run() {
   assert(tokyo.globalCatalog === true && tokyo.locationAuthority === "server-published-nearby", "Umgebungssuche muss global und serverpubliziert sein.");
   assert(tokyo.geoIndexAuthority === GEO_INDEX_VERSION, "Umgebungssuche muss den serverseitigen Geo-Index ausweisen.");
   assert(tokyo.userLocationStored === false, "Umgebungssuche darf den Nutzerstandort nicht speichern.");
-  assert(tokyo.count === 1 && tokyo.locations[0].locationId === "tokyo-station", "Tokyo-Nutzer darf trotz mehr als 500 globalen Orten nur den nahen Tokyo-Ort erhalten.");
+  assert(tokyo.count === 1 && tokyo.locations[0].locationId === "tokyo-station", "Tokyo-Nutzer darf trotz mehr als 500 lokaler Kandidaten nur den wirklich nahen Tokyo-Ort erhalten.");
   assert(tokyo.locations[0].distanceKm < 0.1, "Distanz muss aus aktuellen Koordinaten berechnet werden.");
-  assert(Number(tokyo.candidateCount) < 20, "Geo-Index soll nur lokale Kandidaten statt des Weltkatalogs laden.");
+  assert(Number(tokyo.candidateCount) >= DECOY_COUNT + 1, "Dichte Geo-Zellen muessen vollstaendig und ohne 500er-Abschneidung geprueft werden.");
+  assert(Number(tokyo.geoQueryCellSizeDegrees) <= 0.01, "Kleine Suchradien muessen die feinste sichere Geo-Zelle verwenden.");
 
   const filtered = await expectOk("getNearbyMissionLocations", userToken, {
     latitude: 35.68125,
@@ -264,6 +266,7 @@ async function run() {
   assert(reindex.updatedCount >= 1, "Reindex muss mindestens den absichtlich ungeindexierten Altbestand aktualisieren.");
   const legacyLocation = (await db.collection("missionLocations").doc("zz-legacy-tokyo-hub").get()).data() || {};
   assert(legacyLocation.geoIndexVersion === GEO_INDEX_VERSION, "Legacy-Ort muss nach Migration den kanonischen Geo-Index besitzen.");
+  assert(GEO_INDEX_LEVELS.every((level) => typeof legacyLocation[level.field] === "string"), "Legacy-Ort muss nach Migration alle Geo-Zellen besitzen.");
 
   const afterReindex = await expectOk("getNearbyMissionLocations", userToken, {
     latitude: 35.68125,
@@ -318,7 +321,7 @@ async function run() {
   );
 
   const locationDocs = await db.collection("missionLocations").get();
-  assert(locationDocs.size === DECOY_COUNT + 4, "Weltweiter Testkatalog muss drei reguläre, einen Legacy- und mehr als 500 Decoy-Orte enthalten.");
+  assert(locationDocs.size === DECOY_COUNT + 4, "Weltweiter Testkatalog muss drei reguläre, einen Legacy- und mehr als 500 dichte Decoy-Orte enthalten.");
   assert(locationDocs.docs.every((doc) => (doc.data() || {}).safeLocationReviewed === true), "Alle publizierten Testorte muessen sicherheitsgeprueft sein.");
 
   console.log("WellFit Beta 1 Worldwide Nearby Mission Locations Emulator Test erfolgreich.");
