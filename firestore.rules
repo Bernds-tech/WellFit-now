@@ -263,13 +263,11 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Worldwide mission locations are published by admins and are readable only
-    // after the same explicit safety review used by nearby-location callables.
+    // Exact coordinates and the worldwide location inventory are callable-only.
+    // getNearbyMissionLocations applies authentication, mission filters, radius
+    // checks and a bounded result set before returning safe public projections.
     match /missionLocations/{locationId} {
-      allow read: if isSignedIn()
-        && resource.data.status == 'published'
-        && resource.data.safeLocationReviewed == true;
-      allow create, update, delete: if false;
+      allow read, write: if false;
     }
 
     match /missions/{missionId} {
