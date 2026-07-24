@@ -25,6 +25,8 @@ export type Beta1NearbyMissionLocationResult = {
   locations: Beta1NearbyMissionLocation[];
   origin: ClientCoordinates;
   accuracyMeters: number | null;
+  queryBudgetRemaining: number;
+  queryBudgetWindowSeconds: number;
   locationAuthority: "server-published-nearby";
   userLocationStored: false;
   globalCatalog: true;
@@ -35,6 +37,9 @@ type RawNearbyLocationResponse = {
   radiusKm?: unknown;
   count?: unknown;
   locations?: unknown;
+  queryBudgetRemaining?: unknown;
+  queryBudgetWindowSeconds?: unknown;
+  queryBudgetRawCoordinatesStored?: unknown;
   locationAuthority?: unknown;
   userLocationStored?: unknown;
   globalCatalog?: unknown;
@@ -53,6 +58,11 @@ function asNullableString(value: unknown): string | null {
 
 function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+}
+
+function asNonNegativeInteger(value: unknown): number | null {
+  const number = Number(value);
+  return Number.isInteger(number) && number >= 0 ? number : null;
 }
 
 function parseLocation(value: unknown): Beta1NearbyMissionLocation | null {
@@ -98,6 +108,7 @@ function errorMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : "";
   const diagnostic = `${code} ${message}`.toLowerCase();
   if (diagnostic.includes("unauthenticated")) return "Bitte melde dich erneut an, um nahe WellFit-Orte zu laden.";
+  if (diagnostic.includes("resource-exhausted") || diagnostic.includes("zu viele umgebungssuchen")) return "Zu viele Umgebungssuchen in kurzer Zeit. Bitte kurz warten und anschließend erneut laden.";
   if (diagnostic.includes("standortfreigabe") || diagnostic.includes("geolocation") || diagnostic.includes("standortdienste")) return message;
   if (diagnostic.includes("permission-denied")) return "Der Standortzugriff wurde nicht freigegeben.";
   if (diagnostic.includes("network") || diagnostic.includes("unavailable")) return "Die sichere Umgebungssuche ist gerade nicht erreichbar.";
@@ -128,14 +139,19 @@ export async function fetchNearbyMissionLocations(input?: {
     const locations = Array.isArray(data.locations)
       ? data.locations.map(parseLocation).filter((location): location is Beta1NearbyMissionLocation => location !== null)
       : [];
+    const queryBudgetRemaining = asNonNegativeInteger(data.queryBudgetRemaining);
+    const queryBudgetWindowSeconds = asNonNegativeInteger(data.queryBudgetWindowSeconds);
     if (
       data.accepted !== true
       || data.locationAuthority !== "server-published-nearby"
       || data.userLocationStored !== false
+      || data.queryBudgetRawCoordinatesStored !== false
       || data.globalCatalog !== true
       || data.noMonetaryValue !== true
       || data.tokenAuthorized === true
       || data.cashoutAllowed === true
+      || queryBudgetRemaining === null
+      || queryBudgetWindowSeconds === null
       || Number(data.count) !== locations.length
     ) {
       throw new Error("failed-precondition: invalid nearby mission location response");
@@ -145,6 +161,8 @@ export async function fetchNearbyMissionLocations(input?: {
       locations,
       origin: coordinates,
       accuracyMeters: coordinates.accuracyMeters,
+      queryBudgetRemaining,
+      queryBudgetWindowSeconds,
       locationAuthority: "server-published-nearby",
       userLocationStored: false,
       globalCatalog: true,
