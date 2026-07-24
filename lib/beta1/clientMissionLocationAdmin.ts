@@ -19,6 +19,7 @@ export type AdminMissionLocation = {
   safeLocationReviewed: boolean;
   safetyReviewNote: string | null;
   status: AdminMissionLocationStatus;
+  geoIndexVersion: string | null;
   globalCatalog: boolean;
 };
 
@@ -40,6 +41,14 @@ export type UpsertAdminMissionLocationInput = {
   status: AdminMissionLocationStatus;
 };
 
+export type AdminMissionLocationReindexSummary = {
+  pages: number;
+  scannedCount: number;
+  updatedCount: number;
+  skippedCount: number;
+  geoIndexVersion: string;
+};
+
 type AuthorityEnvelope = {
   accepted?: boolean;
   globalCatalog?: boolean;
@@ -48,6 +57,7 @@ type AuthorityEnvelope = {
 type RawListResponse = AuthorityEnvelope & {
   count?: unknown;
   locations?: unknown;
+  geoIndexVersion?: unknown;
 };
 
 type RawUpsertResponse = AuthorityEnvelope & {
@@ -56,6 +66,25 @@ type RawUpsertResponse = AuthorityEnvelope & {
   status?: unknown;
   missionIds?: unknown;
   safeLocationReviewed?: unknown;
+  geoIndexVersion?: unknown;
+};
+
+type RawReindexResponse = AuthorityEnvelope & {
+  scannedCount?: unknown;
+  updatedCount?: unknown;
+  skippedCount?: unknown;
+  nextAfterLocationId?: unknown;
+  hasMore?: unknown;
+  geoIndexVersion?: unknown;
+};
+
+type ReindexPageResult = {
+  scannedCount: number;
+  updatedCount: number;
+  skippedCount: number;
+  nextAfterLocationId: string | null;
+  hasMore: boolean;
+  geoIndexVersion: string;
 };
 
 function requireSignedInUser() {
@@ -70,6 +99,11 @@ function stringArray(value: unknown): string[] {
   return Array.isArray(value)
     ? [...new Set(value.filter((entry): entry is string => typeof entry === "string" && Boolean(entry.trim())).map((entry) => entry.trim()))]
     : [];
+}
+
+function nonNegativeInteger(value: unknown): number | null {
+  const number = Number(value);
+  return Number.isInteger(number) && number >= 0 ? number : null;
 }
 
 function parseLocation(value: unknown): AdminMissionLocation | null {
@@ -107,6 +141,7 @@ function parseLocation(value: unknown): AdminMissionLocation | null {
     safeLocationReviewed: item.safeLocationReviewed === true,
     safetyReviewNote: nullableString(item.safetyReviewNote),
     status: item.status,
+    geoIndexVersion: nullableString(item.geoIndexVersion),
     globalCatalog: item.globalCatalog === true,
   };
 }
@@ -123,6 +158,7 @@ function errorMessage(error: unknown): string {
   if (diagnostic.includes("sicherheitspruefung")) return "Ein veröffentlichter Ort benötigt eine dokumentierte Sicherheitsprüfung.";
   if (diagnostic.includes("mindestens eine mission")) return "Ordne dem Ort mindestens eine Mission zu.";
   if (diagnostic.includes("latitude") || diagnostic.includes("longitude")) return "Breiten- oder Längengrad ist ungültig.";
+  if (diagnostic.includes("geo-index") || diagnostic.includes("geo index")) return "Der weltweite Geo-Index konnte nicht sicher abgeglichen werden.";
   return message || "Der weltweite Missionsort konnte nicht sicher verarbeitet werden.";
 }
 
@@ -135,7 +171,12 @@ export async function listAdminMissionLocations(limit = 200): Promise<AdminMissi
     const locations = Array.isArray(data.locations)
       ? data.locations.map(parseLocation).filter((location): location is AdminMissionLocation => location !== null)
       : [];
-    if (data.accepted !== true || data.globalCatalog !== true || Number(data.count) !== locations.length) {
+    if (
+      data.accepted !== true
+      || data.globalCatalog !== true
+      || typeof data.geoIndexVersion !== "string"
+      || Number(data.count) !== locations.length
+    ) {
       throw new Error("Ungültige serverseitige Missionsort-Projektion.");
     }
     return locations.sort((left, right) => left.countryCode?.localeCompare(right.countryCode || "") || left.locality?.localeCompare(right.locality || "") || left.title.localeCompare(right.title));
@@ -146,7 +187,7 @@ export async function listAdminMissionLocations(limit = 200): Promise<AdminMissi
 
 export async function upsertAdminMissionLocation(
   input: UpsertAdminMissionLocationInput,
-): Promise<Pick<AdminMissionLocation, "locationId" | "regionId" | "status" | "missionIds" | "safeLocationReviewed">> {
+): Promise<Pick<AdminMissionLocation, "locationId" | "regionId" | "status" | "missionIds" | "safeLocationReviewed" | "geoIndexVersion">> {
   requireSignedInUser();
   const payload: UpsertAdminMissionLocationInput = {
     ...input,
@@ -175,6 +216,7 @@ export async function upsertAdminMissionLocation(
       || data.globalCatalog !== true
       || typeof data.locationId !== "string"
       || typeof data.regionId !== "string"
+      || typeof data.geoIndexVersion !== "string"
       || (data.status !== "draft" && data.status !== "published")
       || missionIds.length === 0
     ) {
@@ -186,7 +228,77 @@ export async function upsertAdminMissionLocation(
       status: data.status,
       missionIds,
       safeLocationReviewed: data.safeLocationReviewed === true,
+      geoIndexVersion: data.geoIndexVersion,
     };
+  } catch (error) {
+    throw new Error(errorMessage(error), { cause: error });
+  }
+}
+
+async function reindexAdminMissionLocationsPage(input: {
+  limit: number;
+  afterLocationId: string | null;
+}): Promise<ReindexPageResult> {
+  const callable = httpsCallable<
+    { limit: number; afterLocationId: string | null; reason: string },
+    RawReindexResponse
+  >(getFunctions(), "adminReindexMissionLocations");
+  const result = await callable({
+    limit: Math.max(1, Math.min(400, Math.floor(input.limit))),
+    afterLocationId: input.afterLocationId,
+    reason: "Admin-Oberfläche: weltweiten Geo-Index abgleichen",
+  });
+  const data = result.data;
+  const scannedCount = nonNegativeInteger(data.scannedCount);
+  const updatedCount = nonNegativeInteger(data.updatedCount);
+  const skippedCount = nonNegativeInteger(data.skippedCount);
+  const nextAfterLocationId = nullableString(data.nextAfterLocationId);
+  if (
+    data.accepted !== true
+    || data.globalCatalog !== true
+    || scannedCount === null
+    || updatedCount === null
+    || skippedCount === null
+    || typeof data.hasMore !== "boolean"
+    || typeof data.geoIndexVersion !== "string"
+    || (data.hasMore && !nextAfterLocationId)
+  ) {
+    throw new Error("Ungültige serverseitige Geo-Index-Bestätigung.");
+  }
+  return {
+    scannedCount,
+    updatedCount,
+    skippedCount,
+    nextAfterLocationId,
+    hasMore: data.hasMore,
+    geoIndexVersion: data.geoIndexVersion,
+  };
+}
+
+export async function reindexAllAdminMissionLocations(pageSize = 300): Promise<AdminMissionLocationReindexSummary> {
+  requireSignedInUser();
+  try {
+    let afterLocationId: string | null = null;
+    let scannedCount = 0;
+    let updatedCount = 0;
+    let skippedCount = 0;
+    let geoIndexVersion = "";
+
+    for (let pages = 1; pages <= 100; pages += 1) {
+      const page = await reindexAdminMissionLocationsPage({ limit: pageSize, afterLocationId });
+      scannedCount += page.scannedCount;
+      updatedCount += page.updatedCount;
+      skippedCount += page.skippedCount;
+      geoIndexVersion = page.geoIndexVersion;
+      if (!page.hasMore) {
+        return { pages, scannedCount, updatedCount, skippedCount, geoIndexVersion };
+      }
+      if (!page.nextAfterLocationId || page.nextAfterLocationId === afterLocationId) {
+        throw new Error("Geo-Index-Paginierung hat keinen sicheren Fortschritt geliefert.");
+      }
+      afterLocationId = page.nextAfterLocationId;
+    }
+    throw new Error("Geo-Index-Abgleich hat die sichere Seitengrenze überschritten.");
   } catch (error) {
     throw new Error(errorMessage(error), { cause: error });
   }
