@@ -56,6 +56,7 @@ jobs:
             --publish 127.0.0.1:3000:3000 \
             --read-only \
             --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            --tmpfs /app/.next/cache:rw,noexec,nosuid,size=128m \
             --cap-drop ALL \
             --security-opt no-new-privileges \
             --env WELLFIT_RUNTIME_MODE=container-ci \
@@ -63,10 +64,12 @@ jobs:
             --env WELLFIT_RELEASE_CHANNEL=ci \
             wellfit-web:ci-${{ github.sha }}
 
-      - name: Verify health endpoint
+      - name: Verify hardened runtime and health endpoint
         shell: bash
         run: |
           set -euo pipefail
+          test "$(docker exec wellfit-web-ci id -u)" = "1001"
+          test "$(docker inspect --format '{{.HostConfig.ReadonlyRootfs}}' wellfit-web-ci)" = "true"
           for attempt in $(seq 1 30); do
             if curl --silent --show-error --fail http://127.0.0.1:3000/api/health > health.json; then
               break
