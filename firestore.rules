@@ -79,6 +79,13 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // The active IANA time zone and anti-abuse transition state are maintained only
+    // by callable server functions. Users may inspect only their own calendar record.
+    match /userCalendarSettings/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update, delete: if false;
+    }
+
     // Legacy compatibility projection. The active daily mission UI reads streaks
     // from getDailyMissionProgress; direct client mutation is permanently denied.
     match /userDailyStreaks/{userId} {
@@ -256,9 +263,11 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // Exact coordinates and the worldwide location inventory are callable-only.
+    // getNearbyMissionLocations applies authentication, mission filters, radius
+    // checks and a bounded result set before returning safe public projections.
     match /missionLocations/{locationId} {
-      allow read: if isSignedIn() && resource.data.safeLocationStatus == 'approved';
-      allow create, update, delete: if false;
+      allow read, write: if false;
     }
 
     match /missions/{missionId} {
@@ -277,6 +286,13 @@ service cloud.firestore {
     }
 
     match /missionCompletions/{completionId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
+    // Adventure access debits are immutable server records. The owner or linked
+    // guardian may inspect them, but clients never create or alter access authority.
+    match /adventureAccessEvents/{eventId} {
       allow read: if isReadableByOwnerOrGuardian();
       allow create, update, delete: if false;
     }

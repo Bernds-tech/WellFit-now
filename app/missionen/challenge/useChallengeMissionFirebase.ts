@@ -11,7 +11,11 @@ import {
   type Beta1ChallengeActiveAttempt,
   type Beta1ChallengeProgress,
 } from "@/lib/beta1/clientChallengeMissionProgress";
-import type { Challenge } from "./challengeData";
+import {
+  fetchNearbyMissionLocations,
+  type Beta1NearbyMissionLocation,
+} from "@/lib/beta1/clientNearbyMissionLocations";
+import { challenges, type Challenge } from "./challengeData";
 
 export type ChallengeMissionState = {
   favoriteMissionIds: string[];
@@ -29,6 +33,13 @@ export type ChallengeMissionState = {
   walletAvailable: boolean;
   progressSource: "server" | "local";
   busyMissionId: string | null;
+  nearbyLocations: Beta1NearbyMissionLocation[];
+  locationReady: boolean;
+  locationLoading: boolean;
+  locationError: string | null;
+  locationRadiusKm: number;
+  locationAccuracyMeters: number | null;
+  origin: { latitude: number; longitude: number } | null;
 };
 
 const localStorageKey = (userId?: string | null) => `wellfit-challenge-favorites:${userId ?? "guest"}`;
@@ -66,16 +77,24 @@ function emptyState(userId: string | null, ready = false): ChallengeMissionState
     walletAvailable: false,
     progressSource: "local",
     busyMissionId: null,
+    nearbyLocations: [],
+    locationReady: false,
+    locationLoading: false,
+    locationError: null,
+    locationRadiusKm: 25,
+    locationAccuracyMeters: null,
+    origin: null,
   };
 }
 
 function stateFromProjection(
+  current: ChallengeMissionState,
   projection: Beta1ChallengeProgress,
   userId: string,
   favoriteMissionIds: string[],
-  busyMissionId: string | null,
 ): ChallengeMissionState {
   return {
+    ...current,
     favoriteMissionIds,
     startedMissionIds: projection.startedMissionIds,
     completedMissionIds: projection.completedMissionIds,
@@ -90,7 +109,6 @@ function stateFromProjection(
     xpForNextLevel: projection.xpForNextLevel,
     walletAvailable: projection.walletAvailable,
     progressSource: "server",
-    busyMissionId,
   };
 }
 
@@ -100,10 +118,10 @@ export function useChallengeMissionFirebase() {
   const refresh = useCallback(async (userId: string) => {
     const projection = await fetchChallengeProgress();
     setState((current) => stateFromProjection(
+      current,
       projection,
       userId,
       current.userId === userId ? current.favoriteMissionIds : readLocalFavorites(userId),
-      current.busyMissionId,
     ));
     return projection;
   }, []);
@@ -120,7 +138,7 @@ export function useChallengeMissionFirebase() {
       try {
         const projection = await fetchChallengeProgress();
         if (cancelled) return;
-        setState(stateFromProjection(projection, user.uid, favorites, null));
+        setState((current) => stateFromProjection(current, projection, user.uid, favorites));
       } catch (error) {
         if (cancelled) return;
         setState({
@@ -141,6 +159,47 @@ export function useChallengeMissionFirebase() {
     setState((current) => ({ ...current, favoriteMissionIds }));
   }, [state.userId]);
 
+  const loadNearbyLocations = useCallback(async (radiusKm = 25) => {
+    if (!state.userId) throw new Error("Bitte melde dich an, um Challenges in deiner Umgebung zu laden.");
+    if (state.locationLoading) return state.nearbyLocations;
+    setState((current) => ({
+      ...current,
+      locationLoading: true,
+      locationError: null,
+      locationRadiusKm: radiusKm,
+    }));
+    try {
+      const result = await fetchNearbyMissionLocations({
+        radiusKm,
+        missionIds: challenges.map((challenge) => challenge.missionId),
+      });
+      setState((current) => ({
+        ...current,
+        nearbyLocations: result.locations,
+        locationReady: true,
+        locationLoading: false,
+        locationError: null,
+        locationRadiusKm: result.radiusKm,
+        locationAccuracyMeters: result.accuracyMeters,
+        origin: {
+          latitude: result.origin.latitude,
+          longitude: result.origin.longitude,
+        },
+      }));
+      return result.locations;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Challenge-Orte in deiner Umgebung konnten nicht geladen werden.";
+      setState((current) => ({
+        ...current,
+        nearbyLocations: [],
+        locationReady: true,
+        locationLoading: false,
+        locationError: message,
+      }));
+      throw error;
+    }
+  }, [state.locationLoading, state.nearbyLocations, state.userId]);
+
   const runChallengeAction = useCallback(async (
     challenge: Challenge,
     action: () => Promise<Beta1ChallengeActionResult>,
@@ -151,6 +210,7 @@ export function useChallengeMissionFirebase() {
     try {
       const result = await action();
       await refresh(state.userId);
+      window.dispatchEvent(new CustomEvent("wellfit-beta1-projection-updated"));
       return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Challenge konnte nicht verarbeitet werden.";
@@ -161,13 +221,23 @@ export function useChallengeMissionFirebase() {
     }
   }, [refresh, state.busyMissionId, state.userId]);
 
-  const continueChallenge = useCallback(async (challenge: Challenge) => {
+  const continueChallenge = useCallback(async (
+    challenge: Challenge,
+    location: Beta1NearbyMissionLocation | null,
+  ) => {
     const activeAttempt = state.activeAttempts.find((attempt) => attempt.missionId === challenge.missionId);
     if (!activeAttempt) {
-      return runChallengeAction(challenge, () => submitChallengeForReview(challenge));
+      if (!location) throw new Error("Wähle zuerst einen veröffentlichten Challenge-Ort in deiner Umgebung.");
+      return runChallengeAction(challenge, () => submitChallengeForReview(challenge, location));
     }
-    return runChallengeAction(challenge, () => reconcileChallengeAttempt(challenge, activeAttempt));
-  }, [runChallengeAction, state.activeAttempts]);
+    const matchingLocation = location?.locationId === activeAttempt.locationId
+      ? location
+      : state.nearbyLocations.find((item) => item.locationId === activeAttempt.locationId) ?? null;
+    return runChallengeAction(
+      challenge,
+      () => reconcileChallengeAttempt(challenge, activeAttempt, matchingLocation),
+    );
+  }, [runChallengeAction, state.activeAttempts, state.nearbyLocations]);
 
   const refreshProgress = useCallback(async () => {
     if (!state.userId) return null;
@@ -177,6 +247,7 @@ export function useChallengeMissionFirebase() {
   return {
     ...state,
     setFavoriteMissionIds,
+    loadNearbyLocations,
     continueChallenge,
     refreshProgress,
   };

@@ -1,6 +1,8 @@
-export const WEEKLY_MISSION_CATALOG_ID = "wellfit-beta1-weekly-missions";
-export const WEEKLY_MISSION_CATALOG_VERSION = "1.0.0";
-export const WEEKLY_MISSION_COMPLETION_POLICY = "once-per-mission-per-vienna-week" as const;
+import weeklyMissionCatalog from "@/functions/config/beta1-weekly-missions.json";
+
+export const WEEKLY_MISSION_CATALOG_ID = weeklyMissionCatalog.catalogId;
+export const WEEKLY_MISSION_CATALOG_VERSION = weeklyMissionCatalog.version;
+export const WEEKLY_MISSION_COMPLETION_POLICY = "once-per-mission-per-user-local-week" as const;
 export const WEEKLY_MISSION_EVIDENCE_TYPE = "weekly-user-confirmation" as const;
 
 export type WeeklyMissionType = "Bewegung" | "Workout" | "Abenteuer";
@@ -25,56 +27,55 @@ export type WeeklyMission = {
   childAllowed: false;
 };
 
-export const weeklyMissions: WeeklyMission[] = [
-  {
-    id: "weekly-steps-50000",
-    title: "Wöchentliche Bewegungsmission",
-    description: "Sammle innerhalb der aktuellen Wien-Woche insgesamt 50.000 Schritte.",
-    reward: 25,
-    rewardLabel: "+25 WFXP nach Freigabe",
-    icon: "👣",
+function missionIcon(serverType: WeeklyMissionServerType) {
+  return serverType === "movement" ? "👣" : serverType === "workout" ? "💪" : "🧠";
+}
+
+function asMissionType(value: string): WeeklyMissionType {
+  if (value === "Bewegung" || value === "Workout" || value === "Abenteuer") return value;
+  throw new Error(`Invalid weekly mission display type: ${value}`);
+}
+
+function asServerType(value: string): WeeklyMissionServerType {
+  if (value === "movement" || value === "workout" || value === "learning") return value;
+  throw new Error(`Invalid weekly mission server type: ${value}`);
+}
+
+function asTargetUnit(value: string): WeeklyMissionTargetUnit {
+  if (value === "steps" || value === "workouts" || value === "learning-modules") return value;
+  throw new Error(`Invalid weekly mission target unit: ${value}`);
+}
+
+if (weeklyMissionCatalog.completionPolicy !== WEEKLY_MISSION_COMPLETION_POLICY) {
+  throw new Error("Unsafe weekly mission completion policy.");
+}
+
+export const weeklyMissions: WeeklyMission[] = weeklyMissionCatalog.missions.map((mission) => {
+  if (
+    mission.evidenceType !== WEEKLY_MISSION_EVIDENCE_TYPE
+    || mission.reviewRequired !== true
+    || mission.childAllowed !== false
+    || mission.difficulty !== "Mittel"
+    || mission.duration !== "1 Woche"
+  ) {
+    throw new Error(`Unsafe weekly mission catalog boundary: ${mission.missionId}`);
+  }
+  const serverType = asServerType(mission.type);
+  return {
+    id: mission.missionId,
+    title: mission.title,
+    description: mission.description,
+    reward: mission.rewardXp,
+    rewardLabel: `+${mission.rewardXp} WFXP nach Freigabe`,
+    icon: missionIcon(serverType),
     difficulty: "Mittel",
     duration: "1 Woche",
-    type: "Bewegung",
-    serverType: "movement",
-    targetValue: 50000,
-    targetUnit: "steps",
+    type: asMissionType(mission.displayType),
+    serverType,
+    targetValue: mission.targetValue,
+    targetUnit: asTargetUnit(mission.targetUnit),
     evidenceType: WEEKLY_MISSION_EVIDENCE_TYPE,
     reviewRequired: true,
     childAllowed: false,
-  },
-  {
-    id: "weekly-workouts-3",
-    title: "Wöchentliche Fitnessmission",
-    description: "Absolviere in der aktuellen Wien-Woche drei kontrollierte Ganzkörper-Trainings.",
-    reward: 15,
-    rewardLabel: "+15 WFXP nach Freigabe",
-    icon: "💪",
-    difficulty: "Mittel",
-    duration: "1 Woche",
-    type: "Workout",
-    serverType: "workout",
-    targetValue: 3,
-    targetUnit: "workouts",
-    evidenceType: WEEKLY_MISSION_EVIDENCE_TYPE,
-    reviewRequired: true,
-    childAllowed: false,
-  },
-  {
-    id: "weekly-learning-5",
-    title: "Wöchentliche Wissensmission",
-    description: "Schließe in der aktuellen Wien-Woche fünf Lernmodule oder Wissensaufgaben ab.",
-    reward: 25,
-    rewardLabel: "+25 WFXP nach Freigabe",
-    icon: "🧠",
-    difficulty: "Mittel",
-    duration: "1 Woche",
-    type: "Abenteuer",
-    serverType: "learning",
-    targetValue: 5,
-    targetUnit: "learning-modules",
-    evidenceType: WEEKLY_MISSION_EVIDENCE_TYPE,
-    reviewRequired: true,
-    childAllowed: false,
-  },
-];
+  };
+});

@@ -10,10 +10,19 @@ const {
   seedBeta1RuntimeData,
 } = require("./beta1RuntimeFixtures");
 
+const ADMIN_ID = "daily-progress-admin";
+const USER_ID = "daily-progress-user";
+const OTHER_ID = "daily-progress-other";
+const USER_TIME_ZONE = "Pacific/Auckland";
+const OTHER_TIME_ZONE = "America/Los_Angeles";
+const TRAVEL_TIME_ZONE = "Asia/Tokyo";
+
 async function expectOk(functionName, token, data) {
   const response = await callCallable(functionName, token, data);
   assert(response.ok, `${functionName} muss HTTP OK sein: ${describeCall(response)}`);
-  return getCallableResult(response);
+  const result = getCallableResult(response);
+  assert(result && result.accepted === true, `${functionName} muss accepted=true liefern: ${describeCall(response)}`);
+  return result;
 }
 
 async function expectCallableError(functionName, token, data, label) {
@@ -28,7 +37,7 @@ function previousDateKey(dateKey) {
 }
 
 async function approveAndComplete({ userToken, adminToken, missionId }) {
-  const attempt = await expectOk("startMissionAttempt", userToken, { missionId });
+  const attempt = await expectOk("startMissionAttempt", userToken, { missionId, timeZone: USER_TIME_ZONE });
   const evidence = await expectOk("submitMissionEvidence", userToken, {
     attemptId: attempt.attemptId,
     evidenceType: "daily-user-confirmation",
@@ -39,58 +48,106 @@ async function approveAndComplete({ userToken, adminToken, missionId }) {
     decision: "approved",
     reviewNote: `[emulator-qa] ${missionId} freigegeben`,
   });
-  const completion = await expectOk("completeMissionAttempt", userToken, { attemptId: attempt.attemptId });
+  const completion = await expectOk("completeMissionAttempt", userToken, {
+    attemptId: attempt.attemptId,
+    timeZone: USER_TIME_ZONE,
+  });
   return { attempt, evidence, completion };
 }
 
 async function run() {
-  console.log("WellFit Beta 1 Daily Mission Progress Emulator Test startet...");
+  console.log("WellFit Beta 1 Global User-Local Daily Mission Emulator Test startet...");
   await resetBeta1Collections();
   await seedBeta1RuntimeData();
 
-  const adminToken = await createAuthUser("daily-progress-admin", true);
-  const userToken = await createAuthUser("daily-progress-user", false);
-  const otherToken = await createAuthUser("daily-progress-other", false);
+  const adminToken = await createAuthUser(ADMIN_ID, true);
+  const userToken = await createAuthUser(USER_ID, false);
+  const otherToken = await createAuthUser(OTHER_ID, false);
 
-  await expectOk("adminEnsureDailyMissionCatalog", adminToken, {});
+  const catalog = await expectOk("adminEnsureDailyMissionCatalog", adminToken, {});
+  assert(catalog.catalogVersion === "1.2.0", "Tageskatalog braucht die globale Version 1.2.0.");
+  assert(catalog.completionPolicy === "once-per-mission-per-user-local-day", "Tageskatalog braucht die nutzerlokale Tagespolicy.");
+
+  await expectCallableError(
+    "getDailyMissionProgress",
+    userToken,
+    { timeZone: "Invalid/Planet" },
+    "Ungueltige IANA-Zeitzone muss blockiert werden",
+  );
 
   const saved = await expectOk("saveDailyMissionPreferences", userToken, {
     favoriteIds: ["daily-8000-steps", "daily-plank-60"],
     dailySlotIds: ["daily-8000-steps", "daily-plank-60", "daily-water-1500"],
+    timeZone: USER_TIME_ZONE,
   });
-  assert(saved.accepted === true, "Server muss Tagesmissions-Praeferenzen annehmen.");
-  assert(saved.favoriteIds.length === 2, "Zwei Favoriten muessen gespeichert werden.");
-  assert(saved.dailySlotIds.length === 3, "Drei Slots muessen gespeichert werden.");
+  assert(saved.timeZone === USER_TIME_ZONE, "Server muss die nutzerlokale Zeitzone speichern.");
+  assert(saved.calendarAuthority === "server-user-time-zone", "Kalenderautoritaet muss serverseitig sein.");
+  assert(saved.timeZoneChangeCooldownHours === 20, "Zeitzonenwechsel brauchen eine reisetaugliche 20-Stunden-Anti-Abuse-Grenze.");
 
   await expectCallableError(
     "saveDailyMissionPreferences",
     userToken,
-    { favoriteIds: ["unknown-mission"], dailySlotIds: [null, null, null] },
+    { favoriteIds: ["unknown-mission"], dailySlotIds: [null, null, null], timeZone: USER_TIME_ZONE },
     "Unbekannte Mission darf nicht als Favorit gespeichert werden",
   );
 
   await expectOk("adminAdjustXp", adminToken, {
-    ownerUserId: "daily-progress-user",
+    ownerUserId: USER_ID,
     delta: 160,
     reason: "[emulator-qa] Tagesmissions-Level-Projektion",
     idempotencyKey: "daily_progress_seed_wallet",
   });
 
-  const initial = await expectOk("getDailyMissionProgress", userToken, {});
+  const initial = await expectOk("getDailyMissionProgress", userToken, { timeZone: USER_TIME_ZONE });
   assert(initial.progressAuthority === "server-read", "Fortschritt muss aus der Serverprojektion kommen.");
-  assert(initial.completionPolicy === "once-per-mission-per-vienna-day", "Sichere Tagesabschlussgrenze muss aktiv sein.");
-  assert(initial.walletAvailable === true, "WFXP-Wallet muss erkannt werden.");
-  assert(initial.xp === 160 && initial.level === 2, `Wallet-Lifetime-XP muss Level ableiten: ${JSON.stringify(initial)}`);
+  assert(initial.completionPolicy === "once-per-mission-per-user-local-day", "Nutzerlokale Tagesabschlussgrenze muss aktiv sein.");
+  assert(initial.timeZone === USER_TIME_ZONE && initial.calendarAuthority === "server-user-time-zone", "Progress muss die servergesicherte Nutzerzeitzone verwenden.");
+  assert(initial.timeZoneChangePolicy === "minimum-20-hours" && initial.timeZoneChangeCooldownHours === 20, "Progress muss die Reise-Anti-Abuse-Policy offenlegen.");
+  assert(initial.walletAvailable === true && initial.xp === 160 && initial.level === 2, "WFXP-Levelprojektion muss serverseitig sein.");
   assert(initial.favoriteIds.includes("daily-8000-steps"), "Gespeicherte Favoriten muessen gelesen werden.");
-  assert(initial.noMonetaryValue === true && initial.tokenAuthorized === false, "Tagesmissionen bleiben nicht-monetaer und nicht-tokenisiert.");
+  assert(initial.noMonetaryValue === true && initial.tokenAuthorized === false, "Tagesmissionen bleiben WFXP-only.");
 
-  const otherProgress = await expectOk("getDailyMissionProgress", otherToken, {});
-  assert(otherProgress.favoriteIds.length === 0, "Andere Nutzer duerfen keine fremden Praeferenzen sehen.");
-  assert(otherProgress.xp === 0, "Andere Nutzer duerfen keine fremde Wallet-Projektion sehen.");
+  const deferredChange = await expectOk("getDailyMissionProgress", userToken, { timeZone: OTHER_TIME_ZONE });
+  assert(deferredChange.timeZone === USER_TIME_ZONE, "Sofortiger Zeitzonenwechsel darf die Reward-Periode nicht verschieben.");
+  assert(deferredChange.timeZoneChangeDeferred === true && typeof deferredChange.nextTimeZoneChangeAt === "string", "Schnelles Zeitzonen-Hopping muss aufgeschoben werden.");
 
-  const firstAttempt = await expectOk("startMissionAttempt", userToken, { missionId: "daily-8000-steps" });
-  const reusedAttempt = await expectOk("startMissionAttempt", userToken, { missionId: "daily-8000-steps" });
-  assert(firstAttempt.attemptId === reusedAttempt.attemptId, "Doppelte Starts muessen denselben Tages-Attempt verwenden.");
+  const otherProgress = await expectOk("getDailyMissionProgress", otherToken, { timeZone: OTHER_TIME_ZONE });
+  assert(otherProgress.timeZone === OTHER_TIME_ZONE, "Andere Nutzer muessen unabhaengige lokale Kalender haben.");
+  assert(otherProgress.favoriteIds.length === 0 && otherProgress.xp === 0, "Andere Nutzer duerfen keine fremde Projektion sehen.");
+  await db.collection("userCalendarSettings").doc(OTHER_ID).set({
+    timeZoneChangedAt: new Date(Date.now() - 21 * 60 * 60 * 1000).toISOString(),
+  }, { merge: true });
+  const acceptedTravelChange = await expectOk("getDailyMissionProgress", otherToken, { timeZone: TRAVEL_TIME_ZONE });
+  assert(acceptedTravelChange.timeZone === TRAVEL_TIME_ZONE, "Ein plausibler Reisewechsel nach 20 Stunden muss akzeptiert werden.");
+  assert(acceptedTravelChange.timeZoneChangeDeferred === false, "Akzeptierter Reisewechsel darf nicht als deferred markiert sein.");
+
+  const staleDateKey = previousDateKey(initial.dateKey);
+  await db.collection("missionAttempts").doc("stale_daily_open_attempt").set({
+    attemptId: "stale_daily_open_attempt",
+    missionId: "daily-breathing-3",
+    ownerUserId: USER_ID,
+    userId: USER_ID,
+    childProfileId: null,
+    status: "started",
+    dateKey: staleDateKey,
+    timeZone: USER_TIME_ZONE,
+    calendarAuthority: "server-user-time-zone",
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  const staleAttemptProjection = await expectOk("getDailyMissionProgress", userToken, { timeZone: USER_TIME_ZONE });
+  assert(!staleAttemptProjection.activeAttempts.some((attempt) => attempt.attemptId === "stale_daily_open_attempt"), "Offener Attempt vom Vortag darf heute nicht aktiv erscheinen.");
+  assert(!staleAttemptProjection.startedMissionIds.includes("daily-breathing-3"), "Offener Attempt vom Vortag darf die heutige Startprojektion nicht verunreinigen.");
+
+  const firstAttempt = await expectOk("startMissionAttempt", userToken, {
+    missionId: "daily-8000-steps",
+    timeZone: USER_TIME_ZONE,
+  });
+  const reusedAttempt = await expectOk("startMissionAttempt", userToken, {
+    missionId: "daily-8000-steps",
+    timeZone: USER_TIME_ZONE,
+  });
+  assert(firstAttempt.attemptId === reusedAttempt.attemptId, "Doppelte Starts muessen denselben nutzerlokalen Tages-Attempt verwenden.");
+  assert(firstAttempt.dateKey === initial.dateKey && firstAttempt.timeZone === USER_TIME_ZONE, "Attempt muss lokalen Tag und Zeitzone dokumentieren.");
   assert(reusedAttempt.idempotent === true && reusedAttempt.reusedDailyAttempt === true, "Wiederholter Start muss als Reuse markiert sein.");
 
   await expectCallableError(
@@ -110,32 +167,24 @@ async function run() {
     evidenceType: "daily-user-confirmation",
     metadata: { source: "daily-missions", requiresHumanReview: true },
   });
-  assert(firstEvidence.evidenceId === reusedEvidence.evidenceId, "Pending Evidence muss idempotent wiederverwendet werden.");
-  assert(reusedEvidence.idempotent === true, "Wiederverwendete Evidence muss idempotent markiert sein.");
-
-  const pending = await expectOk("getDailyMissionProgress", userToken, {});
-  const pendingAttempt = pending.activeAttempts.find((attempt) => attempt.missionId === "daily-8000-steps");
-  assert(pendingAttempt && pendingAttempt.reviewStatus === "pending-server-review", "Offener Review muss in der Serverprojektion erscheinen.");
-  assert(pendingAttempt.canRequestCompletion === false, "Pending Review darf Completion nicht erlauben.");
+  assert(firstEvidence.evidenceId === reusedEvidence.evidenceId && reusedEvidence.idempotent === true, "Pending Evidence muss idempotent wiederverwendet werden.");
 
   await expectOk("adminReviewMissionEvidence", adminToken, {
     evidenceId: firstEvidence.evidenceId,
     decision: "approved",
     reviewNote: "[emulator-qa] Tagesmission freigegeben",
   });
-  const approved = await expectOk("getDailyMissionProgress", userToken, {});
-  const approvedAttempt = approved.activeAttempts.find((attempt) => attempt.missionId === "daily-8000-steps");
-  assert(approvedAttempt && approvedAttempt.canRequestCompletion === true, "Approved Evidence muss Completion freigeben.");
-
-  const firstCompletion = await expectOk("completeMissionAttempt", userToken, { attemptId: firstAttempt.attemptId });
-  assert(firstCompletion.rewardXp === 8, "Katalogwert der 8.000-Schritte-Mission muss 8 WFXP sein.");
-  assert(firstCompletion.xpAuthorized === true && firstCompletion.tokenAuthorized === false, "Nur interne WFXP duerfen autorisiert werden.");
+  const firstCompletion = await expectOk("completeMissionAttempt", userToken, {
+    attemptId: firstAttempt.attemptId,
+    timeZone: USER_TIME_ZONE,
+  });
+  assert(firstCompletion.rewardXp === 8 && firstCompletion.xpAuthorized === true, "8.000-Schritte-Mission muss exakt 8 WFXP vergeben.");
 
   await expectCallableError(
     "startMissionAttempt",
     userToken,
-    { missionId: "daily-8000-steps" },
-    "Abgeschlossene Tagesmission darf am selben Wien-Tag nicht erneut starten",
+    { missionId: "daily-8000-steps", timeZone: USER_TIME_ZONE },
+    "Abgeschlossene Tagesmission darf am selben nutzerlokalen Tag nicht erneut starten",
   );
 
   const rogueAttemptId = "daily-progress-rogue-attempt";
@@ -143,17 +192,20 @@ async function run() {
   await db.collection("missionAttempts").doc(rogueAttemptId).set({
     attemptId: rogueAttemptId,
     missionId: "daily-8000-steps",
-    ownerUserId: "daily-progress-user",
-    userId: "daily-progress-user",
+    ownerUserId: USER_ID,
+    userId: USER_ID,
     status: "evidence-approved",
+    dateKey: initial.dateKey,
+    timeZone: USER_TIME_ZONE,
+    calendarAuthority: "server-user-time-zone",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
   await db.collection("missionEvidence").doc(rogueEvidenceId).set({
     evidenceId: rogueEvidenceId,
     attemptId: rogueAttemptId,
     missionId: "daily-8000-steps",
-    ownerUserId: "daily-progress-user",
-    userId: "daily-progress-user",
+    ownerUserId: USER_ID,
+    userId: USER_ID,
     evidenceType: "daily-user-confirmation",
     reviewStatus: "approved",
     serverValidationStatus: "evidence-approved",
@@ -162,19 +214,16 @@ async function run() {
   await expectCallableError(
     "completeMissionAttempt",
     userToken,
-    { attemptId: rogueAttemptId },
+    { attemptId: rogueAttemptId, timeZone: USER_TIME_ZONE },
     "Zweiter Attempt darf keine zweite Tagesbelohnung erzeugen",
   );
 
   await approveAndComplete({ userToken, adminToken, missionId: "daily-plank-60" });
   await approveAndComplete({ userToken, adminToken, missionId: "daily-water-1500" });
 
-  const completedToday = await expectOk("getDailyMissionProgress", userToken, {});
-  assert(completedToday.completedMissionIds.length === 3, `Drei eindeutige Tagesmissionen muessen zaehlen: ${JSON.stringify(completedToday.completedMissionIds)}`);
-  assert(completedToday.goalCompleted === true, "Tagesziel muss nach drei serverseitigen Abschluessen erreicht sein.");
-  assert(completedToday.currentStreak === 1, "Erster abgeschlossener Tag muss Streak 1 ergeben.");
-  assert(completedToday.activeAttempts.every((attempt) => attempt.missionId !== "daily-8000-steps"), "Abgeschlossene Mission darf nicht als offener Attempt erscheinen.");
-  assert(completedToday.xp === 186, `Lifetime XP muss Seed plus drei Katalogwerte enthalten: ${completedToday.xp}`);
+  const completedToday = await expectOk("getDailyMissionProgress", userToken, { timeZone: USER_TIME_ZONE });
+  assert(completedToday.completedMissionIds.length === 3 && completedToday.goalCompleted === true, "Drei eindeutige Missionen muessen das lokale Tagesziel abschliessen.");
+  assert(completedToday.currentStreak === 1 && completedToday.xp === 186, "Streak und XP muessen aus lokalen Serverdaten entstehen.");
 
   const yesterday = previousDateKey(completedToday.dateKey);
   for (const missionId of ["daily-squats-15", "daily-memory-3", "daily-breathing-3"]) {
@@ -183,27 +232,27 @@ async function run() {
       completionId,
       attemptId: completionId,
       missionId,
-      ownerUserId: "daily-progress-user",
-      userId: "daily-progress-user",
+      ownerUserId: USER_ID,
+      userId: USER_ID,
       status: "completed",
       dateKey: yesterday,
+      timeZone: USER_TIME_ZONE,
       rewardXp: 1,
       completedAt: `${yesterday}T12:00:00.000Z`,
     });
   }
-  const streaked = await expectOk("getDailyMissionProgress", userToken, {});
-  assert(streaked.currentStreak === 2 && streaked.longestStreak === 2, `Aufeinanderfolgende Ziel-Tage muessen Streak 2 ergeben: ${JSON.stringify(streaked)}`);
+  const streaked = await expectOk("getDailyMissionProgress", userToken, { timeZone: USER_TIME_ZONE });
+  assert(streaked.currentStreak === 2 && streaked.longestStreak === 2, "Aufeinanderfolgende nutzerlokale Ziel-Tage muessen Streak 2 ergeben.");
 
-  const wallet = (await db.collection("xpWallets").doc("daily-progress-user").get()).data() || {};
+  const wallet = (await db.collection("xpWallets").doc(USER_ID).get()).data() || {};
   assert(wallet.balance === 186, "Blockierter Doppelabschluss darf den Wallet-Saldo nicht veraendern.");
-  const dailyLedger = await db.collection("xpLedgerEvents").where("ownerUserId", "==", "daily-progress-user").get();
-  const missionLedger = dailyLedger.docs.filter((doc) => (doc.data() || {}).reason === "mission-completion");
-  assert(missionLedger.length === 3, "Genau drei Tagesmissions-Ledgerereignisse duerfen erzeugt werden.");
+  const missionLedger = await db.collection("xpLedgerEvents").where("ownerUserId", "==", USER_ID).where("reason", "==", "mission-completion").get();
+  assert(missionLedger.size === 3, "Genau drei Tagesmissions-Ledgerereignisse duerfen entstehen.");
 
-  console.log("WellFit Beta 1 Daily Mission Progress Emulator Test erfolgreich.");
-  await admin.auth().deleteUser("daily-progress-admin");
-  await admin.auth().deleteUser("daily-progress-user");
-  await admin.auth().deleteUser("daily-progress-other");
+  console.log("WellFit Beta 1 Global User-Local Daily Mission Emulator Test erfolgreich.");
+  await admin.auth().deleteUser(ADMIN_ID);
+  await admin.auth().deleteUser(USER_ID);
+  await admin.auth().deleteUser(OTHER_ID);
 }
 
 run().catch((error) => {

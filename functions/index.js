@@ -6,6 +6,7 @@ const { evaluateMissionContext: calculateMissionContext } = require("./lib/missi
 const { calculateMissionRewardPreview } = require("./lib/missionRewardPolicy");
 const { calculateMissionEvidenceReview } = require("./lib/missionEvidenceReview");
 const { calculateMissionPatternReview } = require("./lib/missionPatternReview");
+const { createBeta1OnCall } = require("./lib/beta1AppCheckPolicy");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -165,7 +166,8 @@ const { registerBeta1RealityGlitch } = require("./lib/beta1RealityGlitch");
 const { registerBeta1SafetyAdmin } = require("./lib/beta1SafetyAdmin");
 const { registerAgentAdminRolesAudit } = require("./lib/agentAdminRolesAudit");
 
-const beta1RuntimeDeps = { db, onCall, HttpsError };
+const beta1OnCall = createBeta1OnCall(onCall);
+const beta1RuntimeDeps = { db, onCall: beta1OnCall, HttpsError };
 registerBeta1XpLedger(exports, beta1RuntimeDeps);
 registerBeta1GuardianChild(exports, beta1RuntimeDeps);
 registerBeta1Missions(exports, beta1RuntimeDeps);

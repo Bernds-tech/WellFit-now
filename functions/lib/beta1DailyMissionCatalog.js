@@ -9,14 +9,14 @@ const {
 const ALLOWED_DIFFICULTIES = new Set(["Leicht", "Mittel", "Schwer"]);
 const ALLOWED_DISPLAY_TYPES = new Set(["Bewegung", "Ernährung", "Workout", "Community", "Abenteuer"]);
 const ALLOWED_SERVER_TYPES = new Set(["movement", "workout", "learning", "nutrition", "wellness"]);
-const REQUIRED_COMPLETION_POLICY = "once-per-mission-per-vienna-day";
+const REQUIRED_COMPLETION_POLICY = "once-per-mission-per-user-local-day";
 
 function validateCatalog(HttpsError) {
   if (!catalog || !Array.isArray(catalog.missions) || catalog.missions.length === 0) {
     throw new HttpsError("failed-precondition", "Beta-1 Tagesmissionskatalog fehlt oder ist leer.");
   }
   if (catalog.completionPolicy !== REQUIRED_COMPLETION_POLICY) {
-    throw new HttpsError("failed-precondition", "Beta-1 Tagesmissionskatalog hat keine sichere Tagesabschlussgrenze.");
+    throw new HttpsError("failed-precondition", "Beta-1 Tagesmissionskatalog hat keine sichere nutzerlokale Tagesabschlussgrenze.");
   }
   const ids = new Set();
   for (const mission of catalog.missions) {
@@ -144,4 +144,5 @@ module.exports = {
   registerBeta1DailyMissionCatalog,
   validateCatalog,
   publicCatalogMission,
+  REQUIRED_COMPLETION_POLICY,
 };

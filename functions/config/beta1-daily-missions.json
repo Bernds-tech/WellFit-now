@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "catalogId": "wellfit-beta1-daily-missions",
   "currency": "WFXP",
-  "completionPolicy": "once-per-mission-per-vienna-day",
+  "completionPolicy": "once-per-mission-per-user-local-day",
   "noMonetaryValue": true,
   "tokenAuthorized": false,
   "cashoutAllowed": false,

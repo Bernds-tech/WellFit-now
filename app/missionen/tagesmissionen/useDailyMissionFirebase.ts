@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { getClientDateKey, getClientTimeZone } from "@/lib/beta1/clientUserContext";
 import {
   fetchDailyMissionProgress,
   reconcileDailyMissionAttempt,
@@ -22,6 +23,11 @@ export type DailyMissionState = {
   userId: string | null;
   ready: boolean;
   lastError: string | null;
+  dateKey: string | null;
+  timeZone: string;
+  calendarAuthority: "server-user-time-zone" | "device-preview";
+  timeZoneChangeDeferred: boolean;
+  nextTimeZoneChangeAt: string | null;
   dailyGoal: number;
   goalCompleted: boolean;
   currentStreak: number;
@@ -38,18 +44,7 @@ export type DailyMissionState = {
 
 const DEFAULT_SLOTS: (string | null)[] = [null, null, null];
 const DEFAULT_DAILY_GOAL = 3;
-
-const localDateKey = () => {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Vienna",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  return `${byType.year}-${byType.month}-${byType.day}`;
-};
-const localStorageKey = (userId?: string | null) => `wellfit-daily-preferences:${userId ?? "guest"}:${localDateKey()}`;
+const localStorageKey = (userId?: string | null) => `wellfit-daily-preferences:${userId ?? "guest"}:${getClientDateKey()}`;
 
 function readLocalPreferences(userId?: string | null) {
   if (typeof window === "undefined") return { favoriteIds: [], dailySlotIds: DEFAULT_SLOTS };
@@ -85,6 +80,11 @@ function emptyState(userId: string | null, ready = false): DailyMissionState {
     userId,
     ready,
     lastError: null,
+    dateKey: getClientDateKey(),
+    timeZone: getClientTimeZone(),
+    calendarAuthority: "device-preview",
+    timeZoneChangeDeferred: false,
+    nextTimeZoneChangeAt: null,
     dailyGoal: DEFAULT_DAILY_GOAL,
     goalCompleted: false,
     currentStreak: 0,
@@ -114,6 +114,11 @@ function stateFromProjection(
     userId,
     ready: true,
     lastError: null,
+    dateKey: projection.dateKey,
+    timeZone: projection.timeZone,
+    calendarAuthority: projection.calendarAuthority,
+    timeZoneChangeDeferred: projection.timeZoneChangeDeferred,
+    nextTimeZoneChangeAt: projection.nextTimeZoneChangeAt,
     dailyGoal: projection.dailyGoal,
     goalCompleted: projection.goalCompleted,
     currentStreak: projection.currentStreak,

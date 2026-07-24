@@ -10,7 +10,7 @@ const ALLOWED_DIFFICULTIES = new Set(["Leicht", "Mittel", "Schwer"]);
 const ALLOWED_DISPLAY_TYPES = new Set(["Bewegung", "Ernährung", "Workout", "Community", "Abenteuer"]);
 const ALLOWED_SERVER_TYPES = new Set(["movement", "workout", "learning", "nutrition", "wellness"]);
 const ALLOWED_TARGET_UNITS = new Set(["steps", "workouts", "learning-modules"]);
-const REQUIRED_COMPLETION_POLICY = "once-per-mission-per-vienna-week";
+const REQUIRED_COMPLETION_POLICY = "once-per-mission-per-user-local-week";
 const REQUIRED_EVIDENCE_TYPE = "weekly-user-confirmation";
 
 function validateWeeklyCatalog(HttpsError) {
@@ -18,7 +18,7 @@ function validateWeeklyCatalog(HttpsError) {
     throw new HttpsError("failed-precondition", "Beta-1 Wochenmissionskatalog muss genau drei Hauptmissionen enthalten.");
   }
   if (catalog.completionPolicy !== REQUIRED_COMPLETION_POLICY || Number(catalog.weeklyGoal) !== 3) {
-    throw new HttpsError("failed-precondition", "Beta-1 Wochenmissionskatalog hat keine sichere Wochenabschlussgrenze.");
+    throw new HttpsError("failed-precondition", "Beta-1 Wochenmissionskatalog hat keine sichere nutzerlokale Wochenabschlussgrenze.");
   }
 
   const ids = new Set();

@@ -1,5 +1,6 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth } from "@/lib/firebase";
+import { getClientTimeZone } from "@/lib/beta1/clientUserContext";
 import {
   completeDashboardMissionAttempt,
   getDashboardMissionAttemptStatus,
@@ -19,9 +20,13 @@ export type Beta1DailyActiveAttempt = {
 
 export type Beta1DailyMissionProgress = {
   dateKey: string;
+  timeZone: string;
+  calendarAuthority: "server-user-time-zone";
+  timeZoneChangeDeferred: boolean;
+  nextTimeZoneChangeAt: string | null;
   catalogId: string;
   catalogVersion: string;
-  completionPolicy: "once-per-mission-per-vienna-day";
+  completionPolicy: "once-per-mission-per-user-local-day";
   favoriteIds: string[];
   dailySlotIds: (string | null)[];
   startedMissionIds: string[];
@@ -54,6 +59,10 @@ type RawPreferencesResponse = {
   accepted?: boolean;
   favoriteIds?: unknown;
   dailySlotIds?: unknown;
+  timeZone?: unknown;
+  calendarAuthority?: unknown;
+  timeZoneChangeDeferred?: unknown;
+  nextTimeZoneChangeAt?: unknown;
 };
 type StartMissionAttemptResponse = {
   accepted?: boolean;
@@ -95,7 +104,8 @@ function callableErrorMessage(error: unknown): string {
   const diagnostic = `${code} ${message}`.toLowerCase();
 
   if (diagnostic.includes("unauthenticated")) return "Bitte melde dich erneut an, um Tagesmissionen zu verwenden.";
-  if (diagnostic.includes("bereits abgeschlossen")) return "Diese Tagesmission wurde heute bereits abgeschlossen.";
+  if (diagnostic.includes("bereits abgeschlossen")) return "Diese Tagesmission wurde an deinem aktuellen lokalen Kalendertag bereits abgeschlossen.";
+  if (diagnostic.includes("iana-zeitzone") || diagnostic.includes("timezone") || diagnostic.includes("time zone")) return "Die lokale Zeitzone deines Geräts konnte nicht sicher übernommen werden.";
   if (diagnostic.includes("evidence-typ") || diagnostic.includes("evidence type")) return "Die Tagesmission akzeptiert nur die vorgesehene sichere Bestätigung.";
   if (diagnostic.includes("permission-denied")) return "Dieser Tagesmissionsvorgang gehört nicht zu deinem Konto.";
   if (diagnostic.includes("not-found")) return "Der Tagesmissionsvorgang wurde nicht gefunden.";
@@ -125,7 +135,13 @@ function parseActiveAttempts(value: unknown): Beta1DailyActiveAttempt[] {
 }
 
 function parseProgress(data: RawProgressResponse): Beta1DailyMissionProgress {
-  if (!data.accepted || typeof data.dateKey !== "string") {
+  if (
+    !data.accepted
+    || typeof data.dateKey !== "string"
+    || typeof data.timeZone !== "string"
+    || data.calendarAuthority !== "server-user-time-zone"
+    || data.completionPolicy !== "once-per-mission-per-user-local-day"
+  ) {
     throw new Error("Ungültige serverseitige Tagesmissions-Projektion.");
   }
   const slots = Array.isArray(data.dailySlotIds)
@@ -135,9 +151,13 @@ function parseProgress(data: RawProgressResponse): Beta1DailyMissionProgress {
 
   return {
     dateKey: data.dateKey,
+    timeZone: data.timeZone,
+    calendarAuthority: "server-user-time-zone",
+    timeZoneChangeDeferred: data.timeZoneChangeDeferred === true,
+    nextTimeZoneChangeAt: typeof data.nextTimeZoneChangeAt === "string" ? data.nextTimeZoneChangeAt : null,
     catalogId: typeof data.catalogId === "string" ? data.catalogId : "wellfit-beta1-daily-missions",
     catalogVersion: typeof data.catalogVersion === "string" ? data.catalogVersion : "unknown",
-    completionPolicy: "once-per-mission-per-vienna-day",
+    completionPolicy: "once-per-mission-per-user-local-day",
     favoriteIds: asStringArray(data.favoriteIds),
     dailySlotIds: slots,
     startedMissionIds: asStringArray(data.startedMissionIds),
@@ -177,7 +197,7 @@ async function submitEvidence(attemptId: string, missionId: string) {
     attemptId,
     evidenceType: "daily-user-confirmation",
     appSessionId,
-    clientVersion: "daily-missions-beta1-runtime-v1",
+    clientVersion: "daily-missions-beta1-runtime-v2",
     metadata: {
       source: "daily-missions",
       missionId,
@@ -197,8 +217,8 @@ async function submitEvidence(attemptId: string, missionId: string) {
 export async function fetchDailyMissionProgress(): Promise<Beta1DailyMissionProgress> {
   requireSignedInUser();
   try {
-    const callable = httpsCallable<Record<string, never>, RawProgressResponse>(getFunctions(), "getDailyMissionProgress");
-    const result = await callable({});
+    const callable = httpsCallable<{ timeZone: string }, RawProgressResponse>(getFunctions(), "getDailyMissionProgress");
+    const result = await callable({ timeZone: getClientTimeZone() });
     return parseProgress(result.data);
   } catch (error) {
     throw new Error(callableErrorMessage(error), { cause: error });
@@ -211,8 +231,9 @@ export async function saveDailyMissionPreferences(input: {
 }) {
   requireSignedInUser();
   try {
-    const callable = httpsCallable<typeof input, RawPreferencesResponse>(getFunctions(), "saveDailyMissionPreferences");
-    const result = await callable(input);
+    const payload = { ...input, timeZone: getClientTimeZone() };
+    const callable = httpsCallable<typeof payload, RawPreferencesResponse>(getFunctions(), "saveDailyMissionPreferences");
+    const result = await callable(payload);
     if (!result.data.accepted) throw new Error("Server hat die Tagesauswahl nicht bestätigt.");
     return {
       favoriteIds: asStringArray(result.data.favoriteIds),
@@ -228,11 +249,18 @@ export async function saveDailyMissionPreferences(input: {
 export async function submitDailyMissionForReview(missionId: string): Promise<Beta1DailyMissionActionResult> {
   requireSignedInUser();
   try {
-    const startCallable = httpsCallable<{ missionId: string; clientVersion: string }, StartMissionAttemptResponse>(
+    const startCallable = httpsCallable<
+      { missionId: string; clientVersion: string; timeZone: string },
+      StartMissionAttemptResponse
+    >(
       getFunctions(),
       "startMissionAttempt",
     );
-    const startResult = await startCallable({ missionId, clientVersion: "daily-missions-beta1-runtime-v1" });
+    const startResult = await startCallable({
+      missionId,
+      clientVersion: "daily-missions-beta1-runtime-v2",
+      timeZone: getClientTimeZone(),
+    });
     if (!startResult.data.accepted || typeof startResult.data.attemptId !== "string") {
       throw new Error("Server hat den Tagesmissions-Attempt nicht bestätigt.");
     }
@@ -241,7 +269,7 @@ export async function submitDailyMissionForReview(missionId: string): Promise<Be
       kind: evidence.reviewStatus === "pending-server-review" ? "submitted" : "pending",
       message: evidence.reviewStatus === "approved"
         ? "Die bestehende Evidence ist bereits freigegeben. Bitte den Abschluss erneut prüfen."
-        : "Mission wurde serverseitig gestartet. Deine Bestätigung wartet auf Admin-Prüfung; es wurden noch keine WFXP gutgeschrieben.",
+        : "Mission wurde serverseitig für deinen lokalen Kalendertag gestartet. Deine Bestätigung wartet auf Admin-Prüfung; es wurden noch keine WFXP gutgeschrieben.",
       rewardXp: 0,
       reviewStatus: evidence.reviewStatus,
     };

@@ -1,5 +1,6 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth } from "@/lib/firebase";
+import { getClientTimeZone } from "@/lib/beta1/clientUserContext";
 
 export type Beta1MissionReviewStatus =
   | "pending-server-review"
@@ -101,6 +102,7 @@ function callableErrorMessage(error: unknown, operation: "start" | "status" | "c
   if (diagnostic.includes("unauthenticated")) return "Bitte melde dich erneut an, bevor du die Mission fortsetzt.";
   if (diagnostic.includes("permission-denied")) return "Diese Mission oder Evidence gehört nicht zu deinem Konto.";
   if (diagnostic.includes("not-found")) return "Der sichere Missionsvorgang wurde nicht gefunden.";
+  if (diagnostic.includes("iana-zeitzone") || diagnostic.includes("timezone") || diagnostic.includes("time zone")) return "Die lokale Zeitzone des Geräts konnte nicht sicher übernommen werden.";
   if (diagnostic.includes("freigegebene mission evidence")) return "Die Evidence wartet noch auf eine serverseitige Freigabe.";
   if (diagnostic.includes("nicht publiziert") || diagnostic.includes("nicht mehr publiziert")) return "Die ausgewählte Mission ist nicht mehr verfügbar.";
   if (diagnostic.includes("failed-precondition")) {
@@ -187,7 +189,7 @@ export async function submitDashboardMissionForReview(missionId: string): Promis
   try {
     const functions = getFunctions();
     const startMissionAttempt = httpsCallable<
-      { missionId: string; appSessionId: string; clientVersion: string },
+      { missionId: string; appSessionId: string; clientVersion: string; timeZone: string },
       StartMissionAttemptResponse
     >(functions, "startMissionAttempt");
     const submitMissionEvidence = httpsCallable<
@@ -204,12 +206,13 @@ export async function submitDashboardMissionForReview(missionId: string): Promis
     const appSessionId = typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
       : `dashboard-${Date.now()}`;
-    const clientVersion = "dashboard-beta1-review-v2";
+    const clientVersion = "dashboard-beta1-review-v3";
 
     const attemptResult = await startMissionAttempt({
       missionId: normalizedMissionId,
       appSessionId,
       clientVersion,
+      timeZone: getClientTimeZone(),
     });
     const attemptId = attemptResult.data.attemptId;
     if (!attemptResult.data.accepted || !attemptId) {
@@ -288,11 +291,11 @@ export async function getDashboardMissionAttemptStatus(
 export async function completeDashboardMissionAttempt(attemptId: string): Promise<Beta1MissionCompletionResult> {
   requireSignedInUser();
   try {
-    const callable = httpsCallable<{ attemptId: string }, CompleteMissionAttemptResponse>(
+    const callable = httpsCallable<{ attemptId: string; timeZone: string }, CompleteMissionAttemptResponse>(
       getFunctions(),
       "completeMissionAttempt",
     );
-    const result = await callable({ attemptId });
+    const result = await callable({ attemptId, timeZone: getClientTimeZone() });
     const data = result.data;
     if (
       !data.accepted

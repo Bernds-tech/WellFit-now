@@ -5,6 +5,14 @@ const FUNCTIONS_BASE_URL = process.env.FUNCTIONS_EMULATOR_URL || `http://127.0.0
 const AUTH_EMULATOR_HOST = process.env.FIREBASE_AUTH_EMULATOR_HOST || "127.0.0.1:9099";
 const FIRESTORE_EMULATOR_HOST = process.env.FIRESTORE_EMULATOR_HOST || "127.0.0.1:8080";
 
+const BASELINE_PUBLISHED_LOCATION_MISSIONS = [
+  ["adventure-city-sprint", "City Sprint"],
+  ["adventure-ar-treasure", "AR Treasure"],
+  ["adventure-museum-quiz", "Museum Quiz"],
+  ["challenge-reaction-test", "Reaction Test"],
+  ["challenge-balance-park", "Balance Park"],
+];
+
 process.env.FIREBASE_AUTH_EMULATOR_HOST = AUTH_EMULATOR_HOST;
 process.env.FIRESTORE_EMULATOR_HOST = FIRESTORE_EMULATOR_HOST;
 
@@ -81,24 +89,47 @@ function describeCall(callResponse) {
   return JSON.stringify({ status: callResponse.status, ok: callResponse.ok, json: callResponse.json, rawText: callResponse.rawText });
 }
 
-async function resetBeta1Collections() {
-  const collections = [
-    "familyAccounts", "childProfiles", "guardianChildLinks", "parentalConsents", "missions", "missionAttempts", "missionEvidence", "missionCompletions",
-    "trackingSessions", "trackingProofEvents", "missionBuddyEvents", "missionContextEvaluations", "missionCompletionEvaluations", "missionRewardPreviews", "missionEvidenceReviews", "missionPatternReviews", "missionCooldownReviews", "missionRewardEvents",
-    "userDailyMissionState", "userDailyStreaks", "userLevels", "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "itemDefinitions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory", "userAvatars", "buddyCareActions",
-    "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "glitchSafetyRules", "safetyReports",
-  ];
-  for (const collectionName of collections) {
-    const snapshot = await db.collection(collectionName).limit(500).get();
+async function clearCollection(collectionName) {
+  for (let page = 0; page < 1000; page += 1) {
+    const snapshot = await db.collection(collectionName).limit(400).get();
+    if (snapshot.empty) return;
     const batch = db.batch();
     snapshot.docs.forEach((doc) => batch.delete(doc.ref));
     await batch.commit();
   }
+  throw new Error(`Test collection ${collectionName} exceeded the safe reset page limit.`);
+}
+
+async function resetBeta1Collections() {
+  const collections = [
+    "familyAccounts", "childProfiles", "guardianChildLinks", "parentalConsents", "missions", "missionAttempts", "missionEvidence", "missionCompletions",
+    "trackingSessions", "trackingProofEvents", "missionBuddyEvents", "missionContextEvaluations", "missionCompletionEvaluations", "missionRewardPreviews", "missionEvidenceReviews", "missionPatternReviews", "missionCooldownReviews", "missionRewardEvents",
+    "userCalendarSettings", "userDailyMissionState", "userDailyStreaks", "userLevels", "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "itemDefinitions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory", "userAvatars", "buddyCareActions",
+    "locationQueryBudgets", "missionLocations", "adventureAccessEvents", "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "glitchSafetyRules", "safetyReports",
+  ];
+  for (const collectionName of collections) {
+    await clearCollection(collectionName);
+  }
 }
 
 async function seedBeta1RuntimeData() {
-  await db.collection("shopItems").doc("beta_shoes").set({ shopItemId: "beta_shoes", itemDefinitionId: "shoes_001", priceWfxp: 20, category: "cosmetic", childAllowed: true, status: "published" });
-  await db.collection("shopItems").doc("adult_item").set({ shopItemId: "adult_item", itemDefinitionId: "adult_001", priceWfxp: 20, category: "cosmetic", childAllowed: false, status: "published" });
+  const batch = db.batch();
+  batch.set(db.collection("shopItems").doc("beta_shoes"), { shopItemId: "beta_shoes", itemDefinitionId: "shoes_001", priceWfxp: 20, category: "cosmetic", childAllowed: true, status: "published" });
+  batch.set(db.collection("shopItems").doc("adult_item"), { shopItemId: "adult_item", itemDefinitionId: "adult_001", priceWfxp: 20, category: "cosmetic", childAllowed: false, status: "published" });
+  for (const [missionId, title] of BASELINE_PUBLISHED_LOCATION_MISSIONS) {
+    batch.set(db.collection("missions").doc(missionId), {
+      missionId,
+      title: `[fixture] ${title}`,
+      status: "published",
+      childAllowed: false,
+      rewardXp: 1,
+      noMonetaryValue: true,
+      tokenAuthorized: false,
+      cashoutAllowed: false,
+      fixtureOnly: true,
+    });
+  }
+  await batch.commit();
 }
 
 module.exports = {
@@ -111,6 +142,7 @@ module.exports = {
   callCallable,
   getCallableResult,
   describeCall,
+  clearCollection,
   resetBeta1Collections,
   seedBeta1RuntimeData,
 };

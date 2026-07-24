@@ -37,6 +37,11 @@ function isDifficulty(value: string): value is DailyMission["difficulty"] {
 
 export const DAILY_MISSION_CATALOG_ID = dailyMissionCatalog.catalogId;
 export const DAILY_MISSION_CATALOG_VERSION = dailyMissionCatalog.version;
+export const DAILY_MISSION_COMPLETION_POLICY = "once-per-mission-per-user-local-day" as const;
+
+if (dailyMissionCatalog.completionPolicy !== DAILY_MISSION_COMPLETION_POLICY) {
+  throw new Error("Unsafe daily mission completion policy.");
+}
 
 export const dailyMissions: DailyMission[] = dailyMissionCatalog.missions.map((mission) => {
   if (!isDisplayType(mission.displayType)) throw new Error(`Invalid daily mission display type: ${mission.missionId}`);

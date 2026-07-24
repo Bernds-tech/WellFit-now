@@ -10,68 +10,25 @@ const {
 } = require("./beta1Runtime");
 const { applyXpDelta } = require("./beta1XpLedger");
 const {
-  dateKeyInVienna,
   documentDateKey,
   calculateLevelFromXp,
 } = require("./beta1DailyMissionProgress");
+const {
+  dateKeyInTimeZone,
+  weekRangeFromDateKey,
+  weekRangeInTimeZone,
+  addUtcDays,
+  resolveUserCalendarContext,
+} = require("./beta1UserCalendar");
 
 const MAX_HISTORY_DOCS = 500;
 const WEEKLY_MISSION_IDS = new Set(weeklyMissionCatalog.missions.map((mission) => mission.missionId));
 const WEEKLY_EVIDENCE_TYPE = "weekly-user-confirmation";
-const WEEKLY_COMPLETION_POLICY = "once-per-mission-per-vienna-week";
+const WEEKLY_COMPLETION_POLICY = "once-per-mission-per-user-local-week";
 
-function dateKeyToUtcDate(dateKey) {
-  const [year, month, day] = String(dateKey).split("-").map(Number);
-  if (!year || !month || !day) return null;
-  const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function utcDateKey(date) {
-  return date.toISOString().slice(0, 10);
-}
-
-function addUtcDays(dateKey, delta) {
-  const date = dateKeyToUtcDate(dateKey);
-  if (!date) return null;
-  date.setUTCDate(date.getUTCDate() + delta);
-  return utcDateKey(date);
-}
-
-function weekRangeFromDateKey(dateKey) {
-  const date = dateKeyToUtcDate(dateKey);
-  if (!date) return null;
-  const isoDayIndex = (date.getUTCDay() + 6) % 7;
-  const start = new Date(date);
-  start.setUTCDate(start.getUTCDate() - isoDayIndex);
-  const end = new Date(start);
-  end.setUTCDate(end.getUTCDate() + 6);
-
-  const thursday = new Date(start);
-  thursday.setUTCDate(thursday.getUTCDate() + 3);
-  const weekYear = thursday.getUTCFullYear();
-  const januaryFourth = new Date(Date.UTC(weekYear, 0, 4, 12, 0, 0));
-  const januaryFourthDayIndex = (januaryFourth.getUTCDay() + 6) % 7;
-  const firstWeekMonday = new Date(januaryFourth);
-  firstWeekMonday.setUTCDate(firstWeekMonday.getUTCDate() - januaryFourthDayIndex);
-  const weekNumber = 1 + Math.round((start.getTime() - firstWeekMonday.getTime()) / (7 * 86400000));
-
-  return {
-    weekKey: `${weekYear}-W${String(weekNumber).padStart(2, "0")}`,
-    weekStartDateKey: utcDateKey(start),
-    weekEndDateKey: utcDateKey(end),
-  };
-}
-
-function weekKeyInVienna(value = new Date()) {
-  const dateKey = dateKeyInVienna(value);
-  const range = dateKey ? weekRangeFromDateKey(dateKey) : null;
+function weekKeyInTimeZone(value = new Date(), timeZone = "UTC") {
+  const range = weekRangeInTimeZone(value, timeZone);
   return range ? range.weekKey : null;
-}
-
-function weekRangeInVienna(value = new Date()) {
-  const dateKey = dateKeyInVienna(value);
-  return dateKey ? weekRangeFromDateKey(dateKey) : null;
 }
 
 function documentTime(data, preferredFields = ["createdAt", "startedAt", "updatedAt"]) {
@@ -85,11 +42,11 @@ function documentTime(data, preferredFields = ["createdAt", "startedAt", "update
   return 0;
 }
 
-function documentWeekKey(data, preferredFields) {
+function documentWeekKey(data, preferredFields, timeZone = "UTC") {
   const explicitWeekKey = optionalString(data.weekKey, 20);
   if (explicitWeekKey) return explicitWeekKey;
   const dateKey = optionalString(data.dateKey, 20)
-    || documentDateKey(data, preferredFields);
+    || documentDateKey(data, preferredFields, timeZone);
   const range = dateKey ? weekRangeFromDateKey(dateKey) : null;
   return range ? range.weekKey : null;
 }
@@ -133,7 +90,7 @@ function buildLatestEvidenceByAttempt(evidenceDocs) {
   return evidenceByAttempt;
 }
 
-function buildCurrentWeekCompletions(completionDocs, currentWeekKey) {
+function buildCurrentWeekCompletions(completionDocs, currentWeekKey, timeZone) {
   const completedMissionIds = new Set();
   const completedAttemptIds = new Set();
   for (const doc of completionDocs) {
@@ -143,7 +100,7 @@ function buildCurrentWeekCompletions(completionDocs, currentWeekKey) {
       completion.status !== "completed"
       || !missionId
       || !WEEKLY_MISSION_IDS.has(missionId)
-      || documentWeekKey(completion, ["completedAt", "updatedAt", "createdAt"]) !== currentWeekKey
+      || documentWeekKey(completion, ["completedAt", "updatedAt", "createdAt"], timeZone) !== currentWeekKey
     ) {
       continue;
     }
@@ -154,7 +111,7 @@ function buildCurrentWeekCompletions(completionDocs, currentWeekKey) {
   return { completedMissionIds, completedAttemptIds };
 }
 
-function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds, completedMissionIds, currentWeekKey }) {
+function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds, completedMissionIds, currentWeekKey, timeZone }) {
   const byMission = new Map();
   const sortedAttempts = [...attempts].sort((left, right) => {
     const leftTime = documentTime(left.data() || {});
@@ -166,7 +123,7 @@ function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds,
     const attempt = attemptDoc.data() || {};
     const missionId = optionalString(attempt.missionId, 160);
     if (!missionId || !WEEKLY_MISSION_IDS.has(missionId) || byMission.has(missionId)) continue;
-    if (documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"]) !== currentWeekKey) continue;
+    if (documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"], timeZone) !== currentWeekKey) continue;
     if (completedMissionIds.has(missionId)) continue;
     if (completedAttemptIds.has(attemptDoc.id) || attempt.status === "completed") continue;
     const evidence = evidenceByAttempt.get(attemptDoc.id) || null;
@@ -174,6 +131,7 @@ function buildActiveAttempts({ attempts, evidenceByAttempt, completedAttemptIds,
       missionId,
       attemptId: attemptDoc.id,
       weekKey: currentWeekKey,
+      timeZone: optionalString(attempt.timeZone, 120) || timeZone,
       attemptStatus: optionalString(attempt.status, 80) || "started",
       evidenceId: evidence ? evidence.id : null,
       reviewStatus: evidence ? optionalString(evidence.data.reviewStatus, 80) || "pending-server-review" : null,
@@ -218,21 +176,25 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
       throw new HttpsError("failed-precondition", "Child Profiles sind fuer den ersten Wochenmissionskatalog deaktiviert.");
     }
 
-    const currentRange = weekRangeInVienna(new Date());
-    if (!currentRange) throw new HttpsError("internal", "Aktuelle Wien-Woche konnte nicht bestimmt werden.");
+    const calendar = await resolveUserCalendarContext(db, userId, data.timeZone, HttpsError);
+    const currentRange = {
+      weekKey: calendar.weekKey,
+      weekStartDateKey: calendar.weekStartDateKey,
+      weekEndDateKey: calendar.weekEndDateKey,
+    };
     const attemptId = weeklyMissionAttemptId(userId, missionId, currentRange.weekKey);
     const attemptRef = db.collection("missionAttempts").doc(attemptId);
     const completionRef = db.collection("missionCompletions").doc(attemptId);
     const [attemptSnapshot, completionSnapshot] = await Promise.all([attemptRef.get(), completionRef.get()]);
     if (completionSnapshot.exists && (completionSnapshot.data() || {}).status === "completed") {
-      throw new HttpsError("failed-precondition", "Diese Wochenmission wurde in der aktuellen Wien-Woche bereits abgeschlossen.");
+      throw new HttpsError("failed-precondition", "Diese Wochenmission wurde in der aktuellen nutzerlokalen Woche bereits abgeschlossen.");
     }
 
     const attempt = attemptSnapshot.exists ? attemptSnapshot.data() || {} : {};
     if (attemptSnapshot.exists && (
       attempt.ownerUserId !== userId
       || attempt.missionId !== missionId
-      || documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"]) !== currentRange.weekKey
+      || documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"], calendar.timeZone) !== currentRange.weekKey
     )) {
       throw new HttpsError("failed-precondition", "Deterministischer Wochenmissions-Attempt ist inkonsistent.");
     }
@@ -254,6 +216,10 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
         attemptId,
         evidenceId: evidenceRef.id,
         weekKey: currentRange.weekKey,
+        timeZone: calendar.timeZone,
+        calendarAuthority: calendar.calendarAuthority,
+        timeZoneChangeDeferred: calendar.timeZoneChangeDeferred,
+        nextTimeZoneChangeAt: calendar.nextTimeZoneChangeAt,
         attemptStatus: optionalString(attempt.status, 80) || "evidence-submitted",
         reviewStatus: existingEvidence.reviewStatus,
         missionCompletionAuthorized: false,
@@ -276,6 +242,10 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
           attemptId,
           evidenceId: evidenceRef.id,
           weekKey: currentRange.weekKey,
+          timeZone: calendar.timeZone,
+          calendarAuthority: calendar.calendarAuthority,
+          timeZoneChangeDeferred: calendar.timeZoneChangeDeferred,
+          nextTimeZoneChangeAt: calendar.nextTimeZoneChangeAt,
           attemptStatus: "evidence-submitted",
           reviewStatus: "pending-server-review",
           missionCompletionAuthorized: false,
@@ -296,9 +266,12 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
       userId,
       childProfileId: null,
       status: "evidence-submitted",
+      dateKey: calendar.dateKey,
       weekKey: currentRange.weekKey,
       weekStartDateKey: currentRange.weekStartDateKey,
       weekEndDateKey: currentRange.weekEndDateKey,
+      timeZone: calendar.timeZone,
+      calendarAuthority: calendar.calendarAuthority,
       catalogId: weeklyMissionCatalog.catalogId,
       catalogVersion: weeklyMissionCatalog.version,
       completionPolicy: WEEKLY_COMPLETION_POLICY,
@@ -323,6 +296,7 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
       metadata: {
         source: "weekly-missions",
         weekKey: currentRange.weekKey,
+        timeZone: calendar.timeZone,
         requiresHumanReview: true,
         grantsClientReward: false,
         rawMediaStored: false,
@@ -345,6 +319,10 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
       attemptId,
       evidenceId: evidenceRef.id,
       weekKey: currentRange.weekKey,
+      timeZone: calendar.timeZone,
+      calendarAuthority: calendar.calendarAuthority,
+      timeZoneChangeDeferred: calendar.timeZoneChangeDeferred,
+      nextTimeZoneChangeAt: calendar.nextTimeZoneChangeAt,
       attemptStatus: "evidence-submitted",
       reviewStatus: "pending-server-review",
       missionCompletionAuthorized: false,
@@ -358,7 +336,8 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
 
   exportsTarget.completeWeeklyMissionAttempt = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
-    const attemptId = requiredString((request.data || {}).attemptId, "attemptId", HttpsError, 220);
+    const data = request.data || {};
+    const attemptId = requiredString(data.attemptId, "attemptId", HttpsError, 220);
     const attemptRef = db.collection("missionAttempts").doc(attemptId);
     const completionRef = db.collection("missionCompletions").doc(attemptId);
     const [attemptSnapshot, existingCompletion] = await Promise.all([attemptRef.get(), completionRef.get()]);
@@ -369,9 +348,11 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
     if (!isWeeklyMissionId(attempt.missionId)) {
       throw new HttpsError("invalid-argument", "Attempt ist keine kanonische Wochenmission.");
     }
-    const currentRange = weekRangeInVienna(new Date());
-    if (!currentRange || documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"]) !== currentRange.weekKey) {
-      throw new HttpsError("failed-precondition", "Wochenmissions-Attempt gehoert nicht zur aktuellen Wien-Woche.");
+    const calendar = await resolveUserCalendarContext(db, userId, data.timeZone, HttpsError);
+    const attemptTimeZone = optionalString(attempt.timeZone, 120) || calendar.timeZone;
+    const currentRange = weekRangeInTimeZone(new Date(), attemptTimeZone);
+    if (!currentRange || documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"], attemptTimeZone) !== currentRange.weekKey) {
+      throw new HttpsError("failed-precondition", "Wochenmissions-Attempt gehoert nicht zur aktuellen nutzerlokalen Woche.");
     }
     if (existingCompletion.exists && (existingCompletion.data() || {}).status === "completed") {
       const completion = existingCompletion.data() || {};
@@ -382,6 +363,7 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
         rewardXp: completion.rewardXp,
         evidenceId: completion.evidenceId,
         weekKey: currentRange.weekKey,
+        timeZone: attemptTimeZone,
         xpAuthorized: true,
         missionCompletionAuthorized: true,
         tokenAuthorized: false,
@@ -423,10 +405,11 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
         attemptId,
         missionId: attempt.missionId,
         weekKey: currentRange.weekKey,
+        timeZone: attemptTimeZone,
       },
     });
     if (ledger.idempotent && ledger.sourceId !== completionRef.id) {
-      throw new HttpsError("failed-precondition", "Diese Wochenmission wurde in der aktuellen Wien-Woche bereits belohnt.");
+      throw new HttpsError("failed-precondition", "Diese Wochenmission wurde in der aktuellen nutzerlokalen Woche bereits belohnt.");
     }
 
     await completionRef.set({
@@ -442,10 +425,12 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
       serverValidationStatus: "completion-authorized",
       rewardXp,
       xpLedgerEventId: ledger.ledgerEventId,
-      dateKey: dateKeyInVienna(new Date()),
+      dateKey: dateKeyInTimeZone(new Date(), attemptTimeZone),
       weekKey: currentRange.weekKey,
       weekStartDateKey: currentRange.weekStartDateKey,
       weekEndDateKey: currentRange.weekEndDateKey,
+      timeZone: attemptTimeZone,
+      calendarAuthority: "server-user-time-zone",
       catalogId: weeklyMissionCatalog.catalogId,
       catalogVersion: weeklyMissionCatalog.version,
       completionPolicy: WEEKLY_COMPLETION_POLICY,
@@ -472,6 +457,7 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
         ledgerEventId: ledger.ledgerEventId,
         evidenceId: evidenceSnapshot.id,
         weekKey: currentRange.weekKey,
+        timeZone: attemptTimeZone,
       },
     });
 
@@ -482,6 +468,7 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
       rewardXp,
       evidenceId: evidenceSnapshot.id,
       weekKey: currentRange.weekKey,
+      timeZone: attemptTimeZone,
       xpAuthorized: true,
       missionCompletionAuthorized: true,
       tokenAuthorized: false,
@@ -493,8 +480,13 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
 
   exportsTarget.getWeeklyMissionProgress = onCall(async (request) => {
     const userId = requireAuth(request, HttpsError);
-    const currentRange = weekRangeInVienna(new Date());
-    if (!currentRange) throw new HttpsError("internal", "Aktuelle Wien-Woche konnte nicht bestimmt werden.");
+    const data = request.data || {};
+    const calendar = await resolveUserCalendarContext(db, userId, data.timeZone, HttpsError);
+    const currentRange = {
+      weekKey: calendar.weekKey,
+      weekStartDateKey: calendar.weekStartDateKey,
+      weekEndDateKey: calendar.weekEndDateKey,
+    };
 
     const [attemptsSnapshot, evidenceSnapshot, completionsSnapshot, walletSnapshot] = await Promise.all([
       db.collection("missionAttempts").where("ownerUserId", "==", userId).limit(MAX_HISTORY_DOCS).get(),
@@ -504,20 +496,21 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
     ]);
 
     const evidenceByAttempt = buildLatestEvidenceByAttempt(evidenceSnapshot.docs);
-    const currentCompletions = buildCurrentWeekCompletions(completionsSnapshot.docs, currentRange.weekKey);
+    const currentCompletions = buildCurrentWeekCompletions(completionsSnapshot.docs, currentRange.weekKey, calendar.timeZone);
     const activeAttempts = buildActiveAttempts({
       attempts: attemptsSnapshot.docs,
       evidenceByAttempt,
       completedAttemptIds: currentCompletions.completedAttemptIds,
       completedMissionIds: currentCompletions.completedMissionIds,
       currentWeekKey: currentRange.weekKey,
+      timeZone: calendar.timeZone,
     });
     const startedMissionIds = [...new Set([
       ...attemptsSnapshot.docs
         .filter((doc) => {
           const attempt = doc.data() || {};
           return isWeeklyMissionId(attempt.missionId)
-            && documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"]) === currentRange.weekKey;
+            && documentWeekKey(attempt, ["startedAt", "createdAt", "updatedAt"], calendar.timeZone) === currentRange.weekKey;
         })
         .map((doc) => optionalString((doc.data() || {}).missionId, 160))
         .filter(Boolean),
@@ -534,6 +527,10 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
       weekKey: currentRange.weekKey,
       weekStartDateKey: currentRange.weekStartDateKey,
       weekEndDateKey: currentRange.weekEndDateKey,
+      timeZone: calendar.timeZone,
+      calendarAuthority: calendar.calendarAuthority,
+      timeZoneChangeDeferred: calendar.timeZoneChangeDeferred,
+      nextTimeZoneChangeAt: calendar.nextTimeZoneChangeAt,
       catalogId: weeklyMissionCatalog.catalogId,
       catalogVersion: weeklyMissionCatalog.version,
       completionPolicy: weeklyMissionCatalog.completionPolicy,
@@ -558,8 +555,8 @@ function registerBeta1WeeklyMissionProgress(exportsTarget, { db, onCall, HttpsEr
 
 module.exports = {
   registerBeta1WeeklyMissionProgress,
-  weekKeyInVienna,
-  weekRangeInVienna,
+  weekKeyInTimeZone,
+  weekRangeInTimeZone,
   weekRangeFromDateKey,
   documentWeekKey,
   isWeeklyMissionId,

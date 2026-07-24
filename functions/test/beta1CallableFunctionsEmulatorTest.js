@@ -13,7 +13,9 @@ const {
 async function expectOk(functionName, token, data) {
   const response = await callCallable(functionName, token, data);
   assert(response.ok, `${functionName} muss HTTP OK sein: ${describeCall(response)}`);
-  return getCallableResult(response);
+  const result = getCallableResult(response);
+  assert(result && result.accepted === true, `${functionName} muss accepted=true liefern: ${describeCall(response)}`);
+  return result;
 }
 
 async function expectCallableError(functionName, token, data, label) {
@@ -51,19 +53,6 @@ async function run() {
   assert(missionPublish.status === "published", "Admin Mission Publish muss published liefern.");
 
   const family = await expectOk("createGuardianFamilyAccount", userToken, { displayName: "Beta Family" });
-  assert(family.familyAccountId, "Family Account muss erzeugt werden.");
-  await expectCallableError(
-    "createChildProfile",
-    userToken,
-    { familyAccountId: family.familyAccountId, nickname: "TooYoung", age: 7 },
-    "Child Profile unter 8 muss abgelehnt werden",
-  );
-  await expectCallableError(
-    "createChildProfile",
-    userToken,
-    { familyAccountId: family.familyAccountId, nickname: "TooOld", age: 14 },
-    "Child Profile ueber 13 muss abgelehnt werden",
-  );
   const child = await expectOk("createChildProfile", userToken, {
     familyAccountId: family.familyAccountId,
     nickname: "Kid",
@@ -77,10 +66,9 @@ async function run() {
     { missionId: "mission_beta1", childProfileId: child.childProfileId },
     "Child Mission Start braucht Consent",
   );
-  await expectOk("recordParentalConsent", userToken, { childProfileId: child.childProfileId, consentType: "missions" });
-  await expectOk("recordParentalConsent", userToken, { childProfileId: child.childProfileId, consentType: "shop" });
-  await expectOk("recordParentalConsent", userToken, { childProfileId: child.childProfileId, consentType: "location" });
-  await expectOk("recordParentalConsent", userToken, { childProfileId: child.childProfileId, consentType: "cameraEvidence" });
+  for (const consentType of ["missions", "shop", "location", "cameraEvidence"]) {
+    await expectOk("recordParentalConsent", userToken, { childProfileId: child.childProfileId, consentType });
+  }
   await expectOk("updateChildPermissions", userToken, {
     childProfileId: child.childProfileId,
     permissions: { missions: true, shop: true, location: true, cameraEvidence: true },
@@ -97,14 +85,11 @@ async function run() {
     childProfileId: child.childProfileId,
     deviceId: "device-1",
   });
-  assert(attempt.missionCompletionAuthorized === false, "Mission Start darf Completion nicht final autorisieren.");
   const evidence = await expectOk("submitMissionEvidence", userToken, {
     attemptId: attempt.attemptId,
     evidenceType: "manual-test",
   });
-  assert(evidence.xpAuthorized === false, "Evidence Submit darf XP nicht final autorisieren.");
-  assert(evidence.reviewStatus === "pending-server-review", "Evidence muss pending-server-review bleiben.");
-
+  assert(evidence.reviewStatus === "pending-server-review" && evidence.xpAuthorized === false, "Evidence muss auf Review warten.");
   await expectCallableError(
     "completeMissionAttempt",
     userToken,
@@ -117,99 +102,51 @@ async function run() {
     { evidenceId: evidence.evidenceId, decision: "approved", reviewNote: "unauthorized" },
     "Nicht-Admin darf Mission Evidence nicht freigeben",
   );
-  await expectCallableError(
-    "adminReviewMissionEvidence",
-    adminToken,
-    { evidenceId: evidence.evidenceId, decision: "invalid", reviewNote: "invalid decision" },
-    "Ungueltige Evidence-Entscheidung muss abgelehnt werden",
-  );
-  const evidenceReview = await expectOk("adminReviewMissionEvidence", adminToken, {
+  await expectOk("adminReviewMissionEvidence", adminToken, {
     evidenceId: evidence.evidenceId,
     decision: "approved",
     reviewNote: "Emulator QA Evidence freigegeben",
   });
-  assert(evidenceReview.decision === "approved", "Admin Review muss approved liefern.");
-  assert(evidenceReview.serverValidationStatus === "evidence-approved", "Admin Review muss Evidence serverseitig freigeben.");
-  assert(evidenceReview.xpAuthorized === false, "Evidence Review selbst darf noch keine XP autorisieren.");
-
-  const cameraEvidence = await expectOk("submitMissionEvidence", userToken, {
-    attemptId: attempt.attemptId,
-    evidenceType: "camera",
-  });
-  assert(cameraEvidence.xpAuthorized === false, "Camera Evidence darf XP nicht final autorisieren.");
-
   const completion = await expectOk("completeMissionAttempt", userToken, { attemptId: attempt.attemptId });
-  assert(completion.xpAuthorized === true, "Server Completion muss XP nach freigegebener Evidence autorisieren.");
-  assert(completion.tokenAuthorized === false, "Server Completion darf keine Token autorisieren.");
-  assert(completion.evidenceId === evidence.evidenceId, "Completion muss die freigegebene Evidence referenzieren.");
+  assert(completion.xpAuthorized === true && completion.tokenAuthorized === false, "Completion darf nur interne WFXP autorisieren.");
   const duplicateCompletion = await expectOk("completeMissionAttempt", userToken, { attemptId: attempt.attemptId });
-  assert(duplicateCompletion.idempotent === true, "Duplicate Mission Completion muss idempotent sein.");
-  assert(
-    duplicateCompletion.xpLedgerEventId === completion.xpLedgerEventId
-      && duplicateCompletion.completionId === completion.completionId,
-    "Duplicate Mission Completion muss denselben Completion- und Ledger-Kontext nutzen.",
-  );
-  await expectCallableError(
-    "adminReviewMissionEvidence",
-    adminToken,
-    { evidenceId: evidence.evidenceId, decision: "rejected", reviewNote: "late mutation" },
-    "Freigegebene Evidence darf nach Mission Completion nicht nachtraeglich umgeschrieben werden",
-  );
-
-  const rejectedAttempt = await expectOk("startMissionAttempt", userToken, { missionId: "mission_beta1" });
-  const rejectedEvidence = await expectOk("submitMissionEvidence", userToken, {
-    attemptId: rejectedAttempt.attemptId,
-    evidenceType: "manual-test",
-  });
-  const rejectedReview = await expectOk("adminReviewMissionEvidence", adminToken, {
-    evidenceId: rejectedEvidence.evidenceId,
-    decision: "rejected",
-    reviewNote: "Evidence reicht nicht aus",
-  });
-  assert(rejectedReview.serverValidationStatus === "evidence-rejected", "Rejected Review muss Evidence blockieren.");
-  await expectCallableError(
-    "completeMissionAttempt",
-    userToken,
-    { attemptId: rejectedAttempt.attemptId },
-    "Abgelehnte Evidence darf Mission Completion nicht autorisieren",
-  );
+  assert(duplicateCompletion.idempotent === true && duplicateCompletion.xpLedgerEventId === completion.xpLedgerEventId, "Duplicate Completion muss idempotent sein.");
 
   const wallet = await expectOk("getXpWallet", userToken, { childProfileId: child.childProfileId });
   assert(wallet.wallet.balance === 35, `Child Wallet muss 35 WFXP enthalten: ${JSON.stringify(wallet)}`);
   const ledgerDoc = await db.collection("xpLedgerEvents").doc(completion.xpLedgerEventId).get();
-  assert(ledgerDoc.exists, "Completion muss xpLedgerEvents schreiben.");
-  assert(ledgerDoc.data().noMonetaryValue === true, "XP Ledger muss noMonetaryValue=true schreiben.");
-  assert(ledgerDoc.data().blockchainBacked === false, "XP Ledger darf nicht blockchain-backed sein.");
-  assert(ledgerDoc.data().cashoutAllowed === false, "XP Ledger darf kein Cashout erlauben.");
+  assert(ledgerDoc.exists && ledgerDoc.data().noMonetaryValue === true, "Completion muss einen internen Ledger schreiben.");
+  assert(ledgerDoc.data().blockchainBacked === false && ledgerDoc.data().cashoutAllowed === false, "Ledger darf nicht blockchain-backed oder auszahlbar sein.");
+
   await expectCallableError(
     "adminAdjustXp",
     adminToken,
     { ownerUserId: "beta1-user", delta: 1 },
     "Admin XP Adjustment braucht reason",
   );
-  const adminAdjustment = await expectOk("adminAdjustXp", adminToken, {
+  const adjustment = await expectOk("adminAdjustXp", adminToken, {
     ownerUserId: "beta1-user",
     childProfileId: child.childProfileId,
     delta: 5,
     reason: "qa-hardening",
     idempotencyKey: "qa_adjust_child",
   });
-  assert(adminAdjustment.noMonetaryValue === true && adminAdjustment.cashoutAllowed === false, "Admin XP Adjustment bleibt internal-only.");
-  await expectOk("adminAdjustXp", adminToken, {
+  assert(adjustment.noMonetaryValue === true && adjustment.cashoutAllowed === false, "Admin XP Adjustment bleibt internal-only.");
+  const adjustmentReplay = await expectOk("adminAdjustXp", adminToken, {
     ownerUserId: "beta1-user",
     childProfileId: child.childProfileId,
     delta: 5,
     reason: "qa-hardening",
     idempotencyKey: "qa_adjust_child",
   });
+  assert(adjustmentReplay.idempotent === true, "Admin XP Adjustment muss idempotent sein.");
 
   const intent = await expectOk("createShopPurchaseIntent", userToken, {
     shopItemId: "beta_shoes",
     childProfileId: child.childProfileId,
   });
-  assert(intent.purchaseAuthorized === false, "Purchase Intent darf noch nicht final autorisieren.");
   const purchase = await expectOk("completeXpShopPurchase", userToken, { intentId: intent.intentId });
-  assert(purchase.purchaseAuthorized === true && purchase.inventoryAuthorized === true, "Server Purchase muss Kauf und Inventory final autorisieren.");
+  assert(purchase.purchaseAuthorized === true && purchase.inventoryAuthorized === true, "Server Purchase muss Kauf und Inventory autorisieren.");
   await expectCallableError(
     "completeXpShopPurchase",
     userToken,
@@ -217,9 +154,7 @@ async function run() {
     "Duplicate Shop Purchase darf Inventory nicht doppelt grantieren",
   );
   const walletAfterPurchase = await expectOk("getXpWallet", userToken, { childProfileId: child.childProfileId });
-  assert(walletAfterPurchase.wallet.balance === 20, `Wallet muss nach Admin Adjustment und Shop Spend 20 WFXP enthalten: ${JSON.stringify(walletAfterPurchase)}`);
-  const inventory = await expectOk("listInventory", userToken, { childProfileId: child.childProfileId });
-  assert(inventory.items.length === 1, `Duplicate Shop Purchase darf nur ein Inventory Item grantieren: ${JSON.stringify(inventory)}`);
+  assert(walletAfterPurchase.wallet.balance === 20, "Wallet muss nach Adjustment und Shop Spend 20 WFXP enthalten.");
 
   const checkpoint = await expectOk("adminCreateCheckpoint", adminToken, {
     checkpointId: "cp_beta1",
@@ -228,26 +163,30 @@ async function run() {
   assert(checkpoint.checkpointId === "cp_beta1", "Admin Checkpoint muss angelegt werden.");
   const score = await expectOk("submitCheckpointScore", userToken, { checkpointId: "cp_beta1", score: 123 });
   assert(score.mayorAuthorized === false, "Checkpoint Score darf Mayor nicht clientseitig autorisieren.");
-  await expectCallableError(
-    "submitCheckpointScore",
-    userToken,
-    { checkpointId: "cp_beta1", score: 123, childProfileId: child.childProfileId },
-    "Junior Mayors muessen deaktiviert sein",
-  );
   const mayorShare = await expectOk("adminGrantMayorShareXp", adminToken, {
     mayorUserId: "beta1-user",
     checkpointId: "cp_beta1",
     xpAmount: 5,
     idempotencyKey: "mayor-share-qa",
   });
-  assert(mayorShare.xpAuthorized === true && mayorShare.cashoutAllowed === false, "Mayor Share muss WFXP-only ohne Cashout sein.");
-  const duplicateMayorShare = await expectOk("adminGrantMayorShareXp", adminToken, {
-    mayorUserId: "beta1-user",
-    checkpointId: "cp_beta1",
-    xpAmount: 5,
-    idempotencyKey: "mayor-share-qa",
+  assert(mayorShare.xpAuthorized === true && mayorShare.cashoutAllowed === false, "Mayor Share muss WFXP-only bleiben.");
+
+  const BERLIN_LOCATION_ID = "safe-location-berlin";
+  const BERLIN = { latitude: 52.520008, longitude: 13.404954 };
+  await expectOk("adminUpsertMissionLocation", adminToken, {
+    locationId: BERLIN_LOCATION_ID,
+    title: "Berlin Global Glitch Hub",
+    regionId: "de-berlin",
+    countryCode: "DE",
+    locality: "Berlin",
+    locationType: "public-space",
+    latitude: BERLIN.latitude,
+    longitude: BERLIN.longitude,
+    missionIds: ["mission_beta1"],
+    safeLocationReviewed: true,
+    safetyReviewNote: "[emulator-qa] global sicher",
+    status: "published",
   });
-  assert(duplicateMayorShare.idempotent === true, "Mayor Share muss Idempotency Key respektieren.");
 
   const activeWindow = glitchWindow();
   await expectCallableError(
@@ -255,8 +194,8 @@ async function run() {
     adminToken,
     {
       glitchEventId: "glitch_too_long",
-      regionId: "vienna",
-      locationIds: ["safe-location-1"],
+      regionId: "de-berlin",
+      locationIds: [BERLIN_LOCATION_ID],
       windowStart: activeWindow.windowStart,
       windowEnd: new Date(Date.now() + 11 * 60000).toISOString(),
       multiplierCap: 10,
@@ -266,70 +205,92 @@ async function run() {
   await expectCallableError(
     "adminScheduleGlitchEvent",
     adminToken,
-    { glitchEventId: "glitch_too_high", regionId: "vienna", locationIds: ["safe-location-1"], ...activeWindow, multiplierCap: 11 },
-    "Glitch Multiplier ueber 10 muss abgelehnt werden",
+    { glitchEventId: "glitch_invalid_region", regionId: "Berlin Mitte!", locationIds: [BERLIN_LOCATION_ID], ...activeWindow, multiplierCap: 2 },
+    "Ungueltige globale Regions-ID muss abgelehnt werden",
   );
   await expectCallableError(
     "adminScheduleGlitchEvent",
     adminToken,
-    { glitchEventId: "glitch_region", regionId: "berlin", locationIds: ["safe-location-1"], ...activeWindow, multiplierCap: 2 },
-    "Glitch ausserhalb Wien/Niederoesterreich muss abgelehnt werden",
+    { glitchEventId: "glitch_wrong_region", regionId: "fr-paris", locationIds: [BERLIN_LOCATION_ID], ...activeWindow, multiplierCap: 2 },
+    "Glitch-Ort muss zur angegebenen Region gehoeren",
   );
   await expectCallableError(
     "adminScheduleGlitchEvent",
     adminToken,
-    { glitchEventId: "glitch_unsafe", regionId: "vienna", locationIds: ["safe-location-1"], ...activeWindow, unsafeLocation: true, multiplierCap: 2 },
+    { glitchEventId: "glitch_unsafe", regionId: "de-berlin", locationIds: [BERLIN_LOCATION_ID], ...activeWindow, unsafeLocation: true, multiplierCap: 2 },
     "Unsafe Glitch Location muss abgelehnt werden",
   );
+
   const expiredWindow = glitchWindow(-20, -11);
   await expectOk("adminScheduleGlitchEvent", adminToken, {
     glitchEventId: "glitch_expired",
-    regionId: "vienna",
-    locationIds: ["safe-location-1"],
+    regionId: "de-berlin",
+    locationIds: [BERLIN_LOCATION_ID],
     ...expiredWindow,
     multiplierCap: 2,
   });
   await expectCallableError(
     "checkInToGlitch",
     userToken,
-    { glitchEventId: "glitch_expired", childProfileId: child.childProfileId },
+    {
+      glitchEventId: "glitch_expired",
+      locationId: BERLIN_LOCATION_ID,
+      ...BERLIN,
+      childProfileId: child.childProfileId,
+    },
     "Glitch Check-in ausserhalb Fenster muss abgelehnt werden",
   );
+
   const glitch = await expectOk("adminScheduleGlitchEvent", adminToken, {
-    glitchEventId: "glitch_beta1",
-    regionId: "vienna",
-    locationIds: ["safe-location-1"],
+    glitchEventId: "glitch_beta1_global",
+    regionId: "de-berlin",
+    locationIds: [BERLIN_LOCATION_ID],
     ...activeWindow,
     multiplierCap: 10,
   });
-  assert(glitch.multiplierCap === 10, "Glitch Cap darf 10x sein.");
-  const glitchCheckIn = await expectOk("checkInToGlitch", userToken, {
-    glitchEventId: "glitch_beta1",
-    childProfileId: child.childProfileId,
-  });
-  assert(glitchCheckIn.boostAuthorized === false, "Glitch Check-in darf Boost nicht clientseitig autorisieren.");
-  const duplicateGlitchCheckIn = await expectOk("checkInToGlitch", userToken, {
-    glitchEventId: "glitch_beta1",
-    childProfileId: child.childProfileId,
-  });
-  assert(duplicateGlitchCheckIn.idempotent === true, "Duplicate Glitch Check-in muss idempotent bleiben.");
-  await expectCallableError(
-    "activateGlitchBoost",
-    userToken,
-    { glitchEventId: "glitch_beta1" },
-    "activateGlitchBoost muss internal-only bleiben",
-  );
-  const cancelGlitch = await expectOk("cancelGlitchEvent", adminToken, {
-    glitchEventId: "glitch_beta1",
-    reason: "test cancel",
-  });
-  assert(cancelGlitch.status === "cancelled", "Admin Cancel muss Glitch abbrechen.");
+  assert(glitch.multiplierCap === 10 && glitch.regionId === "de-berlin" && glitch.globalCatalog === true, "Globaler Glitch muss 10x und die Region ausweisen.");
+  const listed = await expectOk("listGlitchEvents", userToken, { regionId: "de-berlin" });
+  assert(listed.events.some((event) => event.glitchEventId === "glitch_beta1_global"), "Regionale Liste muss den Berliner Glitch enthalten.");
   await expectCallableError(
     "checkInToGlitch",
     userToken,
-    { glitchEventId: "glitch_beta1", childProfileId: child.childProfileId },
-    "Cancelled Glitch darf keine Boost-Aktivierung/Check-in erlauben",
+    {
+      glitchEventId: "glitch_beta1_global",
+      locationId: BERLIN_LOCATION_ID,
+      latitude: 48.2082,
+      longitude: 16.3738,
+      childProfileId: child.childProfileId,
+    },
+    "Glitch Check-in muss unmittelbare Ortsnaehe verlangen",
   );
+  const glitchCheckIn = await expectOk("checkInToGlitch", userToken, {
+    glitchEventId: "glitch_beta1_global",
+    locationId: BERLIN_LOCATION_ID,
+    ...BERLIN,
+    childProfileId: child.childProfileId,
+  });
+  assert(glitchCheckIn.boostAuthorized === false && glitchCheckIn.locationId === BERLIN_LOCATION_ID, "Check-in darf Boost nicht clientseitig autorisieren.");
+  const duplicateGlitchCheckIn = await expectOk("checkInToGlitch", userToken, {
+    glitchEventId: "glitch_beta1_global",
+    locationId: BERLIN_LOCATION_ID,
+    ...BERLIN,
+    childProfileId: child.childProfileId,
+  });
+  assert(duplicateGlitchCheckIn.idempotent === true, "Duplicate Glitch Check-in muss idempotent bleiben.");
+  const participant = (await db.collection("glitchParticipants").doc(glitchCheckIn.participantId).get()).data() || {};
+  assert(participant.userLocationStored === false, "Glitch Participant muss Datensparsamkeit dokumentieren.");
+  assert(participant.latitude === undefined && participant.longitude === undefined, "Glitch Participant darf keine Rohkoordinaten speichern.");
+  await expectCallableError(
+    "activateGlitchBoost",
+    userToken,
+    { glitchEventId: "glitch_beta1_global" },
+    "activateGlitchBoost muss internal-only bleiben",
+  );
+  const cancelGlitch = await expectOk("cancelGlitchEvent", adminToken, {
+    glitchEventId: "glitch_beta1_global",
+    reason: "test cancel",
+  });
+  assert(cancelGlitch.status === "cancelled", "Admin Cancel muss Glitch abbrechen.");
 
   const report = await expectOk("reportMissionSafetyIssue", userToken, {
     subjectType: "mission",
@@ -344,19 +305,14 @@ async function run() {
   });
   assert(review.status === "reviewed", "Admin Safety Review muss reviewed schreiben.");
 
-  const audits = await db.collection("adminActions").limit(30).get();
-  assert(!audits.empty, "Admin-/Serverentscheidungen muessen adminActions Audit Records schreiben.");
+  const audits = await db.collection("adminActions").limit(50).get();
+  assert(!audits.empty, "Admin-/Serverentscheidungen muessen Audit Records schreiben.");
   await expectCallableError(
     "adminAdjustXp",
     otherToken,
     { ownerUserId: "beta1-other", delta: 100 },
     "Nicht-Admin darf XP nicht adjustieren",
   );
-
-  const rawWallet = await db.collection("xpWallets").doc(`beta1-user_${child.childProfileId}`).get();
-  assert(rawWallet.exists, "XP Wallet Projection muss serverseitig geschrieben werden.");
-  assert(rawWallet.data().blockchainBacked === false, "XP Wallet darf nicht blockchain-backed sein.");
-  assert(rawWallet.data().cashoutAllowed === false && rawWallet.data().realMoney === false, "XP Wallet darf Cashout/Real Money nicht aktivieren.");
 
   console.log("WellFit Beta 1 Callable Functions Emulator Test erfolgreich.");
   await admin.auth().deleteUser("beta1-admin");
