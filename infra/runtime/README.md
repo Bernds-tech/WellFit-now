@@ -21,7 +21,7 @@ No server address, Firebase Admin credential, provider API key or production use
 
 ## Build boundaries
 
-`NEXT_PUBLIC_FIREBASE_*` values are Firebase browser configuration. Next.js embeds them during the web image build. They are therefore supplied as Docker build arguments.
+`NEXT_PUBLIC_FIREBASE_*` values are Firebase browser configuration. Next.js embeds them during the web image build. They are therefore supplied as Docker build arguments. The same public values are retained in the standalone runtime so server-rendered code and `/api/health` see the configuration that was used to create the browser bundle.
 
 Server-only values such as these must never be Docker build arguments:
 
@@ -32,7 +32,7 @@ Server-only values such as these must never be Docker build arguments:
 - database passwords;
 - production administrator credentials.
 
-Firebase Functions receive their own server environment during a later, separately approved Firebase deployment.
+Server-only Buddy provider values may be supplied when the already-built container starts. Firebase Functions receive their own server environment during a later, separately approved Firebase deployment.
 
 ## Local validation
 
@@ -77,17 +77,25 @@ The image runs as the unprivileged `nextjs` user and contains only the Next.js s
 
 ## Start the image directly
 
+Create an ignored `.env.production` file and restrict its permissions:
+
+```bash
+cp .env.example .env.production
+chmod 600 .env.production
+```
+
+Use exactly the same `NEXT_PUBLIC_FIREBASE_*` values that were supplied during the image build. Server-only Buddy provider values may be added to this ignored file and are injected only when the container starts.
+
 ```bash
 docker run --detach \
   --name wellfit-web \
   --publish 127.0.0.1:3000:3000 \
   --read-only \
   --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+  --tmpfs /app/.next/cache:rw,noexec,nosuid,size=128m \
   --cap-drop ALL \
   --security-opt no-new-privileges \
-  --env WELLFIT_RUNTIME_MODE=production \
-  --env WELLFIT_RELEASE_SHA="$WELLFIT_RELEASE_SHA" \
-  --env WELLFIT_RELEASE_CHANNEL=production \
+  --env-file .env.production \
   "wellfit-web:$WELLFIT_RELEASE_SHA"
 ```
 
@@ -101,7 +109,7 @@ The endpoint proves only that the web runtime is responsive and reports whether 
 
 ## Start with Docker Compose
 
-Create an ignored local environment file from `.env.example`, then run:
+Create the same ignored local environment file, then run:
 
 ```bash
 docker compose \
@@ -143,7 +151,7 @@ gunzip --stdout wellfit-web-<commit-sha>.tar.gz | docker load
 docker image inspect "wellfit-web:<commit-sha>"
 ```
 
-Then start the image using the direct Docker or Compose procedure above.
+Then start the image using the direct Docker or Compose procedure above. The public Firebase configuration inside the archive is fixed at image-build time; rebuilding is required when switching to another Firebase web project.
 
 ## Firebase deployment boundary
 
