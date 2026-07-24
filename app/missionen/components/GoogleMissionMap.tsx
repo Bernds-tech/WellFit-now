@@ -4,8 +4,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { DeviceLocationSnapshot } from "@/app/components/DeviceLocationCard";
-import { WELLFIT_LAST_DEVICE_LOCATION_KEY } from "@/app/components/DeviceLocationCard";
+import {
+  detectDeviceType,
+  mergeStoredPermissions,
+  readLastDeviceLocation,
+  readStoredPermissions,
+  writeLastDeviceLocation,
+  type DeviceLocationSnapshot,
+} from "@/app/lib/deviceLocation";
 
 export type GoogleMissionMapMarker = {
   id: number;
@@ -33,11 +39,6 @@ type GoogleMapsWindow = Window & {
   __wellfitGoogleMapsPromise?: Promise<void>;
 };
 
-type StoredPermissions = {
-  location?: boolean;
-  locationTracking?: boolean;
-};
-
 const GOOGLE_MAPS_SCRIPT_ID = "wellfit-google-maps-js";
 const GLOBAL_FALLBACK_CENTER = { lat: 20, lng: 0 };
 const GLOBAL_FALLBACK_ZOOM = 2;
@@ -48,52 +49,6 @@ const OWN_LOCATION_DOT_SVG = encodeURIComponent(`
   <circle cx="16" cy="16" r="15" fill="none" stroke="#1a73e8" stroke-width="2" opacity="0.35"/>
 </svg>
 `);
-
-function detectDeviceType(): DeviceLocationSnapshot["deviceType"] {
-  if (typeof navigator === "undefined") return "unknown";
-  const userAgent = navigator.userAgent.toLowerCase();
-  if (/ipad|tablet/.test(userAgent)) return "tablet";
-  if (/android|iphone|ipod|mobile/.test(userAgent)) return "mobile";
-  if (/windows|macintosh|linux|x11/.test(userAgent)) return "desktop";
-  return "unknown";
-}
-
-function readStoredPermissions(): StoredPermissions {
-  if (typeof window === "undefined") return {};
-  try {
-    return JSON.parse(window.localStorage.getItem("wellfit-permissions") ?? "{}") as StoredPermissions;
-  } catch {
-    return {};
-  }
-}
-
-function mergeStoredPermissions(patch: StoredPermissions) {
-  if (typeof window === "undefined") return;
-  try {
-    const current = readStoredPermissions();
-    window.localStorage.setItem("wellfit-permissions", JSON.stringify({ ...current, ...patch }));
-  } catch {}
-}
-
-function readLastDeviceLocation(): DeviceLocationSnapshot | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const saved = window.localStorage.getItem(WELLFIT_LAST_DEVICE_LOCATION_KEY);
-    if (!saved) return null;
-    const parsed = JSON.parse(saved) as DeviceLocationSnapshot;
-    return Number.isFinite(parsed.latitude) && Number.isFinite(parsed.longitude) ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeLastDeviceLocation(snapshot: DeviceLocationSnapshot) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(WELLFIT_LAST_DEVICE_LOCATION_KEY, JSON.stringify(snapshot));
-    window.dispatchEvent(new CustomEvent("wellfit-device-location-updated", { detail: snapshot }));
-  } catch {}
-}
 
 function loadGoogleMaps(apiKey: string): Promise<void> {
   const browserWindow = window as GoogleMapsWindow;
@@ -176,6 +131,11 @@ export default function GoogleMissionMap({
       return;
     }
 
+    if (options?.silent) {
+      const permissions = readStoredPermissions();
+      if (permissions.location !== true || permissions.locationTracking !== true) return;
+    }
+
     setIsLocating(true);
     if (!options?.silent) setLocationMessage("Standort wird ermittelt ...");
     navigator.geolocation.getCurrentPosition(
@@ -191,7 +151,7 @@ export default function GoogleMissionMap({
         mergeStoredPermissions({ location: true, locationTracking: true });
         setOwnLocation(snapshot);
         writeLastDeviceLocation(snapshot);
-        setLocationMessage(`Standort aktiv · Genauigkeit ca. ${snapshot.accuracyMeters} m`);
+        setLocationMessage(`Standort aktiv · Genauigkeit ca. ${snapshot.accuracyMeters} m · nur diese Sitzung`);
         setIsLocating(false);
         window.setTimeout(() => focusOwnLocation(snapshot), 50);
       },
@@ -284,6 +244,7 @@ export default function GoogleMissionMap({
         const google = (window as GoogleMapsWindow).google;
         if (!google?.maps) throw new Error("Google Maps API nicht verfügbar.");
         const storedLocation = readLastDeviceLocation();
+        setOwnLocation(storedLocation);
         const center = storedLocation
           ? { lat: storedLocation.latitude, lng: storedLocation.longitude }
           : GLOBAL_FALLBACK_CENTER;
@@ -337,15 +298,19 @@ export default function GoogleMissionMap({
       return marker;
     });
 
-    if (!ownLocation && validMarkers.length > 1) {
+    renderOwnLocation(google, map, ownLocation);
+
+    if (ownLocation) {
+      focusOwnLocation(ownLocation);
+    } else if (validMarkers.length > 0) {
       const bounds = new google.maps.LatLngBounds();
       validMarkers.forEach((marker) => bounds.extend({ lat: marker.lat, lng: marker.lng }));
       map.fitBounds(bounds, 72);
-    } else if (!ownLocation && validMarkers.length === 0) {
+    } else {
       map.panTo(GLOBAL_FALLBACK_CENTER);
       map.setZoom(GLOBAL_FALLBACK_ZOOM);
     }
-  }, [loadState, onSelectMarker, ownLocation, selectedMarkerId, validMarkers]);
+  }, [focusOwnLocation, loadState, onSelectMarker, ownLocation, renderOwnLocation, selectedMarkerId, validMarkers]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -353,12 +318,6 @@ export default function GoogleMissionMap({
     map.panTo({ lat: selectedMarker.lat, lng: selectedMarker.lng });
     map.setZoom(Math.max(Number(map.getZoom?.() ?? zoom), zoom));
   }, [loadState, selectedMarker, zoom]);
-
-  useEffect(() => {
-    const google = (window as GoogleMapsWindow).google;
-    renderOwnLocation(google, mapRef.current, ownLocation);
-    if (loadState === "ready" && ownLocation) focusOwnLocation(ownLocation);
-  }, [focusOwnLocation, loadState, ownLocation, renderOwnLocation]);
 
   useEffect(() => {
     if (!autoRequestLocation || autoLocationRequestedRef.current || ownLocation) return;
