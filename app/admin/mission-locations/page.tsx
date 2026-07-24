@@ -1,5 +1,6 @@
 import Link from "next/link";
 import MissionLocationAdminCard from "@/components/admin/MissionLocationAdminCard";
+import MissionLocationGeoIndexAdminCard from "@/components/admin/MissionLocationGeoIndexAdminCard";
 import { Beta1PageShell } from "@/components/beta1/Beta1Foundation";
 
 export default function MissionLocationsAdminPage() {
@@ -20,6 +21,7 @@ export default function MissionLocationsAdminPage() {
             Abenteuer-Umgebung prüfen
           </Link>
         </div>
+        <MissionLocationGeoIndexAdminCard />
         <MissionLocationAdminCard />
       </Beta1PageShell>
     </main>
