@@ -1,3 +1,4 @@
+const { FieldPath } = require("firebase-admin/firestore");
 const {
   requireAuth,
   requireAdmin,
@@ -13,6 +14,16 @@ const MAX_LOCATION_DOCS = 500;
 const MAX_NEARBY_RESULTS = 50;
 const MAX_RADIUS_KM = 100;
 const DEFAULT_START_DISTANCE_KM = 0.5;
+const FIRESTORE_IN_VALUE_LIMIT = 30;
+const TARGET_MAX_GEO_CELLS = 60;
+const MAX_REINDEX_BATCH = 400;
+const GEO_INDEX_VERSION = "grid-v1";
+const GEO_INDEX_LEVELS = [
+  { field: "geoCell025", sizeDegrees: 0.25, idPrefix: "g025" },
+  { field: "geoCell1", sizeDegrees: 1, idPrefix: "g1" },
+  { field: "geoCell5", sizeDegrees: 5, idPrefix: "g5" },
+  { field: "geoCell15", sizeDegrees: 15, idPrefix: "g15" },
+];
 const REGION_ID_PATTERN = /^[a-z0-9](?:[a-z0-9._:-]{0,78}[a-z0-9])?$/i;
 
 function normalizeRegionId(value) {
@@ -45,6 +56,122 @@ function haversineDistanceKm(left, right) {
   const a = Math.sin(latDelta / 2) ** 2
     + Math.cos(leftLat) * Math.cos(rightLat) * Math.sin(lonDelta / 2) ** 2;
   return radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function normalizeLongitude(value) {
+  const normalized = ((Number(value) + 180) % 360 + 360) % 360 - 180;
+  return normalized === 180 ? -180 : normalized;
+}
+
+function geoCellId(coordinates, level) {
+  const latitude = Math.max(-90, Math.min(89.999999, Number(coordinates.latitude)));
+  const longitude = normalizeLongitude(coordinates.longitude);
+  const latitudeCellCount = Math.ceil(180 / level.sizeDegrees);
+  const longitudeCellCount = Math.ceil(360 / level.sizeDegrees);
+  const latitudeIndex = Math.max(0, Math.min(
+    latitudeCellCount - 1,
+    Math.floor((latitude + 90) / level.sizeDegrees),
+  ));
+  const longitudeIndex = Math.max(0, Math.min(
+    longitudeCellCount - 1,
+    Math.floor((longitude + 180) / level.sizeDegrees),
+  ));
+  return `${level.idPrefix}:${latitudeIndex}:${longitudeIndex}`;
+}
+
+function geoIndexFields(coordinates) {
+  return {
+    geoIndexVersion: GEO_INDEX_VERSION,
+    ...Object.fromEntries(GEO_INDEX_LEVELS.map((level) => [level.field, geoCellId(coordinates, level)])),
+  };
+}
+
+function nearbyGeoCellIds(origin, radiusKm, level) {
+  const latitudeCellCount = Math.ceil(180 / level.sizeDegrees);
+  const longitudeCellCount = Math.ceil(360 / level.sizeDegrees);
+  const centerLatitude = Math.max(-90, Math.min(89.999999, Number(origin.latitude)));
+  const centerLongitude = normalizeLongitude(origin.longitude);
+  const centerLatitudeIndex = Math.max(0, Math.min(
+    latitudeCellCount - 1,
+    Math.floor((centerLatitude + 90) / level.sizeDegrees),
+  ));
+  const centerLongitudeIndex = Math.max(0, Math.min(
+    longitudeCellCount - 1,
+    Math.floor((centerLongitude + 180) / level.sizeDegrees),
+  ));
+
+  const latitudeDelta = Math.min(180, radiusKm / 110.574);
+  const latitudeCosine = Math.max(0.01, Math.abs(Math.cos(centerLatitude * Math.PI / 180)));
+  const longitudeDelta = Math.min(180, radiusKm / (111.32 * latitudeCosine));
+  const latitudeReach = Math.ceil(latitudeDelta / level.sizeDegrees) + 1;
+  const longitudeReach = longitudeDelta >= 180
+    ? longitudeCellCount
+    : Math.ceil(longitudeDelta / level.sizeDegrees) + 1;
+
+  const latitudeIndexes = [];
+  for (
+    let latitudeIndex = Math.max(0, centerLatitudeIndex - latitudeReach);
+    latitudeIndex <= Math.min(latitudeCellCount - 1, centerLatitudeIndex + latitudeReach);
+    latitudeIndex += 1
+  ) {
+    latitudeIndexes.push(latitudeIndex);
+  }
+
+  const longitudeIndexes = new Set();
+  if (longitudeReach * 2 + 1 >= longitudeCellCount) {
+    for (let longitudeIndex = 0; longitudeIndex < longitudeCellCount; longitudeIndex += 1) {
+      longitudeIndexes.add(longitudeIndex);
+    }
+  } else {
+    for (let offset = -longitudeReach; offset <= longitudeReach; offset += 1) {
+      longitudeIndexes.add((centerLongitudeIndex + offset + longitudeCellCount) % longitudeCellCount);
+    }
+  }
+
+  const cells = [];
+  for (const latitudeIndex of latitudeIndexes) {
+    for (const longitudeIndex of longitudeIndexes) {
+      cells.push(`${level.idPrefix}:${latitudeIndex}:${longitudeIndex}`);
+    }
+  }
+  return cells;
+}
+
+function selectGeoQuery(origin, radiusKm) {
+  const options = GEO_INDEX_LEVELS.map((level) => ({
+    ...level,
+    cells: nearbyGeoCellIds(origin, radiusKm, level),
+  }));
+  return options.find((option) => option.cells.length <= TARGET_MAX_GEO_CELLS)
+    || options.reduce((best, option) => option.cells.length < best.cells.length ? option : best);
+}
+
+function chunk(values, size) {
+  const chunks = [];
+  for (let index = 0; index < values.length; index += size) {
+    chunks.push(values.slice(index, index + size));
+  }
+  return chunks;
+}
+
+async function readGeoCandidateDocuments(db, origin, radiusKm) {
+  const geoQuery = selectGeoQuery(origin, radiusKm);
+  const cellBatches = chunk(geoQuery.cells, FIRESTORE_IN_VALUE_LIMIT);
+  const snapshots = await Promise.all(cellBatches.map((cells) => db.collection("missionLocations")
+    .where(geoQuery.field, "in", cells)
+    .limit(MAX_LOCATION_DOCS)
+    .get()));
+  const byId = new Map();
+  for (const snapshot of snapshots) {
+    for (const doc of snapshot.docs) byId.set(doc.id, doc);
+  }
+  return {
+    docs: [...byId.values()],
+    field: geoQuery.field,
+    sizeDegrees: geoQuery.sizeDegrees,
+    cellCount: geoQuery.cells.length,
+    queryCount: cellBatches.length,
+  };
 }
 
 function safeMissionIds(value) {
@@ -134,13 +261,14 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       ? data.locationTypes.map((value) => optionalString(value, 80)).filter(Boolean).slice(0, 10)
       : []);
 
-    const snapshot = await db.collection("missionLocations").limit(MAX_LOCATION_DOCS).get();
-    const locations = snapshot.docs
+    const candidates = await readGeoCandidateDocuments(db, origin, radiusKm);
+    const locations = candidates.docs
       .flatMap((doc) => {
         const location = doc.data() || {};
         if (
           location.status !== "published"
           || location.safeLocationReviewed !== true
+          || location.geoIndexVersion !== GEO_INDEX_VERSION
           || !Number.isFinite(Number(location.latitude))
           || !Number.isFinite(Number(location.longitude))
         ) {
@@ -154,7 +282,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
           latitude: Number(location.latitude),
           longitude: Number(location.longitude),
         });
-        if (distanceKm > radiusKm) return [];
+        if (!Number.isFinite(distanceKm) || distanceKm > radiusKm) return [];
         return [publicMissionLocation(doc, distanceKm)];
       })
       .sort((left, right) => left.distanceKm - right.distanceKm)
@@ -166,6 +294,10 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       count: locations.length,
       locations,
       locationAuthority: "server-published-nearby",
+      geoIndexAuthority: GEO_INDEX_VERSION,
+      geoQueryCellSizeDegrees: candidates.sizeDegrees,
+      geoQueryCellCount: candidates.cellCount,
+      candidateCount: candidates.docs.length,
       userLocationStored: false,
       globalCatalog: true,
       noMonetaryValue: true,
@@ -193,6 +325,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
 
     const ref = db.collection("missionLocations").doc(locationId);
     const snapshot = await ref.get();
+    const indexFields = geoIndexFields(coordinates);
     await ref.set({
       locationId,
       title,
@@ -203,6 +336,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       locationType: optionalString(data.locationType, 80) || "public-space",
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
+      ...indexFields,
       icon: optionalString(data.icon, 12) || "📍",
       partnerName: optionalString(data.partnerName, 120),
       missionIds,
@@ -227,6 +361,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
         status,
         missionCount: missionIds.length,
         safeLocationReviewed: data.safeLocationReviewed === true,
+        geoIndexVersion: GEO_INDEX_VERSION,
       },
     });
 
@@ -237,6 +372,72 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       status,
       missionIds,
       safeLocationReviewed: data.safeLocationReviewed === true,
+      geoIndexVersion: GEO_INDEX_VERSION,
+      globalCatalog: true,
+    };
+  });
+
+  exportsTarget.adminReindexMissionLocations = onCall(async (request) => {
+    const actorUserId = requireAdmin(request, HttpsError);
+    const data = request.data || {};
+    const requestedLimit = normalizedPositiveInteger(data.limit, 200, MAX_REINDEX_BATCH);
+    const afterLocationId = optionalString(data.afterLocationId, 160);
+    let query = db.collection("missionLocations").orderBy(FieldPath.documentId()).limit(requestedLimit);
+    if (afterLocationId) query = query.startAfter(afterLocationId);
+    const snapshot = await query.get();
+    const batch = db.batch();
+    let updatedCount = 0;
+    let skippedCount = 0;
+
+    for (const doc of snapshot.docs) {
+      const location = doc.data() || {};
+      const latitude = Number(location.latitude);
+      const longitude = Number(location.longitude);
+      if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+        skippedCount += 1;
+        continue;
+      }
+      const indexFields = geoIndexFields({ latitude, longitude });
+      if (
+        location.geoIndexVersion === indexFields.geoIndexVersion
+        && GEO_INDEX_LEVELS.every((level) => location[level.field] === indexFields[level.field])
+      ) {
+        continue;
+      }
+      batch.set(doc.ref, {
+        ...indexFields,
+        geoIndexUpdatedByAdminId: actorUserId,
+        ...updatedTimestamp(),
+      }, { merge: true });
+      updatedCount += 1;
+    }
+    if (updatedCount > 0) await batch.commit();
+
+    const nextAfterLocationId = snapshot.docs.at(-1)?.id || null;
+    await writeAudit(db, {
+      actorUserId,
+      actionType: "mission-location-geo-index-reconciled",
+      targetType: "missionLocationCatalog",
+      targetId: nextAfterLocationId || "empty",
+      reason: data.reason,
+      metadata: {
+        scannedCount: snapshot.size,
+        updatedCount,
+        skippedCount,
+        afterLocationId,
+        nextAfterLocationId,
+        geoIndexVersion: GEO_INDEX_VERSION,
+      },
+    });
+
+    return {
+      accepted: true,
+      scannedCount: snapshot.size,
+      updatedCount,
+      skippedCount,
+      nextAfterLocationId,
+      hasMore: snapshot.size === requestedLimit,
+      geoIndexVersion: GEO_INDEX_VERSION,
       globalCatalog: true,
     };
   });
@@ -250,6 +451,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       accepted: true,
       count: snapshot.size,
       locations: snapshot.docs.map((doc) => ({ locationId: doc.id, ...(doc.data() || {}) })),
+      geoIndexVersion: GEO_INDEX_VERSION,
       globalCatalog: true,
     };
   });
@@ -260,8 +462,16 @@ module.exports = {
   normalizeRegionId,
   normalizeCoordinates,
   haversineDistanceKm,
+  normalizeLongitude,
+  geoCellId,
+  geoIndexFields,
+  nearbyGeoCellIds,
+  selectGeoQuery,
+  readGeoCandidateDocuments,
   safeMissionIds,
   publicMissionLocation,
   requirePublishedNearbyMissionLocation,
   DEFAULT_START_DISTANCE_KM,
+  GEO_INDEX_VERSION,
+  GEO_INDEX_LEVELS,
 };
