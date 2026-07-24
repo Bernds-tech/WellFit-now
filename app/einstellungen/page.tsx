@@ -58,6 +58,8 @@ export default function SettingsPage() {
   const [lifestyle, setLifestyle] = useState<LifestyleForm>(defaultLifestyle);
   const [activity, setActivity] = useState<ActivityForm>(defaultActivity);
   const [privacy, setPrivacy] = useState<PrivacyForm>(defaultPrivacy);
+  const [healthConsentActive, setHealthConsentActive] = useState(false);
+  const [healthImprovementConsentActive, setHealthImprovementConsentActive] = useState(false);
 
   const {
     handleLogout,
@@ -78,6 +80,12 @@ export default function SettingsPage() {
     setSecurityMessage,
     setIsSendingPasswordReset,
     setPermissions,
+    setBiometrics,
+    setVitalValues,
+    setLifestyle,
+    setPrivacy,
+    setHealthConsentActive,
+    setHealthImprovementConsentActive,
   });
 
   useSettingsData({
@@ -93,22 +101,25 @@ export default function SettingsPage() {
     setLifestyle,
     setActivity,
     setPrivacy,
+    setHealthConsentActive,
+    setHealthImprovementConsentActive,
   });
 
-  const updateProfileField = (key: keyof ProfileForm, value: string) => setProfile((prev) => ({ ...prev, [key]: value }));
-  const updateBiometricsField = (key: keyof BiometricsForm, value: string | boolean) => setBiometrics((prev) => ({ ...prev, [key]: value }));
-  const updateNotificationField = (key: keyof NotificationsForm, value: boolean) => setNotifications((prev) => ({ ...prev, [key]: value }));
-  const updateVitalValuesField = (key: keyof VitalValuesForm, value: string) => setVitalValues((prev) => ({ ...prev, [key]: value }));
-  const updateAiBuddyField = (key: keyof AiBuddyForm, value: string | boolean) => setAiBuddy((prev) => ({ ...prev, [key]: value }));
-  const updateLifestyleField = (key: keyof LifestyleForm, value: string) => setLifestyle((prev) => ({ ...prev, [key]: value }));
-  const updateActivityField = (key: keyof ActivityForm, value: string) => setActivity((prev) => ({ ...prev, [key]: value }));
-  const updatePrivacyField = (key: keyof PrivacyForm, value: string | boolean) => setPrivacy((prev) => ({ ...prev, [key]: value }));
+  const updateProfileField = (key: keyof ProfileForm, value: string) => setProfile((previous) => ({ ...previous, [key]: value }));
+  const updateBiometricsField = (key: keyof BiometricsForm, value: string | boolean) => setBiometrics((previous) => ({ ...previous, [key]: value }));
+  const updateNotificationField = (key: keyof NotificationsForm, value: boolean) => setNotifications((previous) => ({ ...previous, [key]: value }));
+  const updateVitalValuesField = (key: keyof VitalValuesForm, value: string | boolean) => setVitalValues((previous) => ({ ...previous, [key]: value }));
+  const updateAiBuddyField = (key: keyof AiBuddyForm, value: string | boolean) => setAiBuddy((previous) => ({ ...previous, [key]: value }));
+  const updateLifestyleField = (key: keyof LifestyleForm, value: string) => setLifestyle((previous) => ({ ...previous, [key]: value }));
+  const updateActivityField = (key: keyof ActivityForm, value: string) => setActivity((previous) => ({ ...previous, [key]: value }));
+  const updatePrivacyField = (key: keyof PrivacyForm, value: string | boolean) => setPrivacy((previous) => ({ ...previous, [key]: value }));
   const updatePermission = (key: PermissionKey, value: boolean) => updatePermissionAction(permissions, key, value);
 
   const inputClass = "w-full rounded-lg border border-cyan-300/10 bg-[#0a3d46] px-3 py-2 text-sm text-white outline-none placeholder:text-white/35";
   const selectClass = "w-full rounded-lg border border-cyan-300/10 bg-[#0a3d46] px-3 py-2 text-sm text-white outline-none";
   const saveButtonClass = "mt-4 inline-flex rounded-lg bg-orange-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-500";
   const toggleBase = "relative inline-flex h-6 w-12 items-center rounded-full transition";
+  const sensitiveSettingsDisabled = isLoadingUser || !healthConsentActive;
 
   return (
     <main
@@ -122,19 +133,24 @@ export default function SettingsPage() {
         <section className="relative flex h-full flex-1 flex-col overflow-hidden px-7 py-5 pb-0">
           <SettingsHeader isLoadingUser={isLoadingUser} saveMessage={saveMessage} />
 
-          <div className="mt-2 flex justify-end">
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <div className={`rounded-lg border px-4 py-2 text-xs font-semibold ${healthConsentActive ? "border-emerald-300/25 bg-emerald-500/10 text-emerald-100" : "border-yellow-300/25 bg-yellow-500/10 text-yellow-100"}`}>
+              {healthConsentActive
+                ? `Freiwillige Health-Personalisierung aktiv${healthImprovementConsentActive ? " · anonyme Verbesserung aktiv" : ""}.`
+                : "Health-Personalisierung ist deaktiviert. Körper-, Vital- und Lebensstildaten werden nicht gespeichert."}
+            </div>
             <button className="rounded-lg border border-cyan-300/20 bg-[#0a3d46] px-4 py-2 text-sm font-semibold text-cyan-100 hover:bg-[#0d4b56]">
               Generationen-Tandem
             </button>
           </div>
 
-          <div className="grid flex-1 grid-cols-3 gap-4 overflow-y-auto pr-2 pb-8 text-sm">
-            <ProfileCard profile={profile} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateProfileField={updateProfileField} saveProfile={() => saveProfile(profile, permissions)} />
+          <div className="mt-3 grid flex-1 grid-cols-3 gap-4 overflow-y-auto pr-2 pb-8 text-sm">
+            <ProfileCard profile={profile} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateProfileField={updateProfileField} saveProfile={() => saveProfile(profile)} />
             <SecurityCard email={profile.email} securityMessage={securityMessage} isLoadingUser={isLoadingUser} isSendingPasswordReset={isSendingPasswordReset} saveButtonClass={saveButtonClass} sendSecurityPasswordReset={() => sendSecurityPasswordReset(profile.email)} />
-            <BiometricsCard biometrics={biometrics} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateBiometricsField={updateBiometricsField} saveBiometrics={() => saveBiometrics(biometrics)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
+            <BiometricsCard biometrics={biometrics} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={sensitiveSettingsDisabled} updateBiometricsField={updateBiometricsField} saveBiometrics={() => saveBiometrics(biometrics)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
             <NotificationsCard notifications={notifications} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateNotificationField={updateNotificationField} saveNotifications={() => saveNotifications(notifications)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
-            <VitalValuesCard vitalValues={vitalValues} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateVitalValuesField={updateVitalValuesField} saveVitalValues={() => saveVitalValues(vitalValues)} />
-            <LifestyleCard lifestyle={lifestyle} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateLifestyleField={updateLifestyleField} saveLifestyle={() => saveLifestyle(lifestyle)} />
+            <VitalValuesCard vitalValues={vitalValues} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={sensitiveSettingsDisabled} updateVitalValuesField={updateVitalValuesField} saveVitalValues={() => saveVitalValues(vitalValues)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
+            <LifestyleCard lifestyle={lifestyle} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={sensitiveSettingsDisabled} updateLifestyleField={updateLifestyleField} saveLifestyle={() => saveLifestyle(lifestyle)} />
             <ActivityCard activity={activity} inputClass={inputClass} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateActivityField={updateActivityField} saveActivity={() => saveActivity(activity)} />
             <AiBuddyCard aiBuddy={aiBuddy} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updateAiBuddyField={updateAiBuddyField} saveAiBuddy={() => saveAiBuddy(aiBuddy)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
             <PrivacyCard privacy={privacy} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updatePrivacyField={updatePrivacyField} savePrivacy={() => savePrivacy(privacy)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
