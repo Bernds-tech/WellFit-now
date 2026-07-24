@@ -1,62 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { auth, db } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
-
-export type DeviceLocationSnapshot = {
-  latitude: number;
-  longitude: number;
-  accuracyMeters: number;
-  deviceType: "desktop" | "mobile" | "tablet" | "unknown";
-  source: "browser-geolocation";
-  capturedAt: string;
-};
-
-type StoredPermissions = {
-  location?: boolean;
-  locationTracking?: boolean;
-};
+import {
+  detectDeviceType,
+  readLastDeviceLocation,
+  readStoredPermissions,
+  updateCurrentDeviceLocation,
+  type DeviceLocationSnapshot,
+  type StoredPermissions,
+} from "@/app/lib/deviceLocation";
 
 type DeviceLocationCardProps = {
   compact?: boolean;
   className?: string;
-};
-
-export const WELLFIT_LAST_DEVICE_LOCATION_KEY = "wellfit-last-device-location";
-
-const detectDeviceType = (): DeviceLocationSnapshot["deviceType"] => {
-  if (typeof navigator === "undefined") return "unknown";
-  const ua = navigator.userAgent.toLowerCase();
-  if (/ipad|tablet/.test(ua)) return "tablet";
-  if (/android|iphone|ipod|mobile/.test(ua)) return "mobile";
-  if (/windows|macintosh|linux|x11/.test(ua)) return "desktop";
-  return "unknown";
-};
-
-const readStoredPermissions = (): StoredPermissions => {
-  if (typeof window === "undefined") return {};
-  try {
-    return JSON.parse(localStorage.getItem("wellfit-permissions") ?? "{}") as StoredPermissions;
-  } catch {
-    return {};
-  }
-};
-
-const readLastDeviceLocation = (): DeviceLocationSnapshot | null => {
-  if (typeof window === "undefined") return null;
-  try {
-    const saved = localStorage.getItem(WELLFIT_LAST_DEVICE_LOCATION_KEY);
-    return saved ? (JSON.parse(saved) as DeviceLocationSnapshot) : null;
-  } catch {
-    return null;
-  }
-};
-
-const writeLastDeviceLocation = (snapshot: DeviceLocationSnapshot) => {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(WELLFIT_LAST_DEVICE_LOCATION_KEY, JSON.stringify(snapshot));
-  window.dispatchEvent(new CustomEvent("wellfit-device-location-updated", { detail: snapshot }));
 };
 
 const formatCoordinate = (value: number) => value.toFixed(6);
@@ -72,7 +28,7 @@ export default function DeviceLocationCard({ compact = false, className = "" }: 
     const savedLocation = readLastDeviceLocation();
     if (savedLocation) {
       setLocation(savedLocation);
-      setMessage("Letzter Standort dieses Geräts ist lokal verfügbar.");
+      setMessage("Letzter Standort dieser Browsersitzung ist temporär verfügbar.");
     }
   }, []);
 
@@ -86,69 +42,22 @@ export default function DeviceLocationCard({ compact = false, className = "" }: 
 
   const canRequestLocation = permissions.location === true && permissions.locationTracking === true;
 
-  const captureLocation = () => {
+  const captureLocation = async () => {
     const currentPermissions = readStoredPermissions();
     setPermissions(currentPermissions);
-
-    if (!currentPermissions.location || !currentPermissions.locationTracking) {
-      setMessage("Bitte aktiviere Standort und Geräte-Standorttracking zuerst in den Einstellungen.");
-      return;
-    }
-
-    if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
-      setMessage("Dieses Gerät unterstützt keine Browser-Standortfreigabe.");
-      return;
-    }
-
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      setMessage("Bitte einloggen, damit der Standort diesem Gerät zugeordnet werden kann.");
-      return;
-    }
-
     setIsLoading(true);
     setMessage("Standortfreigabe wird angefragt...");
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const snapshot: DeviceLocationSnapshot = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracyMeters: Math.round(position.coords.accuracy),
-          deviceType: detectDeviceType(),
-          source: "browser-geolocation",
-          capturedAt: new Date().toISOString(),
-        };
-
-        setLocation(snapshot);
-        writeLastDeviceLocation(snapshot);
-
-        try {
-          await setDoc(
-            doc(db, "users", currentUser.uid),
-            {
-              deviceLocation: snapshot,
-              updatedAt: snapshot.capturedAt,
-            },
-            { merge: true },
-          );
-          setMessage("Standort dieses Geräts wurde gespeichert.");
-        } catch (error) {
-          console.error("Standort konnte nicht gespeichert werden", error);
-          setMessage("Standort erkannt, lokal gespeichert, aber Firestore-Speichern wurde blockiert.");
-        } finally {
-          setIsLoading(false);
-        }
-      },
-      (error) => {
-        setIsLoading(false);
-        if (error.code === error.PERMISSION_DENIED) setMessage("Standortfreigabe wurde abgelehnt.");
-        else if (error.code === error.POSITION_UNAVAILABLE) setMessage("Standort ist aktuell nicht verfügbar.");
-        else if (error.code === error.TIMEOUT) setMessage("Standortabfrage hat zu lange gedauert.");
-        else setMessage("Standort konnte nicht ermittelt werden.");
-      },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
-    );
+    try {
+      const result = await updateCurrentDeviceLocation();
+      if (result.ok) {
+        setLocation(result.snapshot);
+        setMessage(result.message);
+      } else {
+        setMessage(result.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -173,10 +82,12 @@ export default function DeviceLocationCard({ compact = false, className = "" }: 
       )}
 
       <button type="button" onClick={captureLocation} disabled={isLoading} className="mt-4 w-full rounded-xl bg-orange-400 px-4 py-3 text-sm font-black text-[#042f35] transition hover:bg-orange-300 disabled:cursor-not-allowed disabled:opacity-60">
-        {isLoading ? "Standort wird ermittelt..." : "Standort dieses Geräts aktualisieren"}
+        {isLoading ? "Standort wird ermittelt..." : "Standort dieser Sitzung aktualisieren"}
       </button>
 
-      <p className="mt-3 text-xs leading-relaxed text-white/45">Standortdaten dienen später als Kontext/Evidence. Sie entscheiden nicht clientseitig über Rewards, Mission Completion oder Wettkampf-Sieger.</p>
+      <p className="mt-3 text-xs leading-relaxed text-white/45">
+        Rohkoordinaten bleiben nur bis zu 30 Minuten in dieser Browsersitzung. Sie werden nicht in Firestore gespeichert und autorisieren niemals Rewards, Mission Completion oder Wettkampf-Sieger.
+      </p>
     </section>
   );
 }
