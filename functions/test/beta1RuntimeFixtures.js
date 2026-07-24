@@ -81,18 +81,26 @@ function describeCall(callResponse) {
   return JSON.stringify({ status: callResponse.status, ok: callResponse.ok, json: callResponse.json, rawText: callResponse.rawText });
 }
 
+async function clearCollection(collectionName) {
+  for (let page = 0; page < 1000; page += 1) {
+    const snapshot = await db.collection(collectionName).limit(400).get();
+    if (snapshot.empty) return;
+    const batch = db.batch();
+    snapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+  }
+  throw new Error(`Test collection ${collectionName} exceeded the safe reset page limit.`);
+}
+
 async function resetBeta1Collections() {
   const collections = [
     "familyAccounts", "childProfiles", "guardianChildLinks", "parentalConsents", "missions", "missionAttempts", "missionEvidence", "missionCompletions",
     "trackingSessions", "trackingProofEvents", "missionBuddyEvents", "missionContextEvaluations", "missionCompletionEvaluations", "missionRewardPreviews", "missionEvidenceReviews", "missionPatternReviews", "missionCooldownReviews", "missionRewardEvents",
     "userCalendarSettings", "userDailyMissionState", "userDailyStreaks", "userLevels", "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "itemDefinitions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory", "userAvatars", "buddyCareActions",
-    "missionLocations", "adventureAccessEvents", "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "glitchSafetyRules", "safetyReports",
+    "locationQueryBudgets", "missionLocations", "adventureAccessEvents", "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "glitchSafetyRules", "safetyReports",
   ];
   for (const collectionName of collections) {
-    const snapshot = await db.collection(collectionName).limit(500).get();
-    const batch = db.batch();
-    snapshot.docs.forEach((doc) => batch.delete(doc.ref));
-    await batch.commit();
+    await clearCollection(collectionName);
   }
 }
 
@@ -111,6 +119,7 @@ module.exports = {
   callCallable,
   getCallableResult,
   describeCall,
+  clearCollection,
   resetBeta1Collections,
   seedBeta1RuntimeData,
 };
