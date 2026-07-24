@@ -177,7 +177,7 @@ async function run() {
       marketing: false,
     },
     healthProfile: {
-      heightCm: 172.345,
+      heightCm: 172.346,
       weightKg: 68.2,
       fitnessLevel: "medium",
       sleepHours: "6-8",
