@@ -103,6 +103,7 @@ async function clearCollection(collectionName) {
 async function resetBeta1Collections() {
   const collections = [
     "users", "userOnboardingRecords", "userPrivateProfiles", "userConsentEvents",
+    "accountLifecycleRecords", "userDataExportJobs", "userDataExportChunks", "accountDeletionTombstones",
     "familyAccounts", "childProfiles", "guardianChildLinks", "parentalConsents", "missions", "missionAttempts", "missionEvidence", "missionCompletions",
     "trackingSessions", "trackingProofEvents", "missionBuddyEvents", "missionContextEvaluations", "missionCompletionEvaluations", "missionRewardPreviews", "missionEvidenceReviews", "missionPatternReviews", "missionCooldownReviews", "missionRewardEvents",
     "userCalendarSettings", "userDailyMissionState", "userDailyStreaks", "userLevels", "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "itemDefinitions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory", "userAvatars", "buddyCareActions",

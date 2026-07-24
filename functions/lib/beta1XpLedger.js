@@ -1,4 +1,5 @@
 const { FieldValue } = require("firebase-admin/firestore");
+const { HttpsError: FirebaseHttpsError } = require("firebase-functions/v2/https");
 const {
   BETA1_INTERNAL_CURRENCY,
   requireAuth,
@@ -12,6 +13,10 @@ const {
   getWalletRef,
   writeAudit,
 } = require("./beta1Runtime");
+const {
+  lifecycleRef,
+  isAccountMutationBlocked,
+} = require("./beta1AccountLifecyclePolicy");
 
 async function readWallet(db, ownerUserId, childProfileId) {
   const walletRef = await getWalletRef(db, ownerUserId, childProfileId);
@@ -44,17 +49,30 @@ async function applyXpDelta(db, { ownerUserId, childProfileId, delta, reason, so
   const walletRef = await getWalletRef(db, ownerUserId, childProfileId);
   const ledgerRef = idempotencyKey ? db.collection("xpLedgerEvents").doc(idempotencyKey) : db.collection("xpLedgerEvents").doc();
   const legacyLedgerRef = db.collection("ledgerEvents").doc(ledgerRef.id);
+  const accountLifecycleRef = lifecycleRef(db, ownerUserId);
   let idempotent = false;
   let existingSourceId = null;
 
   await db.runTransaction(async (transaction) => {
-    const existingLedger = await transaction.get(ledgerRef);
+    const [existingLedger, lifecycleSnapshot, walletSnapshot] = await Promise.all([
+      transaction.get(ledgerRef),
+      transaction.get(accountLifecycleRef),
+      transaction.get(walletRef),
+    ]);
     if (existingLedger.exists) {
       idempotent = true;
       existingSourceId = optionalString((existingLedger.data() || {}).sourceId, 180);
       return;
     }
-    const walletSnapshot = await transaction.get(walletRef);
+    const lifecycle = lifecycleSnapshot.exists
+      ? lifecycleSnapshot.data() || {}
+      : { status: "active", freezeMutations: false };
+    if (isAccountMutationBlocked(lifecycle)) {
+      throw new FirebaseHttpsError(
+        "failed-precondition",
+        "Das Konto ist fuer neue WFXP-Gutschriften und WFXP-Ausgaben eingefroren, solange ein Loeschantrag aktiv ist.",
+      );
+    }
     const wallet = walletSnapshot.exists ? walletSnapshot.data() || {} : {};
     const currentBalance = Number(wallet.balance || 0);
     const nextBalance = currentBalance + safeDelta;
