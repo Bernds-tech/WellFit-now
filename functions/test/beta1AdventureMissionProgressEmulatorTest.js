@@ -171,8 +171,10 @@ async function run() {
   });
   assert(submittedReplay.idempotent === true && submittedReplay.evidenceId === submitted.evidenceId, "Pending Adventure Evidence muss idempotent bleiben.");
 
-  const evidenceDoc = (await db.collection("missionEvidence").doc(submitted.evidenceId).get()).data() || {};
+  const evidenceRef = db.collection("missionEvidence").doc(submitted.evidenceId);
+  const evidenceDoc = (await evidenceRef.get()).data() || {};
   assert(evidenceDoc.locationId === LOCATION_ID && evidenceDoc.latitude === undefined && evidenceDoc.longitude === undefined, "Adventure Evidence muss ortsgebunden und rohdatensparsam sein.");
+  assert(evidenceDoc.locationAuthority === "server-published-nearby" && evidenceDoc.userLocationStored === false, "Adventure Evidence muss die serverseitige Ortsautoritaet dokumentieren.");
   await expectCallableError(
     "completeAdventureAttempt",
     userToken,
@@ -185,6 +187,19 @@ async function run() {
     decision: "approved",
     reviewNote: "[emulator-qa] Tokyo Museums-Quiz verifiziert",
   });
+  await evidenceRef.set({ locationId: "tampered-location" }, { merge: true });
+  await expectCallableError(
+    "completeAdventureAttempt",
+    userToken,
+    { attemptId },
+    "Manipulierter Evidence-Standort darf keine Abenteuerbelohnung autorisieren",
+  );
+  await evidenceRef.set({
+    locationId: LOCATION_ID,
+    locationAuthority: "server-published-nearby",
+    userLocationStored: false,
+  }, { merge: true });
+
   const completion = await expectOk("completeAdventureAttempt", userToken, { attemptId });
   const rewardLedgerEventId = adventureRewardLedgerId(USER_ID, MISSION_ID);
   assert(completion.xpLedgerEventId === rewardLedgerEventId, "Abenteuerreward braucht einen deterministischen Ledger-Eintrag.");
