@@ -10,6 +10,16 @@ const {
   writeAudit,
 } = require("./beta1Runtime");
 const { consumeNearbyLocationQueryBudget } = require("./beta1LocationQueryBudget");
+const {
+  LOCATION_SAFETY_REVIEW_VERSION,
+  normalizeLocationId,
+  normalizeCountryCode,
+  validSafetyReviewNote,
+  buildLocationSafetyFields,
+  hasValidLocationSafetyReview,
+  isPublishedSafeMissionLocation,
+  requirePublishedMissionIds,
+} = require("./beta1MissionLocationSafety");
 
 const MAX_LOCATION_DOCS = 500;
 const MAX_NEARBY_RESULTS = 50;
@@ -201,7 +211,7 @@ function publicMissionLocation(doc, distanceKm) {
     icon: optionalString(data.icon, 12) || "📍",
     partnerName: optionalString(data.partnerName, 120),
     missionIds: safeMissionIds(data.missionIds),
-    safeLocationReviewed: data.safeLocationReviewed === true,
+    safeLocationReviewed: true,
     status: "published",
   };
 }
@@ -218,8 +228,7 @@ async function requirePublishedNearbyMissionLocation(db, input, HttpsError) {
   const location = snapshot.data() || {};
   const missionIds = safeMissionIds(location.missionIds);
   if (
-    location.status !== "published"
-    || location.safeLocationReviewed !== true
+    !isPublishedSafeMissionLocation(location)
     || !missionIds.includes(missionId)
     || !Number.isFinite(Number(location.latitude))
     || !Number.isFinite(Number(location.longitude))
@@ -248,7 +257,20 @@ async function requirePublishedNearbyMissionLocation(db, input, HttpsError) {
     distanceMeters: Math.round(distanceKm * 1000),
     maximumDistanceKm,
     locationAuthority: "server-published-nearby",
+    safetyReviewVersion: location.safetyReviewVersion,
+    safetyReviewFingerprint: location.safetyReviewFingerprint,
     userLocationStored: false,
+  };
+}
+
+function emptySafetyFields() {
+  return {
+    safeLocationReviewed: false,
+    safetyReviewNote: null,
+    safetyReviewVersion: null,
+    safetyReviewFingerprint: null,
+    safetyReviewedByAdminId: null,
+    safetyReviewedAt: null,
   };
 }
 
@@ -278,8 +300,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       .flatMap((doc) => {
         const location = doc.data() || {};
         if (
-          location.status !== "published"
-          || location.safeLocationReviewed !== true
+          !isPublishedSafeMissionLocation(location)
           || location.geoIndexVersion !== GEO_INDEX_VERSION
           || !Number.isFinite(Number(location.latitude))
           || !Number.isFinite(Number(location.longitude))
@@ -306,6 +327,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       count: locations.length,
       locations,
       locationAuthority: "server-published-nearby",
+      safetyReviewAuthority: LOCATION_SAFETY_REVIEW_VERSION,
       geoIndexAuthority: GEO_INDEX_VERSION,
       geoQueryCellSizeDegrees: candidates.sizeDegrees,
       geoQueryCellCount: candidates.cellCount,
@@ -325,41 +347,65 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
   exportsTarget.adminUpsertMissionLocation = onCall(async (request) => {
     const actorUserId = requireAdmin(request, HttpsError);
     const data = request.data || {};
-    const locationId = requiredString(data.locationId, "locationId", HttpsError, 160);
+    const requestedLocationId = requiredString(data.locationId, "locationId", HttpsError, 160);
+    const locationId = normalizeLocationId(requestedLocationId);
+    if (!locationId) {
+      throw new HttpsError("invalid-argument", "locationId darf nur Buchstaben, Zahlen sowie . _ : - enthalten.");
+    }
     const title = requiredString(data.title, "title", HttpsError, 120);
     const regionId = normalizeRegionId(data.regionId);
     if (!regionId) throw new HttpsError("invalid-argument", "regionId ist ungueltig.");
     const coordinates = normalizeCoordinates(data, HttpsError);
-    const missionIds = [...new Set(safeMissionIds(data.missionIds))];
-    if (missionIds.length === 0) {
-      throw new HttpsError("invalid-argument", "Mindestens eine Mission muss dem Ort zugeordnet sein.");
+    const rawCountryCode = optionalString(data.countryCode, 8);
+    const countryCode = normalizeCountryCode(rawCountryCode);
+    if (rawCountryCode && !countryCode) {
+      throw new HttpsError("invalid-argument", "countryCode muss ein zweistelliger ISO-Laendercode sein.");
     }
+    const missionIds = await requirePublishedMissionIds(db, safeMissionIds(data.missionIds), HttpsError);
     const status = data.status === "published" ? "published" : "draft";
-    if (status === "published" && data.safeLocationReviewed !== true) {
+    const safeLocationReviewed = data.safeLocationReviewed === true;
+    const safetyReviewNote = validSafetyReviewNote(data.safetyReviewNote);
+    if (safeLocationReviewed && !safetyReviewNote) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Eine Sicherheitsfreigabe benoetigt eine nachvollziehbare Pruefnotiz mit mindestens 20 Zeichen.",
+      );
+    }
+    if (status === "published" && !safeLocationReviewed) {
       throw new HttpsError("failed-precondition", "Ein veroeffentlichter Missionsort benoetigt eine dokumentierte Sicherheitspruefung.");
     }
 
     const ref = db.collection("missionLocations").doc(locationId);
     const snapshot = await ref.get();
-    const indexFields = geoIndexFields(coordinates);
-    await ref.set({
+    const locationType = optionalString(data.locationType, 80) || "public-space";
+    const baseLocation = {
       locationId,
       title,
       subtitle: optionalString(data.subtitle, 180),
       regionId,
-      countryCode: optionalString(data.countryCode, 8),
+      countryCode,
       locality: optionalString(data.locality, 120),
-      locationType: optionalString(data.locationType, 80) || "public-space",
+      locationType,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
-      ...indexFields,
       icon: optionalString(data.icon, 12) || "📍",
       partnerName: optionalString(data.partnerName, 120),
       missionIds,
-      safeLocationReviewed: data.safeLocationReviewed === true,
-      safetyReviewNote: optionalString(data.safetyReviewNote, 500),
+      safetyReviewNote,
       status,
       globalCatalog: true,
+    };
+    const safetyFields = safeLocationReviewed
+      ? buildLocationSafetyFields(baseLocation, actorUserId)
+      : emptySafetyFields();
+    if (safeLocationReviewed && !safetyFields) {
+      throw new HttpsError("internal", "Sicherheitsfreigabe konnte nicht konsistent signiert werden.");
+    }
+    const indexFields = geoIndexFields(coordinates);
+    await ref.set({
+      ...baseLocation,
+      ...indexFields,
+      ...safetyFields,
       createdByAdminId: snapshot.exists ? optionalString((snapshot.data() || {}).createdByAdminId, 160) || actorUserId : actorUserId,
       updatedByAdminId: actorUserId,
       ...(snapshot.exists ? updatedTimestamp() : serverTimestamps()),
@@ -370,13 +416,15 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       actionType: snapshot.exists ? "mission-location-updated" : "mission-location-created",
       targetType: "missionLocation",
       targetId: locationId,
-      reason: data.safetyReviewNote,
+      reason: safetyReviewNote,
       metadata: {
         regionId,
-        countryCode: optionalString(data.countryCode, 8),
+        countryCode,
         status,
         missionCount: missionIds.length,
-        safeLocationReviewed: data.safeLocationReviewed === true,
+        safeLocationReviewed,
+        safetyReviewVersion: safetyFields.safetyReviewVersion,
+        safetyReviewFingerprint: safetyFields.safetyReviewFingerprint,
         geoIndexVersion: GEO_INDEX_VERSION,
       },
     });
@@ -387,7 +435,9 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       regionId,
       status,
       missionIds,
-      safeLocationReviewed: data.safeLocationReviewed === true,
+      safeLocationReviewed,
+      safetyReviewVersion: safetyFields.safetyReviewVersion,
+      safetyReviewFingerprint: safetyFields.safetyReviewFingerprint,
       geoIndexVersion: GEO_INDEX_VERSION,
       globalCatalog: true,
     };
@@ -413,18 +463,29 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
         skippedCount += 1;
         continue;
       }
+      const patch = {};
       const indexFields = geoIndexFields({ latitude, longitude });
       if (
-        location.geoIndexVersion === indexFields.geoIndexVersion
-        && GEO_INDEX_LEVELS.every((level) => location[level.field] === indexFields[level.field])
+        location.geoIndexVersion !== indexFields.geoIndexVersion
+        || GEO_INDEX_LEVELS.some((level) => location[level.field] !== indexFields[level.field])
       ) {
-        continue;
+        Object.assign(patch, indexFields, { geoIndexUpdatedByAdminId: actorUserId });
       }
-      batch.set(doc.ref, {
-        ...indexFields,
-        geoIndexUpdatedByAdminId: actorUserId,
-        ...updatedTimestamp(),
-      }, { merge: true });
+
+      if (location.status === "published" && location.safeLocationReviewed === true && !hasValidLocationSafetyReview(location)) {
+        const safetyReviewNote = validSafetyReviewNote(location.safetyReviewNote);
+        const safetyFields = safetyReviewNote
+          ? buildLocationSafetyFields({ ...location, locationId: doc.id, safetyReviewNote }, actorUserId)
+          : null;
+        if (safetyFields) {
+          Object.assign(patch, safetyFields);
+        } else {
+          skippedCount += 1;
+        }
+      }
+
+      if (Object.keys(patch).length === 0) continue;
+      batch.set(doc.ref, { ...patch, ...updatedTimestamp() }, { merge: true });
       updatedCount += 1;
     }
     if (updatedCount > 0) await batch.commit();
@@ -432,7 +493,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
     const nextAfterLocationId = snapshot.docs.at(-1)?.id || null;
     await writeAudit(db, {
       actorUserId,
-      actionType: "mission-location-geo-index-reconciled",
+      actionType: "mission-location-index-and-safety-reconciled",
       targetType: "missionLocationCatalog",
       targetId: nextAfterLocationId || "empty",
       reason: data.reason,
@@ -443,6 +504,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
         afterLocationId,
         nextAfterLocationId,
         geoIndexVersion: GEO_INDEX_VERSION,
+        safetyReviewVersion: LOCATION_SAFETY_REVIEW_VERSION,
       },
     });
 
@@ -454,6 +516,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       nextAfterLocationId,
       hasMore: snapshot.size === requestedLimit,
       geoIndexVersion: GEO_INDEX_VERSION,
+      safetyReviewVersion: LOCATION_SAFETY_REVIEW_VERSION,
       globalCatalog: true,
     };
   });
@@ -468,6 +531,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       count: snapshot.size,
       locations: snapshot.docs.map((doc) => ({ locationId: doc.id, ...(doc.data() || {}) })),
       geoIndexVersion: GEO_INDEX_VERSION,
+      safetyReviewVersion: LOCATION_SAFETY_REVIEW_VERSION,
       globalCatalog: true,
     };
   });
