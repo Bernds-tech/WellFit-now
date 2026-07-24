@@ -9,9 +9,14 @@ const {
   resetBeta1Collections,
   seedBeta1RuntimeData,
 } = require("./beta1RuntimeFixtures");
+const {
+  geoIndexFields,
+  GEO_INDEX_VERSION,
+} = require("../lib/beta1NearbyMissionLocations");
 
 const ADMIN_ID = "nearby-admin";
 const USER_ID = "nearby-user";
+const DECOY_COUNT = 520;
 
 async function expectOk(functionName, token, data) {
   const response = await callCallable(functionName, token, data);
@@ -36,6 +41,64 @@ async function upsertLocation(adminToken, input) {
   });
 }
 
+async function seedFarIndexedLocations() {
+  const coordinates = { latitude: -33.8688, longitude: 151.2093 };
+  const indexFields = geoIndexFields(coordinates);
+  const writes = [];
+  for (let index = 0; index < DECOY_COUNT; index += 1) {
+    const suffix = String(index).padStart(4, "0");
+    writes.push({
+      id: `0000-sydney-decoy-${suffix}`,
+      data: {
+        locationId: `0000-sydney-decoy-${suffix}`,
+        title: `Sydney Decoy ${suffix}`,
+        regionId: "au-sydney",
+        countryCode: "AU",
+        locality: "Sydney",
+        locationType: "park",
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
+        ...indexFields,
+        icon: "🌏",
+        missionIds: ["adventure-city-sprint"],
+        safeLocationReviewed: true,
+        safetyReviewNote: "[emulator-qa] Skalierungs-Decoy",
+        status: "published",
+        globalCatalog: true,
+      },
+    });
+  }
+
+  for (let offset = 0; offset < writes.length; offset += 400) {
+    const batch = db.batch();
+    for (const write of writes.slice(offset, offset + 400)) {
+      batch.set(db.collection("missionLocations").doc(write.id), write.data);
+    }
+    await batch.commit();
+  }
+}
+
+async function reindexAllLocations(adminToken) {
+  let afterLocationId = null;
+  let updatedCount = 0;
+  let scannedCount = 0;
+  for (let page = 0; page < 10; page += 1) {
+    const result = await expectOk("adminReindexMissionLocations", adminToken, {
+      limit: 400,
+      afterLocationId,
+      reason: "[emulator-qa] weltweiter Geo-Index-Abgleich",
+    });
+    assert(result.geoIndexVersion === GEO_INDEX_VERSION, "Reindex muss die kanonische Geo-Index-Version liefern.");
+    updatedCount += Number(result.updatedCount || 0);
+    scannedCount += Number(result.scannedCount || 0);
+    if (!result.hasMore || !result.nextAfterLocationId) {
+      return { updatedCount, scannedCount };
+    }
+    afterLocationId = result.nextAfterLocationId;
+  }
+  throw new Error("Geo-Index-Reindexierung hat die sichere Seitengrenze ueberschritten.");
+}
+
 async function run() {
   console.log("WellFit Beta 1 Worldwide Nearby Mission Locations Emulator Test startet...");
   await resetBeta1Collections();
@@ -58,6 +121,12 @@ async function run() {
       safeLocationReviewed: true,
     },
     "Nicht-Admin darf keine Missionsorte veroeffentlichen",
+  );
+  await expectCallableError(
+    "adminReindexMissionLocations",
+    userToken,
+    { limit: 100 },
+    "Nicht-Admin darf den Geo-Index nicht veraendern",
   );
 
   await upsertLocation(adminToken, {
@@ -98,6 +167,16 @@ async function run() {
     missionIds: ["adventure-museum-quiz"],
   });
 
+  const tokyoLocation = (await db.collection("missionLocations").doc("tokyo-station").get()).data() || {};
+  assert(tokyoLocation.geoIndexVersion === GEO_INDEX_VERSION, "Admin-Upsert muss den kanonischen Geo-Index schreiben.");
+  assert(
+    typeof tokyoLocation.geoCell025 === "string"
+      && typeof tokyoLocation.geoCell1 === "string"
+      && typeof tokyoLocation.geoCell5 === "string"
+      && typeof tokyoLocation.geoCell15 === "string",
+    "Jeder Missionsort braucht die vier skalierbaren Geo-Zellen.",
+  );
+
   await expectCallableError(
     "adminUpsertMissionLocation",
     adminToken,
@@ -114,15 +193,21 @@ async function run() {
     "Veroeffentlichter Ort ohne Sicherheitspruefung muss blockiert werden",
   );
 
+  // More than 500 earlier-sorting global documents prove that nearby search no
+  // longer depends on a bounded full-collection scan.
+  await seedFarIndexedLocations();
+
   const tokyo = await expectOk("getNearbyMissionLocations", userToken, {
     latitude: 35.68125,
     longitude: 139.76715,
     radiusKm: 5,
   });
   assert(tokyo.globalCatalog === true && tokyo.locationAuthority === "server-published-nearby", "Umgebungssuche muss global und serverpubliziert sein.");
+  assert(tokyo.geoIndexAuthority === GEO_INDEX_VERSION, "Umgebungssuche muss den serverseitigen Geo-Index ausweisen.");
   assert(tokyo.userLocationStored === false, "Umgebungssuche darf den Nutzerstandort nicht speichern.");
-  assert(tokyo.count === 1 && tokyo.locations[0].locationId === "tokyo-station", "Tokyo-Nutzer darf nur den nahen Tokyo-Ort erhalten.");
+  assert(tokyo.count === 1 && tokyo.locations[0].locationId === "tokyo-station", "Tokyo-Nutzer darf trotz mehr als 500 globalen Orten nur den nahen Tokyo-Ort erhalten.");
   assert(tokyo.locations[0].distanceKm < 0.1, "Distanz muss aus aktuellen Koordinaten berechnet werden.");
+  assert(Number(tokyo.candidateCount) < 20, "Geo-Index soll nur lokale Kandidaten statt des Weltkatalogs laden.");
 
   const filtered = await expectOk("getNearbyMissionLocations", userToken, {
     latitude: 35.68125,
@@ -146,6 +231,48 @@ async function run() {
     { latitude: 200, longitude: 10, radiusKm: 25 },
     "Ungueltige Koordinaten muessen blockiert werden",
   );
+
+  // Legacy locations are intentionally invisible until an admin-authorized index
+  // migration reconciles them.
+  await db.collection("missionLocations").doc("zz-legacy-tokyo-hub").set({
+    locationId: "zz-legacy-tokyo-hub",
+    title: "Legacy Tokyo Hub",
+    regionId: "jp-tokyo",
+    countryCode: "JP",
+    locality: "Tokyo",
+    locationType: "city-route",
+    latitude: 35.682,
+    longitude: 139.768,
+    icon: "🧭",
+    missionIds: ["challenge-reaction-test"],
+    safeLocationReviewed: true,
+    safetyReviewNote: "[emulator-qa] Altbestand vor Geo-Index",
+    status: "published",
+    globalCatalog: true,
+  });
+
+  const beforeReindex = await expectOk("getNearbyMissionLocations", userToken, {
+    latitude: 35.68125,
+    longitude: 139.76715,
+    radiusKm: 5,
+    missionIds: ["challenge-reaction-test"],
+  });
+  assert(beforeReindex.count === 1 && beforeReindex.locations[0].locationId === "tokyo-station", "Nicht indexierter Altbestand darf den sicheren Geo-Pfad nicht umgehen.");
+
+  const reindex = await reindexAllLocations(adminToken);
+  assert(reindex.scannedCount > 500, "Reindex muss einen weltweiten Katalog mit mehr als 500 Orten seitenweise verarbeiten.");
+  assert(reindex.updatedCount >= 1, "Reindex muss mindestens den absichtlich ungeindexierten Altbestand aktualisieren.");
+  const legacyLocation = (await db.collection("missionLocations").doc("zz-legacy-tokyo-hub").get()).data() || {};
+  assert(legacyLocation.geoIndexVersion === GEO_INDEX_VERSION, "Legacy-Ort muss nach Migration den kanonischen Geo-Index besitzen.");
+
+  const afterReindex = await expectOk("getNearbyMissionLocations", userToken, {
+    latitude: 35.68125,
+    longitude: 139.76715,
+    radiusKm: 5,
+    missionIds: ["challenge-reaction-test"],
+  });
+  assert(afterReindex.count === 2, "Nach Reindex muessen beide nahen Tokyo-Orte auffindbar sein.");
+  assert(afterReindex.locations.some((location) => location.locationId === "zz-legacy-tokyo-hub"), "Reindexierter Altbestand muss in der lokalen Umgebungssuche erscheinen.");
 
   const now = Date.now();
   const glitch = await expectOk("adminScheduleGlitchEvent", adminToken, {
@@ -191,7 +318,7 @@ async function run() {
   );
 
   const locationDocs = await db.collection("missionLocations").get();
-  assert(locationDocs.size === 3, "Genau drei weltweit verteilte Testorte muessen publiziert sein.");
+  assert(locationDocs.size === DECOY_COUNT + 4, "Weltweiter Testkatalog muss drei reguläre, einen Legacy- und mehr als 500 Decoy-Orte enthalten.");
   assert(locationDocs.docs.every((doc) => (doc.data() || {}).safeLocationReviewed === true), "Alle publizierten Testorte muessen sicherheitsgeprueft sein.");
 
   console.log("WellFit Beta 1 Worldwide Nearby Mission Locations Emulator Test erfolgreich.");
