@@ -11,7 +11,7 @@ type LifestyleCardProps = {
   saveButtonClass: string;
   isLoadingUser: boolean;
   updateLifestyleField: (key: keyof LifestyleForm, value: string) => void;
-  saveLifestyle: () => void;
+  saveLifestyle: () => void | Promise<void>;
 };
 
 const nutritionOptions = ["Ausgewogen", "Vegetarisch", "Vegan", "Low Carb", "High Protein", "Unregelmäßig"];
@@ -43,78 +43,38 @@ export default function LifestyleCard({
     <SettingsCard title="Lebensstil & Ernährung">
       <SensitiveNotice />
       <div className="space-y-3">
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Ernährungsstil</label>
-          <select className={selectClass} value={lifestyle.nutrition} onChange={(event) => updateLifestyleField("nutrition", event.target.value)}>
-            {nutritionOptions.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Mahlzeitenrhythmus</label>
-          <select className={selectClass} value={lifestyle.mealRhythm} onChange={(event) => updateLifestyleField("mealRhythm", event.target.value)}>
-            {mealRhythmOptions.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Trinkerinnerung</label>
-          <select className={selectClass} value={lifestyle.drinkReminder} onChange={(event) => updateLifestyleField("drinkReminder", event.target.value)}>
-            {reminderOptions.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </div>
+        <SelectField label="Ernährungsstil" value={lifestyle.nutrition} options={nutritionOptions} className={selectClass} onChange={(value) => updateLifestyleField("nutrition", value)} />
+        <SelectField label="Mahlzeitenrhythmus" value={lifestyle.mealRhythm} options={mealRhythmOptions} className={selectClass} onChange={(value) => updateLifestyleField("mealRhythm", value)} />
+        <SelectField label="Trinkerinnerung" value={lifestyle.drinkReminder} options={reminderOptions} className={selectClass} onChange={(value) => updateLifestyleField("drinkReminder", value)} />
         <div className="grid grid-cols-[1fr_80px_45px] items-center gap-2">
           <label className="text-white/85">Trinkziel pro Tag</label>
-          <input className={inputClass} value={lifestyle.drinkAmount} onChange={(event) => updateLifestyleField("drinkAmount", event.target.value)} />
+          <input type="number" inputMode="decimal" className={inputClass} value={lifestyle.drinkAmount} onChange={(event) => updateLifestyleField("drinkAmount", event.target.value)} />
           <span>Liter</span>
         </div>
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Koffein</label>
-          <select className={selectClass} value={lifestyle.caffeineIntake} onChange={(event) => updateLifestyleField("caffeineIntake", event.target.value)}>
-            {levelOptions.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Alkohol</label>
-          <select className={selectClass} value={lifestyle.alcoholFrequency} onChange={(event) => updateLifestyleField("alcoholFrequency", event.target.value)}>
-            {alcoholOptions.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Schlafroutine</label>
-          <select className={selectClass} value={lifestyle.sleepRoutine} onChange={(event) => updateLifestyleField("sleepRoutine", event.target.value)}>
-            {sleepRoutineOptions.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Bewegung in der Natur</label>
-          <select className={selectClass} value={lifestyle.natureMove} onChange={(event) => updateLifestyleField("natureMove", event.target.value)}>
-            {natureMoveOptions.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Stress-Ausgleich</label>
-          <select className={selectClass} value={lifestyle.stressCoping} onChange={(event) => updateLifestyleField("stressCoping", event.target.value)}>
-            {stressCopingOptions.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Screen-Time Gefühl</label>
-          <select className={selectClass} value={lifestyle.screenTime} onChange={(event) => updateLifestyleField("screenTime", event.target.value)}>
-            {levelOptions.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-white/70">Notizen für den KI-Buddy</label>
-          <textarea
-            className={`${inputClass} min-h-[80px] resize-none`}
-            value={lifestyle.notes}
-            onChange={(event) => updateLifestyleField("notes", event.target.value)}
-            placeholder="Optional: Gewohnheiten, Vorlieben oder Alltagshinweise"
-          />
-        </div>
+        <SelectField label="Koffein" value={lifestyle.caffeineIntake} options={levelOptions} className={selectClass} onChange={(value) => updateLifestyleField("caffeineIntake", value)} />
+        <SelectField label="Alkohol" value={lifestyle.alcoholFrequency} options={alcoholOptions} className={selectClass} onChange={(value) => updateLifestyleField("alcoholFrequency", value)} />
+        <SelectField label="Schlafroutine" value={lifestyle.sleepRoutine} options={sleepRoutineOptions} className={selectClass} onChange={(value) => updateLifestyleField("sleepRoutine", value)} />
+        <SelectField label="Bewegung in der Natur" value={lifestyle.natureMove} options={natureMoveOptions} className={selectClass} onChange={(value) => updateLifestyleField("natureMove", value)} />
+        <SelectField label="Stress-Ausgleich" value={lifestyle.stressCoping} options={stressCopingOptions} className={selectClass} onChange={(value) => updateLifestyleField("stressCoping", value)} />
+        <SelectField label="Screen-Time Gefühl" value={lifestyle.screenTime} options={levelOptions} className={selectClass} onChange={(value) => updateLifestyleField("screenTime", value)} />
+        <p className="rounded-lg border border-white/10 bg-black/10 px-3 py-2 text-[10px] text-white/55">
+          Freie Lebensstil- oder Gesundheitsnotizen werden in Beta 1 nicht gespeichert. Die Auswahlfelder werden nur im privaten Serverprofil abgelegt.
+        </p>
       </div>
       <button className={saveButtonClass} onClick={saveLifestyle} disabled={isLoadingUser}>
-        Änderungen speichern
+        Privat serverseitig speichern
       </button>
     </SettingsCard>
+  );
+}
+
+function SelectField({ label, value, options, className, onChange }: { label: string; value: string; options: string[]; className: string; onChange: (value: string) => void }) {
+  return (
+    <div>
+      <label className="mb-1 block text-xs text-white/70">{label}</label>
+      <select className={className} value={value} onChange={(event) => onChange(event.target.value)}>
+        {options.map((option) => <option key={option}>{option}</option>)}
+      </select>
+    </div>
   );
 }
