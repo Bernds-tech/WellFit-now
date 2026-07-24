@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { User } from "@/types/user";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import {
   createDefaultUser,
   normalizeUser,
@@ -18,6 +18,7 @@ export function useDashboardUser() {
   const [message, setMessage] = useState("WellFit Profil wird geladen...");
   const [loadedFromCache, setLoadedFromCache] = useState(false);
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
+  const [requiresOnboarding, setRequiresOnboarding] = useState(false);
 
   useEffect(() => {
     let unsubscribeSnapshot: (() => void) | undefined;
@@ -28,6 +29,7 @@ export function useDashboardUser() {
       setIsLoadingUser(true);
       setLoadedFromCache(false);
       setIsRealtimeConnected(false);
+      setRequiresOnboarding(false);
 
       if (!firebaseUser) {
         setUser(null);
@@ -47,40 +49,39 @@ export function useDashboardUser() {
       const now = new Date().toISOString();
 
       try {
-        await setDoc(userRef, { lastLoginAt: now, updatedAt: now }, { merge: true });
-      } catch {}
+        const initialSnapshot = await getDoc(userRef);
+        if (initialSnapshot.exists()) {
+          await setDoc(userRef, { lastLoginAt: now, updatedAt: now }, { merge: true });
+        }
+      } catch {
+        // A failed activity timestamp must never create a fallback profile or economy state.
+      }
 
       unsubscribeSnapshot = onSnapshot(
         userRef,
-        async (userSnap) => {
-          if (userSnap.exists()) {
-            const normalizedUser = normalizeUser(userSnap.data() as Partial<User>, firebaseUser.uid);
+        (userSnapshot) => {
+          if (userSnapshot.exists()) {
+            const normalizedUser = normalizeUser(userSnapshot.data() as Partial<User>, firebaseUser.uid);
             setUser(normalizedUser);
             writeCachedUser(normalizedUser);
             setLoadedFromCache(false);
             setIsRealtimeConnected(true);
-            setMessage("Dashboard live synchronisiert.");
+            setRequiresOnboarding(userSnapshot.data().onboardingCompleted !== true);
+            setMessage(
+              userSnapshot.data().onboardingCompleted === true
+                ? "Dashboard live synchronisiert."
+                : "Dein Profil ist noch nicht vollständig serverseitig eingerichtet.",
+            );
             setIsLoadingUser(false);
             return;
           }
 
-          const defaultUser = createDefaultUser(firebaseUser);
-          await setDoc(
-            userRef,
-            {
-              ...defaultUser,
-              createdAt: now,
-              lastLoginAt: now,
-              updatedAt: now,
-              onboardingCompleted: false,
-            },
-            { merge: true }
-          );
-
-          setUser(defaultUser);
-          writeCachedUser(defaultUser);
+          const readOnlyFallback = createDefaultUser(firebaseUser);
+          setUser(readOnlyFallback);
+          setLoadedFromCache(false);
           setIsRealtimeConnected(true);
-          setMessage("Willkommen! Dein WellFit-Profil wurde angelegt.");
+          setRequiresOnboarding(true);
+          setMessage("Kein serverseitiges Profil gefunden. Bitte schließe die sichere Registrierung ab.");
           setIsLoadingUser(false);
         },
         () => {
@@ -88,10 +89,10 @@ export function useDashboardUser() {
           setMessage(
             cachedUser
               ? "Offline/Cache aktiv – Realtime Sync nicht verfügbar."
-              : "User konnte nicht live geladen werden."
+              : "User konnte nicht live geladen werden.",
           );
           setIsLoadingUser(false);
-        }
+        },
       );
     });
 
@@ -109,5 +110,6 @@ export function useDashboardUser() {
     setMessage,
     loadedFromCache,
     isRealtimeConnected,
+    requiresOnboarding,
   };
 }
