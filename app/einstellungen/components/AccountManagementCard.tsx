@@ -148,7 +148,7 @@ export default function AccountManagementCard() {
           <div className="rounded-lg border border-orange-400/40 bg-orange-400/10 p-3">
             <p className="text-sm font-bold text-orange-200">Löschantrag aktiv</p>
             <p className="mt-1 text-xs text-orange-100/90">
-              Neue Missions-, Shop- und WFXP-Aktionen sind eingefroren. Geplante Löschung: {formatDate(lifecycle.deletionScheduledFor)}.
+              Neue WFXP-Gutschriften und WFXP-Ausgaben sind eingefroren. Geplante Löschung: {formatDate(lifecycle.deletionScheduledFor)}.
             </p>
             <button
               type="button"
