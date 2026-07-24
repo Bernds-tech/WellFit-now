@@ -9,6 +9,7 @@ const {
   updatedTimestamp,
   writeAudit,
 } = require("./beta1Runtime");
+const { consumeNearbyLocationQueryBudget } = require("./beta1LocationQueryBudget");
 
 const MAX_LOCATION_DOCS = 500;
 const MAX_NEARBY_RESULTS = 50;
@@ -253,7 +254,7 @@ async function requirePublishedNearbyMissionLocation(db, input, HttpsError) {
 
 function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsError }) {
   exportsTarget.getNearbyMissionLocations = onCall(async (request) => {
-    requireAuth(request, HttpsError);
+    const userId = requireAuth(request, HttpsError);
     const data = request.data || {};
     const origin = normalizeCoordinates(data, HttpsError);
     const requestedRadius = Number(data.radiusKm);
@@ -264,6 +265,7 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
     const locationTypes = new Set(Array.isArray(data.locationTypes)
       ? data.locationTypes.map((value) => optionalString(value, 80)).filter(Boolean).slice(0, 10)
       : []);
+    const queryBudget = await consumeNearbyLocationQueryBudget(db, userId, HttpsError);
 
     const candidates = await readGeoCandidateDocuments(db, origin, radiusKm);
     if (candidates.docs.length > MAX_GEO_CANDIDATES) {
@@ -309,6 +311,9 @@ function registerBeta1NearbyMissionLocations(exportsTarget, { db, onCall, HttpsE
       geoQueryCellCount: candidates.cellCount,
       geoQueryCount: candidates.queryCount,
       candidateCount: candidates.docs.length,
+      queryBudgetRemaining: queryBudget.remainingQueries,
+      queryBudgetWindowSeconds: queryBudget.queryWindowSeconds,
+      queryBudgetRawCoordinatesStored: false,
       userLocationStored: false,
       globalCatalog: true,
       noMonetaryValue: true,
