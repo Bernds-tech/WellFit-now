@@ -12,6 +12,19 @@ WellFit is a Move-Learn-Social-Earn platform that combines movement, learning, s
 
 The current codebase is an existing product baseline. Do not restart or rewrite the app. Extend the current architecture in small, reviewable steps and preserve existing working behavior unless a task explicitly requests a change.
 
+### Current runtime reference
+
+Before runtime, roadmap, readiness or planning work, read `docs/status/WELLFIT_RUNTIME_STATE_2026-07-24.md` in addition to the protected Beta-1 Canonical Truth files. The runtime-state document records the actual merged implementation and current execution order. Historical May 2026 status/TODO files remain preserved for context but must not override newer tested runtime behavior.
+
+When sources conflict:
+
+1. use `main` code and passing tests for actual runtime behavior;
+2. use the current runtime-state document for execution context;
+3. use the owner-controlled Beta-1 Canonical Truth for product/economy boundaries;
+4. treat historical TODOs and older concept/whitepaper material as background only.
+
+Do not silently reconcile terminology or scope conflicts. In particular, the runtime currently uses `WFXP` while the protected Beta-1 Canonical Truth defines spendable `WFP` and separate non-spendable avatar `XP`; that migration requires a dedicated owner-reviewed task.
+
 ## 2. Branching rules
 
 - Do not work directly on `main`.
@@ -99,14 +112,14 @@ For code changes, cite the affected files and keep the summary tied to the actua
 Before continuing larger mission development, prepare WellFit in staged, low-risk steps:
 
 1. **Repository baseline**: confirm branch state, dependency state, lint/build status, and current route/API inventory.
-2. **Governance alignment**: ensure `AGENTS.md`, TODO index, project registers, and handoff/status files agree on safe working rules.
+2. **Governance alignment**: ensure `AGENTS.md`, the current runtime-state document, TODO index, project registers, and handoff/status files agree on safe working rules.
 3. **UI shell stability**: preserve and verify landing, dashboard, sidebar, footer, mobile navigation, legal/help pages, and existing mission routes.
 4. **Safety wording pass**: remove or clearly defer premature token/NFT/wallet/payment/betting language from beta-facing mobile and mission flows unless explicitly approved.
-5. **Economy guardrails**: keep points/XP/rewards as internal beta mechanics; maintain draft/preview status for final ledger writes until server authority, rules, and emulator tests are ready.
+5. **Economy guardrails**: keep internal balances and rewards non-monetary; maintain server authority and do not infer WFP/WFXP/XP equivalence without a dedicated migration decision.
 6. **Data protection review**: confirm health, child-safety, camera, location, and consent flows are documented and not expanded without explicit instruction.
-7. **Backend readiness**: validate Firebase Functions syntax, Firestore rules guardrails, server preview APIs, and persistence status before moving more reward authority off the client.
+7. **Backend readiness**: validate Firebase Functions syntax, Firestore rules guardrails, callable authority, emulator evidence, and persistence status before moving more protected authority.
 8. **Unity AR isolation**: inventory WellFitBuddyAR state without deleting or overwriting local Unity assets; plan AR work separately from web beta work.
-9. **Mission development continuation**: only after the above checks, continue mission features in small increments using existing mission, economy, buddy, and register modules rather than creating parallel systems.
+9. **Current execution order**: registration/consent hardening, remaining legacy `users` writer migration, compatibility-rule removal, account lifecycle, pilot telemetry, partner redemption, device evidence, then a small adult Closed Beta.
 
 ## 11. Canonical Truth owner-only protection
 
@@ -123,4 +136,3 @@ Rules:
 - Agents must read these files before Beta-1 governance, roadmap, register, or planning changes that depend on Beta-1 concept truth.
 - Agents must not modify these files unless the prompt contains explicit Bernd/owner approval for that change.
 - If a task would require edits there without approval, stop and document a blocker plus proposed patch in a non-protected planning/register handoff artifact.
-

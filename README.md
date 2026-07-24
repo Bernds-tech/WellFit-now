@@ -1,18 +1,48 @@
 # WellFit Now
 
-WellFit is an existing Next.js product baseline for the Move-Learn-Social-Earn platform. Work in this repository should extend the current app, registers, TODO files, and architecture notes in small scoped steps. Do not create duplicate app shells, route maps, environment systems, reward systems, or agent-governance systems.
+WellFit is an existing Next.js/Firebase product baseline for the Move-Learn-Social-Earn platform. Work in this repository must extend the current app and its server-authoritative mission, internal-economy, Buddy and location modules in small scoped steps. Do not create duplicate app shells, route maps, environment systems, reward systems or agent-governance systems.
 
 ## Current operating mode
 
-WellFit is currently developed exclusively through GitHub branches and pull requests. There is no active WellFit server or SSH deployment target in use. GitHub Actions may build the application and run emulator checks, but they must not deploy unrelated products or external services. See `docs/operations/GITHUB_ONLY_DEVELOPMENT_STATUS.md`.
+WellFit is currently developed exclusively through GitHub branches and pull requests. There is no active WellFit server or SSH deployment target in use. GitHub Actions build the application and run emulator checks, but they must not deploy unrelated products or external services.
+
+Read these current references before changing product code or planning:
+
+1. `AGENTS.md`
+2. `docs/status/WELLFIT_RUNTIME_STATE_2026-07-24.md`
+3. `project-register/wellfit-beta1-canonical-truth.json`
+4. `docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md`
+5. `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md`
+6. the relevant historical TODO/work-map files for context
+
+The runtime-state document records the actual merged implementation. The protected Canonical Truth controls Beta-1 product/economy boundaries. Historical May 2026 status documents remain useful background but do not override newer tested code.
+
+See also `docs/operations/GITHUB_ONLY_DEVELOPMENT_STATUS.md`.
+
+## Current product baseline
+
+The repository currently includes:
+
+- Firebase Authentication and Firestore integration;
+- public, dashboard, mission, Buddy, shop, analytics, admin and Mobile Web routes;
+- server-authoritative mission attempts, evidence review, completion and internal ledger writes;
+- internal non-monetary WFXP wallet/ledger, shop spend and inventory grants;
+- server-authoritative Buddy care and state actions;
+- guardian, child-profile, permission and parental-consent foundations;
+- worldwide user-local calendar periods and server-published nearby mission locations;
+- Adventure, Challenge and Reality Glitch proximity authority;
+- Firestore client-write restrictions and Auth/Firestore/Functions emulator coverage;
+- optional App Check client preparation without production enforcement.
+
+Important terminology warning: runtime modules currently use `WFXP`, while the owner-controlled Beta-1 Canonical Truth defines spendable `WFP` and separate non-spendable avatar `XP`. Do not silently equate or rename these concepts. A dedicated migration decision is required.
 
 ## Safe development boundaries
 
-Before changing files, read `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, `todolist/WORK_MAP.md`, and `todolist/TODO_INDEX.md`. For setup and environment work, also read `todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md`.
+Documentation/setup changes must not touch runtime product code unless a task explicitly says so. In particular, do not change `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`, `package.json`, `package-lock.json` or `native/unity/WellFitBuddyAR/**` for a docs-only setup task.
 
-Documentation/setup changes must not touch runtime product code unless a task explicitly says so. In particular, do not change `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`, `package.json`, `package-lock.json`, or `native/unity/WellFitBuddyAR/**` for a docs-only setup task.
+Never commit secrets. Keep real Firebase project values, server API keys, local machine paths, `.env.local`, generated build output and deployment-only credentials out of the repository.
 
-Never commit secrets. Keep real Firebase project values, server API keys, local machine paths, `.env.local`, generated build output, and deployment-only credentials out of the repository.
+Unity/PR #13 remains owner-protected. Do not merge, close, overwrite or depend on it without explicit owner instruction.
 
 ## Local setup
 
@@ -32,6 +62,7 @@ cp .env.example .env.local
 npm run lint
 npx tsc --noEmit
 npm run build
+npm --prefix functions run check
 
 # 5. Start the local development server when you need to preview the app.
 npm run dev
@@ -47,7 +78,7 @@ This project uses network-free system font stacks in `app/globals.css` so CI and
 
 ### Firebase public web config
 
-The `NEXT_PUBLIC_FIREBASE_*` variables are Firebase web-app configuration values that are safe to expose to the browser in the normal Firebase client model, but they are still environment-specific and should not be replaced with real project values in committed docs.
+The `NEXT_PUBLIC_FIREBASE_*` variables are Firebase web-app configuration values that are safe to expose to the browser in the normal Firebase client model, but they are environment-specific and must not be replaced with real project values in committed documentation.
 
 Required for real Auth or Firestore usage:
 
@@ -58,7 +89,11 @@ Required for real Auth or Firestore usage:
 - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 
-CI/Codex builds can prerender public pages without real Firebase secrets. If these variables are absent, the current Firebase initialization path stays uninitialized during import so `npm run build` can complete for public prerendering. Actual Firebase Auth or Firestore usage still requires all configured Firebase variables in `.env.local` or the deployment environment.
+CI builds can prerender public pages without real Firebase configuration. Actual Firebase Auth, Firestore and callable use requires the complete Firebase web config in `.env.local` or the deployment environment.
+
+### Optional App Check
+
+The web client can initialize Firebase App Check with reCAPTCHA Enterprise when a deployment later provides the documented site-key environment value. App Check enforcement remains disabled by default and must not be enabled in production without an explicit rollout decision, metrics and rollback readiness. See `docs/security/FIREBASE_APP_CHECK_ROLLOUT.md`.
 
 ### Server-only provider keys
 
@@ -68,54 +103,49 @@ Optional Buddy KI provider settings are server-side only unless a variable is ex
 - `BUDDY_KI_PROVIDER`
 - `OPENAI_API_KEY`
 
-Server-only provider keys, including `OPENAI_API_KEY`, must never use the `NEXT_PUBLIC_` prefix and must never be committed with real values. Keep production provider keys in server/deployment environment configuration only.
+Server-only provider keys, including `OPENAI_API_KEY`, must never use the `NEXT_PUBLIC_` prefix and must never be committed with real values.
 
-## Firebase, Functions, and emulator checks
+## Firebase, Functions and emulator checks
 
-WellFit currently separates root app checks from Firebase Functions checks:
+WellFit separates root application checks from Firebase Functions and emulator checks:
 
-- Root app checks (`npm run lint`, `npx tsc --noEmit`, `npm run build`) validate the Next.js app and shared TypeScript surface from the repository root.
-- Functions checks run from the Functions package context and validate Firebase Functions JavaScript syntax without starting emulators or writing production data. Use the existing script from the repository root:
+- `npm run lint`, `npx tsc --noEmit` and `npm run build` validate the Next.js application and shared TypeScript surface.
+- `npm --prefix functions run check` validates Functions syntax and startup/unit contracts without production writes.
+- the GitHub `Beta 1 Emulator Tests` workflow starts Auth, Firestore and Functions emulators and runs the focused Beta-1 rules/callable suites.
+- `npm run agent:quality-gate` and the repository inventory checks validate repository/governance boundaries.
 
-```bash
-npm --prefix functions run check
-```
-
-The Functions syntax check is not a Firebase deployment and does not replace emulator tests. It should be used before any Firebase/Functions PR handoff because it catches syntax errors in `functions/index.js`, helper modules, seed scripts, and emulator test scripts without changing Firestore rules or backend runtime behavior.
-
-### Firebase project and environment expectations
-
-For local development, keep Firebase project identifiers and web-app configuration in `.env.local` or the deployment provider environment. Do not commit real project values, service-account keys, Firebase tokens, or production credentials. Public Firebase web config may use the `NEXT_PUBLIC_FIREBASE_*` names described above, but server credentials and provider keys must remain server-only.
-
-Documentation-only agent tasks must not run production writes, activate final ledger behavior, or turn on mission-completion authority. Any change to `firestore.rules`, `functions/**`, Firebase deployment settings, reward authorization, mission completion, or ledger persistence requires a separate explicit human-approved task and review plan.
+A syntax check is not an emulator proof, and an emulator proof is not a production deployment, legal approval, penetration test, real-device test or real-user validation.
 
 ### Emulator prerequisites
 
-Emulator-based checks require more than `npm --prefix functions run check`:
+Emulator-based checks require:
 
-- Firebase CLI installed and available on `PATH`.
-- Java installed for Firebase emulators. Note: newer `firebase-tools` releases may require Java 21; if local tools reject an older JRE, treat that as an environment prerequisite, not an app-code failure.
-- Required local ports free before startup, especially emulator UI `4000`, Firestore `8080`, Auth `9099`, and Functions `5001`. Run only one emulator suite at a time.
-- Firebase login or local project context when a selected emulator command requires it; demo-project emulator flows may not require a production login, but deployment commands always require explicit human approval.
-- Local environment files configured for development only; never point agent-driven tests at production data.
+- Firebase CLI on `PATH`;
+- Java compatible with the installed `firebase-tools` version;
+- free local ports, especially UI `4000`, Firestore `8080`, Auth `9099` and Functions `5001`;
+- a local/demo project context;
+- development-only environment configuration.
 
-Root emulator startup scripts live in the root package (`npm run emulators`, `npm run emulators:rules`, `npm run emulators:firestore`). Functions emulator tests run from `functions/` and require the matching emulator services to already be running. In particular, `npm --prefix functions run test:emulator` and the callable/mission/evidence/pattern/cooldown emulator tests require running Auth, Firestore, and Functions emulator services; NFC and rules smoke tests require the Firestore emulator at `127.0.0.1:8080`.
+Never point agent-driven tests at production data. If emulator checks cannot run, report whether the limitation is environmental or code-related; do not compensate by weakening Firestore rules or protected server logic.
 
-If emulator checks cannot run in a given environment, report whether the limitation is environmental or code-related. Do not compensate by loosening Firestore rules, modifying Functions code, changing deployment scripts, or writing to production.
+### Authority boundaries
 
-### Backend readiness and authority boundaries
+Current callable Functions can authorize internal, non-monetary Beta flows such as reviewed mission completion, WFXP ledger writes, internal shop spend, inventory grants, Buddy actions and nearby-location decisions. Those paths remain:
 
-The current backend-readiness posture is documentation/register-only unless a task explicitly authorizes runtime changes. Treat the checks as separate evidence types:
+- server-only for protected writes;
+- non-blockchain;
+- non-cashout;
+- non-token;
+- non-real-money;
+- subject to Firestore rules and emulator evidence.
 
-- Root app checks (`npm run lint`, `npx tsc --noEmit`, `npm run build`, `npm run agent:quality-gate`) validate the web app and governance reports.
-- `npm --prefix functions run check` validates Functions JavaScript syntax/static parse coverage only. It is not an emulator run, production deploy, Firestore Rules proof, ledger write, reward authorization, mission-completion authorization, or persistence-readiness proof.
-- Emulator tests require local Firebase emulator services, Java, Firebase CLI, free local ports, project/demo context, and local environment setup before they can prove Auth/Firestore/Functions behavior.
+Legacy `/api/economy/*` preview/status routes must not be confused with the Firebase callable authority paths. Remaining direct client compatibility writes in `users/{uid}` are explicitly temporary and must be removed after all consumers migrate.
 
-Existing `/api/economy/*` routes are registered as preview, draft, status, or projection-read-preview surfaces. They must not be treated as final ledger, points-spend, inventory-grant, leaderboard, anti-cheat, reward, or mission-completion authority unless a future human-approved backend/rules/audit plan updates the runtime code, Firestore Rules, emulator coverage, and registers together. Firestore Rules hardening, final server persistence, production writes, deployment, and any protected economy/mission authority remain `review_required`.
+Production deployment, Firestore Rules publication, real Firebase project writes, App Check enforcement, public token/WFT activation, payment, payout, NFT trading, PvP stakes and protected-data expansion require separate explicit decisions.
 
 ## Agent and governance checks
 
-For documentation/register work, prefer the existing governance checks:
+For broader repository or documentation work, use the existing checks:
 
 ```bash
 npm run agent:autopilot:dry-run
@@ -124,15 +154,28 @@ node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs
 node scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs
 ```
 
-Auto-merge and auto-repair checks are report-only in this repository. They must not merge, repair, deploy, or approve work automatically.
+The repository CI also blocks FanMind or unrelated-product workflow references.
+
+## Current execution order
+
+1. registration, consent and server-side user initialization;
+2. remaining legacy `users` economy/Buddy writer migration;
+3. Firestore compatibility-write removal;
+4. email verification, session/route hardening and operational admin claims;
+5. consent withdrawal, data export and account deletion/anonymization;
+6. privacy-safe pilot telemetry;
+7. non-crypto partner rewards and redemption;
+8. real-device Mobile/PWA/Pose evidence;
+9. small adult Closed Beta;
+10. native AR, Edge AI, wider partner tooling and later roadmap layers.
 
 ## Future deployment notes
 
-No active WellFit server, PM2 process, Firebase production deployment, or SSH target is currently configured or used by this project. Historical self-hosting and PM2 notes are planning references only.
+No active WellFit server, PM2 process, Firebase production deployment or SSH target is currently configured or used by this project. Historical self-hosting and PM2 notes are planning references only.
 
-Any future hosting setup, server provisioning, Firebase deployment, Firestore Rules publication, production data migration, or secret configuration requires a separate explicit owner decision and a scoped pull request. Do not add cross-product deployment workflows or external service targets to this repository.
+Any future hosting setup, server provisioning, Firebase deployment, Firestore Rules publication, production data migration or secret configuration requires a separate explicit owner decision and a scoped pull request.
 
-## Learn More
+## Learn more
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Learn Next.js](https://nextjs.org/learn)
