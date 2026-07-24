@@ -68,7 +68,9 @@ const QUERY_DOCUMENT_SECTIONS = [
   { section: "nfc-scan-events", collection: "nfcScanEvents", fields: ["ownerUserId", "userId"] },
   { section: "capability-unlock-events", collection: "capabilityUnlockEvents", fields: ["ownerUserId", "userId"] },
   { section: "safety-reports", collection: "safetyReports", fields: ["reporterUserId", "ownerUserId", "userId"] },
-  { section: "audit-events", collection: "auditEvents", fields: ["ownerUserId", "userId", "actorUserId"] },
+  // An administrator may act on another account. Export only audit events whose
+  // subject/owner is the requesting user; actorUserId would leak another user's target metadata.
+  { section: "audit-events", collection: "auditEvents", fields: ["ownerUserId", "userId"] },
 ];
 
 function exportJobRef(db, userId) {
@@ -188,6 +190,12 @@ function splitSectionIntoChunks(section) {
     flush();
   } else {
     for (const item of section.items) {
+      const singleItemBytes = Buffer.byteLength(JSON.stringify(item), "utf8");
+      if (singleItemBytes > EXPORT_CHUNK_TARGET_BYTES) {
+        const error = new Error(`account-export-document-too-large:${section.collection}:${item.documentId}`);
+        error.code = "account-export-document-too-large";
+        throw error;
+      }
       const candidate = {
         section: section.section,
         collection: section.collection,
@@ -293,6 +301,7 @@ function publicExportJob(job) {
       status: "not-requested",
       ready: false,
       totalChunks: 0,
+      totalDocuments: 0,
       tokenAuthorized: false,
       cashoutAllowed: false,
       realMoney: false,
@@ -415,7 +424,7 @@ function registerBeta1UserDataExport(exportsTarget, { db, authAdmin, onCall, Htt
   });
 
   exportsTarget.downloadUserDataExportChunk = onCall(async (request) => {
-    const userId = requireAuth(request, HttpsError);
+    const userId = requireRecentAuth(request, HttpsError);
     const data = request.data || {};
     const index = Number(data.index);
     if (!Number.isInteger(index) || index < 0 || index >= MAX_EXPORT_CHUNKS) {
