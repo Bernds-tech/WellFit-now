@@ -1,5 +1,6 @@
 const crypto = require("node:crypto");
 const { FieldValue } = require("firebase-admin/firestore");
+const { HttpsError: FirebaseHttpsError } = require("firebase-functions/v2/https");
 const { requireAuth, optionalString } = require("./beta1Runtime");
 
 const ACCOUNT_LIFECYCLE_VERSION = "2026-07-24-v1";
@@ -68,10 +69,11 @@ function isAccountMutationBlocked(lifecycle) {
   return lifecycle.freezeMutations === true || BLOCKED_ACCOUNT_STATUSES.has(lifecycle.status);
 }
 
-async function assertAccountMutationAllowed(db, userId, HttpsError) {
+async function assertAccountMutationAllowed(db, userId, HttpsError = FirebaseHttpsError) {
   const lifecycle = await readAccountLifecycle(db, userId);
   if (isAccountMutationBlocked(lifecycle)) {
-    throw new HttpsError(
+    const ErrorType = typeof HttpsError === "function" ? HttpsError : FirebaseHttpsError;
+    throw new ErrorType(
       "failed-precondition",
       "Das Konto ist fuer neue Missionen, WFXP- und Shop-Aktionen eingefroren, solange ein Loeschantrag aktiv ist.",
     );
