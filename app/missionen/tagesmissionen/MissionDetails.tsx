@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import type { Beta1MissionReviewStatus } from "@/lib/beta1/clientMissionCommands";
+import MissionLifecyclePanel from "@/components/mission/MissionLifecyclePanel";
+import type { MissionStatusPresentation } from "@/lib/beta1/missionStatusPresentation.mjs";
 import { DailyMission, missionIcon } from "./missions";
 
 type RewardPreviewStatus = "preview_allowed" | "manual_review" | "blocked";
@@ -15,10 +16,15 @@ type MissionDetailsProps = {
   rewardPreviewLabel?: string;
   rewardPreviewStatus?: RewardPreviewStatus;
   capReasons?: string[];
+  statusPresentation: MissionStatusPresentation;
+  periodLabel: string;
+  timeZone: string;
+  calendarAuthority: "server-user-time-zone" | "device-preview";
+  timeZoneChangeDeferred: boolean;
+  nextTimeZoneChangeAt: string | null;
   isFavorite: boolean;
   isStarted: boolean;
   isCompleted: boolean;
-  activeReviewStatus?: Beta1MissionReviewStatus | null;
   activeAttemptStatus?: string | null;
   actionBusy?: boolean;
   rewardDetailsOpen: boolean;
@@ -26,40 +32,13 @@ type MissionDetailsProps = {
   onToggleRewardDetails: () => void;
   onStartMission: (missionId: string) => void;
   onCompleteMission: (missionId: string) => void;
+  onRefreshStatus: () => void;
 };
 
 const getPreviewBadgeClasses = (status?: RewardPreviewStatus) => {
   if (status === "blocked") return "border-red-400/50 bg-red-500/15 text-red-100";
   if (status === "manual_review") return "border-yellow-400/50 bg-yellow-500/15 text-yellow-100";
   return "border-green-400/50 bg-green-500/15 text-green-100";
-};
-
-const reviewStatusLabel = (status?: Beta1MissionReviewStatus | null) => {
-  if (status === "approved") return "Evidence freigegeben";
-  if (status === "rejected") return "Evidence abgelehnt";
-  if (status === "needs-more-evidence") return "Weitere Evidence erforderlich";
-  if (status === "pending-server-review") return "Admin-Review offen";
-  return "Server-Attempt gestartet";
-};
-
-const primaryActionLabel = ({
-  isCompleted,
-  isStarted,
-  actionBusy,
-  reviewStatus,
-}: {
-  isCompleted: boolean;
-  isStarted: boolean;
-  actionBusy: boolean;
-  reviewStatus?: Beta1MissionReviewStatus | null;
-}) => {
-  if (isCompleted) return "Mission erledigt";
-  if (actionBusy) return "Server wird kontaktiert...";
-  if (!isStarted) return "Mission starten & bestätigen";
-  if (reviewStatus === "approved") return "Freigabe abschließen";
-  if (reviewStatus === "rejected" || reviewStatus === "needs-more-evidence") return "Evidence erneut einreichen";
-  if (reviewStatus === "pending-server-review") return "Reviewstatus prüfen";
-  return "Evidence einreichen";
 };
 
 export default function MissionDetails({
@@ -71,10 +50,15 @@ export default function MissionDetails({
   rewardPreviewLabel = "Server-Katalog",
   rewardPreviewStatus = "manual_review",
   capReasons = [],
+  statusPresentation,
+  periodLabel,
+  timeZone,
+  calendarAuthority,
+  timeZoneChangeDeferred,
+  nextTimeZoneChangeAt,
   isFavorite,
   isStarted,
   isCompleted,
-  activeReviewStatus = null,
   activeAttemptStatus = null,
   actionBusy = false,
   rewardDetailsOpen,
@@ -82,15 +66,12 @@ export default function MissionDetails({
   onToggleRewardDetails,
   onStartMission,
   onCompleteMission,
+  onRefreshStatus,
 }: MissionDetailsProps) {
-  const progress = isCompleted ? 100 : activeReviewStatus === "approved" ? 80 : isStarted ? 35 : 0;
-  const buttonDisabled = isCompleted || rewardPreviewStatus === "blocked" || actionBusy;
-  const buttonLabel = primaryActionLabel({
-    isCompleted,
-    isStarted,
-    actionBusy,
-    reviewStatus: activeReviewStatus,
-  });
+  const buttonDisabled = statusPresentation.actionDisabled || rewardPreviewStatus === "blocked" || actionBusy;
+  const refreshDisabled = actionBusy
+    || statusPresentation.state === "login-required"
+    || statusPresentation.state === "loading";
 
   return (
     <aside className="h-full overflow-hidden rounded-[6px] bg-[#003d46]/95 p-5 shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
@@ -107,32 +88,38 @@ export default function MissionDetails({
           </button>
         </div>
 
+        <MissionLifecyclePanel
+          presentation={statusPresentation}
+          periodLabel={periodLabel}
+          timeZone={timeZone}
+          calendarAuthority={calendarAuthority}
+          timeZoneChangeDeferred={timeZoneChangeDeferred}
+          nextTimeZoneChangeAt={nextTimeZoneChangeAt}
+          attemptStatus={activeAttemptStatus}
+          compact
+        />
+
         {isCompleted ? (
-          <div className="mb-3 rounded-xl border border-yellow-400/50 bg-yellow-500/15 px-3 py-2 text-center text-sm font-bold text-yellow-200">
-            🏆 Serverseitig abgeschlossen · +{reward} WFXP
-          </div>
-        ) : isStarted ? (
-          <div className="mb-3 rounded-xl border border-green-400/50 bg-green-500/15 px-3 py-2 text-center text-sm font-bold text-green-200">
-            ✅ {reviewStatusLabel(activeReviewStatus)}
-            {activeAttemptStatus ? <span className="block pt-1 text-[10px] font-semibold text-green-100/65">Attempt: {activeAttemptStatus}</span> : null}
+          <div className="mt-3 rounded-xl border border-yellow-400/50 bg-yellow-500/15 px-3 py-2 text-center text-sm font-bold text-yellow-200">
+            🏆 Interne Ledger-Buchung bestätigt · +{reward} WFXP
           </div>
         ) : null}
 
-        <div className={`mb-3 rounded-xl border px-3 py-2 text-center text-sm font-bold ${getPreviewBadgeClasses(rewardPreviewStatus)}`}>
+        <div className={`mt-3 rounded-xl border px-3 py-2 text-center text-sm font-bold ${getPreviewBadgeClasses(rewardPreviewStatus)}`}>
           {rewardPreviewLabel} · bis zu +{reward} WFXP
         </div>
 
-        <div className="flex justify-center text-6xl text-cyan-300">{missionIcon(mission.type)}</div>
+        <div className="mt-3 flex justify-center text-6xl text-cyan-300">{missionIcon(mission.type)}</div>
         <h3 className="mt-3 text-center text-3xl font-extrabold leading-tight">{mission.title}</h3>
         <p className="mt-3 text-center text-base leading-tight text-white/90">{mission.description}</p>
 
         <div className="mt-4">
           <div className="mb-1 flex justify-between text-sm text-white/75">
-            <span>Server-Fortschritt</span>
-            <span className="font-bold">{progress}%</span>
+            <span>Server-/Reviewfortschritt</span>
+            <span className="font-bold">{statusPresentation.progress}%</span>
           </div>
           <div className="h-5 overflow-hidden rounded bg-[#062e34]">
-            <div className="h-full rounded bg-cyan-300 transition-all duration-700" style={{ width: `${progress}%` }} />
+            <div className="h-full rounded bg-cyan-300 transition-all duration-700" style={{ width: `${statusPresentation.progress}%` }} />
           </div>
         </div>
 
@@ -143,7 +130,7 @@ export default function MissionDetails({
 
         <div className="mt-2 flex items-center gap-3 text-lg font-bold">
           <Image src="/coin.png" alt="WellFit-XP" width={34} height={34} className="rounded-full" />
-          <span>+ {reward} WFXP nach Freigabe</span>
+          <span>+ {reward} interne WFXP nach Freigabe und Abschluss</span>
         </div>
 
         <div className="mt-3 overflow-hidden rounded-xl border border-yellow-500/30 bg-yellow-500/10 text-xs text-white/80">
@@ -168,7 +155,7 @@ export default function MissionDetails({
                 <span className="text-right">×{reserveRewardRate.toFixed(2)}</span>
               </div>
               <p className="mt-2 text-cyan-50/80">
-                Die Vorschaufaktoren sind nicht buchungswirksam. In Beta 1 autorisiert ausschließlich der Server den Katalogwert nach Evidence-Review und verhindert Mehrfachabschlüsse am selben Wien-Tag.
+                Die Vorschaufaktoren sind nicht buchungswirksam. In Beta 1 autorisiert ausschließlich der Server den Katalogwert nach Review und verhindert Mehrfachabschlüsse am selben nutzerlokalen Kalendertag.
               </p>
               {capReasons.length > 0 && (
                 <p className="mt-2 text-yellow-100/80">Hinweise: {capReasons.join(" · ")}</p>
@@ -178,7 +165,7 @@ export default function MissionDetails({
         </div>
 
         <div className="mt-3 rounded-xl border border-cyan-300/20 bg-cyan-500/10 p-3 text-xs leading-relaxed text-cyan-50/80">
-          Beta-Regel: Start, Evidence, Review, Abschluss und WFXP-Buchung laufen serverseitig. Der Browser schreibt weder XP noch Level, Streaks, Missionsabschlüsse oder Buddy-Werte. WFXP haben keinen Geldwert, sind keine Token und können nicht ausgezahlt werden.
+          Beta-Regel: Start, Bestätigung, Review, Abschluss und WFXP-Buchung laufen serverseitig. Der Browser schreibt weder XP noch Level, Streaks, Missionsabschlüsse oder Buddy-Werte. WFXP sind interne, nicht übertragbare Fortschrittspunkte ohne Geldwert und ohne Auszahlungsfunktion.
         </div>
 
         <button
@@ -187,7 +174,16 @@ export default function MissionDetails({
           disabled={buttonDisabled}
           className={`mt-4 w-full rounded-[16px] px-4 py-3 text-lg font-extrabold transition active:scale-95 ${buttonDisabled ? "cursor-not-allowed bg-yellow-600/70" : isStarted ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}`}
         >
-          {buttonLabel}
+          {statusPresentation.actionLabel}
+        </button>
+
+        <button
+          type="button"
+          onClick={onRefreshStatus}
+          disabled={refreshDisabled}
+          className="mt-2 w-full rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-2 text-sm font-bold text-cyan-50 transition hover:bg-cyan-300/15 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Serverstatus aktualisieren
         </button>
       </div>
     </aside>
