@@ -43,6 +43,9 @@ jobs:
           npm run firebase-release:validate
           npm run firebase-release:test
 
+      - name: Validate core mission lifecycle UX
+        run: npm run mission:quality-check
+
       - name: Repository product boundary check
         run: node scripts/wellfit-dev-agent/src/repository-inventory-check.mjs
 
