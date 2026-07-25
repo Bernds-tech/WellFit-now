@@ -10,8 +10,21 @@ import {
   ReCaptchaEnterpriseProvider,
   type AppCheck,
 } from "firebase/app-check";
-import { getAuth, type Auth } from "firebase/auth";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import {
+  connectAuthEmulator,
+  getAuth,
+  type Auth,
+} from "firebase/auth";
+import {
+  connectFirestoreEmulator,
+  getFirestore,
+  type Firestore,
+} from "firebase/firestore";
+import {
+  connectFunctionsEmulator,
+  getFunctions,
+  type Functions,
+} from "firebase/functions";
 
 const requiredFirebaseEnv = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -23,10 +36,24 @@ const requiredFirebaseEnv = {
 };
 
 const appCheckSiteKey = process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_RECAPTCHA_ENTERPRISE_KEY?.trim() || null;
+const useFirebaseEmulators = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true";
+const firebaseEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST?.trim() || "127.0.0.1";
+
+function emulatorPort(value: string | undefined, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 && parsed <= 65535 ? parsed : fallback;
+}
+
+const firebaseEmulatorPorts = {
+  auth: emulatorPort(process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_PORT, 9099),
+  firestore: emulatorPort(process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT, 8080),
+  functions: emulatorPort(process.env.NEXT_PUBLIC_FIREBASE_FUNCTIONS_EMULATOR_PORT, 5001),
+};
 
 type FirebaseEnvKey = keyof typeof requiredFirebaseEnv;
 type WellFitBrowserWindow = Window & {
   __wellfitFirebaseAppCheck?: AppCheck;
+  __wellfitFirebaseEmulatorsConnected?: boolean;
 };
 
 const missingFirebaseEnv = (
@@ -71,7 +98,7 @@ function getFirebaseConfig(): FirebaseOptions | null {
 }
 
 function initializeOptionalAppCheck(firebaseApp: FirebaseApp | null): AppCheck | null {
-  if (!firebaseApp || !appCheckSiteKey || typeof window === "undefined") return null;
+  if (!firebaseApp || !appCheckSiteKey || typeof window === "undefined" || useFirebaseEmulators) return null;
   const browserWindow = window as WellFitBrowserWindow;
   if (browserWindow.__wellfitFirebaseAppCheck) return browserWindow.__wellfitFirebaseAppCheck;
 
@@ -81,6 +108,35 @@ function initializeOptionalAppCheck(firebaseApp: FirebaseApp | null): AppCheck |
   });
   browserWindow.__wellfitFirebaseAppCheck = appCheck;
   return appCheck;
+}
+
+function connectOptionalFirebaseEmulators(
+  firebaseApp: FirebaseApp | null,
+  authService: Auth,
+  firestoreService: Firestore,
+  functionsService: Functions,
+): boolean {
+  if (!firebaseApp || !useFirebaseEmulators || typeof window === "undefined") return false;
+  const browserWindow = window as WellFitBrowserWindow;
+  if (browserWindow.__wellfitFirebaseEmulatorsConnected) return true;
+
+  connectAuthEmulator(
+    authService,
+    `http://${firebaseEmulatorHost}:${firebaseEmulatorPorts.auth}`,
+    { disableWarnings: true },
+  );
+  connectFirestoreEmulator(
+    firestoreService,
+    firebaseEmulatorHost,
+    firebaseEmulatorPorts.firestore,
+  );
+  connectFunctionsEmulator(
+    functionsService,
+    firebaseEmulatorHost,
+    firebaseEmulatorPorts.functions,
+  );
+  browserWindow.__wellfitFirebaseEmulatorsConnected = true;
+  return true;
 }
 
 const firebaseConfig = getFirebaseConfig();
@@ -98,5 +154,16 @@ export const db: Firestore = app
   ? getFirestore(app)
   : createUnavailableFirebaseService<Firestore>("Firestore");
 
+export const functions: Functions = app
+  ? getFunctions(app)
+  : createUnavailableFirebaseService<Functions>("Functions");
+
+export const firebaseEmulatorsConnected = connectOptionalFirebaseEmulators(
+  app,
+  auth,
+  db,
+  functions,
+);
+export const firebaseEmulatorMode = useFirebaseEmulators;
 export const appCheck: AppCheck | null = initializeOptionalAppCheck(app);
-export const appCheckClientConfigured = Boolean(app && appCheckSiteKey);
+export const appCheckClientConfigured = Boolean(app && appCheckSiteKey && !useFirebaseEmulators);
