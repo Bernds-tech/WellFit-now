@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import AppSidebar from "@/app/AppSidebar";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import type { Beta1NearbyMissionLocation } from "@/lib/beta1/clientNearbyMissionLocations";
+import { getMissionStatusPresentation } from "@/lib/beta1/missionStatusPresentation.mjs";
 import ChallengeDetailsPanel from "./ChallengeDetailsPanel";
 import ChallengeMapPanel from "./ChallengeMapPanel";
 import {
@@ -17,14 +18,6 @@ import {
   type ChallengeCategory,
 } from "./challengeData";
 import { useChallengeMissionFirebase } from "./useChallengeMissionFirebase";
-
-function reviewStatusLabel(status: string | null | undefined) {
-  if (status === "approved") return "Evidence freigegeben";
-  if (status === "rejected") return "Evidence abgelehnt";
-  if (status === "needs-more-evidence") return "Neue Evidence erforderlich";
-  if (status === "pending-server-review") return "Admin-Review offen";
-  return "Server-Attempt gestartet";
-}
 
 export default function ChallengePage() {
   const [brightness, setBrightness] = useWellFitBrightness(100);
@@ -71,7 +64,7 @@ export default function ChallengePage() {
     [challengeState.activeAttempts],
   );
   const selectedAttempt = activeAttemptByMission.get(selectedChallenge.missionId) ?? null;
-  const selectedStarted = challengeState.startedMissionIds.includes(selectedChallenge.missionId);
+  const selectedStarted = Boolean(selectedAttempt) || challengeState.startedMissionIds.includes(selectedChallenge.missionId);
   const selectedCompleted = challengeState.completedMissionIds.includes(selectedChallenge.missionId);
   const selectedBusy = challengeState.busyMissionId === selectedChallenge.missionId;
 
@@ -104,15 +97,31 @@ export default function ChallengePage() {
 
   const selectedLocation = challengeLocations.find((location) => location.locationId === selectedLocationId) ?? null;
 
-  const challengeProgress = (challenge: Challenge) => {
-    if (challengeState.completedMissionIds.includes(challenge.missionId)) return 100;
-    const attempt = activeAttemptByMission.get(challenge.missionId);
-    if (attempt?.reviewStatus === "approved") return 80;
-    if (attempt?.reviewStatus === "pending-server-review") return 55;
-    if (attempt?.reviewStatus === "rejected" || attempt?.reviewStatus === "needs-more-evidence") return 40;
-    if (challengeState.startedMissionIds.includes(challenge.missionId)) return 25;
-    return 0;
+  const presentationForMission = (missionId: string) => {
+    const attempt = activeAttemptByMission.get(missionId) ?? null;
+    return getMissionStatusPresentation({
+      isAuthenticated: Boolean(challengeState.userId),
+      ready: challengeState.ready,
+      progressSource: challengeState.progressSource,
+      isStarted: Boolean(attempt) || challengeState.startedMissionIds.includes(missionId),
+      isCompleted: challengeState.completedMissionIds.includes(missionId),
+      reviewStatus: attempt?.reviewStatus ?? null,
+      actionBusy: challengeState.busyMissionId === missionId,
+      missionKind: "challenge",
+    });
   };
+
+  const selectedPresentation = presentationForMission(selectedChallenge.missionId);
+  const actionNeedsLocation = !selectedAttempt
+    || !selectedAttempt.evidenceId
+    || selectedAttempt.reviewStatus === "rejected"
+    || selectedAttempt.reviewStatus === "needs-more-evidence";
+  const locationBlockedLabel = selectedStarted
+    ? "Rückkehr zum gebundenen Startort erforderlich"
+    : "Kein naher Challenge-Ort verfügbar";
+  const displayedPresentation = actionNeedsLocation && !selectedLocation
+    ? { ...selectedPresentation, actionLabel: locationBlockedLabel }
+    : selectedPresentation;
 
   const toggleFavorite = (missionId: string) => {
     const updated = challengeState.favoriteMissionIds.includes(missionId)
@@ -144,12 +153,22 @@ export default function ChallengePage() {
       setMessage("Bitte melde dich an, um Challenges serverseitig zu starten.");
       return;
     }
+    if (challengeState.progressSource !== "server") {
+      setMessage("Die Serverprojektion ist nicht verfügbar. Aktualisiere zuerst den Serverstatus; lokale Daten besitzen keine Abschluss- oder Reward-Autorität.");
+      return;
+    }
     if (challengeState.completedMissionIds.includes(challenge.missionId)) {
       setMessage(`${challenge.title} wurde bereits serverseitig abgeschlossen.`);
       return;
     }
 
     try {
+      const existingAttempt = activeAttemptByMission.get(challenge.missionId) ?? null;
+      setMessage(
+        existingAttempt
+          ? "Der vorhandene ortsgebundene Challenge-Vorgang wird sicher fortgesetzt..."
+          : "Der veröffentlichte Startort wird geprüft und die Challenge-Bestätigung serverseitig eingereicht...",
+      );
       const result = await challengeState.continueChallenge(challenge, selectedLocation);
       setMessage(result.message);
       if (result.locationId) setSelectedLocationId(result.locationId);
@@ -171,29 +190,31 @@ export default function ChallengePage() {
     }
   };
 
-  const actionNeedsLocation = !selectedAttempt
-    || !selectedAttempt.evidenceId
-    || selectedAttempt.reviewStatus === "rejected"
-    || selectedAttempt.reviewStatus === "needs-more-evidence";
-
-  const actionLabel = () => {
-    if (selectedCompleted) return "Challenge erledigt";
-    if (!challengeState.userId) return "Login erforderlich";
-    if (!selectedStarted && !selectedLocation) return "Kein naher Challenge-Ort verfügbar";
-    if (!selectedStarted) return "Challenge am Ort starten & bestätigen";
-    if (selectedAttempt?.reviewStatus === "approved") return "Freigabe abschließen";
-    if (selectedAttempt?.reviewStatus === "rejected" || selectedAttempt?.reviewStatus === "needs-more-evidence") {
-      return selectedLocation ? "Bestätigung am Ort erneut einreichen" : "Erneute Einreichung nur am Startort";
+  const refreshServerStatus = async () => {
+    if (!challengeState.userId) {
+      setMessage("Bitte melde dich an, um den serverseitigen Challenge-Status zu laden.");
+      return;
     }
-    if (selectedAttempt?.reviewStatus === "pending-server-review") return "Reviewstatus prüfen";
-    return selectedLocation ? "Evidence am Ort einreichen" : "Startort erforderlich";
+    try {
+      setMessage("Serverstatus, offene Vorgänge und interne WFXP-Projektion werden aktualisiert...");
+      const projection = await challengeState.refreshProgress();
+      if (!projection) {
+        setMessage("Serverstatus konnte ohne Anmeldung nicht geladen werden.");
+        return;
+      }
+      setMessage(
+        `Serverstatus aktualisiert · ${projection.activeAttempts.length} offene Vorgänge · ${projection.completedMissionIds.length} abgeschlossene Challenges.`,
+      );
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Der serverseitige Challenge-Status konnte nicht aktualisiert werden.");
+    }
   };
 
   const serverPathLabel = !challengeState.ready
     ? "Serverprojektion wird geladen"
     : challengeState.progressSource === "server"
-      ? "GPS-Umgebung → veröffentlichter Ort → Evidence → Admin-Review → Completion → WFXP"
-      : "Nur lokale Favoritenanzeige · keine Reward-Autorität";
+      ? "Veröffentlichter Startort → Bestätigung → Review → Completion → interne WFXP"
+      : "Nur lokale Favoritenanzeige · keine Abschluss- oder Reward-Autorität";
 
   const activeLocationTitle = selectedAttempt?.locationTitle ?? null;
 
@@ -215,7 +236,7 @@ export default function ChallengePage() {
             <div className="flex flex-wrap items-center justify-end gap-2">
               <button
                 type="button"
-                onClick={reloadEnvironment}
+                onClick={() => void reloadEnvironment()}
                 disabled={!challengeState.userId || challengeState.locationLoading || selectedBusy}
                 className="rounded-full border border-cyan-300/20 bg-[#0a6b78]/20 px-4 py-2 text-sm text-white/90 disabled:opacity-40"
               >
@@ -223,7 +244,7 @@ export default function ChallengePage() {
               </button>
               <button
                 type="button"
-                onClick={() => void challengeState.refreshProgress()}
+                onClick={() => void refreshServerStatus()}
                 disabled={!challengeState.userId || selectedBusy}
                 className="rounded-full border border-cyan-300/20 bg-[#0a6b78]/20 px-4 py-2 text-sm text-white/90 disabled:opacity-40"
               >
@@ -232,7 +253,7 @@ export default function ChallengePage() {
               <Link href="/mobile/analyse" className="rounded-[16px] bg-orange-500 px-5 py-3 text-sm font-bold transition hover:bg-orange-400">
                 Tracker starten
               </Link>
-              <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">Level {challengeState.level} · {challengeState.walletBalance} WFXP</div>
+              <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">Level {challengeState.level} · {challengeState.walletBalance} interne WFXP</div>
             </div>
           </div>
 
@@ -265,29 +286,27 @@ export default function ChallengePage() {
               activeLocationTitle={activeLocationTitle}
               activeStartDistanceMeters={selectedAttempt?.challengeStartDistanceMeters ?? null}
               isFavorite={challengeState.favoriteMissionIds.includes(selectedChallenge.missionId)}
-              progress={challengeProgress(selectedChallenge)}
-              isStarted={selectedStarted}
               isCompleted={selectedCompleted}
-              reviewStatus={selectedAttempt?.reviewStatus}
+              presentation={displayedPresentation}
               attemptStatus={selectedAttempt?.attemptStatus}
               actionBusy={selectedBusy}
-              actionDisabled={!challengeState.ready || !challengeState.userId || (actionNeedsLocation && !selectedLocation)}
+              actionDisabled={!challengeState.ready || !challengeState.userId || challengeState.progressSource !== "server" || (actionNeedsLocation && !selectedLocation)}
               routeDisabled={!selectedLocation}
-              actionLabel={actionLabel()}
               onToggleFavorite={() => toggleFavorite(selectedChallenge.missionId)}
               onPrepareRoute={() => prepareRoute(selectedChallenge)}
               onContinueChallenge={() => void continueChallenge(selectedChallenge)}
+              onRefreshStatus={() => void refreshServerStatus()}
             />
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-cyan-400/10 bg-[#062f35]/95 px-5 py-3">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="min-w-[170px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2">
-                <p className="text-[10px] uppercase text-white/50">Challenge-Authority</p>
-                <p className="mt-1 text-sm font-semibold text-white">{reviewStatusLabel(selectedAttempt?.reviewStatus)}</p>
+              <div className="min-w-[190px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2">
+                <p className="text-[10px] uppercase text-white/50">Challenge-Status</p>
+                <p className="mt-1 text-sm font-semibold text-white">{displayedPresentation.title}</p>
               </div>
               <div className="min-w-[150px] rounded-xl border border-yellow-500/60 bg-[#041f24] px-3 py-2 text-center">
-                <p className="text-[10px] uppercase text-white/50">WFXP-Wallet</p>
+                <p className="text-[10px] uppercase text-white/50">Interne WFXP</p>
                 <p className="mt-1 text-lg font-bold text-white">{challengeState.walletBalance}</p>
               </div>
               <div className="min-w-[230px] rounded-xl border border-cyan-400/10 bg-[#041f24] px-3 py-2 text-center">

@@ -19,6 +19,8 @@ export type MissionStatusState =
   | "completed"
   | "processing";
 
+export type MissionKind = "standard" | "challenge" | "adventure";
+
 export type MissionStatusPresentation = Readonly<{
   state: MissionStatusState;
   title: string;
@@ -33,22 +35,24 @@ export type MissionStatusPresentation = Readonly<{
 }>;
 
 export type MissionLifecycleStep = Readonly<{
-  key: "start" | "evidence" | "review" | "reward";
+  key: "start" | "access" | "evidence" | "review" | "reward";
   label: string;
 }>;
 
 export const MISSION_LIFECYCLE_STEPS: readonly MissionLifecycleStep[];
+export const ADVENTURE_LIFECYCLE_STEPS: readonly MissionLifecycleStep[];
 
 export function normalizeMissionReviewStatus(value: unknown): MissionReviewStatus | null;
 
 export function getMissionStatusPresentation(input?: {
   isAuthenticated?: boolean;
   ready?: boolean;
-  progressSource?: "server" | "local";
+  progressSource?: "server" | "local" | "unavailable";
   isStarted?: boolean;
   isCompleted?: boolean;
   actionBusy?: boolean;
   reviewStatus?: MissionReviewStatus | string | null;
+  missionKind?: MissionKind;
 }): MissionStatusPresentation;
 
 export function formatMissionDateKey(dateKey?: string | null): string;

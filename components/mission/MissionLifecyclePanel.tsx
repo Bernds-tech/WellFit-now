@@ -1,5 +1,8 @@
-import { MISSION_LIFECYCLE_STEPS } from "@/lib/beta1/missionStatusPresentation.mjs";
-import type { MissionStatusPresentation } from "@/lib/beta1/missionStatusPresentation.mjs";
+import {
+  MISSION_LIFECYCLE_STEPS,
+  type MissionLifecycleStep,
+  type MissionStatusPresentation,
+} from "@/lib/beta1/missionStatusPresentation.mjs";
 
 const toneClasses: Record<MissionStatusPresentation["tone"], string> = {
   neutral: "border-slate-300/25 bg-slate-400/10 text-slate-100",
@@ -24,21 +27,29 @@ export default function MissionLifecyclePanel({
   periodLabel,
   timeZone,
   calendarAuthority,
+  authorityLabel,
   timeZoneChangeDeferred = false,
   nextTimeZoneChangeAt = null,
   attemptStatus = null,
+  steps = MISSION_LIFECYCLE_STEPS,
+  resumeDetail = "Bestehender Vorgang wird fortgesetzt. Ein erneuter Aufruf erzeugt keinen zusätzlichen Reward.",
   compact = false,
 }: {
   presentation: MissionStatusPresentation;
   periodLabel: string;
   timeZone?: string | null;
   calendarAuthority?: "server-user-time-zone" | "device-preview" | string | null;
+  authorityLabel?: string | null;
   timeZoneChangeDeferred?: boolean;
   nextTimeZoneChangeAt?: string | null;
   attemptStatus?: string | null;
+  steps?: readonly MissionLifecycleStep[];
+  resumeDetail?: string;
   compact?: boolean;
 }) {
   const serverCalendar = calendarAuthority === "server-user-time-zone";
+  const displayedAuthority = authorityLabel
+    ?? (serverCalendar ? "Server-Kalenderautorität" : "Gerätezeit nur Vorschau");
 
   return (
     <section className={`rounded-2xl border p-3.5 ${toneClasses[presentation.tone]}`} aria-live="polite">
@@ -52,10 +63,10 @@ export default function MissionLifecyclePanel({
         </span>
       </div>
 
-      <div className="mt-3 grid grid-cols-4 gap-1.5" aria-label="Missionsablauf">
-        {MISSION_LIFECYCLE_STEPS.map((step, index) => {
+      <div className={`mt-3 grid gap-1.5 ${steps.length === 4 ? "grid-cols-4" : "grid-cols-3"}`} aria-label="Missionsablauf">
+        {steps.map((step, index) => {
           const completed = index < presentation.completedStepCount;
-          const current = presentation.completedStepCount < MISSION_LIFECYCLE_STEPS.length
+          const current = presentation.completedStepCount < steps.length
             && index === presentation.completedStepCount;
           return (
             <div
@@ -79,15 +90,13 @@ export default function MissionLifecyclePanel({
       <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] font-semibold">
         <span className="rounded-full border border-white/15 bg-black/10 px-2 py-1">{periodLabel}</span>
         {timeZone ? <span className="rounded-full border border-white/15 bg-black/10 px-2 py-1">Zeitzone: {timeZone}</span> : null}
-        <span className="rounded-full border border-white/15 bg-black/10 px-2 py-1">
-          {serverCalendar ? "Server-Kalenderautorität" : "Gerätezeit nur Vorschau"}
-        </span>
+        <span className="rounded-full border border-white/15 bg-black/10 px-2 py-1">{displayedAuthority}</span>
         {attemptStatus ? <span className="rounded-full border border-white/15 bg-black/10 px-2 py-1">Vorgang: {attemptStatus}</span> : null}
       </div>
 
       {presentation.canResume ? (
         <p className="mt-2 rounded-lg border border-white/15 bg-black/10 px-2.5 py-2 text-[11px] leading-relaxed">
-          Bestehender Vorgang wird fortgesetzt. Ein erneuter Aufruf erzeugt keinen zusätzlichen Reward.
+          {resumeDetail}
         </p>
       ) : null}
 

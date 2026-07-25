@@ -6,13 +6,17 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppSidebar from "@/app/AppSidebar";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
+import MissionLifecyclePanel from "@/components/mission/MissionLifecyclePanel";
 import type { Beta1NearbyMissionLocation } from "@/lib/beta1/clientNearbyMissionLocations";
+import {
+  ADVENTURE_LIFECYCLE_STEPS,
+  getMissionStatusPresentation,
+} from "@/lib/beta1/missionStatusPresentation.mjs";
 import GoogleMissionMap from "../components/GoogleMissionMap";
 import {
   adventureCategories,
   adventures,
   missionTabs,
-  type Adventure,
   type AdventureCategory,
 } from "./adventureData";
 import { useAdventureMissionFirebase } from "./useAdventureMissionFirebase";
@@ -33,14 +37,6 @@ function formatDistance(distanceKm: number) {
   return distanceKm < 1 ? `${Math.max(1, Math.round(distanceKm * 1000))} m` : `${distanceKm.toFixed(1)} km`;
 }
 
-function reviewLabel(status: string | null | undefined) {
-  if (status === "approved") return "Evidence freigegeben";
-  if (status === "rejected") return "Evidence abgelehnt";
-  if (status === "needs-more-evidence") return "Weitere Evidence erforderlich";
-  if (status === "pending-server-review") return "Admin-Prüfung läuft";
-  return "Noch keine Evidence";
-}
-
 export default function AbenteuerPage() {
   const [brightness, setBrightness] = useWellFitBrightness(100);
   const [message, setMessage] = useState("Abenteuer werden aus deiner aktuellen Umgebung geladen.");
@@ -50,13 +46,21 @@ export default function AbenteuerPage() {
   const [favoriteMissionIds, setFavoriteMissionIds] = useState<string[]>([]);
   const runtime = useAdventureMissionFirebase();
 
+  const {
+    userId,
+    ready,
+    locationReady,
+    locationLoading,
+    loadNearbyLocations,
+  } = runtime;
+
   useEffect(() => {
     setFavoriteMissionIds(readFavorites());
   }, []);
 
   useEffect(() => {
-    if (!runtime.userId || !runtime.ready || runtime.locationReady || runtime.locationLoading) return;
-    runtime.loadNearbyLocations(25).then((locations) => {
+    if (!userId || !ready || locationReady || locationLoading) return;
+    loadNearbyLocations(25).then((locations) => {
       setMessage(
         locations.length > 0
           ? `${locations.length} sicher geprüfte WellFit-Orte in deiner Umgebung gefunden.`
@@ -65,7 +69,7 @@ export default function AbenteuerPage() {
     }).catch((error) => {
       setMessage(error instanceof Error ? error.message : "Deine Umgebung konnte nicht geladen werden.");
     });
-  }, [runtime]);
+  }, [loadNearbyLocations, locationLoading, locationReady, ready, userId]);
 
   const filteredAdventures = useMemo(
     () => selectedCategory === "Alle Orte"
@@ -95,9 +99,9 @@ export default function AbenteuerPage() {
   );
 
   useEffect(() => {
-    const activeAttempt = runtime.activeAttempts.find((attempt) => attempt.missionId === selectedAdventure.missionId);
-    const activeLocation = activeAttempt
-      ? runtime.nearbyLocations.find((location) => location.locationId === activeAttempt.locationId)
+    const currentAttempt = runtime.activeAttempts.find((attempt) => attempt.missionId === selectedAdventure.missionId);
+    const activeLocation = currentAttempt
+      ? runtime.nearbyLocations.find((location) => location.locationId === currentAttempt.locationId)
       : null;
     if (activeLocation) {
       setSelectedLocationId(activeLocation.locationId);
@@ -111,8 +115,40 @@ export default function AbenteuerPage() {
   const selectedLocation = adventureLocations.find((location) => location.locationId === selectedLocationId) ?? null;
   const activeAttempt = runtime.activeAttempts.find((attempt) => attempt.missionId === selectedAdventure.missionId) ?? null;
   const completed = runtime.completedMissionIds.includes(selectedAdventure.missionId);
-  const started = runtime.startedMissionIds.includes(selectedAdventure.missionId);
+  const started = Boolean(activeAttempt) || runtime.startedMissionIds.includes(selectedAdventure.missionId);
   const busy = runtime.busyMissionId === selectedAdventure.missionId;
+  const statusPresentation = getMissionStatusPresentation({
+    isAuthenticated: Boolean(runtime.userId),
+    ready: runtime.ready,
+    progressSource: runtime.progressSource,
+    isStarted: started,
+    isCompleted: completed,
+    reviewStatus: activeAttempt?.reviewStatus ?? null,
+    actionBusy: busy,
+    missionKind: "adventure",
+  });
+
+  const accessBalanceMissing = !runtime.walletAvailable || runtime.walletBalance < selectedAdventure.accessCostWfxp;
+  const primaryActionDisabled = statusPresentation.actionDisabled
+    || busy
+    || completed
+    || !runtime.userId
+    || runtime.progressSource !== "server"
+    || (!started && (!selectedLocation || accessBalanceMissing));
+  const primaryActionLabel = !runtime.userId
+    ? "Login erforderlich"
+    : !runtime.ready
+      ? "Serverstatus wird geladen..."
+      : runtime.progressSource !== "server"
+        ? "Serverstatus aktualisieren"
+        : !started && !selectedLocation
+          ? "Kein naher Startort verfügbar"
+          : !started && accessBalanceMissing
+            ? `Mindestens ${selectedAdventure.accessCostWfxp} interne WFXP erforderlich`
+            : statusPresentation.actionLabel;
+  const displayedPresentation = primaryActionLabel === statusPresentation.actionLabel
+    ? statusPresentation
+    : { ...statusPresentation, actionLabel: primaryActionLabel };
 
   const mapMarkers = visibleLocations.map((location, index) => {
     const linkedAdventure = filteredAdventures.find((adventure) => location.missionIds.includes(adventure.missionId));
@@ -157,27 +193,61 @@ export default function AbenteuerPage() {
     }
   };
 
-  const activateAccess = async () => {
-    if (!selectedLocation) {
-      setMessage("Wähle zuerst einen veröffentlichten Abenteuerort in deiner Umgebung.");
+  const refreshServerStatus = async () => {
+    if (!runtime.userId) {
+      setMessage("Bitte melde dich an, um den serverseitigen Abenteuerstatus zu laden.");
       return;
     }
     try {
-      setMessage(`Standort und einmaliger WFXP-Zugang für „${selectedAdventure.title}“ werden serverseitig geprüft...`);
-      const result = await runtime.activateAccess(selectedAdventure, selectedLocation);
-      setMessage(result.message);
+      setMessage("Serverstatus, Zugangsbuchungen, Reviews und interne WFXP werden aktualisiert...");
+      const projection = await runtime.refreshProgress();
+      if (!projection) {
+        setMessage("Serverstatus konnte ohne Anmeldung nicht geladen werden.");
+        return;
+      }
+      setMessage(
+        `Serverstatus aktualisiert · ${projection.activeAttempts.length} offene Abenteuer · ${projection.completedMissionIds.length} abgeschlossen · ${projection.walletBalance} interne WFXP.`,
+      );
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Der Abenteuerzugang konnte nicht sicher gebucht werden.");
+      setMessage(error instanceof Error ? error.message : "Der serverseitige Abenteuerstatus konnte nicht aktualisiert werden.");
     }
   };
 
-  const reviewOrComplete = async () => {
-    if (!started) {
-      setMessage("Buche zuerst am veröffentlichten Startort den einmaligen Abenteuerzugang.");
+  const continueAdventure = async () => {
+    if (!runtime.userId) {
+      setMessage("Bitte melde dich an, um Abenteuer serverseitig zu verwenden.");
       return;
     }
+    if (runtime.progressSource !== "server") {
+      setMessage("Die Serverprojektion ist nicht verfügbar. Aktualisiere zuerst den Serverstatus; lokale Daten besitzen keine Zugangs-, Abschluss- oder Reward-Autorität.");
+      return;
+    }
+    if (completed) {
+      setMessage(`${selectedAdventure.title} wurde bereits serverseitig abgeschlossen.`);
+      return;
+    }
+
     try {
-      setMessage(activeAttempt?.evidenceId ? "Reviewstatus wird serverseitig geprüft..." : "Abenteuerabschluss wird zur Admin-Prüfung eingereicht...");
+      if (!started) {
+        if (!selectedLocation) {
+          setMessage("Wähle zuerst einen veröffentlichten Abenteuerort in deiner Umgebung.");
+          return;
+        }
+        if (accessBalanceMissing) {
+          setMessage(`Für den einmaligen Zugang werden ${selectedAdventure.accessCostWfxp} interne WFXP benötigt.`);
+          return;
+        }
+        setMessage(`Standort und einmaliger interner WFXP-Zugang für „${selectedAdventure.title}“ werden serverseitig geprüft...`);
+        const result = await runtime.activateAccess(selectedAdventure, selectedLocation);
+        setMessage(result.message);
+        return;
+      }
+
+      setMessage(
+        activeAttempt?.evidenceId
+          ? "Der bestehende Abenteuer-Vorgang wird fortgesetzt und sein Reviewstatus serverseitig geprüft..."
+          : "Der bereits gebuchte Abenteuerzugang bleibt aktiv; der Abschluss wird jetzt zur Prüfung eingereicht...",
+      );
       const result = await runtime.continueAdventure(selectedAdventure);
       setMessage(result.message);
     } catch (error) {
@@ -188,6 +258,11 @@ export default function AbenteuerPage() {
   const activeLocationLabel = activeAttempt?.locationTitle
     ?? selectedLocation?.title
     ?? "Kein veröffentlichter Startort ausgewählt";
+  const serverPathLabel = !runtime.ready
+    ? "Serverprojektion wird geladen"
+    : runtime.progressSource === "server"
+      ? "Veröffentlichter Startort → einmaliger Zugang → Bestätigung → Review → Completion → interne WFXP"
+      : "Keine Serverprojektion · keine Zugangs-, Abschluss- oder Reward-Autorität";
 
   return (
     <main
@@ -201,23 +276,29 @@ export default function AbenteuerPage() {
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <h1 className="text-5xl font-extrabold leading-none">Abenteuer</h1>
-              <p className="mt-2 text-lg text-cyan-100/90">{message}</p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100/50">
-                Weltweiter Katalog · deine GPS-Umgebung · sicher veröffentlichte Orte · Server-Review · WFXP-Ledger
-              </p>
+              <p className="mt-2 text-lg text-cyan-100/90">{runtime.lastError || runtime.locationError || message}</p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100/50">{serverPathLabel}</p>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
               <button
                 type="button"
-                onClick={reloadEnvironment}
-                disabled={!runtime.userId || runtime.locationLoading}
+                onClick={() => void reloadEnvironment()}
+                disabled={!runtime.userId || runtime.locationLoading || busy}
                 className="rounded-xl border border-cyan-200/30 bg-cyan-200/10 px-4 py-2 text-sm font-bold text-cyan-50 disabled:opacity-50"
               >
                 {runtime.locationLoading ? "Umgebung wird geprüft..." : "Meine Umgebung aktualisieren"}
               </button>
+              <button
+                type="button"
+                onClick={() => void refreshServerStatus()}
+                disabled={!runtime.userId || busy}
+                className="rounded-xl border border-cyan-200/30 bg-cyan-200/10 px-4 py-2 text-sm font-bold text-cyan-50 disabled:opacity-50"
+              >
+                Serverstatus aktualisieren
+              </button>
               <div className="rounded-full bg-[#073b44] px-4 py-2 text-sm">Level {runtime.level}</div>
               <div className="rounded-full border border-yellow-300/30 bg-yellow-300/10 px-4 py-2 text-sm font-black text-yellow-200">
-                {runtime.walletBalance} WFXP
+                {runtime.walletBalance} interne WFXP
               </div>
             </div>
           </div>
@@ -282,6 +363,24 @@ export default function AbenteuerPage() {
                 </button>
               </div>
 
+              <div className="mt-4">
+                <MissionLifecyclePanel
+                  presentation={displayedPresentation}
+                  periodLabel="Einmaliger Zugang · einmaliger Abschluss"
+                  authorityLabel="Serverseitig veröffentlichter Abenteuerort"
+                  attemptStatus={activeAttempt?.attemptStatus ?? null}
+                  steps={ADVENTURE_LIFECYCLE_STEPS}
+                  resumeDetail="Der bezahlte Zugang und der bestehende Abenteuer-Vorgang werden fortgesetzt. Ein erneuter Aufruf erzeugt keinen zweiten Zugang, Abzug oder Reward."
+                  compact
+                />
+              </div>
+
+              {completed ? (
+                <div className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-400/15 px-3 py-2 text-center text-sm font-bold text-emerald-100">
+                  🏆 Interne Reward-Buchung bestätigt · +{selectedAdventure.rewardWfxp} WFXP
+                </div>
+              ) : null}
+
               <p className="mt-4 text-sm leading-relaxed text-white/80">{selectedAdventure.description}</p>
 
               <div className="mt-4 rounded-2xl border border-cyan-200/20 bg-cyan-200/10 p-4">
@@ -300,7 +399,7 @@ export default function AbenteuerPage() {
                   </p>
                 )}
                 <p className="mt-2 text-[11px] leading-relaxed text-white/55">
-                  Der Start ist nur innerhalb von 500 Metern möglich. Die Standortprüfung speichert keine übermittelten Rohkoordinaten im Missionsdatensatz.
+                  Die erstmalige Zugangsaktivierung ist nur innerhalb von 500 Metern möglich. Übermittelte Rohkoordinaten werden nicht im Missionsdatensatz gespeichert.
                 </p>
               </div>
 
@@ -341,18 +440,13 @@ export default function AbenteuerPage() {
 
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-orange-300/25 bg-orange-300/10 p-3">
-                  <p className="text-[10px] uppercase text-white/55">Einmaliger Zugang</p>
+                  <p className="text-[10px] uppercase text-white/55">Einmaliger interner Zugang</p>
                   <p className="mt-1 text-xl font-black text-orange-200">{selectedAdventure.accessCostWfxp} WFXP</p>
                 </div>
                 <div className="rounded-xl border border-yellow-300/25 bg-yellow-300/10 p-3">
-                  <p className="text-[10px] uppercase text-white/55">Nach Review</p>
+                  <p className="text-[10px] uppercase text-white/55">Interner Reward nach Review</p>
                   <p className="mt-1 text-xl font-black text-yellow-200">+{selectedAdventure.rewardWfxp} WFXP</p>
                 </div>
-              </div>
-
-              <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-white/65">
-                <p><strong>Status:</strong> {completed ? "Abgeschlossen" : activeAttempt ? reviewLabel(activeAttempt.reviewStatus) : started ? "Zugang aktiv" : "Noch nicht gestartet"}</p>
-                <p className="mt-1"><strong>Autorität:</strong> Server-Wallet · Server-Ledger · veröffentlichter Standort · Admin-Review</p>
               </div>
 
               {(runtime.lastError || runtime.locationError) && (
@@ -364,24 +458,24 @@ export default function AbenteuerPage() {
               <div className="mt-5 grid gap-3">
                 <button
                   type="button"
-                  onClick={activateAccess}
-                  disabled={busy || completed || started || !selectedLocation || !runtime.walletAvailable}
-                  className="w-full rounded-xl bg-orange-500 px-4 py-3 text-sm font-black text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-45"
+                  onClick={() => void continueAdventure()}
+                  disabled={primaryActionDisabled}
+                  className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-45"
                 >
-                  {completed ? "Abenteuer abgeschlossen" : started ? "Zugang bereits aktiv" : !selectedLocation ? "Kein naher Startort verfügbar" : `Zugang am Ort aktivieren (${selectedAdventure.accessCostWfxp} WFXP)`}
+                  {displayedPresentation.actionLabel}
                 </button>
                 <button
                   type="button"
-                  onClick={reviewOrComplete}
-                  disabled={busy || completed || !started}
-                  className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-45"
+                  onClick={() => void refreshServerStatus()}
+                  disabled={!runtime.userId || busy}
+                  className="w-full rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-2 text-sm font-bold text-cyan-50 transition hover:bg-cyan-300/15 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {busy ? "Serverprüfung läuft..." : completed ? "Abgeschlossen" : activeAttempt?.evidenceId ? "Reviewstatus prüfen / abschließen" : "Abschluss zur Prüfung einreichen"}
+                  Serverstatus aktualisieren
                 </button>
               </div>
 
-              <p className="mt-4 text-[11px] leading-relaxed text-white/45">
-                Interne Beta-WFXP ohne Geldwert. Keine Token, NFTs oder Auszahlung. Favoriten bleiben lokal; Zugang, Evidence, Completion und Rewards sind ausschließlich serverautoritativ.
+              <p className="mt-4 text-[11px] leading-relaxed text-white/50">
+                Interne Beta-WFXP sind nicht übertragbare Fortschrittspunkte ohne Geldwert und ohne Auszahlung. Favoriten bleiben lokal; Zugang, Bestätigung, Review, Completion, Abzug und Reward sind ausschließlich serverautoritativ.
               </p>
             </div>
           </div>
@@ -393,7 +487,7 @@ export default function AbenteuerPage() {
               <span className="rounded-lg bg-black/20 px-3 py-2">Rohstandort serverseitig nicht gespeichert</span>
               <span className="rounded-lg bg-black/20 px-3 py-2">{runtime.completedMissionIds.length}/{adventures.length} Abenteuer abgeschlossen</span>
             </div>
-            <span className="text-xs font-black text-yellow-200">Keine Auszahlung · kein Cashout</span>
+            <span className="text-xs font-black text-yellow-200">Interne WFXP · nicht übertragbar · kein Cashout</span>
           </div>
         </section>
       </div>
