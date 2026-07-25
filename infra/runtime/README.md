@@ -1,6 +1,6 @@
 # WellFit Reproducible Runtime Package
 
-Updated: 2026-07-24
+Updated: 2026-07-25
 Status: GitHub-only preparation; no production deployment performed
 
 ## Objective
@@ -15,7 +15,7 @@ The repository remains the canonical source for:
 - runtime validation;
 - container configuration;
 - release manifests and integrity checks;
-- future database migrations and seed catalogs.
+- versioned database migrations and seed catalogs.
 
 No server address, Firebase Admin credential, provider API key or production user data belongs in GitHub.
 
@@ -40,6 +40,7 @@ Server-only Buddy provider values may be supplied when the already-built contain
 npm ci
 npm run runtime:validate
 npm run runtime:package-check
+npm run database:validate
 npm run build
 ```
 
@@ -172,11 +173,12 @@ The future order is:
 3. deploy Firestore indexes;
 4. deploy Firestore Rules;
 5. deploy Firebase Functions;
-6. run database migrations in Dry-Run mode;
-7. approve and run versioned migrations;
-8. start the matching web image;
-9. verify health, authentication and closed-beta smoke tests;
-10. record the deployed commit and migration versions.
+6. run versioned database migrations and seeds in Dry-Run mode;
+7. approve and run the required ordered migrations;
+8. reconcile the approved canonical seed catalogs;
+9. start the matching web image;
+10. verify health, authentication and closed-beta smoke tests;
+11. record the deployed commit, migration versions and seed versions.
 
 Production deployment remains a separate human-approved action. No workflow in this package performs it.
 
@@ -184,6 +186,10 @@ Production deployment remains a separate human-approved action. No workflow in t
 
 A web rollback loads and starts the previously verified image archive. Firebase Functions, Rules and migrations require their own version-aware rollback or forward-fix plan. Never roll back Firestore data by copying an unverified production backup over the live database.
 
-## Current limitation
+## Database package
 
-The repository does not yet contain the versioned Firestore migration and seed registry. That is the next infrastructure workstream after this runtime package.
+The repository now contains the versioned Firestore migration and seed registry under `database/`. Its runner defaults to Dry-Run, verifies SHA-256 checksums, requires exact project confirmation for production writes and uses an Admin-only transactional lease.
+
+The initial package includes five ordered schema/data migrations and four idempotent mission-catalog seeds. Real mission locations remain excluded because coordinates must pass the existing safety review before publication.
+
+See `database/README.md` for the complete operating procedure.
