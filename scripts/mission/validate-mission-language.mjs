@@ -9,8 +9,11 @@ const TARGETS = [
   "app/missionen/wochenmissionen",
   "app/missionen/challenge",
   "app/missionen/abenteuer",
+  "app/missionen/history",
   "components/mission",
   "lib/beta1/missionStatusPresentation.mjs",
+  "lib/beta1/clientMissionHistory.ts",
+  "functions/lib/beta1MissionHistory.js",
 ];
 const SOURCE_EXTENSIONS = new Set([".js", ".mjs", ".ts", ".tsx"]);
 const BLOCKED_PATTERNS = [
@@ -32,6 +35,21 @@ const ADOPTION_CONTRACTS = [
     path: "app/missionen/abenteuer/page.tsx",
     required: ["getMissionStatusPresentation", "missionKind: \"adventure\"", "ADVENTURE_LIFECYCLE_STEPS", "Serverstatus aktualisieren"],
     blocked: ["function reviewLabel"],
+  },
+  {
+    path: "app/missionen/history/page.tsx",
+    required: ["fetchMissionHistory", "Server-Read", "Serververlauf aktualisieren", "Keine bestätigte Reward-WFXP-Buchung"],
+    blocked: ["onSnapshot", "collection(db, \"history\")", "readClientMissionHistory", "subscribeClientMissionHistory", "client_beta_projection"],
+  },
+  {
+    path: "lib/beta1/clientMissionHistory.ts",
+    required: ["getMissionHistory", "progressAuthority !== \"server-read\"", "writesPerformed !== false", "recordIdentifiersIncluded !== false"],
+    blocked: ["localStorage", "onSnapshot", "collection("],
+  },
+  {
+    path: "functions/lib/beta1MissionHistory.js",
+    required: ["getMissionHistory", "writesPerformed: false", "rawEvidenceIncluded: false", "recordIdentifiersIncluded: false", "server-inconsistent"],
+    blocked: ["writeAudit", "runTransaction(", "transaction.set(", "transaction.update(", "transaction.delete(", "FieldValue.serverTimestamp", ".add("],
   },
 ];
 
@@ -62,7 +80,7 @@ for (const contract of ADOPTION_CONTRACTS) {
     if (!content.includes(required)) failures.push(`${contract.path}: Lifecycle-Vertrag fehlt '${required}'`);
   }
   for (const blocked of contract.blocked) {
-    if (content.includes(blocked)) failures.push(`${contract.path}: parallele Statuslogik ist nicht erlaubt '${blocked}'`);
+    if (content.includes(blocked)) failures.push(`${contract.path}: parallele oder unsichere Projektion ist nicht erlaubt '${blocked}'`);
   }
 }
 
