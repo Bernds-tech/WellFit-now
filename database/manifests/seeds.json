@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "wellfit-database-manifest-v1",
+  "kind": "seed",
+  "updated": "2026-07-25",
+  "entries": [
+    {
+      "order": 1,
+      "id": "20260725_001_beta1_daily_missions",
+      "version": "1.2.0",
+      "description": "Reconcile the canonical Beta-1 daily mission catalog into stable Firestore mission document IDs.",
+      "module": "database/seeds/20260725_001_beta1_daily_missions.js",
+      "sourceFiles": [
+        "functions/config/beta1-daily-missions.json",
+        "functions/lib/beta1DailyMissionCatalog.js"
+      ],
+      "checksumFiles": [
+        "database/seeds/20260725_001_beta1_daily_missions.js",
+        "database/lib/missionSeedBuilders.js"
+      ],
+      "sha256": "edc848d30481d902ffd4610374d01b4cb8b559d7e6f1daf772811eedd76ab859",
+      "destructive": false,
+      "requiresExplicitApproval": true,
+      "idempotency": "merge-by-document-id",
+      "deleteMissingDocuments": false,
+      "expectedDocumentCount": 10,
+      "targetCollections": [
+        "missions"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "20260725_002_beta1_weekly_missions",
+      "version": "1.1.0",
+      "description": "Reconcile the canonical Beta-1 weekly mission catalog into stable Firestore mission document IDs.",
+      "module": "database/seeds/20260725_002_beta1_weekly_missions.js",
+      "sourceFiles": [
+        "functions/config/beta1-weekly-missions.json",
+        "functions/lib/beta1WeeklyMissionCatalog.js"
+      ],
+      "checksumFiles": [
+        "database/seeds/20260725_002_beta1_weekly_missions.js",
+        "database/lib/missionSeedBuilders.js"
+      ],
+      "sha256": "13b5e2e5d370cfcfb7e792102e6c5936256babad69692f84286e299426431896",
+      "destructive": false,
+      "requiresExplicitApproval": true,
+      "idempotency": "merge-by-document-id",
+      "deleteMissingDocuments": false,
+      "expectedDocumentCount": 3,
+      "targetCollections": [
+        "missions"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "20260725_003_beta1_challenge_missions",
+      "version": "1.1.0",
+      "description": "Reconcile the canonical Beta-1 challenge mission catalog into stable Firestore mission document IDs.",
+      "module": "database/seeds/20260725_003_beta1_challenge_missions.js",
+      "sourceFiles": [
+        "functions/config/beta1-challenge-missions.json",
+        "functions/lib/beta1ChallengeMissionCatalog.js"
+      ],
+      "checksumFiles": [
+        "database/seeds/20260725_003_beta1_challenge_missions.js",
+        "database/lib/missionSeedBuilders.js"
+      ],
+      "sha256": "f78df563bde0ac137a69a95cefc000c4dcf268a36b117b210425cb2efe0f72c6",
+      "destructive": false,
+      "requiresExplicitApproval": true,
+      "idempotency": "merge-by-document-id",
+      "deleteMissingDocuments": false,
+      "expectedDocumentCount": 6,
+      "targetCollections": [
+        "missions"
+      ]
+    },
+    {
+      "order": 4,
+      "id": "20260725_004_beta1_adventure_missions",
+      "version": "1.1.0",
+      "description": "Reconcile the canonical Beta-1 adventure mission catalog into stable Firestore mission document IDs.",
+      "module": "database/seeds/20260725_004_beta1_adventure_missions.js",
+      "sourceFiles": [
+        "functions/config/beta1-adventure-missions.json",
+        "functions/lib/beta1AdventureMissionCatalog.js"
+      ],
+      "checksumFiles": [
+        "database/seeds/20260725_004_beta1_adventure_missions.js",
+        "database/lib/missionSeedBuilders.js"
+      ],
+      "sha256": "4b75e0de5cf7ef0a4bff4dfa2e7b4fe5d224c27c541f3dadcebe6f406a3b44ae",
+      "destructive": false,
+      "requiresExplicitApproval": true,
+      "idempotency": "merge-by-document-id",
+      "deleteMissingDocuments": false,
+      "expectedDocumentCount": 4,
+      "targetCollections": [
+        "missions"
+      ]
+    }
+  ]
+}
