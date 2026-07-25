@@ -31,7 +31,7 @@ function main() {
   const absoluteOutput = path.resolve(ROOT, outputPath);
 
   const manifest = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     project: "WellFit-now",
     application: {
       name: packageJson.name,
@@ -53,6 +53,9 @@ function main() {
       firestoreRulesSha256: sha256File("firestore.rules"),
       firestoreIndexesSha256: sha256File("firestore.indexes.json"),
       functionsPackageLockSha256: sha256File("functions/package-lock.json"),
+      databaseMigrationsManifestSha256: sha256File("database/manifests/migrations.json"),
+      databaseSeedsManifestSha256: sha256File("database/manifests/seeds.json"),
+      databaseOperatorSha256: sha256File("functions/scripts/database/runDatabaseOperation.js"),
     },
     firebaseArtifacts: [
       "firebase.json",
@@ -60,12 +63,20 @@ function main() {
       "firestore.indexes.json",
       "functions/",
     ],
+    databaseArtifacts: [
+      "database/manifests/migrations.json",
+      "database/manifests/seeds.json",
+      "database/migrations/",
+      "database/seeds/",
+      "functions/scripts/database/runDatabaseOperation.js",
+    ],
     deployment: {
       webDeployed: false,
       firebaseFunctionsDeployed: false,
       firestoreRulesDeployed: false,
       firestoreIndexesDeployed: false,
       databaseMigrationPerformed: false,
+      databaseSeedPerformed: false,
       productionDataWritten: false,
     },
     security: {
@@ -73,6 +84,7 @@ function main() {
       serviceAccountEmbedded: false,
       serverProviderKeysEmbedded: false,
       productionApprovalRequired: true,
+      destructiveDatabaseApprovalRequired: true,
     },
   };
 
