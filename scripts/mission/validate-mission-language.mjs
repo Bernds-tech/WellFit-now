@@ -7,6 +7,8 @@ const ROOT = process.cwd();
 const TARGETS = [
   "app/missionen/tagesmissionen",
   "app/missionen/wochenmissionen",
+  "app/missionen/challenge",
+  "app/missionen/abenteuer",
   "components/mission",
   "lib/beta1/missionStatusPresentation.mjs",
 ];
@@ -14,6 +16,23 @@ const SOURCE_EXTENSIONS = new Set([".js", ".mjs", ".ts", ".tsx"]);
 const BLOCKED_PATTERNS = [
   { label: "Wien-Tag", pattern: /Wien-Tag/giu },
   { label: "Wien-Woche", pattern: /Wien-Woche/giu },
+];
+const ADOPTION_CONTRACTS = [
+  {
+    path: "app/missionen/challenge/page.tsx",
+    required: ["getMissionStatusPresentation", "missionKind: \"challenge\"", "Serverstatus aktualisieren"],
+    blocked: ["function reviewStatusLabel"],
+  },
+  {
+    path: "app/missionen/challenge/ChallengeDetailsPanel.tsx",
+    required: ["MissionLifecyclePanel", "presentation.actionLabel", "interne WFXP"],
+    blocked: ["function reviewStatusLabel"],
+  },
+  {
+    path: "app/missionen/abenteuer/page.tsx",
+    required: ["getMissionStatusPresentation", "missionKind: \"adventure\"", "ADVENTURE_LIFECYCLE_STEPS", "Serverstatus aktualisieren"],
+    blocked: ["function reviewLabel"],
+  },
 ];
 
 function collect(relativePath) {
@@ -37,6 +56,16 @@ for (const relativePath of files) {
   }
 }
 
+for (const contract of ADOPTION_CONTRACTS) {
+  const content = fs.readFileSync(path.join(ROOT, contract.path), "utf8");
+  for (const required of contract.required) {
+    if (!content.includes(required)) failures.push(`${contract.path}: Lifecycle-Vertrag fehlt '${required}'`);
+  }
+  for (const blocked of contract.blocked) {
+    if (content.includes(blocked)) failures.push(`${contract.path}: parallele Statuslogik ist nicht erlaubt '${blocked}'`);
+  }
+}
+
 if (failures.length > 0) {
   console.error("Mission language validation failed:");
   failures.forEach((failure) => console.error(`- ${failure}`));
@@ -44,7 +73,17 @@ if (failures.length > 0) {
 }
 
 const lifecycleSource = fs.readFileSync(path.join(ROOT, "lib/beta1/missionStatusPresentation.mjs"), "utf8");
-for (const required of ["Start", "Bestätigung", "Review", "WFXP", "Serverprojektion nicht verfügbar", "Bestehender Vorgang"]) {
+for (const required of [
+  "Start",
+  "Zugang",
+  "Bestätigung",
+  "Review",
+  "WFXP",
+  "Serverprojektion nicht verfügbar",
+  "Bestehender Vorgang",
+  "Challenge-Ort bereit",
+  "Abenteuerzugang aktiv",
+]) {
   if (!lifecycleSource.includes(required)) {
     throw new Error(`Kanonische Missionskommunikation fehlt: ${required}`);
   }
