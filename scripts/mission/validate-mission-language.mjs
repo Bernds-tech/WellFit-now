@@ -49,7 +49,7 @@ const ADOPTION_CONTRACTS = [
   {
     path: "functions/lib/beta1MissionHistory.js",
     required: ["getMissionHistory", "writesPerformed: false", "rawEvidenceIncluded: false", "recordIdentifiersIncluded: false", "server-inconsistent"],
-    blocked: ["writeAudit", ".set(", ".update(", ".delete("],
+    blocked: ["writeAudit", "runTransaction(", "transaction.set(", "transaction.update(", "transaction.delete(", "FieldValue.serverTimestamp", ".add("],
   },
 ];
 
