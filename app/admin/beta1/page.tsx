@@ -2,6 +2,7 @@
 
 import AppShell from "@/app/components/AppShell";
 import Beta1AdminPanel from "@/components/admin/Beta1AdminPanel";
+import BetaOperationsCockpit from "@/components/admin/BetaOperationsCockpit";
 import BuddyCareCatalogAdminCard from "@/components/admin/BuddyCareCatalogAdminCard";
 import ChallengeMissionCatalogAdminCard from "@/components/admin/ChallengeMissionCatalogAdminCard";
 import DailyMissionCatalogAdminCard from "@/components/admin/DailyMissionCatalogAdminCard";
@@ -16,6 +17,7 @@ export default function Beta1AdminPage() {
         title="Beta-1 Admin Operations"
         subtitle="Diese Ansicht nutzt bestehende Beta-1-Callables. Der Client bleibt Bedienoberfläche; finale Autorität bleibt serverseitig."
       >
+        <BetaOperationsCockpit />
         <DailyMissionCatalogAdminCard />
         <WeeklyMissionCatalogAdminCard />
         <ChallengeMissionCatalogAdminCard />
