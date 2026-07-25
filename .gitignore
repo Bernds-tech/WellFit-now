@@ -19,6 +19,8 @@
 
 # production
 /build
+/release/
+/health.json
 
 # misc
 .DS_Store
