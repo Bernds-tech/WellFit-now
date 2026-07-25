@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "wellfit-firebase-environment-contract-v1",
+  "githubEnvironments": {
+    "staging": "wellfit-firebase-staging",
+    "production": "wellfit-firebase-production"
+  },
+  "requiredEnvironmentVariables": {
+    "FIREBASE_PROJECT_ID": "wellfit-project-id",
+    "FIREBASE_BACKUP_BUCKET": "existing-cloud-storage-bucket-name",
+    "GCP_WORKLOAD_IDENTITY_PROVIDER": "projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL/providers/PROVIDER",
+    "GCP_SERVICE_ACCOUNT": "wellfit-release@PROJECT_ID.iam.gserviceaccount.com"
+  },
+  "requiredEnvironmentProtection": {
+    "staging": {
+      "requiredReviewers": 1,
+      "allowedBranches": [
+        "main"
+      ]
+    },
+    "production": {
+      "requiredReviewers": 1,
+      "preventSelfReview": true,
+      "allowedBranches": [
+        "main"
+      ]
+    }
+  },
+  "committedSecrets": false,
+  "serviceAccountKeyJsonRequired": false,
+  "firebaseCiTokenRequired": false
+}

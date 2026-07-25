@@ -74,6 +74,9 @@ next-env.d.ts
 firestore-debug.log
 functions/node_modules/
 
+# Generated short-lived credentials from google-github-actions/auth
+gha-creds-*.json
+
 # WellFit dev agent generated output
 scripts/wellfit-dev-agent/output/*
 !scripts/wellfit-dev-agent/output/.gitkeep

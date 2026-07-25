@@ -1,0 +1,332 @@
+name: Protected Firebase Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Protected Firebase target
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: staging
+      release_sha:
+        description: Full 40-character commit SHA already merged into main
+        required: true
+        type: string
+      confirm_project:
+        description: Exact Firebase project ID expected from the protected environment
+        required: true
+        type: string
+      deployment_confirmation:
+        description: Type DEPLOY-STAGING or DEPLOY-PRODUCTION
+        required: true
+        type: string
+      change_ticket:
+        description: Owner-approved change or release reference
+        required: true
+        type: string
+      apply_release:
+        description: Authenticate, back up and deploy Firebase resources
+        required: true
+        type: boolean
+        default: false
+      execute_database:
+        description: Execute approved versioned migrations and canonical seeds after Firebase deployment
+        required: true
+        type: boolean
+        default: false
+      allow_destructive_migrations:
+        description: Permit manifest entries marked destructive
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wellfit-firebase-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Validate manual release inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "${{ inputs.release_sha }}" =~ ^[0-9a-fA-F]{40}$ ]]
+          test -n "${{ inputs.confirm_project }}"
+          test -n "${{ inputs.change_ticket }}"
+          if [ "${{ inputs.target }}" = "production" ]; then
+            test "${{ inputs.deployment_confirmation }}" = "DEPLOY-PRODUCTION"
+          else
+            test "${{ inputs.deployment_confirmation }}" = "DEPLOY-STAGING"
+          fi
+          if [ "${{ inputs.execute_database }}" = "true" ]; then
+            test "${{ inputs.apply_release }}" = "true"
+          fi
+          if [ "${{ inputs.allow_destructive_migrations }}" = "true" ]; then
+            test "${{ inputs.execute_database }}" = "true"
+          fi
+
+      - name: Checkout exact release commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 0
+
+      - name: Prove release commit is contained in main
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ inputs.release_sha }}"
+          git fetch origin main
+          git merge-base --is-ancestor "${{ inputs.release_sha }}" origin/main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm --prefix functions ci
+
+      - name: Validate complete release source
+        run: |
+          npm run runtime:validate
+          npm run runtime:package-check
+          npm run database:validate
+          npm run firebase-release:validate
+          npm --prefix functions run check
+          npm run build
+
+      - name: Create no-write release plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release/firebase
+          node scripts/release/create-firebase-release-plan.mjs \
+            --target="${{ inputs.target }}" \
+            --release-sha="${{ inputs.release_sha }}" \
+            --project-id="${{ inputs.confirm_project }}" \
+            --confirm-project="${{ inputs.confirm_project }}" \
+            --change-ticket="${{ inputs.change_ticket }}" \
+            --apply="${{ inputs.apply_release }}" \
+            --execute-database="${{ inputs.execute_database }}" \
+            --allow-destructive="${{ inputs.allow_destructive_migrations }}" \
+            --output=release/firebase/firebase-release-plan.json
+
+      - name: Upload release plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: firebase-release-plan-${{ inputs.target }}-${{ inputs.release_sha }}
+          path: release/firebase/firebase-release-plan.json
+          if-no-files-found: error
+          retention-days: 30
+
+  apply:
+    if: ${{ inputs.apply_release == true }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: ${{ inputs.target == 'production' && 'wellfit-firebase-production' || 'wellfit-firebase-staging' }}
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+      FIREBASE_BACKUP_BUCKET: ${{ vars.FIREBASE_BACKUP_BUCKET }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      WELLFIT_RELEASE_SHA: ${{ inputs.release_sha }}
+      WELLFIT_DATABASE_TARGET_PROJECT: ${{ vars.FIREBASE_PROJECT_ID }}
+      WELLFIT_DATABASE_OPERATOR: github:${{ github.actor }}
+      WELLFIT_DATABASE_CHANGE_TICKET: ${{ inputs.change_ticket }}
+      WELLFIT_FIREBASE_TARGET: ${{ inputs.target }}
+    steps:
+      - name: Checkout exact release commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 0
+
+      - name: Revalidate protected environment contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ inputs.release_sha }}"
+          git fetch origin main
+          git merge-base --is-ancestor "${{ inputs.release_sha }}" origin/main
+          test -n "$FIREBASE_PROJECT_ID"
+          test -n "$FIREBASE_BACKUP_BUCKET"
+          test -n "$GCP_WORKLOAD_IDENTITY_PROVIDER"
+          test -n "$GCP_SERVICE_ACCOUNT"
+          test "$FIREBASE_PROJECT_ID" = "${{ inputs.confirm_project }}"
+          if [ "${{ inputs.target }}" = "production" ]; then
+            test "${{ inputs.deployment_confirmation }}" = "DEPLOY-PRODUCTION"
+          else
+            test "${{ inputs.deployment_confirmation }}" = "DEPLOY-STAGING"
+          fi
+
+      - name: Authenticate to Google Cloud with short-lived credentials
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.FIREBASE_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
+          request_reason: WellFit ${{ inputs.target }} release ${{ inputs.release_sha }} ticket ${{ inputs.change_ticket }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm --prefix functions ci
+
+      - name: Verify authenticated target and backup bucket
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud config set project "$FIREBASE_PROJECT_ID"
+          test "$(gcloud config get-value project 2>/dev/null)" = "$FIREBASE_PROJECT_ID"
+          gcloud projects describe "$FIREBASE_PROJECT_ID" --format='value(projectId)' | grep -Fx "$FIREBASE_PROJECT_ID"
+          gcloud storage buckets describe "gs://$FIREBASE_BACKUP_BUCKET" --format='value(name)' > /dev/null
+
+      - name: Create managed Firestore export before any mutation
+        id: backup
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release/firebase
+          timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+          backup_uri="gs://${FIREBASE_BACKUP_BUCKET}/wellfit-firestore/${{ inputs.target }}/${{ inputs.release_sha }}/${timestamp}"
+          gcloud firestore export "$backup_uri" \
+            --project="$FIREBASE_PROJECT_ID" \
+            --database='(default)'
+          printf '%s\n' "$backup_uri" > release/firebase/firestore-backup-uri.txt
+          echo "backup_uri=$backup_uri" >> "$GITHUB_OUTPUT"
+          echo "WELLFIT_FIRESTORE_BACKUP_URI=$backup_uri" >> "$GITHUB_ENV"
+
+      - name: Generate target database Dry-Run plans
+        shell: bash
+        run: |
+          set -euo pipefail
+          node functions/scripts/database/runDatabaseOperation.js \
+            --kind=migration \
+            --all \
+            --json > release/firebase/database-migration-plan.json
+          node functions/scripts/database/runDatabaseOperation.js \
+            --kind=seed \
+            --all \
+            --json > release/firebase/database-seed-plan.json
+
+      - name: Deploy Firestore indexes
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx firebase deploy \
+            --only firestore:indexes \
+            --project "$FIREBASE_PROJECT_ID" \
+            --non-interactive \
+            -m "WellFit ${{ inputs.target }} indexes ${{ inputs.release_sha }} ${{ inputs.change_ticket }}" \
+            2>&1 | tee release/firebase/firestore-indexes-deploy.log
+
+      - name: Deploy Firestore Rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx firebase deploy \
+            --only firestore:rules \
+            --project "$FIREBASE_PROJECT_ID" \
+            --non-interactive \
+            -m "WellFit ${{ inputs.target }} rules ${{ inputs.release_sha }} ${{ inputs.change_ticket }}" \
+            2>&1 | tee release/firebase/firestore-rules-deploy.log
+
+      - name: Deploy Firebase Functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx firebase deploy \
+            --only functions \
+            --project "$FIREBASE_PROJECT_ID" \
+            --non-interactive \
+            -m "WellFit ${{ inputs.target }} functions ${{ inputs.release_sha }} ${{ inputs.change_ticket }}" \
+            2>&1 | tee release/firebase/functions-deploy.log
+
+      - name: Execute approved database migrations and seeds
+        if: ${{ inputs.execute_database == true }}
+        shell: bash
+        env:
+          WELLFIT_DATABASE_EXECUTION_APPROVED: "true"
+          WELLFIT_DATABASE_ALLOW_DESTRUCTIVE: ${{ inputs.allow_destructive_migrations && 'true' || 'false' }}
+        run: |
+          set -euo pipefail
+          destructive_flags=()
+          if [ "${{ inputs.allow_destructive_migrations }}" = "true" ]; then
+            destructive_flags+=(--allow-destructive)
+          fi
+          node functions/scripts/database/runDatabaseOperation.js \
+            --kind=migration \
+            --all \
+            --execute \
+            --confirm-project="$FIREBASE_PROJECT_ID" \
+            "${destructive_flags[@]}" \
+            --json | tee release/firebase/database-migration-execution.json
+          node functions/scripts/database/runDatabaseOperation.js \
+            --kind=seed \
+            --all \
+            --execute \
+            --confirm-project="$FIREBASE_PROJECT_ID" \
+            --json | tee release/firebase/database-seed-execution.json
+
+      - name: Record release evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          migrations_executed=false
+          seeds_executed=false
+          if [ "${{ inputs.execute_database }}" = "true" ]; then
+            migrations_executed=true
+            seeds_executed=true
+          fi
+          node scripts/release/write-firebase-release-evidence.mjs \
+            --target="${{ inputs.target }}" \
+            --project-id="$FIREBASE_PROJECT_ID" \
+            --release-sha="${{ inputs.release_sha }}" \
+            --change-ticket="${{ inputs.change_ticket }}" \
+            --backup-uri="$WELLFIT_FIRESTORE_BACKUP_URI" \
+            --backup-completed=true \
+            --indexes-deployed=true \
+            --rules-deployed=true \
+            --functions-deployed=true \
+            --migrations-executed="$migrations_executed" \
+            --seeds-executed="$seeds_executed" \
+            --destructive-approved="${{ inputs.allow_destructive_migrations }}" \
+            --output=release/firebase/firebase-release-evidence.json
+
+      - name: Upload protected release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firebase-release-evidence-${{ inputs.target }}-${{ inputs.release_sha }}-${{ github.run_id }}
+          path: release/firebase/
+          if-no-files-found: error
+          retention-days: 90

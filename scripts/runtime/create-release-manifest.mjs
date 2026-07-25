@@ -31,7 +31,7 @@ function main() {
   const absoluteOutput = path.resolve(ROOT, outputPath);
 
   const manifest = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     project: "WellFit-now",
     application: {
       name: packageJson.name,
@@ -56,6 +56,9 @@ function main() {
       databaseMigrationsManifestSha256: sha256File("database/manifests/migrations.json"),
       databaseSeedsManifestSha256: sha256File("database/manifests/seeds.json"),
       databaseOperatorSha256: sha256File("functions/scripts/database/runDatabaseOperation.js"),
+      firebaseReleaseWorkflowSha256: sha256File(".github/workflows/firebase-release.yml"),
+      firebaseReleasePlanScriptSha256: sha256File("scripts/release/create-firebase-release-plan.mjs"),
+      firebaseEnvironmentContractSha256: sha256File("infra/firebase/environment-contract.example.json"),
     },
     firebaseArtifacts: [
       "firebase.json",
@@ -70,8 +73,17 @@ function main() {
       "database/seeds/",
       "functions/scripts/database/runDatabaseOperation.js",
     ],
+    firebaseReleaseArtifacts: [
+      ".github/workflows/firebase-release.yml",
+      "scripts/release/create-firebase-release-plan.mjs",
+      "scripts/release/write-firebase-release-evidence.mjs",
+      "infra/firebase/environment-contract.example.json",
+      "infra/firebase/README.md",
+    ],
     deployment: {
       webDeployed: false,
+      firebaseReleaseWorkflowExecuted: false,
+      firestoreBackupCreated: false,
       firebaseFunctionsDeployed: false,
       firestoreRulesDeployed: false,
       firestoreIndexesDeployed: false,
@@ -84,7 +96,10 @@ function main() {
       serviceAccountEmbedded: false,
       serverProviderKeysEmbedded: false,
       productionApprovalRequired: true,
+      protectedFirebaseEnvironmentRequired: true,
+      backupBeforeFirebaseMutationRequired: true,
       destructiveDatabaseApprovalRequired: true,
+      automatedRestoreIncluded: false,
     },
   };
 

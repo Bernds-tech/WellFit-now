@@ -15,6 +15,7 @@ build
 *.pem
 *.key
 *.crt
+gha-creds-*.json
 native/unity/**/Library
 native/unity/**/Temp
 native/unity/**/Obj
