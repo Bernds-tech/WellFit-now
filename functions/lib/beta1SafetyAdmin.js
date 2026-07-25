@@ -19,6 +19,7 @@ const { registerBeta1AdventureEvidenceAuthority } = require("./beta1AdventureEvi
 const { registerBeta1NearbyMissionLocations } = require("./beta1NearbyMissionLocations");
 const { registerBeta1PoseEvidence } = require("./beta1PoseEvidence");
 const { registerBeta1BuddyActions } = require("./beta1BuddyActions");
+const { registerBeta1OperationsMetrics } = require("./beta1OperationsMetrics");
 
 const MISSION_EVIDENCE_REVIEW_STATUSES = new Set([
   "pending-server-review",
@@ -132,6 +133,7 @@ function registerBeta1SafetyAdmin(exportsTarget, deps) {
   registerBeta1NearbyMissionLocations(exportsTarget, deps);
   registerBeta1PoseEvidence(exportsTarget, deps);
   registerBeta1BuddyActions(exportsTarget, deps);
+  registerBeta1OperationsMetrics(exportsTarget, deps);
 
   // User-owned status projection for the evidence-review completion loop.
   // It exposes no evidence payload, no other-user data and no write authority.
