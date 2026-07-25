@@ -5,6 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import AppSidebar from "@/app/AppSidebar";
 import AppFooter from "@/app/AppFooter";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
+import {
+  formatMissionDateKey,
+  formatMissionTimeZone,
+  getMissionStatusPresentation,
+} from "@/lib/beta1/missionStatusPresentation.mjs";
 import DailyHeader from "./DailyHeader";
 import DailySlots from "./DailySlots";
 import FavoritesStrip from "./FavoritesStrip";
@@ -46,7 +51,7 @@ export default function MissionenPage() {
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(dailyMissions[0].id);
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
   const [rewardDetailsOpen, setRewardDetailsOpen] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("Ziehe Missionen in deine 3 Tagesfelder.");
+  const [statusMessage, setStatusMessage] = useState("Wähle bis zu drei Missionen für deinen nutzerlokalen Kalendertag.");
 
   const {
     favoriteIds,
@@ -58,9 +63,15 @@ export default function MissionenPage() {
     setDailySlotIds,
     startMission: submitMissionForReview,
     completeMission: reconcileMissionReview,
+    refreshProgress,
     ready,
     userId,
     lastError,
+    dateKey,
+    timeZone,
+    calendarAuthority,
+    timeZoneChangeDeferred,
+    nextTimeZoneChangeAt,
     dailyGoal,
     goalCompleted,
     currentStreak,
@@ -84,6 +95,18 @@ export default function MissionenPage() {
   const isStarted = Boolean(activeAttempt) || startedMissionIds.includes(selectedMission.id);
   const isCompleted = completedMissionIds.includes(selectedMission.id);
   const missionActionBusy = busyMissionId === selectedMission.id;
+  const displayedDate = dateKey ? formatMissionDateKey(dateKey) : "wird bestimmt";
+  const displayedTimeZone = formatMissionTimeZone(timeZone);
+  const periodLabel = `Lokaler Kalendertag: ${displayedDate}`;
+  const statusPresentation = getMissionStatusPresentation({
+    isAuthenticated: Boolean(userId),
+    ready,
+    progressSource,
+    isStarted,
+    isCompleted,
+    reviewStatus: activeAttempt?.reviewStatus ?? null,
+    actionBusy: missionActionBusy,
+  });
 
   const recommendedIds = useMemo(
     () => ["daily-plank-60", "daily-8000-steps", "daily-healthy-meal"],
@@ -126,7 +149,7 @@ export default function MissionenPage() {
       setDragOverSlot(null);
       setStatusMessage(
         userId
-          ? "Mission wurde über den Server in deine Tagesauswahl gelegt."
+          ? "Mission wurde serverseitig in deine Tagesauswahl gelegt."
           : "Mission wurde nur lokal vorgemerkt. Für sichere Missionen und WFXP bitte einloggen.",
       );
     } catch (error) {
@@ -146,7 +169,7 @@ export default function MissionenPage() {
 
   const startMission = async (missionId: string) => {
     try {
-      setStatusMessage("Mission wird serverseitig gestartet und zur Evidence-Prüfung eingereicht...");
+      setStatusMessage("Der Server legt den gültigen Missionsvorgang an und reicht deine Bestätigung zur Prüfung ein...");
       const result = await submitMissionForReview(missionId);
       setStatusMessage(result.message);
     } catch (error) {
@@ -156,7 +179,7 @@ export default function MissionenPage() {
 
   const completeMission = async (missionId: string) => {
     try {
-      setStatusMessage("Der aktuelle Reviewstatus wird serverseitig geprüft...");
+      setStatusMessage("Der vorhandene Missionsvorgang wird serverseitig fortgesetzt und sein Reviewstatus geprüft...");
       const result = await reconcileMissionReview(missionId);
       if (result.kind === "completed") {
         window.dispatchEvent(new CustomEvent("wellfit-beta1-projection-updated"));
@@ -167,13 +190,33 @@ export default function MissionenPage() {
     }
   };
 
+  const refreshMissionStatus = async () => {
+    if (!userId) {
+      setStatusMessage("Bitte melde dich an, um den serverseitigen Missionsstatus zu laden.");
+      return;
+    }
+    try {
+      setStatusMessage("Serverstatus und nutzerlokaler Zeitraum werden aktualisiert...");
+      const projection = await refreshProgress();
+      if (!projection) {
+        setStatusMessage("Serverstatus konnte ohne Anmeldung nicht geladen werden.");
+        return;
+      }
+      setStatusMessage(
+        `Serverstatus aktualisiert · lokaler Kalendertag ${formatMissionDateKey(projection.dateKey)} · ${formatMissionTimeZone(projection.timeZone)}.`,
+      );
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Serverstatus konnte nicht aktualisiert werden.");
+    }
+  };
+
   const projectionHint = !userId
-    ? "Gastmodus: nur lokale Auswahl, keine Mission und keine WFXP"
+    ? "Gastmodus: nur lokale Auswahl · kein Missionsabschluss · keine WFXP"
     : progressSource === "server"
       ? walletAvailable
-        ? "Server-Autorität aktiv · WFXP-Wallet verbunden · ein Abschluss je Mission und Wien-Tag"
-        : "Server-Autorität aktiv · WFXP-Wallet wird mit der ersten Buchung angelegt"
-      : "Server-Projektion momentan nicht erreichbar · keine Client-Belohnung";
+        ? `Server-Autorität aktiv · ${displayedDate} · ${displayedTimeZone} · ein Abschluss je Mission und lokalem Kalendertag`
+        : `Server-Autorität aktiv · ${displayedDate} · ${displayedTimeZone} · WFXP-Wallet entsteht mit der ersten Buchung`
+      : "Serverprojektion momentan nicht erreichbar · lokale Anzeige besitzt keine Reward-Autorität";
 
   return (
     <main
@@ -266,13 +309,18 @@ export default function MissionenPage() {
               diversityMultiplier={reward.diversityMultiplier}
               antiFarmingMultiplier={reward.antiFarmingMultiplier}
               reserveRewardRate={1}
-              rewardPreviewLabel="Server-Katalog · Admin-Review"
+              rewardPreviewLabel="Server-Katalog · Review erforderlich"
               rewardPreviewStatus="manual_review"
-              capReasons={["WFXP werden ausschließlich nach serverseitiger Evidence-Freigabe gebucht."]}
+              capReasons={["WFXP werden ausschließlich nach serverseitiger Bestätigungsfreigabe und Completion gebucht."]}
+              statusPresentation={statusPresentation}
+              periodLabel={periodLabel}
+              timeZone={displayedTimeZone}
+              calendarAuthority={calendarAuthority}
+              timeZoneChangeDeferred={timeZoneChangeDeferred}
+              nextTimeZoneChangeAt={nextTimeZoneChangeAt}
               isFavorite={favoriteIds.includes(selectedMission.id)}
               isStarted={isStarted}
               isCompleted={isCompleted}
-              activeReviewStatus={activeAttempt?.reviewStatus ?? null}
               activeAttemptStatus={activeAttempt?.attemptStatus ?? null}
               actionBusy={missionActionBusy}
               rewardDetailsOpen={rewardDetailsOpen}
@@ -280,6 +328,7 @@ export default function MissionenPage() {
               onToggleRewardDetails={() => setRewardDetailsOpen((open) => !open)}
               onStartMission={startMission}
               onCompleteMission={completeMission}
+              onRefreshStatus={refreshMissionStatus}
             />
           </div>
 
