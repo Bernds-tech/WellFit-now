@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "wellfit-database-manifest-v1",
+  "kind": "migration",
+  "updated": "2026-07-25",
+  "entries": [
+    {
+      "order": 1,
+      "id": "20260725_001_remove_legacy_user_economy_fields",
+      "version": "1.0.0",
+      "description": "Remove obsolete client-authorized economy, avatar, consent and inventory fields from user projections.",
+      "module": "database/migrations/20260725_001_remove_legacy_user_economy_fields.js",
+      "checksumFiles": [
+        "database/migrations/20260725_001_remove_legacy_user_economy_fields.js",
+        "database/lib/planHelpers.js"
+      ],
+      "sha256": "04e8201cee60db7ead3548d6a2e1dc1745418b11a32466c66a512bba75ddf10e",
+      "destructive": true,
+      "requiresExplicitApproval": true,
+      "targetCollections": [
+        "users"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "20260725_002_backfill_account_lifecycle_records",
+      "version": "1.0.0",
+      "description": "Create active lifecycle authority records for initialized active users that do not yet have one.",
+      "module": "database/migrations/20260725_002_backfill_account_lifecycle_records.js",
+      "checksumFiles": [
+        "database/migrations/20260725_002_backfill_account_lifecycle_records.js",
+        "database/lib/planHelpers.js"
+      ],
+      "sha256": "e232015c1c55682999d03be10db09ffed63cbecf75b24a3027a0a24487244337",
+      "destructive": false,
+      "requiresExplicitApproval": true,
+      "targetCollections": [
+        "users",
+        "accountLifecycleRecords"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "20260725_003_harden_private_health_boundaries",
+      "version": "1.0.0",
+      "description": "Delete forbidden raw birth-date, medication-detail and free-text health fields and set explicit privacy boundary flags.",
+      "module": "database/migrations/20260725_003_harden_private_health_boundaries.js",
+      "checksumFiles": [
+        "database/migrations/20260725_003_harden_private_health_boundaries.js",
+        "database/lib/planHelpers.js"
+      ],
+      "sha256": "bce1dfeec8d2206e646552c98a8c549713d430bc40867f6cb3cbc12589557a1f",
+      "destructive": true,
+      "requiresExplicitApproval": true,
+      "targetCollections": [
+        "userPrivateProfiles"
+      ]
+    },
+    {
+      "order": 4,
+      "id": "20260725_004_normalize_wfxp_metadata",
+      "version": "1.0.0",
+      "description": "Normalize internal WFXP wallet and ledger records to non-monetary, non-blockchain, non-cash-out metadata.",
+      "module": "database/migrations/20260725_004_normalize_wfxp_metadata.js",
+      "checksumFiles": [
+        "database/migrations/20260725_004_normalize_wfxp_metadata.js",
+        "database/lib/planHelpers.js"
+      ],
+      "sha256": "f9a75a08dfe78f4c720ce6660f0a1360f7db376411672cd1a0319ca41a3635c1",
+      "destructive": false,
+      "requiresExplicitApproval": true,
+      "targetCollections": [
+        "xpWallets",
+        "xpLedgerEvents",
+        "ledgerEvents"
+      ]
+    },
+    {
+      "order": 5,
+      "id": "20260725_005_record_schema_baseline",
+      "version": "1.0.0",
+      "description": "Record the server-authoritative schema baseline while preserving the unresolved WFXP/WFP/avatar-XP terminology decision.",
+      "module": "database/migrations/20260725_005_record_schema_baseline.js",
+      "checksumFiles": [
+        "database/migrations/20260725_005_record_schema_baseline.js",
+        "database/lib/planHelpers.js"
+      ],
+      "sha256": "c2caf81e3b5ae18f232a07c851e0adcbc7fda33071839c3e726d36d05b578e0f",
+      "destructive": false,
+      "requiresExplicitApproval": true,
+      "targetCollections": [
+        "databaseSchemaState"
+      ]
+    }
+  ]
+}
