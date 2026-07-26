@@ -47,10 +47,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node 24 LTS
+      - name: Set up Node 20 validation runtime
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           cache: npm
 
       - name: Validate protected deployment configuration
@@ -78,17 +78,25 @@ jobs:
           done
           npm run runtime:validate:production
 
-      - name: Install and validate source
-        shell: bash
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install Functions dependencies
+        run: npm --prefix functions ci
+
+      - name: Lint app and runtime source
+        run: npm run lint -- --ignore-pattern 'database/**'
+
+      - name: Type-check app and runtime source
+        run: npx tsc --noEmit
+
+      - name: Validate database package
         run: |
-          set -euo pipefail
-          npm ci
-          npm --prefix functions ci
-          npm run lint -- --ignore-pattern 'database/**'
-          npx tsc --noEmit
           npm run database:validate
           npm --prefix functions run database:check
-          npm --prefix functions run check
+
+      - name: Validate Functions source
+        run: npm --prefix functions run check
 
       - name: Build traceable production image
         shell: bash
