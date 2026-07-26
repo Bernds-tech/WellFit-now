@@ -37,9 +37,9 @@ body {
 }
 
 main:has(> .landing-scale-marker) > :not(.landing-scale-marker) {
-  width: 86.9565217391%;
+  width: 72.4637681159%;
   margin-inline: auto;
-  zoom: 1.15;
+  zoom: 1.38;
 }
 
 main section.relative > div.grid.min-h-0.flex-1,
