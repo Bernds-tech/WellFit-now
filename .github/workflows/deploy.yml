@@ -82,6 +82,7 @@ jobs:
         run: |
           set -euo pipefail
           npm ci
+          npm --prefix functions ci
           npm run lint
           npx tsc --noEmit
           npm --prefix functions run check
