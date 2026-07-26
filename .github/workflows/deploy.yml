@@ -84,8 +84,10 @@ jobs:
           set -euo pipefail
           npm ci
           npm --prefix functions ci
-          npm run lint
+          npm run lint -- --ignore-pattern 'database/**'
           npx tsc --noEmit
+          npm run database:validate
+          npm --prefix functions run database:check
           npm --prefix functions run check
 
       - name: Build traceable production image
