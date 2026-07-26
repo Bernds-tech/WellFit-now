@@ -1,42 +1,195 @@
-name: Deploy WellFit
+name: Deploy WellFit Staging
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      release_channel:
+        description: Release channel recorded by the runtime health endpoint
+        required: true
+        type: choice
+        options:
+          - staging
+          - production-candidate
+        default: staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wellfit-staging-deployment
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    name: Build, verify and deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: staging
+    env:
+      RELEASE_CHANNEL: ${{ inputs.release_channel }}
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+      SERVER_KNOWN_HOSTS: ${{ secrets.SERVER_KNOWN_HOSTS }}
+      NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+      NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+      NEXT_PUBLIC_FIREBASE_APPCHECK_RECAPTCHA_ENTERPRISE_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_APPCHECK_RECAPTCHA_ENTERPRISE_KEY }}
+      WELLFIT_RUNTIME_MODE: production
+      WELLFIT_RELEASE_SHA: ${{ github.sha }}
 
     steps:
-      - name: Deploy on server via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24 LTS
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          script_stop: true
-          script: |
-            set -e
-            cd /var/www/WellFit-now
+          node-version: 24
+          cache: npm
 
-            git fetch origin
-            git reset --hard origin/main
-
-            if ! swapon --show | grep -q '/swapfile'; then
-              if [ ! -f /swapfile ]; then
-                fallocate -l 2G /swapfile
-                chmod 600 /swapfile
-                mkswap /swapfile
-              fi
-              swapon /swapfile || true
+      - name: Validate protected deployment configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            SERVER_HOST
+            SERVER_PORT
+            SERVER_USER
+            SERVER_SSH_KEY
+            SERVER_KNOWN_HOSTS
+            NEXT_PUBLIC_FIREBASE_API_KEY
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID
+            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+            NEXT_PUBLIC_FIREBASE_APP_ID
+          )
+          for name in "${required[@]}"; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "Missing staging environment secret: ${name}" >&2
+              exit 1
             fi
-            grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+          done
+          npm run runtime:validate:production
 
-            npm install
-            NODE_OPTIONS='--max-old-space-size=768' npm run build
-            pm2 restart wellfit-now --update-env
-            pm2 status
+      - name: Install and validate source
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm --prefix functions ci
+          npm run lint
+          npx tsc --noEmit
+          npm --prefix functions run check
+
+      - name: Build traceable production image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build \
+            --tag "wellfit-web:${GITHUB_SHA}" \
+            --build-arg "NEXT_PUBLIC_FIREBASE_API_KEY=${NEXT_PUBLIC_FIREBASE_API_KEY}" \
+            --build-arg "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}" \
+            --build-arg "NEXT_PUBLIC_FIREBASE_PROJECT_ID=${NEXT_PUBLIC_FIREBASE_PROJECT_ID}" \
+            --build-arg "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}" \
+            --build-arg "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}" \
+            --build-arg "NEXT_PUBLIC_FIREBASE_APP_ID=${NEXT_PUBLIC_FIREBASE_APP_ID}" \
+            --build-arg "NEXT_PUBLIC_FIREBASE_APPCHECK_RECAPTCHA_ENTERPRISE_KEY=${NEXT_PUBLIC_FIREBASE_APPCHECK_RECAPTCHA_ENTERPRISE_KEY}" \
+            .
+
+      - name: Verify release image locally
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --detach \
+            --name wellfit-web-release-check \
+            --publish 127.0.0.1:3100:3000 \
+            --read-only \
+            --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            --tmpfs /app/.next/cache:rw,noexec,nosuid,size=128m \
+            --cap-drop ALL \
+            --security-opt no-new-privileges \
+            --env WELLFIT_RUNTIME_MODE=production \
+            --env WELLFIT_RELEASE_SHA="${GITHUB_SHA}" \
+            --env WELLFIT_RELEASE_CHANNEL="${RELEASE_CHANNEL}" \
+            "wellfit-web:${GITHUB_SHA}"
+
+          for attempt in $(seq 1 40); do
+            if curl --silent --show-error --fail http://127.0.0.1:3100/api/health > health.json; then
+              break
+            fi
+            sleep 1
+          done
+
+          node -e '
+            const fs = require("fs");
+            const health = JSON.parse(fs.readFileSync("health.json", "utf8"));
+            if (health.status !== "ok") throw new Error("health status is not ok");
+            if (health.service !== "wellfit-web") throw new Error("unexpected service name");
+            if (health.release.sha !== process.env.GITHUB_SHA) throw new Error("release SHA mismatch");
+            if (health.release.channel !== process.env.RELEASE_CHANNEL) throw new Error("release channel mismatch");
+            if (health.deploymentPerformedByEndpoint !== false) throw new Error("health endpoint must never deploy");
+            if (health.databaseWritePerformedByEndpoint !== false) throw new Error("health endpoint must never write data");
+          '
+
+      - name: Package image for SSH transfer
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          archive="wellfit-web-${GITHUB_SHA}.tar.gz"
+          docker save "wellfit-web:${GITHUB_SHA}" | gzip -9 > "release/${archive}"
+          (
+            cd release
+            sha256sum "$archive" > "${archive}.sha256"
+          )
+
+      - name: Configure pinned SSH host identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 0700 "$HOME/.ssh"
+          printf '%s\n' "$SERVER_SSH_KEY" > "$HOME/.ssh/id_ed25519"
+          chmod 0600 "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$SERVER_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 0600 "$HOME/.ssh/known_hosts"
+
+      - name: Upload release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="wellfit-web-${GITHUB_SHA}.tar.gz"
+          scp \
+            -i "$HOME/.ssh/id_ed25519" \
+            -P "$SERVER_PORT" \
+            "release/${archive}" \
+            "release/${archive}.sha256" \
+            "${SERVER_USER}@${SERVER_HOST}:/tmp/"
+
+      - name: Activate release with rollback protection
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="wellfit-web-${GITHUB_SHA}.tar.gz"
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -p "$SERVER_PORT" \
+            "${SERVER_USER}@${SERVER_HOST}" \
+            "cd /tmp && sha256sum --check '${archive}.sha256' && sudo /usr/local/sbin/deploy-wellfit '/tmp/${archive}' '${GITHUB_SHA}' '${RELEASE_CHANNEL}'"
+
+      - name: Deployment diagnostics
+        if: always()
+        shell: bash
+        run: |
+          docker ps --all || true
+          docker logs wellfit-web-release-check || true
+          test ! -f health.json || cat health.json
+
+      - name: Remove local verification container
+        if: always()
+        run: docker rm --force wellfit-web-release-check || true
