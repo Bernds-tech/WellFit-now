@@ -32,6 +32,16 @@ body {
   height: 100%;
 }
 
+.landing-scale-marker {
+  display: none;
+}
+
+main:has(> .landing-scale-marker) > :not(.landing-scale-marker) {
+  width: 86.9565217391%;
+  margin-inline: auto;
+  zoom: 1.15;
+}
+
 main section.relative > div.grid.min-h-0.flex-1,
 main section.relative > div.min-h-0.flex-1 {
   margin-bottom: 6.5rem;
