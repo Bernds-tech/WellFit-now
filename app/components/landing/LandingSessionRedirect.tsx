@@ -27,5 +27,5 @@ export default function LandingSessionRedirect() {
     };
   }, [router]);
 
-  return null;
+  return <span className="landing-scale-marker" aria-hidden="true" />;
 }
