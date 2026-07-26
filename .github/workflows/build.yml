@@ -32,61 +32,14 @@ jobs:
       - name: Install Functions dependencies
         run: npm --prefix functions ci
 
-      - name: Diagnose app and runtime lint
-        shell: bash
-        run: |
-          set +e
-          npm run lint -- --ignore-pattern 'database/**' 2>&1 | tee lint.log
-          status=${PIPESTATUS[0]}
-          printf '%s\n' "$status" > lint.exit
-          exit 0
+      - name: Lint app and runtime source
+        run: npm run lint -- --ignore-pattern 'database/**'
 
-      - name: Diagnose app and runtime type check
-        shell: bash
-        run: |
-          set +e
-          npx tsc --noEmit 2>&1 | tee typecheck.log
-          status=${PIPESTATUS[0]}
-          printf '%s\n' "$status" > typecheck.exit
-          exit 0
+      - name: Type-check app and runtime source
+        run: npx tsc --noEmit
 
-      - name: Diagnose Functions source check
-        shell: bash
-        run: |
-          set +e
-          npm --prefix functions run check 2>&1 | tee functions-check.log
-          status=${PIPESTATUS[0]}
-          printf '%s\n' "$status" > functions-check.exit
-          exit 0
-
-      - name: Upload source validation diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-validation-diagnostics-${{ github.run_id }}
-          path: |
-            lint.log
-            lint.exit
-            typecheck.log
-            typecheck.exit
-            functions-check.log
-            functions-check.exit
-          if-no-files-found: error
-          retention-days: 3
-
-      - name: Enforce source validation results
-        shell: bash
-        run: |
-          set -euo pipefail
-          failed=0
-          for check in lint typecheck functions-check; do
-            status=$(cat "${check}.exit")
-            echo "${check} exit code: ${status}"
-            if [[ "$status" != "0" ]]; then
-              failed=1
-            fi
-          done
-          exit "$failed"
+      - name: Validate Functions source
+        run: npm --prefix functions run check
 
       - name: Validate non-secret runtime environment
         run: npm run runtime:validate
