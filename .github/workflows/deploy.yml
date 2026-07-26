@@ -1,6 +1,9 @@
 name: Deploy WellFit Staging
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       release_channel:
@@ -26,7 +29,7 @@ jobs:
     timeout-minutes: 45
     environment: staging
     env:
-      RELEASE_CHANNEL: ${{ inputs.release_channel }}
+      RELEASE_CHANNEL: ${{ github.event_name == 'workflow_dispatch' && inputs.release_channel || 'staging' }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_PORT: ${{ secrets.SERVER_PORT }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -41,7 +44,7 @@ jobs:
       NEXT_PUBLIC_FIREBASE_APPCHECK_RECAPTCHA_ENTERPRISE_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_APPCHECK_RECAPTCHA_ENTERPRISE_KEY }}
       WELLFIT_RUNTIME_MODE: production
       WELLFIT_RELEASE_SHA: ${{ github.sha }}
-      WELLFIT_RELEASE_CHANNEL: ${{ inputs.release_channel }}
+      WELLFIT_RELEASE_CHANNEL: ${{ github.event_name == 'workflow_dispatch' && inputs.release_channel || 'staging' }}
 
     steps:
       - name: Checkout
