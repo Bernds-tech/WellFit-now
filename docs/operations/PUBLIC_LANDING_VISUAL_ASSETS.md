@@ -31,10 +31,12 @@ Diese Datei dokumentiert die aktuell verwendeten visuellen Assets der öffentlic
 
 ## Aktueller Implementierungsstand
 
-- Der Landschaftshintergrund wird als eigener positiver Bild-Layer gerendert.
-- Handy und Fuchs-Forscher werden als separate transparente Hero-Bühne über dem Hintergrund dargestellt.
+- Der Landschaftshintergrund wird in der Hero-Sektion direkt als CSS-Hintergrund aus `public/landing` geladen.
+- Die Handy-/Fuchs-Bühne wird ebenfalls direkt als statisches Browser-Asset geladen und nicht mehr über den Next.js-Bildoptimierer vermittelt.
+- Versionsparameter an den Asset-URLs verhindern, dass ein früherer leerer oder fehlerhafter Bild-Cache weiterverwendet wird.
+- Hintergrund, Lesbarkeitsverlauf, Inhalte und Bühne liegen auf getrennten positiven Ebenen.
 - Die Komposition bleibt responsiv und erscheint auf kleineren Ansichten unter dem Text statt vollständig zu verschwinden.
-- Der Abschnitt `Dein Buddy` verwendet nun die freigegebene Handy-/Fuchs-Bühne statt der generischen Pflegegrafik.
+- Der Abschnitt `Dein Buddy` verwendet die freigegebene Handy-/Fuchs-Bühne statt der generischen Pflegegrafik.
 - Fuchs, Tiger, Panda und Elefant werden als vier öffentliche Charakterrichtungen beschrieben.
 - Basis-, Forscher- und Wächter-Ausrüstung werden ausdrücklich als öffentliche Design-Vorschau dargestellt; daraus wird keine bereits aktive interne Auswahl- oder Rollenfunktion abgeleitet.
 

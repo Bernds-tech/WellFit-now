@@ -9,24 +9,22 @@ const trustSignals = [
   ["♥", "Motivierend", "Spielerisch zum Ziel"],
 ] as const;
 
+const heroBackground = "url('/landing/hero-background-wellfit.webp?v=10')";
+const heroStage = "url('/landing/hero-phone-fox-stage.webp?v=10')";
+
 export default function LandingHeroV5() {
   return (
     <section
-      data-landing-version="reference-v8-real-assets"
+      data-landing-version="reference-v10-direct-assets"
       className="relative overflow-hidden border-b border-cyan-300/10 bg-[#020b0f]"
     >
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/landing/hero-background-wellfit.webp"
-          alt="WellFit Abenteuerlandschaft mit futuristischer Stadt und leuchtendem Portal"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-      </div>
-      <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(1,10,15,.96)_0%,rgba(2,15,20,.88)_25%,rgba(2,17,22,.42)_48%,rgba(2,13,17,.08)_73%,rgba(2,10,14,.12)_100%)]" />
-      <div className="absolute inset-x-0 bottom-0 z-10 h-[42%] bg-gradient-to-t from-[#020b0f] via-[#020b0f]/68 to-transparent" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: heroBackground }}
+      />
+      <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(1,10,15,.96)_0%,rgba(2,15,20,.88)_25%,rgba(2,17,22,.40)_48%,rgba(2,13,17,.06)_73%,rgba(2,10,14,.10)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 z-10 h-[42%] bg-gradient-to-t from-[#020b0f] via-[#020b0f]/64 to-transparent" />
 
       <div className="relative z-20 mx-auto max-w-[1520px] px-4 pb-5 pt-4 sm:px-6 lg:px-10 lg:pt-5">
         <div className="grid min-h-[470px] items-center gap-4 lg:grid-cols-[.80fr_1.20fr] xl:min-h-[500px]">
@@ -80,16 +78,12 @@ export default function LandingHeroV5() {
           </div>
 
           <div className="relative min-h-[360px] sm:min-h-[430px] lg:min-h-[455px]">
-            <div className="absolute inset-0 z-20">
-              <Image
-                src="/landing/hero-phone-fox-stage.webp"
-                alt="WellFit App und Fuchs-Buddy als Entdecker"
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-contain object-bottom drop-shadow-[0_30px_55px_rgba(0,0,0,.42)]"
-              />
-            </div>
+            <div
+              role="img"
+              aria-label="WellFit App und Fuchs-Buddy als Entdecker"
+              className="absolute inset-0 z-20 bg-contain bg-bottom bg-no-repeat drop-shadow-[0_30px_55px_rgba(0,0,0,.42)]"
+              style={{ backgroundImage: heroStage }}
+            />
             <div className="absolute right-[3%] top-[11%] z-30 hidden rounded-2xl border border-[#ffd95d]/20 bg-[#0b1d22]/90 px-5 py-4 backdrop-blur-md shadow-[0_20px_40px_rgba(0,0,0,.22)] sm:block">
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Buddy Status</p>
               <div className="mt-2 flex gap-5 text-xs font-semibold text-[#ffd95d]">
