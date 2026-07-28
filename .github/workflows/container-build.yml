@@ -86,27 +86,20 @@ jobs:
             if (health.databaseWritePerformedByEndpoint !== false) throw new Error("health endpoint must never write data");
           '
 
-      - name: Verify bundled landing hero assets
+      - name: Verify materialized landing hero asset
         shell: bash
         run: |
           set -euo pipefail
           curl --silent --show-error --fail http://127.0.0.1:3000/ > landing.html
-          grep -Fq 'reference-v11-bundled-assets' landing.html
+          grep -Fq 'reference-v12-materialized-composite' landing.html
 
-          mapfile -t hero_assets < <(
-            grep -oE '/_next/static/media/hero-(background-wellfit|phone-fox-stage)\.[A-Za-z0-9_-]+\.webp' landing.html \
-              | sort -u
-          )
-          test "${#hero_assets[@]}" -eq 2
-
-          mkdir -p landing-assets
-          for asset_path in "${hero_assets[@]}"; do
-            asset_file="landing-assets/$(basename "$asset_path")"
-            curl --silent --show-error --fail "http://127.0.0.1:3000${asset_path}" > "$asset_file"
-            test "$(head -c 4 "$asset_file")" = "RIFF"
-            test "$(dd if="$asset_file" bs=1 skip=8 count=4 status=none)" = "WEBP"
-            test "$(wc -c < "$asset_file")" -gt 10000
-          done
+          curl --silent --show-error --fail \
+            http://127.0.0.1:3000/landing/hero-composite-v12.webp \
+            > hero-composite-v12.webp
+          test "$(head -c 4 hero-composite-v12.webp)" = "RIFF"
+          test "$(dd if=hero-composite-v12.webp bs=1 skip=8 count=4 status=none)" = "WEBP"
+          test "$(wc -c < hero-composite-v12.webp)" -eq 21936
+          test "$(sha256sum hero-composite-v12.webp | cut -d' ' -f1)" = "b24ac57ea55bd9010bd2380bab1a5b2cdfb04083ce971bd795e844622893dfcf"
 
       - name: Create portable release candidate
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.create_release_artifact }}
@@ -146,7 +139,7 @@ jobs:
           docker logs wellfit-web-ci || true
           test ! -f health.json || cat health.json
           test ! -f landing.html || grep -o 'reference-v[0-9][^" ]*' landing.html | head -n 1 || true
-          test ! -d landing-assets || ls -lh landing-assets || true
+          test ! -f hero-composite-v12.webp || ls -lh hero-composite-v12.webp || true
 
       - name: Stop isolated container
         if: always()
