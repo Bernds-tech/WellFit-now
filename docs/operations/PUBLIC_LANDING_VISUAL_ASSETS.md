@@ -11,10 +11,10 @@ Diese Datei dokumentiert die aktuell verwendeten visuellen Assets der öffentlic
 | Datei | Verwendung |
 |---|---|
 | `public/landing/hero-background-wellfit.webp` | von Bernd bereitgestellte Abenteuerlandschaft als echter Hintergrund der ersten Landingpage-Sektion |
-| `public/landing/hero-phone-fox-stage.webp` | optimierte transparente Hero-Bühne aus dem bereitgestellten WellFit-Handy und dem Fuchs-Forscher-Buddy |
+| `public/landing/hero-phone-fox-stage.webp` | optimierte transparente Bühne aus dem bereitgestellten WellFit-Handy und dem Fuchs-Forscher-Buddy; Hero und öffentlicher Buddy-Bereich |
 | `public/landing/feature-movement.svg` | Feature-Karte Bewegung im Alltag |
 | `public/landing/feature-wfxp.svg` | Feature-Karte WFXP / Belohnungen |
-| `public/landing/feature-buddy-care.svg` | Feature-Karte Tamagotchi-ähnliche Buddy-Pflege |
+| `public/landing/feature-buddy-care.svg` | bestehende unterstützende Buddy-Pflege-Illustration |
 | `public/landing/feature-missions.svg` | Feature-Karte reale Missionen und Roadmap-Vorschau Bürgermeister |
 | `public/buddy/luma.png` | bestehender Buddy in älteren öffentlichen Motiven; wird schrittweise durch die final bereitgestellten Buddy-Varianten ersetzt |
 | `public/logo.png` | bestehendes offizielles WellFit-Logo |
@@ -34,11 +34,13 @@ Diese Datei dokumentiert die aktuell verwendeten visuellen Assets der öffentlic
 - Der Landschaftshintergrund wird als eigener positiver Bild-Layer gerendert.
 - Handy und Fuchs-Forscher werden als separate transparente Hero-Bühne über dem Hintergrund dargestellt.
 - Die Komposition bleibt responsiv und erscheint auf kleineren Ansichten unter dem Text statt vollständig zu verschwinden.
-- Die bereitgestellten Elefant-, Tiger-, Panda- und Fuchs-Varianten werden in den nächsten öffentlichen Buddy-Abschnitt überführt; interne Buddy-Logik bleibt davon unberührt.
+- Der Abschnitt `Dein Buddy` verwendet nun die freigegebene Handy-/Fuchs-Bühne statt der generischen Pflegegrafik.
+- Fuchs, Tiger, Panda und Elefant werden als vier öffentliche Charakterrichtungen beschrieben.
+- Basis-, Forscher- und Wächter-Ausrüstung werden ausdrücklich als öffentliche Design-Vorschau dargestellt; daraus wird keine bereits aktive interne Auswahl- oder Rollenfunktion abgeleitet.
 
 ## Nächste visuelle Ausbaustufe
 
 - reale Screenshot-Prüfung nach Staging-Deployment
 - exakte Position von Handy, Fuchs und Statuskarte auf Desktop feinjustieren
-- bereitgestellte Buddy-Forscher-, Standard- und Kampfvarianten als öffentliche Auswahl-/Entwicklungsdarstellung einbauen
+- weitere bereitgestellte Buddy-Varianten nach visueller Abnahme als optimierte Einzel- oder Gruppenassets ergänzen
 - Lighthouse-, Bildgrößen- und Kontrastprüfung
