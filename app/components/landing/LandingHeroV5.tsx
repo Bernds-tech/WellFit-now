@@ -1,7 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import heroBackground from "../../assets/landing/hero-background-wellfit.webp";
-import heroStage from "../../assets/landing/hero-phone-fox-stage.webp";
 import { featureCards, highlights } from "./landingPublicData";
 import { LandingToneIcon } from "./LandingPrimitivesV5";
 
@@ -14,26 +12,21 @@ const trustSignals = [
 export default function LandingHeroV5() {
   return (
     <section
-      data-landing-version="reference-v11-bundled-assets"
+      data-landing-version="reference-v12-materialized-composite"
       className="relative overflow-hidden border-b border-cyan-300/10 bg-[#020b0f]"
     >
-      <div className="absolute inset-0 z-0">
-        <Image
-          src={heroBackground}
-          alt="WellFit Abenteuerlandschaft mit futuristischer Stadt und leuchtendem Portal"
-          fill
-          priority
-          unoptimized
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-      </div>
-      <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(1,10,15,.96)_0%,rgba(2,15,20,.88)_25%,rgba(2,17,22,.40)_48%,rgba(2,13,17,.06)_73%,rgba(2,10,14,.10)_100%)]" />
-      <div className="absolute inset-x-0 bottom-0 z-10 h-[42%] bg-gradient-to-t from-[#020b0f] via-[#020b0f]/64 to-transparent" />
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-[position:62%_center] bg-no-repeat lg:bg-center"
+        style={{ backgroundImage: "url('/landing/hero-composite-v12.webp')" }}
+        role="img"
+        aria-label="WellFit Abenteuerlandschaft mit App und Fuchs-Buddy"
+      />
+      <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(1,10,15,.72)_0%,rgba(2,15,20,.52)_32%,rgba(2,17,22,.16)_54%,rgba(2,13,17,.02)_78%,rgba(2,10,14,.08)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 z-10 h-[42%] bg-gradient-to-t from-[#020b0f] via-[#020b0f]/52 to-transparent" />
 
       <div className="relative z-20 mx-auto max-w-[1520px] px-4 pb-5 pt-4 sm:px-6 lg:px-10 lg:pt-5">
-        <div className="grid min-h-[470px] items-center gap-4 lg:grid-cols-[.80fr_1.20fr] xl:min-h-[500px]">
-          <div className="max-w-[620px] py-4 lg:py-6">
+        <div className="grid min-h-[500px] items-center gap-4 lg:grid-cols-[.80fr_1.20fr] xl:min-h-[530px]">
+          <div className="max-w-[620px] py-6 lg:py-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/45 bg-[#05242b]/82 px-4 py-2 text-[10px] font-black uppercase tracking-[0.29em] text-cyan-100 shadow-[0_0_26px_rgba(34,211,238,.13)] backdrop-blur-md">
               <span className="h-2 w-2 rounded-full bg-[#73ffd9] shadow-[0_0_13px_#73ffd9]" />
               Move · Learn · Earn
@@ -82,26 +75,7 @@ export default function LandingHeroV5() {
             </div>
           </div>
 
-          <div className="relative min-h-[360px] sm:min-h-[430px] lg:min-h-[455px]">
-            <div className="absolute inset-0 z-20">
-              <Image
-                src={heroStage}
-                alt="WellFit App und Fuchs-Buddy als Entdecker"
-                fill
-                priority
-                unoptimized
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-contain object-bottom drop-shadow-[0_30px_55px_rgba(0,0,0,.42)]"
-              />
-            </div>
-            <div className="absolute right-[3%] top-[11%] z-30 hidden rounded-2xl border border-[#ffd95d]/20 bg-[#0b1d22]/90 px-5 py-4 backdrop-blur-md shadow-[0_20px_40px_rgba(0,0,0,.22)] sm:block">
-              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Buddy Status</p>
-              <div className="mt-2 flex gap-5 text-xs font-semibold text-[#ffd95d]">
-                <span>Energie 78%</span>
-                <span>Stimmung gut</span>
-              </div>
-            </div>
-          </div>
+          <div aria-hidden="true" className="hidden min-h-[430px] lg:block" />
         </div>
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
