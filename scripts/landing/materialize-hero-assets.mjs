@@ -15,6 +15,43 @@ const expectedChunks = new Map([
   ["chunk-03.txt", { length: 6748, sha256: "84e2f04da977cc72fe13411e151a287cdff899044ebd381b9ed7a66c89de1b9c" }],
 ]);
 
+function sha256(value) {
+  return crypto.createHash("sha256").update(value).digest("hex");
+}
+
+function normalizeChunk(name, rawValue, expected) {
+  const value = rawValue.trim();
+  if (value.length === expected.length && sha256(value) === expected.sha256) {
+    return value;
+  }
+
+  // The GitHub text transport added one duplicated character to one source chunk.
+  // Repair is allowed only when exactly one deletion reproduces the approved
+  // character count and checksum. Any other corruption remains a hard failure.
+  if (value.length === expected.length + 1) {
+    let repaired = null;
+    let repairedIndex = -1;
+    for (let index = 0; index < value.length; index += 1) {
+      const candidate = value.slice(0, index) + value.slice(index + 1);
+      if (sha256(candidate) === expected.sha256) {
+        if (repaired !== null) {
+          throw new Error(`Hero chunk ${name} has more than one possible single-character repair`);
+        }
+        repaired = candidate;
+        repairedIndex = index;
+      }
+    }
+    if (repaired !== null) {
+      console.log(`Normalized ${name} by removing one duplicated character at offset ${repairedIndex}`);
+      return repaired;
+    }
+  }
+
+  throw new Error(
+    `Hero chunk mismatch for ${name}: expected length ${expected.length} and ${expected.sha256}, received length ${value.length} and ${sha256(value)}`,
+  );
+}
+
 const chunks = fs
   .readdirSync(sourceDir)
   .filter((name) => /^chunk-\d+\.txt$/.test(name))
@@ -24,31 +61,24 @@ if (chunks.length !== expectedChunks.size) {
   throw new Error(`Expected ${expectedChunks.size} hero asset chunks, found ${chunks.length}`);
 }
 
-const encodedParts = chunks.map((name) => {
-  const expected = expectedChunks.get(name);
-  if (!expected) {
-    throw new Error(`Unexpected hero asset chunk: ${name}`);
-  }
+const encoded = chunks
+  .map((name) => {
+    const expected = expectedChunks.get(name);
+    if (!expected) {
+      throw new Error(`Unexpected hero asset chunk: ${name}`);
+    }
+    return normalizeChunk(name, fs.readFileSync(path.join(sourceDir, name), "utf8"), expected);
+  })
+  .join("");
 
-  const value = fs.readFileSync(path.join(sourceDir, name), "utf8").trim();
-  const sha256 = crypto.createHash("sha256").update(value).digest("hex");
-  if (value.length !== expected.length || sha256 !== expected.sha256) {
-    throw new Error(
-      `Hero chunk mismatch for ${name}: expected length ${expected.length} and ${expected.sha256}, received length ${value.length} and ${sha256}`,
-    );
-  }
-  return value;
-});
-
-const encoded = encodedParts.join("");
 const image = Buffer.from(encoded, "base64");
-const sha256 = crypto.createHash("sha256").update(image).digest("hex");
+const imageSha256 = sha256(image);
 
 if (image.length !== expectedBytes) {
   throw new Error(`Hero image size mismatch: expected ${expectedBytes}, received ${image.length}`);
 }
-if (sha256 !== expectedSha256) {
-  throw new Error(`Hero image checksum mismatch: expected ${expectedSha256}, received ${sha256}`);
+if (imageSha256 !== expectedSha256) {
+  throw new Error(`Hero image checksum mismatch: expected ${expectedSha256}, received ${imageSha256}`);
 }
 if (image.subarray(0, 4).toString("ascii") !== "RIFF") {
   throw new Error("Hero image does not begin with a RIFF header");
@@ -59,4 +89,4 @@ if (image.subarray(8, 12).toString("ascii") !== "WEBP") {
 
 fs.mkdirSync(path.dirname(outputFile), { recursive: true });
 fs.writeFileSync(outputFile, image);
-console.log(`Materialized ${path.relative(projectRoot, outputFile)} (${image.length} bytes, ${sha256})`);
+console.log(`Materialized ${path.relative(projectRoot, outputFile)} (${image.length} bytes, ${imageSha256})`);
