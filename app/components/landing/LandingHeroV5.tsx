@@ -16,12 +16,12 @@ export default function LandingHeroV5() {
       className="relative isolate overflow-hidden border-b border-cyan-300/10 bg-[#020b0f]"
     >
       <Image
-        src="/landing/reference-hero.svg"
-        alt="WellFit Abenteuerwelt mit Buddy, App, Stadt und Missionsportal"
+        src="/landing/hero-background-wellfit.webp"
+        alt="WellFit Abenteuerlandschaft mit futuristischer Stadt und leuchtendem Portal"
         fill
         priority
         sizes="100vw"
-        className="-z-30 object-cover object-[58%_top] lg:object-center"
+        className="-z-30 object-cover object-center"
       />
       <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(1,10,15,.97)_0%,rgba(2,15,20,.90)_24%,rgba(2,17,22,.52)_42%,rgba(2,13,17,.08)_67%,rgba(2,10,14,.10)_100%)]" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-[45%] bg-gradient-to-t from-[#020b0f] via-[#020b0f]/76 to-transparent" />
