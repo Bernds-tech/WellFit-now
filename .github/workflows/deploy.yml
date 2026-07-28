@@ -151,6 +151,16 @@ jobs:
             if (health.databaseWritePerformedByEndpoint !== false) throw new Error("health endpoint must never write data");
           '
 
+          curl --silent --show-error --fail http://127.0.0.1:3100/ > landing.html
+          grep -Fq 'reference-v12-materialized-composite' landing.html
+          curl --silent --show-error --fail \
+            http://127.0.0.1:3100/landing/hero-composite-v12.webp \
+            > hero-composite-local.webp
+          test "$(head -c 4 hero-composite-local.webp)" = "RIFF"
+          test "$(dd if=hero-composite-local.webp bs=1 skip=8 count=4 status=none)" = "WEBP"
+          test "$(wc -c < hero-composite-local.webp)" -eq 21936
+          test "$(sha256sum hero-composite-local.webp | cut -d' ' -f1)" = "b24ac57ea55bd9010bd2380bab1a5b2cdfb04083ce971bd795e844622893dfcf"
+
       - name: Package image for SSH transfer
         shell: bash
         run: |
@@ -196,6 +206,43 @@ jobs:
             "${SERVER_USER}@${SERVER_HOST}" \
             "cd /tmp && sha256sum --check '${archive}.sha256' && sudo /usr/local/sbin/deploy-wellfit '/tmp/${archive}' '${GITHUB_SHA}' '${RELEASE_CHANNEL}'"
 
+      - name: Verify active staging landing and hero asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -p "$SERVER_PORT" \
+            "${SERVER_USER}@${SERVER_HOST}" \
+            "curl --silent --show-error --fail http://127.0.0.1:3000/api/health" \
+            > deployed-health.json
+
+          node -e '
+            const fs = require("fs");
+            const health = JSON.parse(fs.readFileSync("deployed-health.json", "utf8"));
+            if (health.status !== "ok") throw new Error("deployed health status is not ok");
+            if (health.release.sha !== process.env.GITHUB_SHA) throw new Error("deployed release SHA mismatch");
+          '
+
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -p "$SERVER_PORT" \
+            "${SERVER_USER}@${SERVER_HOST}" \
+            "curl --silent --show-error --fail http://127.0.0.1:3000/" \
+            > deployed-landing.html
+          grep -Fq 'reference-v12-materialized-composite' deployed-landing.html
+
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -p "$SERVER_PORT" \
+            "${SERVER_USER}@${SERVER_HOST}" \
+            "curl --silent --show-error --fail http://127.0.0.1:3000/landing/hero-composite-v12.webp" \
+            > hero-composite-deployed.webp
+          test "$(head -c 4 hero-composite-deployed.webp)" = "RIFF"
+          test "$(dd if=hero-composite-deployed.webp bs=1 skip=8 count=4 status=none)" = "WEBP"
+          test "$(wc -c < hero-composite-deployed.webp)" -eq 21936
+          test "$(sha256sum hero-composite-deployed.webp | cut -d' ' -f1)" = "b24ac57ea55bd9010bd2380bab1a5b2cdfb04083ce971bd795e844622893dfcf"
+
       - name: Deployment diagnostics
         if: always()
         shell: bash
@@ -203,6 +250,9 @@ jobs:
           docker ps --all || true
           docker logs wellfit-web-release-check || true
           test ! -f health.json || cat health.json
+          test ! -f deployed-health.json || cat deployed-health.json
+          test ! -f hero-composite-local.webp || ls -lh hero-composite-local.webp || true
+          test ! -f hero-composite-deployed.webp || ls -lh hero-composite-deployed.webp || true
 
       - name: Remove local verification container
         if: always()
