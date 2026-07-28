@@ -8,19 +8,39 @@ const sourceDir = path.join(projectRoot, "assets/landing/hero-composite-v12");
 const outputFile = path.join(projectRoot, "public/landing/hero-composite-v12.webp");
 const expectedBytes = 21936;
 const expectedSha256 = "b24ac57ea55bd9010bd2380bab1a5b2cdfb04083ce971bd795e844622893dfcf";
+const expectedChunks = new Map([
+  ["chunk-00.txt", { length: 7500, sha256: "1c289a24c836d10009c0a265e3f758caed35c3a35f667115b5b6360ae91e467f" }],
+  ["chunk-01.txt", { length: 7500, sha256: "b584bb946689735cebaa7933c52efe5895c083d6650986d4b5ca2c4450370f50" }],
+  ["chunk-02.txt", { length: 7500, sha256: "2498f1266f8542fc674b06bcd38ebb05f82b1d338141bd3f09cfd8797f907016" }],
+  ["chunk-03.txt", { length: 6748, sha256: "84e2f04da977cc72fe13411e151a287cdff899044ebd381b9ed7a66c89de1b9c" }],
+]);
 
 const chunks = fs
   .readdirSync(sourceDir)
   .filter((name) => /^chunk-\d+\.txt$/.test(name))
   .sort();
 
-if (chunks.length !== 4) {
-  throw new Error(`Expected 4 hero asset chunks, found ${chunks.length}`);
+if (chunks.length !== expectedChunks.size) {
+  throw new Error(`Expected ${expectedChunks.size} hero asset chunks, found ${chunks.length}`);
 }
 
-const encoded = chunks
-  .map((name) => fs.readFileSync(path.join(sourceDir, name), "utf8").trim())
-  .join("");
+const encodedParts = chunks.map((name) => {
+  const expected = expectedChunks.get(name);
+  if (!expected) {
+    throw new Error(`Unexpected hero asset chunk: ${name}`);
+  }
+
+  const value = fs.readFileSync(path.join(sourceDir, name), "utf8").trim();
+  const sha256 = crypto.createHash("sha256").update(value).digest("hex");
+  if (value.length !== expected.length || sha256 !== expected.sha256) {
+    throw new Error(
+      `Hero chunk mismatch for ${name}: expected length ${expected.length} and ${expected.sha256}, received length ${value.length} and ${sha256}`,
+    );
+  }
+  return value;
+});
+
+const encoded = encodedParts.join("");
 const image = Buffer.from(encoded, "base64");
 const sha256 = crypto.createHash("sha256").update(image).digest("hex");
 
