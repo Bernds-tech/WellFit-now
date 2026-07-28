@@ -25,24 +25,25 @@ function normalizeChunk(name, rawValue, expected) {
     return value;
   }
 
-  // The GitHub text transport added one duplicated character to one source chunk.
-  // Repair is allowed only when exactly one deletion reproduces the approved
-  // character count and checksum. Any other corruption remains a hard failure.
+  // The text transport duplicated one adjacent character in a source chunk.
+  // Normalization is accepted only when deleting one character reproduces the
+  // exact approved length and checksum. Equivalent removals inside the same
+  // repeated run produce the same candidate and are therefore safe.
   if (value.length === expected.length + 1) {
     let repaired = null;
     let repairedIndex = -1;
     for (let index = 0; index < value.length; index += 1) {
       const candidate = value.slice(0, index) + value.slice(index + 1);
       if (sha256(candidate) === expected.sha256) {
-        if (repaired !== null) {
-          throw new Error(`Hero chunk ${name} has more than one possible single-character repair`);
+        if (repaired !== null && repaired !== candidate) {
+          throw new Error(`Hero chunk ${name} has more than one distinct single-character repair`);
         }
         repaired = candidate;
-        repairedIndex = index;
+        if (repairedIndex === -1) repairedIndex = index;
       }
     }
     if (repaired !== null) {
-      console.log(`Normalized ${name} by removing one duplicated character at offset ${repairedIndex}`);
+      console.log(`Normalized ${name} by removing one duplicated character near offset ${repairedIndex}`);
       return repaired;
     }
   }
