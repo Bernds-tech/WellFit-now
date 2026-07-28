@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" role="img" aria-label="Buddy Pflege wie bei einem Tamagotchi">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#031318"/><stop offset=".58" stop-color="#123932"/><stop offset="1" stop-color="#594329"/></linearGradient>
+    <radialGradient id="warm"><stop stop-color="#ffe37b"/><stop offset=".28" stop-color="#ff9f2f" stop-opacity=".5"/><stop offset="1" stop-color="#ff9f2f" stop-opacity="0"/></radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="11" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="900" height="520" fill="url(#bg)"/>
+  <rect width="390" height="520" fill="#020d12" opacity=".72"/>
+  <ellipse cx="675" cy="278" rx="245" ry="235" fill="url(#warm)" opacity=".58"/>
+  <g transform="translate(584 88)">
+    <path d="M36 101L3 22l75 42M199 101l36-79-80 43" fill="#ff9733" stroke="#ffd878" stroke-width="8" stroke-linejoin="round"/>
+    <ellipse cx="117" cy="181" rx="112" ry="126" fill="#f28a2d" stroke="#ffcb65" stroke-width="7"/>
+    <ellipse cx="117" cy="217" rx="75" ry="61" fill="#ffe1ac"/>
+    <ellipse cx="73" cy="165" rx="26" ry="34" fill="#fff"/><ellipse cx="161" cy="165" rx="26" ry="34" fill="#fff"/>
+    <circle cx="79" cy="171" r="15" fill="#472c1f"/><circle cx="155" cy="171" r="15" fill="#472c1f"/>
+    <circle cx="84" cy="164" r="5" fill="#fff"/><circle cx="160" cy="164" r="5" fill="#fff"/>
+    <path d="M105 211q12 10 24 0" fill="none" stroke="#5a3220" stroke-width="8" stroke-linecap="round"/>
+    <path d="M67 275q50 50 100 0v75H67Z" fill="#0b6e69" stroke="#6ce8df" stroke-width="6"/>
+    <circle cx="117" cy="302" r="25" fill="#ffd35b"/><path d="M99 302h12l8-17 11 34 9-17h14" fill="none" stroke="#124c4a" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(466 360)">
+    <ellipse cx="91" cy="56" rx="94" ry="30" fill="#04181b" stroke="#6be6df" stroke-width="5"/>
+    <path d="M14 50h154l-17 45H32Z" fill="#0b5a58" stroke="#58d8d1" stroke-width="5"/>
+    <circle cx="70" cy="47" r="9" fill="#ffd765"/><circle cx="92" cy="42" r="8" fill="#ffa53a"/><circle cx="115" cy="48" r="9" fill="#ffd765"/>
+  </g>
+  <g filter="url(#glow)" fill="#ffd85f"><path d="M486 142c-22-31-70-4-48 31l48 48 48-48c22-35-26-62-48-31Z"/><path d="M778 114c-15-22-49-3-33 22l33 33 33-33c16-25-18-44-33-22Z"/></g>
+  <g transform="translate(430 306)" fill="#55eee6"><path d="M43 76c-10-50 17-75 55-88-3 42-21 72-55 88Z"/><path d="M43 76C30 39 7 25-22 20c3 38 23 57 65 56Z"/></g>
+  <path d="M0 438c142-56 260-42 391 18v64H0Z" fill="#04171b" opacity=".82"/>
+</svg>

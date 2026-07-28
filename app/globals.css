@@ -36,10 +36,34 @@ body {
   display: none;
 }
 
-main:has(> .landing-scale-marker) > :not(.landing-scale-marker) {
-  width: 72.4637681159%;
+.landing-page {
+  width: 100%;
   margin-inline: auto;
-  zoom: 1.38;
+  scrollbar-color: rgba(103, 232, 222, 0.42) rgba(2, 12, 16, 0.9);
+  scrollbar-width: thin;
+}
+
+.landing-page section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+.landing-page a:focus-visible {
+  outline: 2px solid #ffd95d;
+  outline-offset: 3px;
+}
+
+.landing-page::-webkit-scrollbar {
+  width: 10px;
+}
+
+.landing-page::-webkit-scrollbar-track {
+  background: rgba(2, 12, 16, 0.9);
+}
+
+.landing-page::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(2, 12, 16, 0.9);
+  border-radius: 999px;
+  background: rgba(103, 232, 222, 0.42);
 }
 
 main section.relative > div.grid.min-h-0.flex-1,
@@ -106,4 +130,15 @@ html[data-wellfit-sidebar-collapsed="true"] main > div.flex > aside:not([data-we
   animation: spinY 6s linear infinite;
   transform-style: preserve-3d;
   backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-page *,
+  .landing-page *::before,
+  .landing-page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

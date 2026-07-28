@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" role="img" aria-label="Bewegung auf einem magischen Waldpfad">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#03151b"/><stop offset=".58" stop-color="#0b3840"/><stop offset="1" stop-color="#56472a"/></linearGradient>
+    <linearGradient id="trail" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#234a45"/><stop offset="1" stop-color="#f5bf4c"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="900" height="520" fill="url(#bg)"/>
+  <rect width="390" height="520" fill="#020d12" opacity=".7"/>
+  <path d="M0 390L120 252l88 96 99-171 102 190 105-108 97 125v136H0Z" fill="#05252b" opacity=".86"/>
+  <path d="M335 520c74-125 163-128 238-208 52-56 82-107 137-135-50 49-69 105-117 179-58 89-116 105-155 164Z" fill="url(#trail)" opacity=".75"/>
+  <g fill="#031014"><path d="M0 320l42-150 34 117 41-185 43 181 42-132 40 168v201H0Z"/><path d="M900 286l-49-181-42 160-45-216-52 220-43-144-46 182v213h277Z"/></g>
+  <g filter="url(#glow)"><circle cx="490" cy="407" r="15" fill="#52f4ed"/><circle cx="586" cy="320" r="12" fill="#52f4ed"/><circle cx="668" cy="241" r="9" fill="#ffd95e"/></g>
+  <g transform="translate(618 206)" fill="#081519" stroke="#aafaf6" stroke-width="5" stroke-linecap="round">
+    <circle cx="26" cy="24" r="18" fill="#ffbd45" stroke="none"/>
+    <path d="M23 46l-16 61m17-49 43 27M14 77l-42 41m38-16 43 57"/>
+    <path d="M8 58l43 7"/>
+  </g>
+  <g fill="#eaffff" opacity=".68"><circle cx="418" cy="83" r="3"/><circle cx="538" cy="116" r="2"/><circle cx="705" cy="76" r="3"/><circle cx="792" cy="151" r="2"/></g>
+</svg>
