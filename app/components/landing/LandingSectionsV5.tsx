@@ -2,6 +2,19 @@ import Image from "next/image";
 import { audiences, experiences, safetyCards, steps } from "./landingPublicData";
 import { LandingSectionHeading, LandingToneIcon } from "./LandingPrimitivesV5";
 
+const buddyProfiles = [
+  ["🦊", "Fuchs", "Neugierig & clever", "Neue Wege entdecken"],
+  ["🐯", "Tiger", "Mutig & fokussiert", "Herausforderungen meistern"],
+  ["🐼", "Panda", "Ruhig & ausdauernd", "Gesunde Routinen aufbauen"],
+  ["🐘", "Elefant", "Stark & verlässlich", "Gemeinsam dranbleiben"],
+] as const;
+
+const buddyLooks = [
+  ["Basis", "Dein persönlicher Alltagsbegleiter"],
+  ["Forscher", "Ausrüstung für Entdeckungen und Missionen"],
+  ["Wächter", "Robuste Ausrüstung als öffentliche Design-Vorschau"],
+] as const;
+
 export default function LandingSectionsV5() {
   return (
     <>
@@ -66,44 +79,100 @@ export default function LandingSectionsV5() {
         </div>
       </section>
 
-      <section id="buddy" className="border-b border-cyan-300/10 bg-[#021218] px-5 py-20 lg:px-10">
-        <div className="mx-auto grid max-w-[1420px] items-center gap-10 lg:grid-cols-[1.08fr_.92fr]">
-          <div className="relative min-h-[440px] overflow-hidden rounded-[28px] border border-lime-300/18 shadow-[0_24px_60px_rgba(0,0,0,.3)]">
-            <Image
-              src="/landing/feature-buddy-care.svg"
-              alt="WellFit Buddy bei der Pflege"
-              fill
-              sizes="(max-width: 1024px) 100vw, 55vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#021218]/35" />
-          </div>
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[.28em] text-[#ffd95d]">Dein emotionaler Begleiter</p>
-            <h2 className="mt-3 text-4xl font-black tracking-[-.04em] sm:text-5xl">
-              Dein Buddy lebt mit deinem <span className="text-[#ff9a27]">Fortschritt.</span>
-            </h2>
-            <p className="mt-5 text-base leading-8 text-white/68">
-              Wie bei einem Tamagotchi braucht dein Buddy Aufmerksamkeit. Bewegung und Missionen geben Fortschritt; Pflege stärkt Energie, Stimmung und eure Verbindung.
-            </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {[
-                ["Füttern", "Energie auffüllen"],
-                ["Pflegen", "Stimmung verbessern"],
-                ["Trainieren", "Entwicklung fördern"],
-                ["Nachsehen", "Status und Bedürfnisse erkennen"],
-              ].map(([title, text]) => (
-                <div key={title} className="rounded-xl border border-lime-300/18 bg-lime-300/[.045] p-4">
-                  <p className="font-black text-lime-200">{title}</p>
-                  <p className="mt-1 text-xs leading-5 text-white/58">{text}</p>
-                </div>
-              ))}
+      <section id="buddy" className="relative overflow-hidden border-b border-cyan-300/10 bg-[#021218] px-5 py-20 lg:px-10">
+        <div className="absolute left-[-10%] top-[12%] h-80 w-80 rounded-full bg-cyan-300/7 blur-[110px]" />
+        <div className="absolute bottom-[-18%] right-[-4%] h-96 w-96 rounded-full bg-lime-300/6 blur-[130px]" />
+
+        <div className="relative mx-auto max-w-[1420px]">
+          <div className="grid items-center gap-10 lg:grid-cols-[1.08fr_.92fr]">
+            <div className="relative min-h-[470px] overflow-hidden rounded-[30px] border border-lime-300/20 bg-[radial-gradient(circle_at_70%_28%,rgba(163,230,53,.13),transparent_30%),linear-gradient(145deg,#07313a,#021218)] shadow-[0_28px_70px_rgba(0,0,0,.34)]">
+              <div className="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t from-[#020c10] via-[#020c10]/68 to-transparent" />
+              <Image
+                src="/landing/hero-phone-fox-stage.webp"
+                alt="WellFit App mit Fuchs-Buddy in Forscher-Ausrüstung"
+                fill
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                className="object-contain object-bottom p-5 drop-shadow-[0_26px_45px_rgba(0,0,0,.42)] sm:p-8"
+              />
+              <div className="absolute left-5 top-5 rounded-full border border-[#ffd95d]/25 bg-[#081c21]/88 px-4 py-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ffd95d] backdrop-blur-md">
+                Öffentliche Buddy-Vorschau
+              </div>
+              <div className="absolute bottom-5 left-5 right-5 grid gap-2 sm:grid-cols-3">
+                {buddyLooks.map(([title, text], index) => (
+                  <div
+                    key={title}
+                    className={`rounded-xl border px-3 py-2.5 backdrop-blur-md ${
+                      index === 1
+                        ? "border-lime-300/30 bg-lime-300/10"
+                        : "border-cyan-300/18 bg-[#03171d]/82"
+                    }`}
+                  >
+                    <p className={index === 1 ? "text-xs font-black text-lime-200" : "text-xs font-black text-cyan-100"}>{title}</p>
+                    <p className="mt-1 text-[9px] leading-4 text-white/55">{text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="mt-6 rounded-2xl border border-cyan-300/18 bg-cyan-300/[.045] p-5">
-              <p className="text-sm font-black text-cyan-100">Wo du deinen Buddy siehst</p>
-              <p className="mt-2 text-sm leading-6 text-white/62">
-                Im Buddy-Bereich, auf dem Dashboard, während Missionen und in deiner Fortschrittsansicht.
+
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[.28em] text-[#ffd95d]">Dein emotionaler Begleiter</p>
+              <h2 className="mt-3 text-4xl font-black tracking-[-.04em] sm:text-5xl">
+                Dein Buddy lebt mit deinem <span className="text-[#ff9a27]">Fortschritt.</span>
+              </h2>
+              <p className="mt-5 text-base leading-8 text-white/68">
+                Wie bei einem Tamagotchi braucht dein Buddy Aufmerksamkeit. Bewegung und Missionen geben Fortschritt; Pflege stärkt Energie, Stimmung und eure Verbindung.
               </p>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {[
+                  ["Füttern", "Energie auffüllen"],
+                  ["Pflegen", "Stimmung verbessern"],
+                  ["Trainieren", "Entwicklung fördern"],
+                  ["Nachsehen", "Status und Bedürfnisse erkennen"],
+                ].map(([title, text]) => (
+                  <div key={title} className="rounded-xl border border-lime-300/18 bg-lime-300/[.045] p-4">
+                    <p className="font-black text-lime-200">{title}</p>
+                    <p className="mt-1 text-xs leading-5 text-white/58">{text}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-cyan-300/18 bg-cyan-300/[.045] p-5">
+                <p className="text-sm font-black text-cyan-100">Wo du deinen Buddy siehst</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">
+                  Im Buddy-Bereich, auf dem Dashboard, während Missionen und in deiner Fortschrittsansicht.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.24em] text-cyan-300">Vier Charakterrichtungen</p>
+                <h3 className="mt-2 text-2xl font-black tracking-[-.03em] text-white sm:text-3xl">Finde den Buddy, der zu dir passt.</h3>
+              </div>
+              <p className="max-w-xl text-xs leading-5 text-white/48">
+                Fuchs, Tiger, Panda und Elefant zeigen die geplante visuelle Vielfalt. Auswahl, Rollen und Ausrüstungswechsel bleiben bis zur internen Produktfreigabe eine Design-Vorschau.
+              </p>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {buddyProfiles.map(([icon, name, character, strength], index) => (
+                <article
+                  key={name}
+                  className="group relative overflow-hidden rounded-2xl border border-cyan-300/16 bg-gradient-to-br from-[#07313a]/72 to-[#03161c] p-5 transition hover:-translate-y-1 hover:border-cyan-300/32"
+                >
+                  <div className="absolute right-[-18px] top-[-22px] h-28 w-28 rounded-full bg-cyan-300/6 blur-2xl transition group-hover:bg-cyan-300/11" />
+                  <div className="relative flex items-start justify-between">
+                    <span className="grid h-12 w-12 place-items-center rounded-xl border border-cyan-300/22 bg-cyan-300/8 text-2xl">{icon}</span>
+                    <span className="text-[9px] font-black uppercase tracking-[.18em] text-white/30">0{index + 1}</span>
+                  </div>
+                  <h4 className="relative mt-4 text-lg font-black text-white">{name}</h4>
+                  <p className="relative mt-1 text-xs font-semibold text-[#ffd95d]">{character}</p>
+                  <p className="relative mt-3 text-xs leading-5 text-white/55">{strength}</p>
+                </article>
+              ))}
             </div>
           </div>
         </div>
