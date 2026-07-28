@@ -13,16 +13,20 @@ export default function LandingHeroV5() {
   return (
     <section
       data-landing-version="reference-v12-materialized-composite"
+      data-hero-layout="scaled-right-stage"
       className="relative overflow-hidden border-b border-cyan-300/10 bg-[#020b0f]"
     >
-      <div
-        className="absolute inset-0 z-0 bg-cover bg-[position:62%_center] bg-no-repeat lg:bg-center"
-        style={{ backgroundImage: "url('/landing/hero-composite-v12.webp')" }}
-        role="img"
-        aria-label="WellFit Abenteuerlandschaft mit App und Fuchs-Buddy"
-      />
-      <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(1,10,15,.72)_0%,rgba(2,15,20,.52)_32%,rgba(2,17,22,.16)_54%,rgba(2,13,17,.02)_78%,rgba(2,10,14,.08)_100%)]" />
-      <div className="absolute inset-x-0 bottom-0 z-10 h-[42%] bg-gradient-to-t from-[#020b0f] via-[#020b0f]/52 to-transparent" />
+      <div className="absolute inset-x-0 top-0 z-0 h-[760px] overflow-hidden bg-[#020b0f] sm:h-[720px] lg:h-[650px] xl:h-[700px]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_38%,rgba(24,112,125,.20),transparent_49%)]" />
+        <div
+          className="absolute inset-y-0 right-[-38%] w-[160%] bg-cover bg-[position:62%_center] bg-no-repeat sm:right-[-20%] sm:w-[130%] sm:bg-[position:66%_center] lg:right-[2%] lg:w-[84%] lg:bg-[length:auto_88%] lg:bg-right xl:right-[3%] xl:w-[80%] xl:bg-[length:auto_86%]"
+          style={{ backgroundImage: "url('/landing/hero-composite-v12.webp')" }}
+          role="img"
+          aria-label="WellFit Abenteuerlandschaft mit App und Fuchs-Buddy"
+        />
+      </div>
+      <div className="absolute inset-x-0 top-0 z-10 h-[760px] bg-[linear-gradient(90deg,rgba(1,10,15,.96)_0%,rgba(2,15,20,.82)_30%,rgba(2,17,22,.34)_50%,rgba(2,13,17,.05)_73%,rgba(2,10,14,.12)_100%)] sm:h-[720px] lg:h-[650px] xl:h-[700px]" />
+      <div className="absolute inset-x-0 top-[470px] z-10 h-[290px] bg-gradient-to-t from-[#020b0f] via-[#020b0f]/78 to-transparent sm:top-[430px] sm:h-[290px] lg:top-[390px] lg:h-[260px] xl:top-[430px] xl:h-[270px]" />
 
       <div className="relative z-20 mx-auto max-w-[1520px] px-4 pb-5 pt-4 sm:px-6 lg:px-10 lg:pt-5">
         <div className="grid min-h-[500px] items-center gap-4 lg:grid-cols-[.80fr_1.20fr] xl:min-h-[530px]">
