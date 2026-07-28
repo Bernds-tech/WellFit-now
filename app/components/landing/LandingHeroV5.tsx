@@ -3,79 +3,87 @@ import Link from "next/link";
 import { featureCards, highlights } from "./landingPublicData";
 import { LandingToneIcon } from "./LandingPrimitivesV5";
 
+const trustSignals = [
+  ["◇", "Sicher & transparent", "DSGVO-orientiert"],
+  ["◎", "Für viele Lebenslagen", "Allein oder gemeinsam"],
+  ["♥", "Motivierend", "Spielerisch zum Ziel"],
+] as const;
+
 export default function LandingHeroV5() {
   return (
-    <section className="relative isolate overflow-hidden border-b border-cyan-300/10">
+    <section
+      data-landing-version="reference-v6"
+      className="relative isolate overflow-hidden border-b border-cyan-300/10 bg-[#020b0f]"
+    >
       <Image
         src="/landing/reference-hero.svg"
-        alt="WellFit Abenteuerwelt mit Buddy und App"
+        alt="WellFit Abenteuerwelt mit Buddy, App, Stadt und Missionsportal"
         fill
         priority
         sizes="100vw"
-        className="-z-30 object-cover object-center"
+        className="-z-30 object-cover object-[58%_top] lg:object-center"
       />
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(1,12,17,.98)_0%,rgba(2,16,21,.93)_32%,rgba(2,18,22,.44)_54%,rgba(2,11,15,.08)_78%,rgba(2,11,15,.28)_100%)]" />
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-64 bg-gradient-to-t from-[#020b0f] via-[#020b0f]/82 to-transparent" />
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(1,10,15,.97)_0%,rgba(2,15,20,.90)_24%,rgba(2,17,22,.52)_42%,rgba(2,13,17,.08)_67%,rgba(2,10,14,.10)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-[45%] bg-gradient-to-t from-[#020b0f] via-[#020b0f]/76 to-transparent" />
 
-      <div className="mx-auto max-w-[1500px] px-5 pb-6 pt-8 lg:px-10 lg:pt-10">
-        <div className="grid min-h-[430px] items-center lg:grid-cols-[.83fr_1.17fr]">
-          <div className="relative z-10 max-w-[650px] py-5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/35 bg-[#06242b]/78 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-cyan-100 shadow-[0_0_28px_rgba(34,211,238,.12)]">
-              <span className="h-2 w-2 rounded-full bg-[#ffd95d] shadow-[0_0_12px_#ffd95d]" /> Move · Learn · Earn
+      <div className="mx-auto max-w-[1520px] px-4 pb-5 pt-4 sm:px-6 lg:px-10 lg:pt-5">
+        <div className="grid min-h-[420px] items-center lg:grid-cols-[.78fr_1.22fr] xl:min-h-[438px]">
+          <div className="relative z-10 max-w-[610px] py-4 lg:py-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/45 bg-[#05242b]/82 px-4 py-2 text-[10px] font-black uppercase tracking-[0.29em] text-cyan-100 shadow-[0_0_26px_rgba(34,211,238,.13)] backdrop-blur-md">
+              <span className="h-2 w-2 rounded-full bg-[#73ffd9] shadow-[0_0_13px_#73ffd9]" />
+              Move · Learn · Earn
             </div>
-            <h1 className="mt-5 text-[42px] font-black leading-[.98] tracking-[-0.052em] text-white sm:text-[54px] lg:text-[62px] xl:text-[68px]">
+
+            <h1 className="mt-4 text-[40px] font-black leading-[.99] tracking-[-0.052em] text-white sm:text-[50px] lg:text-[56px] xl:text-[61px]">
               Willkommen bei WellFit.<br />
               Dein Abenteuer für{" "}
-              <span className="bg-gradient-to-r from-[#ffe45d] via-[#ffb324] to-[#ff8518] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#ffe45d] via-[#ffb324] to-[#ff8217] bg-clip-text text-transparent">
                 Körper & Geist.
               </span>
             </h1>
-            <p className="mt-5 max-w-[620px] text-base leading-7 text-cyan-50/82 lg:text-[18px]">
+
+            <p className="mt-4 max-w-[580px] text-sm leading-6 text-cyan-50/86 sm:text-base sm:leading-7">
               Bewege dich im Alltag, entdecke Missionen, sammle WFXP und entwickle deinen persönlichen Buddy – allein oder gemeinsam.
             </p>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/register"
-                className="rounded-xl bg-gradient-to-r from-[#ff8618] to-[#ffd95d] px-7 py-4 text-center text-base font-black text-[#172006] shadow-[0_16px_34px_rgba(255,139,24,.28)] transition hover:-translate-y-0.5"
+                className="rounded-xl bg-gradient-to-r from-[#ff8618] to-[#ffd95d] px-7 py-3.5 text-center text-[15px] font-black text-[#172006] shadow-[0_15px_32px_rgba(255,139,24,.30)] transition hover:-translate-y-0.5"
               >
                 Jetzt kostenlos starten →
               </Link>
               <a
                 href="#so-funktionierts"
-                className="rounded-xl border border-cyan-300/50 bg-[#041d24]/76 px-7 py-4 text-center text-base font-black text-cyan-50 shadow-[0_12px_28px_rgba(0,0,0,.22)] transition hover:bg-cyan-300/10"
+                className="rounded-xl border border-cyan-300/55 bg-[#031c23]/82 px-7 py-3.5 text-center text-[15px] font-black text-cyan-50 shadow-[0_12px_26px_rgba(0,0,0,.24)] transition hover:bg-cyan-300/10"
               >
                 ▶ So funktioniert’s
               </a>
             </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              {[
-                ["◇", "Sicher & transparent", "Klare Kontrolle."],
-                ["◎", "Für viele Lebenslagen", "Allein oder gemeinsam."],
-                ["♥", "Motivierend", "Spielerisch zum Ziel."],
-              ].map(([icon, title, text]) => (
-                <div
-                  key={title}
-                  className="flex items-center gap-3 rounded-xl border border-cyan-300/16 bg-[#03161c]/74 px-3.5 py-3 backdrop-blur-md"
-                >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-cyan-300/35 bg-cyan-300/10 text-xs font-black text-cyan-200">
+
+            <div className="mt-5 flex flex-wrap gap-x-7 gap-y-3">
+              {trustSignals.map(([icon, title, text]) => (
+                <div key={title} className="flex items-center gap-2.5">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-cyan-300/45 bg-[#03262d]/76 text-xs font-black text-cyan-200 shadow-[0_0_22px_rgba(34,211,238,.11)]">
                     {icon}
                   </span>
                   <div>
                     <p className="text-[12px] font-black text-white">{title}</p>
-                    <p className="mt-0.5 text-[10px] text-white/52">{text}</p>
+                    <p className="text-[10px] text-white/58">{text}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div aria-hidden="true" className="min-h-[380px]" />
+
+          <div aria-hidden="true" className="hidden min-h-[390px] lg:block" />
         </div>
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {featureCards.map((card) => (
             <article
               key={card.title}
-              className="group relative min-h-[190px] overflow-hidden rounded-2xl border border-cyan-300/20 bg-[#041b21]/88 shadow-[0_18px_42px_rgba(0,0,0,.28)]"
+              className="group relative min-h-[172px] overflow-hidden rounded-2xl border border-cyan-300/24 bg-[#041b21]/90 shadow-[0_18px_42px_rgba(0,0,0,.30)]"
             >
               <Image
                 src={card.image}
@@ -84,12 +92,12 @@ export default function LandingHeroV5() {
                 sizes="(max-width: 768px) 100vw, 25vw"
                 className="object-cover transition duration-500 group-hover:scale-[1.025]"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#03161c]/96 via-[#03161c]/75 to-[#03161c]/12" />
-              <div className="relative z-10 flex h-full max-w-[72%] flex-col p-5">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#021319]/98 via-[#03171d]/76 to-[#03171d]/5" />
+              <div className="relative z-10 flex h-full max-w-[69%] flex-col p-4.5">
                 <LandingToneIcon tone={card.tone}>{card.icon}</LandingToneIcon>
-                <h2 className="mt-3 text-lg font-black leading-tight text-white">{card.title}</h2>
-                <p className="mt-2 text-xs leading-5 text-white/70">{card.text}</p>
-                <a href={card.href} className="mt-auto pt-4 text-xs font-black text-[#ffd95d]">
+                <h2 className="mt-2.5 text-[17px] font-black leading-tight text-white">{card.title}</h2>
+                <p className="mt-1.5 text-[11px] leading-[1.55] text-white/72">{card.text}</p>
+                <a href={card.href} className="mt-auto pt-3 text-[11px] font-black text-[#ffd95d]">
                   Mehr erfahren →
                 </a>
               </div>
@@ -97,34 +105,38 @@ export default function LandingHeroV5() {
           ))}
         </div>
 
-        <div className="mt-5">
+        <div className="mt-4">
           <div className="flex items-center gap-4">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-cyan-300/35" />
-            <h2 className="text-center text-2xl font-black tracking-[-0.03em] sm:text-3xl">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-cyan-300/38" />
+            <h2 className="text-center text-xl font-black tracking-[-0.035em] sm:text-[27px]">
               Was WellFit <span className="text-[#ff9b25]">besonders</span> macht
             </h2>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#ffd95d]/35" />
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#ffd95d]/42" />
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+
+          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {highlights.map(([icon, title, text, tone]) => (
               <article
                 key={title}
-                className="flex items-center gap-4 rounded-2xl border border-cyan-300/18 bg-[#041b21]/80 p-4 backdrop-blur-md"
+                className="flex min-h-[82px] items-center gap-3 rounded-2xl border border-cyan-300/20 bg-[#031a20]/86 px-4 py-3 backdrop-blur-md"
               >
                 <LandingToneIcon tone={tone}>{icon}</LandingToneIcon>
                 <div>
-                  <h3 className="text-sm font-black text-white">{title}</h3>
-                  <p className="mt-1 text-[11px] leading-4 text-white/62">{text}</p>
+                  <h3 className="text-[13px] font-black leading-tight text-white">{title}</h3>
+                  <p className="mt-1 text-[10px] leading-4 text-white/64">{text}</p>
                 </div>
               </article>
             ))}
           </div>
         </div>
 
-        <a href="#so-funktionierts" className="mx-auto mt-5 flex w-fit items-center gap-3 text-sm font-black text-white/92">
+        <a
+          href="#so-funktionierts"
+          className="mx-auto mt-4 flex w-fit items-center gap-3 text-[13px] font-black text-white/94"
+        >
           <span>So funktioniert’s</span>
           <span className="hidden text-cyan-300 sm:inline">– In 5 einfachen Schritten zu mehr Wohlbefinden</span>
-          <span className="grid h-8 w-8 place-items-center rounded-full border border-cyan-300/45 text-cyan-200">⌄</span>
+          <span className="grid h-8 w-8 place-items-center rounded-full border border-cyan-300/50 text-cyan-200">⌄</span>
         </a>
       </div>
     </section>
