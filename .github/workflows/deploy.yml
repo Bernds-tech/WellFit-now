@@ -151,6 +151,23 @@ jobs:
             if (health.databaseWritePerformedByEndpoint !== false) throw new Error("health endpoint must never write data");
           '
 
+          curl --silent --show-error --fail http://127.0.0.1:3100/ > landing.html
+          grep -Fq 'reference-v11-bundled-assets' landing.html
+          mapfile -t hero_assets < <(
+            grep -oE '/_next/static/media/hero-(background-wellfit|phone-fox-stage)\.[A-Za-z0-9_-]+\.webp' landing.html \
+              | sort -u
+          )
+          test "${#hero_assets[@]}" -eq 2
+
+          mkdir -p landing-assets-local
+          for asset_path in "${hero_assets[@]}"; do
+            asset_file="landing-assets-local/$(basename "$asset_path")"
+            curl --silent --show-error --fail "http://127.0.0.1:3100${asset_path}" > "$asset_file"
+            test "$(head -c 4 "$asset_file")" = "RIFF"
+            test "$(dd if="$asset_file" bs=1 skip=8 count=4 status=none)" = "WEBP"
+            test "$(wc -c < "$asset_file")" -gt 10000
+          done
+
       - name: Package image for SSH transfer
         shell: bash
         run: |
@@ -196,6 +213,52 @@ jobs:
             "${SERVER_USER}@${SERVER_HOST}" \
             "cd /tmp && sha256sum --check '${archive}.sha256' && sudo /usr/local/sbin/deploy-wellfit '/tmp/${archive}' '${GITHUB_SHA}' '${RELEASE_CHANNEL}'"
 
+      - name: Verify active staging landing and assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -p "$SERVER_PORT" \
+            "${SERVER_USER}@${SERVER_HOST}" \
+            "curl --silent --show-error --fail http://127.0.0.1:3000/api/health" \
+            > deployed-health.json
+
+          node -e '
+            const fs = require("fs");
+            const health = JSON.parse(fs.readFileSync("deployed-health.json", "utf8"));
+            if (health.status !== "ok") throw new Error("deployed health status is not ok");
+            if (health.release.sha !== process.env.GITHUB_SHA) throw new Error("deployed release SHA mismatch");
+          '
+
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -p "$SERVER_PORT" \
+            "${SERVER_USER}@${SERVER_HOST}" \
+            "curl --silent --show-error --fail http://127.0.0.1:3000/" \
+            > deployed-landing.html
+
+          grep -Fq 'reference-v11-bundled-assets' deployed-landing.html
+          mapfile -t deployed_assets < <(
+            grep -oE '/_next/static/media/hero-(background-wellfit|phone-fox-stage)\.[A-Za-z0-9_-]+\.webp' deployed-landing.html \
+              | sort -u
+          )
+          test "${#deployed_assets[@]}" -eq 2
+
+          mkdir -p landing-assets-deployed
+          for asset_path in "${deployed_assets[@]}"; do
+            asset_file="landing-assets-deployed/$(basename "$asset_path")"
+            ssh \
+              -i "$HOME/.ssh/id_ed25519" \
+              -p "$SERVER_PORT" \
+              "${SERVER_USER}@${SERVER_HOST}" \
+              "curl --silent --show-error --fail 'http://127.0.0.1:3000${asset_path}'" \
+              > "$asset_file"
+            test "$(head -c 4 "$asset_file")" = "RIFF"
+            test "$(dd if="$asset_file" bs=1 skip=8 count=4 status=none)" = "WEBP"
+            test "$(wc -c < "$asset_file")" -gt 10000
+          done
+
       - name: Deployment diagnostics
         if: always()
         shell: bash
@@ -203,6 +266,9 @@ jobs:
           docker ps --all || true
           docker logs wellfit-web-release-check || true
           test ! -f health.json || cat health.json
+          test ! -f deployed-health.json || cat deployed-health.json
+          test ! -d landing-assets-local || ls -lh landing-assets-local || true
+          test ! -d landing-assets-deployed || ls -lh landing-assets-deployed || true
 
       - name: Remove local verification container
         if: always()
