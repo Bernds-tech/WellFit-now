@@ -12,7 +12,7 @@ const trustSignals = [
 export default function LandingHeroV5() {
   return (
     <section
-      data-landing-version="reference-v13-bright-friendly"
+      data-landing-version="reference-v12-materialized-composite"
       data-hero-layout="bright-cinematic-stage"
       className="relative overflow-hidden border-b border-cyan-200/20 bg-[#03141a]"
     >
