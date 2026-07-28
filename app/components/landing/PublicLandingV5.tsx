@@ -10,31 +10,37 @@ export default function PublicLandingV5() {
     <main className="landing-page h-screen overflow-y-auto scroll-smooth bg-[#020b0f] text-white">
       <LandingSessionRedirect />
 
-      <header className="sticky top-0 z-50 border-b border-cyan-300/12 bg-[#020d12]/94 backdrop-blur-2xl">
-        <div className="mx-auto flex h-[78px] max-w-[1500px] items-center justify-between gap-5 px-5 lg:px-10">
-          <Link href="/" aria-label="WellFit Startseite" className="relative h-[68px] w-[132px] shrink-0">
-            <Image src="/logo.png" alt="WellFit" fill priority sizes="132px" className="object-contain object-left" />
+      <header className="sticky top-0 z-50 border-b border-cyan-300/15 bg-[#020d12]/96 backdrop-blur-2xl">
+        <div className="mx-auto flex h-[74px] max-w-[1520px] items-center justify-between gap-5 px-4 sm:px-6 lg:px-10">
+          <Link href="/" aria-label="WellFit Startseite" className="relative h-[66px] w-[122px] shrink-0">
+            <Image src="/logo.png" alt="WellFit" fill priority sizes="122px" className="object-contain object-left" />
           </Link>
-          <nav aria-label="Hauptnavigation" className="hidden items-center gap-9 xl:flex">
+
+          <nav aria-label="Hauptnavigation" className="hidden items-center gap-8 xl:flex">
             {navItems.map(([label, href]) => (
-              <a key={href} href={href} className="text-[13px] font-semibold text-white/72 transition hover:text-white">
+              <a
+                key={href}
+                href={href}
+                className="text-[13px] font-bold text-white/74 transition hover:text-white"
+              >
                 {label}
               </a>
             ))}
           </nav>
+
           <div className="flex items-center gap-2.5">
-            <span className="hidden rounded-xl border border-white/10 bg-black/10 px-3.5 py-2.5 text-xs text-white/65 sm:block">
+            <span className="hidden rounded-xl border border-white/12 bg-black/12 px-3.5 py-2.5 text-xs font-semibold text-white/68 sm:block">
               DE⌄
             </span>
             <Link
               href="/login"
-              className="rounded-xl border border-cyan-300/45 px-5 py-2.5 text-sm font-bold text-cyan-50 transition hover:bg-cyan-300/10"
+              className="rounded-xl border border-cyan-300/48 bg-[#03161c]/42 px-5 py-2.5 text-sm font-black text-cyan-50 transition hover:bg-cyan-300/10"
             >
               Anmelden
             </Link>
             <Link
               href="/register"
-              className="hidden rounded-xl bg-gradient-to-r from-[#ff8a16] to-[#ffd95d] px-6 py-3 text-sm font-black text-[#182006] shadow-[0_12px_30px_rgba(255,153,30,.24)] transition hover:-translate-y-0.5 sm:block"
+              className="hidden rounded-xl bg-gradient-to-r from-[#ff8a16] to-[#ffd95d] px-6 py-3 text-sm font-black text-[#182006] shadow-[0_12px_30px_rgba(255,153,30,.25)] transition hover:-translate-y-0.5 sm:block"
             >
               Kostenlos starten
             </Link>
