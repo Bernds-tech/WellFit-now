@@ -152,21 +152,14 @@ jobs:
           '
 
           curl --silent --show-error --fail http://127.0.0.1:3100/ > landing.html
-          grep -Fq 'reference-v11-bundled-assets' landing.html
-          mapfile -t hero_assets < <(
-            grep -oE '/_next/static/media/hero-(background-wellfit|phone-fox-stage)\.[A-Za-z0-9_-]+\.webp' landing.html \
-              | sort -u
-          )
-          test "${#hero_assets[@]}" -eq 2
-
-          mkdir -p landing-assets-local
-          for asset_path in "${hero_assets[@]}"; do
-            asset_file="landing-assets-local/$(basename "$asset_path")"
-            curl --silent --show-error --fail "http://127.0.0.1:3100${asset_path}" > "$asset_file"
-            test "$(head -c 4 "$asset_file")" = "RIFF"
-            test "$(dd if="$asset_file" bs=1 skip=8 count=4 status=none)" = "WEBP"
-            test "$(wc -c < "$asset_file")" -gt 10000
-          done
+          grep -Fq 'reference-v12-materialized-composite' landing.html
+          curl --silent --show-error --fail \
+            http://127.0.0.1:3100/landing/hero-composite-v12.webp \
+            > hero-composite-local.webp
+          test "$(head -c 4 hero-composite-local.webp)" = "RIFF"
+          test "$(dd if=hero-composite-local.webp bs=1 skip=8 count=4 status=none)" = "WEBP"
+          test "$(wc -c < hero-composite-local.webp)" -eq 21936
+          test "$(sha256sum hero-composite-local.webp | cut -d' ' -f1)" = "b24ac57ea55bd9010bd2380bab1a5b2cdfb04083ce971bd795e844622893dfcf"
 
       - name: Package image for SSH transfer
         shell: bash
@@ -213,7 +206,7 @@ jobs:
             "${SERVER_USER}@${SERVER_HOST}" \
             "cd /tmp && sha256sum --check '${archive}.sha256' && sudo /usr/local/sbin/deploy-wellfit '/tmp/${archive}' '${GITHUB_SHA}' '${RELEASE_CHANNEL}'"
 
-      - name: Verify active staging landing and assets
+      - name: Verify active staging landing and hero asset
         shell: bash
         run: |
           set -euo pipefail
@@ -237,27 +230,18 @@ jobs:
             "${SERVER_USER}@${SERVER_HOST}" \
             "curl --silent --show-error --fail http://127.0.0.1:3000/" \
             > deployed-landing.html
+          grep -Fq 'reference-v12-materialized-composite' deployed-landing.html
 
-          grep -Fq 'reference-v11-bundled-assets' deployed-landing.html
-          mapfile -t deployed_assets < <(
-            grep -oE '/_next/static/media/hero-(background-wellfit|phone-fox-stage)\.[A-Za-z0-9_-]+\.webp' deployed-landing.html \
-              | sort -u
-          )
-          test "${#deployed_assets[@]}" -eq 2
-
-          mkdir -p landing-assets-deployed
-          for asset_path in "${deployed_assets[@]}"; do
-            asset_file="landing-assets-deployed/$(basename "$asset_path")"
-            ssh \
-              -i "$HOME/.ssh/id_ed25519" \
-              -p "$SERVER_PORT" \
-              "${SERVER_USER}@${SERVER_HOST}" \
-              "curl --silent --show-error --fail 'http://127.0.0.1:3000${asset_path}'" \
-              > "$asset_file"
-            test "$(head -c 4 "$asset_file")" = "RIFF"
-            test "$(dd if="$asset_file" bs=1 skip=8 count=4 status=none)" = "WEBP"
-            test "$(wc -c < "$asset_file")" -gt 10000
-          done
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -p "$SERVER_PORT" \
+            "${SERVER_USER}@${SERVER_HOST}" \
+            "curl --silent --show-error --fail http://127.0.0.1:3000/landing/hero-composite-v12.webp" \
+            > hero-composite-deployed.webp
+          test "$(head -c 4 hero-composite-deployed.webp)" = "RIFF"
+          test "$(dd if=hero-composite-deployed.webp bs=1 skip=8 count=4 status=none)" = "WEBP"
+          test "$(wc -c < hero-composite-deployed.webp)" -eq 21936
+          test "$(sha256sum hero-composite-deployed.webp | cut -d' ' -f1)" = "b24ac57ea55bd9010bd2380bab1a5b2cdfb04083ce971bd795e844622893dfcf"
 
       - name: Deployment diagnostics
         if: always()
@@ -267,8 +251,8 @@ jobs:
           docker logs wellfit-web-release-check || true
           test ! -f health.json || cat health.json
           test ! -f deployed-health.json || cat deployed-health.json
-          test ! -d landing-assets-local || ls -lh landing-assets-local || true
-          test ! -d landing-assets-deployed || ls -lh landing-assets-deployed || true
+          test ! -f hero-composite-local.webp || ls -lh hero-composite-local.webp || true
+          test ! -f hero-composite-deployed.webp || ls -lh hero-composite-deployed.webp || true
 
       - name: Remove local verification container
         if: always()
