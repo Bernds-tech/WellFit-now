@@ -1,79 +1,103 @@
 # WellFit – Buddy KI Model Provider Runbook
 
-Stand: 2026-04-28
+Stand: 2026-07-29
+Status: Rules live; model provider disabled and not approved for activation
 
-## Ziel
+## Current verified path
 
-Der Buddy-KI-Endpoint `/api/buddy-ki` laeuft aktuell sicher im Rules-Modus.
-
-Dieses Runbook beschreibt, wie spaeter ein echter serverseitiger Modellprovider aktiviert wird, ohne Schluessel ins Frontend oder in die Mobile-App zu bringen.
-
-## Aktueller sicherer Stand
-
-```txt
+```text
 /mobile/ar
-→ buddyKiRemoteProvider
-→ /api/buddy-ki
-→ Rules Provider
-→ sichere Buddy-Antwort
+  -> buddyKiRemoteProvider
+  -> /api/buddy-ki
+  -> Rules provider
+  -> safety-normalized Buddy response
 ```
 
-Getestet:
+Live staging verification on 2026-07-29:
 
-```txt
-GET /api/buddy-ki: ok=true, providerMode=rules
-POST /api/buddy-ki suggestMission: ok=true, providerMode=rules
-```
+- `GET /api/buddy-ki`: HTTP 200
+- `providerMode=rules`
+- `modelConfigured=false`
+- `modelProviderEnabled=false`
 
-## Sicherheitsregeln
+The repository contains an optional OpenAI provider, but repository code is not activation evidence.
 
-- Keine Provider-Schluessel im Frontend.
-- Keine direkte Modellanbindung im Handy.
-- Keine Reward-, Punkte-, Token-, Jackpot- oder Mission-Completion-Autoritaet durch KI.
-- KI liefert nur Text, Optionen, Hinweise und Empfehlungen.
-- Backend/App bleiben Autoritaet.
+## Authority boundary
 
-## Aktivierungslogik
+The Buddy may explain, suggest, guide, celebrate and provide safe alternatives. It may never authorize:
 
-Der echte Modellprovider wird nur genutzt, wenn serverseitig alle benoetigten Variablen vorhanden sind und der Provider explizit aktiviert ist.
+- WFP/WFXP, XP, rewards, inventory or ledger writes,
+- mission completion or evidence approval,
+- health diagnosis or treatment,
+- guardian consent or safety-critical location decisions,
+- moderation sanctions,
+- WFT, wallet, token, NFT, presale, payment, staking, trading or cash-out,
+- GitHub changes, merges or deployments.
 
-Wenn etwas fehlt oder fehlschlaegt:
+Backend/App policy remains authoritative. Rules fallback must remain available.
 
-```txt
-/api/buddy-ki faellt automatisch auf Rules zurueck.
-```
+## Blocking prerequisites before model activation
 
-## Testplan
+- [ ] authenticated endpoint and Firebase App Check/abuse control
+- [ ] per-user/IP privacy-safe rate limits and server spend ceilings
+- [ ] hard request timeout, bounded retries, backoff and circuit breaker
+- [ ] strict schema validation / Structured Outputs instead of JSON-mode-only parsing
+- [ ] input/output moderation and high-risk escalation behavior
+- [ ] specific under-18 policy, age-appropriate output and guardian/privacy review
+- [ ] German and English eval set covering health, body image, minors, coercion, shame, rewards, privacy, prompt injection and unsafe places
+- [ ] logging/monitoring without raw sensitive prompt retention by default
+- [ ] latency, fallback-rate, safety and cost dashboards with rollback thresholds
+- [ ] documented provider data-control/retention decision
+- [ ] internal adult cohort approval before any wider user test
 
-1. Servervariablen setzen.
-2. PM2 mit aktualisierter Umgebung neu starten.
-3. GET pruefen.
-4. POST pruefen.
-5. /mobile/ar am Handy testen.
-6. Logs pruefen.
-7. Falls Fehler: Rules-Fallback muss weiter funktionieren.
+OpenAI recommends the Responses API for new projects, Structured Outputs over JSON mode when possible, and additional safeguards when serving minors:
 
-## Erwartete Provider-Modi
+- https://developers.openai.com/api/docs/guides/migrate-to-responses
+- https://developers.openai.com/api/docs/guides/structured-outputs
+- https://developers.openai.com/api/docs/guides/safety-best-practices
+- https://developers.openai.com/api/docs/guides/safety-checks/under-18-api-guidance
 
-```txt
-rules     = sicherer Standardmodus
-remote-ai = echter serverseitiger Modellprovider aktiv
-```
+Recheck current official documentation when implementing; do not assume this runbook freezes provider behavior.
 
-## Erfolgskriterien
+## Server-only configuration
 
-- [ ] GET meldet service ready.
-- [ ] POST liefert ok=true.
-- [ ] /mobile/ar zeigt Buddy-Antwort.
-- [ ] Kein Schluessel im Client-Bundle.
-- [ ] Safety-Flags bleiben false.
-- [ ] Rules-Fallback bleibt aktiv.
+The current implementation reads:
+
+- `BUDDY_KI_PROVIDER=openai`
+- `BUDDY_KI_MODEL=<approved model>`
+- `OPENAI_API_KEY=<server-only secret>`
+
+Never commit values or expose them through `NEXT_PUBLIC_*`. Secret creation/rotation belongs to the secure deployment workflow, not application source.
+
+The active web release is Docker-based. Do not follow the historical instruction to restart PM2.
+
+## Safe activation sequence
+
+1. Implement and test all blocking prerequisites on a scoped branch.
+2. Keep production/staging provider mode on `rules`.
+3. Run offline/versioned evals against a non-user test dataset.
+4. Run the existing lint, TypeScript, build, Functions and Quality-Gate checks.
+5. Review privacy, minor, health and cost evidence.
+6. Configure server-only variables through the approved staging environment.
+7. Deploy through the repository Docker workflow with rollback ready.
+8. Verify `GET` reports `remote-ai` only in the approved test environment.
+9. Exercise allowed intents, malformed input, prompt injection, provider timeout/error, rate limit and rules fallback.
+10. Test `/mobile/ar` with the internal adult cohort.
+11. Disable the provider immediately if safety, latency, cost or fallback thresholds fail.
+
+## Required live evidence
+
+- release SHA and environment,
+- provider/model configuration state without secret values,
+- auth/App Check and rate-limit denial results,
+- eval version and pass thresholds,
+- allowed-intent responses,
+- malformed/high-risk/prompt-injection outcomes,
+- provider timeout/error and circuit-breaker result,
+- Rules fallback result,
+- monitoring/rollback confirmation,
+- reviewer/owner approval.
 
 ## KI-Fortsetzungs-Prompt
 
-Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md` und die fuehrenden Dateien: `todolist/NEXT_ACTIONS.md`, `todolist/TODO_INDEX.md`, `todolist/PROJECT_STRUCTURE.md`.
-
-Arbeite mit dieser Datei nur ergaenzend und nachvollziehbar. Loesche keine alten Aufgaben, Roadmap-Punkte, Statushinweise oder erledigten Eintraege. Markiere veraltete oder doppelte Punkte nur als `veraltet`, `duplikat`, `erledigt`, `offen` oder `zu pruefen`.
-
-Wenn du offene Punkte aus dieser Datei uebernimmst, verlinke sie in `todolist/TODO_INDEX.md` oder uebertrage sie nach `todolist/NEXT_ACTIONS.md`. Dokumentiere erledigte Arbeit in `todolist/DONE_LOG.md`.
-
+Read `docs/architecture/WELLFIT_AGENT_AND_AI_RUNTIME_AUDIT_2026-07-29.md`, the current runtime state and this runbook. Keep the live provider in Rules mode until every blocking prerequisite has evidence. Use the Docker staging workflow, never PM2. Do not expose keys, do not grant reward/mission/health/location/payment authority, and stop on missing under-18, moderation, rate, cost, timeout, eval or rollback evidence.

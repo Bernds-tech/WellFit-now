@@ -5,6 +5,21 @@ Diese Datei dokumentiert erledigte Arbeiten, damit der Projektstand nachvollzieh
 
 ## Eintraege
 
+### 2026-07-29 - Source-of-Truth-, Agent-/KI- und Quality-Gate-Konsolidierung
+
+- aktuellen Docker-Staging-Stand mit Release-SHA, Live-Routen, Buddy-Rules-Modus und bekannten HTTP-/Security-/SEO-Gaps dokumentiert
+- verbindlichen KI-Master-Prompt auf Branch/PR-, Source-Hierarchie-, No-Duplicate- und Evidence-Regeln aktualisiert
+- Mai-Baselines und Runtime-State 2026-07-24 als historisch/ersetzt markiert
+- Execution Board von der erledigten Landing-Premiumphase auf Quality Gate, Legal, HTTPS und Agent-Runtime-Sicherheit umgestellt
+- 16 externe Konzept-/Business-/Token-/Zielgruppenquellen als historische oder reviewpflichtige Inputs klassifiziert
+- 16 offene GitHub-Issues sowie PR #263 und geschuetzten PR #13 triagiert
+- Agent-/GitHub-Runner-Codefaehigkeit getrennt von unverified deployter Aktivierung dokumentiert; Automation bleibt aus
+- Buddy-Modellprovider-Runbook auf Docker, aktuelle OpenAI-Safety-Anforderungen und Rules-only-Live-Stand aktualisiert
+- Route `/login`, Product-Readiness-Leading-File, Firestore-User-Isolation, TODO-Index und historische Log-Schemas korrigiert
+- Economy-Validator so korrigiert, dass explizite Cash-out-Deny-Felder/-Vergleiche nicht als aktive Cash-out-Funktion blockieren; alle Vorkommen werden weiterhin geprueft
+- geschuetzte Canonical Truth, Public Legaltexte, Firebase-Runtime, Serverkonfiguration und Unity/PR #13 nicht veraendert
+- bestehende unversionierte Landing-Bilddatei nicht veraendert
+
 ### 2026-05-09
 - Mega-Block 21 - Server-Persistenz-Bundles fuer interne Economy vorbereitet.
 - Datei `lib/economy/serverLedgerDraft.ts` erweitert: neue künftige Server-only Collections `ledgerEvents`, `auditEvents`, `userEconomyProjections` und `pointsSinkEvents` aufgenommen.

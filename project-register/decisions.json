@@ -3,7 +3,8 @@
     "project": "WellFit-now",
     "purpose": "Decision Log fuer Stufe-4-Arbeit, Produktentscheidungen und Blocker.",
     "issue": 19,
-    "status": "initial-governance-layer"
+    "status": "current-source-of-truth-sync",
+    "updated": "2026-07-29"
   },
   "decisions": [
     {
@@ -32,6 +33,42 @@
       "reasoning": "Keine Idee, Entscheidung oder erledigte Arbeit soll verloren gehen.",
       "source": "todolist/TODO_CONSOLIDATION.md und GitHub Issue #19",
       "date": "2026-05-12"
+    },
+    {
+      "id": "DEC-RUNTIME-2026-07-29",
+      "topic": "Wie wird der aktuelle WellFit-Stand belegt?",
+      "status": "decided",
+      "decision": "Code, Merge, Deployment, serverseitige Konfiguration und Live-Verifikation werden getrennt dokumentiert.",
+      "reasoning": "Repository-Code allein belegt weder deployte Firebase Functions noch aktivierte Agent-/KI-Provider. Die Trennung verhindert falsche Fertigmeldungen und doppelte Arbeit.",
+      "source": "docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "DEC-STAGING-2026-07-29",
+      "topic": "Ist WellFit weiterhin ohne aktiven Server?",
+      "status": "decided",
+      "decision": "Nein. Es gibt ein aktives Docker/Nginx-Staging auf http://172.86.88.107; ein Merge auf main kann den automatischen Staging-Deploy ausloesen.",
+      "reasoning": "Live Health und Release-SHA sowie Deploy-Workflow und Rollback-Script wurden verifiziert. Das System bleibt Staging, nicht Produktion.",
+      "source": "docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "DEC-AGENT-2026-07-29",
+      "topic": "Ist das Agent Center nur report-only?",
+      "status": "decided",
+      "decision": "Die meisten Agenten sind report-only, aber Functions-Code fuer reale GitHub-Branch-/Datei-/PR-/Check-/Merge-Aktionen existiert. Operative Aktivierung bleibt unverified und deaktiviert.",
+      "reasoning": "Die fruehere pauschale read-only-Dokumentation widerspricht `functions/lib/agentGithubRunner.js` und `functions/lib/agentAdminRolesAudit.js`.",
+      "source": "docs/architecture/WELLFIT_AGENT_AND_AI_RUNTIME_AUDIT_2026-07-29.md",
+      "date": "2026-07-29"
+    },
+    {
+      "id": "DEC-BUDDY-AI-2026-07-29",
+      "topic": "Soll der Buddy-Modellprovider jetzt aktiviert werden?",
+      "status": "decided",
+      "decision": "Nein. Live bleibt der Rules-Provider, bis die dokumentierten Auth-, Abuse-, Kosten-, Schema-, Moderations-, Minderjaehrigen-, Eval- und Monitoring-Gates bestanden sind.",
+      "reasoning": "Der bestehende Fallback ist stabil; eine vorschnelle Aktivierung waere bei Gesundheits-/Familienkontext und oeffentlichem Endpoint nicht ausreichend abgesichert.",
+      "source": "docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md",
+      "date": "2026-07-29"
     }
   ]
 }

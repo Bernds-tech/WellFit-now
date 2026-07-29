@@ -14,7 +14,7 @@ The current codebase is an existing product baseline. Do not restart or rewrite 
 
 ### Current runtime reference
 
-Before runtime, roadmap, readiness or planning work, read `docs/status/WELLFIT_RUNTIME_STATE_2026-07-24.md` in addition to the protected Beta-1 Canonical Truth files. The runtime-state document records the actual merged implementation and current execution order. Historical May 2026 status/TODO files remain preserved for context but must not override newer tested runtime behavior.
+Before runtime, roadmap, readiness or planning work, read `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`, `todolist/CURRENT_EXECUTION_BOARD.md` and `todolist/MASTER_PROMPT_FOR_AI.md` in addition to the protected Beta-1 Canonical Truth files. The runtime-state document separates repository code, merge, deployment, configuration and live evidence. Historical May 2026 status/TODO files and the superseded 2026-07-24 runtime file remain preserved for context but must not override newer tested runtime behavior.
 
 When sources conflict:
 

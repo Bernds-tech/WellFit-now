@@ -16,9 +16,14 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 
 | Datei | Status | Zweck | Fuehrende Verweise |
 |---|---|---|---|
-| `todolist/CURRENT_PROJECT_STATE.md` | aktiv / fuehrend | fuehrender aktueller Projektzustand, Baseline, Risiken und Fortsetzungs-Prompt | `WORK_MAP.md`, `NEXT_ACTIONS.md`, `PROJECT_STRUCTURE.md` |
+| `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md` | aktiv / fuehrend | aktueller Code-/Deploy-/Konfigurations-/Live-Stand und P0-Risiken | `todolist/CURRENT_EXECUTION_BOARD.md`, geschuetzte Beta-1 Canonical Truth |
+| `todolist/CURRENT_EXECUTION_BOARD.md` | aktiv / fuehrend | aktuelle P0-P3-Reihenfolge, erledigte Phasen, Abhaengigkeiten und Definition of Done | `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`, `todolist/MASTER_PROMPT_FOR_AI.md` |
+| `todolist/MASTER_PROMPT_FOR_AI.md` | aktiv / fuehrend | verbindliche Arbeitsanweisung, Source-Hierarchie, No-Duplicate- und Evidence-Regeln | Runtime State, Execution Board, Canonical Truth |
+| `docs/architecture/WELLFIT_AGENT_AND_AI_RUNTIME_AUDIT_2026-07-29.md` | aktiv / fuehrend fuer Agent/KI | trennt Report-Agenten, Admin/Agent Center, GitHub Runner und Buddy AI sowie Aktivierungsgates | Runtime State, Agent-/Automation-Register, Buddy-KI-Runbook |
+| `docs/status/WELLFIT_GITHUB_ISSUE_TRIAGE_2026-07-29.md` | aktiv / GitHub-Triage | Disposition fuer 16 offene Issues sowie PR #263 und geschuetzten PR #13 | Execution Board |
+| `docs/status/WELLFIT_EXTERNAL_SOURCE_BASELINE_2026-07-29.md` | aktiv / Quellenklassifikation | ordnet die 16 externen Konzept-/Business-/Token-/Zielgruppenquellen ein | Canonical Truth, Runtime State |
+| `todolist/CURRENT_PROJECT_STATE.md` | historisch / Mai-Baseline | frueherer Projektzustand und Agent-Historie; nicht aktuelle Ausfuehrungsquelle | Runtime State, Execution Board |
 | `todolist/WORK_MAP.md` | aktiv / fuehrend | fuehrende Topic-to-File-Map gegen doppelte Architektur und parallele Systeme | `CURRENT_PROJECT_STATE.md`, Bereichs-TODOs, `docs/architecture/` |
-| `todolist/MASTER_PROMPT_FOR_AI.md` | aktiv | zentrale Arbeitsanweisung fuer KI/Codex | `NEXT_ACTIONS.md`, `PROJECT_STRUCTURE.md`, `TODO_CONSOLIDATION.md`, `TODO_INDEX.md` |
 | `todolist/MASTER_OPEN_DONE_LIST.md` | aktiv | zentrale Einzeluebersicht fuer erledigte/offene Aufgaben und Produktregeln | `NEXT_ACTIONS.md`, `DONE_LOG.md`, `PROJECT_STRUCTURE.md` |
 | `todolist/NEXT_ACTIONS.md` | aktiv | operative Aufgaben bis Beta | alle Bereichs-TODOs |
 | `todolist/TODO_CONSOLIDATION.md` | aktiv | Konsolidierung alter TODOs ohne Loeschung | dieser Index, Alt-TODOs |
@@ -31,6 +36,44 @@ Keine TODO-Datei loeschen. Wenn eine Datei veraltet oder doppelt ist, hier marki
 | `.env.example` | aktiv / Env-Vorlage |
 | `docs/beta/AGENT_ADMIN_PHASE1_AND_AT_CLOSED_BETA_PLAN.md` | aktiv / Plan | stufenplan fuer Agent-Admin Phase 1, Rollen/Audit-Gap, Pilot-Readiness und AT Closed Beta 25-50 | `todolist/NEXT_ACTIONS.md`, `project-register/progress-log.json` |
  committete Platzhalter-Vorlage fuer Firebase-Web-App-Variablen und optionale serverseitige Buddy-KI-Provider-Keys; keine echten Secrets oder Projektwerte eintragen, `.env.local` bleibt uncommitted | `README.md`, `todolist/J8.4D - LOCAL ENV UND BUILD SETUP ADDENDUM.md` |
+
+## Juli-2026 Runtime-, Beta-, Security- und Landing-Inventar
+
+Diese Dateien sind indexiert, damit Memory Sync keine bereits vorhandene Juli-Arbeit als neuen Task dupliziert.
+
+| Datei | Status | Zweck / Aktion |
+|---|---|---|
+| `todolist/LANDING_APPROVED_REFERENCE_STATUS.md` | erledigte Phase / QA offen | freigegebene Landing-Referenz und Rest-QA |
+| `todolist/LANDING_PUBLIC_SCOPE_STATUS.md` | Scope-Guardrail | begrenzt Landing-Arbeit auf Public Scope |
+| `todolist/status/2026-07-23-admin-mission-evidence-review-queue.md` | Statusnachweis | Admin Evidence Queue |
+| `todolist/status/2026-07-23-beta1-buddy-care-wfxp-backend.md` | Statusnachweis | Buddy-Care-/WFXP-Backend |
+| `todolist/status/2026-07-23-beta1-daily-mission-catalog.md` | Statusnachweis | Tagesmissionskatalog |
+| `todolist/status/2026-07-23-beta1-mission-evidence-approval-hardening.md` | Statusnachweis | Evidence-Approval-Haertung |
+| `todolist/status/2026-07-23-buddy-actions-server-authority.md` | Statusnachweis | Buddy-Actions-Serverautoritaet |
+| `todolist/status/2026-07-23-challenge-server-authority.md` | Statusnachweis | Challenge-Serverautoritaet |
+| `todolist/status/2026-07-23-daily-mission-server-authority.md` | Statusnachweis | Tagesmissions-Serverautoritaet |
+| `todolist/status/2026-07-23-daily-state-firestore-hardening.md` | Statusnachweis | Daily-State-Firestore-Haertung |
+| `todolist/status/2026-07-23-dashboard-buddy-care-wfxp-flow.md` | Statusnachweis | Dashboard Buddy-/WFXP-Flow |
+| `todolist/status/2026-07-23-dashboard-mission-review-completion-loop.md` | Statusnachweis | Dashboard Review-/Completion-Loop |
+| `todolist/status/2026-07-23-dashboard-mission-server-review-flow.md` | Statusnachweis | Dashboard Server-Review-Flow |
+| `todolist/status/2026-07-23-dashboard-wfxp-wallet-projection.md` | Statusnachweis | Dashboard WFXP-Projektion |
+| `todolist/status/2026-07-23-mobile-squat-server-authority.md` | Statusnachweis | Mobile-Squat-Serverautoritaet |
+| `todolist/status/2026-07-23-weekly-mission-server-authority.md` | Statusnachweis | Wochenmissions-Serverautoritaet |
+| `docs/beta/BETA1_BUDDY_CARE_WFXP_RUNTIME.md` | aktive Runtime-Doku | Buddy-Care/WFXP |
+| `docs/beta/BETA1_CHALLENGE_MISSION_RUNTIME.md` | aktive Runtime-Doku | Challenge |
+| `docs/beta/BETA1_CORE_MISSION_STATUS_UX.md` | aktive Runtime-Doku | Missionsstatus-UX |
+| `docs/beta/BETA1_DAILY_MISSION_CATALOG.md` | aktive Runtime-Doku | Tagesmissionskatalog |
+| `docs/beta/BETA1_LOCATION_MISSION_LIFECYCLE.md` | aktive Runtime-Doku | Standortmissions-Lifecycle |
+| `docs/beta/BETA1_MOBILE_POSE_REVIEW_RUNTIME.md` | aktive Runtime-Doku | Mobile-Pose-Review |
+| `docs/beta/BETA1_SERVER_MISSION_HISTORY.md` | aktive Runtime-Doku | Server-Missionshistorie |
+| `docs/beta/BETA1_WEEKLY_MISSION_RUNTIME.md` | aktive Runtime-Doku | Wochenmissionen |
+| `docs/beta/BETA_OPERATIONS_COCKPIT.md` | aktive Operations-Doku | Beta-Cockpit |
+| `docs/operations/PUBLIC_LANDING_VISUAL_ASSETS.md` | aktive Asset-Doku | Landing-Assets |
+| `docs/operations/GITHUB_ONLY_DEVELOPMENT_STATUS.md` | aktive Operations-Doku | GitHub-/PR-Workflow und automatisches Docker-Staging |
+| `docs/security/ACCOUNT_LIFECYCLE_AND_DATA_EXPORT.md` | aktive Security-Doku | Export/Loeschung |
+| `docs/security/FIREBASE_APP_CHECK_ROLLOUT.md` | aktive Security-Doku | App-Check-Rollout |
+| `docs/status/PUBLIC_LANDING_IMPLEMENTATION_2026-07-28.md` | Statusnachweis | gemergte Landing-Implementation |
+| `docs/status/WELLFIT_RUNTIME_STATE_2026-07-24.md` | historisch / ersetzt | durch Runtime State 2026-07-29 ersetzt |
 
 ## Alte Haupt-TODO-Dateien
 

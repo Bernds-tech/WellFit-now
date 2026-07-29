@@ -205,3 +205,7 @@ Callable preference/progress workflow   ALLOW
 5. Erst danach die zugehörigen Felder aus `hasOnlyTemporaryEconomyBridgeKeys()` entfernen.
 
 Die allgemeine `users`-Brücke wird nicht aufgrund einer Dokumentationsannahme geschlossen, sondern ausschließlich nach nachgewiesener Runtime-Migration.
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst die geschuetzte Beta-1 Canonical Truth, `todolist/MASTER_PROMPT_FOR_AI.md`, den aktuellen Runtime-Status und dieses Dokument. Inventarisiere bestehende Consumer und Serverautoritaet, bevor du eine Collection, Function, Regel oder Economy-Bezeichnung aenderst. Keine Parallel-Economy, keine Client-Reward-Autoritaet und keine WFT/Wallet/Token/NFT/Payment/Cash-out-Aktivierung. Rules-/Functions-Aenderungen nur mit Emulator-Evidence und eigenem Review-PR.

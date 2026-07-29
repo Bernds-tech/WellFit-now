@@ -31,3 +31,9 @@ Die oeffentliche Website soll sich an der von Bernd freigegebenen cineastischen 
 ## Naechster visueller Schritt
 
 Nach dem Staging-Deployment Desktop-Screenshot mit der Referenz vergleichen und nur noch Abstaende, Bildausschnitte, Kartenhoehen und Typografie korrigieren.
+
+Statushinweis 2026-07-29: Die Premium-Landingphase bis PR #362 ist gemergt und auf Staging live. Weitere Arbeit ist ein gemessener QA-/Performance-/A11y-Folgeblock, keine erneute Landing-Neuentwicklung.
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, den aktuellen Runtime-Status und das Execution Board. Pruefe die live gemergte Landing gegen die freigegebene Referenz. Aendere nur belegte Layout-, Performance- oder Accessibility-Gaps auf einem Branch/PR und baue keine zweite Landing oder neue Produkt-/Reward-/Buddy-Autoritaet.

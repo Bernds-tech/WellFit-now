@@ -3,6 +3,8 @@
 Stand: 2026-05-15  
 Scope: Current WellFit agent, autopilot, governance, register, TODO, readiness, feedback/insight, roadmap, and validation system. This document is analysis-only and does not create a parallel architecture.
 
+> Historische Architekturaufnahme. Fuer den aktuellen Unterschied zwischen Report-Agenten, Admin/Agent Center, realem GitHub-Runner-Code, deployter Aktivierung und Buddy AI gilt `docs/architecture/WELLFIT_AGENT_AND_AI_RUNTIME_AUDIT_2026-07-29.md`. Aussagen aus diesem Dokument, dass kein realer GitHub-API-Pfad implementiert sei, sind fuer den Repository-Code ueberholt.
+
 ## 1. Purpose
 
 WellFit already has a layered agent/governance system. Future agents must continue existing work in mapped files instead of creating duplicate architecture, duplicate TODO systems, or parallel runtime systems. This analysis explains the current components and points future agents to the cross-reference maintenance framework:

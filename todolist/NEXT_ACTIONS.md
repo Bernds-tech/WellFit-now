@@ -1,5 +1,7 @@
 # NEXT ACTIONS - WELLFIT BETA
 
+> Aktueller Hinweis vom 2026-07-29: Die aktive Ausfuehrungsreihenfolge steht in `todolist/CURRENT_EXECUTION_BOARD.md` und `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`. Die ausfuehrlichen Mai-Eintraege in dieser Datei bleiben als historisches Arbeitslog erhalten und duerfen nicht ungeprueft als naechster Task ausgefuehrt werden.
+
 ## Ziel
 Diese Datei steuert die naechsten Schritte bis zur ersten Beta-Version.
 
@@ -9,12 +11,18 @@ Die KI soll die Aufgaben von oben nach unten bearbeiten, sofern keine neue hoehe
 ## Fuehrende Quellen
 Vor Arbeit an dieser Datei immer zuerst lesen:
 - `AGENTS.md`
-- `todolist/CURRENT_PROJECT_STATE.md`
-- `todolist/WORK_MAP.md`
+- `todolist/MASTER_PROMPT_FOR_AI.md`
+- `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`
+- `todolist/CURRENT_EXECUTION_BOARD.md`
+- die geschuetzte Beta-1 Canonical Truth
 - `todolist/TODO_INDEX.md`
+- `todolist/WORK_MAP.md`
 
 Danach je nach Aufgabe lesen:
-- `todolist/MASTER_PROMPT_FOR_AI.md`
+- `docs/architecture/WELLFIT_AGENT_AND_AI_RUNTIME_AUDIT_2026-07-29.md`
+- `docs/status/WELLFIT_GITHUB_ISSUE_TRIAGE_2026-07-29.md`
+- `docs/status/WELLFIT_EXTERNAL_SOURCE_BASELINE_2026-07-29.md`
+- `todolist/CURRENT_PROJECT_STATE.md` (historische Mai-Baseline)
 - `todolist/TODO_CONSOLIDATION.md`
 - `todolist/PROJECT_STRUCTURE.md`
 - `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT`
@@ -22,9 +30,27 @@ Danach je nach Aufgabe lesen:
 - `todolist/AUTONOMOUS_ITERATION_MODE.md`
 - `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md`
 
-## Aktueller Arbeitsfokus
+## Aktive Ausfuehrungsreihenfolge - Stand 2026-07-29
 
-Stand: 2026-05-15
+1. [>] Source-of-Truth, Register, TODO-Index und Quality Gate synchronisieren.
+2. [ ] Kritische/hohe Produktionsabhaengigkeiten in einem eigenen Security-PR aktualisieren.
+3. [ ] Public Legaltexte in einem eigenen Legal-/Privacy-Review-PR an die tatsaechliche Beta anpassen.
+4. [ ] Staging-Domain, HTTPS und Browser-Sicherheitsheader mit Rollback umsetzen.
+5. [ ] Agent-/GitHub-Runner-Code gegen deployte Functions, Rechte, Kill Switch und Audit Evidence pruefen; Automation bleibt aus.
+6. [ ] Authentifizierte End-to-End-, Firebase-, Device- und Backup/Restore-Evidence vervollstaendigen.
+7. [ ] Buddy-Modellprovider erst nach Auth/App Check, Limits, Schema, Moderation, Minderjaehrigen-Schutz, Evals und Monitoring aktivieren.
+8. [ ] Community und Unity/AR nur in eigenen geschuetzten Tracks weiterfuehren.
+9. [!] WFT/SUI/Solana/Blockchain/Wallet/Presale/NFT/Trading/Staking/Cash-out bleiben in Beta inaktiv.
+
+Erledigt:
+
+- [x] Premium-Landingphase bis PR #362 gemergt und auf Staging-Commit `c0ef7d9...` live.
+- [x] Docker-/Nginx-/SSH-Rollback-Deployment auf `http://172.86.88.107` eingerichtet.
+- [x] Rules-basierter Buddy-KI-Endpoint live; Modellprovider deaktiviert.
+
+## Historischer Arbeitsfokus
+
+Stand: 2026-05-15 - historisch, durch aktive Ausfuehrungsreihenfolge ersetzt
 
 Bernd hat entschieden (uebernommener Fokus aus dem 2026-05-07-Kontext, als TODO-Kontext erhalten):
 - Mobile/AR/Unity/Handytests werden erst am Samstag weiterbearbeitet.
@@ -231,7 +257,7 @@ Quelle: `todolist/DATABASE_PLAN.md`, `todolist/F - FIREBASE  - REALTIME - MISSIO
 - [!] WellFit bleibt bis nach stabiler Beta/Testphase internes Punkte-/XP-System; Blockchain, WFT und NFTs kommen danach als separate Schicht.
 
 ## KI-Fortsetzungs-Prompt
-Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, danach diese Datei, `todolist/TODO_INDEX.md`, `todolist/PROJECT_STRUCTURE.md` und `todolist/TODO_CONSOLIDATION.md`. Waehle die naechste offene Aufgabe aus, setze sie pragmatisch um und dokumentiere das Ergebnis. Bis zur Beta darf direkt auf `main` gearbeitet werden. Halte Aenderungen klein und modular. TODO-Dateien nicht loeschen, sondern erweitern oder markieren.
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`, `todolist/CURRENT_EXECUTION_BOARD.md`, die geschuetzte Beta-1 Canonical Truth und danach diese Datei. Arbeite niemals direkt auf `main`; nutze einen task-spezifischen Branch und PR. Waehle nur aus der aktiven Ausfuehrungsreihenfolge, solange Bernd keine andere Prioritaet setzt. Alte Mai-Aufgaben zuerst gegen Code, PRs, Issues und Runtime pruefen und als erledigt, veraltet, duplikat, blockiert oder ersetzt markieren. Halte Aenderungen klein und modular. TODO-Dateien nicht loeschen.
 
 ## Hinweise von Bernd
 - Skalierbarkeit ist wichtig.

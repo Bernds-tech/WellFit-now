@@ -256,12 +256,22 @@
         "project-register/agent-proposals.json",
         "project-register/quality-gate-known-blockers.json"
       ],
-      "checks": [],
+      "checks": [
+        {
+          "command": "historical-record",
+          "result": "skipped",
+          "notes": "The original entry did not preserve command-level check evidence. This schema repair intentionally does not invent a pass result."
+        }
+      ],
       "followUps": [
         "Proceed with runtime/agent-admin-supervised-runner-deploy-integration while keeping deploy real-implementation gated and owner-approved."
       ],
       "nextRecommendedTask": "runtime/agent-admin-supervised-runner-deploy-integration",
-      "riskLevel": "low"
+      "riskLevel": "low",
+      "autoMergeEligibilityResult": "not_evaluated_historical_missing_check_evidence",
+      "autoRepairDecisionResult": "not_evaluated_historical_missing_check_evidence",
+      "protectedAreaConfirmation": "Historical entry lists the Agent Control Center validator/report, proposals and known-blocker register only. No runtime product, Canonical Truth, Unity or token/payment/blockchain activation is listed; this was not independently revalidated in 2026-07.",
+      "timestamp": "2026-05-23T00:00:00Z"
     },
     {
       "id": "2026-05-23-github-runner-pr-check-contract",
@@ -4559,13 +4569,23 @@
         "todolist/TODO_INDEX.md",
         "todolist/WORK_MAP.md"
       ],
-      "checks": [],
+      "checks": [
+        {
+          "command": "historical-record",
+          "result": "skipped",
+          "notes": "The original 2026-05-27 entry did not preserve command-level check evidence. This schema repair intentionally does not invent a pass result."
+        }
+      ],
       "followUps": [
         "Nach Frontend/Hosting-Deploy live pruefen: adminCallableAuthReady=true vor Sync.",
         "Danach runtime/admin-center-task-proposal-to-worker-queue."
       ],
       "nextRecommendedTask": "runtime/admin-center-task-proposal-to-worker-queue",
-      "riskLevel": "low"
+      "riskLevel": "low",
+      "autoMergeEligibilityResult": "not_evaluated_historical_missing_check_evidence",
+      "autoRepairDecisionResult": "not_evaluated_historical_missing_check_evidence",
+      "protectedAreaConfirmation": "Historical entry lists Admin Center client/types and documentation/register changes and states no runner/deploy. Canonical Truth, Unity and token/payment/blockchain activation are not listed as changed; this was not independently revalidated in 2026-07.",
+      "timestamp": "2026-05-27T00:00:00Z"
     },
     {
       "date": "2026-05-27",

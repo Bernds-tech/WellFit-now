@@ -3,40 +3,131 @@
     "project": "WellFit-now",
     "purpose": "Maschinenlesbares Todo-Register als Bruecke zu bestehenden todolist-Dateien.",
     "issue": 19,
-    "status": "initial-governance-layer",
+    "status": "current-source-of-truth-sync",
+    "updated": "2026-07-29",
     "rule": "Dieses Register ersetzt die bestehenden todolist-Dateien nicht. Es verweist auf fuehrende Aufgaben und verhindert Doppelarbeit."
   },
   "todos": [
     {
       "id": "TODO-STUFE4-0001",
       "title": "Stufe-4-Governance-Layer in bestehendes Repository einbauen",
-      "status": "in_progress",
+      "status": "done",
       "priority": "high",
       "type": "governance-documentation",
       "source": "GitHub Issue #19",
       "relatedFiles": ["agents/AGENTS.md", "agents/modes/stufe-4.md", "agents/self-check.md", "project-register/routes.json"],
       "relatedFeatures": ["FEATURE-ECONOMY-PREVIEW-APIS", "FEATURE-MISSIONS", "FEATURE-MOBILE-WEB"],
-      "notes": "Erster PR soll nur Governance und Register anlegen, keine Produktlogik veraendern."
+      "notes": "Governance-, Register-, Self-Check- und Agentenstruktur sind vorhanden. GitHub Issue #19 kann mit aktueller Evidence geschlossen werden."
     },
     {
       "id": "TODO-STUFE4-0002",
-      "title": "Quality Gate spaeter um Stufe-4-Register-Checks erweitern",
-      "status": "open",
+      "title": "Quality Gate um Stufe-4-Register-Checks erweitern",
+      "status": "done",
       "priority": "high",
       "type": "quality-gate",
       "source": "GitHub Issue #19",
       "relatedFiles": ["scripts/wellfit-dev-agent/src/quality-gate.mjs", "project-register/*", "agents/self-check.md"],
-      "notes": "Nicht im ersten Governance-PR produktiv erzwingen; zuerst Register und Regeln stabilisieren."
+      "notes": "Quality Gate, Route/API-, Mojibake-, Site-/Inventory- und weitere Validatoren sind implementiert. Aktuelle Regression wird separat als TODO-QG-2026-07-29 verfolgt."
     },
     {
       "id": "TODO-STUFE4-0003",
       "title": "Bestehende todolist-Dateien gegen maschinenlesbares Register konsolidieren",
-      "status": "open",
-      "priority": "medium",
+      "status": "in_progress",
+      "priority": "high",
       "type": "todo-consolidation",
       "source": "todolist/TODO_INDEX.md und todolist/TODO_CONSOLIDATION.md",
       "relatedFiles": ["todolist/TODO_INDEX.md", "todolist/TODO_CONSOLIDATION.md", "todolist/NEXT_ACTIONS.md"],
-      "notes": "Alte Dateien nicht loeschen. Doppelte Punkte markieren und verweisen."
+      "notes": "Aktuelle Runtime-/Execution-Dateien fuehren; Mai-Baselines bleiben historisch markiert. Alte Dateien nicht loeschen. Doppelte Punkte markieren und verweisen."
+    },
+    {
+      "id": "TODO-QG-2026-07-29",
+      "title": "Source-of-Truth und Quality Gate auf aktuellen Staging-Stand synchronisieren",
+      "status": "in_progress",
+      "priority": "critical",
+      "type": "governance-quality-gate",
+      "source": "todolist/CURRENT_EXECUTION_BOARD.md",
+      "relatedFiles": [
+        "docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md",
+        "todolist/MASTER_PROMPT_FOR_AI.md",
+        "todolist/TODO_INDEX.md",
+        "project-register/routes.json",
+        "project-register/product-readiness.json",
+        "scripts/wellfit-dev-agent/src/economy-code-authority-audit.mjs"
+      ],
+      "notes": "Fix stale status/register/schema/validator drift without changing protected Canonical Truth or Beta product authority."
+    },
+    {
+      "id": "TODO-LEGAL-2026-07-29",
+      "title": "Public Legaltexte an die reale Beta ohne aktive WFT-/Blockchain-Funktionen anpassen",
+      "status": "review_required",
+      "priority": "critical",
+      "type": "legal-privacy",
+      "source": "Live audit 2026-07-29",
+      "relatedFiles": [
+        "app/datenschutz/page.tsx",
+        "app/agb/page.tsx",
+        "app/impressum/page.tsx",
+        "todolist/CURRENT_EXECUTION_BOARD.md"
+      ],
+      "notes": "Dedicated Legal/Privacy PR required. Current public pages claim SUI, zkLogin, DePIN, WFT, NFTs, token economics, crypto acquisition and MiCA despite inactive Beta scope."
+    },
+    {
+      "id": "TODO-DEPS-2026-07-29",
+      "title": "Kritische und hohe Produktionsabhaengigkeiten aktualisieren",
+      "status": "open",
+      "priority": "critical",
+      "type": "dependency-security",
+      "source": "npm audit --omit=dev 2026-07-29",
+      "relatedFiles": [
+        "package.json",
+        "package-lock.json",
+        "todolist/CURRENT_EXECUTION_BOARD.md"
+      ],
+      "notes": "Current lockfile reports 1 critical, 9 high and 4 moderate production findings. Use a dedicated PR; update Next/eslint-config-next together and Firebase compatibly, then rerun full checks and audit. Do not use audit fix --force blindly."
+    },
+    {
+      "id": "TODO-TLS-2026-07-29",
+      "title": "Staging-Domain, HTTPS und zentrale Browser-Sicherheitsheader einrichten",
+      "status": "open",
+      "priority": "critical",
+      "type": "staging-security",
+      "source": "Live audit 2026-07-29",
+      "relatedFiles": [
+        "infra/server/nginx-wellfit.conf",
+        "infra/server/deploy-wellfit.sh",
+        ".github/workflows/deploy.yml",
+        "docs/operations/SERVER_DEPLOYMENT_RUNBOOK.md"
+      ],
+      "notes": "Preserve candidate health check and rollback; verify HTTPS redirect, CSP/frame/referrer/permissions headers and live critical routes."
+    },
+    {
+      "id": "TODO-AGENT-RUNTIME-2026-07-29",
+      "title": "Agent-/GitHub-Runner-Code gegen deployte Aktivierung, Rechte und Kill Switch pruefen",
+      "status": "review_required",
+      "priority": "critical",
+      "type": "agent-runtime-security",
+      "source": "docs/architecture/WELLFIT_AGENT_AND_AI_RUNTIME_AUDIT_2026-07-29.md",
+      "relatedFiles": [
+        "functions/lib/agentGithubRunner.js",
+        "functions/lib/agentAdminRolesAudit.js",
+        "project-register/agent-control-center.json",
+        "project-register/agent-automation-control.json"
+      ],
+      "notes": "Real GitHub branch/file/PR/check/merge code exists. Automation stays off and runtime authority ungranted until deployment, least-privilege and denial-path evidence exists."
+    },
+    {
+      "id": "TODO-BUDDY-AI-2026-07-29",
+      "title": "Buddy-Modellprovider vor Aktivierung haerten und evaluieren",
+      "status": "blocked",
+      "priority": "high",
+      "type": "buddy-ai-safety",
+      "source": "docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md",
+      "relatedFiles": [
+        "app/api/buddy-ki/route.ts",
+        "lib/buddyKi/buddyKiProviderOpenAi.ts",
+        "docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md"
+      ],
+      "notes": "Live remains Rules-only. Blocked on auth/App Check, limits, timeout/retry, strict schema, moderation, under-18 safeguards, evals, monitoring and data-control review."
     }
   ]
 }

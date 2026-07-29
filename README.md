@@ -4,18 +4,20 @@ WellFit is an existing Next.js/Firebase product baseline for the Move-Learn-Soci
 
 ## Current operating mode
 
-WellFit is currently developed exclusively through GitHub branches and pull requests. There is no active WellFit server or SSH deployment target in use. GitHub Actions build the application and run emulator checks, but they must not deploy unrelated products or external services.
+WellFit is developed through scoped GitHub branches and pull requests. An active Docker/Nginx staging environment is deployed automatically after a push/merge to `main` and is currently reachable at `http://172.86.88.107`. It is an HTTP/IP staging system, not a production release. A merge to `main` is therefore an external staging mutation, even when the task itself only changes repository files.
 
 Read these current references before changing product code or planning:
 
 1. `AGENTS.md`
-2. `docs/status/WELLFIT_RUNTIME_STATE_2026-07-24.md`
-3. `project-register/wellfit-beta1-canonical-truth.json`
-4. `docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md`
-5. `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md`
-6. the relevant historical TODO/work-map files for context
+2. `todolist/MASTER_PROMPT_FOR_AI.md`
+3. `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`
+4. `todolist/CURRENT_EXECUTION_BOARD.md`
+5. `project-register/wellfit-beta1-canonical-truth.json`
+6. `docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md`
+7. `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md`
+8. the relevant historical TODO/work-map files for context
 
-The runtime-state document records the actual merged implementation. The protected Canonical Truth controls Beta-1 product/economy boundaries. Historical May 2026 status documents remain useful background but do not override newer tested code.
+The runtime-state document separates code, merge, deployment, configuration and live verification. The protected Canonical Truth controls Beta-1 product/economy boundaries. Historical May/July status documents remain useful background but do not override newer tested code and runtime evidence.
 
 See also `docs/operations/GITHUB_ONLY_DEVELOPMENT_STATUS.md`.
 
@@ -101,6 +103,7 @@ Optional Buddy KI provider settings are server-side only unless a variable is ex
 
 - `BUDDY_KI_MODEL_PROVIDER_ENABLED`
 - `BUDDY_KI_PROVIDER`
+- `BUDDY_KI_MODEL`
 - `OPENAI_API_KEY`
 
 Server-only provider keys, including `OPENAI_API_KEY`, must never use the `NEXT_PUBLIC_` prefix and must never be committed with real values.
@@ -158,22 +161,28 @@ The repository CI also blocks FanMind or unrelated-product workflow references.
 
 ## Current execution order
 
-1. registration, consent and server-side user initialization;
-2. remaining legacy `users` economy/Buddy writer migration;
-3. Firestore compatibility-write removal;
-4. email verification, session/route hardening and operational admin claims;
-5. consent withdrawal, data export and account deletion/anonymization;
-6. privacy-safe pilot telemetry;
-7. non-crypto partner rewards and redemption;
-8. real-device Mobile/PWA/Pose evidence;
-9. small adult Closed Beta;
-10. native AR, Edge AI, wider partner tooling and later roadmap layers.
+1. Source-of-truth/register/Quality-Gate stabilization.
+2. Critical/high production dependency remediation in a dedicated security PR.
+3. Dedicated Legal/Privacy correction for public Beta claims.
+4. Staging domain, HTTPS and browser security headers.
+5. Agent/GitHub-runner deployment, permission and kill-switch evidence while automation stays disabled.
+6. Authenticated E2E, Firebase, device and backup/restore evidence.
+7. Buddy model-provider hardening before activation.
+8. Community and Unity/AR only in their dedicated reviewed tracks.
+9. Blockchain/token layers remain inactive and later.
 
-## Future deployment notes
+The detailed sequence is maintained in `todolist/CURRENT_EXECUTION_BOARD.md`.
 
-No active WellFit server, PM2 process, Firebase production deployment or SSH target is currently configured or used by this project. Historical self-hosting and PM2 notes are planning references only.
+## Staging deployment notes
 
-Any future hosting setup, server provisioning, Firebase deployment, Firestore Rules publication, production data migration or secret configuration requires a separate explicit owner decision and a scoped pull request.
+- Workflow: `.github/workflows/deploy.yml`
+- Server activation/rollback: `infra/server/deploy-wellfit.sh`
+- Reverse proxy: `infra/server/nginx-wellfit.conf`
+- Current staging: `http://172.86.88.107`
+- Current verified release: `c0ef7d921ee1499cd20ffdd086ebca4050f1a189`
+- The web deployment path is Docker-based; historical PM2 notes are not the active release mechanism.
+
+Do not change the server manually to bypass repository review. Domain/TLS, Nginx/security headers, Firebase deployment, Firestore Rules publication, production data migration, secret configuration and production hosting require separate scoped approval and rollback evidence.
 
 ## Learn more
 

@@ -1,6 +1,8 @@
 # WellFit Runtime State — 2026-07-24
 
-Status: current implementation and execution reference for GitHub development.
+Status: superseded historical snapshot
+
+> Diese Datei wurde am 2026-07-29 durch `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md` ersetzt. Die Aussage „kein aktiver Server“ ist historisch: Seit 2026-07-26/28 besteht ein Docker-basiertes Staging-Deployment. Diese Datei bleibt als Zeitachsen-Nachweis erhalten und darf nicht als aktueller Betriebsstand verwendet werden.
 
 This document records what is actually present in the repository after the merge of PR #323. It does not replace the owner-controlled Beta-1 Canonical Truth and does not activate production, blockchain, token, payment, deployment or legal authority.
 

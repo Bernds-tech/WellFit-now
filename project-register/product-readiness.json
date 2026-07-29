@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-17",
+  "updated": "2026-07-29",
   "purpose": "Machine-readable WellFit product readiness matrix for future Codex/AI agents. It maps current product modules to readiness statuses, risk levels, leading files, blockers, safe next tasks, duplicate-system warnings, advancement checks, and human-approval needs so agents choose safer follow-up work without changing product logic or creating parallel architecture.",
   "status_scale": {
     "not_started": "No meaningful repo implementation or approved work plan exists yet.",
@@ -156,7 +156,7 @@
       "leading_files": [
         "app/missionen/page.tsx",
         "lib/missions/index.ts",
-        "app/missionen/lib/missionBuddyBridge.ts",
+        "lib/beta1/clientMissionCommands.ts",
         "app/missionen/favoriten/page.tsx",
         "app/missionen/history/page.tsx"
       ],

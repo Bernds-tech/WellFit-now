@@ -97,7 +97,7 @@ Die Suite muss weiterhin Preferences, Attempt, Evidence, Admin-Review, Completio
 
 - Der Tagesmissionsclient enthält keine direkten Firestore-Schreibvorgänge auf die drei Legacy-Collections.
 - Eigentümer können bestehende Projektionen lesen.
-- Andere und nicht angemeldete Nutzer erhalten keinen Zugriff.
+- User A kann nur die eigenen Projektionen lesen. User B darf weder die Projektionen von User A lesen noch schreiben; umgekehrt gilt dieselbe Isolation. Nicht angemeldete Nutzer erhalten keinen Zugriff.
 - Client Create, Update und Delete werden abgewiesen.
 - Die Callable-basierten Tagesmissionen bleiben vollständig funktionsfähig.
 - Die allgemeine `users/{userId}`-Brücke wird nicht unbeabsichtigt verändert.
@@ -106,3 +106,7 @@ Die Suite muss weiterhin Preferences, Attempt, Evidence, Admin-Review, Completio
 ## Nächster Schritt
 
 Alle aktiven Schreibstellen auf den allgemeinen Kompatibilitätsfeldern werden nach Produktbereich inventarisiert. Danach wird jeweils der kleinste Consumer auf bestehende WFXP-, `userAvatars`- oder Serverprojektionspfade umgestellt. Ein Feld wird erst nach grüner Regression aus der Regel-Ausnahme entfernt.
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst die geschuetzte Beta-1 Canonical Truth, `todolist/MASTER_PROMPT_FOR_AI.md`, den aktuellen Runtime-Status und diesen Testplan. Aendere Rules oder Client-/Server-Schreibpfade nur in einem begrenzten PR. Pruefe User A gegen User B, anonymous denial, Client Create/Update/Delete, Callable-Erfolg, Idempotenz und Doppelverguetung im Emulator. Kein Production-Deploy und keine Lockerung als Ersatz fuer fehlende Testumgebung.

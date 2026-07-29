@@ -73,6 +73,8 @@ Details stehen in `agents/modes/stufe-4.md` und im phasenbasierten Workflow `age
 
 - Niemals direkt auf `main` arbeiten.
 - Immer Branch/PR-Workflow nutzen.
+- Vor Runtime-, Roadmap- oder Agentenarbeit `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`, `todolist/CURRENT_EXECUTION_BOARD.md` und `todolist/MASTER_PROMPT_FOR_AI.md` lesen.
+- `code_present`, `merged`, `deployed`, `configured` und `live_verified` niemals vermischen.
 - Bestehende Todo-, Architektur-, Roadmap- und Statusdateien nicht loeschen.
 - Veraltete Inhalte markieren, nicht entfernen.
 - Doppelte Aufgaben markieren und auf fuehrende Aufgabe verweisen.
@@ -134,4 +136,3 @@ Die Beta-1 Canonical-Truth-Dateien sind verpflichtende Lesebasis, aber fuer norm
 - `todolist/CODEX_CONTEXT_WELLFIT_BETA1.md`
 
 Aenderungen sind nur mit expliziter Bernd-/Owner-Freigabe in der Aufgabe erlaubt. Ohne diese Freigabe muss der Agent blockieren und den vorgeschlagenen Patch in einem nicht-geschuetzten Handoff/Register dokumentieren.
-
