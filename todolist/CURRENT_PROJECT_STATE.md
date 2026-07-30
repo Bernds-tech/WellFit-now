@@ -1,5 +1,7 @@
 # CURRENT PROJECT STATE - WELLFIT
 
+> Historische Mai-2026-Baseline. Nicht als aktuellen Runtime- oder Ausfuehrungsstand verwenden. Fuehrend sind `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`, `todolist/CURRENT_EXECUTION_BOARD.md` und `todolist/MASTER_PROMPT_FOR_AI.md`. Diese Datei bleibt zur Nachvollziehbarkeit erhalten und wird nicht geloescht.
+
 Stand: 2026-05-15
 Basis: aktueller Dokumentationsbaseline-Stand nach PR #45 (`419cded`, UI-/Route-Smoke-Check) und den Agent-Governance-/Autopilot-Ergaenzungen vom 2026-05-14.
 Zweck: fuehrende Agent-Memory-Datei fuer den aktuellen Zustand. Diese Datei ersetzt keine Bereichs-TODOs, sondern verlinkt und ordnet sie.

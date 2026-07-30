@@ -744,9 +744,9 @@
     }
   },
   "safe_live_activation": {
-    "updated": "2026-05-17",
-    "status": "active",
-    "mode": "live_agent_operating_system_with_safety_gates",
+    "updated": "2026-07-29",
+    "status": "code_present_operational_activation_unverified",
+    "mode": "admin_agent_control_plane_code_present_automation_off",
     "adminConsolePath": "/admin/agent-center",
     "owner": "Guggenberger Bernd",
     "activeAgentIds": [
@@ -761,24 +761,27 @@
       "user-memory-governance-agent-report-agent",
       "recovery-pause-anti-overuse-guard-report-agent"
     ],
-    "enabledNow": [
-      "Admin Center visibility",
-      "Concept-learning question queue visibility",
-      "Knowledge upload intake policy visibility",
+    "repositoryCapabilities": [
+      "Admin Center UI and route",
+      "Concept-learning question queue",
+      "Knowledge upload intake policy",
       "Product memory and knowledge core governance",
       "Report-only guard agents and validators",
-      "Task draft schema and proposal queue visibility"
+      "Task proposal approval and worker queue callable code",
+      "GitHub branch file pull-request check and merge callable code"
     ],
-    "blockedUntilDedicatedOwnerApprovedImplementationTask": [
+    "blockedUntilDedicatedOwnerApprovedRuntimeVerification": [
       "runtime product behavior changes",
       "Firebase writes or production data writes",
       "real file upload persistence",
-      "real approval buttons/actions",
+      "real approval and worker actions",
+      "real GitHub external writes",
       "auto-merge/deploy/repair",
       "reward/mission authority",
       "health/child/location/legal/payment/token runtime activation"
     ],
-    "whyThisIsStillLive": "The Agent OS is live as a visible, built, checkable, auditable operating layer in the app and registers. Safety gates prevent dangerous runtime authority while keeping agents active for reporting, learning questions, task drafting, and governance checks."
+    "runtimeEvidence": "Repository implementation is confirmed. The deployed Firebase Functions source version, server-side GitHub configuration, callable availability and a live external-write denial/execution test were not verified on 2026-07-29.",
+    "safetyDefault": "agent-automation-control remains off and runtimeAuthorityGranted remains false until deployment, least-privilege, approval-binding, denial-path, audit and kill-switch evidence exists."
   },
   "agentOsAutonomyLevels": {
     "updated": "2026-05-17",
@@ -927,10 +930,11 @@
     "riskSourceClassifier": "project-register/agent-risk-source-classifier.json"
   },
   "currentImplementation": [
-    "server_side_roles_audit_worker_queue_automation_control_and_metadata_runner_available",
-    "real_github_api_not_yet_implemented",
-    "real_deploy_not_implemented",
-    "production_deploy_requires_second_owner_approval"
+    "server_side_roles_audit_worker_queue_automation_control_and_runner_code_present",
+    "real_github_api_branch_file_pr_check_merge_code_implemented_in_repository",
+    "deployed_functions_and_github_server_configuration_not_verified",
+    "merge_to_main_can_trigger_existing_staging_deploy_workflow",
+    "production_deploy_requires_separate_owner_approval"
   ],
   "auto_merge_policy": {
     "mode": "gated_only",
@@ -946,17 +950,28 @@
     ]
   },
   "auto_deploy_policy": {
-    "preview_staging": "gated_only",
-    "production": "requires_second_owner_approval_and_not_implemented_in_current_runtime",
+    "preview_staging": "repository workflow deploys main automatically; an Agent Center merge could indirectly trigger staging and must be treated as an external mutation",
+    "production": "requires separate owner approval and is not approved",
     "productionDeployEnabled": false
   },
   "github_runner_semantics": {
-    "server_layer": "available",
-    "real_github_api": "not_implemented",
-    "allowed_metadata_status": [
+    "server_layer": "implemented_in_repository_activation_unverified",
+    "real_github_api": "implemented_in_repository_server_config_and_live_execution_unverified",
+    "allowed_preflight_status": [
       "metadata_only",
       "missing_server_config",
       "github_api_not_implemented"
+    ],
+    "implemented_runtime_statuses": [
+      "branch_created",
+      "files_committed",
+      "pr_created",
+      "checks_pending",
+      "checks_failed",
+      "checks_passed",
+      "auto_merged",
+      "failed",
+      "blocked"
     ],
     "real_success_status_rules": [
       "pr_created_requires_real_github_api_response",
@@ -978,4 +993,3 @@
     "outputRegister": "project-register/agent-product-evolution-first-run-output.json"
   }
 }
-

@@ -1,6 +1,22 @@
 # WellFit – letzter lokaler Build-Status
 
-Stand: 2026-05-14
+Stand: 2026-07-29
+
+## Bestaetigt am 2026-07-29 - Source-of-Truth-/Quality-Gate-Audit
+
+[x] Arbeitsbranch: `audit/wellfit-source-of-truth-2026-07-29`; nicht direkt auf `main`.
+[x] `npm run lint -- --ignore-pattern 'database/**'`: erfolgreich mit 9 bestehenden Warnungen, 0 Fehlern.
+[x] `npx tsc --noEmit`: erfolgreich.
+[x] `npm --prefix functions run check`: erfolgreich inklusive Unit-/Startup-/Database-Syntaxchecks.
+[x] `npm run build`: erfolgreich mit Next.js 16.2.3 / Turbopack; 42 statische Seiten generiert, 38 App-Seiten und 10 API-Routen im Register bestaetigt.
+[x] Product Readiness, Route/API Register, Route/API Drift, Firestore-Testplan, Mission/Buddy/Economy-Audit und Task-/Work-Log-Sync: erfolgreich.
+[x] Memory Sync: 0 fehlende Dateien, 0 fehlende KI-Fortsetzungs-Prompts nach Index-Synchronisierung.
+[x] Economy Code Authority Audit: 0 blockierende aktive Wallet/Token/NFT/Cash-out-Befunde.
+[x] `npm run agent:quality-gate`: in einem sauberen temporaeren Worktree mit genau dem Audit-Diff vollstaendig PASS.
+[!] Im primaeren Worktree blockiert nur der Agent-Control-Center-Dirty-Scope-Check wegen der bereits vor dem Audit vorhandenen unversionierten Datei `public/landing/hero-composite-v12.webp`. Sie wird nicht in diesen Branch aufgenommen; der saubere Worktree belegt, dass der Branch-Diff selbst den Gate besteht.
+[!] `npm audit --omit=dev`: 1 critical, 9 high, 4 moderate Produktionsbefunde; eigener P0 Dependency-Security-PR erforderlich.
+[!] Build-Prestep materialisiert die unversionierte Hero-Datei deterministisch; sie bleibt aus Audit-Commit/PR ausgeschlossen.
+[x] Geschuetzte Canonical Truth, Public Legaltexte, Firebase-Runtime, Serverkonfiguration und Unity/PR #13 unveraendert.
 
 
 ## Bestaetigt am 2026-05-14 nach PR #41, #42 und #43

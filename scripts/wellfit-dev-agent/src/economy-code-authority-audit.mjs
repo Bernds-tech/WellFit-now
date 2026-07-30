@@ -24,12 +24,22 @@ const warningPatterns = [
 
 const allowedNegativeCashoutPatterns = [
   /keine[^\n]{0,120}auszahlung(en)?/iu,
+  /kein(?:e|en|er|es)?[^\n]{0,120}cashout/iu,
+  /kein(?:e|en|er|es)?[^\n]{0,120}withdrawal/iu,
   /ohne[^\n]{0,120}auszahlung(en)?/iu,
   /nicht\s+auszahlbar/iu,
   /no[^\n]{0,120}cashout/iu,
   /no[^\n]{0,120}withdrawal/iu,
   /no[^\n]{0,120}payout/iu,
   /keine[^\n]{0,120}cashout/iu,
+  /\bcashout(?:Allowed)?\??\s*[:=]\s*false\b/iu,
+  /\bwithdraw(?:al|Allowed)?\??\s*[:=]\s*false\b/iu,
+  /\bcashout(?:Allowed)?\??\s*:\s*boolean\b/iu,
+  /\bwithdraw(?:al|Allowed)?\??\s*:\s*boolean\b/iu,
+  /\bcashout(?:Allowed)?\??\s*:\s*unknown\b/iu,
+  /\bwithdraw(?:al|Allowed)?\??\s*:\s*unknown\b/iu,
+  /\bcashout(?:Allowed)?\s*(?:===|!==)\s*(?:true|false)\b/iu,
+  /\bwithdraw(?:al|Allowed)?\s*(?:===|!==)\s*(?:true|false)\b/iu,
   /cashout\s*\/\s*echtgeldsprache\s+vermeiden/iu,
   /auszahlung(en)?[^\n]{0,120}(deaktiviert|inaktiv|nicht\s+aktiv|verboten|blockiert)/iu
 ];
@@ -62,14 +72,18 @@ function isAllowedNegativeSafetyContext(patternId, line) {
   return allowedNegativeCashoutPatterns.some((pattern) => pattern.test(line));
 }
 
+function allMatches(pattern, text) {
+  const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
+  return text.matchAll(new RegExp(pattern.source, flags));
+}
+
 function scanFile(file) {
   const text = fs.readFileSync(path.join(ROOT, file), "utf8");
   const issues = [];
   const warnings = [];
 
   for (const item of blockingPatterns) {
-    const match = item.pattern.exec(text);
-    if (match) {
+    for (const match of allMatches(item.pattern, text)) {
       const line = lineAt(text, match.index);
       if (!isAllowedNegativeSafetyContext(item.id, line)) {
         issues.push({ file, line: lineNumber(text, match.index), id: item.id, reason: item.reason });
@@ -78,8 +92,9 @@ function scanFile(file) {
   }
 
   for (const item of warningPatterns) {
-    const match = item.pattern.exec(text);
-    if (match) warnings.push({ file, line: lineNumber(text, match.index), id: item.id, reason: item.reason });
+    for (const match of allMatches(item.pattern, text)) {
+      warnings.push({ file, line: lineNumber(text, match.index), id: item.id, reason: item.reason });
+    }
   }
 
   return { issues, warnings };

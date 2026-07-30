@@ -58,3 +58,16 @@ Produktgrenzen:
 - Risk if not changed: `npm run agent:quality-gate` remains red on Required KI-Fortsetzungs-Prompts and continues blocking AutoMerge/RealRunner.
 - Requires owner approval: yes
 - Owner decision:
+
+## Proposal: WFXP waehrend der ersten Alpha beibehalten
+
+- Date: 2026-07-30
+- Proposed by: Codex nach Owner-Interview mit Bernd
+- Affected protected file: project-register/wellfit-beta1-canonical-truth.json, docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md, todolist/CODEX_CONTEXT_WELLFIT_BETA1.md
+- Affected concept area: Alpha-Economy, WFXP/WFP/XP-Terminologie und spaetere Migration
+- Reason: Bernd hat in der strukturierten Fragerunde entschieden, dass die bestehende gemeinsame Einheit WFXP fuer die erste Alpha bestehen bleibt und WFit Points sowie XP erst spaeter kontrolliert getrennt werden. Die derzeit geschuetzte Canonical Truth fordert dagegen bereits in Beta 1 eine strikte WFP-/XP-Trennung.
+- Proposed change summary: Die geschuetzte Wahrheit soll nach einem eigenen Owner-geprueften Aenderungsschritt festhalten, dass die erste Alpha voruebergehend WFXP als gemeinsame, interne, nicht uebertragbare und nicht monetaere Einheit verwendet. Die spaetere Trennung in ausgebbare WFit Points und nicht ausgebbare XP bleibt Ziel einer versionierten Migration. Alle Grenzen gegen WFT, SUI, Solana, Blockchain, Wallet, NFT, Presale, Payment und Cash-out bleiben unveraendert.
+- Risk if changed: WFXP koppelt Ausgabe- und Fortschrittslogik laenger zusammen; Datenmodell, Balancing und spaetere Migration werden aufwendiger. Begriffe in Tests, UI, Dokumentation und Backend muessen bis zur Migration konsistent als temporaer markiert werden.
+- Risk if not changed: Canonical Truth, aktuelle Runtime und Bernds ausdrueckliche Alpha-Entscheidung widersprechen einander. Agenten koennten eine ungewollte Sofortmigration beginnen oder dieselbe Economy-Arbeit doppelt ausfuehren.
+- Requires owner approval: yes
+- Owner decision: Produktentscheidung von Bernd am 2026-07-30 bestaetigt; geschuetzte Dateien in diesem Interview noch nicht geaendert. Separater Scope-/Migrationsreview erforderlich.

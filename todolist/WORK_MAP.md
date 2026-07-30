@@ -1,20 +1,30 @@
 # WORK MAP - WELLFIT
 
-Stand: 2026-05-15
+Stand: 2026-07-29
 Zweck: fuehrende topic-to-file map fuer Agenten. Diese Datei ist ein Wegweiser zu bestehenden Dateien und darf keine Parallelarchitektur oder neuen Produktentscheidungen erfinden.
 
 ## Arbeitsregel
 
-- Vor Aenderungen zuerst `AGENTS.md`, `todolist/CURRENT_PROJECT_STATE.md`, diese Datei, `todolist/TODO_INDEX.md` und `todolist/NEXT_ACTIONS.md` lesen.
+- Vor Aenderungen zuerst `AGENTS.md`, `todolist/MASTER_PROMPT_FOR_AI.md`, `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`, `todolist/CURRENT_EXECUTION_BOARD.md`, die geschuetzte Beta-1 Canonical Truth, diese Datei und `todolist/TODO_INDEX.md` lesen.
 - Bestehende App-, Lib-, Backend-, Architektur- und TODO-Dateien erweitern; keine doppelten Shells, Routen, Agent-Regeln, Economy-Systeme oder Datenmodelle anlegen.
 - Dokumentations-/TODO-Dateien nicht loeschen. Veraltete oder doppelte Dateien nur markieren und zur fuehrenden Datei verlinken.
 - Compliance- und Safety-kritische Bereiche nur mit explizitem Auftrag bearbeiten.
+
+## Aktuelle Steuerungs- und Quellenmap
+
+- `todolist/MASTER_PROMPT_FOR_AI.md`: verbindlicher KI-Arbeitsauftrag, Source-Hierarchie und No-Duplicate-Regeln.
+- `docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md`: aktueller Unterschied zwischen Code, Merge, Deploy, Konfiguration und Live-Evidence.
+- `todolist/CURRENT_EXECUTION_BOARD.md`: aktive P0-P3-Reihenfolge und Abnahmekriterien.
+- `docs/architecture/WELLFIT_AGENT_AND_AI_RUNTIME_AUDIT_2026-07-29.md`: Agent-/Admin-/GitHub-Runner-/Buddy-AI-Faehigkeit und Aktivierungsgates.
+- `docs/status/WELLFIT_GITHUB_ISSUE_TRIAGE_2026-07-29.md`: Disposition offener Issues sowie PR #263 und PR #13.
+- `docs/status/WELLFIT_EXTERNAL_SOURCE_BASELINE_2026-07-29.md`: Klassifikation der 16 externen WellFit-Quellen.
+- `todolist/CURRENT_PROJECT_STATE.md` und `docs/status/WELLFIT_RUNTIME_STATE_2026-07-24.md`: historische Baselines, nicht aktuelle Ausfuehrungsquellen.
 
 
 ## Cross-reference maintenance
 
 - `project-register/cross-reference-maintenance.json` ist das maschinenlesbare Cross-Reference-Maintenance-Register fuer kuenftige Agenten. Es definiert Change-Kategorien und welche Register, TODO-Dateien, Work-Map-Eintraege, Readiness-Dateien, Validierungsskripte und Docs nach Routen-, API-, Modul-, Agent-, Roadmap-, Feedback-/Insight-, Visual-, Unity/AR-, Compliance- oder Governance-Aenderungen zu pruefen/aktualisieren sind.
-- `docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md` analysiert das aktuelle Agent-/Autopilot-/Governance-System, Memory-Dateien, Task-Auswahl, Loop-Guards, Validation Scripts, Register-Familien, geschuetzte Bereiche und Autopilot-Grenzen.
+- `docs/architecture/WELLFIT_AGENT_SYSTEM_ANALYSIS.md` ist die historische Mai-Aufnahme des Agent-/Autopilot-/Governance-Systems. Fuer reale GitHub-Runner-Codefaehigkeit und den aktuellen Aktivierungsstand fuehrt der Audit vom 2026-07-29.
 - `docs/architecture/WELLFIT_CROSS_REFERENCE_MAINTENANCE.md` erklaert den Cross-Reference-Maintenance-Agenten fuer Menschen.
 - `scripts/wellfit-dev-agent/src/cross-reference-maintenance-check.mjs` validiert das Register, Pflichtkategorien, referenzierte Dateien, Work-Map-/TODO-Index-Verweise und Major-Register-Coverage; der Check ist in `scripts/wellfit-dev-agent/src/quality-gate.mjs` eingebunden.
 - Diese Dateien erweitern die bestehende Governance und ersetzen nicht `AGENTS.md`, diese Work Map, `TODO_INDEX.md`, `CURRENT_PROJECT_STATE.md`, `agent-workflows.json`, `agent-task-queue.json` oder bestehende Register.

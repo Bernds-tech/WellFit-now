@@ -38,3 +38,9 @@ Vorhandene Links nach `/login` und `/register` bleiben erhalten. Deren interne L
 - Besonderheiten, Bürgermeister-Roadmap, Tamagotchi-Pflege und Buddy-Sichtbarkeit deutlicher erklären
 - alle öffentlichen Abschnitte visuell vereinheitlichen
 - Staging-Screenshot nach Deployment prüfen
+
+Statushinweis 2026-07-29: Die meisten Punkte dieses Umsetzungsschritts wurden bis PR #362 gemergt. Offen bleiben insbesondere die Entfernung des CSS-`zoom`, messbare Responsive-/Performance-/A11y-Evidence sowie `robots.txt`, Sitemap und weitere SEO-Abnahme.
+
+## KI-Fortsetzungs-Prompt
+
+Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, den aktuellen Runtime-Status und das Execution Board. Behandle diese Datei als begrenzten Public-Landing-Scope. Revalidiere offene Punkte gegen den aktuellen Live-Commit, wiederhole keine bereits gemergte Premiumphase und beruehre keine Auth-, Firebase-, Mission-, Economy-, Buddy-KI-, Agent-, Unity-, Token- oder Blockchain-Autoritaet.

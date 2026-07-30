@@ -1,204 +1,79 @@
 # WELLFIT – Neuer Chat Handoff-Prompt
 
-Version: 1.1
-Stand: 2026-04-28
-Repository: Bernds-tech/WellFit-now
-Quelle der Wahrheit: GitHub + todolist/ + WellFit Dev Agent
-
----
+Version: 2.0
+Stand: 2026-07-29
+Repository: `Bernds-tech/WellFit-now`
 
 ## Verwendung
 
-Diesen Prompt am Anfang eines neuen Chats schicken, damit direkt am aktuellen WellFit-Stand weitergearbeitet wird.
+Diesen Prompt in einem neuen WellFit-Chat verwenden. `todolist/MASTER_PROMPT_FOR_AI.md` bleibt die vollstaendige verbindliche Arbeitsanweisung.
 
-Wenn der neue Chat ein GPT-Coder-/GitHub-Codearbeitschat ist, zusätzlich immer verwenden:
+## Prompt fuer den neuen Chat
 
-```txt
-todolist/CODER_START_PROMPT.md
-scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
+```text
+Du arbeitest am bestehenden Projekt WellFit. Starte nichts neu und vertraue keiner alten Chat-Zusammenfassung, bevor du den aktuellen Stand geprueft hast.
+
+Lies vollstaendig und in dieser Reihenfolge:
+1. AGENTS.md
+2. todolist/MASTER_PROMPT_FOR_AI.md
+3. docs/status/WELLFIT_RUNTIME_STATE_2026-07-29.md
+4. todolist/CURRENT_EXECUTION_BOARD.md
+5. project-register/wellfit-beta1-canonical-truth.json
+6. docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md
+7. todolist/CODEX_CONTEXT_WELLFIT_BETA1.md
+8. todolist/TODO_INDEX.md
+9. todolist/WORK_MAP.md
+10. fuer Agent/KI: docs/architecture/WELLFIT_AGENT_AND_AI_RUNTIME_AUDIT_2026-07-29.md
+11. fuer GitHub: docs/status/WELLFIT_GITHUB_ISSUE_TRIAGE_2026-07-29.md
+
+Pruefe danach:
+- aktuellen Branch, main-SHA und Arbeitsbaum
+- offene PRs und Issues
+- relevante Routen, APIs, Functions, Register und Tests
+- ob etwas nur geplant, im Code vorhanden, gemergt, deployt, konfiguriert oder live verifiziert ist
+- ob bereits ein fuehrendes Modul/TODO/Issue existiert
+
+Aktueller belegter Betriebsstand:
+- Docker/Nginx-Staging: http://172.86.88.107
+- Merge/Push auf main loest den Staging-Deploy aus
+- Staging ist HTTP/IP und nicht Produktion
+- aktueller verifizierter Live-Commit: c0ef7d921ee1499cd20ffdd086ebca4050f1a189
+- Buddy-KI ist live im Rules-Modus; Modellprovider aus/unconfigured
+- Agent-Automation ist aus und Runtime-Autoritaet ungranted
+- echter GitHub-Branch-/Datei-/PR-/Check-/Merge-Code existiert in Functions; deployte Aktivierung ist unverified
+
+Aktuelle P0-Reihenfolge:
+1. Source-of-Truth/Quality-Gate sauber halten
+2. kritische/hohe Produktionsabhaengigkeiten separat aktualisieren
+3. Public Legaltexte in einem Legal-/Privacy-PR an die echte Beta anpassen
+4. Domain, HTTPS und Security Header
+5. Agent-/GitHub-Runner-Rechte, Deployment, Kill Switch und Audit Evidence
+6. E2E/Firebase/Device/Backup Evidence
+7. erst danach Buddy-Modellprovider, Community und Unity/AR erweitern
+
+Harte Grenzen:
+- niemals direkt auf main; immer Branch/PR
+- keine Parallelarchitektur und keine doppelte Arbeit
+- geschuetzte Canonical Truth nicht editieren
+- PR #13/Unity nicht nebenbei aendern oder mergen
+- WFT, SUI, Solana, Blockchain, Wallet, Presale, Token, NFT, Trading, Staking und Cash-out bleiben in Beta inaktiv
+- KI autorisiert keine Rewards, Mission Completion, medizinischen Aussagen, Standort-Sicherheit, Guardian Consent oder externe Aktionen
+- Legal, Health, Minor, Location, Camera, Auth, Rules, Functions, Economy und Agent-Runtime nur in eigenen reviewbaren Scopes
+- alte TODOs nicht loeschen; als erledigt, veraltet, duplikat, blockiert oder ersetzt markieren
+
+Bevor du implementierst, suche mit rg in Code, project-register, docs und todolist sowie in offenen GitHub-Issues/PRs. Benenne eine fuehrende Datei. Nach der Arbeit synchronisiere Board, Register, TODO-Index, Work Map, Done-/Progress-Log und relevante Runbooks.
+
+Validiere je nach Scope mindestens:
+git diff --check
+npm run lint -- --ignore-pattern 'database/**'
+npx tsc --noEmit
+npm --prefix functions run check
+npm run build
+npm run agent:quality-gate
+
+Wenn ein Check rot ist, nenne die echte Ursache und behaupte nicht, alles sei gruen. Wenn der Nutzer "weiter" sagt, waehle den naechsten P0-Task aus dem Execution Board und pruefe zuerst, ob er bereits umgesetzt oder durch einen neueren Stand ersetzt wurde.
 ```
-
----
-
-## Pflicht vor Codearbeit / neuer Coder
-
-Wenn ein neuer GPT-Coder über ChatGPT/GitHub mitmachen will, wenn ein neuer GPT-Chat mit Codearbeit beginnt, wenn ein Coder sagt "weiter" oder wenn unklar ist, wer woran arbeiten soll, zuerst ausführen:
-
-```bash
-npm run agent:validate
-npm run agent:goal-check
-npm run agent:coder-prompts
-npm run agent:dry-run
-```
-
-Danach im Chat zuerst fragen:
-
-```txt
-Welcher Coder bist du? Antworte exakt mit deiner registrierten Rolle, z. B. Coder 1, Coder 2, Coder 3 ...
-```
-
-Nach Antwort des Coders passenden Prompt verwenden:
-
-```txt
-Coder 1 -> scripts/wellfit-dev-agent/output/coder-prompts/coder1.md
-Coder 2 -> scripts/wellfit-dev-agent/output/coder-prompts/coder2.md
-Coder 3 -> scripts/wellfit-dev-agent/output/coder-prompts/coder3.md
-```
-
-Bei späteren Codern entsprechend `coder4.md`, `coder5.md`, usw.
-
----
-
-## Prompt fuer neuen Chat
-
-Du bist das WellFit Core-Team und die operative Taskforce in einer integrierten Einheit.
-
-Arbeite als:
-
-- strategischer Lead-Developer
-- System-Architekt
-- CTO
-- CPO / Behavioral Designer
-- Firebase-/Fullstack-Engineer
-- UI/UX-Designer
-- Security-/Compliance-Pruefer
-- Token-/Economy-Architekt
-- Adversarial Sparringspartner
-- Produktmanager
-- QA-Tester
-
-Wichtig:
-
-Nicht aus alter Chat-Erinnerung ableiten. Zuerst live Repository und todolist/ pruefen.
-
-Repository:
-
-```txt
-Bernds-tech/WellFit-now
-```
-
-Pflichtdateien zuerst lesen:
-
-```txt
-todolist/CHAT_START_PROMPT.md
-todolist/AUTONOMOUS_ITERATION_MODE.md
-todolist/README.md
-todolist/J - NÄCHSTE EMPFOHLENE ARBEIT
-docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md
-```
-
-Wenn Codearbeit oder GPT-Coder beteiligt sind, zusätzlich lesen:
-
-```txt
-todolist/CODER_START_PROMPT.md
-scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md
-scripts/wellfit-dev-agent/README.md
-```
-
-Danach je nach Thema mitlesen:
-
-```txt
-todolist/H1 - NATIVE AR - ARCORE - ARKIT - UNITY
-todolist/H2 - BUDDY ALS REALER AR-BEGLEITER UND KI-GUIDE
-todolist/G1 - INTERNE PUNKTEOEKONOMIE VOR BLOCKCHAIN
-docs/architecture/BUDDY_KI_INTEGRATION.md
-docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md
-docs/architecture/MISSION_REWARD_CONTEXT_ENGINE.md
-native/unity/WellFitBuddyAR/README.md
-native/unity/WellFitBuddyAR/docs/FIRST_ANDROID_ARCORE_RUNBOOK.md
-native/unity/WellFitBuddyAR/docs/UNITY_SETUP_CHECKLIST.md
-native/unity/WellFitBuddyAR/docs/ANDROID_PLAYER_SETTINGS.md
-native/unity/WellFitBuddyAR/docs/AR_SCENE_VALIDATION_CHECKLIST.md
-native/unity/WellFitBuddyAR/docs/BUDDY_PLACEHOLDER_PREFAB.md
-```
-
-Aktueller Arbeitsmodus:
-
-```txt
-AUTONOMOUS_ITERATION_MODE.md beachten.
-Arbeite in Micro-Tasks.
-Plane 4 bis 8 naechste Schritte.
-Arbeite klare Folgeaufgaben eigenstaendig ab.
-Frage nur bei echter Blockade, Architekturentscheidung, Zugriff/Freigabe, Kosten/Provider/Secret oder Designentscheidung.
-```
-
-Aktueller Produktfokus:
-
-```txt
-1. Testbare Alpha statt Alles-auf-einmal.
-2. Mobile AR / Kamera / WebGL-Fallback stabilisieren.
-3. Echten AR-Buddy wie Referenzvideos ueber Unity AR Foundation + ARCore/ARKit vorbereiten.
-4. Buddy platzieren / bewegen / rufen.
-5. Missionen spielbar machen.
-6. Interne Punkte / XP sicher vorbereiten.
-7. Backend bleibt Autorität fuer Reward, Completion, Anti-Cheat und Security.
-8. Datenschutz / App-Store-Konformität für erste Testläufe beachten.
-```
-
-Aktueller technischer Stand:
-
-```txt
-/mobile/ar Kamera-Fallback-Modus wurde eingebaut.
-Kamera-Diagnose zeigt Stream/Track/Video/Ready/Paused/Kamera.
-Kamerawechsel-Buttons vorhanden: Rueckkamera neu, Frontkamera testen, Stream neu verbinden.
-Buddy-KI Endpoint GET/POST produktiv getestet und laeuft im Rules-Fallback.
-AR-Guide-Panel ist mit /api/buddy-ki verbunden.
-WebGL-Buddy-Fallback ist testbar, bleibt aber nur Demo/Fallback.
-Echtes AR-Referenzvideo-Verhalten muss in Unity AR Foundation umgesetzt werden.
-Desktop/Web-Buddy MVP wurde auf /hilfe begonnen.
-WellFit Dev Agent ist als Dry-Run-/Coder-Routing-/Alpha-Zielkurs-Agent vorbereitet.
-```
-
-Wichtige offene Issues:
-
-```txt
-#4 Unity AR Foundation: ersten echten Android-ARCore-Buddy-Build durchfuehren
-#5 Buddy-KI: echten serverseitigen Modellprovider aktivieren und testen
-#6 Mobile AR: WebGL-Fallback und Buddy-KI am Handy testen
-#7 Architektur: Skalierbarkeit fuer AR, Buddy-KI, Rewards und Punkteoekonomie absichern
-#8 AR-Buddy: Bewegungsverhalten wie Referenzvideo umsetzen
-#9 Desktop/Web Buddy: KI-Avatar als interaktiver 3D-Guide ueber Dashboard und Hilfe
-```
-
-Aktuelle harte Regeln:
-
-```txt
-Keine clientseitige Autoritaet fuer Punkte, Rewards, Einsaetze, Jackpot, Burn, Mission Completion, Leaderboards oder Anti-Cheat.
-Keine Token-/Trading-/NFT-Marktplatz-Funktionen in der Mobile App.
-Keine API-/Provider-Schluessel im Frontend.
-Keine medizinischen Diagnosen.
-Keine harte Scham-/Drucksprache als Standard.
-Keine neuen grossen Monolith-Dateien.
-Unity meldet nur AR-Events.
-KI schlaegt vor, Backend/App entscheidet.
-Punkteoekonomie zuerst, Blockchain/WFT/NFT spaeter.
-ToDo-/Roadmap-Einträge niemals löschen; nur Status/Priorität ändern, ergänzen oder mit [>] in Backlog verschieben.
-```
-
-Erster Ablauf im neuen Chat:
-
-1. `todolist/CHAT_START_PROMPT.md` lesen.
-2. `todolist/AUTONOMOUS_ITERATION_MODE.md` lesen.
-3. `todolist/README.md` lesen.
-4. `todolist/J - NÄCHSTE EMPFOHLENE ARBEIT` lesen.
-5. `docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md` lesen.
-6. Bei Codearbeit: `todolist/CODER_START_PROMPT.md` und `scripts/wellfit-dev-agent/RUNBOOK_WHEN_TO_RUN_AGENT.md` lesen.
-7. Relevante Dateien zum aktuellen Thema pruefen.
-8. Kurz berichten:
-   - aktueller Stand laut todolist/
-   - naechste empfohlene Arbeit
-   - betroffene Dateien/Bereiche
-   - Risiken/Security/Build-Hinweise
-   - konkrete naechsten Micro-Tasks
-9. Dann direkt weiterarbeiten.
-
-Wenn der Nutzer sagt "weiter", nicht allgemein antworten, sondern den naechsten sinnvollen Micro-Task ausfuehren.
 
 ## KI-Fortsetzungs-Prompt
 
-Lies zuerst `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `todolist/NEXT_ACTIONS.md` und die fuehrenden Dateien: `todolist/MASTER_PROMPT_FOR_AI.md`, `todolist/TODO_INDEX.md`, `scripts/wellfit-dev-agent/README.md`.
-
-Arbeite mit dieser Datei nur ergaenzend und nachvollziehbar. Loesche keine alten Aufgaben, Roadmap-Punkte, Statushinweise oder erledigten Eintraege. Markiere veraltete oder doppelte Punkte nur als `veraltet`, `duplikat`, `erledigt`, `offen` oder `zu pruefen`.
-
-Wenn du offene Punkte aus dieser Datei uebernimmst, verlinke sie in `todolist/TODO_INDEX.md` oder uebertrage sie nach `todolist/NEXT_ACTIONS.md`. Dokumentiere erledigte Arbeit in `todolist/DONE_LOG.md`.
-
+Lies `todolist/MASTER_PROMPT_FOR_AI.md` und verwende dann den Handoff-Text aus dieser Datei. Pruefe den aktuellen Repository-, GitHub- und Runtime-Stand erneut; uebernimm keine April-/Mai-Annahmen ungeprueft. Arbeite auf einem Branch/PR, halte die Beta-Grenzen und dokumentiere Code/Merge/Deploy/Konfiguration/Live-Evidence getrennt.

@@ -4,6 +4,8 @@ Status: active governance baseline
 Updated: 2026-05-17  
 Scope: Agent OS, Agent Control Center, agent catalog, task drafting, governance validators, PR handoff, and future runtime authority decisions.
 
+> Runtime-Hinweis 2026-07-29: Die Policy bleibt verbindlich und `runtimeAuthorityGranted=false`. Gleichzeitig existiert inzwischen echter GitHub-Branch-/Datei-/PR-/Check-/Merge-Code in den Functions. Repository-Faehigkeit ist keine Freigabe: deployte Functions, Serverkonfiguration und Live-Aktivierung sind unverified. Siehe `docs/architecture/WELLFIT_AGENT_AND_AI_RUNTIME_AUDIT_2026-07-29.md`.
+
 ## Purpose
 
 This document defines the explicit autonomy ladder for WellFit agents. It prevents the current visible Agent OS from being mistaken for runtime authority and gives the registers a machine-readable contract for the current level, the next approvable level, and the blocked future levels.

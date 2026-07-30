@@ -29,6 +29,18 @@
       "runtimeChanged": false,
       "deployExecuted": false,
       "canonicalTruthEdited": false,
+      "goal": "Make the Admin-Center First-Run Inbox snapshot payload JSON-safe and preserve client/server shape diagnostics.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "lib/admin",
+        "functions/lib/agentAdminRolesAudit.js",
+        "functions/test",
+        "docs/architecture",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
       "notes": "Kein Runner/Branch/PR/Merge/Deploy via Agent. Nach Merge ist bei Functions-Aenderung ein gezieltes Deploy noetig: firebase deploy --only functions:syncProductEvolutionFirstRunInbox --project wellfit-b7d27. Danach Frontend/Hosting-Deploy abwarten."
     },
     {
@@ -51,6 +63,16 @@
       "runtimeChanged": false,
       "deployExecuted": false,
       "canonicalTruthEdited": false,
+      "goal": "Use one effective First-Run snapshot source for visible candidate counts and the Inbox Sync payload.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "lib/admin/beta1AdminClient.ts",
+        "docs/architecture",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
       "notes": "Kein Runner/Branch/PR/Merge/Deploy via Agent. Kein Firebase Functions Deploy erforderlich fuer diesen Client-Payload-Fix; nach Merge Frontend deployen/abwarten und live testen."
     },
     {
@@ -69,7 +91,16 @@
       ],
       "runtimeChanged": false,
       "deployExecuted": false,
-      "canonicalTruthEdited": false
+      "canonicalTruthEdited": false,
+      "goal": "Repair Admin-Center filter labels, dossier overlay content, deterministic Inbox matching and Product-Evolution button gating.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "docs/architecture",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
+      "notes": "Historical entry records Admin-Center UI/workflow repair only; no runner, GitHub API, deploy or Canonical Truth edit."
     },
     {
       "id": "2026-05-24-admin-center-dossier-details-modal-and-inbox-completion",
@@ -1474,40 +1505,106 @@
       "notes": "No runtime/product deploy, no GitHub API changes, no canonical-truth edits, no rules changes. Follow-up needed: runtime/admin-center-product-evolution-dossier-inbox-sync for mirror target IDs."
     },
     {
+      "id": "2026-05-24-admin-center-inbox-sync-and-dossier-content",
       "date": "2026-05-24",
+      "branch": "fix/admin-center-inbox-sync-and-dossier-content",
       "task": "fix/admin-center-inbox-sync-and-dossier-content",
+      "goal": "Repair Admin-Center Inbox-Sync result counts and dossier overlay content with deterministic matching and gating.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "docs/architecture",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
       "summary": "Admin-Center Inbox-Sync Ergebniszaehlung + Dossier-Overlay-Inhalte + deterministic inbox matching/gating dokumentiert. Kein Runner/Deploy/GitHub API.",
+      "notes": "Historical record: no runner, deploy or GitHub API action.",
       "nextBranch": "runtime/admin-center-task-proposal-to-worker-queue"
     },
     {
+      "id": "2026-05-24-admin-center-first-run-snapshot-shape",
       "date": "2026-05-24",
+      "branch": "fix/admin-center-first-run-snapshot-shape",
       "task": "fix/admin-center-first-run-snapshot-shape",
+      "goal": "Recognize and pass the First-Run snapshot shape consistently and add client/server diagnostics.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "lib/admin",
+        "functions/lib/agentAdminRolesAudit.js",
+        "docs/architecture",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
       "summary": "Root cause documented: snapshot shape not recognized/passed consistently caused 0 processed candidates. Added client/server debug + robust candidate collection parsing.",
+      "notes": "Historical record: implementation affected Admin-Center sync diagnostics; no production deployment is recorded.",
       "nextBranch": "runtime/admin-center-task-proposal-to-worker-queue"
     },
     {
+      "id": "2026-05-24-admin-center-inbox-sync-backend-version-diagnostic",
       "date": "2026-05-24",
       "branch": "fix/admin-center-inbox-sync-backend-version-diagnostic",
       "task": "Expose inbox sync callable version diagnostics",
+      "goal": "Expose callable version and payload-shape diagnostics for Inbox Sync.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "lib/admin",
+        "functions/lib/agentAdminRolesAudit.js",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
       "notes": "Cause likely frontend/backend version mismatch or payload wrapping. Added callable diagnostics + wrapper support. No runner/branch-pr-merge/deploy triggered."
     },
     {
+      "id": "2026-05-25-admin-center-preserve-sync-diagnostics",
       "date": "2026-05-25",
       "branch": "fix/admin-center-preserve-sync-diagnostics",
       "task": "Preserve Admin Center sync diagnostics",
+      "goal": "Preserve safe Inbox-Sync callable diagnostics when the server returns accepted=false.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "lib/admin",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
       "notes": "Client-side admin sanitizer no longer strips callable diagnostics on accepted=false for sync callable path; safe error messages retained without stack traces/secrets. No runner/branch-pr-merge/deploy and no Firebase deploy in this PR."
     },
     {
+      "id": "2026-05-27-admin-center-callable-auth-readiness",
       "date": "2026-05-27",
       "branch": "fix/admin-center-callable-auth-readiness",
       "task": "Guard Admin callables on auth readiness",
+      "goal": "Block Admin callables until Firebase auth, user and token claims are ready and expose privacy-safe diagnostics.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "lib/admin",
+        "project-register",
+        "todolist"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
       "notes": "Root cause auth:MISSING in callable verification. Admin client now blocks callables until Firebase auth/user/token claims ready and surfaces safe auth diagnostics without UID/email/token. No runner/branch-pr-merge/deploy and no functions deploy required unless functions/lib/agentAdminRolesAudit.js changes."
     },
     {
+      "id": "2026-05-27-admin-center-firebase-auth-login",
       "date": "2026-05-27",
       "branch": "fix/admin-center-firebase-auth-login",
       "task": "Admin-Center Firebase Auth Login/Session Fix",
+      "goal": "Add Admin-Center Firebase login/logout, auth-state readiness and safe callable guard diagnostics.",
+      "changedAreas": [
+        "app/admin/agent-center",
+        "lib/admin"
+      ],
+      "productLogicChanged": false,
+      "productionDeployTriggered": false,
       "summary": "Added admin Google login/logout flow, auth-state readiness diagnostics, and callable guard code mapping while preserving server authority and privacy-safe debug.",
+      "notes": "Historical record states no runner and no deployment.",
       "noRunner": true,
       "noDeploy": true
     },
