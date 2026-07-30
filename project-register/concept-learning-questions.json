@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-05-17",
+  "updated": "2026-07-30",
   "status": "static_register",
   "name": "Concept Learning Questions",
   "purpose": "Read-only register for open, answered, and archived concept-learning questions that may be shown in the Admin Agent Center as questions for Bernd.",
@@ -140,6 +140,71 @@
         "apiFollowUpRequired": false
       },
       "followUp": "Wenn eine konkrete Frage historisch wird, Status und Archivgrund ergänzen statt die Frage zu löschen."
+    },
+    {
+      "id": "CLQ-2026-07-30-006",
+      "status": "offen",
+      "category": "open",
+      "question": "Soll WellFit den vollstaendigen Textverlauf der Buddy-Gespraeche verschluesselt im eigenen Nutzerkonto speichern, waehrend Audio standardmaessig nicht dauerhaft gespeichert wird, und daraus zusaetzlich editierbare Erinnerungen und Sitzungszusammenfassungen bilden?",
+      "whyImportant": "Die Antwort entscheidet, ob der Buddy spaeter lueckenlos nachschlagen kann und zugleich Kosten, Datenschutz, Loeschung, Export und Modellkontext beherrschbar bleiben.",
+      "risk": "critical",
+      "affectedWellFitArea": [
+        "buddy",
+        "ai",
+        "privacy",
+        "data-retention",
+        "user-memory"
+      ],
+      "proposedStorageLocation": "project-register/decisions.json",
+      "answerPreparation": {
+        "mode": "lokal_statisch_vorbereitet",
+        "draftAnswer": "Empfehlung: Hybridgedaechtnis aus verschluesseltem Volltextarchiv im WellFit-Backend, kurzem Sitzungskontext, Sitzungszusammenfassungen, ausgewaehlten editierbaren Langzeiterinnerungen und semantischer Suche. Audio wird standardmaessig nach Transkription verworfen.",
+        "apiFollowUpRequired": false
+      },
+      "followUp": "Nach Bernds Antwort einen separaten privacy-by-design Datenmodell-, Einwilligungs-, Loesch-/Export- und Kostenplan als proposal_only erstellen; keine Runtime-Aktivierung in diesem Interview."
+    },
+    {
+      "id": "CLQ-2026-07-30-007",
+      "status": "offen",
+      "category": "open",
+      "question": "Wie weit darf eine freche, verwirrte oder eingeschnappte Buddy-Stimmung praktisch gehen: nur Ton und Animation, oder darf der Buddy auch eine optionale Aktivitaet kurz ablehnen und eine Alternative vorschlagen?",
+      "whyImportant": "Die Grenze bestimmt, ob die Persoenlichkeit glaubwuerdig eigenstaendig wirkt, ohne Hilfe, Sicherheit, Missionen oder Nutzerautonomie zu blockieren.",
+      "risk": "high",
+      "affectedWellFitArea": [
+        "buddy",
+        "personality",
+        "missions",
+        "safety",
+        "retention"
+      ],
+      "proposedStorageLocation": "project-register/decisions.json",
+      "answerPreparation": {
+        "mode": "lokal_statisch_vorbereitet",
+        "draftAnswer": "Empfehlung: Der Buddy darf bei rein optionalen Spielhandlungen kurz widersprechen oder eine Alternative vorschlagen, muss bei Hilfe, Sicherheit, Barrierefreiheit und Nutzerabbruch sofort kooperieren. Keine Punkte-, Reward- oder Fortschrittsnachteile.",
+        "apiFollowUpRequired": false
+      },
+      "followUp": "Nach Bernds Antwort einen planning-only Personality-State-Vertrag mit erlaubten Zustaenden, Dauer, Exit-Regeln und verbotenen Auswirkungen vorschlagen."
+    },
+    {
+      "id": "CLQ-2026-07-30-008",
+      "status": "braucht Rückfrage",
+      "category": "open",
+      "question": "Bernd hat erwaehnt, dass die Buecher spannend werden sollen: Bezieht sich das auf eine WellFit-Chronik beziehungsweise Buddy-Geschichte oder war damit das separate Romanprojekt Aura gemeint?",
+      "whyImportant": "Die Projekte duerfen in der Produktdokumentation nicht vermischt werden. Bei WellFit koennte daraus eine persoenliche Chronik oder episodische Story entstehen; bei Aura gehoert die Entscheidung nicht in dieses Register.",
+      "risk": "medium",
+      "affectedWellFitArea": [
+        "buddy",
+        "story",
+        "documentation",
+        "project-boundaries"
+      ],
+      "proposedStorageLocation": "project-register/concept-learning-questions.json#questions[CLQ-2026-07-30-008]",
+      "answerPreparation": {
+        "mode": "lokal_statisch_vorbereitet",
+        "draftAnswer": "Rueckfrage an Bernd erforderlich; bis dahin keine Buch- oder Romanmechanik als WellFit-Entscheidung behandeln.",
+        "apiFollowUpRequired": false
+      },
+      "followUp": "Nach Klarstellung entweder als WellFit-Story-/Chronikfrage fortsetzen oder aus dem WellFit-Kontext heraushalten."
     }
   ],
   "archivedQuestions": [

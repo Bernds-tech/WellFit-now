@@ -4,7 +4,7 @@
     "purpose": "Decision Log fuer Stufe-4-Arbeit, Produktentscheidungen und Blocker.",
     "issue": 19,
     "status": "current-source-of-truth-sync",
-    "updated": "2026-07-29"
+    "updated": "2026-07-30"
   },
   "decisions": [
     {
@@ -69,6 +69,114 @@
       "reasoning": "Der bestehende Fallback ist stabil; eine vorschnelle Aktivierung waere bei Gesundheits-/Familienkontext und oeffentlichem Endpoint nicht ausreichend abgesichert.",
       "source": "docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md",
       "date": "2026-07-29"
+    },
+    {
+      "id": "DEC-ALPHA-PILOT-2026-07-30",
+      "topic": "Wer testet die erste WellFit-Alpha und auf welcher Plattform?",
+      "status": "decided",
+      "decision": "Die erste Alpha wird mit ungefaehr 25 ausgewaehlten Erwachsenen ab 18 Jahren durchgefuehrt. Familien und Kinder folgen in einer spaeteren Testphase. Android kommt zuerst; iPhone folgt nach einem stabilen Android-Test.",
+      "reasoning": "Der begrenzte Erwachsenen-/Android-Pilot reduziert Child-Safety-, Plattform- und Testkomplexitaet, ohne die Familienvision aufzugeben.",
+      "source": "Owner-Interview mit Bernd, Fragerunden 1 bis 3",
+      "date": "2026-07-30",
+      "memory_type": "bernd_decisions",
+      "captured_by": "Codex",
+      "capture_date": "2026-07-30",
+      "answered_by_or_source_owner": "Bernd",
+      "source_question_id": "WFI-ALPHA-001",
+      "risk_level": "high",
+      "review_status": "confirmed_by_owner",
+      "linked_sources": [
+        "docs/architecture/WELLFIT_ALPHA_SCOPE_CUT.md",
+        "todolist/CURRENT_EXECUTION_BOARD.md"
+      ],
+      "runtime_execution_authorized": false
+    },
+    {
+      "id": "DEC-ALPHA-AR-2026-07-30",
+      "topic": "Welche AR-Funktion ist fuer den Start der ersten Alpha zwingend?",
+      "status": "decided",
+      "decision": "Die Alpha startet erst, wenn der Buddy ueber die Android-Handykamera in der realen Aussenumgebung erscheint und den Nutzer moeglichst kontinuierlich begleitet, nebenherlaeuft, Abstaende und Hindernisse beruecksichtigt und auf Bewegungen reagiert. Bei gesperrtem oder eingestecktem Handy pausiert AR, waehrend Bewegung, Wegstrecke und Mission weiterlaufen; beim Oeffnen erscheint der Buddy passend zur neuen Situation.",
+      "reasoning": "Der reale AR-Begleiter ist der unterscheidende WellFit-Produktkern und fuer Bernd kein nachgelagerter Alpha-Zusatz.",
+      "source": "Owner-Interview mit Bernd, Fragerunden 1 bis 3",
+      "date": "2026-07-30",
+      "memory_type": "bernd_decisions",
+      "captured_by": "Codex",
+      "capture_date": "2026-07-30",
+      "answered_by_or_source_owner": "Bernd",
+      "source_question_id": "WFI-AR-001",
+      "risk_level": "high",
+      "review_status": "confirmed_by_owner",
+      "linked_sources": [
+        "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md",
+        "native/unity/WellFitBuddyAR/docs/BUDDY_AR_MUST_CRITERIA.md"
+      ],
+      "runtime_execution_authorized": false
+    },
+    {
+      "id": "DEC-WFXP-ALPHA-2026-07-30",
+      "topic": "Welche interne Fortschrittsbezeichnung gilt fuer die erste Alpha?",
+      "status": "decided",
+      "decision": "WFXP bleibt fuer die erste Alpha zunaechst die gemeinsame interne Einheit. WFit Points und XP werden spaeter in einer kontrollierten Migration getrennt. Echte Token, Wallets, NFTs, Blockchain, Presale und Cash-out bleiben deaktiviert.",
+      "reasoning": "Bernd priorisiert den funktionsfaehigen Alpha-Game-Loop vor einer sofortigen Economy-Terminologie- und Datenmigration.",
+      "source": "Owner-Interview mit Bernd, Fragerunden 1 und 2",
+      "date": "2026-07-30",
+      "memory_type": "bernd_decisions",
+      "captured_by": "Codex",
+      "capture_date": "2026-07-30",
+      "answered_by_or_source_owner": "Bernd",
+      "source_question_id": "WFI-ECONOMY-001",
+      "risk_level": "critical",
+      "review_status": "confirmed_by_owner_protected_truth_sync_pending",
+      "linked_sources": [
+        "project-register/wellfit-beta1-canonical-truth.json",
+        "docs/architecture/WELLFIT_BETA1_CANONICAL_TRUTH.md",
+        "todolist/CANONICAL_TRUTH_CHANGE_PROPOSALS.md"
+      ],
+      "runtime_execution_authorized": false
+    },
+    {
+      "id": "DEC-BUDDY-CONVERSATION-2026-07-30",
+      "topic": "Wie soll der Buddy in der Alpha sprechen und selbst Initiative zeigen?",
+      "status": "decided",
+      "decision": "Bei geoeffneter App fuehrt der Buddy nach sichtbarer Aktivierung ein natuerliches Sprachgespraech. Das Zuhoeren muss jederzeit erkennbar beendet werden koennen. Der Buddy darf als vielseitiger persoenlicher Assistent innerhalb definierter Sicherheitsgrenzen frei sprechen und passend zu Mission, Umgebung, Bewegung und Entwicklung selbst Fragen stellen, motivieren und Hinweise geben. Haeufigkeit und Ruhezeiten sind einstellbar.",
+      "reasoning": "Der Buddy soll als echter Begleiter und nicht nur als Auswahlmenue oder Missionsvorleser erlebt werden, ohne heimliches Zuhoeren oder unkontrollierte Daueransprache.",
+      "source": "Owner-Interview mit Bernd, Fragerunden 3 und 4",
+      "date": "2026-07-30",
+      "memory_type": "bernd_decisions",
+      "captured_by": "Codex",
+      "capture_date": "2026-07-30",
+      "answered_by_or_source_owner": "Bernd",
+      "source_question_id": "WFI-BUDDY-VOICE-001",
+      "risk_level": "critical",
+      "review_status": "confirmed_by_owner_runtime_design_pending",
+      "linked_sources": [
+        "docs/architecture/BUDDY_KI_INTEGRATION.md",
+        "docs/architecture/BUDDY_KI_MODEL_PROVIDER_RUNBOOK.md",
+        "docs/architecture/WELLFIT_AI_BUDDY_PERSONALITY_TONE_GUARD.md"
+      ],
+      "runtime_execution_authorized": false
+    },
+    {
+      "id": "DEC-BUDDY-PERSONALITY-2026-07-30",
+      "topic": "Wie entwickelt sich die Identitaet und Persoenlichkeit des lebenslangen Buddys?",
+      "status": "decided",
+      "decision": "Der Nutzer behaelt einen lebenslangen Haupt-Buddy mit gemeinsamer Geschichte. Seine Persoenlichkeit wird nicht am Anfang starr ausgewaehlt, sondern entwickelt sich eigenstaendig aus gemeinsamen Erlebnissen und Gespraechen. Er darf situativ witzig, dramatisch, griesgraemig, motivierend, frech, verwirrt, neugierig oder kurzzeitig eingeschnappt wirken. Diese Zustaende duerfen keine Angst, Scham, Strafe, Belohnungsmanipulation, Weglaufdrohung oder emotionale Abhaengigkeit erzeugen.",
+      "reasoning": "Die bestehenden Avatar-Quellen enthalten eine breite Charakterbibliothek. Als dynamische Anteile einer stabilen Identitaet erzeugen sie mehr Beziehung und Spannung als austauschbare starre Figuren; der Tone Guard begrenzt manipulative Altideen.",
+      "source": "Owner-Interview mit Bernd, Fragerunde 5, abgeglichen mit Der AVATAR (1).docx",
+      "date": "2026-07-30",
+      "memory_type": "bernd_decisions",
+      "captured_by": "Codex",
+      "capture_date": "2026-07-30",
+      "answered_by_or_source_owner": "Bernd",
+      "source_question_id": "WFI-BUDDY-PERSONALITY-001",
+      "risk_level": "critical",
+      "review_status": "confirmed_by_owner_safety_design_pending",
+      "linked_sources": [
+        "docs/architecture/WELLFIT_AI_BUDDY_PERSONALITY_TONE_GUARD.md",
+        "todolist/K_AR-BUDDY_COMPANION_UND_AVATAR-GRUNDLOGIK.md",
+        "project_sources/07-Der-AVATAR-1-.docx"
+      ],
+      "runtime_execution_authorized": false
     }
   ]
 }
