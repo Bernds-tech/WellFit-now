@@ -1,6 +1,6 @@
 {
   "name": "WellFit Project Rail",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "active_control_contract",
   "updated": "2026-08-15",
   "purpose": "Provide one non-duplicating control plane over the existing WellFit planning, task, agent, review, readiness and work-log systems so every idea is planned, built, verified, documented and followed through without losing open work.",
@@ -41,10 +41,117 @@
       "verified",
       "done"
     ],
-    "side_states": ["blocked", "deferred", "rejected"],
+    "side_states": [
+      "blocked",
+      "deferred",
+      "rejected"
+    ],
     "no_skip_rule": true,
     "done_rule": "A task is done only after merge, required checks, post-merge verification, documentation/register synchronization and capture of all follow-up work.",
     "agent_claims_finished_are_not_done": true
+  },
+  "status_compatibility": {
+    "task_status_policy": {
+      "idea": [
+        "open"
+      ],
+      "analysis": [
+        "open"
+      ],
+      "owner_decision_if_required": [
+        "blocked_or_review_required"
+      ],
+      "planned": [
+        "open"
+      ],
+      "ready": [
+        "open"
+      ],
+      "in_progress": [
+        "in_progress"
+      ],
+      "testing": [
+        "in_progress"
+      ],
+      "review": [
+        "in_progress"
+      ],
+      "pr_created": [
+        "in_progress"
+      ],
+      "merged": [
+        "partially_done"
+      ],
+      "verified": [
+        "partially_done"
+      ],
+      "done": [
+        "done"
+      ],
+      "blocked": [
+        "blocked_or_review_required"
+      ],
+      "deferred": [
+        "stale_or_superseded"
+      ],
+      "rejected": [
+        "stale_or_superseded"
+      ]
+    },
+    "agent_control_center": {
+      "idea": [
+        "draft",
+        "proposal_created"
+      ],
+      "analysis": [
+        "risk_classified"
+      ],
+      "owner_decision_if_required": [
+        "pending_approval",
+        "admin_review"
+      ],
+      "planned": [
+        "task_draft_ready"
+      ],
+      "ready": [
+        "execution_ready",
+        "execution_allowed",
+        "approved"
+      ],
+      "in_progress": [
+        "execution_running"
+      ],
+      "testing": [
+        "checks_running"
+      ],
+      "review": [
+        "pending_review",
+        "checks_reviewed"
+      ],
+      "pr_created": [
+        "pr_created",
+        "human_merge_required"
+      ],
+      "merged": [
+        "completed"
+      ],
+      "verified": [
+        "completed"
+      ],
+      "done": [
+        "completed"
+      ],
+      "blocked": [
+        "blocked",
+        "needs_revision"
+      ],
+      "deferred": [
+        "blocked"
+      ],
+      "rejected": [
+        "rejected"
+      ]
+    }
   },
   "planning_gate": {
     "required_before_ready": true,
@@ -75,7 +182,18 @@
       "required_owner_decision_is_present",
       "risk_policy_allows_execution"
     ],
-    "must_reserve": ["task_id", "branch", "allowed_paths", "file_ownership"],
+    "must_reserve": [
+      "task_id",
+      "branch",
+      "allowed_paths",
+      "file_ownership"
+    ],
+    "active_ownership_register": "project-register/project-rail-active-ownership.json",
+    "max_parallel_default": 3,
+    "auto_selectable_risk_levels": [
+      "low"
+    ],
+    "dry_run_script": "scripts/wellfit-dev-agent/src/project-rail-dispatcher-dry-run.mjs",
     "must_not": [
       "create_parallel_architecture",
       "silently_change_owner_truth",
@@ -99,6 +217,7 @@
       "project-register/product-readiness.json"
     ],
     "must_capture": [
+      "task_id",
       "merged_pr",
       "commit_sha",
       "changed_files",
@@ -109,6 +228,7 @@
       "next_safe_tasks",
       "owner_decisions_created_or_resolved"
     ],
+    "dry_run_script": "scripts/wellfit-dev-agent/src/project-rail-completion-sync-dry-run.mjs",
     "automatic_done_without_sync": false
   },
   "parallel_work": {
@@ -123,6 +243,7 @@
       "project-register/agent-task-queue.json",
       "project-register/agent-control-center.json",
       "project-register/project-rail.json",
+      "project-register/project-rail-active-ownership.json",
       "firestore.rules",
       "functions/index.js",
       "package.json",
@@ -141,13 +262,18 @@
     "do_not_interrupt_for": [
       "routine_analysis",
       "low_risk_documentation_sync",
-      "normal test execution",
-      "known non-blocking follow_up_capture"
+      "normal_test_execution",
+      "known_non_blocking_follow_up_capture"
     ]
   },
   "dashboard_contract": {
-    "initial_form": "generated_markdown_or_json_summary",
+    "initial_form": "generated_markdown_and_json_summary",
     "future_ui_optional": true,
+    "generator_script": "scripts/wellfit-dev-agent/src/project-rail-dashboard.mjs",
+    "output_paths": [
+      "scripts/wellfit-dev-agent/output/project-rail-dashboard.md",
+      "scripts/wellfit-dev-agent/output/project-rail-dashboard.json"
+    ],
     "required_sections": [
       "goal",
       "current_phase",
@@ -161,6 +287,25 @@
       "recently_done",
       "next_safe_parallel_batch"
     ]
+  },
+  "implementation": {
+    "current_phase": "Project Rail controls implemented as report-only validators and dry-run orchestration; no runtime authority.",
+    "scripts": {
+      "consistency_check": "scripts/wellfit-dev-agent/src/project-rail-check.mjs",
+      "dashboard": "scripts/wellfit-dev-agent/src/project-rail-dashboard.mjs",
+      "dispatcher_dry_run": "scripts/wellfit-dev-agent/src/project-rail-dispatcher-dry-run.mjs",
+      "completion_sync_dry_run": "scripts/wellfit-dev-agent/src/project-rail-completion-sync-dry-run.mjs",
+      "suite": "scripts/wellfit-dev-agent/src/project-rail-suite.mjs"
+    },
+    "control_status": {
+      "consistency_validator": "implemented_report_only",
+      "dashboard_generator": "implemented_report_only",
+      "dispatcher": "implemented_dry_run_no_execution",
+      "completion_sync": "implemented_dry_run_no_source_writes",
+      "quality_gate_integration": "pending_after_standalone_validation",
+      "write_enabled_completion_sync": "blocked_until_diff_safety_is_proven",
+      "runtime_task_dispatch": "blocked_by_agent_os_autonomy_policy"
+    }
   },
   "current_scope": {
     "goal": "Stable adult invite-only Closed Beta that Gerhard can test end-to-end as a normal user.",
