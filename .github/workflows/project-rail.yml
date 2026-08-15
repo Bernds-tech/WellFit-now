@@ -1,0 +1,59 @@
+name: Project Rail
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - project-register/project-rail.json
+      - project-register/project-rail-active-ownership.json
+      - docs/architecture/WELLFIT_PROJECT_RAIL.md
+      - scripts/wellfit-dev-agent/src/project-rail-*.mjs
+      - .github/workflows/project-rail.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - project-register/project-rail.json
+      - project-register/project-rail-active-ownership.json
+      - docs/architecture/WELLFIT_PROJECT_RAIL.md
+      - scripts/wellfit-dev-agent/src/project-rail-*.mjs
+      - .github/workflows/project-rail.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  project-rail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Syntax-check Project Rail controls
+        run: |
+          node --check scripts/wellfit-dev-agent/src/project-rail-check.mjs
+          node --check scripts/wellfit-dev-agent/src/project-rail-dashboard.mjs
+          node --check scripts/wellfit-dev-agent/src/project-rail-dispatcher-dry-run.mjs
+          node --check scripts/wellfit-dev-agent/src/project-rail-completion-sync-dry-run.mjs
+          node --check scripts/wellfit-dev-agent/src/project-rail-suite.mjs
+
+      - name: Run Project Rail report-only suite
+        run: node scripts/wellfit-dev-agent/src/project-rail-suite.mjs
+
+      - name: Upload Project Rail reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-rail-reports-${{ github.run_id }}
+          path: scripts/wellfit-dev-agent/output/project-rail-*
+          if-no-files-found: warn
+          retention-days: 7
