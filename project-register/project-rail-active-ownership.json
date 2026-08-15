@@ -1,0 +1,38 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-08-15",
+  "status": "active",
+  "purpose": "Track exclusive file-ownership reservations used by the Project Rail dispatcher without replacing the task queue or GitHub branches.",
+  "rules": {
+    "reservations_require_task_id_branch_owner_paths_and_status": true,
+    "active_reservations_block_overlapping_dispatch": true,
+    "hotspot_files_remain_serial": true,
+    "reservations_do_not_grant_merge_or_deploy_authority": true,
+    "release_requires_completion_blocker_or_explicit_owner_handoff": true
+  },
+  "allowed_statuses": [
+    "reserved",
+    "active",
+    "in_progress",
+    "released",
+    "blocked",
+    "expired"
+  ],
+  "active_reservations": [
+    {
+      "task_id": "OWNER-LANDING-PAGE-PARALLEL-WORK",
+      "branch": "owner-managed-external",
+      "owner": "Bernd",
+      "status": "active",
+      "started_at": "2026-08-15",
+      "expires_at": null,
+      "allowed_paths": [
+        "app/components/landing/**",
+        "app/page.tsx",
+        "public/landing/**"
+      ],
+      "notes": "External parallel landing-page work. Project Rail tasks must not modify or reserve these paths until the owner releases this reservation."
+    }
+  ],
+  "history": []
+}
