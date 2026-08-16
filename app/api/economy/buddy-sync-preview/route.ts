@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createEconomyServerAuthContext, summarizeEconomyServerAuthContext } from "@/lib/economy/serverAuth";
 import { createBuddySyncDraftBundle, type BuddySyncSource } from "@/lib/economy/buddySyncDraft";
+import { requireRequestWebSession } from "@/lib/server/webSession";
 
 export const dynamic = "force-dynamic";
 
@@ -41,10 +42,13 @@ async function readBody(request: Request): Promise<BuddySyncPreviewBody> {
 }
 
 export async function POST(request: Request) {
+  const session = await requireRequestWebSession(request);
+  if (!session) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   const body = await readBody(request);
   const auth = createEconomyServerAuthContext({
     bodyUserId: body.userId,
     fallbackUserId: "buddy-sync-beta-user",
+    verifiedAuthUserId: session.userId,
   });
 
   const bundle = createBuddySyncDraftBundle({

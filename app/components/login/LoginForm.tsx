@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { recordUserSessionActivity } from "@/lib/beta1/clientUserPreferences";
+import { establishWebSession } from "@/lib/auth/webSessionClient";
 import { loginContent, Language } from "./loginContent";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,9 +44,14 @@ export default function LoginForm({ language }: { language: Language }) {
       }
       try {
         const session = await recordUserSessionActivity("login");
-        if (!disposed) router.replace(session.requiresInitialization ? "/register" : "/dashboard");
+        if (session.requiresInitialization) {
+          if (!disposed) router.replace("/register");
+          return;
+        }
+        const webSession = await establishWebSession(user);
+        if (!disposed) router.replace(webSession.redirectTo || "/login");
       } catch {
-        if (!disposed) router.replace("/dashboard");
+        if (!disposed) setMessage(language === "de" ? "Sitzung konnte nicht geprüft werden." : "Session could not be verified.");
       } finally {
         if (!disposed) setIsCheckingSession(false);
       }
@@ -54,7 +60,7 @@ export default function LoginForm({ language }: { language: Language }) {
       disposed = true;
       unsubscribe();
     };
-  }, [router]);
+  }, [language, router]);
 
   const handleLogin = async () => {
     if (isLoading || isCheckingSession) return;
@@ -72,7 +78,16 @@ export default function LoginForm({ language }: { language: Language }) {
       setMessage(language === "de" ? "Anmeldung läuft..." : "Signing in...");
       await signInWithEmailAndPassword(auth, normalizedEmail, password);
       const session = await recordUserSessionActivity("login");
-      router.replace(session.requiresInitialization ? "/register" : "/dashboard");
+      if (session.requiresInitialization) {
+        router.replace("/register");
+        return;
+      }
+      const webSession = await establishWebSession(auth.currentUser!);
+      if (!webSession.ok) {
+        router.replace(webSession.redirectTo || "/login");
+        return;
+      }
+      router.replace(webSession.redirectTo || "/dashboard");
     } catch (error: unknown) {
       setIsLoading(false);
       setMessage(getLoginErrorMessage(error instanceof Error && "code" in error ? String((error as { code?: unknown }).code) : undefined, language));

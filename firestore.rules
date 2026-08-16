@@ -59,6 +59,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Opaque web sessions are server-only and never readable by Firebase clients.
+    match /webSessions/{sessionId} {
+      allow read, write: if false;
+    }
+
     match /userDailyMissionState/{stateId} {
       allow read: if isSignedIn() && stateId.matches(request.auth.uid + '_.*');
       allow create, update, delete: if false;

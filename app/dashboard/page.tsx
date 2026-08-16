@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { auth } from "@/lib/firebase";
+import { logoutWellFit } from "@/lib/auth/webSessionClient";
 import type { InternalEconomyHealthSnapshot } from "@/lib/economy";
 import type { Beta1MissionSummary } from "@/lib/beta1/beta1Types";
 import { readPublishedMissions } from "@/lib/beta1/clientReadProjections";
-import { signOut } from "firebase/auth";
 
 import AppSidebar from "@/app/AppSidebar";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
@@ -184,7 +183,7 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     try {
       setMessage("Du wirst abgemeldet...");
-      await signOut(auth);
+      await logoutWellFit();
       window.location.href = "/";
     } catch {
       setMessage("Abmelden fehlgeschlagen. Bitte erneut versuchen.");

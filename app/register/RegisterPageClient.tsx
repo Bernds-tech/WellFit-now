@@ -8,6 +8,7 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { establishWebSession } from "@/lib/auth/webSessionClient";
 import { getClientTimeZone } from "@/lib/beta1/clientUserContext";
 import {
   initializeUserAccount,
@@ -195,10 +196,10 @@ export default function RegisterPageClient() {
       showMessage("Bitte gib dein Geburtsdatum ein.", "Please enter your date of birth.");
       return;
     }
-    if (age < 14) {
+    if (age < 16) {
       showMessage(
-        "Kinderprofile werden über ein Elternkonto angelegt. Die Selbstregistrierung ist aktuell ab 14 Jahren möglich.",
-        "Child profiles are created through a parent account. Self-registration is currently available from age 14.",
+        "Kinderprofile werden über ein Elternkonto angelegt. Die Selbstregistrierung ist aktuell ab 16 Jahren möglich.",
+        "Child profiles are created through a parent account. Self-registration is currently available from age 16.",
       );
       return;
     }
@@ -291,8 +292,14 @@ export default function RegisterPageClient() {
     }
   };
 
-  const openDashboard = () => {
-    window.location.assign("/dashboard");
+  const openDashboard = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      window.location.assign("/login");
+      return;
+    }
+    const result = await establishWebSession(user);
+    window.location.assign(result.redirectTo || "/verify-email");
   };
 
   return (

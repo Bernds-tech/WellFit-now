@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { signOut } from "firebase/auth";
 import AppSidebar from "@/app/AppSidebar";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
-import { auth } from "@/lib/firebase";
+import { logoutWellFit } from "@/lib/auth/webSessionClient";
 import { useDashboardUser } from "@/app/dashboard/hooks/useDashboardUser";
 import BuddyEvolution from "./components/BuddyEvolution";
 import BuddyHero from "./components/BuddyHero";
@@ -31,7 +30,7 @@ export default function BuddyPage() {
   const handleLogout = async () => {
     try {
       setMessage("Du wirst abgemeldet...");
-      await signOut(auth);
+      await logoutWellFit();
       window.location.href = "/";
     } catch {
       setMessage("Abmelden fehlgeschlagen. Bitte erneut versuchen.");

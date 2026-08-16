@@ -1,13 +1,14 @@
 "use client";
 
 import { auth } from "@/lib/firebase";
+import { logoutWellFit } from "@/lib/auth/webSessionClient";
 import { updateUserAccountProfile } from "@/lib/beta1/clientUserSettings";
 import {
   updateUserPrivacyConsents,
   updateUserSettingsSection,
   type PermissionState,
 } from "@/lib/beta1/clientUserPreferences";
-import { sendPasswordResetEmail, signOut } from "firebase/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 
 import type {
   ActivityForm,
@@ -74,7 +75,7 @@ export function useSettingsActions({
   const handleLogout = async () => {
     try {
       setSaveMessage("Du wirst abgemeldet...");
-      await signOut(auth);
+      await logoutWellFit();
       window.location.href = "/";
     } catch (error) {
       console.error("Logout fehlgeschlagen", error);

@@ -12,7 +12,7 @@ const {
 
 const ONBOARDING_VERSION = "2026-07-24-v1";
 const CONSENT_VERSION = "2026-07-24-v1";
-const MINIMUM_SELF_REGISTRATION_AGE = 14;
+const MINIMUM_SELF_REGISTRATION_AGE = 16;
 const MAXIMUM_AGE = 110;
 
 const ALLOWED_LANGUAGES = new Set(["de", "en"]);
@@ -90,7 +90,7 @@ function ageAtDate(birthDate, now = new Date()) {
 }
 
 function ageBand(age) {
-  if (age < 18) return "14-17";
+  if (age < 18) return "16-17";
   if (age < 25) return "18-24";
   if (age < 35) return "25-34";
   if (age < 45) return "35-44";
