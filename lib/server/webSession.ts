@@ -4,11 +4,36 @@ import { adminDb } from "@/lib/server/firebaseAdmin";
 
 export const WEB_SESSION_COOKIE = "wellfit_session";
 export const WEB_SESSION_MAX_AGE_SECONDS = 8 * 60 * 60;
+export const WEB_SESSION_MAX_ACTIVE_PER_USER = 10;
 
 const collection = () => adminDb.collection("webSessions");
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
 export async function createWebSession(input: { userId: string; admin: boolean; userAgent?: string | null }) {
+  const existing = await collection().where("userId", "==", input.userId).limit(50).get();
+  const active = existing.docs
+    .filter((doc) => {
+      const data = doc.data() || {};
+      const expiresAt = data.expiresAt instanceof Timestamp ? data.expiresAt.toMillis() : 0;
+      return data.status === "active" && expiresAt > Date.now();
+    })
+    .sort((left, right) => {
+      const leftCreated = left.data().createdAt instanceof Timestamp ? left.data().createdAt.toMillis() : 0;
+      const rightCreated = right.data().createdAt instanceof Timestamp ? right.data().createdAt.toMillis() : 0;
+      return leftCreated - rightCreated;
+    });
+  const stale = existing.docs.filter((doc) => {
+    const data = doc.data() || {};
+    const expiresAt = data.expiresAt instanceof Timestamp ? data.expiresAt.toMillis() : 0;
+    return data.status === "active" && expiresAt <= Date.now();
+  });
+  const overLimit = active.slice(0, Math.max(0, active.length - WEB_SESSION_MAX_ACTIVE_PER_USER + 1));
+  const toRevoke = [...new Map([...stale, ...overLimit].map((doc) => [doc.id, doc])).values()];
+  if (toRevoke.length > 0) {
+    const batch = adminDb.batch();
+    toRevoke.forEach((doc) => batch.update(doc.ref, { status: "revoked", revokedAt: FieldValue.serverTimestamp() }));
+    await batch.commit();
+  }
   const token = randomBytes(32).toString("base64url");
   const expiresAt = Timestamp.fromMillis(Date.now() + WEB_SESSION_MAX_AGE_SECONDS * 1000);
   await collection().doc(hashToken(token)).set({

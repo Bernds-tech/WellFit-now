@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import AppInstallPrompt from "@/app/components/AppInstallPrompt";
 import { updateCurrentDeviceLocation } from "@/app/lib/deviceLocation";
+import { logoutWellFit } from "@/lib/auth/webSessionClient";
 
 type AppSidebarProps = {
   brightness: number;
@@ -91,6 +92,11 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
     });
   };
 
+  const handleLogout = onLogout ?? (async () => {
+    await logoutWellFit();
+    window.location.assign("/");
+  });
+
   const expandedClass = (active: boolean) => active ? "block font-bold text-orange-400" : "block text-white/80 hover:text-cyan-100";
   const collapsedClass = (active: boolean) => active
     ? "flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-orange-400"
@@ -175,7 +181,7 @@ export default function AppSidebar({ brightness, onBrightnessChange, onLogout }:
           <div className={collapsed ? "w-full border-t border-cyan-400/10 pt-3" : "mt-4 w-full border-t border-cyan-400/10 pt-3"}>
             <button
               type="button"
-              onClick={onLogout}
+              onClick={handleLogout}
               className={collapsed ? "mx-auto flex h-10 w-10 items-center justify-center rounded-xl text-red-400 hover:bg-red-400/10 hover:text-red-300" : "block w-full text-left text-[14px] font-bold text-red-400 hover:text-red-300"}
               title={collapsed ? "Abmelden" : undefined}
             >
