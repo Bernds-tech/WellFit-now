@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { buddyKiRulesProvider } from "@/lib/buddyKi/buddyKiProviderRules";
 import type { BuddyKiContext, BuddyKiIntent, BuddyKiProviderMode, BuddyKiResponse } from "@/lib/buddyKi/buddyKiTypes";
+import { requireRequestWebSession } from "@/lib/server/webSession";
 
 export const runtime = "nodejs";
 
@@ -127,6 +128,8 @@ async function generateBackendBuddyResponse(intent: BuddyKiIntent, context: Budd
 
 export async function POST(request: Request) {
   try {
+    const session = await requireRequestWebSession(request);
+    if (!session) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
     let body: BuddyKiRequestBody;
 
     try {
@@ -152,8 +155,10 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const session = await requireRequestWebSession(request);
+    if (!session) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
     return NextResponse.json({
       ok: true,
       service: "buddy-ki",

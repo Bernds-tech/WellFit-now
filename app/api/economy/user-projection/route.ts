@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createEconomyServerAuthContext, summarizeEconomyServerAuthContext } from "@/lib/economy/serverAuth";
 import { createUserProjectionSnapshot } from "@/lib/economy/userProjection";
+import { requireRequestWebSession } from "@/lib/server/webSession";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +24,10 @@ async function readBody(request: Request): Promise<ProjectionRequestBody> {
   }
 }
 
-export async function GET() {
-  const auth = createEconomyServerAuthContext({ fallbackUserId: "economy-beta-user" });
+export async function GET(request: Request) {
+  const session = await requireRequestWebSession(request);
+  if (!session) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  const auth = createEconomyServerAuthContext({ fallbackUserId: "economy-beta-user", verifiedAuthUserId: session.userId });
   const projection = createUserProjectionSnapshot({ userId: auth.userId });
 
   return NextResponse.json({
@@ -40,10 +43,13 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const session = await requireRequestWebSession(request);
+  if (!session) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   const body = await readBody(request);
   const auth = createEconomyServerAuthContext({
     bodyUserId: body.userId,
     fallbackUserId: "economy-beta-user",
+    verifiedAuthUserId: session.userId,
   });
 
   const projection = createUserProjectionSnapshot({

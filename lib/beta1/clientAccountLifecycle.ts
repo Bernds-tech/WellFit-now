@@ -174,6 +174,7 @@ export async function cancelAccountDeletion(reason = "user-cancelled-in-settings
 
 export async function revokeAllUserSessions(): Promise<void> {
   await callAccountFunction("revokeUserSessions", {});
+  await fetch("/api/auth/logout?all=true", { method: "POST", credentials: "same-origin" });
   await signOut(auth);
 }
 

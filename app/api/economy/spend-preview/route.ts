@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireRequestWebSession } from "@/lib/server/webSession";
 import {
   createEconomyServerAuthContext,
   createEconomyServerPersistenceRequests,
@@ -57,11 +58,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const session = await requireRequestWebSession(request);
+    if (!session) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
     const body = asRecord(await request.json());
     const pointsBalance = Math.max(0, Math.floor(asNumber(body.pointsBalance, 0)));
     const authContext = createEconomyServerAuthContext({
       bodyUserId: body.userId,
       fallbackUserId: "api-spend-preview-user",
+      verifiedAuthUserId: session.userId,
     });
 
     const decision = createInternalSpendPreviewDecision({

@@ -6,6 +6,12 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    files: ["database/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+  {
     files: [
       "app/missionen/tagesmissionen/page.tsx",
       "components/admin/MissionEvidenceReviewQueue.tsx",

@@ -8,7 +8,7 @@ export type EconomyServerAuthContext = {
   userId: string;
   requestedBodyUserId: string | null;
   verifiedAuthUserId: string | null;
-  ownershipVerified: false;
+  ownershipVerified: boolean;
   reasons: string[];
   nextServerStep: string;
 };
@@ -36,10 +36,9 @@ export function createEconomyServerAuthContext(input: EconomyServerAuthInput): E
       userId: verifiedAuthUserId,
       requestedBodyUserId,
       verifiedAuthUserId,
-      ownershipVerified: false,
-      reasons: ["server_auth_placeholder_verified_user_id_supplied", "ownership_projection_not_final_yet"],
-      nextServerStep:
-        "Replace placeholder auth with Firebase/Admin session verification and set ownershipVerified only after server-side ownership checks pass.",
+      ownershipVerified: true,
+      reasons: ["firebase_admin_web_session_verified", "body_user_id_ignored"],
+      nextServerStep: "Keep final ledger writes inside server-authorized Firebase transactions.",
     };
   }
 
