@@ -5,6 +5,7 @@ import { useState } from "react";
 import AppSidebar from "@/app/AppSidebar";
 import { useWellFitBrightness } from "@/app/hooks/useWellFitBrightness";
 import AccountManagementCard from "./components/AccountManagementCard";
+import ActiveSessionsCard from "./components/ActiveSessionsCard";
 import ActivityCard from "./components/ActivityCard";
 import AiBuddyCard from "./components/AiBuddyCard";
 import BiometricsCard from "./components/BiometricsCard";
@@ -156,6 +157,7 @@ export default function SettingsPage() {
             <PrivacyCard privacy={privacy} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updatePrivacyField={updatePrivacyField} savePrivacy={() => savePrivacy(privacy)} ToggleButton={ToggleButton} toggleBase={toggleBase} />
             <PermissionsCard permissions={permissions} selectClass={selectClass} saveButtonClass={saveButtonClass} isLoadingUser={isLoadingUser} updatePermission={updatePermission} savePermissions={() => savePermissions(permissions)} toggleBase={toggleBase} />
             <AccountManagementCard />
+            <ActiveSessionsCard />
           </div>
         </section>
       </div>
