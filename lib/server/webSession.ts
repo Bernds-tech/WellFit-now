@@ -9,6 +9,13 @@ export const WEB_SESSION_MAX_ACTIVE_PER_USER = 10;
 const collection = () => adminDb.collection("webSessions");
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
+function deviceLabel(userAgent?: string | null) {
+  const value = userAgent || "";
+  const platform = /Android/i.test(value) ? "Android" : /iPhone|iPad/i.test(value) ? "iPhone/iPad" : /Windows/i.test(value) ? "Windows" : /Macintosh/i.test(value) ? "Mac" : /Linux/i.test(value) ? "Linux" : "Unbekanntes Gerät";
+  const browser = /Edg\//i.test(value) ? "Edge" : /Chrome\//i.test(value) ? "Chrome" : /Firefox\//i.test(value) ? "Firefox" : /Safari\//i.test(value) ? "Safari" : "Browser";
+  return `${platform} · ${browser}`;
+}
+
 export async function createWebSession(input: { userId: string; admin: boolean; userAgent?: string | null }) {
   const existing = await collection().where("userId", "==", input.userId).limit(50).get();
   const active = existing.docs
@@ -41,6 +48,7 @@ export async function createWebSession(input: { userId: string; admin: boolean; 
     admin: input.admin,
     status: "active",
     userAgentHash: input.userAgent ? hashToken(input.userAgent).slice(0, 24) : null,
+    deviceLabel: deviceLabel(input.userAgent),
     createdAt: FieldValue.serverTimestamp(),
     expiresAt,
     revokedAt: null,
@@ -94,4 +102,32 @@ export async function requireRequestWebSession(request: Request) {
   const cookieHeader = request.headers.get("cookie") || "";
   const token = cookieHeader.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${WEB_SESSION_COOKIE}=`))?.slice(WEB_SESSION_COOKIE.length + 1);
   return readWebSession(token ? decodeURIComponent(token) : undefined);
+}
+
+export async function listWebSessionsForRequest(request: Request) {
+  const cookieHeader = request.headers.get("cookie") || "";
+  const token = cookieHeader.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${WEB_SESSION_COOKIE}=`))?.slice(WEB_SESSION_COOKIE.length + 1);
+  const decodedToken = token ? decodeURIComponent(token) : undefined;
+  const session = await readWebSession(decodedToken);
+  if (!session || !decodedToken) return null;
+  const currentId = hashToken(decodedToken);
+  const snapshot = await collection().where("userId", "==", session.userId).limit(50).get();
+  const sessions = snapshot.docs.map((doc) => {
+    const data = doc.data() || {};
+    const expiresAt = data.expiresAt instanceof Timestamp ? data.expiresAt.toDate().toISOString() : null;
+    const createdAt = data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : null;
+    return { id: doc.id, deviceLabel: String(data.deviceLabel || "Unbekanntes Gerät"), status: String(data.status || "unknown"), createdAt, expiresAt, current: doc.id === currentId };
+  }).filter((entry) => entry.status === "active" && entry.expiresAt && Date.parse(entry.expiresAt) > Date.now())
+    .sort((left, right) => Date.parse(right.createdAt || "1970-01-01") - Date.parse(left.createdAt || "1970-01-01"));
+  return { userId: session.userId, currentId, sessions };
+}
+
+export async function revokeOwnedWebSession(userId: string, sessionId: string) {
+  if (!/^[a-f0-9]{64}$/.test(sessionId)) return false;
+  const ref = collection().doc(sessionId);
+  const snapshot = await ref.get();
+  const data = snapshot.data() || {};
+  if (!snapshot.exists || data.userId !== userId || data.status !== "active") return false;
+  await ref.update({ status: "revoked", revokedAt: FieldValue.serverTimestamp() });
+  return true;
 }
