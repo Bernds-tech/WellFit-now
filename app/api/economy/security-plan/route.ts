@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireRequestWebSession } from "@/lib/server/webSession";
 import {
   economyServerCompletionStages,
   getEconomyServerPersistenceStatus,
@@ -10,7 +11,9 @@ import { summarizeEconomyProjectionPlan } from "@/lib/economy/serverProjectionPl
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const session = await requireRequestWebSession(request);
+  if (!session) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   return NextResponse.json({
     ok: true,
     mode: "internal_points_beta",

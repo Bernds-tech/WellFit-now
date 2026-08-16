@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireRequestWebSession } from "@/lib/server/webSession";
 import { calculateInternalEconomyHealth, calculateEconomyHealthAdjustedReward } from "@/lib/economy";
 
 export const dynamic = "force-dynamic";
@@ -60,6 +61,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const session = await requireRequestWebSession(request);
+  if (!session) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   try {
     const body = asRecord(await request.json());
     return NextResponse.json(createPreview(body));
