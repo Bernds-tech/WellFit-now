@@ -4,12 +4,12 @@
   "repository": "Bernds-tech/WellFit-now",
   "project_role": "technical_web_backend",
   "gates": {
-    "auth_consent": {"state": "UNASSESSED", "risk": "R3"},
-    "account_privacy": {"state": "UNASSESSED", "risk": "R3"},
-    "backend_runtime": {"state": "UNASSESSED", "risk": "R3"},
-    "rewards_missions": {"state": "UNASSESSED", "risk": "R3"},
-    "cross_repo_contract": {"state": "UNASSESSED", "risk": "R3"}
+    "auth_consent": {"state": "PARTIAL", "risk": "R3", "evidence": "Closed-Beta auth/session hardening is merged (PRs #369-#371): age >=16, email verification, onboarding/account-status gating, server-managed HttpOnly sessions, revocation and device-session management. Consent/health-data separation and withdrawal remain incompletely proven."},
+    "account_privacy": {"state": "PARTIAL", "risk": "R3", "evidence": "Session privacy is hardened without IP/location storage for session display; export, deletion/anonymization, consent withdrawal and full parent/child lifecycle remain open or unaccepted."},
+    "backend_runtime": {"state": "VERIFIED", "risk": "R3", "evidence": "Current repository builds, container runtime checks and database package tests are green; server-authoritative mission/economy foundations and global-location logic exist. This is repository/runtime-package verification, not Production confirmation."},
+    "rewards_missions": {"state": "VERIFIED", "risk": "R3", "evidence": "Server flow attempt -> evidence -> admin review -> completion -> internal ledger -> wallet exists with replay/idempotency/audit protections. WFXP vs WFP/XP terminology remains an owner-reviewed migration issue and token/real-money authority is not active."},
+    "cross_repo_contract": {"state": "PARTIAL", "risk": "R3", "evidence": "Web/backend contracts exist in code, but native Unity/AR code is still physically under WellFit-now while WellFit-Buddy is the intended native authority; V9 cross-repo contracts and integration gates need real baselines."}
   },
   "accepted_states": ["ACCEPTED", "PRODUCTION_CONFIRMED"],
-  "rule": "Do not restart/rewrite the existing baseline; do not treat Unity/native AR as owned by this repository without an explicit bridge task."
+  "rule": "Do not restart/rewrite the existing baseline. Treat repository/runtime verification separately from external Production, real-device, legal or product acceptance."
 }
