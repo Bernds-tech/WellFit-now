@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "updated": "2026-08-19",
+  "repository": "Bernds-tech/WellFit-now",
+  "cross_chat": {"chat_claim_is_not_evidence": true, "require_github_memory_reconciliation": true, "refresh_next_best_action": true},
+  "evidence_freshness": {"runtime_hours": 24, "provider_console_hours": 24, "owner_decision_hours": 168, "immutable_commit_expires": false},
+  "impact_matrix": [
+    {"patterns":["app/**","lib/**","database/**","supabase/**","**/*auth*","**/*consent*"],"affected_gates":["auth_consent","account_privacy"]},
+    {"patterns":["Dockerfile","config/**","docs/status/**","**/*runtime*"],"affected_gates":["backend_runtime"]},
+    {"patterns":["**/*reward*","**/*mission*","**/*economy*","**/*wfp*","**/*wfxp*"],"affected_gates":["rewards_missions"]},
+    {"patterns":["project-memory/**","AGENTS.md"],"affected_gates":[],"requires_reconciliation":true}
+  ],
+  "branch_protection_contract": {"branch":"main","require_pull_request":true,"require_status_checks":true,"block_force_push":true,"block_delete":true,"remote_activation_owner_ui":true},
+  "milestones": {"append_only":true,"directory":"project-memory/milestones","snapshot_on_states":["ACCEPTED","PRODUCTION_CONFIRMED"]},
+  "automatic_downgrade_target":"NEEDS_REVALIDATION"
+}
