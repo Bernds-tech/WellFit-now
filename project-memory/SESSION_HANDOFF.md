@@ -3,9 +3,10 @@
 Update this at the end of substantial work or when pausing at a non-obvious state.
 
 ## Current handoff
-- Updated: 2026-08-19
+- Updated: 2026-08-19 11:47 Europe/Vienna
 - Active focus: continue web/backend work from current runtime state and task ledger; do not restart the product baseline
-- Start here: `AGENTS.md`, current runtime-state/canonical files required by it, then `CURRENT_STATE.md`, `OPEN_LOOPS.md`, `TASK_LEDGER.md`, `DEPENDENCIES.md`, `DECISIONS.md`, `FAILED_ATTEMPTS.md`
+- Start here: `AGENTS.md`, current runtime-state/canonical files required by it, then `project-memory/CHAT_RECONCILIATION_2026-08-19.md`, `CURRENT_STATE.md`, `STARTED_WORK.md`, `OPEN_LOOPS.md`, `TASK_LEDGER.md`, `DEPENDENCIES.md`, `ASSUMPTIONS.md`, `CONTRADICTIONS.md`, `DECISIONS.md`, `FAILED_ATTEMPTS.md`
+- Durable governance state: Project Memory V5 is merged to main via PR #375; future substantive work must use automatic preflight, risk classification, started-work tracking and independent countercheck.
 - Repository boundary: WellFit-now = web/backend/product technique; visual/landing/UI = WellFit; native AR/mobile/buddy = WellFit-Buddy
 - Next safe action: inspect current Git/PR/runtime state and continue the first unproven task rather than recreating previous foundations
 
