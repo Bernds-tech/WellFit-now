@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "repository": "Bernds-tech/WellFit-now",
+  "updated": "2026-08-19",
+  "tracked_paths": [
+    "AGENTS.md",
+    "docs/status/WELLFIT_RUNTIME_STATE_2026-07-24.md",
+    "project-memory/CURRENT_STATE.md",
+    "project-memory/FINISHLINE_STATE.json",
+    "project-memory/CONVERGENCE_PLAN.json"
+  ],
+  "on_change": "DRIFT_REVIEW_REQUIRED",
+  "rule": "Changes to tracked runtime/truth/role/convergence files require reconciliation before prior acceptance is reused."
+}
