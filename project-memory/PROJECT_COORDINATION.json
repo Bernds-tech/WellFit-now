@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "updated": "2026-08-19",
+  "repository": "Bernds-tech/WellFit-now",
+  "local_role": "technical_web_backend",
+  "program_master": "Bernds-tech/WellFit:project-memory/WELLFIT_MASTER_STATE.json",
+  "master_authority_for": ["cross_repo_dependencies","shared_contract_registry","integration_gates","cross_repo_locks","convergence_ledger","master_next_action"],
+  "local_authority_for": ["technical_web_backend_truth","local_finishline","local_evidence","local_next_best_action"],
+  "required_master_contracts": ["WF-CONTRACT-AUTH-001","WF-CONTRACT-MISSION-001","WF-CONTRACT-REWARD-001","WF-CONTRACT-BUDDY-001"],
+  "rule": "Before accepting cross-repository work, reconcile the relevant master contract/dependency IDs without surrendering local backend authority."
+}

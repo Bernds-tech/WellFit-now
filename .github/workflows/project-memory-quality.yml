@@ -19,3 +19,5 @@ jobs:
         run: python3 scripts/project_memory_quality_check.py
       - name: Validate WellFit-now V8 controls
         run: python3 scripts/project_memory_v8_check.py
+      - name: Validate WellFit-now V9 coordination
+        run: python3 scripts/project_memory_v9_check.py
