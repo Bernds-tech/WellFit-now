@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "updated": "2026-08-19",
+  "repository": "Bernds-tech/WellFit-now",
+  "project_role": "technical_web_backend",
+  "gates": {
+    "auth_consent": {"state": "UNASSESSED", "risk": "R3"},
+    "account_privacy": {"state": "UNASSESSED", "risk": "R3"},
+    "backend_runtime": {"state": "UNASSESSED", "risk": "R3"},
+    "rewards_missions": {"state": "UNASSESSED", "risk": "R3"},
+    "cross_repo_contract": {"state": "UNASSESSED", "risk": "R3"}
+  },
+  "accepted_states": ["ACCEPTED", "PRODUCTION_CONFIRMED"],
+  "rule": "Do not restart/rewrite the existing baseline; do not treat Unity/native AR as owned by this repository without an explicit bridge task."
+}
