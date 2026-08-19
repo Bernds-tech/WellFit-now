@@ -1,0 +1,12 @@
+# WellFit-now Session Handoff
+
+Update this at the end of substantial work or when pausing at a non-obvious state.
+
+## Current handoff
+- Updated: 2026-08-19
+- Active focus: continue web/backend work from current runtime state and task ledger; do not restart the product baseline
+- Start here: `AGENTS.md`, current runtime-state/canonical files required by it, then `CURRENT_STATE.md`, `OPEN_LOOPS.md`, `TASK_LEDGER.md`, `DEPENDENCIES.md`, `DECISIONS.md`, `FAILED_ATTEMPTS.md`
+- Repository boundary: WellFit-now = web/backend/product technique; visual/landing/UI = WellFit; native AR/mobile/buddy = WellFit-Buddy
+- Next safe action: inspect current Git/PR/runtime state and continue the first unproven task rather than recreating previous foundations
+
+Future handoffs must record updated time, active IDs, exact last verified result, first unproven step, blockers/open loops, failed-attempt references, evidence/PR/commit references and any user input still required.
