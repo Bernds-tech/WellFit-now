@@ -26,6 +26,9 @@ for token in ['Role: technical product authority','Program master: `Bernds-tech/
 next_action=(PM/'NEXT_BEST_ACTION.md').read_text(encoding='utf-8') if (PM/'NEXT_BEST_ACTION.md').exists() else ''
 m=re.search(r"Selected action: `([^`]+)`", next_action)
 if not m or f"Current next action: `{m.group(1)}`" not in handoff: errors.append('auto-handoff-next-action-stale')
+agents=(ROOT/'AGENTS.md').read_text(encoding='utf-8') if (ROOT/'AGENTS.md').exists() else ''
+for token in ['## 0. Mandatory project-memory preflight','Before answering project-state questions','project-memory/AUTO_HANDOFF.md','This repository is the WellFit technical-product authority','Chat memory is a navigation hint only','Do not infer general technical mobile/application ownership from the Buddy repository']:
+    if token not in agents: errors.append('agents-project-memory-entry-token-missing:'+token)
 
 if errors:
     print('PROJECT_MEMORY_V9_RESULT=failed')
