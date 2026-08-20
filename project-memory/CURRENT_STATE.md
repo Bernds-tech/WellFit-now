@@ -35,6 +35,7 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not move general technical mobile/application logic into WellFit-Buddy merely because Buddy-specific AR belongs there.
 
 ## Exact next safe technical work
+- Selected local action: `WFN-LEGACY-WRITER-MIGRATION-BASELINE`
 1. inventory remaining legacy user/economy/Buddy writers and compatibility fields;
 2. migrate them incrementally to server-authoritative paths with negative/rules regression evidence;
 3. close consent/account-lifecycle/privacy gaps;
