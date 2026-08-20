@@ -2,25 +2,23 @@
 
 Append-only audit trail proving the mandatory preflight and countercheck were performed.
 
-## Required receipt fields
-```text
-## RECEIPT-<TASK-ID>-<YYYYMMDD-HHMM>
-- Task:
-- Started:
-- Finished:
-- Branch/PR:
-- Preflight checked: AGENTS, CURRENT_STATE, TASK_LEDGER, CHANGE_REQUESTS, DECISIONS, FAILED_ATTEMPTS, OPEN_LOOPS, DEPENDENCIES, DO_NOT_ASSUME, STARTED_WORK, WORK_LOCKS, Git/PR/CI state
-- Prior attempts found:
-- Dependency result:
-- Planned evidence:
-- Changes made:
-- Checks/tests:
-- Final diff counterchecked: yes|no
-- Regression/security countercheck:
-- Evidence produced:
-- Result status:
-- Open follow-up:
-- Work lock released: yes|no
-```
+## RECEIPT-WFN-RECON-20260820-0822
+- Task: WFN-RECON-20260820
+- Started: 2026-08-20 08:22 Europe/Vienna
+- Finished: pending PR/CI completion
+- Branch/PR: `automation/reconcile-20260820`
+- Preflight checked: current main, `AGENTS.md`/Project Memory state, `FINISHLINE_STATE.json`, Task Ledger, Started Work, Open Loops, Dependencies, Evidence, Assumptions, Contradictions, Work Locks, current canonical truth, open PRs and branch-protection state.
+- Prior attempts found: V5 history remained only in old PR #376; later V6-V9/current baseline is on main; stale PR #13/#263/#363/#365 duplicate or predate current truth; #364 is a distinct deferred canonical proposal.
+- Dependency result: technical active work is correctly blocked on exact inventories/acceptance or cross-repo contracts; no product/runtime mutation was needed for this audit.
+- Planned evidence: exact current main/PR metadata, exact-head PR #380 CI, current finishline/canonical truth and independent cross-repo role countercheck.
+- Changes made: restored V5 history and all substantive active technical work into Task/Started/Loop/Dependency/Evidence/Assumption/Contradiction registers; corrected technical vs Buddy scope; classified stale PRs.
+- Checks/tests: Project Memory workflows and normal repository checks triggered by this branch/PR must be green before merge.
+- Final diff counterchecked: yes for intended project-memory-only scope before PR creation; CI remains required.
+- Regression/security countercheck: no runtime/rules/Firebase/economy/auth/product code changed; negative/fail-closed requirements and rollback requirements were recorded for each R3 active task; branch protection gap was recorded, not bypassed.
+- Evidence produced: current register reconciliation plus exact revision references.
+- Result status: VERIFIED_PENDING_CI
+- Open follow-up: close proven superseded PRs after merge; keep #364 deferred; then begin read-only legacy writer inventory under a new implementation lock.
+- Work lock released: no product lock acquired; reconciliation branch is memory-only.
+- Falsification question: What observation would prove our conclusion wrong? A unique still-required diff in a PR marked superseded, a newer accepted finishline/runtime target, or exact evidence showing a listed active task already closed would require RECONCILIATION_REQUIRED and a register correction before further work.
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
