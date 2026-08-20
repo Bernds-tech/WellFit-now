@@ -11,8 +11,9 @@ try:
     c=json.loads((PM/'PROJECT_COORDINATION.json').read_text())
     if c.get('repository')!='Bernds-tech/WellFit-now': errors.append('coordination-repository-invalid')
     if c.get('program_master')!='Bernds-tech/WellFit:project-memory/WELLFIT_MASTER_STATE.json': errors.append('coordination-master-invalid')
-    if c.get('local_role')!='technical_web_backend': errors.append('coordination-role-invalid')
+    if c.get('local_role')!='technical_product': errors.append('coordination-role-invalid')
     state=json.loads((PM/'FINISHLINE_STATE.json').read_text())
+    if state.get('project_role')!='technical_product': errors.append('finishline-role-invalid')
     if any(v.get('state')=='UNASSESSED' for v in state.get('gates',{}).values()): errors.append('real-finishline-still-unassessed')
 except Exception as e: errors.append('coordination-or-state-json-invalid:'+str(e))
 protocol=(PM/'PROTOCOL.md').read_text(encoding='utf-8') if (PM/'PROTOCOL.md').exists() else ''
