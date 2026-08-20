@@ -6,6 +6,35 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # WellFit Repository Agent Rules
 
+## 0. Mandatory project-memory preflight
+
+Before answering project-state questions or making any code, configuration, runtime, mobile, backend, UI-supporting or repository change, read:
+1. `project-memory/PROTOCOL.md`
+2. `project-memory/PROJECT_COORDINATION.json`
+3. `project-memory/CURRENT_STATE.md`
+4. `project-memory/FINISHLINE_STATE.json`
+5. `project-memory/NEXT_BEST_ACTION.md`
+6. `project-memory/AUTO_HANDOFF.md`
+7. `project-memory/OWNER_ACTION_INBOX.md`
+8. `project-memory/SESSION_HANDOFF.md`
+9. `project-memory/STARTED_WORK.md`
+10. `project-memory/WORK_LOCKS.md`
+11. `project-memory/OPEN_LOOPS.md`
+12. `project-memory/TASK_LEDGER.md`
+13. `project-memory/DEPENDENCIES.md`
+14. `project-memory/DECISIONS.md`
+15. `project-memory/FAILED_ATTEMPTS.md`
+16. `project-memory/CHANGE_REQUESTS.md`
+17. the current runtime/canonical truth files relevant to the task.
+
+For cross-repository work also reconcile the authoritative WellFit program master in `Bernds-tech/WellFit:project-memory/WELLFIT_MASTER_STATE.json` plus the relevant `WF-CONTRACT-*`, `WF-XDEP-*`, integration-gate, convergence and cross-repo-lock records.
+
+Then check current branch/main, git status, recent commits/PRs/CI and relevant current runtime/provider evidence. Search for an existing task/change ID and prior attempt before starting a new path. Chat memory is a navigation hint only and never overrides Project Memory, current code/tests or current external evidence.
+
+### Repository authority boundary
+
+This repository is the WellFit technical-product authority: web/backend, auth, data, APIs, mission/economy/server authority, security/runtime and general technical application/mobile logic. `Bernds-tech/WellFit` owns graphical/UI/UX truth. `Bernds-tech/WellFit-Buddy` owns only Buddy-specific behavior, presentation/animation and Buddy-specific AR/camera interaction. Do not infer general technical mobile/application ownership from the Buddy repository.
+
 ## 1. Project overview
 
 WellFit is a Move-Learn-Social-Earn platform that combines movement, learning, social challenges, gamification, an AI buddy, AR experiences, PvP/challenge mechanics, a planned token/NFT economy, and future B2B modules.
