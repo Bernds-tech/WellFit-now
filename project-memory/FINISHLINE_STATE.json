@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-19",
+  "updated": "2026-08-20",
   "repository": "Bernds-tech/WellFit-now",
-  "project_role": "technical_web_backend",
+  "project_role": "technical_product",
   "gates": {
     "auth_consent": {"state": "PARTIAL", "risk": "R3", "evidence": "Closed-Beta auth/session hardening is merged (PRs #369-#371): age >=16, email verification, onboarding/account-status gating, server-managed HttpOnly sessions, revocation and device-session management. Consent/health-data separation and withdrawal remain incompletely proven."},
     "account_privacy": {"state": "PARTIAL", "risk": "R3", "evidence": "Session privacy is hardened without IP/location storage for session display; export, deletion/anonymization, consent withdrawal and full parent/child lifecycle remain open or unaccepted."},
     "backend_runtime": {"state": "VERIFIED", "risk": "R3", "evidence": "Current repository builds, container runtime checks and database package tests are green; server-authoritative mission/economy foundations and global-location logic exist. This is repository/runtime-package verification, not Production confirmation."},
     "rewards_missions": {"state": "VERIFIED", "risk": "R3", "evidence": "Server flow attempt -> evidence -> admin review -> completion -> internal ledger -> wallet exists with replay/idempotency/audit protections. WFXP vs WFP/XP terminology remains an owner-reviewed migration issue and token/real-money authority is not active."},
-    "cross_repo_contract": {"state": "PARTIAL", "risk": "R3", "evidence": "Web/backend contracts exist in code, but native Unity/AR code is still physically under WellFit-now while WellFit-Buddy is the intended native authority; V9 cross-repo contracts and integration gates need real baselines."}
+    "cross_repo_contract": {"state": "PARTIAL", "risk": "R3", "evidence": "Technical contracts exist in code, while graphical/UI code and Buddy-specific Unity AR code still physically reside here pending explicit migration to their domain repositories."}
   },
   "accepted_states": ["ACCEPTED", "PRODUCTION_CONFIRMED"],
-  "rule": "Do not restart/rewrite the existing baseline. Treat repository/runtime verification separately from external Production, real-device, legal or product acceptance."
+  "rule": "WellFit-now owns the technical product: web/backend, auth, data, APIs, mission/economy/server authority, security/runtime and general technical application/mobile logic. Graphics/UI/UX belong to WellFit; Buddy-specific behavior/presentation/AR belongs to WellFit-Buddy."
 }
