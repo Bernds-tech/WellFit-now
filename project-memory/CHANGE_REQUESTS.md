@@ -13,6 +13,30 @@ New owner ideas are captured here before changing active scope.
 - Decision: Implement Project Memory Protocol v1.
 - Related task: WFN-MEM-001
 
+## WFN-CR-002
+- Date: 2026-08-20
+- Status: MERGED_INTO_EXISTING_TASK
+- Source: owner
+- Idea: WellFit-now is the technical part, WellFit is graphical, WellFit-Buddy is the Buddy.
+- Classification: cross-repository responsibility clarification
+- Affected areas: technical ownership, graphical/Buddy migration boundaries, contracts/dependencies.
+- Existing task/decision checked: WFN-XREPO-001 and V9 master.
+- Dependencies: matching reconciliation in WellFit and WellFit-Buddy.
+- Decision: general technical application/mobile logic remains WellFit-now; only Buddy-specific behavior/presentation/AR belongs in WellFit-Buddy.
+- Related task: WFN-XREPO-001
+
+## WFN-CR-003
+- Date: 2026-08-20
+- Status: ACCEPTED_FOR_RECONCILIATION
+- Source: current GitHub state
+- Idea: classify stale open PRs instead of leaving them as ambiguous unfinished work.
+- Classification: governance/PR hygiene
+- Affected areas: PR #13, #263, #363, #365, #376, #364.
+- Existing task/decision checked: current main, finishline, Task Ledger, canonical truth.
+- Dependencies: this reconciliation must preserve unique historical truth before closure.
+- Decision: close #13/#263/#363/#365/#376 as superseded after this reconciliation merges; keep #364 deferred for explicit owner-reviewed future WFT decision.
+- Related task: WFN-RECON-20260820
+
 ## Intake template
 
 ```text
