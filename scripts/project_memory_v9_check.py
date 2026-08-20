@@ -4,7 +4,7 @@ import json, re, sys
 ROOT=Path(__file__).resolve().parents[1]
 PM=ROOT/'project-memory'
 errors=[]
-for name in ['PROJECT_COORDINATION.json','REAL_WORK_BASELINE_2026-08-19.md','FINISHLINE_STATE.json','PROTOCOL.md','AUTO_HANDOFF.md','NEXT_BEST_ACTION.md']:
+for name in ['PROJECT_COORDINATION.json','REAL_WORK_BASELINE_2026-08-19.md','FINISHLINE_STATE.json','PROTOCOL.md','AUTO_HANDOFF.md','NEXT_BEST_ACTION.md','CURRENT_STATE.md']:
     p=PM/name
     if not p.exists() or not p.read_text(encoding='utf-8').strip(): errors.append('missing-or-empty:'+name)
 try:
@@ -26,6 +26,12 @@ for token in ['Role: technical product authority','Program master: `Bernds-tech/
 next_action=(PM/'NEXT_BEST_ACTION.md').read_text(encoding='utf-8') if (PM/'NEXT_BEST_ACTION.md').exists() else ''
 m=re.search(r"Selected action: `([^`]+)`", next_action)
 if not m or f"Current next action: `{m.group(1)}`" not in handoff: errors.append('auto-handoff-next-action-stale')
+current_state=(PM/'CURRENT_STATE.md').read_text(encoding='utf-8') if (PM/'CURRENT_STATE.md').exists() else ''
+state_action=re.search(r"(?m)^- Selected local action: `([^`]+)`\s*$", current_state)
+if not state_action:
+    errors.append('current-state-selected-action-missing')
+elif not m or state_action.group(1)!=m.group(1):
+    errors.append('current-state-next-action-mismatch')
 agents=(ROOT/'AGENTS.md').read_text(encoding='utf-8') if (ROOT/'AGENTS.md').exists() else ''
 for token in ['## 0. Mandatory project-memory preflight','Before answering project-state questions','project-memory/AUTO_HANDOFF.md','This repository is the WellFit technical-product authority','Chat memory is a navigation hint only','Do not infer general technical mobile/application ownership from the Buddy repository']:
     if token not in agents: errors.append('agents-project-memory-entry-token-missing:'+token)
