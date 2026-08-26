@@ -21,4 +21,22 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 - Work lock released: no product lock acquired; reconciliation branch was memory-only.
 - Falsification question: What observation would prove our conclusion wrong? A unique still-required diff in a PR marked superseded, a newer accepted finishline/runtime target, or exact evidence showing a listed active task already closed would require RECONCILIATION_REQUIRED and a register correction before further work.
 
+## RECEIPT-WFN-AVATAR-ATTN-20260826
+- Task: WFN-AVATAR-ATTN-001 / WFN-CR-004
+- Started: 2026-08-26 Europe/Vienna
+- Branch/PR: `codex/avatar-attention-20260826` / PR #387
+- Risk: R2 visual/web presentation only.
+- Preflight checked: mandatory WellFit program memory, WellFit-now `AGENTS.md` and local Project Memory, current main/PR/CI, graphical ownership drift, Buddy contract boundary, prior attempts/locks and current landing/avatar code/assets.
+- Prior attempts found: no existing avatar-attention implementation or active lock; current web UI physically remains in WellFit-now while graphical authority remains WellFit.
+- Dependency result: implementation can be web-only and reversible; it does not require or claim native Buddy runtime, backend authority, mission/reward changes or auth changes.
+- Changes made: added `app/components/AvatarAttentionSystem.tsx`; mounted it globally in `app/layout.tsx`; qualifying Buddy/Rudi/avatar images follow fine-pointer input, prioritize hovered/focused interactive control centers, react subtly on pointer-down, support keyboard focus and disable motion for coarse pointers/reduced-motion clients.
+- Exact implementation revision checked: `16a779992250879380a17deb8c040a9a628acbae`.
+- Checks/tests so far: Project Memory Guard/Quality/Status success; Database Package Tests #165 success; Build #1188 success including lint, TypeScript, Functions validation, non-secret runtime env, reproducible runtime package, database/release package, mission-lifecycle UX, repository product boundary and Next.js build.
+- Final diff counterchecked: yes for the implementation revision; exactly `AvatarAttentionSystem.tsx`, `app/layout.tsx` and scoped Project Memory files changed.
+- Regression/security countercheck: no route behavior, login/register semantics, authentication, data, backend, rewards/economy, mission authority, camera/location or Unity/native behavior changed.
+- Result status: IMPLEMENTED_NOT_VERIFIED pending the still-running Container Build and runnable browser/preview evidence.
+- Open follow-up: complete final PR CI/countercheck; separate ChatGPT Sites-v71 checkout is not automatically changed by this PR and remains an explicit synchronization/preview step under WellFit graphical authority.
+- Work lock: `LOCK-WFN-AVATAR-ATTN-001` remains ACTIVE until final CI/countercheck.
+- Falsification question: a visual regression caused by independent CSS transform composition, evidence that a qualifying avatar is missed, or a current canonical/Sites surface using a different source implementation would require adjustment/reconciliation before visual acceptance.
+
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
