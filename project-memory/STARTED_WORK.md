@@ -11,21 +11,6 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
-## WFN-AVATAR-ATTN-001
-- Started: 2026-08-26
-- Updated: 2026-08-26
-- Status: IMPLEMENTED_NOT_VERIFIED
-- Risk: R2
-- Scope: web-only avatar/mascot pointer-attention behavior across existing Buddy/Rudi/avatar image surfaces.
-- Branch/PR: `codex/avatar-attention-20260826` / PR #387.
-- Work lock: `LOCK-WFN-AVATAR-ATTN-001`.
-- Dependencies: graphical authority remains WellFit; current physical web UI remains in WellFit-now pending WF-MIG-001 convergence.
-- Completed so far: global client attention component created and mounted in the root layout; existing qualifying avatar images are discovered dynamically; fine-pointer movement, interactive-target prioritization, click pulse, keyboard focus, reduced-motion and coarse-pointer safeguards are implemented. PR #387 exact code revision `16a779992250879380a17deb8c040a9a628acbae` passed lint, TypeScript, Functions validation, runtime/database/release-package checks, mission-lifecycle boundary checks, repository product-boundary checks and the full Next.js Build workflow. Project Memory Guard/Quality/Status and Database Package Tests are green.
-- Still open: Container Build for the exact implementation revision is still running, browser visual countercheck is unavailable on this branch, separate Sites-v71 synchronization remains open, and final visual acceptance is not claimed.
-- Evidence so far: PR #387; code commits `15347fa7e451976afe8f59400ac9978394608046`, `5c88cb9f9f8421ed6fa7ed2647ea4edd46329855`; Build run #1188 success; Database Package Tests #165 success; Project Memory Guard/Quality/Status success.
-- Exact next step: complete/countercheck the remaining Container Build and final PR diff; then release the implementation lock if no regression is found. Do not claim the separate Sites-v71 deployment is updated until that checkout is explicitly modified/deployed.
-- Owner action needed: none for implementation; visual acceptance remains owner-facing after runnable preview evidence.
-
 ## WFN-TECH-LEGACY-001
 - Started: before 2026-08-20
 - Updated: 2026-08-20
@@ -91,6 +76,19 @@ Canonical register for work that has started but is not yet fully completed.
 - Owner action needed: only for later migration/acceptance decisions.
 
 ## Closed work
+
+## WFN-AVATAR-ATTN-001
+- Started: 2026-08-26
+- Closed: 2026-08-26
+- Status: COUNTERCHECKED
+- Risk: R2
+- Scope: web-only avatar/mascot pointer-attention behavior across existing Buddy/Rudi/avatar image surfaces.
+- Branch/PR: `codex/avatar-attention-20260826` / PR #387; merged to main as `f687d2ba7c7bc46450301b9c92dbc0845feffa5f`.
+- Work lock: `LOCK-WFN-AVATAR-ATTN-001` released in post-merge closeout.
+- Result: global `AvatarAttentionSystem` is mounted in the root layout. Qualifying mascot/avatar images follow fine-pointer movement, prioritize hovered/focused interactive controls, react subtly to activation, support keyboard focus and respect coarse-pointer/reduced-motion clients.
+- Evidence: final PR head `3a6bdfb43e1f613614301eb5f9952071ecf79202` passed Build #1194, Container Build #179, Database Package Tests #171 and Project Memory Guard/Quality/Status; PR #387 was mergeable and merged successfully.
+- Limitations: this counterchecks the physical GitHub web implementation, not visual acceptance of the separate Sites-v71 candidate. `WFN-LOOP-008` remains OPEN for runnable browser/preview evidence and deliberate Sites synchronization.
+- Next step: preserve the merged implementation; synchronize/test the selected graphical/Sites surface when its editable preview path is available.
 
 ## WFN-MEM-005
 - Started: 2026-08-19
