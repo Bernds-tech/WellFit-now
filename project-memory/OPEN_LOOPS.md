@@ -52,6 +52,14 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 - Gap: PRs #13, #263, #363, #365 and #376 remain open despite current-main evidence showing them stale/superseded in whole or in relevant scope. PR #364 is intentionally different: deferred owner-reviewed future WFT canon work.
 - Close when: the proven superseded PRs are closed with history preserved and #364 remains explicitly deferred rather than accidentally merged.
 
+## WFN-LOOP-008
+- Related: WFN-AVATAR-ATTN-001 / PR #387
+- Status: OPEN
+- Updated: 2026-08-26
+- Gap: the web avatar-attention implementation is code/build/container verified on PR #387, but runnable browser/preview visual evidence and deliberate synchronization to the separate Sites-v71 visual candidate are not yet available; visual acceptance must not be inferred from CI.
+- Close when: a runnable selected visual surface proves pointer following, interactive-control targeting and no layout/transform regressions, and the canonical/Sites-v71 synchronization decision is recorded.
+- Next check: preserve the verified GitHub implementation; synchronize/test the chosen graphical surface when its editable source/preview path is available.
+
 ## Rules
 - `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.
 - Never delete historical loops; close or supersede them explicitly.
