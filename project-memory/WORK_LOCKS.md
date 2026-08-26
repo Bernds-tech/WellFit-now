@@ -16,10 +16,11 @@ Prevents two agents/sessions from independently working the same task.
 - Status: ACTIVE
 - Risk: R2
 - Holder: ChatGPT session 2026-08-26
-- Branch/PR: `codex/avatar-attention-20260826` / PR pending
+- Branch/PR: `codex/avatar-attention-20260826` / PR #387
 - Acquired: 2026-08-26 Europe/Vienna
+- Updated: 2026-08-26 after exact PR #387 Build/DB/Project-Memory checks passed; Container Build remains running.
 - Scope: web-only pointer/focus attention presentation for existing WellFit mascot/avatar images; no backend/native authority change.
-- Resume from: `app/components/AvatarAttentionSystem.tsx` plus `app/layout.tsx`; run exact branch CI/browser countercheck before merge.
+- Resume from: exact PR #387 head after postflight memory commits; complete final CI/countercheck, then release this lock if green. Separate Sites-v71 synchronization is outside this physical-code lock.
 
 ## Resume requirements
 
