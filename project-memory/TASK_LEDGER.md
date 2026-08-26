@@ -83,14 +83,14 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-AVATAR-ATTN-001
 - Date: 2026-08-26
-- Status: IMPLEMENTED_NOT_VERIFIED
+- Status: COUNTERCHECKED
 - Risk: R2
 - Goal: make existing Rudi/Buddy/avatar graphics across the current web app attentively follow fine-pointer input and look toward interactive controls such as login/register without changing product/server authority.
 - Starting state: mascot/avatar images were static; no registered attention implementation or active lock existed. UI code remains physically in WellFit-now although WellFit is the graphical authority.
 - Action: added a global `AvatarAttentionSystem` client component and mounted it in the root layout. It auto-discovers qualifying images, eases pointer-follow transforms, prioritizes hovered/focused control centers, adds a short pointer-down pulse and respects coarse-pointer/reduced-motion clients.
-- Result: PR #387 exact implementation revision `16a779992250879380a17deb8c040a9a628acbae` is mergeable and passed the full Build workflow, Database Package Tests and all Project Memory checks; Container Build and runnable visual preview evidence remain open.
-- Evidence: PR #387, Build #1188 success, Database Package Tests #165 success, Project Memory Guard/Quality/Status success, implementation commits `15347fa7e451976afe8f59400ac9978394608046` and `5c88cb9f9f8421ed6fa7ed2647ea4edd46329855`.
+- Result: PR #387 final head `3a6bdfb43e1f613614301eb5f9952071ecf79202` passed Build #1194, Container Build #179, Database Package Tests #171 and Project Memory Guard/Quality/Status; the PR was mergeable and merged to main as `f687d2ba7c7bc46450301b9c92dbc0845feffa5f`.
+- Evidence: PR #387; final-head CI named above; merged main revision `f687d2ba7c7bc46450301b9c92dbc0845feffa5f`; implementation commits `15347fa7e451976afe8f59400ac9978394608046` and `5c88cb9f9f8421ed6fa7ed2647ea4edd46329855` retained in PR history.
 - Negative/fail-closed path: no auth/navigation semantics, backend/data, mission/reward/economy authority, camera/location or Unity/native runtime changed; coarse pointers and reduced-motion clients get no pointer animation.
-- Rollback/recovery: revert PR #387; no data migration or server state is involved.
+- Rollback/recovery: revert merged PR #387; no data migration or server state is involved.
 - Falsification question: a visual regression from transform composition, a missed qualifying avatar, or evidence that the selected canonical/Sites surface uses a different source requires reconciliation before visual acceptance.
-- Next step: complete final Container Build and branch countercheck; then close the physical implementation lock. Sites-v71 synchronization/visual acceptance remains a separate graphical evidence step.
+- Next step: keep `WFN-LOOP-008` open for runnable browser/preview evidence and Sites-v71 synchronization; no implementation lock remains active.
