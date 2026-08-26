@@ -37,6 +37,18 @@ New owner ideas are captured here before changing active scope.
 - Decision: close #13/#263/#363/#365/#376 as superseded after this reconciliation merges; keep #364 deferred for explicit owner-reviewed future WFT decision.
 - Related task: WFN-RECON-20260820
 
+## WFN-CR-004
+- Date: 2026-08-26
+- Status: ACCEPTED_FOR_IMPLEMENTATION
+- Source: owner
+- Idea: all WellFit mascot/avatar characters on the web should visually follow the pointer and show stronger attention when the pointer is over or activates important controls such as login/register CTAs.
+- Classification: graphical interaction bridge in current physical web code
+- Affected areas: web UI presentation only; no backend, reward, mission, auth authority or native Buddy AR behavior.
+- Existing task/decision checked: WFN-XREPO-001, WFG-VIS-001, WF-CONTRACT-BUDDY-001 and current physical UI ownership drift.
+- Dependencies: preserve WellFit graphical authority; implementation remains reversible while UI code is still physically hosted in WellFit-now.
+- Decision: implement a bounded DOM attention system that recognizes existing Buddy/Rudi/avatar images, follows fine-pointer input, prioritizes interactive-element centers, respects reduced-motion/coarse-pointer clients and does not change business logic.
+- Related task: WFN-AVATAR-ATTN-001 / WFN-XREPO-001
+
 ## Intake template
 
 ```text
