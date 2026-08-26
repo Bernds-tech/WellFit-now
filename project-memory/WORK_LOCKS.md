@@ -11,7 +11,15 @@ Prevents two agents/sessions from independently working the same task.
 
 ## Active locks
 
-None. This reconciliation is memory-only and does not acquire a product/runtime mutation lock.
+## LOCK-WFN-AVATAR-ATTN-001
+- Task: WFN-AVATAR-ATTN-001
+- Status: ACTIVE
+- Risk: R2
+- Holder: ChatGPT session 2026-08-26
+- Branch/PR: `codex/avatar-attention-20260826` / PR pending
+- Acquired: 2026-08-26 Europe/Vienna
+- Scope: web-only pointer/focus attention presentation for existing WellFit mascot/avatar images; no backend/native authority change.
+- Resume from: `app/components/AvatarAttentionSystem.tsx` plus `app/layout.tsx`; run exact branch CI/browser countercheck before merge.
 
 ## Resume requirements
 
