@@ -11,6 +11,21 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-AVATAR-ATTN-001
+- Started: 2026-08-26
+- Updated: 2026-08-26
+- Status: IMPLEMENTED_NOT_VERIFIED
+- Risk: R2
+- Scope: web-only avatar/mascot pointer-attention behavior across existing Buddy/Rudi/avatar image surfaces.
+- Branch/PR: `codex/avatar-attention-20260826` / PR pending.
+- Work lock: `LOCK-WFN-AVATAR-ATTN-001`.
+- Dependencies: graphical authority remains WellFit; current physical web UI remains in WellFit-now pending WF-MIG-001 convergence.
+- Completed so far: global client attention component created and mounted in the root layout; existing qualifying avatar images are discovered dynamically; fine-pointer movement, interactive-target prioritization, click pulse, keyboard focus, reduced-motion and coarse-pointer safeguards are implemented.
+- Still open: exact branch build/lint/CI evidence, browser visual countercheck, WellFit master cross-repo record and merge decision.
+- Evidence so far: branch commits beginning `15347fa7e451976afe8f59400ac9978394608046` and `5c88cb9f9f8421ed6fa7ed2647ea4edd46329855`.
+- Exact next step: run branch checks through PR CI and countercheck the final diff; do not claim the separate Sites v71 deployment is updated until that checkout is explicitly modified/deployed.
+- Owner action needed: none for implementation; visual acceptance remains owner-facing after preview evidence.
+
 ## WFN-TECH-LEGACY-001
 - Started: before 2026-08-20
 - Updated: 2026-08-20
