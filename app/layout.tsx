@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import AvatarAttentionSystem from "@/app/components/AvatarAttentionSystem";
 import PwaInstaller from "@/app/components/PwaInstaller";
 import SidebarLegacyBridge from "@/app/components/SidebarLegacyBridge";
 import UserProfileBadge from "@/app/components/UserProfileBadge";
@@ -32,6 +33,7 @@ export default function RootLayout({
     <html lang="de" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <LanguageProvider>
+          <AvatarAttentionSystem />
           <PwaInstaller />
           <SidebarLegacyBridge />
           <UserProfileBadge />
