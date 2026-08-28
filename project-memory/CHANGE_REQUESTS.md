@@ -39,15 +39,27 @@ New owner ideas are captured here before changing active scope.
 
 ## WFN-CR-004
 - Date: 2026-08-26
-- Status: ACCEPTED_FOR_IMPLEMENTATION
+- Status: SUPERSEDED_BY_LIVE_VALIDATION
 - Source: owner
 - Idea: all WellFit mascot/avatar characters on the web should visually follow the pointer and show stronger attention when the pointer is over or activates important controls such as login/register CTAs.
 - Classification: graphical interaction bridge in current physical web code
 - Affected areas: web UI presentation only; no backend, reward, mission, auth authority or native Buddy AR behavior.
 - Existing task/decision checked: WFN-XREPO-001, WFG-VIS-001, WF-CONTRACT-BUDDY-001 and current physical UI ownership drift.
 - Dependencies: preserve WellFit graphical authority; implementation remains reversible while UI code is still physically hosted in WellFit-now.
-- Decision: implement a bounded DOM attention system that recognizes existing Buddy/Rudi/avatar images, follows fine-pointer input, prioritizes interactive-element centers, respects reduced-motion/coarse-pointer clients and does not change business logic.
+- Decision: PR #387 whole-image transforms remain historical technical evidence but are not the accepted visual solution. Owner live validation on 2026-08-28 showed no visible movement on the actual ChatGPT Site and true head/body articulation is required.
 - Related task: WFN-AVATAR-ATTN-001 / WFN-XREPO-001
+
+## WFN-CR-005
+- Date: 2026-08-28
+- Status: ACCEPTED_FOR_IMPLEMENTATION
+- Source: owner live validation + WFG-CR-007
+- Idea: replace the flat whole-image cursor transform with a visibly articulated 2D puppet system where the character head moves independently from the body and attention targets important controls.
+- Classification: corrective web presentation bridge
+- Affected areas: existing web mascot/avatar rendering only; no backend, auth, mission, reward/economy, camera/location or native AR authority.
+- Existing task/decision checked: WFN-AVATAR-ATTN-001, PR #387, closed superseded PR #388, WFG-CR-007, CTR-WFG-006 and WF-LOOP-005.
+- Dependencies: WellFit remains graphical authority; the public ChatGPT Site remains a separate visual source and cannot be claimed updated by this branch. Existing transparent PNG assets may be rendered as overlapping head/body clips with per-asset pivots.
+- Decision: create a shared articulated puppet engine. Head and body use separate layers from the same transparent PNG, with head-led pointer/CTA tracking, subtler torso lean, click/nod reaction, idle breathing, reduced-motion/coarse-pointer fallback and explicit per-asset crop/pivot configuration. Whole-image rotation is not accepted as head tracking.
+- Related task: WFN-AVATAR-PUPPET-001 / WFG-AVATAR-PUPPET-001
 
 ## Intake template
 
