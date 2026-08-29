@@ -83,14 +83,23 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-AVATAR-ATTN-001
 - Date: 2026-08-26
-- Status: IMPLEMENTED_NOT_VERIFIED
+- Status: SUPERSEDED
 - Risk: R2
-- Goal: make existing Rudi/Buddy/avatar graphics across the current web app attentively follow fine-pointer input and look toward interactive controls such as login/register without changing product/server authority.
-- Starting state: mascot/avatar images were static; no registered attention implementation or active lock existed. UI code remains physically in WellFit-now although WellFit is the graphical authority.
-- Action: added a global `AvatarAttentionSystem` client component and mounted it in the root layout. It auto-discovers qualifying images, eases pointer-follow transforms, prioritizes hovered/focused control centers, adds a short pointer-down pulse and respects coarse-pointer/reduced-motion clients.
-- Result: PR #387 exact implementation revision `16a779992250879380a17deb8c040a9a628acbae` is mergeable and passed the full Build workflow, Database Package Tests and all Project Memory checks; Container Build and runnable visual preview evidence remain open.
-- Evidence: PR #387, Build #1188 success, Database Package Tests #165 success, Project Memory Guard/Quality/Status success, implementation commits `15347fa7e451976afe8f59400ac9978394608046` and `5c88cb9f9f8421ed6fa7ed2647ea4edd46329855`.
-- Negative/fail-closed path: no auth/navigation semantics, backend/data, mission/reward/economy authority, camera/location or Unity/native runtime changed; coarse pointers and reduced-motion clients get no pointer animation.
-- Rollback/recovery: revert PR #387; no data migration or server state is involved.
-- Falsification question: a visual regression from transform composition, a missed qualifying avatar, or evidence that the selected canonical/Sites surface uses a different source requires reconciliation before visual acceptance.
-- Next step: complete final Container Build and branch countercheck; then close the physical implementation lock. Sites-v71 synchronization/visual acceptance remains a separate graphical evidence step.
+- Goal: initial whole-image pointer attention for existing Rudi/Buddy/avatar graphics.
+- Action: added global `AvatarAttentionSystem` whole-image translate/rotate/scale behavior via PR #387.
+- Result: technically green and merged, but owner live validation on 2026-08-28 proved that the actual public ChatGPT Site showed no movement and the implementation did not provide true independent head articulation. Closeout PR #388 was closed unmerged as superseded.
+- Evidence: merged PR #387; WFG-CR-007; CTR-WFG-006; owner live validation 2026-08-28.
+- Rollback/recovery: historical code is replaced by WFN-AVATAR-PUPPET-001; no data migration exists.
+- Do not repeat: do not claim whole-image rotation as head tracking or GitHub CI as public Site acceptance.
+
+## WFN-AVATAR-PUPPET-001
+- Date: 2026-08-28
+- Status: IN_PROGRESS
+- Risk: R2
+- Goal: provide visibly independent head/body mouse and CTA attention for existing transparent mascot/avatar PNGs while preserving WellFit graphical authority and all technical/server boundaries.
+- Starting state: old whole-image engine is merged but visually insufficient; public ChatGPT Site is a separate source and remains unmodified by this branch.
+- Action: replace the old renderer with overlapping head/body clones from the same transparent PNG, per-asset crop/pivot configuration, head-led 3D-style transforms, delayed torso lean, CTA priority, click nod, idle breathing and reduced-motion/coarse-pointer fallback.
+- Evidence: branch `codex/avatar-puppet-attention-20260828`; `LOCK-WFN-AVATAR-PUPPET-001`; `XLOCK-WF-AVATAR-PUPPET-20260828`; WFN-CR-005 / WFG-CR-007.
+- Negative/fail-closed path: no navigation/auth semantics, backend/data, mission/reward/economy authority, camera/location or Unity/native runtime changes; public Site publication is explicitly outside this branch.
+- Rollback/recovery: revert the scoped renderer PR; the original PNG files and server state remain unchanged.
+- Next step: run exact branch Build/Container/DB/Project Memory gates and obtain runnable visual evidence on the GitHub landing before any graphical acceptance or Site port.

@@ -11,20 +11,19 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
-## WFN-AVATAR-ATTN-001
-- Started: 2026-08-26
-- Updated: 2026-08-26
-- Status: IMPLEMENTED_NOT_VERIFIED
+## WFN-AVATAR-PUPPET-001
+- Started: 2026-08-28
+- Updated: 2026-08-28
+- Status: IN_PROGRESS
 - Risk: R2
-- Scope: web-only avatar/mascot pointer-attention behavior across existing Buddy/Rudi/avatar image surfaces.
-- Branch/PR: `codex/avatar-attention-20260826` / PR #387.
-- Work lock: `LOCK-WFN-AVATAR-ATTN-001`.
-- Dependencies: graphical authority remains WellFit; current physical web UI remains in WellFit-now pending WF-MIG-001 convergence.
-- Completed so far: global client attention component created and mounted in the root layout; existing qualifying avatar images are discovered dynamically; fine-pointer movement, interactive-target prioritization, click pulse, keyboard focus, reduced-motion and coarse-pointer safeguards are implemented. PR #387 exact code revision `16a779992250879380a17deb8c040a9a628acbae` passed lint, TypeScript, Functions validation, runtime/database/release-package checks, mission-lifecycle boundary checks, repository product-boundary checks and the full Next.js Build workflow. Project Memory Guard/Quality/Status and Database Package Tests are green.
-- Still open: Container Build for the exact implementation revision is still running, browser visual countercheck is unavailable on this branch, separate Sites-v71 synchronization remains open, and final visual acceptance is not claimed.
-- Evidence so far: PR #387; code commits `15347fa7e451976afe8f59400ac9978394608046`, `5c88cb9f9f8421ed6fa7ed2647ea4edd46329855`; Build run #1188 success; Database Package Tests #165 success; Project Memory Guard/Quality/Status success.
-- Exact next step: complete/countercheck the remaining Container Build and final PR diff; then release the implementation lock if no regression is found. Do not claim the separate Sites-v71 deployment is updated until that checkout is explicitly modified/deployed.
-- Owner action needed: none for implementation; visual acceptance remains owner-facing after runnable preview evidence.
+- Scope: corrective articulated 2D head/body attention for existing web mascot/avatar PNGs, superseding whole-image cursor transforms as the target behavior.
+- Branch/PR: `codex/avatar-puppet-attention-20260828` / PR pending.
+- Work lock: `LOCK-WFN-AVATAR-PUPPET-001`.
+- Cross-repo authority: `WFG-CR-007`; WellFit remains graphical authority. Public ChatGPT Site source is separate and is not claimed modified by this branch.
+- Completed so far: owner live failure reconciled; WFN-CR-005 registered; stale WFN-AVATAR-ATTN lock superseded; existing transparent Buddy asset family inventoried.
+- Still open: implement separate head/body layers with per-asset pivots, pointer/CTA targeting, idle/click response, reduced-motion/coarse-pointer fallback; run exact build/CI; obtain runnable visual evidence; later port/synchronize to actual ChatGPT Site source.
+- Exact next step: replace `app/components/AvatarAttentionSystem.tsx` with the articulated puppet renderer and verify the landing Luma surface first without changing navigation/business logic.
+- Owner action needed: none for technical implementation; public Site publication remains a separate explicit visual release decision.
 
 ## WFN-TECH-LEGACY-001
 - Started: before 2026-08-20
@@ -55,7 +54,7 @@ Canonical register for work that has started but is not yet fully completed.
 - Completed so far: age >=16, email verification, onboarding/status gating, server sessions, revocation/device sessions.
 - Still open: informed/separate health-adjacent consent and withdrawal acceptance.
 - Evidence so far: `FINISHLINE_STATE.json`, PR #369-#371.
-- Exact next step: map registration/consent state and negative paths without weakening existing gates.
+- Exact next step: map current registration/consent state and negative paths without weakening existing gates.
 - Owner action needed: only for product/legal consent wording decisions.
 
 ## WFN-PRIVACY-001
@@ -90,7 +89,18 @@ Canonical register for work that has started but is not yet fully completed.
 - Exact next step: finish memory reconciliation; do not physically migrate code in this task.
 - Owner action needed: only for later migration/acceptance decisions.
 
-## Closed work
+## Closed / superseded work
+
+## WFN-AVATAR-ATTN-001
+- Started: 2026-08-26
+- Superseded: 2026-08-28
+- Status: SUPERSEDED
+- Risk: R2
+- Scope: initial whole-image pointer-attention experiment across Buddy/Rudi/avatar surfaces.
+- Branch/PR: `codex/avatar-attention-20260826` / merged PR #387; attempted closeout PR #388 closed unmerged as superseded.
+- Result: code/build/container verification succeeded in WellFit-now, but the implementation rotates/translates the entire flat image and does not provide accepted head articulation; it also did not update the actual public ChatGPT Site.
+- Evidence: PR #387, owner live validation 2026-08-28, WFG-CR-007 / CTR-WFG-006.
+- Do not repeat: do not equate whole-image transform with head tracking and do not infer public Site acceptance from GitHub CI.
 
 ## WFN-MEM-005
 - Started: 2026-08-19

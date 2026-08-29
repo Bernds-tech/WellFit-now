@@ -95,6 +95,11 @@ export default function LandingHeroV5() {
                 fill
                 priority
                 sizes="420px"
+                data-avatar-puppet="on"
+                data-avatar-head-bottom="0.50"
+                data-avatar-body-top="0.43"
+                data-avatar-head-pivot-x="0.50"
+                data-avatar-head-pivot-y="0.46"
                 className="object-contain object-bottom drop-shadow-[0_30px_70px_rgba(0,0,0,.48)]"
               />
             </div>

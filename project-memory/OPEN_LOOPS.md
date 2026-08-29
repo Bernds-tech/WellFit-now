@@ -54,13 +54,20 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 
 ## WFN-LOOP-008
 - Related: WFN-AVATAR-ATTN-001 / PR #387
+- Status: SUPERSEDED
+- Updated: 2026-08-28
+- Gap: whole-image attention code was technically verified but failed the requested visual target and did not update the public ChatGPT Site.
+- Resolution: preserve PR #387 as historical technical evidence; use WFN-LOOP-009 / WFN-AVATAR-PUPPET-001 for the corrective articulated implementation.
+
+## WFN-LOOP-009
+- Related: WFN-AVATAR-PUPPET-001 / WFG-CR-007
 - Status: OPEN
-- Updated: 2026-08-26
-- Gap: the web avatar-attention implementation is code/build/container verified on PR #387, but runnable browser/preview visual evidence and deliberate synchronization to the separate Sites-v71 visual candidate are not yet available; visual acceptance must not be inferred from CI.
-- Close when: a runnable selected visual surface proves pointer following, interactive-control targeting and no layout/transform regressions, and the canonical/Sites-v71 synchronization decision is recorded.
-- Next check: preserve the verified GitHub implementation; synchronize/test the chosen graphical surface when its editable source/preview path is available.
+- Updated: 2026-08-28
+- Gap: the corrective articulated head/body puppet renderer is not yet implemented and visually verified. Public ChatGPT Site synchronization remains outside this GitHub branch.
+- Close when: shared puppet rendering passes exact build/CI, a runnable GitHub surface visibly proves independent head/body movement and CTA targeting without regressions, and WellFit later verifies/ports it to the actual ChatGPT Site source.
+- Next check: implement per-asset head/body clips and pivots, then verify the existing LandingHeroV5 Luma surface.
 
 ## Rules
-- `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.
+- `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED`, `IN_PROGRESS` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.
 - Never delete historical loops; close or supersede them explicitly.
 - Loop states: `OPEN`, `BLOCKED`, `CLOSED`, `SUPERSEDED`.
