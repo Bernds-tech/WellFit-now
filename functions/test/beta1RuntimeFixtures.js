@@ -106,7 +106,7 @@ async function resetBeta1Collections() {
     "accountLifecycleRecords", "userDataExportJobs", "userDataExportChunks", "accountDeletionTombstones",
     "familyAccounts", "childProfiles", "guardianChildLinks", "parentalConsents", "missions", "missionAttempts", "missionEvidence", "missionCompletions",
     "trackingSessions", "trackingProofEvents", "missionBuddyEvents", "missionContextEvaluations", "missionCompletionEvaluations", "missionRewardPreviews", "missionEvidenceReviews", "missionPatternReviews", "missionCooldownReviews", "missionRewardEvents",
-    "userCalendarSettings", "userDailyMissionState", "userDailyStreaks", "userLevels", "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "itemDefinitions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory", "userAvatars", "buddyCareActions", "partners", "partnerOffers", "partnerRedemptions",
+    "userCalendarSettings", "userDailyMissionState", "userDailyStreaks", "userLevels", "xpWallets", "xpLedgerEvents", "ledgerEvents", "auditEvents", "adminActions", "itemDefinitions", "shopItems", "shopPurchaseIntents", "shopPurchaseEvents", "userInventory", "userAvatars", "buddyCareActions", "partners", "partnerOffers", "partnerRedemptions", "partnerOperators", "partnerRedemptionChallenges",
     "locationQueryBudgets", "missionLocations", "adventureAccessEvents", "checkpoints", "checkpointScores", "checkpointMayors", "mayorShareEvents", "glitchEvents", "glitchParticipants", "glitchBoostWindows", "glitchSafetyRules", "safetyReports",
   ];
   for (const collectionName of collections) {

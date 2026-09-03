@@ -11,6 +11,16 @@ Prevents two agents/sessions from independently working the same task.
 
 ## Active locks
 
+## LOCK-WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
+- Task: WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
+- Status: ACTIVE
+- Risk: R3
+- Holder: ChatGPT session 2026-09-03
+- Branch/PR: `codex/partner-operator-verification-20260903` / PR pending
+- Acquired: 2026-09-03 Europe/Vienna
+- Scope: Firebase/backend-only scoped operator authorization and short-lived redemption presentation proof. No graphics/UI, Production deploy, payment, WFT, NFT, cashout or real partner activation.
+- Resume from: implement operator assignment, token hashing/expiry/one-time consumption and cross-partner/revocation/replay tests.
+
 ## LOCK-WFN-PARTNER-REDEMPTION-BASELINE
 - Task: WFN-PARTNER-REDEMPTION-BASELINE
 - Status: RELEASED

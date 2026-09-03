@@ -60,6 +60,8 @@ const QUERY_DOCUMENT_SECTIONS = [
   { section: "shop-purchase-intents", collection: "shopPurchaseIntents", fields: ["ownerUserId", "userId"] },
   { section: "shop-purchase-events", collection: "shopPurchaseEvents", fields: ["ownerUserId", "userId"] },
   { section: "partner-redemptions", collection: "partnerRedemptions", fields: ["ownerUserId", "userId"] },
+  { section: "partner-redemption-challenges", collection: "partnerRedemptionChallenges", fields: ["ownerUserId", "userId"] },
+  { section: "partner-operator-assignments", collection: "partnerOperators", fields: ["operatorUserId"] },
   { section: "inventory", collection: "userInventory", fields: ["ownerUserId", "userId"] },
   { section: "adventure-access", collection: "adventureAccessEvents", fields: ["ownerUserId", "userId"] },
   { section: "checkpoint-scores", collection: "checkpointScores", fields: ["ownerUserId", "userId"] },

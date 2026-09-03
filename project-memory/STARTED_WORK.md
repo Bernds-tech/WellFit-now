@@ -11,6 +11,19 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: IN_PROGRESS
+- Risk: R3
+- Scope: least-privilege partner operator assignments and short-lived single-use presentation proof for partner redemption confirmation.
+- Branch/PR: `codex/partner-operator-verification-20260903` / PR pending.
+- Work lock: `LOCK-WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE`.
+- Completed so far: scoped design selected; no graphical/UI work included.
+- Still open: implementation, negative emulator coverage, exact-head CI and PR merge.
+- Exact next step: add server-managed operator scope plus hashed expiring presentation challenges.
+- Owner action needed: none for repository baseline; real partner identities remain outside this task.
+
 ## WFN-PARTNER-REDEMPTION-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03

@@ -83,6 +83,16 @@ Keep history append-only; supersede rather than delete.
 - Rollback/recovery: revert the isolated module/index/rules changes before Production deployment; no provider or partner is activated by repository code.
 - Next step: merge PR #392; Production and real-partner acceptance remain separate.
 
+## WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
+- Date: 2026-09-03
+- Status: IN_PROGRESS
+- Risk: R3
+- Goal: replace global-admin-only partner fulfillment with least-privilege partner-scoped verification.
+- Scope: server-managed operator assignment, revocation, short-lived hashed presentation challenge and single-use confirmation.
+- Negative/fail-closed path: cross-partner operators, revoked assignments, expired/wrong proof and replay cannot redeem or expose another user's data.
+- Rollback/recovery: revert the isolated operator/challenge extension; keep PR #392 admin-only baseline intact until replacement passes exact-head gates.
+- Next step: implement and pass focused emulator plus repository gates.
+
 ## WFN-XREPO-001
 - Date: 2026-08-19 to 2026-08-20
 - Status: RECONCILIATION_REQUIRED
