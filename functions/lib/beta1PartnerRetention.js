@@ -4,6 +4,8 @@ const { requireAdmin, normalizedPositiveInteger, optionalString, serverTimestamp
 const PARTNER_RETENTION_PROCESSOR_VERSION = "2026-09-v1";
 const DEFAULT_CLEANUP_LIMIT = 50;
 const MAX_CLEANUP_LIMIT = 200;
+const DEFAULT_REPORT_LIMIT = 200;
+const MAX_REPORT_LIMIT = 500;
 const EXPIRING_COLLECTIONS = [
   "partnerOperationRateLimits",
   "partnerOperationOutcomes",
@@ -13,6 +15,67 @@ const EXPIRING_COLLECTIONS = [
 function pruneExpiredPresentations(value, cutoffMs) {
   const entries = value && typeof value === "object" ? value : {};
   return Object.fromEntries(Object.entries(entries).filter(([, expiresAt]) => Date.parse(expiresAt) > cutoffMs));
+}
+
+async function boundedDocuments(db, collectionName, limit) {
+  const snapshot = await db.collection(collectionName).limit(limit + 1).get();
+  return { documents: snapshot.docs.slice(0, limit), truncated: snapshot.size > limit };
+}
+
+function normalizedState(value, allowed) {
+  const state = String(value || "unknown");
+  return allowed.includes(state) ? state : "other";
+}
+
+function incrementMap(map, key, amount = 1) {
+  map.set(key, (map.get(key) || 0) + amount);
+}
+
+function sortedCounts(map) {
+  return [...map.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([key, count]) => ({ key, count }));
+}
+
+async function buildPartnerOperationsSummary(db, limit) {
+  const [redemptions, challenges, outcomes] = await Promise.all([
+    boundedDocuments(db, "partnerRedemptions", limit),
+    boundedDocuments(db, "partnerRedemptionChallenges", limit),
+    boundedDocuments(db, "partnerOperationOutcomes", limit),
+  ]);
+  const redemptionStates = new Map();
+  const partnerStates = new Map();
+  for (const doc of redemptions.documents) {
+    const data = doc.data() || {};
+    const partnerId = String(data.partnerId || "unknown").slice(0, 120);
+    const state = normalizedState(data.status, ["issued", "redeemed", "cancelled"]);
+    incrementMap(redemptionStates, state);
+    if (!partnerStates.has(partnerId)) partnerStates.set(partnerId, new Map());
+    incrementMap(partnerStates.get(partnerId), state);
+  }
+  const challengeStates = new Map();
+  challenges.documents.forEach((doc) => incrementMap(challengeStates,
+    normalizedState((doc.data() || {}).status, ["active", "consumed"])));
+  const outcomeCounts = new Map();
+  outcomes.documents.forEach((doc) => {
+    const data = doc.data() || {};
+    const action = normalizedState(data.action, ["partner-presentation-issue", "partner-redemption-confirm"]);
+    const outcome = normalizedState(data.outcome, ["accepted", "denied", "invalid-state", "not-found", "rate-limited", "error"]);
+    const amount = Math.max(0, Math.min(Number(data.count || 0), 1000000));
+    incrementMap(outcomeCounts, `${action}:${outcome}`, Number.isFinite(amount) ? amount : 0);
+  });
+  return {
+    redemptions: {
+      scanned: redemptions.documents.length,
+      truncated: redemptions.truncated,
+      states: sortedCounts(redemptionStates),
+      partners: [...partnerStates.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([partnerId, states]) => ({
+        partnerId,
+        total: [...states.values()].reduce((sum, count) => sum + count, 0),
+        states: sortedCounts(states),
+      })),
+    },
+    challenges: { scanned: challenges.documents.length, truncated: challenges.truncated, states: sortedCounts(challengeStates) },
+    outcomes: { scanned: outcomes.documents.length, truncated: outcomes.truncated, categories: sortedCounts(outcomeCounts) },
+  };
 }
 
 async function expiredDocuments(db, collectionName, cutoffIso, limit) {
@@ -83,6 +146,19 @@ async function executeCleanupPlan(db, plan) {
 }
 
 function registerBeta1PartnerRetention(exportsTarget, { db, onCall, HttpsError }) {
+  exportsTarget.adminGetPartnerOperationsSummary = onCall(async (request) => {
+    requireAdmin(request, HttpsError);
+    const limit = normalizedPositiveInteger((request.data || {}).limit, DEFAULT_REPORT_LIMIT, MAX_REPORT_LIMIT);
+    const summary = await buildPartnerOperationsSummary(db, limit);
+    return {
+      accepted: true,
+      generatedAt: new Date().toISOString(),
+      perCollectionLimit: limit,
+      privacyMode: "aggregate-no-person-or-proof-data",
+      ...summary,
+    };
+  });
+
   exportsTarget.adminCleanupPartnerOperationalData = onCall(async (request) => {
     const actorUserId = requireAdmin(request, HttpsError);
     const data = request.data || {};
@@ -137,8 +213,11 @@ module.exports = {
   PARTNER_RETENTION_PROCESSOR_VERSION,
   DEFAULT_CLEANUP_LIMIT,
   MAX_CLEANUP_LIMIT,
+  DEFAULT_REPORT_LIMIT,
+  MAX_REPORT_LIMIT,
   EXPIRING_COLLECTIONS,
   pruneExpiredPresentations,
+  buildPartnerOperationsSummary,
   collectCleanupPlan,
   executeCleanupPlan,
   registerBeta1PartnerRetention,

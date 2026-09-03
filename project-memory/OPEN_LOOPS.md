@@ -83,6 +83,14 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 - Resolution: PR #395 head `4f80c3be09bf84e8c237538c3db78deb5004e9a8` passed dry-run, partial/repeat execution, live-data preservation and every required gate.
 - Limitation: no Production scheduler or deployment was activated.
 
+## WFN-LOOP-012
+- Related: WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
+- Status: CLOSED
+- Updated: 2026-09-03
+- Gap: privacy-minimal bounded partner reporting required exact-head emulator/CI verification.
+- Resolution: PR #396 head `dae5b2590ff3d924236c39c198de6deb33ee6148` passed non-admin denial, aggregate, truncation and forbidden-field checks plus every repository gate.
+- Limitation: no graphical dashboard or Production monitoring was added.
+
 ## Rules
 - `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED`, `IN_PROGRESS` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.
 - Never delete historical loops; close or supersede them explicitly.

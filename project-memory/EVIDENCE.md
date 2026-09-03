@@ -135,3 +135,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: admin-only safe-default dry-run and bounded execute cleanup deletes expired rate/outcome/challenge records, prunes expired activity entries, preserves live/redemption/audit authority, supports cursor continuation and is idempotent on repeat.
 - Limitations: no Production schedule/deployment or provider retention policy was activated.
 - Acceptance: VERIFIED
+
+## WFN-EV-014
+- Related: WFN-PARTNER-OPERATIONS-REPORTING-BASELINE / PR #396
+- Date: 2026-09-03
+- Target: privacy-minimal partner operations reporting
+- Type: exact-head CI plus emulator authorization/privacy evidence
+- Reference: PR #396 head `dae5b2590ff3d924236c39c198de6deb33ee6148`; Build #1219, Container Build #204, Database Package Tests #196, Beta 1 Emulator Tests #182 and Project Memory Guard/Quality/Status.
+- Result: admin-only bounded summary aggregates redemptions by partner/state, challenge states and coarse outcome counts; freshness/truncation is explicit and responses omit user/operator IDs, tokens, hashes and raw records.
+- Limitations: no graphical dashboard, Production monitoring or real-partner acceptance was performed.
+- Acceptance: VERIFIED
