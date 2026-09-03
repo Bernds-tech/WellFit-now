@@ -52,7 +52,8 @@ async function run() {
   });
   await expectError("claimPartnerOffer", userToken, { offerId: "expired", requestId: "expired-request" });
   await expectOk("adminUpsertPartner", adminToken, { partnerId: "cafe", displayName: "Beta Cafe", status: "inactive" });
-  await expectError("claimPartnerOffer", userToken, { offerId: "drink", requestId: "inactive-request" });
+  await db.collection("xpWallets").doc(OTHER_ID).update({ balance: 100, lifetimeEarned: 100 });
+  await expectError("claimPartnerOffer", otherToken, { offerId: "drink", requestId: "inactive-request" });
 
   await Promise.all([ADMIN_ID, USER_ID, OTHER_ID].map((uid) => admin.auth().deleteUser(uid)));
   console.log("WellFit Beta 1 Partner Redemption Emulator Test erfolgreich.");
