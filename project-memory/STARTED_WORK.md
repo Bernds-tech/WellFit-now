@@ -11,6 +11,19 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: VERIFIED
+- Risk: R2
+- Scope: admin-only bounded partner catalog projection with revision/lifecycle/inventory facts and privacy-minimal responses.
+- Branch/PR: `codex/partner-catalog-admin-read-20260903` / PR pending.
+- Work lock: `LOCK-WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE`.
+- Completed: admin-only catalog projection caps pages at 100, provides deterministic cursors and returns lifecycle/revision/inventory facts without audit actors or raw revision records.
+- Evidence: PR #398 head `a3a0e1b8ddc8644d5be297613eb36807f6744fd9`; Build #1226, Container #211, Database #203, Beta 1 Emulator #187 and Project Memory gates succeeded.
+- Exact next step: merge PR #398; keep detailed revision history as a separate bounded audit task.
+- Owner action needed: none.
+
 ## WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03

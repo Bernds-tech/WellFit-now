@@ -1,5 +1,5 @@
 const crypto = require("node:crypto");
-const { FieldValue } = require("firebase-admin/firestore");
+const { FieldPath, FieldValue } = require("firebase-admin/firestore");
 const {
   BETA1_INTERNAL_CURRENCY,
   requireAuth,
@@ -297,6 +297,38 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
         offerRevisionRecord({ offerId, revision, action: "capacity-adjusted", actorUserId, offer }));
       return { accepted: true, offerId, status: offer.status, revision, initialInventory, remainingInventory };
     });
+  });
+
+  exportsTarget.adminListPartnerOffers = onCall(async (request) => {
+    requireAdmin(request, HttpsError);
+    const data = request.data || {};
+    const limit = normalizedPositiveInteger(data.limit, 50, 100);
+    const cursor = optionalString(data.cursor, 120);
+    let query = db.collection("partnerOffers").orderBy(FieldPath.documentId()).limit(limit + 1);
+    if (cursor) query = query.startAfter(cursor);
+    const snapshot = await query.get();
+    const hasMore = snapshot.size > limit;
+    const docs = snapshot.docs.slice(0, limit);
+    const offers = docs.map((doc) => {
+      const offer = doc.data() || {};
+      const initialInventory = Math.max(0, Number(offer.initialInventory || 0));
+      const remainingInventory = Math.max(0, Number(offer.remainingInventory || 0));
+      return {
+        offerId: doc.id, partnerId: offer.partnerId || null, title: optionalString(offer.title, 120) || doc.id,
+        description: optionalString(offer.description, 500), status: offer.status || "unknown",
+        revision: normalizedPositiveInteger(offer.revision, 1, 1000000),
+        costWfxp: normalizedPositiveInteger(offer.costWfxp, 0, 100000),
+        initialInventory, remainingInventory,
+        consumedInventory: Math.max(0, initialInventory - remainingInventory),
+        validFrom: offer.validFrom || null, expiresAt: offer.expiresAt || null,
+        currency: BETA1_INTERNAL_CURRENCY, noMonetaryValue: true, tokenAuthorized: false,
+      };
+    });
+    return {
+      accepted: true, offers, limit, hasMore,
+      nextCursor: hasMore && docs.length ? docs[docs.length - 1].id : null,
+      privacyMode: "catalog-state-no-audit-actors",
+    };
   });
 
   exportsTarget.adminUpsertPartnerOperator = onCall(async (request) => {

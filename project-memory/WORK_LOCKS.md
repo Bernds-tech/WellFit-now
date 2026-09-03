@@ -11,6 +11,16 @@ Prevents two agents/sessions from independently working the same task.
 
 ## Active locks
 
+## LOCK-WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
+- Task: WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
+- Status: RELEASED
+- Risk: R2
+- Holder: ChatGPT session 2026-09-03
+- Branch/PR: `codex/partner-catalog-admin-read-20260903` / PR pending
+- Acquired: 2026-09-03 Europe/Vienna
+- Scope: backend-only bounded administrative offer projection and tests. No graphics/UI, raw revision audit exposure, Production deploy, payment, WFT, NFT or cashout.
+- Released: 2026-09-03 after PR #398 head `a3a0e1b8ddc8644d5be297613eb36807f6744fd9` passed all required exact-head gates.
+
 ## LOCK-WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
 - Task: WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
 - Status: RELEASED

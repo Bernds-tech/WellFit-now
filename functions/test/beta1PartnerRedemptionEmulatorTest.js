@@ -97,6 +97,15 @@ async function run() {
   });
   const drinkRevisions = await db.collection("partnerOfferRevisions").where("offerId", "==", "drink").get();
   assert(drinkRevisions.size === 5, "Jede Angebotsaenderung muss eine unveraenderbare Revision erzeugen.");
+  await expectError("adminListPartnerOffers", userToken, { limit: 1 });
+  const firstCatalogPage = await expectOk("adminListPartnerOffers", adminToken, { limit: 1 });
+  assert(firstCatalogPage.offers.length === 1 && firstCatalogPage.hasMore && firstCatalogPage.nextCursor, "Admin-Katalog muss begrenzt und cursorfaehig sein.");
+  const secondCatalogPage = await expectOk("adminListPartnerOffers", adminToken, { limit: 1, cursor: firstCatalogPage.nextCursor });
+  assert(secondCatalogPage.offers.length === 1 && secondCatalogPage.offers[0].offerId !== firstCatalogPage.offers[0].offerId, "Cursor darf kein Angebot wiederholen.");
+  const serializedCatalog = JSON.stringify([firstCatalogPage, secondCatalogPage]);
+  ["updatedByUserId", "actorUserId", "partnerOfferRevisions"].forEach((forbidden) => {
+    assert(!serializedCatalog.includes(forbidden), `Admin-Katalog darf ${forbidden} nicht enthalten.`);
+  });
 
   const presentation = await expectOk("createPartnerRedemptionPresentation", userToken, { redemptionId: claim.redemptionId });
   await expectError("confirmPartnerRedemption", foreignOperatorToken, { redemptionId: claim.redemptionId, presentationToken: presentation.presentationToken });
