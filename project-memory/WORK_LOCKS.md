@@ -11,6 +11,16 @@ Prevents two agents/sessions from independently working the same task.
 
 ## Active locks
 
+## LOCK-WFN-PARTNER-RETENTION-BASELINE
+- Task: WFN-PARTNER-RETENTION-BASELINE
+- Status: ACTIVE
+- Risk: R3
+- Holder: ChatGPT session 2026-09-03
+- Branch/PR: `codex/partner-retention-baseline-20260903` / PR pending
+- Acquired: 2026-09-03 Europe/Vienna
+- Scope: Firebase/backend-only bounded cleanup processor and tests. No graphics/UI, Production schedule/deploy, payment, WFT, NFT, cashout or real partner activation.
+- Resume from: implement dry-run/execute cleanup for expired challenges, rate buckets, outcome buckets and stale activity entries.
+
 ## LOCK-WFN-PARTNER-OPERATIONS-BASELINE
 - Task: WFN-PARTNER-OPERATIONS-BASELINE
 - Status: RELEASED

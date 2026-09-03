@@ -107,6 +107,17 @@ Keep history append-only; supersede rather than delete.
 - Rollback/recovery: revert isolated counter collections and callable extensions; PR #393 verification remains valid without operational telemetry.
 - Next step: merge PR #394; Production TTL/retention and partner-pilot acceptance remain separate.
 
+## WFN-PARTNER-RETENTION-BASELINE
+- Date: 2026-09-03
+- Status: IMPLEMENTED_NOT_VERIFIED
+- Risk: R3
+- Goal: prevent indefinite storage of short-lived partner operational records without weakening redemption or audit evidence.
+- Scope: admin-authorized bounded dry-run/execute processor for expired rate/outcome/challenge records and stale active-proof projections.
+- Result so far: local implementation provides safe-default dry-run, bounded execution, cursor-based activity scanning, non-expired preservation and idempotent repeats; syntax, helper and Project Memory checks pass pending exact-head emulator evidence.
+- Negative/fail-closed path: non-admin callers, non-expired records and immutable redemption/audit authority remain untouched; each execution is globally batch-bounded and repeatable.
+- Rollback/recovery: revert the isolated processor/registration/test changes; existing records remain server-protected and account-deletion coverage remains intact.
+- Next step: implement and pass focused emulator plus repository gates.
+
 ## WFN-XREPO-001
 - Date: 2026-08-19 to 2026-08-20
 - Status: RECONCILIATION_REQUIRED

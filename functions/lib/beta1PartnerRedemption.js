@@ -13,6 +13,7 @@ const {
   getWalletRef,
 } = require("./beta1Runtime");
 const { lifecycleRef, isAccountMutationBlocked } = require("./beta1AccountLifecyclePolicy");
+const { registerBeta1PartnerRetention } = require("./beta1PartnerRetention");
 
 function safeDocIdPart(value) {
   return encodeURIComponent(String(value || "none")).replace(/\./g, "%2E");
@@ -125,6 +126,7 @@ function offerWindowState(offer, now = Date.now()) {
 }
 
 function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError }) {
+  registerBeta1PartnerRetention(exportsTarget, { db, onCall, HttpsError });
   exportsTarget.adminUpsertPartner = onCall(async (request) => {
     const actorUserId = requireAdmin(request, HttpsError);
     const data = request.data || {};

@@ -1,4 +1,4 @@
-const { db, admin, assert, createAuthUser, callCallable, getCallableResult, describeCall, resetBeta1Collections } = require("./beta1RuntimeFixtures");
+const { db, admin, assert, createAuthUser, callCallable, getCallableResult, describeCall, clearCollection, resetBeta1Collections } = require("./beta1RuntimeFixtures");
 
 const ADMIN_ID = "partner-admin";
 const USER_ID = "partner-user";
@@ -140,6 +140,44 @@ async function run() {
     const data = doc.data();
     assert(!Object.prototype.hasOwnProperty.call(data, "ipAddress") && !Object.prototype.hasOwnProperty.call(data, "location"), "Betriebszaehler duerfen keine IP oder Position speichern.");
   });
+
+  await Promise.all([
+    clearCollection("partnerOperationRateLimits"),
+    clearCollection("partnerOperationOutcomes"),
+    clearCollection("partnerRedemptionChallenges"),
+    clearCollection("partnerChallengeActivity"),
+  ]);
+  const expired = new Date(Date.now() - 60_000).toISOString();
+  const futureRetention = new Date(Date.now() + 3_600_000).toISOString();
+  await Promise.all([
+    db.collection("partnerOperationRateLimits").doc("expired-rate").set({ subjectUserId: USER_ID, expiresAt: expired }),
+    db.collection("partnerOperationOutcomes").doc("expired-outcome").set({ subjectUserId: USER_ID, expiresAt: expired }),
+    db.collection("partnerRedemptionChallenges").doc("expired-challenge").set({ ownerUserId: USER_ID, expiresAt: expired, status: "active" }),
+    db.collection("partnerOperationRateLimits").doc("live-rate").set({ subjectUserId: USER_ID, expiresAt: futureRetention }),
+    db.collection("partnerOperationOutcomes").doc("live-outcome").set({ subjectUserId: USER_ID, expiresAt: futureRetention }),
+    db.collection("partnerRedemptionChallenges").doc("live-challenge").set({ ownerUserId: USER_ID, expiresAt: futureRetention, status: "active" }),
+    db.collection("partnerChallengeActivity").doc(USER_ID).set({
+      ownerUserId: USER_ID, userId: USER_ID,
+      activePresentations: { expired: expired, live: futureRetention },
+    }),
+  ]);
+  await expectError("adminCleanupPartnerOperationalData", userToken, { dryRun: true, limit: 2 });
+  const cleanupPreview = await expectOk("adminCleanupPartnerOperationalData", adminToken, { dryRun: true, limit: 2 });
+  assert(cleanupPreview.dryRun && cleanupPreview.operationCount === 2 && cleanupPreview.limitReached, "Dry-run muss exakt begrenzt und ohne Mutation planen.");
+  assert((await db.collection("partnerOperationRateLimits").doc("expired-rate").get()).exists, "Dry-run darf keine Rate-Daten loeschen.");
+
+  const firstCleanup = await expectOk("adminCleanupPartnerOperationalData", adminToken, { dryRun: false, limit: 2 });
+  assert(firstCleanup.operationCount === 2 && firstCleanup.limitReached, "Erster Cleanup muss den globalen Batch-Grenzwert einhalten.");
+  const secondCleanup = await expectOk("adminCleanupPartnerOperationalData", adminToken, { dryRun: false, limit: 10 });
+  assert(secondCleanup.operationCount === 2 && !secondCleanup.limitReached, "Zweiter Cleanup muss Restdaten und Aktivprojektion bereinigen.");
+  const repeatedCleanup = await expectOk("adminCleanupPartnerOperationalData", adminToken, { dryRun: false, limit: 10 });
+  assert(repeatedCleanup.operationCount === 0, "Wiederholter Cleanup muss idempotent ohne weitere Mutation enden.");
+  assert(!(await db.collection("partnerRedemptionChallenges").doc("expired-challenge").get()).exists, "Abgelaufener Nachweis muss entfernt sein.");
+  assert((await db.collection("partnerRedemptionChallenges").doc("live-challenge").get()).exists, "Nicht abgelaufener Nachweis muss erhalten bleiben.");
+  const retainedActivity = (await db.collection("partnerChallengeActivity").doc(USER_ID).get()).data();
+  assert(retainedActivity.activePresentations.live === futureRetention && !retainedActivity.activePresentations.expired, "Nur abgelaufene Aktivprojektionen duerfen entfernt werden.");
+  assert((await db.collection("partnerRedemptions").doc(claim.redemptionId).get()).exists, "Einloesungsautoritaet darf durch Retention nicht geloescht werden.");
+
   await expectOk("adminUpsertPartner", adminToken, { partnerId: "cafe", displayName: "Beta Cafe", status: "inactive" });
   await expectError("claimPartnerOffer", otherToken, { offerId: "drink", requestId: "inactive-request" });
 
