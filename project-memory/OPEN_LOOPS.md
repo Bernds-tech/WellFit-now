@@ -67,6 +67,14 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 - Close when: shared puppet rendering passes exact build/CI, a runnable GitHub surface visibly proves independent head/body movement and CTA targeting without regressions, and WellFit later verifies/ports it to the actual ChatGPT Site source.
 - Next check: implement per-asset head/body clips and pivots, then verify the existing LandingHeroV5 Luma surface.
 
+## WFN-LOOP-010
+- Related: WFN-PARTNER-OPERATIONS-BASELINE / PR #394
+- Status: OPEN
+- Updated: 2026-09-03
+- Gap: transactional partner-operation limits, active-proof cap, operational counters and tests are implemented but not yet verified on the exact PR head.
+- Close when: Beta 1 Emulator, Build, Container, Database and Project Memory gates succeed on the same immutable head and the PR is merged.
+- Next check: correct any exact-head CI finding, then record immutable evidence and release the work lock.
+
 ## Rules
 - `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED`, `IN_PROGRESS` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.
 - Never delete historical loops; close or supersede them explicitly.
