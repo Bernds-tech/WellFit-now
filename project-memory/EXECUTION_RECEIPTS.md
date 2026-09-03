@@ -40,3 +40,16 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 - Falsification question: a visual regression caused by independent CSS transform composition, evidence that a qualifying avatar is missed, or a current canonical/Sites surface using a different source implementation would require adjustment/reconciliation before visual acceptance.
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
+
+## RECEIPT-WFN-PARTNER-OPERATOR-VERIFICATION-20260903
+- Task: WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
+- Finished: 2026-09-03 after exact-head CI
+- Branch/PR: `codex/partner-operator-verification-20260903` / PR #393
+- Risk: R3 backend authorization and redemption-state mutation.
+- Changes made: server-managed partner operator assignments/revocation; owner-issued five-minute single-use presentation proofs with hash-only persistence; partner-scoped operator/admin atomic confirmation; client-deny rules; privacy export/deletion integration.
+- Exact implementation revision checked: `89778662ab0517ba04d8213678237efc27a67219`.
+- Checks/tests: Build #1208, Container #193, Database #185, Beta 1 Emulator #174 and Project Memory Guard/Quality/Status succeeded.
+- Negative countercheck: cross-partner assignment, wrong/expired proof, replay and revoked operator are denied; plaintext proof is not stored; no graphical/UI, Production, payment, token, NFT or cashout behavior changed.
+- Result status: VERIFIED at repository level; Production and real-partner acceptance remain open.
+- Work lock: `LOCK-WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE` released.
+- Falsification question: a confirmation without a valid scoped assignment/proof, reusable proof, plaintext proof persistence or client-readable authority record would invalidate this result.

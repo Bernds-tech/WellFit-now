@@ -85,13 +85,15 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
 - Date: 2026-09-03
-- Status: IN_PROGRESS
+- Status: VERIFIED
 - Risk: R3
 - Goal: replace global-admin-only partner fulfillment with least-privilege partner-scoped verification.
 - Scope: server-managed operator assignment, revocation, short-lived hashed presentation challenge and single-use confirmation.
+- Result: partner operators are restricted to their assigned active partner; an owner-issued 32-byte proof expires after five minutes, is stored only as a SHA-256 hash and is consumed atomically with redemption confirmation. Global admins retain an explicit override path.
+- Evidence: WFN-EV-011; PR #393 head `89778662ab0517ba04d8213678237efc27a67219`; all required exact-head gates succeeded.
 - Negative/fail-closed path: cross-partner operators, revoked assignments, expired/wrong proof and replay cannot redeem or expose another user's data.
 - Rollback/recovery: revert the isolated operator/challenge extension; keep PR #392 admin-only baseline intact until replacement passes exact-head gates.
-- Next step: implement and pass focused emulator plus repository gates.
+- Next step: merge PR #393; then add bounded abuse controls and operational signals as a separate backend task.
 
 ## WFN-XREPO-001
 - Date: 2026-08-19 to 2026-08-20

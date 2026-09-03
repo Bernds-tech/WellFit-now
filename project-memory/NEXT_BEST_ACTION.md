@@ -1,20 +1,19 @@
 # WellFit-now Next Best Action
 
-- Selected action: `WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE`
+- Selected action: `WFN-PARTNER-OPERATIONS-BASELINE`
 - Status: `EXECUTABLE`
 - Risk: `R3`
-- Title: Partner-Mitarbeiter für Einlösungen sicher begrenzen
+- Title: Einlösungs-Missbrauch technisch begrenzen
 
 ## Why this is next
-PR #392 verifies the non-crypto offer, claim, cancellation and admin-confirmation lifecycle. Before any real partner pilot, confirmation must no longer depend on a global admin claim: a partner operator needs least-privilege authority scoped to exactly one partner.
+PR #393 verifies least-privilege partner operators and short-lived single-use presentation proofs. Before any real partner pilot, challenge issuance and confirmation still need bounded abuse controls plus privacy-minimal operational signals.
 
 ## Exact work
-1. Define server-managed partner-operator assignments with partner scope and revocation state.
-2. Replace global-admin-only fulfillment with scoped operator-or-admin authorization.
-3. Introduce a short-lived, single-use presentation challenge without storing a reusable plaintext secret.
-4. Deny cross-partner confirmation, expired challenge, revoked operator and replay.
-5. Preserve owner cancellation/refund and immutable audit evidence.
-6. Keep graphical QR presentation, Production partner onboarding, WFT/token/payment/cashout outside this task.
+1. Add transactional per-user challenge issuance throttling and a small active-challenge cap.
+2. Add transactional per-operator confirmation attempt throttling without storing IP or location.
+3. Record privacy-minimal outcome codes and counters for operational review.
+4. Cover boundary reset, parallel/replay and denial paths in emulator tests.
+5. Keep graphical QR presentation, Production onboarding, WFT/token/payment/cashout outside this task.
 
 ## Parallel-safe work
 Device/Unity evidence remains a separate owner-machine task and graphical work remains in `Bernds-tech/WellFit`.
