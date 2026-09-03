@@ -51,8 +51,19 @@ async function run() {
     validFrom: new Date(Date.now() - 120_000).toISOString(), expiresAt: new Date(Date.now() - 60_000).toISOString(),
   });
   await expectError("claimPartnerOffer", userToken, { offerId: "expired", requestId: "expired-request" });
-  await expectOk("adminUpsertPartner", adminToken, { partnerId: "cafe", displayName: "Beta Cafe", status: "inactive" });
+  await expectOk("adminUpsertPartnerOffer", adminToken, {
+    offerId: "cancel-me", partnerId: "cafe", title: "Stornierbar", costWfxp: 20, remainingInventory: 1,
+    validFrom, expiresAt,
+  });
   await db.collection("xpWallets").doc(OTHER_ID).update({ balance: 100, lifetimeEarned: 100 });
+  const cancellable = await expectOk("claimPartnerOffer", otherToken, { offerId: "cancel-me", requestId: "cancel-request" });
+  assert(cancellable.remainingWfxp === 80, "Einloesung muss vor Storno abbuchen.");
+  const cancelled = await expectOk("cancelPartnerRedemption", otherToken, { redemptionId: cancellable.redemptionId });
+  assert(cancelled.status === "cancelled" && cancelled.remainingWfxp === 100, "Storno muss WFXP erstatten.");
+  const cancelReplay = await expectOk("cancelPartnerRedemption", otherToken, { redemptionId: cancellable.redemptionId });
+  assert(cancelReplay.idempotent, "Storno-Replay muss idempotent sein.");
+  await expectError("cancelPartnerRedemption", otherToken, { redemptionId: claim.redemptionId });
+  await expectOk("adminUpsertPartner", adminToken, { partnerId: "cafe", displayName: "Beta Cafe", status: "inactive" });
   await expectError("claimPartnerOffer", otherToken, { offerId: "drink", requestId: "inactive-request" });
 
   await Promise.all([ADMIN_ID, USER_ID, OTHER_ID].map((uid) => admin.auth().deleteUser(uid)));
