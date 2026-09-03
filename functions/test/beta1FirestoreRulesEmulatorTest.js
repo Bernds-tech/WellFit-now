@@ -57,6 +57,8 @@ async function run() {
       await adminDb.collection("partners").doc("partner_active").set({ status: "active", displayName: "Partner" });
       await adminDb.collection("partnerOffers").doc("offer_public").set({ status: "published", partnerId: "partner_active", costWfxp: 25 });
       await adminDb.collection("partnerRedemptions").doc("redemption_alice").set({ ownerUserId: "alice", userId: "alice", offerId: "offer_public", status: "issued" });
+      await adminDb.collection("partnerOperators").doc("partner_active_alice").set({ partnerId: "partner_active", operatorUserId: "alice", status: "active" });
+      await adminDb.collection("partnerRedemptionChallenges").doc("redemption_alice").set({ ownerUserId: "alice", userId: "alice", tokenHash: "private", status: "active" });
       await adminDb.collection("userInventory").doc("inv_alice").set({ ownerUserId: "alice", userId: "alice", itemDefinitionId: "shoes_001" });
       await adminDb.collection("checkpoints").doc("cp_public").set({ status: "published", title: "Checkpoint" });
       await adminDb.collection("checkpointScores").doc("score_alice").set({ ownerUserId: "alice", userId: "alice", checkpointId: "cp_public" });
@@ -188,6 +190,10 @@ async function run() {
     await assertFails(anonDb.collection("partners").doc("partner_active").get());
     await assertFails(aliceDb.collection("partners").doc("partner_hack").set({ status: "active" }));
     await assertFails(aliceDb.collection("partnerOffers").doc("offer_hack").set({ status: "published", costWfxp: 1 }));
+    await assertFails(aliceDb.collection("partnerOperators").doc("partner_active_alice").get());
+    await assertFails(aliceDb.collection("partnerRedemptionChallenges").doc("redemption_alice").get());
+    await assertFails(aliceDb.collection("partnerOperators").doc("operator_hack").set({ partnerId: "partner_active", operatorUserId: "alice", status: "active" }));
+    await assertFails(aliceDb.collection("partnerRedemptionChallenges").doc("challenge_hack").set({ ownerUserId: "alice", tokenHash: "hack" }));
     await assertSucceeds(aliceDb.collection("checkpoints").doc("cp_public").get());
     await assertFails(aliceDb.collection("checkpointMayors").doc("mayor_hack").set({ ownerUserId: "alice" }));
     await assertFails(aliceDb.collection("checkpointMayors").doc("mayor_cp").update({ ownerUserId: "bob" }));

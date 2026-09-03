@@ -105,3 +105,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: partner/offer admin authority, active catalog, atomic WFXP claim, one-per-user replay protection, expiry/inactive/stock/balance checks, adult-only boundary, account deletion freeze, cancellation/refund, fulfillment confirmation, audit and client-deny rules all passed.
 - Limitations: no Production deploy, payment/token/cashout activation, partner-operator identity or real partner pilot was performed.
 - Acceptance: VERIFIED
+
+## WFN-EV-011
+- Related: WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE / PR #393
+- Date: 2026-09-03
+- Target: partner-scoped redemption verification
+- Type: exact-head CI plus emulator negative-path evidence
+- Reference: PR #393 head `89778662ab0517ba04d8213678237efc27a67219`; Build #1208, Container Build #193, Database Package Tests #185, Beta 1 Emulator Tests #174 and Project Memory Guard/Quality/Status.
+- Result: active partner-scoped operators and global admins can confirm only with a valid owner-issued single-use proof; cross-partner, revoked operator, wrong token, expired token and replay paths are denied. Plaintext proofs are not persisted, and operator/challenge records are denied to clients and included in privacy export/deletion handling.
+- Limitations: repository evidence is not Production deployment, physical partner identity verification, device scanning UX, fraud monitoring or real-partner acceptance.
+- Acceptance: VERIFIED

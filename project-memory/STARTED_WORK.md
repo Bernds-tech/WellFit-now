@@ -11,6 +11,20 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: VERIFIED
+- Risk: R3
+- Scope: least-privilege partner operator assignments and short-lived single-use presentation proof for partner redemption confirmation.
+- Branch/PR: `codex/partner-operator-verification-20260903` / PR #393.
+- Work lock: `LOCK-WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE`.
+- Completed: server-managed partner-scoped operator assignment/revocation, five-minute single-use presentation proof with SHA-256-only storage, operator-or-admin confirmation, audit/privacy lifecycle integration and client-deny rules.
+- Evidence: PR #393 exact head `89778662ab0517ba04d8213678237efc27a67219`; Build #1208, Container #193, Database #185, Beta 1 Emulator #174 and Project Memory gates all succeeded. Cross-partner, wrong/expired proof, replay and revoked-operator paths were denied.
+- Still open: PR merge, Production deployment and real-partner operational acceptance only.
+- Exact next step: merge PR #393, then separately add bounded issuance/confirmation abuse controls before a real partner pilot.
+- Owner action needed: none for repository baseline; real partner identities remain outside this task.
+
 ## WFN-PARTNER-REDEMPTION-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03

@@ -1,3 +1,4 @@
+const crypto = require("node:crypto");
 const { FieldValue } = require("firebase-admin/firestore");
 const {
   BETA1_INTERNAL_CURRENCY,
@@ -15,6 +16,21 @@ const { lifecycleRef, isAccountMutationBlocked } = require("./beta1AccountLifecy
 
 function safeDocIdPart(value) {
   return encodeURIComponent(String(value || "none")).replace(/\./g, "%2E");
+}
+
+const PRESENTATION_TTL_MS = 5 * 60 * 1000;
+
+function partnerOperatorId(partnerId, operatorUserId) {
+  return `${safeDocIdPart(partnerId)}_${safeDocIdPart(operatorUserId)}`;
+}
+
+function sha256(value) {
+  return crypto.createHash("sha256").update(String(value)).digest("hex");
+}
+
+function secureEqualHex(left, right) {
+  if (!left || !right || left.length !== right.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(left, "hex"), Buffer.from(right, "hex"));
 }
 
 function parseIso(value, fieldName, HttpsError) {
@@ -109,6 +125,24 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
       ...updatedTimestamp(),
     }, { merge: true });
     return { accepted: true, offerId, partnerId, status };
+  });
+
+  exportsTarget.adminUpsertPartnerOperator = onCall(async (request) => {
+    const actorUserId = requireAdmin(request, HttpsError);
+    const data = request.data || {};
+    const partnerId = requiredString(data.partnerId, "partnerId", HttpsError, 120);
+    const operatorUserId = requiredString(data.operatorUserId, "operatorUserId", HttpsError, 180);
+    const partnerSnapshot = await db.collection("partners").doc(partnerId).get();
+    if (!partnerSnapshot.exists) throw new HttpsError("not-found", "Partner wurde nicht gefunden.");
+    const status = data.status === "revoked" ? "revoked" : "active";
+    const ref = db.collection("partnerOperators").doc(partnerOperatorId(partnerId, operatorUserId));
+    await ref.set({
+      operatorAssignmentId: ref.id, partnerId, operatorUserId, status,
+      role: "redemption-operator", assignedByUserId: actorUserId,
+      revokedAt: status === "revoked" ? FieldValue.serverTimestamp() : null,
+      createdAt: FieldValue.serverTimestamp(), ...updatedTimestamp(),
+    }, { merge: true });
+    return { accepted: true, operatorAssignmentId: ref.id, partnerId, operatorUserId, status };
   });
 
   exportsTarget.listPartnerOffers = onCall(async (request) => {
@@ -207,17 +241,35 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
   });
 
   exportsTarget.adminConfirmPartnerRedemption = onCall(async (request) => {
-    const actorUserId = requireAdmin(request, HttpsError);
-    const redemptionId = requiredString((request.data || {}).redemptionId, "redemptionId", HttpsError, 240);
+    const actorUserId = requireAuth(request, HttpsError);
+    const data = request.data || {};
+    const redemptionId = requiredString(data.redemptionId, "redemptionId", HttpsError, 240);
+    const presentationToken = requiredString(data.presentationToken, "presentationToken", HttpsError, 200);
     const ref = db.collection("partnerRedemptions").doc(redemptionId);
     const result = await db.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(ref);
       if (!snapshot.exists) throw new HttpsError("not-found", "Partner-Einloesung wurde nicht gefunden.");
       const redemption = snapshot.data() || {};
-      if (redemption.status === "redeemed") return { accepted: true, idempotent: true, redemptionId, status: "redeemed" };
+      const isGlobalAdmin = request.auth && request.auth.token && request.auth.token.admin === true;
+      const operatorRef = db.collection("partnerOperators").doc(partnerOperatorId(redemption.partnerId, actorUserId));
+      const challengeRef = db.collection("partnerRedemptionChallenges").doc(redemptionId);
+      const [operatorSnapshot, challengeSnapshot] = await Promise.all([
+        transaction.get(operatorRef), transaction.get(challengeRef),
+      ]);
+      const operator = operatorSnapshot.exists ? operatorSnapshot.data() || {} : {};
+      if (!isGlobalAdmin && (operator.status !== "active" || operator.partnerId !== redemption.partnerId || operator.operatorUserId !== actorUserId)) {
+        throw new HttpsError("permission-denied", "Keine aktive Berechtigung fuer diesen Partner.");
+      }
       if (redemption.status !== "issued") throw new HttpsError("failed-precondition", "Partner-Einloesung ist nicht einloesbar.");
+      if (!challengeSnapshot.exists) throw new HttpsError("failed-precondition", "Kein aktiver Einloesungsnachweis vorhanden.");
+      const challenge = challengeSnapshot.data() || {};
+      const suppliedHash = sha256(presentationToken);
+      if (challenge.status !== "active" || Date.parse(challenge.expiresAt) <= Date.now() || !secureEqualHex(challenge.tokenHash, suppliedHash)) {
+        throw new HttpsError("permission-denied", "Einloesungsnachweis ist ungueltig oder abgelaufen.");
+      }
       const auditId = `partner_confirm_${safeDocIdPart(redemptionId)}`;
       transaction.update(ref, { status: "redeemed", redeemedAt: FieldValue.serverTimestamp(), redeemedByUserId: actorUserId, updatedAt: FieldValue.serverTimestamp() });
+      transaction.update(challengeRef, { status: "consumed", consumedAt: FieldValue.serverTimestamp(), consumedByUserId: actorUserId, updatedAt: FieldValue.serverTimestamp() });
       const audit = {
         actorUserId, actionType: "partner-offer-redeemed", targetType: "partnerRedemption",
         targetId: redemptionId, reason: "beta1-admin-confirmed", ownerUserId: redemption.ownerUserId,
@@ -230,6 +282,31 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
       return { accepted: true, idempotent: false, redemptionId, status: "redeemed" };
     });
     return result;
+  });
+  exportsTarget.confirmPartnerRedemption = exportsTarget.adminConfirmPartnerRedemption;
+
+  exportsTarget.createPartnerRedemptionPresentation = onCall(async (request) => {
+    const userId = requireAuth(request, HttpsError);
+    const redemptionId = requiredString((request.data || {}).redemptionId, "redemptionId", HttpsError, 240);
+    const token = crypto.randomBytes(32).toString("base64url");
+    const tokenHash = sha256(token);
+    const expiresAt = new Date(Date.now() + PRESENTATION_TTL_MS).toISOString();
+    const redemptionRef = db.collection("partnerRedemptions").doc(redemptionId);
+    const challengeRef = db.collection("partnerRedemptionChallenges").doc(redemptionId);
+    await db.runTransaction(async (transaction) => {
+      const redemptionSnapshot = await transaction.get(redemptionRef);
+      if (!redemptionSnapshot.exists || (redemptionSnapshot.data() || {}).ownerUserId !== userId) {
+        throw new HttpsError("permission-denied", "Partner-Einloesung gehoert nicht diesem Nutzer.");
+      }
+      const redemption = redemptionSnapshot.data() || {};
+      if (redemption.status !== "issued") throw new HttpsError("failed-precondition", "Einloesung kann nicht praesentiert werden.");
+      transaction.set(challengeRef, {
+        challengeId: challengeRef.id, redemptionId, ownerUserId: userId, userId,
+        partnerId: redemption.partnerId, offerId: redemption.offerId, tokenHash,
+        status: "active", expiresAt, tokenVersion: "2026-09-v1", ...serverTimestamps(),
+      });
+    });
+    return { accepted: true, redemptionId, presentationToken: token, expiresAt, singleUse: true };
   });
 
   exportsTarget.cancelPartnerRedemption = onCall(async (request) => {
@@ -281,4 +358,4 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
   });
 }
 
-module.exports = { registerBeta1PartnerRedemption, offerWindowState };
+module.exports = { registerBeta1PartnerRedemption, offerWindowState, partnerOperatorId, sha256, secureEqualHex, PRESENTATION_TTL_MS };

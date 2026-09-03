@@ -316,6 +316,14 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    match /partnerOperators/{assignmentId} {
+      allow read, write: if false;
+    }
+
+    match /partnerRedemptionChallenges/{challengeId} {
+      allow read, write: if false;
+    }
+
     match /checkpoints/{checkpointId} {
       allow read: if isSignedIn() && resource.data.status == 'published';
       allow create, update, delete: if false;
