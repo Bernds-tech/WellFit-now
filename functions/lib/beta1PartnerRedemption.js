@@ -19,6 +19,10 @@ function safeDocIdPart(value) {
 }
 
 const PRESENTATION_TTL_MS = 5 * 60 * 1000;
+const RATE_WINDOW_MS = 60 * 1000;
+const PRESENTATION_ISSUE_LIMIT = 5;
+const CONFIRM_ATTEMPT_LIMIT = 12;
+const ACTIVE_PRESENTATION_LIMIT = 3;
 
 function partnerOperatorId(partnerId, operatorUserId) {
   return `${safeDocIdPart(partnerId)}_${safeDocIdPart(operatorUserId)}`;
@@ -31,6 +35,57 @@ function sha256(value) {
 function secureEqualHex(left, right) {
   if (!left || !right || left.length !== right.length) return false;
   return crypto.timingSafeEqual(Buffer.from(left, "hex"), Buffer.from(right, "hex"));
+}
+
+function rateWindowStart(now = Date.now()) {
+  return Math.floor(now / RATE_WINDOW_MS) * RATE_WINDOW_MS;
+}
+
+function rateLimitId(action, actorUserId, windowStart) {
+  return `${safeDocIdPart(action)}_${safeDocIdPart(actorUserId)}_${windowStart}`;
+}
+
+async function consumeOperationRateLimit(db, { action, actorUserId, limit }, HttpsError) {
+  const windowStart = rateWindowStart();
+  const ref = db.collection("partnerOperationRateLimits").doc(rateLimitId(action, actorUserId, windowStart));
+  await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    const count = snapshot.exists ? Number((snapshot.data() || {}).count || 0) : 0;
+    if (count >= limit) throw new HttpsError("resource-exhausted", "Zu viele Partneraktionen. Bitte kurz warten.");
+    transaction.set(ref, {
+      rateLimitId: ref.id, action, subjectUserId: actorUserId, count: count + 1, limit,
+      windowStart: new Date(windowStart).toISOString(),
+      expiresAt: new Date(windowStart + RATE_WINDOW_MS).toISOString(),
+      updatedAt: FieldValue.serverTimestamp(),
+      ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp() }),
+    }, { merge: true });
+  });
+  return { windowStart, ref };
+}
+
+async function recordOperationOutcome(db, { action, actorUserId, outcome, windowStart }) {
+  const id = `${rateLimitId(action, actorUserId, windowStart)}_${safeDocIdPart(outcome)}`;
+  await db.collection("partnerOperationOutcomes").doc(id).set({
+    outcomeId: id, action, outcome, subjectUserId: actorUserId,
+    windowStart: new Date(windowStart).toISOString(),
+    expiresAt: new Date(windowStart + RATE_WINDOW_MS).toISOString(),
+    count: FieldValue.increment(1), updatedAt: FieldValue.serverTimestamp(),
+    createdAt: FieldValue.serverTimestamp(),
+  }, { merge: true });
+}
+
+function outcomeForError(error) {
+  const code = String(error && error.code || "internal").split("/").pop();
+  if (code === "permission-denied") return "denied";
+  if (code === "resource-exhausted") return "rate-limited";
+  if (code === "failed-precondition") return "invalid-state";
+  if (code === "not-found") return "not-found";
+  return "error";
+}
+
+function activePresentations(value, now = Date.now()) {
+  const entries = value && typeof value === "object" ? value : {};
+  return Object.fromEntries(Object.entries(entries).filter(([, expiresAt]) => Date.parse(expiresAt) > now));
 }
 
 function parseIso(value, fieldName, HttpsError) {
@@ -246,15 +301,20 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
     const redemptionId = requiredString(data.redemptionId, "redemptionId", HttpsError, 240);
     const presentationToken = requiredString(data.presentationToken, "presentationToken", HttpsError, 200);
     const ref = db.collection("partnerRedemptions").doc(redemptionId);
-    const result = await db.runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(ref);
-      if (!snapshot.exists) throw new HttpsError("not-found", "Partner-Einloesung wurde nicht gefunden.");
-      const redemption = snapshot.data() || {};
+    const rate = await consumeOperationRateLimit(db, {
+      action: "partner-redemption-confirm", actorUserId, limit: CONFIRM_ATTEMPT_LIMIT,
+    }, HttpsError);
+    try {
+      const result = await db.runTransaction(async (transaction) => {
+        const snapshot = await transaction.get(ref);
+        if (!snapshot.exists) throw new HttpsError("not-found", "Partner-Einloesung wurde nicht gefunden.");
+        const redemption = snapshot.data() || {};
       const isGlobalAdmin = request.auth && request.auth.token && request.auth.token.admin === true;
       const operatorRef = db.collection("partnerOperators").doc(partnerOperatorId(redemption.partnerId, actorUserId));
       const challengeRef = db.collection("partnerRedemptionChallenges").doc(redemptionId);
-      const [operatorSnapshot, challengeSnapshot] = await Promise.all([
-        transaction.get(operatorRef), transaction.get(challengeRef),
+      const activityRef = db.collection("partnerChallengeActivity").doc(redemption.ownerUserId);
+      const [operatorSnapshot, challengeSnapshot, activitySnapshot] = await Promise.all([
+        transaction.get(operatorRef), transaction.get(challengeRef), transaction.get(activityRef),
       ]);
       const operator = operatorSnapshot.exists ? operatorSnapshot.data() || {} : {};
       if (!isGlobalAdmin && (operator.status !== "active" || operator.partnerId !== redemption.partnerId || operator.operatorUserId !== actorUserId)) {
@@ -270,6 +330,9 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
       const auditId = `partner_confirm_${safeDocIdPart(redemptionId)}`;
       transaction.update(ref, { status: "redeemed", redeemedAt: FieldValue.serverTimestamp(), redeemedByUserId: actorUserId, updatedAt: FieldValue.serverTimestamp() });
       transaction.update(challengeRef, { status: "consumed", consumedAt: FieldValue.serverTimestamp(), consumedByUserId: actorUserId, updatedAt: FieldValue.serverTimestamp() });
+      const activity = activePresentations(activitySnapshot.exists ? (activitySnapshot.data() || {}).activePresentations : {});
+      delete activity[redemptionId];
+      transaction.set(activityRef, { ownerUserId: redemption.ownerUserId, userId: redemption.ownerUserId, activePresentations: activity, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
       const audit = {
         actorUserId, actionType: "partner-offer-redeemed", targetType: "partnerRedemption",
         targetId: redemptionId, reason: "beta1-admin-confirmed", ownerUserId: redemption.ownerUserId,
@@ -280,8 +343,13 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
       transaction.set(db.collection("adminActions").doc(auditId), { adminActionId: auditId, ...audit });
       transaction.set(db.collection("auditEvents").doc(auditId), { auditEventId: auditId, ...audit });
       return { accepted: true, idempotent: false, redemptionId, status: "redeemed" };
-    });
-    return result;
+      });
+      await recordOperationOutcome(db, { action: "partner-redemption-confirm", actorUserId, outcome: "accepted", windowStart: rate.windowStart }).catch(() => {});
+      return result;
+    } catch (error) {
+      await recordOperationOutcome(db, { action: "partner-redemption-confirm", actorUserId, outcome: outcomeForError(error), windowStart: rate.windowStart }).catch(() => {});
+      throw error;
+    }
   });
   exportsTarget.confirmPartnerRedemption = exportsTarget.adminConfirmPartnerRedemption;
 
@@ -293,20 +361,40 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
     const expiresAt = new Date(Date.now() + PRESENTATION_TTL_MS).toISOString();
     const redemptionRef = db.collection("partnerRedemptions").doc(redemptionId);
     const challengeRef = db.collection("partnerRedemptionChallenges").doc(redemptionId);
-    await db.runTransaction(async (transaction) => {
-      const redemptionSnapshot = await transaction.get(redemptionRef);
-      if (!redemptionSnapshot.exists || (redemptionSnapshot.data() || {}).ownerUserId !== userId) {
-        throw new HttpsError("permission-denied", "Partner-Einloesung gehoert nicht diesem Nutzer.");
-      }
-      const redemption = redemptionSnapshot.data() || {};
-      if (redemption.status !== "issued") throw new HttpsError("failed-precondition", "Einloesung kann nicht praesentiert werden.");
-      transaction.set(challengeRef, {
-        challengeId: challengeRef.id, redemptionId, ownerUserId: userId, userId,
-        partnerId: redemption.partnerId, offerId: redemption.offerId, tokenHash,
-        status: "active", expiresAt, tokenVersion: "2026-09-v1", ...serverTimestamps(),
+    const activityRef = db.collection("partnerChallengeActivity").doc(userId);
+    const rate = await consumeOperationRateLimit(db, {
+      action: "partner-presentation-issue", actorUserId: userId, limit: PRESENTATION_ISSUE_LIMIT,
+    }, HttpsError);
+    try {
+      await db.runTransaction(async (transaction) => {
+        const redemptionSnapshot = await transaction.get(redemptionRef);
+        if (!redemptionSnapshot.exists || (redemptionSnapshot.data() || {}).ownerUserId !== userId) {
+          throw new HttpsError("permission-denied", "Partner-Einloesung gehoert nicht diesem Nutzer.");
+        }
+        const redemption = redemptionSnapshot.data() || {};
+        if (redemption.status !== "issued") throw new HttpsError("failed-precondition", "Einloesung kann nicht praesentiert werden.");
+        const activitySnapshot = await transaction.get(activityRef);
+        const active = activePresentations(activitySnapshot.exists ? (activitySnapshot.data() || {}).activePresentations : {});
+        if (!Object.prototype.hasOwnProperty.call(active, redemptionId) && Object.keys(active).length >= ACTIVE_PRESENTATION_LIMIT) {
+          throw new HttpsError("resource-exhausted", "Zu viele aktive Einloesungsnachweise.");
+        }
+        active[redemptionId] = expiresAt;
+        transaction.set(challengeRef, {
+          challengeId: challengeRef.id, redemptionId, ownerUserId: userId, userId,
+          partnerId: redemption.partnerId, offerId: redemption.offerId, tokenHash,
+          status: "active", expiresAt, tokenVersion: "2026-09-v1", ...serverTimestamps(),
+        });
+        transaction.set(activityRef, {
+          ownerUserId: userId, userId, activePresentations: active,
+          createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
       });
-    });
-    return { accepted: true, redemptionId, presentationToken: token, expiresAt, singleUse: true };
+      await recordOperationOutcome(db, { action: "partner-presentation-issue", actorUserId: userId, outcome: "accepted", windowStart: rate.windowStart }).catch(() => {});
+      return { accepted: true, redemptionId, presentationToken: token, expiresAt, singleUse: true };
+    } catch (error) {
+      await recordOperationOutcome(db, { action: "partner-presentation-issue", actorUserId: userId, outcome: outcomeForError(error), windowStart: rate.windowStart }).catch(() => {});
+      throw error;
+    }
   });
 
   exportsTarget.cancelPartnerRedemption = onCall(async (request) => {
@@ -326,8 +414,9 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
       const refundLedgerId = `${redemptionId}_refund`;
       const refundLedgerRef = db.collection("xpLedgerEvents").doc(refundLedgerId);
       const legacyRefundLedgerRef = db.collection("ledgerEvents").doc(refundLedgerId);
-      const [walletSnapshot, offerSnapshot, refundSnapshot] = await Promise.all([
-        transaction.get(walletRef), transaction.get(offerRef), transaction.get(refundLedgerRef),
+      const activityRef = db.collection("partnerChallengeActivity").doc(userId);
+      const [walletSnapshot, offerSnapshot, refundSnapshot, activitySnapshot] = await Promise.all([
+        transaction.get(walletRef), transaction.get(offerRef), transaction.get(refundLedgerRef), transaction.get(activityRef),
       ]);
       if (refundSnapshot.exists) throw new HttpsError("failed-precondition", "Inkonsistenter Stornierungszustand.");
       const wallet = walletSnapshot.exists ? walletSnapshot.data() || {} : {};
@@ -353,9 +442,16 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
       }, { merge: true });
       if (offerSnapshot.exists) transaction.update(offerRef, { remainingInventory: FieldValue.increment(1), updatedAt: FieldValue.serverTimestamp() });
       transaction.update(redemptionRef, { status: "cancelled", cancelledAt: FieldValue.serverTimestamp(), refundLedgerEventId: refundLedgerId, updatedAt: FieldValue.serverTimestamp() });
+      const activity = activePresentations(activitySnapshot.exists ? (activitySnapshot.data() || {}).activePresentations : {});
+      delete activity[redemptionId];
+      transaction.set(activityRef, { ownerUserId: userId, userId, activePresentations: activity, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
       return { accepted: true, idempotent: false, redemptionId, status: "cancelled", remainingWfxp: nextBalance };
     });
   });
 }
 
-module.exports = { registerBeta1PartnerRedemption, offerWindowState, partnerOperatorId, sha256, secureEqualHex, PRESENTATION_TTL_MS };
+module.exports = {
+  registerBeta1PartnerRedemption, offerWindowState, partnerOperatorId, sha256, secureEqualHex,
+  PRESENTATION_TTL_MS, RATE_WINDOW_MS, PRESENTATION_ISSUE_LIMIT, CONFIRM_ATTEMPT_LIMIT,
+  ACTIVE_PRESENTATION_LIMIT, rateWindowStart, rateLimitId, activePresentations,
+};

@@ -82,6 +82,50 @@ async function run() {
   const freshPresentation = await expectOk("createPartnerRedemptionPresentation", otherToken, { redemptionId: proofClaim.redemptionId });
   await expectOk("adminUpsertPartnerOperator", adminToken, { partnerId: "cafe", operatorUserId: OPERATOR_ID, status: "revoked" });
   await expectError("confirmPartnerRedemption", operatorToken, { redemptionId: proofClaim.redemptionId, presentationToken: freshPresentation.presentationToken });
+
+  const existingConfirmRates = await db.collection("partnerOperationRateLimits").where("subjectUserId", "==", OPERATOR_ID).get();
+  const existingConfirmRate = existingConfirmRates.docs.find((doc) => doc.data().action === "partner-redemption-confirm");
+  assert(existingConfirmRate, "Operator-Zaehler muss vor Paralleltest existieren.");
+  await existingConfirmRate.ref.update({ count: 11 });
+  const concurrentConfirmAttempts = await Promise.all(Array.from({ length: 2 }, () =>
+    callCallable("confirmPartnerRedemption", operatorToken, { redemptionId: proofClaim.redemptionId, presentationToken: "wrong-token" })));
+  assert(concurrentConfirmAttempts.every((response) => !response.ok), "Parallele ungueltige Bestaetigungen muessen abgelehnt werden.");
+  const confirmRateSnapshot = await db.collection("partnerOperationRateLimits").where("subjectUserId", "==", OPERATOR_ID).get();
+  const confirmRateDocs = confirmRateSnapshot.docs.filter((doc) => doc.data().action === "partner-redemption-confirm");
+  assert(confirmRateDocs.length === 1 && confirmRateDocs[0].data().count === 12, "Operator-Limit muss auch parallel exakt bei 12 stoppen.");
+  await expectOk("adminUpsertPartnerOperator", adminToken, { partnerId: "cafe", operatorUserId: OPERATOR_ID });
+  await expectError("confirmPartnerRedemption", operatorToken, { redemptionId: proofClaim.redemptionId, presentationToken: freshPresentation.presentationToken });
+
+  const existingIssueRates = await db.collection("partnerOperationRateLimits").where("subjectUserId", "==", OTHER_ID).get();
+  const existingIssueRate = existingIssueRates.docs.find((doc) => doc.data().action === "partner-presentation-issue");
+  assert(existingIssueRate, "Ausgabe-Zaehler muss vor Paralleltest existieren.");
+  await existingIssueRate.ref.update({ count: 4 });
+  const concurrentIssueAttempts = await Promise.all(Array.from({ length: 2 }, () =>
+    callCallable("createPartnerRedemptionPresentation", otherToken, { redemptionId: proofClaim.redemptionId })));
+  assert(concurrentIssueAttempts.filter((response) => response.ok).length === 1, "Ausgabe-Limit muss parallel nur einen weiteren Nachweis bis zum Maximum zulassen.");
+  const issueRateSnapshot = await db.collection("partnerOperationRateLimits").where("subjectUserId", "==", OTHER_ID).get();
+  const issueRateDocs = issueRateSnapshot.docs.filter((doc) => doc.data().action === "partner-presentation-issue");
+  assert(issueRateDocs.length === 1 && issueRateDocs[0].data().count === 5, "Nutzer-Limit muss auch parallel exakt bei 5 stoppen.");
+  await expectError("createPartnerRedemptionPresentation", otherToken, { redemptionId: proofClaim.redemptionId });
+
+  await expectOk("adminUpsertPartnerOffer", adminToken, {
+    offerId: "active-cap", partnerId: "cafe", title: "Aktivlimit", costWfxp: 5, remainingInventory: 1,
+    validFrom, expiresAt,
+  });
+  const cappedClaim = await expectOk("claimPartnerOffer", userToken, { offerId: "active-cap", requestId: "cap-request" });
+  const future = new Date(Date.now() + 60_000).toISOString();
+  await db.collection("partnerChallengeActivity").doc(USER_ID).set({
+    ownerUserId: USER_ID, userId: USER_ID,
+    activePresentations: { first: future, second: future, third: future },
+  });
+  await expectError("createPartnerRedemptionPresentation", userToken, { redemptionId: cappedClaim.redemptionId });
+
+  const outcomeSnapshot = await db.collection("partnerOperationOutcomes").where("subjectUserId", "==", OPERATOR_ID).get();
+  assert(!outcomeSnapshot.empty, "Datenschutzarme Ergebniszaehler muessen fuer den Betrieb vorhanden sein.");
+  outcomeSnapshot.docs.forEach((doc) => {
+    const data = doc.data();
+    assert(!Object.prototype.hasOwnProperty.call(data, "ipAddress") && !Object.prototype.hasOwnProperty.call(data, "location"), "Betriebszaehler duerfen keine IP oder Position speichern.");
+  });
   await expectOk("adminUpsertPartner", adminToken, { partnerId: "cafe", displayName: "Beta Cafe", status: "inactive" });
   await expectError("claimPartnerOffer", otherToken, { offerId: "drink", requestId: "inactive-request" });
 

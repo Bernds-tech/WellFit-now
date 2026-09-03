@@ -25,6 +25,7 @@ const DIRECT_DOCUMENT_SECTIONS = [
   { section: "legacy-level", collection: "userLevels" },
   { section: "account-lifecycle", collection: "accountLifecycleRecords" },
   { section: "location-query-budget", collection: "locationQueryBudgets" },
+  { section: "partner-challenge-activity", collection: "partnerChallengeActivity" },
 ];
 
 const QUERY_DOCUMENT_SECTIONS = [
@@ -62,6 +63,8 @@ const QUERY_DOCUMENT_SECTIONS = [
   { section: "partner-redemptions", collection: "partnerRedemptions", fields: ["ownerUserId", "userId"] },
   { section: "partner-redemption-challenges", collection: "partnerRedemptionChallenges", fields: ["ownerUserId", "userId"] },
   { section: "partner-operator-assignments", collection: "partnerOperators", fields: ["operatorUserId"] },
+  { section: "partner-operation-rate-limits", collection: "partnerOperationRateLimits", fields: ["subjectUserId"] },
+  { section: "partner-operation-outcomes", collection: "partnerOperationOutcomes", fields: ["subjectUserId"] },
   { section: "inventory", collection: "userInventory", fields: ["ownerUserId", "userId"] },
   { section: "adventure-access", collection: "adventureAccessEvents", fields: ["ownerUserId", "userId"] },
   { section: "checkpoint-scores", collection: "checkpointScores", fields: ["ownerUserId", "userId"] },

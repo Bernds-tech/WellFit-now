@@ -95,6 +95,17 @@ Keep history append-only; supersede rather than delete.
 - Rollback/recovery: revert the isolated operator/challenge extension; keep PR #392 admin-only baseline intact until replacement passes exact-head gates.
 - Next step: merge PR #393; then add bounded abuse controls and operational signals as a separate backend task.
 
+## WFN-PARTNER-OPERATIONS-BASELINE
+- Date: 2026-09-03
+- Status: IMPLEMENTED_NOT_VERIFIED
+- Risk: R3
+- Goal: bound automated presentation issuance and operator confirmation attempts before a real partner pilot.
+- Scope: server-side fixed-window counters, a small active-proof cap, privacy-minimal outcome categories and emulator boundary/concurrency tests.
+- Result so far: implementation and focused tests are present locally; syntax, helper invariants and Project Memory gates pass. Local emulator execution is unavailable because the Firebase CLI package cannot be downloaded in this restricted workspace, so exact-head CI remains the independent authority.
+- Negative/fail-closed path: concurrent callers cannot exceed configured limits; rejected attempts cannot expose another user, bypass partner scope or persist IP/location.
+- Rollback/recovery: revert isolated counter collections and callable extensions; PR #393 verification remains valid without operational telemetry.
+- Next step: implement and pass focused emulator plus repository gates.
+
 ## WFN-XREPO-001
 - Date: 2026-08-19 to 2026-08-20
 - Status: RECONCILIATION_REQUIRED
