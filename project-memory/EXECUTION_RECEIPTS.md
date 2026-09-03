@@ -41,6 +41,18 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
 
+## RECEIPT-WFN-PARTNER-CATALOG-ADMIN-READ-20260903
+- Task: WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
+- Finished: 2026-09-03 after exact-head CI
+- Branch/PR: `codex/partner-catalog-admin-read-20260903` / PR #398
+- Risk: R2 read-only administrative catalog projection.
+- Changes made: admin-only 100-record maximum, deterministic document cursor, lifecycle/revision/inventory projection and privacy-negative tests.
+- Evidence: PR #398 head `a3a0e1b8ddc8644d5be297613eb36807f6744fd9`; Build #1226, Container #211, Database #203, Beta 1 Emulator #187 and Project Memory gates succeeded.
+- Negative countercheck: non-admin access is denied; pages are bounded and omit update actors and raw revision records; no graphics/UI or Production mutation was introduced.
+- Result status: VERIFIED at repository level.
+- Work lock: `LOCK-WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE` released.
+- Falsification question: unbounded pages, repeated cursor entries, non-admin access or audit actor disclosure would invalidate this result.
+
 ## RECEIPT-WFN-PARTNER-CATALOG-GOVERNANCE-20260903
 - Task: WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
 - Started: 2026-09-03 Europe/Vienna

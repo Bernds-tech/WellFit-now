@@ -155,3 +155,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: duplicate creation, published term rewrites, stale/concurrent updates, inventory reset and retired reactivation are denied; explicit transitions/capacity changes preserve consumed inventory and append client-denied immutable revisions.
 - Limitations: no Production deploy, graphical catalog administration or real-partner acceptance was performed.
 - Acceptance: VERIFIED
+
+## WFN-EV-016
+- Related: WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE / PR #398
+- Date: 2026-09-03
+- Target: administrative partner catalog projection
+- Type: exact-head CI plus emulator authorization/pagination/privacy evidence
+- Reference: PR #398 head `a3a0e1b8ddc8644d5be297613eb36807f6744fd9`; Build #1226, Container #211, Database #203, Beta 1 Emulator #187 and Project Memory gates.
+- Result: admin-only pages are capped at 100, cursor-stable and contain current lifecycle/revision/inventory facts without audit actor identifiers or raw revision documents.
+- Limitations: no graphical administration, Production deployment or real-partner acceptance was performed.
+- Acceptance: VERIFIED
