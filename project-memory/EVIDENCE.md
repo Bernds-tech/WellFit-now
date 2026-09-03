@@ -145,3 +145,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: admin-only bounded summary aggregates redemptions by partner/state, challenge states and coarse outcome counts; freshness/truncation is explicit and responses omit user/operator IDs, tokens, hashes and raw records.
 - Limitations: no graphical dashboard, Production monitoring or real-partner acceptance was performed.
 - Acceptance: VERIFIED
+
+## WFN-EV-015
+- Related: WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE / PR #397
+- Date: 2026-09-03
+- Target: partner offer catalog mutation authority
+- Type: exact-head CI plus emulator concurrency/negative-path evidence
+- Reference: PR #397 head `6e02ef5007a3423728f322ae5a9a4e0b64542120`; Build #1223, Container Build #208, Database Package Tests #200, Beta 1 Emulator Tests #185 and Project Memory Guard/Quality/Status.
+- Result: duplicate creation, published term rewrites, stale/concurrent updates, inventory reset and retired reactivation are denied; explicit transitions/capacity changes preserve consumed inventory and append client-denied immutable revisions.
+- Limitations: no Production deploy, graphical catalog administration or real-partner acceptance was performed.
+- Acceptance: VERIFIED

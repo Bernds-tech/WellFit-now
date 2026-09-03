@@ -93,10 +93,11 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 
 ## WFN-LOOP-013
 - Related: WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
-- Status: OPEN
+- Status: CLOSED
 - Updated: 2026-09-03
-- Gap: partner offer updates can currently reset inventory and rewrite published terms without revision or concurrency protection.
-- Close when: separated transactional commands, immutable revisions, forbidden-transition and parallel-update tests pass exact-head CI.
+- Gap: partner offer updates could reset inventory and rewrite published terms without revision or concurrency protection.
+- Resolution: PR #397 exact head passed separated transactional commands, immutable client-denied revisions, stale/concurrent mutation rejection, published-term protection and terminal retirement tests.
+- Limitation: Production deployment and real-partner acceptance remain external.
 
 ## Rules
 - `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED`, `IN_PROGRESS` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.

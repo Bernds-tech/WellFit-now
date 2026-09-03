@@ -35,8 +35,8 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not move general technical mobile/application logic into WellFit-Buddy merely because Buddy-specific AR belongs there.
 
 ## Exact next safe technical work
-- Selected local action: `WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE`
-1. separate offer creation from controlled lifecycle transitions;
-2. prevent inventory reset or incompatible term rewrites after claims exist;
-3. record immutable revisions and prove forbidden/concurrent transitions;
+- Selected local action: `WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE`
+1. expose a bounded admin-only catalog projection with current revision and lifecycle state;
+2. omit actor identifiers and raw revision history from normal operational responses;
+3. prove authorization, pagination/bounds and privacy-negative paths;
 4. preserve graphical/UI and Buddy repository boundaries; no cross-repo assembly in this task.

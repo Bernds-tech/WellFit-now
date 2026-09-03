@@ -1,18 +1,18 @@
 # WellFit-now Next Best Action
 
-- Selected action: `WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE`
+- Selected action: `WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE`
 - Status: `EXECUTABLE`
 - Risk: `R3`
-- Title: Partnerangebote revisionssicher verwalten
+- Title: Partnerkatalog sicher administrativ lesen
 
 ## Why this is next
-PR #396 verifies bounded aggregate operations reporting. The next technical risk is offer administration: updating a published offer must not silently reset sold inventory or rewrite commercial terms behind already issued redemptions.
+PR #397 verifies revision-safe offer mutation. The next bounded technical gap is an admin-only catalog projection: controlled writes require the current revision and lifecycle state, which must be retrievable without blind document knowledge or exposing raw audit actors.
 
 ## Exact work
-1. Separate offer creation from controlled lifecycle updates.
-2. Prevent inventory reset and incompatible term changes after redemptions exist.
-3. Add explicit pause/retire transitions and immutable offer revision audit.
-4. Cover concurrent update, issued-redemption and forbidden-transition paths.
+1. Add an admin-only bounded offer list/detail projection.
+2. Include current revision, lifecycle state and aggregate inventory facts required for safe commands.
+3. Omit actor IDs and raw immutable revision records from the default response.
+4. Cover non-admin denial, explicit limits/cursors and privacy-negative paths.
 5. Keep catalog graphics, Production partner onboarding, WFT/token/payment/cashout outside this task.
 
 ## Parallel-safe work

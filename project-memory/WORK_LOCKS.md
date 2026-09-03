@@ -13,13 +13,14 @@ Prevents two agents/sessions from independently working the same task.
 
 ## LOCK-WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
 - Task: WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
-- Status: ACTIVE
+- Status: RELEASED
 - Risk: R3
 - Holder: ChatGPT session 2026-09-03
 - Branch/PR: `codex/partner-catalog-governance-20260903` / PR pending
 - Acquired: 2026-09-03 Europe/Vienna
 - Scope: Firebase/backend-only partner-offer creation, controlled term/inventory/lifecycle mutation, immutable revisions and tests. No graphics/UI, Production deploy, payment, WFT, NFT, cashout or real partner activation.
-- Resume from: current `adminUpsertPartnerOffer` implementation in `functions/lib/beta1PartnerRedemption.js`.
+- Released: 2026-09-03 after PR #397 head `6e02ef5007a3423728f322ae5a9a4e0b64542120` passed Build, Container, Database, Beta 1 Emulator and Project Memory gates.
+- Resume from: no repository implementation remains; Production and real-partner acceptance are separate.
 
 ## LOCK-WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
 - Task: WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
