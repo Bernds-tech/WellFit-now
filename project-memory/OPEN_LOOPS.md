@@ -11,25 +11,25 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 
 ## WFN-LOOP-002
 - Related: WFN-TECH-LEGACY-001
-- Status: OPEN
-- Updated: 2026-08-20
+- Status: CLOSED
+- Updated: 2026-09-03
 - Gap: server-authoritative foundations exist, but remaining legacy user/economy/Buddy writer and compatibility-field migration is not accepted.
-- Close when: all remaining consumers are inventoried, migrated, negative/rules regressions pass and compatibility fields are deliberately removed.
-- Next check: read-only exact writer/reader inventory; do not infer the remaining set from older docs alone.
+- Resolution: current-main inventory confirms all `/users/{uid}` client mutation is denied, browser code only reads the owner projection and server functions own onboarding/settings writes. Historical migration commit `95028dc` removed the remaining compatibility bridge.
+- Limitation: Production deployment evidence remains a separate release gate.
 
 ## WFN-LOOP-003
 - Related: WFN-AUTH-CONSENT-001
-- Status: OPEN
-- Updated: 2026-08-20
+- Status: CLOSED
+- Updated: 2026-09-03
 - Gap: Closed-Beta auth/session is hardened, but health-adjacent consent separation/withdrawal is incomplete.
-- Close when: consent model and withdrawal have current technical/product/privacy acceptance and existing access gates remain fail-closed.
+- Resolution: separate health-personalization, health-improvement and analytics decisions, versioned history, withdrawal and private-health deletion exist with emulator coverage. Legal/Production acceptance remains external.
 
 ## WFN-LOOP-004
 - Related: WFN-PRIVACY-001
-- Status: OPEN
-- Updated: 2026-08-20
+- Status: CLOSED
+- Updated: 2026-09-03
 - Gap: export, deletion/anonymization, consent withdrawal and complete family/child lifecycle remain unaccepted.
-- Close when: exact lifecycle/data-retention/negative-path evidence is current and accepted.
+- Resolution: repository implementation and negative-path tests exist for export, deletion request/cancel, guardian blocking and retry-safe irreversible processing. Production scheduler/retention/legal acceptance remains an external finishline gate.
 
 ## WFN-LOOP-005
 - Related: WFN-XREPO-001

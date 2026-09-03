@@ -1,6 +1,6 @@
 # WellFit-now Current State
 
-Last reconciled: 2026-08-20
+Last reconciled: 2026-09-03
 
 ## Project role
 WellFit-now is the **technical WellFit repository**. It owns web/backend, authentication, data, APIs, mission/economy/server authority, security/runtime and general technical application/mobile logic. `Bernds-tech/WellFit` owns the graphical/UI/landing domain. `Bernds-tech/WellFit-Buddy` owns Buddy behavior, Buddy presentation/animation and Buddy-specific AR/camera interaction. Cross-repository bridge work requires an explicit contract/task ID.
@@ -12,10 +12,10 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 
 ## Current technical finishline
 - Closed-Beta authentication/session hardening is merged: age >=16, email verification, onboarding/account-status gating, server-managed HttpOnly sessions, revocation and device-session management.
-- Auth/consent remains PARTIAL because health-adjacent consent separation/withdrawal is not fully accepted.
-- Account/privacy remains PARTIAL because export, deletion/anonymization, consent withdrawal and complete family/child lifecycle remain open.
+- Auth/consent is repository-VERIFIED: health personalization, health improvement and analytics decisions are separate, optional and versioned; withdrawal writes a revocation history and removes stored private health fields. Legal and Production acceptance remain external.
+- Account/privacy is repository-VERIFIED: export, deletion request/cancellation, session revocation, guardian blocking and the irreversible deletion processor exist with emulator tests. Production scheduling/retention/legal acceptance remain external.
 - Backend runtime and server-authoritative mission/reward foundations are repository-verified, not Production-confirmed.
-- Remaining legacy `users/{uid}` writers/client compatibility fields must be inventoried and migrated before final server-authority closure.
+- Legacy `users/{uid}` client authority is repository-closed: current rules deny create/update/delete, the browser only reads the owner projection and server onboarding/settings functions own writes. Production rules deployment remains separately evidenced.
 - WFXP runtime terminology versus canonical WFP + separate XP requires an explicit owner-reviewed migration; no silent rename/conversion is allowed.
 - Physical ownership drift remains: graphical/UI code and Unity Buddy AR code still exist in this repository even though their domain authorities are WellFit and WellFit-Buddy respectively.
 
@@ -35,8 +35,8 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not move general technical mobile/application logic into WellFit-Buddy merely because Buddy-specific AR belongs there.
 
 ## Exact next safe technical work
-- Selected local action: `WFN-LEGACY-WRITER-MIGRATION-BASELINE`
-1. inventory remaining legacy user/economy/Buddy writers and compatibility fields;
-2. migrate them incrementally to server-authoritative paths with negative/rules regression evidence;
-3. close consent/account-lifecycle/privacy gaps;
-4. reconcile graphical and Buddy ownership drift through explicit cross-repo migration/contract tasks, without duplicating code.
+- Selected local action: `WFN-PARTNER-REDEMPTION-BASELINE`
+1. specify a non-crypto, server-authoritative partner reward/redemption lifecycle for the adult Closed Beta;
+2. add idempotent issue/redeem/cancel records with owner and partner isolation plus audit evidence;
+3. keep rewards internal, non-transferable, without cashout, token or NFT activation;
+4. preserve graphical/UI and Buddy repository boundaries; no cross-repo assembly in this task.

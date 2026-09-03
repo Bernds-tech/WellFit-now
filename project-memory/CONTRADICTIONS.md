@@ -117,3 +117,17 @@ Statuses: `OPEN`, `RECONCILIATION_REQUIRED`, `RESOLVED`, `SUPERSEDED`.
 - Evidence: PR #381 and PR #382 merged; current local/master role contracts.
 
 Never resolve a contradiction by deleting the older record. Record which source was stale or wrong and why.
+
+## CTR-WFN-009
+- Date: 2026-09-03
+- Updated: 2026-09-03
+- Related task/change: WFN-TECH-LEGACY-001 / WFN-AUTH-CONSENT-001 / WFN-PRIVACY-001
+- Risk: R3
+- Source A: `CURRENT_STATE.md`, `FINISHLINE_STATE.json`, `NEXT_BEST_ACTION.md` and the 2026-08-20 handoff registers.
+- Claim A: legacy `users/{uid}` writes, separate health consent/withdrawal and account export/deletion implementation remain substantially open.
+- Source B: current main `d374e4db4777406d93a8aad72adc10ab47db216f` and implementation/test history.
+- Claim B: legacy user client writes are already denied and removed; separate consent decisions plus withdrawal and health-data deletion exist; export, deletion request/cancel and deletion processing exist with emulator coverage.
+- Stronger/current evidence: current code, Firestore rules and tests.
+- Status: RESOLVED
+- Resolution/action: correct the stale local finishline from PARTIAL implementation to repository-VERIFIED while retaining explicit Production/legal/provider limitations.
+- Evidence: `firestore.rules`, `functions/lib/beta1UserPreferences.js`, `functions/lib/beta1AccountLifecycle.js`, `functions/lib/beta1AccountDeletionProcessor.js` and their corresponding emulator tests.

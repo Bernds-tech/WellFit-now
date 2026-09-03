@@ -11,24 +11,39 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-TECH-TRUTH-20260903
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: VERIFIED
+- Risk: R2
+- Scope: reconcile stale technical Project Memory against current `main` without combining graphical and technical repositories.
+- Branch/PR: `codex/mission-interactions-server-authority-20260903` / PR pending.
+- Work lock: `LOCK-WFN-TECH-TRUTH-20260903`.
+- Completed so far: exact current-main inventory proves `/users/{uid}` client create/update/delete is denied; no active browser writer to that document remains; separate health-personalization/improvement/analytics decisions and withdrawal history exist; export, deletion request/cancellation and irreversible deletion processing exist with tests.
+- Completed: finishline/current-state/next-action/evidence registers reconciled; V8, V9 and Project Memory quality checks pass; non-crypto partner redemption selected as the next bounded technical product slice.
+- Still open: merge this memory correction before starting the next runtime feature.
+- Exact next step: open and merge the reconciliation PR, then acquire a separate implementation lock for `WFN-PARTNER-REDEMPTION-BASELINE`.
+- Owner action needed: none for this reconciliation.
+
 ## WFN-AVATAR-PUPPET-001
 - Started: 2026-08-28
-- Updated: 2026-08-28
-- Status: IN_PROGRESS
+- Updated: 2026-08-29
+- Status: VERIFIED
 - Risk: R2
 - Scope: corrective articulated 2D head/body attention for existing web mascot/avatar PNGs, superseding whole-image cursor transforms as the target behavior.
 - Branch/PR: `codex/avatar-puppet-attention-20260828` / PR pending.
 - Work lock: `LOCK-WFN-AVATAR-PUPPET-001`.
 - Cross-repo authority: `WFG-CR-007`; WellFit remains graphical authority. Public ChatGPT Site source is separate and is not claimed modified by this branch.
 - Completed so far: owner live failure reconciled; WFN-CR-005 registered; stale WFN-AVATAR-ATTN lock superseded; existing transparent Buddy asset family inventoried.
-- Still open: implement separate head/body layers with per-asset pivots, pointer/CTA targeting, idle/click response, reduced-motion/coarse-pointer fallback; run exact build/CI; obtain runnable visual evidence; later port/synchronize to actual ChatGPT Site source.
-- Exact next step: replace `app/components/AvatarAttentionSystem.tsx` with the articulated puppet renderer and verify the landing Luma surface first without changing navigation/business logic.
+- Completed: articulated head/body layers, per-asset pivots, pointer/CTA targeting, idle/click response and reduced-motion/coarse-pointer fallback merged through PR #390; exact head passed Build #1198, Container #183, Database #175 and Project Memory gates.
+- Still open: synchronization and visual acceptance on the separate public ChatGPT Site belongs to WellFit graphical authority.
+- Exact next step: none in WellFit-now technical runtime.
 - Owner action needed: none for technical implementation; public Site publication remains a separate explicit visual release decision.
 
 ## WFN-TECH-LEGACY-001
 - Started: before 2026-08-20
-- Updated: 2026-08-20
-- Status: PARTIAL
+- Updated: 2026-09-03
+- Status: VERIFIED
 - Risk: R3
 - Scope: inventory and migrate remaining legacy `users/{uid}` economy/Buddy writers and client compatibility fields to server-authoritative paths.
 - Branch/PR: no implementation branch active; reconciliation only on `automation/reconcile-20260820`.
@@ -36,15 +51,16 @@ Canonical register for work that has started but is not yet fully completed.
 - Dependencies: current server-authoritative mission/economy/Buddy flows; exact writer/reader inventory; Firestore/rules regression suite.
 - Assumptions: exact remaining writer set is not yet reverified; record as NEEDS_VERIFICATION.
 - Completed so far: server-authoritative mission completion, ledger/wallet and Buddy action foundations are present and repository-verified.
-- Still open: exact legacy writer/read inventory, staged migration, compatibility-field removal, negative/rules regression evidence.
-- Evidence so far: current `FINISHLINE_STATE.json`, main `bf1559b0073b511bf15de39a57df5e548e6dd3ad`.
-- Exact next step: read-only code inventory of every remaining legacy field consumer before any mutation.
+- Completed: exact inventory confirms no active client writer; `firestore.rules` denies all client mutation on `/users/{uid}`; migration commit `95028dc` removed the compatibility bridge.
+- Still open: Production deployment evidence only.
+- Evidence so far: WFN-EV-009, current main `d374e4db4777406d93a8aad72adc10ab47db216f`.
+- Exact next step: none at repository implementation level; never recreate the removed path.
 - Owner action needed: only if migration changes canonical WFP/WFXP/XP semantics.
 
 ## WFN-AUTH-CONSENT-001
 - Started: before 2026-08-20
-- Updated: 2026-08-20
-- Status: PARTIAL
+- Updated: 2026-09-03
+- Status: VERIFIED
 - Risk: R3
 - Scope: close auth/consent after Closed-Beta session hardening.
 - Branch/PR: no implementation branch active.
@@ -52,15 +68,16 @@ Canonical register for work that has started but is not yet fully completed.
 - Dependencies: canonical privacy/product requirements; existing PR #369-#371 access gates.
 - Assumptions: current consent/health-adjacent fields and withdrawal flow require exact code revalidation before changes.
 - Completed so far: age >=16, email verification, onboarding/status gating, server sessions, revocation/device sessions.
-- Still open: informed/separate health-adjacent consent and withdrawal acceptance.
+- Completed: informed/separate optional consent model, versioned decisions, withdrawal and private-health deletion with emulator coverage.
+- Still open: legal and Production acceptance.
 - Evidence so far: `FINISHLINE_STATE.json`, PR #369-#371.
 - Exact next step: map current registration/consent state and negative paths without weakening existing gates.
 - Owner action needed: only for product/legal consent wording decisions.
 
 ## WFN-PRIVACY-001
 - Started: before 2026-08-20
-- Updated: 2026-08-20
-- Status: PARTIAL
+- Updated: 2026-09-03
+- Status: VERIFIED
 - Risk: R3
 - Scope: account export/deletion/anonymization/withdrawal and complete family/child lifecycle acceptance.
 - Branch/PR: no implementation branch active.
@@ -68,7 +85,8 @@ Canonical register for work that has started but is not yet fully completed.
 - Dependencies: data ownership map, retention/audit requirements, auth/session revocation.
 - Assumptions: no completion claim until destructive and negative-path acceptance exists.
 - Completed so far: privacy-conscious device-session display and session revocation.
-- Still open: export, deletion/anonymization, withdrawal, parent/child lifecycle.
+- Completed: export, deletion request/cancel, anonymization/deletion processor, withdrawal and guardian blocking with emulator coverage.
+- Still open: Production scheduler/retention/legal acceptance and real-user lifecycle proof.
 - Evidence so far: `FINISHLINE_STATE.json` and current session code.
 - Exact next step: produce data/lifecycle inventory and acceptance matrix before mutation.
 - Owner action needed: external/legal decisions where applicable.

@@ -6,15 +6,15 @@ Statuses: `NEEDS_VERIFICATION`, `VERIFIED`, `INVALIDATED`, `SUPERSEDED`.
 
 ## ASM-WFN-001
 - Date: 2026-08-20
-- Updated: 2026-08-20
+- Updated: 2026-09-03
 - Related task: WFN-TECH-LEGACY-001
 - Risk: R3
 - Assumption: the exact set of remaining legacy `users/{uid}` writers/client compatibility fields is unchanged from older runtime documentation.
 - Why it matters: removing or migrating the wrong fields could break current consumers or leave client authority behind.
-- Verification source/evidence: current finishline confirms a remaining migration class but this run has not completed the exact code inventory.
-- Status: NEEDS_VERIFICATION
+- Verification source/evidence: current `main` inventory at `d374e4db4777406d93a8aad72adc10ab47db216f`; `firestore.rules` denies all client create/update/delete on `/users/{uid}`; repository search finds only the dashboard owner read; historical migration commit `95028dc` removed the remaining client economy bridge.
+- Status: INVALIDATED
 - Recheck trigger: immediately before any legacy-writer mutation.
-- Action if false: update the inventory and migrate only actually present consumers; do not recreate already-removed legacy paths.
+- Action if false: close the stale legacy-writer task at repository level and do not recreate already-removed legacy paths. Production rules deployment remains separately evidenced.
 
 ## ASM-WFN-002
 - Date: 2026-08-20
