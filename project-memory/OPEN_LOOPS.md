@@ -100,6 +100,7 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 - Limitation: Production deployment and real-partner acceptance remain external.
 
 ## Rules
+- WFN-LOOP-014 / WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE is OPEN until bounded admin projection authorization, cursor and privacy tests pass exact-head CI.
 - `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED`, `IN_PROGRESS` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.
 - Never delete historical loops; close or supersede them explicitly.
 - Loop states: `OPEN`, `BLOCKED`, `CLOSED`, `SUPERSEDED`.

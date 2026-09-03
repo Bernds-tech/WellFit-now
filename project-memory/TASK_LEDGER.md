@@ -2,6 +2,15 @@
 
 Keep history append-only; supersede rather than delete.
 
+## WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
+- Date: 2026-09-03
+- Status: IN_PROGRESS
+- Risk: R2
+- Goal: provide the current safe mutation inputs without blind offer IDs or exposing raw audit actors.
+- Scope: admin-only bounded cursor projection of lifecycle, revision and aggregate inventory facts.
+- Negative path: non-admin access, unbounded scans and actor/raw revision disclosure remain denied.
+- Next step: implement and verify focused emulator paths.
+
 ## WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
 - Date: 2026-09-03
 - Status: VERIFIED

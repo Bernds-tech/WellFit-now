@@ -11,6 +11,17 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: IN_PROGRESS
+- Risk: R2
+- Scope: admin-only bounded partner catalog projection with revision/lifecycle/inventory facts and privacy-minimal responses.
+- Branch/PR: `codex/partner-catalog-admin-read-20260903` / PR pending.
+- Work lock: `LOCK-WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE`.
+- Exact next step: implement cursor-bounded callable plus authorization/privacy emulator coverage.
+- Owner action needed: none.
+
 ## WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03
