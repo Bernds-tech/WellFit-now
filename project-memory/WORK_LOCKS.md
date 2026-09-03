@@ -11,15 +11,27 @@ Prevents two agents/sessions from independently working the same task.
 
 ## Active locks
 
+## LOCK-WFN-TECH-TRUTH-20260903
+- Task: WFN-TECH-TRUTH-20260903
+- Status: RELEASED
+- Risk: R2
+- Holder: ChatGPT session 2026-09-03
+- Branch/PR: `codex/mission-interactions-server-authority-20260903` / PR pending
+- Acquired: 2026-09-03 Europe/Vienna
+- Scope: read-only reconciliation of the current technical finishline against main, followed by Project Memory corrections only. No graphical/UI migration, no token/economy semantic change, no provider deploy and no native Buddy/AR mutation.
+- Released: 2026-09-03 after Project Memory V8, V9 and quality checks passed.
+- Resume from: record that legacy `users/{uid}` client writes, separate health consent/withdrawal and the account export/deletion implementation already exist on current main; select the first genuinely open technical Beta task from current code evidence.
+
 ## LOCK-WFN-AVATAR-PUPPET-001
 - Task: WFN-AVATAR-PUPPET-001
-- Status: ACTIVE
+- Status: RELEASED
 - Risk: R2
 - Holder: ChatGPT session 2026-08-28
 - Branch/PR: `codex/avatar-puppet-attention-20260828` / PR pending
 - Acquired: 2026-08-28 Europe/Vienna
 - Scope: corrective web-only articulated head/body puppet attention for existing transparent mascot/avatar PNGs; no backend/native authority change.
-- Resume from: replace `AvatarAttentionSystem.tsx` whole-image transforms with separate head/body layers and per-asset pivots; verify build/CI and a runnable GitHub preview where available. Public ChatGPT Site synchronization remains a separate WellFit graphical step.
+- Released: 2026-08-29 after PR #390 merged with green exact-head gates.
+- Resume from: do not resume in WellFit-now; public ChatGPT Site synchronization remains a separate WellFit graphical step.
 
 ## Stale/superseded locks
 

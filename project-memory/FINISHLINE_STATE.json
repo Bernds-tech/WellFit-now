@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "updated": "2026-08-20",
+  "updated": "2026-09-03",
   "repository": "Bernds-tech/WellFit-now",
   "project_role": "technical_product",
   "gates": {
-    "auth_consent": {"state": "PARTIAL", "risk": "R3", "evidence": "Closed-Beta auth/session hardening is merged (PRs #369-#371): age >=16, email verification, onboarding/account-status gating, server-managed HttpOnly sessions, revocation and device-session management. Consent/health-data separation and withdrawal remain incompletely proven."},
-    "account_privacy": {"state": "PARTIAL", "risk": "R3", "evidence": "Session privacy is hardened without IP/location storage for session display; export, deletion/anonymization, consent withdrawal and full parent/child lifecycle remain open or unaccepted."},
-    "backend_runtime": {"state": "VERIFIED", "risk": "R3", "evidence": "Current repository builds, container runtime checks and database package tests are green; server-authoritative mission/economy foundations and global-location logic exist. This is repository/runtime-package verification, not Production confirmation."},
+    "auth_consent": {"state": "VERIFIED", "risk": "R3", "evidence": "Closed-Beta auth/session hardening is merged. Separate optional health-personalization, health-improvement and analytics decisions, versioned consent events, withdrawal history and private-health deletion exist with emulator coverage. Legal and Production acceptance remain external."},
+    "account_privacy": {"state": "VERIFIED", "risk": "R3", "evidence": "Privacy-safe session management, scoped JSON export, deletion request/cancellation, guardian dependency blocking and retry-safe irreversible deletion processing exist with emulator coverage. Production scheduler, retention and legal acceptance remain external."},
+    "backend_runtime": {"state": "VERIFIED", "risk": "R3", "evidence": "Current repository build, container and database package gates were green on the latest merged implementation head. Server-authoritative mission/economy foundations and global-location logic exist. Current rules deny all client writes to users/{uid}; this is repository verification, not Production confirmation."},
     "rewards_missions": {"state": "VERIFIED", "risk": "R3", "evidence": "Server flow attempt -> evidence -> admin review -> completion -> internal ledger -> wallet exists with replay/idempotency/audit protections. WFXP vs WFP/XP terminology remains an owner-reviewed migration issue and token/real-money authority is not active."},
     "cross_repo_contract": {"state": "PARTIAL", "risk": "R3", "evidence": "Technical contracts exist in code, while graphical/UI code and Buddy-specific Unity AR code still physically reside here pending explicit migration to their domain repositories."}
   },

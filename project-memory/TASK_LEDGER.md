@@ -26,38 +26,50 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-TECH-LEGACY-001
 - Date: active before 2026-08-20
-- Status: PARTIAL
+- Status: VERIFIED
 - Risk: R3
 - Goal: remove remaining legacy user/economy/Buddy client-write compatibility by migrating all remaining writers to server-authoritative paths.
-- Result: server-authoritative mission/economy/Buddy foundations exist, but current finishline still identifies legacy `users/{uid}` initialization/writers and compatibility fields as incomplete migration work.
-- Evidence: current runtime/finishline state, Firestore/economy architecture and current main `bf1559b0073b511bf15de39a57df5e548e6dd3ad`.
+- Result: current-main inventory confirms server-authoritative onboarding/settings and mission/economy/Buddy foundations; `/users/{uid}` permits owner reads only and denies all client mutation; no active browser writer remains.
+- Evidence: migration commit `95028dc`, current main `d374e4db4777406d93a8aad72adc10ab47db216f`, `firestore.rules`, repository search and rules checks.
 - Negative/fail-closed path: client attempts must remain unable to mint rewards, authorize mission completion or bypass protected server paths; each migration step requires rules/regression evidence before compatibility removal.
 - Rollback/recovery: migrate one writer/field family at a time; retain the prior compatibility path until exact consumers and tests prove the replacement, then remove deliberately in a separately reviewable change.
-- Next step: inventory exact remaining readers/writers/fields and bind each to an owner/server migration task before changing runtime.
+- Next step: do not recreate legacy user writes; separately verify Production deployment evidence when preparing the Closed Beta.
 
 ## WFN-AUTH-CONSENT-001
 - Date: active before 2026-08-20
-- Status: PARTIAL
+- Status: VERIFIED
 - Risk: R3
 - Goal: close authentication/consent finishline after the Closed-Beta session hardening.
 - Completed: PRs #369-#371 established age >=16, email verification, onboarding/account gating, HttpOnly server sessions, revocation and device-session management.
-- Still open: separate/informed health-adjacent consent posture, withdrawal and exact acceptance evidence.
+- Completed: separate optional health-personalization, health-improvement and analytics decisions; versioned event history; withdrawal and private-health deletion with emulator evidence.
+- Still open: legal wording/retention review and Production acceptance only.
 - Evidence: `FINISHLINE_STATE.json`, current main and PR #369-#371 history.
 - Negative/fail-closed path: unverified/incomplete/inactive users remain denied; health personalization must not silently default to consent.
 - Rollback/recovery: consent/session changes require reversible staged rollout and must not weaken current access gates.
-- Next step: map current registration/consent fields and withdrawal paths against canonical/privacy requirements and create the smallest scoped remediation.
+- Next step: retain the fail-closed implementation and obtain external legal/Production acceptance before public health-data use.
 
 ## WFN-PRIVACY-001
 - Date: active before 2026-08-20
-- Status: PARTIAL
+- Status: VERIFIED
 - Risk: R3
 - Goal: complete account/privacy lifecycle acceptance.
 - Completed: session display avoids storing IP/location and active device sessions can be revoked.
-- Still open: user data export, deletion/anonymization, consent withdrawal and complete family/child lifecycle acceptance.
+- Completed: scoped JSON export, deletion request/cancel, session revocation, guardian dependency blocking, anonymization/deletion processor and consent withdrawal with emulator coverage.
+- Still open: Production scheduler/retention/legal acceptance and full real-user lifecycle proof.
 - Evidence: `FINISHLINE_STATE.json`, current session implementation and current main.
 - Negative/fail-closed path: deletion/export must not expose other users' data or leave privileged/reward authority dangling.
 - Rollback/recovery: destructive lifecycle work requires recoverable staged design and audit-safe retention boundaries before production activation.
-- Next step: inventory lifecycle endpoints/data ownership and define exact acceptance/retention evidence before implementation.
+- Next step: obtain Production and legal evidence before enabling irreversible public-account processing.
+
+## WFN-TECH-TRUTH-20260903
+- Date: 2026-09-03
+- Status: VERIFIED
+- Risk: R2
+- Goal: reconcile stale 2026-08-20 technical finishline claims against current main before continuing implementation.
+- Result: legacy user-client authority, separate health consent withdrawal and account export/deletion are already implemented at repository level; the next absent technical product slice is non-crypto partner redemption.
+- Evidence: WFN-EV-009 and CTR-WFN-009.
+- Next step: implement `WFN-PARTNER-REDEMPTION-BASELINE` on a separate scoped branch/lock after this reconciliation merges.
+- Do not repeat: do not restart the already completed legacy-writer or consent/account-lifecycle implementation work merely because older handoff text says PARTIAL.
 
 ## WFN-XREPO-001
 - Date: 2026-08-19 to 2026-08-20

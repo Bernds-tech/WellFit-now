@@ -85,3 +85,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: PR #263's owner-claim helper already exists on main; PR #13's Unity project is already physically represented on current main; PR #376 is superseded after V5 history carry-forward; PR #365/#363 are superseded by later coordination/runtime truth. PR #364 remains a distinct deferred future WFT-canonical decision.
 - Limitations: closing a stale PR preserves history but does not imply its old branch was accepted as-is.
 - Acceptance: COUNTERCHECKED
+
+## WFN-EV-009
+- Related: WFN-TECH-TRUTH-20260903 / WFN-TECH-LEGACY-001 / WFN-AUTH-CONSENT-001 / WFN-PRIVACY-001
+- Date: 2026-09-03
+- Target: current-main technical finishline
+- Type: exact code/rules/test inventory
+- Reference: `d374e4db4777406d93a8aad72adc10ab47db216f`, migration commit `95028dc`, current `firestore.rules`, consent and account-lifecycle modules/tests
+- Result: `/users/{uid}` browser writes are absent and rules deny all client mutation; health personalization/improvement/analytics decisions and revocations are separated and audited; export and deletion lifecycle including guardian blocking and irreversible processing are implemented with emulator coverage.
+- Limitations: this reconciliation did not prove the currently deployed Production rules/functions, legal acceptance, scheduler operation or a real-device flow.
+- Acceptance: VERIFIED

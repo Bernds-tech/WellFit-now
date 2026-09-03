@@ -1,23 +1,23 @@
 # WellFit-now Next Best Action
 
-- Selected action: `WFN-LEGACY-WRITER-MIGRATION-BASELINE`
+- Selected action: `WFN-PARTNER-REDEMPTION-BASELINE`
 - Status: `EXECUTABLE`
 - Risk: `R3`
-- Title: Verbleibende Legacy-User-Writer inventarisieren und serverautoritativ migrieren
+- Title: Nicht-kryptografische Partnerbelohnungen serverautoritativ einlösen
 
 ## Why this is next
-Closed-Beta session/auth hardening is already merged and repository/runtime gates are green. The highest-risk technical debt still documented in the current runtime truth is the compatibility bridge that permits legacy client writes to user economy/Buddy/progress fields.
+Current-main reconciliation proves the earlier legacy-writer, health-consent withdrawal and account-lifecycle implementation gaps are already repository-closed or repository-verified. The current execution order therefore advances to the first absent product slice: a non-crypto partner reward/redemption path with strict server authority.
 
 ## Exact work
-1. Inventory every current reader/writer of legacy `users/{uid}` fields: points, xp, level, avatar, energy, stepsToday, lastMissionCompletedAt and deviceLocation plus any remaining Buddy/economy initialization fields.
-2. Classify each as `SERVER_AUTHORITY`, `CLIENT_READ_ONLY`, `MIGRATE`, or `REMOVE`.
-3. Migrate one bounded writer group at a time behind existing server-authoritative APIs/functions.
-4. Add negative/emulator tests proving clients cannot regain reward/completion authority.
-5. Do not remove the compatibility bridge until all consumers are proven migrated.
-6. Keep WFXP/WFP/XP semantic changes out of this task; that requires its own owner-reviewed decision.
+1. Define partner, offer, issuance and redemption records with explicit lifecycle states.
+2. Require authenticated user ownership, active partner/offer state, expiry and one-time idempotency checks.
+3. Keep issue/redeem/cancel authority in Firebase callables; clients remain read-only.
+4. Add negative emulator tests for cross-user access, replay, expired offers and inactive partners.
+5. Record immutable audit evidence without exposing exact child location or private health data.
+6. Keep WFXP/WFP/XP renaming, WFT, token, NFT, cashout and payments outside this task.
 
 ## Parallel-safe work
-Project Rail issue #368 fixture coverage can proceed independently because it does not change product runtime.
+Device/Unity evidence remains a separate owner-machine task and graphical work remains in `Bernds-tech/WellFit`.
 
 ## Safety
 No Production deploy, no token/NFT/payment activation, no silent currency rename, no native AR ownership move, and no broad rewrite.
