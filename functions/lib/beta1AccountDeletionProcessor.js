@@ -65,6 +65,7 @@ const CHILD_SCOPED_COLLECTIONS = [
   "pointsSinkEvents",
   "shopPurchaseIntents",
   "shopPurchaseEvents",
+  "partnerRedemptions",
   "userInventory",
   "adventureAccessEvents",
   "checkpointScores",

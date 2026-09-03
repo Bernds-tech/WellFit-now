@@ -164,6 +164,7 @@ const { registerBeta1ShopInventory } = require("./lib/beta1ShopInventory");
 const { registerBeta1CheckpointsMayor } = require("./lib/beta1CheckpointsMayor");
 const { registerBeta1RealityGlitch } = require("./lib/beta1RealityGlitch");
 const { registerBeta1SafetyAdmin } = require("./lib/beta1SafetyAdmin");
+const { registerBeta1PartnerRedemption } = require("./lib/beta1PartnerRedemption");
 const { registerAgentAdminRolesAudit } = require("./lib/agentAdminRolesAudit");
 
 const beta1OnCall = createBeta1OnCall(onCall);
@@ -175,4 +176,5 @@ registerBeta1ShopInventory(exports, beta1RuntimeDeps);
 registerBeta1CheckpointsMayor(exports, beta1RuntimeDeps);
 registerBeta1RealityGlitch(exports, beta1RuntimeDeps);
 registerBeta1SafetyAdmin(exports, beta1RuntimeDeps);
+registerBeta1PartnerRedemption(exports, beta1RuntimeDeps);
 registerAgentAdminRolesAudit(exports, beta1RuntimeDeps);

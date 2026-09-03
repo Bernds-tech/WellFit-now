@@ -54,6 +54,9 @@ async function run() {
       await adminDb.collection("shopItems").doc("shop_public").set({ status: "published", priceWfxp: 20 });
       await adminDb.collection("shopPurchaseIntents").doc("intent_alice").set({ ownerUserId: "alice", userId: "alice", status: "pending" });
       await adminDb.collection("shopPurchaseEvents").doc("purchase_alice").set({ ownerUserId: "alice", userId: "alice", result: "completed" });
+      await adminDb.collection("partners").doc("partner_active").set({ status: "active", displayName: "Partner" });
+      await adminDb.collection("partnerOffers").doc("offer_public").set({ status: "published", partnerId: "partner_active", costWfxp: 25 });
+      await adminDb.collection("partnerRedemptions").doc("redemption_alice").set({ ownerUserId: "alice", userId: "alice", offerId: "offer_public", status: "issued" });
       await adminDb.collection("userInventory").doc("inv_alice").set({ ownerUserId: "alice", userId: "alice", itemDefinitionId: "shoes_001" });
       await adminDb.collection("checkpoints").doc("cp_public").set({ status: "published", title: "Checkpoint" });
       await adminDb.collection("checkpointScores").doc("score_alice").set({ ownerUserId: "alice", userId: "alice", checkpointId: "cp_public" });
@@ -141,6 +144,7 @@ async function run() {
       ["userAvatars", "alice_self_default", { ownerUserId: "alice", hunger: 100 }],
       ["shopPurchaseIntents", "intent_alice", { ownerUserId: "alice", status: "completed" }],
       ["shopPurchaseEvents", "purchase_alice", { ownerUserId: "alice", result: "completed" }],
+      ["partnerRedemptions", "redemption_alice", { ownerUserId: "alice", status: "redeemed" }],
       ["userInventory", "inv_alice", { ownerUserId: "alice", itemDefinitionId: "rare" }],
       ["checkpointScores", "score_alice", { ownerUserId: "alice", score: 999999 }],
       ["glitchParticipants", "glitch_alice", { ownerUserId: "alice", boostAuthorized: true }],
@@ -179,6 +183,11 @@ async function run() {
     await assertFails(anonDb.collection("shopItems").doc("shop_public").get());
     await assertSucceeds(aliceDb.collection("shopItems").doc("shop_public").get());
     await assertFails(aliceDb.collection("shopItems").doc("shop_hack").set({ status: "published", priceWfxp: 1 }));
+    await assertSucceeds(aliceDb.collection("partners").doc("partner_active").get());
+    await assertSucceeds(aliceDb.collection("partnerOffers").doc("offer_public").get());
+    await assertFails(anonDb.collection("partners").doc("partner_active").get());
+    await assertFails(aliceDb.collection("partners").doc("partner_hack").set({ status: "active" }));
+    await assertFails(aliceDb.collection("partnerOffers").doc("offer_hack").set({ status: "published", costWfxp: 1 }));
     await assertSucceeds(aliceDb.collection("checkpoints").doc("cp_public").get());
     await assertFails(aliceDb.collection("checkpointMayors").doc("mayor_hack").set({ ownerUserId: "alice" }));
     await assertFails(aliceDb.collection("checkpointMayors").doc("mayor_cp").update({ ownerUserId: "bob" }));
