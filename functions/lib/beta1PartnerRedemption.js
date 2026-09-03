@@ -231,6 +231,54 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
     });
     return result;
   });
+
+  exportsTarget.cancelPartnerRedemption = onCall(async (request) => {
+    const userId = requireAuth(request, HttpsError);
+    const redemptionId = requiredString((request.data || {}).redemptionId, "redemptionId", HttpsError, 240);
+    const redemptionRef = db.collection("partnerRedemptions").doc(redemptionId);
+    return db.runTransaction(async (transaction) => {
+      const redemptionSnapshot = await transaction.get(redemptionRef);
+      if (!redemptionSnapshot.exists || (redemptionSnapshot.data() || {}).ownerUserId !== userId) {
+        throw new HttpsError("permission-denied", "Partner-Einloesung gehoert nicht diesem Nutzer.");
+      }
+      const redemption = redemptionSnapshot.data() || {};
+      if (redemption.status === "cancelled") return { accepted: true, idempotent: true, redemptionId, status: "cancelled" };
+      if (redemption.status !== "issued") throw new HttpsError("failed-precondition", "Nur eine noch nicht verwendete Einloesung kann storniert werden.");
+      const walletRef = await getWalletRef(db, userId, null);
+      const offerRef = db.collection("partnerOffers").doc(redemption.offerId);
+      const refundLedgerId = `${redemptionId}_refund`;
+      const refundLedgerRef = db.collection("xpLedgerEvents").doc(refundLedgerId);
+      const legacyRefundLedgerRef = db.collection("ledgerEvents").doc(refundLedgerId);
+      const [walletSnapshot, offerSnapshot, refundSnapshot] = await Promise.all([
+        transaction.get(walletRef), transaction.get(offerRef), transaction.get(refundLedgerRef),
+      ]);
+      if (refundSnapshot.exists) throw new HttpsError("failed-precondition", "Inkonsistenter Stornierungszustand.");
+      const wallet = walletSnapshot.exists ? walletSnapshot.data() || {} : {};
+      const costWfxp = normalizedPositiveInteger(redemption.costWfxp, 0, 100000);
+      if (!costWfxp) throw new HttpsError("failed-precondition", "Einloesung hat keinen gueltigen WFXP-Wert.");
+      const nextBalance = Number(wallet.balance || 0) + costWfxp;
+      const ledger = {
+        ledgerEventId: refundLedgerId, ...scopedOwnerFields(userId, null), delta: costWfxp,
+        reason: "partner-offer-redemption-cancelled", sourceType: "partnerRedemption", sourceId: redemptionId,
+        actorUserId: userId, idempotencyKey: refundLedgerId, currency: BETA1_INTERNAL_CURRENCY,
+        noMonetaryValue: true, blockchainBacked: false, cashoutAllowed: false, tokenAuthorized: false,
+        realMoney: false, metadata: { partnerId: redemption.partnerId, offerId: redemption.offerId }, ...serverTimestamps(),
+      };
+      transaction.set(refundLedgerRef, ledger);
+      transaction.set(legacyRefundLedgerRef, ledger);
+      transaction.set(walletRef, {
+        walletId: walletRef.id, ...scopedOwnerFields(userId, null), balance: nextBalance,
+        lifetimeEarned: Number(wallet.lifetimeEarned || 0),
+        lifetimeSpent: Math.max(0, Number(wallet.lifetimeSpent || 0) - costWfxp),
+        currency: BETA1_INTERNAL_CURRENCY, noMonetaryValue: true, blockchainBacked: false,
+        cashoutAllowed: false, tokenAuthorized: false, realMoney: false,
+        createdAt: wallet.createdAt || FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+      if (offerSnapshot.exists) transaction.update(offerRef, { remainingInventory: FieldValue.increment(1), updatedAt: FieldValue.serverTimestamp() });
+      transaction.update(redemptionRef, { status: "cancelled", cancelledAt: FieldValue.serverTimestamp(), refundLedgerEventId: refundLedgerId, updatedAt: FieldValue.serverTimestamp() });
+      return { accepted: true, idempotent: false, redemptionId, status: "cancelled", remainingWfxp: nextBalance };
+    });
+  });
 }
 
 module.exports = { registerBeta1PartnerRedemption, offerWindowState };
