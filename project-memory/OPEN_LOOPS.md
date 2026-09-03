@@ -75,6 +75,14 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 - Resolution: PR #394 head `8979e845e0e10f3c91e726450e81b1a7c522ebff` passed Beta 1 Emulator #178, Build #1213, Container #198, Database #190 and all Project Memory gates.
 - Limitation: Production TTL/retention setup and a real partner pilot are external acceptance steps.
 
+## WFN-LOOP-011
+- Related: WFN-PARTNER-RETENTION-BASELINE
+- Status: CLOSED
+- Updated: 2026-09-03
+- Gap: bounded partner retention cleanup required exact-head emulator/CI verification.
+- Resolution: PR #395 head `4f80c3be09bf84e8c237538c3db78deb5004e9a8` passed dry-run, partial/repeat execution, live-data preservation and every required gate.
+- Limitation: no Production scheduler or deployment was activated.
+
 ## Rules
 - `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED`, `IN_PROGRESS` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.
 - Never delete historical loops; close or supersede them explicitly.

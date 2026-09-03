@@ -67,3 +67,16 @@ A receipt is required for meaningful code/config/infra/governance work. A receip
 - Result status: VERIFIED at repository level; Production and real-partner acceptance remain open.
 - Work lock: `LOCK-WFN-PARTNER-OPERATIONS-BASELINE` released.
 - Falsification question: a bucket count above its limit, a fourth active proof, client-readable counters or stored IP/location would invalidate this result.
+
+## RECEIPT-WFN-PARTNER-RETENTION-20260903
+- Task: WFN-PARTNER-RETENTION-BASELINE
+- Finished: 2026-09-03 after exact-head CI
+- Branch/PR: `codex/partner-retention-baseline-20260903` / PR #395
+- Risk: R3 bounded deletion of short-lived backend records.
+- Changes made: admin-only dry-run/execute cleanup, global 200-mutation ceiling, expired rate/outcome/challenge deletion, cursor-based activity pruning and cleanup audit.
+- Exact implementation revision checked: `4f80c3be09bf84e8c237538c3db78deb5004e9a8`.
+- Checks/tests: Build #1216, Container #201, Database #193, Beta 1 Emulator #180 and Project Memory Guard/Quality/Status succeeded.
+- Negative countercheck: non-admin denied; dry-run does not mutate; partial/repeat execution is safe; live, redemption and audit records remain; no graphics/UI or Production scheduling changed.
+- Result status: VERIFIED at repository level; Production scheduling remains open.
+- Work lock: `LOCK-WFN-PARTNER-RETENTION-BASELINE` released.
+- Falsification question: deletion of live/redemption/audit data, more than the requested batch mutations or a non-admin execution would invalidate this result.

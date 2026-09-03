@@ -35,8 +35,8 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not move general technical mobile/application logic into WellFit-Buddy merely because Buddy-specific AR belongs there.
 
 ## Exact next safe technical work
-- Selected local action: `WFN-PARTNER-RETENTION-BASELINE`
-1. add bounded retry-safe cleanup of expired short-lived partner operation records;
-2. prune expired active-proof entries while preserving redemption/audit authority;
-3. prove repeated, partial-batch and non-expired behavior in emulator tests;
+- Selected local action: `WFN-PARTNER-OPERATIONS-REPORTING-BASELINE`
+1. add an admin-only bounded aggregate operations summary;
+2. report partner/redemption/outcome state without raw proofs or token hashes;
+3. expose scan truncation/freshness and prove privacy-minimal responses;
 4. preserve graphical/UI and Buddy repository boundaries; no cross-repo assembly in this task.

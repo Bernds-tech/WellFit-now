@@ -11,6 +11,20 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-RETENTION-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: VERIFIED
+- Risk: R3
+- Scope: bounded retry-safe backend cleanup for expired partner operational records and active-proof projections while preserving redemption/audit authority.
+- Branch/PR: `codex/partner-retention-baseline-20260903` / PR #395.
+- Work lock: `LOCK-WFN-PARTNER-RETENTION-BASELINE`.
+- Completed: admin-authorized dry-run/execute processor, global 200-mutation ceiling, expired record deletion, cursor-based active-proof pruning, cleanup audit and repeated/partial/non-expired emulator cases; no graphical/UI work included.
+- Evidence: PR #395 exact head `4f80c3be09bf84e8c237538c3db78deb5004e9a8`; Build #1216, Container #201, Database #193, Beta 1 Emulator #180 and Project Memory gates all succeeded.
+- Still open: PR merge and Production scheduling only.
+- Exact next step: merge PR #395; retain scheduler/deployment activation as a separate release decision.
+- Owner action needed: none for repository baseline; Production scheduling remains a later deployment decision.
+
 ## WFN-PARTNER-OPERATIONS-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03
