@@ -311,6 +311,10 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    match /partnerOfferRevisions/{revisionId} {
+      allow read, write: if false;
+    }
+
     match /partnerRedemptions/{redemptionId} {
       allow read: if isReadableByOwnerOrGuardian();
       allow create, update, delete: if false;

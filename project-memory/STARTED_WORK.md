@@ -11,6 +11,19 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: IN_PROGRESS
+- Risk: R3
+- Scope: backend-only create/update/lifecycle/inventory authority for partner offers with optimistic concurrency and immutable revisions.
+- Branch/PR: `codex/partner-catalog-governance-20260903` / PR pending.
+- Work lock: `LOCK-WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE`.
+- Completed so far: current-main inspection confirms `adminUpsertPartnerOffer` resets both initial and remaining inventory and can rewrite published commercial terms.
+- Still open: implement transactionally separated commands, client-denied revision records and emulator negative/concurrency coverage.
+- Exact next step: replace unrestricted upsert semantics while retaining a create-only compatibility alias.
+- Owner action needed: none for repository baseline.
+
 ## WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03

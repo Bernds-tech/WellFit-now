@@ -2,6 +2,16 @@
 
 Keep history append-only; supersede rather than delete.
 
+## WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
+- Date: 2026-09-03
+- Status: IN_PROGRESS
+- Risk: R3
+- Goal: make partner offer administration revision-safe without changing graphical catalog presentation.
+- Scope: create-only offer registration, controlled draft terms, explicit publish/pause/retire, explicit capacity adjustment, optimistic concurrency and immutable audit revisions.
+- Negative/fail-closed path: duplicate creation, stale revisions, retired reactivation, published term rewrites and capacity below consumed inventory must be denied.
+- Rollback/recovery: isolated callable/revision/rules/test changes can be reverted before any Production deployment; existing redemptions remain authoritative.
+- Next step: implement and run focused emulator coverage.
+
 ## WFN-MEM-001
 - Date: 2026-08-19
 - Status: DONE

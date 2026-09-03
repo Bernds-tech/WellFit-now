@@ -41,6 +41,18 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
 
+## RECEIPT-WFN-PARTNER-CATALOG-GOVERNANCE-20260903
+- Task: WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
+- Started: 2026-09-03 Europe/Vienna
+- Branch/PR: `codex/partner-catalog-governance-20260903` / PR pending
+- Risk: R3 partner catalog authority and inventory mutation.
+- Preflight checked: mandatory Project Memory, current runtime/canonical boundaries, current main `75f0045`, existing partner module/tests/rules and prior partner task chain.
+- Prior attempt found: the merged baseline uses an unrestricted merge upsert that resets `initialInventory` and `remainingInventory`; no catalog-governance task or active lock exists.
+- Dependency result: backend-only work is executable and does not require graphical assembly, Production deployment or economy terminology changes.
+- Planned evidence: focused syntax/emulator tests, full repository quality gates and exact-head CI.
+- Result status: IN_PROGRESS.
+- Falsification question: any stale update succeeding, published term mutation, retired reactivation, inventory reset or mutable/client-readable revision would invalidate the result.
+
 ## RECEIPT-WFN-PARTNER-OPERATOR-VERIFICATION-20260903
 - Task: WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
 - Finished: 2026-09-03 after exact-head CI
