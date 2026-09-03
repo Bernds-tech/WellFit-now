@@ -17,6 +17,14 @@ async function expectError(name, token, data) {
   assert(!response.ok, `${name} muss abgelehnt werden: ${describeCall(response)}`);
 }
 
+async function createOffer(adminToken, data, publish = true) {
+  const created = await expectOk("adminCreatePartnerOffer", adminToken, data);
+  if (!publish) return created;
+  return expectOk("adminTransitionPartnerOffer", adminToken, {
+    offerId: data.offerId, expectedRevision: created.revision, targetStatus: "published",
+  });
+}
+
 async function stableRateWindowStart(minimumRemainingMs = 8000) {
   const remaining = 60_000 - (Date.now() % 60_000);
   if (remaining < minimumRemainingMs) await new Promise((resolve) => setTimeout(resolve, remaining + 150));
@@ -36,9 +44,13 @@ async function run() {
   await expectOk("adminUpsertPartner", adminToken, { partnerId: "gym", displayName: "Beta Gym" });
   await expectOk("adminUpsertPartnerOperator", adminToken, { partnerId: "cafe", operatorUserId: OPERATOR_ID });
   await expectOk("adminUpsertPartnerOperator", adminToken, { partnerId: "gym", operatorUserId: FOREIGN_OPERATOR_ID });
-  await expectOk("adminUpsertPartnerOffer", adminToken, {
+  await createOffer(adminToken, {
     offerId: "drink", partnerId: "cafe", title: "Getraenk", costWfxp: 25,
     remainingInventory: 2, validFrom, expiresAt,
+  });
+  await expectError("adminCreatePartnerOffer", adminToken, {
+    offerId: "drink", partnerId: "cafe", title: "Doppelt", costWfxp: 25,
+    remainingInventory: 99, validFrom, expiresAt,
   });
   await db.collection("xpWallets").doc(USER_ID).set({ ownerUserId: USER_ID, userId: USER_ID, balance: 100, lifetimeEarned: 100, lifetimeSpent: 0 });
   await db.collection("xpWallets").doc(OTHER_ID).set({ ownerUserId: OTHER_ID, userId: OTHER_ID, balance: 10, lifetimeEarned: 10, lifetimeSpent: 0 });
@@ -51,7 +63,40 @@ async function run() {
   assert(replay.idempotent && replay.remainingWfxp === 75, "Replay darf nicht doppelt abbuchen.");
   assert((await db.collection("xpWallets").doc(USER_ID).get()).data().balance === 75, "Wallet muss 75 WFXP enthalten.");
   assert((await db.collection("partnerOffers").doc("drink").get()).data().remainingInventory === 1, "Bestand darf nur einmal sinken.");
+  await expectError("adminUpdatePartnerOfferTerms", adminToken, {
+    offerId: "drink", expectedRevision: 2, title: "Manipuliert", costWfxp: 1, validFrom, expiresAt,
+  });
+  const concurrentCapacity = await Promise.all([
+    callCallable("adminAdjustPartnerOfferCapacity", adminToken, { offerId: "drink", expectedRevision: 2, initialInventory: 3 }),
+    callCallable("adminAdjustPartnerOfferCapacity", adminToken, { offerId: "drink", expectedRevision: 2, initialInventory: 4 }),
+  ]);
+  assert(concurrentCapacity.filter((response) => response.ok).length === 1, "Parallele Bestandsaenderungen duerfen nur einmal dieselbe Revision verwenden.");
+  const governedDrink = (await db.collection("partnerOffers").doc("drink").get()).data();
+  assert(governedDrink.revision === 3 && governedDrink.remainingInventory === governedDrink.initialInventory - 1, "Bestandsaenderung muss verkauften Bestand erhalten.");
+  await expectError("adminAdjustPartnerOfferCapacity", adminToken, { offerId: "drink", expectedRevision: 2, initialInventory: 50 });
+  const pausedDrink = await expectOk("adminTransitionPartnerOffer", adminToken, { offerId: "drink", expectedRevision: 3, targetStatus: "paused" });
+  assert(pausedDrink.status === "paused", "Veroeffentlichtes Angebot muss pausierbar sein.");
+  await expectError("claimPartnerOffer", otherToken, { offerId: "drink", requestId: "paused-request" });
+  await expectOk("adminTransitionPartnerOffer", adminToken, { offerId: "drink", expectedRevision: 4, targetStatus: "published" });
   await expectError("claimPartnerOffer", otherToken, { offerId: "drink", requestId: "other-request" });
+
+  const lockedDraft = await createOffer(adminToken, {
+    offerId: "locked-draft", partnerId: "cafe", title: "Unveraenderbar", costWfxp: 5,
+    remainingInventory: 2, validFrom, expiresAt,
+  }, false);
+  await db.collection("partnerRedemptions").doc("legacy-locked-draft").set({ offerId: "locked-draft", status: "issued" });
+  await expectError("adminUpdatePartnerOfferTerms", adminToken, {
+    offerId: "locked-draft", expectedRevision: lockedDraft.revision,
+    title: "Nicht erlaubt", costWfxp: 6, validFrom, expiresAt,
+  });
+  const retiredDraft = await expectOk("adminTransitionPartnerOffer", adminToken, {
+    offerId: "locked-draft", expectedRevision: lockedDraft.revision, targetStatus: "retired",
+  });
+  await expectError("adminTransitionPartnerOffer", adminToken, {
+    offerId: "locked-draft", expectedRevision: retiredDraft.revision, targetStatus: "published",
+  });
+  const drinkRevisions = await db.collection("partnerOfferRevisions").where("offerId", "==", "drink").get();
+  assert(drinkRevisions.size === 5, "Jede Angebotsaenderung muss eine unveraenderbare Revision erzeugen.");
 
   const presentation = await expectOk("createPartnerRedemptionPresentation", userToken, { redemptionId: claim.redemptionId });
   await expectError("confirmPartnerRedemption", foreignOperatorToken, { redemptionId: claim.redemptionId, presentationToken: presentation.presentationToken });
@@ -60,12 +105,12 @@ async function run() {
   assert(confirmed.status === "redeemed", "Admin muss Ausgabe bestaetigen koennen.");
   await expectError("confirmPartnerRedemption", operatorToken, { redemptionId: claim.redemptionId, presentationToken: presentation.presentationToken });
 
-  await expectOk("adminUpsertPartnerOffer", adminToken, {
+  await createOffer(adminToken, {
     offerId: "expired", partnerId: "cafe", title: "Abgelaufen", costWfxp: 1, remainingInventory: 1,
     validFrom: new Date(Date.now() - 120_000).toISOString(), expiresAt: new Date(Date.now() - 60_000).toISOString(),
   });
   await expectError("claimPartnerOffer", userToken, { offerId: "expired", requestId: "expired-request" });
-  await expectOk("adminUpsertPartnerOffer", adminToken, {
+  await createOffer(adminToken, {
     offerId: "cancel-me", partnerId: "cafe", title: "Stornierbar", costWfxp: 20, remainingInventory: 1,
     validFrom, expiresAt,
   });
@@ -77,7 +122,7 @@ async function run() {
   const cancelReplay = await expectOk("cancelPartnerRedemption", otherToken, { redemptionId: cancellable.redemptionId });
   assert(cancelReplay.idempotent, "Storno-Replay muss idempotent sein.");
   await expectError("cancelPartnerRedemption", otherToken, { redemptionId: claim.redemptionId });
-  await expectOk("adminUpsertPartnerOffer", adminToken, {
+  await createOffer(adminToken, {
     offerId: "expired-proof", partnerId: "cafe", title: "Proof Ablauf", costWfxp: 5, remainingInventory: 1,
     validFrom, expiresAt,
   });
@@ -122,7 +167,7 @@ async function run() {
   assert(issueRateDocs.length === 1 && issueRateDocs[0].data().count === 5, "Nutzer-Limit muss auch parallel exakt bei 5 stoppen.");
   await expectError("createPartnerRedemptionPresentation", otherToken, { redemptionId: proofClaim.redemptionId });
 
-  await expectOk("adminUpsertPartnerOffer", adminToken, {
+  await createOffer(adminToken, {
     offerId: "active-cap", partnerId: "cafe", title: "Aktivlimit", costWfxp: 5, remainingInventory: 1,
     validFrom, expiresAt,
   });

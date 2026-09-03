@@ -56,6 +56,7 @@ async function run() {
       await adminDb.collection("shopPurchaseEvents").doc("purchase_alice").set({ ownerUserId: "alice", userId: "alice", result: "completed" });
       await adminDb.collection("partners").doc("partner_active").set({ status: "active", displayName: "Partner" });
       await adminDb.collection("partnerOffers").doc("offer_public").set({ status: "published", partnerId: "partner_active", costWfxp: 25 });
+      await adminDb.collection("partnerOfferRevisions").doc("offer_public_00000001").set({ offerId: "offer_public", revision: 1 });
       await adminDb.collection("partnerRedemptions").doc("redemption_alice").set({ ownerUserId: "alice", userId: "alice", offerId: "offer_public", status: "issued" });
       await adminDb.collection("partnerOperators").doc("partner_active_alice").set({ partnerId: "partner_active", operatorUserId: "alice", status: "active" });
       await adminDb.collection("partnerRedemptionChallenges").doc("redemption_alice").set({ ownerUserId: "alice", userId: "alice", tokenHash: "private", status: "active" });
@@ -193,6 +194,8 @@ async function run() {
     await assertFails(anonDb.collection("partners").doc("partner_active").get());
     await assertFails(aliceDb.collection("partners").doc("partner_hack").set({ status: "active" }));
     await assertFails(aliceDb.collection("partnerOffers").doc("offer_hack").set({ status: "published", costWfxp: 1 }));
+    await assertFails(aliceDb.collection("partnerOfferRevisions").doc("offer_public_00000001").get());
+    await assertFails(aliceDb.collection("partnerOfferRevisions").doc("offer_hack_00000001").set({ revision: 1 }));
     await assertFails(aliceDb.collection("partnerOperators").doc("partner_active_alice").get());
     await assertFails(aliceDb.collection("partnerRedemptionChallenges").doc("redemption_alice").get());
     await assertFails(aliceDb.collection("partnerChallengeActivity").doc("alice").get());

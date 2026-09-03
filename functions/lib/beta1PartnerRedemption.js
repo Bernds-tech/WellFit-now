@@ -29,6 +29,28 @@ function partnerOperatorId(partnerId, operatorUserId) {
   return `${safeDocIdPart(partnerId)}_${safeDocIdPart(operatorUserId)}`;
 }
 
+function offerRevisionId(offerId, revision) {
+  return `${safeDocIdPart(offerId)}_${String(revision).padStart(8, "0")}`;
+}
+
+function expectedOfferRevision(value, HttpsError) {
+  const revision = normalizedPositiveInteger(value, 0, 1000000);
+  if (!revision) throw new HttpsError("invalid-argument", "expectedRevision muss positiv sein.");
+  return revision;
+}
+
+function offerRevisionRecord({ offerId, revision, action, actorUserId, offer }) {
+  return {
+    offerRevisionId: offerRevisionId(offerId, revision), offerId, revision, action,
+    actorUserId, partnerId: offer.partnerId, status: offer.status,
+    title: offer.title, description: offer.description || null,
+    costWfxp: offer.costWfxp, initialInventory: offer.initialInventory,
+    remainingInventory: offer.remainingInventory, perUserLimit: offer.perUserLimit,
+    validFrom: offer.validFrom, expiresAt: offer.expiresAt,
+    noPayments: true, tokenAuthorized: false, createdAt: FieldValue.serverTimestamp(),
+  };
+}
+
 function sha256(value) {
   return crypto.createHash("sha256").update(String(value)).digest("hex");
 }
@@ -147,7 +169,7 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
     return { accepted: true, partnerId, status };
   });
 
-  exportsTarget.adminUpsertPartnerOffer = onCall(async (request) => {
+  const createPartnerOffer = async (request) => {
     const actorUserId = requireAdmin(request, HttpsError);
     const data = request.data || {};
     const offerId = requiredString(data.offerId, "offerId", HttpsError, 120);
@@ -162,26 +184,119 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
     const costWfxp = normalizedPositiveInteger(data.costWfxp, 0, 100000);
     const remainingInventory = normalizedPositiveInteger(data.remainingInventory, 0, 1000000);
     if (!costWfxp || !remainingInventory) throw new HttpsError("invalid-argument", "Preis und Bestand muessen positiv sein.");
-    const status = data.status === "draft" ? "draft" : "published";
-    await db.collection("partnerOffers").doc(offerId).set({
-      offerId,
-      partnerId,
-      title: requiredString(data.title, "title", HttpsError, 120),
-      description: optionalString(data.description, 500),
-      costWfxp,
-      initialInventory: remainingInventory,
-      remainingInventory,
-      perUserLimit: 1,
-      validFrom: validFrom.toISOString(),
-      expiresAt: expiresAt.toISOString(),
-      status,
-      noPayments: true,
-      tokenAuthorized: false,
-      updatedByUserId: actorUserId,
-      createdAt: FieldValue.serverTimestamp(),
-      ...updatedTimestamp(),
-    }, { merge: true });
-    return { accepted: true, offerId, partnerId, status };
+    const offerRef = db.collection("partnerOffers").doc(offerId);
+    const revisionRef = db.collection("partnerOfferRevisions").doc(offerRevisionId(offerId, 1));
+    const offer = {
+      offerId, partnerId, title: requiredString(data.title, "title", HttpsError, 120),
+      description: optionalString(data.description, 500), costWfxp,
+      initialInventory: remainingInventory, remainingInventory, perUserLimit: 1,
+      validFrom: validFrom.toISOString(), expiresAt: expiresAt.toISOString(), status: "draft",
+      revision: 1, noPayments: true, tokenAuthorized: false, updatedByUserId: actorUserId,
+    };
+    await db.runTransaction(async (transaction) => {
+      if ((await transaction.get(offerRef)).exists) {
+        throw new HttpsError("already-exists", "Partnerangebot existiert bereits.");
+      }
+      transaction.create(offerRef, { ...offer, createdAt: FieldValue.serverTimestamp(), ...updatedTimestamp() });
+      transaction.create(revisionRef, offerRevisionRecord({ offerId, revision: 1, action: "created", actorUserId, offer }));
+    });
+    return { accepted: true, offerId, partnerId, status: "draft", revision: 1 };
+  };
+  exportsTarget.adminCreatePartnerOffer = onCall(createPartnerOffer);
+  // Compatibility name retained as create-only. Existing offers can no longer be overwritten.
+  exportsTarget.adminUpsertPartnerOffer = onCall(createPartnerOffer);
+
+  exportsTarget.adminUpdatePartnerOfferTerms = onCall(async (request) => {
+    const actorUserId = requireAdmin(request, HttpsError);
+    const data = request.data || {};
+    const offerId = requiredString(data.offerId, "offerId", HttpsError, 120);
+    const expectedRevision = expectedOfferRevision(data.expectedRevision, HttpsError);
+    const validFrom = parseIso(data.validFrom, "validFrom", HttpsError);
+    const expiresAt = parseIso(data.expiresAt, "expiresAt", HttpsError);
+    if (expiresAt <= validFrom) throw new HttpsError("invalid-argument", "expiresAt muss nach validFrom liegen.");
+    const costWfxp = normalizedPositiveInteger(data.costWfxp, 0, 100000);
+    if (!costWfxp) throw new HttpsError("invalid-argument", "Preis muss positiv sein.");
+    const offerRef = db.collection("partnerOffers").doc(offerId);
+    return db.runTransaction(async (transaction) => {
+      const offerSnapshot = await transaction.get(offerRef);
+      if (!offerSnapshot.exists) throw new HttpsError("not-found", "Partnerangebot wurde nicht gefunden.");
+      const current = offerSnapshot.data() || {};
+      const currentRevision = normalizedPositiveInteger(current.revision, 1, 1000000);
+      if (currentRevision !== expectedRevision) throw new HttpsError("aborted", "Partnerangebot wurde zwischenzeitlich geaendert.");
+      if (current.status !== "draft") throw new HttpsError("failed-precondition", "Konditionen duerfen nur im Entwurf geaendert werden.");
+      const redemptionSnapshot = await transaction.get(db.collection("partnerRedemptions").where("offerId", "==", offerId).limit(1));
+      if (!redemptionSnapshot.empty) throw new HttpsError("failed-precondition", "Konditionen mit vorhandenen Einloesungen sind unveraenderbar.");
+      const revision = currentRevision + 1;
+      const offer = {
+        ...current, title: requiredString(data.title, "title", HttpsError, 120),
+        description: optionalString(data.description, 500), costWfxp,
+        validFrom: validFrom.toISOString(), expiresAt: expiresAt.toISOString(),
+        revision, updatedByUserId: actorUserId,
+      };
+      transaction.update(offerRef, { title: offer.title, description: offer.description, costWfxp,
+        validFrom: offer.validFrom, expiresAt: offer.expiresAt, revision,
+        updatedByUserId: actorUserId, updatedAt: FieldValue.serverTimestamp() });
+      transaction.create(db.collection("partnerOfferRevisions").doc(offerRevisionId(offerId, revision)),
+        offerRevisionRecord({ offerId, revision, action: "terms-updated", actorUserId, offer }));
+      return { accepted: true, offerId, status: offer.status, revision };
+    });
+  });
+
+  exportsTarget.adminTransitionPartnerOffer = onCall(async (request) => {
+    const actorUserId = requireAdmin(request, HttpsError);
+    const data = request.data || {};
+    const offerId = requiredString(data.offerId, "offerId", HttpsError, 120);
+    const targetStatus = requiredString(data.targetStatus, "targetStatus", HttpsError, 20);
+    const expectedRevision = expectedOfferRevision(data.expectedRevision, HttpsError);
+    const allowed = { draft: ["published", "retired"], published: ["paused", "retired"], paused: ["published", "retired"], retired: [] };
+    const offerRef = db.collection("partnerOffers").doc(offerId);
+    return db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(offerRef);
+      if (!snapshot.exists) throw new HttpsError("not-found", "Partnerangebot wurde nicht gefunden.");
+      const current = snapshot.data() || {};
+      const currentRevision = normalizedPositiveInteger(current.revision, 1, 1000000);
+      if (currentRevision !== expectedRevision) throw new HttpsError("aborted", "Partnerangebot wurde zwischenzeitlich geaendert.");
+      if (!(allowed[current.status] || []).includes(targetStatus)) throw new HttpsError("failed-precondition", "Statuswechsel ist nicht erlaubt.");
+      if (targetStatus === "published") {
+        const partnerSnapshot = await transaction.get(db.collection("partners").doc(current.partnerId));
+        if (!partnerSnapshot.exists || (partnerSnapshot.data() || {}).status !== "active") {
+          throw new HttpsError("failed-precondition", "Nur Angebote aktiver Partner duerfen veroeffentlicht werden.");
+        }
+      }
+      const revision = currentRevision + 1;
+      const offer = { ...current, status: targetStatus, revision, updatedByUserId: actorUserId };
+      transaction.update(offerRef, { status: targetStatus, revision, updatedByUserId: actorUserId, updatedAt: FieldValue.serverTimestamp() });
+      transaction.create(db.collection("partnerOfferRevisions").doc(offerRevisionId(offerId, revision)),
+        offerRevisionRecord({ offerId, revision, action: `status-${targetStatus}`, actorUserId, offer }));
+      return { accepted: true, offerId, status: targetStatus, revision };
+    });
+  });
+
+  exportsTarget.adminAdjustPartnerOfferCapacity = onCall(async (request) => {
+    const actorUserId = requireAdmin(request, HttpsError);
+    const data = request.data || {};
+    const offerId = requiredString(data.offerId, "offerId", HttpsError, 120);
+    const expectedRevision = expectedOfferRevision(data.expectedRevision, HttpsError);
+    const initialInventory = normalizedPositiveInteger(data.initialInventory, 0, 1000000);
+    if (!initialInventory) throw new HttpsError("invalid-argument", "Gesamtbestand muss positiv sein.");
+    const offerRef = db.collection("partnerOffers").doc(offerId);
+    return db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(offerRef);
+      if (!snapshot.exists) throw new HttpsError("not-found", "Partnerangebot wurde nicht gefunden.");
+      const current = snapshot.data() || {};
+      const currentRevision = normalizedPositiveInteger(current.revision, 1, 1000000);
+      if (currentRevision !== expectedRevision) throw new HttpsError("aborted", "Partnerangebot wurde zwischenzeitlich geaendert.");
+      if (current.status === "retired") throw new HttpsError("failed-precondition", "Ausgemusterte Angebote sind unveraenderbar.");
+      const consumed = Math.max(0, Number(current.initialInventory || 0) - Number(current.remainingInventory || 0));
+      if (initialInventory < consumed) throw new HttpsError("failed-precondition", "Gesamtbestand darf nicht unter bereits gebundene Einloesungen sinken.");
+      const remainingInventory = initialInventory - consumed;
+      const revision = currentRevision + 1;
+      const offer = { ...current, initialInventory, remainingInventory, revision, updatedByUserId: actorUserId };
+      transaction.update(offerRef, { initialInventory, remainingInventory, revision, updatedByUserId: actorUserId, updatedAt: FieldValue.serverTimestamp() });
+      transaction.create(db.collection("partnerOfferRevisions").doc(offerRevisionId(offerId, revision)),
+        offerRevisionRecord({ offerId, revision, action: "capacity-adjusted", actorUserId, offer }));
+      return { accepted: true, offerId, status: offer.status, revision, initialInventory, remainingInventory };
+    });
   });
 
   exportsTarget.adminUpsertPartnerOperator = onCall(async (request) => {

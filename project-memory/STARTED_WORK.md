@@ -11,6 +11,20 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: VERIFIED
+- Risk: R3
+- Scope: backend-only create/update/lifecycle/inventory authority for partner offers with optimistic concurrency and immutable revisions.
+- Branch/PR: `codex/partner-catalog-governance-20260903` / PR pending.
+- Work lock: `LOCK-WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE`.
+- Completed: create-only registration, draft-only term updates, explicit publish/pause/retire and capacity commands use optimistic revisions; consumed inventory is preserved and immutable revision records are client-denied.
+- Evidence: PR #397 head `6e02ef5007a3423728f322ae5a9a4e0b64542120`; Build #1223, Container #208, Database #200, Beta 1 Emulator #185 and Project Memory gates all succeeded.
+- Still open: PR merge and Production/partner acceptance only.
+- Exact next step: merge PR #397, then add a bounded admin catalog projection so operators do not mutate by blind IDs/revisions.
+- Owner action needed: none for repository baseline.
+
 ## WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03

@@ -41,6 +41,21 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
 
+## RECEIPT-WFN-PARTNER-CATALOG-GOVERNANCE-20260903
+- Task: WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
+- Started: 2026-09-03 Europe/Vienna
+- Branch/PR: `codex/partner-catalog-governance-20260903` / PR pending
+- Risk: R3 partner catalog authority and inventory mutation.
+- Preflight checked: mandatory Project Memory, current runtime/canonical boundaries, current main `75f0045`, existing partner module/tests/rules and prior partner task chain.
+- Prior attempt found: the merged baseline uses an unrestricted merge upsert that resets `initialInventory` and `remainingInventory`; no catalog-governance task or active lock exists.
+- Dependency result: backend-only work is executable and does not require graphical assembly, Production deployment or economy terminology changes.
+- Changes made: create-only draft registration, controlled term/capacity/lifecycle commands, optimistic revisions, immutable client-denied revision records and concurrency/forbidden-path tests.
+- Evidence: PR #397 head `6e02ef5007a3423728f322ae5a9a4e0b64542120`; Build #1223, Container #208, Database #200, Beta 1 Emulator #185 and Project Memory Guard/Quality/Status succeeded.
+- Negative countercheck: duplicate creation, published term mutation, stale parallel updates, retired reactivation and inventory reduction below consumed stock are denied; no graphical/UI or Production behavior changed.
+- Result status: VERIFIED at repository level.
+- Work lock: `LOCK-WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE` released.
+- Falsification question: any stale update succeeding, published term mutation, retired reactivation, inventory reset or mutable/client-readable revision would invalidate the result.
+
 ## RECEIPT-WFN-PARTNER-OPERATOR-VERIFICATION-20260903
 - Task: WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
 - Finished: 2026-09-03 after exact-head CI

@@ -2,6 +2,18 @@
 
 Keep history append-only; supersede rather than delete.
 
+## WFN-PARTNER-CATALOG-GOVERNANCE-BASELINE
+- Date: 2026-09-03
+- Status: VERIFIED
+- Risk: R3
+- Goal: make partner offer administration revision-safe without changing graphical catalog presentation.
+- Scope: create-only offer registration, controlled draft terms, explicit publish/pause/retire, explicit capacity adjustment, optimistic concurrency and immutable audit revisions.
+- Negative/fail-closed path: duplicate creation, stale revisions, retired reactivation, published term rewrites and capacity below consumed inventory must be denied.
+- Rollback/recovery: isolated callable/revision/rules/test changes can be reverted before any Production deployment; existing redemptions remain authoritative.
+- Result: offer creation is create-only and draft-first; term, capacity and lifecycle changes are transactional and revision-checked; published terms, stale writes, inventory resets and retired reactivation fail closed.
+- Evidence: WFN-EV-015; PR #397 head `6e02ef5007a3423728f322ae5a9a4e0b64542120` passed all required exact-head gates.
+- Next step: merge PR #397; separately add a bounded admin catalog projection.
+
 ## WFN-MEM-001
 - Date: 2026-08-19
 - Status: DONE
