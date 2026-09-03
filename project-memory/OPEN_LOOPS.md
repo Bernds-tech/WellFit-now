@@ -77,11 +77,11 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 
 ## WFN-LOOP-011
 - Related: WFN-PARTNER-RETENTION-BASELINE
-- Status: OPEN
+- Status: CLOSED
 - Updated: 2026-09-03
-- Gap: bounded partner retention cleanup is implemented locally but lacks exact-head emulator/CI verification and merge evidence.
-- Close when: dry-run, partial execution, repeat execution and non-expired preservation pass Beta 1 Emulator plus all repository gates on one immutable PR head.
-- Next check: publish the branch, correct any CI finding and record the exact evidence before releasing the lock.
+- Gap: bounded partner retention cleanup required exact-head emulator/CI verification.
+- Resolution: PR #395 head `4f80c3be09bf84e8c237538c3db78deb5004e9a8` passed dry-run, partial/repeat execution, live-data preservation and every required gate.
+- Limitation: no Production scheduler or deployment was activated.
 
 ## Rules
 - `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED`, `IN_PROGRESS` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.

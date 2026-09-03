@@ -125,3 +125,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: transactional one-minute limits cap presentation issuance at five per user and confirmation attempts at twelve per operator; three-active-proof cap, parallel boundary behavior, outcome aggregation, privacy export/deletion and client-deny rules passed.
 - Limitations: counters use repository-defined Beta thresholds; Production TTL/retention configuration, monitoring policy and real-partner acceptance were not performed.
 - Acceptance: VERIFIED
+
+## WFN-EV-013
+- Related: WFN-PARTNER-RETENTION-BASELINE / PR #395
+- Date: 2026-09-03
+- Target: expired partner operational data cleanup
+- Type: exact-head CI plus emulator lifecycle evidence
+- Reference: PR #395 head `4f80c3be09bf84e8c237538c3db78deb5004e9a8`; Build #1216, Container Build #201, Database Package Tests #193, Beta 1 Emulator Tests #180 and Project Memory Guard/Quality/Status.
+- Result: admin-only safe-default dry-run and bounded execute cleanup deletes expired rate/outcome/challenge records, prunes expired activity entries, preserves live/redemption/audit authority, supports cursor continuation and is idempotent on repeat.
+- Limitations: no Production schedule/deployment or provider retention policy was activated.
+- Acceptance: VERIFIED

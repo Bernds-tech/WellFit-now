@@ -109,14 +109,15 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-PARTNER-RETENTION-BASELINE
 - Date: 2026-09-03
-- Status: IMPLEMENTED_NOT_VERIFIED
+- Status: VERIFIED
 - Risk: R3
 - Goal: prevent indefinite storage of short-lived partner operational records without weakening redemption or audit evidence.
 - Scope: admin-authorized bounded dry-run/execute processor for expired rate/outcome/challenge records and stale active-proof projections.
-- Result so far: local implementation provides safe-default dry-run, bounded execution, cursor-based activity scanning, non-expired preservation and idempotent repeats; syntax, helper and Project Memory checks pass pending exact-head emulator evidence.
+- Result: safe-default dry-run and admin execution remove only expired short-lived records, cap cleanup mutations at 200, provide a cursor for bounded activity scans, preserve live/redemption/audit data and remain idempotent on repeat.
+- Evidence: WFN-EV-013; PR #395 head `4f80c3be09bf84e8c237538c3db78deb5004e9a8`; all required exact-head gates succeeded.
 - Negative/fail-closed path: non-admin callers, non-expired records and immutable redemption/audit authority remain untouched; each execution is globally batch-bounded and repeatable.
 - Rollback/recovery: revert the isolated processor/registration/test changes; existing records remain server-protected and account-deletion coverage remains intact.
-- Next step: implement and pass focused emulator plus repository gates.
+- Next step: merge PR #395; Production scheduling remains separate.
 
 ## WFN-XREPO-001
 - Date: 2026-08-19 to 2026-08-20
