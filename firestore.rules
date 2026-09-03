@@ -324,6 +324,18 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /partnerChallengeActivity/{userId} {
+      allow read, write: if false;
+    }
+
+    match /partnerOperationRateLimits/{rateLimitId} {
+      allow read, write: if false;
+    }
+
+    match /partnerOperationOutcomes/{outcomeId} {
+      allow read, write: if false;
+    }
+
     match /checkpoints/{checkpointId} {
       allow read: if isSignedIn() && resource.data.status == 'published';
       allow create, update, delete: if false;

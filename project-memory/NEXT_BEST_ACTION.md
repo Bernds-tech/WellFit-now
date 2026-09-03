@@ -1,19 +1,19 @@
 # WellFit-now Next Best Action
 
-- Selected action: `WFN-PARTNER-OPERATIONS-BASELINE`
+- Selected action: `WFN-PARTNER-RETENTION-BASELINE`
 - Status: `EXECUTABLE`
 - Risk: `R3`
-- Title: Einlösungs-Missbrauch technisch begrenzen
+- Title: Abgelaufene Partner-Betriebsdaten sicher bereinigen
 
 ## Why this is next
-PR #393 verifies least-privilege partner operators and short-lived single-use presentation proofs. Before any real partner pilot, challenge issuance and confirmation still need bounded abuse controls plus privacy-minimal operational signals.
+PR #394 verifies bounded challenge issuance, confirmation attempts and privacy-minimal outcome counters. Before Production, expired short-lived operational records need an explicit, retry-safe cleanup lifecycle instead of relying on indefinite storage.
 
 ## Exact work
-1. Add transactional per-user challenge issuance throttling and a small active-challenge cap.
-2. Add transactional per-operator confirmation attempt throttling without storing IP or location.
-3. Record privacy-minimal outcome codes and counters for operational review.
-4. Cover boundary reset, parallel/replay and denial paths in emulator tests.
-5. Keep graphical QR presentation, Production onboarding, WFT/token/payment/cashout outside this task.
+1. Add an admin/scheduled retry-safe cleanup processor for expired operation buckets and outcomes.
+2. Prune expired active-proof entries without touching issued/redeemed audit authority.
+3. Bound each cleanup batch and expose deterministic dry-run/result counts.
+4. Cover repeated execution, partial batches and non-expired preservation in emulator tests.
+5. Keep deployment scheduling, graphical QR presentation, WFT/token/payment/cashout outside this task.
 
 ## Parallel-safe work
 Device/Unity evidence remains a separate owner-machine task and graphical work remains in `Bernds-tech/WellFit`.

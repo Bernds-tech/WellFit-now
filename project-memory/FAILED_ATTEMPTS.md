@@ -19,3 +19,14 @@
 - Cause: Cross-project scope not encoded as an operational rule.
 - Decision: Keep WellFit, WellFit-now and WellFit-Buddy roles explicit.
 - Do not repeat: Cross repository boundaries only through an accepted bridge task/change request.
+
+## WFN-FAIL-003
+- Date: 2026-09-03
+- Status: CORRECTED
+- Area: Partner-operation rate-limit emulator test
+- Attempt: Seed the currently discovered fixed-window counter and immediately assert that two parallel attempts stop at the exact limit.
+- Result: Beta 1 Emulator #177 crossed the real minute boundary between seeding and the second attempt, so the valid new-window counter made the assertion fail although each window remained bounded.
+- Cause: the test assumed wall-clock window stability without reserving enough time before the boundary.
+- Decision: explicitly enter a rate window with at least eight seconds remaining, create/select that exact ISO window and then execute the parallel boundary assertion.
+- Verification: Beta 1 Emulator #178 succeeded on corrected exact head `8979e845e0e10f3c91e726450e81b1a7c522ebff`.
+- Do not repeat: never assert a fixed-window boundary against an unspecific or nearly expired wall-clock bucket.

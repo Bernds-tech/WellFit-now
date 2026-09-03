@@ -11,6 +11,20 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-OPERATIONS-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: VERIFIED
+- Risk: R3
+- Scope: Firebase/backend-only transactional challenge-issuance and operator-confirmation throttling plus privacy-minimal outcome counters.
+- Branch/PR: `codex/partner-operations-baseline-20260903` / PR #394.
+- Work lock: `LOCK-WFN-PARTNER-OPERATIONS-BASELINE`.
+- Completed: transactional five-per-minute user issuance limit, twelve-per-minute operator confirmation limit, three-active-proof cap, privacy-minimal outcome counters, client-deny rules, export/deletion coverage and focused concurrency/boundary tests; no graphical/UI work included.
+- Evidence: PR #394 exact head `8979e845e0e10f3c91e726450e81b1a7c522ebff`; Build #1213, Container #198, Database #190, Beta 1 Emulator #178 and Project Memory gates all succeeded.
+- Still open: PR merge, Production threshold/retention configuration and real-partner acceptance only.
+- Exact next step: merge PR #394; retain Production activation as a separate release decision.
+- Owner action needed: none for repository baseline; Production thresholds remain configurable operational policy later.
+
 ## WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03
