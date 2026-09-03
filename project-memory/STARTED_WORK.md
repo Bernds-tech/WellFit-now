@@ -11,6 +11,19 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-REDEMPTION-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: IN_PROGRESS
+- Risk: R3
+- Scope: server-authoritative, non-crypto partner catalog, offers, WFXP claim and admin-confirmed redemption for adult Beta users.
+- Branch/PR: `codex/partner-redemption-baseline-20260903` / PR pending.
+- Work lock: `LOCK-WFN-PARTNER-REDEMPTION-BASELINE`.
+- Completed so far: partner/offer admin callables, active-offer listing, atomic one-per-user claim, WFXP ledger debit, inventory decrement, account-deletion freeze, replay protection, admin confirmation and audit events implemented locally; Firestore client writes denied.
+- Still open: complete emulator/rules/package checks, record evidence, push PR and merge only with green exact-head gates.
+- Exact next step: run the focused partner emulator plus repository gates and correct any regression.
+- Owner action needed: none; real partner onboarding and Production activation remain separate.
+
 ## WFN-TECH-TRUTH-20260903
 - Started: 2026-09-03
 - Updated: 2026-09-03

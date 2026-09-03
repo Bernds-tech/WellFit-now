@@ -301,6 +301,21 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    match /partners/{partnerId} {
+      allow read: if isSignedIn() && resource.data.status == 'active';
+      allow create, update, delete: if false;
+    }
+
+    match /partnerOffers/{offerId} {
+      allow read: if isSignedIn() && resource.data.status == 'published';
+      allow create, update, delete: if false;
+    }
+
+    match /partnerRedemptions/{redemptionId} {
+      allow read: if isReadableByOwnerOrGuardian();
+      allow create, update, delete: if false;
+    }
+
     match /checkpoints/{checkpointId} {
       allow read: if isSignedIn() && resource.data.status == 'published';
       allow create, update, delete: if false;

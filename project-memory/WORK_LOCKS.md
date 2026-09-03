@@ -11,6 +11,16 @@ Prevents two agents/sessions from independently working the same task.
 
 ## Active locks
 
+## LOCK-WFN-PARTNER-REDEMPTION-BASELINE
+- Task: WFN-PARTNER-REDEMPTION-BASELINE
+- Status: ACTIVE
+- Risk: R3
+- Holder: ChatGPT session 2026-09-03
+- Branch/PR: `codex/partner-redemption-baseline-20260903` / PR pending
+- Acquired: 2026-09-03 Europe/Vienna
+- Scope: Firebase/backend-only non-crypto partner offer and redemption authority. No graphical/UI work, Production deploy, payment, WFT, NFT, cashout or public partner activation.
+- Resume from: validate `beta1PartnerRedemption` transactions, negative emulator cases and Firestore client-deny rules.
+
 ## LOCK-WFN-TECH-TRUTH-20260903
 - Task: WFN-TECH-TRUTH-20260903
 - Status: RELEASED

@@ -71,6 +71,16 @@ Keep history append-only; supersede rather than delete.
 - Next step: implement `WFN-PARTNER-REDEMPTION-BASELINE` on a separate scoped branch/lock after this reconciliation merges.
 - Do not repeat: do not restart the already completed legacy-writer or consent/account-lifecycle implementation work merely because older handoff text says PARTIAL.
 
+## WFN-PARTNER-REDEMPTION-BASELINE
+- Date: 2026-09-03
+- Status: IN_PROGRESS
+- Risk: R3
+- Goal: add a server-authoritative non-crypto partner reward/redemption path for the adult Beta.
+- Scope: partner and offer administration, active catalog projection, atomic WFXP claim, one-per-user replay protection, inventory/expiry/partner-state validation, admin fulfillment confirmation and privacy-minimal audit.
+- Negative/fail-closed path: unauthenticated/non-admin mutations, inactive or expired offers, exhausted stock, insufficient WFXP, child profiles and account-deletion freezes are denied; clients cannot write partner authority collections.
+- Rollback/recovery: revert the isolated module/index/rules changes before Production deployment; no provider or partner is activated by repository code.
+- Next step: pass focused emulator and exact PR gates before merge.
+
 ## WFN-XREPO-001
 - Date: 2026-08-19 to 2026-08-20
 - Status: RECONCILIATION_REQUIRED
