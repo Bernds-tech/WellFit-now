@@ -3,7 +3,7 @@
 - Repository: `Bernds-tech/WellFit-now`
 - Role: technical product authority
 - Program master: `Bernds-tech/WellFit:project-memory/WELLFIT_MASTER_STATE.json`
-- Current next action: `WFN-PARTNER-REDEMPTION-BASELINE`
+- Current next action: `WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE`
 - Cross-repo boundaries: graphical/UI/UX authority -> `Bernds-tech/WellFit`; Buddy-specific behavior, presentation/animation and Buddy-specific AR/camera interaction -> `Bernds-tech/WellFit-Buddy`. General technical application/mobile logic remains here unless an accepted cross-repo migration contract says otherwise.
 
 ## Mandatory new-chat / project-entry rule

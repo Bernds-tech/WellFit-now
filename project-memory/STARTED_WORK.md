@@ -14,14 +14,15 @@ Canonical register for work that has started but is not yet fully completed.
 ## WFN-PARTNER-REDEMPTION-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03
-- Status: IN_PROGRESS
+- Status: VERIFIED
 - Risk: R3
 - Scope: server-authoritative, non-crypto partner catalog, offers, WFXP claim and admin-confirmed redemption for adult Beta users.
 - Branch/PR: `codex/partner-redemption-baseline-20260903` / PR pending.
 - Work lock: `LOCK-WFN-PARTNER-REDEMPTION-BASELINE`.
-- Completed so far: partner/offer admin callables, active-offer listing, atomic one-per-user claim, WFXP ledger debit, inventory decrement, account-deletion freeze, replay protection, admin confirmation and audit events implemented locally; Firestore client writes denied.
-- Still open: complete emulator/rules/package checks, record evidence, push PR and merge only with green exact-head gates.
-- Exact next step: run the focused partner emulator plus repository gates and correct any regression.
+- Completed: partner/offer admin callables, active-offer listing, atomic one-per-user claim, WFXP ledger debit, inventory decrement, account-deletion freeze, replay protection, owner cancellation/refund, admin confirmation, audit events, export/deletion coverage and Firestore client-deny rules.
+- Evidence: PR #392 exact head `81d370636e35b7ca8097d5d7fa8a31e17fb20316`; Build #1205, Container #190, Database #182, Beta 1 Emulator #172 and Project Memory gates all succeeded.
+- Still open: Production deployment and real-partner operational acceptance only.
+- Exact next step: merge PR #392; later design scoped partner-operator identity/fulfillment before any real partner pilot.
 - Owner action needed: none; real partner onboarding and Production activation remain separate.
 
 ## WFN-TECH-TRUTH-20260903
@@ -30,7 +31,7 @@ Canonical register for work that has started but is not yet fully completed.
 - Status: VERIFIED
 - Risk: R2
 - Scope: reconcile stale technical Project Memory against current `main` without combining graphical and technical repositories.
-- Branch/PR: `codex/mission-interactions-server-authority-20260903` / PR pending.
+- Branch/PR: `codex/mission-interactions-server-authority-20260903` / merged PR #391.
 - Work lock: `LOCK-WFN-TECH-TRUTH-20260903`.
 - Completed so far: exact current-main inventory proves `/users/{uid}` client create/update/delete is denied; no active browser writer to that document remains; separate health-personalization/improvement/analytics decisions and withdrawal history exist; export, deletion request/cancellation and irreversible deletion processing exist with tests.
 - Completed: finishline/current-state/next-action/evidence registers reconciled; V8, V9 and Project Memory quality checks pass; non-crypto partner redemption selected as the next bounded technical product slice.

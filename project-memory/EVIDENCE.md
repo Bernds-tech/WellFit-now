@@ -95,3 +95,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: `/users/{uid}` browser writes are absent and rules deny all client mutation; health personalization/improvement/analytics decisions and revocations are separated and audited; export and deletion lifecycle including guardian blocking and irreversible processing are implemented with emulator coverage.
 - Limitations: this reconciliation did not prove the currently deployed Production rules/functions, legal acceptance, scheduler operation or a real-device flow.
 - Acceptance: VERIFIED
+
+## WFN-EV-010
+- Related: WFN-PARTNER-REDEMPTION-BASELINE / PR #392
+- Date: 2026-09-03
+- Target: server-authoritative non-crypto partner reward lifecycle
+- Type: exact-head CI plus emulator negative-path evidence
+- Reference: PR #392 head `81d370636e35b7ca8097d5d7fa8a31e17fb20316`; Build #1205, Container Build #190, Database Package Tests #182, Beta 1 Emulator Tests #172 and Project Memory Guard/Quality/Status.
+- Result: partner/offer admin authority, active catalog, atomic WFXP claim, one-per-user replay protection, expiry/inactive/stock/balance checks, adult-only boundary, account deletion freeze, cancellation/refund, fulfillment confirmation, audit and client-deny rules all passed.
+- Limitations: no Production deploy, payment/token/cashout activation, partner-operator identity or real partner pilot was performed.
+- Acceptance: VERIFIED

@@ -35,7 +35,7 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not move general technical mobile/application logic into WellFit-Buddy merely because Buddy-specific AR belongs there.
 
 ## Exact next safe technical work
-- Selected local action: `WFN-PARTNER-REDEMPTION-BASELINE`
+- Selected local action: `WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE`
 1. specify a non-crypto, server-authoritative partner reward/redemption lifecycle for the adult Closed Beta;
 2. add idempotent issue/redeem/cancel records with owner and partner isolation plus audit evidence;
 3. keep rewards internal, non-transferable, without cashout, token or NFT activation;
