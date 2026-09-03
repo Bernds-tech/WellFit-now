@@ -85,11 +85,11 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 
 ## WFN-LOOP-012
 - Related: WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
-- Status: OPEN
+- Status: CLOSED
 - Updated: 2026-09-03
-- Gap: privacy-minimal bounded partner reporting is implemented locally but lacks exact-head emulator/CI and merge evidence.
-- Close when: non-admin denial, aggregate correctness, truncation and forbidden-field response checks pass on one immutable PR head with every repository gate.
-- Next check: publish and countercheck the isolated backend branch.
+- Gap: privacy-minimal bounded partner reporting required exact-head emulator/CI verification.
+- Resolution: PR #396 head `dae5b2590ff3d924236c39c198de6deb33ee6148` passed non-admin denial, aggregate, truncation and forbidden-field checks plus every repository gate.
+- Limitation: no graphical dashboard or Production monitoring was added.
 
 ## Rules
 - `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED`, `IN_PROGRESS` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.

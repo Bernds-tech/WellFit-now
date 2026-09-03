@@ -121,14 +121,15 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
 - Date: 2026-09-03
-- Status: IMPLEMENTED_NOT_VERIFIED
+- Status: VERIFIED
 - Risk: R2
 - Goal: make partner-pilot health inspectable without exposing proof secrets or person-level operational data.
 - Scope: bounded admin-only aggregation of redemption status by partner plus challenge/outcome totals with freshness and truncation metadata.
-- Result so far: aggregate-only callable and privacy/truncation emulator assertions are implemented locally; no raw documents, user/operator IDs, proof tokens or hashes are returned.
+- Result: bounded aggregate-only callable reports redemption state by partner, challenge state and coarse outcomes with freshness/truncation; no raw documents, user/operator IDs, proof tokens or hashes are returned.
+- Evidence: WFN-EV-014; PR #396 head `dae5b2590ff3d924236c39c198de6deb33ee6148`; all required exact-head gates succeeded.
 - Negative/fail-closed path: non-admin callers are denied and responses cannot contain user IDs, operator IDs, token hashes, presentation tokens or raw documents.
 - Rollback/recovery: revert the isolated callable/test extension; underlying redemption authority and counters remain unchanged.
-- Next step: implement and pass focused emulator plus repository gates.
+- Next step: merge PR #396; graphical dashboard/Production monitoring remain separate.
 
 ## WFN-XREPO-001
 - Date: 2026-08-19 to 2026-08-20

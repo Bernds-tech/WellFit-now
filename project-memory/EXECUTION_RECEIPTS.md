@@ -80,3 +80,16 @@ A receipt is required for meaningful code/config/infra/governance work. A receip
 - Result status: VERIFIED at repository level; Production scheduling remains open.
 - Work lock: `LOCK-WFN-PARTNER-RETENTION-BASELINE` released.
 - Falsification question: deletion of live/redemption/audit data, more than the requested batch mutations or a non-admin execution would invalidate this result.
+
+## RECEIPT-WFN-PARTNER-OPERATIONS-REPORTING-20260903
+- Task: WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
+- Finished: 2026-09-03 after exact-head CI
+- Branch/PR: `codex/partner-operations-reporting-20260903` / PR #396
+- Risk: R2 read-only aggregate admin reporting.
+- Changes made: admin-only bounded aggregation for partner/redemption, challenge and coarse outcome state with freshness/truncation metadata.
+- Exact implementation revision checked: `dae5b2590ff3d924236c39c198de6deb33ee6148`.
+- Checks/tests: Build #1219, Container #204, Database #196, Beta 1 Emulator #182 and Project Memory Guard/Quality/Status succeeded.
+- Negative countercheck: non-admin denied; response excludes person IDs, proof tokens/hashes and raw documents; no source data or graphical/Production behavior changed.
+- Result status: VERIFIED at repository level.
+- Work lock: `LOCK-WFN-PARTNER-OPERATIONS-REPORTING-BASELINE` released.
+- Falsification question: any raw proof, user/operator identifier, unbounded scan or non-admin access would invalidate this result.
