@@ -13,13 +13,14 @@ Prevents two agents/sessions from independently working the same task.
 
 ## LOCK-WFN-PARTNER-OPERATIONS-BASELINE
 - Task: WFN-PARTNER-OPERATIONS-BASELINE
-- Status: ACTIVE
+- Status: RELEASED
 - Risk: R3
 - Holder: ChatGPT session 2026-09-03
-- Branch/PR: `codex/partner-operations-baseline-20260903` / PR pending
+- Branch/PR: `codex/partner-operations-baseline-20260903` / PR #394
 - Acquired: 2026-09-03 Europe/Vienna
 - Scope: Firebase/backend-only presentation issuance/confirmation throttling and privacy-minimal operational counters. No graphics/UI, Production deploy, identity provider, payment, WFT, NFT, cashout or real partner activation.
-- Resume from: implement transactional fixed-window limits and emulator boundary/concurrency denial tests.
+- Released: 2026-09-03 after PR #394 head `8979e845e0e10f3c91e726450e81b1a7c522ebff` passed Build, Container, Database, Beta 1 Emulator and Project Memory gates.
+- Resume from: no repository implementation remains; Production retention/threshold configuration is a separate release task.
 
 ## LOCK-WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE
 - Task: WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE

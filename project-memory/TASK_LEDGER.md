@@ -97,14 +97,15 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-PARTNER-OPERATIONS-BASELINE
 - Date: 2026-09-03
-- Status: IMPLEMENTED_NOT_VERIFIED
+- Status: VERIFIED
 - Risk: R3
 - Goal: bound automated presentation issuance and operator confirmation attempts before a real partner pilot.
 - Scope: server-side fixed-window counters, a small active-proof cap, privacy-minimal outcome categories and emulator boundary/concurrency tests.
-- Result so far: implementation and focused tests are present locally; syntax, helper invariants and Project Memory gates pass. Local emulator execution is unavailable because the Firebase CLI package cannot be downloaded in this restricted workspace, so exact-head CI remains the independent authority.
+- Result: fixed-window counters stop concurrent callers at five user issuances and twelve operator attempts per minute; at most three proofs remain active; outcome aggregates omit IP/location and all internal records are client-denied and covered by account export/deletion.
+- Evidence: WFN-EV-012; PR #394 head `8979e845e0e10f3c91e726450e81b1a7c522ebff`; all required exact-head gates succeeded.
 - Negative/fail-closed path: concurrent callers cannot exceed configured limits; rejected attempts cannot expose another user, bypass partner scope or persist IP/location.
 - Rollback/recovery: revert isolated counter collections and callable extensions; PR #393 verification remains valid without operational telemetry.
-- Next step: implement and pass focused emulator plus repository gates.
+- Next step: merge PR #394; Production TTL/retention and partner-pilot acceptance remain separate.
 
 ## WFN-XREPO-001
 - Date: 2026-08-19 to 2026-08-20

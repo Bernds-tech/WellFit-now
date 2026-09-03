@@ -53,3 +53,17 @@ A receipt is required for meaningful code/config/infra/governance work. A receip
 - Result status: VERIFIED at repository level; Production and real-partner acceptance remain open.
 - Work lock: `LOCK-WFN-PARTNER-OPERATOR-VERIFICATION-BASELINE` released.
 - Falsification question: a confirmation without a valid scoped assignment/proof, reusable proof, plaintext proof persistence or client-readable authority record would invalidate this result.
+
+## RECEIPT-WFN-PARTNER-OPERATIONS-20260903
+- Task: WFN-PARTNER-OPERATIONS-BASELINE
+- Finished: 2026-09-03 after exact-head CI
+- Branch/PR: `codex/partner-operations-baseline-20260903` / PR #394
+- Risk: R3 backend throttling and redemption-state coordination.
+- Changes made: transactional fixed-window issuance/confirmation limits, three-active-proof state, privacy-minimal outcome aggregates, client-deny rules, privacy lifecycle coverage and parallel boundary tests.
+- Exact implementation revision checked: `8979e845e0e10f3c91e726450e81b1a7c522ebff`.
+- Checks/tests: Build #1213, Container #198, Database #190, Beta 1 Emulator #178 and Project Memory Guard/Quality/Status succeeded.
+- Failed-attempt handling: Emulator #177 exposed a minute-boundary test race; WFN-FAIL-003 records the cause and corrected deterministic window selection; #178 passed.
+- Negative countercheck: concurrent calls cannot exceed a bucket limit, active proof count is bounded, clients cannot access operational collections, and no IP/location, UI, Production, payment, token, NFT or cashout behavior was introduced.
+- Result status: VERIFIED at repository level; Production and real-partner acceptance remain open.
+- Work lock: `LOCK-WFN-PARTNER-OPERATIONS-BASELINE` released.
+- Falsification question: a bucket count above its limit, a fourth active proof, client-readable counters or stored IP/location would invalidate this result.

@@ -69,11 +69,11 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 
 ## WFN-LOOP-010
 - Related: WFN-PARTNER-OPERATIONS-BASELINE / PR #394
-- Status: OPEN
+- Status: CLOSED
 - Updated: 2026-09-03
-- Gap: transactional partner-operation limits, active-proof cap, operational counters and tests are implemented but not yet verified on the exact PR head.
-- Close when: Beta 1 Emulator, Build, Container, Database and Project Memory gates succeed on the same immutable head and the PR is merged.
-- Next check: correct any exact-head CI finding, then record immutable evidence and release the work lock.
+- Gap: transactional partner-operation limits, active-proof cap, operational counters and tests required exact-head verification.
+- Resolution: PR #394 head `8979e845e0e10f3c91e726450e81b1a7c522ebff` passed Beta 1 Emulator #178, Build #1213, Container #198, Database #190 and all Project Memory gates.
+- Limitation: Production TTL/retention setup and a real partner pilot are external acceptance steps.
 
 ## Rules
 - `PARTIAL`, `BLOCKED`, `IMPLEMENTED_NOT_VERIFIED`, `IN_PROGRESS` and `RECONCILIATION_REQUIRED` tasks require an open-loop reference or explicit no-follow-up rationale.

@@ -115,3 +115,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: active partner-scoped operators and global admins can confirm only with a valid owner-issued single-use proof; cross-partner, revoked operator, wrong token, expired token and replay paths are denied. Plaintext proofs are not persisted, and operator/challenge records are denied to clients and included in privacy export/deletion handling.
 - Limitations: repository evidence is not Production deployment, physical partner identity verification, device scanning UX, fraud monitoring or real-partner acceptance.
 - Acceptance: VERIFIED
+
+## WFN-EV-012
+- Related: WFN-PARTNER-OPERATIONS-BASELINE / PR #394
+- Date: 2026-09-03
+- Target: partner-redemption abuse controls and operational counters
+- Type: exact-head CI plus emulator concurrency/boundary evidence
+- Reference: PR #394 head `8979e845e0e10f3c91e726450e81b1a7c522ebff`; Build #1213, Container Build #198, Database Package Tests #190, Beta 1 Emulator Tests #178 and Project Memory Guard/Quality/Status.
+- Result: transactional one-minute limits cap presentation issuance at five per user and confirmation attempts at twelve per operator; three-active-proof cap, parallel boundary behavior, outcome aggregation, privacy export/deletion and client-deny rules passed.
+- Limitations: counters use repository-defined Beta thresholds; Production TTL/retention configuration, monitoring policy and real-partner acceptance were not performed.
+- Acceptance: VERIFIED
