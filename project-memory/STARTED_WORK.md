@@ -11,6 +11,19 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
+- Started: 2026-09-03
+- Updated: 2026-09-03
+- Status: IMPLEMENTED_NOT_VERIFIED
+- Risk: R2
+- Scope: admin-only bounded aggregate view of partner redemption states and operational outcomes without person-level or proof data.
+- Branch/PR: `codex/partner-operations-reporting-20260903` / PR pending.
+- Work lock: `LOCK-WFN-PARTNER-OPERATIONS-REPORTING-BASELINE`.
+- Completed so far: admin-only per-collection-bounded aggregation for redemption state/partner, challenge state and coarse outcomes with freshness, explicit truncation and privacy-response tests; no graphical/UI work included.
+- Still open: exact-head emulator/CI countercheck and PR merge.
+- Exact next step: publish the isolated branch and countercheck all exact-head gates.
+- Owner action needed: none for repository baseline.
+
 ## WFN-PARTNER-RETENTION-BASELINE
 - Started: 2026-09-03
 - Updated: 2026-09-03

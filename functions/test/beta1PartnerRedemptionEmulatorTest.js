@@ -178,6 +178,25 @@ async function run() {
   assert(retainedActivity.activePresentations.live === futureRetention && !retainedActivity.activePresentations.expired, "Nur abgelaufene Aktivprojektionen duerfen entfernt werden.");
   assert((await db.collection("partnerRedemptions").doc(claim.redemptionId).get()).exists, "Einloesungsautoritaet darf durch Retention nicht geloescht werden.");
 
+  await db.collection("partnerOperationOutcomes").doc("summary-denied").set({
+    subjectUserId: OPERATOR_ID,
+    action: "partner-redemption-confirm",
+    outcome: "denied",
+    count: 3,
+    expiresAt: futureRetention,
+  });
+  await expectError("adminGetPartnerOperationsSummary", userToken, { limit: 100 });
+  const summary = await expectOk("adminGetPartnerOperationsSummary", adminToken, { limit: 100 });
+  assert(summary.privacyMode === "aggregate-no-person-or-proof-data", "Betriebsbericht muss den Aggregat-Datenschutzmodus ausweisen.");
+  assert(summary.redemptions.scanned >= 3 && summary.redemptions.partners.some((partner) => partner.partnerId === "cafe"), "Betriebsbericht muss Einloesungen nach Partner aggregieren.");
+  assert(summary.outcomes.categories.some((category) => category.key === "partner-redemption-confirm:denied" && category.count === 3), "Betriebsbericht muss grobe Ergebniszaehler summieren.");
+  const serializedSummary = JSON.stringify(summary);
+  ["ownerUserId", "userId", "operatorUserId", "tokenHash", "presentationToken", "activePresentations"].forEach((forbidden) => {
+    assert(!serializedSummary.includes(forbidden), `Betriebsbericht darf ${forbidden} nicht enthalten.`);
+  });
+  const truncatedSummary = await expectOk("adminGetPartnerOperationsSummary", adminToken, { limit: 1 });
+  assert(truncatedSummary.redemptions.scanned === 1 && truncatedSummary.redemptions.truncated, "Begrenzte Betriebsberichte muessen Abschneidung explizit ausweisen.");
+
   await expectOk("adminUpsertPartner", adminToken, { partnerId: "cafe", displayName: "Beta Cafe", status: "inactive" });
   await expectError("claimPartnerOffer", otherToken, { offerId: "drink", requestId: "inactive-request" });
 

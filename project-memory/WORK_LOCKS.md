@@ -11,6 +11,16 @@ Prevents two agents/sessions from independently working the same task.
 
 ## Active locks
 
+## LOCK-WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
+- Task: WFN-PARTNER-OPERATIONS-REPORTING-BASELINE
+- Status: ACTIVE
+- Risk: R2
+- Holder: ChatGPT session 2026-09-03
+- Branch/PR: `codex/partner-operations-reporting-20260903` / PR pending
+- Acquired: 2026-09-03 Europe/Vienna
+- Scope: Firebase/backend-only bounded aggregate reporting callable and tests. No dashboard graphics/UI, Production monitoring/deploy, payment, WFT, NFT or cashout.
+- Resume from: aggregate redemptions/challenges/outcomes and prove privacy-minimal response fields.
+
 ## LOCK-WFN-PARTNER-RETENTION-BASELINE
 - Task: WFN-PARTNER-RETENTION-BASELINE
 - Status: RELEASED
