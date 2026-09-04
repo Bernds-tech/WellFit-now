@@ -183,9 +183,10 @@ Historische Solana/SPL-Unterlagen und neuere SUI/Dynamic-Objects-Unterlagen duer
 
 Fuer Beta gilt:
 - Chain-Entscheidung spaeter.
-- WFT bleibt Konzept/Backlog.
+- WFT bleibt Konzept/Backlog und ist nicht Beta-1-aktiv.
+- Falls WFT spaeter aktiviert wird, gilt ein unveraenderlicher Hard Cap von exakt 25.000.000.000 WFT; dies aktiviert weder Token noch Handel oder Konvertierung.
 - NFT bleibt Konzept/Backlog.
-- 25-Mrd.-Supply-Logik nur als interne Simulation/Dokumentation.
+- Die 25-Mrd.-WFP-Supply-Logik bleibt in Beta 1 interne Simulation/Dokumentation; sie ist technisch von der spaeteren WFT-Stufe getrennt.
 
 ## Datenbankbezug
 

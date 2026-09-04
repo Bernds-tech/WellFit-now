@@ -20,12 +20,12 @@ Diese Datei definiert die verbindliche WellFit-Beta-1-Wahrheit fuer Produktsprac
 
 - `WFP` ist ausgebbare interne Spielwaehrung mit maximal 25.000.000.000 Systembestand im Zentralwallet-Modell.
 - `XP` ist Avatar-Fortschritt und strikt getrennt von WFP (keine 1:1-Umrechnung).
-- `WFT` auf SUI ist Zukunftsthema nach stabilem 10.000+-Nutzerlauf plus bewiesenem WFP-Wirtschaftskreislauf; keine Konvertierungszusage.
+- `WFT` auf SUI ist Zukunftsthema nach stabilem 10.000+-Nutzerlauf plus bewiesenem WFP-Wirtschaftskreislauf. Falls WFT später aktiviert wird, gilt ein unveränderlicher Hard Cap von exakt 25.000.000.000 WFT; es gibt weiterhin keine Konvertierungszusage.
 - Zentralwallet-Reserveziel liegt bei ~5 Mrd. WFP; Gegensteuerung unter Ziel, Tiefpunkte bis ~3 Mrd. nur temporaer/toleriert.
 - Rewards/Preise/Gebuehren sind dynamisch und von Economy-/Mission-/Avatar-/Anti-Cheat-Kontext abhaengig.
 - Neue KI-Missionsvorlagen brauchen Adminfreigabe; Varianten koennen nur unter strikten Gleichheitsregeln automatisch live gehen.
 - Avatar-System, Leon/Rudi-Rollen, Lost-Avatar-Mechanik, Item/Marktplatz/Account-Loeschung, Elternmodus/Standortschutz und Anti-Cheat/Admin-Entscheidungspfad sind in der JSON-Datei V4-detailliert normalisiert.
-- SUI/WFT, Tokenomics-Verteilung, Blockchain/NFT/DAO/Staking, Pre-Sale, Cashout und weitere Roadmap-Punkte bleiben explizit **nicht Beta-1-aktiv**.
+- SUI/WFT, Tokenomics-Verteilung, Blockchain/NFT/DAO/Staking, Pre-Sale, Cashout und weitere Roadmap-Punkte bleiben explizit **nicht Beta-1-aktiv**. Der bestätigte spätere WFT-Hard-Cap aktiviert keine Tokenfunktion und legt noch keine Verteilung fest.
 
 ## Verbindliche Detailquelle
 

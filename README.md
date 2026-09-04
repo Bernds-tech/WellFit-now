@@ -36,6 +36,8 @@ The repository currently includes:
 
 Important terminology warning: runtime modules currently use `WFXP`, while the owner-controlled Beta-1 Canonical Truth defines spendable `WFP` and separate non-spendable avatar `XP`. Do not silently equate or rename these concepts. A dedicated migration decision is required.
 
+Future `WFT` is a separate, non-Beta token stage. If activated after the canonical stability gates, WFT has an immutable maximum total supply of exactly 25,000,000,000. This cap does not activate WFT, promise WFP/WFXP conversion, or authorize blockchain, trading, payment or cash-out features.
+
 ## Safe development boundaries
 
 Documentation/setup changes must not touch runtime product code unless a task explicitly says so. In particular, do not change `app/**`, `components/**`, `lib/**`, `functions/**`, `firestore.rules`, `public/**`, `package.json`, `package-lock.json` or `native/unity/WellFitBuddyAR/**` for a docs-only setup task.
