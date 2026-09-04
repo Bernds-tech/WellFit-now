@@ -13,12 +13,13 @@ Prevents two agents/sessions from independently working the same task.
 
 ## LOCK-WFN-CI-INSTALL-RESILIENCE-BASELINE
 - Task: WFN-CI-INSTALL-RESILIENCE-BASELINE
-- Status: ACTIVE
+- Status: RELEASED
 - Risk: R2
 - Holder: ChatGPT session 2026-09-04
-- Branch/PR: `codex/ci-install-resilience-20260904` / PR pending
+- Branch/PR: `codex/ci-install-resilience-20260904` / PR #400
 - Acquired: 2026-09-04 Europe/Vienna
 - Scope: dependency-install flags in CI/release workflows plus verification records; no runtime, graphics, deploy, token, payment or economy changes.
+- Released: 2026-09-04 after PR #400 head `e5ade2893c505a6c61206001129bf31cbc45df4d` passed all required exact-head gates.
 
 ## LOCK-WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
 - Task: WFN-PARTNER-CATALOG-REVISION-READ-BASELINE

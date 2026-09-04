@@ -4,10 +4,11 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 
 ## WFN-LOOP-016
 - Related: WFN-CI-INSTALL-RESILIENCE-BASELINE
-- Status: OPEN
+- Status: CLOSED
 - Updated: 2026-09-04
 - Gap: repeated exact-head checks spent several minutes stalled in root or Functions dependency installation.
-- Close when: cache-preferred lockfile-exact installs pass Build, Database, Beta Emulator, Container and Project Memory gates on the exact PR head.
+- Resolution: PR #400 head `e5ade2893c505a6c61206001129bf31cbc45df4d` passed cache-preferred lockfile-exact installs and every required gate.
+- Limitation: future external npm/GitHub outages remain outside repository control and should be measured rather than assumed eliminated.
 
 ## WFN-LOOP-001
 - Related: WFN-MEM-001

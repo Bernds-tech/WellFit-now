@@ -4,13 +4,14 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-CI-INSTALL-RESILIENCE-BASELINE
 - Date: 2026-09-04
-- Status: IN_PROGRESS
+- Status: VERIFIED
 - Risk: R2
 - Goal: reduce avoidable npm registry work in required CI and release jobs after repeated dependency-install stalls.
 - Scope: use npm's existing cache preferentially and disable non-build audit/funding requests while preserving lockfile-exact `npm ci` behavior.
 - Negative path: do not skip dependencies, change lockfiles, weaken checks, alter runtime code or deploy anything.
-- Result so far: required workflows use consistent cache-preferred, no-audit, no-fund installs; exact-head CI remains to be proven.
-- Next step: validate workflow syntax/diff and pass all exact-head PR gates.
+- Result: required CI and protected release workflows retain lockfile-exact installs while preferring the setup-node npm cache and avoiding audit/funding requests.
+- Evidence: WFN-EV-018; PR #400 head `e5ade2893c505a6c61206001129bf31cbc45df4d` passed all required exact-head gates.
+- Next step: merge PR #400; measure future install behavior through normal CI rather than adding deployment/runtime scope.
 
 ## WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
 - Date: 2026-09-04
