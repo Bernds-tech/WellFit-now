@@ -14,14 +14,14 @@ Canonical register for work that has started but is not yet fully completed.
 ## WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
 - Started: 2026-09-04
 - Updated: 2026-09-04
-- Status: IMPLEMENTED_NOT_VERIFIED
+- Status: VERIFIED
 - Risk: R2
 - Scope: explicit admin-only, offer-scoped and cursor-bounded access to immutable partner-offer revisions.
-- Branch/PR: `codex/partner-catalog-revision-read-20260904` / PR pending.
+- Branch/PR: `codex/partner-catalog-revision-read-20260904` / PR #399.
 - Work lock: `LOCK-WFN-PARTNER-CATALOG-REVISION-READ-BASELINE`.
-- Completed so far: explicit admin-only audit callable, 100-record cap, deterministic offer-scoped cursor and authorization/isolation/missing-offer tests; Beta 1 Emulator #189 succeeded.
-- Verification blocker: Database Package #206 is stuck in dependency installation although its emulator job succeeded; all other exact-head workflows succeeded.
-- Exact next step: run a fresh exact-head CI cycle and merge only after the database validation job also completes successfully.
+- Completed: explicit admin-only audit callable, 100-record cap, deterministic offer-scoped cursor and authorization/isolation/missing-offer tests.
+- Evidence: PR #399 head `325f5016d857712ae6e3dcb2c8a063cf1d5b61b6`; Build #1230, Container #215, Database #207, Beta 1 Emulator #190 and Project Memory gates succeeded.
+- Exact next step: merge PR #399; graphical catalog assembly and Production access remain separate.
 - Owner action needed: none.
 
 ## WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE

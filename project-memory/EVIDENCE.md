@@ -165,3 +165,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: admin-only pages are capped at 100, cursor-stable and contain current lifecycle/revision/inventory facts without audit actor identifiers or raw revision documents.
 - Limitations: no graphical administration, Production deployment or real-partner acceptance was performed.
 - Acceptance: VERIFIED
+
+## WFN-EV-017
+- Related: WFN-PARTNER-CATALOG-REVISION-READ-BASELINE / PR #399
+- Date: 2026-09-04
+- Target: explicit administrative partner-offer revision audit
+- Type: exact-head CI plus emulator authorization/pagination/isolation evidence
+- Reference: PR #399 head `325f5016d857712ae6e3dcb2c8a063cf1d5b61b6`; Build #1230, Container #215, Database #207, Beta 1 Emulator #190 and Project Memory gates.
+- Result: admin-only revision pages are offer-scoped, capped at 100 and cursor-stable; non-admin, cross-offer cursor and missing-offer requests fail closed while ordinary catalog reads remain privacy-minimal.
+- Limitations: no graphical administration, Production deployment or real-partner acceptance was performed.
+- Acceptance: VERIFIED
