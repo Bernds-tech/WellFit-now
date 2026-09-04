@@ -11,6 +11,15 @@ Prevents two agents/sessions from independently working the same task.
 
 ## Active locks
 
+## LOCK-WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
+- Task: WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
+- Status: ACTIVE
+- Risk: R2
+- Holder: ChatGPT session 2026-09-04
+- Branch/PR: `codex/partner-catalog-revision-read-20260904` / PR pending
+- Acquired: 2026-09-04 Europe/Vienna
+- Scope: backend-only bounded revision audit read and tests. No graphics/UI, Production deploy, payment, WFT, NFT or cashout.
+
 ## LOCK-WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
 - Task: WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
 - Status: RELEASED

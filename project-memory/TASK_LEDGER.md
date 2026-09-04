@@ -2,6 +2,14 @@
 
 Keep history append-only; supersede rather than delete.
 
+## WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
+- Date: 2026-09-04
+- Status: IN_PROGRESS
+- Risk: R2
+- Goal: make immutable offer history inspectable only through an explicit bounded administrative audit path.
+- Negative path: non-admin access, cross-offer leakage, invalid cursors and unbounded history scans remain denied.
+- Next step: implement and verify focused emulator paths.
+
 ## WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
 - Date: 2026-09-03
 - Status: VERIFIED

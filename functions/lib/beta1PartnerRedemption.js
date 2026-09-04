@@ -331,6 +331,50 @@ function registerBeta1PartnerRedemption(exportsTarget, { db, onCall, HttpsError 
     };
   });
 
+  exportsTarget.adminListPartnerOfferRevisions = onCall(async (request) => {
+    requireAdmin(request, HttpsError);
+    const data = request.data || {};
+    const offerId = requiredString(data.offerId, "offerId", HttpsError, 120);
+    const limit = normalizedPositiveInteger(data.limit, 25, 100);
+    const cursor = optionalString(data.cursor, 240);
+    const prefix = `${safeDocIdPart(offerId)}_`;
+    if (cursor && !cursor.startsWith(prefix)) {
+      throw new HttpsError("invalid-argument", "Cursor gehoert nicht zu diesem Partnerangebot.");
+    }
+    if (!(await db.collection("partnerOffers").doc(offerId).get()).exists) {
+      throw new HttpsError("not-found", "Partnerangebot wurde nicht gefunden.");
+    }
+    let query = db.collection("partnerOfferRevisions")
+      .where(FieldPath.documentId(), ">=", prefix)
+      .where(FieldPath.documentId(), "<=", `${prefix}\uf8ff`)
+      .orderBy(FieldPath.documentId())
+      .limit(limit + 1);
+    if (cursor) query = query.startAfter(cursor);
+    const snapshot = await query.get();
+    const hasMore = snapshot.size > limit;
+    const docs = snapshot.docs.slice(0, limit);
+    const revisions = docs.map((doc) => {
+      const revision = doc.data() || {};
+      return {
+        revisionId: doc.id, offerId, revision: normalizedPositiveInteger(revision.revision, 0, 1000000),
+        action: optionalString(revision.action, 80), actorUserId: optionalString(revision.actorUserId, 180),
+        partnerId: optionalString(revision.partnerId, 120), status: optionalString(revision.status, 20),
+        title: optionalString(revision.title, 120), description: optionalString(revision.description, 500),
+        costWfxp: normalizedPositiveInteger(revision.costWfxp, 0, 100000),
+        initialInventory: Math.max(0, Number(revision.initialInventory || 0)),
+        remainingInventory: Math.max(0, Number(revision.remainingInventory || 0)),
+        validFrom: revision.validFrom || null, expiresAt: revision.expiresAt || null,
+        createdAt: revision.createdAt && typeof revision.createdAt.toDate === "function"
+          ? revision.createdAt.toDate().toISOString() : revision.createdAt || null,
+      };
+    });
+    return {
+      accepted: true, offerId, revisions, limit, hasMore,
+      nextCursor: hasMore && docs.length ? docs[docs.length - 1].id : null,
+      auditMode: "explicit-admin-immutable-offer-history",
+    };
+  });
+
   exportsTarget.adminUpsertPartnerOperator = onCall(async (request) => {
     const actorUserId = requireAdmin(request, HttpsError);
     const data = request.data || {};
