@@ -41,6 +41,20 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
 
+## RECEIPT-WFN-CI-INSTALL-RESILIENCE-20260904
+- Task: WFN-CI-INSTALL-RESILIENCE-BASELINE
+- Started: 2026-09-04 Europe/Vienna
+- Finished: 2026-09-04 after exact-head CI
+- Branch/PR: `codex/ci-install-resilience-20260904` / PR #400
+- Risk: R2 CI and protected-release configuration only.
+- Preflight checked: merged PR #399, required exact-head workflows, two successive dependency-install delay patterns, existing npm cache configuration and current Project Memory.
+- Changes made: retain `npm ci` while preferring the existing npm cache and suppressing audit/funding requests in Build, Database, Beta Emulator, deploy and Firebase release workflows.
+- Negative countercheck: no lockfile, dependency, application/runtime, test command, deployment trigger, token/payment/economy or graphical code changed.
+- Evidence: PR #400 head `e5ade2893c505a6c61206001129bf31cbc45df4d`; Build #1233, Container #218, Database #210, Beta 1 Emulator #192 and Project Memory gates succeeded.
+- Result status: VERIFIED at repository level.
+- Work lock: `LOCK-WFN-CI-INSTALL-RESILIENCE-BASELINE` released.
+- Falsification question: a changed dependency graph, skipped required check, release trigger change or slower/unreliable exact-head install would invalidate the result.
+
 ## RECEIPT-WFN-PARTNER-CATALOG-REVISION-READ-20260904
 - Task: WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
 - Finished: 2026-09-04 after complete fresh exact-head CI

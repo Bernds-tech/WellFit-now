@@ -11,6 +11,19 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-CI-INSTALL-RESILIENCE-BASELINE
+- Started: 2026-09-04
+- Updated: 2026-09-04
+- Status: VERIFIED
+- Risk: R2
+- Scope: CI/release dependency-install network reduction only; no application, graphics, backend semantics or Production deployment.
+- Branch/PR: `codex/ci-install-resilience-20260904` / PR #400.
+- Work lock: `LOCK-WFN-CI-INSTALL-RESILIENCE-BASELINE`.
+- Completed: applied `--prefer-offline --no-audit --no-fund` consistently to root and Functions `npm ci` steps without changing dependencies or triggers.
+- Evidence: PR #400 head `e5ade2893c505a6c61206001129bf31cbc45df4d`; Build #1233, Container #218, Database #210, Beta 1 Emulator #192 and Project Memory gates succeeded.
+- Exact next step: merge PR #400; observe subsequent normal CI runs for recurrence.
+- Owner action needed: none.
+
 ## WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
 - Started: 2026-09-04
 - Updated: 2026-09-04

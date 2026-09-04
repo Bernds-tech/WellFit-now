@@ -82,10 +82,10 @@ jobs:
           npm run runtime:validate:production
 
       - name: Install root dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Install Functions dependencies
-        run: npm --prefix functions ci
+        run: npm --prefix functions ci --prefer-offline --no-audit --no-fund
 
       - name: Lint app and runtime source
         run: npm run lint -- --ignore-pattern 'database/**'

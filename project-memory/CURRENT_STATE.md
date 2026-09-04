@@ -1,6 +1,6 @@
 # WellFit-now Current State
 
-Last reconciled: 2026-09-03
+Last reconciled: 2026-09-04
 
 ## Project role
 WellFit-now is the **technical WellFit repository**. It owns web/backend, authentication, data, APIs, mission/economy/server authority, security/runtime and general technical application/mobile logic. `Bernds-tech/WellFit` owns the graphical/UI/landing domain. `Bernds-tech/WellFit-Buddy` owns Buddy behavior, Buddy presentation/animation and Buddy-specific AR/camera interaction. Cross-repository bridge work requires an explicit contract/task ID.
@@ -35,8 +35,8 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not move general technical mobile/application logic into WellFit-Buddy merely because Buddy-specific AR belongs there.
 
 ## Exact next safe technical work
-- Selected local action: `WFN-PARTNER-CATALOG-REVISION-READ-BASELINE`
-1. expose bounded revision history only through an explicit admin audit callable;
-2. keep the normal catalog projection free of raw history and actor identifiers;
-3. prove offer scoping, pagination/bounds and non-admin denial;
-4. preserve graphical/UI and Buddy repository boundaries; no cross-repo assembly in this task.
+- Selected local action: `WFN-CI-INSTALL-RESILIENCE-BASELINE`
+1. preserve lockfile-exact dependency installation;
+2. reduce avoidable registry/audit/funding requests in required workflows;
+3. prove every required exact-head gate still runs and passes;
+4. keep runtime, graphical/UI, deployment and product semantics unchanged.

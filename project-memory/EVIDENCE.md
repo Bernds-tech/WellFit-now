@@ -175,3 +175,13 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Result: admin-only revision pages are offer-scoped, capped at 100 and cursor-stable; non-admin, cross-offer cursor and missing-offer requests fail closed while ordinary catalog reads remain privacy-minimal.
 - Limitations: no graphical administration, Production deployment or real-partner acceptance was performed.
 - Acceptance: VERIFIED
+
+## WFN-EV-018
+- Related: WFN-CI-INSTALL-RESILIENCE-BASELINE / PR #400
+- Date: 2026-09-04
+- Target: cache-preferred lockfile-exact CI dependency installation
+- Type: exact-head workflow/configuration evidence
+- Reference: PR #400 head `e5ade2893c505a6c61206001129bf31cbc45df4d`; Build #1233, Container #218, Database #210, Beta 1 Emulator #192 and Project Memory gates.
+- Result: all required checks passed with cache-preferred root and Functions `npm ci` commands and without dependency, lockfile, trigger or runtime changes.
+- Limitations: no Production deployment was run and external package-registry availability cannot be guaranteed by repository configuration.
+- Acceptance: VERIFIED

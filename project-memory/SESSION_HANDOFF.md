@@ -4,7 +4,7 @@ Update this at the end of substantial work or when pausing at a non-obvious stat
 
 ## Current handoff
 - Updated: 2026-09-04 Europe/Vienna
-- Active focus: PR #399 verifies bounded, offer-scoped administrative revision audits and is ready to merge; choose the next backend-only gap from current evidence after merge.
+- Active focus: PR #399 is merged and PR #400 verifies cache-preferred CI installs without runtime or deployment changes; PR #400 is ready to merge.
 - Start here: `AGENTS.md`, current runtime-state/canonical files required by it, `CURRENT_STATE.md`, `TASK_LEDGER.md`, `STARTED_WORK.md`, `OPEN_LOOPS.md`, `DEPENDENCIES.md`, `EVIDENCE.md`, `ASSUMPTIONS.md`, `CONTRADICTIONS.md`, `WORK_LOCKS.md`.
 - Repository boundary: WellFit-now = technical product including general technical app/mobile logic; WellFit = graphical/UI/landing; WellFit-Buddy = Buddy behavior/presentation/animation and Buddy-specific AR/camera.
 - Verified foundation: Closed-Beta sessions/auth, repository build/container/database package and server-authoritative mission/economy/Buddy foundations are verified, not Production/device/legal acceptance.

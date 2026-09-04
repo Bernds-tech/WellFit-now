@@ -48,10 +48,10 @@ jobs:
           java-version: 21
 
       - name: Install root dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Install functions dependencies
-        run: npm --prefix functions ci
+        run: npm --prefix functions ci --prefer-offline --no-audit --no-fund
 
       - name: Check Firestore economy rule posture
         run: npm run agent:firestore-economy-rules-check
