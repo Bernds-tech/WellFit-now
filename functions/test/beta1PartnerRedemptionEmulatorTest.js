@@ -106,6 +106,18 @@ async function run() {
   ["updatedByUserId", "actorUserId", "partnerOfferRevisions"].forEach((forbidden) => {
     assert(!serializedCatalog.includes(forbidden), `Admin-Katalog darf ${forbidden} nicht enthalten.`);
   });
+  await expectError("adminListPartnerOfferRevisions", userToken, { offerId: "drink", limit: 2 });
+  const firstRevisionPage = await expectOk("adminListPartnerOfferRevisions", adminToken, { offerId: "drink", limit: 2 });
+  assert(firstRevisionPage.revisions.length === 2 && firstRevisionPage.hasMore && firstRevisionPage.nextCursor, "Revisionsaudit muss begrenzt und cursorfaehig sein.");
+  assert(firstRevisionPage.revisions.every((revision) => revision.offerId === "drink" && revision.actorUserId === ADMIN_ID), "Revisionsaudit muss auf Angebot und Admin-Akteur begrenzt sein.");
+  const secondRevisionPage = await expectOk("adminListPartnerOfferRevisions", adminToken, {
+    offerId: "drink", limit: 2, cursor: firstRevisionPage.nextCursor,
+  });
+  assert(secondRevisionPage.revisions.length === 2 && secondRevisionPage.revisions[0].revision > firstRevisionPage.revisions[1].revision, "Revisionscursor darf keine Eintraege wiederholen.");
+  await expectError("adminListPartnerOfferRevisions", adminToken, {
+    offerId: "locked-draft", limit: 2, cursor: firstRevisionPage.nextCursor,
+  });
+  await expectError("adminListPartnerOfferRevisions", adminToken, { offerId: "missing-offer", limit: 2 });
 
   const presentation = await expectOk("createPartnerRedemptionPresentation", userToken, { redemptionId: claim.redemptionId });
   await expectError("confirmPartnerRedemption", foreignOperatorToken, { redemptionId: claim.redemptionId, presentationToken: presentation.presentationToken });

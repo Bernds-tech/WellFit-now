@@ -2,6 +2,16 @@
 
 Keep history append-only; supersede rather than delete.
 
+## WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
+- Date: 2026-09-04
+- Status: VERIFIED
+- Risk: R2
+- Goal: make immutable offer history inspectable only through an explicit bounded administrative audit path.
+- Negative path: non-admin access, cross-offer leakage, invalid cursors and unbounded history scans remain denied.
+- Result: explicit admin-only audit pages are offer-scoped, capped at 100 records and use deterministic offer-bound cursors; non-admin, cross-offer cursor and missing-offer paths fail closed.
+- Evidence: WFN-EV-017; PR #399 head `325f5016d857712ae6e3dcb2c8a063cf1d5b61b6` passed all required exact-head gates.
+- Next step: merge PR #399; keep graphical catalog assembly and Production access separate.
+
 ## WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
 - Date: 2026-09-03
 - Status: VERIFIED

@@ -41,6 +41,19 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
 
+## RECEIPT-WFN-PARTNER-CATALOG-REVISION-READ-20260904
+- Task: WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
+- Finished: 2026-09-04 after complete fresh exact-head CI
+- Branch/PR: `codex/partner-catalog-revision-read-20260904` / PR #399
+- Risk: R2 read-only explicit administrative audit.
+- Changes made: offer-scoped immutable revision query, maximum 100 records, deterministic cursors and non-admin/cross-offer/missing-offer negative tests.
+- Exact implementation revision: `6601c0cc3cb8c1cd118f1f8d9e55473826fe16ee`.
+- Evidence: PR #399 head `325f5016d857712ae6e3dcb2c8a063cf1d5b61b6`; Build #1230, Container #215, Database #207, Beta 1 Emulator #190 and Project Memory gates succeeded.
+- Negative countercheck: non-admin access, cross-offer cursor reuse and missing offers are denied; pages are capped at 100 and the normal catalog projection still omits raw revision history and actors.
+- Result status: VERIFIED at repository level.
+- Work lock: `LOCK-WFN-PARTNER-CATALOG-REVISION-READ-BASELINE` released.
+- Falsification question: non-admin access, cross-offer leakage, cursor replay, an unbounded page or a mutable revision would invalidate this result.
+
 ## RECEIPT-WFN-PARTNER-CATALOG-ADMIN-READ-20260903
 - Task: WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
 - Finished: 2026-09-03 after exact-head CI
