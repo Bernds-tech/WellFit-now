@@ -1,0 +1,88 @@
+name: Generate Rudi animation pack via Meshy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/meshy-rudi-animations.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: meshy-rudi-animation-pack
+  cancel-in-progress: false
+
+jobs:
+  generate-animations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      MESHY_API_KEY: ${{ secrets.MESHY_API_KEY }}
+      RUDI_RIG_TASK_ID: 01a06cb8-7bca-76ae-8297-fdc23591e1da
+    steps:
+      - name: Generate natural activity clips
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${MESHY_API_KEY:-}" ]; then
+            echo "MESHY_API_KEY is not configured."
+            exit 1
+          fi
+
+          mkdir -p rudi-animations
+          printf '%s\n'             'idle 0'             'alert 2'             'point 34'             'inspect 36'             'celebrate 59'             'jump 61'             'sit 33'             'climb 438' > animation-actions.txt
+
+          while read -r name action_id; do
+            payload=$(jq -n --arg rig_task_id "$RUDI_RIG_TASK_ID" --argjson action_id "$action_id" '{
+              rig_task_id: $rig_task_id,
+              action_id: $action_id,
+              post_process: { operation_type: "change_fps", fps: 24 }
+            }')
+
+            response=$(curl --fail-with-body --silent --show-error \
+              -X POST https://api.meshy.ai/openapi/v1/animations \
+              -H "Authorization: Bearer $MESHY_API_KEY" \
+              -H "Content-Type: application/json" \
+              --data "$payload")
+            task_id=$(printf '%s' "$response" | jq -er '.result')
+            echo "$name: task created"
+
+            status=""
+            for attempt in $(seq 1 90); do
+              result=$(curl --fail-with-body --silent --show-error \
+                "https://api.meshy.ai/openapi/v1/animations/$task_id" \
+                -H "Authorization: Bearer $MESHY_API_KEY")
+              status=$(printf '%s' "$result" | jq -r '.status')
+              echo "$name: $status ($(printf '%s' "$result" | jq -r '.progress // 0')%)"
+              if [ "$status" = "SUCCEEDED" ]; then break; fi
+              if [ "$status" = "FAILED" ] || [ "$status" = "CANCELED" ]; then
+                printf '%s' "$result" | jq .
+                exit 1
+              fi
+              sleep 8
+            done
+
+            if [ "$status" != "SUCCEEDED" ]; then
+              echo "$name timed out."
+              exit 1
+            fi
+
+            printf '%s' "$result" > "rudi-animations/$name.json"
+            url=$(printf '%s' "$result" | jq -er '.result.animation_glb_url')
+            curl --fail --location --silent --show-error "$url" --output "rudi-animations/rudi-$name.glb"
+          done < animation-actions.txt
+
+          (
+            cd rudi-animations
+            sha256sum *.glb > SHA256SUMS.txt
+          )
+
+      - name: Upload Rudi animation pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: rudi-meshy-animation-pack
+          path: rudi-animations/
+          if-no-files-found: error
+          retention-days: 30
