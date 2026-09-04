@@ -1,0 +1,171 @@
+name: Generate Rudi 3D via Meshy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/meshy-rudi-generation.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: meshy-rudi-production
+  cancel-in-progress: false
+
+jobs:
+  generate-rudi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      MESHY_API_KEY: ${{ secrets.MESHY_API_KEY }}
+      RUDI_IMAGE_URL: https://wellfit-bewegt.bernd-guggenberger.chatgpt.site/images/player/3d/rudi-3d-front-v2-no-cape.png
+    steps:
+      - name: Generate textured cape-free body
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${MESHY_API_KEY:-}" ]; then
+            echo "MESHY_API_KEY is not configured."
+            exit 1
+          fi
+
+          mkdir -p rudi-output
+
+          image_payload=$(jq -n --arg image_url "$RUDI_IMAGE_URL" '{
+            image_url: $image_url,
+            model_type: "standard",
+            ai_model: "meshy-7",
+            ultra_mode: false,
+            should_texture: true,
+            enable_pbr: true,
+            texture_resolution: "2k",
+            texture_image_url: $image_url,
+            should_remesh: true,
+            topology: "triangle",
+            target_polycount: 20000,
+            pose_mode: "a-pose",
+            target_formats: ["glb"],
+            multi_view_thumbnails: true,
+            moderation: false
+          }')
+
+          create_response=$(curl --fail-with-body --silent --show-error \
+            -X POST https://api.meshy.ai/openapi/v1/image-to-3d \
+            -H "Authorization: Bearer $MESHY_API_KEY" \
+            -H "Content-Type: application/json" \
+            --data "$image_payload")
+
+          image_task_id=$(printf '%s' "$create_response" | jq -er '.result')
+          echo "Image-to-3D task created."
+
+          image_status=""
+          for attempt in $(seq 1 120); do
+            image_result=$(curl --fail-with-body --silent --show-error \
+              "https://api.meshy.ai/openapi/v1/image-to-3d/$image_task_id" \
+              -H "Authorization: Bearer $MESHY_API_KEY")
+            image_status=$(printf '%s' "$image_result" | jq -r '.status')
+            echo "Image-to-3D: $image_status ($(printf '%s' "$image_result" | jq -r '.progress // 0')%)"
+            if [ "$image_status" = "SUCCEEDED" ]; then
+              break
+            fi
+            if [ "$image_status" = "FAILED" ] || [ "$image_status" = "CANCELED" ]; then
+              printf '%s' "$image_result" | jq .
+              exit 1
+            fi
+            sleep 10
+          done
+
+          if [ "$image_status" != "SUCCEEDED" ]; then
+            echo "Image-to-3D timed out."
+            exit 1
+          fi
+
+          printf '%s' "$image_result" > rudi-output/image-task.json
+          model_url=$(printf '%s' "$image_result" | jq -er '.model_urls.glb')
+          curl --fail --location --silent --show-error "$model_url" --output rudi-output/rudi-textured-body.glb
+
+          for view in front right back left; do
+            view_url=$(printf '%s' "$image_result" | jq -r --arg view "$view" '.thumbnail_urls[$view] // empty')
+            if [ -n "$view_url" ]; then
+              curl --fail --location --silent --show-error "$view_url" --output "rudi-output/rudi-$view.png"
+            fi
+          done
+
+          rig_payload=$(jq -n --arg input_task_id "$image_task_id" '{
+            input_task_id: $input_task_id,
+            height_meters: 1.8
+          }')
+
+          rig_response=$(curl --fail-with-body --silent --show-error \
+            -X POST https://api.meshy.ai/openapi/v1/rigging \
+            -H "Authorization: Bearer $MESHY_API_KEY" \
+            -H "Content-Type: application/json" \
+            --data "$rig_payload")
+
+          rig_task_id=$(printf '%s' "$rig_response" | jq -er '.result')
+          echo "Rigging task created."
+
+          rig_status=""
+          for attempt in $(seq 1 120); do
+            rig_result=$(curl --fail-with-body --silent --show-error \
+              "https://api.meshy.ai/openapi/v1/rigging/$rig_task_id" \
+              -H "Authorization: Bearer $MESHY_API_KEY")
+            rig_status=$(printf '%s' "$rig_result" | jq -r '.status')
+            echo "Rigging: $rig_status ($(printf '%s' "$rig_result" | jq -r '.progress // 0')%)"
+            if [ "$rig_status" = "SUCCEEDED" ]; then
+              break
+            fi
+            if [ "$rig_status" = "FAILED" ] || [ "$rig_status" = "CANCELED" ]; then
+              printf '%s' "$rig_result" | jq .
+              exit 1
+            fi
+            sleep 10
+          done
+
+          if [ "$rig_status" != "SUCCEEDED" ]; then
+            echo "Rigging timed out."
+            exit 1
+          fi
+
+          printf '%s' "$rig_result" > rudi-output/rig-task.json
+
+          download_if_present() {
+            local json_path="$1"
+            local output_name="$2"
+            local asset_url
+            asset_url=$(printf '%s' "$rig_result" | jq -r "$json_path // empty")
+            if [ -n "$asset_url" ]; then
+              curl --fail --location --silent --show-error "$asset_url" --output "rudi-output/$output_name"
+            fi
+          }
+
+          download_if_present '.result.rigged_character_glb_url' 'rudi-rigged.glb'
+          download_if_present '.result.basic_animations.walking_glb_url' 'rudi-walking.glb'
+          download_if_present '.result.basic_animations.running_glb_url' 'rudi-running.glb'
+
+          (
+            cd rudi-output
+            sha256sum *.glb > SHA256SUMS.txt
+          )
+
+          jq -n \
+            --arg image_task_id "$image_task_id" \
+            --arg rig_task_id "$rig_task_id" \
+            --arg source_image "$RUDI_IMAGE_URL" \
+            '{
+              source_image: $source_image,
+              image_task_id: $image_task_id,
+              rig_task_id: $rig_task_id,
+              cape: "separate asset required",
+              status: "generated_textured_and_rigged"
+            }' > rudi-output/manifest.json
+
+      - name: Upload Rudi production assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: rudi-meshy-production
+          path: rudi-output/
+          if-no-files-found: error
+          retention-days: 30
