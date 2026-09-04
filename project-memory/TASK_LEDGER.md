@@ -4,11 +4,12 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
 - Date: 2026-09-04
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED_NOT_VERIFIED
 - Risk: R2
 - Goal: make immutable offer history inspectable only through an explicit bounded administrative audit path.
 - Negative path: non-admin access, cross-offer leakage, invalid cursors and unbounded history scans remain denied.
-- Next step: implement and verify focused emulator paths.
+- Result so far: implementation and focused emulator coverage succeeded; final repository verification is pending a fresh database-package run because #206 stalled during dependency installation.
+- Next step: trigger and wait for fresh exact-head CI; do not merge while any required workflow is incomplete.
 
 ## WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
 - Date: 2026-09-03

@@ -41,6 +41,17 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
 
+## RECEIPT-WFN-PARTNER-CATALOG-REVISION-READ-20260904
+- Task: WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
+- Branch/PR: `codex/partner-catalog-revision-read-20260904` / PR #399
+- Risk: R2 read-only explicit administrative audit.
+- Changes made: offer-scoped immutable revision query, maximum 100 records, deterministic cursors and non-admin/cross-offer/missing-offer negative tests.
+- Exact implementation revision: `6601c0cc3cb8c1cd118f1f8d9e55473826fe16ee`.
+- Evidence so far: Beta 1 Emulator #189, Build #1229, Container #214 and Project Memory gates succeeded; Database Package #206 emulator succeeded but validation remained stuck in dependency installation.
+- Result status: IMPLEMENTED_NOT_VERIFIED pending a complete fresh exact-head database workflow.
+- Work lock: `LOCK-WFN-PARTNER-CATALOG-REVISION-READ-BASELINE` remains active.
+- Falsification question: non-admin access, cross-offer leakage, cursor replay, an unbounded page or a mutable revision would invalidate this result.
+
 ## RECEIPT-WFN-PARTNER-CATALOG-ADMIN-READ-20260903
 - Task: WFN-PARTNER-CATALOG-ADMIN-READ-BASELINE
 - Finished: 2026-09-03 after exact-head CI
