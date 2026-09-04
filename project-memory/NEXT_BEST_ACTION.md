@@ -1,22 +1,22 @@
 # WellFit-now Next Best Action
 
-- Selected action: `WFN-PARTNER-CATALOG-REVISION-READ-BASELINE`
+- Selected action: `WFN-CI-INSTALL-RESILIENCE-BASELINE`
 - Status: `EXECUTABLE`
-- Risk: `R3`
-- Title: Angebotsrevisionen kontrolliert auditieren
+- Risk: `R2`
+- Title: CI-Paketinstallation stabilisieren
 
 ## Why this is next
-PR #398 verifies the privacy-minimal current catalog projection. The next bounded technical gap is controlled access to immutable revision history for explicit administrative audits without expanding the normal operational response.
+PR #399 completed the bounded revision audit. Two successive verification cycles then showed long npm dependency-install stalls across otherwise healthy jobs, making CI feedback slower and less reliable.
 
 ## Exact work
-1. Add an explicit admin-only revision-history callable scoped to one offer.
-2. Bound results and provide deterministic revision pagination.
-3. Keep raw history out of the default catalog projection.
-4. Cover non-admin denial, cross-offer isolation and limits/cursors.
-5. Keep catalog graphics, Production partner onboarding, WFT/token/payment/cashout outside this task.
+1. Keep lockfile-exact `npm ci` semantics.
+2. Prefer the setup-node npm cache before registry retrieval.
+3. Disable audit/funding requests that do not contribute to build verification.
+4. Apply the same install posture to required CI and protected release workflows.
+5. Prove the exact workflow changes through required PR checks without deploying.
 
 ## Parallel-safe work
 Device/Unity evidence remains a separate owner-machine task and graphical work remains in `Bernds-tech/WellFit`.
 
 ## Safety
-No Production deploy, no token/NFT/payment activation, no silent currency rename, no native AR ownership move, and no broad rewrite.
+No Production deploy, no dependency or lockfile change, no skipped verification, no token/NFT/payment activation, no silent currency rename, no native AR ownership move, and no broad rewrite.

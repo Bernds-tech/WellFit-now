@@ -96,8 +96,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci
-          npm --prefix functions ci
+          npm ci --prefer-offline --no-audit --no-fund
+          npm --prefix functions ci --prefer-offline --no-audit --no-fund
 
       - name: Validate complete release source
         run: |
@@ -198,8 +198,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci
-          npm --prefix functions ci
+          npm ci --prefer-offline --no-audit --no-fund
+          npm --prefix functions ci --prefer-offline --no-audit --no-fund
 
       - name: Verify authenticated target and backup bucket
         shell: bash

@@ -2,6 +2,13 @@
 
 Use this register for started, partial, blocked or implemented-but-unverified follow-up work that could otherwise disappear between sessions. Link each loop to an existing task/change ID whenever possible.
 
+## WFN-LOOP-016
+- Related: WFN-CI-INSTALL-RESILIENCE-BASELINE
+- Status: OPEN
+- Updated: 2026-09-04
+- Gap: repeated exact-head checks spent several minutes stalled in root or Functions dependency installation.
+- Close when: cache-preferred lockfile-exact installs pass Build, Database, Beta Emulator, Container and Project Memory gates on the exact PR head.
+
 ## WFN-LOOP-001
 - Related: WFN-MEM-001
 - Status: CLOSED

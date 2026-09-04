@@ -11,6 +11,15 @@ Prevents two agents/sessions from independently working the same task.
 
 ## Active locks
 
+## LOCK-WFN-CI-INSTALL-RESILIENCE-BASELINE
+- Task: WFN-CI-INSTALL-RESILIENCE-BASELINE
+- Status: ACTIVE
+- Risk: R2
+- Holder: ChatGPT session 2026-09-04
+- Branch/PR: `codex/ci-install-resilience-20260904` / PR pending
+- Acquired: 2026-09-04 Europe/Vienna
+- Scope: dependency-install flags in CI/release workflows plus verification records; no runtime, graphics, deploy, token, payment or economy changes.
+
 ## LOCK-WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
 - Task: WFN-PARTNER-CATALOG-REVISION-READ-BASELINE
 - Status: RELEASED

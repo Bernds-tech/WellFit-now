@@ -31,10 +31,10 @@ jobs:
           cache: npm
 
       - name: Install root dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Install Functions dependencies
-        run: npm --prefix functions ci
+        run: npm --prefix functions ci --prefer-offline --no-audit --no-fund
 
       - name: Validate database manifests and execution guards
         run: npm run database:validate
@@ -62,10 +62,10 @@ jobs:
           java-version: "21"
 
       - name: Install root dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Install Functions dependencies
-        run: npm --prefix functions ci
+        run: npm --prefix functions ci --prefer-offline --no-audit --no-fund
 
       - name: Run database migrations and seeds against emulator
         run: >-
