@@ -4,6 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const world = read("app/components/landing/LivingRudiWorld.tsx");
+const geometry = read("app/components/landing/rudiWorldGeometry.mjs");
 const hero = read("app/components/landing/LandingHeroV5.tsx");
 const landing = read("app/components/landing/PublicLandingV5.tsx");
 const primitives = read("app/components/landing/LandingPrimitivesV5.tsx");
@@ -15,7 +16,14 @@ const checks = [
   [hero.includes('data-rudi-surface="letter"'), "Hero letters are climbable surfaces"],
   [hero.includes("Rudi Rastlos"), "Rudi is presented as the first WellFit Buddy"],
   [!hero.includes('src="/buddy/luma.png"'), "No other Buddy is shown before Rudi in the hero"],
+  [world.includes('from "./rudiWorldGeometry.mjs"'), "Runtime imports the shared Rudi world geometry authority"],
+  [geometry.includes('initialAnchor: "hero-wellfit-4"'), "Shared geometry binds the initial climb to the F in WellFit"],
   [world.includes("getBoundingClientRect()"), "Rudi derives world position from real DOM geometry"],
+  [world.includes("surfaceTopPoint("), "Runtime footing uses shared DOM-surface geometry"],
+  [world.includes("surfaceClimbEdgePoint("), "Runtime climbing uses the shared physical surface edge"],
+  [world.includes("isSurfaceFullyOffscreen("), "Catch-up waits for the shared full-offscreen rule"],
+  [world.includes("catchupSurfaceScore("), "Catch-up surface selection uses deterministic shared scoring"],
+  [world.includes("catchupGuideGeometry("), "Visible catch-up guide uses the same shared route geometry"],
   [world.includes('motion === "initial-climb"'), "Rudi has an explicit letter-climb entrance"],
   [world.includes('motion === "catchup-from-top"'), "Rudi can catch up from above after scrolling"],
   [world.includes('motion === "catchup-from-bottom"'), "Rudi can catch up from below after scrolling"],
