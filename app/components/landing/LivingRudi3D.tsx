@@ -63,15 +63,15 @@ function Cape({ moving }: { moving: boolean }) {
       const x = original.current[offset];
       const y = original.current[offset + 1];
       const row = THREE.MathUtils.clamp(0.5 - y / 1.28, 0, 1);
-      const wave = Math.sin(t * (moving ? 6.2 : 2.1) + x * 7 + row * 2.4);
-      positions.setXYZ(index, x, y, original.current[offset + 2] + wave * row * (moving ? 0.11 : 0.035) + row * row * 0.08);
+      const wave = Math.sin(t * (moving ? 4.8 : 1.8) + x * 6.2 + row * 2.2);
+      positions.setXYZ(index, x, y, original.current[offset + 2] + wave * row * (moving ? 0.075 : 0.025) + row * row * 0.045);
     }
     positions.needsUpdate = true;
     geometry.computeVertexNormals();
   });
 
   return (
-    <mesh ref={mesh} position={[0, 0.43, -0.2]} rotation={[0.04, Math.PI, 0]}>
+    <mesh ref={mesh} position={[0, 1.08, -0.21]} rotation={[0.12, Math.PI, 0]}>
       <planeGeometry args={[0.9, 1.28, 10, 14]} />
       <meshStandardMaterial color="#56358f" roughness={0.68} metalness={0.08} side={THREE.DoubleSide} />
     </mesh>
