@@ -3,14 +3,14 @@ import Link from "next/link";
 import LandingHeroV5 from "./LandingHeroV5";
 import LandingSectionsV5 from "./LandingSectionsV5";
 import LandingSessionRedirect from "./LandingSessionRedirect";
-import LivingRudi3D from "./LivingRudi3D";
+import LivingRudiWorld from "./LivingRudiWorld";
 import { navItems } from "./landingPublicData";
 
 export default function PublicLandingV5() {
   return (
     <main className="landing-page h-screen overflow-y-auto scroll-smooth bg-[#020b0f] text-white">
       <LandingSessionRedirect />
-      <LivingRudi3D />
+      <LivingRudiWorld />
 
       <header className="sticky top-0 z-50 border-b border-cyan-100/22 bg-[#021219]/94 shadow-[0_10px_30px_rgba(0,0,0,.18)] backdrop-blur-2xl">
         <div className="mx-auto flex h-[78px] max-w-[1520px] items-center justify-between gap-5 px-4 sm:px-6 lg:px-10">
@@ -56,7 +56,11 @@ export default function PublicLandingV5() {
       <LandingSectionsV5 />
 
       <section className="bg-[#020b0f] px-5 py-10 lg:px-10">
-        <div className="mx-auto flex max-w-[1420px] flex-col items-center justify-between gap-6 rounded-[26px] border border-[#ffad2f]/24 bg-gradient-to-r from-[#092b32] via-[#07313a] to-[#19281f] p-7 text-center shadow-[0_20px_50px_rgba(0,0,0,.25)] lg:flex-row lg:text-left">
+        <div
+          data-rudi-surface="card"
+          data-rudi-layer="front"
+          className="mx-auto flex max-w-[1420px] flex-col items-center justify-between gap-6 rounded-[26px] border border-[#ffad2f]/24 bg-gradient-to-r from-[#092b32] via-[#07313a] to-[#19281f] p-7 text-center shadow-[0_20px_50px_rgba(0,0,0,.25)] lg:flex-row lg:text-left"
+        >
           <div>
             <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#ffd95d]">Dein erstes Abenteuer wartet</p>
             <h2 className="mt-2 text-2xl font-black tracking-[-.03em] sm:text-3xl">
