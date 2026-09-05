@@ -369,6 +369,63 @@ function chooseCatchupSurface(page: HTMLElement, direction: 1 | -1, current: HTM
   })[0] ?? null;
 }
 
+function RudiRouteGuide({ anchorRef, motion }: { anchorRef: MutableRefObject<HTMLElement | null>; motion: Motion }) {
+  const guideRef = useRef<HTMLDivElement>(null);
+  const capRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      const guide = guideRef.current;
+      const cap = capRef.current;
+      const anchor = anchorRef.current;
+      const active = motion === "catchup-from-top" || motion === "catchup-from-bottom";
+      if (!guide || !cap || !anchor || !active) {
+        if (guide) guide.style.opacity = "0";
+        if (cap) cap.style.opacity = "0";
+        frame = window.requestAnimationFrame(update);
+        return;
+      }
+
+      const rect = anchor.getBoundingClientRect();
+      const edgeX = rect.left + Math.min(Math.max(rect.width * 0.16, 7), 18);
+      const targetY = rect.top - 3;
+      const fromTop = motion === "catchup-from-top";
+      const top = fromTop ? 0 : Math.max(0, Math.min(targetY, window.innerHeight));
+      const height = fromTop
+        ? Math.max(0, Math.min(targetY, window.innerHeight))
+        : Math.max(0, window.innerHeight - top);
+
+      guide.style.left = `${edgeX}px`;
+      guide.style.top = `${top}px`;
+      guide.style.height = `${height}px`;
+      guide.style.opacity = height > 3 ? "0.72" : "0";
+      cap.style.left = `${edgeX - 7}px`;
+      cap.style.top = `${Math.max(0, Math.min(targetY - 1, window.innerHeight - 2))}px`;
+      cap.style.opacity = "0.82";
+      frame = window.requestAnimationFrame(update);
+    };
+
+    frame = window.requestAnimationFrame(update);
+    return () => window.cancelAnimationFrame(frame);
+  }, [anchorRef, motion]);
+
+  return (
+    <>
+      <div
+        ref={guideRef}
+        data-rudi-route-guide="catchup"
+        className="fixed w-[2px] -translate-x-1/2 rounded-full bg-[linear-gradient(180deg,rgba(138,255,235,.12),rgba(138,255,235,.88),rgba(255,214,91,.62))] opacity-0 shadow-[0_0_9px_rgba(94,235,222,.48)] transition-opacity duration-200"
+      />
+      <div
+        ref={capRef}
+        aria-hidden="true"
+        className="fixed h-[2px] w-[14px] rounded-full bg-cyan-100/75 opacity-0 shadow-[0_0_7px_rgba(94,235,222,.45)] transition-opacity duration-200"
+      />
+    </>
+  );
+}
+
 function FallbackRudi({ anchorRef }: { anchorRef: MutableRefObject<HTMLElement | null> }) {
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -556,6 +613,7 @@ export default function LivingRudiWorld() {
       data-rudi-world="dom-surface-bound"
       className={`pointer-events-none fixed inset-0 hidden h-[100dvh] w-screen overflow-visible lg:block ${layer === "front" ? "z-[45]" : "z-[18]"}`}
     >
+      <RudiRouteGuide anchorRef={anchorRef} motion={motion} />
       {webgl ? (
         <Canvas orthographic camera={{ position: [0, 0, 10], zoom: 100 }} gl={{ alpha: true, antialias: true, powerPreference: "low-power" }} dpr={[0.75, 1]}>
           <ambientLight intensity={1.25} />
