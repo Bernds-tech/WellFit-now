@@ -12,6 +12,7 @@ import {
   catchupOriginY,
   catchupSurfaceScore,
   isSurfaceFullyOffscreen,
+  isSurfaceSizeUsable,
   surfaceClimbEdgePoint,
   surfaceTopPoint,
 } from "./rudiWorldGeometry.mjs";
@@ -350,8 +351,7 @@ function isUsableSurface(element: HTMLElement) {
   return element.offsetParent !== null
     && style.visibility !== "hidden"
     && style.display !== "none"
-    && rect.width >= 34
-    && rect.height >= 18;
+    && isSurfaceSizeUsable(rect.width, rect.height, element.dataset.rudiSurface);
 }
 
 function visibleSurfaces(page: HTMLElement) {
