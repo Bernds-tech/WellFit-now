@@ -6,9 +6,18 @@ import { Suspense, useEffect, useMemo, useRef, useState, type MutableRefObject }
 import { createPortal } from "react-dom";
 import * as THREE from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import {
+  RUDI_WORLD_GEOMETRY,
+  catchupGuideGeometry,
+  catchupOriginY,
+  catchupSurfaceScore,
+  isSurfaceFullyOffscreen,
+  surfaceClimbEdgePoint,
+  surfaceTopPoint,
+} from "./rudiWorldGeometry.mjs";
 
 const ASSET_ROOT = "/landing/rudi";
-const INITIAL_ANCHOR = "hero-wellfit-4";
+const INITIAL_ANCHOR = RUDI_WORLD_GEOMETRY.initialAnchor;
 const SURFACE_SELECTOR = [
   "[data-rudi-surface]",
   ".landing-page section h2",
@@ -224,9 +233,11 @@ function WorldRudiModel({ anchorRef, surfaceFractionRef, motion, routeVersion, a
 
     const rect = anchorRef.current.getBoundingClientRect();
     const factor = viewport.factor;
-    const surfaceX = rect.left + rect.width * surfaceFractionRef.current;
-    const surfaceY = rect.top - 3;
-    const edgeX = rect.left + Math.min(Math.max(rect.width * 0.16, 7), 18);
+    const surfacePoint = surfaceTopPoint(rect, surfaceFractionRef.current);
+    const climbEdgePoint = surfaceClimbEdgePoint(rect);
+    const surfaceX = surfacePoint.x;
+    const surfaceY = surfacePoint.y;
+    const edgeX = climbEdgePoint.x;
     const peekX = rect.left + Math.min(Math.max(rect.width * 0.12, 5), 15);
     const peekY = rect.top + Math.min(rect.height * 0.34, 58);
     const toWorldX = (clientX: number) => (clientX - window.innerWidth / 2) / factor;
@@ -241,9 +252,9 @@ function WorldRudiModel({ anchorRef, surfaceFractionRef, motion, routeVersion, a
       if (motion === "initial-climb") {
         group.current.position.set(targetEdgeX, toWorldY(rect.bottom + 20), 0);
       } else if (motion === "catchup-from-top") {
-        group.current.position.set(targetEdgeX, toWorldY(-150), 0);
+        group.current.position.set(targetEdgeX, toWorldY(catchupOriginY(1, window.innerHeight)), 0);
       } else if (motion === "catchup-from-bottom") {
-        group.current.position.set(targetEdgeX, toWorldY(window.innerHeight + 150), 0);
+        group.current.position.set(targetEdgeX, toWorldY(catchupOriginY(-1, window.innerHeight)), 0);
       }
     }
 
@@ -357,15 +368,11 @@ function visibleSurfaces(page: HTMLElement) {
 function chooseCatchupSurface(page: HTMLElement, direction: 1 | -1, current: HTMLElement | null) {
   const surfaces = visibleSurfaces(page).filter((element) => element !== current);
   if (!surfaces.length) return null;
-  const preferredY = direction > 0 ? Math.min(210, window.innerHeight * 0.3) : Math.max(window.innerHeight - 210, window.innerHeight * 0.7);
   return surfaces.sort((a, b) => {
     const ar = a.getBoundingClientRect();
     const br = b.getBoundingClientRect();
-    const aExplicit = a.dataset.rudiSurface ? -45 : 0;
-    const bExplicit = b.dataset.rudiSurface ? -45 : 0;
-    const aY = direction > 0 ? ar.top : ar.bottom;
-    const bY = direction > 0 ? br.top : br.bottom;
-    return Math.abs(aY - preferredY) + aExplicit - (Math.abs(bY - preferredY) + bExplicit);
+    return catchupSurfaceScore(ar, direction, window.innerHeight, Boolean(a.dataset.rudiSurface))
+      - catchupSurfaceScore(br, direction, window.innerHeight, Boolean(b.dataset.rudiSurface));
   })[0] ?? null;
 }
 
@@ -387,21 +394,18 @@ function RudiRouteGuide({ anchorRef, motion }: { anchorRef: MutableRefObject<HTM
         return;
       }
 
-      const rect = anchor.getBoundingClientRect();
-      const edgeX = rect.left + Math.min(Math.max(rect.width * 0.16, 7), 18);
-      const targetY = rect.top - 3;
-      const fromTop = motion === "catchup-from-top";
-      const top = fromTop ? 0 : Math.max(0, Math.min(targetY, window.innerHeight));
-      const height = fromTop
-        ? Math.max(0, Math.min(targetY, window.innerHeight))
-        : Math.max(0, window.innerHeight - top);
+      const geometry = catchupGuideGeometry(
+        anchor.getBoundingClientRect(),
+        motion === "catchup-from-top" ? 1 : -1,
+        window.innerHeight,
+      );
 
-      guide.style.left = `${edgeX}px`;
-      guide.style.top = `${top}px`;
-      guide.style.height = `${height}px`;
-      guide.style.opacity = height > 3 ? "0.72" : "0";
-      cap.style.left = `${edgeX - 7}px`;
-      cap.style.top = `${Math.max(0, Math.min(targetY - 1, window.innerHeight - 2))}px`;
+      guide.style.left = `${geometry.x}px`;
+      guide.style.top = `${geometry.top}px`;
+      guide.style.height = `${geometry.height}px`;
+      guide.style.opacity = geometry.height > 3 ? "0.72" : "0";
+      cap.style.left = `${geometry.capX}px`;
+      cap.style.top = `${geometry.capY}px`;
       cap.style.opacity = "0.82";
       frame = window.requestAnimationFrame(update);
     };
@@ -435,9 +439,9 @@ function FallbackRudi({ anchorRef }: { anchorRef: MutableRefObject<HTMLElement |
       const element = anchorRef.current;
       const image = imageRef.current;
       if (element && image) {
-        const rect = element.getBoundingClientRect();
-        image.style.left = `${rect.left + rect.width * 0.5}px`;
-        image.style.top = `${rect.top - 3}px`;
+        const point = surfaceTopPoint(element.getBoundingClientRect(), 0.5);
+        image.style.left = `${point.x}px`;
+        image.style.top = `${point.y}px`;
       }
       frame = window.requestAnimationFrame(follow);
     };
@@ -548,8 +552,7 @@ export default function LivingRudiWorld() {
       const current = anchorRef.current;
       if (!current) return;
       const rect = current.getBoundingClientRect();
-      const offscreen = rect.bottom < -32 || rect.top > window.innerHeight + 32;
-      if (!offscreen) return;
+      if (!isSurfaceFullyOffscreen(rect, window.innerHeight)) return;
       const next = chooseCatchupSurface(page, direction, current);
       if (!next) return;
       anchorRef.current = next;
