@@ -1,6 +1,6 @@
 # WellFit-now Current State
 
-Last reconciled: 2026-09-04
+Last reconciled: 2026-09-05
 
 ## Project role
 WellFit-now is the **technical WellFit repository**. It owns web/backend, authentication, data, APIs, mission/economy/server authority, security/runtime and general technical application/mobile logic. `Bernds-tech/WellFit` owns the graphical/UI/landing domain. `Bernds-tech/WellFit-Buddy` owns Buddy behavior, Buddy presentation/animation and Buddy-specific AR/camera interaction. Cross-repository bridge work requires an explicit contract/task ID.
@@ -19,6 +19,19 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - WFXP runtime terminology versus canonical WFP + separate XP requires an explicit owner-reviewed migration; no silent rename/conversion is allowed.
 - Physical ownership drift remains: graphical/UI code and Unity Buddy AR code still exist in this repository even though their domain authorities are WellFit and WellFit-Buddy respectively.
 
+## Active graphical bridge: DOM-bound living Rudi
+- Task: `WFN-RUDI-3D-001` under graphical authority `WFG-RUDI-WORLD-001` / `WFG-CR-008`; cross-repo coordination is tracked in `Bernds-tech/WellFit` PR #29.
+- Physical implementation remains in this repository only because the current landing runtime has not yet migrated under `WF-MIG-001`.
+- PR #401 exact head `e19d15f3bbe51740d53d954dcb7777623d8cf3e6` replaces viewport-following mascot behavior with a DOM-surface world model.
+- `F` in `WellFit` is the initial climb/podium. Explicit narrow letters and thin lines/ledges remain valid surfaces; random tiny generic DOM fragments are rejected.
+- Runtime footing, climb edges, offscreen detection, catch-up route geometry and autonomous surface-to-surface journey geometry share `app/components/landing/rudiWorldGeometry.mjs`.
+- Rudi is intentionally not viewport-clamped. His bound element may scroll completely out of view. Catch-up begins only after the surface is fully offscreen and scrolling settles.
+- Catch-up and autonomous moves are physically staged: horizontal walk segment, visible guide, vertical climb segment, then walk onto the target surface. No intentional hovering, free-flight or visible teleport path is part of the target model.
+- CTA attention changes gaze/body response without relocating Rudi through empty space.
+- Machine validation is integrated into `npm run rudi:validate`, including deterministic geometry tests for scroll-follow, narrow letters, thin ledges, full-offscreen thresholds, walk/climb route sampling, reachability and directional catch-up.
+- Exact-head CI on `e19d15f3bbe51740d53d954dcb7777623d8cf3e6` is green: Build #1275, Container Build #260, Database Package Tests #252, Beta 1 Emulator Tests #231 and Project Memory Guard/Quality/Status all succeeded.
+- Acceptance boundary: repository CI verifies code/invariants, not the separately hosted public `wellfit-bewegt` ChatGPT Site. That Site is not claimed synchronized to this exact DOM-bound head and still requires exact-source sync plus real-WebGL owner/device visual acceptance.
+
 ## Stale PR posture
 - PR #376 is superseded by the merged later Project Memory chain but contains V5 reconciliation history that must be retained in current registers before closure.
 - PR #365 is superseded by Project Rail/V9 coordination.
@@ -33,6 +46,8 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not infer WFP/WFXP/XP equivalence without the dedicated owner-reviewed migration decision.
 - Do not move token/NFT/trading/payment authority into clients.
 - Do not move general technical mobile/application logic into WellFit-Buddy merely because Buddy-specific AR belongs there.
+- Do not reintroduce the superseded viewport-lag/viewport-clamp Rudi model as the target behavior.
+- Do not claim the public ChatGPT Site changed merely because PR #401 or WellFit coordination is green.
 
 ## Exact next safe technical work
 - Selected local action: `WFN-CI-INSTALL-RESILIENCE-BASELINE`
@@ -40,3 +55,5 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 2. reduce avoidable registry/audit/funding requests in required workflows;
 3. prove every required exact-head gate still runs and passes;
 4. keep runtime, graphical/UI, deployment and product semantics unchanged.
+
+The owner-directed Rudi bridge is a separately registered cross-repository graphical task and does not replace the technical repository's local next-action ordering.
