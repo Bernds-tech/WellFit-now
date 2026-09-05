@@ -145,29 +145,34 @@ function GroundShadow({ climbing }: { climbing: boolean }) {
 
 function WorldRudiModel({ anchorRef, surfaceFractionRef, motion, routeVersion, attentionRef, attentionTarget }: WorldModelProps) {
   const base = useGLTF(`${ASSET_ROOT}/rudi-rigged.glb`);
-  const animationAssets = {
-    walk: useGLTF(clips.walk),
-    run: useGLTF(clips.run),
-    idle: useGLTF(clips.idle),
-    alert: useGLTF(clips.alert),
-    point: useGLTF(clips.point),
-    inspect: useGLTF(clips.inspect),
-    celebrate: useGLTF(clips.celebrate),
-    jump: useGLTF(clips.jump),
-    sit: useGLTF(clips.sit),
-    climb: useGLTF(clips.climb),
-  };
+  const walkGlb = useGLTF(clips.walk);
+  const runGlb = useGLTF(clips.run);
+  const idleGlb = useGLTF(clips.idle);
+  const alertGlb = useGLTF(clips.alert);
+  const pointGlb = useGLTF(clips.point);
+  const inspectGlb = useGLTF(clips.inspect);
+  const celebrateGlb = useGLTF(clips.celebrate);
+  const jumpGlb = useGLTF(clips.jump);
+  const sitGlb = useGLTF(clips.sit);
+  const climbGlb = useGLTF(clips.climb);
   const scene = useMemo(() => clone(base.scene), [base.scene]);
   const mixer = useMemo(() => new THREE.AnimationMixer(scene), [scene]);
   const normalizedClips = useMemo(() => {
-    const fallback = base.animations[0];
-    return Object.fromEntries(
-      (Object.keys(clips) as ClipName[]).map((name) => [
-        name,
-        normalizeAnimationClip(animationAssets[name].animations[0] ?? fallback, scene),
-      ]),
-    ) as Record<ClipName, THREE.AnimationClip>;
-  }, [animationAssets.alert.animations, animationAssets.celebrate.animations, animationAssets.climb.animations, animationAssets.idle.animations, animationAssets.inspect.animations, animationAssets.jump.animations, animationAssets.point.animations, animationAssets.run.animations, animationAssets.sit.animations, animationAssets.walk.animations, base.animations, scene]);
+    const fallback = base.animations[0] ?? walkGlb.animations[0];
+    if (!fallback) throw new Error("Rudi animation baseline is missing");
+    return {
+      walk: normalizeAnimationClip(walkGlb.animations[0] ?? fallback, scene),
+      run: normalizeAnimationClip(runGlb.animations[0] ?? fallback, scene),
+      idle: normalizeAnimationClip(idleGlb.animations[0] ?? fallback, scene),
+      alert: normalizeAnimationClip(alertGlb.animations[0] ?? fallback, scene),
+      point: normalizeAnimationClip(pointGlb.animations[0] ?? fallback, scene),
+      inspect: normalizeAnimationClip(inspectGlb.animations[0] ?? fallback, scene),
+      celebrate: normalizeAnimationClip(celebrateGlb.animations[0] ?? fallback, scene),
+      jump: normalizeAnimationClip(jumpGlb.animations[0] ?? fallback, scene),
+      sit: normalizeAnimationClip(sitGlb.animations[0] ?? fallback, scene),
+      climb: normalizeAnimationClip(climbGlb.animations[0] ?? fallback, scene),
+    } satisfies Record<ClipName, THREE.AnimationClip>;
+  }, [alertGlb.animations, base.animations, celebrateGlb.animations, climbGlb.animations, idleGlb.animations, inspectGlb.animations, jumpGlb.animations, pointGlb.animations, runGlb.animations, scene, sitGlb.animations, walkGlb.animations]);
   const currentAction = useRef<THREE.AnimationAction | null>(null);
   const group = useRef<THREE.Group>(null);
   const character = useRef<THREE.Group>(null);
@@ -412,16 +417,22 @@ export default function LivingRudiWorld() {
   }, []);
 
   useEffect(() => {
-    const page = document.querySelector<HTMLElement>(".landing-page");
-    if (!page) return;
-    const preferred = page.querySelector<HTMLElement>(`[data-rudi-anchor="${INITIAL_ANCHOR}"]`)
-      ?? visibleSurfaces(page)[0]
-      ?? null;
-    anchorRef.current = preferred;
-    setLayer(preferred?.dataset.rudiLayer === "back" ? "back" : "front");
-    setRouteVersion((value) => value + 1);
-    const finish = window.setTimeout(() => applyMotion("perched"), 2600);
-    return () => window.clearTimeout(finish);
+    let finishTimer = 0;
+    const initTimer = window.setTimeout(() => {
+      const page = document.querySelector<HTMLElement>(".landing-page");
+      if (!page) return;
+      const preferred = page.querySelector<HTMLElement>(`[data-rudi-anchor="${INITIAL_ANCHOR}"]`)
+        ?? visibleSurfaces(page)[0]
+        ?? null;
+      anchorRef.current = preferred;
+      setLayer(preferred?.dataset.rudiLayer === "back" ? "back" : "front");
+      setRouteVersion((value) => value + 1);
+      finishTimer = window.setTimeout(() => applyMotion("perched"), 2600);
+    }, 0);
+    return () => {
+      window.clearTimeout(initTimer);
+      window.clearTimeout(finishTimer);
+    };
   }, []);
 
   useEffect(() => {
