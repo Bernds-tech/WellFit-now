@@ -8,10 +8,12 @@ const geometry = read("app/components/landing/rudiWorldGeometry.mjs");
 const hero = read("app/components/landing/LandingHeroV5.tsx");
 const landing = read("app/components/landing/PublicLandingV5.tsx");
 const primitives = read("app/components/landing/LandingPrimitivesV5.tsx");
+const legacyWorldExists = fs.existsSync(path.join(root, "app/components/landing/LivingRudi3D.tsx"));
 
 const checks = [
   [landing.includes('import LivingRudiWorld from "./LivingRudiWorld"'), "Public landing uses the DOM-bound Rudi world controller"],
   [landing.includes("<LivingRudiWorld />"), "DOM-bound Rudi world is mounted"],
+  [!legacyWorldExists, "Superseded viewport-bound Rudi controller is removed"],
   [hero.includes('data-rudi-anchor={`hero-wellfit-${index}`}'), "Hero WellFit letters expose individual Rudi anchors"],
   [hero.includes('data-rudi-surface="letter"'), "Hero letters are climbable surfaces"],
   [hero.includes("Rudi Rastlos"), "Rudi is presented as the first WellFit Buddy"],
@@ -42,6 +44,18 @@ const checks = [
   [!world.includes("scrollOffsetRef"), "Legacy viewport scroll-offset simulation is not used"],
   [world.includes('data-rudi-world="dom-surface-bound"'), "World-binding mode is machine-identifiable"],
   [primitives.includes('data-rudi-surface="heading"'), "Later information-section headings are valid Rudi platforms"],
+  [world.includes('(prefers-reduced-motion: reduce)'), "Reduced-motion preference is handled before WebGL motion"],
+  [world.includes('setRenderMode("static")'), "Reduced-motion and unsupported WebGL use the static surface-bound fallback"],
+  [!world.includes("useGLTF.preload"), "Invisible mobile/reduced-motion visitors do not eagerly preload the Rudi GLB pack"],
+  [world.includes("RudiErrorBoundary"), "GLTF/Canvas failures are contained behind the static fallback"],
+  [world.includes('style={{ pointerEvents: "none" }}'), "Full-screen Canvas cannot block landing controls"],
+  [world.includes("currentAction.current = null"), "Strict Effects mixer cleanup clears the stopped action reference"],
+  [world.includes("nextAction.isRunning()"), "Animation replay restarts stopped cached actions"],
+  [world.includes("motionFinishTimerRef"), "Autonomous and catch-up completion use one cancellable timer authority"],
+  [world.includes("clearMotionFinish();\n      previousSurfaceRef.current = current"), "Catch-up cancels an older autonomous completion before routing"],
+  [world.includes("if (renderMode !== \"webgl\" || !modelReady || motionRef.current !== \"initial-climb\") return"), "Initial climb completion waits until the 3D model is ready"],
+  [world.includes("setAttentionTarget(null);\n      window.clearTimeout(settleTimer)"), "Scrolling clears stale CTA attention before catch-up"],
+  [world.includes("values[index] = hips.position.x"), "Imported root-position locomotion is flattened to the DOM route authority"],
 ];
 
 const failures = checks.filter(([passed]) => !passed);
