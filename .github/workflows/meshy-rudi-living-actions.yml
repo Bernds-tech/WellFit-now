@@ -113,17 +113,17 @@ jobs:
             printf '%s' "$animation_result" > "rudi-living-actions/$name-animation.json"
             animation_url=$(printf '%s' "$animation_result" | jq -er '.result.animation_glb_url')
             curl --fail --location --silent --show-error "$animation_url" --output "rudi-living-actions/rudi-$name.glb"
+            (
+              cd rudi-living-actions
+              sha256sum rudi-*.glb > SHA256SUMS.txt
+            )
           done < motion-prompts.tsv
 
-          (
-            cd rudi-living-actions
-            sha256sum *.glb > SHA256SUMS.txt
-          )
-
-      - name: Upload Rudi living action pack
+      - name: Upload completed Rudi living actions even after a later failure
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: rudi-meshy-living-actions-${{ inputs.motion_quality }}
           path: rudi-living-actions/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
