@@ -6,9 +6,9 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 - Related: WFN-RUDI-3D-001 / WFN-CR-006
 - Status: OPEN
 - Updated: 2026-09-05
-- Gap: successive owner reviews found the public Site model too large/clipped, then still visually trapped in a separate viewport, missing CTA emotion and hiding the table too long. The repository bridge now fixes the effective scale at `0.66`, portals the transparent 3D world outside the scroll container, keeps Rudi's complete body inside safe boundaries and uses autonomous climb/run/jump catch-up after scroll lag. Distance-based CTA head/spine attention, autonomous off-CTA gaze, a right-hand-following coffee cup and animated second-scene table/lounge entrances are enabled. Browser/device visual acceptance remains open. The current 24-bone Meshy rig includes head, spine, shoulders, arms, forearms, hands, hips, legs, feet and toes, but no individual finger joints or facial morph targets.
-- Close when: the PR is green, a capable browser visibly verifies autonomous movement/cape/props without covering critical controls, an extended hand rig provides real finger articulation, and the separate public ChatGPT Site source is intentionally synchronized and released.
-- Next check: visually review PR #401 and generate the custom coffee/table/lounge/guide motion pack through the manual Meshy workflow after review.
+- Gap: owner video `WhatsApp Video 2026-09-05 at 10.38.28.mp4` exposed the fixed 350x510 renderer, clipping, text collisions, duplicate static Rudi and clip-specific scale/orientation jumps. Animation tracks are now normalized, the repository scale is `0.48`, and public Site v105 uses a full-viewport renderer, smaller body, scroll lag/catch-up and restored CTA emotion. Public synchronization and the bounded fallback are confirmed; a real-WebGL owner/device pass remains open. The current 24-bone Meshy rig includes head, spine, shoulders, arms, forearms, hands, hips, legs, feet and toes, but no individual finger joints or facial morph targets.
+- Close when: PR #401 is green, the owner/device visually verifies autonomous WebGL movement/cape/table/lounge without covering critical controls, and a separately scoped extended hand rig provides real finger articulation.
+- Next check: review Site v105 on the owner's WebGL-capable browser, then generate/review the optional custom coffee/table/lounge/guide motion pack only if the normalized stock clips remain insufficient.
 
 ## WFN-LOOP-016
 - Related: WFN-CI-INSTALL-RESILIENCE-BASELINE

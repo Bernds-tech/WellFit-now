@@ -6,6 +6,16 @@ Status model: `IMPLEMENTED`, `IMPLEMENTED_NOT_VERIFIED`, `VERIFIED`, `COUNTERCHE
 
 Every evidence record should contain a unique evidence ID, related task/change ID, date, target/environment, evidence type, immutable reference where practical, result, limitations and acceptance state. Never store secrets or private user data.
 
+## WFN-EV-022
+- Related: WFN-RUDI-3D-001 / WFN-CR-007 / WFN-LOOP-017
+- Date: 2026-09-05
+- Target: repository landing bridge plus public ChatGPT Site Rudi runtime
+- Type: owner video review, animation-track inspection, local verification and public deployment evidence
+- Reference: owner video `WhatsApp Video 2026-09-05 at 10.38.28.mp4`; public Site source commits `4e95ae362b8333fe735cd71794b4627303d9c485` and `96c75fc348143a0f034567b5b2bbf43dfa35014e`; Site version 105 at `https://wellfit-bewegt.bernd-guggenberger.chatgpt.site`
+- Result: the video confirmed that Rudi was rendered inside a fixed 350x510 stage, could be clipped, crossed headings, changed apparent size between clips and competed with a second large static Rudi. Binary glTF inspection proved every imported clip carried Hips translation/rotation/scale tracks and 26 scale channels; the idle clip alone imposed scale `1.1765`. Both implementations now remove animation scale tracks and rebase Hips position/quaternion to the production rest pose. The public Site uses a full-viewport transparent renderer, a roughly one-third smaller body, autonomous movement independent of scrolling, delayed scroll catch-up, restored Login/registration attention, body-following props/cape and a distinct personal-Buddy visual instead of a second static Rudi. Lint and both production builds pass; Site v105 deployed successfully and live-browser verification confirmed the bounded fallback and CTA-specific Login dialogue.
+- Limitations: the verification browser exposes the tested non-WebGL fallback, so the corrected real-WebGL animation sequence still requires owner/device visual acceptance. The current Meshy rig has no individual finger bones or facial morph targets. The broader Site test suite remains 18/28 because of pre-existing editorial expectation drift outside this Rudi correction; the Site production build itself passes.
+- Acceptance: PRODUCTION_CONFIRMED for Site delivery and fallback; IMPLEMENTED_NOT_VERIFIED for real-WebGL visual behavior
+
 ## WFN-EV-021
 - Related: WFN-RUDI-3D-001 / WFN-CR-007 / WFN-LOOP-017
 - Date: 2026-09-05

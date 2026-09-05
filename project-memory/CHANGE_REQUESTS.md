@@ -82,7 +82,7 @@ New owner ideas are captured here before changing active scope.
 - Affected areas: public landing Rudi locomotion, CTA attention and prop staging only.
 - Existing task/decision checked: WFN-RUDI-3D-001, WFN-CR-006, PR #401 and owner video/live review.
 - Dependencies: preserve autonomous behavior independent of pointer input; pointer attention supplements rather than drives Rudi's life cycle. Public ChatGPT Site publication remains a separate source/release path.
-- Decision: render Rudi through a body-level transparent world overlay instead of inside the scroll container, keep his complete body within safe viewport bounds, reduce the effective animated scale to `0.66`, and add document-world scroll lag followed by climb/run/jump catch-up states. Preserve direct head/spine CTA attention and CTA-specific dialogue; add autonomous head motion, hand-following coffee and animated table/lounge entrances so the prop scenes read as actions instead of static overlays.
+- Decision: render Rudi through a body-level transparent world overlay instead of inside the scroll container, keep his complete body within safe viewport bounds, reduce the effective animated scale to `0.48`, normalize all imported animation scale/hip-position/hip-rotation tracks to the production rig and add document-world scroll lag followed by climb/run/jump catch-up states. Preserve direct head/spine CTA attention and CTA-specific dialogue; add autonomous head motion, hand-following coffee and animated table/lounge entrances so the prop scenes read as actions instead of static overlays. The separately hosted public Site was intentionally synchronized and released as version 105 after the owner supplied a second live video.
 - Related task: WFN-RUDI-3D-001
 
 ## Intake template

@@ -46,24 +46,75 @@ type PointerAttention = {
 };
 
 const chapters: Chapter[] = [
-  { clip: "walk", x: 72, y: 68, direction: -1, duration: 4800, message: "Ich sehe mich hier kurz um." },
-  { clip: "sit", x: 45, y: 73, direction: 1, duration: 8000, message: "Den Tisch stelle ich mir einfach hierher.", prop: "table", layer: "front" },
-  { clip: "point", x: 78, y: 34, direction: -1, duration: 5200, message: "Dort geht es zu Missionen und Erlebnissen." },
-  { clip: "inspect", x: 18, y: 55, direction: 1, duration: 5200, message: "Hast du Fragen zu dieser WellFit-Welt?" },
-  { clip: "jump", x: 48, y: 58, direction: 1, duration: 4200, message: "Manchmal nehme ich einfach die Abkürzung.", layer: "front" },
-  { clip: "walk", x: 62, y: 72, direction: 1, duration: 4800, message: "Komm, ich zeige dir noch mehr." },
-  { clip: "sit", x: 70, y: 70, direction: -1, duration: 7200, message: "Eine kurze Kaffeepause muss auch sein.", prop: "coffee" },
-  { clip: "sit", x: 25, y: 72, direction: 1, duration: 7200, message: "Manchmal hole ich mir sogar meinen Liegestuhl.", prop: "lounge" },
-  { clip: "alert", x: 26, y: 31, direction: 1, duration: 5500, message: "Moment – hast du den Reality Glitch schon entdeckt?" },
-  { clip: "celebrate", x: 52, y: 61, direction: 1, duration: 6000, message: "Sehr gut! Du kennst WellFit schon ziemlich gut." },
-  { clip: "idle", x: 84, y: 65, direction: -1, duration: 7000, message: "Ich wohne hier. Schau dich ruhig weiter um." },
+  { clip: "walk", x: 86, y: 72, direction: -1, duration: 4800, message: "Ich sehe mich hier kurz um." },
+  { clip: "sit", x: 14, y: 74, direction: 1, duration: 8000, message: "Den Tisch stelle ich mir einfach hierher.", prop: "table", layer: "front" },
+  { clip: "point", x: 86, y: 40, direction: -1, duration: 5200, message: "Dort geht es zu Missionen und Erlebnissen." },
+  { clip: "inspect", x: 14, y: 61, direction: 1, duration: 5200, message: "Hast du Fragen zu dieser WellFit-Welt?" },
+  { clip: "jump", x: 86, y: 68, direction: -1, duration: 4200, message: "Manchmal nehme ich einfach die Abkürzung.", layer: "front" },
+  { clip: "walk", x: 14, y: 72, direction: 1, duration: 4800, message: "Komm, ich zeige dir noch mehr." },
+  { clip: "sit", x: 86, y: 73, direction: -1, duration: 7200, message: "Eine kurze Kaffeepause muss auch sein.", prop: "coffee" },
+  { clip: "sit", x: 14, y: 73, direction: 1, duration: 7200, message: "Manchmal hole ich mir sogar meinen Liegestuhl.", prop: "lounge", layer: "front" },
+  { clip: "alert", x: 86, y: 40, direction: -1, duration: 5500, message: "Moment – hast du den Reality Glitch schon entdeckt?" },
+  { clip: "celebrate", x: 14, y: 67, direction: 1, duration: 6000, message: "Sehr gut! Du kennst WellFit schon ziemlich gut." },
+  { clip: "idle", x: 86, y: 70, direction: -1, duration: 7000, message: "Ich wohne hier. Schau dich ruhig weiter um." },
 ];
 
-function Cape({ moving }: { moving: boolean }) {
+function normalizeAnimationClip(source: THREE.AnimationClip, scene: THREE.Object3D) {
+  const clip = source.clone();
+  const hips = scene.getObjectByName("Hips");
+
+  clip.tracks = clip.tracks
+    .filter((track) => !track.name.endsWith(".scale"))
+    .map((track) => {
+      const normalized = track.clone();
+
+      if (hips && normalized.name === "Hips.position") {
+        const values = normalized.values;
+        const offsetX = hips.position.x - values[0];
+        const offsetY = hips.position.y - values[1];
+        const offsetZ = hips.position.z - values[2];
+        for (let index = 0; index < values.length; index += 3) {
+          values[index] += offsetX;
+          values[index + 1] += offsetY;
+          values[index + 2] += offsetZ;
+        }
+      }
+
+      if (hips && normalized.name === "Hips.quaternion") {
+        const values = normalized.values;
+        const first = new THREE.Quaternion(values[0], values[1], values[2], values[3]).normalize();
+        const correction = hips.quaternion.clone().multiply(first.invert());
+        const frame = new THREE.Quaternion();
+        for (let index = 0; index < values.length; index += 4) {
+          frame.set(values[index], values[index + 1], values[index + 2], values[index + 3]).normalize();
+          frame.premultiply(correction).normalize();
+          values[index] = frame.x;
+          values[index + 1] = frame.y;
+          values[index + 2] = frame.z;
+          values[index + 3] = frame.w;
+        }
+      }
+
+      return normalized;
+    });
+  clip.name = `${source.name}-wellfit-normalized`;
+  clip.resetDuration();
+  return clip;
+}
+
+function Cape({ moving, anchor, character }: { moving: boolean; anchor: MutableRefObject<THREE.Bone | null>; character: MutableRefObject<THREE.Group | null> }) {
+  const group = useRef<THREE.Group>(null);
   const mesh = useRef<THREE.Mesh>(null);
   const original = useRef<Float32Array | null>(null);
+  const anchorPosition = useRef(new THREE.Vector3());
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
+    if (group.current && anchor.current && character.current) {
+      anchor.current.getWorldPosition(anchorPosition.current);
+      character.current.worldToLocal(anchorPosition.current);
+      anchorPosition.current.add(new THREE.Vector3(0, 0.1, -0.2));
+      group.current.position.lerp(anchorPosition.current, 1 - Math.exp(-14 * delta));
+    }
     if (!mesh.current) return;
     const geometry = mesh.current.geometry;
     const positions = geometry.attributes.position as THREE.BufferAttribute;
@@ -82,10 +133,12 @@ function Cape({ moving }: { moving: boolean }) {
   });
 
   return (
-    <mesh ref={mesh} position={[0, 1.08, -0.21]} rotation={[0.12, Math.PI, 0]}>
-      <planeGeometry args={[0.9, 1.28, 10, 14]} />
-      <meshStandardMaterial color="#56358f" roughness={0.68} metalness={0.08} side={THREE.DoubleSide} />
-    </mesh>
+    <group ref={group} position={[0, 1.18, -0.2]}>
+      <mesh ref={mesh} position={[0, -0.48, 0]} rotation={[0.12, Math.PI, 0]}>
+        <planeGeometry args={[0.82, 1.08, 10, 12]} />
+        <meshStandardMaterial color="#56358f" roughness={0.68} metalness={0.08} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
   );
 }
 
@@ -218,6 +271,7 @@ function RudiModel({
   const headBone = useRef<THREE.Bone | null>(null);
   const spineBone = useRef<THREE.Bone | null>(null);
   const rightHandBone = useRef<THREE.Bone | null>(null);
+  const capeBone = useRef<THREE.Bone | null>(null);
   const coffeeGroup = useRef<THREE.Group | null>(null);
   const handPosition = useRef(new THREE.Vector3());
   const coffeeTarget = useRef(new THREE.Vector3());
@@ -228,6 +282,7 @@ function RudiModel({
     headBone.current = scene.getObjectByName("Head") as THREE.Bone | null;
     spineBone.current = scene.getObjectByName("Spine02") as THREE.Bone | null;
     rightHandBone.current = scene.getObjectByName("RightHand") as THREE.Bone | null;
+    capeBone.current = scene.getObjectByName("Spine02") as THREE.Bone | null;
     scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         object.castShadow = true;
@@ -236,8 +291,20 @@ function RudiModel({
     });
   }, [scene]);
 
+  const normalizedClips = useMemo(() => ({
+    walk: normalizeAnimationClip(walkGlb.animations[0] ?? base.animations[0], scene),
+    run: normalizeAnimationClip(runGlb.animations[0] ?? base.animations[0], scene),
+    idle: normalizeAnimationClip(idleGlb.animations[0] ?? base.animations[0], scene),
+    alert: normalizeAnimationClip(alertGlb.animations[0] ?? base.animations[0], scene),
+    point: normalizeAnimationClip(pointGlb.animations[0] ?? base.animations[0], scene),
+    inspect: normalizeAnimationClip(inspectGlb.animations[0] ?? base.animations[0], scene),
+    celebrate: normalizeAnimationClip(celebrateGlb.animations[0] ?? base.animations[0], scene),
+    jump: normalizeAnimationClip(jumpGlb.animations[0] ?? base.animations[0], scene),
+    sit: normalizeAnimationClip(sitGlb.animations[0] ?? base.animations[0], scene),
+    climb: normalizeAnimationClip(climbGlb.animations[0] ?? base.animations[0], scene),
+  }), [alertGlb.animations, base.animations, celebrateGlb.animations, climbGlb.animations, idleGlb.animations, inspectGlb.animations, jumpGlb.animations, pointGlb.animations, runGlb.animations, scene, sitGlb.animations, walkGlb.animations]);
+
   useEffect(() => {
-    const animationGlbs = { walk: walkGlb, run: runGlb, idle: idleGlb, alert: alertGlb, point: pointGlb, inspect: inspectGlb, celebrate: celebrateGlb, jump: jumpGlb, sit: sitGlb, climb: climbGlb };
     const activeClip: ClipName = attentionTarget
       ? "celebrate"
       : scrollMotion === "catchup-jump"
@@ -249,14 +316,14 @@ function RudiModel({
           : phase === "travel"
             ? "walk"
             : chapter.clip;
-    const selected = animationGlbs[activeClip].animations[0] ?? base.animations[0];
+    const selected = normalizedClips[activeClip];
     if (!selected) return;
     const nextAction = mixer.clipAction(selected);
     if (nextAction === currentAction.current) return;
     currentAction.current?.fadeOut(0.22);
     nextAction.reset().setLoop(THREE.LoopRepeat, Infinity).fadeIn(0.28).play();
     currentAction.current = nextAction;
-  }, [alertGlb, attentionTarget, base.animations, celebrateGlb, chapter.clip, climbGlb, idleGlb, inspectGlb, jumpGlb, mixer, phase, pointGlb, runGlb, scrollMotion, sitGlb, walkGlb]);
+  }, [attentionTarget, chapter.clip, mixer, normalizedClips, phase, scrollMotion]);
 
   useEffect(() => () => {
     mixer.stopAllAction();
@@ -269,7 +336,7 @@ function RudiModel({
       const rawTargetY = (0.5 - chapter.y / 100) * viewport.height;
       const safeLeft = -viewport.width / 2 + 0.72;
       const safeRight = viewport.width / 2 - 0.72;
-      const safeBottom = -viewport.height / 2 + 1.05;
+      const safeBottom = -viewport.height / 2 + 1.38;
       const safeTop = viewport.height / 2 - 2.35;
       const targetX = THREE.MathUtils.clamp(rawTargetX, safeLeft, safeRight);
       const targetY = THREE.MathUtils.clamp(rawTargetY, safeBottom, safeTop);
@@ -294,7 +361,7 @@ function RudiModel({
       const excitement = attentionRef.current.level;
       group.current.rotation.z = THREE.MathUtils.damp(group.current.rotation.z, attentionRef.current.x * -0.035 * excitement, 6, delta);
       if (character.current) {
-        const pulse = 0.66 * (1 + Math.sin(clock.elapsedTime * 8) * 0.018 * excitement);
+        const pulse = 0.48 * (1 + Math.sin(clock.elapsedTime * 8) * 0.018 * excitement);
         character.current.scale.setScalar(pulse);
       }
       if (headBone.current) {
@@ -336,15 +403,15 @@ function RudiModel({
 
   return (
     <group ref={group}>
-      <Html center position={[0, 2.15, 0]} style={{ pointerEvents: "none", opacity: showBubble ? 1 : 0, transition: "opacity 240ms ease" }}>
-        <div className="relative w-64 rounded-2xl border border-cyan-100/45 bg-[#031820]/94 px-4 py-3 text-center text-xs font-bold leading-5 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl">
+      <Html center position={[0, 1.7, 0]} style={{ pointerEvents: "none", opacity: showBubble ? 1 : 0, transition: "opacity 240ms ease" }}>
+        <div className="relative w-52 rounded-2xl border border-cyan-100/45 bg-[#031820]/96 px-3 py-2.5 text-center text-[11px] font-bold leading-4 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl">
           {bubbleMessage}
           <span className="absolute bottom-[-9px] left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-cyan-100/45 bg-[#031820]" />
         </div>
       </Html>
-      <group ref={character} scale={0.66}>
+      <group ref={character} scale={0.48}>
         <GroundShadow airborne={scrollMotion === "catchup-jump" || (phase === "perform" && (chapter.clip === "jump" || chapter.clip === "climb"))} />
-        <Cape moving={phase === "travel" || scrollMotion.startsWith("catchup-") || chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} />
+        <Cape moving={phase === "travel" || scrollMotion.startsWith("catchup-") || chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} anchor={capeBone} character={character} />
         <primitive object={scene} />
         {phase === "perform" && chapter.prop === "coffee" ? <CoffeeProp groupRef={coffeeGroup} /> : null}
         {phase === "perform" && (chapter.prop === "table" || chapter.prop === "lounge") ? <FurnitureProp kind={chapter.prop} /> : null}
@@ -462,7 +529,6 @@ export default function LivingRudi3D() {
   }, []);
 
   useEffect(() => {
-    if (scrollMotion !== "settled") return;
     const timer = window.setTimeout(() => {
       if (phase === "perform") {
         setChapterIndex((value) => (value + 1) % chapters.length);
@@ -472,7 +538,7 @@ export default function LivingRudi3D() {
       setPhase("perform");
     }, phase === "travel" ? 2400 : chapter.duration);
     return () => window.clearTimeout(timer);
-  }, [chapter.duration, chapterIndex, phase, scrollMotion]);
+  }, [chapter.duration, chapterIndex, phase]);
 
   if (webgl === null) return null;
 
