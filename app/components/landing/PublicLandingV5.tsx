@@ -3,12 +3,14 @@ import Link from "next/link";
 import LandingHeroV5 from "./LandingHeroV5";
 import LandingSectionsV5 from "./LandingSectionsV5";
 import LandingSessionRedirect from "./LandingSessionRedirect";
+import LivingRudi3D from "./LivingRudi3D";
 import { navItems } from "./landingPublicData";
 
 export default function PublicLandingV5() {
   return (
     <main className="landing-page h-screen overflow-y-auto scroll-smooth bg-[#020b0f] text-white">
       <LandingSessionRedirect />
+      <LivingRudi3D />
 
       <header className="sticky top-0 z-50 border-b border-cyan-100/22 bg-[#021219]/94 shadow-[0_10px_30px_rgba(0,0,0,.18)] backdrop-blur-2xl">
         <div className="mx-auto flex h-[78px] max-w-[1520px] items-center justify-between gap-5 px-4 sm:px-6 lg:px-10">
@@ -34,12 +36,14 @@ export default function PublicLandingV5() {
             </span>
             <Link
               href="/login"
+              data-rudi-cta="login"
               className="rounded-xl border border-cyan-100/58 bg-[#06313a]/50 px-5 py-2.5 text-sm font-black text-cyan-50 transition hover:bg-cyan-200/12"
             >
               Anmelden
             </Link>
             <Link
               href="/register"
+              data-rudi-cta="register"
               className="hidden rounded-xl border border-[#ffe978]/55 bg-gradient-to-r from-[#ff8a16] to-[#ffe15d] px-6 py-3 text-sm font-black text-[#182006] shadow-[0_12px_32px_rgba(255,153,30,.34)] transition hover:-translate-y-0.5 hover:brightness-105 sm:block"
             >
               Kostenlos starten
@@ -61,6 +65,7 @@ export default function PublicLandingV5() {
           </div>
           <Link
             href="/register"
+            data-rudi-cta="register"
             className="shrink-0 rounded-xl bg-gradient-to-r from-[#ff8c1d] to-[#ffd95d] px-7 py-4 text-base font-black text-[#172006] shadow-[0_14px_30px_rgba(255,153,30,.22)]"
           >
             Jetzt WellFit starten →

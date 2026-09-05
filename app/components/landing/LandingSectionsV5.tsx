@@ -88,7 +88,7 @@ export default function LandingSectionsV5() {
             <div className="relative min-h-[470px] overflow-hidden rounded-[30px] border border-lime-300/20 bg-[radial-gradient(circle_at_70%_28%,rgba(163,230,53,.13),transparent_30%),linear-gradient(145deg,#07313a,#021218)] shadow-[0_28px_70px_rgba(0,0,0,.34)]">
               <div className="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t from-[#020c10] via-[#020c10]/68 to-transparent" />
               <Image
-                src="/landing/hero-phone-fox-stage.webp"
+                src="/landing/feature-buddy-care.svg"
                 alt="WellFit App mit Fuchs-Buddy in Forscher-Ausrüstung"
                 fill
                 sizes="(max-width: 1024px) 100vw, 55vw"

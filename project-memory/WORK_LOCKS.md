@@ -1,5 +1,15 @@
 # Work Locks
 
+## LOCK-WFN-RUDI-3D-001
+- Task: WFN-RUDI-3D-001
+- Status: ACTIVE
+- Risk: R2
+- Holder: ChatGPT session 2026-09-05
+- Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR #401
+- Acquired: 2026-09-05 Europe/Vienna
+- Scope: landing-only 3D Rudi bridge, generated presentation assets, cape/prop behavior, explicit synchronization to the existing public ChatGPT Site and manual Meshy asset workflows. No backend/auth/data, reward/economy, location/camera, legal or native AR mutation.
+- Resume from: owner video review proved imported Hips/scale animation drift and a fixed public-Site renderer box. Runtime normalization, repository scale `0.48`, full-viewport Site rendering, autonomous scroll catch-up, CTA emotion and body-following props/cape are implemented. Public Site version 105 is live and its fallback/CTA dialogue are verified; push the repository follow-up to PR #401, verify exact-head CI and obtain owner/device acceptance for real WebGL. Individual finger articulation requires a dedicated extended rig because the current Meshy skeleton contains hand bones but no finger joints.
+
 Prevents two agents/sessions from independently working the same task.
 
 ## Rules

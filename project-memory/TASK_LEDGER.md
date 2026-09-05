@@ -1,5 +1,16 @@
 # WellFit-now Task Ledger
 
+## WFN-RUDI-3D-001
+- Date: 2026-09-05
+- Status: IMPLEMENTED_NOT_VERIFIED
+- Risk: R2
+- Goal: provide the current public landing with a real textured, rigged and autonomous 3D Rudi that behaves like a resident of the page rather than a mouse-bound flat image.
+- Action: recovered successful Meshy artifacts, created compact animation-only GLBs and integrated autonomous behavior, cape, dialogue/depth changes and coffee/table/lounge props. After video review, all imported scale tracks are removed and Hips translation/quaternion tracks are rebased to the production rest pose; repository display scale is `0.48`. The public Site now uses a full-viewport transparent renderer, delayed scroll catch-up, CTA emotion and a distinct Buddy illustration instead of a competing static Rudi, released as version 105.
+- Evidence: WFN-EV-022; local targeted ESLint, `rudi:validate` and full `npm run build` pass. Public Site lint/build and deployment succeed; live fallback and Login dialogue were browser-verified. Real-WebGL owner/device acceptance remains open.
+- Negative/fail-closed path: WebGL absence uses a static fallback; no server/product authority or deployment is changed; Meshy credit-consuming workflows are manual-only and use only the GitHub secret.
+- Rollback/recovery: revert the scoped component/assets/workflows; the prior 2D landing and server state remain unchanged.
+- Next step: PR exact-head CI and owner/device WebGL visual acceptance, then optional custom living-action generation.
+
 Keep history append-only; supersede rather than delete.
 
 ## WFN-CI-INSTALL-RESILIENCE-BASELINE

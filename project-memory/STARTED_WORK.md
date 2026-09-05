@@ -11,6 +11,20 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## Active work
 
+## WFN-RUDI-3D-001
+- Started: 2026-09-05
+- Updated: 2026-09-05
+- Status: IMPLEMENTED_NOT_VERIFIED
+- Risk: R2
+- Scope: reversible public-landing 3D presentation bridge using the existing successful Meshy outputs; no backend, auth, data, mission/reward, economy, camera/location or deployment change.
+- Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR #401.
+- Work lock: `LOCK-WFN-RUDI-3D-001`.
+- Completed so far: recovered the successful textured/rigged Meshy artifact and ten compact clips; integrated autonomous dialogue, locomotion, depth, CTA emotion, cape and coffee/table/lounge props. The second owner video proved that clip-local Hips transforms and scale channels caused size/orientation jumps; all animation clips are now normalized to the production rest pose and animated scale is `0.48`. The separately hosted public Site is synchronized at version 105 with a full-viewport renderer, roughly one-third smaller body, scroll lag/catch-up, restored CTA reactions, body-following props/cape and no competing static Rudi in the Buddy explanation.
+- Evidence: WFN-EV-022; repository targeted ESLint, `rudi:validate` and complete Next.js build pass. Site lint/build pass, source commits are pushed, public deployment succeeded and browser inspection verified the live fallback plus Login CTA dialogue.
+- Still open: owner/device visual acceptance of real-WebGL animation/cape/props, individually articulated finger bones and optional custom living-action generation.
+- Exact next step: visually review public Site v105 in the owner's WebGL-capable browser, then correct any remaining body/prop staging before custom motion generation.
+- Owner action needed: review the live page and report only remaining visible deviations.
+
 ## WFN-CI-INSTALL-RESILIENCE-BASELINE
 - Started: 2026-09-04
 - Updated: 2026-09-04

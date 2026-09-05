@@ -6,6 +6,46 @@ Status model: `IMPLEMENTED`, `IMPLEMENTED_NOT_VERIFIED`, `VERIFIED`, `COUNTERCHE
 
 Every evidence record should contain a unique evidence ID, related task/change ID, date, target/environment, evidence type, immutable reference where practical, result, limitations and acceptance state. Never store secrets or private user data.
 
+## WFN-EV-022
+- Related: WFN-RUDI-3D-001 / WFN-CR-007 / WFN-LOOP-017
+- Date: 2026-09-05
+- Target: repository landing bridge plus public ChatGPT Site Rudi runtime
+- Type: owner video review, animation-track inspection, local verification and public deployment evidence
+- Reference: owner video `WhatsApp Video 2026-09-05 at 10.38.28.mp4`; public Site source commits `4e95ae362b8333fe735cd71794b4627303d9c485` and `96c75fc348143a0f034567b5b2bbf43dfa35014e`; Site version 105 at `https://wellfit-bewegt.bernd-guggenberger.chatgpt.site`
+- Result: the video confirmed that Rudi was rendered inside a fixed 350x510 stage, could be clipped, crossed headings, changed apparent size between clips and competed with a second large static Rudi. Binary glTF inspection proved every imported clip carried Hips translation/rotation/scale tracks and 26 scale channels; the idle clip alone imposed scale `1.1765`. Both implementations now remove animation scale tracks and rebase Hips position/quaternion to the production rest pose. The public Site uses a full-viewport transparent renderer, a roughly one-third smaller body, autonomous movement independent of scrolling, delayed scroll catch-up, restored Login/registration attention, body-following props/cape and a distinct personal-Buddy visual instead of a second static Rudi. Lint and both production builds pass; Site v105 deployed successfully and live-browser verification confirmed the bounded fallback and CTA-specific Login dialogue.
+- Limitations: the verification browser exposes the tested non-WebGL fallback, so the corrected real-WebGL animation sequence still requires owner/device visual acceptance. The current Meshy rig has no individual finger bones or facial morph targets. The broader Site test suite remains 18/28 because of pre-existing editorial expectation drift outside this Rudi correction; the Site production build itself passes.
+- Acceptance: PRODUCTION_CONFIRMED for Site delivery and fallback; IMPLEMENTED_NOT_VERIFIED for real-WebGL visual behavior
+
+## WFN-EV-021
+- Related: WFN-RUDI-3D-001 / WFN-CR-007 / WFN-LOOP-017
+- Date: 2026-09-05
+- Target: public landing 3D Rudi world-presence, CTA emotion and table staging
+- Type: owner live visual feedback plus corrective local build evidence
+- Reference: PR #401 follow-up diff after functional head `944565028fb533023aeb53952c1855f223f75b0f`
+- Result: replaced viewport-following perception with a body-level transparent 3D world outside the scrolling main element. Rudi holds his content-relative place during scroll until reaching complete-body safe bounds, then uses climb/run/jump catch-up states. A frame-loop scale override discovered during the follow-up is corrected so the requested reduction is effective at `0.66` instead of returning to `0.94`; autonomous travel begins more frequently. Distance-based login/register attention adds head and spine tracking, rising excitement, CTA dialogue and celebration; away from CTAs small autonomous head/spine motion continues. The coffee now follows the rigged right hand and furniture rises/turns into the scene. Targeted ESLint, asset validation and the complete production build pass locally.
+- Limitations: real-browser/device visual acceptance and synchronization to the separate public ChatGPT Site remain open; the current rig still lacks facial morph targets and individual finger bones.
+- Acceptance: IMPLEMENTED_NOT_VERIFIED
+
+## WFN-EV-020
+- Related: WFN-RUDI-3D-001 / WFN-LOOP-017
+- Date: 2026-09-05
+- Target: public landing 3D Rudi scale and movement stage
+- Type: owner-supplied 16-second visual review plus corrective local build evidence
+- Reference: owner video `WhatsApp Video 2026-09-05 at 09.02.25.mp4`; PR #401 follow-up diff
+- Result: frame-by-frame review confirmed that the live Rudi is too large and that legs/props are clipped by a fixed renderer box. The repository implementation now uses a viewport-wide orthographic transparent stage and reduces model scale from `1.42` to `0.94`. A second corrective pass adds viewport-safe edge clamping, a responsive ground shadow, dedicated walk phases between actions, travel-facing direction, prop-only action phases and safely clamped dialogue. Targeted ESLint, `rudi:validate` and the complete production build pass.
+- Limitations: the separate public ChatGPT Site has not yet received this correction. The supervised preview cannot launch this retained Next.js project because it forwards Vite-only flags, so post-change browser/device acceptance remains required. Functional head `944565028fb533023aeb53952c1855f223f75b0f` passed Build #1244, Container #229, Database #221, Beta 1 Emulator #200 and all Project Memory gates.
+- Acceptance: IMPLEMENTED_NOT_VERIFIED
+
+## WFN-EV-019
+- Related: WFN-RUDI-3D-001 / WFN-CR-006
+- Date: 2026-09-05
+- Target: public landing 3D presentation bridge
+- Type: exact-head repository and generated-asset verification
+- Reference: PR #401 head `cfed7908d44a7d838044df95b55167b61b6b9179`; Meshy Actions runs `33880908596` and `33882908469`; materialization run `33933220732`
+- Result: the colored textured 24-joint Rudi rig, ten compact animation clips, autonomous behavior component, separate cape and prop scenes passed Build #1239, Container #224, Database #216, Beta 1 Emulator #195 and all Project Memory gates.
+- Limitations: CI does not prove browser/device visual acceptance; the current skeleton has hand bones but no individual finger joints; the public ChatGPT Site uses a separate release path.
+- Acceptance: IMPLEMENTED_NOT_VERIFIED
+
 ## WFN-EV-001
 - Related: WFN-MEM-001
 - Date: 2026-08-19

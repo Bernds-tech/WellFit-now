@@ -21,6 +21,7 @@
     "mission:status:test": "node scripts/mission/mission-status-presentation-unit-test.mjs",
     "mission:language-check": "node scripts/mission/validate-mission-language.mjs",
     "mission:quality-check": "npm run mission:status:test && npm run mission:language-check",
+    "rudi:validate": "node scripts/landing/validate-rudi-assets.mjs",
     "emulators": "firebase emulators:start --only auth,firestore,functions",
     "emulators:rules": "firebase emulators:start --only auth,firestore",
     "emulators:firestore": "firebase emulators:start --only firestore",
