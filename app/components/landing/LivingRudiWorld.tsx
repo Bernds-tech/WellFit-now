@@ -384,7 +384,7 @@ function WorldRudiModel({ anchorRef, surfaceFractionRef, journeyRef, motion, rou
         </Html>
       ) : null}
       <group ref={character} scale={0.46}>
-        <GroundShadow climbing={motion === "initial-climb" || motion.startsWith("catchup-") || (motion === "surface-journey" && journeyMode.current === "climb")} />
+        <GroundShadow climbing={motion === "initial-climb" || motion.startsWith("catchup-")} />
         <Cape moving={motion === "walk" || motion === "surface-journey" || motion === "initial-climb" || motion.startsWith("catchup-")} anchor={capeBone} character={character} />
         <primitive object={scene} />
       </group>
