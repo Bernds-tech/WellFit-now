@@ -89,9 +89,9 @@ function Cape({ moving }: { moving: boolean }) {
   );
 }
 
-function CoffeeProp() {
+function CoffeeProp({ groupRef }: { groupRef: MutableRefObject<THREE.Group | null> }) {
   return (
-    <group position={[0.48, 0.98, 0.32]} rotation={[0, 0, -0.1]}>
+    <group ref={groupRef} position={[0.48, 0.98, 0.32]} rotation={[0, 0, -0.1]}>
       <mesh>
         <cylinderGeometry args={[0.11, 0.09, 0.25, 20]} />
         <meshStandardMaterial color="#f5e7d1" roughness={0.38} />
@@ -109,41 +109,56 @@ function CoffeeProp() {
 }
 
 function FurnitureProp({ kind }: { kind: "table" | "lounge" }) {
+  const entrance = useRef<THREE.Group>(null);
+  const reveal = useRef(0.02);
+
+  useFrame((_, delta) => {
+    if (!entrance.current) return;
+    reveal.current = THREE.MathUtils.damp(reveal.current, 1, 4.2, delta);
+    entrance.current.scale.setScalar(reveal.current);
+    entrance.current.position.y = THREE.MathUtils.damp(entrance.current.position.y, 0, 5, delta);
+    entrance.current.rotation.y = THREE.MathUtils.damp(entrance.current.rotation.y, 0, 4, delta);
+  });
+
   if (kind === "lounge") {
     return (
-      <group position={[-0.05, -0.78, -0.2]} rotation={[0, -0.12, 0]}>
-        <mesh position={[0, 0.12, 0]} rotation={[-0.34, 0, 0]}>
-          <boxGeometry args={[1.1, 0.08, 0.78]} />
-          <meshStandardMaterial color="#f0b44b" roughness={0.62} />
-        </mesh>
-        <mesh position={[0, 0.62, -0.32]} rotation={[-0.88, 0, 0]}>
-          <boxGeometry args={[1.1, 0.08, 1.15]} />
-          <meshStandardMaterial color="#f0b44b" roughness={0.62} />
-        </mesh>
-        {[-0.46, 0.46].map((x) => (
-          <group key={x} position={[x, -0.14, 0]}>
-            <mesh rotation={[0, 0, 0.16]}><cylinderGeometry args={[0.025, 0.025, 1.05, 10]} /><meshStandardMaterial color="#d7e4e6" metalness={0.75} roughness={0.28} /></mesh>
-            <mesh position={[0, 0, -0.3]} rotation={[0, 0, -0.34]}><cylinderGeometry args={[0.025, 0.025, 1.05, 10]} /><meshStandardMaterial color="#d7e4e6" metalness={0.75} roughness={0.28} /></mesh>
-          </group>
-        ))}
+      <group ref={entrance} position={[0, -0.35, 0]} rotation={[0, 0.55, 0]} scale={0.02}>
+        <group position={[-0.05, -0.78, -0.2]} rotation={[0, -0.12, 0]}>
+          <mesh position={[0, 0.12, 0]} rotation={[-0.34, 0, 0]}>
+            <boxGeometry args={[1.1, 0.08, 0.78]} />
+            <meshStandardMaterial color="#f0b44b" roughness={0.62} />
+          </mesh>
+          <mesh position={[0, 0.62, -0.32]} rotation={[-0.88, 0, 0]}>
+            <boxGeometry args={[1.1, 0.08, 1.15]} />
+            <meshStandardMaterial color="#f0b44b" roughness={0.62} />
+          </mesh>
+          {[-0.46, 0.46].map((x) => (
+            <group key={x} position={[x, -0.14, 0]}>
+              <mesh rotation={[0, 0, 0.16]}><cylinderGeometry args={[0.025, 0.025, 1.05, 10]} /><meshStandardMaterial color="#d7e4e6" metalness={0.75} roughness={0.28} /></mesh>
+              <mesh position={[0, 0, -0.3]} rotation={[0, 0, -0.34]}><cylinderGeometry args={[0.025, 0.025, 1.05, 10]} /><meshStandardMaterial color="#d7e4e6" metalness={0.75} roughness={0.28} /></mesh>
+            </group>
+          ))}
+        </group>
       </group>
     );
   }
 
   return (
-    <group position={[0.78, 0.78, 0.38]}>
-      <mesh position={[0, 0.08, 0]}>
-        <cylinderGeometry args={[0.68, 0.72, 0.14, 32]} />
-        <meshStandardMaterial color="#8b4b20" roughness={0.58} metalness={0.08} />
-      </mesh>
-      <mesh position={[0, -0.35, 0]}>
-        <cylinderGeometry args={[0.09, 0.13, 0.78, 18]} />
-        <meshStandardMaterial color="#38cfc9" metalness={0.55} roughness={0.3} />
-      </mesh>
-      <mesh position={[0, -0.75, 0]}>
-        <cylinderGeometry args={[0.31, 0.38, 0.08, 24]} />
-        <meshStandardMaterial color="#173f43" metalness={0.38} roughness={0.42} />
-      </mesh>
+    <group ref={entrance} position={[0, -0.35, 0]} rotation={[0, 0.55, 0]} scale={0.02}>
+      <group position={[0.78, 0.78, 0.38]}>
+        <mesh position={[0, 0.08, 0]}>
+          <cylinderGeometry args={[0.68, 0.72, 0.14, 32]} />
+          <meshStandardMaterial color="#8b4b20" roughness={0.58} metalness={0.08} />
+        </mesh>
+        <mesh position={[0, -0.35, 0]}>
+          <cylinderGeometry args={[0.09, 0.13, 0.78, 18]} />
+          <meshStandardMaterial color="#38cfc9" metalness={0.55} roughness={0.3} />
+        </mesh>
+        <mesh position={[0, -0.75, 0]}>
+          <cylinderGeometry args={[0.31, 0.38, 0.08, 24]} />
+          <meshStandardMaterial color="#173f43" metalness={0.38} roughness={0.42} />
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -202,11 +217,17 @@ function RudiModel({
   const positionInitialized = useRef(false);
   const headBone = useRef<THREE.Bone | null>(null);
   const spineBone = useRef<THREE.Bone | null>(null);
+  const rightHandBone = useRef<THREE.Bone | null>(null);
+  const coffeeGroup = useRef<THREE.Group | null>(null);
+  const handPosition = useRef(new THREE.Vector3());
+  const coffeeTarget = useRef(new THREE.Vector3());
+  const coffeeOffset = useRef(new THREE.Vector3(0.035, 0.08, 0.075));
   const viewport = useThree((state) => state.viewport);
 
   useEffect(() => {
     headBone.current = scene.getObjectByName("Head") as THREE.Bone | null;
     spineBone.current = scene.getObjectByName("Spine02") as THREE.Bone | null;
+    rightHandBone.current = scene.getObjectByName("RightHand") as THREE.Bone | null;
     scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         object.castShadow = true;
@@ -277,10 +298,26 @@ function RudiModel({
         character.current.scale.setScalar(pulse);
       }
       if (headBone.current) {
-        headBone.current.rotation.y += attentionRef.current.x * 0.28 * excitement;
-        headBone.current.rotation.x += -attentionRef.current.y * 0.12 * excitement;
+        if (excitement > 0.01) {
+          headBone.current.rotation.y += attentionRef.current.x * 0.28 * excitement;
+          headBone.current.rotation.x += -attentionRef.current.y * 0.12 * excitement;
+        } else {
+          headBone.current.rotation.y += Math.sin(clock.elapsedTime * 0.52) * 0.055;
+          headBone.current.rotation.x += Math.sin(clock.elapsedTime * 0.31 + 0.8) * 0.022;
+        }
       }
-      if (spineBone.current) spineBone.current.rotation.y += attentionRef.current.x * 0.08 * excitement;
+      if (spineBone.current) {
+        spineBone.current.rotation.y += excitement > 0.01
+          ? attentionRef.current.x * 0.08 * excitement
+          : Math.sin(clock.elapsedTime * 0.38) * 0.018;
+      }
+      if (coffeeGroup.current && rightHandBone.current && character.current) {
+        rightHandBone.current.getWorldPosition(handPosition.current);
+        coffeeTarget.current.copy(handPosition.current);
+        character.current.worldToLocal(coffeeTarget.current);
+        coffeeTarget.current.add(coffeeOffset.current);
+        coffeeGroup.current.position.lerp(coffeeTarget.current, 1 - Math.exp(-12 * delta));
+      }
     }
   });
 
@@ -309,7 +346,7 @@ function RudiModel({
         <GroundShadow airborne={scrollMotion === "catchup-jump" || (phase === "perform" && (chapter.clip === "jump" || chapter.clip === "climb"))} />
         <Cape moving={phase === "travel" || scrollMotion.startsWith("catchup-") || chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} />
         <primitive object={scene} />
-        {phase === "perform" && chapter.prop === "coffee" ? <CoffeeProp /> : null}
+        {phase === "perform" && chapter.prop === "coffee" ? <CoffeeProp groupRef={coffeeGroup} /> : null}
         {phase === "perform" && (chapter.prop === "table" || chapter.prop === "lounge") ? <FurnitureProp kind={chapter.prop} /> : null}
       </group>
     </group>
