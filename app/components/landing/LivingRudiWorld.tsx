@@ -12,8 +12,13 @@ import {
   catchupOriginY,
   catchupSurfaceScore,
   isSurfaceFullyOffscreen,
+  isSurfaceJourneyReachable,
   isSurfaceSizeUsable,
+  sampleSurfaceJourney,
   surfaceClimbEdgePoint,
+  surfaceJourneyCandidateScore,
+  surfaceJourneyDurationMs,
+  surfaceJourneyPoints,
   surfaceTopPoint,
 } from "./rudiWorldGeometry.mjs";
 
@@ -40,7 +45,7 @@ const clips = {
 } as const;
 
 type ClipName = keyof typeof clips;
-type Motion = "initial-climb" | "perched" | "walk" | "peek" | "catchup-from-top" | "catchup-from-bottom";
+type Motion = "initial-climb" | "perched" | "walk" | "peek" | "surface-journey" | "catchup-from-top" | "catchup-from-bottom";
 type AttentionTarget = "login" | "register" | null;
 type WorldLayer = "front" | "back";
 
@@ -50,9 +55,18 @@ type PointerAttention = {
   level: number;
 };
 
+type SurfaceJourney = {
+  source: HTMLElement;
+  target: HTMLElement;
+  sourceFraction: number;
+  targetFraction: number;
+  durationMs: number;
+};
+
 type WorldModelProps = {
   anchorRef: MutableRefObject<HTMLElement | null>;
   surfaceFractionRef: MutableRefObject<number>;
+  journeyRef: MutableRefObject<SurfaceJourney | null>;
   motion: Motion;
   routeVersion: number;
   attentionRef: MutableRefObject<PointerAttention>;
@@ -153,7 +167,7 @@ function GroundShadow({ climbing }: { climbing: boolean }) {
   );
 }
 
-function WorldRudiModel({ anchorRef, surfaceFractionRef, motion, routeVersion, attentionRef, attentionTarget }: WorldModelProps) {
+function WorldRudiModel({ anchorRef, surfaceFractionRef, journeyRef, motion, routeVersion, attentionRef, attentionTarget }: WorldModelProps) {
   const base = useGLTF(`${ASSET_ROOT}/rudi-rigged.glb`);
   const walkGlb = useGLTF(clips.walk);
   const runGlb = useGLTF(clips.run);
@@ -191,7 +205,17 @@ function WorldRudiModel({ anchorRef, surfaceFractionRef, motion, routeVersion, a
   const capeBone = useRef<THREE.Bone | null>(null);
   const lastRouteVersion = useRef(-1);
   const routeStage = useRef<"edge" | "top">("edge");
+  const journeyProgress = useRef(0);
+  const journeyMode = useRef<"walk" | "climb">("walk");
   const viewport = useThree((state) => state.viewport);
+
+  const playJourneyClip = (name: "walk" | "climb") => {
+    const nextAction = mixer.clipAction(normalizedClips[name]);
+    if (nextAction === currentAction.current) return;
+    currentAction.current?.fadeOut(0.16);
+    nextAction.reset().setLoop(THREE.LoopRepeat, Infinity).fadeIn(0.18).play();
+    currentAction.current = nextAction;
+  };
 
   useEffect(() => {
     headBone.current = scene.getObjectByName("Head") as THREE.Bone | null;
@@ -210,7 +234,7 @@ function WorldRudiModel({ anchorRef, surfaceFractionRef, motion, routeVersion, a
       ? "celebrate"
       : motion === "initial-climb" || motion.startsWith("catchup-")
         ? "climb"
-        : motion === "walk"
+        : motion === "walk" || motion === "surface-journey"
           ? "walk"
           : motion === "peek"
             ? "inspect"
@@ -246,40 +270,72 @@ function WorldRudiModel({ anchorRef, surfaceFractionRef, motion, routeVersion, a
     const targetX = toWorldX(surfaceX);
     const targetY = toWorldY(surfaceY);
     const targetEdgeX = toWorldX(edgeX);
+    let facingTargetX = targetX;
 
     if (lastRouteVersion.current !== routeVersion) {
       lastRouteVersion.current = routeVersion;
       routeStage.current = "edge";
+      journeyProgress.current = 0;
+      journeyMode.current = "walk";
       if (motion === "initial-climb") {
         group.current.position.set(targetEdgeX, toWorldY(rect.bottom + 20), 0);
       } else if (motion === "catchup-from-top") {
         group.current.position.set(targetEdgeX, toWorldY(catchupOriginY(1, window.innerHeight)), 0);
       } else if (motion === "catchup-from-bottom") {
         group.current.position.set(targetEdgeX, toWorldY(catchupOriginY(-1, window.innerHeight)), 0);
+      } else if (motion === "surface-journey" && journeyRef.current) {
+        const journey = journeyRef.current;
+        const points = surfaceJourneyPoints(
+          journey.source.getBoundingClientRect(),
+          journey.target.getBoundingClientRect(),
+          journey.sourceFraction,
+          journey.targetFraction,
+        );
+        const start = points[0];
+        group.current.position.set(toWorldX(start.x), toWorldY(start.y), 0);
       }
     }
 
-    const climbing = motion === "initial-climb" || motion.startsWith("catchup-");
-    if (climbing) {
-      if (routeStage.current === "edge") {
-        group.current.position.x = THREE.MathUtils.damp(group.current.position.x, targetEdgeX, 8, delta);
-        group.current.position.y = THREE.MathUtils.damp(group.current.position.y, targetY, 2.4, delta);
-        if (Math.abs(group.current.position.y - targetY) < 0.06) routeStage.current = "top";
-      } else {
-        group.current.position.y = targetY;
-        group.current.position.x = THREE.MathUtils.damp(group.current.position.x, targetX, 4.6, delta);
+    if (motion === "surface-journey" && journeyRef.current) {
+      const journey = journeyRef.current;
+      const points = surfaceJourneyPoints(
+        journey.source.getBoundingClientRect(),
+        journey.target.getBoundingClientRect(),
+        journey.sourceFraction,
+        journey.targetFraction,
+      );
+      journeyProgress.current = Math.min(1, journeyProgress.current + delta / (journey.durationMs / 1000));
+      const sample = sampleSurfaceJourney(points, journeyProgress.current);
+      group.current.position.x = toWorldX(sample.x);
+      group.current.position.y = toWorldY(sample.y);
+      facingTargetX = toWorldX(points[points.length - 1].x);
+      if (sample.mode !== journeyMode.current) {
+        journeyMode.current = sample.mode;
+        playJourneyClip(sample.mode);
       }
-    } else if (motion === "peek") {
-      group.current.position.y = toWorldY(peekY);
-      group.current.position.x = THREE.MathUtils.damp(group.current.position.x, toWorldX(peekX), 5.5, delta);
     } else {
-      // Deliberately no viewport clamp: when the DOM surface scrolls away, Rudi leaves the screen with it.
-      group.current.position.y = targetY;
-      group.current.position.x = THREE.MathUtils.damp(group.current.position.x, targetX, motion === "walk" ? 2.6 : 7.5, delta);
+      const climbing = motion === "initial-climb" || motion.startsWith("catchup-");
+      if (climbing) {
+        if (routeStage.current === "edge") {
+          group.current.position.x = THREE.MathUtils.damp(group.current.position.x, targetEdgeX, 8, delta);
+          group.current.position.y = THREE.MathUtils.damp(group.current.position.y, targetY, 2.4, delta);
+          if (Math.abs(group.current.position.y - targetY) < 0.06) routeStage.current = "top";
+        } else {
+          group.current.position.y = targetY;
+          group.current.position.x = THREE.MathUtils.damp(group.current.position.x, targetX, 4.6, delta);
+        }
+      } else if (motion === "peek") {
+        group.current.position.y = toWorldY(peekY);
+        group.current.position.x = THREE.MathUtils.damp(group.current.position.x, toWorldX(peekX), 5.5, delta);
+      } else {
+        // Deliberately no viewport clamp: when the DOM surface scrolls away, Rudi leaves the screen with it.
+        group.current.position.y = targetY;
+        group.current.position.x = THREE.MathUtils.damp(group.current.position.x, targetX, motion === "walk" ? 2.6 : 7.5, delta);
+      }
     }
 
     const excitement = attentionRef.current.level;
-    const facingRight = targetX >= group.current.position.x;
+    const facingRight = facingTargetX >= group.current.position.x;
     group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, facingRight ? 0.2 : -0.2, 7, delta);
     group.current.rotation.z = THREE.MathUtils.damp(group.current.rotation.z, attentionRef.current.x * -0.03 * excitement, 6, delta);
 
@@ -328,8 +384,8 @@ function WorldRudiModel({ anchorRef, surfaceFractionRef, motion, routeVersion, a
         </Html>
       ) : null}
       <group ref={character} scale={0.46}>
-        <GroundShadow climbing={motion === "initial-climb" || motion.startsWith("catchup-")} />
-        <Cape moving={motion === "walk" || motion === "initial-climb" || motion.startsWith("catchup-")} anchor={capeBone} character={character} />
+        <GroundShadow climbing={motion === "initial-climb" || motion.startsWith("catchup-") || (motion === "surface-journey" && journeyMode.current === "climb")} />
+        <Cape moving={motion === "walk" || motion === "surface-journey" || motion === "initial-climb" || motion.startsWith("catchup-")} anchor={capeBone} character={character} />
         <primitive object={scene} />
       </group>
     </group>
@@ -376,7 +432,30 @@ function chooseCatchupSurface(page: HTMLElement, direction: 1 | -1, current: HTM
   })[0] ?? null;
 }
 
-function RudiRouteGuide({ anchorRef, motion }: { anchorRef: MutableRefObject<HTMLElement | null>; motion: Motion }) {
+function chooseExplorationSurface(page: HTMLElement, current: HTMLElement, previous: HTMLElement | null) {
+  const sourceRect = current.getBoundingClientRect();
+  const candidates = visibleSurfaces(page)
+    .filter((element) => element !== current && element !== previous)
+    .filter((element) => !current.contains(element) && !element.contains(current))
+    .filter((element) => isSurfaceJourneyReachable(sourceRect, element.getBoundingClientRect(), window.innerWidth))
+    .sort((a, b) => surfaceJourneyCandidateScore(
+      sourceRect,
+      a.getBoundingClientRect(),
+      current.dataset.rudiSurface,
+      a.dataset.rudiSurface,
+    ) - surfaceJourneyCandidateScore(
+      sourceRect,
+      b.getBoundingClientRect(),
+      current.dataset.rudiSurface,
+      b.dataset.rudiSurface,
+    ));
+
+  if (!candidates.length) return null;
+  const choicePool = candidates.slice(0, Math.min(3, candidates.length));
+  return choicePool[Math.floor(Math.random() * choicePool.length)] ?? choicePool[0] ?? null;
+}
+
+function RudiRouteGuide({ anchorRef, journeyRef, motion }: { anchorRef: MutableRefObject<HTMLElement | null>; journeyRef: MutableRefObject<SurfaceJourney | null>; motion: Motion }) {
   const guideRef = useRef<HTMLDivElement>(null);
   const capRef = useRef<HTMLDivElement>(null);
 
@@ -412,7 +491,7 @@ function RudiRouteGuide({ anchorRef, motion }: { anchorRef: MutableRefObject<HTM
 
     frame = window.requestAnimationFrame(update);
     return () => window.cancelAnimationFrame(frame);
-  }, [anchorRef, motion]);
+  }, [anchorRef, journeyRef, motion]);
 
   return (
     <>
@@ -426,6 +505,67 @@ function RudiRouteGuide({ anchorRef, motion }: { anchorRef: MutableRefObject<HTM
         aria-hidden="true"
         className="fixed h-[2px] w-[14px] rounded-full bg-cyan-100/75 opacity-0 shadow-[0_0_7px_rgba(94,235,222,.45)] transition-opacity duration-200"
       />
+    </>
+  );
+}
+
+function RudiSurfaceJourneyGuide({ journeyRef, motion }: { journeyRef: MutableRefObject<SurfaceJourney | null>; motion: Motion }) {
+  const bridgeRef = useRef<HTMLDivElement>(null);
+  const climbRef = useRef<HTMLDivElement>(null);
+  const landingRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let frame = 0;
+    const hide = () => {
+      [bridgeRef.current, climbRef.current, landingRef.current].forEach((element) => {
+        if (element) element.style.opacity = "0";
+      });
+    };
+    const setHorizontal = (element: HTMLDivElement, a: { x: number; y: number }, b: { x: number; y: number }) => {
+      const left = Math.min(a.x, b.x);
+      const width = Math.abs(b.x - a.x);
+      element.style.left = `${left}px`;
+      element.style.top = `${a.y}px`;
+      element.style.width = `${width}px`;
+      element.style.opacity = width > 2 ? "0.72" : "0";
+    };
+    const update = () => {
+      const journey = journeyRef.current;
+      const bridge = bridgeRef.current;
+      const climb = climbRef.current;
+      const landing = landingRef.current;
+      if (motion !== "surface-journey" || !journey || !bridge || !climb || !landing) {
+        hide();
+        frame = window.requestAnimationFrame(update);
+        return;
+      }
+
+      const points = surfaceJourneyPoints(
+        journey.source.getBoundingClientRect(),
+        journey.target.getBoundingClientRect(),
+        journey.sourceFraction,
+        journey.targetFraction,
+      );
+      setHorizontal(bridge, points[0], points[1]);
+      const top = Math.min(points[1].y, points[2].y);
+      const height = Math.abs(points[2].y - points[1].y);
+      climb.style.left = `${points[1].x}px`;
+      climb.style.top = `${top}px`;
+      climb.style.height = `${height}px`;
+      climb.style.opacity = height > 2 ? "0.78" : "0";
+      setHorizontal(landing, points[2], points[3]);
+      frame = window.requestAnimationFrame(update);
+    };
+
+    frame = window.requestAnimationFrame(update);
+    return () => window.cancelAnimationFrame(frame);
+  }, [journeyRef, motion]);
+
+  return (
+    <>
+      <div ref={bridgeRef} data-rudi-route-guide="surface-journey-walk" className="fixed h-[2px] rounded-full bg-cyan-100/70 opacity-0 shadow-[0_0_7px_rgba(94,235,222,.42)]" />
+      <div ref={climbRef} data-rudi-route-guide="surface-journey-climb" className="fixed w-[2px] -translate-x-1/2 rounded-full bg-[linear-gradient(180deg,rgba(138,255,235,.72),rgba(255,214,91,.72))] opacity-0 shadow-[0_0_9px_rgba(94,235,222,.48)]" />
+      <div ref={landingRef} data-rudi-route-guide="surface-journey-land" className="fixed h-[2px] rounded-full bg-[#ffe26f]/70 opacity-0 shadow-[0_0_7px_rgba(255,216,91,.38)]" />
     </>
   );
 }
@@ -467,7 +607,9 @@ export default function LivingRudiWorld() {
   const [layer, setLayer] = useState<WorldLayer>("front");
   const [attentionTarget, setAttentionTarget] = useState<AttentionTarget>(null);
   const anchorRef = useRef<HTMLElement | null>(null);
+  const previousSurfaceRef = useRef<HTMLElement | null>(null);
   const surfaceFractionRef = useRef(0.52);
+  const journeyRef = useRef<SurfaceJourney | null>(null);
   const attentionRef = useRef<PointerAttention>({ x: 0, y: 0, level: 0 });
   const motionRef = useRef<Motion>("initial-climb");
 
@@ -549,12 +691,14 @@ export default function LivingRudiWorld() {
     let finishTimer = 0;
 
     const catchUpIfNeeded = () => {
+      if (motionRef.current === "surface-journey") return;
       const current = anchorRef.current;
       if (!current) return;
       const rect = current.getBoundingClientRect();
       if (!isSurfaceFullyOffscreen(rect, window.innerHeight)) return;
       const next = chooseCatchupSurface(page, direction, current);
       if (!next) return;
+      previousSurfaceRef.current = current;
       anchorRef.current = next;
       surfaceFractionRef.current = direction > 0 ? 0.28 : 0.72;
       setLayer(next.dataset.rudiLayer === "back" ? "back" : "front");
@@ -585,10 +729,12 @@ export default function LivingRudiWorld() {
     let finishTimer = 0;
     const interval = window.setInterval(() => {
       if (motionRef.current !== "perched" || !anchorRef.current) return;
-      const rect = anchorRef.current.getBoundingClientRect();
+      const current = anchorRef.current;
+      const rect = current.getBoundingClientRect();
       if (rect.bottom < 0 || rect.top > window.innerHeight) return;
 
-      if (Math.random() < 0.28) {
+      const roll = Math.random();
+      if (roll < 0.24) {
         setLayer("back");
         applyMotion("peek");
         finishTimer = window.setTimeout(() => {
@@ -598,9 +744,48 @@ export default function LivingRudiWorld() {
         return;
       }
 
-      surfaceFractionRef.current = surfaceFractionRef.current < 0.5 ? 0.72 : 0.28;
-      applyMotion("walk");
-      finishTimer = window.setTimeout(() => applyMotion("perched"), 1800);
+      if (roll < 0.52) {
+        surfaceFractionRef.current = surfaceFractionRef.current < 0.5 ? 0.72 : 0.28;
+        applyMotion("walk");
+        finishTimer = window.setTimeout(() => applyMotion("perched"), 1800);
+        return;
+      }
+
+      const page = document.querySelector<HTMLElement>(".landing-page");
+      if (!page) return;
+      const target = chooseExplorationSurface(page, current, previousSurfaceRef.current);
+      if (!target) {
+        surfaceFractionRef.current = surfaceFractionRef.current < 0.5 ? 0.72 : 0.28;
+        applyMotion("walk");
+        finishTimer = window.setTimeout(() => applyMotion("perched"), 1800);
+        return;
+      }
+
+      const sourceFraction = surfaceFractionRef.current;
+      const targetFraction = target.dataset.rudiSurface === "letter" ? 0.5 : (target.getBoundingClientRect().left >= rect.left ? 0.28 : 0.72);
+      const points = surfaceJourneyPoints(rect, target.getBoundingClientRect(), sourceFraction, targetFraction);
+      const durationMs = surfaceJourneyDurationMs(points);
+      journeyRef.current = {
+        source: current,
+        target,
+        sourceFraction,
+        targetFraction,
+        durationMs,
+      };
+      setLayer("front");
+      applyMotion("surface-journey");
+      setRouteVersion((value) => value + 1);
+      finishTimer = window.setTimeout(() => {
+        const journey = journeyRef.current;
+        if (!journey) return;
+        previousSurfaceRef.current = journey.source;
+        anchorRef.current = journey.target;
+        surfaceFractionRef.current = journey.targetFraction;
+        setLayer(journey.target.dataset.rudiLayer === "back" ? "back" : "front");
+        journeyRef.current = null;
+        applyMotion("perched");
+        setRouteVersion((value) => value + 1);
+      }, durationMs + 80);
     }, 5200);
     return () => {
       window.clearInterval(interval);
@@ -616,7 +801,8 @@ export default function LivingRudiWorld() {
       data-rudi-world="dom-surface-bound"
       className={`pointer-events-none fixed inset-0 hidden h-[100dvh] w-screen overflow-visible lg:block ${layer === "front" ? "z-[45]" : "z-[18]"}`}
     >
-      <RudiRouteGuide anchorRef={anchorRef} motion={motion} />
+      <RudiRouteGuide anchorRef={anchorRef} journeyRef={journeyRef} motion={motion} />
+      <RudiSurfaceJourneyGuide journeyRef={journeyRef} motion={motion} />
       {webgl ? (
         <Canvas orthographic camera={{ position: [0, 0, 10], zoom: 100 }} gl={{ alpha: true, antialias: true, powerPreference: "low-power" }} dpr={[0.75, 1]}>
           <ambientLight intensity={1.25} />
@@ -626,6 +812,7 @@ export default function LivingRudiWorld() {
             <WorldRudiModel
               anchorRef={anchorRef}
               surfaceFractionRef={surfaceFractionRef}
+              journeyRef={journeyRef}
               motion={motion}
               routeVersion={routeVersion}
               attentionRef={attentionRef}
