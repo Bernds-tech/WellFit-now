@@ -18,6 +18,8 @@ const checks = [
   [!hero.includes('src="/buddy/luma.png"'), "No other Buddy is shown before Rudi in the hero"],
   [world.includes('from "./rudiWorldGeometry.mjs"'), "Runtime imports the shared Rudi world geometry authority"],
   [geometry.includes('initialAnchor: "hero-wellfit-4"'), "Shared geometry binds the initial climb to the F in WellFit"],
+  [geometry.includes("isSurfaceSizeUsable"), "Shared geometry distinguishes narrow explicit surfaces from generic DOM fragments"],
+  [world.includes("isSurfaceSizeUsable(rect.width, rect.height, element.dataset.rudiSurface)"), "Runtime keeps narrow letters and thin ledges in the physical surface graph"],
   [world.includes("getBoundingClientRect()"), "Rudi derives world position from real DOM geometry"],
   [world.includes("surfaceTopPoint("), "Runtime footing uses shared DOM-surface geometry"],
   [world.includes("surfaceClimbEdgePoint("), "Runtime climbing uses the shared physical surface edge"],
