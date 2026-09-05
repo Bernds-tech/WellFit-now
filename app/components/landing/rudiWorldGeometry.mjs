@@ -5,11 +5,37 @@ export const RUDI_WORLD_GEOMETRY = Object.freeze({
   catchupOverscanPx: 150,
   catchupExplicitSurfaceBonusPx: 45,
   catchupPreferredInsetPx: 210,
+  genericMinWidthPx: 34,
+  genericMinHeightPx: 18,
+  explicitMinWidthPx: 14,
+  letterMinWidthPx: 7,
+  thinSurfaceMinHeightPx: 2,
 });
 
 /**
  * @typedef {{left:number, top:number, right:number, bottom:number, width:number, height:number}} RudiRect
  */
+
+/**
+ * Explicit Rudi surfaces intentionally include narrow letters and thin ledges/lines.
+ * Generic inferred surfaces stay larger so random tiny DOM fragments do not become walkable.
+ * @param {number} width
+ * @param {number} height
+ * @param {string | undefined} kind
+ */
+export function isSurfaceSizeUsable(width, height, kind) {
+  const explicit = Boolean(kind);
+  const minWidth = kind === "letter"
+    ? RUDI_WORLD_GEOMETRY.letterMinWidthPx
+    : explicit
+      ? RUDI_WORLD_GEOMETRY.explicitMinWidthPx
+      : RUDI_WORLD_GEOMETRY.genericMinWidthPx;
+  const thin = kind === "line" || kind === "ledge";
+  const minHeight = thin
+    ? RUDI_WORLD_GEOMETRY.thinSurfaceMinHeightPx
+    : RUDI_WORLD_GEOMETRY.genericMinHeightPx;
+  return width >= minWidth && height >= minHeight;
+}
 
 /**
  * Keep Rudi horizontally on the physical surface while never clamping the surface itself to the viewport.
