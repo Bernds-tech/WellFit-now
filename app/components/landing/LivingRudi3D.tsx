@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -139,6 +139,7 @@ function RudiModel({ chapter }: { chapter: Chapter }) {
   const scene = useMemo(() => clone(base.scene), [base.scene]);
   const mixer = useMemo(() => new THREE.AnimationMixer(scene), [scene]);
   const group = useRef<THREE.Group>(null);
+  const viewport = useThree((state) => state.viewport);
 
   useEffect(() => {
     scene.traverse((object) => {
@@ -164,16 +165,22 @@ function RudiModel({ chapter }: { chapter: Chapter }) {
   useFrame((_, delta) => {
     mixer.update(delta);
     if (group.current) {
+      const targetX = (chapter.x / 100 - 0.5) * viewport.width;
+      const targetY = (0.5 - chapter.y / 100) * viewport.height;
+      group.current.position.x = THREE.MathUtils.damp(group.current.position.x, targetX, 2.2, delta);
+      group.current.position.y = THREE.MathUtils.damp(group.current.position.y, targetY, 2.2, delta);
       group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, chapter.direction === 1 ? 0.22 : -0.22, 7, delta);
     }
   });
 
   return (
-    <group ref={group} position={[0, -1.05, 0]} scale={1.42}>
-      <Cape moving={chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} />
-      <primitive object={scene} />
-      {chapter.prop === "coffee" ? <CoffeeProp /> : null}
-      {chapter.prop === "table" || chapter.prop === "lounge" ? <FurnitureProp kind={chapter.prop} /> : null}
+    <group ref={group}>
+      <group scale={0.94}>
+        <Cape moving={chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} />
+        <primitive object={scene} />
+        {chapter.prop === "coffee" ? <CoffeeProp /> : null}
+        {chapter.prop === "table" || chapter.prop === "lounge" ? <FurnitureProp kind={chapter.prop} /> : null}
+      </group>
     </group>
   );
 }
@@ -207,16 +214,18 @@ export default function LivingRudi3D() {
   return (
     <aside
       aria-label="Rudi Rastlos, der lebendige WellFit-Begleiter"
-      className={`pointer-events-none fixed left-0 top-0 hidden h-[270px] w-[210px] transition-[transform] duration-[2200ms] ease-in-out lg:block ${chapter.layer === "back" ? "z-10 opacity-90" : "z-[60]"}`}
-      style={{ transform: `translate3d(calc(${chapter.x}vw - 105px), calc(${chapter.y}vh - 210px), 0)` }}
+      className={`pointer-events-none fixed inset-0 hidden overflow-visible transition-opacity duration-500 lg:block ${chapter.layer === "back" ? "z-10 opacity-90" : "z-[60]"}`}
     >
-      <div className="absolute -left-24 -top-12 w-64 rounded-2xl border border-cyan-100/45 bg-[#031820]/94 px-4 py-3 text-center text-xs font-bold leading-5 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl">
+      <div
+        className="absolute w-64 -translate-x-1/2 -translate-y-[135%] rounded-2xl border border-cyan-100/45 bg-[#031820]/94 px-4 py-3 text-center text-xs font-bold leading-5 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl transition-[left,top] duration-[2200ms] ease-in-out"
+        style={{ left: `${chapter.x}%`, top: `${chapter.y}%` }}
+      >
         {chapter.message}
         <span className="absolute bottom-[-9px] left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-cyan-100/45 bg-[#031820]" />
       </div>
 
       {webgl ? (
-        <Canvas camera={{ position: [0, 0.25, 4.2], fov: 33 }} gl={{ alpha: true, antialias: true, powerPreference: "low-power" }} dpr={[1, 1.5]}>
+        <Canvas orthographic camera={{ position: [0, 0, 10], zoom: 100 }} gl={{ alpha: true, antialias: true, powerPreference: "low-power" }} dpr={[0.75, 1]}>
           <ambientLight intensity={1.25} />
           <directionalLight position={[2.5, 4, 3]} intensity={2.2} color="#fff7df" />
           <directionalLight position={[-3, 2, 1]} intensity={1.1} color="#7ff5ed" />
@@ -226,7 +235,12 @@ export default function LivingRudi3D() {
         </Canvas>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={`${ASSET_ROOT}/rudi-front.png`} alt="" className="h-full w-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.45)]" />
+        <img
+          src={`${ASSET_ROOT}/rudi-front.png`}
+          alt=""
+          className="absolute w-[180px] -translate-x-1/2 -translate-y-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.45)] transition-[left,top] duration-[2200ms] ease-in-out"
+          style={{ left: `${chapter.x}%`, top: `${chapter.y}%` }}
+        />
       )}
     </aside>
   );

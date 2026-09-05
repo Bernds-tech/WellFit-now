@@ -6,6 +6,16 @@ Status model: `IMPLEMENTED`, `IMPLEMENTED_NOT_VERIFIED`, `VERIFIED`, `COUNTERCHE
 
 Every evidence record should contain a unique evidence ID, related task/change ID, date, target/environment, evidence type, immutable reference where practical, result, limitations and acceptance state. Never store secrets or private user data.
 
+## WFN-EV-020
+- Related: WFN-RUDI-3D-001 / WFN-LOOP-017
+- Date: 2026-09-05
+- Target: public landing 3D Rudi scale and movement stage
+- Type: owner-supplied 16-second visual review plus corrective local build evidence
+- Reference: owner video `WhatsApp Video 2026-09-05 at 09.02.25.mp4`; PR #401 follow-up diff
+- Result: frame-by-frame review confirmed that the live Rudi is too large and that legs/props are clipped by a fixed renderer box. The repository implementation now uses a viewport-wide orthographic transparent stage and reduces model scale from `1.42` to `0.94`; targeted ESLint, `rudi:validate` and the complete production build pass.
+- Limitations: the separate public ChatGPT Site has not yet received this correction; fresh exact-head CI and post-change browser/device acceptance remain required.
+- Acceptance: IMPLEMENTED_NOT_VERIFIED
+
 ## WFN-EV-019
 - Related: WFN-RUDI-3D-001 / WFN-CR-006
 - Date: 2026-09-05
