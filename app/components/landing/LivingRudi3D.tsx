@@ -134,9 +134,8 @@ function GroundShadow({ airborne }: { airborne: boolean }) {
     if (!shadow.current) return;
     const material = shadow.current.material as THREE.MeshBasicMaterial;
     material.opacity = THREE.MathUtils.damp(material.opacity, airborne ? 0.12 : 0.28, 5, delta);
-    const targetScale = airborne ? 0.72 : 1;
-    shadow.current.scale.x = THREE.MathUtils.damp(shadow.current.scale.x, targetScale, 5, delta);
-    shadow.current.scale.y = THREE.MathUtils.damp(shadow.current.scale.y, targetScale, 5, delta);
+    shadow.current.scale.x = THREE.MathUtils.damp(shadow.current.scale.x, airborne ? 0.52 : 0.72, 5, delta);
+    shadow.current.scale.y = THREE.MathUtils.damp(shadow.current.scale.y, airborne ? 0.09 : 0.13, 5, delta);
   });
 
   return (
@@ -160,6 +159,7 @@ function RudiModel({ chapter, phase }: { chapter: Chapter; phase: RudiPhase }) {
   const climbGlb = useGLTF(clips.climb);
   const scene = useMemo(() => clone(base.scene), [base.scene]);
   const mixer = useMemo(() => new THREE.AnimationMixer(scene), [scene]);
+  const currentAction = useRef<THREE.AnimationAction | null>(null);
   const group = useRef<THREE.Group>(null);
   const viewport = useThree((state) => state.viewport);
 
@@ -177,13 +177,16 @@ function RudiModel({ chapter, phase }: { chapter: Chapter; phase: RudiPhase }) {
     const activeClip = phase === "travel" ? "walk" : chapter.clip;
     const selected = animationGlbs[activeClip].animations[0] ?? base.animations[0];
     if (!selected) return;
-    const action = mixer.clipAction(selected);
-    action.reset().setLoop(THREE.LoopRepeat, Infinity).fadeIn(0.28).play();
-    return () => {
-      action.fadeOut(0.22);
-      window.setTimeout(() => action.stop(), 240);
-    };
+    const nextAction = mixer.clipAction(selected);
+    if (nextAction === currentAction.current) return;
+    currentAction.current?.fadeOut(0.22);
+    nextAction.reset().setLoop(THREE.LoopRepeat, Infinity).fadeIn(0.28).play();
+    currentAction.current = nextAction;
   }, [alertGlb, base.animations, celebrateGlb, chapter.clip, climbGlb, idleGlb, inspectGlb, jumpGlb, mixer, phase, pointGlb, sitGlb, walkGlb]);
+
+  useEffect(() => () => {
+    mixer.stopAllAction();
+  }, [mixer]);
 
   useFrame((_, delta) => {
     mixer.update(delta);
