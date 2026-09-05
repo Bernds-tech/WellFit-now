@@ -22,15 +22,15 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 ## Active graphical bridge: DOM-bound living Rudi
 - Task: `WFN-RUDI-3D-001` under graphical authority `WFG-RUDI-WORLD-001` / `WFG-CR-008`; cross-repo coordination is tracked in `Bernds-tech/WellFit` PR #29.
 - Physical implementation remains in this repository only because the current landing runtime has not yet migrated under `WF-MIG-001`.
-- PR #401 current head is `e171f07c2a34a5bbca5fb279706bf77a087b1d50`; runtime code is unchanged from the verified implementation head `e19d15f3bbe51740d53d954dcb7777623d8cf3e6`, with this latest commit reconciling Project Memory to that implementation.
+- Runtime implementation baseline `e19d15f3bbe51740d53d954dcb7777623d8cf3e6` replaces viewport-following mascot behavior with a DOM-surface world model. Subsequent commits on PR #401 reconcile Project Memory only and do not change this runtime baseline.
 - `F` in `WellFit` is the initial climb/podium. Explicit narrow letters and thin lines/ledges remain valid surfaces; random tiny generic DOM fragments are rejected.
 - Runtime footing, climb edges, offscreen detection, catch-up route geometry and autonomous surface-to-surface journey geometry share `app/components/landing/rudiWorldGeometry.mjs`.
 - Rudi is intentionally not viewport-clamped. His bound element may scroll completely out of view. Catch-up begins only after the surface is fully offscreen and scrolling settles.
 - Catch-up and autonomous moves are physically staged: horizontal walk segment, visible guide, vertical climb segment, then walk onto the target surface. No intentional hovering, free-flight or visible teleport path is part of the target model.
 - CTA attention changes gaze/body response without relocating Rudi through empty space.
 - Machine validation is integrated into `npm run rudi:validate`, including deterministic geometry tests for scroll-follow, narrow letters, thin ledges, full-offscreen thresholds, walk/climb route sampling, reachability and directional catch-up.
-- Verified implementation head `e19d15f3bbe51740d53d954dcb7777623d8cf3e6` passed Build #1275, Container Build #260, Database Package Tests #252, Beta 1 Emulator Tests #231 and Project Memory Guard/Quality/Status. The latest memory-only head requires its own fresh exact-head checks before merge.
-- Acceptance boundary: repository CI verifies code/invariants, not the separately hosted public `wellfit-bewegt` ChatGPT Site. That Site is not claimed synchronized to this exact DOM-bound head and still requires exact-source sync plus real-WebGL owner/device visual acceptance.
+- Runtime baseline `e19d15f3bbe51740d53d954dcb7777623d8cf3e6` passed Build #1275, Container Build #260, Database Package Tests #252, Beta 1 Emulator Tests #231 and Project Memory Guard/Quality/Status. The current PR head must also be green before merge because Project Memory is part of the required exact-head evidence.
+- Acceptance boundary: repository CI verifies code/invariants, not the separately hosted public `wellfit-bewegt` ChatGPT Site. That Site is not claimed synchronized to this exact DOM-bound implementation and still requires exact-source sync plus real-WebGL owner/device visual acceptance.
 
 ## Stale PR posture
 - PR #376 is superseded by the merged later Project Memory chain but contains V5 reconciliation history that must be retained in current registers before closure.
