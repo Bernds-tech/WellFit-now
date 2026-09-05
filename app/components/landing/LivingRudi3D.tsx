@@ -3,6 +3,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, useGLTF } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
+import { createPortal } from "react-dom";
 import * as THREE from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 
@@ -35,7 +36,7 @@ type Chapter = {
 };
 
 type RudiPhase = "travel" | "perform";
-type ScrollMotion = "settled" | "anchored" | "catchup-up" | "catchup-down";
+type ScrollMotion = "settled" | "anchored" | "catchup-up" | "catchup-down" | "catchup-jump";
 type AttentionTarget = "login" | "register" | null;
 
 type PointerAttention = {
@@ -45,13 +46,14 @@ type PointerAttention = {
 };
 
 const chapters: Chapter[] = [
-  { clip: "walk", x: 72, y: 68, direction: -1, duration: 7200, message: "Ich sehe mich hier kurz um." },
-  { clip: "sit", x: 45, y: 73, direction: 1, duration: 10000, message: "Den Tisch stelle ich mir einfach hierher.", prop: "table", layer: "front" },
-  { clip: "point", x: 78, y: 34, direction: -1, duration: 6200, message: "Dort geht es zu Missionen und Erlebnissen." },
-  { clip: "inspect", x: 18, y: 55, direction: 1, duration: 6500, message: "Hast du Fragen zu dieser WellFit-Welt?" },
-  { clip: "walk", x: 48, y: 72, direction: 1, duration: 7000, message: "Komm, ich zeige dir noch mehr." , layer: "back"},
-  { clip: "sit", x: 70, y: 70, direction: -1, duration: 9000, message: "Eine kurze Kaffeepause muss auch sein.", prop: "coffee" },
-  { clip: "sit", x: 25, y: 72, direction: 1, duration: 8500, message: "Manchmal hole ich mir sogar meinen Liegestuhl.", prop: "lounge" },
+  { clip: "walk", x: 72, y: 68, direction: -1, duration: 4800, message: "Ich sehe mich hier kurz um." },
+  { clip: "sit", x: 45, y: 73, direction: 1, duration: 8000, message: "Den Tisch stelle ich mir einfach hierher.", prop: "table", layer: "front" },
+  { clip: "point", x: 78, y: 34, direction: -1, duration: 5200, message: "Dort geht es zu Missionen und Erlebnissen." },
+  { clip: "inspect", x: 18, y: 55, direction: 1, duration: 5200, message: "Hast du Fragen zu dieser WellFit-Welt?" },
+  { clip: "jump", x: 48, y: 58, direction: 1, duration: 4200, message: "Manchmal nehme ich einfach die Abkürzung.", layer: "front" },
+  { clip: "walk", x: 62, y: 72, direction: 1, duration: 4800, message: "Komm, ich zeige dir noch mehr." },
+  { clip: "sit", x: 70, y: 70, direction: -1, duration: 7200, message: "Eine kurze Kaffeepause muss auch sein.", prop: "coffee" },
+  { clip: "sit", x: 25, y: 72, direction: 1, duration: 7200, message: "Manchmal hole ich mir sogar meinen Liegestuhl.", prop: "lounge" },
   { clip: "alert", x: 26, y: 31, direction: 1, duration: 5500, message: "Moment – hast du den Reality Glitch schon entdeckt?" },
   { clip: "celebrate", x: 52, y: 61, direction: 1, duration: 6000, message: "Sehr gut! Du kennst WellFit schon ziemlich gut." },
   { clip: "idle", x: 84, y: 65, direction: -1, duration: 7000, message: "Ich wohne hier. Schau dich ruhig weiter um." },
@@ -217,7 +219,9 @@ function RudiModel({
     const animationGlbs = { walk: walkGlb, run: runGlb, idle: idleGlb, alert: alertGlb, point: pointGlb, inspect: inspectGlb, celebrate: celebrateGlb, jump: jumpGlb, sit: sitGlb, climb: climbGlb };
     const activeClip: ClipName = attentionTarget
       ? "celebrate"
-      : scrollMotion === "catchup-up"
+      : scrollMotion === "catchup-jump"
+        ? "jump"
+        : scrollMotion === "catchup-up"
         ? "climb"
         : scrollMotion === "catchup-down"
           ? "run"
@@ -242,8 +246,12 @@ function RudiModel({
     if (group.current) {
       const rawTargetX = (chapter.x / 100 - 0.5) * viewport.width;
       const rawTargetY = (0.5 - chapter.y / 100) * viewport.height;
-      const targetX = THREE.MathUtils.clamp(rawTargetX, -viewport.width / 2 + 0.85, viewport.width / 2 - 0.85);
-      const targetY = THREE.MathUtils.clamp(rawTargetY, -viewport.height / 2 + 0.55, viewport.height / 2 - 2.15);
+      const safeLeft = -viewport.width / 2 + 0.72;
+      const safeRight = viewport.width / 2 - 0.72;
+      const safeBottom = -viewport.height / 2 + 1.05;
+      const safeTop = viewport.height / 2 - 2.35;
+      const targetX = THREE.MathUtils.clamp(rawTargetX, safeLeft, safeRight);
+      const targetY = THREE.MathUtils.clamp(rawTargetY, safeBottom, safeTop);
       if (!positionInitialized.current) {
         basePosition.current.set(targetX, targetY);
         positionInitialized.current = true;
@@ -251,17 +259,21 @@ function RudiModel({
       const travelDirection = targetX >= basePosition.current.x ? 1 : -1;
       basePosition.current.x = THREE.MathUtils.damp(basePosition.current.x, targetX, 2.2, delta);
       basePosition.current.y = THREE.MathUtils.damp(basePosition.current.y, targetY, 2.2, delta);
-      if (scrollMotion === "catchup-up" || scrollMotion === "catchup-down") {
+      if (scrollMotion.startsWith("catchup-")) {
         scrollOffsetRef.current = THREE.MathUtils.damp(scrollOffsetRef.current, 0, 1.45, delta);
       }
       group.current.position.x = basePosition.current.x;
-      group.current.position.y = basePosition.current.y + scrollOffsetRef.current / viewport.factor;
-      const facing = phase === "travel" || scrollMotion === "catchup-up" || scrollMotion === "catchup-down" ? travelDirection : chapter.direction;
+      const worldAnchoredY = basePosition.current.y + scrollOffsetRef.current / viewport.factor;
+      group.current.position.y = THREE.MathUtils.clamp(worldAnchoredY, safeBottom, safeTop);
+      if (scrollMotion === "catchup-jump") {
+        group.current.position.y += Math.abs(Math.sin(clock.elapsedTime * 5.2)) * 0.16;
+      }
+      const facing = phase === "travel" || scrollMotion.startsWith("catchup-") ? travelDirection : chapter.direction;
       group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, facing === 1 ? 0.22 : -0.22, 7, delta);
       const excitement = attentionRef.current.level;
       group.current.rotation.z = THREE.MathUtils.damp(group.current.rotation.z, attentionRef.current.x * -0.035 * excitement, 6, delta);
       if (character.current) {
-        const pulse = 0.94 * (1 + Math.sin(clock.elapsedTime * 8) * 0.018 * excitement);
+        const pulse = 0.66 * (1 + Math.sin(clock.elapsedTime * 8) * 0.018 * excitement);
         character.current.scale.setScalar(pulse);
       }
       if (headBone.current) {
@@ -276,12 +288,14 @@ function RudiModel({
     ? "Ja! Dort kannst du dich anmelden – ich warte schon auf dich."
     : attentionTarget === "register"
       ? "Genau dort beginnt dein eigenes WellFit-Abenteuer!"
-      : scrollMotion === "catchup-up"
+      : scrollMotion === "catchup-jump"
+        ? "Da bist du ja – ich springe schnell nach!"
+        : scrollMotion === "catchup-up"
         ? "Warte – ich klettere zu dir nach!"
         : scrollMotion === "catchup-down"
           ? "Nicht so schnell – ich komme schon!"
           : chapter.message;
-  const showBubble = attentionTarget !== null || scrollMotion === "catchup-up" || scrollMotion === "catchup-down" || phase === "perform";
+  const showBubble = attentionTarget !== null || scrollMotion.startsWith("catchup-") || phase === "perform";
 
   return (
     <group ref={group}>
@@ -291,9 +305,9 @@ function RudiModel({
           <span className="absolute bottom-[-9px] left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-cyan-100/45 bg-[#031820]" />
         </div>
       </Html>
-      <group ref={character} scale={0.94}>
-        <GroundShadow airborne={phase === "perform" && (chapter.clip === "jump" || chapter.clip === "climb")} />
-        <Cape moving={phase === "travel" || chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} />
+      <group ref={character} scale={0.66}>
+        <GroundShadow airborne={scrollMotion === "catchup-jump" || (phase === "perform" && (chapter.clip === "jump" || chapter.clip === "climb"))} />
+        <Cape moving={phase === "travel" || scrollMotion.startsWith("catchup-") || chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} />
         <primitive object={scene} />
         {phase === "perform" && chapter.prop === "coffee" ? <CoffeeProp /> : null}
         {phase === "perform" && (chapter.prop === "table" || chapter.prop === "lounge") ? <FurnitureProp kind={chapter.prop} /> : null}
@@ -319,6 +333,7 @@ export default function LivingRudi3D() {
   const [webgl, setWebgl] = useState<boolean | null>(null);
   const attentionRef = useRef<PointerAttention>({ x: 0, y: 0, level: 0 });
   const scrollOffsetRef = useRef(0);
+  const scrollDistanceRef = useRef(0);
   const chapter = chapters[chapterIndex];
 
   useEffect(() => {
@@ -381,12 +396,19 @@ export default function LivingRudi3D() {
       lastScrollTop = nextScrollTop;
       if (Math.abs(delta) < 0.5) return;
       const limit = page.clientHeight * 0.62;
+      scrollDistanceRef.current += Math.abs(delta);
       scrollOffsetRef.current = THREE.MathUtils.clamp(scrollOffsetRef.current - delta, -limit, limit);
       setScrollMotion("anchored");
       window.clearTimeout(catchupTimer);
       window.clearTimeout(settleTimer);
       catchupTimer = window.setTimeout(() => {
-        setScrollMotion(scrollOffsetRef.current > 0 ? "catchup-up" : "catchup-down");
+        const nextMotion = scrollDistanceRef.current > page.clientHeight * 0.42
+          ? "catchup-jump"
+          : scrollOffsetRef.current > 0
+            ? "catchup-up"
+            : "catchup-down";
+        scrollDistanceRef.current = 0;
+        setScrollMotion(nextMotion);
       }, 420);
       settleTimer = window.setTimeout(() => {
         scrollOffsetRef.current = 0;
@@ -417,10 +439,10 @@ export default function LivingRudi3D() {
 
   if (webgl === null) return null;
 
-  return (
+  return createPortal(
     <aside
       aria-label="Rudi Rastlos, der lebendige WellFit-Begleiter"
-      className={`pointer-events-none fixed inset-0 hidden overflow-visible transition-opacity duration-500 lg:block ${chapter.layer === "back" ? "z-10 opacity-90" : "z-[60]"}`}
+      className={`rudi-world-overlay pointer-events-none fixed inset-0 hidden h-[100dvh] w-screen overflow-visible transition-opacity duration-500 lg:block ${chapter.layer === "front" ? "z-[60]" : "z-40"}`}
     >
       {webgl ? (
         <Canvas orthographic camera={{ position: [0, 0, 10], zoom: 100 }} gl={{ alpha: true, antialias: true, powerPreference: "low-power" }} dpr={[0.75, 1]}>
@@ -455,7 +477,8 @@ export default function LivingRudi3D() {
           />
         </>
       )}
-    </aside>
+    </aside>,
+    document.body,
   );
 }
 
