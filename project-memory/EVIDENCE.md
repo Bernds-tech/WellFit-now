@@ -6,6 +6,16 @@ Status model: `IMPLEMENTED`, `IMPLEMENTED_NOT_VERIFIED`, `VERIFIED`, `COUNTERCHE
 
 Every evidence record should contain a unique evidence ID, related task/change ID, date, target/environment, evidence type, immutable reference where practical, result, limitations and acceptance state. Never store secrets or private user data.
 
+## WFN-EV-019
+- Related: WFN-RUDI-3D-001 / WFN-CR-006
+- Date: 2026-09-05
+- Target: public landing 3D presentation bridge
+- Type: exact-head repository and generated-asset verification
+- Reference: PR #401 head `cfed7908d44a7d838044df95b55167b61b6b9179`; Meshy Actions runs `33880908596` and `33882908469`; materialization run `33933220732`
+- Result: the colored textured 24-joint Rudi rig, ten compact animation clips, autonomous behavior component, separate cape and prop scenes passed Build #1239, Container #224, Database #216, Beta 1 Emulator #195 and all Project Memory gates.
+- Limitations: CI does not prove browser/device visual acceptance; the current skeleton has hand bones but no individual finger joints; the public ChatGPT Site uses a separate release path.
+- Acceptance: IMPLEMENTED_NOT_VERIFIED
+
 ## WFN-EV-001
 - Related: WFN-MEM-001
 - Date: 2026-08-19

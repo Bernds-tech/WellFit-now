@@ -6,7 +6,7 @@
 - Risk: R2
 - Goal: provide the current public landing with a real textured, rigged and autonomous 3D Rudi that behaves like a resident of the page rather than a mouse-bound flat image.
 - Action: recovered successful Meshy artifacts, created compact animation-only GLBs, added a client-side autonomous behavior sequence, a separately simulated cape, dialogue/depth changes and coffee/table/lounge props, plus a manually triggered Text-to-Motion workflow for higher-fidelity living actions.
-- Evidence: local targeted ESLint, `rudi:validate` and full `npm run build` pass; generation Actions runs `33880908596` and `33882908469` succeeded. The broad agent quality gate remains red on unrelated existing governance/register drift.
+- Evidence: local targeted ESLint, `rudi:validate` and full `npm run build` pass; generation Actions runs `33880908596` and `33882908469` succeeded; PR #401 exact head `cfed7908d44a7d838044df95b55167b61b6b9179` passed Build #1239, Container #224, Database #216, Beta 1 Emulator #195 and all Project Memory gates. Browser/device visual acceptance remains open.
 - Negative/fail-closed path: WebGL absence uses a static fallback; no server/product authority or deployment is changed; Meshy credit-consuming workflows are manual-only and use only the GitHub secret.
 - Rollback/recovery: revert the scoped component/assets/workflows; the prior 2D landing and server state remain unchanged.
 - Next step: PR exact-head CI and visual acceptance, then a separately authorized public Site synchronization.

@@ -17,12 +17,12 @@ Canonical register for work that has started but is not yet fully completed.
 - Status: IMPLEMENTED_NOT_VERIFIED
 - Risk: R2
 - Scope: reversible public-landing 3D presentation bridge using the existing successful Meshy outputs; no backend, auth, data, mission/reward, economy, camera/location or deployment change.
-- Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR pending.
+- Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR #401.
 - Work lock: `LOCK-WFN-RUDI-3D-001`.
 - Completed so far: recovered the successful textured/rigged Meshy production artifact and eight generated action clips; added walk/run extraction; reduced ten animation payloads from about 75 MB to under 1 MB total; integrated an autonomous fixed-viewport Rudi with dialogue, directional movement, foreground/background depth, coffee/table/lounge props, a separately simulated cape and a static WebGL fallback.
-- Evidence: targeted ESLint, `rudi:validate` and the complete Next.js production build succeed locally. Meshy generation and animation Actions runs succeeded on 2026-09-04. The broad agent quality gate still reports unrelated pre-existing register/TODO drift and is not counted as passing evidence.
-- Still open: runnable browser/device visual acceptance, individually articulated finger bones, custom Text-to-Motion living-action artifact generation, public ChatGPT Site source synchronization and PR exact-head CI.
-- Exact next step: open the scoped PR, run exact-head CI, then perform visual acceptance before any public release or cross-repository port.
+- Evidence: targeted ESLint, `rudi:validate` and the complete Next.js production build succeed locally. Meshy generation and animation Actions runs succeeded on 2026-09-04. PR #401 exact head `cfed7908d44a7d838044df95b55167b61b6b9179` passed Build #1239, Container #224, Database #216, Beta 1 Emulator #195 and all Project Memory gates.
+- Still open: runnable browser/device visual acceptance, individually articulated finger bones, custom Text-to-Motion living-action artifact generation and public ChatGPT Site source synchronization.
+- Exact next step: perform visual acceptance on PR #401, then generate/review the optional custom living-action pack before any public release or cross-repository port.
 - Owner action needed: none for repository review; public Site release remains separate.
 
 ## WFN-CI-INSTALL-RESILIENCE-BASELINE

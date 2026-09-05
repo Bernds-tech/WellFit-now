@@ -41,6 +41,20 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
 
+## RECEIPT-WFN-RUDI-3D-20260905
+- Task: WFN-RUDI-3D-001 / WFN-CR-006
+- Started: 2026-09-05 Europe/Vienna
+- Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR #401
+- Risk: R2 reversible landing/Buddy presentation bridge.
+- Preflight checked: repository `AGENTS.md`, mandatory Project Memory, current graphical/Buddy ownership boundaries, existing avatar attempts, supplied Meshy artifacts and successful generation runs.
+- Changes made: integrated the colored textured 24-joint Rudi as a real Three.js avatar; added ten compact animation clips, autonomous independent behavior, dialogue, front/back depth changes, coffee/table/lounge props, a separately simulated cape, static fallback and manual-only Meshy generation/materialization workflows.
+- Negative countercheck: no auth, backend, data, mission/reward authority, economy, location, camera, legal text or Production deployment changed; Meshy API secrets are not stored in the repository and credit-consuming workflows remain manual-only.
+- Evidence: PR #401 head `cfed7908d44a7d838044df95b55167b61b6b9179`; Build #1239, Container #224, Database #216, Beta 1 Emulator #195 and all Project Memory gates succeeded; local targeted ESLint, `rudi:validate` and production build succeeded.
+- Result status: IMPLEMENTED_NOT_VERIFIED pending browser/device visual acceptance and separate public-Site synchronization.
+- Open follow-up: current rig lacks individual finger bones; generate/review optional custom living-action motions and handle extended hand rig as a separate bounded package.
+- Work lock: `LOCK-WFN-RUDI-3D-001` remains active for visual acceptance and follow-up.
+- Falsification question: visible control obstruction, implausible cape/body intersections, failed animation retargeting, excessive device cost or mismatch with the separate public Site would require correction before acceptance.
+
 ## RECEIPT-WFN-CI-INSTALL-RESILIENCE-20260904
 - Task: WFN-CI-INSTALL-RESILIENCE-BASELINE
 - Started: 2026-09-04 Europe/Vienna
