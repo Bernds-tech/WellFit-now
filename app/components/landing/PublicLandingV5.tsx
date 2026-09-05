@@ -3,12 +3,14 @@ import Link from "next/link";
 import LandingHeroV5 from "./LandingHeroV5";
 import LandingSectionsV5 from "./LandingSectionsV5";
 import LandingSessionRedirect from "./LandingSessionRedirect";
+import LivingRudi3D from "./LivingRudi3D";
 import { navItems } from "./landingPublicData";
 
 export default function PublicLandingV5() {
   return (
     <main className="landing-page h-screen overflow-y-auto scroll-smooth bg-[#020b0f] text-white">
       <LandingSessionRedirect />
+      <LivingRudi3D />
 
       <header className="sticky top-0 z-50 border-b border-cyan-100/22 bg-[#021219]/94 shadow-[0_10px_30px_rgba(0,0,0,.18)] backdrop-blur-2xl">
         <div className="mx-auto flex h-[78px] max-w-[1520px] items-center justify-between gap-5 px-4 sm:px-6 lg:px-10">

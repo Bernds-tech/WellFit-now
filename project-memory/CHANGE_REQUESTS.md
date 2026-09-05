@@ -61,6 +61,18 @@ New owner ideas are captured here before changing active scope.
 - Decision: create a shared articulated puppet engine. Head and body use separate layers from the same transparent PNG, with head-led pointer/CTA tracking, subtler torso lean, click/nod reaction, idle breathing, reduced-motion/coarse-pointer fallback and explicit per-asset crop/pivot configuration. Whole-image rotation is not accepted as head tracking.
 - Related task: WFN-AVATAR-PUPPET-001 / WFG-AVATAR-PUPPET-001
 
+## WFN-CR-006
+- Date: 2026-09-05
+- Status: ACCEPTED_FOR_IMPLEMENTATION
+- Source: owner direction and supplied Meshy model
+- Idea: replace the flat Rudi presentation with a real autonomous 3D humanoid that appears to live on the website, moves independently from scrolling, speaks, points, passes in front of and behind content, and uses small props during rest/eating scenes.
+- Classification: reversible graphical/Buddy-presentation bridge in the current physical web code
+- Affected areas: public landing presentation and generated 3D assets only; no auth, backend, mission/reward, economy, location, camera or legal authority.
+- Existing task/decision checked: WFN-AVATAR-PUPPET-001, WFN-XREPO-001, WFN-CR-005 and current Meshy workflow artifacts.
+- Dependencies: WellFit remains graphical authority and WellFit-Buddy remains Buddy-presentation authority. Public ChatGPT Site publication is a separate source/release path.
+- Decision: use the successfully generated textured 24-bone Meshy humanoid and named animation clips, keep the cape as a separately simulated mesh, provide WebGL/reduced-capability fallbacks, and keep expensive Meshy generation manually triggered.
+- Related task: WFN-RUDI-3D-001
+
 ## Intake template
 
 ```text

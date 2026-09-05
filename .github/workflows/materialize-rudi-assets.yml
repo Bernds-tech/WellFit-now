@@ -1,0 +1,60 @@
+name: Materialize reviewed Rudi assets
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/rudi-3d-living-avatar-20260905
+    paths:
+      - .github/workflows/materialize-rudi-assets.yml
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: materialize-rudi-assets-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Download successful Meshy artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download 33880908596 --repo "$GITHUB_REPOSITORY" --name rudi-meshy-production --dir .rudi-artifacts/production
+          gh run download 33882908469 --repo "$GITHUB_REPOSITORY" --name rudi-meshy-animation-pack --dir .rudi-artifacts/animations
+
+      - name: Create web-ready asset pack
+        run: |
+          set -euo pipefail
+          mkdir -p public/landing/rudi
+          cp .rudi-artifacts/production/rudi-rigged.glb public/landing/rudi/rudi-rigged.glb
+          cp .rudi-artifacts/production/rudi-front.png public/landing/rudi/rudi-front.png
+          node scripts/landing/extract-gltf-animation.mjs .rudi-artifacts/production/rudi-walking.glb public/landing/rudi/rudi-walk.animation.glb
+          node scripts/landing/extract-gltf-animation.mjs .rudi-artifacts/production/rudi-running.glb public/landing/rudi/rudi-run.animation.glb
+          for clip in idle alert point inspect celebrate jump sit climb; do
+            node scripts/landing/extract-gltf-animation.mjs ".rudi-artifacts/animations/rudi-$clip.glb" "public/landing/rudi/rudi-$clip.animation.glb"
+          done
+          node scripts/landing/validate-rudi-assets.mjs
+
+      - name: Commit exact generated assets to branch
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add public/landing/rudi
+          if git diff --cached --quiet; then
+            echo "Rudi assets already match the successful Meshy artifacts."
+            exit 0
+          fi
+          git commit -m "Materialize reviewed Rudi 3D assets"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

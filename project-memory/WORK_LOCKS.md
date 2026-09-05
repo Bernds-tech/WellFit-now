@@ -1,5 +1,15 @@
 # Work Locks
 
+## LOCK-WFN-RUDI-3D-001
+- Task: WFN-RUDI-3D-001
+- Status: ACTIVE
+- Risk: R2
+- Holder: ChatGPT session 2026-09-05
+- Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR pending
+- Acquired: 2026-09-05 Europe/Vienna
+- Scope: landing-only 3D Rudi bridge, generated presentation assets, cape/prop behavior and manual Meshy asset workflows. No public Site deploy, backend/auth/data, reward/economy, location/camera, legal or native AR mutation.
+- Resume from: validate exact branch build and visual behavior; individual finger articulation requires a dedicated extended rig because the current Meshy skeleton contains hand bones but no finger joints.
+
 Prevents two agents/sessions from independently working the same task.
 
 ## Rules
