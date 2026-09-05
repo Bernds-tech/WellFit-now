@@ -5,6 +5,7 @@ import {
   catchupOriginY,
   catchupSurfaceScore,
   isSurfaceFullyOffscreen,
+  isSurfaceSizeUsable,
   surfaceClimbEdgePoint,
   surfaceTopPoint,
 } from "../../app/components/landing/rudiWorldGeometry.mjs";
@@ -28,6 +29,20 @@ const check = (label, fn) => {
 
 check("Initial Rudi anchor is the F in WellFit", () => {
   assert.equal(RUDI_WORLD_GEOMETRY.initialAnchor, "hero-wellfit-4");
+});
+
+check("Narrow explicit letters remain usable Rudi surfaces", () => {
+  assert.equal(isSurfaceSizeUsable(9, 52, "letter"), true);
+});
+
+check("Thin explicit ledges remain usable Rudi surfaces", () => {
+  assert.equal(isSurfaceSizeUsable(180, 8, "ledge"), true);
+  assert.equal(isSurfaceSizeUsable(120, 2, "line"), true);
+});
+
+check("Tiny generic DOM fragments are not promoted to Rudi surfaces", () => {
+  assert.equal(isSurfaceSizeUsable(20, 20), false);
+  assert.equal(isSurfaceSizeUsable(80, 10), false);
 });
 
 check("Surface top follows DOM scroll delta exactly and is not viewport-clamped", () => {
