@@ -41,16 +41,14 @@ const SURFACE_SELECTOR = [
   ".landing-page section img",
 ].join(",");
 
+// Keep the richer animation asset library materialized, but only fetch clips selected
+// by the active DOM-world controller. Optional living scenes can lazy-load their own
+// clips later instead of charging every landing visitor up front.
 const clips = {
   walk: `${ASSET_ROOT}/rudi-walk.animation.glb`,
-  run: `${ASSET_ROOT}/rudi-run.animation.glb`,
   idle: `${ASSET_ROOT}/rudi-idle.animation.glb`,
-  alert: `${ASSET_ROOT}/rudi-alert.animation.glb`,
-  point: `${ASSET_ROOT}/rudi-point.animation.glb`,
   inspect: `${ASSET_ROOT}/rudi-inspect.animation.glb`,
   celebrate: `${ASSET_ROOT}/rudi-celebrate.animation.glb`,
-  jump: `${ASSET_ROOT}/rudi-jump.animation.glb`,
-  sit: `${ASSET_ROOT}/rudi-sit.animation.glb`,
   climb: `${ASSET_ROOT}/rudi-climb.animation.glb`,
 } as const;
 
@@ -85,11 +83,21 @@ type WorldModelProps = {
   onReady: () => void;
 };
 
-class RudiErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
+type RudiErrorBoundaryProps = {
+  children: ReactNode;
+  fallback: ReactNode;
+  onError: () => void;
+};
+
+class RudiErrorBoundary extends Component<RudiErrorBoundaryProps, { failed: boolean }> {
   state = { failed: false };
 
   static getDerivedStateFromError() {
     return { failed: true };
+  }
+
+  componentDidCatch() {
+    this.props.onError();
   }
 
   render() {
@@ -191,14 +199,9 @@ function GroundShadow({ climbing }: { climbing: boolean }) {
 function WorldRudiModel({ anchorRef, surfaceFractionRef, journeyRef, motion, routeVersion, attentionRef, attentionTarget, onReady }: WorldModelProps) {
   const base = useGLTF(`${ASSET_ROOT}/rudi-rigged.glb`);
   const walkGlb = useGLTF(clips.walk);
-  const runGlb = useGLTF(clips.run);
   const idleGlb = useGLTF(clips.idle);
-  const alertGlb = useGLTF(clips.alert);
-  const pointGlb = useGLTF(clips.point);
   const inspectGlb = useGLTF(clips.inspect);
   const celebrateGlb = useGLTF(clips.celebrate);
-  const jumpGlb = useGLTF(clips.jump);
-  const sitGlb = useGLTF(clips.sit);
   const climbGlb = useGLTF(clips.climb);
   const scene = useMemo(() => clone(base.scene), [base.scene]);
   const mixer = useMemo(() => new THREE.AnimationMixer(scene), [scene]);
@@ -207,17 +210,12 @@ function WorldRudiModel({ anchorRef, surfaceFractionRef, journeyRef, motion, rou
     if (!fallback) throw new Error("Rudi animation baseline is missing");
     return {
       walk: normalizeAnimationClip(walkGlb.animations[0] ?? fallback, scene),
-      run: normalizeAnimationClip(runGlb.animations[0] ?? fallback, scene),
       idle: normalizeAnimationClip(idleGlb.animations[0] ?? fallback, scene),
-      alert: normalizeAnimationClip(alertGlb.animations[0] ?? fallback, scene),
-      point: normalizeAnimationClip(pointGlb.animations[0] ?? fallback, scene),
       inspect: normalizeAnimationClip(inspectGlb.animations[0] ?? fallback, scene),
       celebrate: normalizeAnimationClip(celebrateGlb.animations[0] ?? fallback, scene),
-      jump: normalizeAnimationClip(jumpGlb.animations[0] ?? fallback, scene),
-      sit: normalizeAnimationClip(sitGlb.animations[0] ?? fallback, scene),
       climb: normalizeAnimationClip(climbGlb.animations[0] ?? fallback, scene),
     } satisfies Record<ClipName, THREE.AnimationClip>;
-  }, [alertGlb.animations, base.animations, celebrateGlb.animations, climbGlb.animations, idleGlb.animations, inspectGlb.animations, jumpGlb.animations, pointGlb.animations, runGlb.animations, scene, sitGlb.animations, walkGlb.animations]);
+  }, [base.animations, celebrateGlb.animations, climbGlb.animations, idleGlb.animations, inspectGlb.animations, scene, walkGlb.animations]);
   const currentAction = useRef<THREE.AnimationAction | null>(null);
   const group = useRef<THREE.Group>(null);
   const character = useRef<THREE.Group>(null);
@@ -600,6 +598,9 @@ function FallbackRudi({ anchorRef }: { anchorRef: MutableRefObject<HTMLElement |
         const point = surfaceTopPoint(element.getBoundingClientRect(), 0.5);
         image.style.left = `${point.x}px`;
         image.style.top = `${point.y}px`;
+        image.style.opacity = "1";
+      } else if (image) {
+        image.style.opacity = "0";
       }
       frame = window.requestAnimationFrame(follow);
     };
@@ -613,7 +614,7 @@ function FallbackRudi({ anchorRef }: { anchorRef: MutableRefObject<HTMLElement |
       ref={imageRef}
       src={`${ASSET_ROOT}/rudi-front.png`}
       alt=""
-      className="fixed w-[126px] -translate-x-1/2 -translate-y-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.45)]"
+      className="fixed w-[126px] -translate-x-1/2 -translate-y-full object-contain opacity-0 drop-shadow-[0_18px_34px_rgba(0,0,0,.45)] transition-opacity duration-150"
     />
   );
 }
@@ -657,16 +658,32 @@ export default function LivingRudiWorld() {
     setModelReady(true);
   }, []);
 
+  const switchRenderMode = useCallback((nextMode: RenderMode) => {
+    if (nextMode !== "webgl") {
+      clearMotionFinish();
+      journeyRef.current = null;
+      attentionRef.current = { x: 0, y: 0, level: 0 };
+      setAttentionTarget(null);
+      setModelReady(false);
+      if (motionRef.current !== "perched") applyMotion("perched");
+    }
+    setRenderMode(nextMode);
+  }, [applyMotion, clearMotionFinish]);
+
+  const handleRendererFailure = useCallback(() => {
+    switchRenderMode("static");
+  }, [switchRenderMode]);
+
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 1024px)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const recompute = () => {
       if (!desktop.matches) {
-        setRenderMode("hidden");
+        switchRenderMode("hidden");
       } else if (reducedMotion.matches) {
-        setRenderMode("static");
+        switchRenderMode("static");
       } else {
-        setRenderMode(supportsWebGL() ? "webgl" : "static");
+        switchRenderMode(supportsWebGL() ? "webgl" : "static");
       }
     };
     const initialTimer = window.setTimeout(recompute, 0);
@@ -677,7 +694,7 @@ export default function LivingRudiWorld() {
       desktop.removeEventListener("change", recompute);
       reducedMotion.removeEventListener("change", recompute);
     };
-  }, []);
+  }, [switchRenderMode]);
 
   useEffect(() => {
     const initTimer = window.setTimeout(() => {
@@ -869,10 +886,14 @@ export default function LivingRudiWorld() {
       data-rudi-world="dom-surface-bound"
       className={`pointer-events-none fixed inset-0 h-[100dvh] w-screen overflow-visible ${layer === "front" ? "z-[45]" : "z-[5]"}`}
     >
-      <RudiRouteGuide anchorRef={anchorRef} motion={motion} />
-      <RudiSurfaceJourneyGuide journeyRef={journeyRef} motion={motion} />
       {renderMode === "webgl" ? (
-        <RudiErrorBoundary fallback={<FallbackRudi anchorRef={anchorRef} />}>
+        <>
+          <RudiRouteGuide anchorRef={anchorRef} motion={motion} />
+          <RudiSurfaceJourneyGuide journeyRef={journeyRef} motion={motion} />
+        </>
+      ) : null}
+      {renderMode === "webgl" ? (
+        <RudiErrorBoundary fallback={<FallbackRudi anchorRef={anchorRef} />} onError={handleRendererFailure}>
           <Canvas
             orthographic
             camera={{ position: [0, 0, 10], zoom: 100 }}
