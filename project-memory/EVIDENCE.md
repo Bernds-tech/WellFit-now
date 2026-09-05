@@ -13,7 +13,7 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Type: owner-supplied 16-second visual review plus corrective local build evidence
 - Reference: owner video `WhatsApp Video 2026-09-05 at 09.02.25.mp4`; PR #401 follow-up diff
 - Result: frame-by-frame review confirmed that the live Rudi is too large and that legs/props are clipped by a fixed renderer box. The repository implementation now uses a viewport-wide orthographic transparent stage and reduces model scale from `1.42` to `0.94`. A second corrective pass adds viewport-safe edge clamping, a responsive ground shadow, dedicated walk phases between actions, travel-facing direction, prop-only action phases and safely clamped dialogue. Targeted ESLint, `rudi:validate` and the complete production build pass.
-- Limitations: the separate public ChatGPT Site has not yet received this correction. The supervised preview cannot launch this retained Next.js project because it forwards Vite-only flags, so post-change browser/device acceptance and fresh exact-head CI remain required.
+- Limitations: the separate public ChatGPT Site has not yet received this correction. The supervised preview cannot launch this retained Next.js project because it forwards Vite-only flags, so post-change browser/device acceptance remains required. Functional head `944565028fb533023aeb53952c1855f223f75b0f` passed Build #1244, Container #229, Database #221, Beta 1 Emulator #200 and all Project Memory gates.
 - Acceptance: IMPLEMENTED_NOT_VERIFIED
 
 ## WFN-EV-019
