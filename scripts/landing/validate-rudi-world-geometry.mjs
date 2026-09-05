@@ -5,12 +5,19 @@ import {
   catchupOriginY,
   catchupSurfaceScore,
   isSurfaceFullyOffscreen,
+  isSurfaceJourneyReachable,
   isSurfaceSizeUsable,
+  sampleSurfaceJourney,
   surfaceClimbEdgePoint,
+  surfaceJourneyCandidateScore,
+  surfaceJourneyDurationMs,
+  surfaceJourneyLength,
+  surfaceJourneyPoints,
   surfaceTopPoint,
 } from "../../app/components/landing/rudiWorldGeometry.mjs";
 
 const viewportHeight = 900;
+const viewportWidth = 1440;
 const rect = (left, top, width, height) => ({
   left,
   top,
@@ -107,6 +114,52 @@ check("Catch-up scoring respects scroll direction", () => {
   const nearBottom = rect(0, 670, 100, 40);
   assert.ok(catchupSurfaceScore(nearTop, 1, viewportHeight, false) < catchupSurfaceScore(nearBottom, 1, viewportHeight, false));
   assert.ok(catchupSurfaceScore(nearBottom, -1, viewportHeight, false) < catchupSurfaceScore(nearTop, -1, viewportHeight, false));
+});
+
+check("Surface journey is a physical walk-climb-walk polyline", () => {
+  const source = rect(100, 200, 70, 50);
+  const target = rect(250, 360, 100, 60);
+  const points = surfaceJourneyPoints(source, target, 0.5, 0.5);
+  assert.equal(points.length, 4);
+  assert.equal(points[0].y, points[1].y);
+  assert.equal(points[1].x, points[2].x);
+  assert.equal(points[2].y, points[3].y);
+  assert.ok(surfaceJourneyLength(points) > 0);
+});
+
+check("Journey sampler reports climbing only on the vertical route segment", () => {
+  const points = [
+    { x: 0, y: 0 },
+    { x: 100, y: 0 },
+    { x: 100, y: 200 },
+    { x: 160, y: 200 },
+  ];
+  assert.equal(sampleSurfaceJourney(points, 0.1).mode, "walk");
+  assert.equal(sampleSurfaceJourney(points, 0.5).mode, "climb");
+  assert.equal(sampleSurfaceJourney(points, 0.95).mode, "walk");
+});
+
+check("Journey duration is bounded for short and long physical routes", () => {
+  assert.equal(surfaceJourneyDurationMs([{ x: 0, y: 0 }, { x: 5, y: 0 }]), RUDI_WORLD_GEOMETRY.journeyMinDurationMs);
+  assert.equal(surfaceJourneyDurationMs([{ x: 0, y: 0 }, { x: 5000, y: 0 }]), RUDI_WORLD_GEOMETRY.journeyMaxDurationMs);
+});
+
+check("Nearby letters are preferred autonomous destinations", () => {
+  const source = rect(100, 200, 32, 54);
+  const nearLetter = rect(140, 200, 12, 54);
+  const nearCard = rect(145, 205, 120, 80);
+  assert.ok(
+    surfaceJourneyCandidateScore(source, nearLetter, "letter", "letter")
+      < surfaceJourneyCandidateScore(source, nearCard, "letter", "card"),
+  );
+});
+
+check("Very long temporary bridges are rejected", () => {
+  const source = rect(50, 200, 40, 50);
+  const near = rect(260, 240, 80, 50);
+  const far = rect(1000, 700, 80, 50);
+  assert.equal(isSurfaceJourneyReachable(source, near, viewportWidth), true);
+  assert.equal(isSurfaceJourneyReachable(source, far, viewportWidth), false);
 });
 
 console.log(`Rudi geometry validation passed: ${checks.length}/${checks.length}.`);
