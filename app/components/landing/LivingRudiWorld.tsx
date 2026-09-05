@@ -212,7 +212,11 @@ function WorldRudiModel({ anchorRef, surfaceFractionRef, motion, routeVersion, a
     currentAction.current = nextAction;
   }, [attentionTarget, mixer, motion, normalizedClips]);
 
-  useEffect(() => () => mixer.stopAllAction(), [mixer]);
+  useEffect(() => {
+    return () => {
+      mixer.stopAllAction();
+    };
+  }, [mixer]);
 
   useFrame(({ clock }, delta) => {
     mixer.update(delta);
