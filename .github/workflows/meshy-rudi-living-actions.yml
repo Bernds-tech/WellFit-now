@@ -1,0 +1,129 @@
+name: Generate Rudi living actions via Meshy
+
+on:
+  workflow_dispatch:
+    inputs:
+      motion_quality:
+        description: Motion quality and credit use
+        required: true
+        default: swift
+        type: choice
+        options:
+          - swift
+          - prime
+
+permissions:
+  contents: read
+
+concurrency:
+  group: meshy-rudi-living-actions
+  cancel-in-progress: false
+
+jobs:
+  generate-living-actions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      MESHY_API_KEY: ${{ secrets.MESHY_API_KEY }}
+      RUDI_RIG_TASK_ID: 01a06cb8-7bca-76ae-8297-fdc23591e1da
+      MOTION_QUALITY: ${{ inputs.motion_quality }}
+    steps:
+      - name: Generate and retarget natural interaction clips
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${MESHY_API_KEY:-}" ]; then
+            echo "MESHY_API_KEY is not configured."
+            exit 1
+          fi
+
+          mkdir -p rudi-living-actions
+          cat > motion-prompts.tsv <<'EOF'
+          coffee_break	6	A relaxed human sits down, naturally reaches for a coffee cup with the right hand, lifts it to the mouth, takes a small sip, lowers it carefully, breathes and looks content. Subtle shoulders, elbows, wrists, head and torso. Feet stay grounded.
+          table_meal	7	A relaxed human sits at a small table and naturally eats a few bites with the right hand, using believable shoulder, elbow, wrist, hand, head, spine and breathing motion. No exaggerated gestures. Feet remain grounded.
+          lounge_rest	8	A tired but cheerful human lowers into a lounge chair, leans back comfortably, adjusts hips and shoulders, crosses one ankle, rests for a moment and looks around calmly. Natural full-body weight transfer.
+          guide_right	5	A friendly guide notices something to the right, turns head and upper body first, steps once, then clearly points to the right with an open confident gesture and holds the direction briefly.
+          EOF
+
+          while IFS=$'\t' read -r name duration prompt; do
+            motion_payload=$(jq -n \
+              --arg prompt "$prompt" \
+              --arg mode "$MOTION_QUALITY" \
+              --argjson duration "$duration" \
+              '{prompt: $prompt, mode: $mode, duration: $duration}')
+
+            motion_response=$(curl --fail-with-body --silent --show-error \
+              -X POST https://api.meshy.ai/openapi/v1/text-to-motion \
+              -H "Authorization: Bearer $MESHY_API_KEY" \
+              -H "Content-Type: application/json" \
+              --data "$motion_payload")
+            motion_task_id=$(printf '%s' "$motion_response" | jq -er '.result')
+            echo "$name: motion task created"
+
+            motion_status=""
+            for attempt in $(seq 1 100); do
+              motion_result=$(curl --fail-with-body --silent --show-error \
+                "https://api.meshy.ai/openapi/v1/text-to-motion/$motion_task_id" \
+                -H "Authorization: Bearer $MESHY_API_KEY")
+              motion_status=$(printf '%s' "$motion_result" | jq -r '.status')
+              echo "$name motion: $motion_status ($(printf '%s' "$motion_result" | jq -r '.progress // 0')%)"
+              if [ "$motion_status" = "SUCCEEDED" ]; then break; fi
+              if [ "$motion_status" = "FAILED" ] || [ "$motion_status" = "CANCELED" ]; then
+                printf '%s' "$motion_result" | jq .
+                exit 1
+              fi
+              sleep 8
+            done
+            if [ "$motion_status" != "SUCCEEDED" ]; then
+              echo "$name motion timed out."
+              exit 1
+            fi
+            printf '%s' "$motion_result" > "rudi-living-actions/$name-motion.json"
+
+            animation_payload=$(jq -n \
+              --arg rig_task_id "$RUDI_RIG_TASK_ID" \
+              --arg motion_task_id "$motion_task_id" \
+              '{rig_task_id: $rig_task_id, motion_task_id: $motion_task_id, post_process: {operation_type: "change_fps", fps: 24}}')
+            animation_response=$(curl --fail-with-body --silent --show-error \
+              -X POST https://api.meshy.ai/openapi/v1/animations \
+              -H "Authorization: Bearer $MESHY_API_KEY" \
+              -H "Content-Type: application/json" \
+              --data "$animation_payload")
+            animation_task_id=$(printf '%s' "$animation_response" | jq -er '.result')
+
+            animation_status=""
+            for attempt in $(seq 1 100); do
+              animation_result=$(curl --fail-with-body --silent --show-error \
+                "https://api.meshy.ai/openapi/v1/animations/$animation_task_id" \
+                -H "Authorization: Bearer $MESHY_API_KEY")
+              animation_status=$(printf '%s' "$animation_result" | jq -r '.status')
+              echo "$name retarget: $animation_status ($(printf '%s' "$animation_result" | jq -r '.progress // 0')%)"
+              if [ "$animation_status" = "SUCCEEDED" ]; then break; fi
+              if [ "$animation_status" = "FAILED" ] || [ "$animation_status" = "CANCELED" ]; then
+                printf '%s' "$animation_result" | jq .
+                exit 1
+              fi
+              sleep 8
+            done
+            if [ "$animation_status" != "SUCCEEDED" ]; then
+              echo "$name retarget timed out."
+              exit 1
+            fi
+
+            printf '%s' "$animation_result" > "rudi-living-actions/$name-animation.json"
+            animation_url=$(printf '%s' "$animation_result" | jq -er '.result.animation_glb_url')
+            curl --fail --location --silent --show-error "$animation_url" --output "rudi-living-actions/rudi-$name.glb"
+            (
+              cd rudi-living-actions
+              sha256sum rudi-*.glb > SHA256SUMS.txt
+            )
+          done < motion-prompts.tsv
+
+      - name: Upload completed Rudi living actions even after a later failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rudi-meshy-living-actions-${{ inputs.motion_quality }}
+          path: rudi-living-actions/
+          if-no-files-found: warn
+          retention-days: 30

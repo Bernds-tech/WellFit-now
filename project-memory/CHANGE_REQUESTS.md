@@ -61,6 +61,30 @@ New owner ideas are captured here before changing active scope.
 - Decision: create a shared articulated puppet engine. Head and body use separate layers from the same transparent PNG, with head-led pointer/CTA tracking, subtler torso lean, click/nod reaction, idle breathing, reduced-motion/coarse-pointer fallback and explicit per-asset crop/pivot configuration. Whole-image rotation is not accepted as head tracking.
 - Related task: WFN-AVATAR-PUPPET-001 / WFG-AVATAR-PUPPET-001
 
+## WFN-CR-006
+- Date: 2026-09-05
+- Status: ACCEPTED_FOR_IMPLEMENTATION
+- Source: owner direction and supplied Meshy model
+- Idea: replace the flat Rudi presentation with a real autonomous 3D humanoid that appears to live on the website, moves independently from scrolling, speaks, points, passes in front of and behind content, and uses small props during rest/eating scenes.
+- Classification: reversible graphical/Buddy-presentation bridge in the current physical web code
+- Affected areas: public landing presentation and generated 3D assets only; no auth, backend, mission/reward, economy, location, camera or legal authority.
+- Existing task/decision checked: WFN-AVATAR-PUPPET-001, WFN-XREPO-001, WFN-CR-005 and current Meshy workflow artifacts.
+- Dependencies: WellFit remains graphical authority and WellFit-Buddy remains Buddy-presentation authority. Public ChatGPT Site publication is a separate source/release path.
+- Decision: use the successfully generated textured 24-bone Meshy humanoid and named animation clips, keep the cape as a separately simulated mesh, provide WebGL/reduced-capability fallbacks, and keep expensive Meshy generation manually triggered.
+- Related task: WFN-RUDI-3D-001
+
+## WFN-CR-007
+- Date: 2026-09-05
+- Status: ACCEPTED_FOR_IMPLEMENTATION
+- Source: owner live visual review
+- Idea: Rudi must not feel attached to a separate viewport or to scrolling. He should remain at his content-world position while the page scrolls, then visibly climb, jump, walk or run after the user. The 3D version must also restore escalating pointer emotion around login/register and make the table scene unmistakably visible.
+- Classification: corrective graphical/Buddy-presentation bridge
+- Affected areas: public landing Rudi locomotion, CTA attention and prop staging only.
+- Existing task/decision checked: WFN-RUDI-3D-001, WFN-CR-006, PR #401 and owner video/live review.
+- Dependencies: preserve autonomous behavior independent of pointer input; pointer attention supplements rather than drives Rudi's life cycle. Public ChatGPT Site publication remains a separate source/release path.
+- Decision: render Rudi through a body-level transparent world overlay instead of inside the scroll container, keep his complete body within safe viewport bounds, reduce the effective animated scale to `0.48`, normalize all imported animation scale/hip-position/hip-rotation tracks to the production rig and add document-world scroll lag followed by climb/run/jump catch-up states. Preserve direct head/spine CTA attention and CTA-specific dialogue; add autonomous head motion, hand-following coffee and animated table/lounge entrances so the prop scenes read as actions instead of static overlays. The separately hosted public Site was intentionally synchronized and released as version 105 after the owner supplied a second live video.
+- Related task: WFN-RUDI-3D-001
+
 ## Intake template
 
 ```text

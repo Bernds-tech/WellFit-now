@@ -41,6 +41,23 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 
 A receipt is required for meaningful code/config/infra/governance work. A receipt must not contain secrets or protected evidence values.
 
+## RECEIPT-WFN-RUDI-3D-20260905
+- Task: WFN-RUDI-3D-001 / WFN-CR-006
+- Started: 2026-09-05 Europe/Vienna
+- Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR #401
+- Risk: R2 reversible landing/Buddy presentation bridge.
+- Preflight checked: repository `AGENTS.md`, mandatory Project Memory, current graphical/Buddy ownership boundaries, existing avatar attempts, supplied Meshy artifacts and successful generation runs.
+- Changes made: integrated the colored textured 24-joint Rudi as a real Three.js avatar; added ten compact animation clips, autonomous independent behavior, dialogue, front/back depth changes, coffee/table/lounge props, a separately simulated cape, static fallback and manual-only Meshy generation/materialization workflows.
+- Visual correction: two owner videos on 2026-09-05 showed Rudi about one third too large, clipped inside a small fixed renderer box, crossing headings and changing size/orientation between imported actions. The follow-up replaces that box with a viewport-wide transparent stage, moves Rudi in world space across it and reduces the repository bridge scale to `0.48`. Binary glTF inspection proved every clip contained Hips transforms and scale tracks; runtime normalization now removes all animation scaling and rebases Hips position/quaternion to the production rest pose.
+- World-presence correction: owner live review then showed that viewport-following still felt like a separate window, the table was not apparent and the 3D version had lost login/register emotion. Rudi now renders through a body-level transparent portal outside the scroll container, holds his content-relative position until complete-body safe bounds are reached, and follows through climb/run/jump catch-up states. A frame-loop scale override that reset the requested reduction is fixed so both initial and animated scale use `0.66`; travel intervals are shorter. Distance-based head/spine CTA attention remains independent from autonomous behavior; off-CTA gaze stays alive, coffee follows the animated right hand, and table/lounge props rise and turn into their scenes.
+- Public-Site synchronization: the independently hosted Site source received the same animation normalization plus a full-viewport renderer, smaller body, scroll lag/catch-up, restored CTA attention, cape/prop following and replacement of the competing static Rudi with a distinct personal-Buddy visual. Source commits `4e95ae362b8333fe735cd71794b4627303d9c485` and `96c75fc348143a0f034567b5b2bbf43dfa35014e` were built, packaged, saved and released as public Site version 105.
+- Negative countercheck: no auth, backend, data, mission/reward authority, economy, location, camera or legal behavior changed; Meshy API secrets are not stored in either repository and credit-consuming workflows remain manual-only.
+- Evidence: WFN-EV-022; repository targeted ESLint, `rudi:validate` and complete Next.js build pass. Site lint and production build pass; public deployment succeeded and browser verification confirmed the live URL, bounded non-WebGL fallback and Login CTA dialogue. The broader Site editorial suite remains 18/28 on pre-existing expectation drift unrelated to this scoped correction.
+- Result status: IMPLEMENTED_NOT_VERIFIED pending owner/device acceptance of the real-WebGL animation; public synchronization and fallback delivery are PRODUCTION_CONFIRMED.
+- Open follow-up: current rig lacks individual finger bones; generate/review optional custom living-action motions and handle extended hand rig as a separate bounded package.
+- Work lock: `LOCK-WFN-RUDI-3D-001` remains active for visual acceptance and follow-up.
+- Falsification question: visible control obstruction, implausible cape/body intersections, failed animation retargeting, excessive device cost or mismatch with the separate public Site would require correction before acceptance.
+
 ## RECEIPT-WFN-CI-INSTALL-RESILIENCE-20260904
 - Task: WFN-CI-INSTALL-RESILIENCE-BASELINE
 - Started: 2026-09-04 Europe/Vienna

@@ -10,12 +10,13 @@ const trustSignals = [
 ] as const;
 
 const missionSigns = ["Missionen", "Community", "WFXP", "Abenteuer"] as const;
+const wellFitLetters = "WellFit".split("");
 
 export default function LandingHeroV5() {
   return (
     <section
       data-landing-version="reference-v12-materialized-composite"
-      data-hero-layout="layered-luma-v14"
+      data-hero-layout="layered-rudi-world-v15"
       className="relative isolate overflow-hidden border-b border-cyan-100/25 bg-[#03141a]"
     >
       <div className="absolute inset-x-0 top-0 -z-30 h-[700px] overflow-hidden bg-[#0b3540] sm:h-[660px] lg:h-[620px] xl:h-[650px]">
@@ -39,16 +40,39 @@ export default function LandingHeroV5() {
       <div className="relative mx-auto max-w-[1520px] px-4 pb-5 pt-3 sm:px-6 lg:px-10 lg:pt-4">
         <div className="grid min-h-[500px] items-center gap-4 lg:grid-cols-[.80fr_1.20fr] xl:min-h-[525px]">
           <div className="relative z-20 max-w-[640px] py-5 lg:py-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-100/65 bg-[#073943]/72 px-4 py-2 text-[10px] font-black uppercase tracking-[0.30em] text-cyan-50 shadow-[0_0_30px_rgba(88,240,242,.24)] backdrop-blur-md">
+            <div
+              data-rudi-surface="line"
+              data-rudi-layer="back"
+              className="inline-flex items-center gap-2 rounded-full border border-cyan-100/65 bg-[#073943]/72 px-4 py-2 text-[10px] font-black uppercase tracking-[0.30em] text-cyan-50 shadow-[0_0_30px_rgba(88,240,242,.24)] backdrop-blur-md"
+            >
               <span className="h-2 w-2 rounded-full bg-[#83ffe4] shadow-[0_0_14px_#83ffe4]" />
               Move · Learn · Earn
             </div>
 
             <h1 className="mt-4 text-[40px] font-black leading-[.96] tracking-[-0.052em] text-white drop-shadow-[0_4px_20px_rgba(0,0,0,.46)] sm:text-[50px] lg:text-[57px] xl:text-[63px]">
-              Willkommen bei WellFit.
+              Willkommen bei{" "}
+              <span aria-label="WellFit" className="inline-block whitespace-nowrap">
+                {wellFitLetters.map((letter, index) => (
+                  <span
+                    key={`${letter}-${index}`}
+                    aria-hidden="true"
+                    data-rudi-surface="letter"
+                    data-rudi-anchor={`hero-wellfit-${index}`}
+                    data-rudi-layer={index === 2 || index === 5 ? "back" : "front"}
+                    className="relative inline-block"
+                  >
+                    {letter}
+                  </span>
+                ))}
+              </span>
+              .
               <br />
               Dein Abenteuer für{" "}
-              <span className="bg-gradient-to-r from-[#fff56d] via-[#ffc02e] to-[#ff8618] bg-clip-text text-transparent">
+              <span
+                data-rudi-surface="word"
+                data-rudi-layer="front"
+                className="relative inline-block bg-gradient-to-r from-[#fff56d] via-[#ffc02e] to-[#ff8618] bg-clip-text text-transparent"
+              >
                 Körper & Geist.
               </span>
             </h1>
@@ -60,12 +84,15 @@ export default function LandingHeroV5() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/register"
+                data-rudi-cta="register"
+                data-rudi-surface="button"
                 className="rounded-xl border border-[#fff080]/70 bg-gradient-to-r from-[#ff8618] via-[#ffb725] to-[#ffe45b] px-7 py-3.5 text-center text-[15px] font-black text-[#172006] shadow-[0_16px_38px_rgba(255,156,29,.44)] transition hover:-translate-y-0.5 hover:brightness-105"
               >
                 Jetzt kostenlos starten →
               </Link>
               <a
                 href="#so-funktionierts"
+                data-rudi-surface="button"
                 className="rounded-xl border border-cyan-100/80 bg-[#073640]/70 px-7 py-3.5 text-center text-[15px] font-black text-cyan-50 shadow-[0_12px_30px_rgba(0,0,0,.27)] backdrop-blur-md transition hover:bg-cyan-100/16"
               >
                 ▶ So funktioniert’s
@@ -74,7 +101,7 @@ export default function LandingHeroV5() {
 
             <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
               {trustSignals.map(([icon, title, text]) => (
-                <div key={title} className="flex items-center gap-2.5 rounded-xl bg-[#06313a]/38 pr-2 backdrop-blur-[2px]">
+                <div key={title} data-rudi-surface="badge" className="flex items-center gap-2.5 rounded-xl bg-[#06313a]/38 pr-2 backdrop-blur-[2px]">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-cyan-100/70 bg-cyan-300/17 text-xs font-black text-cyan-50 shadow-[0_0_19px_rgba(59,224,236,.17)]">
                     {icon}
                   </span>
@@ -87,20 +114,16 @@ export default function LandingHeroV5() {
             </div>
           </div>
 
-          <div className="relative hidden min-h-[470px] lg:block" aria-label="WellFit App und Buddy Vorschau">
-            <div className="absolute bottom-[-2%] right-[2%] z-20 h-[455px] w-[390px] xl:right-[4%] xl:h-[490px] xl:w-[420px] 2xl:right-[6%]">
-              <Image
-                src="/buddy/luma.png"
-                alt="WellFit Buddy Luma"
-                fill
-                priority
-                sizes="420px"
-                data-avatar-puppet="on"
-                data-avatar-head-bottom="0.50"
-                data-avatar-body-top="0.43"
-                data-avatar-head-pivot-x="0.50"
-                data-avatar-head-pivot-y="0.46"
-                className="object-contain object-bottom drop-shadow-[0_30px_70px_rgba(0,0,0,.48)]"
+          <div className="relative hidden min-h-[470px] lg:block" aria-label="Rudi Rastlos lebt in der WellFit-Welt">
+            <div className="absolute bottom-[14%] right-[8%] z-20 w-[300px] rounded-2xl border border-cyan-100/22 bg-[#052b33]/58 px-5 py-4 text-right shadow-[0_16px_36px_rgba(0,0,0,.20)] backdrop-blur-sm xl:right-[11%]">
+              <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#ffd95d]">Dein erster WellFit-Buddy</p>
+              <p className="mt-1 text-xl font-black text-white">Rudi Rastlos</p>
+              <p className="mt-1 text-[11px] leading-5 text-white/70">Er steht nicht vor der Webseite – er wohnt darin.</p>
+              <div
+                data-rudi-surface="ledge"
+                data-rudi-anchor="hero-rudi-ledge"
+                data-rudi-layer="front"
+                className="mt-4 h-2 w-full rounded-full border border-cyan-50/35 bg-gradient-to-r from-[#123f45] via-[#4fe1d4] to-[#123f45] shadow-[0_5px_18px_rgba(64,224,216,.24)]"
               />
             </div>
 
@@ -118,6 +141,8 @@ export default function LandingHeroV5() {
               {missionSigns.map((sign, index) => (
                 <span
                   key={sign}
+                  data-rudi-surface="sign"
+                  data-rudi-layer={index % 2 === 0 ? "front" : "back"}
                   className="rounded-md border border-[#ffd15a]/48 bg-[linear-gradient(90deg,rgba(91,51,22,.95),rgba(139,83,29,.94))] px-4 py-2 text-center text-[12px] font-black text-[#ffe8a8] shadow-[0_8px_18px_rgba(0,0,0,.30)]"
                   style={{ transform: `rotate(${index % 2 === 0 ? -2 : 2}deg)` }}
                 >
@@ -132,6 +157,8 @@ export default function LandingHeroV5() {
           {featureCards.map((card) => (
             <article
               key={card.title}
+              data-rudi-surface="card"
+              data-rudi-layer="front"
               className="group relative min-h-[194px] overflow-hidden rounded-[22px] border border-cyan-50/55 bg-[#0a3942]/90 shadow-[0_18px_50px_rgba(0,0,0,.30),0_0_32px_rgba(34,211,238,.09)]"
             >
               <Image
@@ -156,18 +183,23 @@ export default function LandingHeroV5() {
           ))}
         </div>
 
-        <div className="relative z-20 mt-4 rounded-[26px] border border-cyan-50/30 bg-[linear-gradient(180deg,rgba(9,53,62,.76),rgba(2,23,29,.84))] px-3 pb-3 pt-2 shadow-[0_18px_46px_rgba(0,0,0,.25)] backdrop-blur-md sm:px-4">
+        <div
+          data-rudi-surface="panel"
+          data-rudi-layer="back"
+          className="relative z-20 mt-4 rounded-[26px] border border-cyan-50/30 bg-[linear-gradient(180deg,rgba(9,53,62,.76),rgba(2,23,29,.84))] px-3 pb-3 pt-2 shadow-[0_18px_46px_rgba(0,0,0,.25)] backdrop-blur-md sm:px-4"
+        >
           <div className="flex items-center gap-4">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-cyan-50/70" />
-            <h2 className="text-center text-xl font-black tracking-[-0.035em] text-white sm:text-[27px]">
+            <div data-rudi-surface="line" className="h-px flex-1 bg-gradient-to-r from-transparent to-cyan-50/70" />
+            <h2 data-rudi-surface="word" className="text-center text-xl font-black tracking-[-0.035em] text-white sm:text-[27px]">
               Was WellFit <span className="text-[#ffb22f]">besonders</span> macht
             </h2>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#ffe45e]/70" />
+            <div data-rudi-surface="line" className="h-px flex-1 bg-gradient-to-l from-transparent to-[#ffe45e]/70" />
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {highlights.map(([icon, title, text, tone]) => (
               <article
                 key={title}
+                data-rudi-surface="card"
                 className="flex min-h-[88px] items-center gap-3 rounded-2xl border border-cyan-50/42 bg-[#083b44]/88 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] backdrop-blur-md"
               >
                 <LandingToneIcon tone={tone}>{icon}</LandingToneIcon>
@@ -180,7 +212,7 @@ export default function LandingHeroV5() {
           </div>
         </div>
 
-        <a href="#so-funktionierts" className="relative z-20 mx-auto mt-4 flex w-fit items-center gap-3 text-[13px] font-black text-white/98">
+        <a href="#so-funktionierts" data-rudi-surface="line" className="relative z-20 mx-auto mt-4 flex w-fit items-center gap-3 text-[13px] font-black text-white/98">
           <span>So funktioniert’s</span>
           <span className="hidden text-cyan-100 sm:inline">– In 5 einfachen Schritten zu mehr Wohlbefinden</span>
           <span className="grid h-8 w-8 place-items-center rounded-full border border-cyan-50/75 bg-cyan-300/12 text-cyan-50">⌄</span>

@@ -30,8 +30,8 @@ export function LandingSectionHeading({
 }) {
   return (
     <div className="mx-auto mb-10 max-w-3xl text-center lg:mb-14">
-      <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#ffd95d]">{eyebrow}</p>
-      <h2 className="mt-3 text-3xl font-black tracking-[-0.04em] text-white sm:text-4xl lg:text-[46px]">
+      <p data-rudi-surface="line" data-rudi-layer="back" className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#ffd95d]">{eyebrow}</p>
+      <h2 data-rudi-surface="heading" data-rudi-layer="front" className="mt-3 text-3xl font-black tracking-[-0.04em] text-white sm:text-4xl lg:text-[46px]">
         {title}
       </h2>
       <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-cyan-50/68 sm:text-base">{text}</p>
