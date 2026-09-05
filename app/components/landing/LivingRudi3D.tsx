@@ -33,6 +33,8 @@ type Chapter = {
   layer?: "front" | "back";
 };
 
+type RudiPhase = "travel" | "perform";
+
 const chapters: Chapter[] = [
   { clip: "walk", x: 72, y: 68, direction: -1, duration: 7200, message: "Ich sehe mich hier kurz um." },
   { clip: "point", x: 78, y: 34, direction: -1, duration: 6200, message: "Dort geht es zu Missionen und Erlebnissen." },
@@ -125,7 +127,27 @@ function FurnitureProp({ kind }: { kind: "table" | "lounge" }) {
   );
 }
 
-function RudiModel({ chapter }: { chapter: Chapter }) {
+function GroundShadow({ airborne }: { airborne: boolean }) {
+  const shadow = useRef<THREE.Mesh>(null);
+
+  useFrame((_, delta) => {
+    if (!shadow.current) return;
+    const material = shadow.current.material as THREE.MeshBasicMaterial;
+    material.opacity = THREE.MathUtils.damp(material.opacity, airborne ? 0.12 : 0.28, 5, delta);
+    const targetScale = airborne ? 0.72 : 1;
+    shadow.current.scale.x = THREE.MathUtils.damp(shadow.current.scale.x, targetScale, 5, delta);
+    shadow.current.scale.y = THREE.MathUtils.damp(shadow.current.scale.y, targetScale, 5, delta);
+  });
+
+  return (
+    <mesh ref={shadow} position={[0, 0.025, -0.34]} scale={[0.72, 0.13, 1]}>
+      <circleGeometry args={[0.72, 40]} />
+      <meshBasicMaterial color="#001318" transparent opacity={0.28} depthWrite={false} />
+    </mesh>
+  );
+}
+
+function RudiModel({ chapter, phase }: { chapter: Chapter; phase: RudiPhase }) {
   const base = useGLTF(`${ASSET_ROOT}/rudi-rigged.glb`);
   const walkGlb = useGLTF(clips.walk);
   const idleGlb = useGLTF(clips.idle);
@@ -152,7 +174,8 @@ function RudiModel({ chapter }: { chapter: Chapter }) {
 
   useEffect(() => {
     const animationGlbs = { walk: walkGlb, idle: idleGlb, alert: alertGlb, point: pointGlb, inspect: inspectGlb, celebrate: celebrateGlb, jump: jumpGlb, sit: sitGlb, climb: climbGlb };
-    const selected = animationGlbs[chapter.clip].animations[0] ?? base.animations[0];
+    const activeClip = phase === "travel" ? "walk" : chapter.clip;
+    const selected = animationGlbs[activeClip].animations[0] ?? base.animations[0];
     if (!selected) return;
     const action = mixer.clipAction(selected);
     action.reset().setLoop(THREE.LoopRepeat, Infinity).fadeIn(0.28).play();
@@ -160,26 +183,31 @@ function RudiModel({ chapter }: { chapter: Chapter }) {
       action.fadeOut(0.22);
       window.setTimeout(() => action.stop(), 240);
     };
-  }, [alertGlb, base.animations, celebrateGlb, chapter.clip, climbGlb, idleGlb, inspectGlb, jumpGlb, mixer, pointGlb, sitGlb, walkGlb]);
+  }, [alertGlb, base.animations, celebrateGlb, chapter.clip, climbGlb, idleGlb, inspectGlb, jumpGlb, mixer, phase, pointGlb, sitGlb, walkGlb]);
 
   useFrame((_, delta) => {
     mixer.update(delta);
     if (group.current) {
-      const targetX = (chapter.x / 100 - 0.5) * viewport.width;
-      const targetY = (0.5 - chapter.y / 100) * viewport.height;
+      const rawTargetX = (chapter.x / 100 - 0.5) * viewport.width;
+      const rawTargetY = (0.5 - chapter.y / 100) * viewport.height;
+      const targetX = THREE.MathUtils.clamp(rawTargetX, -viewport.width / 2 + 0.85, viewport.width / 2 - 0.85);
+      const targetY = THREE.MathUtils.clamp(rawTargetY, -viewport.height / 2 + 0.55, viewport.height / 2 - 2.15);
+      const travelDirection = targetX >= group.current.position.x ? 1 : -1;
       group.current.position.x = THREE.MathUtils.damp(group.current.position.x, targetX, 2.2, delta);
       group.current.position.y = THREE.MathUtils.damp(group.current.position.y, targetY, 2.2, delta);
-      group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, chapter.direction === 1 ? 0.22 : -0.22, 7, delta);
+      const facing = phase === "travel" ? travelDirection : chapter.direction;
+      group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, facing === 1 ? 0.22 : -0.22, 7, delta);
     }
   });
 
   return (
     <group ref={group}>
       <group scale={0.94}>
-        <Cape moving={chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} />
+        <GroundShadow airborne={phase === "perform" && (chapter.clip === "jump" || chapter.clip === "climb")} />
+        <Cape moving={phase === "travel" || chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} />
         <primitive object={scene} />
-        {chapter.prop === "coffee" ? <CoffeeProp /> : null}
-        {chapter.prop === "table" || chapter.prop === "lounge" ? <FurnitureProp kind={chapter.prop} /> : null}
+        {phase === "perform" && chapter.prop === "coffee" ? <CoffeeProp /> : null}
+        {phase === "perform" && (chapter.prop === "table" || chapter.prop === "lounge") ? <FurnitureProp kind={chapter.prop} /> : null}
       </group>
     </group>
   );
@@ -196,6 +224,7 @@ function supportsWebGL() {
 
 export default function LivingRudi3D() {
   const [chapterIndex, setChapterIndex] = useState(0);
+  const [phase, setPhase] = useState<RudiPhase>("perform");
   const [webgl, setWebgl] = useState<boolean | null>(null);
   const chapter = chapters[chapterIndex];
 
@@ -205,9 +234,16 @@ export default function LivingRudi3D() {
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setChapterIndex((value) => (value + 1) % chapters.length), chapter.duration);
+    const timer = window.setTimeout(() => {
+      if (phase === "perform") {
+        setChapterIndex((value) => (value + 1) % chapters.length);
+        setPhase("travel");
+        return;
+      }
+      setPhase("perform");
+    }, phase === "travel" ? 2400 : chapter.duration);
     return () => window.clearTimeout(timer);
-  }, [chapter.duration, chapterIndex]);
+  }, [chapter.duration, chapterIndex, phase]);
 
   if (webgl === null) return null;
 
@@ -217,8 +253,12 @@ export default function LivingRudi3D() {
       className={`pointer-events-none fixed inset-0 hidden overflow-visible transition-opacity duration-500 lg:block ${chapter.layer === "back" ? "z-10 opacity-90" : "z-[60]"}`}
     >
       <div
-        className="absolute w-64 -translate-x-1/2 -translate-y-[135%] rounded-2xl border border-cyan-100/45 bg-[#031820]/94 px-4 py-3 text-center text-xs font-bold leading-5 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl transition-[left,top] duration-[2200ms] ease-in-out"
-        style={{ left: `${chapter.x}%`, top: `${chapter.y}%` }}
+        className="absolute w-64 -translate-x-1/2 -translate-y-[135%] rounded-2xl border border-cyan-100/45 bg-[#031820]/94 px-4 py-3 text-center text-xs font-bold leading-5 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl transition-[left,top,opacity] duration-[2200ms] ease-in-out"
+        style={{
+          left: `clamp(9rem, ${chapter.x}%, calc(100% - 9rem))`,
+          top: `clamp(6rem, ${chapter.y}%, calc(100% - 12rem))`,
+          opacity: phase === "perform" ? 1 : 0,
+        }}
       >
         {chapter.message}
         <span className="absolute bottom-[-9px] left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-cyan-100/45 bg-[#031820]" />
@@ -230,7 +270,7 @@ export default function LivingRudi3D() {
           <directionalLight position={[2.5, 4, 3]} intensity={2.2} color="#fff7df" />
           <directionalLight position={[-3, 2, 1]} intensity={1.1} color="#7ff5ed" />
           <Suspense fallback={null}>
-            <RudiModel chapter={chapter} />
+            <RudiModel chapter={chapter} phase={phase} />
           </Suspense>
         </Canvas>
       ) : (

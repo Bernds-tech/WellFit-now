@@ -12,8 +12,8 @@ Every evidence record should contain a unique evidence ID, related task/change I
 - Target: public landing 3D Rudi scale and movement stage
 - Type: owner-supplied 16-second visual review plus corrective local build evidence
 - Reference: owner video `WhatsApp Video 2026-09-05 at 09.02.25.mp4`; PR #401 follow-up diff
-- Result: frame-by-frame review confirmed that the live Rudi is too large and that legs/props are clipped by a fixed renderer box. The repository implementation now uses a viewport-wide orthographic transparent stage and reduces model scale from `1.42` to `0.94`; targeted ESLint, `rudi:validate` and the complete production build pass.
-- Limitations: the separate public ChatGPT Site has not yet received this correction; fresh exact-head CI and post-change browser/device acceptance remain required.
+- Result: frame-by-frame review confirmed that the live Rudi is too large and that legs/props are clipped by a fixed renderer box. The repository implementation now uses a viewport-wide orthographic transparent stage and reduces model scale from `1.42` to `0.94`. A second corrective pass adds viewport-safe edge clamping, a responsive ground shadow, dedicated walk phases between actions, travel-facing direction, prop-only action phases and safely clamped dialogue. Targeted ESLint, `rudi:validate` and the complete production build pass.
+- Limitations: the separate public ChatGPT Site has not yet received this correction. The supervised preview cannot launch this retained Next.js project because it forwards Vite-only flags, so post-change browser/device acceptance and fresh exact-head CI remain required.
 - Acceptance: IMPLEMENTED_NOT_VERIFIED
 
 ## WFN-EV-019

@@ -6,7 +6,7 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 - Related: WFN-RUDI-3D-001 / WFN-CR-006
 - Status: OPEN
 - Updated: 2026-09-05
-- Gap: owner video review showed the public Site model about one third too large and visibly clipped by a small fixed 3D canvas. The repository bridge now uses a viewport-wide transparent stage at roughly two-thirds of its former scale, but this correction still needs fresh exact-head CI and browser/device visual acceptance. The current 24-bone Meshy rig includes head, spine, shoulders, arms, forearms, hands, hips, legs, feet and toes, but no individual finger joints.
+- Gap: owner video review showed the public Site model about one third too large and visibly clipped by a small fixed 3D canvas. The repository bridge now uses a viewport-wide transparent stage at roughly two-thirds of its former scale, clamps the complete character inside safe viewport margins and walks between grounded action scenes, but this correction still needs fresh exact-head CI and browser/device visual acceptance. The current 24-bone Meshy rig includes head, spine, shoulders, arms, forearms, hands, hips, legs, feet and toes, but no individual finger joints.
 - Close when: the PR is green, a capable browser visibly verifies autonomous movement/cape/props without covering critical controls, an extended hand rig provides real finger articulation, and the separate public ChatGPT Site source is intentionally synchronized and released.
 - Next check: visually review PR #401 and generate the custom coffee/table/lounge/guide motion pack through the manual Meshy workflow after review.
 
