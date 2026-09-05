@@ -2,6 +2,17 @@ name: Materialize reviewed Rudi assets
 
 on:
   workflow_dispatch:
+    inputs:
+      production_run_id:
+        description: Successful Meshy production workflow run ID
+        required: true
+        default: "33880908596"
+        type: string
+      animation_run_id:
+        description: Successful Meshy animation-pack workflow run ID
+        required: true
+        default: "33882908469"
+        type: string
   push:
     branches:
       - codex/rudi-3d-living-avatar-20260905
@@ -19,19 +30,46 @@ concurrency:
 jobs:
   materialize:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
+    env:
+      PRODUCTION_RUN_ID: ${{ inputs.production_run_id || '33880908596' }}
+      ANIMATION_RUN_ID: ${{ inputs.animation_run_id || '33882908469' }}
     steps:
+      - name: Refuse direct default-branch materialization
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF_NAME}" = "main" ] || [ "${GITHUB_REF_NAME}" = "master" ]; then
+            echo "Rudi asset materialization must run on a reviewed task branch, never directly on ${GITHUB_REF_NAME}."
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
 
-      - name: Download successful Meshy artifacts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Validate supplied artifact run IDs
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$PRODUCTION_RUN_ID" =~ ^[0-9]+$ ]] || { echo "production_run_id must be numeric"; exit 1; }
+          [[ "$ANIMATION_RUN_ID" =~ ^[0-9]+$ ]] || { echo "animation_run_id must be numeric"; exit 1; }
+
+      - name: Download reviewed Meshy artifacts
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh run download 33880908596 --repo "$GITHUB_REPOSITORY" --name rudi-meshy-production --dir .rudi-artifacts/production
-          gh run download 33882908469 --repo "$GITHUB_REPOSITORY" --name rudi-meshy-animation-pack --dir .rudi-artifacts/animations
+          gh run download "$PRODUCTION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name rudi-meshy-production --dir .rudi-artifacts/production
+          gh run download "$ANIMATION_RUN_ID" --repo "$GITHUB_REPOSITORY" --name rudi-meshy-animation-pack --dir .rudi-artifacts/animations
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Create web-ready asset pack
         run: |
@@ -44,16 +82,23 @@ jobs:
           for clip in idle alert point inspect celebrate jump sit climb; do
             node scripts/landing/extract-gltf-animation.mjs ".rudi-artifacts/animations/rudi-$clip.glb" "public/landing/rudi/rudi-$clip.animation.glb"
           done
-          node scripts/landing/validate-rudi-assets.mjs
 
-      - name: Commit exact generated assets to branch
+      - name: Validate exact materialized tree before push
+        run: |
+          set -euo pipefail
+          npm run rudi:validate
+          npx eslint app/components/landing/LivingRudiWorld.tsx app/components/landing/LandingHeroV5.tsx app/components/landing/PublicLandingV5.tsx scripts/landing/validate-rudi-world.mjs scripts/landing/validate-rudi-world-geometry.mjs
+          npx tsc --noEmit
+          npm run build
+
+      - name: Commit exact generated assets to reviewed branch
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add public/landing/rudi
           if git diff --cached --quiet; then
-            echo "Rudi assets already match the successful Meshy artifacts."
+            echo "Rudi assets already match the reviewed Meshy artifacts."
             exit 0
           fi
           git commit -m "Materialize reviewed Rudi 3D assets"
