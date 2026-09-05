@@ -464,7 +464,7 @@ export default function LivingRudi3D() {
         <>
           <div
             className="absolute w-64 -translate-x-1/2 -translate-y-[135%] rounded-2xl border border-cyan-100/45 bg-[#031820]/94 px-4 py-3 text-center text-xs font-bold leading-5 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl transition-[left,top] duration-[2200ms] ease-in-out"
-            style={{ left: `${chapter.x}%`, top: `${chapter.y}%` }}
+            style={{ left: `clamp(8rem, ${chapter.x}%, calc(100% - 8rem))`, top: `clamp(8rem, ${chapter.y}%, calc(100% - 11rem))` }}
           >
             {chapter.message}
           </div>
@@ -472,8 +472,8 @@ export default function LivingRudi3D() {
           <img
             src={`${ASSET_ROOT}/rudi-front.png`}
             alt=""
-            className="absolute w-[180px] -translate-x-1/2 -translate-y-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.45)] transition-[left,top] duration-[2200ms] ease-in-out"
-            style={{ left: `${chapter.x}%`, top: `${chapter.y}%` }}
+            className="absolute w-[126px] -translate-x-1/2 -translate-y-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.45)] transition-[left,top] duration-[2200ms] ease-in-out"
+            style={{ left: `clamp(4.5rem, ${chapter.x}%, calc(100% - 4.5rem))`, top: `clamp(10rem, ${chapter.y}%, calc(100% - 1.5rem))` }}
           />
         </>
       )}
