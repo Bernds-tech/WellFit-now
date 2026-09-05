@@ -73,6 +73,18 @@ New owner ideas are captured here before changing active scope.
 - Decision: use the successfully generated textured 24-bone Meshy humanoid and named animation clips, keep the cape as a separately simulated mesh, provide WebGL/reduced-capability fallbacks, and keep expensive Meshy generation manually triggered.
 - Related task: WFN-RUDI-3D-001
 
+## WFN-CR-007
+- Date: 2026-09-05
+- Status: ACCEPTED_FOR_IMPLEMENTATION
+- Source: owner live visual review
+- Idea: Rudi must not feel attached to a separate viewport or to scrolling. He should remain at his content-world position while the page scrolls, then visibly climb, jump, walk or run after the user. The 3D version must also restore escalating pointer emotion around login/register and make the table scene unmistakably visible.
+- Classification: corrective graphical/Buddy-presentation bridge
+- Affected areas: public landing Rudi locomotion, CTA attention and prop staging only.
+- Existing task/decision checked: WFN-RUDI-3D-001, WFN-CR-006, PR #401 and owner video/live review.
+- Dependencies: preserve autonomous behavior independent of pointer input; pointer attention supplements rather than drives Rudi's life cycle. Public ChatGPT Site publication remains a separate source/release path.
+- Decision: add document-world scroll lag followed by autonomous catch-up states, direct head/spine CTA attention with distance-based excitement, CTA-specific dialogue, and earlier/larger high-contrast table staging.
+- Related task: WFN-RUDI-3D-001
+
 ## Intake template
 
 ```text

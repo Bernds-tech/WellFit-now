@@ -6,6 +6,16 @@ Status model: `IMPLEMENTED`, `IMPLEMENTED_NOT_VERIFIED`, `VERIFIED`, `COUNTERCHE
 
 Every evidence record should contain a unique evidence ID, related task/change ID, date, target/environment, evidence type, immutable reference where practical, result, limitations and acceptance state. Never store secrets or private user data.
 
+## WFN-EV-021
+- Related: WFN-RUDI-3D-001 / WFN-CR-007 / WFN-LOOP-017
+- Date: 2026-09-05
+- Target: public landing 3D Rudi world-presence, CTA emotion and table staging
+- Type: owner live visual feedback plus corrective local build evidence
+- Reference: PR #401 follow-up diff after functional head `944565028fb533023aeb53952c1855f223f75b0f`
+- Result: replaced viewport-following perception with scroll-lag/catch-up behavior: Rudi holds his content-relative place during scroll, then uses climb/run catch-up states. Distance-based login/register attention now adds head and spine tracking, rising excitement, CTA dialogue and a celebration clip without replacing autonomous behavior. The table is larger, brighter, correctly elevated and moved to the second scene; the coffee is raised into hand/torso space. Targeted ESLint, asset validation and the complete production build pass locally.
+- Limitations: real-browser/device visual acceptance and synchronization to the separate public ChatGPT Site remain open; the current rig still lacks facial morph targets and individual finger bones.
+- Acceptance: IMPLEMENTED_NOT_VERIFIED
+
 ## WFN-EV-020
 - Related: WFN-RUDI-3D-001 / WFN-LOOP-017
 - Date: 2026-09-05

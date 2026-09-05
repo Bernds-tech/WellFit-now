@@ -1,8 +1,8 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useGLTF } from "@react-three/drei";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Html, useGLTF } from "@react-three/drei";
+import { Suspense, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import * as THREE from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 
@@ -10,6 +10,7 @@ const ASSET_ROOT = "/landing/rudi";
 
 const clips = {
   walk: `${ASSET_ROOT}/rudi-walk.animation.glb`,
+  run: `${ASSET_ROOT}/rudi-run.animation.glb`,
   idle: `${ASSET_ROOT}/rudi-idle.animation.glb`,
   alert: `${ASSET_ROOT}/rudi-alert.animation.glb`,
   point: `${ASSET_ROOT}/rudi-point.animation.glb`,
@@ -34,12 +35,20 @@ type Chapter = {
 };
 
 type RudiPhase = "travel" | "perform";
+type ScrollMotion = "settled" | "anchored" | "catchup-up" | "catchup-down";
+type AttentionTarget = "login" | "register" | null;
+
+type PointerAttention = {
+  x: number;
+  y: number;
+  level: number;
+};
 
 const chapters: Chapter[] = [
   { clip: "walk", x: 72, y: 68, direction: -1, duration: 7200, message: "Ich sehe mich hier kurz um." },
+  { clip: "sit", x: 45, y: 73, direction: 1, duration: 10000, message: "Den Tisch stelle ich mir einfach hierher.", prop: "table", layer: "front" },
   { clip: "point", x: 78, y: 34, direction: -1, duration: 6200, message: "Dort geht es zu Missionen und Erlebnissen." },
   { clip: "inspect", x: 18, y: 55, direction: 1, duration: 6500, message: "Hast du Fragen zu dieser WellFit-Welt?" },
-  { clip: "sit", x: 45, y: 73, direction: 1, duration: 8000, message: "Den Tisch stelle ich mir einfach hierher.", prop: "table", layer: "front" },
   { clip: "walk", x: 48, y: 72, direction: 1, duration: 7000, message: "Komm, ich zeige dir noch mehr." , layer: "back"},
   { clip: "sit", x: 70, y: 70, direction: -1, duration: 9000, message: "Eine kurze Kaffeepause muss auch sein.", prop: "coffee" },
   { clip: "sit", x: 25, y: 72, direction: 1, duration: 8500, message: "Manchmal hole ich mir sogar meinen Liegestuhl.", prop: "lounge" },
@@ -80,7 +89,7 @@ function Cape({ moving }: { moving: boolean }) {
 
 function CoffeeProp() {
   return (
-    <group position={[0.5, 0.15, 0.3]} rotation={[0, 0, -0.1]}>
+    <group position={[0.48, 0.98, 0.32]} rotation={[0, 0, -0.1]}>
       <mesh>
         <cylinderGeometry args={[0.11, 0.09, 0.25, 20]} />
         <meshStandardMaterial color="#f5e7d1" roughness={0.38} />
@@ -120,9 +129,19 @@ function FurnitureProp({ kind }: { kind: "table" | "lounge" }) {
   }
 
   return (
-    <group position={[0.28, -0.48, 0.45]}>
-      <mesh><cylinderGeometry args={[0.62, 0.68, 0.1, 28]} /><meshStandardMaterial color="#4f2c18" roughness={0.72} /></mesh>
-      <mesh position={[0, -0.48, 0]}><cylinderGeometry args={[0.08, 0.12, 0.95, 16]} /><meshStandardMaterial color="#243b3d" metalness={0.45} roughness={0.4} /></mesh>
+    <group position={[0.78, 0.78, 0.38]}>
+      <mesh position={[0, 0.08, 0]}>
+        <cylinderGeometry args={[0.68, 0.72, 0.14, 32]} />
+        <meshStandardMaterial color="#8b4b20" roughness={0.58} metalness={0.08} />
+      </mesh>
+      <mesh position={[0, -0.35, 0]}>
+        <cylinderGeometry args={[0.09, 0.13, 0.78, 18]} />
+        <meshStandardMaterial color="#38cfc9" metalness={0.55} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, -0.75, 0]}>
+        <cylinderGeometry args={[0.31, 0.38, 0.08, 24]} />
+        <meshStandardMaterial color="#173f43" metalness={0.38} roughness={0.42} />
+      </mesh>
     </group>
   );
 }
@@ -146,9 +165,24 @@ function GroundShadow({ airborne }: { airborne: boolean }) {
   );
 }
 
-function RudiModel({ chapter, phase }: { chapter: Chapter; phase: RudiPhase }) {
+function RudiModel({
+  chapter,
+  phase,
+  attentionRef,
+  attentionTarget,
+  scrollOffsetRef,
+  scrollMotion,
+}: {
+  chapter: Chapter;
+  phase: RudiPhase;
+  attentionRef: MutableRefObject<PointerAttention>;
+  attentionTarget: AttentionTarget;
+  scrollOffsetRef: MutableRefObject<number>;
+  scrollMotion: ScrollMotion;
+}) {
   const base = useGLTF(`${ASSET_ROOT}/rudi-rigged.glb`);
   const walkGlb = useGLTF(clips.walk);
+  const runGlb = useGLTF(clips.run);
   const idleGlb = useGLTF(clips.idle);
   const alertGlb = useGLTF(clips.alert);
   const pointGlb = useGLTF(clips.point);
@@ -161,9 +195,16 @@ function RudiModel({ chapter, phase }: { chapter: Chapter; phase: RudiPhase }) {
   const mixer = useMemo(() => new THREE.AnimationMixer(scene), [scene]);
   const currentAction = useRef<THREE.AnimationAction | null>(null);
   const group = useRef<THREE.Group>(null);
+  const character = useRef<THREE.Group>(null);
+  const basePosition = useRef(new THREE.Vector2());
+  const positionInitialized = useRef(false);
+  const headBone = useRef<THREE.Bone | null>(null);
+  const spineBone = useRef<THREE.Bone | null>(null);
   const viewport = useThree((state) => state.viewport);
 
   useEffect(() => {
+    headBone.current = scene.getObjectByName("Head") as THREE.Bone | null;
+    spineBone.current = scene.getObjectByName("Spine02") as THREE.Bone | null;
     scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         object.castShadow = true;
@@ -173,8 +214,16 @@ function RudiModel({ chapter, phase }: { chapter: Chapter; phase: RudiPhase }) {
   }, [scene]);
 
   useEffect(() => {
-    const animationGlbs = { walk: walkGlb, idle: idleGlb, alert: alertGlb, point: pointGlb, inspect: inspectGlb, celebrate: celebrateGlb, jump: jumpGlb, sit: sitGlb, climb: climbGlb };
-    const activeClip = phase === "travel" ? "walk" : chapter.clip;
+    const animationGlbs = { walk: walkGlb, run: runGlb, idle: idleGlb, alert: alertGlb, point: pointGlb, inspect: inspectGlb, celebrate: celebrateGlb, jump: jumpGlb, sit: sitGlb, climb: climbGlb };
+    const activeClip: ClipName = attentionTarget
+      ? "celebrate"
+      : scrollMotion === "catchup-up"
+        ? "climb"
+        : scrollMotion === "catchup-down"
+          ? "run"
+          : phase === "travel"
+            ? "walk"
+            : chapter.clip;
     const selected = animationGlbs[activeClip].animations[0] ?? base.animations[0];
     if (!selected) return;
     const nextAction = mixer.clipAction(selected);
@@ -182,30 +231,67 @@ function RudiModel({ chapter, phase }: { chapter: Chapter; phase: RudiPhase }) {
     currentAction.current?.fadeOut(0.22);
     nextAction.reset().setLoop(THREE.LoopRepeat, Infinity).fadeIn(0.28).play();
     currentAction.current = nextAction;
-  }, [alertGlb, base.animations, celebrateGlb, chapter.clip, climbGlb, idleGlb, inspectGlb, jumpGlb, mixer, phase, pointGlb, sitGlb, walkGlb]);
+  }, [alertGlb, attentionTarget, base.animations, celebrateGlb, chapter.clip, climbGlb, idleGlb, inspectGlb, jumpGlb, mixer, phase, pointGlb, runGlb, scrollMotion, sitGlb, walkGlb]);
 
   useEffect(() => () => {
     mixer.stopAllAction();
   }, [mixer]);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     mixer.update(delta);
     if (group.current) {
       const rawTargetX = (chapter.x / 100 - 0.5) * viewport.width;
       const rawTargetY = (0.5 - chapter.y / 100) * viewport.height;
       const targetX = THREE.MathUtils.clamp(rawTargetX, -viewport.width / 2 + 0.85, viewport.width / 2 - 0.85);
       const targetY = THREE.MathUtils.clamp(rawTargetY, -viewport.height / 2 + 0.55, viewport.height / 2 - 2.15);
-      const travelDirection = targetX >= group.current.position.x ? 1 : -1;
-      group.current.position.x = THREE.MathUtils.damp(group.current.position.x, targetX, 2.2, delta);
-      group.current.position.y = THREE.MathUtils.damp(group.current.position.y, targetY, 2.2, delta);
-      const facing = phase === "travel" ? travelDirection : chapter.direction;
+      if (!positionInitialized.current) {
+        basePosition.current.set(targetX, targetY);
+        positionInitialized.current = true;
+      }
+      const travelDirection = targetX >= basePosition.current.x ? 1 : -1;
+      basePosition.current.x = THREE.MathUtils.damp(basePosition.current.x, targetX, 2.2, delta);
+      basePosition.current.y = THREE.MathUtils.damp(basePosition.current.y, targetY, 2.2, delta);
+      if (scrollMotion === "catchup-up" || scrollMotion === "catchup-down") {
+        scrollOffsetRef.current = THREE.MathUtils.damp(scrollOffsetRef.current, 0, 1.45, delta);
+      }
+      group.current.position.x = basePosition.current.x;
+      group.current.position.y = basePosition.current.y + scrollOffsetRef.current / viewport.factor;
+      const facing = phase === "travel" || scrollMotion === "catchup-up" || scrollMotion === "catchup-down" ? travelDirection : chapter.direction;
       group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, facing === 1 ? 0.22 : -0.22, 7, delta);
+      const excitement = attentionRef.current.level;
+      group.current.rotation.z = THREE.MathUtils.damp(group.current.rotation.z, attentionRef.current.x * -0.035 * excitement, 6, delta);
+      if (character.current) {
+        const pulse = 0.94 * (1 + Math.sin(clock.elapsedTime * 8) * 0.018 * excitement);
+        character.current.scale.setScalar(pulse);
+      }
+      if (headBone.current) {
+        headBone.current.rotation.y += attentionRef.current.x * 0.28 * excitement;
+        headBone.current.rotation.x += -attentionRef.current.y * 0.12 * excitement;
+      }
+      if (spineBone.current) spineBone.current.rotation.y += attentionRef.current.x * 0.08 * excitement;
     }
   });
 
+  const bubbleMessage = attentionTarget === "login"
+    ? "Ja! Dort kannst du dich anmelden – ich warte schon auf dich."
+    : attentionTarget === "register"
+      ? "Genau dort beginnt dein eigenes WellFit-Abenteuer!"
+      : scrollMotion === "catchup-up"
+        ? "Warte – ich klettere zu dir nach!"
+        : scrollMotion === "catchup-down"
+          ? "Nicht so schnell – ich komme schon!"
+          : chapter.message;
+  const showBubble = attentionTarget !== null || scrollMotion === "catchup-up" || scrollMotion === "catchup-down" || phase === "perform";
+
   return (
     <group ref={group}>
-      <group scale={0.94}>
+      <Html center position={[0, 2.15, 0]} style={{ pointerEvents: "none", opacity: showBubble ? 1 : 0, transition: "opacity 240ms ease" }}>
+        <div className="relative w-64 rounded-2xl border border-cyan-100/45 bg-[#031820]/94 px-4 py-3 text-center text-xs font-bold leading-5 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl">
+          {bubbleMessage}
+          <span className="absolute bottom-[-9px] left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-cyan-100/45 bg-[#031820]" />
+        </div>
+      </Html>
+      <group ref={character} scale={0.94}>
         <GroundShadow airborne={phase === "perform" && (chapter.clip === "jump" || chapter.clip === "climb")} />
         <Cape moving={phase === "travel" || chapter.clip === "walk" || chapter.clip === "jump" || chapter.clip === "climb"} />
         <primitive object={scene} />
@@ -228,7 +314,11 @@ function supportsWebGL() {
 export default function LivingRudi3D() {
   const [chapterIndex, setChapterIndex] = useState(0);
   const [phase, setPhase] = useState<RudiPhase>("perform");
+  const [scrollMotion, setScrollMotion] = useState<ScrollMotion>("settled");
+  const [attentionTarget, setAttentionTarget] = useState<AttentionTarget>(null);
   const [webgl, setWebgl] = useState<boolean | null>(null);
+  const attentionRef = useRef<PointerAttention>({ x: 0, y: 0, level: 0 });
+  const scrollOffsetRef = useRef(0);
   const chapter = chapters[chapterIndex];
 
   useEffect(() => {
@@ -237,6 +327,83 @@ export default function LivingRudi3D() {
   }, []);
 
   useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      const visibleTargets = Array.from(document.querySelectorAll<HTMLElement>("[data-rudi-cta]"))
+        .filter((element) => {
+          const rect = element.getBoundingClientRect();
+          return rect.bottom > 0 && rect.top < window.innerHeight;
+        });
+      let closestTarget: AttentionTarget = null;
+      let closestDistance = Number.POSITIVE_INFINITY;
+
+      visibleTargets.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+        const dx = Math.max(rect.left - event.clientX, 0, event.clientX - rect.right);
+        const dy = Math.max(rect.top - event.clientY, 0, event.clientY - rect.bottom);
+        const distance = Math.hypot(dx, dy);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestTarget = element.dataset.rudiCta === "login" ? "login" : "register";
+        }
+      });
+
+      const level = Math.max(0, 1 - closestDistance / 320);
+      attentionRef.current = {
+        x: event.clientX / window.innerWidth * 2 - 1,
+        y: -(event.clientY / window.innerHeight * 2 - 1),
+        level,
+      };
+      const nextTarget = level > 0.12 ? closestTarget : null;
+      setAttentionTarget((current) => current === nextTarget ? current : nextTarget);
+    };
+    const handlePointerLeave = () => {
+      attentionRef.current = { x: 0, y: 0, level: 0 };
+      setAttentionTarget(null);
+    };
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    document.documentElement.addEventListener("pointerleave", handlePointerLeave);
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      document.documentElement.removeEventListener("pointerleave", handlePointerLeave);
+    };
+  }, []);
+
+  useEffect(() => {
+    const page = document.querySelector<HTMLElement>(".landing-page");
+    if (!page) return;
+    let lastScrollTop = page.scrollTop;
+    let catchupTimer = 0;
+    let settleTimer = 0;
+
+    const handleScroll = () => {
+      const nextScrollTop = page.scrollTop;
+      const delta = nextScrollTop - lastScrollTop;
+      lastScrollTop = nextScrollTop;
+      if (Math.abs(delta) < 0.5) return;
+      const limit = page.clientHeight * 0.62;
+      scrollOffsetRef.current = THREE.MathUtils.clamp(scrollOffsetRef.current - delta, -limit, limit);
+      setScrollMotion("anchored");
+      window.clearTimeout(catchupTimer);
+      window.clearTimeout(settleTimer);
+      catchupTimer = window.setTimeout(() => {
+        setScrollMotion(scrollOffsetRef.current > 0 ? "catchup-up" : "catchup-down");
+      }, 420);
+      settleTimer = window.setTimeout(() => {
+        scrollOffsetRef.current = 0;
+        setScrollMotion("settled");
+      }, 4200);
+    };
+
+    page.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      page.removeEventListener("scroll", handleScroll);
+      window.clearTimeout(catchupTimer);
+      window.clearTimeout(settleTimer);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (scrollMotion !== "settled") return;
     const timer = window.setTimeout(() => {
       if (phase === "perform") {
         setChapterIndex((value) => (value + 1) % chapters.length);
@@ -246,7 +413,7 @@ export default function LivingRudi3D() {
       setPhase("perform");
     }, phase === "travel" ? 2400 : chapter.duration);
     return () => window.clearTimeout(timer);
-  }, [chapter.duration, chapterIndex, phase]);
+  }, [chapter.duration, chapterIndex, phase, scrollMotion]);
 
   if (webgl === null) return null;
 
@@ -255,35 +422,38 @@ export default function LivingRudi3D() {
       aria-label="Rudi Rastlos, der lebendige WellFit-Begleiter"
       className={`pointer-events-none fixed inset-0 hidden overflow-visible transition-opacity duration-500 lg:block ${chapter.layer === "back" ? "z-10 opacity-90" : "z-[60]"}`}
     >
-      <div
-        className="absolute w-64 -translate-x-1/2 -translate-y-[135%] rounded-2xl border border-cyan-100/45 bg-[#031820]/94 px-4 py-3 text-center text-xs font-bold leading-5 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl transition-[left,top,opacity] duration-[2200ms] ease-in-out"
-        style={{
-          left: `clamp(9rem, ${chapter.x}%, calc(100% - 9rem))`,
-          top: `clamp(6rem, ${chapter.y}%, calc(100% - 12rem))`,
-          opacity: phase === "perform" ? 1 : 0,
-        }}
-      >
-        {chapter.message}
-        <span className="absolute bottom-[-9px] left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-cyan-100/45 bg-[#031820]" />
-      </div>
-
       {webgl ? (
         <Canvas orthographic camera={{ position: [0, 0, 10], zoom: 100 }} gl={{ alpha: true, antialias: true, powerPreference: "low-power" }} dpr={[0.75, 1]}>
           <ambientLight intensity={1.25} />
           <directionalLight position={[2.5, 4, 3]} intensity={2.2} color="#fff7df" />
           <directionalLight position={[-3, 2, 1]} intensity={1.1} color="#7ff5ed" />
           <Suspense fallback={null}>
-            <RudiModel chapter={chapter} phase={phase} />
+            <RudiModel
+              chapter={chapter}
+              phase={phase}
+              attentionRef={attentionRef}
+              attentionTarget={attentionTarget}
+              scrollOffsetRef={scrollOffsetRef}
+              scrollMotion={scrollMotion}
+            />
           </Suspense>
         </Canvas>
       ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={`${ASSET_ROOT}/rudi-front.png`}
-          alt=""
-          className="absolute w-[180px] -translate-x-1/2 -translate-y-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.45)] transition-[left,top] duration-[2200ms] ease-in-out"
-          style={{ left: `${chapter.x}%`, top: `${chapter.y}%` }}
-        />
+        <>
+          <div
+            className="absolute w-64 -translate-x-1/2 -translate-y-[135%] rounded-2xl border border-cyan-100/45 bg-[#031820]/94 px-4 py-3 text-center text-xs font-bold leading-5 text-white shadow-[0_14px_36px_rgba(0,0,0,.36)] backdrop-blur-xl transition-[left,top] duration-[2200ms] ease-in-out"
+            style={{ left: `${chapter.x}%`, top: `${chapter.y}%` }}
+          >
+            {chapter.message}
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${ASSET_ROOT}/rudi-front.png`}
+            alt=""
+            className="absolute w-[180px] -translate-x-1/2 -translate-y-full object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.45)] transition-[left,top] duration-[2200ms] ease-in-out"
+            style={{ left: `${chapter.x}%`, top: `${chapter.y}%` }}
+          />
+        </>
       )}
     </aside>
   );

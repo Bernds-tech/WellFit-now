@@ -60,6 +60,7 @@ export default function LandingHeroV5() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/register"
+                data-rudi-cta="register"
                 className="rounded-xl border border-[#fff080]/70 bg-gradient-to-r from-[#ff8618] via-[#ffb725] to-[#ffe45b] px-7 py-3.5 text-center text-[15px] font-black text-[#172006] shadow-[0_16px_38px_rgba(255,156,29,.44)] transition hover:-translate-y-0.5 hover:brightness-105"
               >
                 Jetzt kostenlos starten →

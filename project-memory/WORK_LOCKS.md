@@ -8,7 +8,7 @@
 - Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR #401
 - Acquired: 2026-09-05 Europe/Vienna
 - Scope: landing-only 3D Rudi bridge, generated presentation assets, cape/prop behavior and manual Meshy asset workflows. No public Site deploy, backend/auth/data, reward/economy, location/camera, legal or native AR mutation.
-- Resume from: PR #401 functional head `944565028fb533023aeb53952c1855f223f75b0f` adds safe viewport margins, grounded shadows, dedicated walk/action phases and a corrected shoulder-anchored cape and passes every required CI gate. Validate on a real browser/device. Individual finger articulation requires a dedicated extended rig because the current Meshy skeleton contains hand bones but no finger joints.
+- Resume from: the latest local follow-up adds content-world scroll lag with climb/run catch-up, distance-based CTA head/spine emotion and earlier/larger table staging and passes targeted ESLint, asset validation and the complete production build. Push to PR #401, verify exact-head CI and validate on a real browser/device. Individual finger articulation requires a dedicated extended rig because the current Meshy skeleton contains hand bones but no finger joints.
 
 Prevents two agents/sessions from independently working the same task.
 
