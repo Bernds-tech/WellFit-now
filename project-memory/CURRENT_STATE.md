@@ -22,14 +22,18 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 ## Active graphical bridge: DOM-bound living Rudi
 - Task: `WFN-RUDI-3D-001` under graphical authority `WFG-RUDI-WORLD-001` / `WFG-CR-008`; cross-repo coordination is tracked in `Bernds-tech/WellFit` PR #29.
 - Physical implementation remains in this repository only because the current landing runtime has not yet migrated under `WF-MIG-001`.
-- Runtime implementation baseline `e19d15f3bbe51740d53d954dcb7777623d8cf3e6` replaces viewport-following mascot behavior with a DOM-surface world model. Subsequent commits on PR #401 reconcile Project Memory only and do not change this runtime baseline.
+- PR #401 current runtime head `cc7ac17e11e104c99b97a7d3e742fd10749618c9` is the hardened DOM-surface implementation. The former `LivingRudi3D.tsx` viewport/chapter controller has been removed so there is one active Rudi world controller only.
 - `F` in `WellFit` is the initial climb/podium. Explicit narrow letters and thin lines/ledges remain valid surfaces; random tiny generic DOM fragments are rejected.
 - Runtime footing, climb edges, offscreen detection, catch-up route geometry and autonomous surface-to-surface journey geometry share `app/components/landing/rudiWorldGeometry.mjs`.
 - Rudi is intentionally not viewport-clamped. His bound element may scroll completely out of view. Catch-up begins only after the surface is fully offscreen and scrolling settles.
-- Catch-up and autonomous moves are physically staged: horizontal walk segment, visible guide, vertical climb segment, then walk onto the target surface. No intentional hovering, free-flight or visible teleport path is part of the target model.
-- CTA attention changes gaze/body response without relocating Rudi through empty space.
-- Machine validation is integrated into `npm run rudi:validate`, including deterministic geometry tests for scroll-follow, narrow letters, thin ledges, full-offscreen thresholds, walk/climb route sampling, reachability and directional catch-up.
-- Runtime baseline `e19d15f3bbe51740d53d954dcb7777623d8cf3e6` passed Build #1275, Container Build #260, Database Package Tests #252, Beta 1 Emulator Tests #231 and Project Memory Guard/Quality/Status. The current PR head must also be green before merge because Project Memory is part of the required exact-head evidence.
+- Catch-up and autonomous moves are physically staged: horizontal walk segment, visible guide, vertical climb segment, then walk onto the target surface. Imported Hips translation is flattened so DOM-route geometry, not clip root motion, owns locomotion; this prevents repeated climb clips from snapping Rudi through space.
+- CTA attention changes gaze/body response without relocating Rudi through empty space and is cleared on scroll so an offscreen CTA cannot trap the avatar in an attention state.
+- Lifecycle hardening: Strict-Effects cleanup clears stopped animation references; autonomous/catch-up completion uses one cancellable timer authority; the first climb starts its completion clock only after the suspended 3D model is actually ready.
+- Accessibility/performance: below desktop the 3D world is not mounted; `prefers-reduced-motion: reduce` uses the static DOM-bound fallback; module-level GLTF preloads were removed; Canvas pointer events are disabled; GLTF/Canvas failures fall back to the static Rudi instead of replacing the landing page with an error state.
+- Layering: foreground remains below the sticky header and background/peek state is rendered below normal landing content. The older chapter-based prop/performance controller was deliberately removed; coffee/table/lounge scenes are no longer claimed as part of this active runtime and may be reintroduced later on top of the accepted physical-world model.
+- Manual Meshy tooling is hardened: reviewed run IDs are workflow inputs, direct default-branch materialization is rejected, materialized assets receive Rudi/lint/type/build validation before bot push, and partial paid living-action artifacts upload even if a later generation step fails.
+- Machine validation is integrated into `npm run rudi:validate`, including deterministic geometry tests and source invariants for scroll-follow, narrow letters, thin ledges, full-offscreen thresholds, walk/climb route sampling, reachability, reduced-motion fallback, model-ready entrance timing, timer cancellation, Strict-Effects replay and root-motion ownership.
+- Exact-head evidence for `cc7ac17e11e104c99b97a7d3e742fd10749618c9`: Build #1284, Container Build #269, Database Package Tests #261, Beta 1 Emulator Tests #240 and Project Memory Guard/Quality/Status all succeeded. Review findings for default-branch materialization, generated-head validation, artifact run IDs, partial Meshy preservation, active-controller lifecycle/reduced-motion/initial-load defects and Buddy-care alt text were corrected and resolved; old `LivingRudi3D` findings are superseded by deletion of that controller.
 - Acceptance boundary: repository CI verifies code/invariants, not the separately hosted public `wellfit-bewegt` ChatGPT Site. That Site is not claimed synchronized to this exact DOM-bound implementation and still requires exact-source sync plus real-WebGL owner/device visual acceptance.
 
 ## Stale PR posture
@@ -46,7 +50,7 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not infer WFP/WFXP/XP equivalence without the dedicated owner-reviewed migration decision.
 - Do not move token/NFT/trading/payment authority into clients.
 - Do not move general technical mobile/application logic into WellFit-Buddy merely because Buddy-specific AR belongs there.
-- Do not reintroduce the superseded viewport-lag/viewport-clamp Rudi model as the target behavior.
+- Do not reintroduce the superseded viewport-lag/viewport-clamp Rudi model or the deleted parallel `LivingRudi3D` controller.
 - Do not claim the public ChatGPT Site changed merely because PR #401 or WellFit coordination is green.
 
 ## Exact next safe technical work
