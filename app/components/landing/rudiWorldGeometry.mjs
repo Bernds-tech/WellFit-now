@@ -18,6 +18,7 @@ export const RUDI_WORLD_GEOMETRY = Object.freeze({
 /**
  * @typedef {{left:number, top:number, right:number, bottom:number, width:number, height:number}} RudiRect
  * @typedef {{x:number, y:number}} RudiPoint
+ * @typedef {{x:number, y:number, segment:number, mode:"walk"|"climb"}} RudiJourneySample
  */
 
 /**
@@ -175,6 +176,7 @@ export function surfaceJourneyLength(points) {
  * The returned mode lets the runtime switch from walking to climbing on vertical segments.
  * @param {RudiPoint[]} points
  * @param {number} progress
+ * @returns {RudiJourneySample}
  */
 export function sampleSurfaceJourney(points, progress) {
   const bounded = Math.min(1, Math.max(0, progress));
