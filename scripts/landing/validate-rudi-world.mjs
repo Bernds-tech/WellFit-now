@@ -19,6 +19,7 @@ const checks = [
   [world.includes('motion === "initial-climb"'), "Rudi has an explicit letter-climb entrance"],
   [world.includes('motion === "catchup-from-top"'), "Rudi can catch up from above after scrolling"],
   [world.includes('motion === "catchup-from-bottom"'), "Rudi can catch up from below after scrolling"],
+  [world.includes('data-rudi-route-guide="catchup"'), "Visible catch-up climbing is attached to a real guide line instead of empty air"],
   [world.includes("Deliberately no viewport clamp"), "Rudi is allowed to leave the viewport with his surface"],
   [!world.includes("scrollOffsetRef"), "Legacy viewport scroll-offset simulation is not used"],
   [world.includes('data-rudi-world="dom-surface-bound"'), "World-binding mode is machine-identifiable"],
