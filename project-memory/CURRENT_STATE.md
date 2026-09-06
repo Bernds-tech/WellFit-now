@@ -20,22 +20,23 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Physical ownership drift remains: graphical/UI code and Unity Buddy AR code still exist in this repository even though their domain authorities are WellFit and WellFit-Buddy respectively.
 
 ## Active graphical bridge: DOM-bound living Rudi
-- Task: `WFN-RUDI-3D-001` under graphical authority `WFG-RUDI-WORLD-001` / `WFG-CR-008`.
+- Task: `WFN-RUDI-3D-001` under graphical authority `WFG-RUDI-WORLD-001` / `WFG-CR-008`. The remaining release step is owned by WellFit graphical/Sites coordination, not by a second technical Rudi implementation.
 - Physical implementation remains in this repository only because the current landing runtime has not yet migrated under `WF-MIG-001`.
-- Merged DOM-world baseline: PR #401 exact head `54186ec16a617549acbaa0437b0b81ab36ee2abb` passed Build #1285, Container #270, Database #262, Beta Emulator #241 and Project Memory Guard/Quality/Status, then squash-merged as `9ae4f278a90d17d612f0399c40babd32c344e02b`.
+- DOM-world foundation: PR #401 exact head `54186ec16a617549acbaa0437b0b81ab36ee2abb` passed Build #1285, Container #270, Database #262, Beta Emulator #241 and Project Memory Guard/Quality/Status, then squash-merged as immutable baseline `9ae4f278a90d17d612f0399c40babd32c344e02b`.
+- Pre-Site fallback hardening: PR #402 exact head `23318cdf395bd25e46f1b2a31499f14cc8afd51d` passed Build #1288, Container #273, Database #265 and Project Memory Guard #116 / Quality #123 / Status #131, then squash-merged as immutable hardened source `b07d39938aeab4e32eddac7d19b8e15e22afacb7`. Beta Emulator did not trigger because the workflow is path-filtered to Firebase/mission/package scopes and PR #402 changed only landing Rudi runtime/validator plus Project Memory.
 - `F` in `WellFit` is the initial climb/podium. Explicit narrow letters and thin lines/ledges remain valid surfaces; random tiny generic DOM fragments are rejected.
 - Runtime footing, climb edges, offscreen detection, catch-up route geometry and autonomous surface-to-surface journey geometry share `app/components/landing/rudiWorldGeometry.mjs`.
 - Rudi is intentionally not viewport-clamped. His bound element may scroll completely out of view. Catch-up begins only after the surface is fully offscreen and scrolling settles.
 - Catch-up and autonomous moves are physically staged: horizontal walk segment, visible guide, vertical climb segment, then walk onto the target surface. Imported Hips translation is flattened so DOM-route geometry, not clip root motion, owns locomotion.
 - CTA attention changes gaze/body response without relocating Rudi through empty space and is cleared on scroll so an offscreen CTA cannot trap the avatar in an attention state.
-- Lifecycle hardening in the merged baseline includes Strict-Effects-safe animation restart, one cancellable completion-timer authority and model-ready initial-climb timing.
-- Accessibility/performance in the merged baseline: below desktop the 3D world is not mounted; `prefers-reduced-motion: reduce` uses a static DOM-bound fallback; module-level GLTF preloads are absent; Canvas pointer events are disabled; GLTF/Canvas failures are contained by a fallback boundary.
-- Layering: foreground remains below the sticky header and background/peek state is rendered below normal landing content. The older chapter-based prop/performance controller was deliberately removed; coffee/table/lounge scenes are not part of the active runtime claim and may be reintroduced later only on top of an accepted physical-world model.
-- Manual Meshy tooling is hardened: reviewed run IDs are workflow inputs, direct default-branch materialization is rejected, materialized assets receive Rudi/lint/type/build validation before bot push, and partial paid living-action artifacts upload even if a later generation step fails.
-- Machine validation is integrated into `npm run rudi:validate`, including deterministic geometry tests and source invariants for scroll-follow, narrow letters, thin ledges, full-offscreen thresholds, walk/climb route sampling, reachability, reduced-motion fallback, model-ready entrance timing, timer cancellation, Strict-Effects replay and root-motion ownership.
-- Bounded pre-Site hardening is active in PR #402 under `XLOCK-WF-RUDI-FALLBACK-20260906`. Static audit of the merged controller found two pre-sync defects that can be proven without changing the DOM-world design: (1) error-boundary/static/reduced-motion transitions could leave an already scheduled WebGL journey completion alive behind the static fallback; (2) the active controller fetched five animation clips (`run`, `alert`, `point`, `jump`, `sit`) that it never selected.
-- PR #402 correction: all non-WebGL presentation transitions cancel the shared motion timer, discard unfinished journeys, clear CTA attention and settle the current DOM anchor; WebGL/GLTF failure notifies the parent controller and enters the same static mode; route guides exist only in WebGL mode; the fallback stays hidden until a real anchor exists; initial runtime loading is limited to `walk`, `idle`, `inspect`, `celebrate` and `climb`. Optional unused GLB assets remain materialized for later separately scoped living scenes.
-- PR #402 is not yet acceptance evidence until exact-head required CI passes. The public `wellfit-bewegt` ChatGPT Site is not modified by this PR and still requires exact-source synchronization plus real-WebGL owner/device visual acceptance.
+- Lifecycle/accessibility hardening: Strict-Effects-safe animation restart, one cancellable completion-timer authority, model-ready initial climb, no 3D mount below desktop, Canvas pointer pass-through and static DOM-bound fallback for reduced motion or WebGL failure.
+- PR #402 additionally makes every transition out of WebGL cancel pending motion/journeys and CTA attention, propagates GLTF/Canvas failure into controller-level static mode, mounts route guides only while WebGL motion is active and keeps the static fallback hidden until a real DOM anchor exists.
+- Initial WebGL loading now fetches only the five clips the active controller can select: `walk`, `idle`, `inspect`, `celebrate`, `climb`. Optional `run`, `alert`, `point`, `jump` and `sit` assets remain materialized for future separately scoped living scenes but are not charged to the initial active controller.
+- Layering: foreground remains below the sticky header and background/peek state is rendered below normal landing content. The older chapter-based `LivingRudi3D.tsx` controller is deleted. Coffee/table/lounge scenes from that removed controller are **not** part of the active runtime claim and must not be used as the next technical step.
+- Manual Meshy tooling remains branch-safe, parameterized and self-validating; partial paid living-action artifacts are preserved on later generation failure.
+- Machine validation is integrated into `npm run rudi:validate`, including deterministic geometry and source invariants for DOM footing, offscreen/catch-up behavior, grounded journeys, reduced-motion/static lifecycle, error fallback and active-clip loading.
+- Public-Site boundary: GitHub merges do not update the separately hosted `wellfit-bewegt` ChatGPT Site. WellFit `project-memory/RUDI_SITE_SYNC_MANIFEST.json` is the transfer authority and is pinned to hardened source `b07d39938aeab4e32eddac7d19b8e15e22afacb7`. Site version 105 is historical older-renderer evidence only.
+- Exact next Rudi step: none in WellFit-now runtime. The next unproven action is to synchronize the hardened source into the exact editable Site and run the ten graphical real-WebGL acceptance checks under WellFit authority.
 
 ## Stale PR posture
 - PR #376 is superseded by the merged later Project Memory chain but contains V5 reconciliation history that must be retained in current registers before closure.
@@ -52,13 +53,9 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not move token/NFT/trading/payment authority into clients.
 - Do not move general technical mobile/application logic into WellFit-Buddy merely because Buddy-specific AR belongs there.
 - Do not reintroduce the superseded viewport-lag/viewport-clamp Rudi model or the deleted parallel `LivingRudi3D` controller.
+- Do not resume coffee/table/lounge props or custom living-action generation as if they were the current accepted Rudi runtime.
 - Do not claim the public ChatGPT Site changed merely because repository Rudi code or WellFit coordination is green.
 
 ## Exact next safe technical work
-- Selected local action: `WFN-CI-INSTALL-RESILIENCE-BASELINE`
-1. preserve lockfile-exact dependency installation;
-2. reduce avoidable registry/audit/funding requests in required workflows;
-3. prove every required exact-head gate still runs and passes;
-4. keep runtime, graphical/UI, deployment and product semantics unchanged.
-
-The owner-directed Rudi bridge is a separately registered cross-repository graphical task and does not replace the technical repository's local next-action ordering.
+- Selected local action remains `WFN-CI-INSTALL-RESILIENCE-BASELINE` as historical completed technical ordering; subsequent technical planning must revalidate `NEXT_BEST_ACTION.md` against live main before starting a new product slice.
+- The owner-directed Rudi bridge is technically complete in this repository. Its remaining Site synchronization/visual acceptance belongs to WellFit graphical authority.
