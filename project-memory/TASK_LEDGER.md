@@ -61,7 +61,7 @@ Keep history append-only; supersede rather than delete.
 ## WFN-MEM-001
 - Date: 2026-08-19
 - Status: DONE
-- Goal: Introduce durable project memory and duplicate-work prevention.
+- Goal: Introduce durable project-memory and duplicate-work prevention.
 - Starting state: Strong `AGENTS.md` and runtime-state governance existed, but no dedicated micro-attempt/change-request ledger.
 - Action: Added Project Memory Protocol v1 structure and PR guard.
 - Result: Operational execution memory established.
@@ -222,12 +222,12 @@ Keep history append-only; supersede rather than delete.
 
 ## WFN-AVATAR-PUPPET-001
 - Date: 2026-08-28 to 2026-08-29
-- Status: VERIFIED
+- Status: IMPLEMENTED_NOT_VERIFIED
 - Risk: R2
 - Goal: provide visibly independent head/body mouse and CTA attention for existing transparent mascot/avatar PNGs while preserving WellFit graphical authority and all technical/server boundaries.
 - Action: implemented overlapping head/body layers, per-asset crop/pivot configuration, head-led transforms, delayed torso lean, CTA priority, click nod, idle breathing and reduced-motion/coarse-pointer fallback.
-- Result: exact head `f2b2bdb89655bea3398687a35540704b091672d7` passed Build #1198, Container #183, Database #175 and Project Memory gates; PR #390 merged as `d374e4db4777406d93a8aad72adc10ab47db216f`. Technical implementation is complete; public Site synchronization remains a WellFit graphical responsibility.
-- Evidence: PR #390 and WellFit `WF-LOOP-005` / WFG-CR-007.
-- Negative/fail-closed path: no navigation/auth semantics, backend/data, mission/reward/economy authority, camera/location or Unity/native runtime changed; GitHub merge is not public Site acceptance.
-- Rollback/recovery: revert the scoped renderer merge if the technical renderer itself proves defective; original PNG assets and server state remain intact.
-- Next step: none in WellFit-now; do not reopen WFN-LOOP-009 for Site work.
+- Result: exact head `f2b2bdb89655bea3398687a35540704b091672d7` passed Build #1198, Container #183, Database #175 and Project Memory gates; PR #390 merged as `d374e4db4777406d93a8aad72adc10ab47db216f`. Implementation is present and technically green, but the defining independent head/body motion and CTA targeting do not yet have current rendered browser evidence.
+- Evidence: PR #390 plus open `WFN-LOOP-009`; WellFit `WF-LOOP-005` tracks the separate public-Site synchronization/visual-acceptance boundary.
+- Negative/fail-closed path: no navigation/auth semantics, backend/data, mission/reward/economy authority, camera/location or Unity/native runtime changed; GitHub CI alone does not establish visual behavior.
+- Rollback/recovery: revert the scoped renderer merge if a rendered preview proves the implementation defective; original PNG assets and server state remain intact.
+- Next step: reuse the merged renderer in the next exact browser-capable landing/Site context and capture visual evidence. Do not add more puppet code unless that preview reveals a defect.
