@@ -1,6 +1,7 @@
 # WellFit-now Current State
 
 Last reconciled: 2026-09-06
+- Selected local action: `WFN-TECH-NEXT-ACTION-REVALIDATE`
 
 ## Project role
 WellFit-now is the **technical WellFit repository**. It owns web/backend, authentication, data, APIs, mission/economy/server authority, security/runtime and general technical application/mobile logic. `Bernds-tech/WellFit` owns the graphical/UI/landing domain. `Bernds-tech/WellFit-Buddy` owns Buddy behavior, Buddy presentation/animation and Buddy-specific AR/camera interaction. Cross-repository bridge work requires an explicit contract/task ID.
@@ -57,5 +58,6 @@ WellFit-now is the **technical WellFit repository**. It owns web/backend, authen
 - Do not claim the public ChatGPT Site changed merely because repository Rudi code or WellFit coordination is green.
 
 ## Exact next safe technical work
-- Selected local action remains `WFN-CI-INSTALL-RESILIENCE-BASELINE` as historical completed technical ordering; subsequent technical planning must revalidate `NEXT_BEST_ACTION.md` against live main before starting a new product slice.
+- Selected local action: `WFN-TECH-NEXT-ACTION-REVALIDATE`.
+- Re-inventory live technical truth before opening any new implementation branch; separate repository gaps from already-VERIFIED work, external Production/provider/legal/device acceptance, WellFit graphical/Sites work and WellFit-Buddy Buddy/Unity work.
 - The owner-directed Rudi bridge is technically complete in this repository. Its remaining Site synchronization/visual acceptance belongs to WellFit graphical authority.
