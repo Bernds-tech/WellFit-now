@@ -3,12 +3,13 @@
 Use this register for started, partial, blocked or implemented-but-unverified follow-up work that could otherwise disappear between sessions. Link each loop to an existing task/change ID whenever possible.
 
 ## WFN-LOOP-017
-- Related: WFN-RUDI-3D-001 / WFN-CR-006
-- Status: OPEN
-- Updated: 2026-09-05
-- Gap: owner video `WhatsApp Video 2026-09-05 at 10.38.28.mp4` exposed the fixed 350x510 renderer, clipping, text collisions, duplicate static Rudi and clip-specific scale/orientation jumps. Animation tracks are now normalized, the repository scale is `0.48`, and public Site v105 uses a full-viewport renderer, smaller body, scroll lag/catch-up and restored CTA emotion. Public synchronization and the bounded fallback are confirmed; a real-WebGL owner/device pass remains open. The current 24-bone Meshy rig includes head, spine, shoulders, arms, forearms, hands, hips, legs, feet and toes, but no individual finger joints or facial morph targets.
-- Close when: PR #401 is green, the owner/device visually verifies autonomous WebGL movement/cape/table/lounge without covering critical controls, and a separately scoped extended hand rig provides real finger articulation.
-- Next check: review Site v105 on the owner's WebGL-capable browser, then generate/review the optional custom coffee/table/lounge/guide motion pack only if the normalized stock clips remain insufficient.
+- Related: WFN-RUDI-3D-001 / WFN-CR-006 / WFN-CR-007
+- Status: CLOSED
+- Updated: 2026-09-06
+- Gap: historical Site-v105/viewport/prop work left the technical Rudi task pointing at owner WebGL review, table/lounge tuning and optional custom motion even after the architecture was replaced by the DOM-bound world.
+- Resolution: PR #401 established the single DOM-bound world and removed the viewport/chapter controller; PR #402 hardened static/reduced-motion/error fallback and initial clip loading. Exact PR #402 head `23318cdf395bd25e46f1b2a31499f14cc8afd51d` passed Build #1288, Container #273, Database #265 and Project Memory Guard #116 / Quality #123 / Status #131, then merged as `b07d39938aeab4e32eddac7d19b8e15e22afacb7`.
+- Limitation: public ChatGPT Site synchronization and visual acceptance remain open only in WellFit graphical `WF-LOOP-006`; Site v105 and coffee/table/lounge scenes are historical older-renderer evidence, not technical acceptance criteria.
+- Do not repeat: do not reopen custom props, finger-rig or Site-v105 review as the next WellFit-now task unless a new owner-approved scope explicitly reintroduces them after DOM-world Site acceptance.
 
 ## WFN-LOOP-016
 - Related: WFN-CI-INSTALL-RESILIENCE-BASELINE
@@ -73,15 +74,15 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 - Status: SUPERSEDED
 - Updated: 2026-08-28
 - Gap: whole-image attention code was technically verified but failed the requested visual target and did not update the public ChatGPT Site.
-- Resolution: preserve PR #387 as historical technical evidence; use WFN-LOOP-009 / WFN-AVATAR-PUPPET-001 for the corrective articulated implementation.
+- Resolution: preserve PR #387 as historical technical evidence; corrective articulated implementation was completed under WFN-AVATAR-PUPPET-001.
 
 ## WFN-LOOP-009
 - Related: WFN-AVATAR-PUPPET-001 / WFG-CR-007
-- Status: OPEN
-- Updated: 2026-08-28
-- Gap: the corrective articulated head/body puppet renderer is not yet implemented and visually verified. Public ChatGPT Site synchronization remains outside this GitHub branch.
-- Close when: shared puppet rendering passes exact build/CI, a runnable GitHub surface visibly proves independent head/body movement and CTA targeting without regressions, and WellFit later verifies/ports it to the actual ChatGPT Site source.
-- Next check: implement per-asset head/body clips and pivots, then verify the existing LandingHeroV5 Luma surface.
+- Status: CLOSED
+- Updated: 2026-09-06
+- Gap: corrective articulated head/body rendering required technical implementation, while public ChatGPT Site synchronization was a separate graphical concern.
+- Resolution: WellFit-now PR #390 implemented the articulated renderer and exact head `f2b2bdb89655bea3398687a35540704b091672d7` passed Build #1198, Container #183, Database #175 and Project Memory gates before merge `d374e4db4777406d93a8aad72adc10ab47db216f`.
+- Limitation: public Site synchronization/visual acceptance remains in WellFit `WF-LOOP-005` and is not a WellFit-now technical loop.
 
 ## WFN-LOOP-010
 - Related: WFN-PARTNER-OPERATIONS-BASELINE / PR #394
