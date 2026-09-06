@@ -75,15 +75,28 @@ New owner ideas are captured here before changing active scope.
 
 ## WFN-CR-007
 - Date: 2026-09-05
-- Status: ACCEPTED_FOR_IMPLEMENTATION
+- Status: SUPERSEDED_BY_WFG_CR_008
 - Source: owner live visual review
 - Idea: Rudi must not feel attached to a separate viewport or to scrolling. He should remain at his content-world position while the page scrolls, then visibly climb, jump, walk or run after the user. The 3D version must also restore escalating pointer emotion around login/register and make the table scene unmistakably visible.
-- Classification: corrective graphical/Buddy-presentation bridge
+- Classification: historical corrective graphical/Buddy-presentation bridge
 - Affected areas: public landing Rudi locomotion, CTA attention and prop staging only.
 - Existing task/decision checked: WFN-RUDI-3D-001, WFN-CR-006, PR #401 and owner video/live review.
 - Dependencies: preserve autonomous behavior independent of pointer input; pointer attention supplements rather than drives Rudi's life cycle. Public ChatGPT Site publication remains a separate source/release path.
-- Decision: render Rudi through a body-level transparent world overlay instead of inside the scroll container, keep his complete body within safe viewport bounds, reduce the effective animated scale to `0.48`, normalize all imported animation scale/hip-position/hip-rotation tracks to the production rig and add document-world scroll lag followed by climb/run/jump catch-up states. Preserve direct head/spine CTA attention and CTA-specific dialogue; add autonomous head motion, hand-following coffee and animated table/lounge entrances so the prop scenes read as actions instead of static overlays. The separately hosted public Site was intentionally synchronized and released as version 105 after the owner supplied a second live video.
-- Related task: WFN-RUDI-3D-001
+- Historical decision: use a body-level transparent overlay, viewport-safe body bounds, scroll lag/catch-up, direct CTA attention and coffee/table/lounge staging; Site v105 synchronized this generation.
+- Superseded by: owner graphical authority `WFG-CR-008` on 2026-09-05. The accepted current architecture is DOM-surface authority with **no viewport clamp**, full offscreen departure and grounded walk/climb routes. The viewport-safe body clamp, Site-v105 renderer generation and old props path are historical only.
+- Related task: WFN-RUDI-3D-001 / WFG-RUDI-WORLD-001
+
+## WFN-CR-008
+- Date: 2026-09-06
+- Status: MERGED_INTO_EXISTING_TASK
+- Source: WellFit graphical authority `WFG-CR-008` plus merged WellFit-now PRs #401/#402
+- Idea: bind the technical landing bridge to the current graphical DOM-world contract and close obsolete viewport/prop follow-ups after repository verification.
+- Classification: cross-repository reconciliation of an existing implementation task
+- Affected areas: Rudi technical Project Memory only; no new runtime scope.
+- Existing task/decision checked: WFN-RUDI-3D-001, WFN-CR-006/007, WFG-CR-008, PR #401, PR #402 and WellFit `RUDI_SITE_SYNC_MANIFEST.json`.
+- Dependencies: WellFit remains graphical authority and owns exact Site synchronization/visual acceptance; WellFit-now remains only the physical technical host until `WF-MIG-001` migrates the landing.
+- Decision: technical Rudi is complete at hardened merge `b07d39938aeab4e32eddac7d19b8e15e22afacb7`. Do not restart viewport clamp, Site-v105 review, coffee/table/lounge props, finger-rig or custom-motion generation as current work. Only a new owner-approved scope after DOM-world Site acceptance may reintroduce those ideas.
+- Related task: WFN-RUDI-3D-001 / WFG-RUDI-WORLD-001
 
 ## Intake template
 
