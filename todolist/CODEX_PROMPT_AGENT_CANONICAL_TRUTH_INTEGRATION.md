@@ -76,7 +76,7 @@ Die neue Wahrheit legt fest:
 
 - `WFP` = WellFit-Punkte, interne Spielwährung, maximal 25 Milliarden Systembestand.
 - `XP` = Avatar-Fortschritt/Level, nicht ausgebbar.
-- `WFT` = späterer SUI-Token, erst nach stabilem 10.000+-Nutzerlauf und ohne Nutzerzusage zur Konvertierung.
+- `WFT` = späterer SUI-Token, erst nach stabilem 10.000+-Nutzerlauf und ohne Nutzerzusage zur Konvertierung; unveränderlicher Hard Cap von exakt 25.000.000.000 WFT.
 - Beta 1 arbeitet ohne Blockchain, ohne echten Token, ohne Pre-Sale, ohne Auszahlung.
 - WFP-Zentralwallet steuert Ausschüttungen, Preise, Gebühren und Rückflüsse.
 - WFP und XP sind strikt getrennt.
@@ -113,5 +113,5 @@ Beta-1 Canonical Truth Pflicht:
 Produktgrenzen:
 - WFP = interne Punkte in Beta-1.
 - XP = Avatar-Fortschritt.
-- WFT/SUI/Blockchain/Token/NFT/Payment/Cashout sind nicht Beta-1 aktiv.
+- WFT/SUI/Blockchain/Token/NFT/Payment/Cashout sind nicht Beta-1 aktiv. Der 25-Milliarden-WFT-Hard-Cap ist nur eine spätere Designgrenze und aktiviert keine Funktion.
 - Keine echte GitHub API, kein echtes Deploy, Runner bleibt metadata_only, Admin/Owner approval erforderlich.

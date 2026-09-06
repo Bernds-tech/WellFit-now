@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "updated": "2026-05-22",
+  "version": "1.2.0",
+  "updated": "2026-08-06",
   "purpose": "Canonical Beta-1 truth for WellFit product, economy language, gameplay scope, and safety boundaries. For Beta-1 decisions this file overrides older Solana/WFT/PreSale/Investor-era assumptions where conflicts exist.",
   "beta1CanonicalTruth": {
     "economy": {
@@ -30,14 +30,17 @@
       "wft": {
         "name": "WellFit Token",
         "symbol": "WFT",
-        "definition": "Potential future SUI token after proven stable operation.",
+        "definition": "Potential future SUI token after proven stable operation, with an immutable maximum total supply of 25,000,000,000 WFT.",
         "beta1Active": false,
         "targetChain": "SUI",
         "activationPreconditions": {
           "stableUserRunMin": 10000,
           "provenWfpEconomicCycle": true
         },
-        "noConversionPromiseToUsers": true
+        "noConversionPromiseToUsers": true,
+        "maxTotalSupply": 25000000000,
+        "hardCapImmutable": true,
+        "mintingAboveCapForbidden": true
       }
     },
     "centralWalletCycle": {
