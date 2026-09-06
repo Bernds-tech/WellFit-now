@@ -2,13 +2,14 @@
 
 ## LOCK-WFN-RUDI-3D-001
 - Task: WFN-RUDI-3D-001
-- Status: ACTIVE
+- Status: RELEASED
 - Risk: R2
-- Holder: ChatGPT session 2026-09-05
-- Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR #401
+- Holder: ChatGPT sessions 2026-09-05/06
+- Branch/PR: implementation through PR #401 plus bounded fallback hardening through PR #402.
 - Acquired: 2026-09-05 Europe/Vienna
-- Scope: landing-only 3D Rudi bridge, generated presentation assets, cape/prop behavior, explicit synchronization to the existing public ChatGPT Site and manual Meshy asset workflows. No backend/auth/data, reward/economy, location/camera, legal or native AR mutation.
-- Resume from: owner video review proved imported Hips/scale animation drift and a fixed public-Site renderer box. Runtime normalization, repository scale `0.48`, full-viewport Site rendering, autonomous scroll catch-up, CTA emotion and body-following props/cape are implemented. Public Site version 105 is live and its fallback/CTA dialogue are verified; push the repository follow-up to PR #401, verify exact-head CI and obtain owner/device acceptance for real WebGL. Individual finger articulation requires a dedicated extended rig because the current Meshy skeleton contains hand bones but no finger joints.
+- Released: 2026-09-06 after PR #402 exact head `23318cdf395bd25e46f1b2a31499f14cc8afd51d` passed Build #1288, Container #273, Database #265 and Project Memory Guard #116 / Quality #123 / Status #131 and merged as `b07d39938aeab4e32eddac7d19b8e15e22afacb7`.
+- Scope/result: landing-only technical bridge for the graphical DOM-bound Rudi world. One active `LivingRudiWorld` remains; old viewport/chapter controller is deleted; DOM geometry owns footing and traversal; static/reduced-motion/error fallback cancels pending animated state; initial WebGL loading is limited to the five clips actually selectable by the active controller. No backend/auth/data, reward/economy, location/camera, legal or native AR authority changed.
+- Resume from: **do not resume technical Rudi implementation by default.** The remaining action is WellFit graphical/Sites synchronization using `RUDI_SITE_SYNC_MANIFEST.json` pinned to `b07d39938aeab4e32eddac7d19b8e15e22afacb7`. Site v105, coffee/table/lounge props and the removed viewport controller are historical/superseded paths, not current next work.
 
 Prevents two agents/sessions from independently working the same task.
 

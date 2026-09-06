@@ -13,17 +13,17 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## WFN-RUDI-3D-001
 - Started: 2026-09-05
-- Updated: 2026-09-05
-- Status: IMPLEMENTED_NOT_VERIFIED
+- Updated: 2026-09-06
+- Status: VERIFIED
 - Risk: R2
-- Scope: reversible public-landing 3D presentation bridge using the existing successful Meshy outputs; no backend, auth, data, mission/reward, economy, camera/location or deployment change.
-- Branch/PR: `codex/rudi-3d-living-avatar-20260905` / PR #401.
-- Work lock: `LOCK-WFN-RUDI-3D-001`.
-- Completed so far: recovered the successful textured/rigged Meshy artifact and ten compact clips; integrated autonomous dialogue, locomotion, depth, CTA emotion, cape and coffee/table/lounge props. The second owner video proved that clip-local Hips transforms and scale channels caused size/orientation jumps; all animation clips are now normalized to the production rest pose and animated scale is `0.48`. The separately hosted public Site is synchronized at version 105 with a full-viewport renderer, roughly one-third smaller body, scroll lag/catch-up, restored CTA reactions, body-following props/cape and no competing static Rudi in the Buddy explanation.
-- Evidence: WFN-EV-022; repository targeted ESLint, `rudi:validate` and complete Next.js build pass. Site lint/build pass, source commits are pushed, public deployment succeeded and browser inspection verified the live fallback plus Login CTA dialogue.
-- Still open: owner/device visual acceptance of real-WebGL animation/cape/props, individually articulated finger bones and optional custom living-action generation.
-- Exact next step: visually review public Site v105 in the owner's WebGL-capable browser, then correct any remaining body/prop staging before custom motion generation.
-- Owner action needed: review the live page and report only remaining visible deviations.
+- Scope: reversible public-landing 3D/DOM presentation bridge in the current physical WellFit-now landing code; no backend, auth, data, mission/reward, economy, camera/location, deployment or native Buddy authority change.
+- Branch/PR: DOM-world implementation PR #401 plus bounded pre-Site hardening PR #402.
+- Work lock: `LOCK-WFN-RUDI-3D-001` RELEASED after the hardened merge.
+- Completed: PR #401 replaced the rejected viewport-clamped model with one DOM-surface world: F podium, narrow letters/thin ledges, exact scroll-with-surface behavior, full-offscreen + scroll-settle catch-up, grounded visible surface journeys, DOM-owned locomotion, CTA attention without relocation, foreground/background layering and deletion of the competing `LivingRudi3D.tsx` viewport/chapter controller. PR #402 then made WebGL/GLTF/reduced-motion/static transitions fail closed by cancelling pending timers/journeys and CTA attention, limiting route guides to WebGL, hiding static fallback until a real anchor exists and loading only walk/idle/inspect/celebrate/climb initially.
+- Evidence: PR #401 exact head `54186ec16a617549acbaa0437b0b81ab36ee2abb` passed Build #1285, Container #270, Database #262, Beta Emulator #241 and Project Memory gates before merge `9ae4f278a90d17d612f0399c40babd32c344e02b`. PR #402 exact head `23318cdf395bd25e46f1b2a31499f14cc8afd51d` passed Build #1288, Container #273, Database #265 and Project Memory Guard #116 / Quality #123 / Status #131 before merge `b07d39938aeab4e32eddac7d19b8e15e22afacb7`; Beta Emulator was not triggered because the landing-only change set did not match its Firebase/mission/package path filters.
+- Still open: nothing in WellFit-now technical implementation. Public `wellfit-bewegt` synchronization and real-WebGL visual acceptance are explicitly external to this repository and remain tracked by WellFit `WFG-RUDI-WORLD-001` / `WF-LOOP-006`.
+- Exact next step: none in WellFit-now. Do not resume Site v105 review, coffee/table/lounge props, finger-rig work or custom living-action generation as the next technical task. The graphical transfer authority is WellFit `RUDI_SITE_SYNC_MANIFEST.json` pinned to `b07d39938aeab4e32eddac7d19b8e15e22afacb7`.
+- Owner action needed: none for technical implementation.
 
 ## WFN-CI-INSTALL-RESILIENCE-BASELINE
 - Started: 2026-09-04
@@ -164,18 +164,17 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## WFN-AVATAR-PUPPET-001
 - Started: 2026-08-28
-- Updated: 2026-08-29
-- Status: VERIFIED
+- Updated: 2026-09-06
+- Status: IMPLEMENTED_NOT_VERIFIED
 - Risk: R2
 - Scope: corrective articulated 2D head/body attention for existing web mascot/avatar PNGs, superseding whole-image cursor transforms as the target behavior.
-- Branch/PR: `codex/avatar-puppet-attention-20260828` / PR pending.
-- Work lock: `LOCK-WFN-AVATAR-PUPPET-001`.
-- Cross-repo authority: `WFG-CR-007`; WellFit remains graphical authority. Public ChatGPT Site source is separate and is not claimed modified by this branch.
-- Completed so far: owner live failure reconciled; WFN-CR-005 registered; stale WFN-AVATAR-ATTN lock superseded; existing transparent Buddy asset family inventoried.
-- Completed: articulated head/body layers, per-asset pivots, pointer/CTA targeting, idle/click response and reduced-motion/coarse-pointer fallback merged through PR #390; exact head passed Build #1198, Container #183, Database #175 and Project Memory gates.
-- Still open: synchronization and visual acceptance on the separate public ChatGPT Site belongs to WellFit graphical authority.
-- Exact next step: none in WellFit-now technical runtime.
-- Owner action needed: none for technical implementation; public Site publication remains a separate explicit visual release decision.
+- Branch/PR: `codex/avatar-puppet-attention-20260828` / merged PR #390.
+- Work lock: `LOCK-WFN-AVATAR-PUPPET-001` RELEASED for implementation; visual verification remains an open loop, not a reason to mutate code blindly.
+- Cross-repo authority: `WFG-CR-007`; WellFit remains graphical authority. Public ChatGPT Site source is separate and is not claimed modified by the technical merge.
+- Completed: articulated head/body layers, per-asset pivots, pointer/CTA targeting, idle/click response and reduced-motion/coarse-pointer fallback merged through PR #390; exact head `f2b2bdb89655bea3398687a35540704b091672d7` passed Build #1198, Container #183, Database #175 and Project Memory gates.
+- Still open: no current rendered browser evidence proves independent head/body motion and CTA targeting on an exact runnable landing/Site surface. Public-Site synchronization/acceptance is additionally tracked in WellFit `WF-LOOP-005`.
+- Exact next step: reuse the merged renderer in the next browser-capable exact landing/Site context, capture visual evidence, and only reopen technical implementation if that evidence exposes a defect.
+- Owner action needed: none for implementation; browser/Site context is the remaining evidence dependency.
 
 ## WFN-TECH-LEGACY-001
 - Started: before 2026-08-20

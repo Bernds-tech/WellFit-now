@@ -1,15 +1,16 @@
 # WellFit-now Task Ledger
 
 ## WFN-RUDI-3D-001
-- Date: 2026-09-05
-- Status: IMPLEMENTED_NOT_VERIFIED
+- Date: 2026-09-05 to 2026-09-06
+- Status: VERIFIED
 - Risk: R2
-- Goal: provide the current public landing with a real textured, rigged and autonomous 3D Rudi that behaves like a resident of the page rather than a mouse-bound flat image.
-- Action: recovered successful Meshy artifacts, created compact animation-only GLBs and integrated autonomous behavior, cape, dialogue/depth changes and coffee/table/lounge props. After video review, all imported scale tracks are removed and Hips translation/quaternion tracks are rebased to the production rest pose; repository display scale is `0.48`. The public Site now uses a full-viewport transparent renderer, delayed scroll catch-up, CTA emotion and a distinct Buddy illustration instead of a competing static Rudi, released as version 105.
-- Evidence: WFN-EV-022; local targeted ESLint, `rudi:validate` and full `npm run build` pass. Public Site lint/build and deployment succeed; live fallback and Login dialogue were browser-verified. Real-WebGL owner/device acceptance remains open.
-- Negative/fail-closed path: WebGL absence uses a static fallback; no server/product authority or deployment is changed; Meshy credit-consuming workflows are manual-only and use only the GitHub secret.
-- Rollback/recovery: revert the scoped component/assets/workflows; the prior 2D landing and server state remain unchanged.
-- Next step: PR exact-head CI and owner/device WebGL visual acceptance, then optional custom living-action generation.
+- Goal: provide the current landing code with a real textured, rigged and autonomous Rudi that behaves as a physical resident of page surfaces rather than a viewport-following or mouse-bound overlay.
+- Action: PR #401 consolidated one DOM-bound world with F podium, real DOM surfaces, no viewport clamp, surface-relative scrolling, full-offscreen + scroll-settle catch-up, grounded visible surface journeys, DOM-owned locomotion, CTA gaze without relocation and deletion of the competing viewport/chapter controller. PR #402 then hardened reduced-motion/static/WebGL failure lifecycle: pending timers/journeys are cancelled when leaving WebGL, renderer failure enters controller-level static mode, route guides are WebGL-only, fallback waits for a real anchor and only the five active clips are loaded initially.
+- Result: technical implementation is repository-VERIFIED. The immutable hardened source is WellFit-now merge `b07d39938aeab4e32eddac7d19b8e15e22afacb7`. Public ChatGPT Site synchronization/visual acceptance remains external under WellFit graphical authority and does not keep this technical task open.
+- Evidence: PR #401 exact head `54186ec16a617549acbaa0437b0b81ab36ee2abb` passed Build #1285, Container #270, Database #262, Beta Emulator #241 and Project Memory gates before merge `9ae4f278a90d17d612f0399c40babd32c344e02b`; PR #402 exact head `23318cdf395bd25e46f1b2a31499f14cc8afd51d` passed Build #1288, Container #273, Database #265 and Project Memory Guard #116 / Quality #123 / Status #131 before merge `b07d39938aeab4e32eddac7d19b8e15e22afacb7`. Beta Emulator did not trigger for PR #402 because its path filters exclude landing-only changes.
+- Negative/fail-closed path: no backend/auth/data/mission/reward/economy/location/camera/native Buddy authority changed; WebGL failure and reduced motion settle into static DOM-bound presentation; GitHub verification is not public-Site acceptance.
+- Rollback/recovery: revert the scoped Rudi merges if the technical runtime itself proves defective; the public Site remains separately deployable.
+- Next step: none in WellFit-now. Use WellFit `RUDI_SITE_SYNC_MANIFEST.json` pinned to `b07d39938aeab4e32eddac7d19b8e15e22afacb7`; do not resume Site v105, coffee/table/lounge props, finger-rig or custom living-action work as the current technical path.
 
 Keep history append-only; supersede rather than delete.
 
@@ -60,7 +61,7 @@ Keep history append-only; supersede rather than delete.
 ## WFN-MEM-001
 - Date: 2026-08-19
 - Status: DONE
-- Goal: Introduce durable project memory and duplicate-work prevention.
+- Goal: Introduce durable project-memory and duplicate-work prevention.
 - Starting state: Strong `AGENTS.md` and runtime-state governance existed, but no dedicated micro-attempt/change-request ledger.
 - Action: Added Project Memory Protocol v1 structure and PR guard.
 - Result: Operational execution memory established.
@@ -220,13 +221,13 @@ Keep history append-only; supersede rather than delete.
 - Do not repeat: do not claim whole-image rotation as head tracking or GitHub CI as public Site acceptance.
 
 ## WFN-AVATAR-PUPPET-001
-- Date: 2026-08-28
-- Status: IN_PROGRESS
+- Date: 2026-08-28 to 2026-08-29
+- Status: IMPLEMENTED_NOT_VERIFIED
 - Risk: R2
 - Goal: provide visibly independent head/body mouse and CTA attention for existing transparent mascot/avatar PNGs while preserving WellFit graphical authority and all technical/server boundaries.
-- Starting state: old whole-image engine is merged but visually insufficient; public ChatGPT Site is a separate source and remains unmodified by this branch.
-- Action: replace the old renderer with overlapping head/body clones from the same transparent PNG, per-asset crop/pivot configuration, head-led 3D-style transforms, delayed torso lean, CTA priority, click nod, idle breathing and reduced-motion/coarse-pointer fallback.
-- Evidence: branch `codex/avatar-puppet-attention-20260828`; `LOCK-WFN-AVATAR-PUPPET-001`; `XLOCK-WF-AVATAR-PUPPET-20260828`; WFN-CR-005 / WFG-CR-007.
-- Negative/fail-closed path: no navigation/auth semantics, backend/data, mission/reward/economy authority, camera/location or Unity/native runtime changes; public Site publication is explicitly outside this branch.
-- Rollback/recovery: revert the scoped renderer PR; the original PNG files and server state remain unchanged.
-- Next step: run exact branch Build/Container/DB/Project Memory gates and obtain runnable visual evidence on the GitHub landing before any graphical acceptance or Site port.
+- Action: implemented overlapping head/body layers, per-asset crop/pivot configuration, head-led transforms, delayed torso lean, CTA priority, click nod, idle breathing and reduced-motion/coarse-pointer fallback.
+- Result: exact head `f2b2bdb89655bea3398687a35540704b091672d7` passed Build #1198, Container #183, Database #175 and Project Memory gates; PR #390 merged as `d374e4db4777406d93a8aad72adc10ab47db216f`. Implementation is present and technically green, but the defining independent head/body motion and CTA targeting do not yet have current rendered browser evidence.
+- Evidence: PR #390 plus open `WFN-LOOP-009`; WellFit `WF-LOOP-005` tracks the separate public-Site synchronization/visual-acceptance boundary.
+- Negative/fail-closed path: no navigation/auth semantics, backend/data, mission/reward/economy authority, camera/location or Unity/native runtime changed; GitHub CI alone does not establish visual behavior.
+- Rollback/recovery: revert the scoped renderer merge if a rendered preview proves the implementation defective; original PNG assets and server state remain intact.
+- Next step: reuse the merged renderer in the next exact browser-capable landing/Site context and capture visual evidence. Do not add more puppet code unless that preview reveals a defect.

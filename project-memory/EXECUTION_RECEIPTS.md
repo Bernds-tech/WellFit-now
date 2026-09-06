@@ -8,7 +8,7 @@ Append-only audit trail proving the mandatory preflight and countercheck were pe
 - Finished: 2026-08-20 after PR #381 merge and green Project Memory plus repository technical checks
 - Branch/PR: `automation/reconcile-20260820` / PR #381
 - Preflight checked: current main, `AGENTS.md`/Project Memory state, `FINISHLINE_STATE.json`, Task Ledger, Started Work, Open Loops, Dependencies, Evidence, Assumptions, Contradictions, Work Locks, current canonical truth, open PRs and branch-protection state.
-- Prior attempts found: V5 history remained only in old PR #376; later V6-V9/current baseline is on main; stale PR #13/#263/#363/#365 duplicate or predate current truth; #364 is a distinct deferred canonical proposal.
+- Prior attempts found: V5 history remained only in old PR #376; later V6-V9/current baseline is on main; stale PR #13/#263/#365 duplicate or predate current truth; #364 is a distinct deferred canonical proposal.
 - Dependency result: technical active work is correctly blocked on exact inventories/acceptance or cross-repo contracts; no product/runtime mutation was needed for this audit.
 - Planned evidence: exact current main/PR metadata, exact-head PR CI, current finishline/canonical truth and independent cross-repo role countercheck.
 - Changes made: restored V5 history and all substantive active technical work into Task/Started/Loop/Dependency/Evidence/Assumption/Contradiction registers; corrected technical vs Buddy scope; classified stale PRs.
@@ -164,3 +164,16 @@ A receipt is required for meaningful code/config/infra/governance work. A receip
 - Result status: VERIFIED at repository level.
 - Work lock: `LOCK-WFN-PARTNER-OPERATIONS-REPORTING-BASELINE` released.
 - Falsification question: any raw proof, user/operator identifier, unbounded scan or non-admin access would invalidate this result.
+
+## RECEIPT-WFN-RUDI-TECHNICAL-CLOSEOUT-20260906
+- Task: WFN-RUDI-3D-001 / WFN-CR-007 superseded by WellFit WFG-CR-008
+- Started: 2026-09-06 Europe/Vienna
+- Scope: append-only reconciliation of the technical Rudi implementation after PR #401 DOM-world merge and PR #402 pre-Site fallback hardening; no runtime or public Site mutation.
+- Preflight checked: current WellFit program memory, WellFit-now Project Memory, live WellFit/WellFit-now/WellFit-Buddy branch tips, PR #401/#402 exact evidence, current WellFit `RUDI_SITE_SYNC_MANIFEST.json`, prior Rudi/Puppet attempts and active locks/loops.
+- Prior stale path found: the older receipt and loop still described Site v105, viewport-safe/clamped behavior, coffee/table/lounge props, finger articulation and custom living actions as the current technical follow-up.
+- Superseding evidence: owner-authority WFG-CR-008 requires DOM-surface ownership with no viewport clamp. PR #401 exact head `54186ec16a617549acbaa0437b0b81ab36ee2abb` passed Build #1285, Container #270, Database #262, Beta Emulator #241 and Project Memory gates before merge `9ae4f278a90d17d612f0399c40babd32c344e02b`. PR #402 exact head `23318cdf395bd25e46f1b2a31499f14cc8afd51d` passed Build #1288, Container #273, Database #265 and Project Memory Guard #116 / Quality #123 / Status #131 before merge `b07d39938aeab4e32eddac7d19b8e15e22afacb7`; its landing-only change did not match Beta Emulator path filters.
+- Result status: VERIFIED for the WellFit-now technical Rudi bridge. Public `wellfit-bewegt` synchronization and real-WebGL visual acceptance remain external under WellFit `WFG-RUDI-WORLD-001` / `WF-LOOP-006` and are not claimed here.
+- Work lock: `LOCK-WFN-RUDI-3D-001` RELEASED for technical implementation. A future technical Rudi change requires a new independently evidenced defect and fresh scoped lock.
+- Open follow-up: none for WFN-RUDI-3D-001. `WFN-LOOP-009` remains OPEN separately for rendered Puppet/head-body verification and is not closed by this receipt.
+- Transfer authority: WellFit `project-memory/RUDI_SITE_SYNC_MANIFEST.json`, pinned to hardened source `b07d39938aeab4e32eddac7d19b8e15e22afacb7`.
+- Falsification question: a newer owner-approved Rudi architecture, a unique technical defect on the hardened source, or evidence that Site synchronization already targets a later technical revision would require reconciliation before any new Rudi implementation.
