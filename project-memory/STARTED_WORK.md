@@ -164,18 +164,17 @@ Canonical register for work that has started but is not yet fully completed.
 
 ## WFN-AVATAR-PUPPET-001
 - Started: 2026-08-28
-- Updated: 2026-08-29
-- Status: VERIFIED
+- Updated: 2026-09-06
+- Status: IMPLEMENTED_NOT_VERIFIED
 - Risk: R2
 - Scope: corrective articulated 2D head/body attention for existing web mascot/avatar PNGs, superseding whole-image cursor transforms as the target behavior.
-- Branch/PR: `codex/avatar-puppet-attention-20260828` / PR pending.
-- Work lock: `LOCK-WFN-AVATAR-PUPPET-001`.
-- Cross-repo authority: `WFG-CR-007`; WellFit remains graphical authority. Public ChatGPT Site source is separate and is not claimed modified by this branch.
-- Completed so far: owner live failure reconciled; WFN-CR-005 registered; stale WFN-AVATAR-ATTN lock superseded; existing transparent Buddy asset family inventoried.
-- Completed: articulated head/body layers, per-asset pivots, pointer/CTA targeting, idle/click response and reduced-motion/coarse-pointer fallback merged through PR #390; exact head passed Build #1198, Container #183, Database #175 and Project Memory gates.
-- Still open: synchronization and visual acceptance on the separate public ChatGPT Site belongs to WellFit graphical authority.
-- Exact next step: none in WellFit-now technical runtime.
-- Owner action needed: none for technical implementation; public Site publication remains a separate explicit visual release decision.
+- Branch/PR: `codex/avatar-puppet-attention-20260828` / merged PR #390.
+- Work lock: `LOCK-WFN-AVATAR-PUPPET-001` RELEASED for implementation; visual verification remains an open loop, not a reason to mutate code blindly.
+- Cross-repo authority: `WFG-CR-007`; WellFit remains graphical authority. Public ChatGPT Site source is separate and is not claimed modified by the technical merge.
+- Completed: articulated head/body layers, per-asset pivots, pointer/CTA targeting, idle/click response and reduced-motion/coarse-pointer fallback merged through PR #390; exact head `f2b2bdb89655bea3398687a35540704b091672d7` passed Build #1198, Container #183, Database #175 and Project Memory gates.
+- Still open: no current rendered browser evidence proves independent head/body motion and CTA targeting on an exact runnable landing/Site surface. Public-Site synchronization/acceptance is additionally tracked in WellFit `WF-LOOP-005`.
+- Exact next step: reuse the merged renderer in the next browser-capable exact landing/Site context, capture visual evidence, and only reopen technical implementation if that evidence exposes a defect.
+- Owner action needed: none for implementation; browser/Site context is the remaining evidence dependency.
 
 ## WFN-TECH-LEGACY-001
 - Started: before 2026-08-20
