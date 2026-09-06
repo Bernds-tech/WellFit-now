@@ -74,15 +74,16 @@ Use this register for started, partial, blocked or implemented-but-unverified fo
 - Status: SUPERSEDED
 - Updated: 2026-08-28
 - Gap: whole-image attention code was technically verified but failed the requested visual target and did not update the public ChatGPT Site.
-- Resolution: preserve PR #387 as historical technical evidence; corrective articulated implementation was completed under WFN-AVATAR-PUPPET-001.
+- Resolution: preserve PR #387 as historical technical evidence; corrective articulated implementation exists under WFN-AVATAR-PUPPET-001.
 
 ## WFN-LOOP-009
 - Related: WFN-AVATAR-PUPPET-001 / WFG-CR-007
-- Status: CLOSED
+- Status: OPEN
 - Updated: 2026-09-06
-- Gap: corrective articulated head/body rendering required technical implementation, while public ChatGPT Site synchronization was a separate graphical concern.
-- Resolution: WellFit-now PR #390 implemented the articulated renderer and exact head `f2b2bdb89655bea3398687a35540704b091672d7` passed Build #1198, Container #183, Database #175 and Project Memory gates before merge `d374e4db4777406d93a8aad72adc10ab47db216f`.
-- Limitation: public Site synchronization/visual acceptance remains in WellFit `WF-LOOP-005` and is not a WellFit-now technical loop.
+- Gap: the articulated head/body renderer is merged in WellFit-now through PR #390 and repository CI is green, but no current rendered browser evidence proves the defining behavior—independent head/body movement and CTA targeting—on an exact runnable surface. Technical CI alone cannot close this visual gap; the earlier whole-image attempt demonstrates why.
+- Current evidence: PR #390 exact head `f2b2bdb89655bea3398687a35540704b091672d7` passed Build #1198, Container #183, Database #175 and Project Memory gates and merged as `d374e4db4777406d93a8aad72adc10ab47db216f`.
+- Close when: an exact rendered preview proves independent head/body attention, CTA targeting and reduced-motion/coarse-pointer behavior without seams/ghosting/layout regressions; public-Site acceptance remains separately coordinated by WellFit `WF-LOOP-005`.
+- Next check: do not add more puppet code merely to create evidence. Reuse the existing merged renderer when a browser-capable exact landing/Site context is available, capture the visual result, and only reopen technical implementation if that evidence reveals a defect.
 
 ## WFN-LOOP-010
 - Related: WFN-PARTNER-OPERATIONS-BASELINE / PR #394
