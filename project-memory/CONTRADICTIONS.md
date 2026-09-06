@@ -131,3 +131,17 @@ Never resolve a contradiction by deleting the older record. Record which source 
 - Status: RESOLVED
 - Resolution/action: correct the stale local finishline from PARTIAL implementation to repository-VERIFIED while retaining explicit Production/legal/provider limitations.
 - Evidence: `firestore.rules`, `functions/lib/beta1UserPreferences.js`, `functions/lib/beta1AccountLifecycle.js`, `functions/lib/beta1AccountDeletionProcessor.js` and their corresponding emulator tests.
+
+## CTR-WFN-010
+- Date: 2026-09-06
+- Updated: 2026-09-06
+- Related task/change: WFN-RUDI-3D-001 / WFN-CR-007 / WellFit WFG-CR-008
+- Risk: R2
+- Source A: active WellFit-now Rudi memory after PR #401
+- Claim A: Site v105, viewport-safe body bounds, delayed viewport catch-up, coffee/table/lounge props, finger articulation and optional custom living actions remain the current Rudi acceptance/follow-up path.
+- Source B: later owner graphical direction plus merged PRs #401/#402 and WellFit `RUDI_SITE_SYNC_MANIFEST.json`.
+- Claim B: the accepted current bridge is a DOM-surface world with no viewport clamp, complete offscreen departure, grounded surface routes and fail-closed static/WebGL lifecycle; the old viewport/chapter controller and props scenes are deleted/not active; technical implementation is complete at hardened merge `b07d39938aeab4e32eddac7d19b8e15e22afacb7`; only exact Site sync/visual acceptance remains externally.
+- Stronger/current evidence: owner-authority `WFG-CR-008`; PR #401 merge `9ae4f278...`; PR #402 merge `b07d399...`; current WellFit Site-sync manifest.
+- Status: RESOLVED
+- Resolution/action: release the technical Rudi lock, mark the technical task VERIFIED, close technical loops #017/#009, supersede WFN-CR-007's viewport-era decision and route all remaining Rudi acceptance to WellFit graphical/Sites memory.
+- Falsification question: a newer owner-approved Rudi architecture or a unique unmerged technical defect on the hardened source would require reopening a separately scoped task; historical Site-v105/props evidence alone does not.
